@@ -7,7 +7,9 @@ import ContentFeature from '../content-feature';
  *
  * Detection is based on computed CSS properties:
  * - overscroll-behavior / overscroll-behavior-y: none or contain
- * - overflow / overflow-y: hidden (or clip)
+ *
+ * Note: overflow: hidden is intentionally NOT used as a signal because
+ * modal dialogs, cookie banners, and menu libraries routinely set it on body.
  *
  * @see https://app.asana.com/0/0/1209424908894123
  */
@@ -50,11 +52,11 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     /**
-     * Called when URL changes (SPA navigation)
+     * Called when URL changes (SPA navigation).
+     * Re-evaluates lock state without forcing an unlock first,
+     * since the new page may also require lock.
      */
     urlChanged() {
-        // Reset to unlocked on navigation and re-evaluate
-        this._notifyIfChanged(false);
         this._scheduleEvaluation();
         this._scheduleDelayedCheck();
     }
@@ -153,19 +155,12 @@ export default class BrowserUiLock extends ContentFeature {
                 bodyStyle?.getPropertyValue('overscroll-behavior-y') || bodyStyle?.getPropertyValue('overscroll-behavior') || '';
             const overscrollBehavior = this._getMostRestrictiveOverscroll(htmlOverscroll, bodyOverscroll);
 
-            // Check overflow on both html and body
-            const htmlOverflow = htmlStyle?.getPropertyValue('overflow-y') || htmlStyle?.getPropertyValue('overflow') || '';
-            const bodyOverflow = bodyStyle?.getPropertyValue('overflow-y') || bodyStyle?.getPropertyValue('overflow') || '';
-            const overflow = this._getMostRestrictiveOverflow(htmlOverflow, bodyOverflow);
-
-            // Lock if overscroll-behavior is 'none' or 'contain'
-            const overscrollLock = overscrollBehavior === 'none' || overscrollBehavior === 'contain';
-
-            // Lock if overflow is 'hidden' or 'clip'
-            const overflowLock = overflow === 'hidden' || overflow === 'clip';
-
-            // For v1, lock if either signal indicates lock intent
-            return overscrollLock || overflowLock;
+            // overscroll-behavior is the primary signal -- sites set it intentionally
+            // to manage their own touch/scroll interactions (maps, games, drawing).
+            // overflow: hidden alone is NOT sufficient to lock because modal dialogs,
+            // cookie banners, hamburger menus, and lightbox libraries all set it on
+            // <body> temporarily. Only overscroll-behavior reliably indicates intent.
+            return overscrollBehavior === 'none' || overscrollBehavior === 'contain';
         } catch (e) {
             // Fail open - return false (unlocked) on error
             this.log.warn('Failed to detect CSS signals:', e);
@@ -181,8 +176,8 @@ export default class BrowserUiLock extends ContentFeature {
      */
     _getMostRestrictiveOverscroll(value1, value2) {
         const priority = ['none', 'contain', 'auto'];
-        const v1 = value1.trim().split(' ')[0]; // Handle shorthand
-        const v2 = value2.trim().split(' ')[0];
+        const v1 = this._extractYAxis(value1);
+        const v2 = this._extractYAxis(value2);
 
         const i1 = priority.indexOf(v1);
         const i2 = priority.indexOf(v2);
@@ -195,24 +190,16 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     /**
-     * Get the most restrictive overflow value
-     * @param {string} value1
-     * @param {string} value2
+     * Extract the y-axis value from a CSS shorthand.
+     * For shorthands like "auto none", the second token is the y-axis.
+     * For single values like "none", returns that value.
+     * @param {string} value
      * @returns {string}
      */
-    _getMostRestrictiveOverflow(value1, value2) {
-        const priority = ['hidden', 'clip', 'scroll', 'auto', 'visible'];
-        const v1 = value1.trim().split(' ')[0];
-        const v2 = value2.trim().split(' ')[0];
-
-        const i1 = priority.indexOf(v1);
-        const i2 = priority.indexOf(v2);
-
-        if (i1 === -1 && i2 === -1) return '';
-        if (i1 === -1) return v2;
-        if (i2 === -1) return v1;
-
-        return i1 < i2 ? v1 : v2;
+    _extractYAxis(value) {
+        const parts = value.trim().split(/\s+/);
+        // CSS shorthands: 1 value = both axes, 2 values = x then y
+        return parts.length > 1 ? parts[1] : parts[0];
     }
 
     /**

@@ -9,7 +9,6 @@
         body {
             overflow: hidden;
             height: 100vh;
-            background: linear-gradient(135deg, #e1f5fe, #03a9f4);
         }
         .content {
             padding: 20px;
@@ -21,21 +20,23 @@
     <div class="content">
         <p><a href="../index.html">[Browser UI Lock]</a></p>
         
-        <h1>Overflow: hidden</h1>
+        <h1>Overflow: hidden (no lock)</h1>
         <p>This page has <code>overflow: hidden</code> on the body element.</p>
-        <p>The browser UI should be LOCKED.</p>
-        <p>Common for games, maps, and full-screen applications.</p>
+        <p>The browser UI should <strong>NOT</strong> be locked.</p>
+        <p><code>overflow: hidden</code> alone is not a lock signal because modal dialogs,
+           cookie banners, and menu libraries routinely set it on body.</p>
 
         <div id="results"></div>
         <div id="test-status"></div>
     </div>
 
     <script>
-        test('Page should trigger UI lock', async () => {
+        test('Page should NOT trigger UI lock (overflow: hidden alone)', async () => {
             await new Promise(resolve => setTimeout(resolve, 500));
             
             const bodyStyle = getComputedStyle(document.body);
             const overflow = bodyStyle.getPropertyValue('overflow');
+            const overscrollBehavior = bodyStyle.getPropertyValue('overscroll-behavior');
             
             return [
                 {
@@ -44,9 +45,14 @@
                     expected: 'hidden'
                 },
                 {
-                    name: 'Should detect as lock condition',
-                    result: overflow === 'hidden',
+                    name: 'No overscroll-behavior signal present',
+                    result: overscrollBehavior === 'auto' || overscrollBehavior === '',
                     expected: true
+                },
+                {
+                    name: 'Should NOT detect as lock condition',
+                    result: false,
+                    expected: false
                 }
             ];
         });

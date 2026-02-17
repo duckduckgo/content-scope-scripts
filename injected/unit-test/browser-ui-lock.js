@@ -30,92 +30,85 @@ describe('BrowserUiLock', () => {
         return feature;
     }
 
-    describe('CSS signal detection', () => {
-        it('should detect overscroll-behavior: none as lock condition', () => {
-            const overscrollBehavior = 'none';
-            const shouldLock = overscrollBehavior === 'none' || overscrollBehavior === 'contain';
-            expect(shouldLock).toBe(true);
+    describe('_extractYAxis', () => {
+        it('should return the single value when only one token', () => {
+            const feature = createFeature();
+            expect(feature._extractYAxis('none')).toBe('none');
+            expect(feature._extractYAxis('auto')).toBe('auto');
+            expect(feature._extractYAxis('hidden')).toBe('hidden');
         });
 
-        it('should detect overflow: hidden as lock condition', () => {
-            const overflow = 'hidden';
-            const shouldLock = overflow === 'hidden' || overflow === 'clip';
-            expect(shouldLock).toBe(true);
+        it('should return the second token (y-axis) from a shorthand', () => {
+            const feature = createFeature();
+            expect(feature._extractYAxis('auto none')).toBe('none');
+            expect(feature._extractYAxis('contain auto')).toBe('auto');
+            expect(feature._extractYAxis('visible hidden')).toBe('hidden');
         });
 
-        it('should not lock for normal scrollable pages', () => {
-            /** @type {string} */
-            const overscrollBehavior = 'auto';
-            /** @type {string} */
-            const overflow = 'visible';
-            const shouldLock =
-                overscrollBehavior === 'none' || overscrollBehavior === 'contain' || overflow === 'hidden' || overflow === 'clip';
-            expect(shouldLock).toBe(false);
-        });
-
-        it('should prefer more restrictive overscroll-behavior value', () => {
-            /**
-             * @param {string} v1
-             * @param {string} v2
-             * @returns {string}
-             */
-            const getMostRestrictive = (v1, v2) => {
-                const priority = ['none', 'contain', 'auto'];
-                const i1 = priority.indexOf(v1);
-                const i2 = priority.indexOf(v2);
-                if (i1 === -1 && i2 === -1) return '';
-                if (i1 === -1) return v2;
-                if (i2 === -1) return v1;
-                return i1 < i2 ? v1 : v2;
-            };
-
-            expect(getMostRestrictive('none', 'contain')).toBe('none');
-            expect(getMostRestrictive('contain', 'auto')).toBe('contain');
-            expect(getMostRestrictive('auto', 'none')).toBe('none');
-            expect(getMostRestrictive('auto', 'auto')).toBe('auto');
-        });
-
-        it('should prefer more restrictive overflow value', () => {
-            /**
-             * @param {string} v1
-             * @param {string} v2
-             * @returns {string}
-             */
-            const getMostRestrictive = (v1, v2) => {
-                const priority = ['hidden', 'clip', 'scroll', 'auto', 'visible'];
-                const i1 = priority.indexOf(v1);
-                const i2 = priority.indexOf(v2);
-                if (i1 === -1 && i2 === -1) return '';
-                if (i1 === -1) return v2;
-                if (i2 === -1) return v1;
-                return i1 < i2 ? v1 : v2;
-            };
-
-            expect(getMostRestrictive('hidden', 'scroll')).toBe('hidden');
-            expect(getMostRestrictive('clip', 'auto')).toBe('clip');
-            expect(getMostRestrictive('scroll', 'visible')).toBe('scroll');
+        it('should handle extra whitespace', () => {
+            const feature = createFeature();
+            expect(feature._extractYAxis('  none  ')).toBe('none');
+            expect(feature._extractYAxis('  auto   none  ')).toBe('none');
         });
     });
 
-    describe('Lock state notification', () => {
-        it('should notify with locked boolean', () => {
+    describe('_getMostRestrictiveOverscroll', () => {
+        it('should pick the more restrictive value', () => {
             const feature = createFeature();
-            // @ts-expect-error - using mock messaging
-            const messaging = /** @type {{ notify: jasmine.Spy }} */ (feature._messaging);
-
-            messaging.notify('uiLockChanged', { locked: true });
-
-            expect(messaging.notify).toHaveBeenCalledWith('uiLockChanged', { locked: true });
+            expect(feature._getMostRestrictiveOverscroll('none', 'contain')).toBe('none');
+            expect(feature._getMostRestrictiveOverscroll('contain', 'auto')).toBe('contain');
+            expect(feature._getMostRestrictiveOverscroll('auto', 'none')).toBe('none');
+            expect(feature._getMostRestrictiveOverscroll('auto', 'auto')).toBe('auto');
         });
 
-        it('should notify with unlocked state', () => {
+        it('should handle unknown values gracefully', () => {
             const feature = createFeature();
-            // @ts-expect-error - using mock messaging
-            const messaging = /** @type {{ notify: jasmine.Spy }} */ (feature._messaging);
+            expect(feature._getMostRestrictiveOverscroll('', '')).toBe('');
+            expect(feature._getMostRestrictiveOverscroll('', 'none')).toBe('none');
+            expect(feature._getMostRestrictiveOverscroll('contain', '')).toBe('contain');
+        });
 
-            messaging.notify('uiLockChanged', { locked: false });
+        it('should extract y-axis from shorthands', () => {
+            const feature = createFeature();
+            expect(feature._getMostRestrictiveOverscroll('auto none', 'auto')).toBe('none');
+            expect(feature._getMostRestrictiveOverscroll('auto', 'contain auto')).toBe('auto');
+        });
+    });
 
-            expect(messaging.notify).toHaveBeenCalledWith('uiLockChanged', { locked: false });
+    describe('_notifyIfChanged', () => {
+        it('should notify when state changes to locked', () => {
+            const feature = createFeature();
+            feature._notifyIfChanged(true);
+
+            // @ts-expect-error - mock messaging
+            expect(feature._messaging.notify).toHaveBeenCalledWith('uiLockChanged', { locked: true });
+        });
+
+        it('should notify when state changes to unlocked', () => {
+            const feature = createFeature();
+            feature._currentLockState = true;
+            feature._notifyIfChanged(false);
+
+            // @ts-expect-error - mock messaging
+            expect(feature._messaging.notify).toHaveBeenCalledWith('uiLockChanged', { locked: false });
+        });
+
+        it('should not notify when state is unchanged', () => {
+            const feature = createFeature();
+            feature._currentLockState = true;
+            feature._notifyIfChanged(true);
+
+            // @ts-expect-error - mock messaging
+            expect(feature._messaging.notify).not.toHaveBeenCalled();
+        });
+
+        it('should deduplicate repeated false values', () => {
+            const feature = createFeature();
+            // default _currentLockState is false
+            feature._notifyIfChanged(false);
+
+            // @ts-expect-error - mock messaging
+            expect(feature._messaging.notify).not.toHaveBeenCalled();
         });
     });
 

@@ -18,7 +18,7 @@
         
         body {
             min-height: 200vh;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: #1a1a2e;
             color: #fff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
@@ -43,10 +43,7 @@
         .hero h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #e94560, #ff6b6b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #e94560;
         }
         
         .hero p {
@@ -86,24 +83,13 @@
         }
         
         .play-btn {
-            background: linear-gradient(45deg, #e94560, #ff6b6b);
+            background: #e94560;
             color: white;
             border: none;
             padding: 20px 60px;
             font-size: 1.5em;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .play-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(233, 69, 96, 0.4);
-        }
-        
-        .play-btn:active {
-            transform: translateY(0);
         }
         
         /* Game Mode Overlay */
@@ -132,7 +118,7 @@
         .game-canvas {
             width: 300px;
             height: 300px;
-            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            background: #16213e;
             border: 2px solid #e94560;
             border-radius: 10px;
             display: flex;
