@@ -104,9 +104,9 @@ jobs:
                     - project: windows
                       browser: chromium
                     - project: apple-isolated
-                      browser: webkit
+                      browser: chromium
                     - project: apple
-                      browser: webkit
+                      browser: chromium
                     - project: ios
                       browser: webkit
                     - project: android
