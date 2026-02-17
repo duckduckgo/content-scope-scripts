@@ -64,9 +64,20 @@ jobs:
               run: 'npm run test-clean-tree'
 
     integration-tests-special-pages:
-        name: Integration tests (special-pages, ubuntu-latest)
+        name: Integration tests (special-pages/${{ matrix.group }}, ubuntu-latest)
         runs-on: ubuntu-latest
         timeout-minutes: 15
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - group: chromium
+                      # windows=Desktop Edge, integration=Desktop Chrome, android/android-landscape=Galaxy S III
+                      projects: --project windows --project integration --project android --project android-landscape
+                    - group: webkit
+                      browser: webkit
+                      # macos=Desktop Safari, ios=iPhone 14
+                      projects: --project macos --project ios
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -84,12 +95,14 @@ jobs:
                   npm install
                   npm run build
             - name: Install Playwright Browsers
-              run: npx playwright install --with-deps chromium webkit
-            - run: npm run test-int-x -w special-pages
+              run: npx playwright install --with-deps ${{ matrix.browser || 'chromium' }}
+            - name: Run integration tests
+              run: npx playwright test ${{ matrix.projects }} --grep-invert '@screenshots' --reporter list
+              working-directory: special-pages
             - uses: actions/upload-artifact@v6
               if: always()
               with:
-                  name: tests-playwright-report-pages
+                  name: tests-playwright-report-pages-${{ matrix.group }}
                   path: special-pages/playwright-report
                   retention-days: 5
 
