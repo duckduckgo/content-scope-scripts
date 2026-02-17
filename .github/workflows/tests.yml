@@ -99,6 +99,8 @@ jobs:
               with:
                   path: ~/.cache/ms-playwright
                   key: ${{ runner.os }}-playwright-${{ matrix.browser || 'chromium' }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-${{ matrix.browser || 'chromium' }}-
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps ${{ matrix.browser || 'chromium' }}
             - name: Run integration tests
@@ -151,6 +153,8 @@ jobs:
               with:
                   path: ~/.cache/ms-playwright
                   key: ${{ runner.os }}-playwright-${{ matrix.browser || 'chromium' }}-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-${{ matrix.browser || 'chromium' }}-
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps ${{ matrix.browser || 'chromium' }}
             - name: Run integration tests
