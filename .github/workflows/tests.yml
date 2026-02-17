@@ -84,7 +84,7 @@ jobs:
                   npm install
                   npm run build
             - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
+              run: npx playwright install
             - run: npm run test-int-x -w special-pages
             - uses: actions/upload-artifact@v6
               if: always()
@@ -126,7 +126,7 @@ jobs:
                   npm install
                   npm run build
             - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
+              run: npx playwright install
             - name: Run integration tests
               run: xvfb-run --server-args='-screen 0 1024x768x24' npx playwright test --project ${{ matrix.project }} --grep-invert '@screenshots' --reporter list
               working-directory: injected
