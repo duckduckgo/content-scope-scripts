@@ -1,0 +1,81 @@
+/* Wrapper for SVG + overlays positioning */
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Address bar overlay positioning (matches SVG: x=90, y=49, width=252, height=48 in viewBox 432x208) */
+.wrapper {
+  --address-bar-left: 20.83%;
+  --address-bar-top: 23.56%;
+  --address-bar-width: 58.33%;
+  --address-bar-height: 23.08%;
+  --address-bar-height-reduced: 13.85%;
+  --address-bar-transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* CSS background overlay */
+.bgOverlay {
+  position: absolute;
+  z-index: 1;
+  left: var(--address-bar-left);
+  top: var(--address-bar-top);
+  width: var(--address-bar-width);
+  height: var(--address-bar-height);
+  background-color: #fff; /* Default/fallback - overridden by inline style */
+  border-radius: 8px;
+  pointer-events: none;
+  transition: var(--address-bar-transition), background-color 300ms ease;
+}
+
+.bgReduced {
+  height: var(--address-bar-height-reduced);
+}
+
+/* CSS border overlay */
+.borderOverlay {
+  position: absolute;
+  z-index: 2;
+  left: var(--address-bar-left);
+  top: var(--address-bar-top);
+  width: var(--address-bar-width);
+  height: var(--address-bar-height);
+  border: 2px solid;
+  border-radius: 8px;
+  pointer-events: none;
+  box-sizing: border-box;
+  transition: var(--address-bar-transition);
+}
+
+.borderReduced {
+  height: var(--address-bar-height-reduced);
+}
+
+/* Regular search icon - positioned on right side of address bar */
+.regularIcon {
+  position: absolute;
+  z-index: 3;
+  right: 23%;
+  top: 27%;
+  width: 2.78%; /* 12/432 */
+  height: auto;
+  pointer-events: none;
+}
+
+/* Extended AI icon pill - positioned on right side of address bar */
+.extendedIcon {
+  position: absolute;
+  z-index: 3;
+  right: 21.9%;
+  top: 26.5%;
+  width: 12.96%;
+  height: auto;
+  pointer-events: none;
+}
