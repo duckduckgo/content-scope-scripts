@@ -290,7 +290,7 @@
     "note": "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
   },
   "duckPlayer_adFree_subtitle": {
-    "title": "No need for a premium subscription or third-party plugins. Just your video, without the ads.",
+    "title": "No need for a premium subscription or third-party plugins.{newline}Just your video, without the ads.",
     "note": "Subtitle for the Duck Player step variant that emphasizes ad-free YouTube viewing."
   },
   "addressBarMode_title": {

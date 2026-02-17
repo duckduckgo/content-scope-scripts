@@ -96,7 +96,7 @@ export const stepsConfig = {
             variant: 'box',
             heading: {
                 title: isAdFree ? t('duckPlayer_adFree_title') : t('duckPlayer_title'),
-                subtitle: isAdFree ? t('duckPlayer_adFree_subtitle') : t('duckPlayer_subtitle'),
+                subtitle: isAdFree ? t('duckPlayer_adFree_subtitle', { newline: '\n' }) : t('duckPlayer_subtitle'),
                 speechBubble: true,
             },
             dismissButton: isAdFree
