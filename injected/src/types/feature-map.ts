@@ -12,6 +12,7 @@ import type AutofillImport from '../features/autofill-import.js';
 import type BreakageReporting from '../features/breakage-reporting.js';
 import type BrokerProtection from '../features/broker-protection.js';
 import type ClickToLoad from '../features/click-to-load.js';
+import type ContextMenu from '../features/context-menu.js';
 import type Cookie from '../features/cookie.js';
 import type DuckAiChatHistory from '../features/duck-ai-chat-history.js';
 import type DuckAiDataClearing from '../features/duck-ai-data-clearing.js';
@@ -51,6 +52,7 @@ export interface FeatureMap {
     breakageReporting: BreakageReporting;
     brokerProtection: BrokerProtection;
     clickToLoad: ClickToLoad;
+    contextMenu: ContextMenu;
     cookie: Cookie;
     duckAiChatHistory: DuckAiChatHistory;
     duckAiDataClearing: DuckAiDataClearing;
