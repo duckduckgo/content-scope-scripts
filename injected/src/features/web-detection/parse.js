@@ -30,10 +30,6 @@ import { withDefaults } from '../../utils.js';
  */
 
 /**
- * @typedef {'first-success' | 'always'} AutoMode
- */
-
-/**
  * @typedef {TriggerBase & {
  *  when: {
  *    intervalMs: number[];
