@@ -123,9 +123,9 @@ describe('BrowserUiLock', () => {
             for (const key of ['window', 'self', 'top', 'document']) {
                 if (!(key in globalThis)) added.push(key);
             }
-            globalThis.window ??= globalThis;
-            globalThis.self ??= globalThis;
-            globalThis.top ??= globalThis;
+            globalThis.window ??= /** @type {any} */ (globalThis);
+            globalThis.self ??= /** @type {any} */ (globalThis);
+            globalThis.top ??= /** @type {any} */ (globalThis);
             globalThis.document ??= /** @type {any} */ ({ readyState: 'complete' });
 
             restoreGlobals = () => {
