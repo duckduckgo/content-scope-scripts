@@ -66,7 +66,7 @@ jobs:
     integration-tests-special-pages:
         name: Integration tests (special-pages, ubuntu-latest)
         runs-on: ubuntu-latest
-        timeout-minutes: 15
+        timeout-minutes: 25
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -84,7 +84,7 @@ jobs:
                   npm install
                   npm run build
             - name: Install Playwright Browsers
-              run: npx playwright install
+              run: npx playwright install --with-deps chromium webkit
             - run: npm run test-int-x -w special-pages
             - uses: actions/upload-artifact@v6
               if: always()
@@ -96,19 +96,27 @@ jobs:
     integration-tests:
         name: Integration tests (injected/${{ matrix.project }}, ubuntu-latest)
         runs-on: ubuntu-latest
-        timeout-minutes: 15
+        timeout-minutes: 25
         strategy:
             fail-fast: false
             matrix:
-                project:
-                    - windows
-                    - apple-isolated
-                    - apple
-                    - ios
-                    - android
-                    - android-autofill-import
-                    - chrome-mv3
-                    - firefox
+                include:
+                    - project: windows
+                      browser: chromium
+                    - project: apple-isolated
+                      browser: webkit
+                    - project: apple
+                      browser: webkit
+                    - project: ios
+                      browser: webkit
+                    - project: android
+                      browser: chromium
+                    - project: android-autofill-import
+                      browser: chromium
+                    - project: chrome-mv3
+                      browser: chromium
+                    - project: firefox
+                      browser: firefox
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -126,7 +134,7 @@ jobs:
                   npm install
                   npm run build
             - name: Install Playwright Browsers
-              run: npx playwright install
+              run: npx playwright install --with-deps ${{ matrix.browser }}
             - name: Run integration tests
               run: xvfb-run --server-args='-screen 0 1024x768x24' npx playwright test --project ${{ matrix.project }} --grep-invert '@screenshots' --reporter list
               working-directory: injected
