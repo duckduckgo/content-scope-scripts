@@ -26632,6 +26632,14 @@
       title: "No targeted ads. No targeted recommendations. Just your video.",
       note: "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
     },
+    duckPlayer_adFree_title: {
+      title: "Watch YouTube ad-free!",
+      note: "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+    },
+    duckPlayer_adFree_subtitle: {
+      title: "No need for a premium subscription or third-party plugins.{newline}Just your video, without the ads.",
+      note: "Subtitle for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+    },
     addressBarMode_title: {
       title: "Want easy access to private AI Chat?",
       note: "Title for the Address Bar Mode feature step in onboarding"
@@ -27267,7 +27275,7 @@
   };
 
   // pages/onboarding/app/v3/components/DuckPlayerStep.js
-  function DuckPlayerStep() {
+  function DuckPlayerStep({ defaultState = "before" }) {
     const { isDarkMode, isReducedMotion } = useEnv();
     const [canPlay, setCanPlay] = d2(false);
     const { getStep, setStep } = useBeforeAfter();
@@ -27292,7 +27300,7 @@
       RiveAnimation,
       {
         animation: Onboarding_default,
-        state: getStep("duckPlayerSingle") || "before",
+        state: getStep("duckPlayerSingle") || defaultState,
         isDarkMode,
         artboard: "Duck Player",
         inputName: "Duck Player?",
@@ -27824,7 +27832,12 @@
         content: /* @__PURE__ */ _(SettingsStep, { data: settingsRowItems })
       };
     },
-    duckPlayerSingle: ({ t: t3, advance, beforeAfter }) => {
+    duckPlayerSingle: ({ t: t3, advance, beforeAfter, globalState }) => {
+      const duckPlayerDef = (
+        /** @type {import('../../types').DuckPlayerSingleStep} */
+        globalState.stepDefinitions.duckPlayerSingle
+      );
+      const isAdFree = duckPlayerDef.variant === "ad-free";
       const beforeAfterState = beforeAfter.get();
       const longestText = [t3("beforeAfter_duckPlayer_show"), t3("beforeAfter_duckPlayer_hide")].reduce((acc, cur) => {
         return cur.length > acc.length ? cur : acc;
@@ -27832,11 +27845,11 @@
       return {
         variant: "box",
         heading: {
-          title: t3("duckPlayer_title"),
-          subtitle: t3("duckPlayer_subtitle"),
+          title: isAdFree ? t3("duckPlayer_adFree_title") : t3("duckPlayer_title"),
+          subtitle: isAdFree ? t3("duckPlayer_adFree_subtitle", { newline: "\n" }) : t3("duckPlayer_subtitle"),
           speechBubble: true
         },
-        dismissButton: {
+        dismissButton: isAdFree ? null : {
           startIcon: /* @__PURE__ */ _(Replay, { direction: beforeAfterState === "before" ? "forward" : "backward" }),
           text: beforeAfterState === "before" ? t3("beforeAfter_duckPlayer_show") : t3("beforeAfter_duckPlayer_hide"),
           longestText,
@@ -27846,7 +27859,7 @@
           text: t3("nextButton"),
           handler: advance
         },
-        content: /* @__PURE__ */ _(DuckPlayerStep, null)
+        content: /* @__PURE__ */ _(DuckPlayerStep, { defaultState: isAdFree ? "after" : "before" })
       };
     },
     customize: ({ t: t3, globalState, advance, dismiss }) => {
@@ -31370,6 +31383,14 @@
                 id: "systemSettings",
                 kind: "settings",
                 rows: ["dock", "import", `${adBlocking}-ad-blocking`]
+              };
+            }
+            const duckPlayerVariant = url.searchParams.get("duckPlayer");
+            if (duckPlayerVariant === "ad-free") {
+              stepDefinitions3.duckPlayerSingle = {
+                id: "duckPlayerSingle",
+                kind: "info",
+                variant: "ad-free"
               };
             }
             return Promise.resolve({

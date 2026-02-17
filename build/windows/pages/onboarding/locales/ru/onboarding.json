@@ -284,6 +284,14 @@
     "title" : "Без целевой рекламы. Без персональных рекомендаций. Просто видео, и всё.",
     "note" : "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
+  "duckPlayer_adFree_title" : {
+    "title" : "YouTube без рекламы",
+    "note" : "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
+  "duckPlayer_adFree_subtitle" : {
+    "title" : "Без премиум-подписки и сторонних плагинов.{newline}Просто видео и никакой рекламы.",
+    "note" : "Subtitle for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
   "addressBarMode_title" : {
     "title" : "Нужен удобный доступ к приватному чату с ИИ?",
     "note" : "Title for the Address Bar Mode feature step in onboarding"

@@ -2594,6 +2594,7 @@ h2 {
   font-size: var(--sp-4);
   font-weight: 400;
   line-height: 1.25;
+  white-space: pre-line;
   transition: opacity .3s ease-in-out;
 }
 .Heading_svg {

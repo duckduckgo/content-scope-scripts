@@ -1,1 +1,2 @@
-- getDuckAiChats: Support indexedDB (#2210)
+- Add ad-free variant for Duck Player onboarding step (#2286)
+- Bump remote config dependency (#2287)
