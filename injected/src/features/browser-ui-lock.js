@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature';
+import ContentFeature from '../content-feature.js';
 
 /**
  * BrowserUiLock feature detects CSS signals indicating that a page manages
