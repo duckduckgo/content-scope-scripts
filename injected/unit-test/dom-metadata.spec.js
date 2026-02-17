@@ -37,7 +37,7 @@ describe('dom-metadata.js', () => {
         it('returns the anchor when the target is an <a>', () => {
             const teardown = setupDom('<a id="link" href="https://example.com">click</a>');
             try {
-                const a = document.getElementById('link');
+                const a = /** @type {HTMLAnchorElement} */ (document.getElementById('link'));
                 expect(findClosestAnchor(a)).toBe(a);
             } finally {
                 teardown();
@@ -48,7 +48,7 @@ describe('dom-metadata.js', () => {
             const teardown = setupDom('<a id="link" href="https://example.com"><span id="inner">text</span></a>');
             try {
                 const span = document.getElementById('inner');
-                const a = document.getElementById('link');
+                const a = /** @type {HTMLAnchorElement} */ (document.getElementById('link'));
                 expect(findClosestAnchor(span)).toBe(a);
             } finally {
                 teardown();
@@ -99,10 +99,10 @@ describe('dom-metadata.js', () => {
         it('returns selected text when a range is selected', () => {
             const teardown = setupDom('<p id="p">hello world</p>');
             try {
-                const p = document.getElementById('p');
+                const p = /** @type {HTMLElement} */ (document.getElementById('p'));
                 const range = document.createRange();
                 range.selectNodeContents(p);
-                const sel = window.getSelection();
+                const sel = /** @type {Selection} */ (window.getSelection());
                 sel.removeAllRanges();
                 sel.addRange(range);
 

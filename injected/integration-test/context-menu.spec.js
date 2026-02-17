@@ -95,9 +95,11 @@ test('contextMenu includes selected text when text is selected', async ({ page }
     // Select text in the #selectable paragraph
     await page.evaluate(() => {
         const el = document.getElementById('selectable');
+        if (!el) return;
         const range = document.createRange();
         range.selectNodeContents(el);
         const sel = window.getSelection();
+        if (!sel) return;
         sel.removeAllRanges();
         sel.addRange(range);
     });
