@@ -87,10 +87,10 @@ describe('dom-metadata.js', () => {
     // ── getSelectedText ────────────────────────────────────────────────
 
     describe('getSelectedText', () => {
-        it('returns empty string when no selection exists', () => {
+        it('returns null when no selection exists', () => {
             const teardown = setupDom('<p>hello</p>');
             try {
-                expect(getSelectedText()).toBe('');
+                expect(getSelectedText()).toBeNull();
             } finally {
                 teardown();
             }
@@ -175,6 +175,17 @@ describe('dom-metadata.js', () => {
 
         it('returns null title when no ancestor has a title', () => {
             const teardown = setupDom('<div><span id="s">child</span></div>');
+            try {
+                const span = document.getElementById('s');
+                const meta = extractElementMetadata(span);
+                expect(meta.title).toBeNull();
+            } finally {
+                teardown();
+            }
+        });
+
+        it('respects empty title attribute as suppression of inherited title', () => {
+            const teardown = setupDom('<div title="parent-tip"><span id="s" title="">child</span></div>');
             try {
                 const span = document.getElementById('s');
                 const meta = extractElementMetadata(span);

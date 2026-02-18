@@ -27,21 +27,23 @@ export function findClosestAnchor(target) {
 }
 
 /**
- * Return the current window text selection as a string.
+ * Return the current window text selection, or null if nothing is selected.
  *
- * @returns {string}
+ * @returns {string | null}
  */
 export function getSelectedText() {
     try {
-        return window.getSelection()?.toString() || '';
+        const text = window.getSelection()?.toString();
+        return text || null;
     } catch {
-        return '';
+        return null;
     }
 }
 
 /**
  * Walk up the DOM from `element` to find the nearest ancestor (inclusive) that
- * has the given attribute set to a non-empty value.
+ * has the given attribute. Respects explicit empty values (e.g. `title=""`)
+ * which per the HTML spec suppress inherited advisory titles.
  *
  * @param {Element} element
  * @param {string} attr
@@ -50,8 +52,9 @@ export function getSelectedText() {
 function getClosestAttribute(element, attr) {
     let current = /** @type {Element | null} */ (element);
     while (current && current !== document.documentElement) {
-        const value = current.getAttribute(attr);
-        if (value) return value;
+        if (current.hasAttribute(attr)) {
+            return current.getAttribute(attr) || null;
+        }
         current = current.parentElement;
     }
     return null;
