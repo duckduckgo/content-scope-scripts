@@ -1,6 +1,5 @@
 import ContentFeature from '../content-feature.js';
 import { getSelectedText, extractElementMetadata } from '../utils/dom-metadata.js';
-import { isBeingFramed } from '../utils.js';
 
 /**
  * Replaces the native WebKit "contextmenu" user-script on Apple platforms.
@@ -10,11 +9,12 @@ import { isBeingFramed } from '../utils.js';
  * native layer via the isolated C-S-S messaging bridge.
  *
  * This keeps `window.webkit` out of the page world.
+ *
+ * Runs in all frames (not just the main frame) to match the behavior of
+ * the legacy ContextMenuUserScript which used forMainFrameOnly: false.
  */
 export default class ContextMenu extends ContentFeature {
     init() {
-        if (isBeingFramed()) return;
-
         document.addEventListener(
             'contextmenu',
             (event) => {
