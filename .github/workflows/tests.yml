@@ -63,13 +63,24 @@ jobs:
             - name: 'Clean tree'
               run: 'npm run test-clean-tree'
 
+    get-playwright-version:
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.pw.outputs.version }}
+        steps:
+            - uses: actions/checkout@v6
+            - id: pw
+              run: |
+                  VERSION=$(node -e "const l=require('./package-lock.json'); console.log((l.packages['node_modules/@playwright/test']||l.packages['node_modules/playwright']).version)")
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+
     integration-tests-special-pages:
         name: Integration tests (special-pages/${{ matrix.group }}, ubuntu-latest)
+        needs: get-playwright-version
         runs-on: ubuntu-latest
         timeout-minutes: 15
         container:
-            # Keep this pinned to the @playwright/test version in package-lock.json.
-            image: mcr.microsoft.com/playwright:v1.58.1-noble
+            image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
         env:
             HOME: /root
         strategy:
@@ -110,11 +121,11 @@ jobs:
 
     integration-tests:
         name: Integration tests (injected/${{ matrix.project }}, ubuntu-latest)
+        needs: get-playwright-version
         runs-on: ubuntu-latest
         timeout-minutes: 15
         container:
-            # Keep this pinned to the @playwright/test version in package-lock.json.
-            image: mcr.microsoft.com/playwright:v1.58.1-noble
+            image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
         env:
             HOME: /root
         strategy:
