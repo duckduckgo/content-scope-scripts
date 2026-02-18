@@ -13,6 +13,10 @@ permissions:
     id-token: write
     deployments: write
 
+env:
+    # Keep this pinned to the @playwright/test version in package-lock.json.
+    PLAYWRIGHT_CI_IMAGE: mcr.microsoft.com/playwright:v1.58.1-noble
+
 jobs:
     unit-tests:
         name: Unit tests (${{ matrix.workspace }}, ${{ matrix.os }})
@@ -67,6 +71,8 @@ jobs:
         name: Integration tests (special-pages/${{ matrix.group }}, ubuntu-latest)
         runs-on: ubuntu-latest
         timeout-minutes: 15
+        container:
+            image: ${{ env.PLAYWRIGHT_CI_IMAGE }}
         strategy:
             fail-fast: false
             matrix:
@@ -75,7 +81,6 @@ jobs:
                       # windows=Desktop Edge, integration=Desktop Chrome
                       projects: --project windows --project integration
                     - group: webkit
-                      browser: webkit
                       # macos=Desktop Safari, ios=iPhone 14, android/android-landscape=Galaxy S III (webkit)
                       projects: --project macos --project ios --project android --project android-landscape
         steps:
@@ -94,15 +99,6 @@ jobs:
               run: |
                   npm install
                   npm run build
-            - name: Cache Playwright Browsers
-              uses: actions/cache@v5
-              with:
-                  path: ~/.cache/ms-playwright
-                  key: ${{ runner.os }}-playwright-${{ matrix.browser || 'chromium' }}-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-playwright-${{ matrix.browser || 'chromium' }}-
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps ${{ matrix.browser || 'chromium' }}
             - name: Run integration tests
               run: npx playwright test ${{ matrix.projects }} --grep-invert '@screenshots'
               working-directory: special-pages
@@ -117,6 +113,8 @@ jobs:
         name: Integration tests (injected/${{ matrix.project }}, ubuntu-latest)
         runs-on: ubuntu-latest
         timeout-minutes: 15
+        container:
+            image: ${{ env.PLAYWRIGHT_CI_IMAGE }}
         strategy:
             fail-fast: false
             matrix:
@@ -126,12 +124,10 @@ jobs:
                     # apple runs in Chromium (Playwright default) - no device preset is set in playwright.config.js
                     - project: apple
                     - project: ios
-                      browser: webkit
                     - project: android
                     - project: android-autofill-import
                     - project: chrome-mv3
                     - project: firefox
-                      browser: firefox
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -148,17 +144,8 @@ jobs:
               run: |
                   npm install
                   npm run build
-            - name: Cache Playwright Browsers
-              uses: actions/cache@v5
-              with:
-                  path: ~/.cache/ms-playwright
-                  key: ${{ runner.os }}-playwright-${{ matrix.browser || 'chromium' }}-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-playwright-${{ matrix.browser || 'chromium' }}-
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps ${{ matrix.browser || 'chromium' }}
             - name: Run integration tests
-              run: xvfb-run --server-args='-screen 0 1024x768x24' npx playwright test --project ${{ matrix.project }} --grep-invert '@screenshots' --reporter list
+              run: npx playwright test --project ${{ matrix.project }} --grep-invert '@screenshots' --reporter list
               working-directory: injected
             - uses: actions/upload-artifact@v6
               if: always()
