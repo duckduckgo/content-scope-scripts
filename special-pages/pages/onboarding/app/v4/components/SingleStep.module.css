@@ -1,6 +1,7 @@
 .layout {
-    position: relative;
     margin: 10vh auto 0;
+    position: relative;
+    transition: width 333ms cubic-bezier(0.17, 0, 0.34, 1);
 }
 
 .progressBadge {
@@ -23,12 +24,11 @@
     }
 }
 
-.topBubble {
+.bubble {
     position: absolute;
-}
-
-.bottomBubble {
-    position: absolute;
+    transition-duration: 333ms;
+    transition-property: top, width, height;
+    transition-timing-function: cubic-bezier(0.17, 0, 0.34, 1);
 }
 
 /* --- getStarted bubble intro --- */
