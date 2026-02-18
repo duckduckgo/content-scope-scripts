@@ -6,10 +6,11 @@ import ContentFeature from '../content-feature.js';
  * native app to lock browser UI gestures (pull-to-refresh, omnibar, tab swipe).
  *
  * Detection is based on computed CSS properties:
- * - overscroll-behavior / overscroll-behavior-y: none or contain
+ * - overscroll-behavior: none (strong signal of deliberate scroll control)
+ * - overflow: hidden or clip (indicates page manages its own viewport)
  *
- * Note: overflow: hidden is intentionally NOT used as a signal because
- * modal dialogs, cookie banners, and menu libraries routinely set it on body.
+ * Note: overscroll-behavior: contain is NOT a lock trigger because it's a
+ * common defensive pattern that only stops scroll chaining, not scroll itself.
  *
  * @see https://app.asana.com/0/0/1209424908894123
  */
@@ -155,17 +156,46 @@ export default class BrowserUiLock extends ContentFeature {
                 bodyStyle?.getPropertyValue('overscroll-behavior-y') || bodyStyle?.getPropertyValue('overscroll-behavior') || '';
             const overscrollBehavior = this._getMostRestrictiveOverscroll(htmlOverscroll, bodyOverscroll);
 
-            // overscroll-behavior is the primary signal -- sites set it intentionally
-            // to manage their own touch/scroll interactions (maps, games, drawing).
-            // overflow: hidden alone is NOT sufficient to lock because modal dialogs,
-            // cookie banners, hamburger menus, and lightbox libraries all set it on
-            // <body> temporarily. Only overscroll-behavior reliably indicates intent.
-            return overscrollBehavior === 'none' || overscrollBehavior === 'contain';
+            // Check overflow on both html and body
+            const htmlOverflow = htmlStyle?.getPropertyValue('overflow-y') || htmlStyle?.getPropertyValue('overflow') || '';
+            const bodyOverflow = bodyStyle?.getPropertyValue('overflow-y') || bodyStyle?.getPropertyValue('overflow') || '';
+            const overflow = this._getMostRestrictiveOverflow(htmlOverflow, bodyOverflow);
+
+            // overscroll-behavior: none is a strong signal of deliberate scroll control
+            // (maps, games, drawing tools). "contain" is NOT a trigger because it's a
+            // common defensive pattern that only stops scroll chaining.
+            const overscrollLock = overscrollBehavior === 'none';
+
+            // overflow: hidden/clip indicates the page manages its own viewport
+            const overflowLock = overflow === 'hidden' || overflow === 'clip';
+
+            return overscrollLock || overflowLock;
         } catch (e) {
             // Fail open - return false (unlocked) on error
             this.log.warn('Failed to detect CSS signals:', e);
             return false;
         }
+    }
+
+    /**
+     * Get the most restrictive overflow value
+     * @param {string} value1
+     * @param {string} value2
+     * @returns {string}
+     */
+    _getMostRestrictiveOverflow(value1, value2) {
+        const priority = ['hidden', 'clip', 'scroll', 'auto', 'visible'];
+        const v1 = value1.trim().split(/\s+/)[0];
+        const v2 = value2.trim().split(/\s+/)[0];
+
+        const i1 = priority.indexOf(v1);
+        const i2 = priority.indexOf(v2);
+
+        if (i1 === -1 && i2 === -1) return '';
+        if (i1 === -1) return v2;
+        if (i2 === -1) return v1;
+
+        return i1 < i2 ? v1 : v2;
     }
 
     /**
