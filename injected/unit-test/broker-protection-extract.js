@@ -163,28 +163,71 @@ describe('create profiles from extracted data', () => {
         }
     });
 
-    it('should handle addressCityStateList', () => {
-        const example = {
-            selectors: {
-                addressCityStateList: {
-                    selector: 'example',
+    it('should handle addressCityStateList (with string or regex separator)', () => {
+        const elementExamples = [
+            {
+                selectors: {
+                    addressCityStateList: {
+                        selector: 'example',
+                    },
+                },
+                elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
+                expected: {
+                    addresses: [
+                        { city: 'Carrollton', state: 'TX' },
+                        { city: 'Dallas', state: 'TX' },
+                        { city: 'The Colony', state: 'TX' },
+                    ],
                 },
             },
-            elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
-            expected: {
-                addresses: [
-                    { city: 'Carrollton', state: 'TX' },
-                    { city: 'Dallas', state: 'TX' },
-                    { city: 'The Colony', state: 'TX' },
-                ],
+            {
+                selectors: {
+                    addressCityStateList: {
+                        selector: 'example',
+                        separator: '/(?<=, [A-Z]{2}), /',
+                    },
+                },
+                elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+                expected: {
+                    addresses: [
+                        { city: 'Carrollton', state: 'TX' },
+                        { city: 'Dallas', state: 'TX' },
+                        { city: 'The Colony', state: 'TX' },
+                    ],
+                },
             },
-        };
+            {
+                selectors: {
+                    addressCityStateList: {
+                        selector: 'example',
+                        separator: '(?<=, [A-Z]{2}), ',
+                    },
+                },
+                elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+                expected: {
+                    addresses: [{ city: 'Dallas TX The Colony TX Carrollton', state: 'TX' }],
+                },
+            },
+            {
+                selectors: {
+                    addressCityStateList: {
+                        selector: 'example',
+                        separator: '/(?<=, [A-Z]{2}), /',
+                    },
+                },
+                elements: [{ innerText: 'Dallas, TX' }],
+                expected: {
+                    addresses: [{ city: 'Dallas', state: 'TX' }],
+                },
+            },
+        ];
 
-        const elementFactory = () => example.elements;
-        const profile = createProfile(elementFactory, /** @type {any} */ (example.selectors));
-        const aggregated = aggregateFields(profile);
-
-        expect(aggregated.addresses).toEqual(example.expected.addresses);
+        for (const elementExample of elementExamples) {
+            const elementFactory = () => elementExample.elements;
+            const profile = createProfile(elementFactory, elementExample.selectors);
+            const aggregated = aggregateFields(profile);
+            expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
+        }
     });
 
     it('should include addresses from `addressFullList` - https://app.asana.com/0/0/1206856260863051/f', () => {
@@ -288,6 +331,70 @@ describe('create profiles from extracted data', () => {
         const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
         const actual = aggregateFields(scraped);
         expect(actual.addresses).toEqual(expected);
+    });
+
+    it('should handle relativesList (with string or regex separator)', () => {
+        const elementExamples = [
+            {
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                    },
+                },
+                elements: [{ innerText: 'Alice Smith • Bob Jones • Carol Lee' }],
+                expected: {
+                    relatives: ['Alice Smith', 'Bob Jones', 'Carol Lee'],
+                },
+            },
+            {
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                        separator: ',',
+                    },
+                },
+                elements: [{ innerText: 'Alice Smith, Bob Jones, Carol Lee' }],
+                expected: {
+                    relatives: ['Alice Smith', 'Bob Jones', 'Carol Lee'],
+                },
+            },
+            {
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                        separator: '(?<=, [A-Z]{2}), ',
+                    },
+                },
+                elements: [{ innerText: 'Alice Smith, Bob Jones, Carol Lee' }],
+                /*
+                    This result is a bit unintuitive. First, the regex is invalid, so we treat it as a string (and return no matches).
+                    Then, relativesMatcher splits the string by , and returns the first result. This is primarily to work around a few
+                    brokers that listed relatives in the following format: "Relative Name, Age"
+                */
+                expected: {
+                    relatives: ['Alice Smith'],
+                },
+            },
+            {
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                        separator: '/(?<=\\d+), /',
+                    },
+                },
+                elements: [{ innerText: 'John Smith, 39, Jane Doe, 45, Bob Jones, 28' }],
+                expected: {
+                    relatives: ['Bob Jones', 'Jane Doe', 'John Smith'],
+                },
+            },
+        ];
+
+        for (const elementExample of elementExamples) {
+            const elementFactory = () => elementExample.elements;
+            const profile = createProfile(elementFactory, elementExample.selectors);
+            const aggregated = aggregateFields(profile);
+            expect(aggregated.relatives).toEqual(elementExample.expected.relatives);
+        }
     });
 
     it('should sort relatives by name alphabetically', () => {

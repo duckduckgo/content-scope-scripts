@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Google Rejected</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Google Rejected]</a></p>
+
+    <p>This page verifies that Privacy Sandbox APIs are removed from prototypes</p>
+
+    <script>
+        test('Privacy Sandbox APIs removed', async () => {
+            return [
+                {
+                    name: 'browsingTopics removed from Document.prototype',
+                    result: 'browsingTopics' in Document.prototype,
+                    expected: false,
+                },
+                {
+                    name: 'joinAdInterestGroup removed from Navigator.prototype',
+                    result: 'joinAdInterestGroup' in Navigator.prototype,
+                    expected: false,
+                },
+                {
+                    name: 'leaveAdInterestGroup removed from Navigator.prototype',
+                    result: 'leaveAdInterestGroup' in Navigator.prototype,
+                    expected: false,
+                },
+                {
+                    name: 'updateAdInterestGroups removed from Navigator.prototype',
+                    result: 'updateAdInterestGroups' in Navigator.prototype,
+                    expected: false,
+                },
+                {
+                    name: 'runAdAuction removed from Navigator.prototype',
+                    result: 'runAdAuction' in Navigator.prototype,
+                    expected: false,
+                },
+                {
+                    name: 'adAuctionComponents removed from Navigator.prototype',
+                    result: 'adAuctionComponents' in Navigator.prototype,
+                    expected: false,
+                },
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

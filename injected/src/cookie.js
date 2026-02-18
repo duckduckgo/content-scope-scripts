@@ -1,13 +1,27 @@
 export class Cookie {
+    /**
+     * @param {string} cookieString
+     */
     constructor(cookieString) {
+        /** @type {string[]} */
         this.parts = cookieString.split(';');
+        /** @type {string | undefined} */
+        this.name = undefined;
+        /** @type {string | undefined} */
+        this.value = undefined;
+        /** @type {string | number | undefined} */
+        this['max-age'] = undefined;
+        /** @type {string | undefined} */
+        this.expires = undefined;
+        /** @type {Record<string, number>} */
+        this.attrIdx = {};
         this.parse();
     }
 
     parse() {
         const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
         this.attrIdx = {};
-        this.parts.forEach((part, index) => {
+        this.parts.forEach((/** @type {string} */ part, /** @type {number} */ index) => {
             const kv = part.split('=', 1);
             const attribute = kv[0].trim();
             const value = part.slice(kv[0].length + 1);
@@ -15,22 +29,20 @@ export class Cookie {
                 this.name = attribute;
                 this.value = value;
             } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
-                this[attribute.toLowerCase()] = value;
-                // @ts-expect-error - Object is possibly 'undefined'.
+                /** @type {Record<string, string | undefined>} */ (/** @type {unknown} */ (this))[attribute.toLowerCase()] = value;
                 this.attrIdx[attribute.toLowerCase()] = index;
             }
         });
     }
 
     getExpiry() {
-        // @ts-expect-error expires is not defined in the type definition
         if (!this.maxAge && !this.expires) {
             return NaN;
         }
         const expiry = this.maxAge
-            ? parseInt(this.maxAge)
-            : // @ts-expect-error expires is not defined in the type definition
-              (new Date(this.expires) - new Date()) / 1000;
+            ? parseInt(String(this.maxAge))
+            : // this.expires is guaranteed to be a string here: the !this.expires guard above returns NaN for undefined/empty
+              (new Date(/** @type {string} */ (this.expires)).getTime() - new Date().getTime()) / 1000;
         return expiry;
     }
 
@@ -39,9 +51,7 @@ export class Cookie {
     }
 
     set maxAge(value) {
-        // @ts-expect-error - Object is possibly 'undefined'.
         if (this.attrIdx['max-age'] > 0) {
-            // @ts-expect-error - Object is possibly 'undefined'.
             this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
         } else {
             this.parts.push(`max-age=${value}`);

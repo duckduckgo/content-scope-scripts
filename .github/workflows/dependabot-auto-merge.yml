@@ -39,12 +39,18 @@ jobs:
             - name: Request Cursor review
               if: github.event.action == 'opened'
               run: |
-                  gh pr comment "$PR_URL" --body "@cursoragent can you review against the current code and outline potential impacts based on the changelogs of the update?
+                  gh pr comment "$PR_URL" --body "**Suggested comment for Cursor review** (copy and paste as a new comment):
+
+                  \`\`\`
+                  @cursoragent can you review against the current code and outline potential impacts based on the changelogs of the update?
 
                   Can you check the test coverage and ensure that the new code is covered?
                   Can you think through if this dependency is still needed or if there's better practices used elsewhere.
 
-                  Can you draft a separate PR with any fixes that might be needed?"
+                  Can you draft a separate PR with any fixes that might be needed?
+                  \`\`\`
+
+                  *Note: GitHub Actions bot cannot trigger Cursor agent directly. Please copy the above comment to invoke the review.*"
               env:
                   PR_URL: ${{ github.event.pull_request.html_url }}
-                  GH_TOKEN: ${{ secrets.CURSOR_PAT }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

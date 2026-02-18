@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auto Run Delayed Content Test</title>
+</head>
+<body>
+    <h1>Auto Run Delayed Content Test</h1>
+    <div id="content"></div>
+    <script>
+        // Add content after 150ms to test interval-based detection
+        setTimeout(() => {
+            document.getElementById('content').textContent = 'first success test';
+        }, 150);
+    </script>
+</body>
+</html>

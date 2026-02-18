@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Fingerprinting Temporary Storage</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Fingerprinting Temporary Storage]</a></p>
+
+    <p>This page verifies that temporary storage quota is capped to prevent fingerprinting</p>
+
+    <script>
+        test('Temporary storage quota capped', async () => {
+            const maxBytes = 4 * 1024 * 1024 * 1024; // 4GB cap
+
+            if (!navigator.webkitTemporaryStorage) {
+                return [
+                    {
+                        name: 'webkitTemporaryStorage API not available (skipped)',
+                        result: true,
+                        expected: true,
+                    },
+                ];
+            }
+
+            const quota = await new Promise((resolve, reject) => {
+                navigator.webkitTemporaryStorage.queryUsageAndQuota(
+                    (usedBytes, grantedBytes) => resolve({ usedBytes, grantedBytes }),
+                    (err) => reject(err),
+                );
+            });
+
+            return [
+                {
+                    name: 'Granted bytes does not exceed 4GB cap',
+                    result: quota.grantedBytes <= maxBytes,
+                    expected: true,
+                },
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

@@ -17,8 +17,8 @@ import { URLPattern } from 'urlpattern-polyfill';
  * @typedef {object} ConditionBlock
  * @property {string[] | string} [domain]
  * @property {object} [urlPattern]
- * @property {object} [minSupportedVersion]
- * @property {object} [maxSupportedVersion]
+ * @property {string | number} [minSupportedVersion]
+ * @property {string | number} [maxSupportedVersion]
  * @property {object} [experiment]
  * @property {string} [experiment.experimentName]
  * @property {string} [experiment.cohort]
@@ -78,8 +78,8 @@ export default class ConfigFeature {
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform);
-            this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+            const enabledFeatures = computeEnabledFeatures(this.#bundledConfig, site.domain, platform);
+            this.#args.featureSettings = parseFeatureSettings(this.#bundledConfig, enabledFeatures);
         }
     }
 
@@ -122,7 +122,7 @@ export default class ConfigFeature {
      */
     matchConditionalFeatureSetting(featureKeyName) {
         const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
-        return conditionalChanges.filter((rule) => {
+        return conditionalChanges.filter((/** @type {any} */ rule) => {
             let condition = rule.condition;
             // Support shorthand for domain matching for backwards compatibility
             if (condition === undefined && 'domain' in rule) {
