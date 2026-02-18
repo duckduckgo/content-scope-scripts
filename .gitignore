@@ -22,7 +22,5 @@ injected/unit-test/fixtures/page-context/output/
 # Coverage output
 coverage/
 
-# Local Netlify folder
-.netlify
 # VS Code user config
 .vscode

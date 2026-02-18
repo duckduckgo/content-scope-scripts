@@ -284,6 +284,14 @@
     "title" : "Sin anuncios segmentados. No hay recomendaciones segmentadas para ti. Solo tu vídeo.",
     "note" : "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
+  "duckPlayer_adFree_title" : {
+    "title" : "¡Ve YouTube sin anuncios!",
+    "note" : "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
+  "duckPlayer_adFree_subtitle" : {
+    "title" : "No hace falta una suscripción premium ni plugins de terceros.{newline}Solo tu vídeo, sin anuncios.",
+    "note" : "Subtitle for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
   "addressBarMode_title" : {
     "title" : "¿Quieres un acceso fácil al chat privado de IA?",
     "note" : "Title for the Address Bar Mode feature step in onboarding"
