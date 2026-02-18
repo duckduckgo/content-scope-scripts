@@ -123,4 +123,14 @@ export const rmfDataExamples = {
             primaryActionText: 'Learn more',
         },
     },
+    big_single_action_very_critical_update: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'You need to update macOS',
+            descriptionText: 'Updating to the latest version will fix site loading issues and enhance security.',
+            icon: 'VeryCriticalUpdate',
+            primaryActionText: 'Update macOS',
+        },
+    },
 };
