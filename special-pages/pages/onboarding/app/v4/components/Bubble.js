@@ -1,20 +1,46 @@
 import { h } from 'preact';
+import { useRef, useLayoutEffect } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './Bubble.module.css';
 
 /**
- * Speech bubble container with optional tail/pointer.
- *
- * @param {object} props
- * @param {import("preact").ComponentChild} props.children
- * @param {'bottom-left'} [props.tail] - Direction of the speech bubble tail
- * @param {string} [props.class] - Optional additional CSS class
+ * @typedef {object} BubbleProps
+ * @property {'bottom-left'} [tail] - Direction of the speech bubble tail
+ * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration] - Layered illustration slots
+ * @property {(height: number) => void} [onHeight] - Callback reporting measured border height
  */
-export function Bubble({ children, tail, class: className }) {
+
+/**
+ * Speech bubble container with optional tail/pointer and illustration layers.
+ *
+ * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
+ */
+export function Bubble({ children, tail, class: className, illustration, onHeight, ...props }) {
+    const borderRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+
+    useLayoutEffect(() => {
+        const el = borderRef.current;
+        if (!el || !onHeight) return;
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.borderBoxSize.length) {
+                    onHeight(entry.borderBoxSize[0].blockSize);
+                }
+            }
+        });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [onHeight]);
+
     return (
-        <div class={cn(styles.bubble, className)} data-tail={tail || undefined}>
-            {children}
-            {tail === 'bottom-left' && <BottomLeftTail />}
+        <div class={cn(styles.container, className)} {...props}>
+            {illustration?.background && <div class={styles.backgroundLayer}>{illustration.background}</div>}
+            <div class={styles.border} ref={borderRef}>
+                {children}
+                {tail === 'bottom-left' && <BottomLeftTail />}
+            </div>
+            {illustration?.foreground && <div class={styles.foregroundLayer}>{illustration.foreground}</div>}
         </div>
     );
 }

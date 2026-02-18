@@ -1,8 +1,15 @@
-.bubble {
+.container {
+    position: relative;
+    width: 100%;
+    isolation: isolate;
+}
+
+.border {
     --bubble-bg: white;
     --bubble-border: #CBEAFF;
 
     position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -21,6 +28,20 @@
         --bubble-bg: #011D34;
         --bubble-border: #133E7C;
     }
+}
+
+.backgroundLayer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.foregroundLayer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
 }
 
 /* SVG tail positioned below the bubble */

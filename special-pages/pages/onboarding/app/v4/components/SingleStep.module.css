@@ -1,64 +1,39 @@
 .layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    min-height: 100vh;
-    padding-top: var(--sp-14); /* 56px */
-    padding-bottom: var(--sp-16); /* 64px */
-    gap: var(--sp-2); /* 8px */
-    box-sizing: border-box;
-}
-
-.bubbleColumn {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    max-width: 493px;
-    padding-left: 72px;
-    padding-right: 72px;
-    box-sizing: border-box;
-    gap: var(--sp-2); /* 8px */
-}
-
-.bubbleColumnWide {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 493px;
-    box-sizing: border-box;
-    gap: var(--sp-2); /* 8px */
+    position: relative;
+    margin: 10vh auto 0;
 }
 
 .progressBadge {
+    --bubble-bg: white;
+    --bubble-border: #CBEAFF;
+
     position: absolute;
     top: 0;
     right: var(--sp-9); /* 36px — aligned with bubble border-radius */
     transform: translateY(-50%);
-    background: var(--bubble-bg, white);
+    background: var(--bubble-bg);
     padding: 6px 10px 6px var(--sp-2);
-    border: 1.5px solid var(--bubble-border, #CBEAFF);
+    border: 1.5px solid var(--bubble-border);
     border-radius: var(--sp-16); /* 64px — full pill */
     z-index: 1;
+
+    @media (prefers-color-scheme: dark) {
+        --bubble-bg: #011D34;
+        --bubble-border: #133E7C;
+    }
 }
 
-/* --- illustration wrapper (systemSettings dax) --- */
-
-.illustrationWrapper {
-    position: relative;
-    width: 100%;
-    isolation: isolate;
+.topBubble {
+    position: absolute;
 }
 
-.illustrationBubble {
-    z-index: 1;
+.bottomBubble {
+    position: absolute;
 }
 
 /* --- getStarted bubble intro --- */
 
-.bubbleGetStartedIntro {
+.bubbleIntro {
     animation: getstarted-bubble-scale 0.9s both, getstarted-bubble-slide 0.9s both, getstarted-bubble-opacity 0.9s both;
 }
 
