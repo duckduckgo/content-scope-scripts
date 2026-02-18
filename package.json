@@ -44,7 +44,7 @@
     "@playwright/test": "^1.58.2",
     "ajv": "^8.18.0",
     "esbuild": "^0.27.3",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.0",
     "minimist": "^1.2.8",
     "prettier": "3.7.4",
     "stylelint": "^15.11.0",
