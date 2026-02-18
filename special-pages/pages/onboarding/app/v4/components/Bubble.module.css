@@ -1,28 +1,23 @@
 .container {
-    position: relative;
-    width: 100%;
-    isolation: isolate;
-}
-
-.border {
     --bubble-bg: white;
     --bubble-border: #CBEAFF;
 
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: var(--sp-24); /* 96px */
-    padding: var(--sp-9) var(--sp-12); /* 36px 48px */
+    align-items: center;
     background: var(--bubble-bg);
     border-radius: var(--sp-9); /* 36px */
     border: 1.5px solid var(--bubble-border);
     box-shadow: 0 7px 12px rgba(0, 0, 0, 0.03);
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    isolation: isolate;
+    justify-content: center;
+    min-height: var(--sp-24); /* 96px */
+    overflow: hidden;
+    padding: var(--sp-9) var(--sp-12); /* 36px 48px */
+    position: relative;
+    transition: height 333ms cubic-bezier(0.17, 0, 0.34, 1);
     width: 100%;
-    gap: var(--sp-8); /* 32px */
 
     @media (prefers-color-scheme: dark) {
         --bubble-bg: #011D34;

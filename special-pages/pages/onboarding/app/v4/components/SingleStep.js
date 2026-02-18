@@ -16,10 +16,10 @@ const GAP = 8;
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
-    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, introAnimation } = useStepConfig();
+    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, introAnimation, globalState } = useStepConfig();
 
     const [topHeight, setTopHeight] = useState(0);
-    const [, setBottomHeight] = useState(0);
+    const [bottomHeight, setBottomHeight] = useState(0);
 
     // No bubbles — render content directly (e.g., welcome step has its own full-page layout)
     if (!topBubble && !bottomBubble) {
@@ -36,28 +36,26 @@ export function SingleStep() {
                 </div>
             )}
 
-            {topBubble && (
-                <Bubble
-                    class={cn(styles.topBubble, introAnimation && styles.bubbleIntro)}
-                    style={{ width, top: 0 }}
-                    tail={topBubble.tail}
-                    illustration={topBubble.illustration}
-                    onHeight={(h) => setTopHeight(h)}
-                >
-                    {topBubble.content}
-                </Bubble>
-            )}
+            <Bubble
+                class={cn(styles.topBubble, introAnimation && styles.bubbleIntro)}
+                style={{ top: 0, width, height: topHeight }}
+                tail={topBubble?.tail}
+                illustration={topBubble?.illustration}
+                onHeight={(h) => setTopHeight(h)}
+                animationKey={`${globalState.activeStep}-${globalState.activeRow}`}
+            >
+                {topBubble?.content}
+            </Bubble>
 
-            {bottomBubble && (
-                <Bubble
-                    class={cn(styles.bottomBubble, introAnimation && !topBubble && styles.bubbleIntro)}
-                    style={{ width, top: topBubble ? topHeight + GAP : 0 }}
-                    illustration={bottomBubble.illustration}
-                    onHeight={(h) => setBottomHeight(h)}
-                >
-                    {bottomBubble.content}
-                </Bubble>
-            )}
+            <Bubble
+                class={cn(styles.bottomBubble, introAnimation && !topBubble && styles.bubbleIntro)}
+                style={{ top: topBubble ? topHeight + GAP : 0, width, height: bottomHeight }}
+                illustration={bottomBubble?.illustration}
+                onHeight={(h) => setBottomHeight(h)}
+                animationKey={`${globalState.activeStep}-${globalState.activeRow}`}
+            >
+                {bottomBubble?.content}
+            </Bubble>
 
             {content}
         </div>

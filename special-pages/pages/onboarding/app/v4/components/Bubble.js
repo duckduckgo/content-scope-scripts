@@ -1,13 +1,15 @@
 import { h } from 'preact';
-import { useRef, useLayoutEffect } from 'preact/hooks';
+import { useRef, useLayoutEffect, useEffect } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './Bubble.module.css';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 
 /**
  * @typedef {object} BubbleProps
  * @property {'bottom-left'} [tail] - Direction of the speech bubble tail
  * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration] - Layered illustration slots
  * @property {(height: number) => void} [onHeight] - Callback reporting measured border height
+ * @property {string} [animationKey] - When this value changes, the bubble plays a scale-bounce animation
  */
 
 /**
@@ -15,34 +17,74 @@ import styles from './Bubble.module.css';
  *
  * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
  */
-export function Bubble({ children, tail, class: className, illustration, onHeight, ...props }) {
-    const borderRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+export function Bubble({ children, tail, class: className, illustration, onHeight, animationKey, ...props }) {
+    const bubbleRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const prevAnimationKey = useRef(/** @type {string|undefined} */ (undefined));
+    const { isReducedMotion } = useEnv();
 
     useLayoutEffect(() => {
-        const el = borderRef.current;
-        if (!el || !onHeight) return;
+        const bubble = bubbleRef.current;
+        const content = contentRef.current;
+        if (!bubble || !content || !onHeight) return;
 
-        const observer = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                if (entry.borderBoxSize.length) {
-                    onHeight(entry.borderBoxSize[0].blockSize);
-                }
-            }
+        const observer = new ResizeObserver(() => {
+            const height = measureBubbleHeight(bubble, content);
+            onHeight(height);
         });
-        observer.observe(el);
+        observer.observe(content);
         return () => observer.disconnect();
     }, [onHeight]);
 
+    // Scale bounce on animationKey change
+    useEffect(() => {
+        const bubble = bubbleRef.current;
+        const didAnimationKeyChange = prevAnimationKey.current !== undefined && prevAnimationKey.current !== animationKey;
+
+        prevAnimationKey.current = animationKey;
+
+        if (!bubble || !didAnimationKeyChange || isReducedMotion) return;
+
+        const animation = bubble.animate(
+            [
+                { scale: 1, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' },
+                { scale: 1.07, offset: 0.5, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' },
+                { scale: 1 },
+            ],
+            {
+                duration: 467, // 14 frames at 30fps
+                delay: 100, // 3 frames at 30fps (scale starts 3 frames after size)
+            },
+        );
+
+        return () => {
+            animation.cancel();
+        };
+    }, [animationKey, isReducedMotion]);
+
     return (
-        <div class={cn(styles.container, className)} {...props}>
+        <div ref={bubbleRef} class={cn(styles.container, className)} {...props}>
             {illustration?.background && <div class={styles.backgroundLayer}>{illustration.background}</div>}
-            <div class={styles.border} ref={borderRef}>
+            <div ref={contentRef}>
                 {children}
                 {tail === 'bottom-left' && <BottomLeftTail />}
             </div>
             {illustration?.foreground && <div class={styles.foregroundLayer}>{illustration.foreground}</div>}
         </div>
     );
+}
+
+/**
+ * Measure the total border-box height the bubble needs for its content.
+ * @param {HTMLElement} bubble
+ * @param {HTMLElement} content
+ * @returns {number}
+ */
+function measureBubbleHeight(bubble, content) {
+    const cs = getComputedStyle(bubble);
+    const extra =
+        parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+    return content.offsetHeight + extra;
 }
 
 function BottomLeftTail() {
