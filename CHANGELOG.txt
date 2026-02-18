@@ -1,2 +1,2 @@
-- Add ad-free variant for Duck Player onboarding step (#2286)
-- Bump remote config dependency (#2287)
+- Add support for auto-run detectors (#2256)
+- Resolve issues with integration tests skipping (#2288)
