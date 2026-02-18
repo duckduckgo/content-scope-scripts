@@ -14,7 +14,22 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  */
 
 /**
- * Speech bubble container with optional tail/pointer and illustration layers.
+ * Speech bubble with size and bounce animation support.
+ *
+ * Three nested layers because `.bubble` receives an explicit height from
+ * SingleStep that transitions via CSS — so we need a way to both clip
+ * content during the transition and measure what the height *should* be:
+ *
+ * ```
+ * .bubble      — the visible frame (border, radius, shadow). Has explicit
+ *                width+height set by SingleStep. Scale-bounce target.
+ * .container   — overflow: hidden. Clips children to the bubble's current
+ *                (possibly mid-transition) dimensions.
+ * content div  — flows naturally so ResizeObserver can measure the content's
+ *                intrinsic height and report it up via onHeight.
+ * ```
+ *
+ * @see https://www.youtube.com/watch?v=5NzPd-xW4YY
  *
  * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
  */
