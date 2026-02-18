@@ -48,6 +48,7 @@ export function SingleStep() {
                 illustration={topBubble?.illustration}
                 onHeight={(h) => setTopHeight(h)}
                 animationKey={`${globalState.activeStep}-${globalState.activeRow}`}
+                animationDelay={100} // 3 frames at 30fps (scale starts 3 frames after size)
             >
                 {topBubble?.content}
             </Bubble>
@@ -64,6 +65,7 @@ export function SingleStep() {
                 illustration={bottomBubble?.illustration}
                 onHeight={(h) => setBottomHeight(h)}
                 animationKey={`${globalState.activeStep}-${globalState.activeRow}`}
+                animationDelay={233} // 7 frames at 30fps (scale starts 7 frames after size)
             >
                 {bottomBubble?.content}
             </Bubble>

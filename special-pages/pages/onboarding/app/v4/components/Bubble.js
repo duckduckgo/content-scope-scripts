@@ -10,6 +10,7 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration] - Layered illustration slots
  * @property {(height: number) => void} [onHeight] - Callback reporting measured border height
  * @property {string} [animationKey] - When this value changes, the bubble plays a scale-bounce animation
+ * @property {number} [animationDelay] - When this value changes, the bubble plays a scale-bounce animation
  */
 
 /**
@@ -17,7 +18,7 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  *
  * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
  */
-export function Bubble({ children, tail, class: className, illustration, onHeight, animationKey, ...props }) {
+export function Bubble({ children, tail, class: className, illustration, onHeight, animationKey, animationDelay, ...props }) {
     const bubbleRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -55,7 +56,7 @@ export function Bubble({ children, tail, class: className, illustration, onHeigh
             ],
             {
                 duration: 467, // 14 frames at 30fps
-                delay: 100, // 3 frames at 30fps (scale starts 3 frames after size)
+                delay: animationDelay,
             },
         );
 
