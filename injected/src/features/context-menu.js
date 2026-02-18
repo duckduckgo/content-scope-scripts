@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { findClosestAnchor, getSelectedText, extractElementMetadata } from '../utils/dom-metadata.js';
+import { getSelectedText, extractElementMetadata } from '../utils/dom-metadata.js';
 import { isBeingFramed } from '../utils.js';
 
 /**
@@ -19,12 +19,11 @@ export default class ContextMenu extends ContentFeature {
             'contextmenu',
             (event) => {
                 const target = /** @type {EventTarget | null} */ (event.target);
-                const anchor = findClosestAnchor(target);
                 const metadata = extractElementMetadata(target);
 
                 this.notify('contextMenuEvent', {
                     selectedText: getSelectedText(),
-                    linkUrl: anchor?.href ?? null,
+                    linkUrl: metadata.href,
                     imageSrc: metadata.src,
                     imageAlt: metadata.alt,
                     title: metadata.title,
