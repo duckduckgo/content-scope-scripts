@@ -830,6 +830,7 @@ export function isGloballyDisabled(args) {
  * @type {FeatureName[]}
  */
 export const platformSpecificFeatures = [
+    'contextMenu',
     'navigatorInterface',
     'windowsPermissionUsage',
     'messageBridge',

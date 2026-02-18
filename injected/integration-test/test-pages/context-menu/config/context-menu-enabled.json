@@ -1,4 +1,6 @@
 {
+  "readme": "Config for testing the contextMenu feature (enabled).",
+  "version": 1,
   "features": {
     "contextMenu": {
       "state": "enabled",
