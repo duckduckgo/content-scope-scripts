@@ -92,44 +92,6 @@ describe('BrowserUiLock', () => {
         });
     });
 
-    describe('lock conditions', () => {
-        /**
-         * Helper to check if overscroll value should lock
-         * @param {string} value
-         */
-        function shouldOverscrollLock(value) {
-            return value === 'none';
-        }
-
-        /**
-         * Helper to check if overflow value should lock
-         * @param {string} value
-         */
-        function shouldOverflowLock(value) {
-            return value === 'hidden' || value === 'clip';
-        }
-
-        it('overscroll-behavior: none should trigger lock', () => {
-            expect(shouldOverscrollLock('none')).toBe(true);
-        });
-
-        it('overscroll-behavior: contain should NOT trigger lock', () => {
-            expect(shouldOverscrollLock('contain')).toBe(false);
-        });
-
-        it('overflow: hidden should trigger lock', () => {
-            expect(shouldOverflowLock('hidden')).toBe(true);
-        });
-
-        it('overflow: clip should trigger lock', () => {
-            expect(shouldOverflowLock('clip')).toBe(true);
-        });
-
-        it('overflow: scroll should NOT trigger lock', () => {
-            expect(shouldOverflowLock('scroll')).toBe(false);
-        });
-    });
-
     describe('_notifyIfChanged', () => {
         it('should notify when state changes to locked', () => {
             const feature = createFeature();
