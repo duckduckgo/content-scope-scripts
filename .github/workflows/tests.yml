@@ -63,10 +63,36 @@ jobs:
             - name: 'Clean tree'
               run: 'npm run test-clean-tree'
 
+    get-playwright-version:
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.pw.outputs.version }}
+        steps:
+            - uses: actions/checkout@v6
+            - id: pw
+              run: |
+                  VERSION=$(node -e "const l=require('./package-lock.json'); console.log((l.packages['node_modules/@playwright/test']||l.packages['node_modules/playwright']).version)")
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+
     integration-tests-special-pages:
-        name: Integration tests (special-pages, ubuntu-latest)
+        name: Integration tests (special-pages/${{ matrix.group }}, ubuntu-latest)
+        needs: get-playwright-version
         runs-on: ubuntu-latest
         timeout-minutes: 15
+        container:
+            image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
+        env:
+            HOME: /root
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - group: chromium
+                      # windows=Desktop Edge, integration=Desktop Chrome
+                      projects: --project windows --project integration
+                    - group: webkit
+                      # macos=Desktop Safari, ios=iPhone 14, android/android-landscape=Galaxy S III (webkit)
+                      projects: --project macos --project ios --project android --project android-landscape
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -83,32 +109,38 @@ jobs:
               run: |
                   npm install
                   npm run build
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
-            - run: npm run test-int-x -w special-pages
+            - name: Run integration tests
+              run: npx playwright test ${{ matrix.projects }} --grep-invert '@screenshots'
+              working-directory: special-pages
             - uses: actions/upload-artifact@v6
               if: always()
               with:
-                  name: tests-playwright-report-pages
+                  name: tests-playwright-report-pages-${{ matrix.group }}
                   path: special-pages/playwright-report
                   retention-days: 5
 
     integration-tests:
         name: Integration tests (injected/${{ matrix.project }}, ubuntu-latest)
+        needs: get-playwright-version
         runs-on: ubuntu-latest
         timeout-minutes: 15
+        container:
+            image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
+        env:
+            HOME: /root
         strategy:
             fail-fast: false
             matrix:
-                project:
-                    - windows
-                    - apple-isolated
-                    - apple
-                    - ios
-                    - android
-                    - android-autofill-import
-                    - chrome-mv3
-                    - firefox
+                include:
+                    - project: windows
+                    - project: apple-isolated
+                    # apple runs in Chromium (Playwright default) - no device preset is set in playwright.config.js
+                    - project: apple
+                    - project: ios
+                    - project: android
+                    - project: android-autofill-import
+                    - project: chrome-mv3
+                    - project: firefox
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -125,8 +157,6 @@ jobs:
               run: |
                   npm install
                   npm run build
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
             - name: Run integration tests
               run: xvfb-run --server-args='-screen 0 1024x768x24' npx playwright test --project ${{ matrix.project }} --grep-invert '@screenshots' --reporter list
               working-directory: injected
