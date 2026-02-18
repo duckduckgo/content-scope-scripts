@@ -93,36 +93,40 @@ describe('BrowserUiLock', () => {
     });
 
     describe('lock conditions', () => {
+        /**
+         * Helper to check if overscroll value should lock
+         * @param {string} value
+         */
+        function shouldOverscrollLock(value) {
+            return value === 'none';
+        }
+
+        /**
+         * Helper to check if overflow value should lock
+         * @param {string} value
+         */
+        function shouldOverflowLock(value) {
+            return value === 'hidden' || value === 'clip';
+        }
+
         it('overscroll-behavior: none should trigger lock', () => {
-            // none is a strong signal of deliberate scroll control
-            const overscrollBehavior = 'none';
-            const shouldLock = overscrollBehavior === 'none';
-            expect(shouldLock).toBe(true);
+            expect(shouldOverscrollLock('none')).toBe(true);
         });
 
         it('overscroll-behavior: contain should NOT trigger lock', () => {
-            // contain is a defensive pattern, not intentional lock
-            const overscrollBehavior = 'contain';
-            const shouldLock = overscrollBehavior === 'none';
-            expect(shouldLock).toBe(false);
+            expect(shouldOverscrollLock('contain')).toBe(false);
         });
 
         it('overflow: hidden should trigger lock', () => {
-            const overflow = 'hidden';
-            const shouldLock = overflow === 'hidden' || overflow === 'clip';
-            expect(shouldLock).toBe(true);
+            expect(shouldOverflowLock('hidden')).toBe(true);
         });
 
         it('overflow: clip should trigger lock', () => {
-            const overflow = 'clip';
-            const shouldLock = overflow === 'hidden' || overflow === 'clip';
-            expect(shouldLock).toBe(true);
+            expect(shouldOverflowLock('clip')).toBe(true);
         });
 
         it('overflow: scroll should NOT trigger lock', () => {
-            const overflow = 'scroll';
-            const shouldLock = overflow === 'hidden' || overflow === 'clip';
-            expect(shouldLock).toBe(false);
+            expect(shouldOverflowLock('scroll')).toBe(false);
         });
     });
 
