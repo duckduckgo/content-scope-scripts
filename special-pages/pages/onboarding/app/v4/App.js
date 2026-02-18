@@ -7,7 +7,6 @@ import { usePlatformName } from '../shared/components/SettingsProvider';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
 import { Fallback } from '../shared/components/Fallback';
 import { Background } from './components/Background.js';
-import { BeforeAfterProvider } from './context/BeforeAfterProvider';
 import { SingleStep } from './components/SingleStep';
 
 /**
@@ -58,9 +57,7 @@ export function App({ children }) {
                 onAnimationEnd={didAnimationEnd}
             >
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
-                    <BeforeAfterProvider>
-                        <SingleStep />
-                    </BeforeAfterProvider>
+                    <SingleStep />
                 </ErrorBoundary>
             </div>
             {children}
