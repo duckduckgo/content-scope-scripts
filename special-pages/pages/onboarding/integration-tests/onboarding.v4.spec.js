@@ -189,7 +189,7 @@ test.describe('onboarding v4', () => {
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Duckplayer
-        await page.getByText('Drowning in ads').waitFor({ timeout: 1000 });
+        await page.getByText('Watch YouTube ad-free').waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Customize

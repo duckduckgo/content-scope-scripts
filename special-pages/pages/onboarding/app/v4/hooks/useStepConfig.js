@@ -3,7 +3,6 @@ import { GlobalContext, GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { usePlatformName } from '../../shared/components/SettingsProvider';
 import { stepsConfig } from '../data/data';
-import { useBeforeAfter } from '../context/BeforeAfterProvider';
 
 /**
  * @param {import('../../types').Step['id'][]} order
@@ -28,7 +27,6 @@ export function useStepConfig() {
     const platformName = usePlatformName() || 'macos';
     const dispatch = useContext(GlobalDispatch);
     const { t } = useTypedTranslation();
-    const { getStep, setStep, toggleStep } = useBeforeAfter();
 
     const { order, activeStep } = globalState;
 
@@ -49,13 +47,6 @@ export function useStepConfig() {
             current: true,
         });
 
-    /** @type {import('../data/data-types').BeforeAfterFunctions} */
-    const beforeAfter = {
-        get: () => getStep(activeStep),
-        set: (value) => setStep(activeStep, value),
-        toggle: () => toggleStep(activeStep),
-    };
-
     /** @type {import('../data/data-types').StepConfigParams} */
     const configParams = {
         t,
@@ -65,7 +56,6 @@ export function useStepConfig() {
         advance,
         dismiss,
         enableSystemValue,
-        beforeAfter,
     };
 
     if (!stepsConfig[activeStep]) {
