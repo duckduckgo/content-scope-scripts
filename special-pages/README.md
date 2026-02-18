@@ -52,17 +52,12 @@ Check the terminal for the dev URL, but it's normally `localhost:8000`.
 
 ### Step 5: Create a PR + Preview the Change
 
-Content Scope Scripts uses Netlify preview deployments, so opening a PR will create a preview URL.
+The PR build workflow creates a `pr-releases/<branch>` build branch and posts static preview links in the PR comment.
 
-During the deployment:
-- Docs are generated
-- All special pages are built
-
-When you access the Netlify URL, you'll land on the docs homepage. Append `/build/pages/example` to the URL to see the changes you made to the Example application.
-
-**Example URLs:**
-- Preview: `https://content-scope-scripts.netlify.app/build/pages/example/`
-- Production: `https://content-scope-scripts.netlify.app`
+Use these entry points from that comment:
+- docs: `/docs/index.html`
+- static special pages: `/build/integration/pages/index.html`
+- injected integration pages: `/injected/integration-test/test-pages/index.html`
 
 ## Architecture
 
