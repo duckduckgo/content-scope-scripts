@@ -3,29 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Context Menu Test Page</title>
+    <title>Context Menu Tests</title>
+    <link rel="stylesheet" href="../shared/style.css">
+    <style>
+        body { font-family: Arial, Helvetica, sans-serif; max-width: 800px; margin: 2em auto; padding: 0 1em; }
+        h1 { border-bottom: 2px solid #333; padding-bottom: .3em; }
+        section { margin: 1.5em 0; padding: 1em; border: 1px solid #ddd; border-radius: 4px; }
+        section h2 { margin-top: 0; font-size: 1.1em; }
+        .instructions { color: #555; font-style: italic; margin-bottom: .5em; }
+        .test-element { background: #f8f8f8; padding: .5em; margin: .5em 0; }
+        img { display: block; width: 80px; height: 80px; background: #ccc; }
+    </style>
 </head>
 <body>
-    <p id="plain-text">Some plain text content</p>
+    <h1>Context Menu Feature — Test Page</h1>
+    <p>
+        This page tests the <code>contextMenu</code> C-S-S feature, which captures
+        metadata about right-clicked elements and sends it to the native layer via
+        the isolated messaging bridge. Right-click each test element and verify the
+        expected context menu behavior.
+    </p>
 
-    <a id="link" href="https://example.com/page">A link</a>
+    <!-- 1. Plain text -->
+    <section>
+        <h2>1. Plain text</h2>
+        <p class="instructions">Right-click the text below. Expected: no link URL, no image metadata.</p>
+        <div class="test-element">
+            <p id="plain-text">Some plain text content</p>
+        </div>
+    </section>
 
-    <a id="link-with-title" href="https://example.com/titled" title="Link tooltip">
-        <span id="link-inner">Nested link text</span>
-    </a>
+    <!-- 2. Link -->
+    <section>
+        <h2>2. Link</h2>
+        <p class="instructions">Right-click the link. Expected: linkUrl = <code>https://example.com/page</code>.</p>
+        <div class="test-element">
+            <a id="link" href="https://example.com/page">A link to example.com</a>
+        </div>
+    </section>
 
-    <img id="image" src="./test-image.png" alt="Test image description">
+    <!-- 3. Nested element inside a link (with title) -->
+    <section>
+        <h2>3. Nested element inside a link with title</h2>
+        <p class="instructions">Right-click the inner text. Expected: linkUrl from ancestor anchor, title = <code>Link tooltip</code>.</p>
+        <div class="test-element">
+            <a id="link-with-title" href="https://example.com/titled" title="Link tooltip">
+                <span id="link-inner">Nested link text</span>
+            </a>
+        </div>
+    </section>
 
-    <a id="image-link" href="https://example.com/gallery">
-        <img id="linked-image" src="./linked-photo.jpg" alt="Linked photo">
-    </a>
+    <!-- 4. Image -->
+    <section>
+        <h2>4. Image</h2>
+        <p class="instructions">Right-click the image. Expected: imageSrc, imageAlt = <code>Test image description</code>, no linkUrl.</p>
+        <div class="test-element">
+            <img id="image" src="./test-image.png" alt="Test image description">
+        </div>
+    </section>
 
-    <div id="titled-div" title="Div tooltip">
-        <span id="titled-child">Child of titled div</span>
-    </div>
+    <!-- 5. Linked image -->
+    <section>
+        <h2>5. Linked image</h2>
+        <p class="instructions">Right-click the image inside the link. Expected: both linkUrl and imageSrc.</p>
+        <div class="test-element">
+            <a id="image-link" href="https://example.com/gallery">
+                <img id="linked-image" src="./linked-photo.jpg" alt="Linked photo">
+            </a>
+        </div>
+    </section>
 
-    <video id="video" src="./clip.mp4"></video>
+    <!-- 6. Title inherited from ancestor -->
+    <section>
+        <h2>6. Title inherited from ancestor</h2>
+        <p class="instructions">Right-click the child span. Expected: title = <code>Div tooltip</code> (inherited from parent div).</p>
+        <div class="test-element">
+            <div id="titled-div" title="Div tooltip">
+                <span id="titled-child">Child of titled div</span>
+            </div>
+        </div>
+    </section>
 
-    <p id="selectable">Select this text for testing</p>
+    <!-- 7. Text selection -->
+    <section>
+        <h2>7. Text selection</h2>
+        <p class="instructions">Select the text below, then right-click. Expected: selectedText = <code>Select this text for testing</code>.</p>
+        <div class="test-element">
+            <p id="selectable">Select this text for testing</p>
+        </div>
+    </section>
+
+    <!-- 8. Video element -->
+    <section>
+        <h2>8. Video element</h2>
+        <p class="instructions">Right-click the video area. Expected: imageSrc contains <code>clip.mp4</code>, elementTag = <code>video</code>.</p>
+        <div class="test-element">
+            <video id="video" src="./clip.mp4" width="160" height="90" style="background:#222;"></video>
+        </div>
+    </section>
+
+    <!-- 9. Iframe (same-origin) -->
+    <section>
+        <h2>9. Iframe content</h2>
+        <p class="instructions">Right-click inside the iframe. Expected: context menu data is captured from the iframe's document.</p>
+        <div class="test-element">
+            <iframe id="test-iframe" srcdoc="<p id='iframe-text'>Text inside an iframe</p>" style="width:100%;height:60px;border:1px solid #999;"></iframe>
+        </div>
+    </section>
 </body>
 </html>
