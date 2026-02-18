@@ -30,6 +30,12 @@ export function SingleStep() {
 
     return (
         <div class={styles.layout} style={{ width }}>
+            {showProgress && (
+                <div class={styles.progressBadge}>
+                    <ProgressIndicator current={progress.current} total={progress.total} />
+                </div>
+            )}
+
             {topBubble && (
                 <Bubble
                     class={cn(styles.topBubble, introAnimation && styles.bubbleIntro)}
@@ -38,19 +44,14 @@ export function SingleStep() {
                     illustration={topBubble.illustration}
                     onHeight={(h) => setTopHeight(h)}
                 >
-                    {showProgress && (
-                        <div class={styles.progressBadge}>
-                            <ProgressIndicator current={progress.current} total={progress.total} />
-                        </div>
-                    )}
                     {topBubble.content}
                 </Bubble>
             )}
 
             {bottomBubble && (
                 <Bubble
-                    class={styles.bottomBubble}
-                    style={{ width, top: topHeight + GAP }}
+                    class={cn(styles.bottomBubble, introAnimation && !topBubble && styles.bubbleIntro)}
+                    style={{ width, top: topBubble ? topHeight + GAP : 0 }}
                     illustration={bottomBubble.illustration}
                     onHeight={(h) => setBottomHeight(h)}
                 >

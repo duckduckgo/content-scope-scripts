@@ -24,7 +24,7 @@ export const stepsConfig = {
     },
     getStarted: () => {
         return {
-            topBubble: {
+            bottomBubble: {
                 content: <GetStartedContent />,
                 tail: 'bottom-left',
                 illustration: {
@@ -37,7 +37,7 @@ export const stepsConfig = {
     },
     makeDefaultSingle: () => {
         return {
-            topBubble: { content: <MakeDefaultContent /> },
+            bottomBubble: { content: <MakeDefaultContent /> },
             showProgress: true,
         };
     },
