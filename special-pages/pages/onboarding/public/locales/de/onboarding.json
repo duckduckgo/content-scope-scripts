@@ -284,6 +284,14 @@
     "title" : "Keine gezielte Werbung. Keine gezielten Empfehlungen. Nur das Video.",
     "note" : "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
+  "duckPlayer_adFree_title" : {
+    "title" : "YouTube ohne Werbung ansehen!",
+    "note" : "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
+  "duckPlayer_adFree_subtitle" : {
+    "title" : "Kein Premium-Abonnement oder Plugins von Drittanbietern erforderlich.{newline}Einfach dein Video, ohne Werbung.",
+    "note" : "Subtitle for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
   "addressBarMode_title" : {
     "title" : "Möchtest du einfachen Zugriff auf den privaten KI-Chat?",
     "note" : "Title for the Address Bar Mode feature step in onboarding"
