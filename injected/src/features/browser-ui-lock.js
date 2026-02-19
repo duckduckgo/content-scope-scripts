@@ -3,7 +3,7 @@ import ContentFeature from '../content-feature.js';
 /**
  * BrowserUiLock feature detects when a page has no visible vertical scrollbar,
  * indicating it manages its own viewport (maps, games, fullscreen apps).
- * When locked, browser UI gestures (pull-to-refresh, omnibar, tab swipe) are disabled.
+ * When locked, browser UI gestures (omnibar scroll, tab swipe) are disabled.
  *
  * Detection: if there's no visible scrollbar on html or body, lock.
  * A scrollbar is visible when scrollHeight > clientHeight AND overflow isn't hidden/clip.
@@ -15,13 +15,13 @@ export default class BrowserUiLock extends ContentFeature {
     _currentLockState = false;
 
     /** @type {MutationObserver | null} */
-    _observer = null;
+    _mutationObserver = null;
+
+    /** @type {ResizeObserver | null} */
+    _resizeObserver = null;
 
     /** @type {number | null} */
     _rafId = null;
-
-    /** @type {number | null} */
-    _delayedCheckTimeout = null;
 
     /**
      * Enable URL change listening to reset and re-evaluate on SPA navigations
@@ -29,89 +29,81 @@ export default class BrowserUiLock extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
-        // Only run in top frame for v1
+        // Only run in top frame
         if (window.self !== window.top) {
             return;
         }
 
         // Initial evaluation on DOMContentLoaded or immediately if already loaded
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this._scheduleEvaluation(), { once: true });
+            document.addEventListener('DOMContentLoaded', () => this._startObserving(), { once: true });
         } else {
-            this._scheduleEvaluation();
+            this._startObserving();
         }
-
-        // Set up mutation observer for style/class changes
-        this._setupObserver();
-
-        // Delayed check (300ms) to catch late SPA style changes
-        this._scheduleDelayedCheck();
     }
 
     /**
      * Called when URL changes (SPA navigation).
-     * Re-evaluates lock state without forcing an unlock first,
-     * since the new page may also require lock.
      */
     urlChanged() {
         this._scheduleEvaluation();
-        this._scheduleDelayedCheck();
     }
 
     /**
-     * Set up MutationObserver to watch for style/class attribute changes
-     * and stylesheet additions.
+     * Start observing for changes that could affect scrollbar visibility.
      */
-    _setupObserver() {
-        if (this._observer) {
-            this._observer.disconnect();
+    _startObserving() {
+        this._scheduleEvaluation();
+        this._setupMutationObserver();
+        this._setupResizeObserver();
+    }
+
+    /**
+     * Set up MutationObserver to watch for style/class attribute changes on html and body.
+     */
+    _setupMutationObserver() {
+        if (this._mutationObserver) {
+            this._mutationObserver.disconnect();
         }
 
-        this._observer = new MutationObserver(() => {
+        this._mutationObserver = new MutationObserver(() => {
             this._scheduleEvaluation();
         });
 
-        // Start observing when DOM is ready
-        const startObserving = () => {
-            if (document.documentElement) {
-                this._observer?.observe(document.documentElement, {
-                    attributes: true,
-                    attributeFilter: ['style', 'class'],
-                });
-            }
+        if (document.documentElement) {
+            this._mutationObserver.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['style', 'class'],
+            });
+        }
 
-            if (document.body) {
-                this._observer?.observe(document.body, {
-                    attributes: true,
-                    attributeFilter: ['style', 'class'],
-                });
-            }
-
-            if (document.head) {
-                this._observer?.observe(document.head, {
-                    childList: true,
-                    subtree: true,
-                });
-            }
-        };
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', startObserving, { once: true });
-        } else {
-            startObserving();
+        if (document.body) {
+            this._mutationObserver.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['style', 'class'],
+            });
         }
     }
 
     /**
-     * Schedule a delayed check to catch late style changes
+     * Set up ResizeObserver to detect content size changes (images loading, dynamic content).
      */
-    _scheduleDelayedCheck() {
-        if (this._delayedCheckTimeout) {
-            clearTimeout(this._delayedCheckTimeout);
+    _setupResizeObserver() {
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
         }
-        this._delayedCheckTimeout = window.setTimeout(() => {
-            this._evaluateLockState();
-        }, 300);
+
+        this._resizeObserver = new ResizeObserver(() => {
+            this._scheduleEvaluation();
+        });
+
+        if (document.documentElement) {
+            this._resizeObserver.observe(document.documentElement);
+        }
+
+        if (document.body) {
+            this._resizeObserver.observe(document.body);
+        }
     }
 
     /**
@@ -129,7 +121,7 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     /**
-     * Evaluate CSS signals and determine lock state
+     * Evaluate scrollbar visibility and determine lock state
      */
     _evaluateLockState() {
         const shouldLock = this._detectShouldLock();

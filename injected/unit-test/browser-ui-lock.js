@@ -185,16 +185,13 @@ describe('BrowserUiLock', () => {
 
         it('should respect top-frame check in init', () => {
             const feature = createFeature();
-            spyOn(feature, '_setupObserver');
-            spyOn(feature, '_scheduleEvaluation');
-            spyOn(feature, '_scheduleDelayedCheck');
+            spyOn(feature, '_startObserving');
             feature.init();
 
             if (window.self === window.top) {
-                expect(feature._setupObserver).toHaveBeenCalled();
+                expect(feature._startObserving).toHaveBeenCalled();
             } else {
-                expect(feature._setupObserver).not.toHaveBeenCalled();
-                expect(feature._scheduleEvaluation).not.toHaveBeenCalled();
+                expect(feature._startObserving).not.toHaveBeenCalled();
             }
         });
     });
