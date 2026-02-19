@@ -1,0 +1,45 @@
+/* --- getStarted: DaxGetStarted --- */
+
+.getStarted {
+    position: relative;
+    left: -88px;
+    top: -22px;
+}
+
+.getStartedOutro {
+    animation: dax-exit 0.7s both;
+}
+
+@keyframes dax-exit {
+    0% {
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
+    }
+    47.62%, 100% {
+        opacity: 0;
+    }
+}
+
+/* --- systemSettings: DaxSystemSettingsBackground / DaxSystemSettingsForeground --- */
+
+.systemSettingsBackground {
+    --dax-circle-fill: #C9E3FF;
+
+    position: absolute;
+    left: 100%;
+    top: 24px;
+    z-index: 0;
+    pointer-events: none;
+
+    @media (prefers-color-scheme: dark) {
+        --dax-circle-fill: #123269;
+    }
+}
+
+.systemSettingsForeground {
+    position: absolute;
+    right: -20px;
+    top: 101px;
+    z-index: 2;
+    pointer-events: none;
+}

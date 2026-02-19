@@ -22,6 +22,7 @@
  * @property {import('preact').ComponentChild} [bottomBubble] - Content rendered inside the bottom speech bubble (optional)
  * @property {boolean} [showProgress] - Whether to show the progress indicator in the top bubble
  * @property {'bottom-left'} [topBubbleTail] - Direction of the speech bubble tail on the top bubble
+ * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration] - Layered illustration around bottom bubble (background behind, foreground in front), or after top bubble when no bottom bubble
  */
 
 /**
