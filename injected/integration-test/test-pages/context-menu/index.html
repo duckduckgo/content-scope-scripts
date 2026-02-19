@@ -93,19 +93,10 @@
         </div>
     </section>
 
-    <!-- 8. Video element -->
-    <section>
-        <h2>8. Video element</h2>
-        <p class="instructions">Right-click the video area. Expected: imageSrc contains <code>clip.mp4</code>, elementTag = <code>video</code>.</p>
-        <div class="test-element">
-            <video id="video" src="./clip.mp4" width="160" height="90" style="background:#222;"></video>
-        </div>
-    </section>
-
-    <!-- 9. Iframe (same-origin) — manual testing only; the Playwright harness
+    <!-- 8. Iframe (same-origin) — manual testing only; the Playwright harness
          does not inject C-S-S into srcdoc iframes. -->
     <section>
-        <h2>9. Iframe content (manual only)</h2>
+        <h2>8. Iframe content (manual only)</h2>
         <p class="instructions">Right-click inside the iframe. Expected: context menu data is captured from the iframe's document. <em>(Not automated — requires real browser injection.)</em></p>
         <div class="test-element">
             <iframe id="test-iframe" srcdoc="<p id='iframe-text'>Text inside an iframe</p>" style="width:100%;height:60px;border:1px solid #999;"></iframe>
