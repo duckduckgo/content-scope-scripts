@@ -27,6 +27,21 @@ test('pageObserver sends domLoaded exactly once', async ({ page }, testInfo) => 
     expect(domLoadedMessages).toHaveLength(1);
 });
 
+test('pageObserver does not send domLoaded from iframes', async ({ page }, testInfo) => {
+    const FRAMED_HTML = '/page-observer/framed.html';
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(FRAMED_HTML, CONFIG);
+
+    await collector.waitForMessage('domLoaded', 1);
+
+    // Wait to ensure the iframe doesn't produce a second notification
+    await page.waitForTimeout(300);
+
+    const all = await collector.outgoingMessages();
+    const domLoadedMessages = all.filter((m) => /** @type {{method: string}} */ (m.payload).method === 'domLoaded');
+    expect(domLoadedMessages).toHaveLength(1);
+});
+
 test('pageObserver does not send when feature is disabled', async ({ page }, testInfo) => {
     const DISABLED_CONFIG = './integration-test/test-pages/page-observer/config/page-observer-disabled.json';
     const collector = ResultsCollector.create(page, testInfo.project.use);
