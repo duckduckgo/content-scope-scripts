@@ -45,7 +45,7 @@ test('contextMenu sends href when right-clicking a nested element inside a link'
     expect(params.elementTag).toBe('span');
 });
 
-test('contextMenu sends image metadata when right-clicking an image', async ({ page }, testInfo) => {
+test('contextMenu sends image metadata with absolute src when right-clicking an image', async ({ page, baseURL }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, CONFIG);
 
@@ -54,13 +54,14 @@ test('contextMenu sends image metadata when right-clicking an image', async ({ p
     const messages = await collector.waitForMessage('contextMenuEvent', 1);
     const params = messages[0].payload.params;
 
-    expect(params.imageSrc).toContain('test-image.png');
+    const expectedSrc = new URL('/context-menu/test-image.png', baseURL).href;
+    expect(params.imageSrc).toBe(expectedSrc);
     expect(params.imageAlt).toBe('Test image description');
     expect(params.linkUrl).toBeNull();
     expect(params.elementTag).toBe('img');
 });
 
-test('contextMenu sends both link and image metadata for a linked image', async ({ page }, testInfo) => {
+test('contextMenu sends both link and image metadata for a linked image', async ({ page, baseURL }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, CONFIG);
 
@@ -69,8 +70,9 @@ test('contextMenu sends both link and image metadata for a linked image', async 
     const messages = await collector.waitForMessage('contextMenuEvent', 1);
     const params = messages[0].payload.params;
 
+    const expectedSrc = new URL('/context-menu/linked-photo.jpg', baseURL).href;
     expect(params.linkUrl).toBe('https://example.com/gallery');
-    expect(params.imageSrc).toContain('linked-photo.jpg');
+    expect(params.imageSrc).toBe(expectedSrc);
     expect(params.imageAlt).toBe('Linked photo');
     expect(params.elementTag).toBe('img');
 });

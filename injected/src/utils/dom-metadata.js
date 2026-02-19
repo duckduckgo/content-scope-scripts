@@ -65,7 +65,8 @@ const MEDIA_TAGS = new Set(['img', 'video', 'audio', 'source', 'embed']);
 
 /**
  * Attempt to read a `src` value from an element, handling media elements and
- * `<picture>` wrappers.
+ * `<picture>` wrappers. Uses the IDL property (`.src`) to always return an
+ * absolute URL, consistent with how `anchor.href` behaves for links.
  *
  * @param {Element} element
  * @returns {string | null}
@@ -73,11 +74,11 @@ const MEDIA_TAGS = new Set(['img', 'video', 'audio', 'source', 'embed']);
 function getMediaSrc(element) {
     const tag = element.tagName.toLowerCase();
     if (MEDIA_TAGS.has(tag)) {
-        return element.getAttribute('src') || null;
+        return /** @type {HTMLMediaElement | HTMLImageElement | HTMLEmbedElement} */ (element).src || null;
     }
     if (tag === 'picture') {
-        const img = element.querySelector('img');
-        return img?.getAttribute('src') || null;
+        const img = /** @type {HTMLImageElement | null} */ (element.querySelector('img'));
+        return img?.src || null;
     }
     return null;
 }
