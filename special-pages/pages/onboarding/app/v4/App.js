@@ -25,7 +25,7 @@ export function App({ children }) {
     const dispatch = useCallback(
         /** @param {import('../types').GlobalEvents} msg */
         (msg) => {
-            if (msg.kind === 'advance') {
+            if (msg.kind === 'advance' && document.startViewTransition) {
                 document.startViewTransition(() => {
                     flushSync(() => parentDispatch(msg));
                 });

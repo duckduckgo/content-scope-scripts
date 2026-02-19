@@ -8,13 +8,6 @@
  * @property {number} total - Total number of steps
  */
 
-/**
- * @typedef {object} BeforeAfterFunctions
- * @property {() => import('../context/BeforeAfterProvider').BeforeAfter|null} get - Gets current before/after state
- * @property {(value: import('../context/BeforeAfterProvider').BeforeAfter) => void} set - Sets before/after state
- * @property {() => void} toggle - Toggles before/after state
- */
-
 /** @typedef {object} BubbleConfig
  * @property {import('preact').ComponentChild} content
  * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration]
