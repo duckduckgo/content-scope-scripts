@@ -114,6 +114,25 @@ test('contextMenu includes selected text when text is selected', async ({ page }
     expect(params.selectedText).toBe('Select this text for testing');
 });
 
+test('contextMenu sends video src when right-clicking a video element', async ({ page, baseURL }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.locator('#video').click({ button: 'right' });
+
+    const messages = await collector.waitForMessage('contextMenuEvent', 1);
+    const params = messages[0].payload.params;
+
+    const expectedSrc = new URL('/context-menu/clip.mp4', baseURL).href;
+    expect(params.imageSrc).toBe(expectedSrc);
+    expect(params.elementTag).toBe('video');
+    expect(params.linkUrl).toBeNull();
+});
+
+// Iframe test (section 9) is manual-only: the Playwright harness does not
+// inject C-S-S into srcdoc iframes the way WebKit's WKUserContentController
+// does in production. Verify iframe behavior via the test page in a real browser.
+
 test('contextMenu sends no messages when feature is disabled', async ({ page }, testInfo) => {
     const DISABLED_CONFIG = './integration-test/test-pages/context-menu/config/context-menu-disabled.json';
     const collector = ResultsCollector.create(page, testInfo.project.use);
