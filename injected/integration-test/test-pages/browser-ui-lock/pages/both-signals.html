@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Both Signals - Browser UI Lock</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        html {
+            overscroll-behavior: none;
+        }
+        body {
+            overflow: hidden;
+            height: 100vh;
+        }
+        .content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <div class="content">
+        <p><a href="../index.html">[Browser UI Lock]</a></p>
+        
+        <h1>Both Signals Present</h1>
+        <p>This page has both:</p>
+        <ul>
+            <li><code>overscroll-behavior: none</code> on html</li>
+            <li><code>overflow: hidden</code> on body</li>
+        </ul>
+        <p>The browser UI should definitely be LOCKED.</p>
+
+        <div id="results"></div>
+        <div id="test-status"></div>
+    </div>
+
+    <script>
+        test('Page should trigger UI lock with both signals', async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            const htmlStyle = getComputedStyle(document.documentElement);
+            const bodyStyle = getComputedStyle(document.body);
+            
+            const overscrollBehavior = htmlStyle.getPropertyValue('overscroll-behavior');
+            const overflow = bodyStyle.getPropertyValue('overflow');
+            
+            return [
+                {
+                    name: 'HTML has overscroll-behavior: none',
+                    result: overscrollBehavior.includes('none'),
+                    expected: true
+                },
+                {
+                    name: 'Body has overflow: hidden',
+                    result: overflow,
+                    expected: 'hidden'
+                },
+                {
+                    name: 'Both signals should trigger lock',
+                    result: overscrollBehavior.includes('none') && overflow === 'hidden',
+                    expected: true
+                }
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

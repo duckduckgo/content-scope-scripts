@@ -46,6 +46,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'webTelemetry',
     'pageContext',
     'print',
+    'browserUiLock',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -73,8 +74,10 @@ export const platformSupport = {
         'duckPlayer',
         'messageBridge',
         'pageContext',
+        'browserUiLock',
     ],
     'android-broker-protection': ['brokerProtection'],
+    'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
         'apiManipulation',
@@ -88,7 +91,6 @@ export const platformSupport = {
         'webDetection',
         'breakageReporting',
     ],
-    'android-ai-history': ['duckAiChatHistory'],
     windows: [
         'cookie',
         ...baseFeatures,
