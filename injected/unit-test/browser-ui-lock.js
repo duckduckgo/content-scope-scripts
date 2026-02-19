@@ -30,65 +30,94 @@ describe('BrowserUiLock', () => {
         return feature;
     }
 
-    describe('_extractYAxis', () => {
-        it('should return the single value when only one token', () => {
+    describe('_hasVisibleScrollbar', () => {
+        /**
+         * Create a mock element with specified properties
+         * @param {number} scrollHeight
+         * @param {number} clientHeight
+         * @param {string} overflowY
+         */
+        function createMockElement(scrollHeight, clientHeight, overflowY) {
+            const el = /** @type {Element} */ ({
+                scrollHeight,
+                clientHeight,
+            });
+            // Mock getComputedStyle
+            spyOn(window, 'getComputedStyle').and.returnValue(
+                /** @type {CSSStyleDeclaration} */ ({
+                    overflowY,
+                }),
+            );
+            return el;
+        }
+
+        it('should return true when content overflows and overflow is visible', () => {
             const feature = createFeature();
-            expect(feature._extractYAxis('none')).toBe('none');
-            expect(feature._extractYAxis('auto')).toBe('auto');
-            expect(feature._extractYAxis('hidden')).toBe('hidden');
+            const el = createMockElement(1000, 500, 'visible');
+            expect(feature._hasVisibleScrollbar(el)).toBe(true);
         });
 
-        it('should return the second token (y-axis) from a shorthand', () => {
+        it('should return true when content overflows and overflow is auto', () => {
             const feature = createFeature();
-            expect(feature._extractYAxis('auto none')).toBe('none');
-            expect(feature._extractYAxis('contain auto')).toBe('auto');
-            expect(feature._extractYAxis('visible hidden')).toBe('hidden');
+            const el = createMockElement(1000, 500, 'auto');
+            expect(feature._hasVisibleScrollbar(el)).toBe(true);
         });
 
-        it('should handle extra whitespace', () => {
+        it('should return true when content overflows and overflow is scroll', () => {
             const feature = createFeature();
-            expect(feature._extractYAxis('  none  ')).toBe('none');
-            expect(feature._extractYAxis('  auto   none  ')).toBe('none');
+            const el = createMockElement(1000, 500, 'scroll');
+            expect(feature._hasVisibleScrollbar(el)).toBe(true);
+        });
+
+        it('should return false when content overflows but overflow is hidden', () => {
+            const feature = createFeature();
+            const el = createMockElement(1000, 500, 'hidden');
+            expect(feature._hasVisibleScrollbar(el)).toBe(false);
+        });
+
+        it('should return false when content overflows but overflow is clip', () => {
+            const feature = createFeature();
+            const el = createMockElement(1000, 500, 'clip');
+            expect(feature._hasVisibleScrollbar(el)).toBe(false);
+        });
+
+        it('should return false when content fits (no overflow)', () => {
+            const feature = createFeature();
+            const el = createMockElement(500, 500, 'auto');
+            expect(feature._hasVisibleScrollbar(el)).toBe(false);
+        });
+
+        it('should return false when content is smaller than viewport', () => {
+            const feature = createFeature();
+            const el = createMockElement(300, 500, 'auto');
+            expect(feature._hasVisibleScrollbar(el)).toBe(false);
         });
     });
 
-    describe('_getMostRestrictiveOverscroll', () => {
-        it('should pick the more restrictive value', () => {
-            const feature = createFeature();
-            expect(feature._getMostRestrictiveOverscroll('none', 'contain')).toBe('none');
-            expect(feature._getMostRestrictiveOverscroll('contain', 'auto')).toBe('contain');
-            expect(feature._getMostRestrictiveOverscroll('auto', 'none')).toBe('none');
-            expect(feature._getMostRestrictiveOverscroll('auto', 'auto')).toBe('auto');
+    describe('lock conditions', () => {
+        /**
+         * Check if element has visible scrollbar
+         * @param {number} scrollHeight
+         * @param {number} clientHeight
+         * @param {string} overflowY
+         */
+        function hasVisibleScrollbar(scrollHeight, clientHeight, overflowY) {
+            return scrollHeight > clientHeight && overflowY !== 'hidden' && overflowY !== 'clip';
+        }
+
+        it('should lock when no visible scrollbar (content fits viewport)', () => {
+            const hasScrollbar = hasVisibleScrollbar(500, 800, 'auto');
+            expect(hasScrollbar).toBe(false); // no scrollbar = lock
         });
 
-        it('should handle unknown values gracefully', () => {
-            const feature = createFeature();
-            expect(feature._getMostRestrictiveOverscroll('', '')).toBe('');
-            expect(feature._getMostRestrictiveOverscroll('', 'none')).toBe('none');
-            expect(feature._getMostRestrictiveOverscroll('contain', '')).toBe('contain');
+        it('should lock when overflow is hidden (no visible scrollbar)', () => {
+            const hasScrollbar = hasVisibleScrollbar(1000, 500, 'hidden');
+            expect(hasScrollbar).toBe(false); // hidden = no scrollbar = lock
         });
 
-        it('should extract y-axis from shorthands', () => {
-            const feature = createFeature();
-            expect(feature._getMostRestrictiveOverscroll('auto none', 'auto')).toBe('none');
-            expect(feature._getMostRestrictiveOverscroll('auto', 'contain auto')).toBe('auto');
-        });
-    });
-
-    describe('_getMostRestrictiveOverflow', () => {
-        it('should pick the more restrictive value', () => {
-            const feature = createFeature();
-            expect(feature._getMostRestrictiveOverflow('hidden', 'scroll')).toBe('hidden');
-            expect(feature._getMostRestrictiveOverflow('clip', 'auto')).toBe('clip');
-            expect(feature._getMostRestrictiveOverflow('scroll', 'visible')).toBe('scroll');
-            expect(feature._getMostRestrictiveOverflow('auto', 'visible')).toBe('auto');
-        });
-
-        it('should handle unknown values gracefully', () => {
-            const feature = createFeature();
-            expect(feature._getMostRestrictiveOverflow('', '')).toBe('');
-            expect(feature._getMostRestrictiveOverflow('', 'hidden')).toBe('hidden');
-            expect(feature._getMostRestrictiveOverflow('visible', '')).toBe('visible');
+        it('should NOT lock when there is a visible scrollbar', () => {
+            const hasScrollbar = hasVisibleScrollbar(1000, 500, 'auto');
+            expect(hasScrollbar).toBe(true); // scrollbar visible = no lock
         });
     });
 

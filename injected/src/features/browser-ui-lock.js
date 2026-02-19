@@ -1,16 +1,12 @@
 import ContentFeature from '../content-feature.js';
 
 /**
- * BrowserUiLock feature detects CSS signals indicating that a page manages
- * its own touch interactions (maps, games, drawing tools) and notifies the
- * native app to lock browser UI gestures (pull-to-refresh, omnibar, tab swipe).
+ * BrowserUiLock feature detects when a page has no visible vertical scrollbar,
+ * indicating it manages its own viewport (maps, games, fullscreen apps).
+ * When locked, browser UI gestures (pull-to-refresh, omnibar, tab swipe) are disabled.
  *
- * Detection is based on computed CSS properties:
- * - overscroll-behavior: none (strong signal of deliberate scroll control)
- * - overflow: hidden or clip (indicates page manages its own viewport)
- *
- * Note: overscroll-behavior: contain is NOT a lock trigger because it's a
- * common defensive pattern that only stops scroll chaining, not scroll itself.
+ * Detection: if there's no visible scrollbar on html or body, lock.
+ * A scrollbar is visible when scrollHeight > clientHeight AND overflow isn't hidden/clip.
  *
  * @see https://app.asana.com/0/0/1209424908894123
  */
@@ -141,95 +137,42 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     /**
-     * Detect CSS signals from html and body elements and determine if should lock
+     * Determine if UI should be locked based on scrollbar visibility.
+     * Lock if there's no visible vertical scrollbar on the page.
      * @returns {boolean}
      */
     _detectShouldLock() {
         try {
-            const htmlStyle = document.documentElement ? getComputedStyle(document.documentElement) : null;
-            const bodyStyle = document.body ? getComputedStyle(document.body) : null;
+            const html = document.documentElement;
+            const body = document.body;
 
-            // Check overscroll-behavior on both html and body
-            const htmlOverscroll =
-                htmlStyle?.getPropertyValue('overscroll-behavior-y') || htmlStyle?.getPropertyValue('overscroll-behavior') || '';
-            const bodyOverscroll =
-                bodyStyle?.getPropertyValue('overscroll-behavior-y') || bodyStyle?.getPropertyValue('overscroll-behavior') || '';
-            const overscrollBehavior = this._getMostRestrictiveOverscroll(htmlOverscroll, bodyOverscroll);
+            // If either html or body has a visible scrollbar, don't lock
+            if (html && this._hasVisibleScrollbar(html)) {
+                return false;
+            }
+            if (body && this._hasVisibleScrollbar(body)) {
+                return false;
+            }
 
-            // Check overflow on both html and body
-            const htmlOverflow = htmlStyle?.getPropertyValue('overflow-y') || htmlStyle?.getPropertyValue('overflow') || '';
-            const bodyOverflow = bodyStyle?.getPropertyValue('overflow-y') || bodyStyle?.getPropertyValue('overflow') || '';
-            const overflow = this._getMostRestrictiveOverflow(htmlOverflow, bodyOverflow);
-
-            // overscroll-behavior: none is a strong signal of deliberate scroll control
-            // (maps, games, drawing tools). "contain" is NOT a trigger because it's a
-            // common defensive pattern that only stops scroll chaining.
-            const overscrollLock = overscrollBehavior === 'none';
-
-            // overflow: hidden/clip indicates the page manages its own viewport
-            const overflowLock = overflow === 'hidden' || overflow === 'clip';
-
-            return overscrollLock || overflowLock;
+            // No visible scrollbar - lock the UI
+            return true;
         } catch (e) {
             // Fail open - return false (unlocked) on error
-            this.log.warn('Failed to detect CSS signals:', e);
+            this.log.warn('Failed to detect scroll state:', e);
             return false;
         }
     }
 
     /**
-     * Get the most restrictive overflow value
-     * @param {string} value1
-     * @param {string} value2
-     * @returns {string}
+     * Check if an element has a visible vertical scrollbar.
+     * A scrollbar is visible when content overflows AND overflow isn't hidden/clip.
+     * @param {Element} el
+     * @returns {boolean}
      */
-    _getMostRestrictiveOverflow(value1, value2) {
-        const priority = ['hidden', 'clip', 'scroll', 'auto', 'visible'];
-        const v1 = value1.trim().split(/\s+/)[0];
-        const v2 = value2.trim().split(/\s+/)[0];
-
-        const i1 = priority.indexOf(v1);
-        const i2 = priority.indexOf(v2);
-
-        if (i1 === -1 && i2 === -1) return '';
-        if (i1 === -1) return v2;
-        if (i2 === -1) return v1;
-
-        return i1 < i2 ? v1 : v2;
-    }
-
-    /**
-     * Get the most restrictive overscroll-behavior value
-     * @param {string} value1
-     * @param {string} value2
-     * @returns {string}
-     */
-    _getMostRestrictiveOverscroll(value1, value2) {
-        const priority = ['none', 'contain', 'auto'];
-        const v1 = this._extractYAxis(value1);
-        const v2 = this._extractYAxis(value2);
-
-        const i1 = priority.indexOf(v1);
-        const i2 = priority.indexOf(v2);
-
-        if (i1 === -1 && i2 === -1) return '';
-        if (i1 === -1) return v2;
-        if (i2 === -1) return v1;
-
-        return i1 < i2 ? v1 : v2;
-    }
-
-    /**
-     * Extract the y-axis value from a CSS shorthand.
-     * For shorthands like "auto none", the second token is the y-axis.
-     * For single values like "none", returns that value.
-     * @param {string} value
-     * @returns {string}
-     */
-    _extractYAxis(value) {
-        const parts = value.trim().split(/\s+/);
-        // CSS shorthands: 1 value = both axes, 2 values = x then y
-        return parts.length > 1 ? parts[1] : parts[0];
+    _hasVisibleScrollbar(el) {
+        const style = getComputedStyle(el);
+        const overflowY = style.overflowY;
+        return el.scrollHeight > el.clientHeight && overflowY !== 'hidden' && overflowY !== 'clip';
     }
 
     /**
