@@ -31,6 +31,22 @@ describe('BrowserUiLock', () => {
     }
 
     describe('_hasVisibleScrollbar', () => {
+        /** @type {typeof globalThis.getComputedStyle | undefined} */
+        let originalGetComputedStyle;
+
+        beforeEach(() => {
+            originalGetComputedStyle = globalThis.getComputedStyle;
+        });
+
+        afterEach(() => {
+            if (originalGetComputedStyle !== undefined) {
+                globalThis.getComputedStyle = originalGetComputedStyle;
+            } else {
+                // @ts-expect-error - restoring undefined
+                delete globalThis.getComputedStyle;
+            }
+        });
+
         /**
          * Create a mock element with specified properties
          * @param {number} scrollHeight
@@ -42,8 +58,8 @@ describe('BrowserUiLock', () => {
                 scrollHeight,
                 clientHeight,
             });
-            // Mock getComputedStyle
-            spyOn(window, 'getComputedStyle').and.returnValue(
+            // Mock getComputedStyle globally
+            globalThis.getComputedStyle = jasmine.createSpy('getComputedStyle').and.returnValue(
                 /** @type {CSSStyleDeclaration} */ ({
                     overflowY,
                 }),
