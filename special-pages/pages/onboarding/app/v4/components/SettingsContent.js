@@ -60,7 +60,7 @@ export function SettingsContent() {
 
             {isDone && (
                 <div class={styles.actions}>
-                    <Button class={styles.nextButton} onClick={isLastStep ? dismiss : advance}>
+                    <Button size="wide" onClick={isLastStep ? dismiss : advance}>
                         {isLastStep ? t('startBrowsing') : t('nextButton')}
                         {isLastStep && <Launch />}
                     </Button>
@@ -169,7 +169,10 @@ function SettingListItem({ item, dispatch }) {
             <div class={styles.rowContent}>
                 <div class={styles.rowMain}>
                     <img class={styles.rowIcon} src={iconPath} alt="" />
-                    <p class={styles.rowTitle}>{data.title}</p>
+                    <div class={styles.rowText}>
+                        <p class={styles.rowTitle}>{data.title}</p>
+                        {item.current && data.secondaryText && <p class={styles.rowSubtitle}>{data.secondaryText}</p>}
+                    </div>
                     {inline && <div class={styles.rowInline}>{inline}</div>}
                 </div>
 

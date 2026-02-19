@@ -2,8 +2,13 @@
     display: flex;
     flex-direction: column;
     align-self: stretch;
-    padding: 2px var(--sp-3); /* 2px 12px */
+    padding: var(--sp-9) var(--sp-12); /* 36px 48px */
     gap: var(--sp-7); /* 28px */
+
+    :global([data-current="addressBarMode"]) & {
+        padding-top: var(--sp-11); /* 44px */
+        padding-bottom: var(--sp-11);
+    }
 }
 
 .title {

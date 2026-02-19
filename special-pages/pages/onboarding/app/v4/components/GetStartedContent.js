@@ -14,7 +14,7 @@ export function GetStartedContent() {
     const dispatch = useContext(GlobalDispatch);
     const { isReducedMotion } = useEnv();
     const { t } = useTypedTranslation();
-    const parts = t('getStarted_title_v3', { newline: '\n' }).split('{paragraph}');
+    const parts = t('getStarted_title_v4', { newline: '\n' }).split('{paragraph}');
     const title = parts[0];
     const body = parts.slice(1).join('');
 
@@ -31,8 +31,8 @@ export function GetStartedContent() {
                 <p class={styles.body}>{body}</p>
             </div>
             <div class={styles.actions}>
-                <Button class={styles.button} onClick={handleClick}>
-                    {t('getStartedButton_v3')}
+                <Button size="stretch" onClick={handleClick}>
+                    {t('getStartedButton_v4')}
                 </Button>
             </div>
         </div>

@@ -43,7 +43,10 @@ export const stepsConfig = {
     },
     systemSettings: ({ t }) => {
         return {
-            topBubble: { content: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} /> },
+            topBubble: {
+                content: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} />,
+                tail: 'right',
+            },
             bottomBubble: {
                 content: <SettingsContent />,
                 illustration: {
@@ -58,6 +61,7 @@ export const stepsConfig = {
         return {
             topBubble: {
                 content: <StepHeader title={t('duckPlayer_adFree_title')} subtitle={t('duckPlayer_adFree_subtitle', { newline: ' ' })} />,
+                tail: 'right',
             },
             bottomBubble: { content: <DuckPlayerContent /> },
             showProgress: true,
@@ -65,14 +69,17 @@ export const stepsConfig = {
     },
     customize: ({ t }) => {
         return {
-            topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} /> },
+            topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} />, tail: 'right' },
             bottomBubble: { content: <SettingsContent /> },
             showProgress: true,
         };
     },
     addressBarMode: ({ t }) => {
         return {
-            topBubble: { content: <StepHeader title={t('addressBarMode_title')} /> },
+            topBubble: {
+                content: <StepHeader title={t('addressBarMode_title')} />,
+                tail: 'right',
+            },
             bottomBubble: { content: <AddressBarContent /> },
             showProgress: true,
         };

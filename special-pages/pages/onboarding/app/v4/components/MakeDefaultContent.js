@@ -29,7 +29,7 @@ export function MakeDefaultContent() {
 
     return (
         <div class={styles.root}>
-            <h2 class={styles.title}>{isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title')}</h2>
+            <h2 class={styles.title}>{isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title_v4')}</h2>
 
             <ComparisonTable />
 
@@ -39,7 +39,9 @@ export function MakeDefaultContent() {
                         {t('skipButton')}
                     </Button>
                 )}
-                <Button onClick={isIdle ? enableDefaultBrowser : advance}>{isIdle ? t('makeDefaultButton') : t('nextButton')}</Button>
+                <Button size={isIdle ? undefined : 'wide'} onClick={isIdle ? enableDefaultBrowser : advance}>
+                    {isIdle ? t('makeDefaultButton') : t('nextButton')}
+                </Button>
             </div>
         </div>
     );

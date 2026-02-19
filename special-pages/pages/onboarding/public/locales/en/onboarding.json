@@ -452,5 +452,21 @@
   "browser_Safari": {
     "title": "Safari",
     "note": "Brand name of the Apple Safari browser"
+  },
+  "welcome_title_v4": {
+    "title": "Welcome to DuckDuckGo!",
+    "note": "Page title for the first step in the v4 onboarding process"
+  },
+  "getStarted_title_v4": {
+    "title": "Hi there!{paragraph}Ready for a faster browser{newline}that keeps you protected?",
+    "note": "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+  },
+  "getStartedButton_v4": {
+    "title": "Let's do it!",
+    "note": "Button label prompting user to start the v4 onboarding process."
+  },
+  "makeDefaultAccept_title_v4": {
+    "title": "Excellent! Let's move on.",
+    "note": "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
   }
 }
