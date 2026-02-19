@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "HoverChanged",
+  "description": "Notifies the native layer when the hovered link changes.",
+  "required": ["href"],
+  "properties": {
+    "href": {
+      "type": ["string", "null"]
+    }
+  }
+}
