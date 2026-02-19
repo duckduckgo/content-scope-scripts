@@ -9,8 +9,9 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  * @property {'bottom-left'} [tail] - Direction of the speech bubble tail
  * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration] - Layered illustration slots
  * @property {(height: number) => void} [onHeight] - Callback reporting measured border height
- * @property {string} [animationKey] - When this value changes, the bubble plays a scale-bounce animation
- * @property {number} [animationDelay] - When this value changes, the bubble plays a scale-bounce animation
+ * @property {string} [bounceKey] - When this value changes, the bubble plays a scale-bounce animation
+ * @property {number} [bounceDelay] - Delay in ms before the scale-bounce animation starts
+ * @property {string} [contentFadeName] - view-transition-name applied to the container for content cross-fade on step changes
  */
 
 /**
@@ -33,11 +34,21 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  *
  * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
  */
-export function Bubble({ children, tail, class: className, illustration, onHeight, animationKey, animationDelay, ...props }) {
+export function Bubble({
+    children,
+    tail,
+    class: className,
+    illustration,
+    onHeight,
+    bounceKey,
+    bounceDelay,
+    contentFadeName,
+    ...props
+}) {
     const bubbleRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
-    const prevAnimationKey = useRef(/** @type {string|undefined} */ (undefined));
+    const prevBounceKey = useRef(/** @type {string|undefined} */ (undefined));
     const { isReducedMotion } = useEnv();
 
     useLayoutEffect(() => {
@@ -54,14 +65,14 @@ export function Bubble({ children, tail, class: className, illustration, onHeigh
         return () => observer.disconnect();
     }, [onHeight]);
 
-    // Scale bounce on animationKey change
+    // Scale bounce on bounceKey change
     useEffect(() => {
         const bubble = bubbleRef.current;
-        const didAnimationKeyChange = prevAnimationKey.current !== undefined && prevAnimationKey.current !== animationKey;
+        const didBounceKeyChange = prevBounceKey.current !== undefined && prevBounceKey.current !== bounceKey;
 
-        prevAnimationKey.current = animationKey;
+        prevBounceKey.current = bounceKey;
 
-        if (!bubble || !didAnimationKeyChange || isReducedMotion) return;
+        if (!bubble || !didBounceKeyChange || isReducedMotion) return;
 
         const animation = bubble.animate(
             [
@@ -71,19 +82,19 @@ export function Bubble({ children, tail, class: className, illustration, onHeigh
             ],
             {
                 duration: 467, // 14 frames at 30fps
-                delay: animationDelay,
+                delay: bounceDelay,
             },
         );
 
         return () => {
             animation.cancel();
         };
-    }, [animationKey, isReducedMotion]);
+    }, [bounceKey, isReducedMotion]);
 
     return (
         <div ref={bubbleRef} class={cn(styles.bubble, className)} {...props}>
             {illustration?.background && <div class={styles.background}>{illustration.background}</div>}
-            <div ref={containerRef} class={styles.container}>
+            <div ref={containerRef} class={styles.container} style={contentFadeName ? { viewTransitionName: contentFadeName } : undefined}>
                 <div ref={contentRef}>{children}</div>
             </div>
             {tail === 'bottom-left' && <BottomLeftTail />}

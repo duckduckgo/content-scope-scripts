@@ -1,7 +1,7 @@
 .layout {
     margin: 10vh auto 0;
     position: relative;
-    transition: width 333ms cubic-bezier(0.17, 0, 0.34, 1);
+    transition: width 333ms cubic-bezier(0.17, 0, 0.34, 1) 67ms; /* 2f delay */
 }
 
 .progressBadge {
@@ -26,7 +26,8 @@
 
 .bubble {
     position: absolute;
-    transition-duration: 333ms;
+    transition-delay: 67ms; /* 2f — size starts 2 frames after content cross-fade */
+    transition-duration: 333ms; /* 10f */
     transition-property: top, width, height;
     transition-timing-function: cubic-bezier(0.17, 0, 0.34, 1);
 }

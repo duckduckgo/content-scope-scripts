@@ -47,8 +47,9 @@ export function SingleStep() {
                 tail={topBubble?.tail}
                 illustration={topBubble?.illustration}
                 onHeight={(h) => setTopHeight(h)}
-                animationKey={`${globalState.activeStep}-${globalState.activeRow}`}
-                animationDelay={100} // 3 frames at 30fps (scale starts 3 frames after size)
+                bounceKey={`${globalState.activeStep}-${globalState.activeRow}`}
+                bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
+                contentFadeName={topBubble ? 'bubble-content-top' : undefined}
             >
                 {topBubble?.content}
             </Bubble>
@@ -64,8 +65,9 @@ export function SingleStep() {
                 tail={bottomBubble?.tail}
                 illustration={bottomBubble?.illustration}
                 onHeight={(h) => setBottomHeight(h)}
-                animationKey={`${globalState.activeStep}-${globalState.activeRow}`}
-                animationDelay={233} // 7 frames at 30fps (scale starts 7 frames after size)
+                bounceKey={`${globalState.activeStep}-${globalState.activeRow}`}
+                bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
+                contentFadeName={bottomBubble ? 'bubble-content-bottom' : undefined}
             >
                 {bottomBubble?.content}
             </Bubble>
