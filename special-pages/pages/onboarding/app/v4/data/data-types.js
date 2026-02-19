@@ -22,6 +22,7 @@
  * @property {boolean} [showProgress] - Whether to show the progress indicator in the top bubble
  * @property {'narrow' | 'wide'} [bubbleWidth] - Bubble width mode (default: 'wide'). Only getStarted uses 'narrow'.
  * @property {boolean} [introAnimation] - Whether the top bubble has an intro animation
+ * @property {string} [bounceKey] - Key that triggers a bounce animation when it changes. Steps that cycle through rows should include the active row.
  */
 
 /**

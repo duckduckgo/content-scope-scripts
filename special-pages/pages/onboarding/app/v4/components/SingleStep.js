@@ -16,7 +16,8 @@ const GAP = 8;
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
-    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, introAnimation, globalState } = useStepConfig();
+    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, introAnimation, globalState, bounceKey } =
+        useStepConfig();
 
     const [topHeight, setTopHeight] = useState(0);
     const [bottomHeight, setBottomHeight] = useState(0);
@@ -47,7 +48,7 @@ export function SingleStep() {
                 tail={topBubble?.tail}
                 illustration={topBubble?.illustration}
                 onHeight={(h) => setTopHeight(h)}
-                bounceKey={`${globalState.activeStep}-${globalState.activeRow}`}
+                bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
                 contentFadeName={topBubble ? 'bubble-content-top' : undefined}
             >
@@ -65,7 +66,7 @@ export function SingleStep() {
                 tail={bottomBubble?.tail}
                 illustration={bottomBubble?.illustration}
                 onHeight={(h) => setBottomHeight(h)}
-                bounceKey={`${globalState.activeStep}-${globalState.activeRow}`}
+                bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
                 contentFadeName={bottomBubble ? 'bubble-content-bottom' : undefined}
             >

@@ -41,7 +41,7 @@ export const stepsConfig = {
             showProgress: true,
         };
     },
-    systemSettings: ({ t }) => {
+    systemSettings: ({ t, globalState }) => {
         return {
             topBubble: {
                 content: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} />,
@@ -55,6 +55,7 @@ export const stepsConfig = {
                 },
             },
             showProgress: true,
+            bounceKey: `${globalState.activeStep}-${globalState.activeRow}`,
         };
     },
     duckPlayerSingle: ({ t }) => {
@@ -67,11 +68,12 @@ export const stepsConfig = {
             showProgress: true,
         };
     },
-    customize: ({ t }) => {
+    customize: ({ t, globalState }) => {
         return {
             topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} />, tail: 'right' },
             bottomBubble: { content: <SettingsContent /> },
             showProgress: true,
+            bounceKey: `${globalState.activeStep}-${globalState.activeRow}`,
         };
     },
     addressBarMode: ({ t }) => {
