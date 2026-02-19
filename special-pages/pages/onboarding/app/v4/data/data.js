@@ -12,10 +12,10 @@ import { DaxGetStarted, DaxSystemSettingsBackground, DaxSystemSettingsForeground
  * This sets up individual steps in the v4 (bubbles) version of onboarding
  *
  * See `./data-types.js` for documentation on parameters {StepConfigParams}
- * and return values {V4StepConfig}
+ * and return values {StepConfig}
  */
 
-/** @type {Record<import('./data-types').StepsV4, (params: import('./data-types').StepConfigParams) => import('./data-types').V4StepConfig>} */
+/** @type {Record<import('./data-types').StepsV4, (params: import('./data-types').StepConfigParams) => import('./data-types').StepConfig>} */
 export const stepsConfig = {
     welcome: ({ advance }) => {
         return {
@@ -24,48 +24,56 @@ export const stepsConfig = {
     },
     getStarted: () => {
         return {
-            topBubble: <GetStartedContent />,
-            topBubbleTail: 'bottom-left',
-            illustration: {
-                foreground: <DaxGetStarted />,
+            bottomBubble: {
+                content: <GetStartedContent />,
+                tail: 'bottom-left',
+                illustration: {
+                    foreground: <DaxGetStarted />,
+                },
             },
+            bubbleWidth: 'narrow',
+            introAnimation: true,
         };
     },
     makeDefaultSingle: () => {
         return {
-            topBubble: <MakeDefaultContent />,
+            bottomBubble: { content: <MakeDefaultContent /> },
             showProgress: true,
         };
     },
     systemSettings: ({ t }) => {
         return {
-            topBubble: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} />,
-            bottomBubble: <SettingsContent />,
-            showProgress: true,
-            illustration: {
-                background: <DaxSystemSettingsBackground />,
-                foreground: <DaxSystemSettingsForeground />,
+            topBubble: { content: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} /> },
+            bottomBubble: {
+                content: <SettingsContent />,
+                illustration: {
+                    background: <DaxSystemSettingsBackground />,
+                    foreground: <DaxSystemSettingsForeground />,
+                },
             },
+            showProgress: true,
         };
     },
     duckPlayerSingle: ({ t }) => {
         return {
-            topBubble: <StepHeader title={t('duckPlayer_adFree_title')} subtitle={t('duckPlayer_adFree_subtitle', { newline: ' ' })} />,
-            bottomBubble: <DuckPlayerContent />,
+            topBubble: {
+                content: <StepHeader title={t('duckPlayer_adFree_title')} subtitle={t('duckPlayer_adFree_subtitle', { newline: ' ' })} />,
+            },
+            bottomBubble: { content: <DuckPlayerContent /> },
             showProgress: true,
         };
     },
     customize: ({ t }) => {
         return {
-            topBubble: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} />,
-            bottomBubble: <SettingsContent />,
+            topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} /> },
+            bottomBubble: { content: <SettingsContent /> },
             showProgress: true,
         };
     },
     addressBarMode: ({ t }) => {
         return {
-            topBubble: <StepHeader title={t('addressBarMode_title')} />,
-            bottomBubble: <AddressBarContent />,
+            topBubble: { content: <StepHeader title={t('addressBarMode_title')} /> },
+            bottomBubble: { content: <AddressBarContent /> },
             showProgress: true,
         };
     },

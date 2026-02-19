@@ -1,5 +1,6 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
+import { useCallback, useContext } from 'preact/hooks';
+import { flushSync } from 'preact/compat';
 import styles from './App.module.css';
 import { GlobalContext, GlobalDispatch } from '../global';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider';
@@ -17,7 +18,23 @@ export function App({ children }) {
     const { debugState } = useEnv();
     const platformName = usePlatformName();
     const globalState = useContext(GlobalContext);
-    const dispatch = useContext(GlobalDispatch);
+    const parentDispatch = useContext(GlobalDispatch);
+
+    // Proxy dispatch so that 'advance' actions run inside a view transition,
+    // giving the bubble content a cross-fade between steps.
+    const dispatch = useCallback(
+        /** @param {import('../types').GlobalEvents} msg */
+        (msg) => {
+            if (msg.kind === 'advance' && document.startViewTransition) {
+                document.startViewTransition(() => {
+                    flushSync(() => parentDispatch(msg));
+                });
+            } else {
+                parentDispatch(msg);
+            }
+        },
+        [parentDispatch],
+    );
 
     const { activeStep, exiting } = globalState;
 
@@ -56,9 +73,11 @@ export function App({ children }) {
                 ref={didRender}
                 onAnimationEnd={didAnimationEnd}
             >
-                <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
-                    <SingleStep />
-                </ErrorBoundary>
+                <GlobalDispatch.Provider value={dispatch}>
+                    <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
+                        <SingleStep />
+                    </ErrorBoundary>
+                </GlobalDispatch.Provider>
             </div>
             {children}
         </main>
