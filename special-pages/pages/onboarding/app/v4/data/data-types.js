@@ -9,13 +9,6 @@
  */
 
 /**
- * @typedef {object} BeforeAfterFunctions
- * @property {() => import('../context/BeforeAfterProvider').BeforeAfter|null} get - Gets current before/after state
- * @property {(value: import('../context/BeforeAfterProvider').BeforeAfter) => void} set - Sets before/after state
- * @property {() => void} toggle - Toggles before/after state
- */
-
-/**
  * @typedef {object} V4StepConfig
  * @property {import('preact').ComponentChild} [content] - Content rendered outside bubbles (e.g., welcome step logo + title, or illustration below bubble)
  * @property {import('preact').ComponentChild} [topBubble] - Content rendered inside the top speech bubble
@@ -34,7 +27,6 @@
  * @property {() => void} advance - Function that advances to the next step
  * @property {() => void} dismiss - Function that dismisses onboarding completely
  * @property {(id: import('../../types').SystemValueId) => void} enableSystemValue - Function that switches a system setting to ON
- * @property {BeforeAfterFunctions} beforeAfter - Functions that control a step's before/after state
  */
 
 /**

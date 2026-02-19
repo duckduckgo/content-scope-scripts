@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import { MakeDefaultContent } from '../components/MakeDefaultContent';
 import { SettingsContent } from '../components/SettingsContent';
 import { StepHeader } from '../components/StepHeader';
@@ -50,12 +50,7 @@ export const stepsConfig = {
     },
     duckPlayerSingle: ({ t }) => {
         return {
-            topBubble: (
-                <Fragment>
-                    <h2>{t('duckPlayer_title')}</h2>
-                    <p>{t('duckPlayer_subtitle')}</p>
-                </Fragment>
-            ),
+            topBubble: <StepHeader title={t('duckPlayer_adFree_title')} subtitle={t('duckPlayer_adFree_subtitle', { newline: ' ' })} />,
             bottomBubble: <DuckPlayerContent />,
             showProgress: true,
         };
