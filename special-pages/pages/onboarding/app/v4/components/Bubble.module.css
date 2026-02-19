@@ -26,7 +26,6 @@
     overflow: hidden;
     position: absolute;
     inset: 0;
-    padding: var(--sp-9) var(--sp-12); /* 36px 48px */
     z-index: 1;
 }
 
@@ -42,6 +41,14 @@
     position: absolute;
     bottom: -33px;
     left: 80px;
+    line-height: 0;
+}
+
+/* SVG tail positioned on the right side of the bubble */
+.rightTail {
+    position: absolute;
+    right: -22px;
+    bottom: 36px;
     line-height: 0;
 }
 

@@ -31,7 +31,7 @@ export function GetStartedContent() {
                 <p class={styles.body}>{body}</p>
             </div>
             <div class={styles.actions}>
-                <Button class={styles.button} onClick={handleClick}>
+                <Button size="stretch" onClick={handleClick}>
                     {t('getStartedButton_v4')}
                 </Button>
             </div>

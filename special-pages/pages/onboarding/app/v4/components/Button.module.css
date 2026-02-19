@@ -8,6 +8,7 @@
     border: none;
     border-radius: var(--sp-16); /* 64px */
     cursor: pointer;
+    height: var(--sp-9); /* 36px */
 
     font-family: var(--font-product);
     font-size: calc(15 * var(--px-in-rem));
@@ -61,4 +62,16 @@
     @media (prefers-color-scheme: dark) {
         background: var(--color-white-at-18);
     }
+}
+
+/* --- Size variants --- */
+
+.wide {
+    padding-left: var(--sp-24); /* 96px */
+    padding-right: var(--sp-24); /* 96px */
+}
+
+.stretch {
+    align-self: stretch;
+    width: 100%;
 }

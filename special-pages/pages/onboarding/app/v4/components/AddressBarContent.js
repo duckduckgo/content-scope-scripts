@@ -67,7 +67,7 @@ export function AddressBarContent() {
                     <Trans str={t('addressBarMode_footer')} values={{}} />
                 </span>
             </div>
-            <Button variant="primary" onClick={dismiss} class={styles.startButton}>
+            <Button variant="primary" size="wide" class={styles.startButton} onClick={dismiss}>
                 {t('startBrowsing')} <Launch />
             </Button>
         </div>
