@@ -1,0 +1,32 @@
+.bubble {
+    --bubble-bg: white;
+    --bubble-border: #CBEAFF;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: var(--sp-24); /* 96px */
+    padding: var(--sp-9) var(--sp-12); /* 36px 48px */
+    background: var(--bubble-bg);
+    border-radius: var(--sp-9); /* 36px */
+    border: 1.5px solid var(--bubble-border);
+    box-shadow: 0 7px 12px rgba(0, 0, 0, 0.03);
+    box-sizing: border-box;
+    width: 100%;
+    gap: var(--sp-8); /* 32px */
+
+    @media (prefers-color-scheme: dark) {
+        --bubble-bg: #011D34;
+        --bubble-border: #133E7C;
+    }
+}
+
+/* SVG tail positioned below the bubble */
+.bottomLeftTail {
+    position: absolute;
+    bottom: -33px;
+    left: 80px;
+    line-height: 0;
+}

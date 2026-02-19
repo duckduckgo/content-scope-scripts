@@ -1,0 +1,101 @@
+.table {
+    border-spacing: 0;
+    width: 100%;
+}
+
+.table thead th {
+    padding-bottom: var(--sp-4); /* 16px gap below browser icons */
+}
+
+.rowHeading {
+    font-size: calc(14 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(16 * var(--px-in-rem));
+    padding: var(--sp-3) var(--sp-1) var(--sp-3) var(--sp-3);
+}
+
+.rowCell {
+    text-align: center;
+}
+
+.rowCell + .rowCell {
+    border-left: 1px solid var(--color-black-at-9);
+
+    @media (prefers-color-scheme: dark) {
+        border-left: 1px solid var(--color-white-at-6);
+    }
+}
+
+.row:nth-child(odd) {
+    & .rowHeading,
+    & .rowCell {
+        background: rgba(161, 207, 247, 0.16);
+
+        @media (prefers-color-scheme: dark) {
+            background: rgba(161, 207, 247, 0.12);
+        }
+    }
+
+    & .rowHeading {
+        border-radius: var(--sp-4) 0 0 var(--sp-4);
+    }
+
+    & .rowCell:last-child {
+        border-radius: 0 var(--sp-4) var(--sp-4) 0;
+    }
+}
+
+.rowHeadingContents {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-3);
+    text-align: left;
+}
+
+.rowIcon {
+    height: var(--sp-6);
+    width: var(--sp-6);
+}
+
+.status {
+    display: inline-block;
+    height: var(--sp-5);
+    width: var(--sp-5);
+}
+
+.notSupported {
+    background-image: url('../../../public/assets/img/icons/cross-24.svg');
+}
+
+.partialSupport {
+    background-image: url('../../../public/assets/img/icons/stop-24.svg');
+}
+
+.fullSupport {
+    background-image: url('../../../public/assets/img/icons/check-24.svg');
+}
+
+.browserIcon {
+    background-color: #fff;
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-radius: var(--sp-2);
+    box-shadow: 0px 1.25px 3.75px 0px rgba(0, 0, 0, 0.10), 0px 5px 10px 0px rgba(0, 0, 0, 0.08);
+    display: inline-block;
+    margin: 0 var(--sp-2);
+    height: var(--sp-10);
+    width: var(--sp-10);
+}
+
+.browserIconChrome {
+    background-image: url('../../../public/assets/img/icons/chrome.svg');
+}
+
+.browserIconSafari {
+    background-image: url('../../../public/assets/img/icons/safari.svg');
+}
+
+.browserIconDuckDuckGo {
+    background-color: var(--ds-color-palette-red-50);
+    background-image: url('../../../public/assets/img/icons/ddg.svg');
+}

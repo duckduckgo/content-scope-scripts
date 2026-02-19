@@ -33,6 +33,15 @@ export function mockTransport() {
                         };
                     }
 
+                    const duckPlayerVariant = url.searchParams.get('duckPlayer');
+                    if (duckPlayerVariant === 'ad-free') {
+                        stepDefinitions.duckPlayerSingle = {
+                            id: 'duckPlayerSingle',
+                            kind: 'info',
+                            variant: 'ad-free',
+                        };
+                    }
+
                     return Promise.resolve({
                         stepDefinitions,
                         exclude: [],

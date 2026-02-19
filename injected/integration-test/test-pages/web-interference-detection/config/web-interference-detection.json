@@ -1,0 +1,18 @@
+{
+    "readme": "This config is used to test the web interference detection feature.",
+    "version": 1,
+    "features": {
+        "webInterferenceDetection": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "interferenceTypes": {
+                    "botDetection": {},
+                    "fraudDetection": {},
+                    "adwallDetection": {}
+                }
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

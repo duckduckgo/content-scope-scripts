@@ -186,4 +186,147 @@ test.describe('Test integration pages', () => {
             './integration-test/test-pages/element-hiding/config/element-hiding.json',
         );
     });
+
+    test('GPC', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo?.project?.use);
+        collector.withUserPreferences({ globalPrivacyControlValue: true });
+        await collector.load('/gpc/pages/gpc.html', './integration-test/test-pages/gpc/config/gpc.json');
+        const results = await collector.results();
+        for (const key in results) {
+            for (const result of results[key]) {
+                await test.step(`${key}: ${result.name}`, () => {
+                    expect(result.result).toEqual(result.expected);
+                });
+            }
+        }
+    });
+
+    test('Google Rejected', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/google-rejected/pages/google-rejected.html',
+            './integration-test/test-pages/google-rejected/config/google-rejected.json',
+        );
+    });
+
+    test('Fingerprinting Hardware', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/fingerprinting-hardware/pages/fingerprinting-hardware.html',
+            './integration-test/test-pages/fingerprinting-hardware/config/fingerprinting-hardware.json',
+        );
+    });
+
+    test('Fingerprinting Screen Size', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/fingerprinting-screen-size/pages/fingerprinting-screen-size.html',
+            './integration-test/test-pages/fingerprinting-screen-size/config/fingerprinting-screen-size.json',
+        );
+    });
+
+    test('Fingerprinting Battery', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/fingerprinting-battery/pages/fingerprinting-battery.html',
+            './integration-test/test-pages/fingerprinting-battery/config/fingerprinting-battery.json',
+        );
+    });
+
+    test('Fingerprinting Audio', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/fingerprinting-audio/pages/fingerprinting-audio.html',
+            './integration-test/test-pages/fingerprinting-audio/config/fingerprinting-audio.json',
+        );
+    });
+
+    test('Fingerprinting Canvas', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/fingerprinting-canvas/pages/fingerprinting-canvas.html',
+            './integration-test/test-pages/fingerprinting-canvas/config/fingerprinting-canvas.json',
+        );
+    });
+
+    test('Fingerprinting Temporary Storage', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/fingerprinting-temporary-storage/pages/fingerprinting-temporary-storage.html',
+            './integration-test/test-pages/fingerprinting-temporary-storage/config/fingerprinting-temporary-storage.json',
+        );
+    });
+
+    test('Referrer', async ({ page }, testInfo) => {
+        await testPage(page, testInfo, '/referrer/pages/referrer.html', './integration-test/test-pages/referrer/config/referrer.json');
+    });
+
+    test('Navigator Interface', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/navigator-interface/pages/navigator-interface.html',
+            './integration-test/test-pages/navigator-interface/config/navigator-interface.json',
+        );
+    });
+
+    test('Exception Handler', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/exception-handler/pages/exception-handler.html',
+            './integration-test/test-pages/exception-handler/config/exception-handler.json',
+        );
+    });
+
+    test('Print', async ({ page }, testInfo) => {
+        await testPage(page, testInfo, '/print/pages/print.html', './integration-test/test-pages/print/config/print.json');
+    });
+
+    test('Performance Metrics', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/performance-metrics/pages/performance-metrics.html',
+            './integration-test/test-pages/performance-metrics/config/performance-metrics.json',
+        );
+    });
+
+    test('Web Telemetry', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/web-telemetry/pages/web-telemetry.html',
+            './integration-test/test-pages/web-telemetry/config/web-telemetry.json',
+        );
+    });
+
+    test('Web Interference Detection', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/web-interference-detection/pages/web-interference-detection.html',
+            './integration-test/test-pages/web-interference-detection/config/web-interference-detection.json',
+        );
+    });
+
+    test('Cookie', async ({ page }, testInfo) => {
+        await testPage(page, testInfo, '/cookie/pages/cookie.html', './integration-test/test-pages/cookie/config/cookie.json');
+    });
+
+    test('Page Context', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/page-context/pages/page-context.html',
+            './integration-test/test-pages/page-context/config/page-context.json',
+        );
+    });
 });

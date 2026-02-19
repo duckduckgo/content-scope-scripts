@@ -42,18 +42,20 @@ function handleURLChange(navigationType = 'unknown') {
 }
 
 function listenForURLChanges() {
-    const urlChangedInstance = new ContentFeature('urlChanged', {}, {}, {});
+    const urlChangedInstance = new ContentFeature('urlChanged', {}, {}, /** @type {any} */ ({}));
     // if the browser supports the navigation API, use that to listen for URL changes
-    if ('navigation' in globalThis && 'addEventListener' in globalThis.navigation) {
+    /** @type {any} */
+    const nav = /** @type {any} */ (globalThis).navigation;
+    if (nav && 'addEventListener' in nav) {
         // We listen to `navigatesuccess` instead of `navigate` to ensure the navigation is committed.
         // But, `navigatesuccess` does not provide the navigationType, so we capture it at `navigate` time
         // then look it up later.  This allows consumers to filter on navigationType.
         // WeakMap ensures we don't hold onto the event.target longer than necessary and can be freed.
         const navigations = new WeakMap();
-        globalThis.navigation.addEventListener('navigate', (event) => {
+        nav.addEventListener('navigate', (/** @type {any} */ event) => {
             navigations.set(event.target, event.navigationType);
         });
-        globalThis.navigation.addEventListener('navigatesuccess', (event) => {
+        nav.addEventListener('navigatesuccess', (/** @type {any} */ event) => {
             const navigationType = navigations.get(event.target);
             handleURLChange(navigationType);
             navigations.delete(event.target);
