@@ -12,8 +12,9 @@ export class Hover extends ContentFeature {
         document.addEventListener(
             'mouseover',
             (event) => {
-                const anchor = /** @type {Element} */ (event.target).closest('a');
-                const href = anchor ? anchor.href : null;
+                if (!(event.target instanceof Element)) return;
+                const anchor = event.target.closest('a');
+                const href = anchor instanceof HTMLAnchorElement ? anchor.href : null;
                 this.notify('hoverChanged', { href });
             },
             true,
