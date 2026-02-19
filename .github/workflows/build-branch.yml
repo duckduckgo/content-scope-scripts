@@ -6,13 +6,14 @@ on:
             - main
             - releases
             - 'pr-releases/**'
+    pull_request:
+        types: [opened, reopened]
     delete:
 
 permissions: write-all
 
 jobs:
     build:
-        # Only run on push events (not delete)
         if: github.event_name == 'push'
         runs-on: ubuntu-latest
 
@@ -41,7 +42,6 @@ jobs:
               run: npm run docs-preview
 
             - name: Create and push build branch
-              id: create_branch
               env:
                   SOURCE_BRANCH: ${{ github.ref_name }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,15 +60,42 @@ jobs:
                   git commit -m "Build artifacts for ${SOURCE_BRANCH}"
                   git push -u origin "${BUILD_BRANCH}" --force
 
-                  echo "BUILD_BRANCH=${BUILD_BRANCH}" >> $GITHUB_ENV
-                  echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+    comment:
+        needs: [build]
+        if: always() && !failure() && !cancelled() && github.event_name != 'delete'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Resolve build branch
+              id: resolve
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  if [ "${{ github.event_name }}" = "pull_request" ]; then
+                      SOURCE_BRANCH="${{ github.event.pull_request.head.ref }}"
+                  else
+                      SOURCE_BRANCH="${{ github.ref_name }}"
+                  fi
+                  BUILD_BRANCH="pr-releases/${SOURCE_BRANCH}"
+
+                  COMMIT_HASH=$(git ls-remote "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "refs/heads/${BUILD_BRANCH}" | cut -f1)
+
+                  if [ -z "$COMMIT_HASH" ]; then
+                      echo "Build branch ${BUILD_BRANCH} not found"
+                      echo "found=false" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "found=true" >> "$GITHUB_OUTPUT"
+                      echo "build_branch=${BUILD_BRANCH}" >> "$GITHUB_OUTPUT"
+                      echo "commit_hash=${COMMIT_HASH}" >> "$GITHUB_OUTPUT"
+                      echo "source_branch=${SOURCE_BRANCH}" >> "$GITHUB_OUTPUT"
+                  fi
 
             - name: Comment on associated PR
+              if: steps.resolve.outputs.found == 'true'
               uses: actions/github-script@v8
               env:
-                  BUILD_BRANCH: ${{ env.BUILD_BRANCH }}
-                  COMMIT_HASH: ${{ env.COMMIT_HASH }}
-                  SOURCE_BRANCH: ${{ github.ref_name }}
+                  BUILD_BRANCH: ${{ steps.resolve.outputs.build_branch }}
+                  COMMIT_HASH: ${{ steps.resolve.outputs.commit_hash }}
+                  SOURCE_BRANCH: ${{ steps.resolve.outputs.source_branch }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
@@ -161,16 +188,21 @@ jobs:
                           `</details>`,
                       ].join('\n');
 
-                      // Find open PRs for this branch
-                      const { data: prs } = await github.rest.pulls.list({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          head: `${context.repo.owner}:${sourceBranch}`,
-                          state: 'open',
-                      });
+                      // For pull_request events we already know the PR; for push, search.
+                      let prs;
+                      if (context.eventName === 'pull_request') {
+                          prs = [{ number: context.payload.pull_request.number }];
+                      } else {
+                          const { data } = await github.rest.pulls.list({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              head: `${context.repo.owner}:${sourceBranch}`,
+                              state: 'open',
+                          });
+                          prs = data;
+                      }
 
                       for (const pr of prs) {
-                          // Find existing bot comment by marker
                           const { data: comments } = await github.rest.issues.listComments({
                               owner: context.repo.owner,
                               repo: context.repo.repo,
