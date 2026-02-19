@@ -39,7 +39,9 @@ export function MakeDefaultContent() {
                         {t('skipButton')}
                     </Button>
                 )}
-                <Button onClick={isIdle ? enableDefaultBrowser : advance}>{isIdle ? t('makeDefaultButton') : t('nextButton')}</Button>
+                <Button size={isIdle ? undefined : 'wide'} onClick={isIdle ? enableDefaultBrowser : advance}>
+                    {isIdle ? t('makeDefaultButton') : t('nextButton')}
+                </Button>
             </div>
         </div>
     );

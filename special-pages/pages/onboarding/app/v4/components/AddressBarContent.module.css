@@ -3,6 +3,7 @@
     flex-direction: column;
     align-items: center;
     align-self: stretch;
+    padding: var(--sp-12); /* 48px */
 }
 
 .previewContainer {
@@ -69,7 +70,5 @@
 
 .startButton {
     margin-top: var(--sp-8); /* 32px */
-    width: calc(232 * var(--px-in-rem));
-    height: calc(36 * var(--px-in-rem));
-    box-sizing: border-box;
 }
+

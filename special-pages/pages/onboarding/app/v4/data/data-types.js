@@ -18,7 +18,7 @@
 /** @typedef {object} BubbleConfig
  * @property {import('preact').ComponentChild} content
  * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration]
- * @property {'bottom-left'} [tail]
+ * @property {'bottom-left' | 'right'} [tail]
  */
 
 /**

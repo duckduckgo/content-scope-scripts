@@ -4,6 +4,7 @@
     align-items: center;
     align-self: stretch;
     gap: var(--sp-8); /* 32px */
+    padding: var(--sp-12); /* 48px */
 }
 
 .imageContainer {
@@ -19,8 +20,4 @@
     display: block;
     width: 100%;
     height: auto;
-}
-
-.nextButton {
-    align-self: stretch;
 }
