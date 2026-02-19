@@ -16659,7 +16659,6 @@ ul.messages {
   init_define_import_meta_trackerLookup();
   var Favicon = class extends ContentFeature {
     init() {
-      if (this.platform.name === "ios") return;
       if (isBeingFramed()) return;
       window.addEventListener("DOMContentLoaded", () => {
         this.send();
@@ -16686,11 +16685,52 @@ ul.messages {
       });
     }
     send() {
-      const favicons = getFaviconList();
+      const favicons = this.getFaviconList();
       this.notify("faviconFound", { favicons, documentUrl: document.URL });
+    }
+    /**
+     * Gets the list of favicons from the page, filtering SVGs for iOS
+     * @returns {import('../types/favicon.js').FaviconAttrs[]}
+     */
+    getFaviconList() {
+      const favicons = getFaviconList();
+      if (this.platform.name === "ios") {
+        return favicons.filter((favicon) => !isSvgFavicon(favicon.href, favicon.type || ""));
+      }
+      return favicons;
     }
   };
   var favicon_default = Favicon;
+  function isSvgFavicon(href, type) {
+    if (type.toLowerCase().includes("svg")) {
+      return true;
+    }
+    const hrefLower = href.toLowerCase();
+    if (hrefLower.startsWith("data:image/svg")) {
+      return true;
+    }
+    try {
+      const url = new URL(href);
+      return url.pathname.toLowerCase().endsWith(".svg");
+    } catch {
+      return hrefLower.endsWith(".svg");
+    }
+  }
+  function getFaviconList() {
+    const selectors = [
+      "link[href][rel='favicon']",
+      "link[href][rel*='icon']",
+      "link[href][rel='apple-touch-icon']",
+      "link[href][rel='apple-touch-icon-precomposed']"
+    ];
+    const elements = document.head.querySelectorAll(selectors.join(","));
+    return Array.from(elements).map((link) => {
+      const href = link.href || "";
+      const rel = link.getAttribute("rel") || "";
+      const type = link.type || "";
+      return { href, rel, type };
+    });
+  }
   function monitor(changeObservedCallback) {
     const target = document.head;
     if (!target) return;
@@ -16716,21 +16756,7 @@ ul.messages {
         }
       }
     });
-    observer.observe(target, { attributeFilter: ["rel", "href"], attributes: true, subtree: true, childList: true });
-  }
-  function getFaviconList() {
-    const selectors = [
-      "link[href][rel='favicon']",
-      "link[href][rel*='icon']",
-      "link[href][rel='apple-touch-icon']",
-      "link[href][rel='apple-touch-icon-precomposed']"
-    ];
-    const elements = document.head.querySelectorAll(selectors.join(","));
-    return Array.from(elements).map((link) => {
-      const href = link.href || "";
-      const rel = link.getAttribute("rel") || "";
-      return { href, rel };
-    });
+    observer.observe(target, { attributeFilter: ["rel", "href", "type"], attributes: true, subtree: true, childList: true });
   }
 
   // src/features/web-detection.js

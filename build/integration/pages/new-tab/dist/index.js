@@ -56,18 +56,18 @@
   });
 
   // ../node_modules/preact/dist/preact.module.js
-  function w(n3, l4) {
-    for (var u4 in l4) n3[u4] = l4[u4];
+  function w(n3, l5) {
+    for (var u4 in l5) n3[u4] = l5[u4];
     return n3;
   }
   function g(n3) {
     n3 && n3.parentNode && n3.parentNode.removeChild(n3);
   }
-  function _(l4, u4, t4) {
+  function _(l5, u4, t4) {
     var i5, o4, r4, e4 = {};
     for (r4 in u4) "key" == r4 ? i5 = u4[r4] : "ref" == r4 ? o4 = u4[r4] : e4[r4] = u4[r4];
-    if (arguments.length > 2 && (e4.children = arguments.length > 3 ? n.call(arguments, 2) : t4), "function" == typeof l4 && null != l4.defaultProps) for (r4 in l4.defaultProps) void 0 === e4[r4] && (e4[r4] = l4.defaultProps[r4]);
-    return m(l4, e4, i5, o4, null);
+    if (arguments.length > 2 && (e4.children = arguments.length > 3 ? n.call(arguments, 2) : t4), "function" == typeof l5 && null != l5.defaultProps) for (r4 in l5.defaultProps) void 0 === e4[r4] && (e4[r4] = l5.defaultProps[r4]);
+    return m(l5, e4, i5, o4, null);
   }
   function m(n3, t4, i5, o4, r4) {
     var e4 = { type: n3, props: t4, key: i5, ref: o4, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: null == r4 ? ++u : r4, __i: -1, __u: 0 };
@@ -76,18 +76,18 @@
   function k(n3) {
     return n3.children;
   }
-  function x(n3, l4) {
-    this.props = n3, this.context = l4;
+  function x(n3, l5) {
+    this.props = n3, this.context = l5;
   }
-  function S(n3, l4) {
-    if (null == l4) return n3.__ ? S(n3.__, n3.__i + 1) : null;
-    for (var u4; l4 < n3.__k.length; l4++) if (null != (u4 = n3.__k[l4]) && null != u4.__e) return u4.__e;
+  function S(n3, l5) {
+    if (null == l5) return n3.__ ? S(n3.__, n3.__i + 1) : null;
+    for (var u4; l5 < n3.__k.length; l5++) if (null != (u4 = n3.__k[l5]) && null != u4.__e) return u4.__e;
     return "function" == typeof n3.type ? S(n3) : null;
   }
   function C(n3) {
-    var l4, u4;
+    var l5, u4;
     if (null != (n3 = n3.__) && null != n3.__c) {
-      for (n3.__e = n3.__c.base = null, l4 = 0; l4 < n3.__k.length; l4++) if (null != (u4 = n3.__k[l4]) && null != u4.__e) {
+      for (n3.__e = n3.__c.base = null, l5 = 0; l5 < n3.__k.length; l5++) if (null != (u4 = n3.__k[l5]) && null != u4.__e) {
         n3.__e = n3.__c.base = u4.__e;
         break;
       }
@@ -101,61 +101,61 @@
     for (var n3, u4, t4, o4, r4, f4, c4, s4 = 1; i.length; ) i.length > s4 && i.sort(e), n3 = i.shift(), s4 = i.length, n3.__d && (t4 = void 0, o4 = void 0, r4 = (o4 = (u4 = n3).__v).__e, f4 = [], c4 = [], u4.__P && ((t4 = w({}, o4)).__v = o4.__v + 1, l.vnode && l.vnode(t4), O(u4.__P, t4, o4, u4.__n, u4.__P.namespaceURI, 32 & o4.__u ? [r4] : null, f4, null == r4 ? S(o4) : r4, !!(32 & o4.__u), c4), t4.__v = o4.__v, t4.__.__k[t4.__i] = t4, N(f4, t4, c4), o4.__e = o4.__ = null, t4.__e != r4 && C(t4)));
     $.__r = 0;
   }
-  function I(n3, l4, u4, t4, i5, o4, r4, e4, f4, c4, s4) {
-    var a4, h5, y5, d5, w5, g6, _5, m4 = t4 && t4.__k || v, b4 = l4.length;
-    for (f4 = P(u4, l4, m4, f4, b4), a4 = 0; a4 < b4; a4++) null != (y5 = u4.__k[a4]) && (h5 = -1 == y5.__i ? p : m4[y5.__i] || p, y5.__i = a4, g6 = O(n3, y5, h5, i5, o4, r4, e4, f4, c4, s4), d5 = y5.__e, y5.ref && h5.ref != y5.ref && (h5.ref && B(h5.ref, null, y5), s4.push(y5.ref, y5.__c || d5, y5)), null == w5 && null != d5 && (w5 = d5), (_5 = !!(4 & y5.__u)) || h5.__k === y5.__k ? f4 = A(y5, f4, n3, _5) : "function" == typeof y5.type && void 0 !== g6 ? f4 = g6 : d5 && (f4 = d5.nextSibling), y5.__u &= -7);
+  function I(n3, l5, u4, t4, i5, o4, r4, e4, f4, c4, s4) {
+    var a4, h5, y5, d5, w5, g6, _5, m5 = t4 && t4.__k || v, b4 = l5.length;
+    for (f4 = P(u4, l5, m5, f4, b4), a4 = 0; a4 < b4; a4++) null != (y5 = u4.__k[a4]) && (h5 = -1 == y5.__i ? p : m5[y5.__i] || p, y5.__i = a4, g6 = O(n3, y5, h5, i5, o4, r4, e4, f4, c4, s4), d5 = y5.__e, y5.ref && h5.ref != y5.ref && (h5.ref && B(h5.ref, null, y5), s4.push(y5.ref, y5.__c || d5, y5)), null == w5 && null != d5 && (w5 = d5), (_5 = !!(4 & y5.__u)) || h5.__k === y5.__k ? f4 = A(y5, f4, n3, _5) : "function" == typeof y5.type && void 0 !== g6 ? f4 = g6 : d5 && (f4 = d5.nextSibling), y5.__u &= -7);
     return u4.__e = w5, f4;
   }
-  function P(n3, l4, u4, t4, i5) {
+  function P(n3, l5, u4, t4, i5) {
     var o4, r4, e4, f4, c4, s4 = u4.length, a4 = s4, h5 = 0;
-    for (n3.__k = new Array(i5), o4 = 0; o4 < i5; o4++) null != (r4 = l4[o4]) && "boolean" != typeof r4 && "function" != typeof r4 ? ("string" == typeof r4 || "number" == typeof r4 || "bigint" == typeof r4 || r4.constructor == String ? r4 = n3.__k[o4] = m(null, r4, null, null, null) : d(r4) ? r4 = n3.__k[o4] = m(k, { children: r4 }, null, null, null) : void 0 === r4.constructor && r4.__b > 0 ? r4 = n3.__k[o4] = m(r4.type, r4.props, r4.key, r4.ref ? r4.ref : null, r4.__v) : n3.__k[o4] = r4, f4 = o4 + h5, r4.__ = n3, r4.__b = n3.__b + 1, e4 = null, -1 != (c4 = r4.__i = L(r4, u4, f4, a4)) && (a4--, (e4 = u4[c4]) && (e4.__u |= 2)), null == e4 || null == e4.__v ? (-1 == c4 && (i5 > s4 ? h5-- : i5 < s4 && h5++), "function" != typeof r4.type && (r4.__u |= 4)) : c4 != f4 && (c4 == f4 - 1 ? h5-- : c4 == f4 + 1 ? h5++ : (c4 > f4 ? h5-- : h5++, r4.__u |= 4))) : n3.__k[o4] = null;
+    for (n3.__k = new Array(i5), o4 = 0; o4 < i5; o4++) null != (r4 = l5[o4]) && "boolean" != typeof r4 && "function" != typeof r4 ? ("string" == typeof r4 || "number" == typeof r4 || "bigint" == typeof r4 || r4.constructor == String ? r4 = n3.__k[o4] = m(null, r4, null, null, null) : d(r4) ? r4 = n3.__k[o4] = m(k, { children: r4 }, null, null, null) : void 0 === r4.constructor && r4.__b > 0 ? r4 = n3.__k[o4] = m(r4.type, r4.props, r4.key, r4.ref ? r4.ref : null, r4.__v) : n3.__k[o4] = r4, f4 = o4 + h5, r4.__ = n3, r4.__b = n3.__b + 1, e4 = null, -1 != (c4 = r4.__i = L(r4, u4, f4, a4)) && (a4--, (e4 = u4[c4]) && (e4.__u |= 2)), null == e4 || null == e4.__v ? (-1 == c4 && (i5 > s4 ? h5-- : i5 < s4 && h5++), "function" != typeof r4.type && (r4.__u |= 4)) : c4 != f4 && (c4 == f4 - 1 ? h5-- : c4 == f4 + 1 ? h5++ : (c4 > f4 ? h5-- : h5++, r4.__u |= 4))) : n3.__k[o4] = null;
     if (a4) for (o4 = 0; o4 < s4; o4++) null != (e4 = u4[o4]) && 0 == (2 & e4.__u) && (e4.__e == t4 && (t4 = S(e4)), D(e4, e4));
     return t4;
   }
-  function A(n3, l4, u4, t4) {
+  function A(n3, l5, u4, t4) {
     var i5, o4;
     if ("function" == typeof n3.type) {
-      for (i5 = n3.__k, o4 = 0; i5 && o4 < i5.length; o4++) i5[o4] && (i5[o4].__ = n3, l4 = A(i5[o4], l4, u4, t4));
-      return l4;
+      for (i5 = n3.__k, o4 = 0; i5 && o4 < i5.length; o4++) i5[o4] && (i5[o4].__ = n3, l5 = A(i5[o4], l5, u4, t4));
+      return l5;
     }
-    n3.__e != l4 && (t4 && (l4 && n3.type && !l4.parentNode && (l4 = S(n3)), u4.insertBefore(n3.__e, l4 || null)), l4 = n3.__e);
+    n3.__e != l5 && (t4 && (l5 && n3.type && !l5.parentNode && (l5 = S(n3)), u4.insertBefore(n3.__e, l5 || null)), l5 = n3.__e);
     do {
-      l4 = l4 && l4.nextSibling;
-    } while (null != l4 && 8 == l4.nodeType);
-    return l4;
+      l5 = l5 && l5.nextSibling;
+    } while (null != l5 && 8 == l5.nodeType);
+    return l5;
   }
-  function H(n3, l4) {
-    return l4 = l4 || [], null == n3 || "boolean" == typeof n3 || (d(n3) ? n3.some(function(n4) {
-      H(n4, l4);
-    }) : l4.push(n3)), l4;
+  function H(n3, l5) {
+    return l5 = l5 || [], null == n3 || "boolean" == typeof n3 || (d(n3) ? n3.some(function(n4) {
+      H(n4, l5);
+    }) : l5.push(n3)), l5;
   }
-  function L(n3, l4, u4, t4) {
-    var i5, o4, r4, e4 = n3.key, f4 = n3.type, c4 = l4[u4], s4 = null != c4 && 0 == (2 & c4.__u);
+  function L(n3, l5, u4, t4) {
+    var i5, o4, r4, e4 = n3.key, f4 = n3.type, c4 = l5[u4], s4 = null != c4 && 0 == (2 & c4.__u);
     if (null === c4 && null == e4 || s4 && e4 == c4.key && f4 == c4.type) return u4;
     if (t4 > (s4 ? 1 : 0)) {
-      for (i5 = u4 - 1, o4 = u4 + 1; i5 >= 0 || o4 < l4.length; ) if (null != (c4 = l4[r4 = i5 >= 0 ? i5-- : o4++]) && 0 == (2 & c4.__u) && e4 == c4.key && f4 == c4.type) return r4;
+      for (i5 = u4 - 1, o4 = u4 + 1; i5 >= 0 || o4 < l5.length; ) if (null != (c4 = l5[r4 = i5 >= 0 ? i5-- : o4++]) && 0 == (2 & c4.__u) && e4 == c4.key && f4 == c4.type) return r4;
     }
     return -1;
   }
-  function T(n3, l4, u4) {
-    "-" == l4[0] ? n3.setProperty(l4, null == u4 ? "" : u4) : n3[l4] = null == u4 ? "" : "number" != typeof u4 || y.test(l4) ? u4 : u4 + "px";
+  function T(n3, l5, u4) {
+    "-" == l5[0] ? n3.setProperty(l5, null == u4 ? "" : u4) : n3[l5] = null == u4 ? "" : "number" != typeof u4 || y.test(l5) ? u4 : u4 + "px";
   }
-  function j(n3, l4, u4, t4, i5) {
+  function j(n3, l5, u4, t4, i5) {
     var o4, r4;
-    n: if ("style" == l4) if ("string" == typeof u4) n3.style.cssText = u4;
+    n: if ("style" == l5) if ("string" == typeof u4) n3.style.cssText = u4;
     else {
-      if ("string" == typeof t4 && (n3.style.cssText = t4 = ""), t4) for (l4 in t4) u4 && l4 in u4 || T(n3.style, l4, "");
-      if (u4) for (l4 in u4) t4 && u4[l4] == t4[l4] || T(n3.style, l4, u4[l4]);
+      if ("string" == typeof t4 && (n3.style.cssText = t4 = ""), t4) for (l5 in t4) u4 && l5 in u4 || T(n3.style, l5, "");
+      if (u4) for (l5 in u4) t4 && u4[l5] == t4[l5] || T(n3.style, l5, u4[l5]);
     }
-    else if ("o" == l4[0] && "n" == l4[1]) o4 = l4 != (l4 = l4.replace(f, "$1")), r4 = l4.toLowerCase(), l4 = r4 in n3 || "onFocusOut" == l4 || "onFocusIn" == l4 ? r4.slice(2) : l4.slice(2), n3.l || (n3.l = {}), n3.l[l4 + o4] = u4, u4 ? t4 ? u4.u = t4.u : (u4.u = c, n3.addEventListener(l4, o4 ? a : s, o4)) : n3.removeEventListener(l4, o4 ? a : s, o4);
+    else if ("o" == l5[0] && "n" == l5[1]) o4 = l5 != (l5 = l5.replace(f, "$1")), r4 = l5.toLowerCase(), l5 = r4 in n3 || "onFocusOut" == l5 || "onFocusIn" == l5 ? r4.slice(2) : l5.slice(2), n3.l || (n3.l = {}), n3.l[l5 + o4] = u4, u4 ? t4 ? u4.u = t4.u : (u4.u = c, n3.addEventListener(l5, o4 ? a : s, o4)) : n3.removeEventListener(l5, o4 ? a : s, o4);
     else {
-      if ("http://www.w3.org/2000/svg" == i5) l4 = l4.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
-      else if ("width" != l4 && "height" != l4 && "href" != l4 && "list" != l4 && "form" != l4 && "tabIndex" != l4 && "download" != l4 && "rowSpan" != l4 && "colSpan" != l4 && "role" != l4 && "popover" != l4 && l4 in n3) try {
-        n3[l4] = null == u4 ? "" : u4;
+      if ("http://www.w3.org/2000/svg" == i5) l5 = l5.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
+      else if ("width" != l5 && "height" != l5 && "href" != l5 && "list" != l5 && "form" != l5 && "tabIndex" != l5 && "download" != l5 && "rowSpan" != l5 && "colSpan" != l5 && "role" != l5 && "popover" != l5 && l5 in n3) try {
+        n3[l5] = null == u4 ? "" : u4;
         break n;
       } catch (n4) {
       }
-      "function" == typeof u4 || (null == u4 || false === u4 && "-" != l4[4] ? n3.removeAttribute(l4) : n3.setAttribute(l4, "popover" == l4 && 1 == u4 ? "" : u4));
+      "function" == typeof u4 || (null == u4 || false === u4 && "-" != l5[4] ? n3.removeAttribute(l5) : n3.setAttribute(l5, "popover" == l5 && 1 == u4 ? "" : u4));
     }
   }
   function F(n3) {
@@ -169,30 +169,30 @@
     };
   }
   function O(n3, u4, t4, i5, o4, r4, e4, f4, c4, s4) {
-    var a4, h5, p5, v4, y5, _5, m4, b4, S2, C3, M4, $2, P4, A5, H3, L2, T5, j4 = u4.type;
+    var a4, h5, p5, v4, y5, _5, m5, b4, S3, C4, M3, $2, P4, A5, H3, L2, T5, j4 = u4.type;
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), r4 = [f4 = u4.__e = t4.__e]), (a4 = l.__b) && a4(u4);
     n: if ("function" == typeof j4) try {
-      if (b4 = u4.props, S2 = "prototype" in j4 && j4.prototype.render, C3 = (a4 = j4.contextType) && i5[a4.__c], M4 = a4 ? C3 ? C3.props.value : a4.__ : i5, t4.__c ? m4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (S2 ? u4.__c = h5 = new j4(b4, M4) : (u4.__c = h5 = new x(b4, M4), h5.constructor = j4, h5.render = E), C3 && C3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), S2 && null == h5.__s && (h5.__s = h5.state), S2 && null != j4.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, j4.getDerivedStateFromProps(b4, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) S2 && null == j4.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), S2 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
+      if (b4 = u4.props, S3 = "prototype" in j4 && j4.prototype.render, C4 = (a4 = j4.contextType) && i5[a4.__c], M3 = a4 ? C4 ? C4.props.value : a4.__ : i5, t4.__c ? m5 = (h5 = u4.__c = t4.__c).__ = h5.__E : (S3 ? u4.__c = h5 = new j4(b4, M3) : (u4.__c = h5 = new x(b4, M3), h5.constructor = j4, h5.render = E), C4 && C4.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), S3 && null == h5.__s && (h5.__s = h5.state), S3 && null != j4.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, j4.getDerivedStateFromProps(b4, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) S3 && null == j4.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), S3 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
       else {
-        if (S2 && null == j4.getDerivedStateFromProps && b4 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(b4, M4), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(b4, h5.__s, M4)) {
+        if (S3 && null == j4.getDerivedStateFromProps && b4 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(b4, M3), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(b4, h5.__s, M3)) {
           for (u4.__v != t4.__v && (h5.props = b4, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
             n4 && (n4.__ = u4);
           }), $2 = 0; $2 < h5._sb.length; $2++) h5.__h.push(h5._sb[$2]);
           h5._sb = [], h5.__h.length && e4.push(h5);
           break n;
         }
-        null != h5.componentWillUpdate && h5.componentWillUpdate(b4, h5.__s, M4), S2 && null != h5.componentDidUpdate && h5.__h.push(function() {
+        null != h5.componentWillUpdate && h5.componentWillUpdate(b4, h5.__s, M3), S3 && null != h5.componentDidUpdate && h5.__h.push(function() {
           h5.componentDidUpdate(v4, y5, _5);
         });
       }
-      if (h5.context = M4, h5.props = b4, h5.__P = n3, h5.__e = false, P4 = l.__r, A5 = 0, S2) {
+      if (h5.context = M3, h5.props = b4, h5.__P = n3, h5.__e = false, P4 = l.__r, A5 = 0, S3) {
         for (h5.state = h5.__s, h5.__d = false, P4 && P4(u4), a4 = h5.render(h5.props, h5.state, h5.context), H3 = 0; H3 < h5._sb.length; H3++) h5.__h.push(h5._sb[H3]);
         h5._sb = [];
       } else do {
         h5.__d = false, P4 && P4(u4), a4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
       } while (h5.__d && ++A5 < 25);
-      h5.state = h5.__s, null != h5.getChildContext && (i5 = w(w({}, i5), h5.getChildContext())), S2 && !p5 && null != h5.getSnapshotBeforeUpdate && (_5 = h5.getSnapshotBeforeUpdate(v4, y5)), L2 = a4, null != a4 && a4.type === k && null == a4.key && (L2 = V(a4.props.children)), f4 = I(n3, d(L2) ? L2 : [L2], u4, t4, i5, o4, r4, e4, f4, c4, s4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), m4 && (h5.__E = h5.__ = null);
+      h5.state = h5.__s, null != h5.getChildContext && (i5 = w(w({}, i5), h5.getChildContext())), S3 && !p5 && null != h5.getSnapshotBeforeUpdate && (_5 = h5.getSnapshotBeforeUpdate(v4, y5)), L2 = a4, null != a4 && a4.type === k && null == a4.key && (L2 = V(a4.props.children)), f4 = I(n3, d(L2) ? L2 : [L2], u4, t4, i5, o4, r4, e4, f4, c4, s4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), m5 && (h5.__E = h5.__ = null);
     } catch (n4) {
       if (u4.__v = null, c4 || null != r4) if (n4.then) {
         for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
@@ -226,7 +226,7 @@
     return "object" != typeof n3 || null == n3 || n3.__b && n3.__b > 0 ? n3 : d(n3) ? n3.map(V) : w({}, n3);
   }
   function q(u4, t4, i5, o4, r4, e4, f4, c4, s4) {
-    var a4, h5, v4, y5, w5, _5, m4, b4 = i5.props || p, k4 = t4.props, x4 = t4.type;
+    var a4, h5, v4, y5, w5, _5, m5, b4 = i5.props || p, k4 = t4.props, x4 = t4.type;
     if ("svg" == x4 ? r4 = "http://www.w3.org/2000/svg" : "math" == x4 ? r4 = "http://www.w3.org/1998/Math/MathML" : r4 || (r4 = "http://www.w3.org/1999/xhtml"), null != e4) {
       for (a4 = 0; a4 < e4.length; a4++) if ((w5 = e4[a4]) && "setAttribute" in w5 == !!x4 && (x4 ? w5.localName == x4 : 3 == w5.nodeType)) {
         u4 = w5, e4[a4] = null;
@@ -246,10 +246,10 @@
         if ("value" == a4 && "defaultValue" in k4 || "checked" == a4 && "defaultChecked" in k4) continue;
         j(u4, a4, null, w5, r4);
       }
-      for (a4 in k4) w5 = k4[a4], "children" == a4 ? y5 = w5 : "dangerouslySetInnerHTML" == a4 ? h5 = w5 : "value" == a4 ? _5 = w5 : "checked" == a4 ? m4 = w5 : c4 && "function" != typeof w5 || b4[a4] === w5 || j(u4, a4, w5, b4[a4], r4);
+      for (a4 in k4) w5 = k4[a4], "children" == a4 ? y5 = w5 : "dangerouslySetInnerHTML" == a4 ? h5 = w5 : "value" == a4 ? _5 = w5 : "checked" == a4 ? m5 = w5 : c4 && "function" != typeof w5 || b4[a4] === w5 || j(u4, a4, w5, b4[a4], r4);
       if (h5) c4 || v4 && (h5.__html == v4.__html || h5.__html == u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
       else if (v4 && (u4.innerHTML = ""), I("template" == t4.type ? u4.content : u4, d(y5) ? y5 : [y5], t4, i5, o4, "foreignObject" == x4 ? "http://www.w3.org/1999/xhtml" : r4, e4, f4, e4 ? e4[0] : i5.__k && S(i5, 0), c4, s4), null != e4) for (a4 = e4.length; a4--; ) g(e4[a4]);
-      c4 || (a4 = "value", "progress" == x4 && null == _5 ? u4.removeAttribute("value") : null != _5 && (_5 !== u4[a4] || "progress" == x4 && !_5 || "option" == x4 && _5 != b4[a4]) && j(u4, a4, _5, b4[a4], r4), a4 = "checked", null != m4 && m4 != u4[a4] && j(u4, a4, m4, b4[a4], r4));
+      c4 || (a4 = "value", "progress" == x4 && null == _5 ? u4.removeAttribute("value") : null != _5 && (_5 !== u4[a4] || "progress" == x4 && !_5 || "option" == x4 && _5 != b4[a4]) && j(u4, a4, _5, b4[a4], r4), a4 = "checked", null != m5 && m5 != u4[a4] && j(u4, a4, m5, b4[a4], r4));
     }
     return u4;
   }
@@ -276,7 +276,7 @@
     if (i5 = n3.__k) for (o4 = 0; o4 < i5.length; o4++) i5[o4] && D(i5[o4], u4, t4 || "function" != typeof n3.type);
     t4 || g(n3.__e), n3.__c = n3.__ = n3.__e = void 0;
   }
-  function E(n3, l4, u4) {
+  function E(n3, l5, u4) {
     return this.constructor(n3, u4);
   }
   function G(u4, t4, i5) {
@@ -284,9 +284,9 @@
     t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), r4 = (o4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], O(t4, u4 = (!o4 && i5 || t4).__k = _(k, null, [u4]), r4 || p, p, t4.namespaceURI, !o4 && i5 ? [i5] : r4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !o4 && i5 ? i5 : r4 ? r4.__e : t4.firstChild, o4, f4), N(e4, u4, f4);
   }
   function Q(n3) {
-    function l4(n4) {
+    function l5(n4) {
       var u4, t4;
-      return this.getChildContext || (u4 = /* @__PURE__ */ new Set(), (t4 = {})[l4.__c] = this, this.getChildContext = function() {
+      return this.getChildContext || (u4 = /* @__PURE__ */ new Set(), (t4 = {})[l5.__c] = this, this.getChildContext = function() {
         return t4;
       }, this.componentWillUnmount = function() {
         u4 = null;
@@ -296,15 +296,15 @@
         });
       }, this.sub = function(n5) {
         u4.add(n5);
-        var l5 = n5.componentWillUnmount;
+        var l6 = n5.componentWillUnmount;
         n5.componentWillUnmount = function() {
-          u4 && u4.delete(n5), l5 && l5.call(n5);
+          u4 && u4.delete(n5), l6 && l6.call(n5);
         };
       }), n4.children;
     }
-    return l4.__c = "__cC" + h++, l4.__ = n3, l4.Provider = l4.__l = (l4.Consumer = function(n4, l5) {
-      return n4.children(l5);
-    }).contextType = l4, l4;
+    return l5.__c = "__cC" + h++, l5.__ = n3, l5.Provider = l5.__l = (l5.Consumer = function(n4, l6) {
+      return n4.children(l6);
+    }).contextType = l5, l5;
   }
   var n, l, u, t, i, o, r, e, f, c, s, a, h, p, v, y, d;
   var init_preact_module = __esm({
@@ -313,22 +313,22 @@
       v = [];
       y = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
       d = Array.isArray;
-      n = v.slice, l = { __e: function(n3, l4, u4, t4) {
-        for (var i5, o4, r4; l4 = l4.__; ) if ((i5 = l4.__c) && !i5.__) try {
+      n = v.slice, l = { __e: function(n3, l5, u4, t4) {
+        for (var i5, o4, r4; l5 = l5.__; ) if ((i5 = l5.__c) && !i5.__) try {
           if ((o4 = i5.constructor) && null != o4.getDerivedStateFromError && (i5.setState(o4.getDerivedStateFromError(n3)), r4 = i5.__d), null != i5.componentDidCatch && (i5.componentDidCatch(n3, t4 || {}), r4 = i5.__d), r4) return i5.__E = i5;
-        } catch (l5) {
-          n3 = l5;
+        } catch (l6) {
+          n3 = l6;
         }
         throw n3;
       } }, u = 0, t = function(n3) {
         return null != n3 && void 0 === n3.constructor;
-      }, x.prototype.setState = function(n3, l4) {
+      }, x.prototype.setState = function(n3, l5) {
         var u4;
-        u4 = null != this.__s && this.__s != this.state ? this.__s : this.__s = w({}, this.state), "function" == typeof n3 && (n3 = n3(w({}, u4), this.props)), n3 && w(u4, n3), null != n3 && this.__v && (l4 && this._sb.push(l4), M(this));
+        u4 = null != this.__s && this.__s != this.state ? this.__s : this.__s = w({}, this.state), "function" == typeof n3 && (n3 = n3(w({}, u4), this.props)), n3 && w(u4, n3), null != n3 && this.__v && (l5 && this._sb.push(l5), M(this));
       }, x.prototype.forceUpdate = function(n3) {
         this.__v && (this.__e = true, n3 && this.__h.push(n3), M(this));
-      }, x.prototype.render = k, i = [], r = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e = function(n3, l4) {
-        return n3.__v.__b - l4.__v.__b;
+      }, x.prototype.render = k, i = [], r = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e = function(n3, l5) {
+        return n3.__v.__b - l5.__v.__b;
       }, $.__r = 0, f = /(PointerCapture)$|Capture$/i, c = 0, s = F(false), a = F(true), h = 0;
     }
   });
@@ -592,30 +592,30 @@
     if (!(s3 > 1)) {
       var i5, t4 = false;
       while (void 0 !== h3) {
-        var r4 = h3;
+        var n3 = h3;
         h3 = void 0;
-        f3++;
-        while (void 0 !== r4) {
-          var o4 = r4.o;
-          r4.o = void 0;
-          r4.f &= -3;
-          if (!(8 & r4.f) && c3(r4)) try {
-            r4.c();
-          } catch (r5) {
+        v3++;
+        while (void 0 !== n3) {
+          var r4 = n3.o;
+          n3.o = void 0;
+          n3.f &= -3;
+          if (!(8 & n3.f) && a3(n3)) try {
+            n3.c();
+          } catch (n4) {
             if (!t4) {
-              i5 = r5;
+              i5 = n4;
               t4 = true;
             }
           }
-          r4 = o4;
+          n3 = r4;
         }
       }
-      f3 = 0;
+      v3 = 0;
       s3--;
       if (t4) throw i5;
     } else s3--;
   }
-  function r3(i5) {
+  function n2(i5) {
     if (s3 > 0) return i5();
     s3++;
     try {
@@ -624,40 +624,40 @@
       t3();
     }
   }
-  function n2(i5) {
-    var t4 = o3;
-    o3 = void 0;
+  function o3(i5) {
+    var t4 = r3;
+    r3 = void 0;
     try {
       return i5();
     } finally {
-      o3 = t4;
+      r3 = t4;
     }
   }
   function e3(i5) {
-    if (void 0 !== o3) {
+    if (void 0 !== r3) {
       var t4 = i5.n;
-      if (void 0 === t4 || t4.t !== o3) {
-        t4 = { i: 0, S: i5, p: o3.s, n: void 0, t: o3, e: void 0, x: void 0, r: t4 };
-        if (void 0 !== o3.s) o3.s.n = t4;
-        o3.s = t4;
+      if (void 0 === t4 || t4.t !== r3) {
+        t4 = { i: 0, S: i5, p: r3.s, n: void 0, t: r3, e: void 0, x: void 0, r: t4 };
+        if (void 0 !== r3.s) r3.s.n = t4;
+        r3.s = t4;
         i5.n = t4;
-        if (32 & o3.f) i5.S(t4);
+        if (32 & r3.f) i5.S(t4);
         return t4;
       } else if (-1 === t4.i) {
         t4.i = 0;
         if (void 0 !== t4.n) {
           t4.n.p = t4.p;
           if (void 0 !== t4.p) t4.p.n = t4.n;
-          t4.p = o3.s;
+          t4.p = r3.s;
           t4.n = void 0;
-          o3.s.n = t4;
-          o3.s = t4;
+          r3.s.n = t4;
+          r3.s = t4;
         }
         return t4;
       }
     }
   }
-  function u3(i5, t4) {
+  function d3(i5, t4) {
     this.v = i5;
     this.i = 0;
     this.n = void 0;
@@ -666,17 +666,17 @@
     this.Z = null == t4 ? void 0 : t4.unwatched;
     this.name = null == t4 ? void 0 : t4.name;
   }
-  function d3(i5, t4) {
-    return new u3(i5, t4);
+  function c3(i5, t4) {
+    return new d3(i5, t4);
   }
-  function c3(i5) {
+  function a3(i5) {
     for (var t4 = i5.s; void 0 !== t4; t4 = t4.n) if (t4.S.i !== t4.i || !t4.S.h() || t4.S.i !== t4.i) return true;
     return false;
   }
-  function a3(i5) {
+  function l3(i5) {
     for (var t4 = i5.s; void 0 !== t4; t4 = t4.n) {
-      var r4 = t4.S.n;
-      if (void 0 !== r4) t4.r = r4;
+      var n3 = t4.S.n;
+      if (void 0 !== n3) t4.r = n3;
       t4.S.n = t4;
       t4.i = -1;
       if (void 0 === t4.n) {
@@ -685,199 +685,200 @@
       }
     }
   }
-  function l3(i5) {
-    var t4 = i5.s, r4 = void 0;
+  function y3(i5) {
+    var t4 = i5.s, n3 = void 0;
     while (void 0 !== t4) {
-      var o4 = t4.p;
+      var r4 = t4.p;
       if (-1 === t4.i) {
         t4.S.U(t4);
-        if (void 0 !== o4) o4.n = t4.n;
-        if (void 0 !== t4.n) t4.n.p = o4;
-      } else r4 = t4;
+        if (void 0 !== r4) r4.n = t4.n;
+        if (void 0 !== t4.n) t4.n.p = r4;
+      } else n3 = t4;
       t4.S.n = t4.r;
       if (void 0 !== t4.r) t4.r = void 0;
-      t4 = o4;
+      t4 = r4;
     }
-    i5.s = r4;
+    i5.s = n3;
   }
-  function y3(i5, t4) {
-    u3.call(this, void 0);
+  function w3(i5, t4) {
+    d3.call(this, void 0);
     this.x = i5;
     this.s = void 0;
-    this.g = v3 - 1;
+    this.g = u3 - 1;
     this.f = 4;
     this.W = null == t4 ? void 0 : t4.watched;
     this.Z = null == t4 ? void 0 : t4.unwatched;
     this.name = null == t4 ? void 0 : t4.name;
   }
-  function w3(i5, t4) {
-    return new y3(i5, t4);
+  function b(i5, t4) {
+    return new w3(i5, t4);
   }
   function _3(i5) {
-    var r4 = i5.u;
+    var n3 = i5.u;
     i5.u = void 0;
-    if ("function" == typeof r4) {
+    if ("function" == typeof n3) {
       s3++;
-      var n3 = o3;
-      o3 = void 0;
+      var o4 = r3;
+      r3 = void 0;
       try {
-        r4();
+        n3();
       } catch (t4) {
         i5.f &= -2;
         i5.f |= 8;
-        b(i5);
+        p3(i5);
         throw t4;
       } finally {
-        o3 = n3;
+        r3 = o4;
         t3();
       }
     }
   }
-  function b(i5) {
+  function p3(i5) {
     for (var t4 = i5.s; void 0 !== t4; t4 = t4.n) t4.S.U(t4);
     i5.x = void 0;
     i5.s = void 0;
     _3(i5);
   }
   function g3(i5) {
-    if (o3 !== this) throw new Error("Out-of-order effect");
-    l3(this);
-    o3 = i5;
+    if (r3 !== this) throw new Error("Out-of-order effect");
+    y3(this);
+    r3 = i5;
     this.f &= -2;
-    if (8 & this.f) b(this);
+    if (8 & this.f) p3(this);
     t3();
   }
-  function p3(i5, t4) {
+  function S2(i5, t4) {
     this.x = i5;
     this.u = void 0;
     this.s = void 0;
     this.o = void 0;
     this.f = 32;
     this.name = null == t4 ? void 0 : t4.name;
+    if (f3) f3.push(this);
   }
-  function E2(i5, t4) {
-    var r4 = new p3(i5, t4);
+  function m3(i5, t4) {
+    var n3 = new S2(i5, t4);
     try {
-      r4.c();
+      n3.c();
     } catch (i6) {
-      r4.d();
+      n3.d();
       throw i6;
     }
-    var o4 = r4.d.bind(r4);
-    o4[Symbol.dispose] = o4;
-    return o4;
+    var r4 = n3.d.bind(n3);
+    r4[Symbol.dispose] = r4;
+    return r4;
   }
-  var i4, o3, h3, s3, f3, v3;
+  var i4, r3, f3, h3, s3, v3, u3;
   var init_signals_core_module = __esm({
     "../node_modules/@preact/signals-core/dist/signals-core.module.js"() {
       i4 = /* @__PURE__ */ Symbol.for("preact-signals");
-      o3 = void 0;
+      r3 = void 0;
       h3 = void 0;
       s3 = 0;
-      f3 = 0;
       v3 = 0;
-      u3.prototype.brand = i4;
-      u3.prototype.h = function() {
+      u3 = 0;
+      d3.prototype.brand = i4;
+      d3.prototype.h = function() {
         return true;
       };
-      u3.prototype.S = function(i5) {
-        var t4 = this, r4 = this.t;
-        if (r4 !== i5 && void 0 === i5.e) {
-          i5.x = r4;
+      d3.prototype.S = function(i5) {
+        var t4 = this, n3 = this.t;
+        if (n3 !== i5 && void 0 === i5.e) {
+          i5.x = n3;
           this.t = i5;
-          if (void 0 !== r4) r4.e = i5;
-          else n2(function() {
+          if (void 0 !== n3) n3.e = i5;
+          else o3(function() {
             var i6;
             null == (i6 = t4.W) || i6.call(t4);
           });
         }
       };
-      u3.prototype.U = function(i5) {
+      d3.prototype.U = function(i5) {
         var t4 = this;
         if (void 0 !== this.t) {
-          var r4 = i5.e, o4 = i5.x;
-          if (void 0 !== r4) {
-            r4.x = o4;
+          var n3 = i5.e, r4 = i5.x;
+          if (void 0 !== n3) {
+            n3.x = r4;
             i5.e = void 0;
           }
-          if (void 0 !== o4) {
-            o4.e = r4;
+          if (void 0 !== r4) {
+            r4.e = n3;
             i5.x = void 0;
           }
           if (i5 === this.t) {
-            this.t = o4;
-            if (void 0 === o4) n2(function() {
+            this.t = r4;
+            if (void 0 === r4) o3(function() {
               var i6;
               null == (i6 = t4.Z) || i6.call(t4);
             });
           }
         }
       };
-      u3.prototype.subscribe = function(i5) {
+      d3.prototype.subscribe = function(i5) {
         var t4 = this;
-        return E2(function() {
-          var r4 = t4.value, n3 = o3;
-          o3 = void 0;
+        return m3(function() {
+          var n3 = t4.value, o4 = r3;
+          r3 = void 0;
           try {
-            i5(r4);
+            i5(n3);
           } finally {
-            o3 = n3;
+            r3 = o4;
           }
         }, { name: "sub" });
       };
-      u3.prototype.valueOf = function() {
+      d3.prototype.valueOf = function() {
         return this.value;
       };
-      u3.prototype.toString = function() {
+      d3.prototype.toString = function() {
         return this.value + "";
       };
-      u3.prototype.toJSON = function() {
+      d3.prototype.toJSON = function() {
         return this.value;
       };
-      u3.prototype.peek = function() {
-        var i5 = o3;
-        o3 = void 0;
+      d3.prototype.peek = function() {
+        var i5 = r3;
+        r3 = void 0;
         try {
           return this.value;
         } finally {
-          o3 = i5;
+          r3 = i5;
         }
       };
-      Object.defineProperty(u3.prototype, "value", { get: function() {
+      Object.defineProperty(d3.prototype, "value", { get: function() {
         var i5 = e3(this);
         if (void 0 !== i5) i5.i = this.i;
         return this.v;
       }, set: function(i5) {
         if (i5 !== this.v) {
-          if (f3 > 100) throw new Error("Cycle detected");
+          if (v3 > 100) throw new Error("Cycle detected");
           this.v = i5;
           this.i++;
-          v3++;
+          u3++;
           s3++;
           try {
-            for (var r4 = this.t; void 0 !== r4; r4 = r4.x) r4.t.N();
+            for (var n3 = this.t; void 0 !== n3; n3 = n3.x) n3.t.N();
           } finally {
             t3();
           }
         }
       } });
-      y3.prototype = new u3();
-      y3.prototype.h = function() {
+      w3.prototype = new d3();
+      w3.prototype.h = function() {
         this.f &= -3;
         if (1 & this.f) return false;
         if (32 == (36 & this.f)) return true;
         this.f &= -5;
-        if (this.g === v3) return true;
-        this.g = v3;
+        if (this.g === u3) return true;
+        this.g = u3;
         this.f |= 1;
-        if (this.i > 0 && !c3(this)) {
+        if (this.i > 0 && !a3(this)) {
           this.f &= -2;
           return true;
         }
-        var i5 = o3;
+        var i5 = r3;
         try {
-          a3(this);
-          o3 = this;
+          l3(this);
+          r3 = this;
           var t4 = this.x();
           if (16 & this.f || this.v !== t4 || 0 === this.i) {
             this.v = t4;
@@ -889,34 +890,34 @@
           this.f |= 16;
           this.i++;
         }
-        o3 = i5;
-        l3(this);
+        r3 = i5;
+        y3(this);
         this.f &= -2;
         return true;
       };
-      y3.prototype.S = function(i5) {
+      w3.prototype.S = function(i5) {
         if (void 0 === this.t) {
           this.f |= 36;
           for (var t4 = this.s; void 0 !== t4; t4 = t4.n) t4.S.S(t4);
         }
-        u3.prototype.S.call(this, i5);
+        d3.prototype.S.call(this, i5);
       };
-      y3.prototype.U = function(i5) {
+      w3.prototype.U = function(i5) {
         if (void 0 !== this.t) {
-          u3.prototype.U.call(this, i5);
+          d3.prototype.U.call(this, i5);
           if (void 0 === this.t) {
             this.f &= -33;
             for (var t4 = this.s; void 0 !== t4; t4 = t4.n) t4.S.U(t4);
           }
         }
       };
-      y3.prototype.N = function() {
+      w3.prototype.N = function() {
         if (!(2 & this.f)) {
           this.f |= 6;
           for (var i5 = this.t; void 0 !== i5; i5 = i5.x) i5.t.N();
         }
       };
-      Object.defineProperty(y3.prototype, "value", { get: function() {
+      Object.defineProperty(w3.prototype, "value", { get: function() {
         if (1 & this.f) throw new Error("Cycle detected");
         var i5 = e3(this);
         this.h();
@@ -924,7 +925,7 @@
         if (16 & this.f) throw this.v;
         return this.v;
       } });
-      p3.prototype.c = function() {
+      S2.prototype.c = function() {
         var i5 = this.S();
         try {
           if (8 & this.f) return;
@@ -935,235 +936,241 @@
           i5();
         }
       };
-      p3.prototype.S = function() {
+      S2.prototype.S = function() {
         if (1 & this.f) throw new Error("Cycle detected");
         this.f |= 1;
         this.f &= -9;
         _3(this);
-        a3(this);
+        l3(this);
         s3++;
-        var i5 = o3;
-        o3 = this;
+        var i5 = r3;
+        r3 = this;
         return g3.bind(this, i5);
       };
-      p3.prototype.N = function() {
+      S2.prototype.N = function() {
         if (!(2 & this.f)) {
           this.f |= 2;
           this.o = h3;
           h3 = this;
         }
       };
-      p3.prototype.d = function() {
+      S2.prototype.d = function() {
         this.f |= 8;
-        if (!(1 & this.f)) b(this);
+        if (!(1 & this.f)) p3(this);
       };
-      p3.prototype.dispose = function() {
+      S2.prototype.dispose = function() {
         this.d();
       };
     }
   });
 
   // ../node_modules/@preact/signals/dist/signals.module.js
-  function b2(i5, t4) {
-    l[i5] = t4.bind(null, l[i5] || function() {
+  function g4(i5, r4) {
+    l[i5] = r4.bind(null, l[i5] || function() {
     });
   }
-  function y4(i5) {
-    if (p4) p4();
-    p4 = i5 && i5.S();
+  function b2(i5) {
+    if (h4) {
+      var n3 = h4;
+      h4 = void 0;
+      n3();
+    }
+    h4 = i5 && i5.S();
   }
-  function w4(i5) {
-    var n3 = this, r4 = i5.data, o4 = useSignal(r4);
-    o4.value = r4;
+  function y4(i5) {
+    var n3 = this, t4 = i5.data, f4 = useSignal(t4);
+    f4.value = t4;
     var e4 = T2(function() {
-      var i6 = n3, r5 = n3.__v;
-      while (r5 = r5.__) if (r5.__c) {
-        r5.__c.__$f |= 4;
+      var i6 = n3, t5 = n3.__v;
+      while (t5 = t5.__) if (t5.__c) {
+        t5.__c.__$f |= 4;
         break;
       }
-      var f4 = w3(function() {
-        var i7 = o4.value.value;
+      var o4 = b(function() {
+        var i7 = f4.value.value;
         return 0 === i7 ? 0 : true === i7 ? "" : i7 || "";
-      }), e5 = w3(function() {
-        return !Array.isArray(f4.value) && !t(f4.value);
-      }), u5 = E2(function() {
-        this.N = M2;
+      }), e5 = b(function() {
+        return !Array.isArray(o4.value) && !t(o4.value);
+      }), a5 = m3(function() {
+        this.N = F2;
         if (e5.value) {
-          var n4 = f4.value;
+          var n4 = o4.value;
           if (i6.__v && i6.__v.__e && 3 === i6.__v.__e.nodeType) i6.__v.__e.data = n4;
         }
-      }), c5 = n3.__$u.d;
+      }), v5 = n3.__$u.d;
       n3.__$u.d = function() {
-        u5();
-        c5.call(this);
+        a5();
+        v5.call(this);
       };
-      return [e5, f4];
-    }, []), u4 = e4[0], c4 = e4[1];
-    return u4.value ? c4.peek() : c4.value;
+      return [e5, o4];
+    }, []), a4 = e4[0], v4 = e4[1];
+    return a4.value ? v4.peek() : v4.value;
   }
-  function k3(i5, n3, t4, r4) {
-    var f4 = n3 in i5 && void 0 === i5.ownerSVGElement, o4 = d3(t4);
+  function w4(i5, n3, r4, t4) {
+    var o4 = n3 in i5 && void 0 === i5.ownerSVGElement, f4 = c3(r4), e4 = r4.peek();
     return { o: function(i6, n4) {
-      o4.value = i6;
-      r4 = n4;
-    }, d: E2(function() {
-      this.N = M2;
-      var t5 = o4.value.value;
-      if (r4[n3] !== t5) {
-        r4[n3] = t5;
-        if (f4) i5[n3] = t5;
-        else if (null != t5 && (false !== t5 || "-" === n3[4])) i5.setAttribute(n3, t5);
+      f4.value = i6;
+      e4 = i6.peek();
+    }, d: m3(function() {
+      this.N = F2;
+      var r5 = f4.value.value;
+      if (e4 !== r5) {
+        e4 = void 0;
+        if (o4) i5[n3] = r5;
+        else if (null != r5 && (false !== r5 || "-" === n3[4])) i5.setAttribute(n3, r5);
         else i5.removeAttribute(n3);
-      }
+      } else e4 = void 0;
     }) };
   }
   function useSignal(i5, n3) {
-    return d2(function() {
-      return d3(i5, n3);
-    })[0];
+    return T2(function() {
+      return c3(i5, n3);
+    }, []);
   }
   function useComputed(i5, n3) {
-    var t4 = A2(i5);
-    t4.current = i5;
+    var r4 = A2(i5);
+    r4.current = i5;
     d4.__$f |= 4;
     return T2(function() {
-      return w3(function() {
-        return t4.current();
+      return b(function() {
+        return r4.current();
       }, n3);
     }, []);
+  }
+  function A3() {
+    n2(function() {
+      var i5;
+      while (i5 = m4.shift()) l4.call(i5);
+    });
   }
   function T3() {
-    r3(function() {
-      var i5;
-      while (i5 = _4.shift()) h4.call(i5);
-    });
+    if (1 === m4.push(this)) (l.requestAnimationFrame || k3)(A3);
   }
   function x3() {
-    if (1 === _4.push(this)) (l.requestAnimationFrame || q3)(T3);
-  }
-  function F2() {
-    r3(function() {
+    n2(function() {
       var i5;
-      while (i5 = g4.shift()) h4.call(i5);
+      while (i5 = _4.shift()) l4.call(i5);
     });
   }
-  function M2() {
-    if (1 === g4.push(this)) (l.requestAnimationFrame || A3)(F2);
+  function F2() {
+    if (1 === _4.push(this)) (l.requestAnimationFrame || q3)(x3);
   }
   function useSignalEffect(i5, n3) {
-    var t4 = A2(i5);
-    t4.current = i5;
+    var r4 = A2(i5);
+    r4.current = i5;
     y2(function() {
-      return E2(function() {
-        this.N = x3;
-        return t4.current();
+      return m3(function() {
+        this.N = T3;
+        return r4.current();
       }, n3);
     }, []);
   }
-  var h4, d4, p4, m3, _4, g4, q3, A3;
+  var l4, d4, h4, p4, m4, _4, k3, q3;
   var init_signals_module = __esm({
     "../node_modules/@preact/signals/dist/signals.module.js"() {
       init_preact_module();
       init_hooks_module();
       init_signals_core_module();
       init_signals_core_module();
-      m3 = "undefined" != typeof window && !!window.__PREACT_SIGNALS_DEVTOOLS__;
+      p4 = "undefined" != typeof window && !!window.__PREACT_SIGNALS_DEVTOOLS__;
+      m4 = [];
       _4 = [];
-      g4 = [];
-      E2(function() {
-        h4 = this.N;
+      m3(function() {
+        l4 = this.N;
       })();
-      w4.displayName = "ReactiveTextNode";
-      Object.defineProperties(u3.prototype, { constructor: { configurable: true, value: void 0 }, type: { configurable: true, value: w4 }, props: { configurable: true, get: function() {
+      y4.displayName = "ReactiveTextNode";
+      Object.defineProperties(d3.prototype, { constructor: { configurable: true, value: void 0 }, type: { configurable: true, value: y4 }, props: { configurable: true, get: function() {
         return { data: this };
       } }, __b: { configurable: true, value: 1 } });
-      b2("__b", function(i5, n3) {
+      g4("__b", function(i5, n3) {
         if ("string" == typeof n3.type) {
-          var t4, r4 = n3.props;
-          for (var f4 in r4) if ("children" !== f4) {
-            var o4 = r4[f4];
-            if (o4 instanceof u3) {
-              if (!t4) n3.__np = t4 = {};
-              t4[f4] = o4;
-              r4[f4] = o4.peek();
+          var r4, t4 = n3.props;
+          for (var o4 in t4) if ("children" !== o4) {
+            var f4 = t4[o4];
+            if (f4 instanceof d3) {
+              if (!r4) n3.__np = r4 = {};
+              r4[o4] = f4;
+              t4[o4] = f4.peek();
             }
           }
         }
         i5(n3);
       });
-      b2("__r", function(i5, n3) {
+      g4("__r", function(i5, n3) {
+        i5(n3);
         if (n3.type !== k) {
-          y4();
-          var t4, f4 = n3.__c;
-          if (f4) {
-            f4.__$f &= -2;
-            if (void 0 === (t4 = f4.__$u)) f4.__$u = t4 = (function(i6, n4) {
-              var t5;
-              E2(function() {
-                t5 = this;
+          b2();
+          var r4, o4 = n3.__c;
+          if (o4) {
+            o4.__$f &= -2;
+            if (void 0 === (r4 = o4.__$u)) o4.__$u = r4 = (function(i6, n4) {
+              var r5;
+              m3(function() {
+                r5 = this;
               }, { name: n4 });
-              t5.c = i6;
-              return t5;
+              r5.c = i6;
+              return r5;
             })(function() {
               var i6;
-              if (m3) null == (i6 = t4.y) || i6.call(t4);
-              f4.__$f |= 1;
-              f4.setState({});
+              if (p4) null == (i6 = r4.y) || i6.call(r4);
+              o4.__$f |= 1;
+              o4.setState({});
             }, "function" == typeof n3.type ? n3.type.displayName || n3.type.name : "");
           }
-          d4 = f4;
-          y4(t4);
+          d4 = o4;
+          b2(r4);
         }
-        i5(n3);
       });
-      b2("__e", function(i5, n3, t4, r4) {
-        y4();
+      g4("__e", function(i5, n3, r4, t4) {
+        b2();
         d4 = void 0;
-        i5(n3, t4, r4);
+        i5(n3, r4, t4);
       });
-      b2("diffed", function(i5, n3) {
-        y4();
+      g4("diffed", function(i5, n3) {
+        b2();
         d4 = void 0;
-        var t4;
-        if ("string" == typeof n3.type && (t4 = n3.__e)) {
-          var r4 = n3.__np, f4 = n3.props;
-          if (r4) {
-            var o4 = t4.U;
-            if (o4) for (var e4 in o4) {
-              var u4 = o4[e4];
-              if (void 0 !== u4 && !(e4 in r4)) {
+        var r4;
+        if ("string" == typeof n3.type && (r4 = n3.__e)) {
+          var t4 = n3.__np, o4 = n3.props;
+          if (t4) {
+            var f4 = r4.U;
+            if (f4) for (var e4 in f4) {
+              var u4 = f4[e4];
+              if (void 0 !== u4 && !(e4 in t4)) {
                 u4.d();
-                o4[e4] = void 0;
+                f4[e4] = void 0;
               }
             }
             else {
-              o4 = {};
-              t4.U = o4;
+              f4 = {};
+              r4.U = f4;
             }
-            for (var a4 in r4) {
-              var c4 = o4[a4], v4 = r4[a4];
+            for (var a4 in t4) {
+              var c4 = f4[a4], v4 = t4[a4];
               if (void 0 === c4) {
-                c4 = k3(t4, a4, v4, f4);
-                o4[a4] = c4;
-              } else c4.o(v4, f4);
+                c4 = w4(r4, a4, v4);
+                f4[a4] = c4;
+              } else c4.o(v4, o4);
             }
+            for (var s4 in t4) o4[s4] = t4[s4];
           }
         }
         i5(n3);
       });
-      b2("unmount", function(i5, n3) {
+      g4("unmount", function(i5, n3) {
         if ("string" == typeof n3.type) {
-          var t4 = n3.__e;
-          if (t4) {
-            var r4 = t4.U;
-            if (r4) {
-              t4.U = void 0;
-              for (var f4 in r4) {
-                var o4 = r4[f4];
-                if (o4) o4.d();
+          var r4 = n3.__e;
+          if (r4) {
+            var t4 = r4.U;
+            if (t4) {
+              r4.U = void 0;
+              for (var o4 in t4) {
+                var f4 = t4[o4];
+                if (f4) f4.d();
               }
             }
           }
+          n3.__np = void 0;
         } else {
           var e4 = n3.__c;
           if (e4) {
@@ -1176,34 +1183,34 @@
         }
         i5(n3);
       });
-      b2("__h", function(i5, n3, t4, r4) {
-        if (r4 < 3 || 9 === r4) n3.__$f |= 2;
-        i5(n3, t4, r4);
+      g4("__h", function(i5, n3, r4, t4) {
+        if (t4 < 3 || 9 === t4) n3.__$f |= 2;
+        i5(n3, r4, t4);
       });
       x.prototype.shouldComponentUpdate = function(i5, n3) {
         if (this.__R) return true;
-        var t4 = this.__$u, r4 = t4 && void 0 !== t4.s;
-        for (var f4 in n3) return true;
+        var r4 = this.__$u, t4 = r4 && void 0 !== r4.s;
+        for (var o4 in n3) return true;
         if (this.__f || "boolean" == typeof this.u && true === this.u) {
-          var o4 = 2 & this.__$f;
-          if (!(r4 || o4 || 4 & this.__$f)) return true;
+          var f4 = 2 & this.__$f;
+          if (!(t4 || f4 || 4 & this.__$f)) return true;
           if (1 & this.__$f) return true;
         } else {
-          if (!(r4 || 4 & this.__$f)) return true;
+          if (!(t4 || 4 & this.__$f)) return true;
           if (3 & this.__$f) return true;
         }
         for (var e4 in i5) if ("__source" !== e4 && i5[e4] !== this.props[e4]) return true;
         for (var u4 in this.props) if (!(u4 in i5)) return true;
         return false;
       };
-      q3 = "undefined" == typeof requestAnimationFrame ? setTimeout : function(i5) {
+      k3 = "undefined" == typeof requestAnimationFrame ? setTimeout : function(i5) {
         var n3 = function() {
-          clearTimeout(t4);
-          cancelAnimationFrame(r4);
+          clearTimeout(r4);
+          cancelAnimationFrame(t4);
           i5();
-        }, t4 = setTimeout(n3, 35), r4 = requestAnimationFrame(n3);
+        }, r4 = setTimeout(n3, 35), t4 = requestAnimationFrame(n3);
       };
-      A3 = function(i5) {
+      q3 = function(i5) {
         queueMicrotask(function() {
           queueMicrotask(i5);
         });
@@ -1214,7 +1221,7 @@
   // pages/new-tab/app/widget-list/widget-config.provider.js
   function WidgetConfigProvider(props) {
     const currentValues = useSignal(props.widgetConfigs);
-    E2(() => {
+    m3(() => {
       const unsub = props.api.onData((widgetConfig) => {
         currentValues.value = widgetConfig.data;
       });
@@ -1284,7 +1291,7 @@
          * latest updates and can be subscribed to for reactive updates
          * @type {import("@preact/signals").Signal<WidgetConfigItem[]>}
          */
-        currentValues: d3([]),
+        currentValues: c3([]),
         /** @type {(id:string) => void} */
         toggle: (_id) => {
         }
@@ -1299,7 +1306,7 @@
         },
         /** @type {number} */
         index: -1,
-        visibility: d3(
+        visibility: c3(
           /** @type {WidgetConfigItem['visibility']} */
           "visible"
         )
@@ -2154,7 +2161,7 @@
   function N2(n3, t4) {
     this.props = n3, this.context = t4;
   }
-  function M3(n3, e4) {
+  function M2(n3, e4) {
     function r4(n4) {
       var t4 = this.props.ref, r5 = t4 == n4.ref;
       return !r5 && t4 && (t4.call ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || !r5 : E3(this.props, n4);
@@ -2241,7 +2248,7 @@
           o4 || r4.__z || (o4 = true, e4.__R = null, u4 ? u4(c4) : c4());
         };
         e4.__R = i5;
-        var l4 = e4.__P;
+        var l5 = e4.__P;
         e4.__P = null;
         var c4 = function() {
           if (!--r4.__u) {
@@ -2250,7 +2257,7 @@
               r4.__v.__k[0] = W(n4, n4.__c.__P, n4.__c.__O);
             }
             var t5;
-            for (r4.setState({ __a: r4.__b = null }); t5 = r4.o.pop(); ) t5.__P = l4, t5.forceUpdate();
+            for (r4.setState({ __a: r4.__b = null }); t5 = r4.o.pop(); ) t5.__P = l5, t5.forceUpdate();
           }
         };
         r4.__u++ || 32 & t4.__u || r4.setState({ __a: r4.__b = r4.__v.__k[0] }), n3.then(i5, i5);
@@ -2321,10 +2328,10 @@
         "string" == typeof n3.type && (function(n4) {
           var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 === e4.indexOf("-");
           for (var i5 in t4) {
-            var l4 = t4[i5];
-            if (!("value" === i5 && "defaultValue" in t4 && null == l4 || Q2 && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
+            var l5 = t4[i5];
+            if (!("value" === i5 && "defaultValue" in t4 && null == l5 || Q2 && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
               var c4 = i5.toLowerCase();
-              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l4 ? l4 = "" : "translate" === c4 && "no" === l4 ? l4 = false : "o" === c4[0] && "n" === c4[1] ? "ondoubleclick" === c4 ? i5 = "ondblclick" : "onchange" !== c4 || "input" !== e4 && "textarea" !== e4 || X(t4.type) ? "onfocus" === c4 ? i5 = "onfocusin" : "onblur" === c4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = c4) : c4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l4 && (l4 = void 0), "oninput" === c4 && u4[i5 = c4] && (i5 = "oninputCapture"), u4[i5] = l4;
+              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l5 ? l5 = "" : "translate" === c4 && "no" === l5 ? l5 = false : "o" === c4[0] && "n" === c4[1] ? "ondoubleclick" === c4 ? i5 = "ondblclick" : "onchange" !== c4 || "input" !== e4 && "textarea" !== e4 || X(t4.type) ? "onfocus" === c4 ? i5 = "onfocusin" : "onblur" === c4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = c4) : c4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l5 && (l5 = void 0), "oninput" === c4 && u4[i5 = c4] && (i5 = "oninputCapture"), u4[i5] = l5;
             }
           }
           "select" == e4 && u4.multiple && Array.isArray(u4.value) && (u4.value = H(t4.children).forEach(function(n5) {
@@ -2530,7 +2537,7 @@
         fading: "fading",
         settled: "settled"
       };
-      ImageCrossFade = M3(ImageCrossFade_);
+      ImageCrossFade = M2(ImageCrossFade_);
     }
   });
 
@@ -2697,7 +2704,7 @@
         "transitionend",
         (e4) => {
           if (e4.target !== e4.currentTarget) return;
-          r3(() => {
+          n2(() => {
             displayChildren.value = visibility.value === "visible";
             animating.value = false;
             if (displayChildren.value === false) {
@@ -2711,7 +2718,7 @@
         "transitionstart",
         (e4) => {
           if (e4.target !== e4.currentTarget) return;
-          r3(() => {
+          n2(() => {
             animating.value = true;
             displayChildren.value = true;
           });
@@ -2935,15 +2942,15 @@
       init_types();
       CustomizerThemesContext = Q({
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
-        main: d3("light"),
+        main: c3("light"),
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
-        browser: d3("light"),
+        browser: c3("light"),
         /** @type {import("@preact/signals").Signal<ThemeVariant>} */
-        variant: d3("default")
+        variant: c3("default")
       });
       CustomizerContext = Q({
         /** @type {import("@preact/signals").Signal<CustomizerData>} */
-        data: d3({
+        data: c3({
           background: { kind: "default" },
           userImages: [],
           userColor: null,
@@ -2973,7 +2980,7 @@
         dismissThemeVariantPopover: () => {
         },
         /** @type {import("@preact/signals").Signal<boolean>} */
-        showThemeNewBadge: d3(false)
+        showThemeNewBadge: c3(false)
       });
     }
   });
@@ -3788,7 +3795,7 @@
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
-      FaviconsRefreshedCount = Q(d3(0));
+      FaviconsRefreshedCount = Q(c3(0));
     }
   });
 
@@ -3802,15 +3809,15 @@
   });
 
   // ../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
-  function _iterableToArrayLimit(r4, l4) {
+  function _iterableToArrayLimit(r4, l5) {
     var t4 = null == r4 ? null : "undefined" != typeof Symbol && r4[Symbol.iterator] || r4["@@iterator"];
     if (null != t4) {
       var e4, n3, i5, u4, a4 = [], f4 = true, o4 = false;
       try {
-        if (i5 = (t4 = t4.call(r4)).next, 0 === l4) {
+        if (i5 = (t4 = t4.call(r4)).next, 0 === l5) {
           if (Object(t4) !== t4) return;
           f4 = false;
-        } else for (; !(f4 = (e4 = i5.call(t4)).done) && (a4.push(e4.value), a4.length !== l4); f4 = true) ;
+        } else for (; !(f4 = (e4 = i5.call(t4)).done) && (a4.push(e4.value), a4.length !== l5); f4 = true) ;
       } catch (r5) {
         o4 = true, n3 = r5;
       } finally {
@@ -6819,7 +6826,7 @@
       init_types();
       init_Icons2();
       init_FaviconWithState2();
-      Tile = M3(
+      Tile = M2(
         /**
          * @param {object} props
          * @param {Favorite['url']} props.url
@@ -6870,7 +6877,7 @@
           );
         }
       );
-      PlusIconMemo = M3(PlusIconWrapper);
+      PlusIconMemo = M2(PlusIconWrapper);
     }
   });
 
@@ -6886,7 +6893,7 @@
       init_Favorites2();
       init_hooks_module();
       init_FavoritesProvider();
-      TileRow = M3(
+      TileRow = M2(
         /**
          * Represents a row of tiles with optional placeholders to fill empty spaces in the first row.
          * @param {object} props - An object containing parameters for the TileRow_ function.
@@ -7250,7 +7257,7 @@
       init_signals_module();
       init_utils2();
       init_DocumentVisibility();
-      FavoritesMemo = M3(Favorites);
+      FavoritesMemo = M2(Favorites);
       ROW_CAPACITY = 6;
       ITEM_HEIGHT = 96;
       ROW_GAP = 8;
@@ -7259,7 +7266,7 @@
           /** @type {"light"|"dark"} */
           "light"
         ),
-        animateItems: d3(false)
+        animateItems: c3(false)
       });
     }
   });
@@ -7557,7 +7564,7 @@
       ">": "&gt;",
       "/": "&#x2F;"
     };
-    return String(str).replace(/[&"'<>/]/g, (m4) => replacements[m4]);
+    return String(str).replace(/[&"'<>/]/g, (m5) => replacements[m5]);
   }
   var translationsLocales, getLocalizedNumberFormatter;
   var init_utils3 = __esm({
@@ -9891,7 +9898,7 @@
       init_CustomizerProvider();
       init_signals_module();
       init_tabs_service();
-      TabsStateContext = Q(d3(
+      TabsStateContext = Q(c3(
         /** @type {Tabs} */
         TabsService.DEFAULT
       ));
@@ -11428,7 +11435,7 @@
         "google-analytics-google": "google-analytics",
         "google-ads-google": "google-ads"
       };
-      CompanyIcon = M3(
+      CompanyIcon = M2(
         /**
          * @param {object} props
          * @param {string} props.displayName
@@ -11690,7 +11697,7 @@
       const required = all(feSignals, nativeSignal);
       const withTimer = any(required, timer(3e3));
       await toPromise(withTimer);
-      r3(() => {
+      n2(() => {
         exiting.value = [];
         burning.value = [];
       });
@@ -11723,7 +11730,7 @@
     const doneBurning = q2(
       (url8) => {
         if (url8) {
-          r3(() => {
+          n2(() => {
             burning.value = burning.value.filter((x4) => x4 !== url8);
             exiting.value = exiting.value.concat(url8);
           });
@@ -11848,11 +11855,11 @@
       ACTION_BURN = "burn";
       ActivityBurningSignalContext = Q({
         /** @type {import("@preact/signals").Signal<string[]>} */
-        burning: d3([]),
+        burning: c3([]),
         /** @type {import("@preact/signals").Signal<string[]>} */
-        exiting: d3([]),
+        exiting: c3([]),
         /** @type {import("@preact/signals").Signal<{state: 'loading' | 'ready' | 'error', data: null | Record<string, any>}>} */
-        animation: d3({ state: "loading", data: null }),
+        animation: c3({ state: "loading", data: null }),
         /** @type {boolean} */
         showBurnAnimation: true,
         /** @type {(url: string) => void} */
@@ -12014,7 +12021,7 @@
         service
       );
       const unsub = src.onData((evt) => {
-        r3(() => {
+        n2(() => {
           activity.value = normalizeData(activity.value, {
             activity: evt.data.activity,
             urls: evt.data.urls,
@@ -12075,11 +12082,11 @@
       init_ActivityInteractionsContext();
       init_BurnProvider();
       NormalizedDataContext = Q({
-        activity: d3(
+        activity: c3(
           /** @type {NormalizedActivity} */
           {}
         ),
-        keys: d3(
+        keys: c3(
           /** @type {string[]} */
           []
         )
@@ -12140,7 +12147,7 @@
       init_NormalizeDataProvider();
       init_BurnProvider();
       init_constants();
-      ActivityItem = M3(
+      ActivityItem = M2(
         /**
          * @param {object} props
          * @param {boolean} props.canBurn
@@ -12168,7 +12175,7 @@
           )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url8, title, shouldDisplayLegacyActivity: false })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
         }
       );
-      ActivityItemLegacy = M3(
+      ActivityItemLegacy = M2(
         /**
          * @param {object} props
          * @param {boolean} props.canBurn
@@ -14530,14 +14537,14 @@
           function B4(aA1, aA2) {
             return 3 * aA2 - 6 * aA1;
           }
-          function C3(aA1) {
+          function C4(aA1) {
             return 3 * aA1;
           }
           function calcBezier(aT, aA1, aA2) {
-            return ((A5(aA1, aA2) * aT + B4(aA1, aA2)) * aT + C3(aA1)) * aT;
+            return ((A5(aA1, aA2) * aT + B4(aA1, aA2)) * aT + C4(aA1)) * aT;
           }
           function getSlope(aT, aA1, aA2) {
-            return 3 * A5(aA1, aA2) * aT * aT + 2 * B4(aA1, aA2) * aT + C3(aA1);
+            return 3 * A5(aA1, aA2) * aT * aT + 2 * B4(aA1, aA2) * aT + C4(aA1);
           }
           function binarySubdivide(aX, aA, aB, mX1, mX2) {
             var currentX, currentT, i5 = 0;
@@ -16124,7 +16131,7 @@
             }
             return this._t(sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1);
           }
-          function setTransform(a4, b4, c4, d5, e4, f4, g6, h5, i5, j4, k4, l4, m4, n3, o4, p5) {
+          function setTransform(a4, b4, c4, d5, e4, f4, g6, h5, i5, j4, k4, l5, m5, n3, o4, p5) {
             this.props[0] = a4;
             this.props[1] = b4;
             this.props[2] = c4;
@@ -16136,8 +16143,8 @@
             this.props[8] = i5;
             this.props[9] = j4;
             this.props[10] = k4;
-            this.props[11] = l4;
-            this.props[12] = m4;
+            this.props[11] = l5;
+            this.props[12] = m5;
             this.props[13] = n3;
             this.props[14] = o4;
             this.props[15] = p5;
@@ -18261,13 +18268,13 @@
                   }
                 }
                 if (shouldLoadFont) {
-                  var l4 = createTag("link");
-                  l4.setAttribute("f-forigin", fontArr[i5].fOrigin);
-                  l4.setAttribute("f-origin", fontArr[i5].origin);
-                  l4.type = "text/css";
-                  l4.rel = "stylesheet";
-                  l4.href = fontArr[i5].fPath;
-                  document.body.appendChild(l4);
+                  var l5 = createTag("link");
+                  l5.setAttribute("f-forigin", fontArr[i5].fOrigin);
+                  l5.setAttribute("f-origin", fontArr[i5].origin);
+                  l5.type = "text/css";
+                  l5.rel = "stylesheet";
+                  l5.href = fontArr[i5].fPath;
+                  document.body.appendChild(l5);
                 }
               } else if (fontArr[i5].fOrigin === "t" || fontArr[i5].origin === 2) {
                 loadedSelector = document.querySelectorAll('script[f-forigin="t"], script[f-origin="2"]');
@@ -20193,18 +20200,18 @@
             var pathStringTransformed;
             var redraw;
             var pathNodes;
-            var l4;
+            var l5;
             var lLen = itemData.styles.length;
             var lvl = itemData.lvl;
             var paths;
             var mat;
             var iterations;
             var k4;
-            for (l4 = 0; l4 < lLen; l4 += 1) {
+            for (l5 = 0; l5 < lLen; l5 += 1) {
               redraw = itemData.sh._mdf || isFirstFrame;
-              if (itemData.styles[l4].lvl < lvl) {
+              if (itemData.styles[l5].lvl < lvl) {
                 mat = _matrixHelper.reset();
-                iterations = lvl - itemData.styles[l4].lvl;
+                iterations = lvl - itemData.styles[l5].lvl;
                 k4 = itemData.transformers.length - 1;
                 while (!redraw && iterations > 0) {
                   redraw = itemData.transformers[k4].mProps._mdf || redraw;
@@ -20212,7 +20219,7 @@
                   k4 -= 1;
                 }
                 if (redraw) {
-                  iterations = lvl - itemData.styles[l4].lvl;
+                  iterations = lvl - itemData.styles[l5].lvl;
                   k4 = itemData.transformers.length - 1;
                   while (iterations > 0) {
                     mat.multiply(itemData.transformers[k4].mProps.v);
@@ -20233,12 +20240,12 @@
                     pathStringTransformed += buildShapeString(pathNodes, pathNodes._length, pathNodes.c, mat);
                   }
                 }
-                itemData.caches[l4] = pathStringTransformed;
+                itemData.caches[l5] = pathStringTransformed;
               } else {
-                pathStringTransformed = itemData.caches[l4];
+                pathStringTransformed = itemData.caches[l5];
               }
-              itemData.styles[l4].d += styleData.hd === true ? "" : pathStringTransformed;
-              itemData.styles[l4]._mdf = redraw || itemData.styles[l4]._mdf;
+              itemData.styles[l5].d += styleData.hd === true ? "" : pathStringTransformed;
+              itemData.styles[l5]._mdf = redraw || itemData.styles[l5]._mdf;
             }
           }
           function renderFill(styleData, itemData, isFirstFrame) {
@@ -20663,12 +20670,12 @@
           this.shapesData = null;
           this.itemsData = null;
         };
-        function LetterProps(o4, sw, sc, fc, m4, p5) {
+        function LetterProps(o4, sw, sc, fc, m5, p5) {
           this.o = o4;
           this.sw = sw;
           this.sc = sc;
           this.fc = fc;
-          this.m = m4;
+          this.m = m5;
           this.p = p5;
           this._mdf = {
             o: true,
@@ -20679,7 +20686,7 @@
             p: true
           };
         }
-        LetterProps.prototype.update = function(o4, sw, sc, fc, m4, p5) {
+        LetterProps.prototype.update = function(o4, sw, sc, fc, m5, p5) {
           this._mdf.o = false;
           this._mdf.sw = false;
           this._mdf.sc = false;
@@ -20707,8 +20714,8 @@
             this._mdf.fc = true;
             updated = true;
           }
-          if (this.m !== m4) {
-            this.m = m4;
+          if (this.m !== m5) {
+            this.m = m5;
             this._mdf.m = true;
             updated = true;
           }
@@ -25767,13 +25774,13 @@
             var min = Math.min(r4, g6, b4);
             var h5;
             var s4;
-            var l4 = (max + min) / 2;
+            var l5 = (max + min) / 2;
             if (max === min) {
               h5 = 0;
               s4 = 0;
             } else {
               var d5 = max - min;
-              s4 = l4 > 0.5 ? d5 / (2 - max - min) : d5 / (max + min);
+              s4 = l5 > 0.5 ? d5 / (2 - max - min) : d5 / (max + min);
               switch (max) {
                 case r4:
                   h5 = (g6 - b4) / d5 + (g6 < b4 ? 6 : 0);
@@ -25789,7 +25796,7 @@
               }
               h5 /= 6;
             }
-            return [h5, s4, l4, val2[3]];
+            return [h5, s4, l5, val2[3]];
           }
           function hue2rgb(p5, q5, t4) {
             if (t4 < 0) t4 += 1;
@@ -25802,17 +25809,17 @@
           function hslToRgb(val2) {
             var h5 = val2[0];
             var s4 = val2[1];
-            var l4 = val2[2];
+            var l5 = val2[2];
             var r4;
             var g6;
             var b4;
             if (s4 === 0) {
-              r4 = l4;
-              b4 = l4;
-              g6 = l4;
+              r4 = l5;
+              b4 = l5;
+              g6 = l5;
             } else {
-              var q5 = l4 < 0.5 ? l4 * (1 + s4) : l4 + s4 - l4 * s4;
-              var p5 = 2 * l4 - q5;
+              var q5 = l5 < 0.5 ? l5 * (1 + s4) : l5 + s4 - l5 * s4;
+              var p5 = 2 * l5 - q5;
               r4 = hue2rgb(p5, q5, h5 + 1 / 3);
               g6 = hue2rgb(p5, q5, h5);
               b4 = hue2rgb(p5, q5, h5 - 1 / 3);
@@ -28105,16 +28112,16 @@
                 if (this.filterManager.effectElements[7].p.v !== 0 || this.filterManager.effectElements[8].p.v !== 100) {
                   var s4 = Math.min(this.filterManager.effectElements[7].p.v, this.filterManager.effectElements[8].p.v) * 0.01;
                   var e4 = Math.max(this.filterManager.effectElements[7].p.v, this.filterManager.effectElements[8].p.v) * 0.01;
-                  var l4 = path.getTotalLength();
-                  dasharrayValue = "0 0 0 " + l4 * s4 + " ";
-                  var lineLength = l4 * (e4 - s4);
+                  var l5 = path.getTotalLength();
+                  dasharrayValue = "0 0 0 " + l5 * s4 + " ";
+                  var lineLength = l5 * (e4 - s4);
                   var segment = 1 + this.filterManager.effectElements[4].p.v * 2 * this.filterManager.effectElements[9].p.v * 0.01;
                   var units = Math.floor(lineLength / segment);
                   var j4;
                   for (j4 = 0; j4 < units; j4 += 1) {
                     dasharrayValue += "1 " + this.filterManager.effectElements[4].p.v * 2 * this.filterManager.effectElements[9].p.v * 0.01 + " ";
                   }
-                  dasharrayValue += "0 " + l4 * 10 + " 0 0";
+                  dasharrayValue += "0 " + l5 * 10 + " 0 0";
                 } else {
                   dasharrayValue = "1 " + this.filterManager.effectElements[4].p.v * 2 * this.filterManager.effectElements[9].p.v * 0.01;
                 }
@@ -28903,7 +28910,7 @@
       init_ActivityInteractionsContext();
       init_Protections2();
       init_TickPill2();
-      BurnableItem = M3(
+      BurnableItem = M2(
         /**
          * @param {object} props
          * @param {string} props.id
@@ -28939,7 +28946,7 @@
           ));
         }
       );
-      RemovableItem = M3(
+      RemovableItem = M2(
         /**
          * @param {object} props
          * @param {string} props.id
@@ -31266,7 +31273,7 @@
       });
     }
     function pop() {
-      r3(() => {
+      n2(() => {
         col1.value = true;
         visibleScreen.value = "home";
       });
@@ -35071,8 +35078,8 @@
       NormalizedDataContext.Provider,
       {
         value: {
-          activity: d3(items),
-          keys: d3(items.urls)
+          activity: c3(items),
+          keys: c3(items.urls)
         }
       },
       children
