@@ -85,8 +85,8 @@ export function Bubble({ children, tail, class: className, illustration, onHeigh
             <div class={styles.container} style={contentFadeName ? { viewTransitionName: contentFadeName } : undefined}>
                 <div ref={contentRef}>{children}</div>
             </div>
-            {tail === 'bottom-left' && <BottomLeftTail />}
-            {tail === 'right' && <RightTail />}
+            <BottomLeftTail active={tail === 'bottom-left'} />
+            <RightTail active={tail === 'right'} />
             {illustration?.foreground && <div class={styles.foreground}>{illustration.foreground}</div>}
         </div>
     );
@@ -103,10 +103,17 @@ function measureBubbleHeight(bubble, content) {
     return parseFloat(bubbleStyle.borderTopWidth) + parseFloat(bubbleStyle.borderBottomWidth) + content.offsetHeight;
 }
 
-function BottomLeftTail() {
+function BottomLeftTail({ active }) {
     return (
         <div class={styles.bottomLeftTail} aria-hidden="true">
-            <svg width="50" height="34" viewBox="0 0 50 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg
+                class={cn(active && styles.active)}
+                width="50"
+                height="34"
+                viewBox="0 0 50 34"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
                 <path
                     d="M49.25 0.75V2.34766H48.7021C45.8666 2.34769 43.7612 3.6682 41.8477 5.68555C39.9707 7.66432 38.175 10.432 36.0186 13.4121C31.6717 19.4191 25.5656 26.7393 13.3682 32.1523C11.8561 32.8234 10.3789 32.4409 9.36523 31.4863C8.34348 30.5241 7.80054 28.9823 8.23926 27.3457C9.05445 24.3053 9.92429 20.9248 10.5938 17.9824C11.2559 15.0722 11.7439 12.5021 11.7568 11.1328C11.7813 8.55523 10.4106 6.3471 8.48633 4.80859C6.56458 3.27217 4.02869 2.34775 1.56152 2.34766H0.75V0.75H49.25Z"
                     style="fill: var(--bubble-bg)"
@@ -125,10 +132,17 @@ function BottomLeftTail() {
     );
 }
 
-function RightTail() {
+function RightTail({ active }) {
     return (
         <div class={styles.rightTail} aria-hidden="true">
-            <svg width="24" height="40" viewBox="0 0 24 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg
+                class={cn(active && styles.active)}
+                width="24"
+                height="40"
+                viewBox="0 0 24 40"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
                 <path
                     d="M0.75 39.2539L0.75 0.751953L2.24707 0.75293L2.24609 0.799805V0.803711C2.24616 2.89033 3.3291 4.79647 4.85352 6.08887C12.7709 12.8013 19.8154 21.9412 23.0869 31.9014C23.2525 32.4055 23.0628 32.8616 22.6436 33.166C22.2105 33.4804 21.5931 33.576 21.0469 33.3096C18.399 32.0168 15.5639 31.075 12.6934 30.4053C7.13278 29.108 2.29702 33.727 2.24316 39.2539L0.75 39.2539Z"
                     style="fill: var(--bubble-bg)"
