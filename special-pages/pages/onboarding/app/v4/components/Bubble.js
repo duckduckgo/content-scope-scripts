@@ -34,17 +34,7 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  *
  * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
  */
-export function Bubble({
-    children,
-    tail,
-    class: className,
-    illustration,
-    onHeight,
-    bounceKey,
-    bounceDelay,
-    contentFadeName,
-    ...props
-}) {
+export function Bubble({ children, tail, class: className, illustration, onHeight, bounceKey, bounceDelay, contentFadeName, ...props }) {
     const bubbleRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
