@@ -24,6 +24,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             ? false // In DDG WebView, we can handle nested frames properly
             : window.self !== window.top && window.parent !== window.top; // In WebView2, we need to deny permission for nested frames
 
+        /** @param {string} name @param {any} data */
         function windowsPostMessage(name, data) {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             windowsInteropPostMessage({
@@ -33,6 +34,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             });
         }
 
+        /** @param {string} permission @param {string} status */
         function signalPermissionStatus(permission, status) {
             windowsPostMessage('PermissionStatusMessage', { permission, status });
             console.debug(`Permission '${permission}' is ${status}`);
@@ -49,7 +51,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 }
 
                 const successHandler = args[0];
-                args[0] = function (position) {
+                args[0] = function (/** @type {any} */ position) {
                     if (pauseWatchedPositions) {
                         signalPermissionStatus(Permission.Geolocation, Status.Paused);
                     } else {
@@ -79,7 +81,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const getCurrentPositionProxy = new DDGProxy(this, Geolocation.prototype, 'getCurrentPosition', {
             apply(target, thisArg, args) {
                 const successHandler = args[0];
-                args[0] = function (position) {
+                args[0] = function (/** @type {any} */ position) {
                     signalPermissionStatus(Permission.Geolocation, Status.Accessed);
                     successHandler?.(position);
                 };
@@ -92,6 +94,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const videoTracks = new Set();
         const audioTracks = new Set();
 
+        /** @param {string} permission @returns {Set<MediaStreamTrack> | undefined} */
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         function getTracks(permission) {
             switch (permission) {
@@ -102,14 +105,16 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /** @param {Set<MediaStreamTrack>} streamTracks */
         function stopTracks(streamTracks) {
-            streamTracks?.forEach((track) => track.stop());
+            streamTracks?.forEach((/** @type {MediaStreamTrack} */ track) => track.stop());
         }
 
         function clearAllGeolocationWatch() {
             watchedPositions.forEach((id) => navigator.geolocation.clearWatch(id));
         }
 
+        /** @param {string} permission */
         function pause(permission) {
             switch (permission) {
                 case Permission.Camera:
@@ -127,6 +132,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /** @param {string} permission */
         function resume(permission) {
             switch (permission) {
                 case Permission.Camera:
@@ -203,6 +209,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             handleTrackEnded(e.target);
         }
 
+        /** @param {string} permission */
         function signalTracksState(permission) {
             const tracks = getTracks(permission);
             if (!tracks) return;
@@ -227,12 +234,14 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /** @type {ReturnType<typeof setTimeout> | undefined} */
         let signalVideoTracksStateTimer;
         function signalVideoTracksState() {
             clearTimeout(signalVideoTracksStateTimer);
             signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100);
         }
 
+        /** @type {ReturnType<typeof setTimeout> | undefined} */
         let signalAudioTracksStateTimer;
         function signalAudioTracksState() {
             clearTimeout(signalAudioTracksStateTimer);
