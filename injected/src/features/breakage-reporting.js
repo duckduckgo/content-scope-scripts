@@ -16,6 +16,7 @@ export default class BreakageReporting extends ContentFeature {
             const jsPerformance = getJsPerformanceMetrics();
             const referrer = document.referrer;
 
+            /** @type {Record<string, any>} */
             const result = {
                 jsPerformance,
                 referrer,

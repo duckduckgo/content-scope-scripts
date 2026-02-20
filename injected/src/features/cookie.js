@@ -123,7 +123,7 @@ export default class CookieFeature extends ContentFeature {
                     return matchHostname(tabHostname, exception.domain);
                 });
             }
-            const frameExempted = settings.excludedCookieDomains.some((exception) => {
+            const frameExempted = settings.excludedCookieDomains.some((/** @type {any} */ exception) => {
                 return matchHostname(globalThis.location.hostname, exception.domain);
             });
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
@@ -143,7 +143,7 @@ export default class CookieFeature extends ContentFeature {
         const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
 
         const loadPolicy = new Promise((resolve) => {
-            loadedPolicyResolve = resolve;
+            loadedPolicyResolve = /** @type {() => void} */ (resolve);
         });
         // Create the then callback now - this ensures that Promise.prototype.then changes won't break
         // this call.
