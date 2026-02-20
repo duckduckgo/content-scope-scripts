@@ -127,7 +127,7 @@ export const rmfDataExamples = {
         content: {
             messageType: 'big_single_action',
             id: 'id-big-single-alt',
-            titleText: 'You need to update macOS',
+            titleText: 'Updating macOS is recommended',
             descriptionText: 'Updating to the latest version will fix site loading issues and enhance security.',
             icon: 'CriticalUpdate',
             primaryActionText: 'How to Update',
@@ -137,7 +137,7 @@ export const rmfDataExamples = {
         content: {
             messageType: 'big_single_action',
             id: 'id-big-single-alt',
-            titleText: 'You need to update macOS',
+            titleText: 'Updating macOS is recommended',
             descriptionText: 'Updating to the latest version will fix site loading issues and enhance security.',
             icon: 'VeryCriticalUpdate',
             primaryActionText: 'Update macOS',
