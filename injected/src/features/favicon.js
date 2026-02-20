@@ -22,6 +22,7 @@ export class Favicon extends ContentFeature {
         // this allows the remote config to be absent for this feature
         if (this.getFeatureSetting('monitor') === false) return;
 
+        /** @type {ReturnType<typeof setTimeout> | undefined} */
         let trailing;
         let lastEmitTime = performance.now();
         const interval = 50;
@@ -106,10 +107,11 @@ export function getFaviconList() {
         "link[href][rel='apple-touch-icon-precomposed']",
     ];
     const elements = document.head.querySelectorAll(selectors.join(','));
-    return Array.from(elements).map((/** @type {HTMLLinkElement} */ link) => {
-        const href = link.href || '';
-        const rel = link.getAttribute('rel') || '';
-        const type = link.type || '';
+    return Array.from(elements).map((link) => {
+        const htmlLink = /** @type {HTMLLinkElement} */ (link);
+        const href = htmlLink.href || '';
+        const rel = htmlLink.getAttribute('rel') || '';
+        const type = htmlLink.type || '';
         return { href, rel, type };
     });
 }

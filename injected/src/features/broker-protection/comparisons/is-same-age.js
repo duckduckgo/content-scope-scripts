@@ -1,6 +1,6 @@
 /**
- * @param userAge
- * @param ageFound
+ * @param {string|number} userAge
+ * @param {string|number} ageFound
  * @return {boolean}
  */
 export function isSameAge(userAge, ageFound) {

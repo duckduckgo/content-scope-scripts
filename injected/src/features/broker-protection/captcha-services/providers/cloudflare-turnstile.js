@@ -119,7 +119,7 @@ export class CloudFlareTurnstileProvider {
              * @param {string} args.token - The solved captcha token
              */
             functionBody: function cloudflareCaptchaCallback(args) {
-                window[args.callbackFunctionName](args.token);
+                /** @type {any} */ (window)[args.callbackFunctionName](args.token);
             },
             functionName: 'cloudflareCaptchaCallback',
             args: { callbackFunctionName, token },

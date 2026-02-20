@@ -42,7 +42,7 @@ export function checkForError(errorSelector, node) {
  * @returns {YouTubeError}
  */
 export function getErrorType(windowObject, signInRequiredSelector, logger) {
-    const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: object }} */ (windowObject);
+    const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: { get(key: string): any } }} */ (windowObject);
     const currentDocument = currentWindow.document;
 
     if (!currentWindow || !currentDocument) {

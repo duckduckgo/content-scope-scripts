@@ -23,10 +23,12 @@ export class CustomError extends HTMLElement {
 
     policy = createPolicy();
     /** @type {Logger} */
+    // @ts-expect-error - set via connectedCallback
     logger;
     /** @type {boolean} */
     testMode = false;
     /** @type {YouTubeError} */
+    // @ts-expect-error - set via connectedCallback
     error;
     /** @type {string} */
     title = '';

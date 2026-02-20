@@ -13,12 +13,15 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
 
     policy = createPolicy();
     /** @type {Logger} */
+    // @ts-expect-error - set via connectedCallback
     logger;
     /** @type {boolean} */
     testMode = false;
     /** @type {HTMLElement} */
+    // @ts-expect-error - set via connectedCallback
     container;
     /** @type {string} */
+    // @ts-expect-error - set via connectedCallback
     href;
 
     static register() {

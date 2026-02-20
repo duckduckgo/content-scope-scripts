@@ -25,10 +25,11 @@ import { Logger } from './duckplayer/util.js';
 
 export class DuckPlayerNativeFeature extends ContentFeature {
     /** @type {DuckPlayerNativeSubFeature | null} */
-    currentPage;
-    /** @type {TranslationFn} */
-    t;
+    currentPage = null;
+    /** @type {TranslationFn | null} */
+    t = null;
 
+    /** @param {any} args */
     async init(args) {
         /**
          * This feature never operates in a frame
