@@ -201,11 +201,11 @@ export class DuckAiChatHistory extends ContentFeature {
 
     /**
      * Processes chats by filtering and separating into pinned and unpinned.
-     * @param {Array<object>} allChats - All chat objects to process
+     * @param {any[]} allChats - All chat objects to process
      * @param {string} query - Search query (empty string returns all chats)
      * @param {number} maxChats - Maximum number of unpinned chats to return
      * @param {number} [since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
-     * @returns {{pinnedChats: Array<object>, chats: Array<object>}} Pinned and unpinned chat arrays
+     * @returns {{pinnedChats: any[], chats: any[]}} Pinned and unpinned chat arrays
      */
     processChats(allChats, query, maxChats, since) {
         const pinnedChats = [];

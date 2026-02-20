@@ -408,7 +408,7 @@ export default class ElementHiding extends ContentFeature {
         // remove overrides and rules that match overrides from array of rules to be applied to page
         overrideRules.forEach((override) => {
             activeRules = activeRules.filter((rule) => {
-                return rule.selector !== override.selector;
+                return !('selector' in rule && 'selector' in override) || rule.selector !== override.selector;
             });
         });
 

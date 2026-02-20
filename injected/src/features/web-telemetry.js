@@ -131,12 +131,13 @@ export class WebTelemetry extends ContentFeature {
         const observerCallback = (/** @type {MutationRecord[]} */ mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'childList') {
-                    mutation.addedNodes.forEach((/** @type {Node} */ node) => {
+                    mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === Node.ELEMENT_NODE) {
-                            if (node.tagName === 'VIDEO') {
-                                this.addPlayObserver(node);
+                            const elem = /** @type {Element} */ (node);
+                            if (elem.tagName === 'VIDEO') {
+                                this.addPlayObserver(/** @type {HTMLVideoElement} */ (elem));
                             } else {
-                                this.addListenersToAllVideos(node);
+                                this.addListenersToAllVideos(elem);
                             }
                         }
                     });
