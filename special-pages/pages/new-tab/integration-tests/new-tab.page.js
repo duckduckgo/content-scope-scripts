@@ -55,6 +55,8 @@ export class NewtabPage {
             omnibar_openSuggestion: {},
             omnibar_submitSearch: {},
             omnibar_submitChat: {},
+            omnibar_getAiChats: { chats: [] },
+            omnibar_openAiChat: {},
         });
     }
 

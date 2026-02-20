@@ -1281,4 +1281,81 @@ test.describe('omnibar widget', () => {
         // Popover should be dismissed
         await expect(omnibar.popover()).not.toBeVisible();
     });
+
+    test('shows recent AI chats when in AI mode', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+        await omnibar.ready();
+
+        await expect(omnibar.aiChats().first()).toBeVisible();
+        await expect(omnibar.aiChats()).toHaveCount(5);
+    });
+
+    test('clicking an AI chat sends openAiChat notification', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+        await omnibar.ready();
+
+        await expect(omnibar.aiChats().first()).toBeVisible();
+        await omnibar.aiChats().first().click();
+
+        await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+            chatId: 'chat-001',
+            target: 'same-tab',
+        });
+    });
+
+    test('AI chats list filters by typed text', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+        await omnibar.ready();
+
+        // All 5 chats should be visible initially
+        await expect(omnibar.aiChats()).toHaveCount(5);
+
+        // Type "plan" — should match "Progression plan summary"
+        await omnibar.chatInput().fill('plan');
+        await expect(omnibar.aiChats()).toHaveCount(1);
+        await expect(omnibar.aiChats().first()).toHaveText(/Progression plan summary/);
+
+        // Clear the input — all chats should reappear
+        await omnibar.chatInput().fill('');
+        await expect(omnibar.aiChats()).toHaveCount(5);
+    });
+
+    test('AI chats list hides when no chats match the filter', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+        await omnibar.ready();
+
+        await expect(omnibar.aiChats()).toHaveCount(5);
+
+        // Type something that matches no chat titles
+        await omnibar.chatInput().fill('xyznonexistent');
+        await expect(omnibar.aiChatsList()).not.toBeVisible();
+    });
+
+    test('AI chats list does not show in search mode', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true } });
+        await omnibar.ready();
+
+        // In search mode by default
+        await expect(omnibar.aiChatsList()).not.toBeVisible();
+    });
 });

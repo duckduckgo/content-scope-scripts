@@ -1,5 +1,5 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
-import { getMockSuggestions } from './omnibar.mocks.js';
+import { getMockSuggestions, getMockAiChats } from './omnibar.mocks.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
@@ -23,6 +23,10 @@ export function omnibarMockTransport() {
                 case 'omnibar_setConfig': {
                     Object.assign(config, msg.params);
                     subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'omnibar_openAiChat': {
+                    console.log('omnibar_openAiChat', msg.params);
                     break;
                 }
                 default: {
@@ -66,6 +70,10 @@ export function omnibarMockTransport() {
                 case 'omnibar_getSuggestions': {
                     await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate network delay
                     return getMockSuggestions(msg.params.term);
+                }
+                case 'omnibar_getAiChats': {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    return getMockAiChats();
                 }
                 default: {
                     throw new Error('unhandled request' + msg);

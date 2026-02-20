@@ -9,6 +9,7 @@ import { OmnibarService } from '../omnibar.service.js';
  * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ * @typedef {import('../../../types/new-tab.js').AiChatsData} AiChatsData
  * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State
  */
 
@@ -48,6 +49,14 @@ export const OmnibarContext = createContext({
     },
     /** @type {(params: {chat: string, target: OpenTarget}) => void} */
     submitChat: () => {
+        throw new Error('must implement');
+    },
+    /** @type {() => Promise<AiChatsData>} */
+    getAiChats: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(params: {chatId: string, target: OpenTarget}) => void} */
+    openAiChat: () => {
         throw new Error('must implement');
     },
 });
@@ -144,6 +153,21 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {() => Promise<AiChatsData>} */
+    const getAiChats = useCallback(() => {
+        if (!service.current) throw new Error('Service not available');
+        
+        return service.current.getAiChats();
+    }, [service]);
+
+    /** @type {(params: {chatId: string, target: OpenTarget}) => void} */
+    const openAiChat = useCallback(
+        (params) => {
+            service.current?.openAiChat(params);
+        },
+        [service],
+    );
+
     return (
         <OmnibarContext.Provider
             value={{
@@ -156,6 +180,8 @@ export function OmnibarProvider(props) {
                 openSuggestion,
                 submitSearch,
                 submitChat,
+                getAiChats,
+                openAiChat,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

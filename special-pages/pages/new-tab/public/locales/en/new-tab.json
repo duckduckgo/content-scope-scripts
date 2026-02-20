@@ -229,6 +229,10 @@
     "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
     "description": "Description message in the popover including privacy statement and customize option."
   },
+  "omnibar_aiChatsListLabel": {
+    "title": "Recent AI Chats",
+    "description": "Accessible label for the list of recent AI chat conversations."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"

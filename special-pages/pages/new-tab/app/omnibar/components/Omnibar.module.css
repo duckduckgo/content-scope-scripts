@@ -86,17 +86,13 @@
     .field {
         margin: 1px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
     }
+
+    .aiChatsList {
+        margin: -1px 1px 1px 1px;
+    }
 }
 
 /* Suggestions */
-.root:has([role="listbox"]) .popup {
-    border-radius: 15px;
-    margin: 0;
-
-    .field {
-        margin: 3px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
-    }
-}
 
 .field {
     box-sizing: content-box;
