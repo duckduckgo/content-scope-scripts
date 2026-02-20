@@ -122,7 +122,7 @@ export function domToMarkdown(node, settings, depth = 0) {
         return '';
     }
     if (node.nodeType === Node.TEXT_NODE) {
-        return collapseWhitespace(node.textContent);
+        return collapseWhitespace(node.textContent || '');
     }
     if (!isHtmlElement(node)) {
         return '';
@@ -464,7 +464,7 @@ export default class PageContext extends ContentFeature {
             const content = this.collectPageContent();
             this.sendContentResponse(content);
         } catch (error) {
-            this.sendErrorResponse(error);
+            this.sendErrorResponse(/** @type {Error} */ (error));
         }
     }
 

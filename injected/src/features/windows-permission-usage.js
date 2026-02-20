@@ -95,13 +95,14 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const audioTracks = new Set();
 
         /** @param {string} permission @returns {Set<MediaStreamTrack> | undefined} */
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         function getTracks(permission) {
             switch (permission) {
                 case Permission.Camera:
                     return videoTracks;
                 case Permission.Microphone:
                     return audioTracks;
+                default:
+                    return undefined;
             }
         }
 
@@ -150,6 +151,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /** @param {string} permission */
         function stop(permission) {
             switch (permission) {
                 case Permission.Camera:
@@ -165,6 +167,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /** @param {MediaStreamTrack} track */
         function monitorTrack(track) {
             if (track.readyState === 'ended') return;
 
@@ -183,6 +186,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /** @param {MediaStreamTrack} track */
         function handleTrackEnded(track) {
             if (track.kind === 'video' && videoTracks.has(track)) {
                 console.debug(`Video stream track ${track.id} ended`);
@@ -201,10 +205,12 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /** @param {Event} e */
         function videoTrackEnded(e) {
             handleTrackEnded(e.target);
         }
 
+        /** @param {Event} e */
         function audioTrackEnded(e) {
             handleTrackEnded(e.target);
         }
@@ -341,7 +347,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                     }
 
                     // eslint-disable-next-line promise/prefer-await-to-then
-                    return DDGReflect.apply(target, thisArg, args).then(function (stream) {
+                    return DDGReflect.apply(target, thisArg, args).then(function (/** @type {MediaStream} */ stream) {
                         console.debug(`User stream ${stream.id} has been acquired`);
                         userMediaStreams.add(stream);
                         if (videoRequested) {
@@ -366,6 +372,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             getUserMediaProxy.overload();
         }
 
+        /** @param {string} action @param {string} permission */
         function performAction(action, permission) {
             if (action && permission) {
                 switch (action) {
@@ -392,10 +399,10 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // these permissions cannot be disabled using WebView2 or DevTools protocol
         const permissionsToDisable = [
-            { name: 'Bluetooth', prototype: () => globalThis?.Bluetooth?.prototype, method: 'requestDevice', isPromise: true },
-            { name: 'USB', prototype: () => globalThis?.USB?.prototype, method: 'requestDevice', isPromise: true },
-            { name: 'Serial', prototype: () => globalThis?.Serial?.prototype, method: 'requestPort', isPromise: true },
-            { name: 'HID', prototype: () => globalThis?.HID?.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'Bluetooth', prototype: () => /** @type {any} */ (globalThis)?.Bluetooth?.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'USB', prototype: () => /** @type {any} */ (globalThis)?.USB?.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'Serial', prototype: () => /** @type {any} */ (globalThis)?.Serial?.prototype, method: 'requestPort', isPromise: true },
+            { name: 'HID', prototype: () => /** @type {any} */ (globalThis)?.HID?.prototype, method: 'requestDevice', isPromise: true },
             {
                 name: 'Protocol handler',
                 prototype: () => globalThis?.Navigator.prototype,
