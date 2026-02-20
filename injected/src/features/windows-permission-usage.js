@@ -207,12 +207,12 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         /** @param {Event} e */
         function videoTrackEnded(e) {
-            handleTrackEnded(e.target);
+            handleTrackEnded(/** @type {MediaStreamTrack} */ (e.target));
         }
 
         /** @param {Event} e */
         function audioTrackEnded(e) {
-            handleTrackEnded(e.target);
+            handleTrackEnded(/** @type {MediaStreamTrack} */ (e.target));
         }
 
         /** @param {string} permission */
@@ -257,7 +257,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
         const stopTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'stop', {
             apply(target, thisArg, args) {
-                handleTrackEnded(thisArg);
+                if (thisArg) handleTrackEnded(thisArg);
                 return DDGReflect.apply(target, thisArg, args);
             },
         });
