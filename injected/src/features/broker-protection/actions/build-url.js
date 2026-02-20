@@ -32,7 +32,7 @@ export function replaceTemplatedUrl(action, userData) {
 
     try {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const _ = new URL(action.url);
+        const _ = new URL(url);
     } catch (e) {
         return { error: 'Error: Invalid URL provided.' };
     }
@@ -41,5 +41,5 @@ export function replaceTemplatedUrl(action, userData) {
         return { url };
     }
 
-    return transformUrl(action, userData);
+    return transformUrl(/** @type {import('./build-url-transforms.js').BuildUrlAction} */ (action), userData);
 }

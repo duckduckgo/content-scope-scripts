@@ -25,8 +25,10 @@ function returnError(errorMessage) {
 function waitForLCP(timeoutMs = 500) {
     return new Promise((resolve) => {
         // eslint-disable-next-line prefer-const
+        /** @type {ReturnType<typeof setTimeout> | undefined} */
         let timeoutId;
         // eslint-disable-next-line prefer-const
+        /** @type {PerformanceObserver | undefined} */
         let observer;
 
         const cleanup = () => {
@@ -124,6 +126,6 @@ export async function getExpandedPerformanceMetrics(timeoutMs = 500) {
 
         return returnError('No navigation timing found');
     } catch (e) {
-        return returnError('JavaScript execution error: ' + e.message);
+        return returnError('JavaScript execution error: ' + (e instanceof Error ? e.message : String(e)));
     }
 }

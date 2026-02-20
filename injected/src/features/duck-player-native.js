@@ -26,8 +26,9 @@ import { Logger } from './duckplayer/util.js';
 export class DuckPlayerNativeFeature extends ContentFeature {
     /** @type {DuckPlayerNativeSubFeature | null} */
     currentPage = null;
-    /** @type {TranslationFn | null} */
-    t = null;
+    /** @type {TranslationFn} */
+    // @ts-expect-error - assigned in init before use
+    t;
 
     /** @param {any} args */
     async init(args) {

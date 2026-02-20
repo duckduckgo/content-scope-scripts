@@ -45,6 +45,7 @@ let cookiePolicy = {
 };
 let trackerLookup = {};
 
+/** @type {() => void} */
 let loadedPolicyResolve;
 
 /**
@@ -118,7 +119,7 @@ export default class CookieFeature extends ContentFeature {
             let tabExempted = true;
 
             if (tabHostname != null) {
-                tabExempted = exceptions.some((exception) => {
+                tabExempted = exceptions.some((/** @type {any} */ exception) => {
                     return matchHostname(tabHostname, exception.domain);
                 });
             }
@@ -241,6 +242,7 @@ export default class CookieFeature extends ContentFeature {
         });
     }
 
+    /** @param {any} args */
     init(args) {
         const restOfPolicy = {
             debug: this.isDebug,
@@ -260,8 +262,8 @@ export default class CookieFeature extends ContentFeature {
         } else {
             // copy non-null entries from restOfPolicy to cookiePolicy
             Object.keys(restOfPolicy).forEach((key) => {
-                if (restOfPolicy[key]) {
-                    cookiePolicy[key] = restOfPolicy[key];
+                if (/** @type {Record<string, any>} */ (restOfPolicy)[key]) {
+                    /** @type {Record<string, any>} */ (cookiePolicy)[key] = /** @type {Record<string, any>} */ (restOfPolicy)[key];
                 }
             });
         }

@@ -51,7 +51,7 @@ export function fillMany(root, elements, data) {
         }
 
         if (element.type === '$file_id$') {
-            results.push(setImageUpload(inputElem));
+            results.push(setImageUpload(/** @type {HTMLInputElement} */ (inputElem)));
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()));
         } else if (element.type === '$generated_zip_code$') {

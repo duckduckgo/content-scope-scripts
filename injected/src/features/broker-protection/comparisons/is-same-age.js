@@ -6,8 +6,8 @@
 export function isSameAge(userAge, ageFound) {
     // variance allows for +/- 1 on the data broker and +/- 1 based on the only having a birth year
     const ageVariance = 2;
-    userAge = parseInt(userAge);
-    ageFound = parseInt(ageFound);
+    userAge = parseInt(String(userAge));
+    ageFound = parseInt(String(ageFound));
 
     if (isNaN(ageFound)) {
         return false;

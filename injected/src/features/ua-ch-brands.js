@@ -2,6 +2,12 @@ import ContentFeature from '../content-feature';
 import { DDGReflect } from '../utils';
 
 export default class UaChBrands extends ContentFeature {
+    /**
+     * @param {string} featureName
+     * @param {any} importConfig
+     * @param {any} features
+     * @param {any} args
+     */
     constructor(featureName, importConfig, features, args) {
         super(featureName, importConfig, features, args);
 
@@ -129,7 +135,7 @@ export default class UaChBrands extends ContentFeature {
             // while preserving dynamic `this` (userAgentData) for DDGReflect.apply.
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const featureInstance = this;
-            this.wrapMethod(proto, 'getHighEntropyValues', async function (originalFn, ...args) {
+            this.wrapMethod(proto, 'getHighEntropyValues', /** @this {any} */ async function (originalFn, ...args) {
                 const originalResult = await DDGReflect.apply(originalFn, this, args);
                 const modifiedResult = {};
 
@@ -144,7 +150,7 @@ export default class UaChBrands extends ContentFeature {
                         result = featureInstance.applyBrandMutationsToList(value, targetBrand, shouldFilterWebView2);
                     }
 
-                    modifiedResult[key] = result;
+                    /** @type {Record<string, any>} */ (modifiedResult)[key] = result;
                 }
 
                 return modifiedResult;

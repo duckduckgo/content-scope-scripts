@@ -102,7 +102,7 @@ export class Thumbnails {
 
             // detect all click, if it's anywhere on the page
             // but in the icon overlay itself, then just hide the overlay
-            const clickHandler = (e) => {
+            const clickHandler = (/** @type {Event} */ e) => {
                 const overlay = icon.getHoverOverlay();
                 if (overlay?.contains(e.target)) {
                     // do nothing here, the click will have been handled by the overlay
@@ -126,14 +126,14 @@ export class Thumbnails {
                 }
             };
 
-            const appendOverlay = (element) => {
+            const appendOverlay = (/** @type {HTMLElement | null} */ element) => {
                 if (element && element.isConnected) {
                     icon.moveHoverOverlayToVideoElement(element);
                 }
             };
 
             // detect hovers and decide to show hover icon, or not
-            const mouseOverHandler = (e) => {
+            const mouseOverHandler = (/** @type {Event} */ e) => {
                 if (clicked) return;
                 const hoverElement = findElementFromEvent(selectors.thumbLink, selectors.hoverExcluded, e);
                 const validLink = isValidLink(hoverElement, selectors.excludedRegions);
@@ -200,11 +200,11 @@ export class ClickInterception {
             const { selectors } = this.settings;
             const parentNode = document.documentElement || document.body;
 
-            const clickHandler = (e) => {
+            const clickHandler = (/** @type {Event} */ e) => {
                 const elementInStack = findElementFromEvent(selectors.thumbLink, selectors.clickExcluded, e);
                 const validLink = isValidLink(elementInStack, selectors.excludedRegions);
 
-                const block = (href) => {
+                const block = (/** @type {string} */ href) => {
                     e.preventDefault();
                     e.stopImmediatePropagation();
                     this.messages.openDuckPlayer({ href });
