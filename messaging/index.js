@@ -90,7 +90,7 @@ export class Messaging {
         try {
             const maybeAsyncResult = this.transport.notify(message);
             if (isPromiseLike(maybeAsyncResult)) {
-                handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data);
+                void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data);
             }
         } catch (e) {
             logNotificationError(this.messagingContext.env, name, data, e);

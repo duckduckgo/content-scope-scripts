@@ -426,7 +426,7 @@ class DuckWidget {
                 }
                 const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
                 // eslint-disable-next-line promise/prefer-await-to-then
-                unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
+                void unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
                     // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
                     if (response && response.type === 'ddg-ctp-user-cancel') {
                         return abortSurrogateConfirmation(this.entity);
@@ -603,7 +603,7 @@ function replaceTrackingElement(widget, trackingElement, placeholderElement) {
     // synchronously, the events are dispatched (and original element removed
     // from the DOM) asynchronously after the page has finished loading.
     // eslint-disable-next-line promise/prefer-await-to-then
-    afterPageLoad.then(() => {
+    void afterPageLoad.then(() => {
         // With page load complete, and both elements in the DOM, the events can
         // be dispatched.
         widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element');
@@ -1755,7 +1755,7 @@ function createYouTubePreview(originalElement, widget) {
     // We use .then() instead of await here to show the placeholder right away
     // while the YouTube endpoint takes it time to respond.
     const videoURL = originalElement.src || originalElement.getAttribute('data-src');
-    ctl.messaging
+    void ctl.messaging
         .request('getYouTubeVideoDetails', { videoURL })
         // eslint-disable-next-line promise/prefer-await-to-then
         .then(({ videoURL: videoURLResp, status, title, previewImage }) => {
@@ -1867,7 +1867,7 @@ export default class ClickToLoad extends ContentFeature {
                 if (entityData[entity].shouldShowLoginModal) {
                     handleUnblockConfirmation(this.platform.name, entity, runLogin, entity);
                 } else {
-                    runLogin(entity);
+                    void runLogin(entity);
                 }
             }
         });

@@ -25,7 +25,7 @@ export function stopVideoFromPlaying(videoSelector) {
 
         const video = /** @type {HTMLVideoElement} */ (document.querySelector(videoSelector));
         if (video?.isConnected) {
-            video.play();
+            void video.play();
         }
     };
 }

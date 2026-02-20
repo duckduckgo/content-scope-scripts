@@ -20,7 +20,7 @@ export default class PerformanceMetrics extends ContentFeature {
         // If the feature is enabled, we want to collect expanded performance metrics
         if (this.getFeatureSettingEnabled('expandedPerformanceMetricsOnLoad', 'enabled')) {
             this.waitForAfterPageLoad(() => {
-                this.triggerExpandedPerformanceMetrics();
+                void this.triggerExpandedPerformanceMetrics();
             });
         }
     }
