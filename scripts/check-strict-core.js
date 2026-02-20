@@ -9,6 +9,7 @@ import { execSync } from 'node:child_process';
 
 const CORE_FILES = new Set([
     'injected/entry-points/apple.js',
+    'injected/entry-points/windows.js',
     'injected/src/canvas.js',
     'injected/src/captured-globals.js',
     'injected/src/config-feature.js',
