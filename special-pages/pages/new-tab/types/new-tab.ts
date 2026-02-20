@@ -1013,17 +1013,13 @@ export interface AiChat {
    */
   title: string;
   /**
-   * AI model used for the chat
+   * Whether the chat is pinned
    */
-  model?: string;
+  isPinned?: boolean;
   /**
    * ISO timestamp of last edit
    */
-  lastEdit?: string;
-  /**
-   * Whether the chat is pinned
-   */
-  pinned?: boolean;
+  timestamp?: string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"

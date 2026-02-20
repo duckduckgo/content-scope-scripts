@@ -12,17 +12,13 @@
       "description": "Display title of the chat",
       "type": "string"
     },
-    "model": {
-      "description": "AI model used for the chat",
-      "type": "string"
-    },
-    "lastEdit": {
-      "description": "ISO timestamp of last edit",
-      "type": "string"
-    },
-    "pinned": {
+    "isPinned": {
       "description": "Whether the chat is pinned",
       "type": "boolean"
+    },
+    "timestamp": {
+      "description": "ISO timestamp of last edit",
+      "type": "string"
     }
   }
 }
