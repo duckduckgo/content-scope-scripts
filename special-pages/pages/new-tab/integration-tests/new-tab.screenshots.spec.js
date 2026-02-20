@@ -160,6 +160,28 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.customizeButton().click();
             await expect(page).toHaveScreenshot('omnibar-sidebar-hide-ai-setting.png', { maxDiffPixels });
         });
+
+        test('theme section', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { themeVariant: 'default', autoOpen: 'true' } });
+            await expect(page).toHaveScreenshot('customizer-theme-section.png', { maxDiffPixels });
+        });
+
+        test('theme section with long strings', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { themeVariant: 'default', autoOpen: 'true', locale: 'pl' } });
+            await expect(page).toHaveScreenshot('customizer-theme-section-long-strings.png', { maxDiffPixels });
+        });
+
+        test('theme variant popover', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': 'true', themeVariant: 'default' } });
+            await page.getByRole('dialog', { name: 'Pick a color theme that suits you' }).waitFor();
+            await expect(page).toHaveScreenshot('customizer-theme-variant-popover.png', { maxDiffPixels });
+        });
     });
 
     test.describe('favorites widget', () => {
@@ -255,6 +277,23 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await ntp.openPage({ additional: { 'next-steps': ['bringStuff', 'defaultApp'] } });
             await page.locator('[data-entry-point="nextSteps"]').waitFor();
             await expect(page).toHaveScreenshot('next-steps-two.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('next steps list', () => {
+        test('single card', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ nextStepsList: 'emailProtection' });
+            await page.locator('[data-entry-point="nextStepsList"]').waitFor();
+            await expect(page).toHaveScreenshot('next-steps-list-single.png', { maxDiffPixels });
+        });
+        test('stacked cards', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ nextStepsList: ['emailProtection', 'duckplayer'] });
+            await page.locator('[data-entry-point="nextStepsList"]').waitFor();
+            await expect(page).toHaveScreenshot('next-steps-list-stacked.png', { maxDiffPixels });
         });
     });
 

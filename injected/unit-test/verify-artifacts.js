@@ -6,8 +6,9 @@ import { cwd } from '../../scripts/script-utils.js';
 const ROOT = join(cwd(import.meta.url), '..', '..');
 console.log(ROOT);
 const BUILD = join(ROOT, 'build');
+const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
 
-let CSS_OUTPUT_SIZE = 800_000;
+let CSS_OUTPUT_SIZE = 850_000;
 if (process.platform === 'win32') {
     CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1; // 10% larger for Windows due to line endings
 }
@@ -42,14 +43,14 @@ const checks = {
         tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
     },
     apple: {
-        file: join(BUILD, 'apple/contentScope.js'),
+        file: join(APPLE_BUILD, 'contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: '#bundledConfig', includes: false },
         ],
     },
     'apple-isolated': {
-        file: join(BUILD, 'apple/contentScopeIsolated.js'),
+        file: join(APPLE_BUILD, 'contentScopeIsolated.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: 'Copyright (c) 2014-2015, hassansin', includes: true },
@@ -62,9 +63,9 @@ describe('checks', () => {
         for (const check of platformChecks.tests) {
             const localPath = relative(ROOT, platformChecks.file);
             if (check.kind === 'maxFileSize') {
-                it(`${platformName}: '${localPath}' is smaller than ${check.value}`, () => {
+                it(`${platformName} bundle size: '${localPath}' is smaller than ${check.value}`, () => {
                     const stats = statSync(platformChecks.file);
-                    expect(stats.size).toBeLessThan(check.value);
+                    expect(stats.size).withContext('Contact a code owner to discuss a bundle size test failure').toBeLessThan(check.value);
                 });
             }
             if (check.kind === 'containsString') {

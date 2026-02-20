@@ -1,0 +1,41 @@
+@font-face {
+    font-family: 'DuckSansDisplay';
+    src: url('../../public/assets/fonts/v4/duck-sans-display-regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DuckSansDisplay';
+    src: url('../../public/assets/fonts/v4/duck-sans-display-medium.otf') format('opentype');
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DuckSansDisplay';
+    src: url('../../public/assets/fonts/v4/duck-sans-display-bold.otf') format('opentype');
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DuckSansProduct';
+    src: url('../../public/assets/fonts/v4/duck-sans-product-regular.otf') format('opentype');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DuckSansProduct';
+    src: url('../../public/assets/fonts/v4/duck-sans-product-medium.otf') format('opentype');
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DuckSansProduct';
+    src: url('../../public/assets/fonts/v4/duck-sans-product-bold.otf') format('opentype');
+    font-weight: 700;
+    font-display: swap;
+}

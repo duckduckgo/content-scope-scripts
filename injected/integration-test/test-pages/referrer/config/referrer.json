@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the referrer feature which trims cross-origin referrers.",
+    "version": 1,
+    "features": {
+        "referrer": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

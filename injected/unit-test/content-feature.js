@@ -1,9 +1,14 @@
-import ContentFeature from '../src/content-feature.js';
+import ContentFeature, { CallFeatureMethodError } from '../src/content-feature.js';
 
 describe('ContentFeature class', () => {
+    class BaseTestFeature extends ContentFeature {
+        constructor(featureName, importConfig, args) {
+            super(featureName, importConfig, {}, args);
+        }
+    }
     it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
         let didRun = false;
-        class MyTestFeature extends ContentFeature {
+        class MyTestFeature extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('test')).toBe('enabled3');
                 expect(this.getFeatureSetting('otherTest')).toBe('enabled');
@@ -79,7 +84,7 @@ describe('ContentFeature class', () => {
 
     it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
         let didRun = false;
-        class MyTestFeature2 extends ContentFeature {
+        class MyTestFeature2 extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('test')).toBe('enabled3');
                 expect(this.getFeatureSetting('otherTest')).toBe('enabled');
@@ -197,7 +202,7 @@ describe('ContentFeature class', () => {
 
     it('Should trigger getFeatureSetting for the correct conditions', () => {
         let didRun = false;
-        class MyTestFeature3 extends ContentFeature {
+        class MyTestFeature3 extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('test')).toBe('enabled');
                 expect(this.getFeatureSetting('otherTest')).toBe('disabled');
@@ -304,7 +309,7 @@ describe('ContentFeature class', () => {
     });
     it('Should respect minSupportedVersion as a condition', () => {
         let didRun = false;
-        class MyTestFeature3 extends ContentFeature {
+        class MyTestFeature3 extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('aiChat')).toBe('enabled');
                 expect(this.getFeatureSetting('subscriptions')).toBe('disabled');
@@ -369,7 +374,7 @@ describe('ContentFeature class', () => {
 
     it('Should respect maxSupportedVersion as a condition', () => {
         let didRun = false;
-        class MyTestFeature4 extends ContentFeature {
+        class MyTestFeature4 extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('aiChat')).toBe('enabled');
                 expect(this.getFeatureSetting('subscriptions')).toBe('disabled');
@@ -433,7 +438,7 @@ describe('ContentFeature class', () => {
     });
 
     describe('addDebugFlag', () => {
-        class MyTestFeature extends ContentFeature {
+        class MyTestFeature extends BaseTestFeature {
             // eslint-disable-next-line
             // @ts-ignore partial mock
             messaging = {
@@ -464,7 +469,7 @@ describe('ContentFeature class', () => {
     });
 
     describe('defineProperty', () => {
-        class MyTestFeature extends ContentFeature {
+        class MyTestFeature extends BaseTestFeature {
             addDebugFlag() {
                 this.debugFlagAdded = true;
             }
@@ -564,7 +569,7 @@ describe('ContentFeature class', () => {
 
     describe('injectName condition', () => {
         it('should match when injectName condition is met', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 /** @returns {'apple-isolated'} */
                 get injectName() {
                     return 'apple-isolated';
@@ -590,7 +595,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when injectName condition is not met', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 /** @returns {'apple-isolated'} */
                 get injectName() {
                     return 'apple-isolated';
@@ -616,7 +621,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle undefined injectName gracefully', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 /** @returns {undefined} */
                 get injectName() {
                     return undefined;
@@ -642,7 +647,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle missing injectName condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 /** @returns {'apple-isolated'} */
                 get injectName() {
                     return 'apple-isolated';
@@ -668,7 +673,7 @@ describe('ContentFeature class', () => {
 
     describe('maxSupportedVersion condition', () => {
         it('should match when current version is less than max', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -693,7 +698,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should match when current version equals max', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -718,7 +723,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when current version is greater than max', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -743,7 +748,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle integer versions', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -768,7 +773,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle missing maxSupportedVersion condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -793,7 +798,7 @@ describe('ContentFeature class', () => {
 
     describe('internal condition', () => {
         it('should match when internal is true and condition is true', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -818,7 +823,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should match when internal is false and condition is false', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -843,7 +848,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when internal is true but condition is false', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -868,7 +873,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when internal is false but condition is true', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -893,7 +898,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle undefined internal state gracefully', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -918,7 +923,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle missing internal condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -941,7 +946,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle truthy values for internal condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -966,7 +971,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle falsy values for internal condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -993,7 +998,7 @@ describe('ContentFeature class', () => {
 
     describe('preview condition', () => {
         it('should match when preview is true and condition is true', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1018,7 +1023,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should match when preview is false and condition is false', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1043,7 +1048,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when preview is true but condition is false', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1068,7 +1073,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when preview is false but condition is true', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1093,7 +1098,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle undefined preview state gracefully', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1118,7 +1123,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle missing preview condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1141,7 +1146,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle truthy values for preview condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1166,7 +1171,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle falsy values for preview condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1188,6 +1193,331 @@ describe('ContentFeature class', () => {
                 preview: false,
             });
             expect(result).toBe(true);
+        });
+    });
+
+    describe('inter-feature communication', () => {
+        /**
+         * Creates a feature class with specified exposed methods
+         * @param {string} name
+         * @param {Record<string, Function>} methods
+         * @param {string[]} exposedMethodNames
+         */
+        function createFeatureClass(name, methods, exposedMethodNames) {
+            return class extends ContentFeature {
+                /**
+                 *
+                 * @param {Record<string, any>} [features={}]
+                 */
+                constructor(features = {}) {
+                    super(name, {}, features, {});
+                    // Add methods to instance
+                    for (const [methodName, fn] of Object.entries(methods)) {
+                        this[methodName] = fn.bind(this);
+                    }
+                    this._exposedMethods = this._declareExposedMethods(exposedMethodNames);
+                }
+
+                /**
+                 * Redefining to avoid TypeScript errors in the tests.
+                 *
+                 * Because we're adding methods to the instance dynamically in
+                 * the test, the available methods aren't known when
+                 * type-checking.
+                 *
+                 * @param {string[]} methodNames
+                 */
+                // @ts-expect-error - ignore for tests
+                _declareExposedMethods(methodNames) {
+                    // @ts-expect-error - ignore for tests
+                    return super._declareExposedMethods(methodNames);
+                }
+
+                /**
+                 * Redefining to avoid TypeScript errors in the tests.
+                 *
+                 * The FeatureMap (which dictates the allowed `featureName`
+                 * values) is defined to reflect real features defined in
+                 * `injected/src/features`, so our fake test features aren't
+                 * known to the typechecker.
+                 *
+                 * @param {string} featureName
+                 * @param {string} methodName
+                 * @param  {...any} args
+                 * @returns {any}
+                 */
+                callFeatureMethod(featureName, methodName, ...args) {
+                    // @ts-expect-error - ignore for tests
+                    return super.callFeatureMethod(featureName, methodName, ...args);
+                }
+
+                prop1 = 'test';
+            };
+        }
+
+        describe('_declareExposedMethods', () => {
+            it('should throw an error if method does not exist on the class', () => {
+                const FeatureA = createFeatureClass('featureA', {}, []);
+                const feature = new FeatureA();
+                expect(() => {
+                    feature._declareExposedMethods(['unknownMethod']);
+                }).toThrowError("'unknownMethod' is not a method of feature 'featureA'");
+            });
+
+            it('should throw an error if name is a property on the class', () => {
+                const FeatureA = createFeatureClass('featureA', {}, []);
+                const feature = new FeatureA();
+                expect(() => {
+                    feature._declareExposedMethods(['prop1']);
+                }).toThrowError("'prop1' is not a method of feature 'featureA'");
+            });
+
+            it('should succeed if name is a method on the class', () => {
+                const FeatureA = createFeatureClass('featureA', { method1: () => {} }, []);
+                const feature = new FeatureA();
+                expect(() => {
+                    feature._declareExposedMethods(['method1']);
+                }).not.toThrow();
+            });
+        });
+
+        describe('callFeatureMethod', () => {
+            /**
+             * @param {Record<string, Function>} methods
+             * @param {string[]} exposedMethods
+             * @param {{ initFeature?: boolean }} [options]
+             */
+            const buildCallerFeature = async (methods, exposedMethods, options = {}) => {
+                const { initFeature = true } = options;
+                const TargetFeature = createFeatureClass('targetFeature', methods, exposedMethods);
+                const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                const targetFeature = new TargetFeature();
+                if (initFeature) {
+                    await targetFeature.callInit({});
+                }
+                const features = { targetFeature };
+
+                return { callerFeature: new CallerFeature(features), targetFeature };
+            };
+
+            it('should return an error when the target feature does not exist', async () => {
+                const CallerFeature = createFeatureClass('callerFeature', {}, []);
+                const callerFeature = new CallerFeature();
+
+                const result = await callerFeature.callFeatureMethod('nonExistentFeature', 'someMethod');
+                expect(result).toBeInstanceOf(CallFeatureMethodError);
+                expect(result.message).toBe("Feature not found: 'nonExistentFeature'");
+            });
+
+            it('should return an error when the method is not in the exposed methods list', async () => {
+                const { callerFeature } = await buildCallerFeature(
+                    {
+                        exposedMethod: () => {},
+                        privateMethod: () => {},
+                    },
+                    ['exposedMethod'],
+                );
+
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'privateMethod');
+                expect(result).toBeInstanceOf(CallFeatureMethodError);
+                expect(result.message).toBe("'privateMethod' is not exposed by feature 'targetFeature'");
+            });
+
+            it('should successfully call an exposed method on another feature', async () => {
+                const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                const { callerFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod']);
+
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                expect(targetMethod).toHaveBeenCalled();
+                expect(result).toBe('success');
+            });
+
+            it('should handle async methods correctly', async () => {
+                const asyncMethod = jasmine.createSpy('asyncMethod').and.returnValue(Promise.resolve('async result'));
+                const { callerFeature } = await buildCallerFeature({ asyncMethod }, ['asyncMethod']);
+
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'asyncMethod');
+
+                expect(result).toBe('async result');
+            });
+
+            it('should pass arguments to the target method', async () => {
+                const targetMethod = jasmine.createSpy('targetMethod').and.callFake((a, b, c) => a + b + c);
+                const { callerFeature } = await buildCallerFeature({ sum: targetMethod }, ['sum']);
+
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'sum', 1, 2, 3);
+
+                expect(targetMethod).toHaveBeenCalledWith(1, 2, 3);
+                expect(result).toBe(6);
+            });
+
+            it('should return the value from the target method', async () => {
+                const { callerFeature } = await buildCallerFeature({ getValue: () => ({ data: 'test' }) }, ['getValue']);
+
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'getValue');
+
+                expect(result).toEqual({ data: 'test' });
+            });
+
+            it('should allow multiple features to communicate', async () => {
+                const FeatureA = createFeatureClass('featureA', { getData: () => 'data from A' }, ['getData']);
+                const FeatureB = createFeatureClass('featureB', { process: (input) => `processed: ${input}` }, ['process']);
+                const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                const featureA = new FeatureA();
+                featureA.callInit({});
+                const featureB = new FeatureB();
+                featureB.callInit({});
+                const features = { featureA, featureB };
+                const callerFeature = new CallerFeature(features);
+
+                const dataFromA = await callerFeature.callFeatureMethod('featureA', 'getData');
+                const processedByB = await callerFeature.callFeatureMethod('featureB', 'process', dataFromA);
+
+                expect(processedByB).toBe('processed: data from A');
+            });
+
+            it('should maintain correct this context when calling target method', async () => {
+                class TargetFeature extends ContentFeature {
+                    constructor() {
+                        super('targetFeature', {}, {}, {});
+                        this._exposedMethods = this._declareExposedMethods(['getFeatureName']);
+                        this.customProperty = 'custom value';
+                    }
+                    getFeatureName() {
+                        return this.name;
+                    }
+                }
+                const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                const targetFeature = new TargetFeature();
+                targetFeature.callInit({});
+                const features = { targetFeature };
+                const callerFeature = new CallerFeature(features);
+
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'getFeatureName');
+
+                expect(result).toBe('targetFeature');
+            });
+
+            describe('waiting for feature ready', () => {
+                it('should wait for target feature to be initialized before calling method', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                    const { callerFeature, targetFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod'], {
+                        initFeature: false,
+                    });
+
+                    // Start the call before the feature is initialized
+                    const resultPromise = callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                    // Method should not be called yet
+                    expect(targetMethod).not.toHaveBeenCalled();
+
+                    // Initialize the feature
+                    targetFeature.callInit({});
+
+                    // Now await the result
+                    const result = await resultPromise;
+
+                    expect(targetMethod).toHaveBeenCalled();
+                    expect(result).toBe('success');
+                });
+
+                it('should resolve immediately if target feature is already initialized', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                    const { callerFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod'], {
+                        initFeature: true,
+                    });
+
+                    const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                    expect(targetMethod).toHaveBeenCalled();
+                    expect(result).toBe('success');
+                });
+
+                it('should return error if target feature init throws an error', async () => {
+                    class FailingFeature extends ContentFeature {
+                        constructor() {
+                            super('failingFeature', {}, {}, {});
+                            this._exposedMethods = this._declareExposedMethods(['someMethod']);
+                        }
+                        init() {
+                            throw new Error('init failed');
+                        }
+                        someMethod() {
+                            return 'should not reach';
+                        }
+                    }
+                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                    const failingFeature = new FailingFeature();
+                    const features = { failingFeature };
+                    const callerFeature = new CallerFeature(features);
+
+                    // Start the call before init
+                    const resultPromise = callerFeature.callFeatureMethod('failingFeature', 'someMethod');
+
+                    // Try to initialize (this will throw)
+                    await expectAsync(failingFeature.callInit({})).toBeRejectedWithError('init failed');
+
+                    // The callFeatureMethod should return an error (not reject)
+                    const result = await resultPromise;
+                    expect(result).toBeInstanceOf(CallFeatureMethodError);
+                    expect(result.message).toContain("Initialisation of feature 'failingFeature' failed");
+                    expect(result.message).toContain('init failed');
+                });
+
+                it('should handle multiple callers waiting for the same feature', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('shared result');
+                    const TargetFeature = createFeatureClass('targetFeature', { getData: targetMethod }, ['getData']);
+                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                    const targetFeature = new TargetFeature();
+                    const features = { targetFeature };
+                    const caller1 = new CallerFeature(features);
+                    const caller2 = new CallerFeature(features);
+
+                    // Both callers start waiting
+                    const promise1 = caller1.callFeatureMethod('targetFeature', 'getData');
+                    const promise2 = caller2.callFeatureMethod('targetFeature', 'getData');
+
+                    // Method shouldn't be called yet
+                    expect(targetMethod).not.toHaveBeenCalled();
+
+                    // Initialize the feature
+                    targetFeature.callInit({});
+
+                    // Both should resolve
+                    const [result1, result2] = await Promise.all([promise1, promise2]);
+
+                    expect(result1).toBe('shared result');
+                    expect(result2).toBe('shared result');
+                    expect(targetMethod).toHaveBeenCalledTimes(2);
+                });
+
+                it('should return error when target feature was skipped', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                    const TargetFeature = createFeatureClass('targetFeature', { exposedMethod: targetMethod }, ['exposedMethod']);
+                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                    const targetFeature = new TargetFeature();
+                    const features = { targetFeature };
+                    const callerFeature = new CallerFeature(features);
+
+                    // Mark the feature as skipped (simulating isFeatureBroken returning true)
+                    targetFeature.markFeatureAsSkipped('feature is broken on this site');
+
+                    // callFeatureMethod should return an error, not hang
+                    const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                    expect(result).toBeInstanceOf(CallFeatureMethodError);
+                    expect(result.message).toContain("Initialisation of feature 'targetFeature' was skipped");
+                    expect(result.message).toContain('feature is broken on this site');
+                    expect(targetMethod).not.toHaveBeenCalled();
+                });
+            });
         });
     });
 });

@@ -9,6 +9,10 @@
       }
     ]
   },
+  "newBadge": {
+    "title": "New",
+    "note": "Badge text indicating a new feature."
+  },
   "ntp_show_less": {
     "title": "Show Less",
     "note": "Button that reduces the number of items or content displayed."
@@ -32,6 +36,14 @@
   "ntp_popover_close_button": {
     "title": "Close",
     "note": "Button that closes the current popover."
+  },
+  "customizer_themeVariantPopoverTitle": {
+    "title": "Pick a color theme that suits you",
+    "note": "Title for the popover that introduces the theme variant customization feature."
+  },
+  "customizer_themeVariantPopoverDescription": {
+    "title": "You can now choose a color for the look that you want. Give it a try!",
+    "note": "Description message in the theme variant popover."
   },
   "updateNotification_updated_version": {
     "title": "Browser Updated to version {version}.",
@@ -60,10 +72,6 @@
   "protections_noRecent": {
     "title": "No recent tracking activity",
     "note": "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
-  },
-  "protections_newBadge": {
-    "title": "NEW",
-    "note": "Text displayed in a badge to indicate a new feature or statistic."
   },
   "stats_menuTitle": {
     "title": "Blocked Tracking Attempts",
@@ -217,13 +225,125 @@
     "title": "Toggle between search and AI chat",
     "description": "Title for the popover that introduces the search/AI toggle feature."
   },
-  "omnibar_customizePopoverBadge": {
-    "title": "New",
-    "description": "Badge text for the popover that introduces the search/AI toggle feature."
-  },
   "omnibar_customizePopoverDescription": {
     "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
     "description": "Description message in the popover including privacy statement and customize option."
+  },
+  "nextStepsList_sectionTitle": {
+    "title": "Next Steps",
+    "note": "Text that goes in the Next Steps bubble label above the card"
+  },
+  "nextStepsList_maybeLater": {
+    "title": "No Thanks",
+    "note": "Secondary button text for dismissing a Next Steps List item"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_title": {
+    "title": "Pin to Taskbar",
+    "note": "Title of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_summary": {
+    "title": "Access DuckDuckGo more easily by pinning it your taskbar.",
+    "note": "Summary of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_actionText": {
+    "title": "Pin to Taskbar",
+    "note": "Button text of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_addAppToDockMac_title": {
+    "title": "Add to Dock",
+    "note": "Title of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_addAppToDockMac_summary": {
+    "title": "Access DuckDuckGo more easily by adding it to your Dock.",
+    "note": "Summary of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_addAppToDockMac_actionText": {
+    "title": "Add to Dock",
+    "note": "Button text of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_personalizeBrowser_title": {
+    "title": "Personalize Your Browser",
+    "note": "Title of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_personalizeBrowser_summary": {
+    "title": "Browse your way by changing background color, updating your theme, and more.",
+    "note": "Summary of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_personalizeBrowser_actionText": {
+    "title": "Personalize Now",
+    "note": "Button text of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_duckplayer_title": {
+    "title": "YouTube with Fewer Ads",
+    "note": "Title of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_duckplayer_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_duckplayer_actionText": {
+    "title": "Try Duck Player",
+    "note": "Button text of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_emailProtection_title": {
+    "title": "Protect Your Email Address and Block Trackers",
+    "note": "Title of the Next Steps List card for email protection"
+  },
+  "nextStepsList_emailProtection_summary": {
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
+    "note": "Summary of the Next Steps List card for email protection"
+  },
+  "nextStepsList_emailProtection_actionText": {
+    "title": "Get Email Protection",
+    "note": "Button text of the Next Steps List card for email protection"
+  },
+  "nextStepsList_bringStuff_title": {
+    "title": "Import Your Bookmarks and Passwords to DuckDuckGo",
+    "note": "Title of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_bringStuff_summary": {
+    "title": "Securely bring over your bookmarks, passwords, and credit card details.",
+    "note": "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_bringStuff_actionText": {
+    "title": "Import Now",
+    "note": "Button text of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_defaultApp_title": {
+    "title": "Open Links in DuckDuckGo",
+    "note": "Title of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_defaultApp_summary": {
+    "title": "Set DuckDuckGo as your default browser and search privately every time.",
+    "note": "Summary of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_defaultApp_actionText": {
+    "title": "Open Links in DuckDuckGo",
+    "note": "Button text of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_subscription_title": {
+    "title": "Get a Secure VPN + Private, Advanced AI",
+    "note": "Title of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_subscription_summary": {
+    "title": "Subscribe to DuckDuckGo and protect more of what you do online.",
+    "note": "Summary of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_subscription_actionText": {
+    "title": "Try for Free",
+    "note": "Button text of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_sync_title": {
+    "title": "Sync and Back Up Your Bookmarks and Passwords",
+    "note": "Title of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_summary": {
+    "title": "Securely sync your bookmarks, passwords, and identity data on mobile and desktop.",
+    "note": "Summary of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_actionText": {
+    "title": "Sync Now",
+    "note": "Button text of the Next Steps List card for syncing data across devices"
   },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",
@@ -266,11 +386,11 @@
     "note": "Button text of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_emailProtection_title": {
-    "title": "Protect Your Inbox",
+    "title": "Protect Your Email Address and Block Trackers",
     "note": "Title of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_summary": {
-    "title": "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
     "note": "Summary of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_actionText": {
@@ -286,7 +406,7 @@
     "note": "Summary of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_actionText": {
-    "title": "Try DuckPlayer",
+    "title": "Try Duck Player",
     "note": "Button text of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_addAppDockMac_title": {
@@ -416,6 +536,46 @@
   "customizer_image_delete": {
     "title": "Delete image {number}",
     "note": "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
+  },
+  "customizer_section_title_theme_variant": {
+    "title": "Theme",
+    "note": "Section title for theme selection including theme variants"
+  },
+  "customizer_theme_variant_grid_label": {
+    "title": "Theme variant",
+    "note": "Accessibility label for the grid of theme variant options (Default, Cool Grey, Slate, etc.)"
+  },
+  "customizer_theme_variant_default": {
+    "title": "Default",
+    "note": "Label for the default theme variant"
+  },
+  "customizer_theme_variant_coolGray": {
+    "title": "Cool Grey",
+    "note": "Label for the cool grey theme variant"
+  },
+  "customizer_theme_variant_slateBlue": {
+    "title": "Slate",
+    "note": "Label for the slate blue theme variant"
+  },
+  "customizer_theme_variant_green": {
+    "title": "Green",
+    "note": "Label for the green theme variant"
+  },
+  "customizer_theme_variant_violet": {
+    "title": "Violet",
+    "note": "Label for the violet theme variant"
+  },
+  "customizer_theme_variant_rose": {
+    "title": "Rose",
+    "note": "Label for the rose theme variant"
+  },
+  "customizer_theme_variant_orange": {
+    "title": "Orange",
+    "note": "Label for the orange theme variant"
+  },
+  "customizer_theme_variant_desert": {
+    "title": "Desert",
+    "note": "Label for the desert theme variant"
   },
   "activity_noRecent_title": {
     "title": "No recent browsing activity",

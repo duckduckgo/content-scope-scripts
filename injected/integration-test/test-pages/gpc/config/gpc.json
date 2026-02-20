@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the Global Privacy Control feature.",
+    "version": 1,
+    "features": {
+        "gpc": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

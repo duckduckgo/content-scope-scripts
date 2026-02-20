@@ -7,6 +7,21 @@ import {
     isMaxSupportedVersion,
     getTabHostname,
     processAttr,
+    isStateEnabled,
+    withDefaults,
+    withRetry,
+    getStackTraceUrls,
+    getStackTraceOrigins,
+    isFeatureBroken,
+    isPlatformSpecificFeature,
+    isGloballyDisabled,
+    createCustomEvent,
+    isDuckAi,
+    isDuckAiSidebar,
+    nextRandom,
+    shouldExemptUrl,
+    initStringExemptionLists as initExemptions,
+    isBeingFramed,
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
@@ -188,7 +203,7 @@ describe('Helpers checks', () => {
         });
     });
 
-    it('does not enable features with state "preview"', () => {
+    it('does not enable features with state "preview" when preview flag is not set', () => {
         const configIn = {
             features: {
                 testFeature: {
@@ -218,6 +233,140 @@ describe('Helpers checks', () => {
         );
         expect(processedConfig.site.enabledFeatures).toEqual(['testFeature']);
         expect(processedConfig.featureSettings).toEqual({ testFeature: {} });
+    });
+
+    it('enables features with state "preview" when platform.preview is true', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                previewFeature: {
+                    state: 'preview',
+                    settings: { foo: 'bar' },
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                    preview: true,
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature', 'previewFeature']);
+        expect(processedConfig.featureSettings).toEqual({ testFeature: {}, previewFeature: { foo: 'bar' } });
+    });
+
+    it('does not enable features with state "internal" when internal flag is not set', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                internalFeature: {
+                    state: 'internal',
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature']);
+        expect(processedConfig.featureSettings).toEqual({ testFeature: {} });
+    });
+
+    it('enables features with state "internal" when platform.internal is true', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                internalFeature: {
+                    state: 'internal',
+                    settings: { baz: 'qux' },
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                    internal: true,
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature', 'internalFeature']);
+        expect(processedConfig.featureSettings).toEqual({ testFeature: {}, internalFeature: { baz: 'qux' } });
+    });
+
+    describe('utils.isStateEnabled', () => {
+        it('returns true for "enabled" state regardless of platform flags', () => {
+            expect(isStateEnabled('enabled', undefined)).toBeTrue();
+            expect(isStateEnabled('enabled', { name: 'android' })).toBeTrue();
+            expect(isStateEnabled('enabled', { name: 'android', internal: true })).toBeTrue();
+            expect(isStateEnabled('enabled', { name: 'android', preview: true })).toBeTrue();
+        });
+
+        it('returns false for "disabled" state regardless of platform flags', () => {
+            expect(isStateEnabled('disabled', undefined)).toBeFalse();
+            expect(isStateEnabled('disabled', { name: 'android' })).toBeFalse();
+            expect(isStateEnabled('disabled', { name: 'android', internal: true })).toBeFalse();
+            expect(isStateEnabled('disabled', { name: 'android', preview: true })).toBeFalse();
+        });
+
+        it('returns true for "internal" state only when platform.internal is true', () => {
+            expect(isStateEnabled('internal', undefined)).toBeFalse();
+            expect(isStateEnabled('internal', { name: 'android' })).toBeFalse();
+            expect(isStateEnabled('internal', { name: 'android', internal: false })).toBeFalse();
+            expect(isStateEnabled('internal', { name: 'android', internal: true })).toBeTrue();
+        });
+
+        it('returns true for "preview" state only when platform.preview is true', () => {
+            expect(isStateEnabled('preview', undefined)).toBeFalse();
+            expect(isStateEnabled('preview', { name: 'android' })).toBeFalse();
+            expect(isStateEnabled('preview', { name: 'android', preview: false })).toBeFalse();
+            expect(isStateEnabled('preview', { name: 'android', preview: true })).toBeTrue();
+        });
+
+        it('returns false for unknown state values', () => {
+            expect(isStateEnabled('unknown', { name: 'android' })).toBeFalse();
+            expect(isStateEnabled(undefined, { name: 'android' })).toBeFalse();
+            expect(isStateEnabled('', { name: 'android' })).toBeFalse();
+        });
     });
 
     describe('utils.satisfiesMinVersion', () => {
@@ -712,6 +861,331 @@ describe('Helpers checks', () => {
                 expect(typeof nestedFunction).toBe('function');
                 expect(nestedFunction()).toBe(42);
             });
+        });
+    });
+
+    describe('withDefaults', () => {
+        it('should return defaults when config is undefined', () => {
+            const defaults = { a: 1, b: 2 };
+            expect(withDefaults(defaults, undefined)).toEqual({ a: 1, b: 2 });
+        });
+
+        it('should return config when defaults is undefined', () => {
+            expect(withDefaults(undefined, { a: 10 })).toEqual({ a: 10 });
+        });
+
+        it('should override primitive values with config', () => {
+            const defaults = { a: 1, b: 2 };
+            const config = { a: 10 };
+            expect(withDefaults(defaults, config)).toEqual({ a: 10, b: 2 });
+        });
+
+        it('should deeply merge nested objects', () => {
+            const defaults = {
+                level1: {
+                    a: 1,
+                    level2: {
+                        b: 2,
+                        c: 3,
+                    },
+                },
+            };
+            const config = {
+                level1: {
+                    level2: {
+                        b: 20,
+                    },
+                },
+            };
+            expect(withDefaults(defaults, config)).toEqual({
+                level1: {
+                    a: 1,
+                    level2: {
+                        b: 20,
+                        c: 3,
+                    },
+                },
+            });
+        });
+
+        it('should replace arrays entirely (not merge them)', () => {
+            const defaults = { items: [1, 2, 3] };
+            const config = { items: [4, 5] };
+            expect(withDefaults(defaults, config)).toEqual({ items: [4, 5] });
+        });
+
+        it('should use default array when config value is undefined', () => {
+            const defaults = { items: [1, 2, 3] };
+            const config = {};
+            expect(withDefaults(defaults, config)).toEqual({ items: [1, 2, 3] });
+        });
+
+        it('should handle config replacing object with primitive', () => {
+            const defaults = { nested: { a: 1 } };
+            const config = { nested: 'replaced' };
+            expect(withDefaults(defaults, config)).toEqual({ nested: 'replaced' });
+        });
+
+        it('should handle config replacing primitive with object', () => {
+            const defaults = { value: 'string' };
+            const config = { value: { nested: true } };
+            expect(withDefaults(defaults, config)).toEqual({ value: { nested: true } });
+        });
+
+        it('should allow additional keys from config', () => {
+            const defaults = { a: 1, b: 2 };
+            const config = { a: 10, c: 30 };
+            expect(withDefaults(defaults, config)).toEqual({ a: 10, b: 2, c: 30 });
+        });
+
+        it('should allow additional keys from defaults', () => {
+            const defaults = { a: 1, b: 2 };
+            const config = { c: 30 };
+            expect(withDefaults(defaults, config)).toEqual({ a: 1, b: 2, c: 30 });
+        });
+
+        it('should merge nested objects keeping additional keys from config', () => {
+            const defaults = { outer: { inner: { a: 1 } } };
+            const config = { outer: { inner: { a: 2, b: 3 } } };
+            expect(withDefaults(defaults, config)).toEqual({ outer: { inner: { a: 2, b: 3 } } });
+        });
+    });
+
+    describe('withRetry', () => {
+        it('resolves when function returns a truthy value', async () => {
+            /** @type {any} */
+            const result = await withRetry(() => /** @type {any} */ ('success'), 3, 10, 'linear');
+            expect(result).toBe('success');
+        });
+
+        it('retries and eventually resolves', async () => {
+            let count = 0;
+            /** @type {any} */
+            const result = await withRetry(() => /** @type {any} */ (count++ >= 2 ? 'found' : null), 5, 10, 'linear');
+            expect(result).toBe('found');
+            expect(count).toBe(3);
+        });
+
+        it('rejects after max attempts with null return', async () => {
+            await expectAsync(withRetry(() => /** @type {any} */ (null), 2, 10, 'linear')).toBeRejected();
+        });
+
+        it('rejects after max attempts with throwing function', async () => {
+            await expectAsync(
+                withRetry(
+                    () => {
+                        throw new Error('boom');
+                    },
+                    2,
+                    10,
+                    'linear',
+                ),
+            ).toBeRejected();
+        });
+
+        it('uses exponential backoff by default', async () => {
+            let count = 0;
+            /** @type {any} */
+            const result = await withRetry(() => /** @type {any} */ (count++ >= 1 ? 'done' : null), 4, 10);
+            expect(result).toBe('done');
+        });
+    });
+
+    describe('getStackTraceUrls', () => {
+        it('extracts https URLs from a stack trace', () => {
+            const stack = `Error
+    at Object.<anonymous> (https://example.com/script.js:10:5)
+    at Module._compile (node:internal/modules:1:2)`;
+            const urls = getStackTraceUrls(stack);
+            expect(urls.size).toBe(1);
+            const url = [...urls][0];
+            expect(url.hostname).toBe('example.com');
+        });
+
+        it('extracts http URLs from a stack trace', () => {
+            const stack = 'at test (http://localhost:3220/test.js:1:1)';
+            const urls = getStackTraceUrls(stack);
+            expect(urls.size).toBe(1);
+        });
+
+        it('returns empty set for stack without URLs', () => {
+            const urls = getStackTraceUrls('Error\n    at <anonymous>:1:1');
+            expect(urls.size).toBe(0);
+        });
+    });
+
+    describe('getStackTraceOrigins', () => {
+        it('returns hostnames from stack trace URLs', () => {
+            const stack = `Error
+    at fn (https://tracker.com/lib.js:1:1)
+    at fn2 (https://other.com/app.js:2:3)`;
+            const origins = getStackTraceOrigins(stack);
+            expect(origins.has('tracker.com')).toBeTrue();
+            expect(origins.has('other.com')).toBeTrue();
+        });
+    });
+
+    describe('isFeatureBroken', () => {
+        it('returns false when feature is in enabledFeatures', () => {
+            /** @type {any} */
+            const args = { site: { enabledFeatures: ['testFeature'] } };
+            expect(isFeatureBroken(args, 'testFeature')).toBeFalse();
+        });
+
+        it('returns true when feature is not in enabledFeatures', () => {
+            /** @type {any} */
+            const args = { site: { enabledFeatures: ['other'] } };
+            expect(isFeatureBroken(args, 'testFeature')).toBeTrue();
+        });
+
+        it('handles platform-specific features correctly', () => {
+            /** @type {any} */
+            const args = { site: { enabledFeatures: ['navigatorInterface'] } };
+            expect(isFeatureBroken(args, 'navigatorInterface')).toBeFalse();
+
+            /** @type {any} */
+            const args2 = { site: { enabledFeatures: [] } };
+            expect(isFeatureBroken(args2, 'navigatorInterface')).toBeTrue();
+        });
+    });
+
+    describe('isPlatformSpecificFeature', () => {
+        it('returns true for known platform features', () => {
+            expect(isPlatformSpecificFeature('navigatorInterface')).toBeTrue();
+            expect(isPlatformSpecificFeature('messageBridge')).toBeTrue();
+            expect(isPlatformSpecificFeature('favicon')).toBeTrue();
+        });
+
+        it('returns false for non-platform features', () => {
+            expect(isPlatformSpecificFeature('cookie')).toBeFalse();
+            expect(isPlatformSpecificFeature('gpc')).toBeFalse();
+        });
+    });
+
+    describe('isGloballyDisabled', () => {
+        it('returns true when site is allowlisted', () => {
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: true, isBroken: false },
+            });
+            expect(isGloballyDisabled(args)).toBeTrue();
+        });
+
+        it('returns true when site is broken', () => {
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: false, isBroken: true },
+            });
+            expect(isGloballyDisabled(args)).toBeTrue();
+        });
+
+        it('returns false when neither', () => {
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: false, isBroken: false },
+            });
+            expect(isGloballyDisabled(args)).toBeFalse();
+        });
+    });
+
+    describe('createCustomEvent', () => {
+        it('creates a CustomEvent with the given name and detail', () => {
+            const evt = createCustomEvent('test-event', { detail: { key: 'value' } });
+            expect(evt).toBeInstanceOf(CustomEvent);
+            expect(evt.type).toBe('test-event');
+            expect(evt.detail.key).toBe('value');
+        });
+    });
+
+    describe('isDuckAi', () => {
+        const originalTop = globalThis.top;
+
+        afterEach(() => {
+            globalThis.top = originalTop;
+        });
+
+        it('returns true for duckduckgo.com with duckai param', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duckduckgo.com/?duckai=1' } };
+            expect(isDuckAi()).toBeTrue();
+        });
+
+        it('returns true for duck.ai with ia=chat', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duck.ai/?ia=chat' } };
+            expect(isDuckAi()).toBeTrue();
+        });
+
+        it('returns false for non-duck domains', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://example.com/?duckai=1' } };
+            expect(isDuckAi()).toBeFalse();
+        });
+
+        it('returns false for duck domain without ai params', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duckduckgo.com/?q=test' } };
+            expect(isDuckAi()).toBeFalse();
+        });
+    });
+
+    describe('isDuckAiSidebar', () => {
+        const originalTop = globalThis.top;
+
+        afterEach(() => {
+            globalThis.top = originalTop;
+        });
+
+        it('returns true for duck.ai with placement=sidebar', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duck.ai/?ia=chat&placement=sidebar' } };
+            expect(isDuckAiSidebar()).toBeTrue();
+        });
+
+        it('returns false for duck.ai without placement=sidebar', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duck.ai/?ia=chat' } };
+            expect(isDuckAiSidebar()).toBeFalse();
+        });
+
+        it('returns false for non-duck-ai pages', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://example.com/?placement=sidebar' } };
+            expect(isDuckAiSidebar()).toBeFalse();
+        });
+    });
+
+    describe('nextRandom', () => {
+        it('returns a number', () => {
+            expect(typeof nextRandom(42)).toBe('number');
+        });
+
+        it('is deterministic', () => {
+            expect(nextRandom(42)).toBe(nextRandom(42));
+        });
+    });
+
+    describe('isBeingFramed', () => {
+        it('returns a boolean', () => {
+            expect(typeof isBeingFramed()).toBe('boolean');
+        });
+    });
+
+    describe('shouldExemptUrl', () => {
+        it('returns false when URL does not match exemption pattern', () => {
+            // Initialize with a known exemption type
+            initExemptions({
+                stringExemptionLists: {
+                    testType: ['https://exempt\\.example\\.com/.*'],
+                },
+            });
+            expect(shouldExemptUrl('testType', 'https://other.com/test.js')).toBeFalse();
+        });
+
+        it('returns true when URL matches exemption pattern', () => {
+            initExemptions({
+                stringExemptionLists: {
+                    testType: ['https://exempt\\.example\\.com/.*'],
+                },
+            });
+            expect(shouldExemptUrl('testType', 'https://exempt.example.com/lib.js')).toBeTrue();
         });
     });
 });

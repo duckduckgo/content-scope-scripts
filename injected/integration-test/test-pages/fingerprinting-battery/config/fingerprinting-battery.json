@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the fingerprinting battery feature which spoofs BatteryManager values.",
+    "version": 1,
+    "features": {
+        "fingerprintingBattery": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

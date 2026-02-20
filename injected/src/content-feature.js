@@ -23,11 +23,46 @@ import ConfigFeature from './config-feature.js';
  * @property {string[]} [enabledFeatures]
  */
 
+/**
+ * @typedef {import('./features.js').FeatureMap} FeatureMap
+ */
+
+/**
+ * @typedef {{status: 'ready'} | {status: 'skipped', reason: string} | {status: 'error', error: string}} ReadyStatus
+ */
+
+/**
+ * @returns {{promise: Promise<ReadyStatus>, resolve: (resolve: ReadyStatus) => void}}
+ */
+function createDeferred() {
+    /** @type {(value: ReadyStatus) => void} */
+    let res;
+    const promise = new Promise((resolve) => {
+        res = resolve;
+    });
+    // @ts-expect-error - resolve is assigned in the Promise constructor
+    return { promise, resolve: res };
+}
+
+/**
+ * Error used to indicate that calling a feature method failed (for example, due
+ * to an unknown feature or unexposed method).
+ */
+export class CallFeatureMethodError extends Error {
+    /**
+     * @param {string} message
+     */
+    constructor(message) {
+        super(message);
+        Object.setPrototypeOf(this, new.target.prototype);
+        this.name = new.target.name;
+    }
+}
+
 export default class ContentFeature extends ConfigFeature {
-    /** @type {import('./utils.js').RemoteConfig | undefined} */
-    /** @type {import('../../messaging').Messaging} */
+    /** @type {import('../../messaging').Messaging | undefined} */
     // eslint-disable-next-line no-unused-private-class-members
-    #messaging;
+    #messaging = undefined;
     /** @type {boolean} */
     #isDebugFlagSet = false;
     /**
@@ -51,11 +86,41 @@ export default class ContentFeature extends ConfigFeature {
     /** @type {ImportMeta} */
     #importConfig;
 
-    constructor(featureName, importConfig, args) {
+    /**
+     * @type {Partial<FeatureMap>}
+     */
+    #features;
+
+    /** @type {ReturnType<typeof createDeferred>} */
+    #ready;
+
+    /**
+     * @template {string} K
+     * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
+     */
+
+    /**
+     * Methods that are exposed for inter-feature communication.
+     *
+     * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
+     *
+     * @type {ExposeMethods<any> | undefined}
+     */
+    _exposedMethods;
+
+    /**
+     * @param {string} featureName
+     * @param {*} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {*} args
+     */
+    constructor(featureName, importConfig, features, args) {
         super(featureName, args);
         this.setArgs(this.args);
         this.monitor = new PerformanceMonitor();
+        this.#features = features;
         this.#importConfig = importConfig;
+        this.#ready = createDeferred();
     }
 
     get isDebug() {
@@ -64,6 +129,15 @@ export default class ContentFeature extends ConfigFeature {
 
     get shouldLog() {
         return this.isDebug;
+    }
+
+    /**
+     * Returns a promise that resolves when the feature has been initialised with `init`.
+     *
+     * @returns {Promise<ReadyStatus>}
+     */
+    get _ready() {
+        return this.#ready.promise;
     }
 
     /**
@@ -124,7 +198,7 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * @returns {ImportMeta['trackerLookup']}
+     * @returns {import('./trackers.js').TrackerNode | {}}
      **/
     get trackerLookup() {
         return this.#importConfig.trackerLookup || {};
@@ -142,6 +216,61 @@ export default class ContentFeature extends ConfigFeature {
      */
     get documentOriginIsTracker() {
         return isTrackerOrigin(this.trackerLookup);
+    }
+
+    /**
+     * Declares which methods may be called on the feature instance from other features.
+     *
+     * @template {keyof typeof this} K
+     * @param {K[]} methods
+     * @returns {ExposeMethods<K>}
+     */
+    _declareExposedMethods(methods) {
+        for (const method of methods) {
+            if (typeof this[method] !== 'function') {
+                throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+            }
+        }
+        // @ts-expect-error - phantom type for branding
+        return methods;
+    }
+
+    /**
+     * Run an exposed method of another feature.
+     *
+     * Waits for the feature to be initialized before calling the method.
+     *
+     * `args` are the arguments to pass to the feature method.
+     *
+     * NOTE: be aware of potential circular dependencies. Check that the feature
+     * you are calling is not calling you back.
+     *
+     * @template {keyof FeatureMap} FeatureName
+     * @template {FeatureMap[FeatureName]} Feature
+     * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
+     * @param {FeatureName} featureName
+     * @param {MethodName} methodName
+     * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
+     * @returns {Promise<ReturnType<Feature[MethodName]> | CallFeatureMethodError>}
+     */
+    async callFeatureMethod(featureName, methodName, ...args) {
+        const feature = this.#features[featureName];
+        if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
+        // correct method usage is guaranteed at the type level, but we include runtime checks for additional safety
+        if (!(feature._exposedMethods !== undefined && feature._exposedMethods.some((mn) => mn === methodName)))
+            return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
+        const method = /** @type {Feature} */ (feature)[methodName];
+        if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
+        if (!(method instanceof Function))
+            return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+        const isReady = await feature._ready;
+        if (isReady.status === 'skipped') {
+            return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${isReady.reason}`);
+        }
+        if (isReady.status === 'error') {
+            return new CallFeatureMethodError(`Initialisation of feature '${featureName}' failed: ${isReady.error}`);
+        }
+        return method.call(feature, ...args);
     }
 
     /**
@@ -188,22 +317,54 @@ export default class ContentFeature extends ConfigFeature {
         return processAttr(configSetting, defaultValue);
     }
 
+    /**
+     * @param {any} [_args]
+     */
     init(_args) {}
 
-    callInit(args) {
+    /**
+     * @param {object} args
+     */
+    async callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
-        this.setArgs(args);
-        // Passing this.args is legacy here and features should use this.args or other properties directly
-        this.init(this.args);
-        mark.end();
-        this.measure();
+        try {
+            this.setArgs(args);
+            // Passing this.args is legacy here and features should use this.args or other properties directly
+            // disable lint error as `init` is not forced to be async
+            // eslint-disable-next-line @typescript-eslint/await-thenable
+            await this.init(this.args);
+            this.#ready.resolve({ status: 'ready' });
+        } catch (error) {
+            this.#ready.resolve({ status: 'error', error: String(error) });
+            throw error;
+        } finally {
+            mark.end();
+            this.measure();
+        }
     }
 
+    /**
+     * Mark this feature as skipped (not initialized).
+     *
+     * This allows inter-feature communication to fail fast instead of hanging indefinitely.
+     *
+     * @param {string} reason - The reason the feature was skipped
+     */
+    markFeatureAsSkipped(reason) {
+        this.#ready.resolve({ status: 'skipped', reason });
+    }
+
+    /**
+     * @param {any} args
+     */
     setArgs(args) {
         this.args = args;
         this.platform = args.platform;
     }
 
+    /**
+     * @param {any} [_args]
+     */
     load(_args) {}
 
     /**
@@ -292,25 +453,38 @@ export default class ContentFeature extends ConfigFeature {
      * Define a property descriptor with debug flags.
      * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
-     * @param {string} propertyName
+     * @param {string | symbol} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     defineProperty(object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
         // NOTE: properties passing data in `value` would not be caught by this
-        ['value', 'get', 'set'].forEach((k) => {
-            const descriptorProp = descriptor[k];
-            if (typeof descriptorProp === 'function') {
-                const addDebugFlag = this.addDebugFlag.bind(this);
-                const wrapper = new Proxy(descriptorProp, {
-                    apply(_, thisArg, argumentsList) {
-                        addDebugFlag();
-                        return Reflect.apply(descriptorProp, thisArg, argumentsList);
-                    },
-                });
-                descriptor[k] = wrapToString(wrapper, descriptorProp);
-            }
-        });
+        const addDebugFlag = this.addDebugFlag.bind(this);
+
+        /**
+         * @template {(...args: any[]) => any} F
+         * @param {F} fn
+         * @returns {F}
+         */
+        const wrapWithDebugFlag = (fn) => {
+            const wrapper = new Proxy(fn, {
+                apply(_, thisArg, argumentsList) {
+                    addDebugFlag();
+                    return Reflect.apply(fn, thisArg, argumentsList);
+                },
+            });
+            return /** @type {F} */ (wrapToString(wrapper, fn));
+        };
+
+        if ('value' in descriptor && typeof descriptor.value === 'function') {
+            descriptor.value = wrapWithDebugFlag(descriptor.value);
+        }
+        if ('get' in descriptor && typeof descriptor.get === 'function') {
+            descriptor.get = wrapWithDebugFlag(descriptor.get);
+        }
+        if ('set' in descriptor && typeof descriptor.set === 'function') {
+            descriptor.set = wrapWithDebugFlag(descriptor.set);
+        }
 
         return defineProperty(object, propertyName, descriptor);
     }
@@ -330,7 +504,7 @@ export default class ContentFeature extends ConfigFeature {
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
-     * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+     * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapMethod(object, propertyName, wrapperFn) {
@@ -351,7 +525,7 @@ export default class ContentFeature extends ConfigFeature {
      * Define a missing standard property on a global (prototype) object. Only for data properties.
      * For constructors, use shimInterface().
      * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
-     * @template Base
+     * @template {object} Base
      * @template {keyof Base & string} K
      * @param {Base} instanceHost - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
      * @param {K} instanceProp - name of the property to shim (e.g. 'mediaSession')

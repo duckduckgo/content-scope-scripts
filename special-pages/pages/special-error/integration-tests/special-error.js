@@ -109,7 +109,7 @@ export class SpecialErrorPage {
     get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/special-error',
-            apple: () => '../build/apple/pages/special-error',
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/special-error',
         });
     }
 

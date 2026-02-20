@@ -1,5 +1,14 @@
+/**
+ * Re-export auto-generated feature map types.
+ * The FeatureMap type is generated from src/features/*.js files.
+ * Run `npm run build-types` to regenerate, or it runs automatically on build.
+ *
+ * @typedef {import('./types/feature-map').FeatureMap} FeatureMap
+ * @typedef {import('./types/feature-map').FeatureName} FeatureName
+ */
+
 // Features must exist in either `baseFeatures` or `otherFeatures`
-export const baseFeatures = /** @type {const} */ ([
+export const baseFeatures = /** @type {FeatureName[]} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
@@ -15,15 +24,17 @@ export const baseFeatures = /** @type {const} */ ([
     'apiManipulation',
 ]);
 
-const otherFeatures = /** @type {const} */ ([
+const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
     'cookie',
     'messageBridge',
     'duckPlayer',
     'duckPlayerNative',
     'duckAiDataClearing',
+    'duckAiChatHistory',
     'harmfulApis',
     'webCompat',
+    'webDetection',
     'webInterferenceDetection',
     'windowsPermissionUsage',
     'uaChBrands',
@@ -34,12 +45,12 @@ const otherFeatures = /** @type {const} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
+    'print',
 ]);
 
-/** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'pageContext'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext', 'print'],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
@@ -49,9 +60,20 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
+        'webDetection',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
-    android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge'],
+    'apple-ai-history': ['duckAiChatHistory'],
+    android: [
+        ...baseFeatures,
+        'webCompat',
+        'webDetection',
+        'webInterferenceDetection',
+        'breakageReporting',
+        'duckPlayer',
+        'messageBridge',
+        'pageContext',
+    ],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
@@ -63,11 +85,14 @@ export const platformSupport = {
         'fingerprintingAudio',
         'fingerprintingBattery',
         'gpc',
+        'webDetection',
         'breakageReporting',
     ],
+    'android-ai-history': ['duckAiChatHistory'],
     windows: [
         'cookie',
         ...baseFeatures,
+        'webDetection',
         'webInterferenceDetection',
         'webTelemetry',
         'windowsPermissionUsage',
@@ -79,9 +104,11 @@ export const platformSupport = {
         'webCompat',
         'pageContext',
         'duckAiDataClearing',
+        'performanceMetrics',
+        'duckAiChatHistory',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
+    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
     integration: [...baseFeatures, ...otherFeatures],
 };

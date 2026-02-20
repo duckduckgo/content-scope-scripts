@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Web Detection Tests</title>
+    <link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+    <h1>Web Detection Integration Tests</h1>
+
+    <h2>Basic Matching</h2>
+    <ul>
+        <li><a href="pages/no-detection.html">No Detection (clean page)</a></li>
+        <li><a href="pages/text-match.html">Text Match (adblock detected)</a></li>
+        <li><a href="pages/element-match.html">Element Match (paywall overlay)</a></li>
+        <li><a href="pages/combined-match.html">Combined Match (text + element)</a></li>
+        <li><a href="pages/video-unavailable.html">Video Unavailable</a></li>
+    </ul>
+
+    <h2>Custom Triggers and Actions</h2>
+    <ul>
+        <li><a href="pages/trigger-disabled.html">Trigger Disabled (breakageReport trigger disabled)</a></li>
+        <li><a href="pages/action-disabled.html">Action Disabled (breakageReportData action disabled)</a></li>
+        <li><a href="pages/detector-disabled.html">Detector Disabled (detector state disabled)</a></li>
+        <li><a href="pages/domain-restricted.html">Domain Restricted (runConditions limit to example.com)</a></li>
+    </ul>
+    <script type="module" src="../shared/utils.js"></script>
+</body>
+</html>
