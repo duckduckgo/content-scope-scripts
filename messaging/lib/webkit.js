@@ -74,13 +74,13 @@ import {
  * @implements {MessagingTransport}
  */
 export class WebkitMessagingTransport {
+    /** @type {Record<string, any>} */
+    capturedWebkitHandlers = {};
+
     /**
      * @param {WebkitMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext
      */
-    /** @type {Record<string, any>} */
-    capturedWebkitHandlers = {};
-
     constructor(config, messagingContext) {
         this.messagingContext = messagingContext;
         this.config = config;
