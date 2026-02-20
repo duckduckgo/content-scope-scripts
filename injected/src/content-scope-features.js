@@ -54,7 +54,8 @@ export function load(args) {
         injectName: import.meta.injectName,
     };
 
-    const bundledFeatureNames = typeof importConfig.injectName === 'string' ? platformSupport[importConfig.injectName] : [];
+    const bundledFeatureNames =
+        typeof importConfig.injectName === 'string' ? (platformSupport[importConfig.injectName] ?? []) : [];
 
     // prettier-ignore
     const featuresToLoad = isGloballyDisabled(args)
@@ -67,6 +68,7 @@ export function load(args) {
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
+            if (!ContentFeature) continue;
             const featureInstance = new ContentFeature(featureName, importConfig, _features, args);
             // Short term fix to disable the feature whilst we roll out Android adsjs
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {

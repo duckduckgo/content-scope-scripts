@@ -28,7 +28,7 @@ class Template {
             '>': '&gt;',
             '/': '&#x2F;',
         };
-        return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
+        return String(str).replace(/[&"'<>/]/g, (m) => /** @type {string} */ (replacements[m]));
     }
 
     /**
