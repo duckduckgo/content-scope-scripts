@@ -21,7 +21,7 @@ export class DuckAiChatHistory extends ContentFeature {
     static MIN_INDEXED_DB_VERSION = 2;
 
     init() {
-        this.messaging.subscribe('getDuckAiChats', (/** @type {{query?: string, max_chats?: number, since?: number}} */ params) =>
+        this.messaging.subscribe('getDuckAiChats', (/** @type {any} */ params) =>
             this.getChats(params),
         );
     }
@@ -48,7 +48,7 @@ export class DuckAiChatHistory extends ContentFeature {
             this.log.error('Error retrieving chats:', error);
             this.notify('duckAiChatsResult', {
                 success: false,
-                error: error?.message || 'Unknown error occurred',
+                error: error instanceof Error ? error.message : 'Unknown error occurred',
                 pinnedChats: [],
                 chats: [],
                 timestamp: Date.now(),
@@ -236,7 +236,7 @@ export class DuckAiChatHistory extends ContentFeature {
 
     /**
      * Formats a chat object for sending to native, extracting only needed keys
-     * @param {object} chat - Chat object
+     * @param {any} chat - Chat object
      * @returns {object} Formatted chat object
      */
     formatChat(chat) {
@@ -257,7 +257,7 @@ export class DuckAiChatHistory extends ContentFeature {
 
     /**
      * Checks if a chat matches the search query by checking if all query words appear in title
-     * @param {object} chat - Chat object
+     * @param {any} chat - Chat object
      * @param {string} query - Lowercase search query
      * @returns {boolean} True if chat title contains all query words
      */
@@ -269,7 +269,7 @@ export class DuckAiChatHistory extends ContentFeature {
 
     /**
      * Checks if a chat's lastEdit is not older than the given timestamp
-     * @param {object} chat - Chat object
+     * @param {any} chat - Chat object
      * @param {number} since - Timestamp in milliseconds
      * @returns {boolean} True if chat is not older than the timestamp
      */

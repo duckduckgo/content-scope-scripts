@@ -118,7 +118,7 @@ export class IconOverlay {
     /**
      * Return the offset of an HTML Element
      * @param {HTMLElement} el
-     * @returns {Object}
+     * @returns {{top: number, left: number}}
      */
     getElementOffset(el) {
         const box = el.getBoundingClientRect();
@@ -131,6 +131,10 @@ export class IconOverlay {
 
     /**
      * Hides the hover overlay element, but only if mouse pointer is outside of the hover overlay element
+     */
+    /**
+     * @param {MouseEvent} event
+     * @param {boolean} [force]
      */
     hideHoverOverlay(event, force) {
         const overlay = this.getHoverOverlay();
@@ -224,7 +228,9 @@ export class IconOverlay {
         });
     }
 
+    /** @param {HTMLElement} videoElement */
     getThumbnailSize(videoElement) {
+        /** @type {Record<number, HTMLImageElement>} */
         const imagesByArea = {};
 
         Array.from(videoElement.querySelectorAll('img')).forEach((image) => {
@@ -233,7 +239,7 @@ export class IconOverlay {
 
         const largestImage = Math.max.apply(this, Object.keys(imagesByArea).map(Number));
 
-        const getSizeType = (width, height) => {
+        const getSizeType = (/** @type {number} */ width, /** @type {number} */ height) => {
             if (width < 123 + 10) {
                 // match CSS: width of expanded overlay + twice the left margin.
                 return 'small';
