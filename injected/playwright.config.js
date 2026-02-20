@@ -25,6 +25,7 @@ export default defineConfig({
         {
             name: 'apple-isolated',
             testMatch: [
+                'integration-test/context-menu.spec.js',
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
