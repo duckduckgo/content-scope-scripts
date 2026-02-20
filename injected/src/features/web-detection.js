@@ -117,16 +117,10 @@ export default class WebDetection extends ContentFeature {
                 this.#matchedDetectors.set(fullDetectorId, true);
             }
 
-            // Execute fireEvent action: send webEvent notification to the client
-            if (detected === true && this._isStateEnabled(detectorConfig.actions.fireEvent.state)) {
-                const eventType = detectorConfig.actions.fireEvent.event;
-                if (eventType) {
-                    try {
-                        this.messaging?.notify('webEvent', { type: eventType });
-                    } catch {
-                        // Messaging may not be ready - silently fail
-                    }
-                }
+            // Execute fireEvent action: route through webTelemetry feature
+            if (detected === true && detectorConfig.actions.fireEvent?.type) {
+                const eventType = detectorConfig.actions.fireEvent.type;
+                this.callFeatureMethod('webTelemetry', 'fireEvent', { type: eventType, data: detected });
             }
 
             // Debug notification for integration tests (only sends when detection succeeds or errors)

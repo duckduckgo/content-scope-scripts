@@ -188,23 +188,22 @@ describe('WebDetection', () => {
             expect(result.actions.breakageReportData.state).toBe('disabled');
         });
 
-        it('should default fireEvent action to disabled', () => {
+        it('should default fireEvent action to empty object', () => {
             const result = oneDetectorConfigParsed({
                 match: { text: { pattern: 'test' } },
             });
-            expect(result.actions.fireEvent.state).toBe('disabled');
-            expect(result.actions.fireEvent.event).toBeUndefined();
+            expect(result.actions.fireEvent).toEqual({});
+            expect(result.actions.fireEvent.type).toBeUndefined();
         });
 
-        it('should parse fireEvent action with event name', () => {
+        it('should parse fireEvent action with type', () => {
             const result = oneDetectorConfigParsed({
                 match: { text: { pattern: 'test' } },
                 actions: {
-                    fireEvent: { state: 'enabled', event: 'adwall' },
+                    fireEvent: { type: 'adwall' },
                 },
             });
-            expect(result.actions.fireEvent.state).toBe('enabled');
-            expect(result.actions.fireEvent.event).toBe('adwall');
+            expect(result.actions.fireEvent.type).toBe('adwall');
         });
 
         it('should default auto trigger to disabled', () => {

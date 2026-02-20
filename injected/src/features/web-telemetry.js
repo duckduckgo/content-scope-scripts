@@ -7,8 +7,12 @@ import ContentFeature from '../content-feature.js';
 const MSG_VIDEO_PLAYBACK = 'video-playback';
 const MSG_URL_CHANGED = 'url-changed';
 
+const MSG_WEB_EVENT = 'webEvent';
+
 export class WebTelemetry extends ContentFeature {
     listenForUrlChanges = true;
+
+    _exposedMethods = this._declareExposedMethods(['fireEvent']);
 
     constructor(featureName, importConfig, features, args) {
         super(featureName, importConfig, features, args);
@@ -20,6 +24,16 @@ export class WebTelemetry extends ContentFeature {
         if (this.getFeatureSettingEnabled('videoPlayback')) {
             this.videoPlaybackObserve();
         }
+    }
+
+    /**
+     * Fire a telemetry event to the native client.
+     * Called by webDetection when a detector with a fireEvent action matches.
+     *
+     * @param {{type: string, data: any}} event
+     */
+    fireEvent(event) {
+        this.messaging.notify(MSG_WEB_EVENT, { type: event.type, data: event.data });
     }
 
     /**
