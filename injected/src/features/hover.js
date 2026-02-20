@@ -25,6 +25,9 @@ export class Hover extends ContentFeature {
             document.addEventListener('mouseleave', () => {
                 this.notify('hoverChanged', { href: null });
             });
+            document.addEventListener('contextmenu', () => {
+                this.notify('hoverChanged', { href: null });
+            });
         }
     }
 }
