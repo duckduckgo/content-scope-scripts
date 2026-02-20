@@ -910,8 +910,8 @@ export const platformSpecificFeatures = [
     'breakageReporting',
     'print',
     'webInterferenceDetection',
+    'pageObserver',
 ];
-
 /**
  * @param {string} featureName
  * @returns {boolean}

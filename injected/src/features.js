@@ -47,6 +47,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'webTelemetry',
     'pageContext',
     'print',
+    'pageObserver',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -63,6 +64,7 @@ export const platformSupport = {
         'messageBridge',
         'favicon',
         'webDetection',
+        'pageObserver',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
