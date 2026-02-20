@@ -30203,8 +30203,64 @@
     return false;
   }
 
+  // ../injected/src/captured-globals.js
+  var Set2 = globalThis.Set;
+  var Reflect2 = globalThis.Reflect;
+  var customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
+  var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
+  var objectDefineProperty = Object.defineProperty;
+  var URL2 = globalThis.URL;
+  var Proxy2 = globalThis.Proxy;
+  var functionToString = Function.prototype.toString;
+  var TypeError2 = globalThis.TypeError;
+  var Symbol2 = globalThis.Symbol;
+  var dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+  var addEventListener = globalThis.addEventListener?.bind(globalThis);
+  var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
+  var CustomEvent2 = globalThis.CustomEvent;
+  var Promise2 = globalThis.Promise;
+  var String2 = globalThis.String;
+  var Map2 = globalThis.Map;
+  var Error2 = globalThis.Error;
+  var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+  var console2 = globalThis.console;
+  var consoleLog = console2.log.bind(console2);
+  var consoleWarn = console2.warn.bind(console2);
+  var consoleError = console2.error.bind(console2);
+  var TextEncoder = globalThis.TextEncoder;
+  var TextDecoder2 = globalThis.TextDecoder;
+  var Uint8Array2 = globalThis.Uint8Array;
+  var Uint16Array2 = globalThis.Uint16Array;
+  var Uint32Array2 = globalThis.Uint32Array;
+  var JSONparse = JSON.parse;
+  var Arrayfrom = Array.from;
+  var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
+  var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
+  var generateKey = globalThis.crypto?.subtle?.generateKey?.bind(globalThis.crypto?.subtle);
+  var exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.crypto?.subtle);
+  var importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
+  var encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
+  var decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
+
+  // ../injected/src/navigator-global.js
+  function ensureNavigatorDuckDuckGo({ defineProperty = objectDefineProperty } = {}) {
+    if (navigator.duckduckgo) {
+      return navigator.duckduckgo;
+    }
+    const target2 = { messageHandlers: {} };
+    defineProperty(Navigator.prototype, "duckduckgo", {
+      value: target2,
+      enumerable: true,
+      configurable: false,
+      writable: false
+    });
+    return target2;
+  }
+
   // ../messaging/lib/webkit.js
   var WebkitMessagingTransport = class {
+    /** @type {Record<string, any>} */
+    capturedWebkitHandlers = {};
     /**
      * @param {WebkitMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext
@@ -30212,7 +30268,6 @@
     constructor(config, messagingContext) {
       this.messagingContext = messagingContext;
       this.config = config;
-      this.globals = captureGlobals();
       if (!this.config.hasModernWebkitAPI) {
         this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
       }
@@ -30224,7 +30279,7 @@
      * @internal
      */
     wkSend(handler, data2 = {}) {
-      if (!(handler in this.globals.window.webkit.messageHandlers)) {
+      if (!(handler in window.webkit.messageHandlers)) {
         throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
       }
       if (!this.config.hasModernWebkitAPI) {
@@ -30235,13 +30290,13 @@
             secret: this.config.secret
           }
         };
-        if (!(handler in this.globals.capturedWebkitHandlers)) {
+        if (!(handler in this.capturedWebkitHandlers)) {
           throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
         } else {
-          return this.globals.capturedWebkitHandlers[handler](outgoing);
+          return this.capturedWebkitHandlers[handler](outgoing);
         }
       }
-      return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data2);
+      return window.webkit.messageHandlers[handler].postMessage?.(data2);
     }
     /**
      * Sends message to the webkit layer and waits for the specified response
@@ -30253,24 +30308,24 @@
     async wkSendAndWait(handler, data2) {
       if (this.config.hasModernWebkitAPI) {
         const response = await this.wkSend(handler, data2);
-        return this.globals.JSONparse(response || "{}");
+        return JSONparse(response || "{}");
       }
       try {
         const randMethodName = this.createRandMethodName();
         const key2 = await this.createRandKey();
         const iv = this.createRandIv();
-        const { ciphertext, tag } = await new this.globals.Promise((resolve) => {
+        const { ciphertext, tag } = await new Promise2((resolve) => {
           this.generateRandomMethod(randMethodName, resolve);
           data2.messageHandling = new SecureMessagingParams({
             methodName: randMethodName,
             secret: this.config.secret,
-            key: this.globals.Arrayfrom(key2),
-            iv: this.globals.Arrayfrom(iv)
+            key: Arrayfrom(key2),
+            iv: Arrayfrom(iv)
           });
           this.wkSend(handler, data2);
         });
-        const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-        const decrypted = await this.decrypt(
+        const cipher = new Uint8Array2([...ciphertext, ...tag]);
+        const decrypted = await this.decryptResponse(
           /** @type {BufferSource} */
           /** @type {unknown} */
           cipher,
@@ -30279,7 +30334,7 @@
           key2,
           iv
         );
-        return this.globals.JSONparse(decrypted || "{}");
+        return JSONparse(decrypted || "{}");
       } catch (e3) {
         if (e3 instanceof MissingHandler) {
           throw e3;
@@ -30306,22 +30361,22 @@
           return data2.result || {};
         }
         if (data2.error) {
-          throw new Error(data2.error.message);
+          throw new Error2(data2.error.message);
         }
       }
-      throw new Error("an unknown error occurred");
+      throw new Error2("an unknown error occurred");
     }
     /**
-     * Generate a random method name and adds it to the global scope
+     * Generate a random method name and adds it to navigator.duckduckgo.messageHandlers
      * The native layer will use this method to send the response
      * @param {string | number} randomMethodName
      * @param {Function} callback
      * @internal
      */
     generateRandomMethod(randomMethodName, callback) {
-      this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+      const target2 = ensureNavigatorDuckDuckGo().messageHandlers;
+      objectDefineProperty(target2, randomMethodName, {
         enumerable: false,
-        // configurable, To allow for deletion later
         configurable: true,
         writable: false,
         /**
@@ -30329,7 +30384,7 @@
          */
         value: (...args) => {
           callback(...args);
-          delete this.globals.window[randomMethodName];
+          ReflectDeleteProperty(target2, randomMethodName);
         }
       });
     }
@@ -30338,7 +30393,7 @@
      * @return {string}
      */
     randomString() {
-      return "" + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
+      return "" + getRandomValues(new Uint32Array2(1))[0];
     }
     /**
      * @internal
@@ -30360,16 +30415,16 @@
      * @internal
      */
     async createRandKey() {
-      const key2 = await this.globals.generateKey(this.algoObj, true, ["encrypt", "decrypt"]);
-      const exportedKey = await this.globals.exportKey("raw", key2);
-      return new this.globals.Uint8Array(exportedKey);
+      const key2 = await generateKey(this.algoObj, true, ["encrypt", "decrypt"]);
+      const exportedKey = await exportKey("raw", key2);
+      return new Uint8Array2(exportedKey);
     }
     /**
      * @returns {Uint8Array}
      * @internal
      */
     createRandIv() {
-      return this.globals.getRandomValues(new this.globals.Uint8Array(12));
+      return getRandomValues(new Uint8Array2(12));
     }
     /**
      * @param {BufferSource} ciphertext
@@ -30378,14 +30433,14 @@
      * @returns {Promise<string>}
      * @internal
      */
-    async decrypt(ciphertext, key2, iv) {
-      const cryptoKey = await this.globals.importKey("raw", key2, "AES-GCM", false, ["decrypt"]);
+    async decryptResponse(ciphertext, key2, iv) {
+      const cryptoKey = await importKey("raw", key2, "AES-GCM", false, ["decrypt"]);
       const algo = {
         name: "AES-GCM",
         iv
       };
-      const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
-      const dec = new this.globals.TextDecoder();
+      const decrypted = await decrypt(algo, cryptoKey, ciphertext);
+      const dec = new TextDecoder2();
       return dec.decode(decrypted);
     }
     /**
@@ -30401,7 +30456,7 @@
         if (typeof handlers[webkitMessageHandlerName]?.postMessage === "function") {
           const original = handlers[webkitMessageHandlerName];
           const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
-          this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+          this.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
           delete handlers[webkitMessageHandlerName].postMessage;
         }
       }
@@ -30411,10 +30466,11 @@
      * @param {(value: unknown) => void} callback
      */
     subscribe(msg, callback) {
-      if (msg.subscriptionName in this.globals.window) {
-        throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+      const target2 = ensureNavigatorDuckDuckGo().messageHandlers;
+      if (msg.subscriptionName in target2) {
+        throw new Error2(`A subscription with the name ${msg.subscriptionName} already exists`);
       }
-      this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+      objectDefineProperty(target2, msg.subscriptionName, {
         enumerable: false,
         configurable: true,
         writable: false,
@@ -30427,7 +30483,7 @@
         }
       });
       return () => {
-        this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+        ReflectDeleteProperty(target2, msg.subscriptionName);
       };
     }
   };
@@ -30460,35 +30516,6 @@
       this.iv = params.iv;
     }
   };
-  function captureGlobals() {
-    const globals = {
-      window,
-      getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
-      TextEncoder,
-      TextDecoder,
-      Uint8Array,
-      Uint16Array,
-      Uint32Array,
-      JSONstringify: window.JSON.stringify,
-      JSONparse: window.JSON.parse,
-      Arrayfrom: window.Array.from,
-      Promise: window.Promise,
-      Error: window.Error,
-      ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
-      ObjectDefineProperty: window.Object.defineProperty,
-      addEventListener: window.addEventListener.bind(window),
-      /** @type {Record<string, any>} */
-      capturedWebkitHandlers: {}
-    };
-    if (isSecureContext) {
-      globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
-      globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
-      globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
-      globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
-      globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
-    }
-    return globals;
-  }
 
   // ../messaging/lib/android.js
   var AndroidMessagingTransport = class {
@@ -30689,30 +30716,6 @@
       });
     }
   };
-
-  // ../injected/src/captured-globals.js
-  var Set2 = globalThis.Set;
-  var Reflect2 = globalThis.Reflect;
-  var customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements);
-  var customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
-  var URL2 = globalThis.URL;
-  var Proxy2 = globalThis.Proxy;
-  var functionToString = Function.prototype.toString;
-  var TypeError2 = globalThis.TypeError;
-  var Symbol2 = globalThis.Symbol;
-  var dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
-  var addEventListener = globalThis.addEventListener?.bind(globalThis);
-  var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
-  var CustomEvent2 = globalThis.CustomEvent;
-  var Promise2 = globalThis.Promise;
-  var String2 = globalThis.String;
-  var Map2 = globalThis.Map;
-  var Error2 = globalThis.Error;
-  var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
-  var console2 = globalThis.console;
-  var consoleLog = console2.log.bind(console2);
-  var consoleWarn = console2.warn.bind(console2);
-  var consoleError = console2.error.bind(console2);
 
   // ../injected/src/utils.js
   var globalObj = typeof window === "undefined" ? globalThis : window;

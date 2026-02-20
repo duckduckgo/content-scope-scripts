@@ -1546,17 +1546,26 @@
   // src/captured-globals.js
   var captured_globals_exports = {};
   __export(captured_globals_exports, {
+    Arrayfrom: () => Arrayfrom,
     CustomEvent: () => CustomEvent2,
     Error: () => Error2,
+    JSONparse: () => JSONparse,
+    JSONstringify: () => JSONstringify,
     Map: () => Map2,
     Promise: () => Promise2,
     Proxy: () => Proxy2,
     Reflect: () => Reflect2,
+    ReflectDeleteProperty: () => ReflectDeleteProperty,
     Set: () => Set2,
     String: () => String2,
     Symbol: () => Symbol2,
+    TextDecoder: () => TextDecoder,
+    TextEncoder: () => TextEncoder2,
     TypeError: () => TypeError2,
     URL: () => URL2,
+    Uint16Array: () => Uint16Array,
+    Uint32Array: () => Uint32Array,
+    Uint8Array: () => Uint8Array2,
     addEventListener: () => addEventListener,
     console: () => console2,
     consoleError: () => consoleError,
@@ -1564,11 +1573,17 @@
     consoleWarn: () => consoleWarn,
     customElementsDefine: () => customElementsDefine,
     customElementsGet: () => customElementsGet,
+    decrypt: () => decrypt,
     dispatchEvent: () => dispatchEvent,
+    encrypt: () => encrypt,
+    exportKey: () => exportKey,
     functionToString: () => functionToString,
+    generateKey: () => generateKey,
     getOwnPropertyDescriptor: () => getOwnPropertyDescriptor,
     getOwnPropertyDescriptors: () => getOwnPropertyDescriptors,
+    getRandomValues: () => getRandomValues,
     hasOwnProperty: () => hasOwnProperty,
+    importKey: () => importKey,
     objectDefineProperty: () => objectDefineProperty,
     objectEntries: () => objectEntries,
     objectKeys: () => objectKeys,
@@ -1606,6 +1621,21 @@
   var consoleLog = console2.log.bind(console2);
   var consoleWarn = console2.warn.bind(console2);
   var consoleError = console2.error.bind(console2);
+  var TextEncoder2 = globalThis.TextEncoder;
+  var TextDecoder = globalThis.TextDecoder;
+  var Uint8Array2 = globalThis.Uint8Array;
+  var Uint16Array = globalThis.Uint16Array;
+  var Uint32Array = globalThis.Uint32Array;
+  var JSONstringify = JSON.stringify;
+  var JSONparse = JSON.parse;
+  var Arrayfrom = Array.from;
+  var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
+  var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
+  var generateKey = globalThis.crypto?.subtle?.generateKey?.bind(globalThis.crypto?.subtle);
+  var exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.crypto?.subtle);
+  var importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
+  var encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
+  var decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
 
   // src/utils.js
   var globalObj = typeof window === "undefined" ? globalThis : window;
@@ -2743,6 +2773,22 @@
     return false;
   }
 
+  // src/navigator-global.js
+  init_define_import_meta_trackerLookup();
+  function ensureNavigatorDuckDuckGo({ defineProperty: defineProperty2 = objectDefineProperty } = {}) {
+    if (navigator.duckduckgo) {
+      return navigator.duckduckgo;
+    }
+    const target = { messageHandlers: {} };
+    defineProperty2(Navigator.prototype, "duckduckgo", {
+      value: target,
+      enumerable: true,
+      configurable: false,
+      writable: false
+    });
+    return target;
+  }
+
   // ../messaging/lib/webkit.js
   var WebkitMessagingTransport = class {
     /**
@@ -2750,6 +2796,8 @@
      * @param {import('../index.js').MessagingContext} messagingContext
      */
     constructor(config2, messagingContext) {
+      /** @type {Record<string, any>} */
+      __publicField(this, "capturedWebkitHandlers", {});
       /**
        * @type {{name: string, length: number}}
        * @internal
@@ -2760,7 +2808,6 @@
       });
       this.messagingContext = messagingContext;
       this.config = config2;
-      this.globals = captureGlobals();
       if (!this.config.hasModernWebkitAPI) {
         this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
       }
@@ -2772,7 +2819,7 @@
      * @internal
      */
     wkSend(handler, data2 = {}) {
-      if (!(handler in this.globals.window.webkit.messageHandlers)) {
+      if (!(handler in window.webkit.messageHandlers)) {
         throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
       }
       if (!this.config.hasModernWebkitAPI) {
@@ -2783,13 +2830,13 @@
             secret: this.config.secret
           }
         };
-        if (!(handler in this.globals.capturedWebkitHandlers)) {
+        if (!(handler in this.capturedWebkitHandlers)) {
           throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
         } else {
-          return this.globals.capturedWebkitHandlers[handler](outgoing);
+          return this.capturedWebkitHandlers[handler](outgoing);
         }
       }
-      return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data2);
+      return window.webkit.messageHandlers[handler].postMessage?.(data2);
     }
     /**
      * Sends message to the webkit layer and waits for the specified response
@@ -2801,24 +2848,24 @@
     async wkSendAndWait(handler, data2) {
       if (this.config.hasModernWebkitAPI) {
         const response = await this.wkSend(handler, data2);
-        return this.globals.JSONparse(response || "{}");
+        return JSONparse(response || "{}");
       }
       try {
         const randMethodName = this.createRandMethodName();
         const key = await this.createRandKey();
         const iv = this.createRandIv();
-        const { ciphertext, tag } = await new this.globals.Promise((resolve) => {
+        const { ciphertext, tag } = await new Promise2((resolve) => {
           this.generateRandomMethod(randMethodName, resolve);
           data2.messageHandling = new SecureMessagingParams({
             methodName: randMethodName,
             secret: this.config.secret,
-            key: this.globals.Arrayfrom(key),
-            iv: this.globals.Arrayfrom(iv)
+            key: Arrayfrom(key),
+            iv: Arrayfrom(iv)
           });
           this.wkSend(handler, data2);
         });
-        const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-        const decrypted = await this.decrypt(
+        const cipher = new Uint8Array2([...ciphertext, ...tag]);
+        const decrypted = await this.decryptResponse(
           /** @type {BufferSource} */
           /** @type {unknown} */
           cipher,
@@ -2827,7 +2874,7 @@
           key,
           iv
         );
-        return this.globals.JSONparse(decrypted || "{}");
+        return JSONparse(decrypted || "{}");
       } catch (e) {
         if (e instanceof MissingHandler) {
           throw e;
@@ -2854,22 +2901,22 @@
           return data2.result || {};
         }
         if (data2.error) {
-          throw new Error(data2.error.message);
+          throw new Error2(data2.error.message);
         }
       }
-      throw new Error("an unknown error occurred");
+      throw new Error2("an unknown error occurred");
     }
     /**
-     * Generate a random method name and adds it to the global scope
+     * Generate a random method name and adds it to navigator.duckduckgo.messageHandlers
      * The native layer will use this method to send the response
      * @param {string | number} randomMethodName
      * @param {Function} callback
      * @internal
      */
     generateRandomMethod(randomMethodName, callback) {
-      this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+      const target = ensureNavigatorDuckDuckGo().messageHandlers;
+      objectDefineProperty(target, randomMethodName, {
         enumerable: false,
-        // configurable, To allow for deletion later
         configurable: true,
         writable: false,
         /**
@@ -2877,7 +2924,7 @@
          */
         value: (...args) => {
           callback(...args);
-          delete this.globals.window[randomMethodName];
+          ReflectDeleteProperty(target, randomMethodName);
         }
       });
     }
@@ -2886,7 +2933,7 @@
      * @return {string}
      */
     randomString() {
-      return "" + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
+      return "" + getRandomValues(new Uint32Array(1))[0];
     }
     /**
      * @internal
@@ -2900,16 +2947,16 @@
      * @internal
      */
     async createRandKey() {
-      const key = await this.globals.generateKey(this.algoObj, true, ["encrypt", "decrypt"]);
-      const exportedKey = await this.globals.exportKey("raw", key);
-      return new this.globals.Uint8Array(exportedKey);
+      const key = await generateKey(this.algoObj, true, ["encrypt", "decrypt"]);
+      const exportedKey = await exportKey("raw", key);
+      return new Uint8Array2(exportedKey);
     }
     /**
      * @returns {Uint8Array}
      * @internal
      */
     createRandIv() {
-      return this.globals.getRandomValues(new this.globals.Uint8Array(12));
+      return getRandomValues(new Uint8Array2(12));
     }
     /**
      * @param {BufferSource} ciphertext
@@ -2918,14 +2965,14 @@
      * @returns {Promise<string>}
      * @internal
      */
-    async decrypt(ciphertext, key, iv) {
-      const cryptoKey = await this.globals.importKey("raw", key, "AES-GCM", false, ["decrypt"]);
+    async decryptResponse(ciphertext, key, iv) {
+      const cryptoKey = await importKey("raw", key, "AES-GCM", false, ["decrypt"]);
       const algo = {
         name: "AES-GCM",
         iv
       };
-      const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
-      const dec = new this.globals.TextDecoder();
+      const decrypted = await decrypt(algo, cryptoKey, ciphertext);
+      const dec = new TextDecoder();
       return dec.decode(decrypted);
     }
     /**
@@ -2941,7 +2988,7 @@
         if (typeof handlers[webkitMessageHandlerName]?.postMessage === "function") {
           const original = handlers[webkitMessageHandlerName];
           const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
-          this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+          this.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
           delete handlers[webkitMessageHandlerName].postMessage;
         }
       }
@@ -2951,10 +2998,11 @@
      * @param {(value: unknown) => void} callback
      */
     subscribe(msg, callback) {
-      if (msg.subscriptionName in this.globals.window) {
-        throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+      const target = ensureNavigatorDuckDuckGo().messageHandlers;
+      if (msg.subscriptionName in target) {
+        throw new Error2(`A subscription with the name ${msg.subscriptionName} already exists`);
       }
-      this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+      objectDefineProperty(target, msg.subscriptionName, {
         enumerable: false,
         configurable: true,
         writable: false,
@@ -2967,7 +3015,7 @@
         }
       });
       return () => {
-        this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+        ReflectDeleteProperty(target, msg.subscriptionName);
       };
     }
   };
@@ -3000,35 +3048,6 @@
       this.iv = params.iv;
     }
   };
-  function captureGlobals() {
-    const globals = {
-      window,
-      getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
-      TextEncoder,
-      TextDecoder,
-      Uint8Array,
-      Uint16Array,
-      Uint32Array,
-      JSONstringify: window.JSON.stringify,
-      JSONparse: window.JSON.parse,
-      Arrayfrom: window.Array.from,
-      Promise: window.Promise,
-      Error: window.Error,
-      ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
-      ObjectDefineProperty: window.Object.defineProperty,
-      addEventListener: window.addEventListener.bind(window),
-      /** @type {Record<string, any>} */
-      capturedWebkitHandlers: {}
-    };
-    if (isSecureContext) {
-      globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
-      globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
-      globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
-      globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
-      globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
-    }
-    return globals;
-  }
 
   // ../messaging/lib/android.js
   init_define_import_meta_trackerLookup();
