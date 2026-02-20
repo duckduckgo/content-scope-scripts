@@ -1,9 +1,4 @@
----
-description: Guidelines for intentional error management - errors should represent exceptional conditions, not control flow
-alwaysApply: true
----
-
-# Rule: Intentional Error Management
+# Intentional Error Management
 
 ## Principle
 
