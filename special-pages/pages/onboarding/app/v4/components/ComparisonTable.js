@@ -54,13 +54,13 @@ export function ComparisonTableCell({ status }) {
 }
 
 /**
- * @param {import('../data/data-comparison-table').FeatureSupportData} props
+ * @param {import('../data/data-comparison-table').FeatureSupportData & { index: number }} props
  */
-export function ComparisonTableRow({ icon, title, statuses }) {
+export function ComparisonTableRow({ icon, title, statuses, index }) {
     const { chrome, ddg } = statuses;
 
     return (
-        <tr className={styles.row}>
+        <tr className={styles.row} style={{ '--row-index': index }}>
             <ComparisonTableRowHeading icon={icon} title={title} />
             <ComparisonTableCell status={chrome} />
             <ComparisonTableCell status={ddg} />
@@ -88,8 +88,8 @@ export function ComparisonTable() {
                 </tr>
             </thead>
             <tbody>
-                {tableData.map((data) => (
-                    <ComparisonTableRow {...data} />
+                {tableData.map((data, index) => (
+                    <ComparisonTableRow {...data} index={index} />
                 ))}
             </tbody>
         </table>
