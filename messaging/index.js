@@ -90,26 +90,10 @@ export class Messaging {
         try {
             const maybeAsyncResult = this.transport.notify(message);
             if (isPromiseLike(maybeAsyncResult)) {
-                void maybeAsyncResult.catch((e) => {
-                    this.logNotificationError(name, data, e);
-                });
+                handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data);
             }
         } catch (e) {
-            this.logNotificationError(name, data, e);
-        }
-    }
-
-    /**
-     * @param {string} name
-     * @param {Record<string, any>} data
-     * @param {unknown} error
-     */
-    logNotificationError(name, data, error) {
-        // Silently ignoring any transport errors in production, as per section 4.1 of https://www.jsonrpc.org/specification
-        // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
-        if (this.messagingContext.env === 'development') {
-            console.error('[Messaging] Failed to send notification:', error);
-            console.error('[Messaging] Message details:', { name, data });
+            logNotificationError(this.messagingContext.env, name, data, e);
         }
     }
 
@@ -258,7 +242,36 @@ function getTransport(config, messagingContext) {
  * @returns {value is Promise<unknown>}
  */
 function isPromiseLike(value) {
-    return typeof value === 'object' && value !== null && typeof value.then === 'function';
+    return value !== null && value !== undefined && typeof /** @type {{then?: unknown}} */ (value).then === 'function';
+}
+
+/**
+ * @param {Promise<unknown>} result
+ * @param {"production" | "development"} env
+ * @param {string} name
+ * @param {Record<string, any>} data
+ */
+async function handleAsyncNotificationResult(result, env, name, data) {
+    try {
+        await result;
+    } catch (error) {
+        logNotificationError(env, name, data, error);
+    }
+}
+
+/**
+ * @param {"production" | "development"} env
+ * @param {string} name
+ * @param {Record<string, any>} data
+ * @param {unknown} error
+ */
+function logNotificationError(env, name, data, error) {
+    // Silently ignoring any transport errors in production, as per section 4.1 of https://www.jsonrpc.org/specification
+    // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
+    if (env === 'development') {
+        console.error('[Messaging] Failed to send notification:', error);
+        console.error('[Messaging] Message details:', { name, data });
+    }
 }
 
 /**

@@ -72,7 +72,7 @@ describe('Messaging Transports', () => {
         expect(errorLoggingSpy.calls.first().args[0]).toContain('[Messaging] Failed to send notification:');
         expect(errorLoggingSpy.calls.first().args[1].message).toEqual('Test error 1');
     });
-    it("calls transport with a NotificationMessage and handles rejected promises (but does log)", async () => {
+    it('calls transport with a NotificationMessage and handles rejected promises (but does log)', async () => {
         const { messaging, transport } = createMessaging();
         const asyncError = new Error('Test error 2');
         const notifySpy = spyOn(transport, 'notify').and.returnValue(Promise.reject(asyncError));
