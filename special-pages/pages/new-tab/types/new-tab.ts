@@ -1015,11 +1015,11 @@ export interface AiChat {
   /**
    * Whether the chat is pinned
    */
-  isPinned?: boolean;
+  pinned?: boolean;
   /**
    * ISO timestamp of last edit
    */
-  timestamp?: string;
+  lastEdit?: string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"
