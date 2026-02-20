@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed } from '../utils.js';
+import { findClosestAnchor } from '../utils/dom-metadata.js';
 
 /**
  * Forwards hovered link URLs to the native layer so the browser
@@ -13,9 +14,8 @@ export class Hover extends ContentFeature {
         document.addEventListener(
             'mouseover',
             (event) => {
-                if (!(event.target instanceof Element)) return;
-                const anchor = event.target.closest('a');
-                const href = anchor instanceof HTMLAnchorElement ? anchor.href : null;
+                const anchor = findClosestAnchor(event.target);
+                const href = anchor?.href || null;
                 this.notify('hoverChanged', { href });
             },
             true,
