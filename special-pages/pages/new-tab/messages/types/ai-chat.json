@@ -12,11 +12,11 @@
       "description": "Display title of the chat",
       "type": "string"
     },
-    "isPinned": {
+    "pinned": {
       "description": "Whether the chat is pinned",
       "type": "boolean"
     },
-    "timestamp": {
+    "lastEdit": {
       "description": "ISO timestamp of last edit",
       "type": "string"
     }
