@@ -32,6 +32,9 @@ const CORE_FILES = new Set([
     'injected/src/url-change.js',
     'injected/src/utils.js',
     'injected/src/wrapper-utils.js',
+    'messaging/lib/messaging.types.d.ts',
+    'messaging/lib/shared-types.ts',
+    'messaging/schema.js',
 ]);
 
 let output;
