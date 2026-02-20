@@ -26,6 +26,7 @@ export const baseFeatures = /** @type {FeatureName[]} */ ([
 
 const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
+    'contextMenu',
     'cookie',
     'messageBridge',
     'duckPlayer',
@@ -54,6 +55,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext', 'print'],
     'apple-isolated': [
+        'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
