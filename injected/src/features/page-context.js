@@ -7,6 +7,7 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
+/** @param {Element} node */
 export function checkNodeIsVisible(node) {
     try {
         const style = window.getComputedStyle(node);
@@ -21,6 +22,7 @@ export function checkNodeIsVisible(node) {
     }
 }
 
+/** @param {string} str */
 function collapseWhitespace(str) {
     return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
 }
@@ -193,6 +195,7 @@ function getAttributeOrBlank(node, attr) {
     return attrValue.trim();
 }
 
+/** @param {string} str */
 function collapseAndTrim(str) {
     return collapseWhitespace(str).trim();
 }
@@ -201,6 +204,11 @@ function collapseAndTrim(str) {
  * Note: The whitespace difference between href/non-href cases is intentional.
  * With href: collapse AND trim (for clean markdown links)
  * Without href: collapse only (retain surrounding space context)
+ */
+/**
+ * @param {Element} node
+ * @param {string} children
+ * @param {any} settings
  */
 function getLinkText(node, children, settings) {
     const href = node.getAttribute('href');
@@ -479,18 +487,20 @@ export default class PageContext extends ContentFeature {
             timestamp: Date.now(),
             url: window.location.href,
         };
+        /** @type {Record<string, any>} */
+        const extContent = content;
 
         if (this.getFeatureSettingEnabled('includeMetaDescription', 'disabled')) {
-            content.metaDescription = this.getMetaDescription();
+            extContent.metaDescription = this.getMetaDescription();
         }
         if (this.getFeatureSettingEnabled('includeHeadings', 'disabled')) {
-            content.headings = this.getHeadings();
+            extContent.headings = this.getHeadings();
         }
         if (this.getFeatureSettingEnabled('includeLinks', 'disabled')) {
-            content.links = this.getLinks();
+            extContent.links = this.getLinks();
         }
         if (this.getFeatureSettingEnabled('includeImages', 'disabled')) {
-            content.images = this.getImages();
+            extContent.images = this.getImages();
         }
 
         // Cache the result - setter handles timestamp and observer
@@ -550,7 +560,7 @@ export default class PageContext extends ContentFeature {
         let contentRoot = mainContent || document.body;
 
         // Use a closure to reuse the domToMarkdown parameters
-        const extractContent = (root) => {
+        const extractContent = (/** @type {Element} */ root) => {
             this.log.info('Getting content', root);
             const result = domToMarkdown(root, {
                 maxLength: upperLimit,
@@ -589,6 +599,7 @@ export default class PageContext extends ContentFeature {
     }
 
     getHeadings() {
+        /** @type {{level: number, text: string}[]} */
         const headings = [];
         const headingSelector = this.getFeatureSetting('headingSelector') || 'h1, h2, h3, h4, h5, h6';
         const headingElements = document.querySelectorAll(headingSelector);
@@ -605,6 +616,7 @@ export default class PageContext extends ContentFeature {
     }
 
     getLinks() {
+        /** @type {{text: string, href: string}[]} */
         const links = [];
         const linkSelector = this.getFeatureSetting('linkSelector') || 'a[href]';
         const linkElements = document.querySelectorAll(linkSelector);
@@ -621,6 +633,7 @@ export default class PageContext extends ContentFeature {
     }
 
     getImages() {
+        /** @type {{src: string, alt: string}[]} */
         const images = [];
         const imgSelector = this.getFeatureSetting('imgSelector') || 'img';
         const imgElements = document.querySelectorAll(imgSelector);
@@ -636,6 +649,7 @@ export default class PageContext extends ContentFeature {
         return images;
     }
 
+    /** @param {any} content */
     sendContentResponse(content) {
         if (this.lastSentContent && this.lastSentContent === content) {
             this.log.info('Content already sent');
@@ -649,6 +663,7 @@ export default class PageContext extends ContentFeature {
         });
     }
 
+    /** @param {Error} error */
     sendErrorResponse(error) {
         this.log.error('Error sending content response', error);
         this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
