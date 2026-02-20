@@ -13,14 +13,14 @@ export function DuckPlayerContent() {
     const { t } = useTypedTranslation();
     const dispatch = useContext(GlobalDispatch);
 
-    const advance = () => dispatch({ kind: 'advance' });
+    const advance = () => dispatch({ kind: 'enqueue-next' });
 
     return (
         <div class={styles.root}>
             <div class={styles.imageContainer}>
                 <img src="assets/img/v4/duck-player-promo.svg" alt="" class={styles.promoImage} />
             </div>
-            <Button variant="primary" onClick={advance} class={styles.nextButton}>
+            <Button variant="primary" size="stretch" onClick={advance}>
                 {t('nextButton')}
             </Button>
         </div>

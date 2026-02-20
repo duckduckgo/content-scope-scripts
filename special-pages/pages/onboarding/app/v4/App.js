@@ -21,41 +21,16 @@ export function App({ children }) {
 
     const { activeStep, exiting } = globalState;
 
-    const advance = () => dispatch({ kind: 'advance' });
-
     const didCatch = ({ error }) => {
         const message = error?.message || 'unknown';
         dispatch({ kind: 'error-boundary', error: { message, id: activeStep } });
-    };
-
-    // For screens that animate out, trigger 'advance' when the animation finishes.
-    const didAnimationEnd = (e) => {
-        if (e.target?.dataset?.exiting === 'true') {
-            advance();
-        }
-    };
-
-    // For non-animating steps, just advance immediately when 'exiting' is set
-    const didRender = (e) => {
-        /** @type {import('../types').Step['id'][]} */
-        const ignoredSteps = ['welcome'];
-        const shouldSkipAnimation = ignoredSteps.includes(e?.dataset?.current);
-        if (shouldSkipAnimation && exiting === true) {
-            advance();
-        }
     };
 
     return (
         <main data-platform-name={platformName || 'macos'} data-app-version="v4">
             <Background />
             {debugState && <Debug state={globalState} />}
-            <div
-                class={styles.container}
-                data-current={activeStep}
-                data-exiting={String(exiting)}
-                ref={didRender}
-                onAnimationEnd={didAnimationEnd}
-            >
+            <div class={styles.container} data-current={activeStep} data-exiting={String(exiting)}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
                     <SingleStep />
                 </ErrorBoundary>
