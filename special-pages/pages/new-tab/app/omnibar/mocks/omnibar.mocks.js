@@ -90,6 +90,51 @@ export function getMockSuggestions(term) {
 }
 
 /**
+ * @return {import("../../../types/new-tab").AiChatsData}
+ */
+export function getMockAiChats() {
+    return {
+        chats: [
+            {
+                chatId: 'chat-001',
+                title: 'Edit: feedback quality and timing',
+                model: 'gpt-4o-mini',
+                lastEdit: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+                pinned: true,
+            },
+            {
+                chatId: 'chat-002',
+                title: 'Progression plan summary',
+                model: 'claude-3-haiku',
+                lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+                pinned: false,
+            },
+            {
+                chatId: 'chat-003',
+                title: 'Onboarding milestones overview',
+                model: 'gpt-4o-mini',
+                lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+                pinned: false,
+            },
+            {
+                chatId: 'chat-004',
+                title: 'Share knowledge effectively.',
+                model: 'claude-3-haiku',
+                lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+                pinned: false,
+            },
+            {
+                chatId: 'chat-005',
+                title: 'Rubrics for O-X projects',
+                model: 'gpt-4o-mini',
+                lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+                pinned: false,
+            },
+        ],
+    };
+}
+
+/**
  * @param {string} text
  * @param {string} searchTerm
  * @returns {boolean}

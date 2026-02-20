@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AiChatsData",
+  "type": "object",
+  "required": ["chats"],
+  "properties": {
+    "chats": {
+      "type": "array",
+      "description": "Combined list of chats (pinned first, then unpinned by recency)",
+      "items": {
+        "$ref": "ai-chat.json"
+      }
+    }
+  }
+}

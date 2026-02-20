@@ -146,6 +146,7 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarOpenAiChatNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSubmitChatNotification
@@ -175,6 +176,7 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
     | OmnibarGetSuggestionsRequest
     | ProtectionsGetConfigRequest
@@ -496,6 +498,20 @@ export interface NextStepsSetConfigNotification {
 export interface NextStepsConfig {
   expansion: Expansion;
   animation?: Animation;
+}
+/**
+ * Generated from @see "../messages/omnibar_openAiChat.notify.json"
+ */
+export interface OmnibarOpenAiChatNotification {
+  method: "omnibar_openAiChat";
+  params: OpenAIChatAction;
+}
+export interface OpenAIChatAction {
+  /**
+   * The ID of the chat to open
+   */
+  chatId: string;
+  target: OpenTarget;
 }
 /**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
@@ -972,6 +988,43 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_getAiChats.request.json"
+ */
+export interface OmnibarGetAiChatsRequest {
+  method: "omnibar_getAiChats";
+  params: GetAIChatsRequest;
+  result: AiChatsData;
+}
+export interface GetAIChatsRequest {}
+export interface AiChatsData {
+  /**
+   * Combined list of chats (pinned first, then unpinned by recency)
+   */
+  chats: AiChat[];
+}
+export interface AiChat {
+  /**
+   * Unique identifier for the chat
+   */
+  chatId: string;
+  /**
+   * Display title of the chat
+   */
+  title: string;
+  /**
+   * AI model used for the chat
+   */
+  model?: string;
+  /**
+   * ISO timestamp of last edit
+   */
+  lastEdit?: string;
+  /**
+   * Whether the chat is pinned
+   */
+  pinned?: boolean;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"

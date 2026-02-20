@@ -55,6 +55,14 @@ export class OmnibarPage {
         return this.suggestionsList().getByRole('option');
     }
 
+    aiChatsList() {
+        return this.context().getByRole('listbox', { name: 'Recent AI Chats' });
+    }
+
+    aiChats() {
+        return this.aiChatsList().getByRole('option');
+    }
+
     selectedSuggestion() {
         return this.suggestionsList().getByRole('option', { selected: true });
     }

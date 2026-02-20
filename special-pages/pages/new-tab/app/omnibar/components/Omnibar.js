@@ -9,6 +9,7 @@ import { ResizingContainer } from './ResizingContainer';
 import { SearchForm } from './SearchForm';
 import { SearchFormProvider } from './SearchFormProvider';
 import { SuggestionsList } from './SuggestionsList';
+import { AiChatsList } from './AiChatsList';
 import { TabSwitcher } from './TabSwitcher';
 import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { Popover } from '../../components/Popover';
@@ -122,6 +123,7 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                             )}
                         </ResizingContainer>
                         {mode === 'search' && <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />}
+                        {mode === 'ai' && <AiChatsList filter={query} className={styles.aiChatsList} />}
                     </div>
                 </div>
             </SearchFormProvider>
