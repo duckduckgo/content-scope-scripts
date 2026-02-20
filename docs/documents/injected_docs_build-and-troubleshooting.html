@@ -1,0 +1,224 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>injected/docs/build-and-troubleshooting | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb" aria-label="Breadcrumb"><li><a href="" aria-current="page">injected/docs/build-and-troubleshooting</a></li></ul></div><div class="tsd-panel tsd-typography"><h1 id="platform-specific-build-troubleshooting-tips" class="tsd-anchor-link">Platform-Specific Build &amp; Troubleshooting Tips<a href="#platform-specific-build-troubleshooting-tips" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>This document provides platform-specific build instructions, troubleshooting steps, and local development tips for integrating and working with Content Scope Scripts (C-S-S) across iOS, macOS, Android, Windows, and browser extensions.</p>
+<hr>
+<h2 id="critical-debugging-step-validate-injected-script-integrity" class="tsd-anchor-link">Critical Debugging Step: Validate Injected Script Integrity<a href="#critical-debugging-step-validate-injected-script-integrity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><strong>Ensure the injected C-S-S script matches what you expect across all three locations.</strong></p>
+<h3 id="verification-steps" class="tsd-anchor-link">Verification Steps<a href="#verification-steps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>
+<p><strong>Check the build directory in the content-scope-scripts repo:</strong></p>
+<ul>
+<li>Location: <code>build/[platform]/contentScope.js</code> (or <code>build/[platform]/inject.js</code> for extensions)</li>
+<li><strong>Note:</strong> Apple builds output to <code>Sources/ContentScopeScripts/dist/contentScope.js</code> instead of <code>build/apple/</code></li>
+<li>Verify the file contains your expected changes</li>
+<li>Check file hash/timestamp to ensure it's been rebuilt</li>
+</ul>
+</li>
+<li>
+<p><strong>Check where it lives in the native application:</strong></p>
+<ul>
+<li><strong>iOS/macOS</strong>: <code>apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js</code></li>
+<li><strong>Android</strong>: <code>android/node_modules/@duckduckgo/content-scope-scripts/build/android/contentScope.js</code> (referenced by build.gradle files)</li>
+<li><strong>Windows</strong>:
+<ul>
+<li>Main: <code>windows-browser/WindowsBrowser/Application/ContentScripts/contentScope.js</code> (embedded resource from <code>submodules/content-scope-scripts/build/windows/contentScope.js</code>)</li>
+<li>Data Broker Protection: <code>windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts</code></li>
+</ul>
+</li>
+<li><strong>Extension</strong>: <code>extension/node_modules/@duckduckgo/content-scope-scripts/build/[platform]/inject.js</code> (where <code>[platform]</code> is <code>chrome-mv3</code> or <code>firefox</code>)</li>
+</ul>
+</li>
+<li>
+<p><strong>Check in the web inspector:</strong></p>
+<ul>
+<li>Open DevTools → Sources → Look for the injected script</li>
+<li>Compare file contents/hashes across all three locations</li>
+<li>Use source maps if available (set <code>C_S_S_SOURCEMAPS=1</code> when building)</li>
+</ul>
+</li>
+</ol>
+<p><strong>All three locations must have the same file contents.</strong> If they don't match, your changes aren't being properly built or injected.</p>
+<hr>
+<h2 id="debugging-with-source-maps" class="tsd-anchor-link">Debugging with Source Maps<a href="#debugging-with-source-maps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Enable inline source maps to see original file names and line numbers in browser DevTools instead of the bundled output (e.g., <code>web-compat.js:142</code> instead of <code>contentScope.js:10484</code>).</p>
+<pre><code class="bash"><span class="hl-4">C_S_S_SOURCEMAPS</span><span class="hl-2">=</span><span class="hl-7">1</span><span class="hl-2"> </span><span class="hl-3">npm</span><span class="hl-2"> </span><span class="hl-7">run</span><span class="hl-2"> </span><span class="hl-7">build</span>
+</code><button type="button">Copy</button></pre>
+
+<hr>
+<h2 id="iosmacos" class="tsd-anchor-link">iOS/macOS<a href="#iosmacos" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><strong>Check Xcode Version:</strong>
+<ul>
+<li><a href="https://github.com/duckduckgo/apple-browsers/tree/main/.xcode-version">.xcode-version</a></li>
+</ul>
+</li>
+<li><strong>Set up C-S-S as a Local Dependency (Swift Package Manager):</strong>
+Apple browsers now use Swift Package Manager (SPM) for dependencies. To use your local C-S-S checkout for debugging, you have two options:
+<strong>Option 1: Drag into Xcode</strong>
+<ul>
+<li>Drag the <code>content-scope-scripts</code> folder from Finder into the Xcode project navigator</li>
+<li>Xcode will automatically detect the <code>Package.swift</code> file and set it up as a local package
+<strong>Option 2: Change Swift PM dependency to local path</strong></li>
+<li>In <code>apple-browsers/SharedPackages/BrowserServicesKit/Package.swift</code>, change the dependency from:<pre><code class="swift"><span class="hl-2">.</span><span class="hl-3">package</span><span class="hl-2">(</span><span class="hl-3">url</span><span class="hl-2">: </span><span class="hl-7">&quot;https://github.com/duckduckgo/content-scope-scripts.git&quot;</span><span class="hl-2">, </span><span class="hl-3">exact</span><span class="hl-2">: </span><span class="hl-7">&quot;12.27.0&quot;</span><span class="hl-2">)</span>
+</code><button type="button">Copy</button></pre>
+
+to:<pre><code class="swift"><span class="hl-2">.</span><span class="hl-3">package</span><span class="hl-2">(</span><span class="hl-3">path</span><span class="hl-2">: </span><span class="hl-7">&quot;../../../../content-scope-scripts&quot;</span><span class="hl-2">)</span>
+</code><button type="button">Copy</button></pre>
+
+(Adjust the relative path based on your directory structure)</li>
+<li>Xcode will automatically resolve the local package
+<strong>Note:</strong> You no longer need to run <code>npm run build-content-scope-scripts</code> in the apple-browsers repo. The Swift Package Manager will handle the build process automatically.</li>
+</ul>
+</li>
+<li><strong>Set up Autofill as a Local Dependency:</strong>
+<ul>
+<li>Drag the folder from Finder into the directory panel in Xcode.</li>
+</ul>
+</li>
+<li><strong>Privacy Config Files:</strong>
+<ul>
+<li>Both apps bundle a privacy config file: <a href="https://github.com/duckduckgo/apple-browsers/blob/main/macOS/DuckDuckGo/ContentBlocker/macos-config.json">macos-config.json</a> &amp; <a href="https://github.com/duckduckgo/apple-browsers/blob/main/iOS/Core/ios-config.json">ios-config.json</a>.</li>
+<li>To test privacy config changes, update this file as well as the config endpoint for remote updates (<a href="https://github.com/duckduckgo/apple-browsers/blob/main/macOS/DuckDuckGo/Application/AppConfigurationURLProvider.swift#L60">macOS</a> &amp; <a href="https://github.com/duckduckgo/apple-browsers/blob/main/iOS/Core/AppURLs.swift#L49">iOS</a>).</li>
+</ul>
+</li>
+<li><strong>If you receive errors related to packages:</strong>
+<ul>
+<li>File &gt; Packages &gt; Reset Package Caches</li>
+<li>Clean Project with <code>cmd+K</code></li>
+<li>Delete all files inside <code>~/Library/Developer/Xcode/DerivedData</code></li>
+<li>If none of that works, ask for help in the <a href="https://chat.duckduckgo.com/ddg/channels/devs">Apple Devs Mattermost channel</a>.</li>
+</ul>
+</li>
+</ul>
+<h2 id="android" class="tsd-anchor-link">Android<a href="#android" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><a href="https://app.asana.com/1/137249556945/project/1202561462274611/task/1203855276415003?focus=true">Override the Privacy Remote Config</a>
+<ul>
+<li>Ensure the config version is higher than the current version (the app may refuse to update otherwise).</li>
+</ul>
+</li>
+<li><strong>Clean Project:</strong>
+<ul>
+<li>Build → 'Clean Project' (clears cache of potentially stale C-S-S file).</li>
+<li>Uninstall the app from the emulator as well.</li>
+</ul>
+</li>
+<li><strong>Linking Local Dependencies:</strong>
+<ul>
+<li>Use <code>npm link @duckduckgo/content-scope-scripts</code> or <code>npm link @duckduckgo/autofill</code> to link to your local checkout.</li>
+<li>In that directory, also run <code>npm link</code> in the dependency folder.</li>
+<li>This symlinks to your local dir and acts as if you're pointing to your PR.</li>
+<li>Run <code>npm build</code> in C-S-S (not run automatically like in the extension).</li>
+</ul>
+</li>
+<li><strong>Alternative Android Setup (more reliable):</strong>
+<ul>
+<li>Alter the path of the resources in the appropriate module's <code>build.gradle</code> to an absolute path on your machine.
+<ul>
+<li>Example: <a href="https://gist.github.com/shakyShane/0b133a0782bdb37c876c4a4204667bb2">build.gradle gist</a></li>
+</ul>
+</li>
+<li>After making this change, click 'sync now' when Gradle prompts.</li>
+<li>All changes in C-S-S will be picked up every time you restart the app.</li>
+<li>This works for all JS dependencies (Autofill, Dashboard, C-S-S, etc).</li>
+</ul>
+</li>
+</ul>
+<h2 id="windows" class="tsd-anchor-link">Windows<a href="#windows" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><a href="injected_docs_development-utilities.html#windows-development">Work with content-scope-scripts repo on Windows</a></li>
+<li><a href="https://app.asana.com/1/137249556945/project/1198964220583541/task/1208938714611510">Debugging <code>autofill.js</code> (or other submodules) on Windows</a></li>
+</ul>
+<h2 id="extensions" class="tsd-anchor-link">Extensions<a href="#extensions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Use npm link as per Android.</li>
+<li>See the <a href="https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/main/CONTRIBUTING.md#building-the-extension">other development steps</a>.</li>
+</ul>
+<hr>
+<h2 id="build-branch-hash-validation" class="tsd-anchor-link">Build Branch Hash Validation<a href="#build-branch-hash-validation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><strong>For native engineers using build branches <code>pr-&lt;version-number&gt;</code>:</strong></p>
+<h3 id="steps" class="tsd-anchor-link">Steps<a href="#steps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>After a change commit happens, verify the hash has changed.</li>
+<li>Check that the build CI has finished successfully.</li>
+<li><strong>Only then</strong> reinstall the app to pick up the new hash.</li>
+</ol>
+<h3 id="why-this-matters" class="tsd-anchor-link">Why This Matters<a href="#why-this-matters" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Installing before the CI completes or before the hash changes means you're testing old code. The hash change is a build CI indicator - make sure it has finished before running install again.</p>
+<hr>
+<h2 id="config-and-platform-parameters-validation" class="tsd-anchor-link">Config and Platform Parameters Validation<a href="#config-and-platform-parameters-validation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><strong>Always validate that the config loaded from remote config or cache config is in the correct state that is injected into Content Scope Scripts.</strong></p>
+<h3 id="using-processconfig-breakpoint" class="tsd-anchor-link">Using processConfig Breakpoint<a href="#using-processconfig-breakpoint" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>Open the web inspector (browser DevTools).</li>
+<li>Set a breakpoint in the <code>processConfig</code> function (located in <code>injected/src/utils.js</code>).</li>
+<li>Inspect the loaded configuration object to verify:
+<ul>
+<li>The config structure matches expectations</li>
+<li>Feature states (<code>enabled</code>, <code>disabled</code>, <code>internal</code>, <code>preview</code>) are correct</li>
+<li>Domain exceptions are properly applied</li>
+<li><code>unprotectedTemporary</code> domains are correctly set</li>
+<li>Feature settings are correctly parsed</li>
+<li>Site-specific settings: <code>site.isBroken</code>, <code>site.allowlisted</code>, and <code>site.enabledFeatures</code> are correct</li>
+</ul>
+</li>
+</ol>
+<h3 id="platform-parameters-validation" class="tsd-anchor-link">Platform Parameters Validation<a href="#platform-parameters-validation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p><strong>Platform parameters control internal and version state, and thus the enabled state of your features.</strong></p>
+<ol>
+<li>Use the same <code>processConfig</code> method as a breakpoint.</li>
+<li>Inspect the <code>preferences</code> parameter passed to <code>processConfig</code>:
+<ul>
+<li><code>platform.version</code> - version number</li>
+<li><code>platform.internal</code> - internal build flag</li>
+<li><code>platform.preview</code> - preview build flag</li>
+</ul>
+</li>
+<li>Verify these parameters match your expected build configuration.</li>
+</ol>
+<p><strong>Why This Matters:</strong> Platform parameters determine feature enablement states. A feature set to <code>internal</code> state will only be enabled if <code>platform.internal === true</code>. Incorrect platform parameters can silently disable features.</p>
+<p><strong>Note:</strong> For config version validation, see <a href="https://github.com/duckduckgo/privacy-configuration/blob/main/.cursor/rules/debugging.mdc">privacy-configuration/.cursor/rules/debugging.mdc</a>.</p>
+<hr>
+<h2 id="feature-not-working-triage-checklist" class="tsd-anchor-link">Feature Not Working: Triage Checklist<a href="#feature-not-working-triage-checklist" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Use this when a feature &quot;is not working&quot; to confirm it is enabled and wired end-to-end.</p>
+<h3 id="1-platform-sends-and-parses-the-feature-config" class="tsd-anchor-link">1) Platform sends and parses the feature config<a href="#1-platform-sends-and-parses-the-feature-config" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Confirm the platform injects the feature config into <code>$CONTENT_SCOPE$</code>.</li>
+<li>Apple: check any feature denylist filtering in the platform layer.</li>
+<li>Android: ensure the feature config has a parser implemented.</li>
+</ul>
+<h3 id="2-feature-enabled-in-config-and-site-object" class="tsd-anchor-link">2) Feature enabled in config and site object<a href="#2-feature-enabled-in-config-and-site-object" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Set a breakpoint in <code>processConfig</code> (see above) and inspect:
+<ul>
+<li><code>features.&lt;featureName&gt;.state</code> and <code>features.&lt;featureName&gt;.settings</code></li>
+<li><code>site.enabledFeatures</code> includes the feature name</li>
+<li><code>site.allowlisted</code> and <code>site.isBroken</code> are false</li>
+</ul>
+</li>
+<li>If you use <code>injectName</code>-based overrides, confirm the correct <code>injectName</code> is being applied.</li>
+</ul>
+<h3 id="3-feature-bundled-on-the-platform" class="tsd-anchor-link">3) Feature bundled on the platform<a href="#3-feature-bundled-on-the-platform" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Check <code>injected/src/features.js</code> to confirm the platform bundle includes the feature.</li>
+<li>Confirm the correct entry point is used for the platform (<code>injected/entry-points/</code>).</li>
+<li>Verify the built output (<code>build/&lt;platform&gt;/contentScope.js</code> or <code>inject.js</code>) contains the feature code.</li>
+</ul>
+<h3 id="4-sub-feature-or-setting-enabled" class="tsd-anchor-link">4) Sub-feature or setting enabled<a href="#4-sub-feature-or-setting-enabled" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Validate per-setting flags in config (<code>settings</code> + <code>conditionalChanges</code>).</li>
+<li>In DevTools, inspect the feature instance (<code>this.settings</code>) or use
+<code>getFeatureSettingEnabled()</code> to confirm the specific behavior is enabled.</li>
+</ul>
+<h3 id="5-messaging-is-wired-and-listened-to" class="tsd-anchor-link">5) Messaging is wired and listened to<a href="#5-messaging-is-wired-and-listened-to" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Confirm the message bridge feature is enabled and <code>messageSecret</code> is present.</li>
+<li>Verify <code>messagingContextName</code> and <code>featureName</code> match what the native layer expects.</li>
+<li>Ensure the native app registers handlers/subscriptions for notify/request/subscribe.</li>
+</ul>
+<hr>
+<h2 id="quick-validation-test" class="tsd-anchor-link">Quick Validation Test<a href="#quick-validation-test" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><strong>Use this test page to validate that ContentScopeScripts has been injected correctly:</strong></p>
+<p><a href="https://privacy-test-pages.site/features/navigator-interface.html">https://privacy-test-pages.site/features/navigator-interface.html</a></p>
+<p>This page provides a quick way to verify C-S-S injection is working as expected.</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#platform-specific-build-troubleshooting-tips"><span>Platform-<wbr/>Specific <wbr/>Build &amp; <wbr/>Troubleshooting <wbr/>Tips</span></a><ul><li><a href="#critical-debugging-step-validate-injected-script-integrity"><span>Critical <wbr/>Debugging <wbr/>Step: <wbr/>Validate <wbr/>Injected <wbr/>Script <wbr/>Integrity</span></a></li><li><ul><li><a href="#verification-steps"><span>Verification <wbr/>Steps</span></a></li></ul></li><li><a href="#debugging-with-source-maps"><span>Debugging with <wbr/>Source <wbr/>Maps</span></a></li><li><a href="#iosmacos"><span>i<wbr/>OS/mac<wbr/>OS</span></a></li><li><a href="#android"><span>Android</span></a></li><li><a href="#windows"><span>Windows</span></a></li><li><a href="#extensions"><span>Extensions</span></a></li><li><a href="#build-branch-hash-validation"><span>Build <wbr/>Branch <wbr/>Hash <wbr/>Validation</span></a></li><li><ul><li><a href="#steps"><span>Steps</span></a></li><li><a href="#why-this-matters"><span>Why <wbr/>This <wbr/>Matters</span></a></li></ul></li><li><a href="#config-and-platform-parameters-validation"><span>Config and <wbr/>Platform <wbr/>Parameters <wbr/>Validation</span></a></li><li><ul><li><a href="#using-processconfig-breakpoint"><span>Using process<wbr/>Config <wbr/>Breakpoint</span></a></li><li><a href="#platform-parameters-validation"><span>Platform <wbr/>Parameters <wbr/>Validation</span></a></li></ul></li><li><a href="#feature-not-working-triage-checklist"><span>Feature <wbr/>Not <wbr/>Working: <wbr/>Triage <wbr/>Checklist</span></a></li><li><ul><li><a href="#1-platform-sends-and-parses-the-feature-config"><span>1) <wbr/>Platform sends and parses the feature config</span></a></li><li><a href="#2-feature-enabled-in-config-and-site-object"><span>2) <wbr/>Feature enabled in config and site object</span></a></li><li><a href="#3-feature-bundled-on-the-platform"><span>3) <wbr/>Feature bundled on the platform</span></a></li><li><a href="#4-sub-feature-or-setting-enabled"><span>4) <wbr/>Sub-<wbr/>feature or setting enabled</span></a></li><li><a href="#5-messaging-is-wired-and-listened-to"><span>5) <wbr/>Messaging is wired and listened to</span></a></li></ul></li><li><a href="#quick-validation-test"><span>Quick <wbr/>Validation <wbr/>Test</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
