@@ -57,11 +57,13 @@ test('message bridge when enabled (apple)', async ({ page }, testInfo) => {
         { name: 'data', result: [{ abc: 'def' }, { ghi: 'jkl' }], expected: [{ abc: 'def' }, { ghi: 'jkl' }] },
     ]);
 
-    // verify messaging calls (filter out pageObserver which fires unconditionally)
-    const calls = (await page.evaluate(readOutgoingMessages)).filter((m) => m.payload.featureName !== 'pageObserver');
-    expect(calls.length).toBe(2);
-    const pixel = calls[0].payload;
-    const request = calls[1].payload;
+    // verify messaging calls
+    const calls = await page.evaluate(readOutgoingMessages);
+    // Other enabled features (e.g. navigatorInterface) may emit messages; only assert on exampleFeature traffic here.
+    const exampleFeatureCalls = calls.filter((c) => c?.payload?.featureName === 'exampleFeature');
+    expect(exampleFeatureCalls).toHaveLength(2);
+    const pixel = exampleFeatureCalls[0].payload;
+    const request = exampleFeatureCalls[1].payload;
 
     expect(pixel).toStrictEqual({
         context: 'contentScopeScriptsIsolated',
@@ -95,9 +97,10 @@ test('message bridge when disabled (apple)', async ({ page }, testInfo) => {
     // now load the main page
     await pageWorld.load(DISABLED_HTML, DISABLED_CONFIG);
 
-    // verify no outgoing calls were made (filter out pageObserver which fires unconditionally)
-    const calls = (await page.evaluate(readOutgoingMessages)).filter((m) => m.payload.featureName !== 'pageObserver');
-    expect(calls).toHaveLength(0);
+    // verify no outgoing calls were made for this feature
+    const calls = await page.evaluate(readOutgoingMessages);
+    const exampleFeatureCalls = calls.filter((c) => c?.payload?.featureName === 'exampleFeature');
+    expect(exampleFeatureCalls).toHaveLength(0);
 
     // get all results
     const results = await pageWorld.results();
