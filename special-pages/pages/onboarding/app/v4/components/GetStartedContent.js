@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import { useContext } from 'preact/hooks';
 import { GlobalDispatch } from '../../global';
-import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import { useTypedTranslation } from '../../types';
 import { Button } from './Button';
 import styles from './GetStartedContent.module.css';
@@ -12,16 +11,13 @@ import styles from './GetStartedContent.module.css';
  */
 export function GetStartedContent() {
     const dispatch = useContext(GlobalDispatch);
-    const { isReducedMotion } = useEnv();
     const { t } = useTypedTranslation();
     const parts = t('getStarted_title_v4', { newline: '\n' }).split('{paragraph}');
     const title = parts[0];
     const body = parts.slice(1).join('');
 
     const handleClick = () => {
-        // With reduced motion, skip the exit animation and advance directly.
-        // Otherwise, enqueue the exit so the dax outro animation plays first.
-        dispatch({ kind: isReducedMotion ? 'advance' : 'enqueue-next' });
+        dispatch({ kind: 'enqueue-next' });
     };
 
     return (

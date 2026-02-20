@@ -11,7 +11,8 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  * @property {(height: number) => void} [onHeight] - Callback reporting measured border height
  * @property {string} [bounceKey] - When this value changes, the bubble plays a scale-bounce animation
  * @property {number} [bounceDelay] - Delay in ms before the scale-bounce animation starts
- * @property {string} [contentFadeName] - view-transition-name applied to the container for content cross-fade on step changes
+ * @property {boolean} [exiting] - When true, fades out the container via CSS animation
+ * @property {() => void} [onExitComplete] - Called when the fade-out animation ends
  */
 
 /**
@@ -34,11 +35,29 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  *
  * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
  */
-export function Bubble({ children, tail, class: className, illustration, onHeight, bounceKey, bounceDelay, contentFadeName, ...props }) {
+export function Bubble({
+    children,
+    tail,
+    class: className,
+    illustration,
+    onHeight,
+    bounceKey,
+    bounceDelay,
+    exiting = false,
+    onExitComplete,
+    ...props
+}) {
     const bubbleRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const prevBounceKey = useRef(/** @type {string|undefined} */ (undefined));
+    // One-way flag: suppresses fade-in animation on initial mount.
+    // Once the first exit has occurred, data-exiting toggles between
+    // "true" (fade-out) and "false" (fade-in) on every step transition.
+    const hasExited = useRef(false);
     const { isReducedMotion } = useEnv();
+
+    if (exiting) hasExited.current = true;
 
     useLayoutEffect(() => {
         const bubble = bubbleRef.current;
@@ -79,10 +98,30 @@ export function Bubble({ children, tail, class: className, illustration, onHeigh
         };
     }, [bounceKey, isReducedMotion]);
 
+    /** @param {import('preact').JSX.TargetedAnimationEvent<HTMLDivElement>} e */
+    const handleAnimationEnd = (e) => {
+        if (exiting && e.target === containerRef.current) {
+            onExitComplete?.();
+        }
+    };
+
+    // Reduced motion: no animation plays, so animationend won't fire. Advance immediately via ref callback.
+    const containerCallback = (/** @type {HTMLDivElement | null} */ el) => {
+        containerRef.current = el;
+        if (el && isReducedMotion && exiting) {
+            onExitComplete?.();
+        }
+    };
+
     return (
         <div ref={bubbleRef} class={cn(styles.bubble, className)} {...props}>
             {illustration?.background && <div class={styles.background}>{illustration.background}</div>}
-            <div class={styles.container} style={contentFadeName ? { viewTransitionName: contentFadeName } : undefined}>
+            <div
+                ref={containerCallback}
+                class={styles.container}
+                data-exiting={hasExited.current ? String(exiting) : undefined}
+                onAnimationEnd={handleAnimationEnd}
+            >
                 <div ref={contentRef}>{children}</div>
             </div>
             <BottomLeftTail active={tail === 'bottom-left'} />

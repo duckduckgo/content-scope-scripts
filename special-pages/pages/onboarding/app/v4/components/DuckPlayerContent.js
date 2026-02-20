@@ -13,7 +13,7 @@ export function DuckPlayerContent() {
     const { t } = useTypedTranslation();
     const dispatch = useContext(GlobalDispatch);
 
-    const advance = () => dispatch({ kind: 'advance' });
+    const advance = () => dispatch({ kind: 'enqueue-next' });
 
     return (
         <div class={styles.root}>

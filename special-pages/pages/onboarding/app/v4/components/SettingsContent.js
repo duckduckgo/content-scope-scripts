@@ -27,7 +27,7 @@ export function SettingsContent() {
     const isLastStep = order[order.length - 1] === activeStep;
     const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id;
 
-    const advance = () => dispatch({ kind: 'advance' });
+    const advance = () => dispatch({ kind: 'enqueue-next' });
     const dismiss = () => dispatch({ kind: 'dismiss' });
 
     /** @type {import("preact").ComponentProps<SettingListItem>['item'][]} */

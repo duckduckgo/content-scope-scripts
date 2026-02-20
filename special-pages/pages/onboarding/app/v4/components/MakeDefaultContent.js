@@ -22,7 +22,7 @@ export function MakeDefaultContent() {
     const [buttonText, setButtonText] = useState(t('makeDefaultButton'));
     const [showSkipButton, setShowSkipButton] = useState(true);
 
-    const advance = () => dispatch({ kind: 'advance' });
+    const advance = () => dispatch({ kind: 'enqueue-next' });
 
     const enableDefaultBrowser = async () => {
         dispatch({

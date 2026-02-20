@@ -4,6 +4,7 @@ import cn from 'classnames';
 import { Bubble } from './Bubble';
 import { ProgressIndicator } from './ProgressIndicator';
 import { useStepConfig } from '../hooks/useStepConfig';
+import { useGlobalDispatch } from '../../global';
 import styles from './SingleStep.module.css';
 
 const NARROW_WIDTH = 349;
@@ -18,6 +19,8 @@ const GAP = 8;
 export function SingleStep() {
     const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, introAnimation, globalState, bounceKey } =
         useStepConfig();
+    const dispatch = useGlobalDispatch();
+    const handleExitComplete = () => dispatch({ kind: 'advance' });
 
     const [topHeight, setTopHeight] = useState(0);
     const [bottomHeight, setBottomHeight] = useState(0);
@@ -50,7 +53,8 @@ export function SingleStep() {
                 onHeight={(h) => setTopHeight(h)}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
-                contentFadeName={topBubble ? 'bubble-content-top' : undefined}
+                exiting={globalState.exiting}
+                onExitComplete={topBubble ? handleExitComplete : undefined}
             >
                 {topBubble?.content}
             </Bubble>
@@ -68,7 +72,8 @@ export function SingleStep() {
                 onHeight={(h) => setBottomHeight(h)}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
-                contentFadeName={bottomBubble ? 'bubble-content-bottom' : undefined}
+                exiting={globalState.exiting}
+                onExitComplete={topBubble ? undefined : handleExitComplete}
             >
                 {bottomBubble?.content}
             </Bubble>

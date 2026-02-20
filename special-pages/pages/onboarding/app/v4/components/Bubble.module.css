@@ -29,6 +29,24 @@
     z-index: 1;
 }
 
+.container[data-exiting="true"] {
+    animation: bubble-fade-out 100ms cubic-bezier(0.66, 0, 0.34, 1) forwards;
+}
+
+.container[data-exiting="false"] {
+    animation: bubble-fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 233ms backwards;
+}
+
+@keyframes bubble-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes bubble-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .foreground {
     inset: 0;
     pointer-events: none;
@@ -76,51 +94,10 @@
     }
 }
 
-/* --- View transitions: cross-fade bubble content on step changes --- */
-
-/* Disable the default whole-page snapshot */
-:global(:root) {
-    view-transition-name: none;
-}
-
-/* Group resizes in sync with the bubble shell's CSS transition.
-   2f delay — size starts 2 frames after the cross-fade begins. */
-:global(::view-transition-group(bubble-content-top)),
-:global(::view-transition-group(bubble-content-bottom)) {
-    overflow: hidden;
-    animation-duration: 333ms; /* 10f */
-    animation-delay: 67ms; /* 2f */
-    animation-timing-function: cubic-bezier(0.17, 0, 0.34, 1);
-}
-
-/* Old content fades out immediately (3f).
-   object-fit: none keeps snapshots at their captured size instead of
-   stretching as the group resizes between old/new dimensions. */
-:global(::view-transition-old(bubble-content-top)),
-:global(::view-transition-old(bubble-content-bottom)) {
-    animation-duration: 100ms; /* 3f */
-    animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
-    object-fit: none;
-}
-
-/* New content fades in after a pause (8f duration, starts 10f after old). */
-:global(::view-transition-new(bubble-content-top)),
-:global(::view-transition-new(bubble-content-bottom)) {
-    animation-duration: 267ms; /* 8f */
-    animation-delay: 333ms; /* 10f */
-    animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
-    object-fit: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
-    :global(::view-transition-group(bubble-content-top)),
-    :global(::view-transition-group(bubble-content-bottom)),
-    :global(::view-transition-old(bubble-content-top)),
-    :global(::view-transition-old(bubble-content-bottom)),
-    :global(::view-transition-new(bubble-content-top)),
-    :global(::view-transition-new(bubble-content-bottom)) {
-        animation-duration: 0s;
-        animation-delay: 0s;
+    .container[data-exiting="true"],
+    .container[data-exiting="false"] {
+        animation: none;
     }
 
     .bottomLeftTail svg,
