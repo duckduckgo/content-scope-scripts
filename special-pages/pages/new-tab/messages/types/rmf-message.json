@@ -144,7 +144,8 @@
                 "Radar",
                 "RadarCheckGreen",
                 "RadarCheckPurple",
-                "Subscription"
+                "Subscription",
+                "VeryCriticalUpdate"
             ]
         }
     }
