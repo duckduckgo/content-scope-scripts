@@ -82,7 +82,9 @@ const exemptionLists = {};
  * @returns {boolean}
  */
 export function shouldExemptUrl(type, url) {
-    for (const regex of exemptionLists[type]) {
+    const list = exemptionLists[type];
+    if (!list) return false;
+    for (const regex of list) {
         if (regex.test(url)) {
             return true;
         }
@@ -100,7 +102,9 @@ export function initStringExemptionLists(args) {
     debug = args.debug || false;
     for (const type in stringExemptionLists) {
         exemptionLists[type] = [];
-        for (const stringExemption of stringExemptionLists[type]) {
+        const exemptions = stringExemptionLists[type];
+        if (!exemptions) continue;
+        for (const stringExemption of exemptions) {
             exemptionLists[type].push(new RegExp(stringExemption));
         }
     }
@@ -222,7 +226,7 @@ export function getStackTraceUrls(stack) {
         // Should cater for Chrome and Firefox stacks, we only care about https? resources.
         for (const line of errorLines) {
             const res = line.match(lineTest);
-            if (res) {
+            if (res && res[2]) {
                 urls.add(new URL(res[2], location.href));
             }
         }
@@ -252,7 +256,8 @@ export function getStackTraceOrigins(stack) {
  */
 export function shouldExemptMethod(type) {
     // Short circuit stack tracing if we don't have checks
-    if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
+    const typeExemptions = exemptionLists[type];
+    if (!typeExemptions || typeExemptions.length === 0) {
         return false;
     }
     const stack = getStack();
@@ -857,7 +862,7 @@ export function computeEnabledFeatures(data, topLevelHostname, platform, platfor
     const enabledFeatures = remoteFeatureNames
         .filter((featureName) => {
             const feature = data.features[featureName];
-            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+            if (!feature) return false;
             if (feature.minSupportedVersion && platform?.version) {
                 if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
                     return false;
@@ -884,7 +889,9 @@ export function parseFeatureSettings(data, enabledFeatures) {
             return;
         }
 
-        featureSettings[featureName] = data.features[featureName].settings;
+        const feature = data.features[featureName];
+        if (!feature) return;
+        featureSettings[featureName] = feature.settings;
     });
     return featureSettings;
 }
