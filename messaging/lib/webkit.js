@@ -40,16 +40,16 @@ import {
  * ```
  *
  * @example
- * On macOS 10 however, the process is a little more involved. A method will be appended to `navigator.duckduckgo`
- * that allows the response to be delivered there instead. It's not exactly this, but you can visualize the flow
- * as being something along the lines of:
+ * On macOS 10 however, the process is a little more involved. A method will be appended to
+ * `navigator.duckduckgo.messageHandlers` that allows the response to be delivered there instead.
+ * It's not exactly this, but you can visualize the flow as being something along the lines of:
  *
  * ```js
- * // add the callback method to navigator.duckduckgo
- * navigator.duckduckgo["_0123456"] = (response) => {
+ * // add the callback method to navigator.duckduckgo.messageHandlers
+ * navigator.duckduckgo.messageHandlers["_0123456"] = (response) => {
  *    // decrypt `response` and deliver the result to the caller here
  *    // then remove the temporary method
- *    delete navigator.duckduckgo['_0123456']
+ *    delete navigator.duckduckgo.messageHandlers['_0123456']
  * };
  *
  * // send the data + `messageHanding` values
@@ -65,7 +65,7 @@ import {
  *
  * // later in swift, the following JavaScript snippet will be executed
  * (() => {
- *   navigator.duckduckgo['_0123456']({
+ *   navigator.duckduckgo.messageHandlers['_0123456']({
  *     ciphertext: [12, 13, 4],
  *     tag: [3, 5, 67, 56]
  *   })
@@ -193,17 +193,16 @@ export class WebkitMessagingTransport {
     }
 
     /**
-     * Generate a random method name and adds it to navigator.duckduckgo
+     * Generate a random method name and adds it to navigator.duckduckgo.messageHandlers
      * The native layer will use this method to send the response
      * @param {string | number} randomMethodName
      * @param {Function} callback
      * @internal
      */
     generateRandomMethod(randomMethodName, callback) {
-        const target = ensureNavigatorDuckDuckGo();
+        const target = ensureNavigatorDuckDuckGo().messageHandlers;
         objectDefineProperty(target, randomMethodName, {
             enumerable: false,
-            // configurable, To allow for deletion later
             configurable: true,
             writable: false,
             /**
@@ -307,8 +306,7 @@ export class WebkitMessagingTransport {
      * @param {(value: unknown) => void} callback
      */
     subscribe(msg, callback) {
-        const target = ensureNavigatorDuckDuckGo();
-        // for now, bail if there's already a handler setup for this subscription
+        const target = ensureNavigatorDuckDuckGo().messageHandlers;
         if (msg.subscriptionName in target) {
             throw new _Error(`A subscription with the name ${msg.subscriptionName} already exists`);
         }
@@ -391,7 +389,7 @@ export class SecureMessagingParams {
      */
     constructor(params) {
         /**
-         * The method that's been appended to `navigator.duckduckgo` to be called later
+         * The method that's been appended to `navigator.duckduckgo.messageHandlers` to be called later
          */
         this.methodName = params.methodName;
         /**

@@ -11,9 +11,13 @@ interface Navigator {
     /**
      * DuckDuckGo-specific extension used by WebKit transport + tests.
      *
-     * Subscriptions are exposed as `navigator.duckduckgo[subscriptionName](event)`.
+     * Subscriptions and response callbacks are exposed under
+     * `navigator.duckduckgo.messageHandlers[name](event)`.
      */
-    duckduckgo?: Record<string, (...args: unknown[]) => unknown>;
+    duckduckgo?: {
+        messageHandlers: Record<string, (...args: unknown[]) => unknown>;
+        [key: string]: unknown;
+    };
 }
 
 interface UnstableMockCall {

@@ -11,7 +11,7 @@ export function ensureNavigatorDuckDuckGo({ defineProperty = objectDefinePropert
     if (navigator.duckduckgo) {
         return navigator.duckduckgo;
     }
-    const target = {};
+    const target = {messageHandlers: {}};
     defineProperty(Navigator.prototype, 'duckduckgo', {
         value: target,
         enumerable: true,

@@ -486,7 +486,7 @@ export class DuckPlayerPage {
         await this.build.switch({
             apple: async () => {
                 await this.page.waitForFunction(() => {
-                    const fn = navigator.duckduckgo?.onUserValuesChanged;
+                    const fn = navigator.duckduckgo?.messageHandlers?.onUserValuesChanged;
                     return typeof fn === 'function';
                 });
             },
