@@ -33,6 +33,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--sp-4); /* 16px */
+    position: relative;
 }
 
 .rowMain {
@@ -118,5 +119,40 @@
     display: flex;
     justify-content: center;
     align-self: stretch;
+}
+
+/* --- Row transition animations --- */
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fadeOut {
+    animation: fadeOut 200ms ease-out forwards;
+    pointer-events: none;
+}
+
+.fadeIn {
+    animation: fadeIn 250ms ease-out both;
+}
+
+.fadeInDelayed {
+    animation: fadeIn 250ms ease-out both;
+    animation-delay: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fadeOut,
+    .fadeIn,
+    .fadeInDelayed {
+        animation-duration: 0s;
+        animation-delay: 0s;
+    }
 }
 
