@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { isBeingFramed } from '../utils.js';
 
 /**
  * Forwards hovered link URLs to the native layer so the browser
@@ -19,6 +20,12 @@ export class Hover extends ContentFeature {
             },
             true,
         );
+
+        if (!isBeingFramed()) {
+            document.addEventListener('mouseleave', () => {
+                this.notify('hoverChanged', { href: null });
+            });
+        }
     }
 }
 
