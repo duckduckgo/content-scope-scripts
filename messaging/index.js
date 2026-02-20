@@ -88,14 +88,28 @@ export class Messaging {
             params: data,
         });
         try {
-            this.transport.notify(message);
-        } catch (e) {
-            // Silently ignoring any transport errors in production, as per section 4.1 of https://www.jsonrpc.org/specification
-            // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
-            if (this.messagingContext.env === 'development') {
-                console.error('[Messaging] Failed to send notification:', e);
-                console.error('[Messaging] Message details:', { name, data });
+            const maybeAsyncResult = this.transport.notify(message);
+            if (isPromiseLike(maybeAsyncResult)) {
+                void maybeAsyncResult.catch((e) => {
+                    this.logNotificationError(name, data, e);
+                });
             }
+        } catch (e) {
+            this.logNotificationError(name, data, e);
+        }
+    }
+
+    /**
+     * @param {string} name
+     * @param {Record<string, any>} data
+     * @param {unknown} error
+     */
+    logNotificationError(name, data, error) {
+        // Silently ignoring any transport errors in production, as per section 4.1 of https://www.jsonrpc.org/specification
+        // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
+        if (this.messagingContext.env === 'development') {
+            console.error('[Messaging] Failed to send notification:', error);
+            console.error('[Messaging] Message details:', { name, data });
         }
     }
 
@@ -146,7 +160,7 @@ export class Messaging {
 export class MessagingTransport {
     /**
      * @param {NotificationMessage} _msg
-     * @returns {void}
+     * @returns {void | Promise<void>}
      */
 
     notify(_msg) {
@@ -237,6 +251,14 @@ function getTransport(config, messagingContext) {
         return new TestTransport(config, messagingContext);
     }
     throw new Error('unreachable');
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is Promise<unknown>}
+ */
+function isPromiseLike(value) {
+    return typeof value === 'object' && value !== null && typeof value.then === 'function';
 }
 
 /**
