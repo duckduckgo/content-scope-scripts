@@ -39,7 +39,7 @@ jobs:
                   git config --global user.name "dax"
                   git remote add upstream https://github.com/${{ github.event.pull_request.base.repo.full_name }}.git
                   git fetch upstream ${{ github.event.pull_request.base.ref }}
-                  git merge --no-edit --no-ff upstream/${{ github.event.pull_request.base.ref }}
+                  git merge --no-edit --no-ff -X theirs upstream/${{ github.event.pull_request.base.ref }}
                   npm install
                   npm run build
                   cd ..
