@@ -117,6 +117,18 @@ export default class WebDetection extends ContentFeature {
                 this.#matchedDetectors.set(fullDetectorId, true);
             }
 
+            // Execute fireEvent action: send webEvent notification to the client
+            if (detected === true && this._isStateEnabled(detectorConfig.actions.fireEvent.state)) {
+                const eventType = detectorConfig.actions.fireEvent.event;
+                if (eventType) {
+                    try {
+                        this.messaging?.notify('webEvent', { type: eventType });
+                    } catch {
+                        // Messaging may not be ready - silently fail
+                    }
+                }
+            }
+
             // Debug notification for integration tests (only sends when detection succeeds or errors)
             if (this.isDebug && detected !== false) {
                 try {
@@ -129,9 +141,6 @@ export default class WebDetection extends ContentFeature {
                     // Messaging may not be ready - silently fail
                 }
             }
-
-            // TODO: Execute detector actions (e.g., runTelemetry)
-            // This will be implemented as part of follow-up work
         } catch (e) {
             // Silently fail - don't break the page
             if (this.isDebug) {

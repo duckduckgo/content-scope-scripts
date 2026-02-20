@@ -51,10 +51,19 @@ import { withDefaults } from '../../utils.js';
  */
 
 /**
+ * Configuration for the fireEvent action.
+ *
+ * @typedef {object} FireEventAction
+ * @property {FeatureState} state - whether the action is enabled
+ * @property {string} [event] - the event type to fire (e.g., "adwall")
+ */
+
+/**
  * Actions to take when a detector matches.
  *
  * @typedef {object} DetectorActions
  * @property {ActionBase} breakageReportData - Whether to include in breakage report data
+ * @property {FireEventAction} fireEvent - Whether to fire a webEvent notification to the client
  */
 
 /**
@@ -105,6 +114,9 @@ const DEFAULTS = {
     actions: {
         breakageReportData: {
             state: /** @type {FeatureState} */ ('enabled'),
+        },
+        fireEvent: {
+            state: /** @type {FeatureState} */ ('disabled'),
         },
     },
 };

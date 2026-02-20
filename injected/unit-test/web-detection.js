@@ -188,6 +188,46 @@ describe('WebDetection', () => {
             expect(result.actions.breakageReportData.state).toBe('disabled');
         });
 
+        it('should default fireEvent action to disabled', () => {
+            const result = oneDetectorConfigParsed({
+                match: { text: { pattern: 'test' } },
+            });
+            expect(result.actions.fireEvent.state).toBe('disabled');
+            expect(result.actions.fireEvent.event).toBeUndefined();
+        });
+
+        it('should parse fireEvent action with event name', () => {
+            const result = oneDetectorConfigParsed({
+                match: { text: { pattern: 'test' } },
+                actions: {
+                    fireEvent: { state: 'enabled', event: 'adwall' },
+                },
+            });
+            expect(result.actions.fireEvent.state).toBe('enabled');
+            expect(result.actions.fireEvent.event).toBe('adwall');
+        });
+
+        it('should default auto trigger to disabled', () => {
+            const result = oneDetectorConfigParsed({
+                match: { text: { pattern: 'test' } },
+            });
+            expect(result.triggers.auto.state).toBe('disabled');
+        });
+
+        it('should parse auto trigger with intervalMs', () => {
+            const result = oneDetectorConfigParsed({
+                match: { text: { pattern: 'test' } },
+                triggers: {
+                    auto: {
+                        state: 'enabled',
+                        when: { intervalMs: [1000, 5000] },
+                    },
+                },
+            });
+            expect(result.triggers.auto.state).toBe('enabled');
+            expect(result.triggers.auto.when.intervalMs).toEqual([1000, 5000]);
+        });
+
         /**
          *
          * @template T
