@@ -89,12 +89,12 @@ jobs:
                       ${{ runner.os }}-node-
             - run: npm ci
             - name: Download unit coverage
-              uses: actions/download-artifact@v6
+              uses: actions/download-artifact@v7
               with:
                   name: coverage-unit
                   path: injected/coverage/
             - name: Download integration coverage
-              uses: actions/download-artifact@v6
+              uses: actions/download-artifact@v7
               with:
                   name: coverage-integration
                   path: injected/coverage/integration/
