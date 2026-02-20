@@ -87,7 +87,7 @@ export function getCaptchaInfo(action, root = document) {
 /**
  * Takes the solved captcha token and injects it into the page to solve the captcha
  *
- * @param action
+ * @param {import('../types.js').PirAction} action
  * @param {string} token
  * @param {Document} root
  * @return {import('../types.js').ActionResponse}

@@ -21,7 +21,7 @@ export default class WebInterferenceDetection extends ContentFeature {
         }
 
         // Register messaging handler for PIR/native requests
-        this.messaging.subscribe('detectInterference', (params) => {
+        this.messaging.subscribe('detectInterference', (/** @type {any} */ params) => {
             const { types = [] } = /** @type {DetectInterferenceParams} */ (params ?? {});
             const results = {};
 
