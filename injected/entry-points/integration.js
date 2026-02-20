@@ -3,6 +3,23 @@ import { TestTransportConfig } from '../../messaging/index.js';
 import { getTabUrl, getLoadArgs } from '../src/utils.js';
 import { platformSupport } from '../src/features.js';
 
+/**
+ * @typedef {import('../src/content-scope-features.js').LoadArgs & {
+ *     debug: boolean,
+ *     sessionKey: string
+ * }} IntegrationConfig
+ */
+
+/**
+ * @typedef {Window & typeof globalThis & {
+ *     __content_scope_status?: "loaded" | "initialized",
+ *     __testContentScopeArgs?: IntegrationConfig
+ * }} IntegrationTestWindow
+ */
+
+/**
+ * @returns {IntegrationConfig}
+ */
 function generateConfig() {
     const topLevelUrl = getTabUrl();
     return {
@@ -40,29 +57,37 @@ function generateConfig() {
 
 /**
  * Simple object check.
- * @param item
- * @returns {boolean}
+ * @param {unknown} item
+ * @returns {item is Record<string, unknown>}
  */
 function isObject(item) {
-    return item && typeof item === 'object' && !Array.isArray(item);
+    return Boolean(item) && typeof item === 'object' && !Array.isArray(item);
 }
 
 /**
  * Deep merge two objects.
- * @param target
- * @param sources
+ * @template {Record<string, unknown>} T
+ * @param {T} target
+ * @param {...Record<string, unknown>} sources
+ * @returns {T}
  */
 function mergeDeep(target, ...sources) {
     if (!sources.length) return target;
     const source = sources.shift();
+    const mutableTarget = /** @type {Record<string, unknown>} */ (target);
 
-    if (isObject(target) && isObject(source)) {
-        for (const key in source) {
-            if (isObject(source[key])) {
-                if (!target[key]) Object.assign(target, { [key]: {} });
-                mergeDeep(target[key], source[key]);
+    if (source && isObject(target) && isObject(source)) {
+        for (const key of Object.keys(source)) {
+            const sourceValue = source[key];
+            const targetValue = mutableTarget[key];
+
+            if (isObject(sourceValue)) {
+                if (!isObject(targetValue)) {
+                    mutableTarget[key] = {};
+                }
+                mergeDeep(/** @type {Record<string, unknown>} */ (mutableTarget[key]), sourceValue);
             } else {
-                Object.assign(target, { [key]: source[key] });
+                mutableTarget[key] = sourceValue;
             }
         }
     }
@@ -70,12 +95,20 @@ function mergeDeep(target, ...sources) {
     return mergeDeep(target, ...sources);
 }
 
+/**
+ * @param {Event} evt
+ * @returns {evt is CustomEvent<Record<string, unknown>>}
+ */
+function isContentScopeInitArgsEvent(evt) {
+    return evt instanceof CustomEvent && isObject(evt.detail);
+}
+
 async function initCode() {
     const topLevelUrl = getTabUrl();
     const processedConfig = generateConfig();
 
     // mock Messaging and allow for tests to intercept them
-    globalThis.cssMessaging = processedConfig.messagingConfig = new TestTransportConfig({
+    const messagingConfig = new TestTransportConfig({
         notify() {
             // noop
         },
@@ -88,6 +121,10 @@ async function initCode() {
             };
         },
     });
+    processedConfig.messagingConfig = messagingConfig;
+
+    const testGlobal = /** @type {typeof globalThis & { cssMessaging?: TestTransportConfig }} */ (globalThis);
+    testGlobal.cssMessaging = messagingConfig;
 
     load(getLoadArgs(processedConfig));
 
@@ -104,10 +141,12 @@ async function initCode() {
     document.addEventListener(
         'content-scope-init-args',
         async (evt) => {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            if (!isContentScopeInitArgsEvent(evt)) {
+                return;
+            }
             const merged = mergeDeep(processedConfig, evt.detail);
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            window.__testContentScopeArgs = merged;
+            const testWindow = /** @type {IntegrationTestWindow} */ (window);
+            testWindow.__testContentScopeArgs = merged;
             // init features
             await init(merged);
             await updateFeatureArgs(merged);
@@ -124,8 +163,8 @@ async function initCode() {
  * @param {"loaded" | "initialized"} status
  */
 function setStatus(status) {
-    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    window.__content_scope_status = status;
+    const testWindow = /** @type {IntegrationTestWindow} */ (window);
+    testWindow.__content_scope_status = status;
 }
 
 initCode();
