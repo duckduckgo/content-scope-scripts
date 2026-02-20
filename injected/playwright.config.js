@@ -25,10 +25,12 @@ export default defineConfig({
         {
             name: 'apple-isolated',
             testMatch: [
+                'integration-test/context-menu.spec.js',
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/favicon.spec.js',
+                'integration-test/page-observer.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },

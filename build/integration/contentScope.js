@@ -2844,13 +2844,15 @@
     return args.site.allowlisted || args.site.isBroken;
   }
   var platformSpecificFeatures = [
+    "contextMenu",
     "navigatorInterface",
     "windowsPermissionUsage",
     "messageBridge",
     "favicon",
     "breakageReporting",
     "print",
-    "webInterferenceDetection"
+    "webInterferenceDetection",
+    "pageObserver"
   ];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(
@@ -2969,6 +2971,7 @@
     /** @type {FeatureName[]} */
     [
       "clickToLoad",
+      "contextMenu",
       "cookie",
       "messageBridge",
       "duckPlayer",
@@ -2988,12 +2991,14 @@
       "favicon",
       "webTelemetry",
       "pageContext",
-      "print"
+      "print",
+      "pageObserver"
     ]
   );
   var platformSupport = {
     apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext", "print"],
     "apple-isolated": [
+      "contextMenu",
       "duckPlayer",
       "duckPlayerNative",
       "brokerProtection",
@@ -3002,7 +3007,8 @@
       "clickToLoad",
       "messageBridge",
       "favicon",
-      "webDetection"
+      "webDetection",
+      "pageObserver"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -11297,6 +11303,97 @@
     }
   };
   _messagingContext = new WeakMap();
+
+  // src/features/context-menu.js
+  init_define_import_meta_trackerLookup();
+
+  // src/utils/dom-metadata.js
+  init_define_import_meta_trackerLookup();
+  function findClosestAnchor(target) {
+    if (!(target instanceof Element)) return null;
+    const anchor = target.closest("a");
+    return (
+      /** @type {HTMLAnchorElement | null} */
+      anchor
+    );
+  }
+  function getSelectedText() {
+    try {
+      const text2 = window.getSelection()?.toString();
+      return text2 || null;
+    } catch {
+      return null;
+    }
+  }
+  function getClosestAttribute(element, attr) {
+    let current = (
+      /** @type {Element | null} */
+      element
+    );
+    while (current && current !== document.documentElement) {
+      if (current.hasAttribute(attr)) {
+        return current.getAttribute(attr) || null;
+      }
+      current = current.parentElement;
+    }
+    return null;
+  }
+  var MEDIA_TAGS = /* @__PURE__ */ new Set(["img", "video", "audio", "source", "embed"]);
+  function getMediaSrc(element) {
+    const tag = element.tagName.toLowerCase();
+    if (MEDIA_TAGS.has(tag)) {
+      return (
+        /** @type {HTMLMediaElement | HTMLImageElement | HTMLEmbedElement} */
+        element.src || null
+      );
+    }
+    if (tag === "picture") {
+      const img = (
+        /** @type {HTMLImageElement | null} */
+        element.querySelector("img")
+      );
+      return img?.src || null;
+    }
+    return null;
+  }
+  function extractElementMetadata(target) {
+    if (!(target instanceof Element)) {
+      return { href: null, title: null, alt: null, src: null, tagName: "" };
+    }
+    const anchor = findClosestAnchor(target);
+    return {
+      href: anchor?.href || null,
+      title: getClosestAttribute(target, "title"),
+      alt: target.getAttribute("alt") || null,
+      src: getMediaSrc(target),
+      tagName: target.tagName.toLowerCase()
+    };
+  }
+
+  // src/features/context-menu.js
+  var ContextMenu = class extends ContentFeature {
+    init() {
+      document.addEventListener(
+        "contextmenu",
+        (event) => {
+          const target = (
+            /** @type {EventTarget | null} */
+            event.target
+          );
+          const metadata = extractElementMetadata(target);
+          this.notify("contextMenuEvent", {
+            selectedText: getSelectedText(),
+            linkUrl: metadata.href,
+            imageSrc: metadata.src,
+            imageAlt: metadata.alt,
+            title: metadata.title,
+            elementTag: metadata.tagName
+          });
+        },
+        true
+      );
+    }
+  };
 
   // src/features/cookie.js
   init_define_import_meta_trackerLookup();
@@ -23524,6 +23621,23 @@ ${iframeContent}
   };
   var print_default = Print;
 
+  // src/features/page-observer.js
+  init_define_import_meta_trackerLookup();
+  var PageObserver = class extends ContentFeature {
+    init() {
+      if (isBeingFramed()) return;
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => this.domLoaded(), { once: true });
+      } else {
+        this.domLoaded();
+      }
+    }
+    domLoaded() {
+      this.notify("domLoaded", {});
+    }
+  };
+  var page_observer_default = PageObserver;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_fingerprintingAudio: FingerprintingAudio,
@@ -23540,6 +23654,7 @@ ${iframeContent}
     ddg_feature_exceptionHandler: ExceptionHandler,
     ddg_feature_apiManipulation: ApiManipulation,
     ddg_feature_clickToLoad: ClickToLoad,
+    ddg_feature_contextMenu: ContextMenu,
     ddg_feature_cookie: CookieFeature,
     ddg_feature_messageBridge: message_bridge_default,
     ddg_feature_duckPlayer: DuckPlayerFeature,
@@ -23559,7 +23674,8 @@ ${iframeContent}
     ddg_feature_favicon: favicon_default,
     ddg_feature_webTelemetry: web_telemetry_default,
     ddg_feature_pageContext: PageContext,
-    ddg_feature_print: print_default
+    ddg_feature_print: print_default,
+    ddg_feature_pageObserver: page_observer_default
   };
 
   // src/url-change.js

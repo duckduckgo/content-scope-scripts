@@ -902,6 +902,7 @@ export function isGloballyDisabled(args) {
  * @type {FeatureName[]}
  */
 export const platformSpecificFeatures = [
+    'contextMenu',
     'navigatorInterface',
     'windowsPermissionUsage',
     'messageBridge',
@@ -909,8 +910,8 @@ export const platformSpecificFeatures = [
     'breakageReporting',
     'print',
     'webInterferenceDetection',
+    'pageObserver',
 ];
-
 /**
  * @param {string} featureName
  * @returns {boolean}

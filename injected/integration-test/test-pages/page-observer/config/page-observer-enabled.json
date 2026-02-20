@@ -1,0 +1,11 @@
+{
+  "readme": "Config for page-observer integration tests: pageObserver feature enabled.",
+  "version": 1,
+  "features": {
+    "pageObserver": {
+      "state": "enabled",
+      "exceptions": []
+    }
+  },
+  "unprotectedTemporary": []
+}

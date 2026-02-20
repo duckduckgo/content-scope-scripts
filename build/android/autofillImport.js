@@ -2022,13 +2022,15 @@
     return args.site.allowlisted || args.site.isBroken;
   }
   var platformSpecificFeatures = [
+    "contextMenu",
     "navigatorInterface",
     "windowsPermissionUsage",
     "messageBridge",
     "favicon",
     "breakageReporting",
     "print",
-    "webInterferenceDetection"
+    "webInterferenceDetection",
+    "pageObserver"
   ];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(
@@ -2097,6 +2099,7 @@
     /** @type {FeatureName[]} */
     [
       "clickToLoad",
+      "contextMenu",
       "cookie",
       "messageBridge",
       "duckPlayer",
@@ -2116,12 +2119,14 @@
       "favicon",
       "webTelemetry",
       "pageContext",
-      "print"
+      "print",
+      "pageObserver"
     ]
   );
   var platformSupport = {
     apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext", "print"],
     "apple-isolated": [
+      "contextMenu",
       "duckPlayer",
       "duckPlayerNative",
       "brokerProtection",
@@ -2130,7 +2135,8 @@
       "clickToLoad",
       "messageBridge",
       "favicon",
-      "webDetection"
+      "webDetection",
+      "pageObserver"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],

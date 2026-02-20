@@ -1,2 +1,2 @@
-- Change apple message exposure (#2117)
-- Agent rules and documentation structure (#2275)
+- Migrate macOS dom loaded notification handler from native (#2243)
+- Migrate mac context menu & selection handlers to C-S-S (#2292)
