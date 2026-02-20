@@ -15,7 +15,7 @@ export function ensureNavigatorDuckDuckGo({ defineProperty = objectDefinePropert
     defineProperty(Navigator.prototype, 'duckduckgo', {
         value: target,
         enumerable: true,
-        configurable: true,
+        configurable: false,
         writable: false,
     });
     return target;
