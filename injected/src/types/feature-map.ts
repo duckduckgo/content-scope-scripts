@@ -30,6 +30,7 @@ import type FingerprintingTemporaryStorage from '../features/fingerprinting-temp
 import type GoogleRejected from '../features/google-rejected.js';
 import type Gpc from '../features/gpc.js';
 import type HarmfulApis from '../features/harmful-apis.js';
+import type Hover from '../features/hover.js';
 import type MessageBridge from '../features/message-bridge.js';
 import type NavigatorInterface from '../features/navigator-interface.js';
 import type PageContext from '../features/page-context.js';
@@ -72,6 +73,7 @@ export interface FeatureMap {
     googleRejected: GoogleRejected;
     gpc: Gpc;
     harmfulApis: HarmfulApis;
+    hover: Hover;
     messageBridge: MessageBridge;
     navigatorInterface: NavigatorInterface;
     pageContext: PageContext;

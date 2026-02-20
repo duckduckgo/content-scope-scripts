@@ -48,6 +48,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'pageContext',
     'print',
     'pageObserver',
+    'hover',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -65,6 +66,7 @@ export const platformSupport = {
         'favicon',
         'webDetection',
         'pageObserver',
+        'hover',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
