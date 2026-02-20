@@ -1,2 +1,0 @@
-- Migrate macOS dom loaded notification handler from native (#2243)
-- Migrate mac context menu & selection handlers to C-S-S (#2292)

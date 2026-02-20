@@ -911,6 +911,7 @@ export const platformSpecificFeatures = [
     'print',
     'webInterferenceDetection',
     'pageObserver',
+    'hover',
 ];
 /**
  * @param {string} featureName

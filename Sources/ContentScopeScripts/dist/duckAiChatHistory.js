@@ -506,7 +506,8 @@
     "breakageReporting",
     "print",
     "webInterferenceDetection",
-    "pageObserver"
+    "pageObserver",
+    "hover"
   ];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(
@@ -567,7 +568,8 @@
       "webTelemetry",
       "pageContext",
       "print",
-      "pageObserver"
+      "pageObserver",
+      "hover"
     ]
   );
   var platformSupport = {
@@ -583,7 +585,8 @@
       "messageBridge",
       "favicon",
       "webDetection",
-      "pageObserver"
+      "pageObserver",
+      "hover"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],

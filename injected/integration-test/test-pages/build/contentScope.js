@@ -2852,7 +2852,8 @@
     "breakageReporting",
     "print",
     "webInterferenceDetection",
-    "pageObserver"
+    "pageObserver",
+    "hover"
   ];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(
@@ -2992,7 +2993,8 @@
       "webTelemetry",
       "pageContext",
       "print",
-      "pageObserver"
+      "pageObserver",
+      "hover"
     ]
   );
   var platformSupport = {
@@ -3008,7 +3010,8 @@
       "messageBridge",
       "favicon",
       "webDetection",
-      "pageObserver"
+      "pageObserver",
+      "hover"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -23638,6 +23641,28 @@ ${iframeContent}
   };
   var page_observer_default = PageObserver;
 
+  // src/features/hover.js
+  init_define_import_meta_trackerLookup();
+  var Hover = class extends ContentFeature {
+    init() {
+      document.addEventListener(
+        "mouseover",
+        (event) => {
+          const anchor = findClosestAnchor(event.target);
+          const href = anchor?.href || null;
+          this.notify("hoverChanged", { href });
+        },
+        true
+      );
+      if (!isBeingFramed()) {
+        document.addEventListener("mouseleave", () => {
+          this.notify("hoverChanged", { href: null });
+        });
+      }
+    }
+  };
+  var hover_default = Hover;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_fingerprintingAudio: FingerprintingAudio,
@@ -23675,7 +23700,8 @@ ${iframeContent}
     ddg_feature_webTelemetry: web_telemetry_default,
     ddg_feature_pageContext: PageContext,
     ddg_feature_print: print_default,
-    ddg_feature_pageObserver: page_observer_default
+    ddg_feature_pageObserver: page_observer_default,
+    ddg_feature_hover: hover_default
   };
 
   // src/url-change.js
