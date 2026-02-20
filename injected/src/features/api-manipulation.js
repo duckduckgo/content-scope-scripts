@@ -130,7 +130,7 @@ export default class ApiManipulation extends ContentFeature {
                     enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
                     configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
                 };
-                this.defineProperty(api, key, defineDescriptor);
+                this.defineProperty(api, key, /** @type {import('../wrapper-utils').StrictPropertyDescriptor} */ (defineDescriptor));
                 return;
             }
             this.wrapProperty(api, key, descriptor);
