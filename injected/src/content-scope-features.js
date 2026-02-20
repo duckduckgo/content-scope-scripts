@@ -54,8 +54,7 @@ export function load(args) {
         injectName: import.meta.injectName,
     };
 
-    const bundledFeatureNames =
-        typeof importConfig.injectName === 'string' ? (platformSupport[importConfig.injectName] ?? []) : [];
+    const bundledFeatureNames = typeof importConfig.injectName === 'string' ? (platformSupport[importConfig.injectName] ?? []) : [];
 
     // prettier-ignore
     const featuresToLoad = isGloballyDisabled(args)
