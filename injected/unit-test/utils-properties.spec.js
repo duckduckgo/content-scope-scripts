@@ -268,6 +268,13 @@ describe('processAttr properties', () => {
         }
     });
 
+    it('normalizes NaN defaultValue to undefined', () => {
+        // NaN breaks identity checks (NaN !== NaN), so processAttr normalizes it.
+        // @ts-expect-error - testing undefined configSetting
+        const result = processAttr(undefined, NaN);
+        expect(result).toBeUndefined();
+    });
+
     it('returns number value for type:number', () => {
         fc.assert(
             fc.property(fc.double({ noNaN: true }), (n) => {
