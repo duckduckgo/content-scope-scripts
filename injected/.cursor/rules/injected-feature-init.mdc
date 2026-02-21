@@ -1,0 +1,29 @@
+---
+description: Injected feature init/load special cases
+alwaysApply: false
+---
+
+# Rule: Injected feature init/load special cases
+
+## Scope
+When editing the central lifecycle code (`injected/src/content-scope-features.js`, `injected/src/utils.js`) or feature registry (`injected/src/features.js`), preserve the special-case init/load behaviors below.
+
+## Special cases to preserve
+
+### 1) Always-run platform-specific features (global disable bypass)
+- In `load()`, when `isGloballyDisabled(args)` is true (allowlisted or broken sites), we still load `platformSpecificFeatures`.
+- Current list (see `injected/src/utils.js`): `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`.
+- Rationale: these provide platform integration and must remain available even when protections are disabled.
+
+### 2) Always-init extension features (cookie)
+- `alwaysInitFeatures` in `injected/src/content-scope-features.js` (currently `['cookie']`) bypasses `isFeatureBroken` for `platform.name === 'extension'`.
+- This ensures `cookie` runs `init()` even on allowlisted/broken sites to complete policy setup.
+
+### 3) Cookie feature early load/init ordering
+- `injected/src/features/cookie.js` installs the `Document.cookie` wrapper in `load()` before full config is available.
+- `load()` seeds a best-effort policy from `bundledConfig`, then `init()` finalizes policy (including extension-provided `args.cookie`) and resolves `loadedPolicyResolve`.
+- Changing load/init ordering or gating can create gaps where cookies are not intercepted or policy resolution never completes.
+
+### 4) Extension load uses bundled feature list
+- In `load()`, extensions do not have `site.enabledFeatures` yet, so they fall back to `platformSupport[import.meta.injectName]`.
+- Avoid tightening this flow; it is required for early-load features (especially `cookie`) to install hooks on time.
