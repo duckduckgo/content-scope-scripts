@@ -4,7 +4,7 @@ import { ErrorResponse, SuccessResponse } from '../types.js';
 /**
  * This builds the proper URL given the URL template and userData.
  *
- * @param {import('../types.js').PirAction} action
+ * @param {Record<string, any> & {id: string, actionType: string}} action
  * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
@@ -14,14 +14,14 @@ export function buildUrl(action, userData) {
         return new ErrorResponse({ actionID: action.id, message: result.error });
     }
 
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { url: result.url } });
+    return new SuccessResponse({ actionID: action.id, actionType: /** @type {import('../types.js').PirAction['actionType']} */ (action.actionType), response: { url: result.url } });
 }
 
 /**
  * Perform some basic validations before we continue into the templating.
  *
- * @param {import('../types.js').PirAction} action
- * @param {Record<string, any>} userData
+ * @param {any} action
+ * @param {any} userData
  * @return {{url: string} | {error: string}}
  */
 export function replaceTemplatedUrl(action, userData) {
