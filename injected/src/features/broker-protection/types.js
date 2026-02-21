@@ -43,7 +43,7 @@ export class PirError {
     }
 
     /**
-     * @param {object} error
+     * @param {unknown} error
      * @return {error is PirError}
      * @static
      * @memberof PirError
@@ -84,7 +84,7 @@ export class PirSuccess {
     }
 
     /**
-     * @param {object} params
+     * @param {unknown} params
      * @return {params is PirSuccess}
      * @static
      * @memberof PirSuccess

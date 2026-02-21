@@ -83,10 +83,10 @@ export function createPageWorldBridge(featureName, token, context) {
         if (result && result.id === id) {
             installed = true;
         }
-        captured.removeEventListener(evtName, didInstall);
+        captured.removeEventListener(evtName, /** @type {EventListener} */ (didInstall));
     };
 
-    captured.addEventListener(evtName, didInstall);
+    captured.addEventListener(evtName, /** @type {EventListener} */ (didInstall));
     send(evt);
 
     if (!installed) {
@@ -158,10 +158,10 @@ function createMessagingInterface(featureName, send, appendToken, context) {
                         } else if ('result' in response) {
                             resolve(response.result);
                         }
-                        captured.removeEventListener(responseName, handler);
+                        captured.removeEventListener(responseName, /** @type {EventListener} */ (handler));
                     }
                 };
-                captured.addEventListener(responseName, handler);
+                captured.addEventListener(responseName, /** @type {EventListener} */ (handler));
             });
         },
 
@@ -194,10 +194,10 @@ function createMessagingInterface(featureName, send, appendToken, context) {
             };
 
             const type = appendToken(SubscriptionResponse.NAME + '-' + id);
-            captured.addEventListener(type, handler);
+            captured.addEventListener(type, /** @type {EventListener} */ (handler));
 
             return () => {
-                captured.removeEventListener(type, handler);
+                captured.removeEventListener(type, /** @type {EventListener} */ (handler));
                 const evt = new SubscriptionUnsubscribe({ id });
                 send(evt);
             };

@@ -65,7 +65,7 @@ const optionalTransforms = new Map([
             if (!action.ageRange) return value;
             const ageNumber = Number(value);
             // find matching age range
-            const ageRange = action.ageRange.find((range) => {
+            const ageRange = action.ageRange.find((/** @type {string} */ range) => {
                 const [min, max] = range.split('-');
                 return ageNumber >= Number(min) && ageNumber <= Number(max);
             });
@@ -174,8 +174,9 @@ function applyTransforms(dataKey, value, transformNames, action) {
     return outputString;
 }
 
+/** @param {string} s */
 function capitalize(s) {
     const words = s.split(' ');
-    const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+    const capitalizedWords = words.map((/** @type {string} */ word) => word.charAt(0).toUpperCase() + word.slice(1));
     return capitalizedWords.join(' ');
 }

@@ -45,7 +45,10 @@ export function click(action, userData, root = document) {
         try {
             rootElement = selectRootElement(element, userData, root);
         } catch (error) {
-            return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${error.message}` });
+            return new ErrorResponse({
+                actionID: action.id,
+                message: `Could not find root element: ${error instanceof Error ? error.message : String(error)}`,
+            });
         }
 
         const elements = getElements(rootElement, element.selector);
@@ -193,14 +196,14 @@ function runComparison(choice, action, userData) {
     try {
         compare = getComparisonFunction(choice.condition.operation);
     } catch (error) {
-        return { error: `Unable to get comparison function: ${error.message}` };
+        return { error: `Unable to get comparison function: ${error instanceof Error ? error.message : String(error)}` };
     }
 
     try {
         left = processTemplateStringWithUserData(choice.condition.left, action, userData);
         right = processTemplateStringWithUserData(choice.condition.right, action, userData);
     } catch (error) {
-        return { error: `Unable to resolve left/right comparison arguments: ${error.message}` };
+        return { error: `Unable to resolve left/right comparison arguments: ${error instanceof Error ? error.message : String(error)}` };
     }
 
     let result;
@@ -208,7 +211,7 @@ function runComparison(choice, action, userData) {
     try {
         result = compare(left, right);
     } catch (error) {
-        return { error: `Comparison failed with the following error: ${error.message}` };
+        return { error: `Comparison failed with the following error: ${error instanceof Error ? error.message : String(error)}` };
     }
 
     return { result };

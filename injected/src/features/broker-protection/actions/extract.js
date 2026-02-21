@@ -91,7 +91,7 @@ export function extractProfiles(action, userData, root = document) {
 
     return {
         results: profilesElementList.map((element) => {
-            const elementFactory = (_, value) => {
+            const elementFactory = (/** @type {string} */ _, /** @type {any} */ value) => {
                 return value?.findElements
                     ? cleanArray(getElements(element, value.selector))
                     : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector));
@@ -135,6 +135,7 @@ export function extractProfiles(action, userData, root = document) {
  * @return {Record<string, any>}
  */
 export function createProfile(elementFactory, extractData) {
+    /** @type {Record<string, any>} */
     const output = {};
     for (const [key, value] of Object.entries(extractData)) {
         if (!value?.selector) {
@@ -202,6 +203,7 @@ export function stringValuesFromElements(elements, key, extractField) {
  * @return {{score: number, matchedFields: string[], result: boolean}}
  */
 export function scrapedDataMatchesUserData(userData, scrapedData) {
+    /** @type {string[]} */
     const matchedFields = [];
 
     // the name matching is always a *requirement*
@@ -372,8 +374,9 @@ export function stringToList(inputList, separator) {
 }
 
 // For extraction
+/** @type {Record<string, (element: any) => any>} */
 const rules = {
-    profileUrl: function (link) {
+    profileUrl: function (/** @type {any} */ link) {
         return link?.href ?? null;
     },
 };

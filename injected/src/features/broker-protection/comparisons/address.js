@@ -14,6 +14,10 @@ export function addressMatch(userAddresses, foundAddresses) {
     });
 }
 
+/**
+ * @param {string} stateAbbreviation
+ * @returns {string | null}
+ */
 export function getStateFromAbbreviation(stateAbbreviation) {
     if (stateAbbreviation == null || stateAbbreviation.trim() === '') {
         return null;
@@ -21,5 +25,5 @@ export function getStateFromAbbreviation(stateAbbreviation) {
 
     const state = stateAbbreviation.toUpperCase();
 
-    return states[state] || null;
+    return /** @type {Record<string, string>} */ (states)[state] || null;
 }

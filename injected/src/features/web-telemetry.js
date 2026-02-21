@@ -10,6 +10,12 @@ const MSG_URL_CHANGED = 'url-changed';
 export class WebTelemetry extends ContentFeature {
     listenForUrlChanges = true;
 
+    /**
+     * @param {string} featureName
+     * @param {any} importConfig
+     * @param {any} features
+     * @param {any} args
+     */
     constructor(featureName, importConfig, features, args) {
         super(featureName, importConfig, features, args);
         this.seenVideoElements = new WeakSet();
@@ -31,6 +37,7 @@ export class WebTelemetry extends ContentFeature {
         }
     }
 
+    /** @param {HTMLVideoElement} video */
     getVideoUrl(video) {
         // Try to get the video URL from various sources
         if (video.src) {
@@ -57,6 +64,7 @@ export class WebTelemetry extends ContentFeature {
         });
     }
 
+    /** @param {HTMLVideoElement} video */
     fireTelemetryForVideo(video) {
         const videoUrl = this.getVideoUrl(video);
         if (this.seenVideoUrls.has(videoUrl)) {
@@ -73,6 +81,7 @@ export class WebTelemetry extends ContentFeature {
         this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
     }
 
+    /** @param {HTMLVideoElement} video */
     addPlayObserver(video) {
         if (this.seenVideoElements.has(video)) {
             return; // already observed
@@ -81,6 +90,7 @@ export class WebTelemetry extends ContentFeature {
         video.addEventListener('play', () => this.fireTelemetryForVideo(video));
     }
 
+    /** @param {Element} node */
     addListenersToAllVideos(node) {
         if (!node) {
             return;
@@ -118,15 +128,16 @@ export class WebTelemetry extends ContentFeature {
             }
         });
 
-        const observerCallback = (mutationsList) => {
+        const observerCallback = (/** @type {MutationRecord[]} */ mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'childList') {
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === Node.ELEMENT_NODE) {
-                            if (node.tagName === 'VIDEO') {
-                                this.addPlayObserver(node);
+                            const elem = /** @type {Element} */ (node);
+                            if (elem.tagName === 'VIDEO') {
+                                this.addPlayObserver(/** @type {HTMLVideoElement} */ (elem));
                             } else {
-                                this.addListenersToAllVideos(node);
+                                this.addListenersToAllVideos(elem);
                             }
                         }
                     });

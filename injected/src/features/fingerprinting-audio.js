@@ -3,11 +3,13 @@ import { getDataKeySync } from '../crypto';
 import ContentFeature from '../content-feature';
 
 export default class FingerprintingAudio extends ContentFeature {
+    /** @param {any} args */
     init(args) {
         const { sessionKey, site } = args;
         const domainKey = site.domain;
 
         // In place modify array data to remove fingerprinting
+        /** @param {Float32Array} channelData @param {string} domainKey @param {string} sessionKey @param {any} thisArg */
         function transformArrayData(channelData, domainKey, sessionKey, thisArg) {
             let { audioKey } = getCachedResponse(thisArg, args);
             if (!audioKey) {
@@ -66,6 +68,7 @@ export default class FingerprintingAudio extends ContentFeature {
 
         const cacheExpiry = 60;
         const cacheData = new WeakMap();
+        /** @param {any} thisArg @param {any} args */
         function getCachedResponse(thisArg, args) {
             const data = cacheData.get(thisArg);
             const timeNow = Date.now();
@@ -77,6 +80,7 @@ export default class FingerprintingAudio extends ContentFeature {
             return { audioKey: null };
         }
 
+        /** @param {any} thisArg @param {any} args @param {string} audioKey */
         function setCache(thisArg, args, audioKey) {
             cacheData.set(thisArg, { args: JSON.stringify(args), expires: Date.now() + cacheExpiry, audioKey });
         }

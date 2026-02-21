@@ -204,7 +204,7 @@ export class VideoParams {
     /**
      * Convert a relative pathname into VideoParams
      *
-     * @param pathname
+     * @param {string} pathname
      * @returns {VideoParams|null}
      */
     static fromPathname(pathname) {
@@ -221,7 +221,7 @@ export class VideoParams {
      * Convert a href into valid video params. Those can then be converted into a private player
      * link when needed
      *
-     * @param href
+     * @param {string} href
      * @returns {VideoParams|null}
      */
     static fromHref(href) {
@@ -265,6 +265,7 @@ export class VideoParams {
  */
 export class DomState {
     loaded = false;
+    /** @type {(() => void)[]} */
     loadedCallbacks = [];
     constructor() {
         window.addEventListener('DOMContentLoaded', () => {
@@ -273,6 +274,7 @@ export class DomState {
         });
     }
 
+    /** @param {() => void} loadedCallback */
     onLoaded(loadedCallback) {
         if (this.loaded) return loadedCallback();
         this.loadedCallbacks.push(loadedCallback);
@@ -298,22 +300,30 @@ export class Logger {
         this.id = id;
     }
 
+    /** @param {...any} args */
     error(...args) {
         this.output(console.error, args);
     }
 
+    /** @param {...any} args */
     info(...args) {
         this.output(console.info, args);
     }
 
+    /** @param {...any} args */
     log(...args) {
         this.output(console.log, args);
     }
 
+    /** @param {...any} args */
     warn(...args) {
         this.output(console.warn, args);
     }
 
+    /**
+     * @param {(...data: any[]) => void} handler
+     * @param {any[]} args
+     */
     output(handler, args) {
         if (this.shouldLog()) {
             handler(`${this.id.padEnd(20, ' ')} |`, ...args);

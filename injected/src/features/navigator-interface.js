@@ -7,19 +7,23 @@ import { ensureNavigatorDuckDuckGo } from '../navigator-global.js';
  * @import { MessagingInterface } from "./message-bridge/schema.js"
  */
 
+/** @type {Record<string, import('./message-bridge/schema.js').MessagingInterface>} */
 const store = {};
 
 export default class NavigatorInterface extends ContentFeature {
+    /** @param {any} args */
     load(args) {
         if (this.matchConditionalFeatureSetting('privilegedDomains').length) {
             this.injectNavigatorInterface(args);
         }
     }
 
+    /** @param {any} args */
     init(args) {
         this.injectNavigatorInterface(args);
     }
 
+    /** @param {any} args */
     injectNavigatorInterface(args) {
         try {
             if (!args.platform || !args.platform.name) {
@@ -31,7 +35,7 @@ export default class NavigatorInterface extends ContentFeature {
             }
 
             const target = ensureNavigatorDuckDuckGo({
-                defineProperty: this.defineProperty.bind(this),
+                defineProperty: /** @type {typeof Object.defineProperty} */ (this.defineProperty.bind(this)),
             });
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const context = this;

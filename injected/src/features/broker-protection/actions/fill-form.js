@@ -51,7 +51,7 @@ export function fillMany(root, elements, data) {
         }
 
         if (element.type === '$file_id$') {
-            results.push(setImageUpload(inputElem));
+            results.push(setImageUpload(/** @type {HTMLInputElement} */ (inputElem)));
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()));
         } else if (element.type === '$generated_zip_code$') {
@@ -108,7 +108,7 @@ export function fillMany(root, elements, data) {
                 continue;
             }
 
-            const stateFull = states[state];
+            const stateFull = /** @type {Record<string, string>} */ (states)[state];
 
             results.push(setValueForInput(inputElem, stateFull));
         } else {
@@ -226,7 +226,7 @@ function setValueForInput(el, val) {
 }
 
 /**
- * @param element
+ * @param {HTMLInputElement} element
  * @return {{result: true}|{result: false, error: string}}
  */
 function setImageUpload(element) {
@@ -255,6 +255,6 @@ function setImageUpload(element) {
         return { result: true };
     } catch (e) {
         // failed
-        return { result: false, error: e.toString() };
+        return { result: false, error: e instanceof Error ? e.toString() : String(e) };
     }
 }
