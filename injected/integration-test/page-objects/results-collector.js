@@ -155,6 +155,12 @@ export class ResultsCollector {
      * @private
      */
     async _loadExtension(htmlPath, configPath, platform) {
+        // Start V8 coverage before navigation so extension-injected scripts are instrumented
+        if (COLLECT_COVERAGE && typeof this.page.coverage?.startJSCoverage === 'function') {
+            await this.page.coverage.startJSCoverage({ resetOnNavigation: false });
+            this.#coverageStarted = true;
+        }
+
         const config = JSON.parse(readFileSync(configPath, 'utf8'));
         /** @type {import('../../src/utils.js').UserPreferences} */
         const userPreferences = {
@@ -360,7 +366,11 @@ export class ResultsCollector {
      */
     static create(page, use) {
         // Read the configuration object to determine which platform we're testing against
-        page.on('console', (msg) => console[msg.type()](msg.text()));
+        page.on('console', (msg) => {
+            const type = msg.type();
+            const logFn = console[type] ?? console.log;
+            logFn(msg.text());
+        });
         const { platformInfo, build } = perPlatform(use);
         return new ResultsCollector(page, build, platformInfo);
     }

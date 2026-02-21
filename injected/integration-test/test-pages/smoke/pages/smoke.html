@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Feature Smoke Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <!-- Capture JS errors and unhandled rejections that occur during feature init.
+         These fire before our test code runs, so we collect them early.
+         We filter out resource loading errors (404s etc.) which are infrastructure noise. -->
+    <script>
+        window.__smokeErrors = [];
+        window.addEventListener('error', (e) => {
+            // Only capture JS errors (ErrorEvent), not resource load errors (Event on elements)
+            if (e instanceof ErrorEvent) {
+                window.__smokeErrors.push(e.message || String(e));
+            }
+        });
+        window.addEventListener('unhandledrejection', (e) => {
+            window.__smokeErrors.push(e.reason?.message || String(e.reason));
+        });
+    </script>
+
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Feature Smoke Test]</a></p>
+
+    <p>This page verifies that features initialize without breaking the page.
+       It is loaded once per feature and once with all features enabled.</p>
+
+    <!-- Elements that features may interact with -->
+    <video id="test-video" width="1" height="1" muted></video>
+    <canvas id="test-canvas" width="100" height="100"></canvas>
+    <div id="test-element">Test content</div>
+    <a href="https://example.com" id="test-link">Test link</a>
+    <iframe id="test-frame" src="about:blank" width="1" height="1" style="display:none"></iframe>
+
+    <script>
+        test('No errors during feature initialization', async () => {
+            // Give any async init a moment to settle
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            return [
+                {
+                    name: 'No uncaught errors during feature init',
+                    result: window.__smokeErrors.length,
+                    expected: 0,
+                },
+            ];
+        });
+
+        test('Page remains functional after feature init', async () => {
+            const results = [];
+
+            // Core DOM APIs still work
+            results.push({
+                name: 'document.createElement works',
+                result: typeof document.createElement('div'),
+                expected: 'object',
+            });
+
+            results.push({
+                name: 'document.querySelector works',
+                result: document.querySelector('#test-element') !== null,
+                expected: true,
+            });
+
+            results.push({
+                name: 'document.location.href is a string',
+                result: typeof document.location.href,
+                expected: 'string',
+            });
+
+            results.push({
+                name: 'document.readyState is valid',
+                result: ['loading', 'interactive', 'complete'].includes(document.readyState),
+                expected: true,
+            });
+
+            // Navigator APIs accessible (features commonly wrap Navigator.prototype)
+            results.push({
+                name: 'navigator.userAgent is a string',
+                result: typeof navigator.userAgent,
+                expected: 'string',
+            });
+
+            // Screen API accessible (fingerprintingScreenSize wraps Screen.prototype)
+            results.push({
+                name: 'screen.width is a number',
+                result: typeof screen.width,
+                expected: 'number',
+            });
+
+            results.push({
+                name: 'screen.height is a number',
+                result: typeof screen.height,
+                expected: 'number',
+            });
+
+            // Timers still work
+            const timerWorks = await new Promise((resolve) => {
+                setTimeout(() => resolve(true), 10);
+            });
+            results.push({
+                name: 'setTimeout still works',
+                result: timerWorks,
+                expected: true,
+            });
+
+            // Promises still work
+            const promiseWorks = await Promise.resolve(true);
+            results.push({
+                name: 'Promises still work',
+                result: promiseWorks,
+                expected: true,
+            });
+
+            // JSON serialization works
+            let jsonWorks = false;
+            try {
+                JSON.parse(JSON.stringify({ test: true }));
+                jsonWorks = true;
+            } catch (e) {
+                // noop
+            }
+            results.push({
+                name: 'JSON serialization works',
+                result: jsonWorks,
+                expected: true,
+            });
+
+            // Event dispatch works
+            let eventFired = false;
+            const handler = () => { eventFired = true; };
+            window.addEventListener('test-smoke', handler);
+            window.dispatchEvent(new CustomEvent('test-smoke'));
+            window.removeEventListener('test-smoke', handler);
+            results.push({
+                name: 'Event dispatch works',
+                result: eventFired,
+                expected: true,
+            });
+
+            // DOM manipulation works
+            const el = document.createElement('span');
+            el.textContent = 'smoke';
+            document.body.appendChild(el);
+            const found = document.body.contains(el);
+            el.remove();
+            results.push({
+                name: 'DOM manipulation works',
+                result: found,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        test('Wrapped APIs remain accessible', async () => {
+            // These are APIs commonly wrapped by features. Verify they're
+            // still callable after feature init — catches cases where a
+            // proxy/wrapper accidentally breaks the API surface.
+            const results = [];
+
+            // Canvas (fingerprintingCanvas wraps getContext, toDataURL, getImageData)
+            const canvas = document.getElementById('test-canvas');
+            let canvasCtx = null;
+            try {
+                canvasCtx = canvas.getContext('2d');
+            } catch (e) {
+                // noop
+            }
+            results.push({
+                name: 'canvas.getContext("2d") returns context',
+                result: canvasCtx !== null,
+                expected: true,
+            });
+
+            if (canvasCtx) {
+                canvasCtx.fillRect(0, 0, 10, 10);
+                let dataUrl = '';
+                try {
+                    dataUrl = canvas.toDataURL();
+                } catch (e) {
+                    // noop
+                }
+                results.push({
+                    name: 'canvas.toDataURL() returns string',
+                    result: typeof dataUrl,
+                    expected: 'string',
+                });
+            }
+
+            // Hardware (fingerprintingHardware wraps these)
+            results.push({
+                name: 'navigator.hardwareConcurrency is a number',
+                result: typeof navigator.hardwareConcurrency,
+                expected: 'number',
+            });
+
+            // Storage (fingerprintingTemporaryStorage wraps this)
+            if (navigator.storage && navigator.storage.estimate) {
+                let estimateWorks = false;
+                try {
+                    const est = await navigator.storage.estimate();
+                    estimateWorks = typeof est.quota === 'number';
+                } catch (e) {
+                    // noop
+                }
+                results.push({
+                    name: 'navigator.storage.estimate() resolves',
+                    result: estimateWorks,
+                    expected: true,
+                });
+            }
+
+            // Performance (performanceMetrics uses PerformanceObserver)
+            results.push({
+                name: 'PerformanceObserver is available',
+                result: typeof PerformanceObserver,
+                expected: 'function',
+            });
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>
