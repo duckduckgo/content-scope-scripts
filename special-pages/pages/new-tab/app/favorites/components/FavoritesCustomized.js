@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useContext } from 'preact/hooks';
 
 import { useTelemetry, useTypedTranslationWith } from '../../types.js';
-import { useVisibility } from '../../widget-list/widget-config.provider.js';
+import { useVisibility, useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 
 import { FavoritesContext, FavoritesProvider } from './FavoritesProvider.js';
@@ -20,6 +20,7 @@ export function FavoritesConsumer() {
     const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add } = useContext(FavoritesContext);
     const telemetry = useTelemetry();
     const { data: backgroundData } = useContext(CustomizerContext);
+    useWidgetDidRender(state.status);
 
     /**
      * Checks if view transitions are supported and initiates reordering of favorites accordingly.

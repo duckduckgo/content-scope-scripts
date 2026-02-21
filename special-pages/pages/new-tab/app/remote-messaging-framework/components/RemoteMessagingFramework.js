@@ -1,11 +1,12 @@
 import { h, Fragment } from 'preact';
 import cn from 'classnames';
 import styles from './RemoteMessagingFramework.module.css';
-import { useContext } from 'preact/hooks';
+import { useContext, useRef } from 'preact/hooks';
 import { RMFContext } from '../RMFProvider.js';
 import { DismissButton } from '../../components/DismissButton';
 import { Button } from '../../../../../shared/components/Button/Button';
 import { usePlatformName } from '../../settings.provider';
+import { useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @import { RMFMessage } from "../../../types/new-tab"
@@ -76,6 +77,7 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
 
 export function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = useContext(RMFContext);
+    useWidgetDidRender(state.status);
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {
