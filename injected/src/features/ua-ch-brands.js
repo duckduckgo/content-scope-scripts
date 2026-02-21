@@ -135,26 +135,30 @@ export default class UaChBrands extends ContentFeature {
             // while preserving dynamic `this` (userAgentData) for DDGReflect.apply.
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const featureInstance = this;
-            this.wrapMethod(proto, 'getHighEntropyValues', /** @this {any} */ async function (originalFn, ...args) {
-                const originalResult = await DDGReflect.apply(originalFn, this, args);
-                const modifiedResult = {};
+            this.wrapMethod(
+                proto,
+                'getHighEntropyValues',
+                /** @this {any} */ async function (originalFn, ...args) {
+                    const originalResult = await DDGReflect.apply(originalFn, this, args);
+                    const modifiedResult = {};
 
-                for (const [key, value] of Object.entries(originalResult)) {
-                    let result = value;
+                    for (const [key, value] of Object.entries(originalResult)) {
+                        let result = value;
 
-                    if (key === 'brands' && args[0]?.includes('brands')) {
-                        result = newBrands;
+                        if (key === 'brands' && args[0]?.includes('brands')) {
+                            result = newBrands;
+                        }
+                        if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
+                            const targetBrand = shouldOverrideEdge ? featureInstance.getBrandOverride() : null;
+                            result = featureInstance.applyBrandMutationsToList(value, targetBrand, shouldFilterWebView2);
+                        }
+
+                        /** @type {Record<string, any>} */ (modifiedResult)[key] = result;
                     }
-                    if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
-                        const targetBrand = shouldOverrideEdge ? featureInstance.getBrandOverride() : null;
-                        result = featureInstance.applyBrandMutationsToList(value, targetBrand, shouldFilterWebView2);
-                    }
 
-                    /** @type {Record<string, any>} */ (modifiedResult)[key] = result;
-                }
-
-                return modifiedResult;
-            });
+                    return modifiedResult;
+                },
+            );
         }
     }
 }

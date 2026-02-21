@@ -82,15 +82,20 @@ export class MessageBridge extends ContentFeature {
          * @param {(instance: T) => void} callback - A callback that receives an instance of the class.
          */
         const accept = (ClassType, callback) => {
-            captured.addEventListener(appendToken(ClassType.NAME), /** @type {EventListener} */ ((/** @type {CustomEvent<unknown>} */ e) => {
-                this.log.info(`${ClassType.NAME}`, JSON.stringify(e.detail));
-                const instance = ClassType.create(e.detail);
-                if (instance) {
-                    callback(instance);
-                } else {
-                    this.log.info('Failed to create an instance');
-                }
-            }));
+            captured.addEventListener(
+                appendToken(ClassType.NAME),
+                /** @type {EventListener} */ (
+                    (/** @type {CustomEvent<unknown>} */ e) => {
+                        this.log.info(`${ClassType.NAME}`, JSON.stringify(e.detail));
+                        const instance = ClassType.create(e.detail);
+                        if (instance) {
+                            callback(instance);
+                        } else {
+                            this.log.info('Failed to create an instance');
+                        }
+                    }
+                ),
+            );
         };
 
         /**
@@ -179,15 +184,20 @@ export class MessageBridge extends ContentFeature {
             this.removeSubscription(id);
         }
 
-        const unsubscribe = proxy.subscribe(subscriptionName, /** @type {(value: unknown) => void} */ ((/** @type {Record<string, any>} */ data) => {
-            const responseEvent = new SubscriptionResponse({
-                subscriptionName,
-                featureName,
-                params: data,
-                id,
-            });
-            reply(responseEvent);
-        }));
+        const unsubscribe = proxy.subscribe(
+            subscriptionName,
+            /** @type {(value: unknown) => void} */ (
+                (/** @type {Record<string, any>} */ data) => {
+                    const responseEvent = new SubscriptionResponse({
+                        subscriptionName,
+                        featureName,
+                        params: data,
+                        id,
+                    });
+                    reply(responseEvent);
+                }
+            ),
+        );
 
         this.subscriptions.set(id, unsubscribe);
     }

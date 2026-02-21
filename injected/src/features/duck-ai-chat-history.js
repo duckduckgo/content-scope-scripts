@@ -21,9 +21,7 @@ export class DuckAiChatHistory extends ContentFeature {
     static MIN_INDEXED_DB_VERSION = 2;
 
     init() {
-        this.messaging.subscribe('getDuckAiChats', (/** @type {any} */ params) =>
-            this.getChats(params),
-        );
+        this.messaging.subscribe('getDuckAiChats', (/** @type {any} */ params) => this.getChats(params));
     }
 
     /**

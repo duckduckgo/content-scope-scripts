@@ -14,7 +14,11 @@ export function buildUrl(action, userData) {
         return new ErrorResponse({ actionID: action.id, message: result.error });
     }
 
-    return new SuccessResponse({ actionID: action.id, actionType: /** @type {import('../types.js').PirAction['actionType']} */ (action.actionType), response: { url: result.url } });
+    return new SuccessResponse({
+        actionID: action.id,
+        actionType: /** @type {import('../types.js').PirAction['actionType']} */ (action.actionType),
+        response: { url: result.url },
+    });
 }
 
 /**

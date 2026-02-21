@@ -399,7 +399,12 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // these permissions cannot be disabled using WebView2 or DevTools protocol
         const permissionsToDisable = [
-            { name: 'Bluetooth', prototype: () => /** @type {any} */ (globalThis)?.Bluetooth?.prototype, method: 'requestDevice', isPromise: true },
+            {
+                name: 'Bluetooth',
+                prototype: () => /** @type {any} */ (globalThis)?.Bluetooth?.prototype,
+                method: 'requestDevice',
+                isPromise: true,
+            },
             { name: 'USB', prototype: () => /** @type {any} */ (globalThis)?.USB?.prototype, method: 'requestDevice', isPromise: true },
             { name: 'Serial', prototype: () => /** @type {any} */ (globalThis)?.Serial?.prototype, method: 'requestPort', isPromise: true },
             { name: 'HID', prototype: () => /** @type {any} */ (globalThis)?.HID?.prototype, method: 'requestDevice', isPromise: true },

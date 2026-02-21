@@ -45,7 +45,10 @@ export function click(action, userData, root = document) {
         try {
             rootElement = selectRootElement(element, userData, root);
         } catch (error) {
-            return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${error instanceof Error ? error.message : String(error)}` });
+            return new ErrorResponse({
+                actionID: action.id,
+                message: `Could not find root element: ${error instanceof Error ? error.message : String(error)}`,
+            });
         }
 
         const elements = getElements(rootElement, element.selector);

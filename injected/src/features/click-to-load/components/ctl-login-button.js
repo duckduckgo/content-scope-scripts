@@ -20,8 +20,7 @@ export class DDGCtlLoginButton {
      * Placeholder container element for blocked login button
      * @type {HTMLDivElement}
      */
-    // @ts-ignore - TS2564: assigned via setter in constructor
-    #element;
+    #element = /** @type {HTMLDivElement} */ (/** @type {unknown} */ (undefined));
 
     /**
      * @param {object} params - Params for building a custom element with

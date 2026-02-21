@@ -27,8 +27,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
     /** @type {DuckPlayerNativeSubFeature | null} */
     currentPage = null;
     /** @type {TranslationFn} */
-    // @ts-ignore - TS2564: assigned in init before use
-    t;
+    t = /** @type {TranslationFn} */ (/** @type {unknown} */ (undefined));
 
     /** @param {any} args */
     async init(args) {

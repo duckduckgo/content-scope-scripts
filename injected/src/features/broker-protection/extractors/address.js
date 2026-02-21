@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Extractor } from '../types.js';
 import { stringToList } from '../actions/extract.js';
-// @ts-ignore - no type declarations for parse-address
 import parseAddress from 'parse-address';
 import { states } from '../comparisons/constants.js';
 

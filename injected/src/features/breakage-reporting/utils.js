@@ -24,12 +24,10 @@ function returnError(errorMessage) {
  */
 function waitForLCP(timeoutMs = 500) {
     return new Promise((resolve) => {
-        // eslint-disable-next-line prefer-const
         /** @type {ReturnType<typeof setTimeout> | undefined} */
-        let timeoutId;
-        // eslint-disable-next-line prefer-const
+        let timeoutId; // eslint-disable-line prefer-const
         /** @type {PerformanceObserver | undefined} */
-        let observer;
+        let observer; // eslint-disable-line prefer-const
 
         const cleanup = () => {
             if (observer) observer.disconnect();
