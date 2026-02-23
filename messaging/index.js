@@ -81,13 +81,13 @@ export class Messaging {
      * @param {Record<string, any>} [data]
      */
     notify(name, data = {}) {
-        const message = new NotificationMessage({
-            context: this.messagingContext.context,
-            featureName: this.messagingContext.featureName,
-            method: name,
-            params: data,
-        });
         try {
+            const message = new NotificationMessage({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                method: name,
+                params: data,
+            });
             const maybeAsyncResult = this.transport.notify(message);
             if (isPromiseLike(maybeAsyncResult)) {
                 void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data);
@@ -269,8 +269,12 @@ function logNotificationError(env, name, data, error) {
     // Silently ignoring any transport errors in production, as per section 4.1 of https://www.jsonrpc.org/specification
     // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
     if (env === 'development') {
-        console.error('[Messaging] Failed to send notification:', error);
-        console.error('[Messaging] Message details:', { name, data });
+        try {
+            console.error('[Messaging] Failed to send notification:', error);
+            console.error('[Messaging] Message details:', { name, data });
+        } catch {
+            // Ignore logging failures so notify never throws in development either.
+        }
     }
 }
 
