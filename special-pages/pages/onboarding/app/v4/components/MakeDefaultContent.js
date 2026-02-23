@@ -1,6 +1,6 @@
 import { h } from 'preact';
-import { useContext, useRef, useState } from 'preact/hooks';
-import { GlobalDispatch } from '../../global';
+import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { GlobalDispatch, useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { ComparisonTable } from './ComparisonTable';
 import { Button } from './Button';
@@ -14,6 +14,7 @@ import styles from './MakeDefaultContent.module.css';
 export function MakeDefaultContent() {
     const { t } = useTypedTranslation();
     const dispatch = useContext(GlobalDispatch);
+    const { status } = useGlobalState();
     const { isReducedMotion } = useEnv();
     const titleRef = useRef(/** @type {HTMLHeadingElement|null} */ (null));
     const skipButtonRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -21,6 +22,16 @@ export function MakeDefaultContent() {
     const [titleText, setTitleText] = useState(t('protectionsActivated_title'));
     const [buttonText, setButtonText] = useState(t('makeDefaultButton'));
     const [showSkipButton, setShowSkipButton] = useState(true);
+
+    // TODO: refactor — this useEffect is not syncing an external store, it's
+    // papering over local state that should be derived from global state instead.
+    useEffect(() => {
+        if (status.kind === 'idle' && status.error) {
+            setTitleText(t('protectionsActivated_title'));
+            setButtonText(t('makeDefaultButton'));
+            setShowSkipButton(true);
+        }
+    }, [status]);
 
     const advance = () => dispatch({ kind: 'enqueue-next' });
 
