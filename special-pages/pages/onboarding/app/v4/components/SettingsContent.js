@@ -14,14 +14,6 @@ import { useFlip } from '../hooks/useFlip';
 import styles from './SettingsContent.module.css';
 
 /**
- * @typedef {{
- *   exitingIndex: number;
- *   enteringIndex: number | null;
- *   showNextButton: boolean;
- * }} RowTransition
- */
-
-/**
  * Bottom bubble content for systemSettings and customize steps.
  * Renders settings rows one at a time with Skip/Action buttons.
  * Shows "Next" button when all rows are complete.
@@ -40,31 +32,16 @@ export function SettingsContent() {
     const isLastStep = order[order.length - 1] === activeStep;
     const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id;
 
-    const advance = () => dispatch({ kind: 'enqueue-next' });
-    const dismiss = () => dispatch({ kind: 'dismiss' });
-
-    // --- Row transition animation ---
-    const [transition, setTransition] = useState(/** @type {RowTransition | null} */ (null));
-
-    /** Called from row buttons before dispatching to start the exit/enter animation. */
-    const startRowTransition = () => {
-        if (isReducedMotion) return;
-        const curr = appState.activeRow;
-        setTransition({
-            exitingIndex: curr,
-            enteringIndex: curr + 1 < step.rows.length ? curr + 1 : null,
-            showNextButton: curr + 1 >= step.rows.length,
-        });
-    };
-
-    const clearTransition = () => setTransition(null);
+    const [exitingIndex, setExitingIndex] = useState(/** @type {number | null} */ (null));
+    const enteringIndex = exitingIndex !== null && exitingIndex + 1 < step.rows.length ? exitingIndex + 1 : null;
+    const isAnimating = exitingIndex !== null;
 
     const rows = step.rows.map((rowId, index) => {
         return {
-            visible: appState.activeRow >= index || transition?.enteringIndex === index,
+            visible: appState.activeRow >= index || enteringIndex === index,
             current: appState.activeRow === index,
-            isExiting: transition?.exitingIndex === index,
-            isEntering: transition?.enteringIndex === index,
+            isExiting: exitingIndex === index,
+            isEntering: enteringIndex === index,
             systemValue: appState.values[rowId] || null,
             uiValue: appState.UIValues[rowId],
             pending: pendingId === rowId,
@@ -72,6 +49,9 @@ export function SettingsContent() {
             data: settingsRowItems[rowId](t, platform),
         };
     });
+
+    const advance = () => dispatch({ kind: 'enqueue-next' });
+    const dismiss = () => dispatch({ kind: 'dismiss' });
 
     return (
         <div class={styles.root}>
@@ -84,8 +64,11 @@ export function SettingsContent() {
                             <SettingListItem
                                 dispatch={dispatch}
                                 item={item}
-                                onAction={startRowTransition}
-                                onTransitionEnd={clearTransition}
+                                onAction={() => {
+                                    if (isReducedMotion) return;
+                                    setExitingIndex(appState.activeRow);
+                                }}
+                                onTransitionEnd={() => setExitingIndex(null)}
                             />
                         </Fragment>
                     ))}
@@ -94,7 +77,7 @@ export function SettingsContent() {
             {appState.status.kind === 'idle' && appState.status.error && <p>{appState.status.error}</p>}
 
             {isDone && (
-                <div class={cn(styles.actions, transition?.showNextButton && styles.fadeInDelayed)}>
+                <div class={cn(styles.actions, isAnimating && styles.fadeInDelayed)}>
                     <Button size="wide" onClick={isLastStep ? dismiss : advance}>
                         {isLastStep ? t('startBrowsing') : t('nextButton')}
                         {isLastStep && <Launch />}
@@ -106,17 +89,7 @@ export function SettingsContent() {
 }
 
 /**
- * A green check icon for completed settings rows.
- */
-function CheckIcon() {
-    return <img src="assets/img/v4/icons/check-circle.svg" width="16" height="16" alt="Completed Action" />;
-}
-
-/**
- * Renders a single settings row with icon, title, and optional inline action / buttons.
- *
- * @param {Object} props
- * @param {{
+ * @typedef {{
  *    visible: boolean;
  *    current: boolean;
  *    isExiting: boolean;
@@ -126,26 +99,31 @@ function CheckIcon() {
  *    systemValue: import('../../types').SystemValue | null;
  *    data: import('../data/data').RowData;
  *    uiValue: import('../../types').UIValue;
- * }} props.item
+ * }} SettingRowItem
+ */
+
+/**
+ * Renders a single settings row with icon, title, and optional inline action / buttons.
+ *
+ * @param {Object} props
+ * @param {SettingRowItem} props.item
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch
  * @param {() => void} props.onAction
  * @param {() => void} props.onTransitionEnd
  */
 function SettingListItem({ item, dispatch, onAction, onTransitionEnd }) {
-    const data = item.data;
+    const { data, current, isExiting, isEntering, pending } = item;
     const { t } = useTypedTranslation();
-    const { isDarkMode } = useEnv();
-    const platformName = /** @type {'macos'|'windows'} */ (usePlatformName());
 
     // usePresence must be declared before useFlip so its useLayoutEffect runs first, taking
     // elements out of flow before useFlip measures the new layout
     /** @type {[import('preact').RefObject<HTMLParagraphElement>, boolean]} */
-    const [subtitleRef, subtitleMounted] = usePresence(!item.isExiting, {
+    const [subtitleRef, subtitleMounted] = usePresence(!isExiting, {
         keyframes: [{ opacity: 1 }, { opacity: 0 }],
         options: { duration: 200, easing: 'ease-out' },
     });
     /** @type {[import('preact').RefObject<HTMLDivElement>, boolean]} */
-    const [buttonsRef, buttonsMounted] = usePresence(!item.isExiting, {
+    const [buttonsRef, buttonsMounted] = usePresence(!isExiting, {
         keyframes: [{ opacity: 1 }, { opacity: 0 }],
         options: { duration: 200, easing: 'ease-out' },
         onComplete: onTransitionEnd,
@@ -153,81 +131,24 @@ function SettingListItem({ item, dispatch, onAction, onTransitionEnd }) {
     /** @type {import('preact').RefObject<HTMLImageElement>} */
     const iconRef = useFlip();
 
-    const accept = () => {
-        if (item.current) onAction();
+    /** @param {boolean} enabled */
+    const handleAction = (enabled) => {
+        if (current) onAction();
         dispatch({
             kind: 'update-system-value',
             id: data.id,
-            payload: { enabled: true },
-            current: item.current,
+            payload: { enabled },
+            current,
         });
     };
 
-    const deny = () => {
-        if (item.current) onAction();
-        dispatch({
-            kind: 'update-system-value',
-            id: data.id,
-            payload: { enabled: false },
-            current: item.current,
-        });
-    };
-
-    const iconPath = 'assets/img/steps/' + data.icon;
-
-    const inline = (() => {
-        if (item.uiValue === 'idle') return null;
-        if (!item.systemValue) return null;
-        const enabled = item.systemValue.enabled;
-
-        if (item.uiValue === 'skipped') {
-            if (enabled && item.data.kind === 'one-time') {
-                return (
-                    <BounceIn delay={'normal'}>
-                        <CheckIcon />
-                    </BounceIn>
-                );
-            }
-            return (
-                <FadeIn>
-                    {item.data.kind === 'one-time' && (
-                        <Button variant="secondary" disabled={item.pending} onClick={accept}>
-                            {item.data.acceptTextRecall || item.data.acceptText}
-                        </Button>
-                    )}
-                    {item.data.kind === 'toggle' && (
-                        <Switch
-                            ariaLabel={item.data.acceptText}
-                            pending={item.pending}
-                            checked={enabled}
-                            onChecked={accept}
-                            onUnchecked={deny}
-                            platformName={platformName}
-                            theme={isDarkMode ? 'dark' : 'light'}
-                        />
-                    )}
-                </FadeIn>
-            );
-        }
-
-        if (item.uiValue === 'accepted') {
-            return (
-                <BounceIn delay={'normal'}>
-                    <CheckIcon />
-                </BounceIn>
-            );
-        }
-
-        throw new Error('unreachable');
-    })();
-
-    const showDetails = item.current || item.isExiting || item.isEntering;
+    const showDetails = current || isExiting || isEntering;
 
     return (
-        <div class={cn(styles.row, item.isEntering && styles.fadeIn)} data-testid="ListItem" data-id={data.id}>
+        <div class={cn(styles.row, isEntering && styles.fadeIn)} data-testid="ListItem" data-id={data.id}>
             <div class={styles.rowContent}>
                 <div class={styles.rowMain}>
-                    <img ref={iconRef} class={styles.rowIcon} src={iconPath} alt="" />
+                    <img ref={iconRef} class={styles.rowIcon} src={'assets/img/steps/' + data.icon} alt="" />
                     <div class={styles.rowText}>
                         <p class={styles.rowTitle}>{data.title}</p>
                         {showDetails && data.secondaryText && subtitleMounted && (
@@ -236,20 +157,72 @@ function SettingListItem({ item, dispatch, onAction, onTransitionEnd }) {
                             </p>
                         )}
                     </div>
-                    {inline && <div class={styles.rowInline}>{inline}</div>}
+                    <InlineAction item={item} onAction={handleAction} />
                 </div>
 
                 {showDetails && buttonsMounted && (
                     <div ref={buttonsRef} class={styles.rowButtons}>
-                        <Button variant="secondary" disabled={item.pending} onClick={deny}>
+                        <Button variant="secondary" disabled={pending} onClick={() => handleAction(false)}>
                             {t('skipButton')}
                         </Button>
-                        <Button disabled={item.pending} onClick={accept}>
-                            {item.data.acceptText}
+                        <Button disabled={pending} onClick={() => handleAction(true)}>
+                            {data.acceptText}
                         </Button>
                     </div>
                 )}
             </div>
         </div>
     );
+}
+
+/**
+ * Inline action shown to the right of a row's title after the user has acted.
+ * Renders a check icon, a recall button, or a toggle switch depending on state.
+ *
+ * @param {Object} props
+ * @param {SettingRowItem} props.item
+ * @param {(enabled: boolean) => void} props.onAction
+ */
+function InlineAction({ item, onAction }) {
+    const { isDarkMode } = useEnv();
+    const platformName = /** @type {'macos'|'windows'} */ (usePlatformName());
+
+    if (item.uiValue === 'idle' || !item.systemValue) return null;
+
+    if (item.uiValue === 'accepted' || (item.uiValue === 'skipped' && item.systemValue.enabled && item.data.kind === 'one-time')) {
+        return (
+            <div class={styles.rowInline}>
+                <BounceIn delay={'normal'}>
+                    <img src="assets/img/v4/icons/check-circle.svg" width="16" height="16" alt="Completed Action" />
+                </BounceIn>
+            </div>
+        );
+    }
+
+    if (item.uiValue === 'skipped') {
+        return (
+            <div class={styles.rowInline}>
+                <FadeIn>
+                    {item.data.kind === 'one-time' && (
+                        <Button variant="secondary" disabled={item.pending} onClick={() => onAction(true)}>
+                            {item.data.acceptTextRecall || item.data.acceptText}
+                        </Button>
+                    )}
+                    {item.data.kind === 'toggle' && (
+                        <Switch
+                            ariaLabel={item.data.acceptText}
+                            pending={item.pending}
+                            checked={item.systemValue.enabled}
+                            onChecked={() => onAction(true)}
+                            onUnchecked={() => onAction(false)}
+                            platformName={platformName}
+                            theme={isDarkMode ? 'dark' : 'light'}
+                        />
+                    )}
+                </FadeIn>
+            </div>
+        );
+    }
+
+    throw new Error('unreachable');
 }
