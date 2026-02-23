@@ -33,7 +33,6 @@ export const stepsConfig = {
                 },
             },
             bubbleWidth: 'narrow',
-            introAnimation: true,
         };
     },
     makeDefaultSingle: () => {

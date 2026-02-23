@@ -118,8 +118,7 @@ export function Bubble({
             {illustration?.background && <div class={styles.background}>{illustration.background}</div>}
             <div
                 ref={containerCallback}
-                class={styles.container}
-                data-exiting={hasExited.current ? String(exiting) : undefined}
+                class={cn(styles.container, hasExited.current && (exiting ? styles.fadeOut : styles.fadeIn))}
                 onAnimationEnd={handleAnimationEnd}
             >
                 <div ref={contentRef}>{children}</div>

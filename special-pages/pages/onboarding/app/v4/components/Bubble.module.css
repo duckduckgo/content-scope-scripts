@@ -21,20 +21,20 @@
     z-index: 1;
 }
 
-.container[data-exiting="true"] {
-    animation: bubble-fade-out 100ms cubic-bezier(0.66, 0, 0.34, 1) forwards;
+.fadeOut {
+    animation: fade-out 100ms cubic-bezier(0.66, 0, 0.34, 1) forwards;
 }
 
-.container[data-exiting="false"] {
-    animation: bubble-fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 233ms backwards;
+.fadeIn {
+    animation: fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 233ms backwards;
 }
 
-@keyframes bubble-fade-out {
+@keyframes fade-out {
     from { opacity: 1; }
     to { opacity: 0; }
 }
 
-@keyframes bubble-fade-in {
+@keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
 }
@@ -87,8 +87,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .container[data-exiting="true"],
-    .container[data-exiting="false"] {
+    .fadeOut,
+    .fadeIn {
         animation: none;
     }
 

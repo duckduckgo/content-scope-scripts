@@ -1,6 +1,5 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import cn from 'classnames';
 import { Bubble } from './Bubble';
 import { ProgressIndicator } from './ProgressIndicator';
 import { useStepConfig } from '../hooks/useStepConfig';
@@ -17,8 +16,7 @@ const GAP = 8;
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
-    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, introAnimation, globalState, bounceKey } =
-        useStepConfig();
+    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey } = useStepConfig();
     const dispatch = useGlobalDispatch();
     const handleExitComplete = () => dispatch({ kind: 'advance' });
 
@@ -41,7 +39,7 @@ export function SingleStep() {
             )}
 
             <Bubble
-                class={cn(styles.bubble, introAnimation && styles.bubbleIntro)}
+                class={styles.bubble}
                 style={{
                     top: 0,
                     width,
@@ -60,7 +58,7 @@ export function SingleStep() {
             </Bubble>
 
             <Bubble
-                class={cn(styles.bubble, introAnimation && !topBubble && styles.bubbleIntro)}
+                class={styles.bubble}
                 style={{
                     top: topBubble ? topHeight + GAP : 0,
                     width,

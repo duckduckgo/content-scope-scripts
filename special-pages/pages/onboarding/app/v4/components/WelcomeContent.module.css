@@ -20,14 +20,14 @@
     text-align: center;
     color: var(--color-black-at-96);
     word-wrap: break-word;
-    animation: welcome-title-slide 3.033s both, welcome-title-opacity 3.033s both;
+    animation: slide-up 3.033s both, fade-in-out 3.033s both;
 
     @media (prefers-color-scheme: dark) {
         color: var(--color-white-at-96);
     }
 }
 
-@keyframes welcome-title-slide {
+@keyframes slide-up {
     0%, 13.19% {
         transform: translateY(49px);
         animation-timing-function: cubic-bezier(0.40, 0.00, 0.74, 1.00);
@@ -37,7 +37,7 @@
     }
 }
 
-@keyframes welcome-title-opacity {
+@keyframes fade-in-out {
     0%, 13.19% {
         opacity: 0;
         animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
@@ -54,10 +54,10 @@
 /* --- Logo --- */
 
 .logo {
-    animation: welcome-logo-scale 3.033s both, welcome-logo-opacity 3.033s both;
+    animation: scale-down 3.033s both, fade-out 3.033s both;
 }
 
-@keyframes welcome-logo-scale {
+@keyframes scale-down {
     0%, 13.19% {
         transform: scale(1.786);
         animation-timing-function: cubic-bezier(0.26, 0.64, 0.48, 1.00);
@@ -67,7 +67,7 @@
     }
 }
 
-@keyframes welcome-logo-opacity {
+@keyframes fade-out {
     0%, 90.11% {
         opacity: 1;
         animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
