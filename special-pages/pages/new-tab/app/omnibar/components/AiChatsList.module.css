@@ -2,7 +2,7 @@
     border-top: 1px solid var(--ds-color-theme-container-border-primary);
     display: flex;
     flex-direction: column;
-    padding: calc(1px + var(--sp-1));
+    padding: calc(3px + var(--sp-1));
 }
 
 .item {
@@ -23,11 +23,13 @@
     }
 
     &[aria-selected="true"],
+    &:hover,
     &:active {
         color: var(--ds-color-theme-accent-content-primary);
     }
 
-    &[aria-selected="true"] {
+    &[aria-selected="true"],
+    &:hover {
         background: var(--ds-color-theme-accent-primary);
     }
 

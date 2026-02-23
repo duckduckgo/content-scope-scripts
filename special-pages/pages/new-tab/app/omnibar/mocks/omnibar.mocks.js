@@ -103,7 +103,7 @@ export function getMockAiChats() {
             },
             {
                 chatId: 'chat-002',
-                title: 'Progression plan summary',
+                title: 'Progression plan summary Progression plan summary Progression plan summary Progression plan summary Progression plan summary',
                 pinned: false,
                 lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
             },
