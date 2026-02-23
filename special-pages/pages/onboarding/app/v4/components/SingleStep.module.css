@@ -66,3 +66,9 @@
         translate: 0 0;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .bubbleIntro {
+        animation: none;
+    }
+}

@@ -76,3 +76,13 @@
         opacity: 0;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .title {
+        animation: none;
+    }
+
+    .logo {
+        animation: none;
+    }
+}

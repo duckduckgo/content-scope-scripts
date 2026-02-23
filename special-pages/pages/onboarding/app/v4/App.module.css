@@ -7,4 +7,5 @@
 
 .container {
     display: flow-root;
+    position: relative;
 }

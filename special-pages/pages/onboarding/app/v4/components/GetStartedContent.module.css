@@ -81,3 +81,8 @@
     align-self: stretch;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .root {
+        animation: none;
+    }
+}
