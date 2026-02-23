@@ -1,4 +1,4 @@
-import { html } from '../src/dom-utils.js';
+import { html, trustedUnsafe, createPolicy } from '../src/dom-utils.js';
 
 describe('dom-utils.js - escapedTemplate', () => {
     const tests = [
@@ -33,4 +33,49 @@ describe('dom-utils.js - escapedTemplate', () => {
             expect(actual).toEqual(test.expected);
         });
     }
+
+    it('should escape special characters', () => {
+        const result = html`<p>${'<script>alert("xss")</script>'}</p>`.toString();
+        expect(result).toBe('<p>&lt;script&gt;alert(&quot;xss&quot;)&lt;&#x2F;script&gt;</p>');
+    });
+
+    it('should throw for unknown object types', () => {
+        expect(() => html`<p>${{}}</p>`.toString()).toThrowError('Unknown object to escape');
+    });
+});
+
+describe('dom-utils.js - trustedUnsafe', () => {
+    it('should return a Template that does not escape content', () => {
+        const result = trustedUnsafe('<b>bold</b>').toString();
+        expect(result).toBe('<b>bold</b>');
+    });
+
+    it('should allow raw HTML through', () => {
+        const result = html`<div>${trustedUnsafe('<script>ok</script>')}</div>`.toString();
+        expect(result).toBe('<div><script>ok</script></div>');
+    });
+});
+
+describe('dom-utils.js - createPolicy', () => {
+    it('returns a policy object with createHTML', () => {
+        const policy = createPolicy();
+        expect(typeof policy.createHTML).toBe('function');
+    });
+
+    it('createHTML returns the input string unchanged (fallback)', () => {
+        // Without trustedTypes (Node.js environment), the fallback is used
+        const policy = createPolicy();
+        expect(policy.createHTML('<div>test</div>')).toBe('<div>test</div>');
+    });
+
+    it('uses trustedTypes.createPolicy when available', () => {
+        const mockPolicy = { createHTML: (/** @type {string} */ s) => `trusted:${s}` };
+        /** @type {any} */ (globalThis).trustedTypes = { createPolicy: () => mockPolicy };
+        try {
+            const policy = createPolicy();
+            expect(policy.createHTML('test')).toBe('trusted:test');
+        } finally {
+            delete (/** @type {any} */ (globalThis).trustedTypes);
+        }
+    });
 });

@@ -280,6 +280,23 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('next steps list', () => {
+        test('single card', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ nextStepsList: 'emailProtection' });
+            await page.locator('[data-entry-point="nextStepsList"]').waitFor();
+            await expect(page).toHaveScreenshot('next-steps-list-single.png', { maxDiffPixels });
+        });
+        test('stacked cards', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ nextStepsList: ['emailProtection', 'duckplayer'] });
+            await page.locator('[data-entry-point="nextStepsList"]').waitFor();
+            await expect(page).toHaveScreenshot('next-steps-list-stacked.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('freemium PIR banner', () => {
         test('onboarding', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

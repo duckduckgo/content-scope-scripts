@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Fingerprinting Screen Size</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Fingerprinting Screen Size]</a></p>
+
+    <p>This page verifies that screen size fingerprinting properties are normalized</p>
+
+    <script>
+        test('Screen properties normalized', async () => {
+            return [
+                {
+                    name: 'screen.availTop is 0',
+                    result: screen.availTop,
+                    expected: 0,
+                },
+                {
+                    name: 'screen.availLeft is 0',
+                    result: screen.availLeft,
+                    expected: 0,
+                },
+                {
+                    name: 'screen.colorDepth is 24',
+                    result: screen.colorDepth,
+                    expected: 24,
+                },
+                {
+                    name: 'screen.pixelDepth is 24',
+                    result: screen.pixelDepth,
+                    expected: 24,
+                },
+                {
+                    name: 'screen.availWidth equals screen.width',
+                    result: screen.availWidth,
+                    expected: screen.width,
+                },
+                {
+                    name: 'screen.availHeight equals screen.height',
+                    result: screen.availHeight,
+                    expected: screen.height,
+                },
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

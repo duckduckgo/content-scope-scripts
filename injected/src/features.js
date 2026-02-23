@@ -26,6 +26,7 @@ export const baseFeatures = /** @type {FeatureName[]} */ ([
 
 const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
+    'contextMenu',
     'cookie',
     'messageBridge',
     'duckPlayer',
@@ -45,12 +46,16 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
+    'print',
+    'pageObserver',
+    'hover',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext', 'print'],
     'apple-isolated': [
+        'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
@@ -60,6 +65,8 @@ export const platformSupport = {
         'messageBridge',
         'favicon',
         'webDetection',
+        'pageObserver',
+        'hover',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
@@ -87,6 +94,7 @@ export const platformSupport = {
         'webDetection',
         'breakageReporting',
     ],
+    'android-ai-history': ['duckAiChatHistory'],
     windows: [
         'cookie',
         ...baseFeatures,

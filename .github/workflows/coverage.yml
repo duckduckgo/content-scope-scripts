@@ -1,0 +1,120 @@
+name: Coverage
+
+on:
+    # Nightly at 03:00 UTC
+    schedule:
+        - cron: '0 3 * * *'
+    # Manual trigger
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    unit-coverage:
+        name: Unit test coverage (injected)
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - run: npm ci
+            - name: Build
+              run: npm run build -w injected
+            - name: Run unit tests with coverage
+              run: npm run test-unit-coverage -w injected
+            - name: Generate coverage report
+              run: npm run coverage-report -w injected
+            - name: Upload coverage artifacts
+              uses: actions/upload-artifact@v6
+              with:
+                  name: coverage-unit
+                  path: injected/coverage/
+                  retention-days: 30
+
+    integration-coverage:
+        name: Integration test coverage (injected)
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - run: npm ci
+            - name: Build with source maps
+              run: C_S_S_SOURCEMAPS=1 npm run build -w injected
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps chromium
+            - name: Run integration tests with coverage
+              run: xvfb-run --server-args='-screen 0 1024x768x24' npm run coverage-int -w injected
+            - name: Upload coverage artifacts
+              uses: actions/upload-artifact@v6
+              with:
+                  name: coverage-integration
+                  path: injected/coverage/integration/
+                  retention-days: 30
+
+    report:
+        name: Merge coverage reports
+        runs-on: ubuntu-latest
+        needs: [unit-coverage, integration-coverage]
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - run: npm ci
+            - name: Download unit coverage
+              uses: actions/download-artifact@v6
+              with:
+                  name: coverage-unit
+                  path: injected/coverage/
+            - name: Download integration coverage
+              uses: actions/download-artifact@v6
+              with:
+                  name: coverage-integration
+                  path: injected/coverage/integration/
+            - name: Generate merged report
+              run: npm run coverage-report -w injected
+            - name: Upload merged report
+              uses: actions/upload-artifact@v6
+              with:
+                  name: coverage-merged-report
+                  path: injected/coverage/
+                  retention-days: 30
+            - name: Upload unit HTML coverage report
+              uses: actions/upload-artifact@v6
+              with:
+                  name: html-coverage-unit
+                  path: injected/coverage/unit/
+                  retention-days: 30
+            - name: Upload integration HTML coverage report
+              uses: actions/upload-artifact@v6
+              with:
+                  name: html-coverage-integration
+                  path: injected/coverage/integration-report/
+                  retention-days: 30

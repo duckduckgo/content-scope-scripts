@@ -1,0 +1,11 @@
+{
+  "readme": "Config for hover integration tests: hover feature disabled.",
+  "version": 1,
+  "features": {
+    "hover": {
+      "state": "disabled",
+      "exceptions": []
+    }
+  },
+  "unprotectedTemporary": []
+}

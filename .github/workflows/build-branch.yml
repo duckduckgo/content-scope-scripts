@@ -1,0 +1,220 @@
+name: Build Release Branch
+
+on:
+    push:
+        branches-ignore:
+            - main
+            - releases
+            - 'pr-releases/**'
+    delete:
+
+permissions: write-all
+
+jobs:
+    build:
+        # Only run on push events (not delete)
+        if: github.event_name == 'push'
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+
+            - name: Install dependencies
+              run: npm ci --verbose
+
+            - name: Run build
+              run: npm run build
+
+            - name: Build docs preview
+              run: npm run docs-preview
+
+            - name: Create and push build branch
+              id: create_branch
+              env:
+                  SOURCE_BRANCH: ${{ github.ref_name }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  git config --global user.name "github-actions[bot]"
+                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+                  # Build branch uses the pr-releases/ prefix to avoid ref conflicts.
+                  # A branch named "foo" prevents creating "foo/bar" (and vice-versa)
+                  # because git refs are a filesystem hierarchy.  pr-releases/ is a
+                  # separate namespace that can never collide with the source branch.
+                  BUILD_BRANCH="pr-releases/${SOURCE_BRANCH}"
+
+                  git checkout -b "${BUILD_BRANCH}"
+                  git add -f build Sources/ContentScopeScripts/dist docs
+                  git commit -m "Build artifacts for ${SOURCE_BRANCH}"
+                  git push -u origin "${BUILD_BRANCH}" --force
+
+                  echo "BUILD_BRANCH=${BUILD_BRANCH}" >> $GITHUB_ENV
+                  echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+            - name: Comment on associated PR
+              uses: actions/github-script@v8
+              env:
+                  BUILD_BRANCH: ${{ env.BUILD_BRANCH }}
+                  COMMIT_HASH: ${{ env.COMMIT_HASH }}
+                  SOURCE_BRANCH: ${{ github.ref_name }}
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const buildBranch = process.env.BUILD_BRANCH;
+                      const commitHash = process.env.COMMIT_HASH;
+                      const sourceBranch = process.env.SOURCE_BRANCH;
+                      const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+                      const branchUrl = `${repoUrl}/tree/${buildBranch}`;
+                      const commitUrl = `${repoUrl}/commit/${commitHash}`;
+                      const previewBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}`;
+                      const docsIndexUrl = `${previewBaseUrl}/docs/index.html`;
+                      const staticPagesIndexUrl = `${previewBaseUrl}/build/integration/pages/index.html`;
+                      const integrationPagesIndexUrl = `${previewBaseUrl}/injected/integration-test/test-pages/index.html`;
+                      const qrUrl = (targetUrl) => `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(targetUrl)}`;
+                      const docsQrUrl = qrUrl(docsIndexUrl);
+                      const staticPagesQrUrl = qrUrl(staticPagesIndexUrl);
+                      const integrationPagesQrUrl = qrUrl(integrationPagesIndexUrl);
+
+                      const lastUpdated = (new Date()).toLocaleString('en-US', {
+                          dateStyle: 'long',
+                          timeStyle: 'long'
+                      });
+
+                      const marker = '<!-- BUILD_BRANCH_COMMENT -->';
+
+                      const commentBody = [
+                          marker,
+                          `### Build Branch`,
+                          ``,
+                          `| | |`,
+                          `|---|---|`,
+                          `| **Branch** | [\`${buildBranch}\`](${branchUrl}) |`,
+                          `| **Commit** | [\`${commitHash.slice(0, 10)}\`](${commitUrl}) |`,
+                          `| **Updated** | ${lastUpdated} |`,
+                          ``,
+                          `#### Static preview entry points`,
+                          ``,
+                          `- Docs: [docs/index.html](${docsIndexUrl})`,
+                          `- Static pages: [build/integration/pages/index.html](${staticPagesIndexUrl})`,
+                          `- Integration pages: [injected/integration-test/test-pages/index.html](${integrationPagesIndexUrl})`,
+                          ``,
+                          `<details>`,
+                          `<summary>QR codes (mobile preview)</summary>`,
+                          ``,
+                          `| Entry point | QR code |`,
+                          `|---|---|`,
+                          `| [Docs](${docsIndexUrl}) | ![QR for docs preview](${docsQrUrl}) |`,
+                          `| [Static pages](${staticPagesIndexUrl}) | ![QR for static pages preview](${staticPagesQrUrl}) |`,
+                          `| [Integration pages](${integrationPagesIndexUrl}) | ![QR for integration pages preview](${integrationPagesQrUrl}) |`,
+                          ``,
+                          `</details>`,
+                          ``,
+                          `#### Integration commands`,
+                          ``,
+                          `**npm** (Android / Extension):`,
+                          '```',
+                          `npm i github:duckduckgo/content-scope-scripts#${buildBranch}`,
+                          '```',
+                          ``,
+                          `**Swift Package Manager** (Apple):`,
+                          '```swift',
+                          `.package(url: "https://github.com/duckduckgo/content-scope-scripts.git", branch: "${buildBranch}")`,
+                          '```',
+                          ``,
+                          `**git submodule** (Windows):`,
+                          '```sh',
+                          `git -C submodules/content-scope-scripts fetch origin ${buildBranch}`,
+                          `git -C submodules/content-scope-scripts checkout origin/${buildBranch}`,
+                          '```',
+                          ``,
+                          `<details>`,
+                          `<summary>Pin to exact commit</summary>`,
+                          ``,
+                          `**npm** (Android / Extension):`,
+                          '```',
+                          `npm i github:duckduckgo/content-scope-scripts#${commitHash}`,
+                          '```',
+                          ``,
+                          `**Swift Package Manager** (Apple):`,
+                          '```swift',
+                          `.package(url: "https://github.com/duckduckgo/content-scope-scripts.git", revision: "${commitHash}")`,
+                          '```',
+                          ``,
+                          `**git submodule** (Windows):`,
+                          '```sh',
+                          `git -C submodules/content-scope-scripts fetch origin ${buildBranch}`,
+                          `git -C submodules/content-scope-scripts checkout ${commitHash}`,
+                          '```',
+                          ``,
+                          `</details>`,
+                      ].join('\n');
+
+                      // Find open PRs for this branch
+                      const { data: prs } = await github.rest.pulls.list({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          head: `${context.repo.owner}:${sourceBranch}`,
+                          state: 'open',
+                      });
+
+                      for (const pr of prs) {
+                          // Find existing bot comment by marker
+                          const { data: comments } = await github.rest.issues.listComments({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              issue_number: pr.number,
+                          });
+
+                          const botComment = comments.find(
+                              c => c.user.login === 'github-actions[bot]' && c.body.includes(marker)
+                          );
+
+                          if (botComment) {
+                              await github.rest.issues.updateComment({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  comment_id: botComment.id,
+                                  body: commentBody,
+                              });
+                              console.log(`Updated comment on PR #${pr.number}`);
+                          } else {
+                              await github.rest.issues.createComment({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  issue_number: pr.number,
+                                  body: commentBody,
+                              });
+                              console.log(`Created comment on PR #${pr.number}`);
+                          }
+                      }
+
+                      if (prs.length === 0) {
+                          console.log(`No open PR found for branch ${sourceBranch} — build branch pushed but no PR to annotate.`);
+                      }
+
+    clean_up:
+        # Only run when a branch is deleted, and only for non-pr-releases branches
+        if: github.event_name == 'delete' && github.event.ref_type == 'branch' && !startsWith(github.event.ref, 'pr-releases/')
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Delete build branch
+              env:
+                  DELETED_BRANCH: ${{ github.event.ref }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  git push origin --delete "pr-releases/${DELETED_BRANCH}" || echo "Build branch pr-releases/${DELETED_BRANCH} not found (may already be deleted)"
