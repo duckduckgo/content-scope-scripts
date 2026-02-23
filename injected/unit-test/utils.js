@@ -1264,5 +1264,16 @@ describe('Helpers checks', () => {
             expect(result).toEqual({ featureA: { key: 'value' } });
             expect(result.featureB).toBeUndefined();
         });
+
+        it('handles enabled features not present in remote config (platform-specific features)', () => {
+            const data = {
+                features: {
+                    featureA: { state: 'enabled', settings: { key: 'value' }, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = parseFeatureSettings(data, ['featureA', 'navigatorInterface', 'messageBridge']);
+            expect(result).toEqual({ featureA: { key: 'value' } });
+        });
     });
 });
