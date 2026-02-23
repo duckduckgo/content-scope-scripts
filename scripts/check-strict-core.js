@@ -24,6 +24,7 @@ const CORE_FILES = new Set([
     'injected/src/dom-utils.js',
     'injected/src/features.js',
     'injected/src/globals.d.ts',
+    'injected/src/features/hover.js',
     'injected/src/performance.js',
     'injected/src/sendmessage-transport.js',
     'injected/src/timer-utils.js',

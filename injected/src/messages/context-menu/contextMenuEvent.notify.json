@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ContextMenuEvent",
+  "description": "Metadata collected from a contextmenu DOM event, sent from C-S-S isolated to the native layer.",
+  "required": ["selectedText", "linkUrl"],
+  "properties": {
+    "selectedText": {
+      "type": ["string", "null"],
+      "description": "The current window text selection, or null if nothing is selected."
+    },
+    "linkUrl": {
+      "type": ["string", "null"],
+      "description": "The href of the closest anchor ancestor, or null if the target is not inside a link."
+    },
+    "imageSrc": {
+      "type": ["string", "null"],
+      "description": "The src of the target element if it is a media element (img, video, etc.), or null."
+    },
+    "imageAlt": {
+      "type": ["string", "null"],
+      "description": "The alt attribute of the target element, or null."
+    },
+    "title": {
+      "type": ["string", "null"],
+      "description": "The title attribute from the target or its closest ancestor with a title, or null."
+    },
+    "elementTag": {
+      "type": ["string", "null"],
+      "description": "The lower-cased tag name of the element that was right-clicked."
+    }
+  }
+}
