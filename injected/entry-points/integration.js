@@ -50,7 +50,9 @@ function generateConfig() {
             // Exclude features requiring a messaging backend (clickToLoad) or
             // platform-specific globals (brokerProtection, autofillImport) that
             // would fail or slow down initialization in the integration test context.
-            enabledFeatures: platformSupport.integration.filter((f) => !['clickToLoad', 'brokerProtection', 'autofillImport'].includes(f)),
+            enabledFeatures: (platformSupport.integration ?? []).filter(
+                (f) => !['clickToLoad', 'brokerProtection', 'autofillImport'].includes(f),
+            ),
         },
     };
 }
