@@ -274,7 +274,6 @@ export function AiChatIcon(props) {
 }
 
 /**
- * Chat bubble icon without sparkle, used for regular (non-pinned) AI chat items.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function ChatBubbleIcon(props) {
@@ -293,7 +292,6 @@ export function ChatBubbleIcon(props) {
 }
 
 /**
- * Pin icon, used for pinned AI chat items.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function PinIcon(props) {
