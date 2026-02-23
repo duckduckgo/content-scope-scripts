@@ -206,7 +206,7 @@ export function getFullNames(name, nicknames) {
     name = name.toLowerCase();
 
     for (const fullName of Object.keys(nicknames)) {
-        if (nicknames[fullName].includes(name)) {
+        if (nicknames[fullName]?.includes(name)) {
             fullNames.add(fullName);
         }
     }
