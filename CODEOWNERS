@@ -20,6 +20,7 @@ injected/integration-test/page-objects/broker-protection.js @duckduckgo/content-
 injected/integration-test/broker-protection-tests/ @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
 injected/integration-test/mocks/broker-protection/ @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
 injected/integration-test/test-pages/broker-protection/ @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
+injected/unit-test/broker-protection* @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
 
 # Platform owners
 injected/src/features.js @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs @duckduckgo/android-devs @duckduckgo/team-windows-development @duckduckgo/extension-owners

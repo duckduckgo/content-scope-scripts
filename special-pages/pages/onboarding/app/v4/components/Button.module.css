@@ -1,0 +1,74 @@
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--sp-2); /* 8px */
+    height: var(--sp-9); /* 36px */
+    min-width: var(--sp-32);
+    padding: 0 var(--sp-6); /* 0 24px */
+    border: none;
+    border-radius: var(--sp-16); /* 64px */
+    cursor: pointer;
+
+    font-family: var(--font-product);
+    font-size: calc(15 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(15 * var(--px-in-rem));
+    text-align: center;
+}
+
+/* --- Primary (accent) --- */
+
+.primary {
+    background: #F05F2B;
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+        background: #FFD885;
+        color: #240F04;
+    }
+}
+
+.primary:hover {
+    background: #d9531f;
+
+    @media (prefers-color-scheme: dark) {
+        background: #f0c96e;
+    }
+}
+
+.primary:active {
+    background: #c24a1b;
+
+    @media (prefers-color-scheme: dark) {
+        background: #e0ba5a;
+    }
+}
+
+/* --- Secondary (standard) --- */
+
+.secondary {
+    background: var(--color-black-at-6);
+    color: var(--color-black-at-96);
+
+    @media (prefers-color-scheme: dark) {
+        background: var(--color-white-at-12);
+        color: white;
+    }
+}
+
+.secondary:hover {
+    background: var(--color-black-at-9);
+
+    @media (prefers-color-scheme: dark) {
+        background: var(--color-white-at-18);
+    }
+}
+
+.secondary:active {
+    background: var(--color-black-at-12);
+
+    @media (prefers-color-scheme: dark) {
+        background: var(--color-white-at-24);
+    }
+}

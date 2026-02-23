@@ -8,7 +8,7 @@ console.log(ROOT);
 const BUILD = join(ROOT, 'build');
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
 
-let CSS_OUTPUT_SIZE = 803_000;
+let CSS_OUTPUT_SIZE = 850_000;
 if (process.platform === 'win32') {
     CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1; // 10% larger for Windows due to line endings
 }

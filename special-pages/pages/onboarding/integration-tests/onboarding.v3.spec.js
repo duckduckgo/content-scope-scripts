@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { OnboardingV3Page } from './onboarding.v3.page.js';
 
 test.describe('onboarding v3', () => {
@@ -474,6 +474,33 @@ test.describe('onboarding v3', () => {
         await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
         await page.getByRole('button', { name: 'Search Only' }).click();
         await onboarding.startBrowsing();
+    });
+
+    test.describe('Given I am on the duck player step with ad-free variant', () => {
+        test('Then it shows ad-free copy and hides the toggle button', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    duckPlayerSingle: {
+                        variant: 'ad-free',
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            // Ad-free title and subtitle are shown
+            await expect(page.getByRole('heading', { name: 'Watch YouTube ad-free!', level: 1 })).toBeVisible();
+            await expect(page.getByRole('heading', { name: /No need for a premium subscription/, level: 2 })).toBeVisible();
+
+            // Toggle button is hidden
+            await expect(page.getByLabel('See Without Duck Player')).not.toBeVisible();
+            await expect(page.getByLabel('See With Duck Player')).not.toBeVisible();
+
+            // Can advance past the step
+            await page.getByRole('button', { name: 'Next' }).click();
+        });
     });
 
     test.describe('Given I am on the settings step', () => {

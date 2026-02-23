@@ -31,7 +31,8 @@
     "injected",
     "injected/src/globals.d.ts",
     "typedoc.js",
-    ".github/scripts"
+    ".github/scripts",
+    "scripts"
   ],
   "exclude": [
     "injected/integration-test/test-pages",

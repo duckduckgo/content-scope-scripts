@@ -1,0 +1,38 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--sp-8); /* 32px */
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: var(--sp-6); /* 24px */
+    font-weight: 700;
+    line-height: var(--sp-7); /* 28px */
+    text-align: center;
+    color: var(--color-black-at-96);
+    margin: 0;
+    padding: 2px var(--sp-3);
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+
+    @media (prefers-color-scheme: dark) {
+        color: white;
+    }
+}
+
+/* --- Buttons --- */
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--sp-2); /* 8px */
+    align-self: stretch;
+}
+
+.skipButton {
+    flex: 1;
+}

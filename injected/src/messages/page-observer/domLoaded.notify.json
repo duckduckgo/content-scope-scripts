@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "DomLoaded",
+  "description": "Notifies the native layer that the page DOM has been fully parsed.",
+  "properties": {},
+  "additionalProperties": false
+}

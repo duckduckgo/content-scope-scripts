@@ -42,6 +42,13 @@ jobs:
                       ${{ runner.os }}-node-playwright-
                       ${{ runner.os }}-node-
 
+            - name: Install SF Pro Fonts
+              run: |
+                  curl -L -o SF-Pro.dmg 'https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg'
+                  hdiutil attach SF-Pro.dmg
+                  sudo installer -pkg '/Volumes/SFProFonts/SF Pro Fonts.pkg' -target /
+                  hdiutil detach '/Volumes/SFProFonts'
+
             - name: Install dependencies
               run: npm ci
 
@@ -53,7 +60,8 @@ jobs:
 
             - name: Run Screenshot tests
               id: screenshot_tests
-              run: npm run test-int-snapshots
+              # Disable retries to fail fast - we just need to identify failing tests
+              run: npm run test-int-snapshots -- --retries=0
 
             - if: ${{ steps.screenshot_tests.conclusion == 'success' }}
               run: |
@@ -62,7 +70,8 @@ jobs:
             - name: Re-Running Playwright to update snapshots
               id: screenshot_tests_update
               if: ${{ failure() && steps.screenshot_tests.conclusion == 'failure' }}
-              run: npm run test-int-snapshots-update
+              # Disable retries since we're updating snapshots, not verifying them
+              run: npm run test-int-snapshots-update -- --retries=0
 
             - name: Commit the updated files to the PR branch
               if: ${{ failure() && steps.screenshot_tests_update.conclusion == 'success' }}

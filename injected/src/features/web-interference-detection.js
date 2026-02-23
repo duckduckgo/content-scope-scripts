@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
+import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 /**
  * @typedef {object} DetectInterferenceParams
@@ -13,14 +14,11 @@ export default class WebInterferenceDetection extends ContentFeature {
         // Get settings with conditionalChanges already applied by framework
         const settings = this.getFeatureSetting('interferenceTypes');
 
-        // Auto-run placeholder. Enable this when adding detectors that need early caching (e.g., ad detection, buffering)
-        /*
-        setTimeout(() => {
-            if (settings?.botDetection) {
-                runBotDetection(settings.botDetection);
-            }
-        }, autoRunDelayMs);
-        */
+        // Initialize YouTube detector early on YouTube pages to capture video load times
+        const hostname = window.location.hostname;
+        if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
+            runYoutubeAdDetection(settings?.youtubeAds, this.log);
+        }
 
         // Register messaging handler for PIR/native requests
         this.messaging.subscribe('detectInterference', (params) => {

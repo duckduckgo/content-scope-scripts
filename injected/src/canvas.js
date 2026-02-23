@@ -78,6 +78,7 @@ export function modifyPixelData(imageData, domainKey, sessionKey, width) {
     }
 
     const windowHash = getDataKeySync(sessionKey, domainKey, checkSum);
+    // @ts-expect-error - seedrandom supports both new and function call, types only declare the function form
     const rng = new Seedrandom(windowHash);
     for (let i = 0; i < mappingArray.length; i++) {
         const rand = rng();

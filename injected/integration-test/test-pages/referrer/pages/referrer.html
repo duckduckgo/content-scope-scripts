@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Referrer</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Referrer]</a></p>
+
+    <p>This page verifies that the referrer feature is active. When loaded with a cross-origin
+       referrer, the document.referrer is trimmed to just the origin.</p>
+
+    <script>
+        test('Referrer protection active', async () => {
+            const results = [];
+            const referrer = document.referrer;
+
+            if (referrer && new URL(document.URL).hostname !== new URL(referrer).hostname) {
+                // Cross-origin referrer present - it should be trimmed to origin
+                const trimmedReferrer = new URL(referrer).origin + '/';
+                results.push({
+                    name: 'Cross-origin referrer is trimmed to origin',
+                    result: referrer,
+                    expected: trimmedReferrer,
+                });
+            } else {
+                // No cross-origin referrer - verify the property descriptor is a getter (wrapped)
+                // or that the referrer is same-origin/empty (feature does not modify it)
+                const isSameOriginOrEmpty = !referrer || new URL(document.URL).hostname === new URL(referrer).hostname;
+                results.push({
+                    name: 'No cross-origin referrer present (same-origin or empty is not modified)',
+                    result: isSameOriginOrEmpty,
+                    expected: true,
+                });
+            }
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

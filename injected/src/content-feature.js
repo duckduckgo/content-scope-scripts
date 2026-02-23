@@ -28,15 +28,20 @@ import ConfigFeature from './config-feature.js';
  */
 
 /**
- * @returns {{promise: Promise<void>, resolve?: () => void, reject?: (e?: unknown) => void}}
+ * @typedef {{status: 'ready'} | {status: 'skipped', reason: string} | {status: 'error', error: string}} ReadyStatus
+ */
+
+/**
+ * @returns {{promise: Promise<ReadyStatus>, resolve: (resolve: ReadyStatus) => void}}
  */
 function createDeferred() {
-    const deferred = {};
-    deferred.promise = new Promise((resolve, reject) => {
-        deferred.resolve = resolve;
-        deferred.reject = reject;
+    /** @type {(value: ReadyStatus) => void} */
+    let res;
+    const promise = new Promise((resolve) => {
+        res = resolve;
     });
-    return deferred;
+    // @ts-expect-error - resolve is assigned in the Promise constructor
+    return { promise, resolve: res };
 }
 
 /**
@@ -54,17 +59,10 @@ export class CallFeatureMethodError extends Error {
     }
 }
 
-/**
- * Error used to indicate that a feature was skipped during initialization
- * (e.g., due to being broken or disabled on the current site).
- */
-class FeatureSkippedError extends Error {}
-
 export default class ContentFeature extends ConfigFeature {
-    /** @type {import('./utils.js').RemoteConfig | undefined} */
-    /** @type {import('../../messaging').Messaging} */
+    /** @type {import('../../messaging').Messaging | undefined} */
     // eslint-disable-next-line no-unused-private-class-members
-    #messaging;
+    #messaging = undefined;
     /** @type {boolean} */
     #isDebugFlagSet = false;
     /**
@@ -136,7 +134,7 @@ export default class ContentFeature extends ConfigFeature {
     /**
      * Returns a promise that resolves when the feature has been initialised with `init`.
      *
-     * @returns {Promise<void>}
+     * @returns {Promise<ReadyStatus>}
      */
     get _ready() {
         return this.#ready.promise;
@@ -200,7 +198,7 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * @returns {ImportMeta['trackerLookup']}
+     * @returns {import('./trackers.js').TrackerNode | {}}
      **/
     get trackerLookup() {
         return this.#importConfig.trackerLookup || {};
@@ -265,13 +263,12 @@ export default class ContentFeature extends ConfigFeature {
         if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
         if (!(method instanceof Function))
             return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
-        try {
-            await feature._ready;
-        } catch (e) {
-            if (e instanceof FeatureSkippedError) {
-                return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${e.message}`);
-            }
-            throw e;
+        const isReady = await feature._ready;
+        if (isReady.status === 'skipped') {
+            return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${isReady.reason}`);
+        }
+        if (isReady.status === 'error') {
+            return new CallFeatureMethodError(`Initialisation of feature '${featureName}' failed: ${isReady.error}`);
         }
         return method.call(feature, ...args);
     }
@@ -320,6 +317,9 @@ export default class ContentFeature extends ConfigFeature {
         return processAttr(configSetting, defaultValue);
     }
 
+    /**
+     * @param {any} [_args]
+     */
     init(_args) {}
 
     /**
@@ -333,9 +333,9 @@ export default class ContentFeature extends ConfigFeature {
             // disable lint error as `init` is not forced to be async
             // eslint-disable-next-line @typescript-eslint/await-thenable
             await this.init(this.args);
-            this.#ready.resolve?.();
+            this.#ready.resolve({ status: 'ready' });
         } catch (error) {
-            this.#ready.reject?.(error);
+            this.#ready.resolve({ status: 'error', error: String(error) });
             throw error;
         } finally {
             mark.end();
@@ -351,14 +351,20 @@ export default class ContentFeature extends ConfigFeature {
      * @param {string} reason - The reason the feature was skipped
      */
     markFeatureAsSkipped(reason) {
-        this.#ready.reject?.(new FeatureSkippedError(reason));
+        this.#ready.resolve({ status: 'skipped', reason });
     }
 
+    /**
+     * @param {any} args
+     */
     setArgs(args) {
         this.args = args;
         this.platform = args.platform;
     }
 
+    /**
+     * @param {any} [_args]
+     */
     load(_args) {}
 
     /**
@@ -447,25 +453,38 @@ export default class ContentFeature extends ConfigFeature {
      * Define a property descriptor with debug flags.
      * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
-     * @param {string} propertyName
+     * @param {string | symbol} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     defineProperty(object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
         // NOTE: properties passing data in `value` would not be caught by this
-        ['value', 'get', 'set'].forEach((k) => {
-            const descriptorProp = descriptor[k];
-            if (typeof descriptorProp === 'function') {
-                const addDebugFlag = this.addDebugFlag.bind(this);
-                const wrapper = new Proxy(descriptorProp, {
-                    apply(_, thisArg, argumentsList) {
-                        addDebugFlag();
-                        return Reflect.apply(descriptorProp, thisArg, argumentsList);
-                    },
-                });
-                descriptor[k] = wrapToString(wrapper, descriptorProp);
-            }
-        });
+        const addDebugFlag = this.addDebugFlag.bind(this);
+
+        /**
+         * @template {(...args: any[]) => any} F
+         * @param {F} fn
+         * @returns {F}
+         */
+        const wrapWithDebugFlag = (fn) => {
+            const wrapper = new Proxy(fn, {
+                apply(_, thisArg, argumentsList) {
+                    addDebugFlag();
+                    return Reflect.apply(fn, thisArg, argumentsList);
+                },
+            });
+            return /** @type {F} */ (wrapToString(wrapper, fn));
+        };
+
+        if ('value' in descriptor && typeof descriptor.value === 'function') {
+            descriptor.value = wrapWithDebugFlag(descriptor.value);
+        }
+        if ('get' in descriptor && typeof descriptor.get === 'function') {
+            descriptor.get = wrapWithDebugFlag(descriptor.get);
+        }
+        if ('set' in descriptor && typeof descriptor.set === 'function') {
+            descriptor.set = wrapWithDebugFlag(descriptor.set);
+        }
 
         return defineProperty(object, propertyName, descriptor);
     }
@@ -485,7 +504,7 @@ export default class ContentFeature extends ConfigFeature {
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
-     * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+     * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapMethod(object, propertyName, wrapperFn) {
@@ -506,7 +525,7 @@ export default class ContentFeature extends ConfigFeature {
      * Define a missing standard property on a global (prototype) object. Only for data properties.
      * For constructors, use shimInterface().
      * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
-     * @template Base
+     * @template {object} Base
      * @template {keyof Base & string} K
      * @param {Base} instanceHost - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
      * @param {K} instanceProp - name of the property to shim (e.g. 'mediaSession')

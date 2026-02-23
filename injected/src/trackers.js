@@ -1,8 +1,14 @@
 import { getGlobal } from './utils.js';
 
 /**
+ * Recursive trie node for tracker domain lookup.
+ * Leaf nodes are marked with `1`, branch nodes contain further subdomain mappings.
+ * @typedef {{ [subdomain: string]: TrackerNode | 1 }} TrackerNode
+ */
+
+/**
  * Check if the current document origin is on the tracker list, using the provided lookup trie.
- * @param {object} trackerLookup Trie lookup of tracker domains
+ * @param {TrackerNode | {}} trackerLookup Trie lookup of tracker domains
  * @returns {boolean} True iff the origin is a tracker.
  *
  * Note: getGlobal() is used in testing to get the global object,
@@ -10,12 +16,14 @@ import { getGlobal } from './utils.js';
  */
 export function isTrackerOrigin(trackerLookup, originHostname = getGlobal().document.location.hostname) {
     const parts = originHostname.split('.').reverse();
+    /** @type {Record<string, TrackerNode | 1 | undefined>} */
     let node = trackerLookup;
     for (const sub of parts) {
-        if (node[sub] === 1) {
+        const next = node[sub];
+        if (next === 1) {
             return true;
-        } else if (node[sub]) {
-            node = node[sub];
+        } else if (next) {
+            node = next;
         } else {
             return false;
         }

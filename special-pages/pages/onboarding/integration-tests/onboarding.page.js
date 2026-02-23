@@ -62,10 +62,14 @@ export class OnboardingPage {
      * @param {'app' | 'components'} [params.env] - Optional parameters for opening the page.
      * @param {import('../app/types.js').Step['id']} [params.page] - Optional start page
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
+     * @param {boolean} [params.debugState] - Optional flag to show debug state overlay (default: true)
      */
-    async openPage({ env = 'app', page = 'welcome', willThrow = false } = {}) {
+    async openPage({ env = 'app', page = 'welcome', willThrow = false, debugState = true } = {}) {
         await this.mocks.install();
-        const searchParams = new URLSearchParams({ env, page, debugState: 'true', willThrow: String(willThrow) });
+        const searchParams = new URLSearchParams({ env, page, willThrow: String(willThrow) });
+        if (debugState) {
+            searchParams.set('debugState', 'true');
+        }
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url());
             // try to serve assets, but change `/` to 'index'
