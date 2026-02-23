@@ -15,6 +15,7 @@ Content Scope Scripts provides a unified API for features running in web page DO
 - **[Platform Integration](./docs/platform-integration.md)** - Platform-specific implementation details
 - **[Development Utilities](./docs/development-utilities.md)** - Scope injection utilities and development tools
 - **[Testing Guide](./docs/testing-guide.md)** - Local testing and development workflow
+- **[Grafana Dashboards](./docs/grafana-dashboards.md)** - Core dashboards for breakage and rollout quality monitoring
 
 ## Key Concepts
 
