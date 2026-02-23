@@ -97,10 +97,10 @@ export const overlayCopyVariants = {
  */
 export const mobileStrings = (lookup) => {
     return {
-        title: lookup.videoOverlayTitle2,
-        subtitle: lookup.videoOverlaySubtitle2,
-        buttonOptOut: lookup.videoButtonOptOut2,
-        buttonOpen: lookup.videoButtonOpen2,
-        rememberLabel: lookup.rememberLabel,
+        title: lookup.videoOverlayTitle2 ?? '',
+        subtitle: lookup.videoOverlaySubtitle2 ?? '',
+        buttonOptOut: lookup.videoButtonOptOut2 ?? '',
+        buttonOpen: lookup.videoButtonOpen2 ?? '',
+        rememberLabel: lookup.rememberLabel ?? '',
     };
 };
