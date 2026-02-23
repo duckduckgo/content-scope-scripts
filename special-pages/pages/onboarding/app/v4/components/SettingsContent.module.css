@@ -123,19 +123,9 @@
 
 /* --- Row transition animations --- */
 
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
-}
-
-.fadeOut {
-    animation: fadeOut 200ms ease-out forwards;
-    pointer-events: none;
 }
 
 .fadeIn {
@@ -148,7 +138,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fadeOut,
     .fadeIn,
     .fadeInDelayed {
         animation-duration: 0s;

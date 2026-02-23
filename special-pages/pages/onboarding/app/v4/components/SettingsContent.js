@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useRef, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useGlobalDispatch, useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
@@ -9,23 +9,16 @@ import { Switch } from '../../../../../shared/components/Switch/Switch.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { settingsRowItems } from '../data/data';
 import { Button } from './Button';
+import { usePresence } from '../hooks/usePresence';
+import { useFlip } from '../hooks/useFlip';
 import styles from './SettingsContent.module.css';
-
-/**
- * @typedef {{ top: number; left: number; width: number }} ElementPosition
- */
 
 /**
  * @typedef {{
  *   exitingIndex: number;
  *   enteringIndex: number | null;
  *   showNextButton: boolean;
- *   exitingPositions: { subtitle?: ElementPosition; buttons?: ElementPosition } | null;
  * }} RowTransition
- */
-
-/**
- * @typedef {{ content: HTMLElement | null; subtitle: HTMLElement | null; buttons: HTMLElement | null }} ExitAnimElements
  */
 
 /**
@@ -51,42 +44,27 @@ export function SettingsContent() {
     const dismiss = () => dispatch({ kind: 'dismiss' });
 
     // --- Row transition animation ---
-    const exitAnimRef = useRef(/** @type {ExitAnimElements} */ ({ content: null, subtitle: null, buttons: null }));
     const [transition, setTransition] = useState(/** @type {RowTransition | null} */ (null));
 
     /** Called from row buttons before dispatching to start the exit/enter animation. */
     const startRowTransition = () => {
         if (isReducedMotion) return;
         const curr = appState.activeRow;
-        const { content, subtitle, buttons } = exitAnimRef.current;
-
-        /** @type {RowTransition['exitingPositions']} */
-        let exitingPositions = null;
-        if (content) {
-            const containerRect = content.getBoundingClientRect();
-            exitingPositions = {};
-            if (subtitle) exitingPositions.subtitle = measureRelativeTo(subtitle, containerRect);
-            if (buttons) exitingPositions.buttons = measureRelativeTo(buttons, containerRect);
-        }
-
         setTransition({
             exitingIndex: curr,
             enteringIndex: curr + 1 < step.rows.length ? curr + 1 : null,
             showNextButton: curr + 1 >= step.rows.length,
-            exitingPositions,
         });
     };
 
     const clearTransition = () => setTransition(null);
 
-    /** @type {import("preact").ComponentProps<SettingListItem>['item'][]} */
     const rows = step.rows.map((rowId, index) => {
         return {
             visible: appState.activeRow >= index || transition?.enteringIndex === index,
             current: appState.activeRow === index,
             isExiting: transition?.exitingIndex === index,
             isEntering: transition?.enteringIndex === index,
-            exitingPositions: transition?.exitingIndex === index ? transition.exitingPositions : null,
             systemValue: appState.values[rowId] || null,
             uiValue: appState.UIValues[rowId],
             pending: pendingId === rowId,
@@ -108,7 +86,6 @@ export function SettingsContent() {
                                 item={item}
                                 onAction={startRowTransition}
                                 onTransitionEnd={clearTransition}
-                                exitAnimRef={item.current ? exitAnimRef : null}
                             />
                         </Fragment>
                     ))}
@@ -129,21 +106,6 @@ export function SettingsContent() {
 }
 
 /**
- * Measures an element's position relative to a container rect.
- * @param {HTMLElement} el
- * @param {DOMRect} containerRect
- * @returns {ElementPosition}
- */
-function measureRelativeTo(el, containerRect) {
-    const rect = el.getBoundingClientRect();
-    return {
-        top: rect.top - containerRect.top,
-        left: rect.left - containerRect.left,
-        width: rect.width,
-    };
-}
-
-/**
  * A green check icon for completed settings rows.
  */
 function CheckIcon() {
@@ -159,7 +121,6 @@ function CheckIcon() {
  *    current: boolean;
  *    isExiting: boolean;
  *    isEntering: boolean;
- *    exitingPositions: RowTransition['exitingPositions'];
  *    pending: boolean;
  *    id: import('../../types').SystemValueId;
  *    systemValue: import('../../types').SystemValue | null;
@@ -169,13 +130,28 @@ function CheckIcon() {
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch
  * @param {() => void} props.onAction
  * @param {() => void} props.onTransitionEnd
- * @param {import('preact').RefObject<ExitAnimElements> | null} props.exitAnimRef
  */
-function SettingListItem({ item, dispatch, onAction, onTransitionEnd, exitAnimRef }) {
+function SettingListItem({ item, dispatch, onAction, onTransitionEnd }) {
     const data = item.data;
     const { t } = useTypedTranslation();
     const { isDarkMode } = useEnv();
     const platformName = /** @type {'macos'|'windows'} */ (usePlatformName());
+
+    // usePresence must be declared before useFlip so its useLayoutEffect runs first, taking
+    // elements out of flow before useFlip measures the new layout
+    /** @type {[import('preact').RefObject<HTMLParagraphElement>, boolean]} */
+    const [subtitleRef, subtitleMounted] = usePresence(!item.isExiting, {
+        keyframes: [{ opacity: 1 }, { opacity: 0 }],
+        options: { duration: 200, easing: 'ease-out' },
+    });
+    /** @type {[import('preact').RefObject<HTMLDivElement>, boolean]} */
+    const [buttonsRef, buttonsMounted] = usePresence(!item.isExiting, {
+        keyframes: [{ opacity: 1 }, { opacity: 0 }],
+        options: { duration: 200, easing: 'ease-out' },
+        onComplete: onTransitionEnd,
+    });
+    /** @type {import('preact').RefObject<HTMLImageElement>} */
+    const iconRef = useFlip();
 
     const accept = () => {
         if (item.current) onAction();
@@ -246,28 +222,16 @@ function SettingListItem({ item, dispatch, onAction, onTransitionEnd, exitAnimRe
     })();
 
     const showDetails = item.current || item.isExiting || item.isEntering;
-    const pos = item.exitingPositions;
 
     return (
         <div class={cn(styles.row, item.isEntering && styles.fadeIn)} data-testid="ListItem" data-id={data.id}>
-            <div
-                class={styles.rowContent}
-                ref={(el) => {
-                    if (exitAnimRef?.current) exitAnimRef.current.content = el;
-                }}
-            >
+            <div class={styles.rowContent}>
                 <div class={styles.rowMain}>
-                    <img class={styles.rowIcon} src={iconPath} alt="" />
+                    <img ref={iconRef} class={styles.rowIcon} src={iconPath} alt="" />
                     <div class={styles.rowText}>
                         <p class={styles.rowTitle}>{data.title}</p>
-                        {showDetails && data.secondaryText && (
-                            <p
-                                class={cn(styles.rowSubtitle, item.isExiting && styles.fadeOut)}
-                                style={pos?.subtitle ? { position: 'absolute', ...pos.subtitle } : undefined}
-                                ref={(el) => {
-                                    if (exitAnimRef?.current) exitAnimRef.current.subtitle = el;
-                                }}
-                            >
+                        {showDetails && data.secondaryText && subtitleMounted && (
+                            <p ref={subtitleRef} class={styles.rowSubtitle}>
                                 {data.secondaryText}
                             </p>
                         )}
@@ -275,21 +239,8 @@ function SettingListItem({ item, dispatch, onAction, onTransitionEnd, exitAnimRe
                     {inline && <div class={styles.rowInline}>{inline}</div>}
                 </div>
 
-                {showDetails && (
-                    <div
-                        class={cn(styles.rowButtons, item.isExiting && styles.fadeOut)}
-                        style={pos?.buttons ? { position: 'absolute', ...pos.buttons } : undefined}
-                        ref={(el) => {
-                            if (exitAnimRef?.current) exitAnimRef.current.buttons = el;
-                        }}
-                        onAnimationEnd={
-                            item.isExiting
-                                ? (e) => {
-                                      if (e.currentTarget === e.target) onTransitionEnd();
-                                  }
-                                : undefined
-                        }
-                    >
+                {showDetails && buttonsMounted && (
+                    <div ref={buttonsRef} class={styles.rowButtons}>
                         <Button variant="secondary" disabled={item.pending} onClick={deny}>
                             {t('skipButton')}
                         </Button>

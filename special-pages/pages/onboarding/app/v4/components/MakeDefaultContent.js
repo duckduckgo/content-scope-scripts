@@ -1,10 +1,12 @@
 import { h } from 'preact';
-import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { useContext, useState } from 'preact/hooks';
 import { GlobalDispatch, useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { ComparisonTable } from './ComparisonTable';
 import { Button } from './Button';
-import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
+import { useAnimate } from '../hooks/useAnimate';
+import { usePresence } from '../hooks/usePresence';
+import { useFlip } from '../hooks/useFlip';
 import styles from './MakeDefaultContent.module.css';
 
 /**
@@ -14,28 +16,46 @@ import styles from './MakeDefaultContent.module.css';
 export function MakeDefaultContent() {
     const { t } = useTypedTranslation();
     const dispatch = useContext(GlobalDispatch);
-    const { status } = useGlobalState();
-    const { isReducedMotion } = useEnv();
-    const titleRef = useRef(/** @type {HTMLHeadingElement|null} */ (null));
-    const skipButtonRef = useRef(/** @type {HTMLDivElement|null} */ (null));
-    const makeDefaultButtonRef = useRef(/** @type {HTMLDivElement|null} */ (null));
-    const [titleText, setTitleText] = useState(t('protectionsActivated_title'));
-    const [buttonText, setButtonText] = useState(t('makeDefaultButton'));
-    const [showSkipButton, setShowSkipButton] = useState(true);
+    const appState = useGlobalState();
+    const { status } = appState;
 
-    // TODO: refactor — this useEffect is not syncing an external store, it's
-    // papering over local state that should be derived from global state instead.
-    useEffect(() => {
-        if (status.kind === 'idle' && status.error) {
-            setTitleText(t('protectionsActivated_title'));
-            setButtonText(t('makeDefaultButton'));
-            setShowSkipButton(true);
-        }
-    }, [status]);
+    // Skip button visibility: hidden while the native call is in flight or after it succeeds
+    const defaultBrowserUIValue = appState.UIValues['default-browser'];
+    const isPending = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id === 'default-browser';
+    const showSkipButton = !isPending && defaultBrowserUIValue === 'idle';
+
+    // Title text swaps in the middle of bounce animation, so it can't be derived from global state
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    // Animation hooks: usePresence (skip button fade out) must come before useFlip (make default
+    // button slide) so the skip button leaves flow before useFlip measures the new layout
+    /** @type {[import('preact').RefObject<HTMLHeadingElement>, import('../hooks/useAnimate').AnimateFn]} */
+    const [titleRef, animateTitle] = useAnimate();
+    /** @type {[import('preact').RefObject<HTMLDivElement>, boolean]} */
+    const [skipButtonRef, skipButtonMounted] = usePresence(showSkipButton, {
+        keyframes: [{ opacity: 1 }, { opacity: 0 }],
+        options: { duration: 300, easing: 'ease-out' },
+    });
+    /** @type {import('preact').RefObject<HTMLDivElement>} */
+    const makeDefaultButtonRef = useFlip({ duration: 300, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' });
+
+    // When the global state resets to idle after an error, showSkipButton becomes true again. Reset
+    // local animation state to match
+    if (showSuccess && showSkipButton) {
+        setShowSuccess(false);
+    }
+    if (showSkipButton && makeDefaultButtonRef.current) {
+        makeDefaultButtonRef.current.style.minWidth = '';
+    }
 
     const advance = () => dispatch({ kind: 'enqueue-next' });
 
-    const enableDefaultBrowser = async () => {
+    const enableDefaultBrowser = () => {
+        // Lock button width before text shrinks from "Make Default" to "Next"
+        if (makeDefaultButtonRef.current) {
+            makeDefaultButtonRef.current.style.minWidth = `${makeDefaultButtonRef.current.offsetWidth}px`;
+        }
+
         dispatch({
             kind: 'update-system-value',
             id: 'default-browser',
@@ -43,97 +63,37 @@ export function MakeDefaultContent() {
             current: true,
         });
 
-        const title = titleRef.current;
-        const skipButton = skipButtonRef.current;
-        const makeDefaultButton = makeDefaultButtonRef.current;
-        const actionsContainer = skipButton?.parentElement;
-        if (!title || !skipButton || !makeDefaultButton || !actionsContainer) {
-            throw new Error('MakeDefaultContent refs not attached');
-        }
-
-        if (isReducedMotion) {
-            setTitleText(t('makeDefaultAccept_title_v4'));
-            setButtonText(t('nextButton'));
-            setShowSkipButton(false);
-            return;
-        }
-
-        // FLIP: record positions before layout change
-        const skipButtonRect = skipButton.getBoundingClientRect();
-        const actionsContainerRect = actionsContainer.getBoundingClientRect();
-        const makeDefaultButtonStartRect = makeDefaultButton.getBoundingClientRect();
-
-        // Remove skipButton from flow, fixing it at its current visual position
-        skipButton.style.position = 'absolute';
-        skipButton.style.left = `${skipButtonRect.left - actionsContainerRect.left}px`;
-        skipButton.style.top = `${skipButtonRect.top - actionsContainerRect.top}px`;
-        skipButton.style.width = `${skipButtonRect.width}px`;
-
-        // Measure where makeDefaultButton lands after reflow
-        const makeDefaultButtonEndRect = makeDefaultButton.getBoundingClientRect();
-        const makeDefaultButtonDeltaX = makeDefaultButtonStartRect.left - makeDefaultButtonEndRect.left;
-
-        // Lock button width so the text swap doesn't cause a size change mid-animation
-        const makeDefaultButtonInner = /** @type {HTMLElement} */ (makeDefaultButton.firstElementChild);
-        makeDefaultButtonInner.style.width = `${makeDefaultButtonInner.offsetWidth}px`;
-
-        setButtonText(t('nextButton'));
-
-        // Title bounce
-        const titleBounceAnimation = (async () => {
-            const scaleUp = title.animate([{ scale: 1 }, { scale: 1.07 }], {
+        // Fire-and-forget sequential title bounce (text swaps at midpoint)
+        (async () => {
+            await animateTitle([{ scale: 1 }, { scale: 1.07 }], {
                 duration: 233,
                 easing: 'cubic-bezier(0.17, 0, 0.83, 1)',
             });
-            await scaleUp.finished;
-            setTitleText(t('makeDefaultAccept_title_v4'));
-            const scaleDown = title.animate([{ scale: 1.07 }, { scale: 1 }], {
+            setShowSuccess(true);
+            await animateTitle([{ scale: 1.07 }, { scale: 1 }], {
                 duration: 233,
                 easing: 'cubic-bezier(0.17, 0, 0.83, 1)',
             });
-            await scaleDown.finished;
         })();
-
-        // Skip fade (fill: forwards keeps opacity at 0 until DOM cleanup)
-        const skipButtonFadeAnimation = skipButton.animate([{ opacity: 1 }, { opacity: 0 }], {
-            duration: 300,
-            easing: 'ease-out',
-            fill: 'forwards',
-        }).finished;
-
-        // Button slide to center
-        const makeDefaultButtonSlideAnimation = makeDefaultButton.animate(
-            [{ transform: `translateX(${makeDefaultButtonDeltaX}px)` }, { transform: 'translateX(0)' }],
-            {
-                duration: 300,
-                easing: 'cubic-bezier(0.17, 0, 0.83, 1)',
-            },
-        ).finished;
-
-        // Run all animations at same time, then unmount skip button
-        await Promise.all([titleBounceAnimation, skipButtonFadeAnimation, makeDefaultButtonSlideAnimation]);
-        setShowSkipButton(false);
     };
 
     return (
         <div class={styles.root}>
             <h2 ref={titleRef} class={styles.title}>
-                {titleText}
+                {showSuccess ? t('makeDefaultAccept_title_v4') : t('protectionsActivated_title')}
             </h2>
 
             <ComparisonTable />
 
             <div class={styles.actions}>
-                {showSkipButton && (
-                    <div ref={skipButtonRef} class={styles.skipButton}>
-                        <Button variant="secondary" size="stretch" onClick={advance}>
-                            {t('skipButton')}
-                        </Button>
-                    </div>
+                {skipButtonMounted && (
+                    <Button ref={skipButtonRef} class={styles.skipButton} variant="secondary" onClick={advance}>
+                        {t('skipButton')}
+                    </Button>
                 )}
-                <div ref={makeDefaultButtonRef}>
-                    <Button onClick={showSkipButton ? enableDefaultBrowser : advance}>{buttonText}</Button>
-                </div>
+                <Button ref={makeDefaultButtonRef} onClick={showSkipButton ? enableDefaultBrowser : advance}>
+                    {showSkipButton ? t('makeDefaultButton') : t('nextButton')}
+                </Button>
             </div>
         </div>
     );

@@ -3,6 +3,8 @@ import { useRef, useLayoutEffect, useEffect, useId } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './Bubble.module.css';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
+import { useAnimate } from '../hooks/useAnimate';
+import { useMergedRef } from '../hooks/useMergedRef';
 
 /**
  * @typedef {object} BubbleProps
@@ -50,14 +52,14 @@ export function Bubble({
     const bubbleRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
-    const prevBounceKey = useRef(/** @type {string|undefined} */ (undefined));
-    // One-way flag: suppresses fade-in animation on initial mount.
-    // Once the first exit has occurred, data-exiting toggles between
-    // "true" (fade-out) and "false" (fade-in) on every step transition.
-    const hasExited = useRef(false);
+    const isMounted = useRef(false);
     const { isReducedMotion } = useEnv();
+    const [bounceRef, animateBounce] = useAnimate();
+    const mergedBubbleRef = useMergedRef(bubbleRef, bounceRef);
 
-    if (exiting) hasExited.current = true;
+    // One-way flag: false on initial mount, true after the first transition.
+    // Suppresses fade-in and bounce animations until content has exited once.
+    if (exiting) isMounted.current = true;
 
     useLayoutEffect(() => {
         const bubble = bubbleRef.current;
@@ -72,16 +74,10 @@ export function Bubble({
         return () => observer.disconnect();
     }, [onHeight]);
 
-    // Scale bounce on bounceKey change
     useEffect(() => {
-        const bubble = bubbleRef.current;
-        const didBounceKeyChange = prevBounceKey.current !== undefined && prevBounceKey.current !== bounceKey;
+        if (!isMounted.current) return;
 
-        prevBounceKey.current = bounceKey;
-
-        if (!bubble || !didBounceKeyChange || isReducedMotion) return;
-
-        const animation = bubble.animate(
+        animateBounce(
             [
                 { scale: 1, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' },
                 { scale: 1.07, offset: 0.5, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' },
@@ -92,11 +88,7 @@ export function Bubble({
                 delay: bounceDelay,
             },
         );
-
-        return () => {
-            animation.cancel();
-        };
-    }, [bounceKey, isReducedMotion]);
+    }, [bounceKey, animateBounce]);
 
     /** @param {import('preact').JSX.TargetedAnimationEvent<HTMLDivElement>} e */
     const handleAnimationEnd = (e) => {
@@ -114,11 +106,11 @@ export function Bubble({
     };
 
     return (
-        <div ref={bubbleRef} class={cn(styles.bubble, className)} {...props}>
+        <div ref={mergedBubbleRef} class={cn(styles.bubble, className)} {...props}>
             {illustration?.background && <div class={styles.background}>{illustration.background}</div>}
             <div
                 ref={containerCallback}
-                class={cn(styles.container, hasExited.current && (exiting ? styles.fadeOut : styles.fadeIn))}
+                class={cn(styles.container, isMounted.current && (exiting ? styles.fadeOut : styles.fadeIn))}
                 onAnimationEnd={handleAnimationEnd}
             >
                 <div ref={contentRef}>{children}</div>
