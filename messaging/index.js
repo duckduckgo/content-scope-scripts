@@ -242,7 +242,7 @@ function getTransport(config, messagingContext) {
  * @returns {value is Promise<unknown>}
  */
 function isPromiseLike(value) {
-    return value !== null && value !== undefined && typeof /** @type {{then?: unknown}} */ (value).then === 'function';
+    return value !== null && value !== undefined && typeof (/** @type {{then?: unknown}} */ (value).then) === 'function';
 }
 
 /**
