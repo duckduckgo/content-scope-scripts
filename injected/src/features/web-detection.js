@@ -7,11 +7,15 @@ import { evaluateMatch } from './web-detection/matching.js';
  */
 
 /**
+ * @typedef {true | false | 'error'} DetectorMatchResult - Whether the detector matched (true), didn't match (false), or errored
+ */
+
+/**
  * Result from running a detector.
  *
  * @typedef {object} DetectorResult
  * @property {string} detectorId - ID of the detector
- * @property {true | false | 'error'} detected - Whether the detector matched (true), didn't match (false), or errored
+ * @property {DetectorMatchResult} detected
  */
 
 /**
@@ -48,7 +52,7 @@ export default class WebDetection extends ContentFeature {
     /**
      *
      * @param {DetectorConfig} detectorConfig
-     * @returns {true | false | 'error'}
+     * @returns {DetectorMatchResult}
      */
     _evaluateMatch(detectorConfig) {
         try {
@@ -130,13 +134,29 @@ export default class WebDetection extends ContentFeature {
                 }
             }
 
-            // TODO: Execute detector actions (e.g., runTelemetry)
-            // This will be implemented as part of follow-up work
+            this._executeFireEvent(detectorConfig, detected);
         } catch (e) {
             // Silently fail - don't break the page
             if (this.isDebug) {
                 this.log.error(`Error running auto-detector ${fullDetectorId}:`, e);
             }
+        }
+    }
+
+    /**
+     * Fire a web event via webEvents if the detector has a fireEvent action and detection succeeded.
+     *
+     * @param {DetectorConfig} detectorConfig
+     * @param {DetectorMatchResult} detected
+     */
+    async _executeFireEvent(detectorConfig, detected) {
+        if (detected !== true || !detectorConfig.actions.fireEvent) return;
+        try {
+            await this.callFeatureMethod('webEvents', 'fireEvent', {
+                type: detectorConfig.actions.fireEvent.type,
+            });
+        } catch {
+            // webEvents may not be loaded on this platform - silently ignore
         }
     }
 
@@ -191,6 +211,8 @@ export default class WebDetection extends ContentFeature {
                         });
                     }
                 }
+
+                this._executeFireEvent(detectorConfig, detected);
             }
         }
         return results;

@@ -51,10 +51,18 @@ import { withDefaults } from '../../utils.js';
  */
 
 /**
+ * @typedef {object} FireEventAction
+ * @property {string} type
+ */
+
+/**
  * Actions to take when a detector matches.
+ * breakageReportData is always present (defaults to enabled).
+ * All other actions are opt-in by presence and assumed enabled when present (unless otherwise specified).
  *
  * @typedef {object} DetectorActions
  * @property {ActionBase} breakageReportData - Whether to include in breakage report data
+ * @property {FireEventAction} [fireEvent] - fire a detection event to the client via webEvents
  */
 
 /**

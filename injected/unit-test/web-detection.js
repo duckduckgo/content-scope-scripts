@@ -188,6 +188,35 @@ describe('WebDetection', () => {
             expect(result.actions.breakageReportData.state).toBe('disabled');
         });
 
+        it('should preserve fireEvent action when present', () => {
+            const result = oneDetectorConfigParsed({
+                match: { text: { pattern: 'test' } },
+                actions: /** @type {any} - fireEvent not yet in published schema */ ({
+                    fireEvent: { type: 'adwall' },
+                }),
+            });
+            expect(result.actions.fireEvent).toEqual({ type: 'adwall' });
+        });
+
+        it('should not have fireEvent when not configured', () => {
+            const result = oneDetectorConfigParsed({
+                match: { text: { pattern: 'test' } },
+            });
+            expect(result.actions.fireEvent).toBeUndefined();
+        });
+
+        it('should preserve both breakageReportData and fireEvent actions', () => {
+            const result = oneDetectorConfigParsed({
+                match: { text: { pattern: 'test' } },
+                actions: /** @type {any} - fireEvent not yet in published schema */ ({
+                    breakageReportData: { state: 'enabled' },
+                    fireEvent: { type: 'adwall' },
+                }),
+            });
+            expect(result.actions.breakageReportData.state).toBe('enabled');
+            expect(result.actions.fireEvent).toEqual({ type: 'adwall' });
+        });
+
         /**
          *
          * @template T
