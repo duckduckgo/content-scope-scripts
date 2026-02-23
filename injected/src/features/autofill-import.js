@@ -682,6 +682,7 @@ export default class AutofillImport extends ActionExecutorBase {
 
             // Parse the export id from the page and then navigate to the 'manage' page
             const exportId = await this.getExportId();
+            if (!exportId) return;
             window.location.href = `${MANAGE_ARCHIVE_DEFAULT_BASE}/${exportId}`;
         } else if (pathname.startsWith(MANAGE_ARCHIVE_DEFAULT_BASE)) {
             // If we're on the 'manage' page, we can download the data
@@ -698,6 +699,7 @@ export default class AutofillImport extends ActionExecutorBase {
         this.#exportConfirmButtonSettings = this.getFeatureSetting('exportConfirmButton');
     }
 
+    /** @returns {string | null | undefined} */
     findExportId() {
         const tabPanelSelector = this.bookmarkImportSelectorSettings.tabPanel;
         if (!tabPanelSelector) return null;
@@ -708,9 +710,11 @@ export default class AutofillImport extends ActionExecutorBase {
         return exportPanel.querySelector(dataArchiveIdSelector)?.getAttribute('data-archive-id');
     }
 
+    /** @returns {Promise<string | null>} */
     async getExportId() {
         const { maxAttempts, interval } = this.defaultRetrySettings;
-        return await this.runWithRetry(() => this.findExportId(), maxAttempts, interval, 'linear');
+        const result = await this.runWithRetry(() => this.findExportId(), maxAttempts, interval, 'linear');
+        return typeof result === 'string' ? result : null;
     }
 
     urlChanged() {
