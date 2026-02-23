@@ -22,7 +22,7 @@ export class Print extends ContentFeature {
             enumerable: true,
             writable: true,
             value: function print() {
-                notify('print');
+                notify('print', {});
                 // Don't call originalPrint - native handles the actual print dialog
             },
         });

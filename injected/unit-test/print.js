@@ -63,7 +63,7 @@ describe('Print feature', () => {
         feature.init();
         target.print();
 
-        expect(mockNotify).toHaveBeenCalledWith('print');
+        expect(mockNotify).toHaveBeenCalledWith('print', {});
         expect(mockNotify).toHaveBeenCalledTimes(1);
     });
 
@@ -119,7 +119,7 @@ describe('Print feature', () => {
         // The original print should NOT be called - native handles printing
         expect(originalPrintSpy).not.toHaveBeenCalled();
         // But notify should be called
-        expect(mockNotify).toHaveBeenCalledWith('print');
+        expect(mockNotify).toHaveBeenCalledWith('print', {});
     });
 
     it('should return undefined when print is called', () => {
