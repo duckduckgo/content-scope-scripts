@@ -1,0 +1,48 @@
+{
+    "readme": "Config with webEvents disabled via site exception - no webEvent messages should be sent",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "webDetection": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": [],
+            "settings": {
+                "detectors": {
+                    "adwall": {
+                        "fire_event_text": {
+                            "match": {
+                                "text": {
+                                    "pattern": "ad ?block(er)? detected"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "intervalMs": [50]
+                                    }
+                                }
+                            },
+                            "actions": {
+                                "fireEvent": {
+                                    "type": "adwall"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "webEvents": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": [
+                {
+                    "domain": "localhost",
+                    "reason": "test: disable webEvents on localhost"
+                }
+            ]
+        }
+    }
+}
