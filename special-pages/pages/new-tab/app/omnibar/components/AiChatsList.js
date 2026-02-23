@@ -2,7 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { HistoryIcon } from '../../components/Icons';
+import { ChatBubbleIcon, PinIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
@@ -45,7 +45,7 @@ export function AiChatsList({ filter = '', className }) {
                         });
                     }}
                 >
-                    <HistoryIcon />
+                    {chat.pinned ? <PinIcon /> : <ChatBubbleIcon />}
                     <span class={styles.title}>{chat.title}</span>
                 </button>
             ))}
