@@ -5,9 +5,6 @@
 }
 
 .progressBadge {
-    --bubble-bg: white;
-    --bubble-border: #CBEAFF;
-
     position: absolute;
     top: 0;
     right: var(--sp-9); /* 36px — aligned with bubble border-radius */
@@ -17,11 +14,6 @@
     border: 1.5px solid var(--bubble-border);
     border-radius: var(--sp-16); /* 64px — full pill */
     z-index: 1;
-
-    @media (prefers-color-scheme: dark) {
-        --bubble-bg: #011D34;
-        --bubble-border: #133E7C;
-    }
 }
 
 .bubble {

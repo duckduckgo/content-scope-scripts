@@ -6,6 +6,14 @@
 }
 
 .container {
+    --bubble-bg: white;
+    --bubble-border: #CBEAFF;
+
     display: flow-root;
     position: relative;
+
+    @media (prefers-color-scheme: dark) {
+        --bubble-bg: #011D34;
+        --bubble-border: #133E7C;
+    }
 }
