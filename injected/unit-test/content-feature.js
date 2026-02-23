@@ -82,7 +82,7 @@ describe('ContentFeature class', () => {
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
-    it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
+    it('Should trigger getFeatureSetting with conditionalChanges and URL patterns', () => {
         let didRun = false;
         class MyTestFeature2 extends BaseTestFeature {
             init() {
