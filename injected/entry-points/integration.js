@@ -97,10 +97,11 @@ function mergeDeep(target, ...sources) {
 
 /**
  * @param {Event} evt
- * @returns {evt is CustomEvent<Record<string, unknown>>}
+ * @returns {evt is Event & { detail: Record<string, unknown> }}
  */
 function isContentScopeInitArgsEvent(evt) {
-    return evt instanceof CustomEvent && isObject(evt.detail);
+    // Avoid `instanceof CustomEvent` so cross-realm/bridge events still pass.
+    return 'detail' in evt && isObject(evt.detail);
 }
 
 async function initCode() {
