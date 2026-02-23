@@ -577,7 +577,9 @@ export default class AutofillImport extends ActionExecutorBase {
      * @returns {string}
      */
     get signinLabelTextSelector() {
-        return this.#signInButtonSettings?.labelTexts.map(/** @param {string} text */ (text) => `a[aria-label="${text}"]:not([target="_top"])`).join(',');
+        return this.#signInButtonSettings?.labelTexts
+            .map(/** @param {string} text */ (text) => `a[aria-label="${text}"]:not([target="_top"])`)
+            .join(',');
     }
 
     /**
