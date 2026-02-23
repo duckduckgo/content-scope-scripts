@@ -863,6 +863,7 @@ export function computeEnabledFeatures(data, topLevelHostname, platform, platfor
         .filter((featureName) => {
             const feature = data.features[featureName];
             if (!feature) return false;
+            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
             if (feature.minSupportedVersion && platform?.version) {
                 if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
                     return false;
