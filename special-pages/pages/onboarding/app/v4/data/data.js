@@ -6,7 +6,8 @@ import { DuckPlayerContent } from '../components/DuckPlayerContent';
 import { AddressBarContent } from '../components/AddressBarContent';
 import { WelcomeContent } from '../components/WelcomeContent';
 import { GetStartedContent } from '../components/GetStartedContent';
-import { DaxGetStarted, DaxSystemSettingsBackground, DaxSystemSettingsForeground } from '../components/Illustrations';
+import { GetStartedAnimation } from '../components/GetStartedAnimation';
+import { DaxSystemSettingsBackground, DaxSystemSettingsForeground } from '../components/Illustrations';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -28,7 +29,7 @@ export const stepsConfig = {
                 content: <GetStartedContent />,
                 tail: 'bottom-left',
                 illustration: {
-                    foreground: <DaxGetStarted />,
+                    foreground: <GetStartedAnimation />,
                 },
             },
             bubbleWidth: 'narrow',

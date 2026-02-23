@@ -1,0 +1,19 @@
+.root {
+    position: relative;
+    left: -138px;
+    top: 206px;
+}
+
+.fadeOut {
+    animation: fade-out 0.7s both;
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
+    }
+    47.62%, 100% {
+        opacity: 0;
+    }
+}
