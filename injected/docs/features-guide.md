@@ -70,20 +70,24 @@ There are three stages that the content scope code is hooked into the platform:
 When editing core lifecycle code (`src/content-scope-features.js`, `src/utils.js`) or the feature registry (`src/features.js`), preserve these behaviors:
 
 ### Always-run platform-specific features (global disable bypass)
+
 - In `load()`, when `isGloballyDisabled(args)` is true (allowlisted or broken sites), we still load `platformSpecificFeatures`.
 - Current list (see `src/utils.js`): `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`.
 - Rationale: these provide platform integration and must remain available even when protections are disabled.
 
 ### Always-init extension features (cookie)
+
 - `alwaysInitFeatures` in `src/content-scope-features.js` (currently `['cookie']`) bypasses `isFeatureBroken` for `platform.name === 'extension'`.
 - This ensures `cookie` runs `init()` even on allowlisted/broken sites to complete policy setup.
 
 ### Cookie feature early load/init ordering
+
 - `src/features/cookie.js` installs the `Document.cookie` wrapper in `load()` before full config is available.
 - `load()` seeds a best-effort policy from `bundledConfig`, then `init()` finalizes policy (including extension-provided `args.cookie`) and resolves `loadedPolicyResolve`.
 - Changing load/init ordering or gating can create gaps where cookies are not intercepted or policy resolution never completes.
 
 ### Extension load uses bundled feature list
+
 - In `load()`, extensions do not have `site.enabledFeatures` yet, so they fall back to `platformSupport[import.meta.injectName]`.
 - Avoid tightening this flow; it is required for early-load features (especially `cookie`) to install hooks on time.
 
