@@ -50,7 +50,7 @@ export function SingleStep() {
                 }}
                 tail={topBubble?.tail}
                 illustration={topBubble?.illustration}
-                onHeight={(h) => setTopHeight(h)}
+                onHeight={setTopHeight}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
                 exiting={globalState.exiting}
@@ -69,7 +69,7 @@ export function SingleStep() {
                 }}
                 tail={bottomBubble?.tail}
                 illustration={bottomBubble?.illustration}
-                onHeight={(h) => setBottomHeight(h)}
+                onHeight={setBottomHeight}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
                 exiting={globalState.exiting}
