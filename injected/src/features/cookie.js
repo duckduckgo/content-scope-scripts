@@ -215,7 +215,7 @@ export default class CookieFeature extends ContentFeature {
                     // apply cookie policy
                     if (cookie.getExpiry() > chosenPolicy.threshold) {
                         // check if the cookie still exists
-                        if (document.cookie.split(';').findIndex((kv) => kv.trim().startsWith((cookie.parts[0] ?? '').trim())) !== -1) {
+                        if (document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(/** @type {string} */ (cookie.parts[0]).trim())) !== -1) {
                             cookie.maxAge = chosenPolicy.maxAge;
 
                             debugHelper('restrict', 'expiry', setCookieContext);
