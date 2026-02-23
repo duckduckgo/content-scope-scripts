@@ -145,7 +145,7 @@ export function processTemplateStringWithUserData(input, action, userData) {
     return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (_, encodedValue, plainValue) => {
         const comparison = encodedValue ?? plainValue;
         const [dataKey, ...transforms] = comparison.split(/\||%7C/);
-        const data = userData[dataKey];
+        const data = userData[dataKey] ?? '';
         return applyTransforms(dataKey, data, transforms, action);
     });
 }
@@ -164,7 +164,7 @@ function applyTransforms(dataKey, value, transformNames, action) {
     let outputString = baseTransform ? baseTransform(subject) : subject;
 
     for (const transformName of transformNames) {
-        const [name, argument] = transformName.split(':');
+        const [name = '', argument] = transformName.split(':');
         const transform = optionalTransforms.get(name);
         if (transform) {
             outputString = transform(outputString, argument, action);

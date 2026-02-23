@@ -6,7 +6,7 @@
 
 export const YOUTUBE_ERROR_EVENT = 'ddg-duckplayer-youtube-error';
 
-/** @type {Record<string,YouTubeError>} */
+/** @type {{ageRestricted: YouTubeError, signInRequired: YouTubeError, noEmbed: YouTubeError, unknown: YouTubeError}} */
 export const YOUTUBE_ERRORS = {
     ageRestricted: 'age-restricted',
     signInRequired: 'sign-in-required',

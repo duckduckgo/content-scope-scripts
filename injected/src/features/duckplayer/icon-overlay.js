@@ -250,7 +250,9 @@ export class IconOverlay {
             }
         };
 
-        return getSizeType(imagesByArea[largestImage].offsetWidth, imagesByArea[largestImage].offsetHeight);
+        const largestImg = imagesByArea[largestImage];
+        if (!largestImg) return 'small';
+        return getSizeType(largestImg.offsetWidth, largestImg.offsetHeight);
     }
 
     /**

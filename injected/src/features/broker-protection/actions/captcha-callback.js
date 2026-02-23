@@ -10,10 +10,11 @@ export function captchaCallback(args) {
         return console.log('cannot find clients');
     }
 
-    if (typeof clients[0].function === 'function') {
+    const client = clients[0];
+    if (client && typeof client.function === 'function') {
         try {
-            clients[0].function(args.token);
-            console.log('called function with path', clients[0].callback);
+            client.function(args.token);
+            console.log('called function with path', client.callback);
         } catch (e) {
             console.error('could not call function');
         }

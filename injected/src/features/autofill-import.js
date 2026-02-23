@@ -699,8 +699,11 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     findExportId() {
-        const panels = document.querySelectorAll(this.bookmarkImportSelectorSettings.tabPanel);
+        const tabPanelSelector = this.bookmarkImportSelectorSettings.tabPanel;
+        if (!tabPanelSelector) return null;
+        const panels = document.querySelectorAll(tabPanelSelector);
         const exportPanel = panels[panels.length - 1];
+        if (!exportPanel) return null;
         const dataArchiveIdSelector = this.bookmarkImportSelectorSettings.dataArchiveId ?? `div[data-archive-id]`;
         return exportPanel.querySelector(dataArchiveIdSelector)?.getAttribute('data-archive-id');
     }

@@ -51,7 +51,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         });
 
         // Translation function to be used by view components
-        this.t = (key) => env.strings('native.json')[key];
+        this.t = (key) => env.strings('native.json')[key] ?? key;
 
         const messages = new DuckPlayerNativeMessages(this.messaging, env);
         messages.subscribeToURLChange(({ pageType }) => {

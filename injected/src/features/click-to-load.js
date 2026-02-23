@@ -1457,7 +1457,7 @@ function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
     shadowRoot.appendChild(pageOverlay);
     shadowRoot.appendChild(modal);
 
-    document.body.insertBefore(modalContainer, document.body.childNodes[0]);
+    document.body.insertBefore(modalContainer, document.body.childNodes[0] ?? null);
 }
 
 /**

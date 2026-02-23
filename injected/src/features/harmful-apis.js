@@ -413,10 +413,10 @@ export default class HarmfulApis extends ContentFeature {
                         const result = await DDGReflect.apply(nativeImpl, this, args);
                         // find the first allowed value from the right that is smaller than the result
                         let i = values.length - 1;
-                        while (i > 0 && values[i] > result.quota) {
+                        while (i > 0 && (values[i] ?? 0) > result.quota) {
                             i--;
                         }
-                        result.quota = values[i];
+                        result.quota = values[i] ?? 0;
                         return result;
                     },
                 );

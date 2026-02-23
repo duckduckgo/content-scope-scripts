@@ -97,9 +97,10 @@ export default class UaChBrands extends ContentFeature {
         }
 
         if (targetBrand !== null) {
-            const edgeIndex = mutated.findIndex((b) => b.brand === 'Microsoft Edge');
-            if (edgeIndex !== -1) {
-                const edgeVersion = mutated[edgeIndex].version;
+            const edgeBrand = mutated.find((b) => b.brand === 'Microsoft Edge');
+            if (edgeBrand) {
+                const edgeVersion = edgeBrand.version;
+                const edgeIndex = mutated.indexOf(edgeBrand);
                 mutated[edgeIndex] = { brand: targetBrand, version: edgeVersion };
                 this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "${targetBrand}" v${edgeVersion}`);
             } else {

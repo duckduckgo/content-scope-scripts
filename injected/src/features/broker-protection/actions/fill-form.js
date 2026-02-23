@@ -109,6 +109,13 @@ export function fillMany(root, elements, data) {
             }
 
             const stateFull = /** @type {Record<string, string>} */ (states)[state];
+            if (!stateFull) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but could not resolve full state name`,
+                });
+                continue;
+            }
 
             results.push(setValueForInput(inputElem, stateFull));
         } else {

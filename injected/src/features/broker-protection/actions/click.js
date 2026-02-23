@@ -68,6 +68,7 @@ export function click(action, userData, root = document) {
 
         for (let i = 0; i < loopLength; i++) {
             const elem = elements[i];
+            if (!elem) continue;
 
             if ('disabled' in elem) {
                 if (elem.disabled && !element.failSilently) {

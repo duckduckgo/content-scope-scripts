@@ -540,7 +540,7 @@ export class WebCompat extends ContentFeature {
                     });
                     if (parts.length > 0) {
                         parts.forEach((part) => {
-                            if (part[0] === cleanKey) {
+                            if (part[0] === cleanKey && part[1] !== undefined) {
                                 const val = JSON.parse(decodeURIComponent(part[1]));
                                 part[1] = encodeURIComponent(JSON.stringify(cleanValueData(val)));
                             }
@@ -570,6 +570,7 @@ export class WebCompat extends ContentFeature {
 
         try {
             const permSetting = settings.supportedPermissions[query.name];
+            if (!permSetting) return null;
             const returnName = permSetting.name || query.name;
             const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
             const returnStatus = response.state || 'prompt';
@@ -1100,13 +1101,13 @@ export class WebCompat extends ContentFeature {
         /** @type {NodeListOf<HTMLMetaElement>} **/
         const viewportTags = document.querySelectorAll('meta[name=viewport i]');
         // Chrome respects only the last viewport tag - modify existing rather than adding new
-        const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
+        const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1] ?? null;
         const viewportContent = viewportTag?.getAttribute('content') || '';
         /** @type {readonly string[]} **/
         const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : [];
         /** @type {readonly string[][]} **/
         const parsedViewportContent = viewportContentParts.map((part) => {
-            const [key, value] = part.split('=').map((p) => p.trim().toLowerCase());
+            const [key = '', value = ''] = part.split('=').map((p) => p.trim().toLowerCase());
             return [key, value];
         });
 
@@ -1154,7 +1155,7 @@ export class WebCompat extends ContentFeature {
             const initialScalePart = parsedViewportContent.find(([key]) => key === 'initial-scale');
             if (!widthPart && initialScalePart) {
                 // Chromium accepts float values for initial-scale
-                const parsedInitialScale = parseFloat(initialScalePart[1]);
+                const parsedInitialScale = parseFloat(initialScalePart[1] ?? '');
                 if (parsedInitialScale !== 1) {
                     forcedValues.width = 'device-width';
                 }
@@ -1169,9 +1170,10 @@ export class WebCompat extends ContentFeature {
 
         if (newContent.length > 0) {
             // need to override at least one viewport component
-            parsedViewportContent.forEach(([key], idx) => {
-                if (!(key in forcedValues)) {
-                    newContent.push(viewportContentParts[idx].trim()); // reuse the original values, not the parsed ones
+            parsedViewportContent.forEach(([key = ''], idx) => {
+                if (key && !(key in forcedValues)) {
+                    const part = viewportContentParts[idx];
+                    if (part) newContent.push(part.trim());
                 }
             });
             this.forceViewportTag(viewportTag, newContent.join(', '));

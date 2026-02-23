@@ -15,7 +15,7 @@ export default class FingerprintingAudio extends ContentFeature {
             if (!audioKey) {
                 let cdSum = 0;
                 for (const k in channelData) {
-                    cdSum += channelData[k];
+                    cdSum += channelData[k] ?? 0;
                 }
                 // If the buffer is blank, skip adding data
                 if (cdSum === 0) {
@@ -31,7 +31,7 @@ export default class FingerprintingAudio extends ContentFeature {
                 if (byte ^ 0x1) {
                     factor = 0 - factor;
                 }
-                channelData[itemAudioIndex] = channelData[itemAudioIndex] + factor;
+                channelData[itemAudioIndex] = (channelData[itemAudioIndex] ?? 0) + factor;
             });
         }
 
