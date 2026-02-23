@@ -25,10 +25,13 @@ export default defineConfig({
         {
             name: 'apple-isolated',
             testMatch: [
+                'integration-test/context-menu.spec.js',
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/favicon.spec.js',
+                'integration-test/page-observer.spec.js',
+                'integration-test/hover.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
@@ -48,6 +51,7 @@ export default defineConfig({
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/duckplayer-native.spec.js',
+                'integration-test/favicon.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
