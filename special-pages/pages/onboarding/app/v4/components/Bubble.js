@@ -88,7 +88,7 @@ export function Bubble({
                 delay: bounceDelay,
             },
         );
-    }, [bounceKey, animateBounce]);
+    }, [bounceKey, animateBounce, bounceDelay]);
 
     /** @param {import('preact').JSX.TargetedAnimationEvent<HTMLDivElement>} e */
     const handleAnimationEnd = (e) => {
