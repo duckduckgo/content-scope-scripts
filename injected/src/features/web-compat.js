@@ -1101,7 +1101,7 @@ export class WebCompat extends ContentFeature {
         /** @type {NodeListOf<HTMLMetaElement>} **/
         const viewportTags = document.querySelectorAll('meta[name=viewport i]');
         // Chrome respects only the last viewport tag - modify existing rather than adding new
-        const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1] ?? null;
+        const viewportTag = viewportTags.length === 0 ? null : (viewportTags[viewportTags.length - 1] ?? null);
         const viewportContent = viewportTag?.getAttribute('content') || '';
         /** @type {readonly string[]} **/
         const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : [];
