@@ -31,12 +31,12 @@ export function MakeDefaultContent() {
     // button slide) so the skip button leaves flow before useFlip measures the new layout
     /** @type {[import('preact').RefObject<HTMLHeadingElement>, import('../hooks/useAnimate').AnimateFn]} */
     const [titleRef, animateTitle] = useAnimate();
-    /** @type {[import('preact').RefObject<HTMLDivElement>, boolean]} */
+    /** @type {[import('preact').RefObject<HTMLButtonElement>, boolean]} */
     const [skipButtonRef, skipButtonMounted] = usePresence(showSkipButton, {
         keyframes: [{ opacity: 1 }, { opacity: 0 }],
         options: { duration: 300, easing: 'ease-out' },
     });
-    /** @type {import('preact').RefObject<HTMLDivElement>} */
+    /** @type {import('preact').RefObject<HTMLButtonElement>} */
     const makeDefaultButtonRef = useFlip({ duration: 300, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' });
 
     // When the global state resets to idle after an error, showSkipButton becomes true again. Reset
@@ -87,11 +87,11 @@ export function MakeDefaultContent() {
 
             <div class={styles.actions}>
                 {skipButtonMounted && (
-                    <Button ref={skipButtonRef} class={styles.skipButton} variant="secondary" onClick={advance}>
+                    <Button buttonRef={skipButtonRef} class={styles.skipButton} variant="secondary" onClick={advance}>
                         {t('skipButton')}
                     </Button>
                 )}
-                <Button ref={makeDefaultButtonRef} onClick={showSkipButton ? enableDefaultBrowser : advance}>
+                <Button buttonRef={makeDefaultButtonRef} onClick={showSkipButton ? enableDefaultBrowser : advance}>
                     {showSkipButton ? t('makeDefaultButton') : t('nextButton')}
                 </Button>
             </div>

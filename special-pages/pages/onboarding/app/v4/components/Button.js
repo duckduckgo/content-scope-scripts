@@ -1,5 +1,4 @@
 import { h } from 'preact';
-import { forwardRef } from 'preact/compat';
 import cn from 'classnames';
 import styles from './Button.module.css';
 
@@ -11,25 +10,24 @@ import styles from './Button.module.css';
  * @property {boolean} [disabled]
  * @property {'wide' | 'stretch'} [size] - 'wide' adds extra horizontal padding, 'stretch' fills available width
  * @property {string} [class] - Additional class for layout (flex, width, etc.)
+ * @property {import("preact").Ref<HTMLButtonElement>} [buttonRef] - Use buttonRef instead of ref to avoid needing preact/compat's forwardRef
  */
 
 /**
  * Reusable v4 button with primary (accent) and secondary (standard) variants.
  *
- * @type {import('preact').FunctionComponent<ButtonProps>}
+ * @param {ButtonProps} props
  */
-export const Button = forwardRef(
-    (/** @type {ButtonProps} */ { variant = 'primary', children, onClick, disabled, size, class: className }, ref) => {
-        return (
-            <button
-                ref={ref}
-                type="button"
-                class={cn(styles.button, styles[variant], size && styles[size], className)}
-                onClick={onClick}
-                disabled={disabled}
-            >
-                {children}
-            </button>
-        );
-    },
-);
+export function Button({ variant = 'primary', children, onClick, disabled, size, class: className, buttonRef }) {
+    return (
+        <button
+            ref={buttonRef}
+            type="button"
+            class={cn(styles.button, styles[variant], size && styles[size], className)}
+            onClick={onClick}
+            disabled={disabled}
+        >
+            {children}
+        </button>
+    );
+}
