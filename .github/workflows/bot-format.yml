@@ -5,6 +5,12 @@ on:
         branches-ignore:
             - main
             - master
+        tags-ignore:
+            - '**'
+
+concurrency:
+    group: bot-format-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
     format:
