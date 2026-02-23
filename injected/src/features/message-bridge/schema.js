@@ -88,7 +88,7 @@ export class ProxyRequest {
         return new ProxyRequest({
             featureName: params.featureName,
             method: params.method,
-            params: params.params,
+            params: /** @type {Record<string, any> | undefined} */ (params.params),
             id: params.id,
         });
     }
@@ -127,8 +127,8 @@ export class ProxyResponse {
         return new ProxyResponse({
             featureName: params.featureName,
             method: params.method,
-            result: params.result,
-            error: params.error,
+            result: /** @type {Record<string, any> | undefined} */ (params.result),
+            error: /** @type {import("@duckduckgo/messaging").MessageError | undefined} */ (params.error),
             id: params.id,
         });
     }
@@ -164,7 +164,7 @@ export class ProxyNotification {
         return new ProxyNotification({
             featureName: params.featureName,
             method: params.method,
-            params: params.params,
+            params: /** @type {Record<string, any> | undefined} */ (params.params),
         });
     }
 }
@@ -231,7 +231,7 @@ export class SubscriptionResponse {
         return new SubscriptionResponse({
             featureName: params.featureName,
             subscriptionName: params.subscriptionName,
-            params: params.params,
+            params: /** @type {Record<string, any> | undefined} */ (params.params),
             id: params.id,
         });
     }

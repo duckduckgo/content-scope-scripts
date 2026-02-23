@@ -8,6 +8,12 @@
 import { execSync } from 'node:child_process';
 
 const CORE_FILES = new Set([
+    'injected/entry-points/android-adsjs.js',
+    'injected/entry-points/android.js',
+    'injected/entry-points/apple.js',
+    'injected/entry-points/extension-mv3.js',
+    'injected/entry-points/integration.js',
+    'injected/entry-points/windows.js',
     'injected/src/canvas.js',
     'injected/src/captured-globals.js',
     'injected/src/config-feature.js',
@@ -17,6 +23,7 @@ const CORE_FILES = new Set([
     'injected/src/crypto.js',
     'injected/src/dom-utils.js',
     'injected/src/features.js',
+    'injected/src/globals.d.ts',
     'injected/src/performance.js',
     'injected/src/sendmessage-transport.js',
     'injected/src/timer-utils.js',
@@ -25,8 +32,14 @@ const CORE_FILES = new Set([
     'injected/src/url-change.js',
     'injected/src/utils.js',
     'injected/src/wrapper-utils.js',
-    // Feature files (see also: excluded list at bottom for features not yet passing)
+    'injected/src/detectors/detections/fraud-detection.js',
+    'injected/src/types/feature-map.ts',
+    'messaging/lib/messaging.types.d.ts',
+    'messaging/lib/shared-types.ts',
+    'messaging/schema.js',
+    // Feature files
     'injected/src/features/api-manipulation.js',
+    'injected/src/features/autofill-import.js',
     'injected/src/features/breakage-reporting.js',
     'injected/src/features/breakage-reporting/utils.js',
     'injected/src/features/broker-protection.js',
@@ -64,6 +77,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/comparisons/is-same-age.js',
     'injected/src/features/broker-protection/comparisons/is-same-name.js',
     'injected/src/features/broker-protection/execute.js',
+    'injected/src/features/broker-protection/extractors/address.js',
     'injected/src/features/broker-protection/extractors/age.js',
     'injected/src/features/broker-protection/extractors/name.js',
     'injected/src/features/broker-protection/extractors/phone.js',
@@ -74,6 +88,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/utils/safe-call.js',
     'injected/src/features/broker-protection/utils/url.js',
     'injected/src/features/broker-protection/utils/utils.js',
+    'injected/src/features/click-to-load.js',
     'injected/src/features/click-to-load/components/ctl-login-button.js',
     'injected/src/features/click-to-load/components/ctl-placeholder-blocked.js',
     'injected/src/features/click-to-load/components/index.js',
@@ -123,9 +138,11 @@ const CORE_FILES = new Set([
     'injected/src/features/fingerprinting-temporary-storage.js',
     'injected/src/features/google-rejected.js',
     'injected/src/features/gpc.js',
+    'injected/src/features/harmful-apis.js',
     'injected/src/features/hover.js',
     'injected/src/features/message-bridge.js',
     'injected/src/features/message-bridge/create-page-world-bridge.js',
+    'injected/src/features/message-bridge/schema.js',
     'injected/src/features/navigator-interface.js',
     'injected/src/features/page-context.js',
     'injected/src/features/page-observer.js',
@@ -133,6 +150,7 @@ const CORE_FILES = new Set([
     'injected/src/features/print.js',
     'injected/src/features/referrer.js',
     'injected/src/features/ua-ch-brands.js',
+    'injected/src/features/web-compat.js',
     'injected/src/features/web-detection.js',
     'injected/src/features/web-detection/matching.js',
     'injected/src/features/web-detection/parse.js',
@@ -140,14 +158,6 @@ const CORE_FILES = new Set([
     'injected/src/features/web-telemetry.js',
     'injected/src/features/windows-permission-usage.js',
 ]);
-
-// Features not yet passing strict checks (TODO: fix and add to CORE_FILES):
-// - injected/src/features/autofill-import.js (21 errors: implicit any members, params)
-// - injected/src/features/broker-protection/extractors/address.js (1 error: missing parse-address types)
-// - injected/src/features/click-to-load.js (168 errors: implicit any vars/params throughout)
-// - injected/src/features/harmful-apis.js (28 errors: globalThis index, this context)
-// - injected/src/features/message-bridge/schema.js (51 errors: Object property access)
-// - injected/src/features/web-compat.js (50 errors: implicit any params, globalThis index)
 
 let output;
 try {
