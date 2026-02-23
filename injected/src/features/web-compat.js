@@ -1262,7 +1262,11 @@ export class WebCompat extends ContentFeature {
         }
 
         const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-            apply: async (/** @type {MediaDevices['enumerateDevices']} */ target, /** @type {MediaDevices | undefined} */ thisArg, /** @type {any[]} */ args) => {
+            apply: async (
+                /** @type {MediaDevices['enumerateDevices']} */ target,
+                /** @type {MediaDevices | undefined} */ thisArg,
+                /** @type {any[]} */ args,
+            ) => {
                 const settings = this.getFeatureSetting('enumerateDevices') || {};
                 const timeoutEnabled = settings.timeoutEnabled !== false;
                 const timeoutMs = settings.timeoutMs ?? 2000;
