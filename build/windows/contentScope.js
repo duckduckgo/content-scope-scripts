@@ -2415,7 +2415,9 @@
   }
   var exemptionLists = {};
   function shouldExemptUrl(type, url) {
-    for (const regex of exemptionLists[type]) {
+    const list = exemptionLists[type];
+    if (!list) return false;
+    for (const regex of list) {
       if (regex.test(url)) {
         return true;
       }
@@ -2428,7 +2430,9 @@
     debug = args.debug || false;
     for (const type in stringExemptionLists) {
       exemptionLists[type] = [];
-      for (const stringExemption of stringExemptionLists[type]) {
+      const exemptions = stringExemptionLists[type];
+      if (!exemptions) continue;
+      for (const stringExemption of exemptions) {
         exemptionLists[type].push(new RegExp(stringExemption));
       }
     }
@@ -2485,7 +2489,7 @@
       const errorLines = stack.split("\n");
       for (const line of errorLines) {
         const res = line.match(lineTest);
-        if (res) {
+        if (res && res[2]) {
           urls.add(new URL(res[2], location.href));
         }
       }
@@ -2502,7 +2506,8 @@
     return origins;
   }
   function shouldExemptMethod(type) {
-    if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
+    const typeExemptions = exemptionLists[type];
+    if (!typeExemptions || typeExemptions.length === 0) {
       return false;
     }
     const stack = getStack();
@@ -2839,6 +2844,7 @@
     );
     const enabledFeatures = remoteFeatureNames.filter((featureName) => {
       const feature = data2.features[featureName];
+      if (!feature) return false;
       if (feature.minSupportedVersion && platform?.version) {
         if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
           return false;
@@ -2855,7 +2861,9 @@
       if (!enabledFeatures.includes(featureName)) {
         return;
       }
-      featureSettings[featureName] = data2.features[featureName].settings;
+      const feature = data2.features[featureName];
+      if (!feature) return;
+      featureSettings[featureName] = feature.settings;
     });
     return featureSettings;
   }
@@ -3122,8 +3130,10 @@
       this.attrIdx = {};
       this.parts.forEach((part, index) => {
         const kv = part.split("=", 1);
-        const attribute = kv[0].trim();
-        const value = part.slice(kv[0].length + 1);
+        const key = kv[0];
+        if (key === void 0) return;
+        const attribute = key.trim();
+        const value = part.slice(key.length + 1);
         if (index === 0) {
           this.name = attribute;
           this.value = value;
@@ -3151,8 +3161,9 @@
       return this["max-age"];
     }
     set maxAge(value) {
-      if (this.attrIdx["max-age"] > 0) {
-        this.parts.splice(this.attrIdx["max-age"], 1, `max-age=${value}`);
+      const idx = this.attrIdx["max-age"];
+      if (idx !== void 0 && idx > 0) {
+        this.parts.splice(idx, 1, `max-age=${value}`);
       } else {
         this.parts.push(`max-age=${value}`);
       }
@@ -7462,7 +7473,11 @@
     for (let i = 0; i < length; i += 4) {
       if (!shouldIgnorePixel(d, i) && !adjacentSame(d, i, width)) {
         mappingArray.push(i);
-        checkSum += d[i] + d[i + 1] + d[i + 2] + d[i + 3];
+        checkSum += /** @type {number} */
+        d[i] + /** @type {number} */
+        d[i + 1] + /** @type {number} */
+        d[i + 2] + /** @type {number} */
+        d[i + 3];
       }
     }
     const windowHash = getDataKeySync(sessionKey, domainKey, checkSum);
@@ -7471,8 +7486,12 @@
       const rand = rng();
       const byte = Math.floor(rand * 10);
       const channel = byte % 3;
-      const pixelCanvasIndex = mappingArray[i] + channel;
-      d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ byte & 1;
+      const pixelCanvasIndex = (
+        /** @type {number} */
+        mappingArray[i] + channel
+      );
+      d[pixelCanvasIndex] = /** @type {number} */
+      d[pixelCanvasIndex] ^ byte & 1;
     }
     return imageData;
   }
@@ -10898,7 +10917,10 @@
         ">": "&gt;",
         "/": "&#x2F;"
       };
-      return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
+      return String(str).replace(/[&"'<>/]/g, (m) => (
+        /** @type {string} */
+        replacements[m]
+      ));
     }
     /**
      * @param {unknown} value
@@ -11014,11 +11036,11 @@
   };
   var mobileStrings = (lookup) => {
     return {
-      title: lookup.videoOverlayTitle2,
-      subtitle: lookup.videoOverlaySubtitle2,
-      buttonOptOut: lookup.videoButtonOptOut2,
-      buttonOpen: lookup.videoButtonOpen2,
-      rememberLabel: lookup.rememberLabel
+      title: lookup.videoOverlayTitle2 ?? "",
+      subtitle: lookup.videoOverlaySubtitle2 ?? "",
+      buttonOptOut: lookup.videoButtonOptOut2 ?? "",
+      buttonOpen: lookup.videoButtonOpen2 ?? "",
+      rememberLabel: lookup.rememberLabel ?? ""
     };
   };
 
@@ -14279,7 +14301,7 @@
     }
     name = name.toLowerCase();
     for (const fullName of Object.keys(nicknames)) {
-      if (nicknames[fullName].includes(name)) {
+      if (nicknames[fullName]?.includes(name)) {
         fullNames.add(fullName);
       }
     }
@@ -14411,7 +14433,10 @@
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
     extract(strs, extractorParams) {
-      return strs.map((x2) => stringToList(x2, extractorParams.separator)).flat().map((x2) => x2.split(",")[0]);
+      return strs.map((x2) => stringToList(x2, extractorParams.separator)).flat().map((x2) => (
+        /** @type {string} */
+        x2.split(",")[0]
+      ));
     }
   };
 
@@ -14424,15 +14449,18 @@
      */
     extract(strs, extractorParams) {
       if (strs.length === 0) return null;
+      const firstStr = (
+        /** @type {string} */
+        strs[0]
+      );
       const profile = {
-        profileUrl: strs[0],
-        identifier: strs[0]
+        profileUrl: firstStr,
+        identifier: firstStr
       };
       if (!extractorParams.identifierType || !extractorParams.identifier) {
         return profile;
       }
-      const profileUrl = strs[0];
-      profile.identifier = this.getIdFromProfileUrl(profileUrl, extractorParams.identifierType, extractorParams.identifier);
+      profile.identifier = this.getIdFromProfileUrl(firstStr, extractorParams.identifierType, extractorParams.identifier);
       return profile;
     }
     /**
@@ -15271,7 +15299,10 @@
     if (!url) {
       return "";
     }
-    return url.split("?")[0];
+    return (
+      /** @type {string} */
+      url.split("?")[0]
+    );
   }
 
   // src/features/broker-protection/captcha-services/get-captcha-provider.js
@@ -18738,11 +18769,17 @@ ${iframeContent}
       trackerLookup: define_import_meta_trackerLookup_default,
       injectName: "windows"
     };
-    const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] : [];
+    const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
     for (const featureName of bundledFeatureNames) {
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
+        if (!ContentFeature2) {
+          if (args.debug) {
+            console.error("Missing feature constructor for", featureName);
+          }
+          continue;
+        }
         const featureInstance2 = new ContentFeature2(featureName, importConfig, _features2, args);
         if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           continue;

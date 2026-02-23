@@ -1,0 +1,6 @@
+- NoUncheckedIndexedAccess strict checks (#2302)
+- build(deps-dev): bump jasmine and @types/jasmine (#2308)
+- build(deps-dev): bump the typescript group with 2 updates (#2305)
+- build(deps): bump preact from 10.28.3 to 10.28.4 (#2306)
+- Core file strict check (#2297)
+- Prettier linting hooks (#2304)

@@ -903,7 +903,9 @@
   }
   var exemptionLists = {};
   function shouldExemptUrl(type, url) {
-    for (const regex of exemptionLists[type]) {
+    const list = exemptionLists[type];
+    if (!list) return false;
+    for (const regex of list) {
       if (regex.test(url)) {
         return true;
       }
@@ -916,7 +918,9 @@
     debug = args.debug || false;
     for (const type in stringExemptionLists) {
       exemptionLists[type] = [];
-      for (const stringExemption of stringExemptionLists[type]) {
+      const exemptions = stringExemptionLists[type];
+      if (!exemptions) continue;
+      for (const stringExemption of exemptions) {
         exemptionLists[type].push(new RegExp(stringExemption));
       }
     }
@@ -973,7 +977,7 @@
       const errorLines = stack.split("\n");
       for (const line of errorLines) {
         const res = line.match(lineTest);
-        if (res) {
+        if (res && res[2]) {
           urls.add(new URL(res[2], location.href));
         }
       }
@@ -990,7 +994,8 @@
     return origins;
   }
   function shouldExemptMethod(type) {
-    if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
+    const typeExemptions = exemptionLists[type];
+    if (!typeExemptions || typeExemptions.length === 0) {
       return false;
     }
     const stack = getStack();
@@ -1288,6 +1293,7 @@
     );
     const enabledFeatures = remoteFeatureNames.filter((featureName) => {
       const feature = data.features[featureName];
+      if (!feature) return false;
       if (feature.minSupportedVersion && platform?.version) {
         if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
           return false;
@@ -1304,7 +1310,9 @@
       if (!enabledFeatures.includes(featureName)) {
         return;
       }
-      featureSettings[featureName] = data.features[featureName].settings;
+      const feature = data.features[featureName];
+      if (!feature) return;
+      featureSettings[featureName] = feature.settings;
     });
     return featureSettings;
   }
@@ -1553,8 +1561,10 @@
       this.attrIdx = {};
       this.parts.forEach((part, index) => {
         const kv = part.split("=", 1);
-        const attribute = kv[0].trim();
-        const value = part.slice(kv[0].length + 1);
+        const key = kv[0];
+        if (key === void 0) return;
+        const attribute = key.trim();
+        const value = part.slice(key.length + 1);
         if (index === 0) {
           this.name = attribute;
           this.value = value;
@@ -1582,8 +1592,9 @@
       return this["max-age"];
     }
     set maxAge(value) {
-      if (this.attrIdx["max-age"] > 0) {
-        this.parts.splice(this.attrIdx["max-age"], 1, `max-age=${value}`);
+      const idx = this.attrIdx["max-age"];
+      if (idx !== void 0 && idx > 0) {
+        this.parts.splice(idx, 1, `max-age=${value}`);
       } else {
         this.parts.push(`max-age=${value}`);
       }
@@ -5824,7 +5835,11 @@
     for (let i = 0; i < length; i += 4) {
       if (!shouldIgnorePixel(d, i) && !adjacentSame(d, i, width)) {
         mappingArray.push(i);
-        checkSum += d[i] + d[i + 1] + d[i + 2] + d[i + 3];
+        checkSum += /** @type {number} */
+        d[i] + /** @type {number} */
+        d[i + 1] + /** @type {number} */
+        d[i + 2] + /** @type {number} */
+        d[i + 3];
       }
     }
     const windowHash = getDataKeySync(sessionKey, domainKey, checkSum);
@@ -5833,8 +5848,12 @@
       const rand = rng();
       const byte = Math.floor(rand * 10);
       const channel = byte % 3;
-      const pixelCanvasIndex = mappingArray[i] + channel;
-      d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ byte & 1;
+      const pixelCanvasIndex = (
+        /** @type {number} */
+        mappingArray[i] + channel
+      );
+      d[pixelCanvasIndex] = /** @type {number} */
+      d[pixelCanvasIndex] ^ byte & 1;
     }
     return imageData;
   }
@@ -8183,7 +8202,10 @@
         ">": "&gt;",
         "/": "&#x2F;"
       };
-      return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
+      return String(str).replace(/[&"'<>/]/g, (m) => (
+        /** @type {string} */
+        replacements[m]
+      ));
     }
     /**
      * @param {unknown} value
@@ -11161,11 +11183,17 @@
       trackerLookup: $TRACKER_LOOKUP$,
       injectName: "chrome-mv3"
     };
-    const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] : [];
+    const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] ?? [] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
     for (const featureName of bundledFeatureNames) {
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
+        if (!ContentFeature2) {
+          if (args.debug) {
+            console.error("Missing feature constructor for", featureName);
+          }
+          continue;
+        }
         const featureInstance2 = new ContentFeature2(featureName, importConfig, _features2, args);
         if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           continue;
@@ -11245,7 +11273,11 @@
   }
 
   // entry-points/extension-mv3.js
-  var secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace("0.", "");
+  var randomValue = (
+    /** @type {number} */
+    crypto.getRandomValues(new Uint32Array(1))[0]
+  );
+  var secret = (randomValue / 2 ** 32).toString().replace("0.", "");
   load({
     platform: {
       name: "extension"
