@@ -462,11 +462,11 @@
     "note": "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "getStartedButton_v4": {
-    "title": "Let's do it!",
+    "title": "Let’s do it!",
     "note": "Button label prompting user to start the v4 onboarding process."
   },
   "makeDefaultAccept_title_v4": {
-    "title": "Excellent! Let's move on.",
+    "title": "Excellent! Let’s move on.",
     "note": "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
   }
 }
