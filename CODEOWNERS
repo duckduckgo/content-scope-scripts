@@ -1,8 +1,3 @@
-* @duckduckgo/content-scope-scripts-owners
-
-# Documentation - anyone can edit
-injected/docs/
-
 # Feature owners
 injected/src/features/fingerprinting-* @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
 injected/src/canvas.js @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
@@ -29,11 +24,26 @@ injected/entry-points/android.js @duckduckgo/content-scope-scripts-owners @duckd
 injected/entry-points/extension-mv3.js @duckduckgo/content-scope-scripts-owners @duckduckgo/extension-owners
 injected/entry-points/windows.js @duckduckgo/content-scope-scripts-owners @duckduckgo/team-windows-development
 
-# Test owners
-injected/integration-tests/test-pages/ @duckduckgo/content-scope-scripts-owners @kdzwinel @jonathanKingston
-
 # Special Pages
 special-pages/ @duckduckgo/content-scope-scripts-owners @shakyShane @mgurgel
 
 # Others
 types-generator/ @duckduckgo/content-scope-scripts-owners @shakyShane
+
+# Core high risk
+injected/src/features/api-manipulation.js @duckduckgo/content-scope-scripts-owners
+injected/src/features/exception-handler.js @duckduckgo/content-scope-scripts-owners
+injected/src/features/gpc.js @duckduckgo/content-scope-scripts-owners
+injected/src/features/performance-metrics.js @duckduckgo/content-scope-scripts-owners
+injected/src/features/web-interference-detection.js @duckduckgo/content-scope-scripts-owners
+injected/src/features/web-telemetry.js @duckduckgo/content-scope-scripts-owners
+injected/src/detectors/detections/adwall-detection.js @duckduckgo/content-scope-scripts-owners
+injected/src/detectors/detections/bot-detection.js @duckduckgo/content-scope-scripts-owners
+injected/src/detectors/detections/youtube-ad-detection.js @duckduckgo/content-scope-scripts-owners
+injected/src/detectors/utils/detection-utils.js @duckduckgo/content-scope-scripts-owners
+injected/src/navigator-global.js @duckduckgo/content-scope-scripts-owners
+
+# Workflows and admin
+.github/ @duckduckgo/content-scope-scripts-owners
+package.json @duckduckgo/content-scope-scripts-owners
+package-lock.json @duckduckgo/content-scope-scripts-owners
