@@ -90,6 +90,34 @@ Run `node types.mjs` from `special-pages/` to regenerate `types/new-tab.ts` with
 **File:** `app/omnibar/strings.json`
 - Add `omnibar_aiChatsListLabel` for the accessible `aria-label` on the listbox
 
+### 11. Add keyboard navigation + filtering for AiChatsList
+
+Following the same pattern as SuggestionsList/SearchForm keyboard navigation:
+
+**New file:** `app/omnibar/components/useAiChats.js`
+- Combined hook: fetches chats via `getAiChats()` + manages navigation state (selectedIndex) in a single `useReducer`
+- Reducer actions: `setChats` (resets selectedIndex), `previousChat`, `nextChat`, `setSelectedChat`, `clearSelectedChat`
+- Filters chats by query text (case-insensitive title match) via `useMemo`
+- Exports `getAiChatElementId()` helper for consistent element ID generation
+- Navigation wraps: null → 0 → 1 → ... → null (cycles through list)
+
+**New file:** `app/omnibar/components/AiChatsProvider.js`
+- Context provider wrapping `useAiChats` hook + `useId()` for `aiChatsListId`
+- Exports `useAiChatsContext()` hook for consumers
+
+**Modified:** `app/omnibar/components/AiChatForm.js`
+- Keyboard handling in `onKeyDown`: ArrowUp/Down navigate chats, Enter opens selected chat or submits new chat, Escape clears selection
+- Shift+Enter preserved for textarea newline
+- ARIA attributes on textarea: `aria-expanded`, `aria-haspopup="listbox"`, `aria-controls`, `aria-activedescendant`
+
+**Modified:** `app/omnibar/components/AiChatsList.js`
+- Reads selection state from `useAiChatsContext()` instead of fetching chats directly
+- Each item gets: `id`, `tabIndex` (roving), `aria-selected`, `onMouseOver`/`onMouseLeave` for mouse+keyboard parity
+- Uses `ChatBubbleIcon` / `PinIcon` based on `chat.pinned`
+
+**Modified:** `app/omnibar/components/Omnibar.js`
+- Wrapped content area with `<AiChatsProvider filter={query}>`
+
 ## Key Files
 
 | File | Action |
@@ -101,6 +129,9 @@ Run `node types.mjs` from `special-pages/` to regenerate `types/new-tab.ts` with
 | `special-pages/pages/new-tab/messages/omnibar_openAiChat.notify.json` | Create |
 | `special-pages/pages/new-tab/app/omnibar/components/AiChatsList.js` | Create |
 | `special-pages/pages/new-tab/app/omnibar/components/AiChatsList.module.css` | Create |
+| `special-pages/pages/new-tab/app/omnibar/components/useAiChats.js` | Create |
+| `special-pages/pages/new-tab/app/omnibar/components/AiChatsProvider.js` | Create |
+| `special-pages/pages/new-tab/app/omnibar/components/AiChatForm.js` | Modify |
 | `special-pages/pages/new-tab/app/omnibar/omnibar.service.js` | Modify |
 | `special-pages/pages/new-tab/app/omnibar/components/OmnibarProvider.js` | Modify |
 | `special-pages/pages/new-tab/app/omnibar/components/Omnibar.js` | Modify |

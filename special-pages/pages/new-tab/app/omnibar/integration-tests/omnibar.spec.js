@@ -1308,6 +1308,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
             chatId: 'chat-001',
             target: 'same-tab',
+            trigger: 'mouse',
         });
     });
 

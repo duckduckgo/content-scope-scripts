@@ -96,6 +96,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                     openAiChat({
                         chatId: selectedChat.chatId,
                         target: eventToTarget(event, platformName),
+                        trigger: 'keyboard',
                     });
                     break;
                 }

@@ -47,6 +47,7 @@ export function AiChatsList({ className }) {
                         openAiChat({
                             chatId: chat.chatId,
                             target: eventToTarget(event, platformName),
+                            trigger: 'mouse',
                         });
                     }}
                 >

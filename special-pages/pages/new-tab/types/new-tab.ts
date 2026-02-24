@@ -512,6 +512,10 @@ export interface OpenAIChatAction {
    */
   chatId: string;
   target: OpenTarget;
+  /**
+   * Whether the chat was opened via mouse click or keyboard
+   */
+  trigger: "mouse" | "keyboard";
 }
 /**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"

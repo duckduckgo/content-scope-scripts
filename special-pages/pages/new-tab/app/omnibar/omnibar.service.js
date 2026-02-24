@@ -7,6 +7,7 @@ import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
  * @typedef {import("../../types/new-tab.js").Suggestion} Suggestion
  * @typedef {import("../../types/new-tab.js").OpenTarget} OpenTarget
  * @typedef {import("../../types/new-tab.js").AiChatsData} AiChatsData
+ * @typedef {import("../../types/new-tab.js").OpenAIChatAction} OpenAIChatAction
  */
 
 export class OmnibarService {
@@ -151,9 +152,7 @@ export class OmnibarService {
 
     /**
      * Open a specific AI chat
-     * @param {Object} params
-     * @param {string} params.chatId
-     * @param {OpenTarget} params.target
+     * @param {OpenAIChatAction} params
      */
     openAiChat(params) {
         this.ntp.messaging.notify('omnibar_openAiChat', params);

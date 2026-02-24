@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Open AI Chat Action",
   "type": "object",
-  "required": ["chatId", "target"],
+  "required": ["chatId", "target", "trigger"],
   "properties": {
     "chatId": {
       "description": "The ID of the chat to open",
@@ -10,6 +10,11 @@
     },
     "target": {
       "$ref": "types/open-target.json"
+    },
+    "trigger": {
+      "description": "Whether the chat was opened via mouse click or keyboard",
+      "type": "string",
+      "enum": ["mouse", "keyboard"]
     }
   }
 }
