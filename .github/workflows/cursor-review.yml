@@ -10,6 +10,31 @@ jobs:
         concurrency: cursor-review-${{ github.event.pull_request.number }}
 
         steps:
+            - name: Dismiss stale Dax approval on new push
+              if: github.event.action == 'synchronize'
+              uses: actions/github-script@v8
+              with:
+                  github-token: ${{ secrets.DAX_PAT }}
+                  script: |
+                      const { data: reviews } = await github.rest.pulls.listReviews({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: context.payload.pull_request.number
+                      });
+
+                      for (const review of reviews) {
+                          if (review.state === 'APPROVED' && review.user.login === 'daxtheduck') {
+                              await github.rest.pulls.dismissReview({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  pull_number: context.payload.pull_request.number,
+                                  review_id: review.id,
+                                  message: 'Dismissing stale approval — new commits pushed, awaiting Cursor re-review.'
+                              });
+                              console.log(`Dismissed stale approval (review ${review.id})`);
+                          }
+                      }
+
             - name: Debounce delay
               run: sleep 5
 
