@@ -91,7 +91,7 @@ export function MakeDefaultContent() {
                         {t('skipButton')}
                     </Button>
                 )}
-                <Button buttonRef={makeDefaultButtonRef} onClick={showSkipButton ? enableDefaultBrowser : advance}>
+                <Button buttonRef={makeDefaultButtonRef} disabled={isPending} onClick={showSkipButton ? enableDefaultBrowser : advance}>
                     {showSkipButton ? t('makeDefaultButton') : t('nextButton')}
                 </Button>
             </div>

@@ -89,7 +89,7 @@ export function ComparisonTable() {
             </thead>
             <tbody>
                 {tableData.map((data, index) => (
-                    <ComparisonTableRow {...data} index={index} />
+                    <ComparisonTableRow key={index} {...data} index={index} />
                 ))}
             </tbody>
         </table>
