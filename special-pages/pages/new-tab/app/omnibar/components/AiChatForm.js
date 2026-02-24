@@ -86,20 +86,28 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                 }
                 break;
             case 'Enter':
-                if (selectedChat && !event.shiftKey) {
-                    event.preventDefault();
+                if (event.shiftKey) {
+                    break;
+                }
+
+                event.preventDefault();
+
+                if (selectedChat) {
                     openAiChat({
                         chatId: selectedChat.chatId,
                         target: eventToTarget(event, platformName),
                     });
-                } else if (!event.shiftKey) {
-                    event.preventDefault();
-                    if (disabled) return;
-                    onSubmit({
-                        chat,
-                        target: eventToTarget(event, platformName),
-                    });
+                    break;
                 }
+
+                if (disabled) {
+                    break;
+                }
+
+                onSubmit({
+                    chat,
+                    target: eventToTarget(event, platformName),
+                });
                 break;
         }
     };
