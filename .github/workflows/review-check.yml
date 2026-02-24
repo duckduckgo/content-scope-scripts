@@ -19,10 +19,13 @@ jobs:
 
             - name: Validate approved review from authorized reviewer
               uses: actions/github-script@v8
+              env:
+                  DAX_TOKEN: ${{ secrets.DAX_PAT }}
               with:
-                  github-token: ${{ secrets.DAX_PAT }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const fs = require('fs');
+                      const { getOctokit } = require('@actions/github');
                       const REQUIRED_TEAMS = fs.readFileSync('.github/REQUIRED_TEAMS', 'utf8').trim().split('\n').filter(Boolean);
 
                       const prNumber = context.payload.pull_request.number;
@@ -45,10 +48,12 @@ jobs:
                           return;
                       }
 
+                      const daxOctokit = getOctokit(process.env.DAX_TOKEN);
+
                       for (const review of approvedReviews) {
                           for (const team of REQUIRED_TEAMS) {
                               try {
-                                  const { data } = await github.rest.teams.getMembershipForUserInOrg({
+                                  const { data } = await daxOctokit.rest.teams.getMembershipForUserInOrg({
                                       org: 'duckduckgo',
                                       team_slug: team,
                                       username: review.user.login
