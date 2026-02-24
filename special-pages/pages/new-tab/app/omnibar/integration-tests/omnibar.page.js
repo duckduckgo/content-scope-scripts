@@ -67,6 +67,10 @@ export class OmnibarPage {
         return this.suggestionsList().getByRole('option', { selected: true });
     }
 
+    selectedAiChat() {
+        return this.aiChatsList().getByRole('option', { selected: true });
+    }
+
     customizeButton() {
         return this.page.getByTestId('customizer-button');
     }
@@ -115,6 +119,17 @@ export class OmnibarPage {
 
     async expectNoSelection() {
         await expect(this.selectedSuggestion()).toHaveCount(0);
+    }
+
+    /**
+     * @param {string} text
+     */
+    async expectSelectedAiChat(text) {
+        await expect(this.selectedAiChat()).toHaveText(text);
+    }
+
+    async expectNoAiChatSelection() {
+        await expect(this.selectedAiChat()).toHaveCount(0);
     }
 
     async waitForSuggestions() {

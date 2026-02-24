@@ -149,7 +149,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                     type="submit"
                     class={styles.submitButton}
                     aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
-                    disabled={!query}
+                    disabled={disabled}
                     onClick={handleClickSubmit}
                     onAuxClick={handleClickSubmit}
                 >
