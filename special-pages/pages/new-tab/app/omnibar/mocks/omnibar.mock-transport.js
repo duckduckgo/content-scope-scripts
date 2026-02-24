@@ -25,10 +25,6 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
-                case 'omnibar_openAiChat': {
-                    console.log('omnibar_openAiChat', msg.params);
-                    break;
-                }
                 default: {
                     console.warn('unhandled notification', msg);
                 }
