@@ -10,6 +10,27 @@ jobs:
         concurrency: cursor-review-${{ github.event.pull_request.number }}
 
         steps:
+            - name: Verify author is in duckduckgo/core
+              uses: actions/github-script@v8
+              with:
+                  github-token: ${{ secrets.DAX_PAT }}
+                  script: |
+                      const author = context.payload.pull_request.user.login;
+                      try {
+                          const { data } = await github.rest.teams.getMembershipForUserInOrg({
+                              org: 'duckduckgo',
+                              team_slug: 'core',
+                              username: author
+                          });
+                          if (data.state === 'active') {
+                              console.log(`✅ ${author} is an active member of duckduckgo/core`);
+                          } else {
+                              core.setFailed(`${author} is not an active member of duckduckgo/core`);
+                          }
+                      } catch (error) {
+                          core.setFailed(`${author} is not a member of duckduckgo/core`);
+                      }
+
             - name: Dismiss stale Dax approval on new push
               if: github.event.action == 'synchronize'
               uses: actions/github-script@v8
@@ -43,30 +64,6 @@ jobs:
 
             - name: Debounce delay
               run: sleep 5
-
-            - name: Check repository permissions
-              uses: actions/github-script@v8
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  script: |
-                      const username = context.payload.pull_request.user.login;
-
-                      try {
-                          const repoPermission = await github.rest.repos.getCollaboratorPermissionLevel({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              username: username
-                          });
-
-                          const permission = repoPermission.data.permission;
-                          if (permission === 'write' || permission === 'admin') {
-                              console.log(`✅ User authorized to use workflow`);
-                          } else {
-                              core.setFailed(`User does not have sufficient repository permissions to use this workflow`);
-                          }
-                      } catch (error) {
-                          core.setFailed(`Unable to verify user permissions`);
-                      }
 
             - name: Wait for Cursor Bugbot
               uses: fountainhead/action-wait-for-check@v1.2.0
