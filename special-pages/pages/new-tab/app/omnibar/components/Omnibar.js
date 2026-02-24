@@ -10,6 +10,7 @@ import { SearchForm } from './SearchForm';
 import { SearchFormProvider } from './SearchFormProvider';
 import { SuggestionsList } from './SuggestionsList';
 import { AiChatsList } from './AiChatsList';
+import { AiChatsProvider } from './AiChatsProvider';
 import { TabSwitcher } from './TabSwitcher';
 import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { Popover } from '../../components/Popover';
@@ -108,24 +109,28 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                 </div>
             )}
             <SearchFormProvider term={query} setTerm={setQuery}>
-                <div class={styles.spacer}>
-                    <div class={styles.popup}>
-                        <ResizingContainer className={styles.field}>
-                            {mode === 'search' ? (
-                                <SearchForm
-                                    autoFocus={autoFocus}
-                                    onOpenSuggestion={handleOpenSuggestion}
-                                    onSubmit={handleSubmitSearch}
-                                    onSubmitChat={handleSubmitChat}
-                                />
-                            ) : (
-                                <AiChatForm chat={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
+                <AiChatsProvider filter={query}>
+                    <div class={styles.spacer}>
+                        <div class={styles.popup}>
+                            <ResizingContainer className={styles.field}>
+                                {mode === 'search' ? (
+                                    <SearchForm
+                                        autoFocus={autoFocus}
+                                        onOpenSuggestion={handleOpenSuggestion}
+                                        onSubmit={handleSubmitSearch}
+                                        onSubmitChat={handleSubmitChat}
+                                    />
+                                ) : (
+                                    <AiChatForm chat={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
+                                )}
+                            </ResizingContainer>
+                            {mode === 'search' && (
+                                <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
                             )}
-                        </ResizingContainer>
-                        {mode === 'search' && <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />}
-                        {mode === 'ai' && <AiChatsList filter={query} className={styles.aiChatsList} />}
+                            {mode === 'ai' && <AiChatsList className={styles.aiChatsList} />}
+                        </div>
                     </div>
-                </div>
+                </AiChatsProvider>
             </SearchFormProvider>
         </div>
     );

@@ -1,9 +1,11 @@
 import { h } from 'preact';
-import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
+import { useContext, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
+import { OmnibarContext } from './OmnibarProvider';
+import { useAiChatsContext } from './AiChatsProvider';
 import styles from './AiChatForm.module.css';
 
 /**
@@ -21,6 +23,9 @@ import styles from './AiChatForm.module.css';
 export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
+    const { openAiChat } = useContext(OmnibarContext);
+    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } =
+        useAiChatsContext();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
@@ -62,13 +67,39 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
 
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            if (disabled) return;
-            onSubmit({
-                chat,
-                target: eventToTarget(event, platformName),
-            });
+        switch (event.key) {
+            case 'ArrowUp': {
+                const success = selectPreviousChat();
+                if (success) event.preventDefault();
+                break;
+            }
+            case 'ArrowDown': {
+                const success = selectNextChat();
+                if (success) event.preventDefault();
+                break;
+            }
+            case 'Escape':
+                if (selectedChat) {
+                    event.preventDefault();
+                    clearSelectedChat();
+                }
+                break;
+            case 'Enter':
+                if (selectedChat && !event.shiftKey) {
+                    event.preventDefault();
+                    openAiChat({
+                        chatId: selectedChat.chatId,
+                        target: eventToTarget(event, platformName),
+                    });
+                } else if (!event.shiftKey) {
+                    event.preventDefault();
+                    if (disabled) return;
+                    onSubmit({
+                        chat,
+                        target: eventToTarget(event, platformName),
+                    });
+                }
+                break;
         }
     };
 
@@ -91,6 +122,10 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                 value={chat}
                 placeholder={t('omnibar_aiChatFormPlaceholder')}
                 aria-label={t('omnibar_aiChatFormPlaceholder')}
+                aria-expanded={chats.length > 0}
+                aria-haspopup="listbox"
+                aria-controls={aiChatsListId}
+                aria-activedescendant={selectedChat ? `ai-chat-${selectedChat.chatId}` : undefined}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}

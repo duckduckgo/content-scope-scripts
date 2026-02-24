@@ -6,37 +6,41 @@ import { ChatBubbleIcon, PinIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
-import { useAiChats } from './useAiChats';
+import { useAiChatsContext } from './AiChatsProvider';
 import styles from './AiChatsList.module.css';
 
 /**
  * @typedef {import('../strings.json')} Strings
+ * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
  * @param {object} props
- * @param {string} [props.filter]
  * @param {string} [props.className]
  */
-export function AiChatsList({ filter = '', className }) {
+export function AiChatsList({ className }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { openAiChat } = useContext(OmnibarContext);
     const platformName = usePlatformName();
-    const chats = useAiChats(filter);
+    const { chats, selectedChat, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
 
     if (chats.length === 0) {
         return null;
     }
 
     return (
-        <div role="listbox" class={cn(styles.list, className)} aria-label={t('omnibar_aiChatsListLabel')}>
+        <div role="listbox" id={aiChatsListId} class={cn(styles.list, className)} aria-label={t('omnibar_aiChatsListLabel')}>
             {chats.map((chat) => (
                 <button
                     key={chat.chatId}
                     role="option"
+                    id={`ai-chat-${chat.chatId}`}
                     class={styles.item}
-                    aria-selected={false}
+                    tabIndex={chat === selectedChat ? 0 : -1}
+                    aria-selected={chat === selectedChat}
+                    onMouseOver={() => setSelectedChat(chat)}
+                    onMouseLeave={() => clearSelectedChat()}
                     onClick={(event) => {
                         event.preventDefault();
                         openAiChat({
