@@ -50,7 +50,6 @@ export function useAiChats(filter) {
         return allChats.filter((chat) => chat.title.toLowerCase().includes(trimmedFilter));
     }, [allChats, filter]);
 
-    // Reset selection when filter text changes
     useEffect(() => {
         setSelectedIndex(null);
     }, [filter]);
