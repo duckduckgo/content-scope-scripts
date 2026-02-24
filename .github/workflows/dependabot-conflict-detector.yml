@@ -14,7 +14,7 @@ jobs:
             - name: Check Dependabot PRs for conflicts
               uses: actions/github-script@v8
               with:
-                  github-token: ${{ secrets.DAX_PAT }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const { data: pulls } = await github.rest.pulls.list({
                         owner: context.repo.owner,
