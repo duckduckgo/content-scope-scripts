@@ -9,11 +9,12 @@
         body {
             min-height: 200vh;
         }
-        body.locked {
+        html.locked, html.locked body {
             overflow: hidden;
             overscroll-behavior: none;
+            height: 100%;
+            min-height: 0;
             background: #eee;
-            height: 100vh;
         }
         .content {
             padding: 20px;
@@ -41,8 +42,8 @@
         const status = document.getElementById('status');
         
         toggleBtn.addEventListener('click', () => {
-            document.body.classList.toggle('locked');
-            const isLocked = document.body.classList.contains('locked');
+            document.documentElement.classList.toggle('locked');
+            const isLocked = document.documentElement.classList.contains('locked');
             status.textContent = `Status: ${isLocked ? 'Locked' : 'Unlocked'}`;
         });
 
@@ -62,18 +63,15 @@
         });
 
         test('After class toggle, page should be locked', async () => {
-            // Add the locked class
-            document.body.classList.add('locked');
+            document.documentElement.classList.add('locked');
             
-            // Wait for MutationObserver to detect the change
             await new Promise(resolve => setTimeout(resolve, 500));
             
             const bodyStyle = getComputedStyle(document.body);
             const overflow = bodyStyle.getPropertyValue('overflow');
             const overscrollBehavior = bodyStyle.getPropertyValue('overscroll-behavior');
             
-            // Clean up
-            document.body.classList.remove('locked');
+            document.documentElement.classList.remove('locked');
             status.textContent = 'Status: Unlocked';
             
             return [
