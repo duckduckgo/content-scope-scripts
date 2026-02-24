@@ -699,7 +699,7 @@ export default class AutofillImport extends ActionExecutorBase {
         this.#exportConfirmButtonSettings = this.getFeatureSetting('exportConfirmButton');
     }
 
-    /** @returns {string | null | undefined} */
+    /** @returns {string | null} */
     findExportId() {
         const tabPanelSelector = this.bookmarkImportSelectorSettings.tabPanel;
         if (!tabPanelSelector) return null;
@@ -707,14 +707,15 @@ export default class AutofillImport extends ActionExecutorBase {
         const exportPanel = panels[panels.length - 1];
         if (!exportPanel) return null;
         const dataArchiveIdSelector = this.bookmarkImportSelectorSettings.dataArchiveId ?? `div[data-archive-id]`;
-        return exportPanel.querySelector(dataArchiveIdSelector)?.getAttribute('data-archive-id');
+        const id = exportPanel.querySelector(dataArchiveIdSelector)?.getAttribute('data-archive-id');
+        return id || null;
     }
 
     /** @returns {Promise<string | null>} */
     async getExportId() {
         const { maxAttempts, interval } = this.defaultRetrySettings;
         const result = await this.runWithRetry(() => this.findExportId(), maxAttempts, interval, 'linear');
-        return typeof result === 'string' ? result : null;
+        return typeof result === 'string' && result !== '' ? result : null;
     }
 
     urlChanged() {
