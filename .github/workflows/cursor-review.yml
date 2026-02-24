@@ -35,6 +35,12 @@ jobs:
                           }
                       }
 
+            - name: Checkout base branch
+              uses: actions/checkout@v6
+              with:
+                  sparse-checkout: .github/REQUIRED_TEAMS
+                  sparse-checkout-cone-mode: false
+
             - name: Debounce delay
               run: sleep 5
 
@@ -110,19 +116,17 @@ jobs:
 
             - name: Post manual review required comment
               if: steps.wait-for-cursor.outputs.conclusion != 'success' && steps.find_comment.outputs.comment-id == ''
-              uses: peter-evans/create-or-update-comment@v5
+              uses: actions/github-script@v8
               with:
-                  issue-number: ${{ github.event.pull_request.number }}
-                  body: |
-                      ⚠️ **Cursor review was not successful**
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const fs = require('fs');
+                      const teams = fs.readFileSync('.github/REQUIRED_TEAMS', 'utf8').trim().split('\n').filter(Boolean);
+                      const teamList = teams.map(t => `- @duckduckgo/${t}`).join('\n');
 
-                      This PR requires a manual review and approval from a member of one of the following teams:
-
-                      - @duckduckgo/content-scope-scripts-owners
-                      - @duckduckgo/apple-devs
-                      - @duckduckgo/android-devs
-                      - @duckduckgo/team-windows-development
-                      - @duckduckgo/extension-owners
-                      - @duckduckgo/config-aor
-                      - @duckduckgo/breakage-aor
-                      - @duckduckgo/breakage
+                      await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.payload.pull_request.number,
+                          body: `⚠️ **Cursor review was not successful**\n\nThis PR requires a manual review and approval from a member of one of the following teams:\n\n${teamList}`
+                      });

@@ -11,21 +11,19 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+            - name: Checkout base branch
+              uses: actions/checkout@v6
+              with:
+                  sparse-checkout: .github/REQUIRED_TEAMS
+                  sparse-checkout-cone-mode: false
+
             - name: Validate approved review from authorized reviewer
               uses: actions/github-script@v8
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
-                      const REQUIRED_TEAMS = [
-                          'content-scope-scripts-owners',
-                          'apple-devs',
-                          'android-devs',
-                          'team-windows-development',
-                          'extension-owners',
-                          'config-aor',
-                          'breakage-aor',
-                          'breakage'
-                      ];
+                      const fs = require('fs');
+                      const REQUIRED_TEAMS = fs.readFileSync('.github/REQUIRED_TEAMS', 'utf8').trim().split('\n').filter(Boolean);
 
                       const prNumber = context.payload.pull_request.number;
 
