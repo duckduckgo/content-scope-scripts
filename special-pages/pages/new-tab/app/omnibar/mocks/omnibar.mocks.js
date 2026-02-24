@@ -89,6 +89,9 @@ export function getMockSuggestions(term) {
     };
 }
 
+export const mockAiChatsSearchTerm = 'milestone';
+export const mockAiChatTitleWithSearchTerm = `Onboarding ${mockAiChatsSearchTerm}s overview`;
+
 /**
  * @return {import("../../../types/new-tab").AiChatsData}
  */
@@ -109,7 +112,7 @@ export function getMockAiChats() {
             },
             {
                 chatId: 'chat-003',
-                title: 'Onboarding milestones overview',
+                title: mockAiChatTitleWithSearchTerm,
                 pinned: false,
                 lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
             },
