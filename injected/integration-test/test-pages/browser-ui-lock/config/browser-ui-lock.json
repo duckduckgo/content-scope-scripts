@@ -1,0 +1,12 @@
+{
+    "readme": "Config for browser UI lock integration tests",
+    "version": 1,
+    "features": {
+        "browserUiLock": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}
