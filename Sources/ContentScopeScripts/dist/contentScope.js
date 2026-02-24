@@ -1501,7 +1501,8 @@
       "pageContext",
       "print",
       "pageObserver",
-      "hover"
+      "hover",
+      "browserUiLock"
     ]
   );
   var platformSupport = {
@@ -1530,9 +1531,11 @@
       "breakageReporting",
       "duckPlayer",
       "messageBridge",
-      "pageContext"
+      "pageContext",
+      "browserUiLock"
     ],
     "android-broker-protection": ["brokerProtection"],
+    "android-ai-history": ["duckAiChatHistory"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
       "apiManipulation",
@@ -1546,7 +1549,6 @@
       "webDetection",
       "breakageReporting"
     ],
-    "android-ai-history": ["duckAiChatHistory"],
     windows: [
       "cookie",
       ...baseFeatures,

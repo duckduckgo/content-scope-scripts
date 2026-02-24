@@ -1,5 +1,6 @@
 /* ../node_modules/@duckduckgo/design-tokens/build/desktop-browsers/tokens.css */
-:root {
+:root,
+:host {
   --ds-color-palette-black: #000000;
   --ds-color-palette-white: #ffffff;
   --ds-color-palette-transparent: rgba(0, 0, 0, 0);
