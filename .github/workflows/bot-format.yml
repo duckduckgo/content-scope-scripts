@@ -47,6 +47,6 @@ jobs:
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                  git add -A
+                  git add -u
                   git diff --cached --quiet || git commit -m "Auto-format: prettier + stylelint fix"
                   git push origin "HEAD:$TARGET_REF"
