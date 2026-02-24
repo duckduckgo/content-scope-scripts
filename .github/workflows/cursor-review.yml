@@ -1,0 +1,103 @@
+name: Cursor Auto Review
+
+on:
+    pull_request_target:
+        types: [opened, synchronize, reopened]
+
+jobs:
+    cursor_auto_review:
+        runs-on: ubuntu-latest
+        concurrency: cursor-review-${{ github.event.pull_request.number }}
+
+        steps:
+            - name: Debounce delay
+              run: sleep 5
+
+            - name: Check repository permissions
+              uses: actions/github-script@v8
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const username = context.payload.pull_request.user.login;
+
+                      try {
+                          const repoPermission = await github.rest.repos.getCollaboratorPermissionLevel({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              username: username
+                          });
+
+                          const permission = repoPermission.data.permission;
+                          if (permission === 'write' || permission === 'admin') {
+                              console.log(`✅ User authorized to use workflow`);
+                          } else {
+                              core.setFailed(`User does not have sufficient repository permissions to use this workflow`);
+                          }
+                      } catch (error) {
+                          core.setFailed(`Unable to verify user permissions`);
+                      }
+
+            - name: Wait for Cursor Bugbot
+              uses: fountainhead/action-wait-for-check@v1.2.0
+              id: wait-for-cursor
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  checkName: Cursor Bugbot
+                  ref: ${{ github.event.pull_request.head.sha }}
+                  timeoutSeconds: 600
+
+            - name: Check for existing Dax approval
+              uses: actions/github-script@v8
+              id: check_reviews
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const { data: reviews } = await github.rest.pulls.listReviews({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: context.payload.pull_request.number
+                      });
+
+                      const hasApprovedReview = reviews.some(review =>
+                          review.state === 'APPROVED' &&
+                          review.user.login === 'daxtheduck'
+                      );
+
+                      console.log(`Found approved review from daxtheduck: ${hasApprovedReview}`);
+                      core.setOutput('has_approved_review', hasApprovedReview);
+
+            - name: Auto approve
+              if: steps.wait-for-cursor.outputs.conclusion == 'success' && steps.check_reviews.outputs.has_approved_review == 'false'
+              run: gh pr review --approve "$PR_URL"
+              env:
+                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GITHUB_TOKEN: ${{ secrets.DAX_PAT }}
+
+            - name: Find previous review comment
+              if: steps.wait-for-cursor.outputs.conclusion != 'success'
+              uses: peter-evans/find-comment@v4
+              id: find_comment
+              with:
+                  issue-number: ${{ github.event.pull_request.number }}
+                  comment-author: 'github-actions[bot]'
+                  body-includes: 'Cursor review was not successful'
+                  direction: last
+
+            - name: Post manual review required comment
+              if: steps.wait-for-cursor.outputs.conclusion != 'success' && steps.find_comment.outputs.comment-id == ''
+              uses: peter-evans/create-or-update-comment@v5
+              with:
+                  issue-number: ${{ github.event.pull_request.number }}
+                  body: |
+                      ⚠️ **Cursor review was not successful**
+
+                      This PR requires a manual review and approval from a member of one of the following teams:
+
+                      - @duckduckgo/content-scope-scripts-owners
+                      - @duckduckgo/apple-devs
+                      - @duckduckgo/android-devs
+                      - @duckduckgo/team-windows-development
+                      - @duckduckgo/extension-owners
+                      - @duckduckgo/config-aor
+                      - @duckduckgo/breakage-aor
+                      - @duckduckgo/breakage

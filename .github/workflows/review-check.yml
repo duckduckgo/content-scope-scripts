@@ -1,0 +1,72 @@
+name: Review Validation
+
+on:
+    pull_request_review:
+        types: [submitted, dismissed]
+    pull_request_target:
+        types: [opened, synchronize, reopened]
+
+jobs:
+    review_validation:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Validate approved review from authorized reviewer
+              uses: actions/github-script@v8
+              with:
+                  github-token: ${{ secrets.DAX_PAT }}
+                  script: |
+                      const REQUIRED_TEAMS = [
+                          'content-scope-scripts-owners',
+                          'apple-devs',
+                          'android-devs',
+                          'team-windows-development',
+                          'extension-owners',
+                          'config-aor',
+                          'breakage-aor',
+                          'breakage'
+                      ];
+
+                      const prNumber = context.payload.pull_request.number;
+
+                      const { data: reviews } = await github.rest.pulls.listReviews({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: prNumber
+                      });
+
+                      const approvedReviews = reviews.filter(r => r.state === 'APPROVED');
+
+                      if (approvedReviews.length === 0) {
+                          core.setFailed('No approved reviews found. Requires approval from daxtheduck or a member of an authorized team.');
+                          return;
+                      }
+
+                      if (approvedReviews.some(r => r.user.login === 'daxtheduck')) {
+                          console.log('✅ Approved by daxtheduck');
+                          return;
+                      }
+
+                      for (const review of approvedReviews) {
+                          for (const team of REQUIRED_TEAMS) {
+                              try {
+                                  const { data } = await github.rest.teams.getMembershipForUserInOrg({
+                                      org: 'duckduckgo',
+                                      team_slug: team,
+                                      username: review.user.login
+                                  });
+
+                                  if (data.state === 'active') {
+                                      console.log(`✅ Approved by ${review.user.login} (member of ${team})`);
+                                      return;
+                                  }
+                              } catch (e) {
+                                  // Not a member of this team
+                              }
+                          }
+                      }
+
+                      core.setFailed(
+                          '❌ No approved review from daxtheduck or a member of the required teams: ' +
+                          REQUIRED_TEAMS.map(t => `@duckduckgo/${t}`).join(', ')
+                      );
