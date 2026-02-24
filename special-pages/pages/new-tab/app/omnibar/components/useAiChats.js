@@ -69,7 +69,7 @@ export function useAiChats(query) {
             if (prev === 0) {
                 return null;
             }
-        
+
             return prev - 1;
         });
 

@@ -1455,7 +1455,10 @@ test.describe('omnibar widget', () => {
         await omnibar.ready();
 
         await expect(omnibar.aiChats().first()).toBeVisible();
-        await omnibar.aiChats().first().click({ modifiers: ['Shift'] });
+        await omnibar
+            .aiChats()
+            .first()
+            .click({ modifiers: ['Shift'] });
 
         await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
             chatId: 'chat-001',
@@ -1473,7 +1476,10 @@ test.describe('omnibar widget', () => {
         await omnibar.ready();
 
         await expect(omnibar.aiChats().first()).toBeVisible();
-        await omnibar.aiChats().first().click({ modifiers: ['Meta'] });
+        await omnibar
+            .aiChats()
+            .first()
+            .click({ modifiers: ['Meta'] });
 
         await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
             chatId: 'chat-001',

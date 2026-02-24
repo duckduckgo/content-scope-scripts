@@ -23,7 +23,7 @@ const AiChatsContext = createContext(null);
 export function AiChatsProvider({ query, children }) {
     const aiChatsState = useAiChats(query);
     const aiChatsListId = useId();
-    
+
     return (
         <AiChatsContext.Provider
             value={{

@@ -157,7 +157,7 @@ export function OmnibarProvider(props) {
     /** @type {() => Promise<AiChatsData>} */
     const getAiChats = useCallback(() => {
         if (!service.current) throw new Error('Service not available');
-        
+
         return service.current.getAiChats();
     }, [service]);
 
