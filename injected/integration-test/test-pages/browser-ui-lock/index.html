@@ -9,15 +9,17 @@
 <body>
     <p><a href="../../index.html">[Home]</a></p>
     <h1>Browser UI Lock Test Pages</h1>
-    <p>Tests for CSS-based detection of pages managing their own touch interactions.</p>
+    <p>Tests for scrollbar-visibility detection. The feature locks UI gestures when
+       neither html nor body has a visible vertical scrollbar.</p>
     <ul>
-        <li><a href="./pages/game-entry.html">🎮 Game Entry Example</a> - Interactive demo with lock/unlock</li>
-        <li><a href="./pages/overscroll-none.html">Overscroll Behavior: none</a> - Should lock UI</li>
-        <li><a href="./pages/overscroll-contain.html">Overscroll Behavior: contain</a> - Should lock UI</li>
-        <li><a href="./pages/overflow-hidden.html">Overflow: hidden</a> - Should NOT lock UI (false positive guard)</li>
-        <li><a href="./pages/both-signals.html">Both Signals</a> - Should lock UI</li>
-        <li><a href="./pages/normal-page.html">Normal Page</a> - Should NOT lock UI</li>
-        <li><a href="./pages/spa-style-change.html">SPA Style Change</a> - Should detect late changes</li>
+        <li><a href="./pages/fullscreen-app.html">Fullscreen App</a> - Should lock (no scrollbar, 100% viewport)</li>
+        <li><a href="./pages/game-entry.html">Game Entry Example</a> - Interactive demo with lock/unlock</li>
+        <li><a href="./pages/both-signals.html">Both Signals</a> - Should lock (overflow hidden + no overflow content)</li>
+        <li><a href="./pages/normal-page.html">Normal Page</a> - Should NOT lock (visible scrollbar)</li>
+        <li><a href="./pages/overscroll-none.html">Overscroll: none</a> - Should NOT lock (has visible scrollbar despite overscroll-behavior)</li>
+        <li><a href="./pages/overscroll-contain.html">Overscroll: contain</a> - Should NOT lock (has visible scrollbar despite overscroll-behavior)</li>
+        <li><a href="./pages/overflow-hidden.html">Overflow: hidden (body only)</a> - Lock depends on html element scrollbar</li>
+        <li><a href="./pages/spa-style-change.html">SPA Style Change</a> - Should detect late lock/unlock toggle</li>
     </ul>
     <p><a href="./config/browser-ui-lock.json">Config</a></p>
 </body>

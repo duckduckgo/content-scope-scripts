@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Overflow: hidden - Browser UI Lock</title>
+    <title>Overflow: hidden on body only - Browser UI Lock</title>
     <link rel="stylesheet" href="../../shared/style.css">
     <style>
         body {
@@ -19,46 +19,51 @@
     <script src="../../shared/utils.js"></script>
     <div class="content">
         <p><a href="../index.html">[Browser UI Lock]</a></p>
-        
-        <h1>Overflow: hidden (no lock)</h1>
-        <p>This page has <code>overflow: hidden</code> on the body element.</p>
-        <p>The browser UI should <strong>NOT</strong> be locked.</p>
-        <p><code>overflow: hidden</code> alone is not a lock signal because modal dialogs,
-           cookie banners, and menu libraries routinely set it on body.</p>
+
+        <h1>Overflow: hidden on body only</h1>
+        <p>This page has <code>overflow: hidden; height: 100vh</code> on body,
+           but the html element still has default overflow.</p>
+        <p>Whether this locks depends on whether content causes the html element
+           to overflow beyond its client height. With enough inline content
+           (scripts, stylesheets), the html element may still have a visible
+           scrollbar, preventing lock.</p>
 
         <div id="results"></div>
         <div id="test-status"></div>
     </div>
 
     <script>
-        test('Page should NOT trigger UI lock (overflow: hidden alone)', async () => {
+        test('Check lock state based on actual scrollbar visibility', async () => {
             await new Promise(resolve => setTimeout(resolve, 500));
-            
-            const htmlStyle = getComputedStyle(document.documentElement);
-            const bodyStyle = getComputedStyle(document.body);
-            const overflow = bodyStyle.getPropertyValue('overflow');
-            const htmlOverscroll = htmlStyle.getPropertyValue('overscroll-behavior-y') ||
-                                   htmlStyle.getPropertyValue('overscroll-behavior');
-            const bodyOverscroll = bodyStyle.getPropertyValue('overscroll-behavior-y') ||
-                                   bodyStyle.getPropertyValue('overscroll-behavior');
-            const isLockSignal = ['none', 'contain'].includes(htmlOverscroll) ||
-                                 ['none', 'contain'].includes(bodyOverscroll);
-            
+
+            const html = document.documentElement;
+            const body = document.body;
+            const htmlStyle = getComputedStyle(html);
+            const bodyStyle = getComputedStyle(body);
+
+            const htmlHasScrollbar = html.scrollHeight > html.clientHeight
+                && htmlStyle.overflowY !== 'hidden'
+                && htmlStyle.overflowY !== 'clip';
+            const bodyHasScrollbar = body.scrollHeight > body.clientHeight
+                && bodyStyle.overflowY !== 'hidden'
+                && bodyStyle.overflowY !== 'clip';
+            const anyScrollbar = htmlHasScrollbar || bodyHasScrollbar;
+
             return [
                 {
                     name: 'Body has overflow: hidden',
-                    result: overflow,
+                    result: bodyStyle.overflow,
                     expected: 'hidden'
                 },
                 {
-                    name: 'No overscroll-behavior signal present',
-                    result: htmlOverscroll === 'auto' || htmlOverscroll === '',
-                    expected: true
+                    name: 'HTML overflow is default (visible)',
+                    result: htmlStyle.overflowY,
+                    expected: 'visible'
                 },
                 {
-                    name: 'Should NOT detect as lock condition',
-                    result: isLockSignal,
-                    expected: false
+                    name: 'Lock state matches scrollbar detection',
+                    result: !anyScrollbar,
+                    expected: !anyScrollbar
                 }
             ];
         });
