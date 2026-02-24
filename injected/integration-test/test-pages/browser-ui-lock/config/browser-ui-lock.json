@@ -3,7 +3,7 @@
     "version": 1,
     "features": {
         "browserUiLock": {
-            "state": "disabled",
+            "state": "enabled",
             "hash": "test",
             "exceptions": []
         }
