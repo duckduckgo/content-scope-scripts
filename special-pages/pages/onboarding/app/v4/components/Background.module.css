@@ -7,21 +7,9 @@
     overflow: hidden;
     background-color: white;
 
-    --bg-dx: -74px;
-    --bg-dy: 132px;
-    --bg-slide-in-delay: 0.2s;
-    --bg-fade-duration: 0.333s;
-
     @media (prefers-color-scheme: dark) {
         background-color: #133E7C;
     }
-}
-
-:global([data-current="welcome"]) .background {
-    --bg-dx: 325px;
-    --bg-dy: 204px;
-    --bg-slide-in-delay: 0.133s;
-    --bg-fade-duration: 0.4s;
 }
 
 .illustration {

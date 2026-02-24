@@ -5,16 +5,26 @@ import { GlobalContext } from '../../global';
 import { ORDER_V4 } from '../../types';
 import styles from './Background.module.css';
 
+const BG_MOTION = {
+    welcome: { dx: '325px', dy: '204px', slideInDelay: '0.133s', fadeDuration: '0.4s' },
+    default: { dx: '-74px', dy: '132px', slideInDelay: '0.2s', fadeDuration: '0.333s' },
+};
+
 /**
- * Returns inline styles for a step's background image.
+ * Returns inline styles for a step's background image and motion.
  * @param {import('../../types').Step['id']} step
  */
 function bgVars(step) {
     const idx = ORDER_V4.indexOf(step);
     const num = String(idx + 1).padStart(2, '0');
+    const motion = BG_MOTION[step] ?? BG_MOTION.default;
     return {
         '--bg-light': `url("../assets/img/v4/background-${num}-light.svg")`,
         '--bg-dark': `url("../assets/img/v4/background-${num}-dark.svg")`,
+        '--bg-dx': motion.dx,
+        '--bg-dy': motion.dy,
+        '--bg-slide-in-delay': motion.slideInDelay,
+        '--bg-fade-duration': motion.fadeDuration,
     };
 }
 
