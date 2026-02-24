@@ -17,11 +17,11 @@ const AiChatsContext = createContext(null);
 
 /**
  * @param {object} props
- * @param {string} props.filter
+ * @param {string} props.query
  * @param {import('preact').ComponentChildren} props.children
  */
-export function AiChatsProvider({ filter, children }) {
-    const aiChatsState = useAiChats(filter);
+export function AiChatsProvider({ query, children }) {
+    const aiChatsState = useAiChats(query);
     const aiChatsListId = useId();
     
     return (

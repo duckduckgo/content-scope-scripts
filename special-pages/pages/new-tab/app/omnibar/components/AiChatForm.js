@@ -16,12 +16,12 @@ import styles from './AiChatForm.module.css';
 
 /**
  * @param {object} props
- * @param {string} props.chat
+ * @param {string} props.query
  * @param {boolean} [props.autoFocus]
- * @param {(chat: string) => void} props.onChange
+ * @param {(query: string) => void} props.onChange
  * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  */
-export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
+export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat } = useContext(OmnibarContext);
@@ -52,16 +52,16 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
         } else {
             form.classList.remove(styles.hasScroll);
         }
-    }, [chat]);
+    }, [query]);
 
-    const disabled = chat.length === 0;
+    const disabled = query.length === 0;
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled) return;
         onSubmit({
-            chat,
+            chat: query,
             target: 'same-tab',
         });
     };
@@ -106,7 +106,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                 }
 
                 onSubmit({
-                    chat,
+                    chat: query,
                     target: eventToTarget(event, platformName),
                 });
                 break;
@@ -120,7 +120,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
         event.stopPropagation();
         
         onSubmit({
-            chat,
+            chat: query,
             target: eventToTarget(event, platformName),
         });
     };
@@ -130,7 +130,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
-                value={chat}
+                value={query}
                 placeholder={t('omnibar_aiChatFormPlaceholder')}
                 aria-label={t('omnibar_aiChatFormPlaceholder')}
                 aria-expanded={chats.length > 0}
@@ -150,7 +150,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                     type="submit"
                     class={styles.submitButton}
                     aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
-                    disabled={chat.length === 0}
+                    disabled={!query}
                     onClick={handleClickSubmit}
                     onAuxClick={handleClickSubmit}
                 >

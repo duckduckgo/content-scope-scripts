@@ -14,9 +14,9 @@ export function getAiChatElementId(chatId) {
 }
 
 /**
- * @param {string} filter - text to match against chat titles (case-insensitive)
+ * @param {string} query - text to match against chat titles (case-insensitive)
  */
-export function useAiChats(filter) {
+export function useAiChats(query) {
     const { getAiChats } = useContext(OmnibarContext);
     const [allChats, setAllChats] = useState(/** @type {AiChat[]} */ ([]));
     const [selectedIndex, setSelectedIndex] = useState(/** @type {number | null} */ (null));
@@ -42,17 +42,17 @@ export function useAiChats(filter) {
     }, [getAiChats]);
 
     const filteredChats = useMemo(() => {
-        const trimmedFilter = filter.trim().toLowerCase();
-        if (!trimmedFilter) {
+        const trimmedQuery = query.trim().toLowerCase();
+        if (!trimmedQuery) {
             return allChats;
         }
 
-        return allChats.filter((chat) => chat.title.toLowerCase().includes(trimmedFilter));
-    }, [allChats, filter]);
+        return allChats.filter((chat) => chat.title.toLowerCase().includes(trimmedQuery));
+    }, [allChats, query]);
 
     useEffect(() => {
         setSelectedIndex(null);
-    }, [filter]);
+    }, [query]);
 
     const selectedChat = selectedIndex !== null && selectedIndex < filteredChats.length ? filteredChats[selectedIndex] : null;
 

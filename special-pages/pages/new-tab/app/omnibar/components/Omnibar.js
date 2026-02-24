@@ -109,7 +109,7 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                 </div>
             )}
             <SearchFormProvider term={query} setTerm={setQuery}>
-                <AiChatsProvider filter={query}>
+                <AiChatsProvider query={query}>
                     <div class={styles.spacer}>
                         <div class={styles.popup}>
                             <ResizingContainer className={styles.field}>
@@ -121,7 +121,7 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                                         onSubmitChat={handleSubmitChat}
                                     />
                                 ) : (
-                                    <AiChatForm chat={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
+                                    <AiChatForm query={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
                                 )}
                             </ResizingContainer>
                             {mode === 'search' && (
