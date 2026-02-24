@@ -21,12 +21,13 @@ const AiChatsContext = createContext(null);
  * @param {import('preact').ComponentChildren} props.children
  */
 export function AiChatsProvider({ filter, children }) {
-    const nav = useAiChats(filter);
+    const aiChatsState = useAiChats(filter);
     const aiChatsListId = useId();
+    
     return (
         <AiChatsContext.Provider
             value={{
-                ...nav,
+                ...aiChatsState,
                 aiChatsListId,
             }}
         >
