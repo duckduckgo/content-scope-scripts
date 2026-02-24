@@ -141,12 +141,14 @@ async function main() {
         // Wait for results to render. DDG SERP uses various selectors across versions;
         // use a broad approach: wait for links within the results area.
         log('Waiting for search results...');
-        await page.waitForSelector('[data-testid="result"], article[data-nrn="result"], .result__a, [data-layout="organic"] a', {
-            timeout: 15000,
-        }).catch(() => {
-            // Fallback: just wait for any h2 link, which most SERPs have
-            return page.waitForSelector('h2 a[href]', { timeout: 10000 });
-        });
+        await page
+            .waitForSelector('[data-testid="result"], article[data-nrn="result"], .result__a, [data-layout="organic"] a', {
+                timeout: 15000,
+            })
+            .catch(() => {
+                // Fallback: just wait for any h2 link, which most SERPs have
+                return page.waitForSelector('h2 a[href]', { timeout: 10000 });
+            });
 
         log(`SERP loaded. Pausing ${PAUSE_MS}ms for recording...`);
         await page.waitForTimeout(PAUSE_MS);
@@ -248,7 +250,9 @@ async function main() {
             log('WARNING: No video files found. Recording may have failed.');
         } else {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-            const querySlug = SEARCH_QUERY.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 40);
+            const querySlug = SEARCH_QUERY.replace(/\s+/g, '-')
+                .replace(/[^a-zA-Z0-9-]/g, '')
+                .slice(0, 40);
             const destName = `fake-extension-${querySlug}-${timestamp}.webm`;
             const destPath = join(OUTPUT_DIR, destName);
             renameSync(join(videoTmpDir, videoFiles[0]), destPath);
@@ -262,16 +266,22 @@ async function main() {
         if (context) {
             try {
                 await context.close();
-            } catch { /* already closed */ }
+            } catch {
+                /* already closed */
+            }
         }
 
         // Clean up temp directories
         try {
             rmSync(dataDir, { recursive: true, force: true });
-        } catch { /* best effort */ }
+        } catch {
+            /* best effort */
+        }
         try {
             rmSync(videoTmpDir, { recursive: true, force: true });
-        } catch { /* best effort */ }
+        } catch {
+            /* best effort */
+        }
     }
 }
 
