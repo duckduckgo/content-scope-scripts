@@ -81,6 +81,10 @@ Follow the error handling guidelines in [`guides/error-handling.md`](guides/erro
 - Never leave promises unhandled — use `.catch()` or `try/catch` with `await`
 - Return `null`/sentinel values for expected missing data instead of throwing
 
+### Strict TypeScript
+
+All **new** source files under `injected/src/` must be added to the `CORE_FILES` set in `scripts/check-strict-core.js`. This enforces TypeScript strict mode (`strict: true`, `noUncheckedIndexedAccess`). Run `npm run tsc-strict-core` to verify. Do not remove existing entries from the set.
+
 ## Debugging
 
 See [`guides/debugging.md`](guides/debugging.md) for debugging resources including script integrity validation, feature triage checklist, and platform-specific troubleshooting.
