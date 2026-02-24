@@ -140,7 +140,10 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
-                onChange={(event) => onChange(event.currentTarget.value)}
+                onChange={(event) => {
+                    onChange(event.currentTarget.value)
+                    clearSelectedChat();
+                }}
             />
             <div class={styles.buttons}>
                 <button

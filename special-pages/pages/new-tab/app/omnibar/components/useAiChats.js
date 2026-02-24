@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useReducer } from 'preact/hooks';
+import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -14,94 +14,12 @@ export function getAiChatElementId(chatId) {
 }
 
 /**
- * @typedef {{
- *   chats: AiChat[],
- *   selectedIndex: number | null,
- * }} State
- */
-
-/**
- * @typedef {(
- *   | { type: 'setChats', chats: AiChat[] }
- *   | { type: 'previousChat' }
- *   | { type: 'nextChat' }
- *   | { type: 'setSelectedChat', chat: AiChat }
- *   | { type: 'clearSelectedChat' }
- * )} Action
- */
-
-/** @type {State} */
-const initialState = {
-    chats: [],
-    selectedIndex: null,
-};
-
-/**
- * @type {import('preact/hooks').Reducer<State, Action>}
- */
-function reducer(state, action) {
-    switch (action.type) {
-        case 'setChats': {
-            return { ...state, chats: action.chats, selectedIndex: null };
-        }
-        case 'previousChat': {
-            if (state.chats.length === 0) {
-                return state;
-            }
-
-            if (state.selectedIndex === null) {
-                return { ...state, selectedIndex: state.chats.length - 1 };
-            }
-
-            if (state.selectedIndex === 0) {
-                return { ...state, selectedIndex: null };
-            }
-
-            return { ...state, selectedIndex: state.selectedIndex - 1 };
-        }
-
-        case 'nextChat': {
-            if (state.chats.length === 0) {
-                return state;
-            }
-
-            if (state.selectedIndex === null) {
-                return { ...state, selectedIndex: 0 };
-            }
-
-            if (state.selectedIndex === state.chats.length - 1) {
-                return { ...state, selectedIndex: null };
-            }
-
-            return { ...state, selectedIndex: state.selectedIndex + 1 };
-        }
-        case 'setSelectedChat': {
-            const nextIndex = state.chats.indexOf(action.chat);
-            if (nextIndex === -1) {
-                return state;
-            }
-
-            return { ...state, selectedIndex: nextIndex };
-        }
-        case 'clearSelectedChat': {
-            return { ...state, selectedIndex: null };
-        }
-        default: {
-            /** @type {never} */
-            const _exhaustiveCheck = action;
-            console.error('Unknown action type', _exhaustiveCheck);
-            
-            return state;
-        }
-    }
-}
-
-/**
  * @param {string} filter - text to match against chat titles (case-insensitive)
  */
 export function useAiChats(filter) {
     const { getAiChats } = useContext(OmnibarContext);
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const [allChats, setAllChats] = useState(/** @type {AiChat[]} */ ([]));
+    const [selectedIndex, setSelectedIndex] = useState(/** @type {number | null} */ (null));
 
     useEffect(() => {
         let cancelled = false;
@@ -110,7 +28,7 @@ export function useAiChats(filter) {
             try {
                 const data = await getAiChats();
                 if (!cancelled) {
-                    dispatch({ type: 'setChats', chats: data.chats });
+                    setAllChats(data.chats);
                 }
             } catch (e) {
                 console.error('Failed to fetch AI chats:', e);
@@ -123,40 +41,74 @@ export function useAiChats(filter) {
         };
     }, [getAiChats]);
 
-    const chats = useMemo(() => {
+    const filteredChats = useMemo(() => {
         const trimmedFilter = filter.trim().toLowerCase();
         if (!trimmedFilter) {
-            return state.chats
+            return allChats;
         }
 
-        return state.chats.filter((chat) => chat.title.toLowerCase().includes(trimmedFilter));
-    }, [state.chats, filter]);
+        return allChats.filter((chat) => chat.title.toLowerCase().includes(trimmedFilter));
+    }, [allChats, filter]);
 
-    const selectedChat = state.selectedIndex !== null && state.selectedIndex < chats.length ? chats[state.selectedIndex] : null;
+    // Reset selection when filter text changes
+    useEffect(() => {
+        setSelectedIndex(null);
+    }, [filter]);
+
+    const selectedChat = selectedIndex !== null && selectedIndex < filteredChats.length ? filteredChats[selectedIndex] : null;
 
     const selectPreviousChat = () => {
-        if (chats.length === 0) return false;
-        dispatch({ type: 'previousChat' });
+        if (filteredChats.length === 0) {
+            return false;
+        }
+
+        setSelectedIndex((prev) => {
+            if (prev === null) {
+                return filteredChats.length - 1;
+            }
+
+            if (prev === 0) {
+                return null;
+            }
+        
+            return prev - 1;
+        });
+
         return true;
     };
 
     const selectNextChat = () => {
-        if (chats.length === 0) return false;
-        dispatch({ type: 'nextChat' });
+        if (filteredChats.length === 0) {
+            return false;
+        }
+
+        setSelectedIndex((prev) => {
+            if (prev === null) {
+                return 0;
+            }
+
+            if (prev === filteredChats.length - 1) {
+                return null;
+            }
+
+            return prev + 1;
+        });
+
         return true;
     };
 
     /** @type {(chat: AiChat) => void} */
     const setSelectedChat = (chat) => {
-        dispatch({ type: 'setSelectedChat', chat });
+        const index = filteredChats.indexOf(chat);
+        setSelectedIndex(index === -1 ? null : index);
     };
 
     const clearSelectedChat = () => {
-        dispatch({ type: 'clearSelectedChat' });
+        setSelectedIndex(null);
     };
 
     return {
-        chats,
+        chats: filteredChats,
         selectedChat,
         selectPreviousChat,
         selectNextChat,

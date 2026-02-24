@@ -52,7 +52,7 @@ export class NewtabPage {
             omnibar_getConfig: { mode: 'search', enableAi: false, showAiSetting: true },
             omnibar_getSuggestions: { suggestions: { topHits: [], duckduckgoSuggestions: [], localSuggestions: [] } },
             omnibar_setConfig: {},
-            omnibar_openSuggestison: {},
+            omnibar_openSuggestion: {},
             omnibar_submitSearch: {},
             omnibar_submitChat: {},
             omnibar_getAiChats: { chats: [] },
