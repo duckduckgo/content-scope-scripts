@@ -25,7 +25,9 @@
     "playwright-screenshots": "playwright test --grep '@screenshots'",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
     "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
-    "fake-extension": "node ./scripts/run-fake-extension.js"
+    "fake-extension": "node ./scripts/run-fake-extension.js",
+    "navigate-extension": "node ./scripts/navigate-fake-extension.js",
+    "navigate-extension-x": "xvfb-run --server-args='-screen 0 1280x720x24' node ./scripts/navigate-fake-extension.js"
   },
   "type": "module",
   "dependencies": {

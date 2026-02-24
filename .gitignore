@@ -22,5 +22,8 @@ injected/unit-test/fixtures/page-context/output/
 # Coverage output
 coverage/
 
+# Navigation automation recordings
+recordings/
+
 # VS Code user config
 .vscode
