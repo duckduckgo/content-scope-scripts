@@ -1,13 +1,13 @@
 import { createContext, h } from 'preact';
 import { useContext, useId } from 'preact/hooks';
-import { useAiChatsNav } from './useAiChatsNav.js';
+import { useAiChats } from './useAiChats.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
  */
 
 /**
- * @typedef {ReturnType<typeof useAiChatsNav> & {
+ * @typedef {ReturnType<typeof useAiChats> & {
  *   aiChatsListId: string,
  * }} AiChatsContextValue
  */
@@ -21,7 +21,7 @@ const AiChatsContext = createContext(null);
  * @param {import('preact').ComponentChildren} props.children
  */
 export function AiChatsProvider({ filter, children }) {
-    const nav = useAiChatsNav(filter);
+    const nav = useAiChats(filter);
     const aiChatsListId = useId();
     return (
         <AiChatsContext.Provider
