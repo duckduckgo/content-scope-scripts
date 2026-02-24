@@ -177,8 +177,8 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
         }
-        // Used by Android in the non adsjs version
-        // This has to be enabled in the config for the injectName='android' now.
+        // Used by Android in the legacy version (evaluateJavascript injection)
+        // This has to be enabled in the config for the injectName='android-legacy' now.
         if (this.getFeatureSettingEnabled('viewportWidthLegacy', 'disabled')) {
             this.viewportWidthFix();
         }
@@ -187,7 +187,7 @@ export class WebCompat extends ContentFeature {
     /**
      * Handle user preference updates when merged during initialization.
      * Re-applies viewport fixes if viewport configuration has changed.
-     * Used in the injectName='android-adsjs' instead of 'viewportWidthLegacy' from init.
+     * Used in the injectName='android' (modern path) instead of 'viewportWidthLegacy' from init.
      * @param {object} _updatedConfig - The configuration with merged user preferences
      */
     onUserPreferencesMerged(_updatedConfig) {

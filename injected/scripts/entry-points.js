@@ -35,20 +35,20 @@ const builds = {
         input: 'entry-points/android.js',
         output: ['../build/android/contentScope.js'],
     },
+    'android-legacy': {
+        input: 'entry-points/android-legacy.js',
+        output: ['../build/android/legacyContentScope.js'],
+    },
     'android-broker-protection': {
-        input: 'entry-points/android.js',
+        input: 'entry-points/android-legacy.js',
         output: ['../build/android/brokerProtection.js'],
     },
     'android-autofill-import': {
-        input: 'entry-points/android-adsjs.js',
+        input: 'entry-points/android.js',
         output: ['../build/android/autofillImport.js'],
     },
-    'android-adsjs': {
-        input: 'entry-points/android-adsjs.js',
-        output: ['../build/android/adsjsContentScope.js'],
-    },
     'android-ai-history': {
-        input: 'entry-points/android.js',
+        input: 'entry-points/android-legacy.js',
         output: ['../build/android/duckAiChatHistory.js'],
     },
     windows: {

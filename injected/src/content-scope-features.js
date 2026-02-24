@@ -74,7 +74,7 @@ export function load(args) {
                 continue;
             }
             const featureInstance = new ContentFeature(featureName, importConfig, _features, args);
-            // Short term fix to disable the feature whilst we roll out Android adsjs
+            // Short term fix to disable the feature whilst we roll out Android addDocumentStartJavaScript
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                 continue;
             }
@@ -119,7 +119,7 @@ export async function init(args) {
     await Promise.allSettled(
         Object.entries(features).map(async ([featureName, featureInstance]) => {
             if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-                // Short term fix to disable the feature whilst we roll out Android adsjs
+                // Short term fix to disable the feature whilst we roll out Android addDocumentStartJavaScript
                 if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                     featureInstance.markFeatureAsSkipped('additionalCheck disabled');
                     return;

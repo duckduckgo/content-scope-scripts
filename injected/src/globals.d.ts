@@ -18,12 +18,12 @@ interface ImportMeta {
         | 'apple-ai-clear'
         | 'apple-ai-history'
         | 'android'
+        | 'android-legacy'
         | 'windows'
         | 'integration'
         | 'chrome-mv3'
         | 'android-broker-protection'
         | 'android-autofill-import'
-        | 'android-adsjs'
         | 'android-ai-history';
     trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;

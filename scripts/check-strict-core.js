@@ -8,8 +8,8 @@
 import { execSync } from 'node:child_process';
 
 const CORE_FILES = new Set([
-    'injected/entry-points/android-adsjs.js',
     'injected/entry-points/android.js',
+    'injected/entry-points/android-legacy.js',
     'injected/entry-points/apple.js',
     'injected/entry-points/extension-mv3.js',
     'injected/entry-points/integration.js',

@@ -18,6 +18,10 @@ const checks = {
         file: join(BUILD, 'android/contentScope.js'),
         tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
     },
+    'android-legacy': {
+        file: join(BUILD, 'android/legacyContentScope.js'),
+        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+    },
     'chrome-mv3': {
         file: join(BUILD, 'chrome-mv3/inject.js'),
         tests: [

@@ -12,7 +12,7 @@ lib/
   webkit.js           # WebkitMessagingTransport (Apple platforms)
   windows.js          # WindowsMessagingTransport
   android.js          # AndroidMessagingTransport
-  android-adsjs.js    # Android ads-specific transport
+  android-adsjs.js    # Android addDocumentStartJavaScript + addWebMessageListener transport
   typed-messages.js   # createTypedMessages() utility
   test-utils.mjs      # TestTransportConfig for testing
 docs/
