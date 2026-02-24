@@ -6,6 +6,14 @@ import { OmnibarContext } from './OmnibarProvider.js';
  */
 
 /**
+ * @param {string} chatId
+ * @returns {string}
+ */
+export function getAiChatElementId(chatId) {
+    return `ai-chat-${chatId}`;
+}
+
+/**
  * @typedef {{
  *   chats: AiChat[],
  *   selectedIndex: number | null,

@@ -7,6 +7,7 @@ import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
+import { getAiChatElementId } from './useAiChats';
 import styles from './AiChatsList.module.css';
 
 /**
@@ -35,7 +36,7 @@ export function AiChatsList({ className }) {
                 <button
                     key={chat.chatId}
                     role="option"
-                    id={`ai-chat-${chat.chatId}`}
+                    id={getAiChatElementId(chat.chatId)}
                     class={styles.item}
                     tabIndex={chat === selectedChat ? 0 : -1}
                     aria-selected={chat === selectedChat}

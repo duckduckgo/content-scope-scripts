@@ -6,6 +6,7 @@ import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
+import { getAiChatElementId } from './useAiChats';
 import styles from './AiChatForm.module.css';
 
 /**
@@ -108,6 +109,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
+        
         onSubmit({
             chat,
             target: eventToTarget(event, platformName),
@@ -125,7 +127,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                 aria-expanded={chats.length > 0}
                 aria-haspopup="listbox"
                 aria-controls={aiChatsListId}
-                aria-activedescendant={selectedChat ? `ai-chat-${selectedChat.chatId}` : undefined}
+                aria-activedescendant={selectedChat ? getAiChatElementId(selectedChat.chatId) : undefined}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
