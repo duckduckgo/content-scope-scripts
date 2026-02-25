@@ -358,11 +358,11 @@ export class TrackerProtection extends ContentFeature {
             blocked = true;
         }
 
-        const isSurrogate = Boolean(result.matchedRule?.surrogate);
+        const hasSurrogate = result.action === 'redirect';
         const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
 
         let willLoadSurrogate = false;
-        if (blocked && isSurrogate && !isAllowlisted) {
+        if (blocked && hasSurrogate && !isAllowlisted) {
             const surrogateName = result.matchedRule.surrogate;
             willLoadSurrogate = !CTL_SURROGATES.includes(surrogateName) || this._ctlEnabled === true;
         }
