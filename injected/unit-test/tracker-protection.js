@@ -1,4 +1,4 @@
-import { TrackerResolver } from '../src/features/tracker-stats/tracker-resolver.js';
+import { TrackerResolver } from '../src/features/tracker-protection/tracker-resolver.js';
 
 /**
  * Sample tracker data for testing
@@ -340,7 +340,7 @@ describe('TrackerResolver', () => {
     });
 });
 
-// Note: TrackerStats feature tests that require browser APIs (MutationObserver, document, window)
+// Note: TrackerProtection feature tests that require browser APIs (MutationObserver, document, window)
 // are better suited for integration tests with jsdom or in-browser testing.
 // The TrackerResolver class tests above cover the core logic that was previously
 // tested in the Swift SurrogatesUserScriptsTests and ContentBlockerRulesUserScriptsTests.

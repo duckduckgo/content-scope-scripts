@@ -3,7 +3,7 @@
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
- * @module TrackerStats Messages
+ * @module TrackerProtection Messages
  */
 
 /**
@@ -12,14 +12,14 @@
 export type IsCTLEnabledResponse = boolean;
 
 /**
- * Requests, Notifications and Subscriptions from the TrackerStats feature
+ * Requests, Notifications and Subscriptions from the TrackerProtection feature
  */
-export interface TrackerStatsMessages {
+export interface TrackerProtectionMessages {
   notifications: SurrogateInjectedNotification | TrackerDetectedNotification;
   requests: IsCTLEnabledRequest;
 }
 /**
- * Generated from @see "../messages/tracker-stats/surrogateInjected.notify.json"
+ * Generated from @see "../messages/tracker-protection/surrogateInjected.notify.json"
  */
 export interface SurrogateInjectedNotification {
   method: "surrogateInjected";
@@ -51,7 +51,7 @@ export interface SurrogateInjected {
   pageUrl: string;
 }
 /**
- * Generated from @see "../messages/tracker-stats/trackerDetected.notify.json"
+ * Generated from @see "../messages/tracker-protection/trackerDetected.notify.json"
  */
 export interface TrackerDetectedNotification {
   method: "trackerDetected";
@@ -103,7 +103,7 @@ export interface TrackerDetected {
   isAllowlisted?: boolean | null;
 }
 /**
- * Generated from @see "../messages/tracker-stats/isCTLEnabled.request.json"
+ * Generated from @see "../messages/tracker-protection/isCTLEnabled.request.json"
  */
 export interface IsCTLEnabledRequest {
   method: "isCTLEnabled";
@@ -115,9 +115,9 @@ export interface IsCTLEnabledRequest {
  */
 export interface IsCTLEnabled {}
 
-declare module "../features/tracker-stats.js" {
-  export interface TrackerStats {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TrackerStatsMessages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TrackerStatsMessages>['request']
+declare module "../features/tracker-protection.js" {
+  export interface TrackerProtection {
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TrackerProtectionMessages>['notify'],
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TrackerProtectionMessages>['request']
   }
 }

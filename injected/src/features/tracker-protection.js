@@ -1,18 +1,17 @@
 /**
- * Tracker Stats Feature
+ * Tracker Protection Feature
  *
  * Consolidates Apple's contentblockerrules.js, contentblocker.js, and surrogates.js
  * into a single C-S-S feature with:
  * - Tracker detection against TDS
  * - Surrogate loading for blocked scripts
  * - Stats reporting to native for privacy dashboard
- * - Debug logging to native console (Xcode)
  *
- * @module features/tracker-stats
+ * @module features/tracker-protection
  */
 
 import ContentFeature from '../content-feature.js';
-import { TrackerResolver } from './tracker-stats/tracker-resolver.js';
+import { TrackerResolver } from './tracker-protection/tracker-resolver.js';
 
 /**
  * CTL surrogates that require CTL feature to be enabled
@@ -44,7 +43,7 @@ function getTabURL() {
     }
 }
 
-export class TrackerStats extends ContentFeature {
+export class TrackerProtection extends ContentFeature {
     init() {
         /** @type {TrackerResolver | null} */
         this._resolver = null;
@@ -334,4 +333,4 @@ export class TrackerStats extends ContentFeature {
     }
 }
 
-export default TrackerStats;
+export default TrackerProtection;

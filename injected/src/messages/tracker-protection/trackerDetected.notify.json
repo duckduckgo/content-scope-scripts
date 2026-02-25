@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "tracker-stats.trackerDetected.notify.json",
+  "$id": "tracker-protection.trackerDetected.notify.json",
   "title": "TrackerDetected",
   "description": "Notification sent when a tracker is detected (blocked or allowed)",
   "type": "object",
