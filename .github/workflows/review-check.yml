@@ -20,10 +20,8 @@ jobs:
 
             - name: Validate approved review from authorized reviewer
               uses: actions/github-script@v8
-              env:
-                  DAX_TOKEN: ${{ secrets.DAX_PAT }}
               with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  github-token: ${{ secrets.DAX_PAT }}
                   script: |
                       const fs = require('fs');
                       const REQUIRED_TEAMS = fs.readFileSync('.github/REQUIRED_TEAMS', 'utf8').trim().split('\n').filter(Boolean);
@@ -48,31 +46,21 @@ jobs:
                           return;
                       }
 
-                      const daxToken = process.env.DAX_TOKEN;
-
                       for (const review of approvedReviews) {
                           for (const team of REQUIRED_TEAMS) {
                               try {
-                                  const res = await fetch(
-                                      `https://api.github.com/orgs/duckduckgo/teams/${team}/memberships/${review.user.login}`,
-                                      {
-                                          headers: {
-                                              'Authorization': `Bearer ${daxToken}`,
-                                              'Accept': 'application/vnd.github+json',
-                                              'X-GitHub-Api-Version': '2022-11-28'
-                                          }
-                                      }
-                                  );
+                                  const { data } = await github.rest.teams.getMembershipForUserInOrg({
+                                      org: 'duckduckgo',
+                                      team_slug: team,
+                                      username: review.user.login
+                                  });
 
-                                  if (res.ok) {
-                                      const data = await res.json();
-                                      if (data.state === 'active') {
-                                          console.log(`✅ Approved by ${review.user.login} (member of ${team})`);
-                                          return;
-                                      }
+                                  if (data.state === 'active') {
+                                      console.log(`✅ Approved by ${review.user.login} (member of ${team})`);
+                                      return;
                                   }
                               } catch (e) {
-                                  // Not a member of this team or network error
+                                  // Not a member of this team
                               }
                           }
                       }
