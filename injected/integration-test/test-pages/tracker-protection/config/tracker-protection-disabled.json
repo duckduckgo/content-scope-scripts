@@ -1,0 +1,10 @@
+{
+  "features": {
+    "trackerProtection": {
+      "state": "disabled",
+      "exceptions": [],
+      "settings": {}
+    }
+  },
+  "unprotectedTemporary": []
+}
