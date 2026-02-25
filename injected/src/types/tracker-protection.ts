@@ -96,6 +96,7 @@ export interface TrackerDetected {
    */
   isAllowlisted?: boolean | null;
 }
+
 declare module "../features/tracker-protection.js" {
   export interface TrackerProtection {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TrackerProtectionMessages>['notify']
