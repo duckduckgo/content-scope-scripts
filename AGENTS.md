@@ -74,9 +74,20 @@ Run from root. Use `nvm use` to set the correct Node version.
 | `npm run serve` | Serve injected test pages (port 3220) |
 | `npm run serve-special-pages` | Serve special pages (port 3221) |
 
+## Coding Standards
+
+Follow the error handling guidelines in [`guides/error-handling.md`](guides/error-handling.md). Key rules:
+- Errors are for **exceptional conditions** (invariant violations, unreachable code), not control flow
+- Never leave promises unhandled — use `.catch()` or `try/catch` with `await`
+- Return `null`/sentinel values for expected missing data instead of throwing
+
+### Strict TypeScript
+
+All **new** source files under `injected/src/` must be added to the `CORE_FILES` set in `scripts/check-strict-core.js`. This enforces TypeScript strict mode (`strict: true`, `noUncheckedIndexedAccess`). Run `npm run tsc-strict-core` to verify. Do not remove existing entries from the set.
+
 ## Debugging
 
-**Debugging guide:** `.cursor/rules/debugging.mdc` - Comprehensive debugging steps for C-S-S development, including config validation, script integrity checks, and troubleshooting tips.
+See [`guides/debugging.md`](guides/debugging.md) for debugging resources including script integrity validation, feature triage checklist, and platform-specific troubleshooting.
 
 ## Notes
 

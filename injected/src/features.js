@@ -26,6 +26,7 @@ export const baseFeatures = /** @type {FeatureName[]} */ ([
 
 const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
+    'contextMenu',
     'cookie',
     'messageBridge',
     'duckPlayer',
@@ -46,12 +47,16 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'webTelemetry',
     'pageContext',
     'print',
+    'pageObserver',
+    'hover',
+    'browserUiLock',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext', 'print'],
     'apple-isolated': [
+        'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
@@ -61,6 +66,8 @@ export const platformSupport = {
         'messageBridge',
         'favicon',
         'webDetection',
+        'pageObserver',
+        'hover',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
@@ -73,8 +80,10 @@ export const platformSupport = {
         'duckPlayer',
         'messageBridge',
         'pageContext',
+        'browserUiLock',
     ],
     'android-broker-protection': ['brokerProtection'],
+    'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
         'apiManipulation',
@@ -88,7 +97,6 @@ export const platformSupport = {
         'webDetection',
         'breakageReporting',
     ],
-    'android-ai-history': ['duckAiChatHistory'],
     windows: [
         'cookie',
         ...baseFeatures,

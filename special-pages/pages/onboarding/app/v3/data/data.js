@@ -84,7 +84,9 @@ export const stepsConfig = {
             content: <SettingsStep data={settingsRowItems} />,
         };
     },
-    duckPlayerSingle: ({ t, advance, beforeAfter }) => {
+    duckPlayerSingle: ({ t, advance, beforeAfter, globalState }) => {
+        const duckPlayerDef = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
+        const isAdFree = duckPlayerDef.variant === 'ad-free';
         const beforeAfterState = beforeAfter.get();
         const longestText = [t('beforeAfter_duckPlayer_show'), t('beforeAfter_duckPlayer_hide')].reduce((acc, cur) => {
             return cur.length > acc.length ? cur : acc;
@@ -93,21 +95,23 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title: t('duckPlayer_title'),
-                subtitle: t('duckPlayer_subtitle'),
+                title: isAdFree ? t('duckPlayer_adFree_title') : t('duckPlayer_title'),
+                subtitle: isAdFree ? t('duckPlayer_adFree_subtitle', { newline: '\n' }) : t('duckPlayer_subtitle'),
                 speechBubble: true,
             },
-            dismissButton: {
-                startIcon: <Replay direction={beforeAfterState === 'before' ? 'forward' : 'backward'} />,
-                text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
-                longestText,
-                handler: () => beforeAfter.toggle(),
-            },
+            dismissButton: isAdFree
+                ? null
+                : {
+                      startIcon: <Replay direction={beforeAfterState === 'before' ? 'forward' : 'backward'} />,
+                      text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
+                      longestText,
+                      handler: () => beforeAfter.toggle(),
+                  },
             acceptButton: {
                 text: t('nextButton'),
                 handler: advance,
             },
-            content: <DuckPlayerStep />,
+            content: <DuckPlayerStep defaultState={isAdFree ? 'after' : 'before'} />,
         };
     },
     customize: ({ t, globalState, advance, dismiss }) => {
