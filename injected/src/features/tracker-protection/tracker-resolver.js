@@ -49,6 +49,7 @@
  * @property {object} [matchedRule]
  * @property {boolean} [matchedRuleException]
  * @property {object} tracker
+ * @property {Entity | null} [entity]
  * @property {string} fullTrackerDomain
  */
 
@@ -176,10 +177,11 @@ export class TrackerResolver {
         const hasSurrogate = matchedRule?.surrogate ? Boolean(this._surrogateList[matchedRule.surrogate]) : false;
         const matchedRuleException = matchedRule ? this._matchesRuleDefinition(matchedRule, 'exceptions', requestData) : false;
         const ownerLookupDomain = resolvedDomain || requestData.urlToCheckDomain;
-        const trackerOwner = this._findTrackerOwner(ownerLookupDomain);
+        const trackerOwnerName = this._findTrackerOwner(ownerLookupDomain);
         const websiteOwner = this._findWebsiteOwner(requestData);
-        const firstParty = trackerOwner && websiteOwner ? trackerOwner === websiteOwner : false;
+        const firstParty = trackerOwnerName && websiteOwner ? trackerOwnerName === websiteOwner : false;
         const fullTrackerDomain = requestData.urlToCheckSplit.join('.');
+        const entity = trackerOwnerName ? this._trackerData?.entities?.[trackerOwnerName] : null;
 
         const { action, reason } = this._getAction({
             firstParty,
@@ -196,6 +198,7 @@ export class TrackerResolver {
             matchedRule,
             matchedRuleException,
             tracker,
+            entity,
             fullTrackerDomain,
         };
     }
@@ -385,7 +388,7 @@ export class TrackerResolver {
                 if (entry.domains.includes('<all>')) return true;
 
                 try {
-                    const siteHost = new URL(siteUrl).host;
+                    const siteHost = new URL(siteUrl).hostname;
                     const siteDomainParts = siteHost.split('.');
                     while (siteDomainParts.length > 1) {
                         if (entry.domains.includes(siteDomainParts.join('.'))) {

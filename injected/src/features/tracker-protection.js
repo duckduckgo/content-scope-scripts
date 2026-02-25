@@ -102,9 +102,9 @@ export class TrackerProtection extends ContentFeature {
         });
 
         // Check if current domain is unprotected
-        this._isUnprotectedDomain = this._resolver.isUnprotectedDomain(this._topLevelUrl.host);
+        this._isUnprotectedDomain = this._resolver.isUnprotectedDomain(this._topLevelUrl.hostname);
         if (this._isUnprotectedDomain) {
-            this.log.info('Domain is unprotected:', this._topLevelUrl.host);
+            this.log.info('Domain is unprotected:', this._topLevelUrl.hostname);
         }
 
         /** @type {boolean} */
@@ -201,10 +201,13 @@ export class TrackerProtection extends ContentFeature {
 
         window.fetch = function () {
             if (arguments.length > 0) {
-                if (typeof arguments[0] === 'string') {
-                    checkAndReport(arguments[0], 'fetch');
-                } else if (arguments[0]?.url) {
-                    checkAndReport(arguments[0].url, 'fetch');
+                const input = arguments[0];
+                if (typeof input === 'string') {
+                    checkAndReport(input, 'fetch');
+                } else if (input instanceof URL) {
+                    checkAndReport(input.href, 'fetch');
+                } else if (input?.url) {
+                    checkAndReport(input.url, 'fetch');
                 }
             }
             return originalFetch.apply(window, arguments);
@@ -314,10 +317,10 @@ export class TrackerProtection extends ContentFeature {
                 reason: result.reason || null,
                 isSurrogate: false,
                 pageUrl: this._topLevelUrl?.href || '',
-                entityName: result.tracker.owner?.displayName || null,
+                entityName: result.entity?.displayName || result.tracker.owner?.displayName || null,
                 ownerName: result.tracker.owner?.name || null,
                 category: result.tracker.categories?.[0] || null,
-                prevalence: result.tracker.owner?.prevalence || null,
+                prevalence: result.entity?.prevalence ?? null,
                 isAllowlisted: this._resolver.isAllowlisted(topUrl, url),
             });
         }
@@ -358,27 +361,29 @@ export class TrackerProtection extends ContentFeature {
         const isSurrogate = Boolean(result.matchedRule?.surrogate);
         const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
 
+        let willLoadSurrogate = false;
+        if (blocked && isSurrogate && !isAllowlisted) {
+            const surrogateName = result.matchedRule.surrogate;
+            willLoadSurrogate = !CTL_SURROGATES.includes(surrogateName) || this._ctlEnabled === true;
+        }
+
         if (result.tracker) {
             this.notify('trackerDetected', {
                 url,
                 blocked,
                 reason: result.reason || null,
-                isSurrogate: isSurrogate && blocked && !isAllowlisted,
+                isSurrogate: willLoadSurrogate,
                 pageUrl: this._topLevelUrl?.href || '',
-                entityName: result.tracker.owner?.displayName || null,
+                entityName: result.entity?.displayName || result.tracker.owner?.displayName || null,
                 ownerName: result.tracker.owner?.name || null,
                 category: result.tracker.categories?.[0] || null,
-                prevalence: result.tracker.owner?.prevalence || null,
+                prevalence: result.entity?.prevalence ?? null,
                 isAllowlisted,
             });
         }
 
-        if (blocked && isSurrogate && !isAllowlisted) {
+        if (willLoadSurrogate) {
             const surrogateName = result.matchedRule.surrogate;
-
-            if (CTL_SURROGATES.includes(surrogateName) && !this._ctlEnabled) {
-                return false;
-            }
 
             this._loadSurrogate(surrogateName, element);
 
