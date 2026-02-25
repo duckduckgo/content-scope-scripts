@@ -1059,6 +1059,7 @@ describe('Helpers checks', () => {
             expect(isPlatformSpecificFeature('messageBridge')).toBeTrue();
             expect(isPlatformSpecificFeature('favicon')).toBeTrue();
             expect(isPlatformSpecificFeature('webDetection')).toBeTrue();
+            expect(isPlatformSpecificFeature('webEvents')).toBeTrue();
         });
 
         it('returns false for non-platform features', () => {
@@ -1089,8 +1090,9 @@ describe('Helpers checks', () => {
             expect(isGloballyDisabled(args)).toBeFalse();
         });
 
-        it('platformSpecificFeatures includes webDetection so it loads when globally disabled', () => {
+        it('platformSpecificFeatures includes webDetection and webEvents so they load when globally disabled', () => {
             expect(platformSpecificFeatures).toContain('webDetection');
+            expect(platformSpecificFeatures).toContain('webEvents');
         });
     });
 
@@ -1241,7 +1243,7 @@ describe('Helpers checks', () => {
             expect(result).toContain('messageBridge');
         });
 
-        it('includes webDetection as platform-specific feature not in remote config', () => {
+        it('includes webDetection and webEvents as platform-specific features not in remote config', () => {
             const data = {
                 features: {
                     regularFeature: { state: 'enabled', settings: {}, exceptions: [] },
@@ -1250,10 +1252,11 @@ describe('Helpers checks', () => {
             };
             const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformSpecificFeatures);
             expect(result).toContain('webDetection');
+            expect(result).toContain('webEvents');
             expect(result).toContain('regularFeature');
         });
 
-        it('keeps webDetection even when a regular feature has an exception for the domain', () => {
+        it('keeps webDetection and webEvents even when a regular feature has an exception for the domain', () => {
             const data = {
                 features: {
                     regularFeature: { state: 'enabled', settings: {}, exceptions: [{ domain: 'broken.com' }] },
@@ -1262,6 +1265,7 @@ describe('Helpers checks', () => {
             };
             const result = computeEnabledFeatures(data, 'broken.com', { name: 'ios' }, platformSpecificFeatures);
             expect(result).toContain('webDetection');
+            expect(result).toContain('webEvents');
             expect(result).not.toContain('regularFeature');
         });
 

@@ -919,6 +919,7 @@ export const platformSpecificFeatures = [
     'print',
     'webInterferenceDetection',
     'webDetection',
+    'webEvents',
     'pageObserver',
     'hover',
 ];
