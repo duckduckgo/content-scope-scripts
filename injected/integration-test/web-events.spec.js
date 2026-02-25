@@ -36,7 +36,9 @@ test.describe('WebEvents message flow', () => {
 
         const webEventMessages = await getMessagesOfType(collector, 'webEvent');
         expect(webEventMessages.length).toBeGreaterThanOrEqual(1);
-        expect(/** @type {import('../../messaging/index.js').NotificationMessage} */ (webEventMessages[0].payload).params).toEqual({ type: 'adwall' });
+        expect(/** @type {import('../../messaging/index.js').NotificationMessage} */ (webEventMessages[0].payload).params).toEqual({
+            type: 'adwall',
+        });
     });
 
     test('does not send webEvent message when webEvents feature is disabled', async ({ page }, testInfo) => {
