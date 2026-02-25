@@ -98,7 +98,11 @@ export async function findAuthorizedApproval(github, { owner, repo, prNumber, or
         pull_number: prNumber,
     });
 
-    const approved = reviews.filter((r) => r.state === 'APPROVED');
+    const latestByUser = new Map();
+    for (const r of reviews) {
+        if (r.user?.login) latestByUser.set(r.user.login, r);
+    }
+    const approved = [...latestByUser.values()].filter((r) => r.state === 'APPROVED');
     if (approved.length === 0) return null;
 
     if (approved.some((r) => r.user.login === DAX_USERNAME)) {
