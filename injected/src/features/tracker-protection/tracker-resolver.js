@@ -38,6 +38,7 @@
  * @property {Record<string, Tracker>} trackers
  * @property {Record<string, Entity>} entities
  * @property {Record<string, string>} domains
+ * @property {Record<string, string>} [cnames]
  */
 
 /**
@@ -156,16 +157,26 @@ export class TrackerResolver {
             urlToCheckSplit: this._extractHost(urlToCheck).split('.'),
         };
 
-        const tracker = this._findTracker(requestData);
-        if (!tracker) {
+        const trackerResult = this._findTracker(requestData);
+        if (!trackerResult) {
             return null;
+        }
+        const { tracker, resolvedDomain } = trackerResult;
+
+        if (resolvedDomain) {
+            try {
+                const originalUrl = new URL(urlToCheck);
+                requestData.urlToCheck = `${originalUrl.protocol}//${resolvedDomain}${originalUrl.pathname}${originalUrl.search}`;
+            } catch {
+                // keep original URL if parsing fails
+            }
         }
 
         const matchedRule = this._findRule(tracker, requestData);
-        // Check if surrogate exists for this rule (don't store the function itself)
         const hasSurrogate = matchedRule?.surrogate ? Boolean(this._surrogateList[matchedRule.surrogate]) : false;
         const matchedRuleException = matchedRule ? this._matchesRuleDefinition(matchedRule, 'exceptions', requestData) : false;
-        const trackerOwner = this._findTrackerOwner(requestData.urlToCheckDomain);
+        const ownerLookupDomain = resolvedDomain || requestData.urlToCheckDomain;
+        const trackerOwner = this._findTrackerOwner(ownerLookupDomain);
         const websiteOwner = this._findWebsiteOwner(requestData);
         const firstParty = trackerOwner && websiteOwner ? trackerOwner === websiteOwner : false;
         const fullTrackerDomain = requestData.urlToCheckSplit.join('.');
@@ -190,7 +201,9 @@ export class TrackerResolver {
     }
 
     /**
-     * Find a tracker definition by walking up the domain hierarchy
+     * Find a tracker definition by walking up the domain hierarchy,
+     * falling back to CNAME resolution if available.
+     * @returns {{ tracker: Tracker, resolvedDomain?: string } | null}
      */
     _findTracker(requestData) {
         const urlList = [...requestData.urlToCheckSplit];
@@ -201,9 +214,26 @@ export class TrackerResolver {
 
             const matchedTracker = this._trackerData?.trackers[trackerDomain];
             if (matchedTracker) {
-                return matchedTracker;
+                return { tracker: matchedTracker };
             }
         }
+
+        if (this._trackerData?.cnames) {
+            const requestHost = requestData.urlToCheckSplit.join('.');
+            const resolved = this._trackerData.cnames[requestHost];
+            if (resolved) {
+                const resolvedParts = resolved.split('.');
+                while (resolvedParts.length > 1) {
+                    const resolvedDomain = resolvedParts.join('.');
+                    const matchedTracker = this._trackerData.trackers[resolvedDomain];
+                    if (matchedTracker) {
+                        return { tracker: matchedTracker, resolvedDomain };
+                    }
+                    resolvedParts.shift();
+                }
+            }
+        }
+
         return null;
     }
 
@@ -269,7 +299,16 @@ export class TrackerResolver {
 
         const def = rule[type];
         const matchTypes = def.types?.length ? def.types.includes(requestData.request?.type) : true;
-        const matchDomains = def.domains?.length ? def.domains.some((d) => d.match(requestData.siteDomain)) : true;
+        const matchDomains = def.domains?.length
+            ? def.domains.some((d) => {
+                  const siteParts = requestData.siteDomain.split('.');
+                  while (siteParts.length > 1) {
+                      if (siteParts.join('.') === d) return true;
+                      siteParts.shift();
+                  }
+                  return false;
+              })
+            : true;
 
         return matchTypes && matchDomains;
     }
@@ -301,10 +340,17 @@ export class TrackerResolver {
             return { action: 'block', reason: 'default block' };
         }
         if (matchedRule) {
-            if (redirectUrl) {
+            const ruleAction = matchedRule.action;
+            if (ruleAction && ruleAction !== 'block' && !ruleAction.startsWith('block-ctl-')) {
+                // Unknown/unsupported rule action — fall through to default
+            } else if (redirectUrl) {
                 return { action: 'redirect', reason: 'matched rule - surrogate' };
+            } else {
+                return { action: 'block', reason: 'matched rule - block' };
             }
-            return { action: 'block', reason: 'matched rule - block' };
+        }
+        if (defaultAction === 'block') {
+            return { action: 'block', reason: 'default block' };
         }
         // Default: no matching rule and no default action
         return { action: 'ignore', reason: 'no match' };
