@@ -18,31 +18,19 @@
 .active {
     width: var(--sp-3);
     height: var(--sp-3);
-    background: #4397E0;
-
-    @media (prefers-color-scheme: dark) {
-        background: #75B6EB;
-    }
+    background: var(--ds-accent-primary);
 }
 
 .complete {
     width: 6px;
     height: 6px;
-    background: #4397E0;
-
-    @media (prefers-color-scheme: dark) {
-        background: #75B6EB;
-    }
+    background: var(--ds-accent-primary);
 }
 
 .incomplete {
     width: 6px;
     height: 6px;
-    background: #CBEAFF;
-
-    @media (prefers-color-scheme: dark) {
-        background: #133E7C;
-    }
+    background: var(--ds-accent-alt-primary);
 }
 
 .text {
@@ -50,9 +38,5 @@
     font-size: var(--sp-3);
     font-weight: 400;
     line-height: var(--sp-3);
-    color: var(--color-black-at-96);
-
-    @media (prefers-color-scheme: dark) {
-        color: white;
-    }
+    color: var(--ds-text-primary);
 }

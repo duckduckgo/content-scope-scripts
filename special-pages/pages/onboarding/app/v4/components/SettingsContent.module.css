@@ -60,14 +60,10 @@
     font-size: calc(15 * var(--px-in-rem));
     font-weight: 700;
     line-height: calc(18 * var(--px-in-rem));
-    color: var(--color-black-at-84);
+    color: var(--ds-text-primary);
     margin: 0;
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
-
-    @media (prefers-color-scheme: dark) {
-        color: var(--color-white-at-84);
-    }
 }
 
 .rowSubtitle {
@@ -75,14 +71,10 @@
     font-size: calc(14 * var(--px-in-rem));
     font-weight: 400;
     line-height: calc(17 * var(--px-in-rem));
-    color: var(--color-black-at-60);
+    color: var(--ds-text-secondary);
     margin: 0;
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
-
-    @media (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-    }
 }
 
 /* --- Inline action (check/switch) --- */
@@ -98,11 +90,7 @@
 .divider {
     height: 1px;
     align-self: stretch;
-    background: var(--color-black-at-15);
-
-    @media (prefers-color-scheme: dark) {
-        background: var(--color-white-at-9);
-    }
+    background: var(--ds-surface-decoration-secondary);
 }
 
 /* --- Active row buttons (Skip + Accept) --- */

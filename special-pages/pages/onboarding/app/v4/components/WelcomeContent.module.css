@@ -18,13 +18,9 @@
     font-weight: 500;
     line-height: var(--sp-11);
     text-align: center;
-    color: var(--color-black-at-96);
+    color: var(--ds-text-primary);
     word-wrap: break-word;
     animation: slide-up 3.033s both, fade-in-out 3.033s both;
-
-    @media (prefers-color-scheme: dark) {
-        color: var(--color-white-at-96);
-    }
 }
 
 @keyframes slide-up {

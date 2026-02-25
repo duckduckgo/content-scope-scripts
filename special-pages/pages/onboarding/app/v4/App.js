@@ -14,7 +14,7 @@ import { SingleStep } from './components/SingleStep';
  * @param {import("preact").ComponentChild} props.children
  */
 export function App({ children }) {
-    const { debugState } = useEnv();
+    const { debugState, isDarkMode } = useEnv();
     const platformName = usePlatformName();
     const globalState = useContext(GlobalContext);
     const dispatch = useContext(GlobalDispatch);
@@ -27,7 +27,7 @@ export function App({ children }) {
     };
 
     return (
-        <main data-platform-name={platformName || 'macos'} data-app-version="v4">
+        <main class={isDarkMode ? 'theme-dark' : 'theme-light'} data-platform-name={platformName || 'macos'} data-app-version="v4">
             <Background />
             {debugState && <Debug state={globalState} />}
             <div class={styles.container} data-current={activeStep} data-exiting={String(exiting)}>

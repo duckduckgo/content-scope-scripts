@@ -5,10 +5,10 @@
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background-color: white;
+    background-color: var(--ds-surface-tertiary);
 
     @media (prefers-color-scheme: dark) {
-        background-color: #133E7C;
+        background-color: var(--ds-accent-alt-primary);
     }
 }
 

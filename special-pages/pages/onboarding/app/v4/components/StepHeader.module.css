@@ -17,14 +17,10 @@
     font-weight: 700;
     line-height: var(--sp-7); /* 28px */
     text-align: center;
-    color: var(--color-black-at-96);
+    color: var(--ds-text-primary);
     margin: 0;
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
-
-    @media (prefers-color-scheme: dark) {
-        color: white;
-    }
 }
 
 .subtitle {
@@ -33,12 +29,8 @@
     font-weight: 400;
     line-height: calc(22 * var(--px-in-rem));
     text-align: center;
-    color: var(--color-black-at-96);
+    color: var(--ds-text-primary);
     margin: 0;
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
-
-    @media (prefers-color-scheme: dark) {
-        color: white;
-    }
 }

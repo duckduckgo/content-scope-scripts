@@ -19,21 +19,13 @@
 }
 
 .rowCell + .rowCell {
-    border-left: 1px solid var(--color-black-at-9);
-
-    @media (prefers-color-scheme: dark) {
-        border-left: 1px solid var(--color-white-at-6);
-    }
+    border-left: 1px solid var(--ds-surface-decoration-primary);
 }
 
 .row:nth-child(odd) {
     & .rowHeading,
     & .rowCell {
-        background: rgba(161, 207, 247, 0.16);
-
-        @media (prefers-color-scheme: dark) {
-            background: rgba(161, 207, 247, 0.12);
-        }
+        background: var(--ds-accent-alt-glow-primary);
     }
 
     & .rowHeading {

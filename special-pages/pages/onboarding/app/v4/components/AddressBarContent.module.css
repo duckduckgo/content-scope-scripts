@@ -22,22 +22,22 @@
     line-height: calc(18 * var(--px-in-rem));
 
     /* Override ToggleButton theme to match Figma — light */
-    --toggle-accent-light: #4397E0;
-    --toggle-accent-text-light: #1074CC;
-    --toggle-accent-bg-light: rgba(161, 207, 247, 0.08);
-    --toggle-border-light: rgba(0, 0, 0, 0.20);
-    --toggle-color-light: rgba(36, 35, 35, 0.96);
-    --toggle-radio-light: #4397E0;
+    --toggle-accent-light: var(--ds-accent-primary);
+    --toggle-accent-text-light: var(--ds-accent-primary-text-color);
+    --toggle-accent-bg-light: var(--ds-accent-alt-glow-secondary);
+    --toggle-border-light: var(--ds-control-primary-border-color);
+    --toggle-color-light: var(--ds-text-primary);
+    --toggle-radio-light: var(--ds-accent-primary);
 
     /* Override ToggleButton theme to match Figma — dark */
-    --toggle-accent-dark: #75B6EB;
-    --toggle-accent-text-dark: #75B6EB;
-    --toggle-accent-bg-dark: rgba(161, 207, 247, 0.08);
-    --toggle-bg-dark: #011D34;
-    --toggle-border-dark: rgba(255, 255, 255, 0.36);
-    --toggle-color-dark: white;
-    --toggle-radio-dark: #75B6EB;
-    --toggle-radio-check-dark: #222222;
+    --toggle-accent-dark: var(--ds-accent-primary);
+    --toggle-accent-text-dark: var(--ds-accent-primary);
+    --toggle-accent-bg-dark: var(--ds-accent-alt-glow-secondary);
+    --toggle-bg-dark: var(--ds-surface-tertiary);
+    --toggle-border-dark: var(--ds-control-primary-border-color);
+    --toggle-color-dark: var(--ds-text-primary);
+    --toggle-radio-dark: var(--ds-accent-primary);
+    --toggle-radio-check-dark: var(--ds-accent-primary-content-color);
 }
 
 .footer {
@@ -57,11 +57,7 @@
 .footerText {
     font-size: calc(13 * var(--px-in-rem));
     line-height: calc(16 * var(--px-in-rem));
-    color: var(--color-black-at-84);
-
-    @media (prefers-color-scheme: dark) {
-        color: var(--color-white-at-84);
-    }
+    color: var(--ds-text-primary);
 }
 
 .footerText :where(b) {
