@@ -23,7 +23,6 @@ export function useAiChats(query) {
     const [prevQuery, setPrevQuery] = useState(query);
 
     if (query !== prevQuery) {
-        console.log('query changed from', prevQuery, 'to', query);
         setPrevQuery(query);
         setSelectedIndex(null);
     }
