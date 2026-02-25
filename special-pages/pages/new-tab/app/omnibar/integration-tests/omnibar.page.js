@@ -124,7 +124,7 @@ export class OmnibarPage {
     /**
      * @param {string} text
      */
-    async expectSelectedAiChat(text) {
+    async expectSelectedAiChatToHaveText(text) {
         await expect(this.selectedAiChat()).toHaveText(text);
     }
 

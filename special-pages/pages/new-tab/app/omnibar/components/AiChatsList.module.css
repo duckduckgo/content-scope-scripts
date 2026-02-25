@@ -39,7 +39,6 @@
 }
 
 .title {
-    flex: none;
     max-width: 80%;
     overflow: hidden;
     text-overflow: ellipsis;
