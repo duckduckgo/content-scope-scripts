@@ -23,6 +23,7 @@ export default tseslint.config(
             'playwright-report',
             'test-results',
             'injected/src/types',
+            'injected/src/features/tracker-protection/surrogates.js',
             '.idea',
             'Sources/',
         ],
@@ -34,7 +35,6 @@ export default tseslint.config(
                 $USER_UNPROTECTED_DOMAINS$: 'readonly',
                 $CONTENT_SCOPE$: 'readonly',
                 $BUNDLED_CONFIG$: 'readonly',
-                $SURROGATES$: 'readonly',
             },
 
             ecmaVersion: 'latest',

@@ -12,6 +12,7 @@
 
 import ContentFeature from '../content-feature.js';
 import { TrackerResolver } from './tracker-protection/tracker-resolver.js';
+import { surrogates as bundledSurrogates } from './tracker-protection/surrogates.js';
 
 /**
  * CTL surrogates that require CTL feature to be enabled
@@ -74,10 +75,7 @@ export class TrackerProtection extends ContentFeature {
             return;
         }
 
-        // Initialize tracker resolver with config data
-        // Surrogates are passed via args (injected as $SURROGATES$ in apple.js entry point)
-        // They're actual JS functions, avoiding CSP issues with new Function()
-        const surrogates = this.args?.surrogates || {};
+        const surrogates = bundledSurrogates;
 
         // Parse trackerData - it's passed as a JSON string from native
         let trackerData = this.getFeatureSetting('trackerData');
