@@ -59,7 +59,9 @@ jobs:
             - name: Checkout base branch
               uses: actions/checkout@v6
               with:
-                  sparse-checkout: .github/REQUIRED_TEAMS
+                  sparse-checkout: |
+                      .github/REQUIRED_TEAMS
+                      .github/scripts
                   sparse-checkout-cone-mode: false
 
             - name: Debounce delay
@@ -81,57 +83,13 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      const sha = context.payload.pull_request.head.sha;
-                      let riskLevel = null;
-
-                      const riskPattern = /\*\*(Low|Medium|High|Critical)\s+Risk\*\*/i;
-
-                      const { data: checkRuns } = await github.rest.checks.listForRef({
+                      const { findRiskLevel } = require('./.github/scripts/review-helpers.js');
+                      const riskLevel = await findRiskLevel(github, {
                           owner: context.repo.owner,
                           repo: context.repo.repo,
-                          ref: sha,
-                          check_name: 'Cursor Bugbot'
+                          sha: context.payload.pull_request.head.sha,
+                          prNumber: context.payload.pull_request.number
                       });
-
-                      for (const run of checkRuns.check_runs) {
-                          const text = [run.output?.title, run.output?.summary, run.output?.text].join('\n');
-                          const match = text.match(riskPattern);
-                          if (match) {
-                              riskLevel = match[1];
-                              break;
-                          }
-                      }
-
-                      if (!riskLevel) {
-                          const { data: reviews } = await github.rest.pulls.listReviews({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              pull_number: context.payload.pull_request.number
-                          });
-                          for (const review of reviews) {
-                              const match = review.body?.match(riskPattern);
-                              if (match) {
-                                  riskLevel = match[1];
-                                  break;
-                              }
-                          }
-                      }
-
-                      if (!riskLevel) {
-                          const { data: comments } = await github.rest.issues.listComments({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              issue_number: context.payload.pull_request.number
-                          });
-                          for (const comment of comments) {
-                              const match = comment.body?.match(riskPattern);
-                              if (match) {
-                                  riskLevel = match[1];
-                                  break;
-                              }
-                          }
-                      }
-
                       console.log(`Cursor Bugbot risk level: ${riskLevel ?? 'not found'}`);
                       core.setOutput('risk_level', riskLevel ?? 'unknown');
                       core.setOutput('is_low_risk', riskLevel?.toLowerCase() === 'low');
@@ -142,19 +100,15 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
+                      const { DAX_USERNAME } = require('./.github/scripts/review-helpers.js');
                       const { data: reviews } = await github.rest.pulls.listReviews({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                           pull_number: context.payload.pull_request.number
                       });
-
-                      const hasApprovedReview = reviews.some(review =>
-                          review.state === 'APPROVED' &&
-                          review.user.login === 'daxtheduck'
-                      );
-
-                      console.log(`Found approved review from daxtheduck: ${hasApprovedReview}`);
-                      core.setOutput('has_approved_review', hasApprovedReview);
+                      const has = reviews.some(r => r.state === 'APPROVED' && r.user.login === DAX_USERNAME);
+                      console.log(`Found approved review from ${DAX_USERNAME}: ${has}`);
+                      core.setOutput('has_approved_review', has);
 
             - name: Auto approve
               if: |
@@ -187,19 +141,16 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      const fs = require('fs');
-                      const teams = fs.readFileSync('.github/REQUIRED_TEAMS', 'utf8').trim().split('\n').filter(Boolean);
-                      const teamList = teams.map(t => `- @duckduckgo/${t}`).join('\n');
+                      const { loadRequiredTeams, formatTeamList } = require('./.github/scripts/review-helpers.js');
+                      const teams = loadRequiredTeams();
+                      const teamList = formatTeamList(teams);
 
                       const cursorPassed = '${{ steps.wait-for-cursor.outputs.conclusion }}' === 'success';
                       const riskLevel = '${{ steps.risk_check.outputs.risk_level }}';
 
-                      let reason;
-                      if (!cursorPassed) {
-                          reason = 'Cursor review was not successful.';
-                      } else {
-                          reason = `Cursor assessed this PR as **${riskLevel} Risk** (only Low Risk is auto-approved).`;
-                      }
+                      const reason = cursorPassed
+                          ? `Cursor assessed this PR as **${riskLevel} Risk** (only Low Risk is auto-approved).`
+                          : 'Cursor review was not successful.';
 
                       await github.rest.issues.createComment({
                           owner: context.repo.owner,
