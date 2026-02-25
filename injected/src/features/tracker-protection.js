@@ -113,18 +113,34 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
-     * Set up resource interception for tracker detection
+     * Set up resource interception for tracker detection.
+     * Covers scripts, images, XHR, fetch, iframes, and link elements.
      */
     _setupInterception() {
-        // Mutation observer for dynamically added scripts
+        this._setupMutationObserver();
+        this._setupXHRInterception();
+        this._setupFetchInterception();
+        this._setupImageSrcInterception();
+
+        window.addEventListener('load', () => this._processPageOnLoad(), { once: true });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this._processExistingElements(), { once: true });
+        } else {
+            this._processExistingElements();
+        }
+    }
+
+    _setupMutationObserver() {
         this._observer = new MutationObserver((records) => {
             for (const record of records) {
                 for (const node of record.addedNodes) {
                     if (node instanceof HTMLScriptElement && node.src) {
                         this._checkAndBlock(node.src, 'script', node);
+                    } else if (node instanceof HTMLImageElement && node.src) {
+                        this._checkAndReport(node.src, 'image');
                     }
                 }
-                // Handle src attribute changes
                 if (record.target instanceof HTMLScriptElement && record.attributeName === 'src') {
                     this._checkAndBlock(record.target.src, 'script', record.target);
                 }
@@ -137,60 +153,160 @@ export class TrackerProtection extends ContentFeature {
             subtree: true,
             attributeFilter: ['src'],
         });
+    }
 
-        // Process existing scripts immediately (they might already be in DOM)
-        this._processExistingScripts();
+    _setupXHRInterception() {
+        const self = this;
+        const xhrProto = XMLHttpRequest.prototype;
+        const originalOpen = xhrProto.open;
+        const originalSend = xhrProto.send;
 
-        // Also process on load for any scripts we might have missed
-        window.addEventListener(
-            'load',
-            () => {
-                this._processPage();
+        xhrProto.open = function (method, url) {
+            this._ddgUrl = url;
+            return originalOpen.apply(this, arguments);
+        };
+
+        xhrProto.send = function () {
+            if (!this._ddgErrorHandler) {
+                this._ddgErrorHandler = function () {
+                    self._checkAndReport(this._ddgUrl, 'xmlhttprequest');
+                };
+                this.addEventListener('error', this._ddgErrorHandler);
+            }
+            return originalSend.apply(this, arguments);
+        };
+
+        this._originalXHROpen = originalOpen;
+        this._originalXHRSend = originalSend;
+    }
+
+    _setupFetchInterception() {
+        const self = this;
+        const originalFetch = window.fetch;
+
+        window.fetch = function () {
+            if (arguments.length > 0) {
+                if (typeof arguments[0] === 'string') {
+                    self._checkAndReport(arguments[0], 'fetch');
+                } else if (arguments[0]?.url) {
+                    self._checkAndReport(arguments[0].url, 'fetch');
+                }
+            }
+            return originalFetch.apply(window, arguments);
+        };
+
+        this._originalFetch = originalFetch;
+    }
+
+    _setupImageSrcInterception() {
+        const self = this;
+        const originalDescriptor = Object.getOwnPropertyDescriptor(Image.prototype, 'src');
+        if (!originalDescriptor) return;
+
+        this._originalImageSrc = originalDescriptor;
+
+        delete Image.prototype.src;
+        Object.defineProperty(Image.prototype, 'src', {
+            configurable: true,
+            get: function () {
+                return originalDescriptor.get.call(this);
             },
-            { once: true },
-        );
-
-        // Process again on DOMContentLoaded for scripts added during parse
-        if (document.readyState === 'loading') {
-            document.addEventListener(
-                'DOMContentLoaded',
-                () => {
-                    this._processPage();
-                },
-                { once: true },
-            );
-        }
-
-        this.log.info('Tracker interception initialized');
+            set: function (value) {
+                if (!this._ddgErrorHandler) {
+                    this._ddgErrorHandler = function () {
+                        self._checkAndReport(this.src, 'image');
+                    };
+                    this.addEventListener('error', this._ddgErrorHandler);
+                }
+                originalDescriptor.set.call(this, value);
+            },
+        });
     }
 
     /**
-     * Process scripts that might already exist in the DOM at initialization time
+     * Process existing DOM elements that may have loaded before interception started
      */
-    _processExistingScripts() {
+    _processExistingElements() {
         if (!this._seenUrls) return;
         const seenUrls = this._seenUrls;
-        // Check existing scripts - they might already be in DOM before observer started
-        const scripts = [...document.scripts].filter((el) => el.src && !seenUrls.has(el.src));
-        for (const script of scripts) {
-            this._checkAndBlock(script.src, 'script', script);
+
+        for (const el of document.scripts) {
+            if (el.src && !seenUrls.has(el.src)) {
+                this._checkAndBlock(el.src, 'script', el);
+            }
         }
     }
 
     /**
-     * Process existing page elements for tracker detection
+     * On page load, scan all resource elements for tracker reporting
      */
-    _processPage() {
+    _processPageOnLoad() {
         if (!this._seenUrls) return;
         const seenUrls = this._seenUrls;
-        const scripts = [...document.scripts].filter((el) => el.src && !seenUrls.has(el.src));
-        for (const script of scripts) {
-            this._checkAndBlock(script.src, 'script', script);
+
+        for (const el of document.scripts) {
+            if (el.src && !seenUrls.has(el.src)) {
+                this._checkAndReport(el.src, 'script');
+            }
+        }
+        for (const el of document.querySelectorAll('link')) {
+            if (/** @type {HTMLLinkElement} */ (el).href && !seenUrls.has(/** @type {HTMLLinkElement} */ (el).href)) {
+                this._checkAndReport(/** @type {HTMLLinkElement} */ (el).href, 'link');
+            }
+        }
+        for (const el of document.images) {
+            if (el.naturalWidth === 0 && el.src && !seenUrls.has(el.src)) {
+                this._checkAndReport(el.src, 'image');
+            }
+        }
+        for (const el of document.querySelectorAll('iframe')) {
+            if (/** @type {HTMLIFrameElement} */ (el).src && !seenUrls.has(/** @type {HTMLIFrameElement} */ (el).src)) {
+                this._checkAndReport(/** @type {HTMLIFrameElement} */ (el).src, 'iframe');
+            }
         }
     }
 
     /**
-     * Check URL and potentially block/surrogate it
+     * Report a resource URL for tracker detection without surrogate handling.
+     * Used for non-script resources (XHR, fetch, images, iframes, links).
+     * @param {string} url
+     * @param {string} resourceType
+     */
+    _checkAndReport(url, resourceType) {
+        if (!url || !this._resolver || !this._seenUrls || this._seenUrls.has(url)) return;
+        this._seenUrls.add(url);
+        if (!this._blockingEnabled) return;
+
+        const topUrl = this._topLevelUrl?.toString() || '';
+        const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
+        if (!result) return;
+
+        let blocked = false;
+        if (this._isUnprotectedDomain) {
+            result.reason = 'unprotectedDomain';
+        } else if (result.action !== 'ignore') {
+            blocked = true;
+        }
+
+        if (result.tracker) {
+            this.notify('trackerDetected', {
+                url,
+                blocked,
+                reason: result.reason || null,
+                isSurrogate: false,
+                pageUrl: this._topLevelUrl?.href || '',
+                entityName: result.tracker.owner?.displayName || null,
+                ownerName: result.tracker.owner?.name || null,
+                category: result.tracker.categories?.[0] || null,
+                prevalence: result.tracker.owner?.prevalence || null,
+                isAllowlisted: this._resolver.isAllowlisted(topUrl, url),
+            });
+        }
+    }
+
+    /**
+     * Check a script URL and potentially load a surrogate for it.
+     * Also reports tracker detection.
      * @param {string} url
      * @param {string} resourceType
      * @param {HTMLElement | null} element
@@ -279,10 +395,8 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
-     * Load a surrogate script.
-     *
-     * Surrogates are pre-injected by native as actual JS functions in window.__ddgSurrogates.
-     * This avoids CSP issues since we're not using new Function() or eval().
+     * Load a surrogate script. Surrogates are bundled at build time from
+     * @duckduckgo/tracker-surrogates as callable functions.
      *
      * @param {string} pattern - Surrogate pattern (e.g., "adsbygoogle.js")
      * @param {HTMLElement | null} targetElement - Original element being replaced
@@ -328,6 +442,18 @@ export class TrackerProtection extends ContentFeature {
     destroy() {
         this._observer?.disconnect();
         this._observer = null;
+
+        if (this._originalXHROpen) {
+            XMLHttpRequest.prototype.open = this._originalXHROpen;
+            XMLHttpRequest.prototype.send = this._originalXHRSend;
+        }
+        if (this._originalFetch) {
+            window.fetch = this._originalFetch;
+        }
+        if (this._originalImageSrc) {
+            delete Image.prototype.src;
+            Object.defineProperty(Image.prototype, 'src', this._originalImageSrc);
+        }
     }
 }
 
