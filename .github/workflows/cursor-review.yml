@@ -83,7 +83,7 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      const { findRiskLevel } = await import('./.github/scripts/review-helpers.mjs');
+                      const { findRiskLevel } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const riskLevel = await findRiskLevel(github, {
                           owner: context.repo.owner,
                           repo: context.repo.repo,
@@ -100,7 +100,7 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      const { DAX_USERNAME } = await import('./.github/scripts/review-helpers.mjs');
+                      const { DAX_USERNAME } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const { data: reviews } = await github.rest.pulls.listReviews({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
@@ -141,7 +141,7 @@ jobs:
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      const { loadRequiredTeams, formatTeamList } = await import('./.github/scripts/review-helpers.mjs');
+                      const { loadRequiredTeams, formatTeamList } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
                       const teamList = formatTeamList(teams);
 
