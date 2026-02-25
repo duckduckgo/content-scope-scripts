@@ -15,16 +15,17 @@ import styles from './SingleStep.module.css';
  * @param {import('../data/data-types').Progress} props.progress
  * @param {import('preact').JSX.Element|null} [props.dismissButton]
  * @param {import('preact').JSX.Element|null} [props.acceptButton]
+ * @param {boolean} [props.hideProgress]
  * @param {import('preact').ComponentChild} [props.children]
  */
-export function StepGrid({ progress, dismissButton, acceptButton, children }) {
+export function StepGrid({ progress, dismissButton, acceptButton, hideProgress, children }) {
     return (
         <div className={styles.container}>
             <div className={styles.content}>
                 <Stack animate>{children}</Stack>
             </div>
             <div className={styles.progress}>
-                <SingleLineProgress current={progress.current} total={progress.total} />
+                {!hideProgress && <SingleLineProgress current={progress.current} total={progress.total} />}
             </div>
 
             <div className={styles.buttonBar}>
@@ -44,7 +45,7 @@ export function StepGrid({ progress, dismissButton, acceptButton, children }) {
 
 export function SingleStep() {
     const dispatch = useGlobalDispatch();
-    const { variant, heading, dismissButton, acceptButton, content, progress } = useStepConfig();
+    const { variant, heading, dismissButton, acceptButton, content, progress, globalState } = useStepConfig();
 
     const classes = cn({
         [styles.panel]: true,
@@ -63,6 +64,7 @@ export function SingleStep() {
                 {content && (
                     <StepGrid
                         progress={progress}
+                        hideProgress={!!globalState.overlay}
                         dismissButton={
                             dismissButton && (
                                 <ElasticButton {...dismissButton} elastic={false} variant="secondary" onClick={dismissButton.handler} />

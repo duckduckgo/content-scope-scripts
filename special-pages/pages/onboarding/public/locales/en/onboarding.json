@@ -472,5 +472,9 @@
   "row_dock-instructions_accept": {
     "title": "Show Me How",
     "note": "Button text that opens the dock instructions overlay."
+  },
+  "dockInstructions_body": {
+    "title": "Hold control and click the DuckDuckGo app icon, then choose <strong>Options</strong> > <strong>Keep in Dock</strong>.",
+    "note": "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
   }
 }

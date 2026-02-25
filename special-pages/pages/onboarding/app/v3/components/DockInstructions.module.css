@@ -1,19 +1,52 @@
 .root {
-    padding: var(--sp-4) var(--sp-6);
-}
-
-.title {
-    font-size: var(--title-3-em-font-size, 1.125rem);
-    font-weight: 600;
-    margin: 0 0 var(--sp-4);
-}
-
-.steps {
-    margin: 0;
-    padding-left: var(--sp-6);
     display: flex;
     flex-direction: column;
-    gap: var(--sp-3);
-    font-size: var(--body-font-size, 0.875rem);
-    line-height: 1.4;
+    gap: var(--sp-6);
+    max-width: 384px;
+    margin: 0 auto;
+}
+
+.imageContainer {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 384 / 188;
+    border-radius: var(--sp-2);
+}
+
+.frame {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+    opacity: 0;
+
+    &.previous {
+        opacity: 1;
+    }
+
+    &.active {
+        z-index: 1;
+        opacity: 1;
+        transition: opacity 300ms ease;
+    }
+
+    [data-reduced-motion="true"] &.active {
+        transition: none;
+    }
+}
+
+.instruction {
+    display: flex;
+    gap: var(--sp-2);
+}
+
+.icon {
+    width: var(--sp-4);
+    height: var(--sp-4);
+}
+
+.instructionText {
+    margin: 0;
+    font-size: calc(14 * var(--px-in-rem));
+    line-height: calc(20 * var(--px-in-rem));
+    color: var(--theme-txt-color);
 }

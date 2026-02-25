@@ -193,7 +193,7 @@ export class OnboardingV3Page extends OnboardingPage {
     async showDockInstructions() {
         const { page } = this;
         await page.getByRole('button', { name: 'Show Me How' }).click();
-        await expect(page.getByText('Add DuckDuckGo to your Dock')).toBeVisible();
+        await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
     }
 
     async dismissDockInstructions() {

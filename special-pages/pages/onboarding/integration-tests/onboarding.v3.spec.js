@@ -602,10 +602,10 @@ test.describe('onboarding v3', () => {
             // Click "Show Me How" to open the dock instructions overlay
             await onboarding.showDockInstructions();
 
-            // Verify instruction steps are visible
-            await expect(page.getByText('Right-click the DuckDuckGo icon in the Dock')).toBeVisible();
-            await expect(page.getByText('Select Options')).toBeVisible();
-            await expect(page.getByText('Click Keep in Dock')).toBeVisible();
+            // Verify instruction content is visible
+            await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
+            await expect(page.getByText('Options')).toBeVisible();
+            await expect(page.getByText('Keep in Dock')).toBeVisible();
         });
 
         test('When I click Show Me How then Next, it advances to the next row', async ({ page }, workerInfo) => {
