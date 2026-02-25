@@ -11,57 +11,34 @@ export function formatTeamList(teams) {
     return teams.map((t) => `- @duckduckgo/${t}`).join('\n');
 }
 
-/**
- * Searches check run output, PR reviews, then PR comments (lazily)
- * for a Cursor Bugbot risk assessment. Returns the risk level string
- * (e.g. "Low", "Medium") or null if not found.
- */
-async function checkRunTexts(github, { owner, repo, sha }) {
-    const { data } = await github.rest.checks.listForRef({
-        owner,
-        repo,
-        ref: sha,
-        check_name: 'Cursor Bugbot',
-    });
-    return data.check_runs.map((run) => [run.output?.title, run.output?.summary, run.output?.text].join('\n'));
-}
+const CURSOR_BOT = 'cursor[bot]';
 
-async function reviewTexts(github, { owner, repo, prNumber }) {
-    const { data } = await github.rest.pulls.listReviews({
-        owner,
-        repo,
-        pull_number: prNumber,
-    });
-    return data.map((r) => r.body ?? '');
-}
-
-async function commentTexts(github, { owner, repo, prNumber }) {
-    const { data } = await github.rest.issues.listComments({
-        owner,
-        repo,
-        issue_number: prNumber,
-    });
-    return data.map((c) => c.body ?? '');
-}
-
-function matchRiskLevel(texts) {
-    const match = texts.map((t) => t.match(RISK_PATTERN)).find(Boolean);
+function matchRiskLevel(text) {
+    const match = text.match(RISK_PATTERN);
     return match ? match[1] : null;
 }
 
 /**
- * Searches check run output, PR reviews, then PR comments (lazily)
- * for a Cursor Bugbot risk assessment. Returns the risk level string
- * (e.g. "Low", "Medium") or null if not found.
+ * Extracts the Cursor Bugbot risk level. Checks the PR description first
+ * (where Bugbot writes CURSOR_SUMMARY), then falls back to comments
+ * authored by cursor[bot].
  */
-export async function findRiskLevel(github, { owner, repo, sha, prNumber }) {
-    const params = { owner, repo, sha, prNumber };
-    const sources = [checkRunTexts, reviewTexts, commentTexts];
+export async function findRiskLevel(github, { owner, repo, prNumber }) {
+    const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+    const descLevel = matchRiskLevel(pr.body ?? '');
+    if (descLevel) return descLevel;
 
-    for (const fetchTexts of sources) {
-        const level = matchRiskLevel(await fetchTexts(github, params));
+    const { data: comments } = await github.rest.issues.listComments({
+        owner,
+        repo,
+        issue_number: prNumber,
+    });
+    for (const c of comments) {
+        if (c.user?.login !== CURSOR_BOT) continue;
+        const level = matchRiskLevel(c.body ?? '');
         if (level) return level;
     }
+
     return null;
 }
 
