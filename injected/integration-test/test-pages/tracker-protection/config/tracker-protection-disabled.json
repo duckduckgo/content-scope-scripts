@@ -1,5 +1,6 @@
 {
   "readme": "Config for tracker-protection integration tests with the feature disabled.",
+  "version": 1,
   "features": {
     "trackerProtection": {
       "state": "disabled",
