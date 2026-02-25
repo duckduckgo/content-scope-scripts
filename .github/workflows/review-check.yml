@@ -14,6 +14,7 @@ jobs:
             - name: Checkout REQUIRED_TEAMS from base branch
               uses: actions/checkout@v6
               with:
+                  # Always read from base branch to prevent PRs tampering with the team list
                   ref: ${{ github.event.pull_request.base.ref }}
                   sparse-checkout: .github/REQUIRED_TEAMS
                   sparse-checkout-cone-mode: false
