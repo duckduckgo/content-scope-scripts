@@ -109,6 +109,9 @@ export class TrackerProtection extends ContentFeature {
             this.log.info('Domain is unprotected:', this._topLevelUrl.host);
         }
 
+        /** @type {boolean} */
+        this._ctlEnabled = this.getFeatureSetting('ctlEnabled') !== false;
+
         this._setupInterception();
     }
 
@@ -311,7 +314,7 @@ export class TrackerProtection extends ContentFeature {
      * @param {string} resourceType
      * @param {HTMLElement | null} element
      */
-    async _checkAndBlock(url, resourceType, element = null) {
+    _checkAndBlock(url, resourceType, element = null) {
         if (!url || !this._resolver || !this._seenUrls || this._seenUrls.has(url)) {
             return false;
         }
@@ -339,9 +342,8 @@ export class TrackerProtection extends ContentFeature {
         const isSurrogate = Boolean(result.matchedRule?.surrogate);
         const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
 
-        // Report all detected trackers to native for privacy dashboard
         if (result.tracker) {
-            const trackerData = {
+            this.notify('trackerDetected', {
                 url,
                 blocked,
                 reason: result.reason || null,
@@ -352,33 +354,18 @@ export class TrackerProtection extends ContentFeature {
                 category: result.tracker.categories?.[0] || null,
                 prevalence: result.tracker.owner?.prevalence || null,
                 isAllowlisted,
-            };
-
-            this.notify('trackerDetected', trackerData);
-            this.log.info('Tracker detected:', url, blocked ? '(blocked)' : '(allowed)');
+            });
         }
 
-        // Handle surrogate loading
         if (blocked && isSurrogate && !isAllowlisted) {
             const surrogateName = result.matchedRule.surrogate;
 
-            // Check CTL enabled for CTL-specific surrogates
-            if (CTL_SURROGATES.includes(surrogateName)) {
-                try {
-                    const ctlEnabled = await this.request('isCTLEnabled', {});
-                    if (!ctlEnabled) {
-                        this.log.info('CTL disabled, skipping surrogate:', surrogateName);
-                        return false;
-                    }
-                } catch {
-                    // Handler might not exist, continue anyway
-                }
+            if (CTL_SURROGATES.includes(surrogateName) && !this._ctlEnabled) {
+                return false;
             }
 
-            // Load the surrogate
             this._loadSurrogate(surrogateName, element);
 
-            // Report surrogate injection specifically
             this.notify('surrogateInjected', {
                 url,
                 blocked: true,
@@ -387,7 +374,6 @@ export class TrackerProtection extends ContentFeature {
                 pageUrl: this._topLevelUrl?.href || '',
             });
 
-            this.log.info('Surrogate injected:', surrogateName, 'for', url);
             return true;
         }
 
