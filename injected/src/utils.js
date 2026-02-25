@@ -920,7 +920,7 @@ export const platformSpecificFeatures = [
     'webInterferenceDetection',
     'pageObserver',
     'hover',
-    'trackerStats',
+    'trackerProtection',
 ];
 /**
  * @param {string} featureName
