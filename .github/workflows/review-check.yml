@@ -25,7 +25,7 @@ jobs:
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
-                      const { loadRequiredTeams, findAuthorizedApproval } = require('./.github/scripts/review-helpers.js');
+                      const { loadRequiredTeams, findAuthorizedApproval } = await import('./.github/scripts/review-helpers.mjs');
                       const teams = loadRequiredTeams();
 
                       const approval = await findAuthorizedApproval(github, {

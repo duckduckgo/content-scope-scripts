@@ -1,13 +1,13 @@
-const fs = require('fs');
+import { readFileSync } from 'fs';
 
 const RISK_PATTERN = /\*\*(Low|Medium|High|Critical)\s+Risk\*\*/i;
-const DAX_USERNAME = 'daxtheduck';
+export const DAX_USERNAME = 'daxtheduck';
 
-function loadRequiredTeams(path = '.github/REQUIRED_TEAMS') {
-    return fs.readFileSync(path, 'utf8').trim().split('\n').filter(Boolean);
+export function loadRequiredTeams(path = '.github/REQUIRED_TEAMS') {
+    return readFileSync(path, 'utf8').trim().split('\n').filter(Boolean);
 }
 
-function formatTeamList(teams) {
+export function formatTeamList(teams) {
     return teams.map((t) => `- @duckduckgo/${t}`).join('\n');
 }
 
@@ -16,7 +16,7 @@ function formatTeamList(teams) {
  * for a Cursor Bugbot risk assessment. Returns the risk level string
  * (e.g. "Low", "Medium") or null if not found.
  */
-async function findRiskLevel(github, { owner, repo, sha, prNumber }) {
+export async function findRiskLevel(github, { owner, repo, sha, prNumber }) {
     const sources = [
         async () => {
             const { data } = await github.rest.checks.listForRef({
@@ -53,7 +53,7 @@ async function findRiskLevel(github, { owner, repo, sha, prNumber }) {
     return null;
 }
 
-async function isTeamMember(github, org, teamSlug, username) {
+export async function isTeamMember(github, org, teamSlug, username) {
     try {
         const { data } = await github.rest.teams.getMembershipForUserInOrg({
             org,
@@ -66,7 +66,7 @@ async function isTeamMember(github, org, teamSlug, username) {
     }
 }
 
-async function findTeamForUser(github, org, teams, username) {
+export async function findTeamForUser(github, org, teams, username) {
     for (const team of teams) {
         if (await isTeamMember(github, org, team, username)) {
             return team;
@@ -79,7 +79,7 @@ async function findTeamForUser(github, org, teams, username) {
  * Returns { user, team } for the first authorized approval, or null.
  * Checks daxtheduck first, then team membership for each approver.
  */
-async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams }) {
+export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams }) {
     const { data: reviews } = await github.rest.pulls.listReviews({
         owner,
         repo,
@@ -100,13 +100,3 @@ async function findAuthorizedApproval(github, { owner, repo, prNumber, org, team
 
     return null;
 }
-
-module.exports = {
-    DAX_USERNAME,
-    loadRequiredTeams,
-    formatTeamList,
-    findRiskLevel,
-    isTeamMember,
-    findTeamForUser,
-    findAuthorizedApproval,
-};
