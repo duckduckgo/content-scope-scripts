@@ -72,7 +72,7 @@ When editing core lifecycle code (`src/content-scope-features.js`, `src/utils.js
 ### Always-run platform-specific features (global disable bypass)
 
 - In `load()`, when `isGloballyDisabled(args)` is true (allowlisted or broken sites), we still load `platformSpecificFeatures`.
-- Current list (see `src/utils.js`): `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`.
+- Current list is defined in `src/utils.js` under `platformSpecificFeatures`.
 - Rationale: these provide platform integration and must remain available even when protections are disabled.
 
 ### Always-init extension features (cookie)
