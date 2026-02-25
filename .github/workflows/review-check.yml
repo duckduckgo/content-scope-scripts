@@ -11,9 +11,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout base branch
+            - name: Checkout REQUIRED_TEAMS from base branch
               uses: actions/checkout@v6
               with:
+                  ref: ${{ github.event.pull_request.base.ref }}
                   sparse-checkout: .github/REQUIRED_TEAMS
                   sparse-checkout-cone-mode: false
 
@@ -25,7 +26,6 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const fs = require('fs');
-                      const { getOctokit } = require('@actions/github');
                       const REQUIRED_TEAMS = fs.readFileSync('.github/REQUIRED_TEAMS', 'utf8').trim().split('\n').filter(Boolean);
 
                       const prNumber = context.payload.pull_request.number;
@@ -48,23 +48,31 @@ jobs:
                           return;
                       }
 
-                      const daxOctokit = getOctokit(process.env.DAX_TOKEN);
+                      const daxToken = process.env.DAX_TOKEN;
 
                       for (const review of approvedReviews) {
                           for (const team of REQUIRED_TEAMS) {
                               try {
-                                  const { data } = await daxOctokit.rest.teams.getMembershipForUserInOrg({
-                                      org: 'duckduckgo',
-                                      team_slug: team,
-                                      username: review.user.login
-                                  });
+                                  const res = await fetch(
+                                      `https://api.github.com/orgs/duckduckgo/teams/${team}/memberships/${review.user.login}`,
+                                      {
+                                          headers: {
+                                              'Authorization': `Bearer ${daxToken}`,
+                                              'Accept': 'application/vnd.github+json',
+                                              'X-GitHub-Api-Version': '2022-11-28'
+                                          }
+                                      }
+                                  );
 
-                                  if (data.state === 'active') {
-                                      console.log(`✅ Approved by ${review.user.login} (member of ${team})`);
-                                      return;
+                                  if (res.ok) {
+                                      const data = await res.json();
+                                      if (data.state === 'active') {
+                                          console.log(`✅ Approved by ${review.user.login} (member of ${team})`);
+                                          return;
+                                      }
                                   }
                               } catch (e) {
-                                  // Not a member of this team
+                                  // Not a member of this team or network error
                               }
                           }
                       }
