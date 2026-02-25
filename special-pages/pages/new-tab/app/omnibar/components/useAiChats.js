@@ -20,6 +20,13 @@ export function useAiChats(query) {
     const { getAiChats } = useContext(OmnibarContext);
     const [allChats, setAllChats] = useState(/** @type {AiChat[]} */ ([]));
     const [selectedIndex, setSelectedIndex] = useState(/** @type {number | null} */ (null));
+    const [prevQuery, setPrevQuery] = useState(query);
+
+    if (query !== prevQuery) {
+        console.log('query changed from', prevQuery, 'to', query);
+        setPrevQuery(query);
+        setSelectedIndex(null);
+    }
 
     useEffect(() => {
         let cancelled = false;
@@ -49,10 +56,6 @@ export function useAiChats(query) {
 
         return allChats.filter((chat) => chat.title.toLowerCase().includes(trimmedQuery));
     }, [allChats, query]);
-
-    useEffect(() => {
-        setSelectedIndex(null);
-    }, [query]);
 
     const selectedChat = selectedIndex !== null && selectedIndex < filteredChats.length ? filteredChats[selectedIndex] : null;
 
