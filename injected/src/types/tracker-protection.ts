@@ -7,16 +7,10 @@
  */
 
 /**
- * Response indicating whether Click-to-Load is enabled
- */
-export type IsCTLEnabledResponse = boolean;
-
-/**
  * Requests, Notifications and Subscriptions from the TrackerProtection feature
  */
 export interface TrackerProtectionMessages {
   notifications: SurrogateInjectedNotification | TrackerDetectedNotification;
-  requests: IsCTLEnabledRequest;
 }
 /**
  * Generated from @see "../messages/tracker-protection/surrogateInjected.notify.json"
@@ -102,22 +96,8 @@ export interface TrackerDetected {
    */
   isAllowlisted?: boolean | null;
 }
-/**
- * Generated from @see "../messages/tracker-protection/isCTLEnabled.request.json"
- */
-export interface IsCTLEnabledRequest {
-  method: "isCTLEnabled";
-  params: IsCTLEnabled;
-  result: IsCTLEnabledResponse;
-}
-/**
- * Request to check if Click-to-Load feature is enabled (for fb-sdk.js surrogate)
- */
-export interface IsCTLEnabled {}
-
 declare module "../features/tracker-protection.js" {
   export interface TrackerProtection {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TrackerProtectionMessages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TrackerProtectionMessages>['request']
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TrackerProtectionMessages>['notify']
   }
 }

@@ -1,6 +1,0 @@
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "boolean",
-  "title": "IsCTLEnabledResponse",
-  "description": "Response indicating whether Click-to-Load is enabled"
-}
