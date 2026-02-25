@@ -468,5 +468,9 @@
   "makeDefaultAccept_title_v4": {
     "title": "Excellent! Let’s move on.",
     "note": "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
+  },
+  "row_dock-instructions_accept": {
+    "title": "Show Me How",
+    "note": "Button text that opens the dock instructions overlay."
   }
 }

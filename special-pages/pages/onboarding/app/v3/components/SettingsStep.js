@@ -78,6 +78,10 @@ export function SettingListItem({ index, item, dispatch }) {
     const platformName = /** @type {'macos'|'windows'} */ (usePlatformName());
 
     const accept = () => {
+        if (data.id === 'dock-instructions') {
+            dispatch({ kind: 'show-overlay', overlay: 'dock-instructions' });
+            return;
+        }
         dispatch({
             kind: 'update-system-value',
             id: data.id,

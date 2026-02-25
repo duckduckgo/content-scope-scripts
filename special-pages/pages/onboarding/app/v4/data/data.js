@@ -184,6 +184,14 @@ export const settingsRowItems = {
         kind: 'toggle',
         acceptText: t('startBrowsing'),
     }),
+    'dock-instructions': (t) => ({
+        id: 'dock-instructions',
+        icon: 'v4/dock.svg',
+        title: t('row_dock_title_v3'),
+        secondaryText: t('row_dock_summary_v3'),
+        kind: 'one-time',
+        acceptText: t('row_dock-instructions_accept'),
+    }),
 };
 
 /** @type {import('../../types').StepDefinitions} */
