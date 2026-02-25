@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Auto-generated surrogate function map.
  * Built from @duckduckgo/tracker-surrogates.

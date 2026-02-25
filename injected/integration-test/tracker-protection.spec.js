@@ -14,7 +14,7 @@ test('tracker-protection: detects tracker from dynamically added script', async 
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
-        window.addTrackerScript('https://tracker.example/pixel.js');
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/pixel.js');
     });
 
     const messages = await collector.waitForMessage('trackerDetected', 1);
@@ -32,7 +32,7 @@ test('tracker-protection: loads surrogate for matching rule', async ({ page }, t
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
-        window.addTrackerScript('https://tracker.example/scripts/analytics.js');
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
     });
 
     const detected = await collector.waitForMessage('trackerDetected', 1);
@@ -48,7 +48,7 @@ test('tracker-protection: ignores non-tracker URLs', async ({ page }, testInfo) 
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
-        window.addTrackerScript('https://safe-site.example/scripts/app.js');
+        /** @type {any} */ (window).addTrackerScript('https://safe-site.example/scripts/app.js');
     });
 
     await page.waitForTimeout(200);
@@ -63,7 +63,7 @@ test('tracker-protection: does not send messages when disabled', async ({ page }
     await collector.load(HTML, DISABLED_CONFIG);
 
     await page.evaluate(() => {
-        window.addTrackerScript('https://tracker.example/pixel.js');
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/pixel.js');
     });
 
     await page.waitForTimeout(200);
@@ -78,7 +78,7 @@ test('tracker-protection: reports allowed tracker with blocked=false', async ({ 
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
-        window.addTrackerScript('https://allowed.example/something.js');
+        /** @type {any} */ (window).addTrackerScript('https://allowed.example/something.js');
     });
 
     const messages = await collector.waitForMessage('trackerDetected', 1);

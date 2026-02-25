@@ -1,4 +1,5 @@
 {
+  "readme": "Config for tracker-protection integration tests with sample tracker data and surrogate rules.",
   "features": {
     "trackerProtection": {
       "state": "enabled",
