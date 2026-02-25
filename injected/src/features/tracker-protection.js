@@ -64,7 +64,6 @@ export class TrackerProtection extends ContentFeature {
         // Get top-level URL for tracker matching
         this._topLevelUrl = getTabURL();
         if (!this._topLevelUrl) {
-            this.log.warn('Could not determine top-level URL');
             return;
         }
 
@@ -89,7 +88,6 @@ export class TrackerProtection extends ContentFeature {
         }
 
         if (!trackerData) {
-            this.log.warn('No tracker data available');
             return;
         }
 
@@ -150,31 +148,45 @@ export class TrackerProtection extends ContentFeature {
             }
         });
 
-        const rootElement = document.body || document.documentElement;
-        this._observer.observe(rootElement, {
-            childList: true,
-            subtree: true,
-            attributeFilter: ['src'],
-        });
+        const startObserving = () => {
+            const rootElement = document.body || document.documentElement;
+            if (rootElement && this._observer) {
+                this._observer.observe(rootElement, {
+                    childList: true,
+                    subtree: true,
+                    attributeFilter: ['src'],
+                });
+            }
+        };
+
+        if (document.body || document.documentElement) {
+            startObserving();
+        } else {
+            document.addEventListener('DOMContentLoaded', startObserving, { once: true });
+        }
     }
 
     _setupXHRInterception() {
-        const self = this;
+        const checkAndReport = this._checkAndReport.bind(this);
         const xhrProto = XMLHttpRequest.prototype;
         const originalOpen = xhrProto.open;
         const originalSend = xhrProto.send;
+        /** @type {WeakMap<XMLHttpRequest, string>} */
+        const xhrUrls = new WeakMap();
+        /** @type {WeakSet<XMLHttpRequest>} */
+        const xhrTracked = new WeakSet();
 
-        xhrProto.open = function (method, url) {
-            this._ddgUrl = url;
+        xhrProto.open = function (_method, url) {
+            xhrUrls.set(this, String(url));
             return originalOpen.apply(this, arguments);
         };
 
         xhrProto.send = function () {
-            if (!this._ddgErrorHandler) {
-                this._ddgErrorHandler = function () {
-                    self._checkAndReport(this._ddgUrl, 'xmlhttprequest');
-                };
-                this.addEventListener('error', this._ddgErrorHandler);
+            if (!xhrTracked.has(this)) {
+                xhrTracked.add(this);
+                this.addEventListener('error', () => {
+                    checkAndReport(xhrUrls.get(this) || '', 'xmlhttprequest');
+                });
             }
             return originalSend.apply(this, arguments);
         };
@@ -184,15 +196,15 @@ export class TrackerProtection extends ContentFeature {
     }
 
     _setupFetchInterception() {
-        const self = this;
+        const checkAndReport = this._checkAndReport.bind(this);
         const originalFetch = window.fetch;
 
         window.fetch = function () {
             if (arguments.length > 0) {
                 if (typeof arguments[0] === 'string') {
-                    self._checkAndReport(arguments[0], 'fetch');
+                    checkAndReport(arguments[0], 'fetch');
                 } else if (arguments[0]?.url) {
-                    self._checkAndReport(arguments[0].url, 'fetch');
+                    checkAndReport(arguments[0].url, 'fetch');
                 }
             }
             return originalFetch.apply(window, arguments);
@@ -202,26 +214,30 @@ export class TrackerProtection extends ContentFeature {
     }
 
     _setupImageSrcInterception() {
-        const self = this;
+        const checkAndReport = this._checkAndReport.bind(this);
         const originalDescriptor = Object.getOwnPropertyDescriptor(Image.prototype, 'src');
-        if (!originalDescriptor) return;
+        if (!originalDescriptor?.get || !originalDescriptor?.set) return;
 
         this._originalImageSrc = originalDescriptor;
+        /** @type {WeakSet<HTMLImageElement>} */
+        const imgTracked = new WeakSet();
+        const origGet = originalDescriptor.get;
+        const origSet = originalDescriptor.set;
 
         delete Image.prototype.src;
         Object.defineProperty(Image.prototype, 'src', {
             configurable: true,
             get: function () {
-                return originalDescriptor.get.call(this);
+                return origGet.call(this);
             },
             set: function (value) {
-                if (!this._ddgErrorHandler) {
-                    this._ddgErrorHandler = function () {
-                        self._checkAndReport(this.src, 'image');
-                    };
-                    this.addEventListener('error', this._ddgErrorHandler);
+                if (!imgTracked.has(this)) {
+                    imgTracked.add(this);
+                    this.addEventListener('error', () => {
+                        checkAndReport(origGet.call(this), 'image');
+                    });
                 }
-                originalDescriptor.set.call(this, value);
+                origSet.call(this, value);
             },
         });
     }
@@ -429,7 +445,7 @@ export class TrackerProtection extends ContentFeature {
         this._observer?.disconnect();
         this._observer = null;
 
-        if (this._originalXHROpen) {
+        if (this._originalXHROpen && this._originalXHRSend) {
             XMLHttpRequest.prototype.open = this._originalXHROpen;
             XMLHttpRequest.prototype.send = this._originalXHRSend;
         }
