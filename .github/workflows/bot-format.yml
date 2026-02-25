@@ -1,0 +1,52 @@
+name: Bot Formatting
+
+on:
+    push:
+        branches-ignore:
+            - main
+            - master
+        tags-ignore:
+            - '**'
+
+concurrency:
+    group: bot-format-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    format:
+        if: github.actor == 'cursor[bot]'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.ref }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - name: Install dependencies
+              run: npm ci
+            - name: Run prettier --write
+              continue-on-error: true
+              run: npx prettier . --write
+            - name: Run stylelint --fix
+              continue-on-error: true
+              run: npx stylelint "**/*.css" --fix
+            - name: Commit and push formatting fixes
+              env:
+                  TARGET_REF: ${{ github.ref }}
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git add -u
+                  git diff --cached --quiet || git commit -m "Auto-format: prettier + stylelint fix"
+                  git push origin "HEAD:$TARGET_REF"

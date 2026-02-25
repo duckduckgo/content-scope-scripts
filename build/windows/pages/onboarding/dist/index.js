@@ -123,13 +123,13 @@
                       ca = b;
                     }), ea = "object" == typeof window, fa = "function" == typeof importScripts;
                     function ha() {
-                      function a3(g2) {
+                      function a3(g3) {
                         const k3 = d3;
                         c3 = b = 0;
                         d3 = /* @__PURE__ */ new Map();
                         k3.forEach((p3) => {
                           try {
-                            p3(g2);
+                            p3(g3);
                           } catch (n2) {
                             console.error(n2);
                           }
@@ -138,26 +138,26 @@
                         e3 && e3.Qb();
                       }
                       let b = 0, c3 = 0, d3 = /* @__PURE__ */ new Map(), e3 = null, f3 = null;
-                      this.requestAnimationFrame = function(g2) {
+                      this.requestAnimationFrame = function(g3) {
                         b || (b = requestAnimationFrame(a3.bind(this)));
                         const k3 = ++c3;
-                        d3.set(k3, g2);
+                        d3.set(k3, g3);
                         return k3;
                       };
-                      this.cancelAnimationFrame = function(g2) {
-                        d3.delete(g2);
+                      this.cancelAnimationFrame = function(g3) {
+                        d3.delete(g3);
                         b && 0 == d3.size && (cancelAnimationFrame(b), b = 0);
                       };
-                      this.Ob = function(g2) {
+                      this.Ob = function(g3) {
                         f3 && (document.body.remove(f3), f3 = null);
-                        g2 || (f3 = document.createElement("div"), f3.style.backgroundColor = "black", f3.style.position = "fixed", f3.style.right = 0, f3.style.top = 0, f3.style.color = "white", f3.style.padding = "4px", f3.innerHTML = "RIVE FPS", g2 = function(k3) {
+                        g3 || (f3 = document.createElement("div"), f3.style.backgroundColor = "black", f3.style.position = "fixed", f3.style.right = 0, f3.style.top = 0, f3.style.color = "white", f3.style.padding = "4px", f3.innerHTML = "RIVE FPS", g3 = function(k3) {
                           f3.innerHTML = "RIVE FPS " + k3.toFixed(1);
                         }, document.body.appendChild(f3));
                         e3 = new function() {
                           let k3 = 0, p3 = 0;
                           this.Qb = function() {
                             var n2 = performance.now();
-                            p3 ? (++k3, n2 -= p3, 1e3 < n2 && (g2(1e3 * k3 / n2), k3 = p3 = 0)) : (p3 = n2, k3 = 0);
+                            p3 ? (++k3, n2 -= p3, 1e3 < n2 && (g3(1e3 * k3 / n2), k3 = p3 = 0)) : (p3 = n2, k3 = 0);
                           };
                         }();
                       };
@@ -224,16 +224,16 @@
                           if ("" === e3) {
                             return false;
                           }
-                          (function(g2, k3) {
+                          (function(g3, k3) {
                             var p3 = new XMLHttpRequest();
                             p3.responseType = "arraybuffer";
                             p3.onreadystatechange = function() {
                               4 == p3.readyState && 200 == p3.status && k3(p3);
                             };
-                            p3.open("GET", g2, true);
+                            p3.open("GET", g3, true);
                             p3.send(null);
-                          })(f3.cdnBaseUrl + "/" + e3, (g2) => {
-                            f3.decode(new Uint8Array(g2.response));
+                          })(f3.cdnBaseUrl + "/" + e3, (g3) => {
+                            f3.decode(new Uint8Array(g3.response));
                           });
                           return true;
                         }
@@ -247,8 +247,8 @@
                           this.kb.push(e3);
                         },
                         loadContents: function(e3, f3) {
-                          for (let g2 of this.kb) {
-                            if (g2.loadContents(e3, f3)) {
+                          for (let g3 of this.kb) {
+                            if (g3.loadContents(e3, f3)) {
                               return true;
                             }
                           }
@@ -256,9 +256,9 @@
                         }
                       });
                       let d3 = m3.computeAlignment;
-                      m3.computeAlignment = function(e3, f3, g2, k3) {
+                      m3.computeAlignment = function(e3, f3, g3, k3) {
                         let p3 = arguments.length > 4 && arguments[4] !== void 0 ? arguments[4] : 1;
-                        return d3.call(this, e3, f3, g2, k3, p3);
+                        return d3.call(this, e3, f3, g3, k3, p3);
                       };
                     };
                     const ka = "createConicGradient createImageData createLinearGradient createPattern createRadialGradient getContextAttributes getImageData getLineDash getTransform isContextLost isPointInPath isPointInStroke measureText".split(" "), la = new function() {
@@ -351,7 +351,7 @@
                         }
                         return true;
                       }
-                      let b = null, c3 = 0, d3 = 0, e3 = null, f3 = null, g2 = 0, k3 = 0, p3 = false;
+                      let b = null, c3 = 0, d3 = 0, e3 = null, f3 = null, g3 = 0, k3 = 0, p3 = false;
                       a3();
                       this.bc = function() {
                         a3();
@@ -391,7 +391,7 @@
                             b.enable(b.SCISSOR_TEST);
                             r3.sort((J2, Z) => Z.vb - J2.vb);
                             w3 = x3.push(C3);
-                            g2 != w3 && (b.bufferData(b.ARRAY_BUFFER, 8 * w3, b.DYNAMIC_DRAW), g2 = w3);
+                            g3 != w3 && (b.bufferData(b.ARRAY_BUFFER, 8 * w3, b.DYNAMIC_DRAW), g3 = w3);
                             w3 = 0;
                             for (var T3 of r3) {
                               b.bufferSubData(b.ARRAY_BUFFER, w3, T3.Ta), w3 += 4 * T3.Ta.length;
@@ -485,7 +485,7 @@
                       }
                       ma && ma();
                       var d3 = m3.RenderPaintStyle;
-                      const e3 = m3.RenderPath, f3 = m3.RenderPaint, g2 = m3.Renderer, k3 = m3.StrokeCap, p3 = m3.StrokeJoin, n2 = m3.BlendMode, t3 = d3.fill, x3 = d3.stroke, y3 = m3.FillRule.evenOdd;
+                      const e3 = m3.RenderPath, f3 = m3.RenderPaint, g3 = m3.Renderer, k3 = m3.StrokeCap, p3 = m3.StrokeJoin, n2 = m3.BlendMode, t3 = d3.fill, x3 = d3.stroke, y3 = m3.FillRule.evenOdd;
                       let l3 = 1;
                       var u3 = m3.RenderImage.extend("CanvasRenderImage", {
                         __construct: function() {
@@ -655,7 +655,7 @@
                       });
                       const G2 = /* @__PURE__ */ new Set();
                       let w3 = null, M2 = [], T3 = 0, W = 0;
-                      var pa = m3.CanvasRenderer = g2.extend("Renderer", {
+                      var pa = m3.CanvasRenderer = g3.extend("Renderer", {
                         __construct: function(q3) {
                           this.__parent.__construct.call(this);
                           this.T = [1, 0, 0, 1, 0, 0];
@@ -973,17 +973,17 @@
                           window.h.ga.wb = e3;
                           let f3 = window.h;
                           f3.D = [];
-                          f3.sc = function(g2) {
+                          f3.sc = function(g3) {
                             for (var k3 = 0; k3 < f3.D.length; ++k3) {
                               if (null == f3.D[k3]) {
-                                return f3.D[k3] = g2, k3;
+                                return f3.D[k3] = g3, k3;
                               }
                             }
-                            f3.D.push(g2);
+                            f3.D.push(g3);
                             return f3.D.length - 1;
                           };
-                          f3.Ab = function(g2) {
-                            for (f3.D[g2] = null; 0 < f3.D.length; ) {
+                          f3.Ab = function(g3) {
+                            for (f3.D[g3] = null; 0 < f3.D.length; ) {
                               if (null == f3.D[f3.D.length - 1]) {
                                 f3.D.pop();
                               } else {
@@ -991,20 +991,20 @@
                               }
                             }
                           };
-                          f3.Pc = function(g2) {
+                          f3.Pc = function(g3) {
                             for (var k3 = 0; k3 < f3.D.length; ++k3) {
-                              if (f3.D[k3] == g2) {
+                              if (f3.D[k3] == g3) {
                                 return f3.Ab(k3);
                               }
                             }
                           };
-                          f3.qa = function(g2) {
-                            return f3.D[g2];
+                          f3.qa = function(g3) {
+                            return f3.D[g3];
                           };
                           f3.Sa = ["touchend", "click"];
                           f3.unlock = function() {
-                            for (var g2 = 0; g2 < f3.D.length; ++g2) {
-                              var k3 = f3.D[g2];
+                            for (var g3 = 0; g3 < f3.D.length; ++g3) {
+                              var k3 = f3.D[g3];
                               null != k3 && null != k3.L && k3.state === f3.ga.wb && k3.L.resume().then(() => {
                                 Ya(k3.pb);
                               }, (p3) => {
@@ -1015,8 +1015,8 @@
                               document.removeEventListener(p3, f3.unlock, true);
                             });
                           };
-                          f3.Sa.map(function(g2) {
-                            document.addEventListener(g2, f3.unlock, true);
+                          f3.Sa.map(function(g3) {
+                            document.addEventListener(g3, f3.unlock, true);
                           });
                         }
                         window.h.za += 1;
@@ -1041,21 +1041,21 @@
                         if ("undefined" === typeof window.h) {
                           return -1;
                         }
-                        var g2 = {}, k3 = {};
+                        var g3 = {}, k3 = {};
                         a3 == window.h.J.xa && 0 != c3 && (k3.sampleRate = c3);
-                        g2.L = new (window.AudioContext || window.webkitAudioContext)(k3);
-                        g2.L.suspend();
-                        g2.state = window.h.ga.stopped;
+                        g3.L = new (window.AudioContext || window.webkitAudioContext)(k3);
+                        g3.L.suspend();
+                        g3.state = window.h.ga.stopped;
                         c3 = 0;
                         a3 != window.h.J.xa && (c3 = b);
-                        g2.Z = g2.L.createScriptProcessor(d3, c3, b);
-                        g2.Z.onaudioprocess = function(p3) {
-                          if (null == g2.ra || 0 == g2.ra.length) {
-                            g2.ra = new Float32Array(Da.buffer, e3, d3 * b);
+                        g3.Z = g3.L.createScriptProcessor(d3, c3, b);
+                        g3.Z.onaudioprocess = function(p3) {
+                          if (null == g3.ra || 0 == g3.ra.length) {
+                            g3.ra = new Float32Array(Da.buffer, e3, d3 * b);
                           }
                           if (a3 == window.h.J.capture || a3 == window.h.J.Ka) {
                             for (var n2 = 0; n2 < b; n2 += 1) {
-                              for (var t3 = p3.inputBuffer.getChannelData(n2), x3 = g2.ra, y3 = 0; y3 < d3; y3 += 1) {
+                              for (var t3 = p3.inputBuffer.getChannelData(n2), x3 = g3.ra, y3 = 0; y3 < d3; y3 += 1) {
                                 x3[y3 * b + n2] = t3[y3];
                               }
                             }
@@ -1063,7 +1063,7 @@
                           }
                           if (a3 == window.h.J.xa || a3 == window.h.J.Ka) {
                             for ($a(f3, d3, e3), n2 = 0; n2 < p3.outputBuffer.numberOfChannels; ++n2) {
-                              for (t3 = p3.outputBuffer.getChannelData(n2), x3 = g2.ra, y3 = 0; y3 < d3; y3 += 1) {
+                              for (t3 = p3.outputBuffer.getChannelData(n2), x3 = g3.ra, y3 = 0; y3 < d3; y3 += 1) {
                                 t3[y3] = x3[y3 * b + n2];
                               }
                             }
@@ -1077,15 +1077,15 @@
                           audio: true,
                           video: false
                         }).then(function(p3) {
-                          g2.Ca = g2.L.createMediaStreamSource(p3);
-                          g2.Ca.connect(g2.Z);
-                          g2.Z.connect(g2.L.destination);
+                          g3.Ca = g3.L.createMediaStreamSource(p3);
+                          g3.Ca.connect(g3.Z);
+                          g3.Z.connect(g3.L.destination);
                         }).catch(function(p3) {
                           console.log("Failed to get user media: " + p3);
                         });
-                        a3 == window.h.J.xa && g2.Z.connect(g2.L.destination);
-                        g2.pb = f3;
-                        return window.h.sc(g2);
+                        a3 == window.h.J.xa && g3.Z.connect(g3.L.destination);
+                        g3.pb = f3;
+                        return window.h.sc(g3);
                       },
                       496772: (a3) => window.h.qa(a3).L.sampleRate,
                       496845: (a3) => {
@@ -1187,8 +1187,8 @@
                           if (192 == (e3 & 224)) {
                             d3 += String.fromCharCode((e3 & 31) << 6 | f3);
                           } else {
-                            var g2 = a3[b++] & 63;
-                            e3 = 224 == (e3 & 240) ? (e3 & 15) << 12 | f3 << 6 | g2 : (e3 & 7) << 18 | f3 << 12 | g2 << 6 | a3[b++] & 63;
+                            var g3 = a3[b++] & 63;
+                            e3 = 224 == (e3 & 240) ? (e3 & 15) << 12 | f3 << 6 | g3 : (e3 & 7) << 18 | f3 << 12 | g3 << 6 | a3[b++] & 63;
                             65536 > e3 ? d3 += String.fromCharCode(e3) : (e3 -= 65536, d3 += String.fromCharCode(55296 | e3 >> 10, 56320 | e3 & 1023));
                           }
                         } else {
@@ -1209,38 +1209,38 @@
                       var e3 = c3;
                       d3 = c3 + d3 - 1;
                       for (var f3 = 0; f3 < a3.length; ++f3) {
-                        var g2 = a3.charCodeAt(f3);
-                        if (55296 <= g2 && 57343 >= g2) {
+                        var g3 = a3.charCodeAt(f3);
+                        if (55296 <= g3 && 57343 >= g3) {
                           var k3 = a3.charCodeAt(++f3);
-                          g2 = 65536 + ((g2 & 1023) << 10) | k3 & 1023;
+                          g3 = 65536 + ((g3 & 1023) << 10) | k3 & 1023;
                         }
-                        if (127 >= g2) {
+                        if (127 >= g3) {
                           if (c3 >= d3) {
                             break;
                           }
-                          b[c3++] = g2;
+                          b[c3++] = g3;
                         } else {
-                          if (2047 >= g2) {
+                          if (2047 >= g3) {
                             if (c3 + 1 >= d3) {
                               break;
                             }
-                            b[c3++] = 192 | g2 >> 6;
+                            b[c3++] = 192 | g3 >> 6;
                           } else {
-                            if (65535 >= g2) {
+                            if (65535 >= g3) {
                               if (c3 + 2 >= d3) {
                                 break;
                               }
-                              b[c3++] = 224 | g2 >> 12;
+                              b[c3++] = 224 | g3 >> 12;
                             } else {
                               if (c3 + 3 >= d3) {
                                 break;
                               }
-                              b[c3++] = 240 | g2 >> 18;
-                              b[c3++] = 128 | g2 >> 12 & 63;
+                              b[c3++] = 240 | g3 >> 18;
+                              b[c3++] = 128 | g3 >> 12 & 63;
                             }
-                            b[c3++] = 128 | g2 >> 6 & 63;
+                            b[c3++] = 128 | g3 >> 6 & 63;
                           }
-                          b[c3++] = 128 | g2 & 63;
+                          b[c3++] = 128 | g3 & 63;
                         }
                       }
                       b[c3] = 0;
@@ -1282,18 +1282,18 @@
                         }
                         for (var e3 = 0, f3 = 0; f3 < d3; f3++) {
                           try {
-                            var g2 = a3.s.W.ib(a3.s);
+                            var g3 = a3.s.W.ib(a3.s);
                           } catch (k3) {
                             throw new N2(29);
                           }
-                          if (void 0 === g2 && 0 === e3) {
+                          if (void 0 === g3 && 0 === e3) {
                             throw new N2(6);
                           }
-                          if (null === g2 || void 0 === g2) {
+                          if (null === g3 || void 0 === g3) {
                             break;
                           }
                           e3++;
-                          b[c3 + f3] = g2;
+                          b[c3 + f3] = g3;
                         }
                         e3 && (a3.node.timestamp = Date.now());
                         return e3;
@@ -1667,7 +1667,7 @@
                       if (8 < b.Pa) {
                         throw new N2(32);
                       }
-                      a3 = a3.split("/").filter((g2) => !!g2);
+                      a3 = a3.split("/").filter((g3) => !!g3);
                       for (var c3 = Db, d3 = "/", e3 = 0; e3 < a3.length; e3++) {
                         var f3 = e3 === a3.length - 1;
                         if (f3 && b.parent) {
@@ -1992,7 +1992,7 @@
                           var _c$buffer;
                           (c3 === null || c3 === void 0 || (_c$buffer = c3.buffer) === null || _c$buffer === void 0 ? void 0 : _c$buffer.length) && c3(10);
                         },
-                        read(f3, g2, k3, p3) {
+                        read(f3, g3, k3, p3) {
                           for (var n2 = 0, t3 = 0; t3 < p3; t3++) {
                             try {
                               var x3 = b();
@@ -2006,15 +2006,15 @@
                               break;
                             }
                             n2++;
-                            g2[k3 + t3] = x3;
+                            g3[k3 + t3] = x3;
                           }
                           n2 && (f3.node.timestamp = Date.now());
                           return n2;
                         },
-                        write(f3, g2, k3, p3) {
+                        write(f3, g3, k3, p3) {
                           for (var n2 = 0; n2 < p3; n2++) {
                             try {
-                              c3(g2[k3 + n2]);
+                              c3(g3[k3 + n2]);
                             } catch (t3) {
                               throw new N2(29);
                             }
@@ -2162,12 +2162,12 @@
                       a3.forEach(function(k3) {
                         Nc[k3] = b;
                       });
-                      var e3 = Array(b.length), f3 = [], g2 = 0;
+                      var e3 = Array(b.length), f3 = [], g3 = 0;
                       b.forEach((k3, p3) => {
                         wc.hasOwnProperty(k3) ? e3[p3] = wc[k3] : (f3.push(k3), Mc.hasOwnProperty(k3) || (Mc[k3] = []), Mc[k3].push(() => {
                           e3[p3] = wc[k3];
-                          ++g2;
-                          g2 === f3.length && d3(e3);
+                          ++g3;
+                          g3 === f3.length && d3(e3);
                         }));
                       });
                       0 === f3.length && d3(e3);
@@ -2236,14 +2236,14 @@
                       var b = a3.charCodeAt(0);
                       return 48 <= b && 57 >= b ? "_".concat(a3) : a3;
                     };
-                    function Vc(a3, b, c3, d3, e3, f3, g2, k3) {
+                    function Vc(a3, b, c3, d3, e3, f3, g3, k3) {
                       this.name = a3;
                       this.constructor = b;
                       this.N = c3;
                       this.P = d3;
                       this.C = e3;
                       this.Rb = f3;
-                      this.na = g2;
+                      this.na = g3;
                       this.Mb = k3;
                       this.qb = [];
                     }
@@ -2342,14 +2342,14 @@
                       }
                       return Wc(b.g.o, b.g.u.i, this.i);
                     }
-                    function ad(a3, b, c3, d3, e3, f3, g2, k3, p3, n2, t3) {
+                    function ad(a3, b, c3, d3, e3, f3, g3, k3, p3, n2, t3) {
                       this.name = a3;
                       this.i = b;
                       this.Ma = c3;
                       this.sa = d3;
                       this.ta = e3;
                       this.ic = f3;
-                      this.nc = g2;
+                      this.nc = g3;
                       this.rb = k3;
                       this.Oa = p3;
                       this.jc = n2;
@@ -2402,7 +2402,7 @@
                       if (2 > f3) {
                         throw new P2("argTypes array size mismatch! Must at least get return value and 'this' types!");
                       }
-                      var g2 = null !== b[1] && null !== c3, k3 = nd(b), p3 = "void" !== b[0].name, n2 = f3 - 2, t3 = Array(n2), x3 = [], y3 = [];
+                      var g3 = null !== b[1] && null !== c3, k3 = nd(b), p3 = "void" !== b[0].name, n2 = f3 - 2, t3 = Array(n2), x3 = [], y3 = [];
                       return jc(a3, function() {
                         for (var _len6 = arguments.length, l3 = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
                           l3[_key6] = arguments[_key6];
@@ -2411,9 +2411,9 @@
                           throw new P2("function ".concat(a3, " called with ").concat(l3.length, " arguments, expected ").concat(n2));
                         }
                         y3.length = 0;
-                        x3.length = g2 ? 2 : 1;
+                        x3.length = g3 ? 2 : 1;
                         x3[0] = e3;
-                        if (g2) {
+                        if (g3) {
                           var u3 = b[1].toWireType(y3, this);
                           x3[1] = u3;
                         }
@@ -2424,7 +2424,7 @@
                         if (k3) {
                           Kc(y3);
                         } else {
-                          for (r3 = g2 ? 1 : 2; r3 < b.length; r3++) {
+                          for (r3 = g3 ? 1 : 2; r3 < b.length; r3++) {
                             var C3 = 1 === r3 ? u3 : t3[r3 - 2];
                             null !== b[r3].M && b[r3].M(C3);
                           }
@@ -2572,8 +2572,8 @@
                       for (var e3 = 0; e3 < a3.length; ++e3) {
                         var f3 = a3.charCodeAt(e3);
                         if (55296 <= f3 && 57343 >= f3) {
-                          var g2 = a3.charCodeAt(++e3);
-                          f3 = 65536 + ((f3 & 1023) << 10) | g2 & 1023;
+                          var g3 = a3.charCodeAt(++e3);
+                          f3 = 65536 + ((f3 & 1023) << 10) | g3 & 1023;
                         }
                         B3[b >> 2] = f3;
                         b += 4;
@@ -2638,7 +2638,7 @@
                       function f3(l3, u3) {
                         return e3(l3, u3, "0");
                       }
-                      function g2(l3, u3) {
+                      function g3(l3, u3) {
                         function r3(G2) {
                           return 0 > G2 ? -1 : 0 < G2 ? 1 : 0;
                         }
@@ -2678,7 +2678,7 @@
                         r3 = new Date(l3.getFullYear() + 1, 0, 4);
                         u3 = k3(new Date(l3.getFullYear(), 0, 4));
                         r3 = k3(r3);
-                        return 0 >= g2(u3, l3) ? 0 >= g2(r3, l3) ? l3.getFullYear() + 1 : l3.getFullYear() : l3.getFullYear() - 1;
+                        return 0 >= g3(u3, l3) ? 0 >= g3(r3, l3) ? l3.getFullYear() + 1 : l3.getFullYear() : l3.getFullYear() - 1;
                       }
                       var n2 = D3[d3 + 40 >> 2];
                       d3 = {
@@ -2808,7 +2808,7 @@
                       Xb("/dev");
                       tb(259, {
                         read: () => 0,
-                        write: (d3, e3, f3, g2) => g2
+                        write: (d3, e3, f3, g3) => g3
                       });
                       Yb("/dev/null", 259);
                       sb(1280, vb);
@@ -3103,11 +3103,11 @@
                             default:
                               return -28;
                           }
-                        } catch (g2) {
-                          if ("undefined" == typeof ic || "ErrnoError" !== g2.name) {
-                            throw g2;
+                        } catch (g3) {
+                          if ("undefined" == typeof ic || "ErrnoError" !== g3.name) {
+                            throw g3;
                           }
-                          return -g2.aa;
+                          return -g3.aa;
                         }
                       },
                       __syscall_openat: function(a3, b, c3, d3) {
@@ -3124,8 +3124,8 @@
                             }
                             b = fb(f3 + "/" + e3);
                           }
-                          var g2 = d3 ? cb() : 0;
-                          return cc(b, c3, g2).X;
+                          var g3 = d3 ? cb() : 0;
+                          return cc(b, c3, g3).X;
                         } catch (k3) {
                           if ("undefined" == typeof ic || "ErrnoError" !== k3.name) {
                             throw k3;
@@ -3140,7 +3140,7 @@
                         a3 = Q(a3);
                         b = Ac(b, "wrapper");
                         c3 = mc(c3);
-                        var d3 = b.i, e3 = d3.N, f3 = d3.C.N, g2 = d3.C.constructor;
+                        var d3 = b.i, e3 = d3.N, f3 = d3.C.N, g3 = d3.C.constructor;
                         a3 = jc(a3, function() {
                           d3.C.qb.forEach((function(p3) {
                             if (this[p3] === f3[p3]) {
@@ -3159,7 +3159,7 @@
                           if (this === e3) {
                             throw new P2("Pass correct 'this' to __construct");
                           }
-                          k3 = g2.implement(this, ...k3);
+                          k3 = g3.implement(this, ...k3);
                           Bc(k3);
                           var p3 = k3.g;
                           k3.notifyOnDestruction();
@@ -3197,11 +3197,11 @@
                       _embind_finalize_value_object: (a3) => {
                         var b = Jc[a3];
                         delete Jc[a3];
-                        var c3 = b.Oa, d3 = b.P, e3 = b.fb, f3 = e3.map((g2) => g2.Vb).concat(e3.map((g2) => g2.lc));
-                        U([a3], f3, (g2) => {
+                        var c3 = b.Oa, d3 = b.P, e3 = b.fb, f3 = e3.map((g3) => g3.Vb).concat(e3.map((g3) => g3.lc));
+                        U([a3], f3, (g3) => {
                           var k3 = {};
                           e3.forEach((p3, n2) => {
-                            var t3 = g2[n2], x3 = p3.Tb, y3 = p3.Ub, l3 = g2[n2 + e3.length], u3 = p3.kc, r3 = p3.mc;
+                            var t3 = g3[n2], x3 = p3.Tb, y3 = p3.Ub, l3 = g3[n2 + e3.length], u3 = p3.kc, r3 = p3.mc;
                             k3[p3.Pb] = {
                               read: (C3) => t3.fromWireType(x3(y3, C3)),
                               write: (C3, G2) => {
@@ -3259,10 +3259,10 @@
                           M: null
                         });
                       },
-                      _embind_register_class: (a3, b, c3, d3, e3, f3, g2, k3, p3, n2, t3, x3, y3) => {
+                      _embind_register_class: (a3, b, c3, d3, e3, f3, g3, k3, p3, n2, t3, x3, y3) => {
                         t3 = Q(t3);
                         f3 = V2(e3, f3);
-                        k3 && (k3 = V2(g2, k3));
+                        k3 && (k3 = V2(g3, k3));
                         n2 && (n2 = V2(p3, n2));
                         y3 = V2(x3, y3);
                         var l3 = Uc(t3);
@@ -3317,7 +3317,7 @@
                           return [r3, M2, C3];
                         });
                       },
-                      _embind_register_class_class_function: (a3, b, c3, d3, e3, f3, g2) => {
+                      _embind_register_class_class_function: (a3, b, c3, d3, e3, f3, g3) => {
                         var k3 = pd(c3, d3);
                         b = Q(b);
                         b = qd(b);
@@ -3332,7 +3332,7 @@
                           var x3 = p3.i.constructor;
                           void 0 === x3[b] ? (n2.ea = c3 - 1, x3[b] = n2) : (Sc(x3, b, t3), x3[b].A[c3 - 1] = n2);
                           U([], k3, (y3) => {
-                            y3 = od(t3, [y3[0], null].concat(y3.slice(1)), null, f3, g2);
+                            y3 = od(t3, [y3[0], null].concat(y3.slice(1)), null, f3, g3);
                             void 0 === x3[b].A ? (y3.ea = c3 - 1, x3[b] = y3) : x3[b].A[c3 - 1] = y3;
                             if (p3.i.oa) {
                               for (const l3 of p3.i.oa) {
@@ -3344,7 +3344,7 @@
                           return [];
                         });
                       },
-                      _embind_register_class_class_property: (a3, b, c3, d3, e3, f3, g2, k3) => {
+                      _embind_register_class_class_property: (a3, b, c3, d3, e3, f3, g3, k3) => {
                         b = Q(b);
                         f3 = V2(e3, f3);
                         U([], [a3], (p3) => {
@@ -3370,7 +3370,7 @@
                               },
                               enumerable: true
                             };
-                            k3 && (k3 = V2(g2, k3), y3.set = (l3) => {
+                            k3 && (k3 = V2(g3, k3), y3.set = (l3) => {
                               var u3 = [];
                               k3(d3, x3.toWireType(u3, l3));
                               Kc(u3);
@@ -3382,7 +3382,7 @@
                         });
                       },
                       _embind_register_class_constructor: (a3, b, c3, d3, e3, f3) => {
-                        var g2 = pd(b, c3);
+                        var g3 = pd(b, c3);
                         e3 = V2(d3, e3);
                         U([], [a3], (k3) => {
                           k3 = k3[0];
@@ -3392,9 +3392,9 @@
                             throw new P2("Cannot register multiple constructors with identical number of parameters (".concat(b - 1, ") for class '").concat(k3.name, "'! Overload resolution is currently only performed using the parameter count, not actual type info!"));
                           }
                           k3.i.$[b - 1] = () => {
-                            md("Cannot construct ".concat(k3.name, " due to unbound types"), g2);
+                            md("Cannot construct ".concat(k3.name, " due to unbound types"), g3);
                           };
-                          U([], g2, (n2) => {
+                          U([], g3, (n2) => {
                             n2.splice(1, 0, null);
                             k3.i.$[b - 1] = od(p3, n2, null, e3, f3);
                             return [];
@@ -3402,7 +3402,7 @@
                           return [];
                         });
                       },
-                      _embind_register_class_function: (a3, b, c3, d3, e3, f3, g2, k3) => {
+                      _embind_register_class_function: (a3, b, c3, d3, e3, f3, g3, k3) => {
                         var p3 = pd(c3, d3);
                         b = Q(b);
                         b = qd(b);
@@ -3418,30 +3418,30 @@
                           var y3 = n2.i.N, l3 = y3[b];
                           void 0 === l3 || void 0 === l3.A && l3.className !== n2.name && l3.ea === c3 - 2 ? (t3.ea = c3 - 2, t3.className = n2.name, y3[b] = t3) : (Sc(y3, b, x3), y3[b].A[c3 - 2] = t3);
                           U([], p3, (u3) => {
-                            u3 = od(x3, u3, n2, f3, g2);
+                            u3 = od(x3, u3, n2, f3, g3);
                             void 0 === y3[b].A ? (u3.ea = c3 - 2, y3[b] = u3) : y3[b].A[c3 - 2] = u3;
                             return [];
                           });
                           return [];
                         });
                       },
-                      _embind_register_class_property: (a3, b, c3, d3, e3, f3, g2, k3, p3, n2) => {
+                      _embind_register_class_property: (a3, b, c3, d3, e3, f3, g3, k3, p3, n2) => {
                         b = Q(b);
                         e3 = V2(d3, e3);
                         U([], [a3], (t3) => {
                           t3 = t3[0];
                           var x3 = "".concat(t3.name, ".").concat(b), y3 = {
                             get() {
-                              md("Cannot access ".concat(x3, " due to unbound types"), [c3, g2]);
+                              md("Cannot access ".concat(x3, " due to unbound types"), [c3, g3]);
                             },
                             enumerable: true,
                             configurable: true
                           };
-                          y3.set = p3 ? () => md("Cannot access ".concat(x3, " due to unbound types"), [c3, g2]) : () => {
+                          y3.set = p3 ? () => md("Cannot access ".concat(x3, " due to unbound types"), [c3, g3]) : () => {
                             throw new P2(x3 + " is a read-only property");
                           };
                           Object.defineProperty(t3.i.N, b, y3);
-                          U([], p3 ? [c3, g2] : [c3], (l3) => {
+                          U([], p3 ? [c3, g3] : [c3], (l3) => {
                             var u3 = l3[0], r3 = {
                               get() {
                                 var G2 = rd(this, t3, x3 + " getter");
@@ -3476,7 +3476,7 @@
                           fromWireType: function(f3) {
                             return this.constructor.values[f3];
                           },
-                          toWireType: (f3, g2) => g2.value,
+                          toWireType: (f3, g3) => g3.value,
                           argPackAdvance: 8,
                           readValueFromPointer: ud(b, c3, d3),
                           M: null
@@ -3511,14 +3511,14 @@
                         });
                       },
                       _embind_register_function: (a3, b, c3, d3, e3, f3) => {
-                        var g2 = pd(b, c3);
+                        var g3 = pd(b, c3);
                         a3 = Q(a3);
                         a3 = qd(a3);
                         e3 = V2(d3, e3);
                         Tc(a3, function() {
-                          md("Cannot call ".concat(a3, " due to unbound types"), g2);
+                          md("Cannot call ".concat(a3, " due to unbound types"), g3);
                         }, b - 1);
-                        U([], g2, (k3) => {
+                        U([], g3, (k3) => {
                           bd(a3, od(a3, [k3[0], null].concat(k3.slice(1)), null, e3, f3), b - 1);
                           return [];
                         });
@@ -3531,7 +3531,7 @@
                           var f3 = 32 - 8 * c3;
                           e3 = (k3) => k3 << f3 >>> f3;
                         }
-                        var g2 = b.includes("unsigned") ? function(k3, p3) {
+                        var g3 = b.includes("unsigned") ? function(k3, p3) {
                           return p3 >>> 0;
                         } : function(k3, p3) {
                           return p3;
@@ -3539,7 +3539,7 @@
                         Oc(a3, {
                           name: b,
                           fromWireType: e3,
-                          toWireType: g2,
+                          toWireType: g3,
                           argPackAdvance: 8,
                           readValueFromPointer: wd(b, c3, 0 !== d3),
                           M: null
@@ -3568,16 +3568,16 @@
                           fromWireType: function(d3) {
                             var e3 = D3[d3 >> 2], f3 = d3 + 4;
                             if (c3) {
-                              for (var g2 = f3, k3 = 0; k3 <= e3; ++k3) {
+                              for (var g3 = f3, k3 = 0; k3 <= e3; ++k3) {
                                 var p3 = f3 + k3;
                                 if (k3 == e3 || 0 == A3[p3]) {
-                                  g2 = g2 ? mb(A3, g2, p3 - g2) : "";
+                                  g3 = g3 ? mb(A3, g3, p3 - g3) : "";
                                   if (void 0 === n2) {
-                                    var n2 = g2;
+                                    var n2 = g3;
                                   } else {
-                                    n2 += String.fromCharCode(0), n2 += g2;
+                                    n2 += String.fromCharCode(0), n2 += g3;
                                   }
-                                  g2 = p3 + 1;
+                                  g3 = p3 + 1;
                                 }
                               }
                             } else {
@@ -3596,14 +3596,14 @@
                             if (!(f3 || e3 instanceof Uint8Array || e3 instanceof Uint8ClampedArray || e3 instanceof Int8Array)) {
                               throw new P2("Cannot pass non-string to std::string");
                             }
-                            var g2 = c3 && f3 ? ob2(e3) : e3.length;
-                            var k3 = Xd(4 + g2 + 1), p3 = k3 + 4;
-                            D3[k3 >> 2] = g2;
+                            var g3 = c3 && f3 ? ob2(e3) : e3.length;
+                            var k3 = Xd(4 + g3 + 1), p3 = k3 + 4;
+                            D3[k3 >> 2] = g3;
                             if (c3 && f3) {
-                              pb(e3, A3, p3, g2 + 1);
+                              pb(e3, A3, p3, g3 + 1);
                             } else {
                               if (f3) {
-                                for (f3 = 0; f3 < g2; ++f3) {
+                                for (f3 = 0; f3 < g3; ++f3) {
                                   var n2 = e3.charCodeAt(f3);
                                   if (255 < n2) {
                                     throw yc(p3), new P2("String has UTF-16 code units that do not fit in 8 bits");
@@ -3611,7 +3611,7 @@
                                   A3[p3 + f3] = n2;
                                 }
                               } else {
-                                for (f3 = 0; f3 < g2; ++f3) {
+                                for (f3 = 0; f3 < g3; ++f3) {
                                   A3[p3 + f3] = e3[f3];
                                 }
                               }
@@ -3632,16 +3632,16 @@
                           var d3 = yd;
                           var e3 = zd;
                           var f3 = Ad;
-                          var g2 = (k3) => Ca[k3 >> 1];
+                          var g3 = (k3) => Ca[k3 >> 1];
                         } else {
-                          4 === b && (d3 = Bd, e3 = Cd, f3 = Dd, g2 = (k3) => D3[k3 >> 2]);
+                          4 === b && (d3 = Bd, e3 = Cd, f3 = Dd, g3 = (k3) => D3[k3 >> 2]);
                         }
                         Oc(a3, {
                           name: c3,
                           fromWireType: (k3) => {
                             for (var p3 = D3[k3 >> 2], n2, t3 = k3 + 4, x3 = 0; x3 <= p3; ++x3) {
                               var y3 = k3 + 4 + x3 * b;
-                              if (x3 == p3 || 0 == g2(y3)) {
+                              if (x3 == p3 || 0 == g3(y3)) {
                                 t3 = d3(t3, y3 - t3), void 0 === n2 ? n2 = t3 : (n2 += String.fromCharCode(0), n2 += t3), t3 = y3 + b;
                               }
                             }
@@ -3673,13 +3673,13 @@
                           fb: []
                         };
                       },
-                      _embind_register_value_object_field: (a3, b, c3, d3, e3, f3, g2, k3, p3, n2) => {
+                      _embind_register_value_object_field: (a3, b, c3, d3, e3, f3, g3, k3, p3, n2) => {
                         Jc[a3].fb.push({
                           Pb: Q(b),
                           Vb: c3,
                           Tb: V2(d3, e3),
                           Ub: f3,
-                          lc: g2,
+                          lc: g3,
                           kc: V2(k3, p3),
                           mc: n2
                         });
@@ -3717,13 +3717,13 @@
                         var d3 = Jd(a3, b), e3 = d3.shift();
                         a3--;
                         var f3 = Array(a3);
-                        b = "methodCaller<(".concat(d3.map((g2) => g2.name).join(", "), ") => ").concat(e3.name, ">");
-                        return Id(jc(b, (g2, k3, p3, n2) => {
+                        b = "methodCaller<(".concat(d3.map((g3) => g3.name).join(", "), ") => ").concat(e3.name, ">");
+                        return Id(jc(b, (g3, k3, p3, n2) => {
                           for (var t3 = 0, x3 = 0; x3 < a3; ++x3) {
                             f3[x3] = d3[x3].readValueFromPointer(n2 + t3), t3 += d3[x3].argPackAdvance;
                           }
-                          g2 = 1 === c3 ? Kd(k3, f3) : k3.apply(g2, f3);
-                          return Ed(e3, p3, g2);
+                          g3 = 1 === c3 ? Kd(k3, f3) : k3.apply(g3, f3);
+                          return Ed(e3, p3, g3);
                         }));
                       },
                       _emval_get_module_property: (a3) => {
@@ -3784,9 +3784,9 @@
                         B3[c3 + 32 >> 2] = (b != d3 && a3.getTimezoneOffset() == Math.min(d3, b)) | 0;
                       },
                       _tzset_js: (a3, b, c3, d3) => {
-                        var e3 = (/* @__PURE__ */ new Date()).getFullYear(), f3 = new Date(e3, 0, 1), g2 = new Date(e3, 6, 1);
+                        var e3 = (/* @__PURE__ */ new Date()).getFullYear(), f3 = new Date(e3, 0, 1), g3 = new Date(e3, 6, 1);
                         e3 = f3.getTimezoneOffset();
-                        var k3 = g2.getTimezoneOffset();
+                        var k3 = g3.getTimezoneOffset();
                         D3[a3 >> 2] = 60 * Math.max(e3, k3);
                         B3[b >> 2] = Number(e3 != k3);
                         a3 = (p3) => p3.toLocaleTimeString(void 0, {
@@ -3794,8 +3794,8 @@
                           timeZoneName: "short"
                         }).split(" ")[1];
                         f3 = a3(f3);
-                        g2 = a3(g2);
-                        k3 < e3 ? (pb(f3, A3, c3, 17), pb(g2, A3, d3, 17)) : (pb(f3, A3, d3, 17), pb(g2, A3, c3, 17));
+                        g3 = a3(g3);
+                        k3 < e3 ? (pb(f3, A3, c3, 17), pb(g3, A3, d3, 17)) : (pb(f3, A3, d3, 17), pb(g3, A3, c3, 17));
                       },
                       emscripten_asm_const_int: (a3, b, c3) => {
                         Od.length = 0;
@@ -3828,7 +3828,7 @@
                               Ha();
                               var f3 = 1;
                               break a;
-                            } catch (g2) {
+                            } catch (g3) {
                             }
                             f3 = void 0;
                           }
@@ -3887,7 +3887,7 @@
                           a: {
                             var e3 = Sb(a3);
                             a3 = b;
-                            for (var f3, g2 = b = 0; g2 < c3; g2++) {
+                            for (var f3, g3 = b = 0; g3 < c3; g3++) {
                               var k3 = D3[a3 >> 2], p3 = D3[a3 + 4 >> 2];
                               a3 += 8;
                               var n2 = e3, t3 = f3, x3 = z3;
@@ -3949,11 +3949,11 @@
                           B3[e3 + 4 >> 2] = Wa[1];
                           f3.La && 0 === b && 0 === d3 && (f3.La = null);
                           return 0;
-                        } catch (g2) {
-                          if ("undefined" == typeof ic || "ErrnoError" !== g2.name) {
-                            throw g2;
+                        } catch (g3) {
+                          if ("undefined" == typeof ic || "ErrnoError" !== g3.name) {
+                            throw g3;
                           }
-                          return g2.aa;
+                          return g3.aa;
                         }
                       },
                       fd_write: function(a3, b, c3, d3) {
@@ -3961,7 +3961,7 @@
                           a: {
                             var e3 = Sb(a3);
                             a3 = b;
-                            for (var f3, g2 = b = 0; g2 < c3; g2++) {
+                            for (var f3, g3 = b = 0; g3 < c3; g3++) {
                               var k3 = D3[a3 >> 2], p3 = D3[a3 + 4 >> 2];
                               a3 += 8;
                               var n2 = e3, t3 = k3, x3 = p3, y3 = f3, l3 = z3;
@@ -4054,10 +4054,10 @@
                     m3.dynCall_iiiji = (a3, b, c3, d3, e3, f3) => (m3.dynCall_iiiji = Y.dynCall_iiiji)(a3, b, c3, d3, e3, f3);
                     m3.dynCall_iij = (a3, b, c3, d3) => (m3.dynCall_iij = Y.dynCall_iij)(a3, b, c3, d3);
                     m3.dynCall_jii = (a3, b, c3) => (m3.dynCall_jii = Y.dynCall_jii)(a3, b, c3);
-                    m3.dynCall_viijii = (a3, b, c3, d3, e3, f3, g2) => (m3.dynCall_viijii = Y.dynCall_viijii)(a3, b, c3, d3, e3, f3, g2);
-                    m3.dynCall_iiiiij = (a3, b, c3, d3, e3, f3, g2) => (m3.dynCall_iiiiij = Y.dynCall_iiiiij)(a3, b, c3, d3, e3, f3, g2);
-                    m3.dynCall_iiiiijj = (a3, b, c3, d3, e3, f3, g2, k3, p3) => (m3.dynCall_iiiiijj = Y.dynCall_iiiiijj)(a3, b, c3, d3, e3, f3, g2, k3, p3);
-                    m3.dynCall_iiiiiijj = (a3, b, c3, d3, e3, f3, g2, k3, p3, n2) => (m3.dynCall_iiiiiijj = Y.dynCall_iiiiiijj)(a3, b, c3, d3, e3, f3, g2, k3, p3, n2);
+                    m3.dynCall_viijii = (a3, b, c3, d3, e3, f3, g3) => (m3.dynCall_viijii = Y.dynCall_viijii)(a3, b, c3, d3, e3, f3, g3);
+                    m3.dynCall_iiiiij = (a3, b, c3, d3, e3, f3, g3) => (m3.dynCall_iiiiij = Y.dynCall_iiiiij)(a3, b, c3, d3, e3, f3, g3);
+                    m3.dynCall_iiiiijj = (a3, b, c3, d3, e3, f3, g3, k3, p3) => (m3.dynCall_iiiiijj = Y.dynCall_iiiiijj)(a3, b, c3, d3, e3, f3, g3, k3, p3);
+                    m3.dynCall_iiiiiijj = (a3, b, c3, d3, e3, f3, g3, k3, p3, n2) => (m3.dynCall_iiiiiijj = Y.dynCall_iiiiiijj)(a3, b, c3, d3, e3, f3, g3, k3, p3, n2);
                     function Yd(a3, b, c3) {
                       var d3 = be();
                       try {
@@ -5171,10 +5171,10 @@
                 var _3 = { label: 0, sent: function() {
                   if (t3[0] & 1) throw t3[1];
                   return t3[1];
-                }, trys: [], ops: [] }, f3, y3, t3, g2 = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-                return g2.next = verb(0), g2["throw"] = verb(1), g2["return"] = verb(2), typeof Symbol === "function" && (g2[Symbol.iterator] = function() {
+                }, trys: [], ops: [] }, f3, y3, t3, g3 = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+                return g3.next = verb(0), g3["throw"] = verb(1), g3["return"] = verb(2), typeof Symbol === "function" && (g3[Symbol.iterator] = function() {
                   return this;
-                }), g2;
+                }), g3;
                 function verb(n2) {
                   return function(v3) {
                     return step([n2, v3]);
@@ -5182,7 +5182,7 @@
                 }
                 function step(op) {
                   if (f3) throw new TypeError("Generator is already executing.");
-                  while (g2 && (g2 = 0, op[0] && (_3 = 0)), _3) try {
+                  while (g3 && (g3 = 0, op[0] && (_3 = 0)), _3) try {
                     if (f3 = 1, y3 && (t3 = op[0] & 2 ? y3["return"] : op[0] ? y3["throw"] || ((t3 = y3["return"]) && t3.call(y3), 0) : y3.next) && !(t3 = t3.call(y3, op[1])).done) return t3;
                     if (y3 = 0, t3) op = [op[0] & 2, t3.value];
                     switch (op[0]) {
@@ -8329,14 +8329,14 @@
                     enumerable: false,
                     configurable: true
                   });
-                  ViewModelInstanceColor2.prototype.rgb = function(r3, g2, b) {
-                    this._viewModelInstanceValue.rgb(r3, g2, b);
+                  ViewModelInstanceColor2.prototype.rgb = function(r3, g3, b) {
+                    this._viewModelInstanceValue.rgb(r3, g3, b);
                   };
-                  ViewModelInstanceColor2.prototype.rgba = function(r3, g2, b, a3) {
-                    this._viewModelInstanceValue.argb(a3, r3, g2, b);
+                  ViewModelInstanceColor2.prototype.rgba = function(r3, g3, b, a3) {
+                    this._viewModelInstanceValue.argb(a3, r3, g3, b);
                   };
-                  ViewModelInstanceColor2.prototype.argb = function(a3, r3, g2, b) {
-                    this._viewModelInstanceValue.argb(a3, r3, g2, b);
+                  ViewModelInstanceColor2.prototype.argb = function(a3, r3, g3, b) {
+                    this._viewModelInstanceValue.argb(a3, r3, g3, b);
                   };
                   ViewModelInstanceColor2.prototype.alpha = function(a3) {
                     this._viewModelInstanceValue.alpha(a3);
@@ -8793,7 +8793,7 @@
         })();
         function HSVtoRGB(h3, s3, v3) {
           var r3;
-          var g2;
+          var g3;
           var b;
           var i3;
           var f3;
@@ -8808,42 +8808,42 @@
           switch (i3 % 6) {
             case 0:
               r3 = v3;
-              g2 = t3;
+              g3 = t3;
               b = p3;
               break;
             case 1:
               r3 = q3;
-              g2 = v3;
+              g3 = v3;
               b = p3;
               break;
             case 2:
               r3 = p3;
-              g2 = v3;
+              g3 = v3;
               b = t3;
               break;
             case 3:
               r3 = p3;
-              g2 = q3;
+              g3 = q3;
               b = v3;
               break;
             case 4:
               r3 = t3;
-              g2 = p3;
+              g3 = p3;
               b = v3;
               break;
             case 5:
               r3 = v3;
-              g2 = p3;
+              g3 = p3;
               b = q3;
               break;
             default:
               break;
           }
-          return [r3, g2, b];
+          return [r3, g3, b];
         }
-        function RGBtoHSV(r3, g2, b) {
-          var max = Math.max(r3, g2, b);
-          var min = Math.min(r3, g2, b);
+        function RGBtoHSV(r3, g3, b) {
+          var max = Math.max(r3, g3, b);
+          var min = Math.min(r3, g3, b);
           var d3 = max - min;
           var h3;
           var s3 = max === 0 ? 0 : d3 / max;
@@ -8853,15 +8853,15 @@
               h3 = 0;
               break;
             case r3:
-              h3 = g2 - b + d3 * (g2 < b ? 6 : 0);
+              h3 = g3 - b + d3 * (g3 < b ? 6 : 0);
               h3 /= 6 * d3;
               break;
-            case g2:
+            case g3:
               h3 = b - r3 + d3 * 2;
               h3 /= 6 * d3;
               break;
             case b:
-              h3 = r3 - g2 + d3 * 4;
+              h3 = r3 - g3 + d3 * 4;
               h3 /= 6 * d3;
               break;
             default:
@@ -8907,17 +8907,17 @@
             hex = i3.toString(16);
             colorMap[i3] = hex.length === 1 ? "0" + hex : hex;
           }
-          return function(r3, g2, b) {
+          return function(r3, g3, b) {
             if (r3 < 0) {
               r3 = 0;
             }
-            if (g2 < 0) {
-              g2 = 0;
+            if (g3 < 0) {
+              g3 = 0;
             }
             if (b < 0) {
               b = 0;
             }
-            return "#" + colorMap[r3] + colorMap[g2] + colorMap[b];
+            return "#" + colorMap[r3] + colorMap[g3] + colorMap[b];
           };
         })();
         var setSubframeEnabled = function setSubframeEnabled2(flag) {
@@ -12427,14 +12427,14 @@
             }
             return this._t(sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1);
           }
-          function setTransform(a3, b, c3, d3, e3, f3, g2, h3, i3, j3, k3, l3, m3, n2, o3, p3) {
+          function setTransform(a3, b, c3, d3, e3, f3, g3, h3, i3, j3, k3, l3, m3, n2, o3, p3) {
             this.props[0] = a3;
             this.props[1] = b;
             this.props[2] = c3;
             this.props[3] = d3;
             this.props[4] = e3;
             this.props[5] = f3;
-            this.props[6] = g2;
+            this.props[6] = g3;
             this.props[7] = h3;
             this.props[8] = i3;
             this.props[9] = j3;
@@ -12453,9 +12453,9 @@
             }
             return this;
           }
-          function transform2(a22, b2, c22, d22, e22, f22, g2, h22, i22, j22, k22, l22, m22, n2, o22, p22) {
+          function transform2(a22, b2, c22, d22, e22, f22, g22, h22, i22, j22, k22, l22, m22, n2, o22, p22) {
             var _p = this.props;
-            if (a22 === 1 && b2 === 0 && c22 === 0 && d22 === 0 && e22 === 0 && f22 === 1 && g2 === 0 && h22 === 0 && i22 === 0 && j22 === 0 && k22 === 1 && l22 === 0) {
+            if (a22 === 1 && b2 === 0 && c22 === 0 && d22 === 0 && e22 === 0 && f22 === 1 && g22 === 0 && h22 === 0 && i22 === 0 && j22 === 0 && k22 === 1 && l22 === 0) {
               _p[12] = _p[12] * a22 + _p[15] * m22;
               _p[13] = _p[13] * f22 + _p[15] * n2;
               _p[14] = _p[14] * k22 + _p[15] * o22;
@@ -12481,19 +12481,19 @@
             var p1 = _p[15];
             _p[0] = a1 * a22 + b1 * e22 + c1 * i22 + d1 * m22;
             _p[1] = a1 * b2 + b1 * f22 + c1 * j22 + d1 * n2;
-            _p[2] = a1 * c22 + b1 * g2 + c1 * k22 + d1 * o22;
+            _p[2] = a1 * c22 + b1 * g22 + c1 * k22 + d1 * o22;
             _p[3] = a1 * d22 + b1 * h22 + c1 * l22 + d1 * p22;
             _p[4] = e1 * a22 + f1 * e22 + g1 * i22 + h1 * m22;
             _p[5] = e1 * b2 + f1 * f22 + g1 * j22 + h1 * n2;
-            _p[6] = e1 * c22 + f1 * g2 + g1 * k22 + h1 * o22;
+            _p[6] = e1 * c22 + f1 * g22 + g1 * k22 + h1 * o22;
             _p[7] = e1 * d22 + f1 * h22 + g1 * l22 + h1 * p22;
             _p[8] = i1 * a22 + j1 * e22 + k1 * i22 + l1 * m22;
             _p[9] = i1 * b2 + j1 * f22 + k1 * j22 + l1 * n2;
-            _p[10] = i1 * c22 + j1 * g2 + k1 * k22 + l1 * o22;
+            _p[10] = i1 * c22 + j1 * g22 + k1 * k22 + l1 * o22;
             _p[11] = i1 * d22 + j1 * h22 + k1 * l22 + l1 * p22;
             _p[12] = m1 * a22 + n1 * e22 + o1 * i22 + p1 * m22;
             _p[13] = m1 * b2 + n1 * f22 + o1 * j22 + p1 * n2;
-            _p[14] = m1 * c22 + n1 * g2 + o1 * k22 + p1 * o22;
+            _p[14] = m1 * c22 + n1 * g22 + o1 * k22 + p1 * o22;
             _p[15] = m1 * d22 + n1 * h22 + o1 * l22 + p1 * p22;
             this._identityCalculated = false;
             return this;
@@ -15550,18 +15550,18 @@
               };
               if (properties[i3].mode === "i") {
                 jLen = currentMasks.length;
-                var g2 = createNS("g");
+                var g3 = createNS("g");
                 for (j3 = 0; j3 < jLen; j3 += 1) {
-                  g2.appendChild(currentMasks[j3]);
+                  g3.appendChild(currentMasks[j3]);
                 }
                 var mask2 = createNS("mask");
                 mask2.setAttribute("mask-type", "alpha");
                 mask2.setAttribute("id", layerId + "_" + count);
                 mask2.appendChild(path);
                 defs.appendChild(mask2);
-                g2.setAttribute("mask", "url(" + getLocationHref() + "#" + layerId + "_" + count + ")");
+                g3.setAttribute("mask", "url(" + getLocationHref() + "#" + layerId + "_" + count + ")");
                 currentMasks.length = 0;
-                currentMasks.push(g2);
+                currentMasks.push(g3);
               } else {
                 currentMasks.push(path);
               }
@@ -20908,9 +20908,9 @@
             this.compH = this.comp.data.h;
             this.svgElement.setAttribute("width", this.compW);
             this.svgElement.setAttribute("height", this.compH);
-            var g2 = createNS("g");
-            this.maskedElement.appendChild(g2);
-            this.innerElem = g2;
+            var g3 = createNS("g");
+            this.maskedElement.appendChild(g3);
+            this.innerElem = g3;
           } else {
             this.renderType = "html";
             this.innerElem = this.layerElement;
@@ -22064,10 +22064,10 @@
           }
           function rgbToHsl(val2) {
             var r3 = val2[0];
-            var g2 = val2[1];
+            var g3 = val2[1];
             var b = val2[2];
-            var max = Math.max(r3, g2, b);
-            var min = Math.min(r3, g2, b);
+            var max = Math.max(r3, g3, b);
+            var min = Math.min(r3, g3, b);
             var h3;
             var s3;
             var l3 = (max + min) / 2;
@@ -22079,13 +22079,13 @@
               s3 = l3 > 0.5 ? d3 / (2 - max - min) : d3 / (max + min);
               switch (max) {
                 case r3:
-                  h3 = (g2 - b) / d3 + (g2 < b ? 6 : 0);
+                  h3 = (g3 - b) / d3 + (g3 < b ? 6 : 0);
                   break;
-                case g2:
+                case g3:
                   h3 = (b - r3) / d3 + 2;
                   break;
                 case b:
-                  h3 = (r3 - g2) / d3 + 4;
+                  h3 = (r3 - g3) / d3 + 4;
                   break;
                 default:
                   break;
@@ -22107,20 +22107,20 @@
             var s3 = val2[1];
             var l3 = val2[2];
             var r3;
-            var g2;
+            var g3;
             var b;
             if (s3 === 0) {
               r3 = l3;
               b = l3;
-              g2 = l3;
+              g3 = l3;
             } else {
               var q3 = l3 < 0.5 ? l3 * (1 + s3) : l3 + s3 - l3 * s3;
               var p3 = 2 * l3 - q3;
               r3 = hue2rgb(p3, q3, h3 + 1 / 3);
-              g2 = hue2rgb(p3, q3, h3);
+              g3 = hue2rgb(p3, q3, h3);
               b = hue2rgb(p3, q3, h3 - 1 / 3);
             }
-            return [r3, g2, b, val2[3]];
+            return [r3, g3, b, val2[3]];
           }
           function linear(t3, tMin, tMax, value1, value2) {
             if (value1 === void 0 || value2 === void 0) {
@@ -24366,12 +24366,12 @@
             mask2.setAttribute("mask-type", "alpha");
             mask2.appendChild(groupPath);
             this.elem.globalData.defs.appendChild(mask2);
-            var g2 = createNS("g");
-            g2.setAttribute("mask", "url(" + getLocationHref() + "#" + id + ")");
+            var g3 = createNS("g");
+            g3.setAttribute("mask", "url(" + getLocationHref() + "#" + id + ")");
             while (elemChildren[0]) {
-              g2.appendChild(elemChildren[0]);
+              g3.appendChild(elemChildren[0]);
             }
-            this.elem.layerElement.appendChild(g2);
+            this.elem.layerElement.appendChild(g3);
             this.masker = mask2;
             groupPath.setAttribute("stroke", "#fff");
           } else if (this.filterManager.effectElements[10].p.v === 1 || this.filterManager.effectElements[10].p.v === 2) {
@@ -25022,8 +25022,8 @@
     I.__r = 0;
   }
   function P(n2, l3, u3, t3, i3, r3, o3, e3, f3, c3, s3) {
-    var a3, h3, y3, d3, w3, g2, _3, m3 = t3 && t3.__k || v, b = l3.length;
-    for (f3 = A(u3, l3, m3, f3, b), a3 = 0; a3 < b; a3++) null != (y3 = u3.__k[a3]) && (h3 = -1 != y3.__i && m3[y3.__i] || p, y3.__i = a3, g2 = z(n2, y3, h3, i3, r3, o3, e3, f3, c3, s3), d3 = y3.__e, y3.ref && h3.ref != y3.ref && (h3.ref && D(h3.ref, null, y3), s3.push(y3.ref, y3.__c || d3, y3)), null == w3 && null != d3 && (w3 = d3), (_3 = !!(4 & y3.__u)) || h3.__k === y3.__k ? f3 = H(y3, f3, n2, _3) : "function" == typeof y3.type && void 0 !== g2 ? f3 = g2 : d3 && (f3 = d3.nextSibling), y3.__u &= -7);
+    var a3, h3, y3, d3, w3, g3, _3, m3 = t3 && t3.__k || v, b = l3.length;
+    for (f3 = A(u3, l3, m3, f3, b), a3 = 0; a3 < b; a3++) null != (y3 = u3.__k[a3]) && (h3 = -1 != y3.__i && m3[y3.__i] || p, y3.__i = a3, g3 = z(n2, y3, h3, i3, r3, o3, e3, f3, c3, s3), d3 = y3.__e, y3.ref && h3.ref != y3.ref && (h3.ref && D(h3.ref, null, y3), s3.push(y3.ref, y3.__c || d3, y3)), null == w3 && null != d3 && (w3 = d3), (_3 = !!(4 & y3.__u)) || h3.__k === y3.__k ? f3 = H(y3, f3, n2, _3) : "function" == typeof y3.type && void 0 !== g3 ? f3 = g3 : d3 && (f3 = d3.nextSibling), y3.__u &= -7);
     return u3.__e = w3, f3;
   }
   function A(n2, l3, u3, t3, i3) {
@@ -25312,6 +25312,15 @@
   function x2(n2) {
     var u3 = r2.context[n2.__c], i3 = p2(t2++, 9);
     return i3.c = n2, u3 ? (null == i3.__ && (i3.__ = true, u3.sub(r2)), u3.props.value) : n2.__;
+  }
+  function g2() {
+    var n2 = p2(t2++, 11);
+    if (!n2.__) {
+      for (var u3 = r2.__v; null !== u3 && !u3.__m && null !== u3.__; ) u3 = u3.__;
+      var i3 = u3.__m || (u3.__m = [0, 0]);
+      n2.__ = "P" + i3[0] + "-" + i3[1]++;
+    }
+    return n2.__;
   }
   function j2() {
     for (var n2; n2 = f2.shift(); ) {
@@ -26795,6 +26804,22 @@
     browser_Safari: {
       title: "Safari",
       note: "Brand name of the Apple Safari browser"
+    },
+    welcome_title_v4: {
+      title: "Welcome to DuckDuckGo!",
+      note: "Page title for the first step in the v4 onboarding process"
+    },
+    getStarted_title_v4: {
+      title: "Hi there!{paragraph}Ready for a faster browser{newline}that keeps you protected?",
+      note: "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+    },
+    getStartedButton_v4: {
+      title: "Let\u2019s do it!",
+      note: "Button label prompting user to start the v4 onboarding process."
+    },
+    makeDefaultAccept_title_v4: {
+      title: "Excellent! Let\u2019s move on.",
+      note: "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
     }
   };
 
@@ -27021,7 +27046,7 @@
         "fill-rule": "evenodd",
         "clip-rule": "evenodd",
         d: "M12.0465 7.31875C11.269 8.09623 10.0085 8.09623 9.23102 7.31875C8.45354 6.54128 8.45354 5.28074 9.23102 4.50327C10.0085 3.7258 11.269 3.7258 12.0465 4.50327C12.824 5.28074 12.824 6.54128 12.0465 7.31875ZM11.1626 6.43487C10.8733 6.72419 10.4042 6.72419 10.1149 6.43487C9.82558 6.14555 9.82558 5.67647 10.1149 5.38715C10.4042 5.09783 10.8733 5.09783 11.1626 5.38715C11.4519 5.67647 11.4519 6.14555 11.1626 6.43487Z",
-        fill: "white",
+        fill: "currentColor",
         "fill-opacity": "0.84"
       }
     ), /* @__PURE__ */ _(
@@ -27030,14 +27055,14 @@
         "fill-rule": "evenodd",
         "clip-rule": "evenodd",
         d: "M15.0163 0.357982C10.4268 0.792444 7.29295 2.76331 5.19328 5.43188C5.03761 5.41854 4.88167 5.40999 4.72564 5.40608C3.54981 5.37661 2.36922 5.61098 1.26629 6.0488C0.653083 6.29222 0.543501 7.07682 1.01002 7.54334L2.92009 9.45341C2.86071 9.6032 2.80326 9.75371 2.74768 9.90485C2.61756 10.2587 2.71271 10.6538 2.97932 10.9204L5.62864 13.5698C5.89525 13.8364 6.29037 13.9315 6.64424 13.8014C6.79555 13.7458 6.94624 13.6882 7.0962 13.6288L9.0054 15.538C9.47191 16.0045 10.2565 15.8949 10.4999 15.2817C10.9378 14.1788 11.1721 12.9982 11.1427 11.8224C11.1388 11.6668 11.1302 11.5112 11.117 11.356C13.7857 9.25633 15.7566 6.1224 16.1911 1.53282C16.2296 1.12649 16.256 0.708745 16.2698 0.279297C15.8403 0.293094 15.4226 0.319516 15.0163 0.357982ZM3.9867 10.1601L6.38903 12.5624C8.6807 11.6928 10.7461 10.3775 12.2764 8.46444C13.2183 7.28687 13.9808 5.85389 14.4628 4.10497L12.4441 2.08628C10.6952 2.56825 9.26222 3.33082 8.08465 4.27272C6.17156 5.80296 4.85624 7.86839 3.9867 10.1601ZM2.25561 7.02117C2.84462 6.83216 3.44604 6.71284 4.04467 6.67074L3.29585 8.06141L2.25561 7.02117ZM9.52757 14.2924C9.71658 13.7034 9.8359 13.102 9.878 12.5033L8.48733 13.2522L9.52757 14.2924ZM14.7828 2.65724L13.8919 1.76626C14.2259 1.7093 14.5703 1.6616 14.9253 1.62375C14.8875 1.97878 14.8398 2.32317 14.7828 2.65724Z",
-        fill: "white",
+        fill: "currentColor",
         "fill-opacity": "0.84"
       }
     ), /* @__PURE__ */ _(
       "path",
       {
         d: "M4.98318 13.664C5.19417 13.9372 5.14374 14.3297 4.87055 14.5407C3.96675 15.2387 2.81266 15.6173 1.50788 15.7098L0.78927 15.7608L0.840231 15.0422C0.932761 13.7374 1.31133 12.5833 2.00934 11.6795C2.22032 11.4063 2.61283 11.3559 2.88602 11.5669C3.15921 11.7779 3.20963 12.1704 2.99865 12.4436C2.60779 12.9497 2.32977 13.5927 2.18426 14.3658C2.95736 14.2203 3.60041 13.9423 4.1065 13.5514C4.37969 13.3404 4.77219 13.3909 4.98318 13.664Z",
-        fill: "white",
+        fill: "currentColor",
         "fill-opacity": "0.84"
       }
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_3098_23365" }, /* @__PURE__ */ _("rect", { width: "16", height: "16", fill: "white", transform: "translate(0.5)" }))));
@@ -28478,32 +28503,28 @@
   var Background_default2 = {
     background: "Background_background2",
     illustration: "Background_illustration",
-    intro: "Background_intro",
-    "bg-intro-slide": "Background_bg-intro-slide",
-    outro: "Background_outro",
-    "bg-outro-slide": "Background_bg-outro-slide",
-    "bg-outro-opacity": "Background_bg-outro-opacity"
+    slideIn: "Background_slideIn",
+    "slide-in": "Background_slide-in",
+    slideOut: "Background_slideOut",
+    "slide-out": "Background_slide-out",
+    "fade-out": "Background_fade-out"
   };
 
   // pages/onboarding/app/v4/components/Background.js
-  var BG_MOTION = (
-    /** @type {Partial<Record<import('../../types').Step['id'], BgMotion>>} */
-    {
-      welcome: { dx: "325px", dy: "204px", introDelay: "0.133s", fadeDuration: "0.4s" },
-      getStarted: { dx: "-74px", dy: "132px", introDelay: "0.2s", fadeDuration: "0.333s" }
-    }
-  );
+  var BG_MOTION = {
+    welcome: { dx: "325px", dy: "204px", slideInDelay: "0.133s", fadeDuration: "0.4s" },
+    default: { dx: "-74px", dy: "132px", slideInDelay: "0.2s", fadeDuration: "0.333s" }
+  };
   function bgVars(step) {
     const idx = ORDER_V4.indexOf(step);
     const num = String(idx + 1).padStart(2, "0");
-    const motion = BG_MOTION[step] ?? /** @type {BgMotion} */
-    BG_MOTION.welcome;
+    const motion = BG_MOTION[step] ?? BG_MOTION.default;
     return {
       "--bg-light": `url("../assets/img/v4/background-${num}-light.svg")`,
       "--bg-dark": `url("../assets/img/v4/background-${num}-dark.svg")`,
       "--bg-dx": motion.dx,
       "--bg-dy": motion.dy,
-      "--bg-intro-delay": motion.introDelay,
+      "--bg-slide-in-delay": motion.slideInDelay,
       "--bg-fade-duration": motion.fadeDuration
     };
   }
@@ -28522,64 +28543,11 @@
       "div",
       {
         key: "exit-" + exitingStep,
-        class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.outro),
+        class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.slideOut),
         style: bgVars(exitingStep),
         onAnimationEnd: () => setExitingStep(null)
       }
-    ), /* @__PURE__ */ _("div", { key: activeStep, class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.intro), style: bgVars(activeStep) }));
-  }
-
-  // pages/onboarding/app/v4/context/BeforeAfterProvider.js
-  var beforeAfterValues2 = ["before", "after"];
-  var BeforeAfterContext2 = R({
-    /**
-     * @type {StepStates}
-     */
-    stepStates: {},
-    /**
-     * @param {steps[number]} step
-     * @returns {BeforeAfter|null}
-     */
-    getStep: (step) => {
-      console.log(step);
-      return null;
-    },
-    /**
-     * @param {steps[number]} step
-     * @param {BeforeAfter} value
-     */
-    setStep: (step, value2) => {
-      console.log(step, value2);
-    },
-    /**
-     * @param {steps[number]} step
-     */
-    toggleStep: (step) => {
-      console.log(step);
-    }
-  });
-  function BeforeAfterProvider2({ children }) {
-    const [stepStates, setStepStates] = d2({});
-    function getStep(step) {
-      return stepStates[step] || null;
-    }
-    function setStep(step, value2) {
-      if (ORDER_V4.includes(step) && beforeAfterValues2.includes(value2)) {
-        setStepStates((prevState) => ({ ...prevState, [step]: value2 }));
-      }
-    }
-    function toggleStep(step) {
-      if (ORDER_V4.includes(step)) {
-        setStepStates((prevState) => {
-          const newValue = prevState[step] === "before" ? "after" : "before";
-          return { ...prevState, [step]: newValue };
-        });
-      }
-    }
-    return /* @__PURE__ */ _(BeforeAfterContext2.Provider, { value: { stepStates, getStep, setStep, toggleStep } }, children);
-  }
-  function useBeforeAfter2() {
-    return x2(BeforeAfterContext2);
+    ), /* @__PURE__ */ _("div", { key: activeStep, class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.slideIn), style: bgVars(activeStep) }));
   }
 
   // pages/onboarding/app/v4/components/Bubble.js
@@ -28588,24 +28556,187 @@
   // pages/onboarding/app/v4/components/Bubble.module.css
   var Bubble_default = {
     bubble: "Bubble_bubble",
-    bottomLeftTail: "Bubble_bottomLeftTail"
+    background: "Bubble_background",
+    container: "Bubble_container",
+    fadeOut: "Bubble_fadeOut",
+    "fade-out": "Bubble_fade-out",
+    fadeIn: "Bubble_fadeIn",
+    "fade-in": "Bubble_fade-in",
+    foreground: "Bubble_foreground",
+    bottomLeftTail: "Bubble_bottomLeftTail",
+    active: "Bubble_active",
+    rightTail: "Bubble_rightTail"
   };
 
-  // pages/onboarding/app/v4/components/Bubble.js
-  function Bubble({ children, tail, class: className }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Bubble_default.bubble, className), "data-tail": tail || void 0 }, children, tail === "bottom-left" && /* @__PURE__ */ _(BottomLeftTail, null));
+  // pages/onboarding/app/v4/hooks/useAnimate.js
+  function useAnimate() {
+    const ref = A2(
+      /** @type {T|null} */
+      null
+    );
+    const activeAnimation = A2(
+      /** @type {Animation|null} */
+      null
+    );
+    const { isReducedMotion } = useEnv();
+    const animate2 = q2(
+      async (keyframes, options2) => {
+        activeAnimation.current?.cancel();
+        if (!ref.current || isReducedMotion) return;
+        const animation = ref.current.animate(keyframes, options2);
+        activeAnimation.current = animation;
+        try {
+          await animation.finished;
+          if (activeAnimation.current === animation) activeAnimation.current = null;
+        } catch {
+        }
+      },
+      [isReducedMotion]
+    );
+    y2(() => () => activeAnimation.current?.cancel(), []);
+    return [ref, animate2];
   }
-  function BottomLeftTail() {
-    return /* @__PURE__ */ _("div", { class: Bubble_default.bottomLeftTail, "aria-hidden": "true" }, /* @__PURE__ */ _("svg", { width: "50", height: "34", viewBox: "0 0 50 34", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M49.25 0.75V2.34766H48.7021C45.8666 2.34769 43.7612 3.6682 41.8477 5.68555C39.9707 7.66432 38.175 10.432 36.0186 13.4121C31.6717 19.4191 25.5656 26.7393 13.3682 32.1523C11.8561 32.8234 10.3789 32.4409 9.36523 31.4863C8.34348 30.5241 7.80054 28.9823 8.23926 27.3457C9.05445 24.3053 9.92429 20.9248 10.5938 17.9824C11.2559 15.0722 11.7439 12.5021 11.7568 11.1328C11.7813 8.55523 10.4106 6.3471 8.48633 4.80859C6.56458 3.27217 4.02869 2.34775 1.56152 2.34766H0.75V0.75H49.25Z",
-        style: "fill: var(--bubble-bg, white)",
-        stroke: "url(#bubbleTailGradient)",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round"
+
+  // pages/onboarding/app/v4/hooks/useMergedRef.js
+  function useMergedRef(...refs) {
+    return q2((element) => {
+      for (const ref of refs) {
+        if (typeof ref === "function") ref(element);
+        else if (ref) ref.current = element;
       }
-    ), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "bubbleTailGradient", x1: "25", y1: "1.5979", x2: "25", y2: "1.66431", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { style: "stop-color: var(--bubble-bg, white)" }), /* @__PURE__ */ _("stop", { offset: "1", style: "stop-color: var(--bubble-border, #CBEAFF)" })))));
+    }, refs);
+  }
+
+  // pages/onboarding/app/v4/components/Bubble.js
+  function Bubble({
+    children,
+    tail,
+    class: className,
+    illustration,
+    onHeight,
+    bounceKey,
+    bounceDelay,
+    exiting = false,
+    onExitComplete,
+    ...props
+  }) {
+    const bubbleRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const containerRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const contentRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const isMounted = A2(false);
+    const { isReducedMotion } = useEnv();
+    const [bounceRef, animateBounce] = useAnimate();
+    const mergedBubbleRef = useMergedRef(bubbleRef, bounceRef);
+    if (exiting) isMounted.current = true;
+    _2(() => {
+      const bubble = bubbleRef.current;
+      const content2 = contentRef.current;
+      if (!bubble || !content2 || !onHeight) return;
+      const observer = new ResizeObserver(() => {
+        const height2 = measureBubbleHeight(bubble, content2);
+        onHeight(height2);
+      });
+      observer.observe(content2);
+      return () => observer.disconnect();
+    }, [onHeight]);
+    y2(() => {
+      if (!isMounted.current) return;
+      animateBounce(
+        [
+          { scale: 1, easing: "cubic-bezier(0.17, 0, 0.83, 1)" },
+          { scale: 1.07, offset: 0.5, easing: "cubic-bezier(0.17, 0, 0.83, 1)" },
+          { scale: 1 }
+        ],
+        {
+          duration: 467,
+          // 14 frames at 30fps
+          delay: bounceDelay
+        }
+      );
+    }, [bounceKey, animateBounce, bounceDelay]);
+    const handleAnimationEnd = (e3) => {
+      if (exiting && e3.target === containerRef.current) {
+        onExitComplete?.();
+      }
+    };
+    const containerCallback = (el) => {
+      containerRef.current = el;
+      if (el && isReducedMotion && exiting) {
+        onExitComplete?.();
+      }
+    };
+    return /* @__PURE__ */ _("div", { ref: mergedBubbleRef, class: (0, import_classnames11.default)(Bubble_default.bubble, className), ...props }, illustration?.background && /* @__PURE__ */ _("div", { class: Bubble_default.background }, illustration.background), /* @__PURE__ */ _(
+      "div",
+      {
+        ref: containerCallback,
+        class: (0, import_classnames11.default)(Bubble_default.container, isMounted.current && (exiting ? Bubble_default.fadeOut : Bubble_default.fadeIn)),
+        onAnimationEnd: handleAnimationEnd
+      },
+      /* @__PURE__ */ _("div", { ref: contentRef }, children)
+    ), /* @__PURE__ */ _(BottomLeftTail, { active: tail === "bottom-left" }), /* @__PURE__ */ _(RightTail, { active: tail === "right" }), illustration?.foreground && /* @__PURE__ */ _("div", { class: Bubble_default.foreground }, illustration.foreground));
+  }
+  function measureBubbleHeight(bubble, content2) {
+    const bubbleStyle = getComputedStyle(bubble);
+    return parseFloat(bubbleStyle.borderTopWidth) + parseFloat(bubbleStyle.borderBottomWidth) + content2.offsetHeight;
+  }
+  function BottomLeftTail({ active: active2 }) {
+    const gradientId = g2();
+    return /* @__PURE__ */ _("div", { class: Bubble_default.bottomLeftTail, "aria-hidden": "true" }, /* @__PURE__ */ _(
+      "svg",
+      {
+        class: (0, import_classnames11.default)(active2 && Bubble_default.active),
+        width: "50",
+        height: "34",
+        viewBox: "0 0 50 34",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+      },
+      /* @__PURE__ */ _(
+        "path",
+        {
+          d: "M49.25 0.75V2.34766H48.7021C45.8666 2.34769 43.7612 3.6682 41.8477 5.68555C39.9707 7.66432 38.175 10.432 36.0186 13.4121C31.6717 19.4191 25.5656 26.7393 13.3682 32.1523C11.8561 32.8234 10.3789 32.4409 9.36523 31.4863C8.34348 30.5241 7.80054 28.9823 8.23926 27.3457C9.05445 24.3053 9.92429 20.9248 10.5938 17.9824C11.2559 15.0722 11.7439 12.5021 11.7568 11.1328C11.7813 8.55523 10.4106 6.3471 8.48633 4.80859C6.56458 3.27217 4.02869 2.34775 1.56152 2.34766H0.75V0.75H49.25Z",
+          style: "fill: var(--bubble-bg)",
+          stroke: `url(#${gradientId})`,
+          "stroke-width": "1.5",
+          "stroke-linecap": "round"
+        }
+      ),
+      /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: gradientId, x1: "25", y1: "1.5979", x2: "25", y2: "1.66431", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { style: "stop-color: var(--bubble-bg)" }), /* @__PURE__ */ _("stop", { offset: "1", style: "stop-color: var(--bubble-border)" })))
+    ));
+  }
+  function RightTail({ active: active2 }) {
+    const gradientId = g2();
+    return /* @__PURE__ */ _("div", { class: Bubble_default.rightTail, "aria-hidden": "true" }, /* @__PURE__ */ _(
+      "svg",
+      {
+        class: (0, import_classnames11.default)(active2 && Bubble_default.active),
+        width: "24",
+        height: "40",
+        viewBox: "0 0 24 40",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+      },
+      /* @__PURE__ */ _(
+        "path",
+        {
+          d: "M0.75 39.2539L0.75 0.751953L2.24707 0.75293L2.24609 0.799805V0.803711C2.24616 2.89033 3.3291 4.79647 4.85352 6.08887C12.7709 12.8013 19.8154 21.9412 23.0869 31.9014C23.2525 32.4055 23.0628 32.8616 22.6436 33.166C22.2105 33.4804 21.5931 33.576 21.0469 33.3096C18.399 32.0168 15.5639 31.075 12.6934 30.4053C7.13278 29.108 2.29702 33.727 2.24316 39.2539L0.75 39.2539Z",
+          style: "fill: var(--bubble-bg)",
+          stroke: `url(#${gradientId})`,
+          "stroke-width": "1.5",
+          "stroke-linecap": "round"
+        }
+      ),
+      /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: gradientId, x1: "1.52344", y1: "26.5039", x2: "1.59056", y2: "26.5039", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { style: "stop-color: var(--bubble-bg)" }), /* @__PURE__ */ _("stop", { offset: "1", style: "stop-color: var(--bubble-border)" })))
+    ));
   }
 
   // pages/onboarding/app/v4/components/ProgressIndicator.js
@@ -28651,7 +28782,7 @@
     PARTIAL_SUPPORT: "partialSupport",
     FULL_SUPPORT: "fullSupport"
   };
-  var tableIconPrefix2 = "assets/img/v4/steps/";
+  var tableIconPrefix2 = "assets/img/steps/v4/";
   var comparisonTableData2 = (t3, adBlockingEnabled = false) => [
     {
       icon: "vpn.svg",
@@ -28730,6 +28861,7 @@
     notSupported: "ComparisonTable_notSupported2",
     partialSupport: "ComparisonTable_partialSupport2",
     fullSupport: "ComparisonTable_fullSupport2",
+    bouncein: "ComparisonTable_bouncein",
     browserIcon: "ComparisonTable_browserIcon2",
     browserIconChrome: "ComparisonTable_browserIconChrome2",
     browserIconSafari: "ComparisonTable_browserIconSafari2",
@@ -28750,9 +28882,9 @@
     const arialLabel = t3(`comparison_${status}`);
     return /* @__PURE__ */ _("td", { className: ComparisonTable_default2.rowCell }, /* @__PURE__ */ _("span", { className: (0, import_classnames13.default)(ComparisonTable_default2.status, ComparisonTable_default2[status]), "aria-label": arialLabel }));
   }
-  function ComparisonTableRow2({ icon, title, statuses }) {
+  function ComparisonTableRow2({ icon, title, statuses, index: index2 }) {
     const { chrome, ddg } = statuses;
-    return /* @__PURE__ */ _("tr", { className: ComparisonTable_default2.row }, /* @__PURE__ */ _(ComparisonTableRowHeading2, { icon, title }), /* @__PURE__ */ _(ComparisonTableCell2, { status: chrome }), /* @__PURE__ */ _(ComparisonTableCell2, { status: ddg }));
+    return /* @__PURE__ */ _("tr", { className: ComparisonTable_default2.row, style: { "--row-index": index2 } }, /* @__PURE__ */ _(ComparisonTableRowHeading2, { icon, title }), /* @__PURE__ */ _(ComparisonTableCell2, { status: chrome }), /* @__PURE__ */ _(ComparisonTableCell2, { status: ddg }));
   }
   function ComparisonTable2() {
     const { t: t3 } = useTypedTranslation();
@@ -28763,7 +28895,7 @@
     );
     const adBlockingEnabled = systemSettingsStep?.rows?.some((row) => row === "aggressive-ad-blocking" || row === "youtube-ad-blocking") ?? false;
     const tableData = comparisonTableData2(t3, adBlockingEnabled);
-    return /* @__PURE__ */ _("table", { className: ComparisonTable_default2.table }, /* @__PURE__ */ _("caption", null), /* @__PURE__ */ _("thead", null, /* @__PURE__ */ _("tr", null, /* @__PURE__ */ _("th", null), /* @__PURE__ */ _(ComparisonTableColumnHeading2, { title: "Chrome" }), /* @__PURE__ */ _(ComparisonTableColumnHeading2, { title: "DuckDuckGo" }))), /* @__PURE__ */ _("tbody", null, tableData.map((data2) => /* @__PURE__ */ _(ComparisonTableRow2, { ...data2 }))));
+    return /* @__PURE__ */ _("table", { className: ComparisonTable_default2.table }, /* @__PURE__ */ _("caption", null), /* @__PURE__ */ _("thead", null, /* @__PURE__ */ _("tr", null, /* @__PURE__ */ _("th", null), /* @__PURE__ */ _(ComparisonTableColumnHeading2, { title: "Chrome" }), /* @__PURE__ */ _(ComparisonTableColumnHeading2, { title: "DuckDuckGo" }))), /* @__PURE__ */ _("tbody", null, tableData.map((data2, index2) => /* @__PURE__ */ _(ComparisonTableRow2, { key: index2, ...data2, index: index2 }))));
   }
 
   // pages/onboarding/app/v4/components/Button.js
@@ -28773,12 +28905,145 @@
   var Button_default = {
     button: "Button_button",
     primary: "Button_primary",
-    secondary: "Button_secondary"
+    secondary: "Button_secondary",
+    wide: "Button_wide",
+    stretch: "Button_stretch"
   };
 
   // pages/onboarding/app/v4/components/Button.js
-  function Button2({ variant = "primary", children, onClick, class: className }) {
-    return /* @__PURE__ */ _("button", { type: "button", class: (0, import_classnames14.default)(Button_default.button, Button_default[variant], className), onClick }, children);
+  function Button2({ variant = "primary", children, onClick, disabled, size, class: className, buttonRef }) {
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        ref: buttonRef,
+        type: "button",
+        class: (0, import_classnames14.default)(Button_default.button, Button_default[variant], size && Button_default[size], className),
+        onClick,
+        disabled
+      },
+      children
+    );
+  }
+
+  // pages/onboarding/app/v4/hooks/usePresence.js
+  function usePresence(show, exitConfig) {
+    const ref = A2(
+      /** @type {T|null} */
+      null
+    );
+    const [mounted, setMounted] = d2(show);
+    const activeAnimation = A2(
+      /** @type {Animation|null} */
+      null
+    );
+    const exitConfigRef = A2(exitConfig);
+    const { isReducedMotion } = useEnv();
+    exitConfigRef.current = exitConfig;
+    _2(() => {
+      if (show) {
+        activeAnimation.current?.cancel();
+        activeAnimation.current = null;
+        const element2 = ref.current;
+        if (element2) {
+          element2.style.position = "";
+          element2.style.left = "";
+          element2.style.top = "";
+          element2.style.width = "";
+          element2.style.height = "";
+        }
+        setMounted(true);
+        return;
+      }
+      const element = ref.current;
+      const config = exitConfigRef.current;
+      if (!element) {
+        config.onComplete?.();
+        setMounted(false);
+        return;
+      }
+      if (isReducedMotion) {
+        config.onComplete?.();
+        setMounted(false);
+        return;
+      }
+      const rect = element.getBoundingClientRect();
+      const offsetParent = element.offsetParent;
+      if (!offsetParent || offsetParent === document.body) {
+        console.warn("usePresence: element has no positioned ancestor. Add position: relative to a parent element.");
+      }
+      const parentRect = offsetParent?.getBoundingClientRect() ?? { left: 0, top: 0 };
+      element.style.position = "absolute";
+      element.style.left = `${rect.left - parentRect.left}px`;
+      element.style.top = `${rect.top - parentRect.top}px`;
+      element.style.width = `${rect.width}px`;
+      element.style.height = `${rect.height}px`;
+      const animation = element.animate(config.keyframes, { fill: "forwards", ...config.options });
+      activeAnimation.current = animation;
+      animation.onfinish = () => {
+        activeAnimation.current = null;
+        config.onComplete?.();
+        setMounted(false);
+      };
+      return () => {
+        animation.cancel();
+        activeAnimation.current = null;
+      };
+    }, [show, isReducedMotion]);
+    return [ref, mounted];
+  }
+
+  // pages/onboarding/app/v4/hooks/useFlip.js
+  function useFlip(options2 = {}) {
+    const ref = A2(
+      /** @type {T|null} */
+      null
+    );
+    const previousPosition = A2(
+      /** @type {{x: number, y: number}|null} */
+      null
+    );
+    const activeAnimation = A2(
+      /** @type {Animation|null} */
+      null
+    );
+    const { isReducedMotion } = useEnv();
+    const { duration = 300, easing = "cubic-bezier(0.17, 0, 0.34, 1)" } = options2;
+    _2(() => {
+      const element = ref.current;
+      if (!element) return;
+      if (activeAnimation.current) return;
+      const position2 = measureRelativePosition(element);
+      if (previousPosition.current && !isReducedMotion) {
+        const deltaX = previousPosition.current.x - position2.x;
+        const deltaY = previousPosition.current.y - position2.y;
+        if (deltaX || deltaY) {
+          const animation = element.animate([{ transform: `translate(${deltaX}px, ${deltaY}px)` }, { transform: "none" }], {
+            duration,
+            easing
+          });
+          activeAnimation.current = animation;
+          animation.onfinish = () => {
+            activeAnimation.current = null;
+            previousPosition.current = measureRelativePosition(element);
+          };
+        }
+      }
+      previousPosition.current = position2;
+    });
+    y2(() => () => activeAnimation.current?.cancel(), []);
+    return ref;
+  }
+  function measureRelativePosition(element) {
+    const offsetParent = element.offsetParent;
+    if (!offsetParent || offsetParent === document.body) {
+      console.warn("useFlip: element has no positioned ancestor. Add position: relative to a parent element.");
+    }
+    const elementRect = element.getBoundingClientRect();
+    const parentRect = offsetParent?.getBoundingClientRect() ?? { left: 0, top: 0 };
+    return {
+      x: elementRect.left - parentRect.left,
+      y: elementRect.top - parentRect.top
+    };
   }
 
   // pages/onboarding/app/v4/components/MakeDefaultContent.module.css
@@ -28792,19 +29057,72 @@
   // pages/onboarding/app/v4/components/MakeDefaultContent.js
   function MakeDefaultContent() {
     const { t: t3 } = useTypedTranslation();
-    const globalState = x2(GlobalContext);
     const dispatch = x2(GlobalDispatch);
-    const { UIValues } = globalState;
-    const isIdle = UIValues["default-browser"] === "idle";
-    const advance = () => dispatch({ kind: "advance" });
-    const enableDefaultBrowser = () => dispatch({
-      kind: "update-system-value",
-      id: "default-browser",
-      payload: { enabled: true },
-      current: true
+    const appState = useGlobalState();
+    const { status } = appState;
+    const defaultBrowserUIValue = appState.UIValues["default-browser"];
+    const isPending = status.kind === "executing" && status.action.kind === "update-system-value" && status.action.id === "default-browser";
+    const showSkipButton = !isPending && defaultBrowserUIValue === "idle";
+    const [showSuccess, setShowSuccess] = d2(false);
+    const [titleRef, animateTitle] = useAnimate();
+    const [skipButtonRef, skipButtonMounted] = usePresence(showSkipButton, {
+      keyframes: [{ opacity: 1 }, { opacity: 0 }],
+      options: { duration: 300, easing: "ease-out" }
     });
-    return /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.root }, /* @__PURE__ */ _("h2", { class: MakeDefaultContent_default.title }, isIdle ? t3("protectionsActivated_title") : t3("makeDefaultAccept_title")), /* @__PURE__ */ _(ComparisonTable2, null), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.actions }, isIdle && /* @__PURE__ */ _(Button2, { variant: "secondary", class: MakeDefaultContent_default.skipButton, onClick: advance }, t3("skipButton")), /* @__PURE__ */ _(Button2, { onClick: isIdle ? enableDefaultBrowser : advance }, isIdle ? t3("makeDefaultButton") : t3("nextButton"))));
+    const makeDefaultButtonRef = useFlip({ duration: 300, easing: "cubic-bezier(0.17, 0, 0.83, 1)" });
+    if (showSuccess && showSkipButton) {
+      setShowSuccess(false);
+    }
+    if (showSkipButton && makeDefaultButtonRef.current) {
+      makeDefaultButtonRef.current.style.minWidth = "";
+    }
+    const advance = () => dispatch({ kind: "enqueue-next" });
+    const enableDefaultBrowser = () => {
+      if (makeDefaultButtonRef.current) {
+        makeDefaultButtonRef.current.style.minWidth = `${makeDefaultButtonRef.current.offsetWidth}px`;
+      }
+      dispatch({
+        kind: "update-system-value",
+        id: "default-browser",
+        payload: { enabled: true },
+        current: true
+      });
+      (async () => {
+        await animateTitle([{ scale: 1 }, { scale: 1.07 }], {
+          duration: 233,
+          easing: "cubic-bezier(0.17, 0, 0.83, 1)"
+        });
+        setShowSuccess(true);
+        await animateTitle([{ scale: 1.07 }, { scale: 1 }], {
+          duration: 233,
+          easing: "cubic-bezier(0.17, 0, 0.83, 1)"
+        });
+      })();
+    };
+    return /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.root }, /* @__PURE__ */ _("h2", { ref: titleRef, class: MakeDefaultContent_default.title }, showSuccess ? t3("makeDefaultAccept_title_v4") : t3("protectionsActivated_title")), /* @__PURE__ */ _(ComparisonTable2, null), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.actions }, skipButtonMounted && /* @__PURE__ */ _(Button2, { buttonRef: skipButtonRef, class: MakeDefaultContent_default.skipButton, variant: "secondary", onClick: advance }, t3("skipButton")), /* @__PURE__ */ _(Button2, { buttonRef: makeDefaultButtonRef, disabled: isPending, onClick: showSkipButton ? enableDefaultBrowser : advance }, showSkipButton ? t3("makeDefaultButton") : t3("nextButton"))));
   }
+
+  // pages/onboarding/app/v4/components/SettingsContent.js
+  var import_classnames15 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/v4/components/SettingsContent.module.css
+  var SettingsContent_default = {
+    root: "SettingsContent_root",
+    rows: "SettingsContent_rows",
+    row: "SettingsContent_row",
+    rowContent: "SettingsContent_rowContent",
+    rowMain: "SettingsContent_rowMain",
+    rowIcon: "SettingsContent_rowIcon",
+    rowText: "SettingsContent_rowText",
+    rowTitle: "SettingsContent_rowTitle",
+    rowSubtitle: "SettingsContent_rowSubtitle",
+    rowInline: "SettingsContent_rowInline",
+    divider: "SettingsContent_divider",
+    rowButtons: "SettingsContent_rowButtons",
+    actions: "SettingsContent_actions",
+    fadeIn: "SettingsContent_fadeIn",
+    fadeInDelayed: "SettingsContent_fadeInDelayed"
+  };
 
   // pages/onboarding/app/v4/components/SettingsContent.js
   function SettingsContent() {
@@ -28812,17 +29130,24 @@
     const { t: t3 } = useTypedTranslation();
     const dispatch = useGlobalDispatch();
     const appState = useGlobalState();
+    const { isReducedMotion } = useEnv();
     if (appState.step.kind !== "settings") throw new Error("unreachable, for TS benefit");
     const { step, status, order, activeStep } = appState;
     const isDone = appState.activeRow >= step.rows.length;
     const isLastStep = order[order.length - 1] === activeStep;
     const pendingId = status.kind === "executing" && status.action.kind === "update-system-value" && status.action.id;
-    const advance = () => dispatch({ kind: "advance" });
-    const dismiss = () => dispatch({ kind: "dismiss" });
+    const [exitingIndex, setExitingIndex] = d2(
+      /** @type {number | null} */
+      null
+    );
+    const enteringIndex = exitingIndex !== null && exitingIndex + 1 < step.rows.length ? exitingIndex + 1 : null;
+    const isAnimating = exitingIndex !== null;
     const rows = step.rows.map((rowId, index2) => {
       return {
-        visible: appState.activeRow >= index2,
+        visible: appState.activeRow >= index2 || enteringIndex === index2,
         current: appState.activeRow === index2,
+        isExiting: exitingIndex === index2,
+        isEntering: enteringIndex === index2,
         systemValue: appState.values[rowId] || null,
         uiValue: appState.UIValues[rowId],
         pending: pendingId === rowId,
@@ -28830,100 +29155,246 @@
         data: settingsRowItems2[rowId](t3, platform)
       };
     });
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Stack, null, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), /* @__PURE__ */ _(PlainList, { variant: "bordered", animate: true }, rows.filter((item) => item.visible).map((item, index2) => {
-      return /* @__PURE__ */ _(SettingListItem2, { key: item.id, dispatch, item, index: index2 });
-    }))), isDone && /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: isLastStep ? dismiss : advance }, isLastStep ? t3("startBrowsing") : t3("nextButton"), isLastStep && /* @__PURE__ */ _(Launch, null))));
+    const advance = () => dispatch({ kind: "enqueue-next" });
+    const dismiss = () => dispatch({ kind: "dismiss" });
+    return /* @__PURE__ */ _("div", { class: SettingsContent_default.root }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rows }, rows.filter((item) => item.visible).map((item, index2) => /* @__PURE__ */ _(k, { key: item.id }, index2 > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(SettingsContent_default.divider, item.isEntering && SettingsContent_default.fadeIn) }), /* @__PURE__ */ _(
+      SettingListItem2,
+      {
+        dispatch,
+        item,
+        onAction: () => {
+          if (isReducedMotion) return;
+          setExitingIndex(appState.activeRow);
+        },
+        onTransitionEnd: () => setExitingIndex(null)
+      }
+    )))), appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), isDone && /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(SettingsContent_default.actions, isAnimating && SettingsContent_default.fadeInDelayed) }, /* @__PURE__ */ _(Button2, { size: "wide", onClick: isLastStep ? dismiss : advance }, isLastStep ? t3("startBrowsing") : t3("nextButton"), isLastStep && /* @__PURE__ */ _(Launch, null))));
   }
-  function SettingListItem2({ index: index2, item, dispatch }) {
-    const data2 = item.data;
+  function SettingListItem2({ item, dispatch, onAction, onTransitionEnd }) {
+    const { data: data2, current, isExiting, isEntering, pending } = item;
     const { t: t3 } = useTypedTranslation();
+    const [subtitleRef, subtitleMounted] = usePresence(!isExiting, {
+      keyframes: [{ opacity: 1 }, { opacity: 0 }],
+      options: { duration: 200, easing: "ease-out" }
+    });
+    const [buttonsRef, buttonsMounted] = usePresence(!isExiting, {
+      keyframes: [{ opacity: 1 }, { opacity: 0 }],
+      options: { duration: 200, easing: "ease-out" },
+      onComplete: onTransitionEnd
+    });
+    const iconRef = useFlip();
+    const handleAction = (enabled2) => {
+      if (isExiting || isEntering) return;
+      if (current) onAction();
+      dispatch({
+        kind: "update-system-value",
+        id: data2.id,
+        payload: { enabled: enabled2 },
+        current
+      });
+    };
+    const showDetails = current || isExiting || isEntering;
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(SettingsContent_default.row, isEntering && SettingsContent_default.fadeIn), "data-testid": "ListItem", "data-id": data2.id }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowContent }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowMain }, /* @__PURE__ */ _("img", { ref: iconRef, class: SettingsContent_default.rowIcon, src: "assets/img/steps/" + data2.icon, alt: "" }), /* @__PURE__ */ _("div", { class: SettingsContent_default.rowText }, /* @__PURE__ */ _("p", { class: SettingsContent_default.rowTitle }, data2.title), showDetails && data2.secondaryText && subtitleMounted && /* @__PURE__ */ _("p", { ref: subtitleRef, class: SettingsContent_default.rowSubtitle }, data2.secondaryText)), /* @__PURE__ */ _(InlineAction, { item, onAction: handleAction })), showDetails && buttonsMounted && /* @__PURE__ */ _("div", { ref: buttonsRef, class: SettingsContent_default.rowButtons }, /* @__PURE__ */ _(Button2, { variant: "secondary", disabled: pending, onClick: () => handleAction(false) }, t3("skipButton")), /* @__PURE__ */ _(Button2, { disabled: pending, onClick: () => handleAction(true) }, data2.acceptText))));
+  }
+  function InlineAction({ item, onAction }) {
     const { isDarkMode } = useEnv();
     const platformName = (
       /** @type {'macos'|'windows'} */
       usePlatformName()
     );
-    const accept = () => {
-      dispatch({
-        kind: "update-system-value",
-        id: data2.id,
-        payload: { enabled: true },
-        current: item.current
-      });
-    };
-    const deny = () => {
-      dispatch({
-        kind: "update-system-value",
-        id: data2.id,
-        payload: { enabled: false },
-        current: item.current
-      });
-    };
-    const inline = (() => {
-      if (item.uiValue === "idle") return null;
-      if (!item.systemValue) return null;
-      const enabled2 = item.systemValue.enabled;
-      if (item.uiValue === "skipped") {
-        if (enabled2 && item.data.kind === "one-time") {
-          return /* @__PURE__ */ _(BounceIn, { delay: "normal" }, /* @__PURE__ */ _(Check, null));
+    if (item.uiValue === "idle" || !item.systemValue) return null;
+    if (item.uiValue === "accepted" || item.uiValue === "skipped" && item.systemValue.enabled && item.data.kind === "one-time") {
+      return /* @__PURE__ */ _("div", { class: SettingsContent_default.rowInline }, /* @__PURE__ */ _(BounceIn, { delay: "normal" }, /* @__PURE__ */ _("img", { src: "assets/img/v4/icons/check-circle.svg", width: "16", height: "16", alt: "Completed Action" })));
+    }
+    if (item.uiValue === "skipped") {
+      return /* @__PURE__ */ _("div", { class: SettingsContent_default.rowInline }, /* @__PURE__ */ _(FadeIn, null, item.data.kind === "one-time" && /* @__PURE__ */ _(Button2, { variant: "secondary", disabled: item.pending, onClick: () => onAction(true) }, item.data.acceptTextRecall || item.data.acceptText), item.data.kind === "toggle" && /* @__PURE__ */ _(
+        Switch,
+        {
+          ariaLabel: item.data.acceptText,
+          pending: item.pending,
+          checked: item.systemValue.enabled,
+          onChecked: () => onAction(true),
+          onUnchecked: () => onAction(false),
+          platformName,
+          theme: isDarkMode ? "dark" : "light"
         }
-        return /* @__PURE__ */ _(FadeIn, null, item.data.kind === "one-time" && /* @__PURE__ */ _("button", { type: "button", disabled: item.pending, onClick: accept }, item.data.acceptTextRecall || item.data.acceptText), item.data.kind === "toggle" && /* @__PURE__ */ _(
-          Switch,
-          {
-            ariaLabel: item.data.acceptText,
-            pending: item.pending,
-            checked: enabled2,
-            onChecked: accept,
-            onUnchecked: deny,
-            platformName,
-            theme: isDarkMode ? "dark" : "light"
-          }
-        ));
-      }
-      if (item.uiValue === "accepted") {
-        return /* @__PURE__ */ _(BounceIn, { delay: "normal" }, /* @__PURE__ */ _(Check, null));
-      }
-      throw new Error("unreachable");
-    })();
-    return /* @__PURE__ */ _(
-      ListItem,
-      {
-        key: data2.id,
-        icon: data2.icon,
-        title: data2.title,
-        secondaryText: item.current && data2.secondaryText,
-        inline,
-        animate: true,
-        index: index2
-      },
-      item.current && /* @__PURE__ */ _(ListItem.Indent, null, /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", disabled: item.pending, onClick: deny }, t3("skipButton")), /* @__PURE__ */ _("button", { type: "button", disabled: item.pending, onClick: accept }, item.data.acceptText)))
-    );
+      )));
+    }
+    throw new Error("unreachable");
   }
+
+  // pages/onboarding/app/v4/components/StepHeader.module.css
+  var StepHeader_default = {
+    root: "StepHeader_root",
+    title: "StepHeader_title",
+    subtitle: "StepHeader_subtitle"
+  };
+
+  // pages/onboarding/app/v4/components/StepHeader.js
+  function StepHeader({ title, subtitle }) {
+    return /* @__PURE__ */ _("div", { class: StepHeader_default.root }, /* @__PURE__ */ _("h2", { class: StepHeader_default.title }, title), subtitle && /* @__PURE__ */ _("p", { class: StepHeader_default.subtitle }, subtitle));
+  }
+
+  // pages/onboarding/app/v4/components/DuckPlayerContent.module.css
+  var DuckPlayerContent_default = {
+    root: "DuckPlayerContent_root",
+    imageContainer: "DuckPlayerContent_imageContainer",
+    promoImage: "DuckPlayerContent_promoImage"
+  };
 
   // pages/onboarding/app/v4/components/DuckPlayerContent.js
   function DuckPlayerContent() {
     const { t: t3 } = useTypedTranslation();
     const dispatch = x2(GlobalDispatch);
-    const { getStep, setStep } = useBeforeAfter2();
-    const beforeAfterState = getStep("duckPlayerSingle");
-    const advance = () => dispatch({ kind: "advance" });
-    const longestText = [t3("beforeAfter_duckPlayer_show"), t3("beforeAfter_duckPlayer_hide")].reduce((acc, cur) => {
-      return cur.length > acc.length ? cur : acc;
-    });
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("div", { "data-placeholder": "duck-player-animation", style: { minHeight: "200px", background: "#eee" } }, "Duck Player Preview (", beforeAfterState || "before", ")"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(
-      "button",
-      {
-        type: "button",
-        "aria-label": longestText,
-        onClick: () => setStep("duckPlayerSingle", beforeAfterState === "after" ? "before" : "after")
-      },
-      /* @__PURE__ */ _(Replay, { direction: beforeAfterState === "after" ? "backward" : "forward" }),
-      beforeAfterState === "after" ? t3("beforeAfter_duckPlayer_hide") : t3("beforeAfter_duckPlayer_show")
-    ), /* @__PURE__ */ _("button", { type: "button", onClick: advance }, t3("nextButton"))));
+    const advance = () => dispatch({ kind: "enqueue-next" });
+    return /* @__PURE__ */ _("div", { class: DuckPlayerContent_default.root }, /* @__PURE__ */ _("div", { class: DuckPlayerContent_default.imageContainer }, /* @__PURE__ */ _("img", { src: "assets/img/v4/duck-player-promo.svg", alt: "", class: DuckPlayerContent_default.promoImage })), /* @__PURE__ */ _(Button2, { variant: "primary", size: "stretch", onClick: advance }, t3("nextButton")));
   }
+
+  // pages/onboarding/app/v4/components/AddressBarPreview.module.css
+  var AddressBarPreview_default2 = {
+    wrapper: "AddressBarPreview_wrapper2",
+    image: "AddressBarPreview_image2",
+    bgOverlay: "AddressBarPreview_bgOverlay2",
+    bgReduced: "AddressBarPreview_bgReduced2",
+    borderOverlay: "AddressBarPreview_borderOverlay2",
+    borderReduced: "AddressBarPreview_borderReduced2",
+    regularIcon: "AddressBarPreview_regularIcon2",
+    extendedIcon: "AddressBarPreview_extendedIcon2"
+  };
+
+  // pages/onboarding/app/v4/components/AddressBarPreview.js
+  var ICON_TRANSITION2 = { transition: "opacity 250ms ease-in-out" };
+  function AddressBarPreview2({ isReduced, isDarkMode = false }) {
+    const colors = isDarkMode ? {
+      // Dark mode
+      outerBg: "#051E3D",
+      browserChrome: "#1C1C1C",
+      browserBorder: "#3D3D3D",
+      topBar: "#050505",
+      tabsArea: "#282828",
+      addressBarBg: "#3D3D3D",
+      addressBarBorder: "#3377AD",
+      iconPillOuterBg: "rgba(67, 151, 224, 0.25)",
+      iconPillBg: "#4397E0",
+      iconPillIcons: "#282828",
+      searchIcon: "#4397E0",
+      navArrows: "#fff",
+      navArrowsOpacity: "0.24"
+    } : {
+      // Light mode (matches Figma export)
+      outerBg: "#4D9DFF",
+      browserChrome: "#FAFAFA",
+      browserBorder: "#ffffff",
+      topBar: "#e0e0e0",
+      tabsArea: "#F2F2F2",
+      addressBarBg: "#fff",
+      addressBarBorder: "#77B6E8",
+      iconPillOuterBg: "#C9E3FF",
+      iconPillBg: "#1074CC",
+      iconPillIcons: "#fff",
+      searchIcon: "#1074CC",
+      navArrows: "#000",
+      navArrowsOpacity: "0.36"
+    };
+    return /* @__PURE__ */ _("div", { className: AddressBarPreview_default2.wrapper }, /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 432 208", xmlns: "http://www.w3.org/2000/svg", className: AddressBarPreview_default2.image }, /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip-main" }, /* @__PURE__ */ _("rect", { width: "432", height: "208", fill: "#fff", rx: "8" }))), /* @__PURE__ */ _("g", { clipPath: "url(#clip-main)" }, /* @__PURE__ */ _("rect", { width: "432", height: "208", fill: colors.outerBg, rx: "8" }), /* @__PURE__ */ _("path", { fill: colors.browserChrome, d: "M32 30a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v178H32z" }), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: colors.browserBorder,
+        d: "M400 30a8 8 0 0 0-8-8v-2c5.523 0 10 4.477 10 10v180H30V30c0-5.523 4.477-10 10-10v2a8 8 0 0 0-8 8v178h368zm-8-10v2H40v-2z"
+      }
+    ), /* @__PURE__ */ _("path", { fill: colors.topBar, d: "M32 30a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v50H32z" }), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: colors.tabsArea,
+        d: "M166 37a8 8 0 0 0 8 8h75a8 8 0 0 1 8 8v3a8 8 0 0 1-8 8H55a8 8 0 0 1-8-8v-3a8 8 0 0 1 8-8h3a8 8 0 0 0 8-8v-5a8 8 0 0 1 8-8h84a8 8 0 0 1 8 8z"
+      }
+    ), /* @__PURE__ */ _("path", { fill: colors.tabsArea, d: "M32 53a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v28H32z" }), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: colors.navArrows,
+        fillOpacity: colors.navArrowsOpacity,
+        d: "M49.86 58.267a.469.469 0 0 0-.664-.663l-3.983 3.987a1.594 1.594 0 0 0 0 2.253l3.983 3.986a.469.469 0 0 0 .663-.663l-3.979-3.981h9.65a.469.469 0 0 0 0-.938h-9.65zm326.89.702c0-.26.21-.469.469-.469h9.562a.469.469 0 1 1 0 .938h-9.562a.47.47 0 0 1-.469-.47m0 3.751c0-.26.21-.469.469-.469h9.562a.469.469 0 1 1 0 .938h-9.562a.47.47 0 0 1-.469-.47m.469 3.282a.469.469 0 1 0 0 .938h9.562a.469.469 0 1 0 0-.938z"
+      }
+    ))), /* @__PURE__ */ _("div", { className: `${AddressBarPreview_default2.bgOverlay} ${isReduced ? AddressBarPreview_default2.bgReduced : ""}`, style: { backgroundColor: colors.addressBarBg } }), /* @__PURE__ */ _(
+      "div",
+      {
+        className: `${AddressBarPreview_default2.borderOverlay} ${isReduced ? AddressBarPreview_default2.borderReduced : ""}`,
+        style: { borderColor: colors.addressBarBorder }
+      }
+    ), /* @__PURE__ */ _(
+      "svg",
+      {
+        className: AddressBarPreview_default2.regularIcon,
+        style: { opacity: isReduced ? 1 : 0, ...ICON_TRANSITION2 },
+        viewBox: "0 0 12 12",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+      },
+      /* @__PURE__ */ _(
+        "path",
+        {
+          fill: colors.searchIcon,
+          d: "M5.25 0a5.25 5.25 0 0 1 4.049 8.592l2.555 2.555.064.078a.502.502 0 0 1-.693.693l-.079-.065-2.554-2.554A5.25 5.25 0 1 1 5.25 0m0 1a4.25 4.25 0 1 0 0 8.5 4.25 4.25 0 0 0 0-8.5"
+        }
+      )
+    ), /* @__PURE__ */ _(
+      "svg",
+      {
+        className: AddressBarPreview_default2.extendedIcon,
+        style: { opacity: isReduced ? 0 : 1, ...ICON_TRANSITION2 },
+        viewBox: "0 0 56 20",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg"
+      },
+      /* @__PURE__ */ _("rect", { width: "56", height: "20", rx: "10", fill: colors.iconPillOuterBg }),
+      /* @__PURE__ */ _(
+        "path",
+        {
+          fill: colors.iconPillBg,
+          d: "M2 10C2 5.582 5.582 2 10 2H20C24.418 2 28 5.582 28 10C28 14.418 24.418 18 20 18H10C5.582 18 2 14.418 2 10Z"
+        }
+      ),
+      /* @__PURE__ */ _(
+        "path",
+        {
+          fill: colors.iconPillIcons,
+          d: "M14.25 4C17.149 4 19.5 6.351 19.5 9.25C19.5 10.52 19.049 11.684 18.299 12.592L20.854 15.147L20.918 15.225C21.046 15.419 21.024 15.683 20.854 15.854C20.683 16.024 20.419 16.046 20.225 15.918L20.146 15.854L17.592 13.299C16.684 14.049 15.52 14.5 14.25 14.5C11.351 14.5 9 12.149 9 9.25C9 6.351 11.351 4 14.25 4ZM14.25 5C11.903 5 10 6.903 10 9.25C10 11.597 11.903 13.5 14.25 13.5C16.597 13.5 18.5 11.597 18.5 9.25C18.5 6.903 16.597 5 14.25 5Z"
+        }
+      ),
+      /* @__PURE__ */ _(
+        "path",
+        {
+          fill: colors.iconPillBg,
+          d: "M41.785 6.453C41.711 6.157 41.289 6.157 41.215 6.453L41.05 7.111C40.831 7.989 40.145 8.675 39.267 8.894L38.609 9.059C38.312 9.133 38.312 9.555 38.609 9.629L39.267 9.794C40.145 10.013 40.831 10.698 41.05 11.576L41.215 12.234C41.289 12.531 41.711 12.531 41.785 12.234L41.949 11.576C42.169 10.698 42.854 10.013 43.732 9.794L44.39 9.629C44.687 9.555 44.687 9.133 44.39 9.059L43.732 8.894C42.854 8.675 42.169 7.989 41.949 7.111L41.785 6.453Z"
+        }
+      ),
+      /* @__PURE__ */ _(
+        "path",
+        {
+          "fill-rule": "evenodd",
+          "clip-rule": "evenodd",
+          fill: colors.iconPillBg,
+          d: "M36.861 15.95C38.853 15.607 42.343 14.946 43.761 14.295C45.954 13.5 47.5 11.583 47.5 9.344C47.5 6.393 44.814 4 41.5 4C38.186 4 35.5 6.393 35.5 9.344C35.5 10.824 36.176 12.164 37.268 13.132C37.508 13.344 37.553 13.712 37.343 13.954L36.373 15.073C36.042 15.455 36.363 16.035 36.861 15.95ZM43.344 13.386L43.381 13.369L43.42 13.355C45.288 12.678 46.5 11.092 46.5 9.344C46.5 7.051 44.373 5 41.5 5C38.627 5 36.5 7.051 36.5 9.344C36.5 10.507 37.029 11.584 37.932 12.384C38.531 12.915 38.71 13.905 38.099 14.609L37.993 14.731C38.727 14.595 39.532 14.435 40.308 14.262C41.614 13.971 42.743 13.662 43.344 13.386Z"
+        }
+      )
+    ));
+  }
+
+  // pages/onboarding/app/v4/components/AddressBarContent.module.css
+  var AddressBarContent_default = {
+    root: "AddressBarContent_root",
+    previewContainer: "AddressBarContent_previewContainer",
+    toggleButtons: "AddressBarContent_toggleButtons",
+    footer: "AddressBarContent_footer",
+    starIcon: "AddressBarContent_starIcon",
+    footerText: "AddressBarContent_footerText",
+    startButton: "AddressBarContent_startButton"
+  };
 
   // pages/onboarding/app/v4/components/AddressBarContent.js
   function AddressBarContent() {
     const { t: t3 } = useTypedTranslation();
+    const { isDarkMode } = useEnv();
     const dispatch = x2(GlobalDispatch);
     const { status } = useGlobalState();
     const [selectedOption, setSelectedOption] = d2("search-and-duckai");
@@ -28945,7 +29416,7 @@
       dispatchPreference(option);
     };
     const dismiss = () => dispatch({ kind: "dismiss" });
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("div", { "data-placeholder": "address-bar-animation", style: { minHeight: "100px", background: "#eee" } }, "Address Bar Preview (", selectedOption, ")"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: AddressBarContent_default.root }, /* @__PURE__ */ _("div", { class: AddressBarContent_default.previewContainer }, /* @__PURE__ */ _(AddressBarPreview2, { isReduced: selectedOption === "search-only", isDarkMode })), /* @__PURE__ */ _("div", { class: AddressBarContent_default.toggleButtons }, /* @__PURE__ */ _(
       ToggleButton,
       {
         label: t3("addressBarMode_searchAndDuckAi"),
@@ -28959,7 +29430,7 @@
         selected: selectedOption === "search-only",
         onClick: () => handleSelection("search-only")
       }
-    )), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: dismiss }, t3("startBrowsing"), " ", /* @__PURE__ */ _(Launch, null))));
+    )), /* @__PURE__ */ _("div", { class: AddressBarContent_default.footer }, /* @__PURE__ */ _("img", { src: "assets/img/steps/v4/ai-chat.svg", alt: "", class: AddressBarContent_default.starIcon }), /* @__PURE__ */ _("span", { class: AddressBarContent_default.footerText }, /* @__PURE__ */ _(Trans, { str: t3("addressBarMode_footer"), values: {} }))), /* @__PURE__ */ _(Button2, { variant: "primary", size: "wide", class: AddressBarContent_default.startButton, onClick: dismiss }, t3("startBrowsing"), " ", /* @__PURE__ */ _(Launch, null)));
   }
 
   // pages/onboarding/app/v4/components/LottieAnimation.js
@@ -29009,11 +29480,11 @@
   var WelcomeContent_default = {
     root: "WelcomeContent_root",
     title: "WelcomeContent_title",
-    "welcome-title-slide": "WelcomeContent_welcome-title-slide",
-    "welcome-title-opacity": "WelcomeContent_welcome-title-opacity",
+    "slide-up": "WelcomeContent_slide-up",
+    "fade-in-out": "WelcomeContent_fade-in-out",
     logo: "WelcomeContent_logo",
-    "welcome-logo-scale": "WelcomeContent_welcome-logo-scale",
-    "welcome-logo-opacity": "WelcomeContent_welcome-logo-opacity"
+    "scale-down": "WelcomeContent_scale-down",
+    "fade-out": "WelcomeContent_fade-out"
   };
 
   // pages/onboarding/app/v4/components/WelcomeContent.js
@@ -29033,439 +29504,338 @@
       const timer = setTimeout(complete, WELCOME_ANIMATION_MS);
       return () => clearTimeout(timer);
     }, [isReducedMotion]);
-    return /* @__PURE__ */ _("div", { class: WelcomeContent_default.root, onAnimationEnd: complete }, /* @__PURE__ */ _(LottieAnimation, { class: WelcomeContent_default.logo, src: "assets/lottie/v4/dax-logo.json", width: 80, height: 80 }), /* @__PURE__ */ _("h1", { class: WelcomeContent_default.title }, t3("welcome_title")));
+    return /* @__PURE__ */ _("div", { class: WelcomeContent_default.root, onAnimationEnd: complete }, /* @__PURE__ */ _(LottieAnimation, { class: WelcomeContent_default.logo, src: "assets/lottie/v4/dax-logo.json", width: 80, height: 80 }), /* @__PURE__ */ _("h1", { class: WelcomeContent_default.title }, t3("welcome_title_v4")));
   }
 
   // pages/onboarding/app/v4/components/GetStartedContent.module.css
   var GetStartedContent_default = {
     root: "GetStartedContent_root",
-    "getstarted-content-slide": "GetStartedContent_getstarted-content-slide",
-    "getstarted-content-opacity": "GetStartedContent_getstarted-content-opacity",
+    "slide-up": "GetStartedContent_slide-up",
+    "fade-in": "GetStartedContent_fade-in",
     text: "GetStartedContent_text",
     title: "GetStartedContent_title",
     body: "GetStartedContent_body",
-    actions: "GetStartedContent_actions",
-    button: "GetStartedContent_button"
+    actions: "GetStartedContent_actions"
   };
 
   // pages/onboarding/app/v4/components/GetStartedContent.js
   function GetStartedContent() {
     const dispatch = x2(GlobalDispatch);
-    const { isReducedMotion } = useEnv();
     const { t: t3 } = useTypedTranslation();
-    const parts = t3("getStarted_title_v3", { newline: "\n" }).split("{paragraph}");
+    const parts = t3("getStarted_title_v4", { newline: "\n" }).split("{paragraph}");
     const title = parts[0];
     const body = parts.slice(1).join("");
     const handleClick = () => {
-      dispatch({ kind: isReducedMotion ? "advance" : "enqueue-next" });
+      dispatch({ kind: "enqueue-next" });
     };
-    return /* @__PURE__ */ _("div", { class: GetStartedContent_default.root }, /* @__PURE__ */ _("div", { class: GetStartedContent_default.text }, /* @__PURE__ */ _("h2", { class: GetStartedContent_default.title }, title), /* @__PURE__ */ _("p", { class: GetStartedContent_default.body }, body)), /* @__PURE__ */ _("div", { class: GetStartedContent_default.actions }, /* @__PURE__ */ _(Button2, { class: GetStartedContent_default.button, onClick: handleClick }, t3("getStartedButton_v3"))));
+    return /* @__PURE__ */ _("div", { class: GetStartedContent_default.root }, /* @__PURE__ */ _("div", { class: GetStartedContent_default.text }, /* @__PURE__ */ _("h2", { class: GetStartedContent_default.title }, title), /* @__PURE__ */ _("p", { class: GetStartedContent_default.body }, body)), /* @__PURE__ */ _("div", { class: GetStartedContent_default.actions }, /* @__PURE__ */ _(Button2, { size: "stretch", onClick: handleClick }, t3("getStartedButton_v4"))));
   }
 
-  // pages/onboarding/app/v4/components/DaxIllustration.js
-  var import_classnames15 = __toESM(require_classnames(), 1);
+  // pages/onboarding/app/v4/components/GetStartedAnimation.js
+  var import_classnames16 = __toESM(require_classnames(), 1);
 
-  // pages/onboarding/app/v4/components/DaxIllustration.module.css
-  var DaxIllustration_default = {
-    root: "DaxIllustration_root",
-    outro: "DaxIllustration_outro",
-    "dax-exit": "DaxIllustration_dax-exit"
+  // pages/onboarding/app/v4/components/GetStartedAnimation.module.css
+  var GetStartedAnimation_default = {
+    root: "GetStartedAnimation_root",
+    fadeOut: "GetStartedAnimation_fadeOut",
+    "fade-out": "GetStartedAnimation_fade-out"
   };
 
-  // pages/onboarding/app/v4/components/DaxIllustration.js
-  function DaxIllustration({ class: className }) {
+  // pages/onboarding/app/v4/components/GetStartedAnimation.js
+  function GetStartedAnimation({ class: className }) {
     const { exiting } = x2(GlobalContext);
     return /* @__PURE__ */ _(
-      "div",
+      LottieAnimation,
       {
-        class: (0, import_classnames15.default)(DaxIllustration_default.root, exiting && DaxIllustration_default.outro, className),
-        "data-exiting": exiting ? "true" : void 0,
-        role: "presentation",
-        "aria-hidden": "true"
-      },
-      /* @__PURE__ */ _("svg", { width: "194", height: "194", viewBox: "0 0 194 194", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("mask", { id: "mask0_dax", style: "mask-type:alpha", maskUnits: "userSpaceOnUse", x: "0", y: "0", width: "194", height: "194" }, /* @__PURE__ */ _("circle", { cx: "96.7023", cy: "96.7023", r: "96.7023", fill: "#D9D9D9" })), /* @__PURE__ */ _("g", { mask: "url(#mask0_dax)" }, /* @__PURE__ */ _("g", { filter: "url(#filter0_dax)" }, /* @__PURE__ */ _("circle", { cx: "83.2091", cy: "121.613", r: "74.0284", fill: "#C9E3FF" })), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M160.508 89.2504C159.285 88.2444 156.6 86.9948 155.894 88.4187L155.432 80.1987C153.737 71.0055 148.941 63.845 142.497 61.564C141.008 61.0366 138.881 61.8981 139.237 63.6437C139.706 65.9544 142.346 76.5764 140.017 86.601C138.247 94.2178 133.767 104.992 122.079 113.146C112.283 120.223 99.2161 121.712 88.2867 119.319C84.297 118.443 81.1353 121.769 82.4933 125.641C83.8054 129.399 85.2304 131.774 87.7007 135.151C101.865 154.394 137.223 154.907 155.028 139.402C167.033 128.951 171.661 120.696 171.83 113.653C171.895 110.886 166.194 114.986 165.066 112.532C164.401 111.087 167.637 103.98 166.389 104.957L164.342 106.555C169.456 94.0792 166.879 97.7784 159.898 92.0253L160.518 89.2542L160.508 89.2504Z",
-          fill: "url(#paint0_dax)"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M160.508 89.2504C159.285 88.2444 156.6 86.9948 155.894 88.4187L155.432 80.1987C153.737 71.0055 148.941 63.845 142.497 61.564C141.008 61.0366 138.881 61.8981 139.237 63.6437C139.706 65.9544 142.346 76.5764 140.017 86.601C138.247 94.2178 133.767 104.992 122.079 113.146C112.283 120.223 99.2161 121.712 88.2867 119.319C84.297 118.443 81.1353 121.769 82.4933 125.641C83.8054 129.399 85.2304 131.774 87.7007 135.151C101.865 154.394 137.223 154.907 155.028 139.402C167.033 128.951 171.661 120.696 171.83 113.653C171.895 110.886 166.194 114.986 165.066 112.532C164.401 111.087 167.637 103.98 166.389 104.957L164.342 106.555C169.456 94.0792 166.879 97.7784 159.898 92.0253L160.518 89.2542L160.508 89.2504Z",
-          fill: "white"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M109.921 148.309C105.296 139.79 101.727 127.134 100.915 120.291H94.9209L103.528 146.313C104.229 146.641 107.975 147.972 109.921 148.309Z",
-          fill: "#F0EFEB"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M146.716 110.905C143.722 110.367 140.913 107.155 140.99 102.778L148.091 100.542L158.148 103.382L170.823 120.286C170.209 121.949 166.21 128.211 164.06 130.975C162.064 132.28 157.679 134.52 152.389 132.23C149.71 131.07 150.114 127.74 151.189 122.903C144.97 121.905 143.88 116.413 146.716 110.905Z",
-          fill: "#F8F7F3"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M113.338 149.082C113.269 149.073 113.197 149.09 113.14 149.131C113.083 149.172 113.045 149.234 113.033 149.304C113.022 149.373 113.038 149.444 113.079 149.501C113.12 149.559 113.182 149.598 113.251 149.611C118.114 150.528 123.115 150.768 128.063 150.363C129.666 150.232 131.263 150.031 132.849 149.761C140.987 148.359 149.026 145.263 155.357 139.78C163.013 132.846 171.635 124.833 172.33 113.665C172.349 113.293 172.235 112.671 171.728 112.375C171.255 112.105 170.837 112.142 170.477 112.163C169.756 112.232 169.127 112.411 168.498 112.556C167.313 112.843 165.81 113.128 165.52 112.322C165.34 111.501 165.846 109.926 166.204 108.698C166.4 108.051 166.607 107.404 166.805 106.745C166.903 106.413 167 106.082 167.082 105.727C167.121 105.552 167.163 105.372 167.176 105.135C167.178 105.071 167.181 105.015 167.167 104.911C167.147 104.837 167.15 104.642 166.888 104.456C166.758 104.364 166.549 104.358 166.49 104.372C166.403 104.384 166.336 104.41 166.279 104.438C166.198 104.478 166.142 104.517 166.082 104.564C165.4 105.096 164.718 105.629 164.035 106.162L164.804 106.744C165.873 103.822 167.505 101.136 167.491 97.6342C167.397 96.6938 166.676 95.8924 166.001 95.4488C165.328 94.9824 164.633 94.6175 163.976 94.23C162.646 93.4613 161.4 92.6199 160.215 91.6404L160.384 92.1339C160.591 91.2102 160.798 90.2865 161.005 89.3628L161.102 88.9298L160.683 88.7837C160.679 88.7824 160.676 88.7812 160.672 88.7799L160.824 88.8655C160.085 88.2732 159.289 87.8317 158.395 87.5221C157.946 87.3749 157.47 87.257 156.928 87.2838C156.405 87.2884 155.702 87.6183 155.448 88.1977L156.391 88.3903C156.237 85.6503 156.083 82.9103 155.929 80.1703L155.921 80.108C154.481 72.4177 150.574 64.0643 142.662 61.0963C141.777 60.7946 140.832 60.8669 140 61.2831C139.159 61.6529 138.49 62.7754 138.751 63.7431C140.436 71.222 141.225 79.0347 139.536 86.4895C137.16 97.0524 130.745 106.618 121.798 112.742C112.297 119.571 99.7275 121.277 88.3919 118.841C86.5443 118.408 84.391 118.888 83.0445 120.347C81.661 121.777 81.3638 124.02 82.0319 125.804C83.1903 129.299 85.1307 132.527 87.3064 135.44C87.3211 135.46 87.335 135.479 87.3488 135.497C89.428 138.31 92.0563 140.678 94.9427 142.601C99.0944 145.363 103.749 147.246 108.52 148.523C108.575 148.538 108.635 148.53 108.685 148.501C108.735 148.472 108.772 148.425 108.787 148.37C108.803 148.314 108.796 148.255 108.768 148.204C108.74 148.154 108.693 148.116 108.638 148.1C103.932 146.733 99.401 144.712 95.4129 141.914C92.6378 139.966 90.1387 137.627 88.1341 134.916C88.1207 134.897 88.1074 134.879 88.0941 134.861C85.9328 131.961 84.0908 128.895 82.955 125.48C81.565 122.291 84.8937 118.819 88.1813 119.798C99.7629 122.282 112.581 120.566 122.367 113.544C131.495 107.302 138.076 97.493 140.498 86.7125C142.239 79.0339 141.413 71.0637 139.722 63.5445C139.382 62.3599 141.16 61.5846 142.331 62.0317C149.683 64.7579 153.555 72.7813 154.943 80.2895L154.935 80.2271C155.089 82.9671 155.243 85.7071 155.397 88.4471L155.502 90.3284L156.34 88.6397C156.506 88.1827 157.334 88.2039 158.078 88.4669C158.828 88.7236 159.576 89.139 160.191 89.6354L160.343 89.7209C160.347 89.7222 160.35 89.7235 160.354 89.7248L160.032 89.1457C159.825 90.0694 159.618 90.993 159.411 91.9167L159.344 92.2156L159.58 92.4101C160.807 93.4251 162.115 94.3072 163.473 95.0919C164.771 95.8926 166.396 96.5228 166.503 97.7757C166.544 100.511 164.952 103.536 163.88 106.366L163.167 108.106L164.649 106.949C165.332 106.416 166.014 105.884 166.696 105.351C166.717 105.334 166.728 105.329 166.714 105.337C166.696 105.333 166.61 105.431 166.351 105.299C166.156 105.153 166.188 105.061 166.179 105.061C166.178 105.049 166.18 105.068 166.178 105.091C166.174 105.191 166.142 105.358 166.108 105.505C166.037 105.815 165.943 106.137 165.847 106.46C165.655 107.104 165.446 107.753 165.248 108.409C164.921 109.775 164.238 110.873 164.612 112.741C164.958 113.606 166.022 113.899 166.703 113.853C167.434 113.834 168.088 113.677 168.727 113.529C169.9 113.249 171.605 112.794 171.33 113.642C170.724 124.15 162.312 132.173 154.699 139.025C148.557 144.347 140.68 147.397 132.682 148.772C131.123 149.039 129.554 149.245 127.979 149.392C123.115 149.847 118.192 149.759 113.338 149.082Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M170.685 108.725C175.426 103.966 177.655 99.0532 175.831 96.4119C174.807 94.9307 172.668 94.4042 169.909 94.721C174.885 89.5608 177.168 84.3065 175.196 81.4441C172.471 77.5041 162.698 79.5946 153.36 86.1159C144.023 92.6371 138.664 101.117 141.389 105.057C142.688 106.936 145.589 107.442 149.283 106.753C145.525 111.018 143.906 115.21 145.537 117.573C146.76 119.347 149.587 119.758 153.145 118.982C149.741 122.768 148.247 126.519 149.699 128.619C151.829 131.696 159.461 130.066 166.755 124.971C174.049 119.875 178.237 113.255 176.107 110.173C175.18 108.836 173.212 108.386 170.675 108.726L170.685 108.725Z",
-          fill: "url(#paint1_dax)"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M170.685 108.725C175.426 103.966 177.655 99.0532 175.831 96.4119C174.807 94.9307 172.668 94.4042 169.909 94.721C174.885 89.5608 177.168 84.3065 175.196 81.4441C172.471 77.5041 162.698 79.5946 153.36 86.1159C144.023 92.6371 138.664 101.117 141.389 105.057C142.688 106.936 145.589 107.442 149.283 106.753C145.525 111.018 143.906 115.21 145.537 117.573C146.76 119.347 149.587 119.758 153.145 118.982C149.741 122.768 148.247 126.519 149.699 128.619C151.829 131.696 159.461 130.066 166.755 124.971C174.049 119.875 178.237 113.255 176.107 110.173C175.18 108.836 173.212 108.386 170.675 108.726L170.685 108.725Z",
-          fill: "white"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M170.685 108.725C175.426 103.966 177.655 99.0532 175.831 96.4119C174.807 94.9307 172.668 94.4042 169.909 94.721C174.885 89.5608 177.168 84.3065 175.196 81.4441C172.471 77.5041 162.698 79.5946 153.36 86.1159C144.023 92.6371 138.664 101.117 141.389 105.057C142.688 106.936 145.589 107.442 149.283 106.753C145.525 111.018 143.906 115.21 145.537 117.573C146.76 119.347 149.587 119.758 153.145 118.982C149.741 122.768 148.247 126.519 149.699 128.619C151.829 131.696 159.461 130.066 166.755 124.971C174.049 119.875 178.237 113.255 176.107 110.173C175.18 108.836 173.212 108.386 170.675 108.726L170.685 108.725Z",
-          stroke: "black",
-          "stroke-width": "1.0026",
-          "stroke-linejoin": "round"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M54.9499 17.3369C56.9748 17.012 61.0244 16.5913 65.4079 17.4267C69.7455 18.2536 74.4436 20.3191 77.8073 24.9511C83.6287 26.3152 87.3708 30.0805 89.7781 34.0488C91.9043 37.5541 93.0064 41.2422 93.6003 43.6357L93.8249 44.5781C94.452 47.3052 94.5656 50.7094 94.5261 53.4131C94.4865 56.1214 94.2926 58.1719 94.2878 58.2217L94.2361 58.7646L93.6931 58.7099C93.6891 58.7097 93.685 58.7093 93.6814 58.709C93.6734 58.7082 93.6609 58.7065 93.6452 58.705C93.6128 58.702 93.564 58.6979 93.5007 58.6924C93.3728 58.6812 93.183 58.665 92.9421 58.6474C92.4596 58.6122 91.7672 58.5699 90.9323 58.539C89.26 58.4772 87.0219 58.4641 84.7468 58.6572C82.464 58.851 80.1809 59.2493 78.3991 59.9912C76.6092 60.7366 75.4422 61.7756 75.1501 63.1884C74.528 66.1979 76.3622 68.3205 78.5427 69.7539C79.6231 70.464 80.7522 70.9766 81.615 71.3125C82.0449 71.4798 82.4066 71.6025 82.6589 71.6826C82.7847 71.7225 82.8836 71.7523 82.9499 71.7715C82.9827 71.7809 83.0079 71.7884 83.0241 71.7929C83.0317 71.795 83.038 71.7968 83.0417 71.7978L84.2937 72.1289L83.1853 72.789C83.1847 72.7894 83.1835 72.7903 83.1823 72.791C83.1787 72.7932 83.1722 72.7974 83.1638 72.8027C83.1465 72.8136 83.119 72.8308 83.0837 72.8545C83.0125 72.9023 82.9077 72.9759 82.78 73.0742C82.5234 73.2717 82.1778 73.5679 81.8269 73.956C81.122 74.7357 80.4198 75.8604 80.3269 77.2998C80.3104 77.5569 80.3929 78.1426 80.6042 79.0742C80.8095 79.9793 81.1202 81.1464 81.5173 82.5224C82.3114 85.2737 83.4446 88.8391 84.7527 92.7744C87.3675 100.641 90.6765 109.973 93.3611 117.218L94.5095 120.222C94.8824 121.208 95.2463 122.184 95.6023 123.149C103.508 144.562 107.295 160.58 106.862 173.288C106.427 186.039 101.744 195.439 92.7966 203.59C87.3367 208.563 78.6283 211.358 70.6198 212.917C62.5899 214.48 55.1565 214.821 52.154 214.821C36.9184 214.821 23.1306 209.186 13.1491 201.634C8.286 197.954 4.31647 193.81 1.51926 189.627C-3.42752 183.178 -7.79213 175.262 -10.5911 168.321C-14.148 159.503 -15.47 148.758 -14.2464 143.669C-13.9527 142.462 -12.4669 142.014 -11.5423 142.833C-9.52445 144.624 -7.78933 145.875 -7.78933 145.875C-7.78933 145.875 -7.04468 139.656 -4.92898 134.61C-4.48298 133.546 -3.00371 133.475 -2.45437 134.49C0.985419 140.861 4.23365 146.614 11.9753 149.833C14.7773 147.886 17.506 146.296 19.7175 145.112C21.2193 144.308 22.4853 143.69 23.3767 143.272C23.8223 143.064 24.1752 142.905 24.4167 142.798C24.5373 142.744 24.6308 142.704 24.6941 142.677C24.7254 142.663 24.7499 142.652 24.7663 142.645C24.7742 142.642 24.7806 142.639 24.7849 142.638L24.7927 142.634C45.8038 133.865 54.4096 123.705 57.5876 114.734C60.774 105.74 58.5596 97.8211 57.6228 93.3359V93.3349C53.8684 78.4331 50.0273 63.1108 49.405 60.2226C48.7935 57.3823 47.1107 50.1874 48.4001 42.9687C49.0467 39.3493 50.4434 35.7011 53.112 32.5879C55.6233 29.6582 59.2365 27.2312 64.3386 25.7363C62.9883 24.7363 61.3618 24.2322 59.7527 24.0195C57.8331 23.7658 55.9855 23.9299 54.7751 24.1142C53.8347 24.2543 53.3827 23.0729 54.0837 22.5146L56.9431 20.2451L54.6911 19.1875V19.1865C53.8383 18.786 53.9831 17.4898 54.9499 17.3369Z",
-          fill: "url(#paint2_dax)"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M54.9499 17.3369C56.9748 17.012 61.0244 16.5913 65.4079 17.4267C69.7455 18.2536 74.4436 20.3191 77.8073 24.9511C83.6287 26.3152 87.3708 30.0805 89.7781 34.0488C91.9043 37.5541 93.0064 41.2422 93.6003 43.6357L93.8249 44.5781C94.452 47.3052 94.5656 50.7094 94.5261 53.4131C94.4865 56.1214 94.2926 58.1719 94.2878 58.2217L94.2361 58.7646L93.6931 58.7099C93.6891 58.7097 93.685 58.7093 93.6814 58.709C93.6734 58.7082 93.6609 58.7065 93.6452 58.705C93.6128 58.702 93.564 58.6979 93.5007 58.6924C93.3728 58.6812 93.183 58.665 92.9421 58.6474C92.4596 58.6122 91.7672 58.5699 90.9323 58.539C89.26 58.4772 87.0219 58.4641 84.7468 58.6572C82.464 58.851 80.1809 59.2493 78.3991 59.9912C76.6092 60.7366 75.4422 61.7756 75.1501 63.1884C74.528 66.1979 76.3622 68.3205 78.5427 69.7539C79.6231 70.464 80.7522 70.9766 81.615 71.3125C82.0449 71.4798 82.4066 71.6025 82.6589 71.6826C82.7847 71.7225 82.8836 71.7523 82.9499 71.7715C82.9827 71.7809 83.0079 71.7884 83.0241 71.7929C83.0317 71.795 83.038 71.7968 83.0417 71.7978L84.2937 72.1289L83.1853 72.789C83.1847 72.7894 83.1835 72.7903 83.1823 72.791C83.1787 72.7932 83.1722 72.7974 83.1638 72.8027C83.1465 72.8136 83.119 72.8308 83.0837 72.8545C83.0125 72.9023 82.9077 72.9759 82.78 73.0742C82.5234 73.2717 82.1778 73.5679 81.8269 73.956C81.122 74.7357 80.4198 75.8604 80.3269 77.2998C80.3104 77.5569 80.3929 78.1426 80.6042 79.0742C80.8095 79.9793 81.1202 81.1464 81.5173 82.5224C82.3114 85.2737 83.4446 88.8391 84.7527 92.7744C87.3675 100.641 90.6765 109.973 93.3611 117.218L94.5095 120.222C94.8824 121.208 95.2463 122.184 95.6023 123.149C103.508 144.562 107.295 160.58 106.862 173.288C106.427 186.039 101.744 195.439 92.7966 203.59C87.3367 208.563 78.6283 211.358 70.6198 212.917C62.5899 214.48 55.1565 214.821 52.154 214.821C36.9184 214.821 23.1306 209.186 13.1491 201.634C8.286 197.954 4.31647 193.81 1.51926 189.627C-3.42752 183.178 -7.79213 175.262 -10.5911 168.321C-14.148 159.503 -15.47 148.758 -14.2464 143.669C-13.9527 142.462 -12.4669 142.014 -11.5423 142.833C-9.52445 144.624 -7.78933 145.875 -7.78933 145.875C-7.78933 145.875 -7.04468 139.656 -4.92898 134.61C-4.48298 133.546 -3.00371 133.475 -2.45437 134.49C0.985419 140.861 4.23365 146.614 11.9753 149.833C14.7773 147.886 17.506 146.296 19.7175 145.112C21.2193 144.308 22.4853 143.69 23.3767 143.272C23.8223 143.064 24.1752 142.905 24.4167 142.798C24.5373 142.744 24.6308 142.704 24.6941 142.677C24.7254 142.663 24.7499 142.652 24.7663 142.645C24.7742 142.642 24.7806 142.639 24.7849 142.638L24.7927 142.634C45.8038 133.865 54.4096 123.705 57.5876 114.734C60.774 105.74 58.5596 97.8211 57.6228 93.3359V93.3349C53.8684 78.4331 50.0273 63.1108 49.405 60.2226C48.7935 57.3823 47.1107 50.1874 48.4001 42.9687C49.0467 39.3493 50.4434 35.7011 53.112 32.5879C55.6233 29.6582 59.2365 27.2312 64.3386 25.7363C62.9883 24.7363 61.3618 24.2322 59.7527 24.0195C57.8331 23.7658 55.9855 23.9299 54.7751 24.1142C53.8347 24.2543 53.3827 23.0729 54.0837 22.5146L56.9431 20.2451L54.6911 19.1875V19.1865C53.8383 18.786 53.9831 17.4898 54.9499 17.3369Z",
-          fill: "white"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M68.312 25.0356C67.0907 23.869 62.8799 23.1216 58.6145 23.468C61.7644 24.0221 63.7184 25.1814 64.3017 25.6918C65.0916 25.6128 66.9995 25.371 68.312 25.0356Z",
-          fill: "#F8F7F3"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M76.1095 75.969C74.6931 73.8588 73.786 72.0093 73.3279 70.6676C74.7769 71.5309 78.6475 73.5847 81.6072 74.7255C81.114 75.2496 80.2328 76.8853 81.0509 79.6669C80.8043 79.6669 77.8495 78.5613 76.1095 75.969Z",
-          fill: "#F8F7F3"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M30.5783 190.597C14.755 190.597 3.43757 186.354 -5.00928 176.359C12.9637 175.374 53.6615 164.389 65.9375 156.731C66.7926 182.456 44.2481 190.597 30.5783 190.597Z",
-          fill: "#F0EFEB"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M-13.4716 160.485C-13.4373 160.605 -13.3569 160.706 -13.2479 160.767C-13.1389 160.828 -13.0102 160.843 -12.8901 160.809C-12.7701 160.775 -12.6684 160.695 -12.6075 160.586C-12.5466 160.477 -12.5315 160.348 -12.5652 160.228C-12.8226 159.312 -13.0452 158.382 -13.2382 157.447C-14.1087 152.952 -14.6443 148.204 -13.7588 143.787C-13.6048 142.979 -12.4557 142.631 -11.866 143.208C-10.6475 144.287 -9.39366 145.311 -8.0741 146.281C-7.72869 146.53 -7.34005 146.36 -7.28943 145.937C-7.26637 145.75 -7.23844 145.549 -7.20997 145.353C-6.66235 141.751 -5.85141 138.151 -4.48477 134.797C-4.25441 134.117 -3.16725 134.053 -2.85392 134.713C-0.449062 139.128 2.1628 143.717 6.27057 146.887C7.04269 147.49 7.85594 148.04 8.70176 148.534C8.77225 148.576 8.85621 148.588 8.93554 148.568C9.01487 148.548 9.083 148.497 9.125 148.427C9.16701 148.357 9.17953 148.274 9.15987 148.194C9.14021 148.115 9.08993 148.046 9.02043 148.004C8.20914 147.504 7.43247 146.952 6.69687 146.352C2.7896 143.203 0.317456 138.716 -2.04237 134.274C-2.66563 132.944 -4.85535 133.035 -5.36156 134.43C-6.80399 137.895 -7.63456 141.536 -8.19456 145.21C-8.22392 145.413 -8.25175 145.612 -8.27725 145.819L-7.49258 145.474C-8.76518 144.538 -10.0149 143.52 -11.2075 142.465C-12.3185 141.399 -14.4137 142.033 -14.7198 143.555C-15.6555 148.306 -15.0704 153.033 -14.1715 157.641C-13.9708 158.596 -13.7396 159.546 -13.4716 160.485Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M11.6871 149.421C11.578 149.497 11.5034 149.613 11.4799 149.744C11.4564 149.875 11.4858 150.01 11.5617 150.119C11.6376 150.228 11.7537 150.303 11.8846 150.326C12.0154 150.35 12.1503 150.32 12.2594 150.245C16.2651 147.474 20.5627 145.049 24.9955 143.088L24.8008 143.128L24.9962 143.089C28.7193 141.534 32.3556 139.816 35.8688 137.855C45.1885 132.629 54.3312 125.372 58.0711 114.895C60.655 107.915 59.853 100.208 58.1301 93.2494L58.1256 93.2297C57.1984 89.5429 56.2712 85.8561 55.344 82.1693C53.5105 74.8193 51.6239 67.456 49.9074 60.1119C48.6266 54.4956 47.9121 48.6883 48.9057 43.0522C49.558 39.3395 51.0501 35.7531 53.5039 32.9097C56.3194 29.5988 60.2921 27.4299 64.4801 26.2149L65.4559 25.9287L64.6385 25.3237C63.218 24.2718 61.5105 23.737 59.8239 23.5136C58.1115 23.2901 56.3895 23.3559 54.7029 23.6084C54.3229 23.7112 54.0825 23.1064 54.4022 22.8978L54.4447 22.8598C55.3535 22.1424 56.3048 21.3872 57.2561 20.632L57.8947 20.125L57.1568 19.7782C56.4084 19.4264 55.66 19.0746 54.9116 18.7229C54.5001 18.5736 54.5875 17.8448 55.0352 17.823C58.4359 17.2927 61.9438 17.2734 65.3185 17.9105C70.0876 18.7783 74.5938 21.2815 77.4035 25.2389L77.5142 25.3914L77.6978 25.4344C82.6326 26.522 86.7853 29.9635 89.3534 34.3018C91.2758 37.4766 92.5126 41.0422 93.3416 44.685C93.9666 47.5033 94.0607 50.4682 94.0294 53.4001C94.0048 54.9908 93.931 56.5952 93.7933 58.168C93.776 58.3502 93.7587 58.5323 93.7414 58.7144L94.2975 58.2579C94.1165 58.2394 93.9355 58.221 93.7545 58.2026L93.7032 58.2L93.7619 58.2037C93.755 58.2029 93.7522 58.2025 93.7412 58.2014C93.7167 58.1991 93.7126 58.1989 93.7029 58.198C93.6491 58.193 93.6029 58.1892 93.5547 58.1849C93.3662 58.1684 93.1779 58.1534 92.9895 58.1397C92.3136 58.0905 91.6378 58.0543 90.9612 58.0292C88.8819 57.9542 86.7971 57.9748 84.7134 58.1496C82.5268 58.3461 80.3187 58.6651 78.2131 59.5203C76.7343 60.1335 75.0486 61.2056 74.6636 63.0814C73.9288 65.989 75.9998 68.783 78.2546 70.157C79.2532 70.814 80.3197 71.3374 81.4181 71.7683C81.9114 71.9598 82.3951 72.1311 82.9258 72.2802C83.3415 72.391 83.7575 72.5019 84.1735 72.6128L84.0435 71.6868C83.6737 71.9082 83.304 72.1296 82.9342 72.351C82.3483 72.7283 81.8832 73.1468 81.4421 73.6323C80.6209 74.5405 80.0027 75.7052 79.8581 76.9711L79.8567 76.9841C79.8486 77.072 79.8405 77.1598 79.8324 77.2477L79.8312 77.2621C79.8382 78.0457 79.9933 78.5651 80.1201 79.1803C80.39 80.3583 80.7109 81.509 81.0409 82.6572C82.0437 86.1106 83.1529 89.5225 84.2817 92.9272C87.0166 101.129 89.8999 109.279 92.8953 117.386C93.28 118.392 93.6629 119.393 94.0457 120.394C94.4128 121.366 94.7759 122.341 95.1359 123.317L95.2585 123.65L95.6128 123.65C95.6138 123.65 95.6149 123.65 95.616 123.65L95.1392 123.318C100.923 139.438 106.67 156.08 106.364 173.265C106.236 184.681 101.075 195.726 92.4628 203.211C86.4559 208.499 78.3707 210.822 70.5326 212.414C64.9144 213.496 59.1905 214.124 53.4784 214.291C53.0418 214.297 52.5996 214.303 52.1575 214.309C38.303 214.315 24.5234 209.556 13.466 201.225C12.752 200.685 12.0519 200.131 11.3648 199.563C7.81396 196.619 4.57161 193.274 1.96031 189.479L1.9441 189.457C-0.665694 186.121 -3.01357 182.573 -5.15292 178.903C-5.19078 178.838 -5.25249 178.79 -5.32519 178.769C-5.39788 178.749 -5.47549 178.759 -5.54107 178.795C-5.60665 178.832 -5.65497 178.894 -5.67554 178.966C-5.69612 179.039 -5.68714 179.117 -5.65128 179.183C-3.6124 182.937 -1.33223 186.57 1.25058 189.991L1.23436 189.968C3.83884 193.895 7.11272 197.338 10.7169 200.343C11.4144 200.924 12.1257 201.488 12.8495 202.036C24.0902 210.502 38.0689 215.331 52.1644 215.327C52.6135 215.321 53.0556 215.315 53.4978 215.309C59.2862 215.139 65.0445 214.508 70.7271 213.413C78.6549 211.793 86.8517 209.489 93.1482 203.964C101.92 196.364 107.27 184.918 107.381 173.299C107.682 155.811 101.888 139.137 96.0928 122.966L95.9701 122.633H95.616C95.6149 122.633 95.6138 122.633 95.6128 122.633L96.0896 122.966C95.7289 121.987 95.3647 121.009 94.9957 120.033C94.6122 119.03 94.2293 118.029 93.8465 117.028C90.8573 108.939 87.9755 100.793 85.2456 92.6068C84.1191 89.2096 83.0117 85.8028 82.0165 82.3756C81.6894 81.238 81.3714 80.0955 81.1103 78.9557C80.9868 78.4001 80.8449 77.7437 80.8445 77.3267L80.8433 77.3411C80.8515 77.2532 80.8596 77.1654 80.8677 77.0775L80.8663 77.0906C80.9837 76.0654 81.4844 75.1008 82.1975 74.3105C82.5694 73.8963 83.0221 73.5006 83.4577 73.2207C83.8254 73.0006 84.1952 72.7792 84.565 72.5578L85.5951 71.9411L84.435 71.6319C84.0189 71.521 83.6029 71.4101 83.1869 71.2993C82.7324 71.1717 82.249 71.0027 81.7875 70.8228C80.746 70.4147 79.737 69.9178 78.8135 69.3098C76.695 67.9814 75.0592 65.711 75.6573 63.2868C75.9141 61.9477 77.2248 61.0228 78.6031 60.4569C80.528 59.6718 82.6724 59.3489 84.7992 59.1603C86.8293 58.9898 88.8793 58.9689 90.9237 59.0427C91.5887 59.0673 92.2533 59.1029 92.9158 59.1511C93.0997 59.1645 93.2831 59.1791 93.4663 59.1951C93.5148 59.1994 93.5653 59.2036 93.608 59.2076C93.6224 59.209 93.6423 59.2106 93.6425 59.2106L93.701 59.2141C93.7017 59.2141 93.7024 59.2141 93.7032 59.2141L93.6518 59.2115C93.8328 59.2299 94.0138 59.2483 94.1949 59.2667L94.7027 59.3184L94.751 58.8102C94.7682 58.6282 94.7855 58.4461 94.8028 58.264C94.9446 56.6431 95.0179 55.0332 95.0431 53.4148C95.073 50.4346 94.9864 47.4301 94.3294 44.4577C93.4846 40.7481 92.2174 37.0756 90.2197 33.7763C87.5606 29.2692 83.1419 25.5906 77.9286 24.4484L78.2229 24.644C75.2589 20.4617 70.4642 17.8122 65.5081 16.9163C61.9942 16.2545 58.391 16.2766 54.8779 16.8236C53.4813 16.9521 53.1865 19.1188 54.4822 19.6388C55.2298 19.9901 55.9782 20.3418 56.7266 20.6936L56.6272 19.8398C55.676 20.595 54.7247 21.3502 53.7734 22.1055L53.7299 22.1443C53.7296 22.1447 53.7292 22.145 53.7289 22.1454L53.7713 22.1074C52.6522 22.8963 53.5023 24.9017 54.8538 24.6083C56.4579 24.3674 58.0994 24.3074 59.691 24.5159C61.2607 24.723 62.7986 25.2176 64.0371 26.1362L64.1955 25.245C59.878 26.4968 55.7074 28.7586 52.7368 32.2523C50.1482 35.2513 48.5867 39.0264 47.9117 42.8747C46.8826 48.7132 47.6325 54.6688 48.9212 60.3243C50.651 67.7251 52.5307 75.0561 54.3666 82.4148C55.294 86.1018 56.2214 89.7886 57.1488 93.4754L57.1443 93.4557C58.8673 100.439 59.6102 107.807 57.1228 114.559C53.5272 124.664 44.6017 131.813 35.3791 136.978C31.9064 138.917 28.3037 140.62 24.6097 142.163L24.803 142.124L24.6062 142.163C20.0703 144.171 15.7582 146.607 11.6871 149.421Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M63.8294 25.4028C63.698 25.4251 63.5843 25.4985 63.5143 25.6116C63.4443 25.7245 63.4237 25.8679 63.4561 26.0056C63.4885 26.1432 63.5707 26.2624 63.6837 26.3323C63.7968 26.4024 63.9313 26.4175 64.0588 26.3788C64.1298 26.3572 64.2022 26.3357 64.2742 26.3148C65.5772 25.9407 66.9368 25.6686 68.2937 25.3966L68.5201 25.3513C68.5722 25.3408 68.6192 25.3088 68.651 25.2642C68.6828 25.2195 68.6967 25.1659 68.6895 25.1133C68.6824 25.0607 68.6546 25.0128 68.612 24.9782C68.5694 24.9438 68.5156 24.9255 68.4626 24.9293C68.3867 24.9348 68.3096 24.9405 68.2325 24.9461C66.8496 25.0474 65.4635 25.1464 64.0631 25.3642C63.9854 25.3766 63.9068 25.3896 63.8294 25.4028Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          "fill-rule": "evenodd",
-          "clip-rule": "evenodd",
-          d: "M87.8203 50.2057C86.0363 50.2057 84.595 48.7587 84.595 46.9732C84.595 45.1877 86.0363 43.7408 87.8203 43.7408C89.6043 43.7408 91.0456 45.1877 91.0456 46.9732C91.0456 48.7587 89.6043 50.2057 87.8203 50.2057Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          "fill-rule": "evenodd",
-          "clip-rule": "evenodd",
-          d: "M89.2309 45.9076C89.2309 46.3832 88.8472 46.769 88.3729 46.769C87.8986 46.769 87.5149 46.3832 87.5149 45.9076C87.5149 45.432 87.8998 45.0463 88.3729 45.0463C88.846 45.0463 89.2309 45.432 89.2309 45.9076Z",
-          fill: "#A7A7A7"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          "fill-rule": "evenodd",
-          "clip-rule": "evenodd",
-          d: "M69.102 61.8638C69.6133 59.6197 72.0065 55.3935 80.5349 55.4972C84.848 55.4808 90.2109 55.4972 93.7626 55.0877C99.0438 54.4816 102.96 53.1985 105.576 52.1992C109.269 50.785 110.58 51.0963 111.042 51.9481C111.548 52.8763 110.95 54.4871 109.661 55.9668C107.197 58.7952 102.764 60.9902 94.9374 61.64C87.1106 62.2897 81.9218 60.1766 79.6918 63.6166C78.7291 65.0963 79.4742 68.5963 87.0454 69.6938C97.2762 71.179 105.674 67.9028 106.713 69.8849C107.752 71.8615 101.769 75.8857 91.5271 75.9676C81.28 76.0495 74.8837 72.3584 72.6102 70.5237C69.733 68.1922 68.4439 64.796 69.1075 61.8638H69.102Z",
-          fill: "#FFAB23"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M85.525 95.4203C89.4303 97.9484 94.8693 98.8221 97.4855 99.1114C98.4101 99.2097 99.264 98.6091 99.487 97.7027C99.8786 96.0919 100.303 93.3509 99.7535 90.1621C99.2096 86.9734 97.8988 84.5272 96.9959 83.1458C96.4847 82.3649 95.4784 82.0865 94.6408 82.4905C92.2694 83.6372 87.4341 86.2908 84.595 89.9874L85.5196 95.4149L85.525 95.4203Z",
-          fill: "#368372"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M87.6575 89.1473L86.959 88.2492C87.1918 87.839 88.0034 86.7658 89.387 85.7547C91.1166 84.4908 94.2764 82.5284 95.4405 82.1625C96.6046 81.7966 97.2699 82.5616 98.1014 83.9919C97.6357 83.9253 96.5381 84.0584 94.6423 84.9232C93.1256 85.615 89.3538 88.0275 87.6575 89.1473Z",
-          fill: "#459F8B"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M84.1974 89.6821C84.1163 89.7874 84.0805 89.9207 84.0978 90.0525C84.1151 90.1843 84.1841 90.3039 84.2896 90.385C84.3951 90.466 84.5285 90.5019 84.6603 90.4846C84.7921 90.4673 84.9116 90.3983 84.9925 90.2928C85.405 89.755 85.8579 89.2439 86.3382 88.757C88.7602 86.3299 91.7534 84.4581 94.8558 82.9352C95.4449 82.6358 96.2316 82.8537 96.5842 83.4153C97.9256 85.4757 98.8578 87.8177 99.2757 90.2436L99.2787 90.2611C99.6962 92.6831 99.6288 95.1959 99.0934 97.607C98.966 98.2761 98.2549 98.7129 97.5159 98.6384C95.2575 98.4226 92.9978 98.0019 90.8049 97.3709C90.1351 97.1765 89.4721 96.9597 88.8194 96.7151C88.7752 96.6985 88.7259 96.7003 88.6824 96.7196C88.639 96.739 88.605 96.7743 88.5877 96.8182C88.5704 96.8621 88.5713 96.9111 88.5899 96.9549C88.6086 96.9986 88.6435 97.0335 88.6871 97.0515C89.341 97.3205 90.005 97.5635 90.6762 97.7856C92.8755 98.507 95.1345 99.0326 97.4391 99.3461C98.4229 99.5068 99.6323 98.8916 99.8804 97.7995C100.528 95.2993 100.669 92.6593 100.234 90.0974L100.231 90.0798C99.7955 87.5158 98.8223 85.057 97.4079 82.8765C96.8036 81.9103 95.4447 81.5297 94.4262 82.0457C91.2418 83.6064 88.1797 85.5067 85.6271 88.0543C85.1208 88.5661 84.6398 89.107 84.1974 89.6821Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M79.4805 96.4617C76.6359 100.158 71.806 102.812 69.4292 103.959C68.5915 104.368 67.5853 104.084 67.0741 103.303C66.1657 101.917 64.8604 99.4758 64.3165 96.287C63.7726 93.0982 64.1914 90.3572 64.583 88.7464C64.806 87.8401 65.6599 87.234 66.5845 87.3377C69.2062 87.6216 74.6397 88.5007 78.545 91.0288L79.475 96.4617H79.4805Z",
-          fill: "#368372"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M65.8173 88.8143C64.7945 88.6176 65.7779 87.3589 67.1547 87.3589L75.6906 89.2077C76.1232 89.4175 76.9178 90.0652 76.6346 90.9778C74.6678 90.2304 66.84 89.011 65.8173 88.8143Z",
-          fill: "#459F8B"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M78.2726 91.4495C78.3831 91.5236 78.5178 91.5501 78.6478 91.5222C78.7778 91.4944 78.8925 91.4145 78.9659 91.3011C79.0393 91.1878 79.0653 91.0504 79.0374 90.9205C79.0096 90.7904 78.9302 90.6784 78.8175 90.6079C78.5582 90.4457 78.2946 90.2912 78.0275 90.144C74.5527 88.2641 70.6835 87.4698 66.8581 87.0959C65.8099 86.9731 64.7784 87.7417 64.5675 88.7457C64.4328 89.36 64.3376 89.9677 64.2608 90.5834C64.2245 90.8808 64.1943 91.1794 64.1728 91.4793C64.1687 91.5367 64.1879 91.5939 64.2256 91.638C64.2633 91.6822 64.3164 91.7098 64.3737 91.7148C64.4311 91.7198 64.4882 91.7018 64.533 91.6648C64.5777 91.6278 64.6064 91.5749 64.6124 91.5176C64.6424 91.2273 64.681 90.9371 64.7257 90.6476C64.8192 90.0503 64.9337 89.4484 65.0798 88.871C65.2645 88.1183 66.048 87.5903 66.791 87.7039C70.5455 88.1874 74.3197 89.1066 77.5441 90.9902C77.7917 91.137 78.0349 91.29 78.2726 91.4495Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M64.7007 96.0742C64.6887 96.0233 64.6589 95.9776 64.6155 95.9476C64.5721 95.9176 64.5191 95.9056 64.4677 95.9143C64.4162 95.9231 64.3702 95.952 64.3392 95.9947C64.3082 96.0374 64.2952 96.0904 64.3008 96.1424C64.3355 96.4614 64.3789 96.7795 64.4309 97.0962C64.7989 99.3088 65.5636 101.474 66.7757 103.414C67.3514 104.36 68.6672 104.775 69.6891 104.299L69.7706 104.261C72.1458 103.091 74.3158 101.575 76.2465 99.7964C76.4809 99.579 76.7112 99.3574 76.9371 99.1311C76.9721 99.096 76.9943 99.0491 76.9972 98.999C77.0001 98.949 76.9838 98.9 76.9514 98.8626C76.919 98.8252 76.8729 98.8021 76.8229 98.7978C76.7729 98.7936 76.7234 98.8089 76.6836 98.8386C76.4306 99.0272 76.1759 99.2123 75.9194 99.3944C73.8131 100.881 71.6024 102.214 69.3207 103.335L69.2721 103.358C68.7013 103.623 67.9591 103.411 67.6031 102.873C66.4148 101.097 65.529 99.0838 64.9354 96.9847C64.8509 96.6837 64.7726 96.3802 64.7007 96.0742Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          "fill-rule": "evenodd",
-          "clip-rule": "evenodd",
-          d: "M82.1446 37.3298C82.7157 36.3906 83.983 35.6589 86.0553 35.6589C88.1276 35.6589 89.1066 36.4889 89.781 37.4171C89.917 37.6082 89.7103 37.8266 89.4982 37.7338C89.4492 37.712 89.3949 37.6901 89.3405 37.6683C88.5844 37.3352 87.6544 36.9257 86.0553 36.9039C84.3474 36.882 83.2705 37.3134 82.5961 37.6792C82.3676 37.8048 82.0087 37.5536 82.1446 37.3298Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          "fill-rule": "evenodd",
-          "clip-rule": "evenodd",
-          d: "M69.3771 49.2572C69.3771 51.2129 67.7909 52.799 65.8301 52.799C63.8693 52.799 62.2832 51.2129 62.2832 49.2572C62.2832 47.3016 63.8744 45.7155 65.8301 45.7155C67.7858 45.7155 69.3771 47.3016 69.3771 49.2572Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          "fill-rule": "evenodd",
-          "clip-rule": "evenodd",
-          d: "M67.4232 47.7974C67.4232 48.3316 66.9906 48.7648 66.4559 48.7648C65.9211 48.7648 65.4885 48.3316 65.4885 47.7974C65.4885 47.2633 65.9225 46.8301 66.4559 46.8301C66.9892 46.8301 67.4232 47.2633 67.4232 47.7974Z",
-          fill: "#A7A7A7"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          "fill-rule": "evenodd",
-          "clip-rule": "evenodd",
-          d: "M62.2413 38.5071C64.2581 37.6622 65.8443 37.7712 66.9671 38.0328C67.2015 38.0874 67.3651 37.8366 67.1797 37.684C66.3131 36.9808 64.3617 36.1087 61.8216 37.0572C59.554 37.902 58.4857 39.6626 58.4802 40.8182C58.4802 41.0908 59.0362 41.1126 59.1834 40.8836C59.5758 40.2568 60.2245 39.3519 62.2413 38.5071Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          "fill-rule": "evenodd",
-          "clip-rule": "evenodd",
-          d: "M69.2347 61.8638C69.7459 59.6197 72.1391 55.3935 80.6675 55.4972C84.9806 55.4808 90.3435 55.4972 93.8952 55.0877C99.1765 54.4816 103.093 53.1985 105.709 52.1992C109.402 50.785 110.713 51.0963 111.175 51.9481C111.681 52.8763 111.082 54.4871 109.793 55.9668C107.33 58.7952 102.897 60.9902 95.0646 61.64C87.2378 62.2897 82.0544 60.1766 79.819 63.6166C78.8563 65.0963 79.6014 68.5963 87.1726 69.6938C97.4034 71.179 105.801 67.9028 106.84 69.8849C107.879 71.8615 101.896 75.8857 91.6543 75.9676C81.4072 76.0495 75.0109 72.3584 72.7374 70.5237C69.8602 68.1922 68.5711 64.796 69.2347 61.8638Z",
-          fill: "#FFAB23"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M93.1932 55.0559C93.1563 55.0632 93.1225 55.083 93.0993 55.1131C93.0761 55.1432 93.0654 55.1807 93.0697 55.2179C93.0739 55.2551 93.0928 55.2893 93.1222 55.3133C93.1517 55.3374 93.1891 55.349 93.2267 55.3477C95.2978 55.2736 97.3661 55.0125 99.3979 54.5851C100.245 54.4069 101.083 54.2001 101.916 53.9638C103.252 53.5836 104.58 53.1556 105.883 52.6593C106.781 52.3175 107.691 52.0077 108.6 51.8287C109.484 51.649 110.502 51.6392 110.741 52.183C111.177 53.1103 110.308 54.6336 109.421 55.6434C105.917 59.5643 100.249 60.6786 95.0226 61.1499C92.4101 61.3748 89.7961 61.2662 87.1377 61.1414C84.6392 61.115 81.213 60.6112 79.4062 63.3491C78.1379 65.5395 80.0586 67.6749 81.6681 68.5187C83.3743 69.4737 85.2481 69.9014 87.101 70.1788C93.5866 71.4537 101.239 69.1871 106.406 70.1118C106.67 70.5175 106.074 71.3551 105.413 71.8767C104.734 72.4355 103.933 72.886 103.113 73.2681C101.455 74.0332 99.6609 74.5431 97.8492 74.8924C95.8119 75.2818 93.7364 75.4683 91.6492 75.4951C88.2399 75.5425 84.8281 75.1351 81.5395 74.2216L81.5228 74.2173C81.4473 74.1999 81.3718 74.1819 81.2964 74.1634C80.3699 73.936 79.4537 73.6459 78.551 73.3102C76.657 72.5925 74.765 71.7173 73.1032 70.5662C73.0762 70.5451 73.0415 70.5355 73.0069 70.5391C72.9723 70.5427 72.9408 70.5592 72.9188 70.5854C72.8969 70.6117 72.8862 70.6457 72.8887 70.6803C72.8913 70.715 72.9069 70.7475 72.9325 70.7703C74.5779 72.0638 76.3793 73.1029 78.2868 73.9601C79.1929 74.3595 80.1294 74.7023 81.0968 74.9537C81.1755 74.9741 81.2544 74.994 81.3334 75.0134L81.3168 75.009C84.6653 75.9887 88.1672 76.458 91.6568 76.4401C93.7947 76.4317 95.9282 76.2529 98.0329 75.851C99.9054 75.4896 101.765 74.9648 103.524 74.1541C104.396 73.7467 105.255 73.27 106.036 72.6292C106.422 72.3066 106.794 71.9452 107.088 71.4763C107.373 71.0321 107.62 70.3081 107.271 69.6575C106.933 69.0401 106.312 68.8948 105.874 68.8135C105.406 68.7368 104.972 68.7336 104.542 68.742C103.674 68.765 102.849 68.852 102.018 68.9388C100.363 69.1181 98.7135 69.3131 97.0755 69.4367C93.7887 69.6919 90.4894 69.6826 87.2417 69.2088C85.4589 68.9446 83.6723 68.5206 82.1543 67.6668C80.6574 66.8906 79.4204 65.1686 80.2291 63.8842C81.5248 61.7763 84.549 62.0536 87.0965 62.1231C89.7395 62.2473 92.4223 62.3608 95.104 62.13C100.425 61.6342 106.301 60.5708 110.163 56.2902C111.088 55.1026 112.34 53.6995 111.606 51.7124C111.296 51.0915 110.563 50.7909 110.014 50.7511C109.444 50.6952 108.921 50.7661 108.413 50.8616C107.403 51.0616 106.46 51.3866 105.531 51.7393C104.264 52.222 102.959 52.643 101.647 53.0161C100.829 53.2483 100.01 53.4705 99.1866 53.6843C97.2093 54.1968 95.2146 54.6598 93.1932 55.0559Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M82.9483 87.2967L79.4945 87.8973C77.4712 88.2467 76.1168 90.1796 76.4649 92.2109L77.1285 96.0985C77.4766 98.1297 79.3966 99.4948 81.4145 99.1453L84.8682 98.5447C86.8915 98.1953 88.2459 96.2623 87.8978 94.2311L87.2342 90.3435C86.8861 88.3123 84.9661 86.9472 82.9428 87.2967H82.9483Z",
-          fill: "#368372"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M81.8688 87.5853C84.6379 87.068 85.7942 87.707 86.9505 89.4719C85.3073 89.4719 82.3557 89.7154 80.0126 90.4153C77.6695 91.1151 76.6349 90.5066 77.2435 89.7154C77.8521 88.9242 79.0997 88.1026 81.8688 87.5853Z",
-          fill: "#459F8B"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M77.345 96.0616C77.3257 96.0113 77.2926 95.9656 77.2468 95.9356C77.201 95.9056 77.1469 95.8936 77.0948 95.9025C77.0427 95.9115 76.9957 95.9408 76.9625 95.9844C76.9293 96.0279 76.9133 96.082 76.9118 96.1358C76.9077 96.3856 76.9328 96.6391 76.9877 96.8889C77.1601 97.6888 77.6551 98.439 78.3435 98.9264C79.2421 99.5744 80.4156 99.8312 81.4963 99.6187C82.6442 99.3969 83.7901 99.166 84.936 98.9351C85.7642 98.7739 86.5336 98.3473 87.1052 97.7428C87.5043 97.3235 87.7805 96.8004 87.934 96.2581C88.0016 96.0202 88.0467 95.7781 88.072 95.5358C88.0764 95.4921 88.0625 95.4472 88.0351 95.4111C88.0076 95.3749 87.9689 95.3506 87.9258 95.3431C87.8826 95.3357 87.838 95.3456 87.8 95.3704C87.7621 95.3952 87.7339 95.4329 87.7234 95.4755C87.6696 95.6906 87.5927 95.8982 87.4978 96.095C87.2807 96.5454 86.9731 96.9346 86.6257 97.2672C86.1249 97.7488 85.4772 98.0603 84.8007 98.1546C83.6437 98.3242 82.4871 98.4937 81.3321 98.6723C80.492 98.8029 79.6204 98.587 78.9363 98.0957C78.4157 97.7232 77.9685 97.2444 77.6288 96.6518C77.5227 96.4663 77.4275 96.2695 77.345 96.0616Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M76.3389 92.1678C76.3471 92.1988 76.3684 92.2262 76.3964 92.2444C76.4246 92.2624 76.4572 92.2697 76.4888 92.2643C76.5204 92.2589 76.5487 92.2412 76.5692 92.2147C76.5897 92.1883 76.6006 92.1554 76.598 92.1234C76.575 91.8353 76.5917 91.5476 76.6441 91.2711C76.8462 90.2038 77.5545 89.3797 78.3718 88.8638C78.7373 88.6305 79.1507 88.4733 79.5816 88.4C80.7338 88.2017 81.8854 88.0033 83.0369 87.8045L82.9485 86.7812C82.9467 86.7812 82.9449 86.7812 82.9431 86.7812L83.0308 87.8046C84.0778 87.6159 85.1968 88.0019 85.9145 88.7862C86.3362 89.2406 86.6342 89.8055 86.7726 90.4226C86.9006 91.0098 87.04 91.5953 87.1906 92.1789C87.2653 92.4681 87.3427 92.7567 87.4228 93.0449C87.4411 93.1105 87.4809 93.1697 87.538 93.2085C87.595 93.2474 87.6641 93.2629 87.7308 93.2515C87.7976 93.2401 87.8576 93.2026 87.8985 93.147C87.9395 93.0914 87.9574 93.0224 87.9529 92.9545C87.9329 92.656 87.9102 92.358 87.8847 92.0605C87.8332 91.4599 87.7705 90.8613 87.6965 90.2646C87.5948 89.4619 87.2329 88.6819 86.6743 88.0822C85.7286 87.0463 84.2378 86.5352 82.8554 86.7887L82.9431 87.8121C82.9449 87.8121 82.9467 87.8121 82.9485 87.8121L82.8602 86.7888C81.7092 86.9904 80.5583 87.1924 79.4074 87.3946C78.8487 87.4915 78.3049 87.6996 77.8244 88.009C76.7205 88.7068 76.139 90.0379 76.2007 91.2407C76.2124 91.5579 76.2612 91.8687 76.3389 92.1678Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M10.0824 168.906C-4.37452 168.906 -11.4452 158.586 -12.087 162.938C-12.6309 166.607 -6.1422 186.804 24.3816 186.646C54.9053 186.488 63.6785 169.124 65.1851 159.711C66.6156 150.8 65.9737 136.821 59.7624 130.804C54.6601 125.862 33.7634 139.683 23.3857 144.963C13.0081 150.243 11.5727 152.738 9.42971 155.965",
-          fill: "url(#paint3_dax)"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M10.0824 168.906C-4.37452 168.906 -11.4452 158.586 -12.087 162.938C-12.6309 166.607 -6.1422 186.804 24.3816 186.646C54.9053 186.488 63.6785 169.124 65.1851 159.711C66.6156 150.8 65.9737 136.821 59.7624 130.804C54.6601 125.862 33.7634 139.683 23.3857 144.963C13.0081 150.243 11.5727 152.738 9.42971 155.965",
-          fill: "white"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M60.7992 132.511C60.8515 132.587 60.9314 132.638 61.0232 132.651C61.1148 132.664 61.2109 132.638 61.2882 132.579C61.3656 132.521 61.4174 132.436 61.4302 132.344C61.4431 132.252 61.416 132.162 61.3568 132.09C61.3351 132.064 61.3133 132.038 61.2914 132.012C60.8974 131.541 60.4733 131.096 60.0185 130.686L59.9424 130.618C59.8932 130.575 59.8273 130.552 59.7603 130.555C59.6932 130.558 59.6306 130.585 59.585 130.632C59.5393 130.679 59.5141 130.742 59.5136 130.81C59.5132 130.877 59.5376 130.942 59.5825 130.99C59.6048 131.013 59.627 131.037 59.6491 131.061C60.0468 131.491 60.4109 131.95 60.744 132.43C60.7625 132.457 60.7809 132.484 60.7992 132.511Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M10.0824 169.407C7.59818 168.405 5.13034 168.089 2.73903 167.468C0.0904751 166.785 -2.45733 165.719 -4.88976 164.423C-6.10542 163.781 -7.29456 163.071 -8.52164 162.384C-9.14119 162.048 -9.7563 161.692 -10.5192 161.464C-10.8941 161.367 -11.4298 161.243 -11.9529 161.608C-12.4387 161.993 -12.5114 162.463 -12.5834 162.864C-10.3651 180.27 8.96946 187.677 24.3842 187.148C41.7654 187.739 62.6808 178.799 65.6813 159.79L65.6898 159.737C66.5979 153.727 66.5431 147.573 65.281 141.623C64.7342 139.144 63.9442 136.694 62.7205 134.457C62.6894 134.401 62.6375 134.358 62.5756 134.339C62.5136 134.32 62.4468 134.326 62.3895 134.356C62.3323 134.386 62.2893 134.437 62.2697 134.499C62.2502 134.561 62.2558 134.628 62.2847 134.686C63.3887 136.911 64.0791 139.329 64.5463 141.773C65.6191 147.636 65.5864 153.7 64.6972 159.579L64.6889 159.631C61.8043 177.934 41.6006 186.709 24.379 186.144C9.14741 186.766 -9.53282 179.011 -11.5907 163.011C-11.5505 162.703 -11.4393 162.461 -11.3601 162.417C-11.3073 162.361 -11.0759 162.345 -10.7891 162.43C-10.2237 162.595 -9.60251 162.935 -9.00828 163.261C-7.80958 163.932 -6.59781 164.655 -5.36008 165.309C-2.8787 166.632 -0.24968 167.733 2.48738 168.439C4.95906 169.081 7.51489 169.408 10.0824 169.407Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M-0.509492 168.124C-8.2057 165.045 -4.22434 158.798 -0.509492 159.421C3.20536 160.043 9.5255 159.792 16.4602 158.798C16.4602 158.798 37.8954 154.637 45.2327 151.208C52.5699 147.779 57.8784 157.81 47.1309 164.668C36.3834 171.526 11.2986 172.853 -0.509492 168.124Z",
-          fill: "url(#paint4_dax)"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M-2.04144 167.339C-1.86303 167.416 -1.66185 167.419 -1.48178 167.346C-1.30173 167.273 -1.15754 167.13 -1.0813 166.949C-1.00506 166.768 -1.00314 166.565 -1.07632 166.385C-1.14948 166.205 -1.29176 166.063 -1.47147 165.989C-1.75357 165.872 -1.99698 165.764 -2.26815 165.633C-3.7691 164.92 -5.3507 163.714 -5.25328 162.41C-5.16658 161.101 -3.35209 160.196 -1.75648 160.219C0.0646768 160.205 1.89697 160.212 3.73078 160.188L4.64566 160.174C4.79741 160.171 4.94235 160.108 5.0486 159.998C5.15486 159.889 5.21372 159.743 5.21224 159.591C5.21076 159.439 5.14905 159.294 5.04068 159.187C4.93231 159.08 4.78616 159.019 4.63439 159.019C4.33156 159.02 4.02864 159.019 3.72565 159.018C1.90277 159.011 0.078095 158.973 -1.75648 158.956C-3.65597 158.948 -6.20966 159.743 -6.6049 162.292C-6.65997 164.859 -4.5029 166.065 -2.91264 166.932C-2.61307 167.083 -2.34735 167.207 -2.04144 167.339Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M4.07276 161.905C0.216495 160.578 0.483007 157.924 4.69281 155.937C8.90261 153.949 19.8459 149.22 26.8677 145.862C33.215 142.827 35.8747 142.062 41.5639 139.905C47.2531 137.749 50.2935 150.318 40.8024 156.794C31.3114 163.27 9.33229 163.717 4.07276 161.905Z",
-          fill: "url(#paint5_dax)"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M3.41244 161.576C3.50154 161.605 3.5987 161.599 3.68296 161.557C3.76722 161.516 3.83162 161.443 3.86206 161.354C3.89251 161.266 3.88659 161.169 3.8457 161.084C3.80481 160.999 3.73222 160.935 3.64433 160.902C3.20878 160.743 2.79138 160.523 2.51493 160.23C1.64879 159.38 2.52718 157.942 3.39865 156.943C4.31205 155.894 5.41087 154.977 6.55184 154.134C8.16756 152.951 9.84625 151.823 11.5374 150.724C14.9201 148.532 18.3942 146.471 21.9495 144.572L23.2665 143.88C23.3845 143.819 23.4737 143.713 23.5142 143.587C23.5547 143.46 23.5434 143.323 23.4825 143.204C23.4217 143.086 23.3164 142.997 23.1898 142.957C23.0632 142.916 22.9257 142.927 22.8073 142.988C22.3622 143.216 21.9183 143.447 21.4762 143.68C17.8838 145.582 14.3839 147.649 10.9751 149.857C9.27 150.966 7.58703 152.114 5.96083 153.342C4.79084 154.234 3.66941 155.204 2.70875 156.362C2.23393 156.948 1.78912 157.576 1.51702 158.342C1.22247 159.074 1.29395 160.178 1.96873 160.772C2.39431 161.183 2.91264 161.412 3.41244 161.576Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M144.054 53.4302C144.035 53.5117 144.04 53.5993 144.074 53.677C144.109 53.7547 144.17 53.8158 144.246 53.8477C144.323 53.8796 144.409 53.8802 144.488 53.8502C144.568 53.8203 144.633 53.7618 144.677 53.6911C144.729 53.6088 144.78 53.5262 144.83 53.4433C145.281 52.6971 145.671 51.9257 146.002 51.1291C146.333 50.3326 146.6 49.5097 146.805 48.6603L146.87 48.3762C146.888 48.2977 146.883 48.2134 146.85 48.1387C146.816 48.0639 146.757 48.0052 146.684 47.9746C146.611 47.944 146.528 47.9434 146.452 47.9721C146.375 48.0008 146.312 48.0568 146.269 48.1245C146.217 48.2065 146.165 48.2888 146.114 48.3715C145.658 49.1152 145.264 49.8854 144.933 50.6819C144.603 51.4784 144.332 52.3001 144.122 53.147C144.098 53.2411 144.076 53.3355 144.054 53.4302Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M137.783 53.0697C137.825 53.1245 137.88 53.171 137.945 53.195C138.011 53.219 138.08 53.2189 138.142 53.1937C138.204 53.1685 138.254 53.1196 138.283 53.0566C138.313 52.9936 138.32 52.922 138.311 52.8538C138.3 52.7693 138.288 52.6853 138.275 52.6017C138.158 51.8492 137.96 51.1302 137.68 50.4446C137.399 49.759 137.041 49.1051 136.606 48.483C136.557 48.4139 136.508 48.3452 136.458 48.2769C136.414 48.2182 136.356 48.1687 136.287 48.1431C136.218 48.1174 136.143 48.1174 136.078 48.1442C136.012 48.171 135.959 48.223 135.928 48.2899C135.896 48.3569 135.89 48.4328 135.9 48.5051C135.912 48.5891 135.925 48.6727 135.938 48.756C136.063 49.5051 136.266 50.2225 136.546 50.9081C136.827 51.5937 137.189 52.2459 137.632 52.8647C137.682 52.9335 137.732 53.0018 137.783 53.0697Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M132.525 57.4217C132.604 57.4262 132.685 57.4128 132.755 57.3735C132.824 57.3342 132.876 57.2731 132.9 57.2004C132.924 57.1277 132.918 57.0476 132.886 56.9745C132.853 56.9013 132.796 56.842 132.73 56.7986C132.669 56.7585 132.607 56.7193 132.545 56.681C131.989 56.336 131.409 56.0634 130.805 55.8633C130.2 55.6632 129.573 55.5342 128.922 55.4765C128.85 55.47 128.777 55.4645 128.705 55.4598C128.625 55.4549 128.542 55.4683 128.471 55.5083C128.401 55.5481 128.348 55.6102 128.324 55.6842C128.299 55.7581 128.305 55.8396 128.338 55.9139C128.372 55.9883 128.43 56.0484 128.497 56.0922C128.558 56.132 128.62 56.1709 128.682 56.209C129.239 56.5514 129.82 56.8227 130.424 57.0228C131.028 57.223 131.656 57.3507 132.307 57.4059C132.38 57.4121 132.453 57.4173 132.525 57.4217Z",
-          fill: "black"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M22.9425 79.9908C23.0346 79.8587 23.0723 79.6956 23.046 79.5364C23.0197 79.3771 22.9318 79.2348 22.8012 79.1407C22.6707 79.0466 22.5079 79.0081 22.3485 79.0335C22.189 79.0589 22.0463 79.1462 21.9501 79.2753C21.1062 80.4095 20.3163 81.578 19.5431 82.8059C13.1036 93.1637 9.04631 105.097 8.22875 117.35C7.27886 130.776 10.8194 144.386 17.8418 155.741C18.5801 156.949 19.3432 158.121 20.1649 159.31C20.2362 159.413 20.3446 159.485 20.4678 159.51C20.5909 159.534 20.7186 159.51 20.8229 159.44C20.9272 159.371 21 159.264 21.0255 159.141C21.051 159.018 21.0269 158.89 20.9599 158.784C20.1963 157.577 19.4901 156.392 18.8078 155.175C12.3193 143.729 9.17123 130.532 10.0851 117.471C10.8796 105.555 14.6661 93.8463 20.6948 83.5087C21.4187 82.2856 22.1574 81.119 22.9425 79.9908Z",
-          fill: "#77B6E8"
-        }
-      ), /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M91.8218 193.97C91.6623 193.983 91.5124 194.056 91.4053 194.176C91.2983 194.296 91.2428 194.453 91.2512 194.613C91.2595 194.772 91.331 194.923 91.45 195.031C91.569 195.139 91.7256 195.196 91.8857 195.192C92.7013 195.172 93.5222 195.124 94.3423 195.052C101.377 194.417 108.166 192.144 114.47 189.086C121.378 185.714 127.745 181.31 133.416 176.189C134.02 175.643 134.613 175.091 135.201 174.528C135.291 174.442 135.346 174.325 135.352 174.2C135.359 174.075 135.316 173.953 135.233 173.861C135.151 173.768 135.034 173.712 134.91 173.704C134.785 173.696 134.662 173.737 134.567 173.816C133.946 174.33 133.323 174.835 132.693 175.335C126.769 180.021 120.405 184.117 113.655 187.413C107.492 190.402 100.97 192.762 94.1922 193.711C93.4017 193.82 92.6098 193.907 91.8218 193.97Z",
-          fill: "#77B6E8"
-        }
-      )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _(
-        "filter",
-        {
-          id: "filter0_dax",
-          x: "9.18066",
-          y: "47.585",
-          width: "148.057",
-          height: "148.057",
-          filterUnits: "userSpaceOnUse",
-          "color-interpolation-filters": "sRGB"
-        },
-        /* @__PURE__ */ _("feFlood", { "flood-opacity": "0", result: "BackgroundImageFix" }),
-        /* @__PURE__ */ _("feBlend", { mode: "normal", in: "SourceGraphic", in2: "BackgroundImageFix", result: "shape" }),
-        /* @__PURE__ */ _(
-          "feTurbulence",
-          {
-            type: "fractalNoise",
-            baseFrequency: "0.36",
-            stitchTiles: "stitch",
-            numOctaves: "3",
-            result: "noise",
-            seed: "2151"
-          }
-        ),
-        /* @__PURE__ */ _("feComponentTransfer", { in: "noise", result: "coloredNoise1" }, /* @__PURE__ */ _("feFuncR", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _("feFuncG", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _("feFuncB", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _(
-          "feFuncA",
-          {
-            type: "discrete",
-            tableValues: "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
-          }
-        )),
-        /* @__PURE__ */ _("feComposite", { operator: "in", in2: "shape", in: "coloredNoise1", result: "noise1Clipped" }),
-        /* @__PURE__ */ _("feComponentTransfer", { in: "noise1Clipped", result: "color1" }, /* @__PURE__ */ _("feFuncA", { type: "table", tableValues: "0 0.1" })),
-        /* @__PURE__ */ _("feMerge", { result: "effect1" }, /* @__PURE__ */ _("feMergeNode", { in: "shape" }), /* @__PURE__ */ _("feMergeNode", { in: "color1" })),
-        /* @__PURE__ */ _(
-          "feTurbulence",
-          {
-            type: "fractalNoise",
-            baseFrequency: "0.185",
-            stitchTiles: "stitch",
-            numOctaves: "3",
-            result: "noise2",
-            seed: "3494"
-          }
-        ),
-        /* @__PURE__ */ _("feColorMatrix", { in: "noise2", type: "luminanceToAlpha", result: "alphaNoise" }),
-        /* @__PURE__ */ _("feComponentTransfer", { in: "alphaNoise", result: "coloredNoise2" }, /* @__PURE__ */ _(
-          "feFuncA",
-          {
-            type: "discrete",
-            tableValues: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
-          }
-        )),
-        /* @__PURE__ */ _("feComposite", { operator: "in", in2: "effect1", in: "coloredNoise2", result: "noise2Clipped" }),
-        /* @__PURE__ */ _("feFlood", { "flood-color": "rgba(255, 255, 255, 0.18)", result: "color2Flood" }),
-        /* @__PURE__ */ _("feComposite", { operator: "in", in2: "noise2Clipped", in: "color2Flood", result: "color2" }),
-        /* @__PURE__ */ _("feMerge", null, /* @__PURE__ */ _("feMergeNode", { in: "effect1" }), /* @__PURE__ */ _("feMergeNode", { in: "color2" }))
-      ), /* @__PURE__ */ _(
-        "radialGradient",
-        {
-          id: "paint0_dax",
-          cx: "0",
-          cy: "0",
-          r: "1",
-          gradientTransform: "matrix(86.9467 110.449 94.3401 -74.8456 148.744 82.9182)",
-          gradientUnits: "userSpaceOnUse"
-        },
-        /* @__PURE__ */ _("stop", { offset: "0.443674", "stop-color": "white" }),
-        /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#BCE4FD" })
-      ), /* @__PURE__ */ _("linearGradient", { id: "paint1_dax", x1: "188.902", y1: "65.0572", x2: "130.909", y2: "144.593", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { offset: "0.5", "stop-color": "white" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#BEE5FE" })), /* @__PURE__ */ _("linearGradient", { id: "paint2_dax", x1: "63.0336", y1: "169.436", x2: "212.49", y2: "242.712", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "white" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#C1E7FF" })), /* @__PURE__ */ _("linearGradient", { id: "paint3_dax", x1: "36.8231", y1: "126.444", x2: "86.946", y2: "228.969", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { offset: "0.33", "stop-color": "white" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#4EBAFF" })), /* @__PURE__ */ _("linearGradient", { id: "paint4_dax", x1: "29.8674", y1: "146.409", x2: "42.3449", y2: "117.133", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { offset: "0.33", "stop-color": "white" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#4EBAFF" })), /* @__PURE__ */ _("linearGradient", { id: "paint5_dax", x1: "30.5989", y1: "138.355", x2: "43.153", y2: "108.894", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { offset: "0.33", "stop-color": "white" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#4EBAFF" }))))
+        class: (0, import_classnames16.default)(GetStartedAnimation_default.root, exiting && GetStartedAnimation_default.fadeOut, className),
+        src: "assets/lottie/v4/dax-in-spotlight-thumbs-up.json",
+        width: 274,
+        height: 274
+      }
     );
+  }
+
+  // pages/onboarding/app/v4/components/Illustrations.module.css
+  var Illustrations_default = {
+    systemSettingsBackground: "Illustrations_systemSettingsBackground",
+    systemSettingsForeground: "Illustrations_systemSettingsForeground"
+  };
+
+  // pages/onboarding/app/v4/components/Illustrations.js
+  function DaxSystemSettingsBackground() {
+    return /* @__PURE__ */ _("div", { class: Illustrations_default.systemSettingsBackground, role: "presentation", "aria-hidden": "true" }, /* @__PURE__ */ _("svg", { width: "68", height: "146", viewBox: "0 0 68 146", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_ss_bg)" }, /* @__PURE__ */ _("g", { filter: "url(#filter0_ss_bg)" }, /* @__PURE__ */ _("circle", { cx: "0.836624", cy: "77.9665", r: "66.8181", style: "fill: var(--dax-circle-fill)" })), /* @__PURE__ */ _("g", { "clip-path": "url(#clip1_ss_bg)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M27.4499 10.6852C28.9153 11.2043 31.761 12.3957 34.37 14.5479C36.9519 16.6778 39.3201 19.7665 39.8632 24.0858C43.2361 27.1146 44.3478 30.9926 44.4976 34.5208C44.6487 38.0828 43.8225 41.3182 43.3385 43.0326L43.338 43.0335C42.7555 45.0931 41.5791 47.4206 40.5613 49.2173C40.0505 50.119 39.5753 50.8945 39.2279 51.4443C39.0542 51.7192 38.9119 51.9385 38.8131 52.089C38.764 52.1638 38.726 52.2223 38.6997 52.2618C38.6866 52.2814 38.6761 52.2972 38.6692 52.3075C38.6659 52.3123 38.6627 52.3159 38.6609 52.3185L38.6585 52.3228L38.3169 52.0926L38.6581 52.3237L38.4261 52.6665L38.0846 52.432L38.0829 52.431C38.0818 52.4303 38.0798 52.4285 38.0774 52.4269C38.0725 52.4235 38.0643 52.4188 38.0544 52.4121C38.0339 52.3982 38.003 52.3766 37.9627 52.3497C37.8818 52.2958 37.7614 52.2171 37.6076 52.1177C37.2998 51.9189 36.8553 51.6386 36.3116 51.3145C35.2224 50.6653 33.7388 49.8425 32.1556 49.1446C30.5672 48.4444 28.9034 47.8808 27.4479 47.7292C25.9864 47.5772 24.8302 47.8473 24.1185 48.6869C22.603 50.4752 23.0485 52.5627 23.9739 54.3131C24.4326 55.1808 24.9948 55.9341 25.4456 56.4723C25.6704 56.7406 25.8658 56.9541 26.0043 57.0994C26.0734 57.1719 26.1286 57.2275 26.1656 57.2644C26.184 57.2827 26.1987 57.2964 26.2078 57.3053C26.212 57.3094 26.2151 57.3128 26.2171 57.3148C26.218 57.3157 26.2188 57.3167 26.2192 57.3171L26.9256 57.9894L25.9523 58.027C25.9519 58.0271 25.9508 58.0277 25.9497 58.0278C25.9466 58.028 25.9402 58.028 25.9326 58.0285C25.9171 58.0295 25.8926 58.0308 25.8607 58.0337C25.7959 58.0398 25.6989 58.0513 25.5779 58.0705C25.3352 58.1093 24.9968 58.1815 24.6215 58.3134C23.8679 58.5784 22.9895 59.0758 22.4009 60.0053C22.2956 60.1719 22.1359 60.5941 21.9358 61.2936C21.7414 61.9736 21.5216 62.867 21.2826 63.9315C20.8047 66.0601 20.2552 68.8557 19.6863 71.9627C18.5488 78.1739 17.3371 85.6168 16.4731 91.4375L16.1384 93.8634C16.0256 94.6588 15.9109 95.4434 15.7945 96.2186L15.7962 96.2195C13.2218 113.41 9.88372 125.497 4.94977 133.836C-0.000703586 142.204 -6.55063 146.787 -15.479 148.985C-20.9273 150.326 -27.7391 149.029 -33.6338 147.16C-39.5441 145.286 -44.6105 142.811 -46.6073 141.719C-56.7377 136.181 -63.8453 127.401 -67.7208 118.723C-69.6062 114.5 -70.7289 110.292 -71.0612 106.483C-71.9949 100.369 -72.0035 93.4821 -71.3264 87.8188C-70.4674 80.6294 -67.4172 72.9634 -64.7431 70.0052C-64.1066 69.3051 -62.9553 69.5457 -62.64 70.4295C-61.954 72.3582 -61.2582 73.8236 -61.2566 73.827C-61.24 73.8038 -58.4774 69.9312 -55.2359 67.3345C-54.5501 66.7851 -53.5411 67.2757 -53.5471 68.1543C-53.5893 73.6656 -53.5308 78.6925 -49.5583 83.6601C-46.986 83.3773 -44.593 83.3064 -42.6915 83.3187C-41.399 83.3271 -40.3307 83.3742 -39.5853 83.4188C-39.2129 83.4411 -38.9204 83.4622 -38.7208 83.4785C-38.6212 83.4867 -38.5437 83.4944 -38.4917 83.4992C-38.466 83.5015 -38.4459 83.5036 -38.4325 83.5049C-38.4261 83.5054 -38.4207 83.5051 -38.4172 83.5054C-38.4158 83.5056 -38.4142 83.5063 -38.4133 83.5064L-38.412 83.506C-38.4118 83.5066 -38.413 83.5212 -38.4529 83.9167L-38.4111 83.5065L-38.4103 83.507C-21.2359 85.2815 -11.7995 81.6153 -6.40598 76.7712C-1.00685 71.9217 0.421687 65.8324 1.4382 62.4896L3.63181 54.0827C5.76581 45.9234 7.60317 38.965 8.08527 37.3451L8.08441 37.3446C8.71618 35.2233 10.2277 29.8013 13.7234 25.4434C15.476 23.2586 17.738 21.3272 20.6499 20.2153C23.3907 19.1689 26.681 18.8582 30.6207 19.7135C30.0888 18.553 29.1916 17.6245 28.1995 16.8971C27.0169 16.0301 25.7297 15.4679 24.8578 15.1513L24.8556 15.1512C24.173 14.9004 24.3172 13.949 24.9793 13.832L24.9801 13.8325L27.7147 13.3542L26.6018 11.8253C26.1818 11.2494 26.7481 10.4353 27.4495 10.6861L27.4499 10.6852Z",
+        fill: "url(#paint0_ss_bg)"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M27.4499 10.6852C28.9153 11.2043 31.761 12.3957 34.37 14.5479C36.9519 16.6778 39.3201 19.7665 39.8632 24.0858C43.2361 27.1146 44.3478 30.9926 44.4976 34.5208C44.6487 38.0828 43.8225 41.3182 43.3385 43.0326L43.338 43.0335C42.7555 45.0931 41.5791 47.4206 40.5613 49.2173C40.0505 50.119 39.5753 50.8945 39.2279 51.4443C39.0542 51.7192 38.9119 51.9385 38.8131 52.089C38.764 52.1638 38.726 52.2223 38.6997 52.2618C38.6866 52.2814 38.6761 52.2972 38.6692 52.3075C38.6659 52.3123 38.6627 52.3159 38.6609 52.3185L38.6585 52.3228L38.3169 52.0926L38.6581 52.3237L38.4261 52.6665L38.0846 52.432L38.0829 52.431C38.0818 52.4303 38.0798 52.4285 38.0774 52.4269C38.0725 52.4235 38.0643 52.4188 38.0544 52.4121C38.0339 52.3982 38.003 52.3766 37.9627 52.3497C37.8818 52.2958 37.7614 52.2171 37.6076 52.1177C37.2998 51.9189 36.8553 51.6386 36.3116 51.3145C35.2224 50.6653 33.7388 49.8425 32.1556 49.1446C30.5672 48.4444 28.9034 47.8808 27.4479 47.7292C25.9864 47.5772 24.8302 47.8473 24.1185 48.6869C22.603 50.4752 23.0485 52.5627 23.9739 54.3131C24.4326 55.1808 24.9948 55.9341 25.4456 56.4723C25.6704 56.7406 25.8658 56.9541 26.0043 57.0994C26.0734 57.1719 26.1286 57.2275 26.1656 57.2644C26.184 57.2827 26.1987 57.2964 26.2078 57.3053C26.212 57.3094 26.2151 57.3128 26.2171 57.3148C26.218 57.3157 26.2188 57.3167 26.2192 57.3171L26.9256 57.9894L25.9523 58.027C25.9519 58.0271 25.9508 58.0277 25.9497 58.0278C25.9466 58.028 25.9402 58.028 25.9326 58.0285C25.9171 58.0295 25.8926 58.0308 25.8607 58.0337C25.7959 58.0398 25.6989 58.0513 25.5779 58.0705C25.3352 58.1093 24.9968 58.1815 24.6215 58.3134C23.8679 58.5784 22.9895 59.0758 22.4009 60.0053C22.2956 60.1719 22.1359 60.5941 21.9358 61.2936C21.7414 61.9736 21.5216 62.867 21.2826 63.9315C20.8047 66.0601 20.2552 68.8557 19.6863 71.9627C18.5488 78.1739 17.3371 85.6168 16.4731 91.4375L16.1384 93.8634C16.0256 94.6588 15.9109 95.4434 15.7945 96.2186L15.7962 96.2195C13.2218 113.41 9.88372 125.497 4.94977 133.836C-0.000703586 142.204 -6.55063 146.787 -15.479 148.985C-20.9273 150.326 -27.7391 149.029 -33.6338 147.16C-39.5441 145.286 -44.6105 142.811 -46.6073 141.719C-56.7377 136.181 -63.8453 127.401 -67.7208 118.723C-69.6062 114.5 -70.7289 110.292 -71.0612 106.483C-71.9949 100.369 -72.0035 93.4821 -71.3264 87.8188C-70.4674 80.6294 -67.4172 72.9634 -64.7431 70.0052C-64.1066 69.3051 -62.9553 69.5457 -62.64 70.4295C-61.954 72.3582 -61.2582 73.8236 -61.2566 73.827C-61.24 73.8038 -58.4774 69.9312 -55.2359 67.3345C-54.5501 66.7851 -53.5411 67.2757 -53.5471 68.1543C-53.5893 73.6656 -53.5308 78.6925 -49.5583 83.6601C-46.986 83.3773 -44.593 83.3064 -42.6915 83.3187C-41.399 83.3271 -40.3307 83.3742 -39.5853 83.4188C-39.2129 83.4411 -38.9204 83.4622 -38.7208 83.4785C-38.6212 83.4867 -38.5437 83.4944 -38.4917 83.4992C-38.466 83.5015 -38.4459 83.5036 -38.4325 83.5049C-38.4261 83.5054 -38.4207 83.5051 -38.4172 83.5054C-38.4158 83.5056 -38.4142 83.5063 -38.4133 83.5064L-38.412 83.506C-38.4118 83.5066 -38.413 83.5212 -38.4529 83.9167L-38.4111 83.5065L-38.4103 83.507C-21.2359 85.2815 -11.7995 81.6153 -6.40598 76.7712C-1.00685 71.9217 0.421687 65.8324 1.4382 62.4896L3.63181 54.0827C5.76581 45.9234 7.60317 38.965 8.08527 37.3451L8.08441 37.3446C8.71618 35.2233 10.2277 29.8013 13.7234 25.4434C15.476 23.2586 17.738 21.3272 20.6499 20.2153C23.3907 19.1689 26.681 18.8582 30.6207 19.7135C30.0888 18.553 29.1916 17.6245 28.1995 16.8971C27.0169 16.0301 25.7297 15.4679 24.8578 15.1513L24.8556 15.1512C24.173 14.9004 24.3172 13.949 24.9793 13.832L24.9801 13.8325L27.7147 13.3542L26.6018 11.8253C26.1818 11.2494 26.7481 10.4353 27.4495 10.6861L27.4499 10.6852Z",
+        fill: "white"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M33.6357 20.7194C33.2471 19.4977 30.7149 17.4667 27.748 16.1441C29.6441 17.6601 30.5233 19.1438 30.7259 19.6961C31.2807 19.9312 32.6395 20.4648 33.6357 20.7194Z",
+        fill: "#F8F7F3"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M20.2829 57.4802C20.108 55.5591 20.1774 53.997 20.3608 52.9366C21.0115 54.0392 22.8414 56.8164 24.3972 58.6539C23.8778 58.8234 22.6954 59.5919 22.2274 61.7423C22.0631 61.6525 20.4978 59.8402 20.2829 57.4802Z",
+        fill: "#F8F7F3"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M-49.609 83.2508C-49.7171 83.2628 -49.8161 83.3172 -49.8842 83.4021C-49.9522 83.487 -49.9838 83.5955 -49.9718 83.7037C-49.9599 83.8118 -49.9055 83.9108 -49.8206 83.9789C-49.7356 84.0469 -49.6272 84.0785 -49.519 84.0665C-49.519 84.0665 -49.519 84.0665 -49.519 84.0665C-45.847 83.6704 -42.1037 83.6113 -38.4413 83.9112L-38.5974 83.8629C-38.5969 83.8632 -38.5965 83.8634 -38.596 83.8637L-38.4412 83.9118C-35.382 84.2274 -32.3217 84.4005 -29.2536 84.3641C-21.1419 84.2538 -12.4185 82.7082 -6.12034 77.0758C-1.8439 73.3416 0.441261 67.8915 1.84042 62.6112L1.84489 62.5954C2.57636 59.793 3.30783 56.9907 4.03929 54.1883C5.50746 48.6073 6.94543 42.9968 8.48883 37.4636C9.69062 33.2426 11.3374 29.1045 14.0553 25.701C15.8426 23.4605 18.1398 21.6078 20.8089 20.599C23.8794 19.4127 27.3083 19.4034 30.5367 20.1136L31.3458 20.289L31.0003 19.5367C30.4384 18.3122 29.4944 17.3289 28.4509 16.5638C27.3909 15.7895 26.2193 15.2063 25.0032 14.7611C24.7429 14.7031 24.8 14.2515 25.0612 14.2323L25.1072 14.2213C25.1076 14.2212 25.108 14.2211 25.1083 14.221L25.0612 14.2321C25.9698 14.073 26.8784 13.9138 27.787 13.7547L28.4407 13.6401L28.0503 13.1034C27.6814 12.5961 27.3124 12.0889 26.9434 11.5816C26.7412 11.3551 27.0437 10.9292 27.3211 11.0675C29.7724 11.9478 32.1094 13.209 34.1164 14.8587C36.9699 17.1724 39.0418 20.4805 39.4607 24.1323L39.48 24.2857L39.5951 24.3891C42.4774 26.9098 43.971 30.7135 44.0922 34.5342C44.2095 37.3541 43.7284 40.1843 42.9486 42.9185C42.3348 45.0266 41.3142 47.0423 40.222 48.9902C39.6245 50.0443 38.9889 51.0902 38.323 52.0908C38.2449 52.2064 38.1668 52.3218 38.0888 52.4373L38.6677 52.3277C38.5541 52.2496 38.4405 52.1715 38.3269 52.0934L38.2909 52.0712C38.2904 52.071 38.2899 52.0707 38.2894 52.0705L38.332 52.0972C38.3275 52.094 38.3258 52.0927 38.3184 52.0877C38.3023 52.0768 38.3001 52.0754 38.2941 52.0714C38.2598 52.0483 38.2306 52.029 38.2001 52.0087C38.0807 51.929 37.9608 51.8505 37.8405 51.7727C37.4087 51.4939 36.9723 51.2238 36.5313 50.9608C35.1753 50.1542 33.7806 49.4095 32.3297 48.7683C30.802 48.104 29.2149 47.5135 27.497 47.3193C26.2835 47.1905 24.7573 47.2975 23.8097 48.4199C22.2522 50.1021 22.6044 52.7401 23.6075 54.4877C24.0322 55.292 24.5511 56.0315 25.1254 56.7206C25.384 57.0288 25.6429 57.3193 25.9431 57.6137C26.179 57.8389 26.4151 58.0643 26.6511 58.2897L26.9207 57.5741C26.5939 57.5877 26.2671 57.6013 25.9403 57.6149C25.4069 57.6547 24.9442 57.7659 24.471 57.931C23.5872 58.2418 22.7456 58.7996 22.1837 59.5977L22.1777 59.6065C22.1402 59.6623 22.1026 59.7181 22.0651 59.7739L22.0587 59.7837C21.7724 60.3186 21.6877 60.7194 21.5464 61.1783C21.2949 62.0651 21.0875 62.9514 20.887 63.8395C20.291 66.5137 19.7811 69.1986 19.2867 71.886C18.1065 78.3645 17.0436 84.8627 16.0711 91.3733C15.959 92.1862 15.8475 92.9947 15.7361 93.8033C15.6251 94.586 15.51 95.37 15.3923 96.1538L15.3492 96.4412L15.6041 96.5806C15.6048 96.581 15.6055 96.5814 15.6063 96.5817L15.3944 96.1551C13.3464 109.041 11.0801 122.256 4.59996 133.625C0.348464 141.196 -7.09898 146.704 -15.5739 148.583C-21.4807 149.932 -27.7078 148.552 -33.502 146.765C-37.6305 145.447 -41.6646 143.787 -45.5218 141.823C-45.814 141.668 -46.1101 141.512 -46.4063 141.355C-55.6205 136.323 -63.0365 128.127 -67.333 118.556C-67.3337 118.555 -67.3344 118.553 -67.3351 118.551C-67.6115 117.932 -67.8747 117.307 -68.1237 116.677C-69.4077 113.419 -70.3398 110.008 -70.6902 106.529L-70.6929 106.506C-71.2106 103.327 -71.4771 100.102 -71.5616 96.8722C-71.5632 96.8106 -71.5885 96.7519 -71.6327 96.7087C-71.6769 96.6656 -71.7362 96.6417 -71.7977 96.6423C-71.8593 96.6428 -71.9181 96.6678 -71.9615 96.7118C-72.0049 96.7557 -72.0291 96.8149 -72.0295 96.8765C-72.0295 96.8765 -72.0295 96.8765 -72.0295 96.8765C-72.0505 100.128 -71.8658 103.386 -71.401 106.616L-71.4038 106.593C-71.1105 110.164 -70.1945 113.658 -68.8964 116.981C-68.6447 117.624 -68.3776 118.261 -68.0961 118.891C-68.0954 118.893 -68.0947 118.894 -68.094 118.896C-63.7208 128.635 -56.1888 136.96 -46.801 142.089C-46.4999 142.248 -46.2037 142.405 -45.9075 142.562C-41.9941 144.553 -37.9336 146.225 -33.7538 147.56C-27.8837 149.361 -21.5826 150.799 -15.3748 149.392C-6.74001 147.493 0.998184 141.77 5.31666 134.049C11.9121 122.462 14.1571 109.204 16.2172 96.2783L16.2603 95.9911L16.0054 95.8517C16.0047 95.8514 16.004 95.851 16.0033 95.8506L16.2151 96.2773C16.333 95.4917 16.4484 94.7055 16.56 93.9185C16.6717 93.1083 16.7831 92.2998 16.8945 91.4912C17.8647 84.9955 18.9268 78.5014 20.1045 72.0357C20.5976 69.3547 21.1068 66.6742 21.698 64.0215C21.8964 63.1421 22.1026 62.2628 22.3454 61.4068C22.4658 60.9917 22.6134 60.4983 22.7612 60.2277L22.7548 60.2376C22.7923 60.1818 22.8298 60.126 22.8673 60.0702L22.8612 60.079C23.31 59.442 23.9896 58.982 24.7494 58.7139C25.145 58.5731 25.59 58.4734 25.9769 58.445C26.3017 58.4315 26.6285 58.4179 26.9553 58.4043L27.9318 58.3636L27.2249 57.6887C26.9888 57.4633 26.7528 57.238 26.5167 57.0126C26.2629 56.7638 26.0033 56.4751 25.763 56.1879C25.2207 55.5376 24.7328 54.8401 24.3426 54.1007C23.42 52.4409 23.171 50.3485 24.4433 48.9569C25.0917 48.1677 26.2888 48.0224 27.411 48.1452C28.9709 48.319 30.5134 48.8815 31.9948 49.528C33.4053 50.1513 34.775 50.8819 36.1063 51.6739C36.5391 51.9319 36.9676 52.1972 37.3901 52.4699C37.5073 52.5457 37.6238 52.622 37.7396 52.6993C37.7703 52.7198 37.8025 52.741 37.8291 52.759C37.8383 52.7652 37.8514 52.7739 37.8508 52.7735C37.847 52.7708 37.8493 52.7724 37.8487 52.772L37.8912 52.7988C37.8917 52.799 37.8922 52.7993 37.8926 52.7995L37.8566 52.7774C37.9702 52.8555 38.0838 52.9336 38.1975 53.0117L38.5421 53.2487L38.7764 52.9022C38.8545 52.7867 38.9325 52.6712 39.0106 52.5558C39.6982 51.5224 40.3355 50.4724 40.9444 49.3988C42.0543 47.4158 43.0957 45.3748 43.747 43.1441C44.5416 40.356 45.043 37.4377 44.9208 34.499C44.8009 30.5224 43.2109 26.4432 40.1488 23.7723L40.2832 24.0291C39.8425 20.1561 37.6213 16.6277 34.6436 14.2197C32.546 12.4971 30.139 11.2003 27.5999 10.2878C26.591 9.85853 25.5878 11.2251 26.2743 12.0693C26.6428 12.5759 27.0118 13.0832 27.3808 13.5904L27.6441 12.9392C26.7355 13.0984 25.827 13.2576 24.9184 13.4168L24.8713 13.4279C24.8709 13.428 24.8706 13.4281 24.8702 13.4282L24.9162 13.4173C23.8585 13.5428 23.6798 15.2268 24.7195 15.5387C25.8716 15.9598 26.9826 16.5154 27.9613 17.231C28.9269 17.9383 29.7644 18.825 30.2484 19.882L30.712 19.305C27.3754 18.5704 23.7669 18.5694 20.5139 19.8264C17.6871 20.8946 15.267 22.8553 13.4106 25.1838C10.5884 28.7182 8.9089 32.9759 7.69735 37.228C6.14133 42.8068 4.71105 48.3916 3.24118 53.9798C2.50982 56.7824 1.77851 59.5848 1.04719 62.3872L1.05166 62.3714C-0.356862 67.6691 -2.55192 72.8545 -6.67056 76.4632C-12.722 81.8865 -21.2458 83.4372 -29.2635 83.5422C-32.2935 83.5784 -35.3234 83.4075 -38.3568 83.0948L-38.202 83.143C-38.2024 83.1427 -38.2029 83.1425 -38.2034 83.1422L-38.3594 83.0939C-42.1144 82.787 -45.8727 82.8489 -49.609 83.2508Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M30.5264 19.3032C30.4234 19.2671 30.3131 19.2747 30.2184 19.3285C30.1238 19.3821 30.0526 19.4775 30.0216 19.5895C29.9907 19.7016 30.0028 19.82 30.0565 19.9145C30.1102 20.0093 30.201 20.0725 30.3079 20.0943C30.3079 20.0943 30.3079 20.0943 30.3079 20.0943C30.363 20.1054 30.419 20.1172 30.4745 20.1292C31.4783 20.349 32.4846 20.6579 33.4891 20.9661C33.5452 20.9834 33.6013 21.0006 33.6567 21.0176C33.6981 21.0302 33.7443 21.0254 33.7845 21.0058C33.8247 20.9862 33.8556 20.9533 33.8711 20.9129C33.8865 20.8725 33.8854 20.8273 33.8685 20.7859C33.8516 20.7445 33.8204 20.7101 33.7811 20.6919C33.7811 20.6919 33.7811 20.6919 33.7811 20.6919C33.7286 20.6677 33.6753 20.6431 33.622 20.6185C32.6659 20.1776 31.7084 19.7339 30.6962 19.3635C30.6399 19.3432 30.5828 19.3229 30.5264 19.3032Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M37.2891 44.6124C36.103 43.9639 35.6737 42.4724 36.3265 41.2785C36.9793 40.0846 38.4666 39.641 39.6527 40.2895C40.8388 40.938 41.2681 42.4295 40.6153 43.6234C39.9626 44.8174 38.4752 45.261 37.2891 44.6124Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M39.7975 42.2506C39.6237 42.5685 39.2277 42.6869 38.9125 42.5145C38.5972 42.3421 38.4831 41.9448 38.6569 41.627C38.8307 41.3091 39.2275 41.1912 39.542 41.3631C39.8565 41.535 39.9714 41.9327 39.7975 42.2506Z",
+        fill: "#A7A7A7"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M20.5808 45.6031C21.7412 44.2883 24.8775 42.3323 30.5098 45.5019C33.3834 47.0589 36.943 49.0194 39.4542 50.0367C43.1871 51.5512 46.2599 52.1168 48.3646 52.3997C51.3371 52.7966 52.0948 53.4812 52.0908 54.2188C52.0877 55.0234 51.101 55.883 49.703 56.4039C47.0308 57.3995 43.281 57.2558 37.8397 54.8451C32.3984 52.4344 29.7211 49.1351 26.9808 50.6247C25.7997 51.2642 25.0155 53.8754 29.648 57.3616C35.9072 62.0738 42.6884 62.9359 42.6544 64.6389C42.6225 66.3383 37.1734 66.8543 30.3341 63.186C23.4912 59.5157 20.588 54.7223 19.7472 52.6691C18.6866 50.0641 19.0712 47.3245 20.5844 45.605L20.5808 45.6031Z",
+        fill: "#FFAB23"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M19.2319 74.0118C20.9041 77.1219 24.2009 79.6833 25.8345 80.8278C26.4134 81.2296 27.2007 81.1384 27.6803 80.6134C28.5296 79.6787 29.8138 78 30.6144 75.6681C31.4186 73.3381 31.4415 71.2259 31.3462 69.9739C31.2918 69.266 30.7246 68.714 30.02 68.6797C28.0241 68.5843 23.839 68.6011 20.5999 70.0408L19.2303 74.0061L19.2319 74.0118Z",
+        fill: "#368372"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M23.1743 70.4614L23.0361 69.6089C23.3406 69.4205 24.2719 69.0013 25.5616 68.8317C27.1737 68.6198 29.9927 68.4634 30.9012 68.6437C31.8097 68.8239 31.9742 69.5756 32.0072 70.8309C31.7213 70.617 30.9419 70.306 29.3643 70.1916C28.1023 70.1 24.7118 70.3333 23.1743 70.4614Z",
+        fill: "#459F8B"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M20.4332 69.6658C20.3337 69.7099 20.2559 69.7918 20.2168 69.8933C20.1778 69.9949 20.1807 70.1079 20.2249 70.2074C20.2692 70.307 20.3511 70.3848 20.4527 70.4239C20.5542 70.463 20.6671 70.46 20.7665 70.4157C20.7665 70.4157 20.7665 70.4157 20.7665 70.4157C21.2357 70.2068 21.7224 70.03 22.2187 69.8794C24.7089 69.1386 27.3818 68.974 30.0007 69.0835C30.4868 69.0969 30.9163 69.5158 30.9446 70.0048C31.0831 71.8679 30.8467 73.7691 30.2394 75.5386C30.238 75.5427 30.2368 75.5462 30.2356 75.5496C29.629 77.3183 28.6693 78.9725 27.4352 80.3907C27.1153 80.7823 26.4988 80.8197 26.0392 80.5065C24.6174 79.5449 23.2682 78.4452 22.0408 77.2297C21.6654 76.8561 21.3027 76.47 20.9571 76.0689C20.932 76.0397 20.8959 76.0216 20.8571 76.0184C20.8183 76.0152 20.7801 76.0271 20.7504 76.0517C20.7208 76.0764 20.7021 76.1119 20.6982 76.1506C20.6943 76.1893 20.7055 76.2281 20.7297 76.2582C20.7297 76.2582 20.7297 76.2582 20.7297 76.2582C21.0665 76.6772 21.4196 77.0825 21.7852 77.4766C22.9817 78.7594 24.2894 79.9339 25.7063 80.9838C26.3092 81.4568 27.356 81.4829 27.9249 80.8368C29.2746 79.3994 30.3368 77.6832 30.9859 75.8079C30.9872 75.8042 30.9884 75.8006 30.9897 75.7969C31.6383 73.9219 31.8914 71.9212 31.7479 69.9434C31.7001 69.0671 30.9215 68.3009 30.0396 68.2759C27.3468 68.1615 24.6128 68.3197 21.9816 69.0961C21.4569 69.2546 20.9385 69.4418 20.4332 69.6658Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M14.8323 72.5108C11.5895 73.9485 7.40806 73.9672 5.40855 73.8699C4.70193 73.8392 4.13674 73.2836 4.08229 72.5756C3.98543 71.3181 4.00988 69.2115 4.8141 66.8815C5.61831 64.5515 6.8989 62.8709 7.74817 61.9362C8.22782 61.4111 9.01716 61.3163 9.59398 61.7218C11.2332 62.8646 14.5244 65.4277 16.1966 68.5378L14.8286 72.5088L14.8323 72.5108Z",
+        fill: "#368372"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M8.7505 62.2872C8.141 61.7838 9.25427 61.3036 10.1712 61.8049L15.1828 66.1444C15.3946 66.4417 15.6879 67.1624 15.167 67.6671C14.1293 66.4531 9.36001 62.7906 8.7505 62.2872Z",
+        fill: "#459F8B"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M15.8351 68.7324C15.885 68.8292 15.971 68.9014 16.0753 68.9327C16.1795 68.9641 16.2933 68.9519 16.3908 68.8995C16.4883 68.8471 16.5612 68.7588 16.5926 68.6546C16.6239 68.5504 16.6111 68.4388 16.5579 68.3438C16.5579 68.3438 16.5579 68.3438 16.5579 68.3438C16.4444 68.1406 16.325 67.9411 16.2007 67.7453C14.5725 65.223 12.2855 63.2854 9.8743 61.6457C9.21139 61.1759 8.23403 61.3217 7.72577 61.9199C7.41084 62.2835 7.12529 62.6564 6.84898 63.0417C6.71679 63.2269 6.58821 63.4151 6.4649 63.6075C6.43951 63.6471 6.43095 63.6957 6.44071 63.7421C6.45049 63.7886 6.47779 63.8292 6.51699 63.8553C6.55619 63.8813 6.6042 63.8908 6.65085 63.8818C6.69747 63.8728 6.73891 63.8462 6.76565 63.8074C6.76565 63.8074 6.76565 63.8074 6.76565 63.8074C6.89132 63.6254 7.02273 63.4463 7.15784 63.27C7.43904 62.9046 7.73629 62.5435 8.04504 62.2108C8.43778 61.7817 9.14189 61.7144 9.58694 62.0561C11.9041 63.7464 14.0732 65.7358 15.5202 68.1615C15.6307 68.3494 15.7359 68.5398 15.8351 68.7324Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M5.15842 66.8827C5.16964 66.8415 5.1661 66.7971 5.14675 66.7585C5.12742 66.72 5.09415 66.6906 5.05388 66.6767C5.01361 66.6628 4.96929 66.6654 4.9303 66.6838C4.89129 66.7022 4.86109 66.735 4.84451 66.7744C4.84451 66.7744 4.84451 66.7744 4.84451 66.7744C4.75001 66.9995 4.66165 67.2272 4.5795 67.4571C4.0074 69.0692 3.7182 70.7972 3.81315 72.5413C3.8489 73.3896 4.57897 74.1616 5.44534 74.2204C5.47173 74.2227 5.49827 74.2244 5.52493 74.2255C7.53616 74.3064 9.53447 74.0757 11.4659 73.5792C11.7012 73.5179 11.9353 73.4521 12.168 73.3816C12.2068 73.3698 12.241 73.3448 12.2626 73.3099C12.2841 73.2751 12.2915 73.2336 12.2828 73.1942C12.2741 73.1547 12.2501 73.1201 12.2159 73.0975C12.1816 73.075 12.1401 73.0666 12.1 73.0721C12.1 73.0721 12.1 73.0721 12.1 73.0721C11.8624 73.105 11.6251 73.135 11.3877 73.1624C9.4441 73.3806 7.48802 73.4637 5.56367 73.3836C5.54704 73.3828 5.53274 73.3819 5.51854 73.3806C5.05992 73.3488 4.66042 72.9523 4.6207 72.4792C4.47787 70.8626 4.62029 69.1954 4.98545 67.5757C5.03806 67.3442 5.09568 67.1131 5.15842 66.8827Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M38.2225 33.9391C38.9456 33.5187 40.0556 33.4901 41.4334 34.2435C42.8112 34.9968 43.1587 35.9076 43.2677 36.7735C43.2883 36.9507 43.071 37.0216 42.9639 36.8825C42.9393 36.8501 42.9112 36.8157 42.883 36.7813C42.5021 36.2837 42.0334 35.6718 40.9783 35.0759C39.8508 34.4405 38.977 34.3374 38.3949 34.3369C38.1971 34.3378 38.0502 34.0394 38.2225 33.9391Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M25.4904 37.3044C24.7783 38.6069 23.1444 39.0857 21.8385 38.3717C20.5326 37.6577 20.0538 36.0238 20.766 34.7213C21.4781 33.4188 23.1154 32.9419 24.4179 33.6541C25.7204 34.3662 26.2026 36.002 25.4904 37.3044Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M24.7566 35.5552C24.5621 35.911 24.1162 36.0419 23.7601 35.8472C23.4039 35.6525 23.2736 35.2065 23.4681 34.8507C23.6626 34.495 24.1093 34.3645 24.4646 34.5587C24.8198 34.7529 24.9511 35.1995 24.7566 35.5552Z",
+        fill: "#A7A7A7"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M24.6882 27.4812C26.3391 27.6529 27.3558 28.3031 28.0083 28.8862C28.1446 29.0079 28.3448 28.9004 28.2769 28.7313C27.9558 27.9474 26.9737 26.656 24.9367 26.3627C23.1189 26.0997 21.7662 26.8832 21.3418 27.6508C21.2426 27.8324 21.6049 28.0493 21.7863 27.9505C22.2759 27.6759 23.0374 27.3095 24.6882 27.4812Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M20.6694 45.6512C21.8298 44.3364 24.9661 42.3804 30.5984 45.55C33.472 47.107 37.0316 49.0675 39.5427 50.0848C43.2757 51.5994 46.3485 52.1649 48.4532 52.4478C51.4257 52.8447 52.1834 53.5293 52.1793 54.2669C52.1763 55.0715 51.1896 55.9311 49.7916 56.452C47.1193 57.4476 43.3696 57.3039 37.9247 54.8912C32.4834 52.4805 29.8097 49.1832 27.0657 50.6708C25.8847 51.3103 25.1005 53.9216 29.733 57.4077C35.9921 62.12 42.7734 62.9821 42.7394 64.6851C42.7074 66.3844 37.2583 66.9004 30.419 63.2321C23.5761 59.5618 20.6729 54.7685 19.8321 52.7152C18.7715 50.1102 19.1562 47.3706 20.6694 45.6512Z",
+        fill: "#FFAB23"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M39.0901 49.8004C39.0608 49.7913 39.0287 49.7924 39.0003 49.8049C38.9719 49.8174 38.9496 49.8402 38.9381 49.8685C38.9267 49.8968 38.9268 49.9286 38.9385 49.9574C38.9501 49.9862 38.9724 50.0092 38.9997 50.0232C38.9997 50.0232 38.9997 50.0232 38.9997 50.0232C40.4021 50.7357 41.8731 51.3193 43.3817 51.7753C44.0102 51.9651 44.6441 52.1324 45.2851 52.2772C46.3122 52.5086 47.3509 52.7049 48.3981 52.8467C49.1191 52.9444 49.8366 53.0681 50.5029 53.2776C51.1562 53.4774 51.8191 53.8425 51.7749 54.2641C51.7323 55.0137 50.6067 55.724 49.6495 56.0737C45.9092 57.4162 41.7333 56.1088 38.0863 54.5226C36.2685 53.7239 34.5716 52.7016 32.8485 51.6511C31.1986 50.7258 29.0882 49.1347 26.8729 50.317C25.212 51.3309 25.7093 53.4708 26.4733 54.6274C27.2621 55.8947 28.3555 56.865 29.4904 57.7276C33.3351 60.9322 39.2842 62.2401 42.338 64.6764C42.3713 65.0134 41.6884 65.3622 41.0607 65.4691C40.4098 65.5959 39.7155 65.6066 39.0325 65.5647C37.6549 65.475 36.2771 65.1651 34.9459 64.7409C33.4485 64.2612 31.9992 63.6315 30.6004 62.8906C28.3179 61.6848 26.2 60.1747 24.3488 58.3715L24.3385 58.3618C24.2943 58.3225 24.2504 58.2828 24.2067 58.2428C23.6745 57.7549 23.1712 57.2292 22.6929 56.6782C21.6945 55.5133 20.7524 54.2431 20.0666 52.8741C20.0556 52.8484 20.0345 52.8278 20.0083 52.8168C19.9821 52.8058 19.953 52.8052 19.927 52.8153C19.9009 52.8255 19.8799 52.8456 19.868 52.8714C19.8562 52.8972 19.8544 52.9266 19.8637 52.953C19.8637 52.953 19.8637 52.953 19.8637 52.953C20.4815 54.4178 21.2941 55.7698 22.2472 57.0402C22.7028 57.6384 23.2001 58.2099 23.7524 58.7313C23.7977 58.774 23.8433 58.8165 23.8892 58.8586L23.8789 58.8489C25.7473 60.7233 27.9059 62.3135 30.2348 63.5722C31.663 64.3464 33.1514 65.0046 34.7025 65.5018C36.0825 65.9412 37.5136 66.2663 38.9823 66.3626C39.7127 66.4067 40.4597 66.3999 41.2161 66.2536C41.5923 66.1775 41.9733 66.07 42.3431 65.8609C42.6975 65.6645 43.1316 65.2646 43.138 64.6919C43.139 64.1432 42.7708 63.8124 42.5073 63.5971C42.2214 63.3732 41.9324 63.2126 41.6423 63.0612C41.0553 62.7602 40.4745 62.5182 39.8899 62.2741C38.7235 61.7921 37.556 61.3231 36.4224 60.8106C34.145 59.787 31.9566 58.5823 29.9729 57.0866C28.8835 56.2614 27.8518 55.3283 27.1586 54.2089C26.4501 53.1476 26.2742 51.5708 27.2556 51.0234C28.86 50.0949 30.7639 51.3644 32.4333 52.3399C34.1454 53.3839 35.8902 54.4368 37.7603 55.2585C41.4847 56.8644 45.7932 58.2905 49.9309 56.8289C50.9852 56.3665 52.3364 55.8902 52.581 54.2678C52.603 53.7318 52.2166 53.2508 51.8616 53.0223C51.4983 52.7743 51.1224 52.631 50.7476 52.5095C49.9994 52.2749 49.2526 52.1495 48.5052 52.0475C47.4888 51.91 46.4695 51.7176 45.4627 51.4907C44.8342 51.3488 44.2086 51.2003 43.5826 51.045C42.0801 50.6718 40.583 50.2621 39.0901 49.8004Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M20.4892 67.643L17.9733 66.7891C16.5003 66.2873 14.8932 67.0874 14.382 68.5722L13.4018 71.413C12.8906 72.8978 13.6681 74.5085 15.1375 75.0084L17.6534 75.8623C19.1264 76.3642 20.7335 75.564 21.2447 74.0792L22.2249 71.2384C22.736 69.7536 21.9586 68.1429 20.4856 67.641L20.4892 67.643Z",
+        fill: "#368372"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M19.8882 67.3136C21.9208 67.9774 22.4582 68.8241 22.5856 70.4206C21.4913 69.8222 19.4368 68.9095 17.6215 68.5224C15.8062 68.1353 15.3387 67.3533 16.0321 67.048C16.7256 66.7427 17.8556 66.6498 19.8882 67.3136Z",
+        fill: "#459F8B"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M13.5709 71.4715C13.5761 71.4279 13.5701 71.3824 13.549 71.3431C13.528 71.3038 13.4941 71.2741 13.4535 71.2601C13.4128 71.2461 13.3678 71.2486 13.3271 71.2666C13.2862 71.2847 13.2535 71.3169 13.2307 71.3544C13.2307 71.3544 13.2307 71.3544 13.2307 71.3544C13.1341 71.519 13.0555 71.6972 12.9984 71.8842C12.8132 72.482 12.8638 73.1694 13.1451 73.7517C13.5078 74.5201 14.2035 75.1276 15.0099 75.3804C15.8545 75.6482 16.7014 75.9088 17.5482 76.1693C18.1653 76.364 18.84 76.356 19.4446 76.1563C19.8652 76.019 20.2394 75.7658 20.538 75.4565C20.6691 75.3209 20.7866 75.1746 20.8912 75.0212C20.9112 74.9916 20.9186 74.9539 20.913 74.9173C20.9074 74.8807 20.8892 74.8482 20.8612 74.8261C20.8333 74.8039 20.7975 74.7936 20.7606 74.7964C20.7237 74.7993 20.6886 74.815 20.6644 74.8412C20.5499 74.964 20.4228 75.0733 20.288 75.1687C19.9794 75.3873 19.6343 75.5321 19.2847 75.6271C18.7789 75.7659 18.2377 75.7381 17.757 75.5552C16.9262 75.2464 16.0957 74.9377 15.2628 74.6361C14.6631 74.4191 14.1696 73.9618 13.8986 73.3911C13.6921 72.958 13.5682 72.483 13.5518 71.9671C13.5468 71.8057 13.5528 71.6403 13.5709 71.4715Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M14.3059 68.4949C14.2998 68.5202 14.3045 68.5482 14.3175 68.5721C14.3307 68.596 14.3511 68.614 14.3757 68.6225C14.4004 68.631 14.4276 68.6294 14.4526 68.6186C14.4777 68.6078 14.4985 68.5887 14.5093 68.5649C14.5093 68.5649 14.5093 68.5649 14.5093 68.5649C14.6005 68.3656 14.7179 68.1812 14.8546 68.0177C15.3827 67.3862 16.15 67.1053 16.8725 67.0567C17.1977 67.0332 17.5274 67.0777 17.8383 67.1846C18.6768 67.4709 19.515 67.757 20.3532 68.0427L20.6912 67.2729C20.69 67.2723 20.6888 67.2716 20.6876 67.271L20.3491 68.0406C21.1068 68.2925 21.7022 68.9527 21.8879 69.7298C21.9989 70.1799 21.9909 70.6572 21.8615 71.1136C21.7333 71.5539 21.614 71.9975 21.5036 72.4443C21.4491 72.6647 21.3969 72.8858 21.3467 73.1077C21.3345 73.162 21.34 73.2199 21.3657 73.27C21.3913 73.3202 21.4346 73.3584 21.4868 73.3764C21.5391 73.3944 21.5967 73.3911 21.6478 73.3674C21.699 73.3437 21.739 73.3015 21.7628 73.2513C21.7628 73.2513 21.7628 73.2513 21.7628 73.2513C21.8602 73.0457 21.9554 72.8394 22.0484 72.6323C22.237 72.2125 22.4167 71.7897 22.5874 71.3637C22.8151 70.79 22.8623 70.1352 22.7112 69.5274C22.4624 68.4796 21.6481 67.5794 20.6213 67.2418L20.2828 68.0114C20.284 68.0121 20.2852 68.0127 20.2864 68.0134L20.6244 67.2436C19.7854 66.9601 18.9463 66.6769 18.1072 66.3938C17.6941 66.2534 17.2496 66.1946 16.8112 66.2281C15.8106 66.2965 14.9391 66.9909 14.5479 67.8221C14.4414 68.0398 14.362 68.2662 14.3059 68.4949Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M2.1338 130.664C-0.163548 133.751 -5.04477 137.13 -7.19822 138.434L-5.92529 124.328C-2.2817 125.154 4.43114 127.578 2.1338 130.664Z",
+        fill: "#F0EFEB"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M0.224948 96.596C1.98775 92.8384 1.40708 83.7054 -0.95534 84.5064L-2.22819 95.1545L0.224948 96.596Z",
+        fill: "#F0EFEB"
+      }
+    ))), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _(
+      "filter",
+      {
+        id: "filter0_ss_bg",
+        x: "-65.9814",
+        y: "11.1484",
+        width: "133.636",
+        height: "133.636",
+        filterUnits: "userSpaceOnUse",
+        "color-interpolation-filters": "sRGB"
+      },
+      /* @__PURE__ */ _("feFlood", { "flood-opacity": "0", result: "BackgroundImageFix" }),
+      /* @__PURE__ */ _("feBlend", { mode: "normal", in: "SourceGraphic", in2: "BackgroundImageFix", result: "shape" }),
+      /* @__PURE__ */ _(
+        "feTurbulence",
+        {
+          type: "fractalNoise",
+          baseFrequency: "0.37675034999847412 0.37675034999847412",
+          stitchTiles: "stitch",
+          numOctaves: "3",
+          result: "noise",
+          seed: "2151"
+        }
+      ),
+      /* @__PURE__ */ _("feComponentTransfer", { in: "noise", result: "coloredNoise1" }, /* @__PURE__ */ _("feFuncR", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _("feFuncG", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _("feFuncB", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _(
+        "feFuncA",
+        {
+          type: "discrete",
+          tableValues: "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+        }
+      )),
+      /* @__PURE__ */ _("feComposite", { operator: "in", in2: "shape", in: "coloredNoise1", result: "noise1Clipped" }),
+      /* @__PURE__ */ _("feComponentTransfer", { in: "noise1Clipped", result: "color1" }, /* @__PURE__ */ _("feFuncA", { type: "table", tableValues: "0 0.1" })),
+      /* @__PURE__ */ _("feMerge", { result: "effect1_noise_ss_bg" }, /* @__PURE__ */ _("feMergeNode", { in: "shape" }), /* @__PURE__ */ _("feMergeNode", { in: "color1" })),
+      /* @__PURE__ */ _(
+        "feTurbulence",
+        {
+          type: "fractalNoise",
+          baseFrequency: "0.19408349692821503 0.19408349692821503",
+          stitchTiles: "stitch",
+          numOctaves: "3",
+          result: "noise",
+          seed: "3494"
+        }
+      ),
+      /* @__PURE__ */ _("feColorMatrix", { in: "noise", type: "luminanceToAlpha", result: "alphaNoise" }),
+      /* @__PURE__ */ _("feComponentTransfer", { in: "alphaNoise", result: "coloredNoise1" }, /* @__PURE__ */ _(
+        "feFuncA",
+        {
+          type: "discrete",
+          tableValues: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+        }
+      )),
+      /* @__PURE__ */ _("feComposite", { operator: "in", in2: "effect1_noise_ss_bg", in: "coloredNoise1", result: "noise1Clipped" }),
+      /* @__PURE__ */ _("feFlood", { "flood-color": "rgba(255, 255, 255, 0.18)", result: "color1Flood" }),
+      /* @__PURE__ */ _("feComposite", { operator: "in", in2: "noise1Clipped", in: "color1Flood", result: "color1" }),
+      /* @__PURE__ */ _("feMerge", { result: "effect2_noise_ss_bg" }, /* @__PURE__ */ _("feMergeNode", { in: "effect1_noise_ss_bg" }), /* @__PURE__ */ _("feMergeNode", { in: "color1" }))
+    ), /* @__PURE__ */ _("linearGradient", { id: "paint0_ss_bg", x1: "-22.7818", y1: "115.327", x2: "50.2608", y2: "218.326", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "white" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#C1E7FF" })), /* @__PURE__ */ _("clipPath", { id: "clip0_ss_bg" }, /* @__PURE__ */ _("rect", { width: "68", height: "146", fill: "white" })), /* @__PURE__ */ _("clipPath", { id: "clip1_ss_bg" }, /* @__PURE__ */ _("rect", { width: "126.829", height: "141.75", fill: "white", transform: "translate(0.112305 -6.7417) rotate(28.6681)" })))));
+  }
+  function DaxSystemSettingsForeground() {
+    return /* @__PURE__ */ _("div", { class: Illustrations_default.systemSettingsForeground, role: "presentation", "aria-hidden": "true" }, /* @__PURE__ */ _("svg", { width: "69", height: "59", viewBox: "0 0 69 59", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_ss_fg)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M68.7428 38.3616C67.6891 25.9003 66.9894 9.28444 67.1024 1.70245C67.1024 1.70245 64.8773 6.68178 60.5819 13.8409C56.2864 20.9999 51.9877 22.4466 51.9877 22.4466C48.1727 20.5227 41.5721 18.368 37.6728 17.1818C35.2429 17.3941 8.3016 11.7782 1.47698 16.5207C-2.0416 18.0639 2.71086 25.1189 14.68 26.9147C9.51944 26.4355 7.16243 26.6606 6.97601 28.4998C6.7321 30.9061 7.75003 34.2501 18.6644 39.1554C18.618 39.5182 20.1267 39.512 20.1755 39.9191C14.4432 40.1622 17.0611 47.8135 30.1458 53.3297C37.4546 56.4109 43.5665 56.3516 49.1655 56.3516C60.7861 56.3516 70.0282 53.5621 68.7428 38.3616Z",
+        fill: "white"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M57.562 56.1441C57.6692 56.1258 57.7647 56.0655 57.8273 55.9765C57.8899 55.8875 57.9145 55.777 57.8958 55.6695C57.8771 55.562 57.8166 55.4664 57.7275 55.4038C57.6385 55.3412 57.5283 55.3167 57.4212 55.3357C57.4212 55.3357 57.4212 55.3357 57.4212 55.3357C56.6191 55.4774 55.8312 55.6056 55.028 55.7227C48.0935 56.8364 40.9967 56.3573 34.2602 54.3349C28.9578 52.8413 23.7309 50.5687 19.7807 46.7024C18.4398 45.3697 17.1153 43.6095 17.2352 41.795C17.2428 41.7385 17.2532 41.6811 17.2657 41.6265C17.4025 41.0777 18.0499 40.5468 18.6282 40.5355C18.7039 40.5342 18.776 40.5027 18.8287 40.4482C18.8815 40.3937 18.9104 40.3206 18.9092 40.2449C18.9081 40.1692 18.8769 40.0971 18.8225 40.0442C18.7682 39.9914 18.6951 39.9622 18.6194 39.9631C18.6194 39.9631 18.6194 39.9631 18.6194 39.9631C17.7048 40.0202 16.9641 40.6086 16.697 41.4942C16.6799 41.5668 16.6661 41.642 16.6558 41.715C16.5293 43.9766 17.9595 45.7074 19.3516 47.1434C23.3852 51.1306 28.7146 53.471 34.0687 55.0087C40.8425 57.0861 48.1337 57.6179 55.1424 56.5228C55.9552 56.4085 56.7518 56.2831 57.562 56.1441Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M51.4936 22.5445C51.565 22.5912 51.6519 22.6085 51.7358 22.5919C51.8196 22.5753 51.8934 22.5264 51.941 22.4557C51.9887 22.385 52.0063 22.2982 51.9902 22.2143C51.9741 22.1304 51.9254 22.0563 51.8554 22.0076C51.8554 22.0076 51.8554 22.0076 51.8554 22.0076C50.4352 21.0257 48.8753 20.2608 47.2906 19.5989C39.9097 16.6447 32.0568 15.3917 24.2256 14.6361C17.6647 14.0563 11.047 13.905 4.47025 14.5039C3.70002 14.5778 2.93059 14.7467 2.19924 15.1063C0.885448 15.6983 -0.109612 17.1826 -0.0280436 18.6691C0.011495 20.1465 0.79632 21.494 1.91895 22.3608C5.5836 25.2725 10.1934 26.5617 14.6639 27.2949L14.7939 26.5325C14.0764 26.4146 13.3627 26.3177 12.6422 26.2526C11.1502 26.1379 9.60014 26.0515 8.08558 26.6365C7.34468 26.924 6.60785 27.5837 6.42856 28.442C6.23709 29.2822 6.43267 30.0922 6.69103 30.8152C8.99741 35.3617 13.7692 37.2768 18.0118 39.1758C19.5956 39.8221 21.2131 40.3872 22.8536 40.8697C22.9245 40.8906 23.001 40.8823 23.066 40.847C23.1311 40.8116 23.1795 40.752 23.2005 40.6812C23.2216 40.6103 23.2137 40.5339 23.1786 40.4688C23.1434 40.4036 23.084 40.3549 23.0132 40.3336C23.0132 40.3336 23.0132 40.3336 23.0132 40.3336C21.3944 39.8454 19.7982 39.276 18.2377 38.6275C14.0733 36.7728 9.31802 34.6441 7.33401 30.5832C6.79936 29.2704 7.00036 27.7387 8.35898 27.298C9.62878 26.8094 11.1373 26.8707 12.5716 27.0009C13.268 27.0699 13.963 27.1714 14.6639 27.2949C15.1214 27.3729 15.2513 26.6104 14.7939 26.5325C10.3789 25.7551 5.97143 24.4106 2.52271 21.5893C0.619845 20.2125 0.414967 16.9619 2.66156 16.0423C3.23871 15.7586 3.88959 15.6095 4.56772 15.5461C11.0541 14.9628 17.6248 15.1153 24.1304 15.6907C31.8946 16.4384 39.6968 17.5965 46.9991 20.3235C48.5656 20.9344 50.1045 21.642 51.4936 22.5445Z",
+        fill: "black"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M67.8738 4.7244C67.8762 4.65179 67.8492 4.58076 67.7996 4.52698C67.75 4.47319 67.6817 4.44106 67.6091 4.4376C67.5366 4.43415 67.4655 4.45966 67.411 4.50848C67.3565 4.55731 67.3229 4.62546 67.3184 4.69796C67.3184 4.69796 67.3184 4.69796 67.3184 4.69796C67.2909 5.13256 67.2624 5.59892 67.2361 6.03408C67.1054 8.2159 66.9938 10.3961 66.963 12.5807C66.8981 17.3894 66.9764 22.198 67.3307 27.0014C67.4104 28.0709 67.5392 29.1377 67.7201 30.1975C67.7956 30.6385 67.8808 31.0839 67.9748 31.5214C67.9855 31.5714 68.013 31.6174 68.0544 31.6488C68.0957 31.6801 68.1469 31.6944 68.1976 31.6883C68.2482 31.6823 68.2946 31.6563 68.3274 31.6161C68.3601 31.5759 68.376 31.5247 68.3746 31.4735C68.3746 31.4735 68.3746 31.4735 68.3746 31.4735C68.3629 31.0283 68.3479 30.5777 68.3307 30.1336C68.2889 29.0661 68.2303 28.0024 68.1511 26.9403C67.7992 22.1698 67.7059 17.3818 67.7558 12.5906C67.7797 10.4141 67.7869 8.23857 67.8371 6.05904C67.8469 5.62436 67.8598 5.15853 67.8738 4.7244Z",
+        fill: "black"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_ss_fg" }, /* @__PURE__ */ _("rect", { width: "68.7272", height: "58.2272", fill: "white" })))));
   }
 
   // pages/onboarding/app/v4/data/data.js
@@ -29477,42 +29847,64 @@
     },
     getStarted: () => {
       return {
-        content: /* @__PURE__ */ _(DaxIllustration, null),
-        topBubble: /* @__PURE__ */ _(GetStartedContent, null),
-        topBubbleTail: "bottom-left"
+        bottomBubble: {
+          content: /* @__PURE__ */ _(GetStartedContent, null),
+          tail: "bottom-left",
+          illustration: {
+            foreground: /* @__PURE__ */ _(GetStartedAnimation, null)
+          }
+        },
+        bubbleWidth: "narrow"
       };
     },
     makeDefaultSingle: () => {
       return {
-        topBubble: /* @__PURE__ */ _(MakeDefaultContent, null),
+        bottomBubble: { content: /* @__PURE__ */ _(MakeDefaultContent, null) },
         showProgress: true
       };
     },
-    systemSettings: ({ t: t3 }) => {
+    systemSettings: ({ t: t3, globalState }) => {
       return {
-        topBubble: /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, t3("systemSettings_title_v3")), /* @__PURE__ */ _("p", null, t3("systemSettings_subtitle_v3"))),
-        bottomBubble: /* @__PURE__ */ _(SettingsContent, null),
-        showProgress: true
+        topBubble: {
+          content: /* @__PURE__ */ _(StepHeader, { title: t3("systemSettings_title_v3"), subtitle: t3("systemSettings_subtitle_v3") }),
+          tail: "right"
+        },
+        bottomBubble: {
+          content: /* @__PURE__ */ _(SettingsContent, null),
+          illustration: {
+            background: /* @__PURE__ */ _(DaxSystemSettingsBackground, null),
+            foreground: /* @__PURE__ */ _(DaxSystemSettingsForeground, null)
+          }
+        },
+        showProgress: true,
+        bounceKey: `${globalState.activeStep}-${globalState.activeRow}`
       };
     },
     duckPlayerSingle: ({ t: t3 }) => {
       return {
-        topBubble: /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, t3("duckPlayer_title")), /* @__PURE__ */ _("p", null, t3("duckPlayer_subtitle"))),
-        bottomBubble: /* @__PURE__ */ _(DuckPlayerContent, null),
+        topBubble: {
+          content: /* @__PURE__ */ _(StepHeader, { title: t3("duckPlayer_adFree_title"), subtitle: t3("duckPlayer_adFree_subtitle", { newline: " " }) }),
+          tail: "right"
+        },
+        bottomBubble: { content: /* @__PURE__ */ _(DuckPlayerContent, null) },
         showProgress: true
       };
     },
-    customize: ({ t: t3 }) => {
+    customize: ({ t: t3, globalState }) => {
       return {
-        topBubble: /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, t3("customize_title_v3")), /* @__PURE__ */ _("p", null, t3("customize_subtitle_v3"))),
-        bottomBubble: /* @__PURE__ */ _(SettingsContent, null),
-        showProgress: true
+        topBubble: { content: /* @__PURE__ */ _(StepHeader, { title: t3("customize_title_v3"), subtitle: t3("customize_subtitle_v3") }), tail: "right" },
+        bottomBubble: { content: /* @__PURE__ */ _(SettingsContent, null) },
+        showProgress: true,
+        bounceKey: `${globalState.activeStep}-${globalState.activeRow}`
       };
     },
     addressBarMode: ({ t: t3 }) => {
       return {
-        topBubble: /* @__PURE__ */ _("h2", null, t3("addressBarMode_title")),
-        bottomBubble: /* @__PURE__ */ _(AddressBarContent, null),
+        topBubble: {
+          content: /* @__PURE__ */ _(StepHeader, { title: t3("addressBarMode_title") }),
+          tail: "right"
+        },
+        bottomBubble: { content: /* @__PURE__ */ _(AddressBarContent, null) },
         showProgress: true
       };
     }
@@ -29523,18 +29915,16 @@
       icon: "v3/Browser-Default-Color-24.svg",
       title: t3("row_default-browser_title_v3"),
       kind: "one-time",
-      acceptText: t3("row_default-browser_accept"),
-      accepButtonVariant: "primary"
+      acceptText: t3("row_default-browser_accept")
     }),
     import: (t3) => ({
       id: "import",
-      icon: "v3/Import-Color-24.svg",
+      icon: "v4/import.svg",
       title: t3("row_import_title_v3"),
       secondaryText: t3("row_import_summary_v3"),
       kind: "one-time",
       acceptText: t3("row_import_accept_v3"),
-      acceptTextRecall: t3("row_import_accept"),
-      accepButtonVariant: "primary"
+      acceptTextRecall: t3("row_import_accept")
     }),
     dock: (t3, platform) => {
       const title = platform === "macos" ? t3("row_dock_title_v3") : t3("row_taskbar_title_v3");
@@ -29542,37 +29932,33 @@
       const secondaryText = platform === "macos" ? t3("row_dock_summary_v3") : t3("row_taskbar_summary_v3");
       return {
         id: "dock",
-        icon: "v3/Add-To-Dock-Color-24.svg",
+        icon: "v4/dock.svg",
         title,
         secondaryText,
         kind: "one-time",
-        acceptText,
-        accepButtonVariant: "primary"
+        acceptText
       };
     },
     bookmarks: (t3) => ({
       id: "bookmarks",
-      icon: "v3/Bookmark-Favorite-Color-24.svg",
+      icon: "v4/bookmark.svg",
       title: t3("row_bookmarks_title_v3"),
       kind: "toggle",
-      acceptText: t3("row_bookmarks_accept"),
-      accepButtonVariant: "secondary"
+      acceptText: t3("row_bookmarks_accept")
     }),
     "session-restore": (t3) => ({
       id: "session-restore",
-      icon: "v3/Session-Restore-Color-24.svg",
+      icon: "v4/session-restore.svg",
       title: t3("row_session-restore_title_v3"),
       kind: "toggle",
-      acceptText: t3("row_session-restore_accept"),
-      accepButtonVariant: "secondary"
+      acceptText: t3("row_session-restore_accept")
     }),
     "home-shortcut": (t3) => ({
       id: "home-shortcut",
-      icon: "v3/Home-Color-24.svg",
+      icon: "v4/home.svg",
       title: t3("row_home-shortcut_title_v3"),
       kind: "toggle",
-      acceptText: t3("row_home-shortcut_accept"),
-      accepButtonVariant: "secondary"
+      acceptText: t3("row_home-shortcut_accept")
     }),
     "placebo-ad-blocking": (t3) => ({
       id: "placebo-ad-blocking",
@@ -29580,8 +29966,7 @@
       title: t3("row_placebo-ad-blocking_title_v3"),
       secondaryText: t3("row_ad-blocking_desc_v3"),
       kind: "one-time",
-      acceptText: t3("row_ad-blocking_accept_v3"),
-      accepButtonVariant: "primary"
+      acceptText: t3("row_ad-blocking_accept_v3")
     }),
     "aggressive-ad-blocking": (t3) => ({
       id: "aggressive-ad-blocking",
@@ -29589,8 +29974,7 @@
       title: t3("row_aggressive-ad-blocking_title_v3"),
       secondaryText: t3("row_ad-blocking_desc_v3"),
       kind: "one-time",
-      acceptText: t3("row_ad-blocking_accept_v3"),
-      accepButtonVariant: "primary"
+      acceptText: t3("row_ad-blocking_accept_v3")
     }),
     "youtube-ad-blocking": (t3) => ({
       id: "youtube-ad-blocking",
@@ -29598,16 +29982,14 @@
       title: t3("row_youtube-ad-blocking_title_v3"),
       secondaryText: t3("row_youtube-ad-blocking_desc_v3"),
       kind: "one-time",
-      acceptText: t3("row_youtube-ad-blocking_accept_v3"),
-      accepButtonVariant: "primary"
+      acceptText: t3("row_youtube-ad-blocking_accept_v3")
     }),
     "address-bar-mode": (t3) => ({
       id: "address-bar-mode",
       icon: "v3/Ai-Chat-Color-24.svg",
       title: t3("addressBarMode_title"),
       kind: "toggle",
-      acceptText: t3("startBrowsing"),
-      accepButtonVariant: "primary"
+      acceptText: t3("startBrowsing")
     })
   };
   var stepDefinitions2 = {
@@ -29657,7 +30039,6 @@
     const platformName = usePlatformName() || "macos";
     const dispatch = x2(GlobalDispatch);
     const { t: t3 } = useTypedTranslation();
-    const { getStep, setStep, toggleStep } = useBeforeAfter2();
     const { order, activeStep } = globalState;
     const progress = calculateProgress2(order, activeStep);
     const advance = () => {
@@ -29670,11 +30051,6 @@
       payload: { enabled: true },
       current: true
     });
-    const beforeAfter = {
-      get: () => getStep(activeStep),
-      set: (value2) => setStep(activeStep, value2),
-      toggle: () => toggleStep(activeStep)
-    };
     const configParams = {
       t: t3,
       platformName,
@@ -29682,8 +30058,7 @@
       progress,
       advance,
       dismiss,
-      enableSystemValue,
-      beforeAfter
+      enableSystemValue
     };
     if (!stepsConfig2[activeStep]) {
       throw new Error(`Missing step config for ${activeStep}`);
@@ -29697,23 +30072,66 @@
   // pages/onboarding/app/v4/components/SingleStep.module.css
   var SingleStep_default2 = {
     layout: "SingleStep_layout",
-    bubbleColumn: "SingleStep_bubbleColumn",
-    bubbleColumnWide: "SingleStep_bubbleColumnWide",
     progressBadge: "SingleStep_progressBadge",
-    bubbleGetStartedIntro: "SingleStep_bubbleGetStartedIntro",
-    "getstarted-bubble-scale": "SingleStep_getstarted-bubble-scale",
-    "getstarted-bubble-slide": "SingleStep_getstarted-bubble-slide",
-    "getstarted-bubble-opacity": "SingleStep_getstarted-bubble-opacity"
+    bubble: "SingleStep_bubble",
+    "scale-up": "SingleStep_scale-up",
+    "slide-up": "SingleStep_slide-up",
+    "fade-in": "SingleStep_fade-in"
   };
 
   // pages/onboarding/app/v4/components/SingleStep.js
+  var NARROW_WIDTH = 349;
+  var WIDE_WIDTH = 493;
+  var GAP = 8;
   function SingleStep2() {
-    const { content: content2, topBubble, bottomBubble, showProgress, progress, topBubbleTail, globalState } = useStepConfig2();
-    const isGetStarted = globalState.activeStep === "getStarted";
+    const { content: content2, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey } = useStepConfig2();
+    const dispatch = useGlobalDispatch();
+    const handleExitComplete = () => dispatch({ kind: "advance" });
+    const [topHeight, setTopHeight] = d2(0);
+    const [bottomHeight, setBottomHeight] = d2(0);
     if (!topBubble && !bottomBubble) {
       return content2 || null;
     }
-    return /* @__PURE__ */ _("div", { class: SingleStep_default2.layout }, /* @__PURE__ */ _("div", { class: isGetStarted ? SingleStep_default2.bubbleColumn : SingleStep_default2.bubbleColumnWide }, topBubble && /* @__PURE__ */ _(Bubble, { tail: topBubbleTail, class: isGetStarted ? SingleStep_default2.bubbleGetStartedIntro : void 0 }, showProgress && /* @__PURE__ */ _("div", { class: SingleStep_default2.progressBadge }, /* @__PURE__ */ _(ProgressIndicator, { current: progress.current, total: progress.total })), topBubble), bottomBubble && /* @__PURE__ */ _(Bubble, null, bottomBubble), content2));
+    const width2 = bubbleWidth === "narrow" ? NARROW_WIDTH : WIDE_WIDTH;
+    return /* @__PURE__ */ _("div", { class: SingleStep_default2.layout, style: { width: width2 } }, showProgress && /* @__PURE__ */ _("div", { class: SingleStep_default2.progressBadge }, /* @__PURE__ */ _(ProgressIndicator, { current: progress.current, total: progress.total })), /* @__PURE__ */ _(
+      Bubble,
+      {
+        class: SingleStep_default2.bubble,
+        style: {
+          top: 0,
+          width: width2,
+          height: topHeight,
+          visibility: topBubble ? "visible" : "hidden"
+        },
+        tail: topBubble?.tail,
+        illustration: topBubble?.illustration,
+        onHeight: setTopHeight,
+        bounceKey: bounceKey || globalState.activeStep,
+        bounceDelay: 300,
+        exiting: globalState.exiting,
+        onExitComplete: topBubble ? handleExitComplete : void 0
+      },
+      topBubble?.content
+    ), /* @__PURE__ */ _(
+      Bubble,
+      {
+        class: SingleStep_default2.bubble,
+        style: {
+          top: topBubble ? topHeight + GAP : 0,
+          width: width2,
+          height: bottomHeight,
+          visibility: bottomBubble ? "visible" : "hidden"
+        },
+        tail: bottomBubble?.tail,
+        illustration: bottomBubble?.illustration,
+        onHeight: setBottomHeight,
+        bounceKey: bounceKey || globalState.activeStep,
+        bounceDelay: 167,
+        exiting: globalState.exiting,
+        onExitComplete: topBubble ? void 0 : handleExitComplete
+      },
+      bottomBubble?.content
+    ), content2);
   }
 
   // pages/onboarding/app/v4/App.js
@@ -29723,34 +30141,11 @@
     const globalState = x2(GlobalContext);
     const dispatch = x2(GlobalDispatch);
     const { activeStep, exiting } = globalState;
-    const advance = () => dispatch({ kind: "advance" });
     const didCatch = ({ error }) => {
       const message = error?.message || "unknown";
       dispatch({ kind: "error-boundary", error: { message, id: activeStep } });
     };
-    const didAnimationEnd = (e3) => {
-      if (e3.target?.dataset?.exiting === "true") {
-        advance();
-      }
-    };
-    const didRender = (e3) => {
-      const ignoredSteps = ["welcome"];
-      const shouldSkipAnimation = ignoredSteps.includes(e3?.dataset?.current);
-      if (shouldSkipAnimation && exiting === true) {
-        advance();
-      }
-    };
-    return /* @__PURE__ */ _("main", { "data-platform-name": platformName || "macos", "data-app-version": "v4" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _(
-      "div",
-      {
-        class: App_default2.container,
-        "data-current": activeStep,
-        "data-exiting": String(exiting),
-        ref: didRender,
-        onAnimationEnd: didAnimationEnd
-      },
-      /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(BeforeAfterProvider2, null, /* @__PURE__ */ _(SingleStep2, null)))
-    ), children);
+    return /* @__PURE__ */ _("main", { "data-platform-name": platformName || "macos", "data-app-version": "v4" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _("div", { class: App_default2.container, "data-current": activeStep, "data-exiting": String(exiting) }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(SingleStep2, null))), children);
   }
   function Debug2(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state;
