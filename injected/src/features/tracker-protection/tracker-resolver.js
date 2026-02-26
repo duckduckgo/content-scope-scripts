@@ -4,12 +4,18 @@
  */
 
 /**
+ * @typedef {object} RuleOptions
+ * @property {string[]} [types] - Resource types (e.g., 'script', 'image')
+ * @property {string[]} [domains] - Domains where rule applies
+ */
+
+/**
  * @typedef {object} TrackerRule
  * @property {string | RegExp} rule
- * @property {string} [surrogate]
- * @property {string} [action]
- * @property {object} [options]
- * @property {object} [exceptions]
+ * @property {string} [surrogate] - Name of surrogate to load
+ * @property {string} [action] - Rule action (e.g., 'block', 'ignore', 'block-ctl-fb')
+ * @property {RuleOptions} [options] - Conditions for rule to match
+ * @property {RuleOptions} [exceptions] - Exceptions to the rule
  */
 
 /**
@@ -21,9 +27,10 @@
 /**
  * @typedef {object} Tracker
  * @property {string} domain
- * @property {string | TrackerOwner} [owner]
- * @property {string} [default]
+ * @property {TrackerOwner} [owner]
+ * @property {string} [default] - Default action ('block' or 'ignore')
  * @property {TrackerRule[]} [rules]
+ * @property {string[]} [categories] - Tracker categories
  */
 
 /**
@@ -42,13 +49,30 @@
  */
 
 /**
+ * @typedef {object} AllowlistEntry
+ * @property {string | RegExp} rule - Pattern to match
+ * @property {string[]} domains - Domains where tracker is allowed
+ */
+
+/**
+ * @typedef {object} RequestData
+ * @property {{ type?: string }} request
+ * @property {string} siteUrl
+ * @property {string} siteDomain
+ * @property {string[]} siteUrlSplit
+ * @property {string} urlToCheck
+ * @property {string} urlToCheckDomain
+ * @property {string[]} urlToCheckSplit
+ */
+
+/**
  * @typedef {object} TrackerMatch
  * @property {'block' | 'ignore' | 'redirect'} action
  * @property {string} reason
  * @property {boolean} firstParty
- * @property {object} [matchedRule]
+ * @property {TrackerRule} [matchedRule]
  * @property {boolean} [matchedRuleException]
- * @property {object} tracker
+ * @property {Tracker} tracker
  * @property {Entity | null} [entity]
  * @property {string} fullTrackerDomain
  */
@@ -58,7 +82,7 @@ export class TrackerResolver {
      * @param {object} config
      * @param {TrackerData} config.trackerData
      * @param {Record<string, () => void>} config.surrogates
-     * @param {Record<string, object[]>} [config.allowlist]
+     * @param {Record<string, AllowlistEntry[]>} [config.allowlist]
      * @param {string[]} [config.unprotectedDomains]
      */
     constructor(config) {
@@ -66,7 +90,7 @@ export class TrackerResolver {
         this._trackerData = null;
         /** @type {Record<string, () => void>} */
         this._surrogateList = {};
-        /** @type {Record<string, object[]>} */
+        /** @type {Record<string, AllowlistEntry[]>} */
         this._allowlist = {};
         /** @type {string[]} */
         this._unprotectedDomains = [];
@@ -92,7 +116,7 @@ export class TrackerResolver {
     _processTrackerData(data) {
         for (const name in data.trackers) {
             const tracker = data.trackers[name];
-            if (tracker.rules) {
+            if (tracker?.rules) {
                 for (const rule of tracker.rules) {
                     if (typeof rule.rule === 'string') {
                         rule.rule = new RegExp(rule.rule, 'ig');
@@ -206,6 +230,7 @@ export class TrackerResolver {
     /**
      * Find a tracker definition by walking up the domain hierarchy,
      * falling back to CNAME resolution if available.
+     * @param {RequestData} requestData
      * @returns {{ tracker: Tracker, resolvedDomain?: string } | null}
      */
     _findTracker(requestData) {
@@ -260,6 +285,7 @@ export class TrackerResolver {
 
     /**
      * Find the entity owning the website
+     * @param {RequestData} requestData
      */
     _findWebsiteOwner(requestData) {
         if (!this._trackerData?.domains) return null;
@@ -279,9 +305,12 @@ export class TrackerResolver {
 
     /**
      * Find matching rule for a tracker
+     * @param {Tracker} tracker
+     * @param {RequestData} requestData
+     * @returns {TrackerRule | undefined}
      */
     _findRule(tracker, requestData) {
-        if (!tracker.rules?.length) return null;
+        if (!tracker.rules?.length) return undefined;
 
         return tracker.rules.find((ruleObj) => {
             if (requestData.urlToCheck.match(ruleObj.rule)) {
@@ -296,12 +325,16 @@ export class TrackerResolver {
 
     /**
      * Check if rule options/exceptions match request
+     * @param {TrackerRule} rule
+     * @param {'options' | 'exceptions'} type
+     * @param {RequestData} requestData
+     * @returns {boolean}
      */
     _matchesRuleDefinition(rule, type, requestData) {
-        if (!rule[type]) return false;
-
         const def = rule[type];
-        const matchTypes = def.types?.length ? def.types.includes(requestData.request?.type) : true;
+        if (!def) return false;
+
+        const matchTypes = def.types?.length ? def.types.includes(requestData.request?.type || '') : true;
         const matchDomains = def.domains?.length
             ? def.domains.some((d) => {
                   const siteParts = requestData.siteDomain.split('.');
@@ -320,7 +353,7 @@ export class TrackerResolver {
      * Determine blocking action and reason
      * @param {object} params
      * @param {boolean} params.firstParty
-     * @param {object} [params.matchedRule]
+     * @param {TrackerRule} [params.matchedRule]
      * @param {boolean} params.matchedRuleException
      * @param {string} [params.defaultAction]
      * @param {boolean} params.redirectUrl - whether a surrogate redirect is available
