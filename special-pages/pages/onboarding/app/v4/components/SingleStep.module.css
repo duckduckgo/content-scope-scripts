@@ -1,4 +1,5 @@
 .layout {
+    isolation: isolate;
     margin: 10vh auto 0;
     position: relative;
     transition: width 333ms cubic-bezier(0.17, 0, 0.34, 1) 67ms; /* 2f delay */
@@ -22,6 +23,24 @@
     transition-duration: 333ms; /* 10f */
     transition-property: top, width, height;
     transition-timing-function: cubic-bezier(0.17, 0, 0.34, 1);
+}
+
+/* Illustration layers that sit behind / in front of the bottom bubble.
+   `top` is set via inline style to match the bottom bubble's offset. */
+.illustrationBackground {
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    z-index: -1;
+}
+
+.illustrationForeground {
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    z-index: 1;
 }
 
 /* --- bubble intro on getStarted (first step with bubbles) --- */

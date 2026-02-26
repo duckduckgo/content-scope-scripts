@@ -7,7 +7,7 @@ import { AddressBarContent } from '../components/AddressBarContent';
 import { WelcomeContent } from '../components/WelcomeContent';
 import { GetStartedContent } from '../components/GetStartedContent';
 import { GetStartedAnimation } from '../components/GetStartedAnimation';
-import { DaxSystemSettingsBackground, DaxSystemSettingsForeground } from '../components/Illustrations';
+import { SystemSettingsBackground, SystemSettingsForeground } from '../components/SystemSettingsAnimation';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -28,9 +28,9 @@ export const stepsConfig = {
             bottomBubble: {
                 content: <GetStartedContent />,
                 tail: 'bottom-left',
-                illustration: {
-                    foreground: <GetStartedAnimation />,
-                },
+            },
+            illustration: {
+                foreground: <GetStartedAnimation />,
             },
             bubbleWidth: 'narrow',
         };
@@ -49,10 +49,10 @@ export const stepsConfig = {
             },
             bottomBubble: {
                 content: <SettingsContent />,
-                illustration: {
-                    background: <DaxSystemSettingsBackground />,
-                    foreground: <DaxSystemSettingsForeground />,
-                },
+            },
+            illustration: {
+                background: <SystemSettingsBackground />,
+                foreground: <SystemSettingsForeground />,
             },
             showProgress: true,
             bounceKey: `${globalState.activeStep}-${globalState.activeRow}`,

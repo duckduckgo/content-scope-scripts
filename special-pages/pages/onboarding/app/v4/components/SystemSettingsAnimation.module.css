@@ -1,0 +1,20 @@
+.background {
+    position: absolute;
+    right: -90px;
+    top: 4px;
+}
+
+.foreground {
+    position: absolute;
+    right: -85px;
+    top: 4px;
+}
+
+.fadeOut {
+    animation: fade-out 100ms cubic-bezier(0.66, 0, 0.34, 1) both;
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}

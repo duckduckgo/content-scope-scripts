@@ -9,7 +9,6 @@ import { useMergedRef } from '../hooks/useMergedRef';
 /**
  * @typedef {object} BubbleProps
  * @property {'bottom-left' | 'right'} [tail] - Direction of the speech bubble tail
- * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration] - Layered illustration slots
  * @property {(height: number) => void} [onHeight] - Callback reporting measured border height
  * @property {string} [bounceKey] - When this value changes, the bubble plays a scale-bounce animation
  * @property {number} [bounceDelay] - Delay in ms before the scale-bounce animation starts
@@ -37,18 +36,7 @@ import { useMergedRef } from '../hooks/useMergedRef';
  *
  * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
  */
-export function Bubble({
-    children,
-    tail,
-    class: className,
-    illustration,
-    onHeight,
-    bounceKey,
-    bounceDelay,
-    exiting = false,
-    onExitComplete,
-    ...props
-}) {
+export function Bubble({ children, tail, class: className, onHeight, bounceKey, bounceDelay, exiting = false, onExitComplete, ...props }) {
     const bubbleRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -107,7 +95,6 @@ export function Bubble({
 
     return (
         <div ref={mergedBubbleRef} class={cn(styles.bubble, className)} {...props}>
-            {illustration?.background && <div class={styles.background}>{illustration.background}</div>}
             <div
                 ref={containerCallback}
                 class={cn(styles.container, isMounted.current && (exiting ? styles.fadeOut : styles.fadeIn))}
@@ -117,7 +104,6 @@ export function Bubble({
             </div>
             <BottomLeftTail active={tail === 'bottom-left'} />
             <RightTail active={tail === 'right'} />
-            {illustration?.foreground && <div class={styles.foreground}>{illustration.foreground}</div>}
         </div>
     );
 }

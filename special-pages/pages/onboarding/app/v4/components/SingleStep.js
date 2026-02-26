@@ -16,7 +16,7 @@ const GAP = 8;
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
-    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey } = useStepConfig();
+    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey, illustration } = useStepConfig();
     const dispatch = useGlobalDispatch();
     const handleExitComplete = () => dispatch({ kind: 'advance' });
 
@@ -47,7 +47,6 @@ export function SingleStep() {
                     visibility: topBubble ? 'visible' : 'hidden',
                 }}
                 tail={topBubble?.tail}
-                illustration={topBubble?.illustration}
                 onHeight={setTopHeight}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
@@ -56,6 +55,12 @@ export function SingleStep() {
             >
                 {topBubble?.content}
             </Bubble>
+
+            {illustration?.background && (
+                <div class={styles.illustrationBackground} style={{ top: topBubble ? topHeight + GAP : 0 }}>
+                    {illustration.background}
+                </div>
+            )}
 
             <Bubble
                 class={styles.bubble}
@@ -66,7 +71,6 @@ export function SingleStep() {
                     visibility: bottomBubble ? 'visible' : 'hidden',
                 }}
                 tail={bottomBubble?.tail}
-                illustration={bottomBubble?.illustration}
                 onHeight={setBottomHeight}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
@@ -75,6 +79,12 @@ export function SingleStep() {
             >
                 {bottomBubble?.content}
             </Bubble>
+
+            {illustration?.foreground && (
+                <div class={styles.illustrationForeground} style={{ top: topBubble ? topHeight + GAP : 0 }}>
+                    {illustration.foreground}
+                </div>
+            )}
 
             {content}
         </div>

@@ -3,22 +3,13 @@
     border-radius: var(--sp-9); /* 36px */
     border: 1.5px solid var(--bubble-border);
     box-shadow: 0 7px 12px rgba(0, 0, 0, 0.03);
-    isolation: isolate;
     position: relative;
-}
-
-.background {
-    inset: 0;
-    pointer-events: none;
-    position: absolute;
-    z-index: 0;
 }
 
 .container {
     overflow: hidden;
     position: absolute;
     inset: 0;
-    z-index: 1;
 }
 
 .fadeOut {
@@ -37,13 +28,6 @@
 @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
-}
-
-.foreground {
-    inset: 0;
-    pointer-events: none;
-    position: absolute;
-    z-index: 2;
 }
 
 /* Clip wrapper for bottom-left tail — overflow creates the tuck/untuck effect */
