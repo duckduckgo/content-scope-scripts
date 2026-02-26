@@ -1,0 +1,19 @@
+{
+  "readme": "Test CTL surrogate bypass when ctlEnabled is false",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": false,
+        "trackerData": "{\"trackers\":{\"facebook.example\":{\"domain\":\"facebook.example\",\"owner\":{\"name\":\"Facebook Inc\",\"displayName\":\"Facebook\"},\"default\":\"ignore\",\"rules\":[{\"rule\":\"facebook\\\\.example/sdk\\\\.js\",\"surrogate\":\"fb-sdk.js\",\"action\":\"block-ctl-fb\"}]}},\"entities\":{\"Facebook Inc\":{\"domains\":[\"facebook.example\"],\"displayName\":\"Facebook\"}},\"domains\":{\"facebook.example\":\"Facebook Inc\"}}",
+        "allowlist": {},
+        "tempUnprotectedDomains": [],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}

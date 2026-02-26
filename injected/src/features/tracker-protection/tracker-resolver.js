@@ -443,12 +443,19 @@ export class TrackerResolver {
      * @param {string} domain
      */
     isUnprotectedDomain(domain) {
+        // Check exact match first (handles single-part domains like "localhost")
+        if (this._unprotectedDomains.includes(domain)) {
+            return true;
+        }
+
+        // Walk up subdomains (but not to TLD)
         const parts = domain.split('.');
         while (parts.length > 1) {
-            if (this._unprotectedDomains.includes(parts.join('.'))) {
+            parts.shift();
+            const parentDomain = parts.join('.');
+            if (this._unprotectedDomains.includes(parentDomain)) {
                 return true;
             }
-            parts.shift();
         }
         return false;
     }
