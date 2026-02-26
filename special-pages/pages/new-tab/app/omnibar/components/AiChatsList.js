@@ -48,6 +48,7 @@ export function AiChatsList({ className }) {
                             chatId: chat.chatId,
                             target: eventToTarget(event, platformName),
                             trigger: 'mouse',
+                            isPinned: Boolean(chat.pinned),
                         });
                     }}
                 >

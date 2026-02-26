@@ -516,6 +516,10 @@ export interface OpenAIChatAction {
    * Whether the chat was opened via mouse click or keyboard
    */
   trigger: "mouse" | "keyboard";
+  /**
+   * Whether the chat is pinned
+   */
+  isPinned: boolean;
 }
 /**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"

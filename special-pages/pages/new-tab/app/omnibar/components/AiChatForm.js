@@ -96,6 +96,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                         chatId: selectedChat.chatId,
                         target: eventToTarget(event, platformName),
                         trigger: 'keyboard',
+                        isPinned: Boolean(selectedChat.pinned),
                     });
                     break;
                 }

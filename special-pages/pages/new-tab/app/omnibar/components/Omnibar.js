@@ -124,10 +124,12 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                                     <AiChatForm query={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
                                 )}
                             </ResizingContainer>
-                            {mode === 'search' && (
+
+                            {mode === 'search' ? (
                                 <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                            ) : (
+                                <AiChatsList className={styles.aiChatsList} />
                             )}
-                            {mode === 'ai' && <AiChatsList className={styles.aiChatsList} />}
                         </div>
                     </div>
                 </AiChatsProvider>

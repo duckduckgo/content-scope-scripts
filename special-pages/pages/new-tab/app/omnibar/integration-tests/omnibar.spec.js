@@ -1316,6 +1316,7 @@ test.describe('omnibar widget', () => {
                 chatId: firstChat.chatId,
                 target: 'same-tab',
                 trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
             });
         });
 
@@ -1415,6 +1416,7 @@ test.describe('omnibar widget', () => {
                 chatId: firstChat.chatId,
                 target: 'same-tab',
                 trigger: 'keyboard',
+                isPinned: Boolean(firstChat.pinned),
             });
         });
 
@@ -1437,6 +1439,7 @@ test.describe('omnibar widget', () => {
                 chatId: firstChat.chatId,
                 target: 'new-tab',
                 trigger: 'keyboard',
+                isPinned: Boolean(firstChat.pinned),
             });
         });
 
@@ -1460,6 +1463,7 @@ test.describe('omnibar widget', () => {
                 chatId: firstChat.chatId,
                 target: 'new-window',
                 trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
             });
         });
 
@@ -1483,6 +1487,7 @@ test.describe('omnibar widget', () => {
                 chatId: firstChat.chatId,
                 target: 'new-tab',
                 trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
             });
         });
 
@@ -1590,6 +1595,7 @@ test.describe('omnibar widget', () => {
                 chatId: searchChat.chatId,
                 target: 'same-tab',
                 trigger: 'keyboard',
+                isPinned: Boolean(searchChat.pinned),
             });
         });
 
