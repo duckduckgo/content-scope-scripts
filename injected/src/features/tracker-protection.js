@@ -136,11 +136,7 @@ export class TrackerProtection extends ContentFeature {
         this._observer = new MutationObserver((records) => {
             for (const record of records) {
                 for (const node of record.addedNodes) {
-                    if (node instanceof HTMLScriptElement && node.src) {
-                        this._checkAndBlock(node.src, 'script', node);
-                    } else if (node instanceof HTMLImageElement && node.src) {
-                        this._checkAndReport(node.src, 'image');
-                    }
+                    this._processAddedNode(node);
                 }
                 if (record.target instanceof HTMLScriptElement && record.attributeName === 'src') {
                     this._checkAndBlock(record.target.src, 'script', record.target);
@@ -242,6 +238,29 @@ export class TrackerProtection extends ContentFeature {
                 origSet.call(this, value);
             },
         });
+    }
+
+    /**
+     * Process a node added to the DOM, including any nested scripts/images.
+     * @param {Node} node
+     */
+    _processAddedNode(node) {
+        if (node instanceof HTMLScriptElement) {
+            if (node.src) this._checkAndBlock(node.src, 'script', node);
+            return;
+        }
+        if (node instanceof HTMLImageElement) {
+            if (node.src) this._checkAndReport(node.src, 'image');
+            return;
+        }
+        if (node instanceof Element) {
+            for (const script of node.querySelectorAll('script[src]')) {
+                this._checkAndBlock(/** @type {HTMLScriptElement} */ (script).src, 'script', /** @type {HTMLScriptElement} */ (script));
+            }
+            for (const img of node.querySelectorAll('img[src]')) {
+                this._checkAndReport(/** @type {HTMLImageElement} */ (img).src, 'image');
+            }
+        }
     }
 
     /**
@@ -383,18 +402,19 @@ export class TrackerProtection extends ContentFeature {
 
         if (willLoadSurrogate) {
             const surrogateName = result.matchedRule.surrogate;
+            const loaded = this._loadSurrogate(surrogateName, element);
 
-            this._loadSurrogate(surrogateName, element);
+            if (loaded) {
+                this.notify('surrogateInjected', {
+                    url,
+                    blocked: true,
+                    reason: result.reason,
+                    isSurrogate: true,
+                    pageUrl: this._topLevelUrl?.href || '',
+                });
+            }
 
-            this.notify('surrogateInjected', {
-                url,
-                blocked: true,
-                reason: result.reason,
-                isSurrogate: true,
-                pageUrl: this._topLevelUrl?.href || '',
-            });
-
-            return true;
+            return loaded;
         }
 
         return blocked;
@@ -406,39 +426,37 @@ export class TrackerProtection extends ContentFeature {
      *
      * @param {string} pattern - Surrogate pattern (e.g., "adsbygoogle.js")
      * @param {HTMLElement | null} targetElement - Original element being replaced
+     * @returns {boolean} true if the surrogate was successfully executed
      */
     _loadSurrogate(pattern, targetElement) {
         if (!this._loadedSurrogates || !this._resolver) {
-            return;
+            return false;
         }
 
         if (this._loadedSurrogates.has(pattern)) {
-            return;
+            return false;
         }
 
         const surrogateFn = this._resolver.getSurrogate(pattern);
         if (typeof surrogateFn !== 'function') {
-            this.log.warn('Surrogate not found:', pattern);
-            return;
+            return false;
         }
 
         try {
-            // Clear error handler on original element
             if (targetElement && 'onerror' in targetElement) {
                 targetElement.onerror = null;
             }
 
-            // Execute surrogate (it's a real function, not a string)
             surrogateFn();
-
             this._loadedSurrogates.add(pattern);
 
-            // Trigger load event on original element
             if (targetElement && 'onload' in targetElement && typeof targetElement.onload === 'function') {
                 targetElement.onload(new Event('load'));
             }
+            return true;
         } catch (e) {
             this.log.error('Surrogate execution failed:', pattern, e);
+            return false;
         }
     }
 
