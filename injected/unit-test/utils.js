@@ -16,6 +16,7 @@ import {
     getStackTraceOrigins,
     isFeatureBroken,
     isPlatformSpecificFeature,
+    platformSpecificFeatures,
     isGloballyDisabled,
     createCustomEvent,
     isDuckAi,
@@ -1056,6 +1057,7 @@ describe('Helpers checks', () => {
             expect(isPlatformSpecificFeature('navigatorInterface')).toBeTrue();
             expect(isPlatformSpecificFeature('messageBridge')).toBeTrue();
             expect(isPlatformSpecificFeature('favicon')).toBeTrue();
+            expect(isPlatformSpecificFeature('webDetection')).toBeTrue();
         });
 
         it('returns false for non-platform features', () => {
@@ -1084,6 +1086,10 @@ describe('Helpers checks', () => {
                 site: { allowlisted: false, isBroken: false },
             });
             expect(isGloballyDisabled(args)).toBeFalse();
+        });
+
+        it('platformSpecificFeatures includes webDetection so it loads when globally disabled', () => {
+            expect(platformSpecificFeatures).toContain('webDetection');
         });
     });
 
@@ -1232,6 +1238,30 @@ describe('Helpers checks', () => {
             const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformFeatures);
             expect(result).not.toContain('navigatorInterface');
             expect(result).toContain('messageBridge');
+        });
+
+        it('includes webDetection as platform-specific feature not in remote config', () => {
+            const data = {
+                features: {
+                    regularFeature: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).toContain('webDetection');
+            expect(result).toContain('regularFeature');
+        });
+
+        it('keeps webDetection even when a regular feature has an exception for the domain', () => {
+            const data = {
+                features: {
+                    regularFeature: { state: 'enabled', settings: {}, exceptions: [{ domain: 'broken.com' }] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'broken.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).toContain('webDetection');
+            expect(result).not.toContain('regularFeature');
         });
     });
 
