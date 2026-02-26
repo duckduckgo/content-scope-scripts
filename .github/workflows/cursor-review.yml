@@ -28,7 +28,13 @@ jobs:
                               core.setFailed(`${author} is not an active member of duckduckgo/core`);
                           }
                       } catch (error) {
-                          core.setFailed(`${author} is not a member of duckduckgo/core`);
+                          if (error.status === 401) {
+                              core.setFailed(`DAX_PAT returned 401 — token may be expired or misconfigured`);
+                          } else if (error.status === 404) {
+                              core.setFailed(`${author} is not a member of duckduckgo/core`);
+                          } else {
+                              core.setFailed(`Failed to check team membership for ${author}: ${error.message} (status: ${error.status})`);
+                          }
                       }
 
             - name: Dismiss stale Dax approval on new push
