@@ -5,32 +5,26 @@ import { GlobalContext } from '../../global';
 import { ORDER_V4 } from '../../types';
 import styles from './Background.module.css';
 
-const BG_MOTION = {
-    welcome: { dx: '325px', dy: '204px', slideInDelay: '0.133s', fadeDuration: '0.4s' },
-    default: { dx: '-74px', dy: '132px', slideInDelay: '0.2s', fadeDuration: '0.333s' },
-};
-
 /**
- * Returns inline styles for a step's background image and motion.
- * @param {import('../../types').Step['id']} step
+ * @param {object} props
+ * @param {import('../../types').Step['id']} props.step
+ * @param {string} props.class
+ * @param {(() => void)} [props.onAnimationEnd]
  */
-function bgVars(step) {
+function Illustration({ step, class: className, onAnimationEnd }) {
     const idx = ORDER_V4.indexOf(step);
     const num = String(idx + 1).padStart(2, '0');
-    const motion = BG_MOTION[step] ?? BG_MOTION.default;
-    return {
-        '--bg-light': `url("../assets/img/v4/background-${num}-light.svg")`,
-        '--bg-dark': `url("../assets/img/v4/background-${num}-dark.svg")`,
-        '--bg-dx': motion.dx,
-        '--bg-dy': motion.dy,
-        '--bg-slide-in-delay': motion.slideInDelay,
-        '--bg-fade-duration': motion.fadeDuration,
-    };
+    return (
+        <picture class={className} onAnimationEnd={onAnimationEnd}>
+            <source srcset={`../assets/img/v4/background-${num}-dark.svg`} media="(prefers-color-scheme: dark)" />
+            <img src={`../assets/img/v4/background-${num}-light.svg`} alt="" />
+        </picture>
+    );
 }
 
 /**
  * Step-specific background for v4 onboarding.
- * Each step's background illustration crossfades on transition:
+ * Each step's background illustration slides in from the bottom on transition:
  * the previous step's background slides out + fades while the
  * new step's background slides in.
  */
@@ -39,8 +33,6 @@ export function Background() {
     const [prevStep, setPrevStep] = useState(activeStep);
     const [exitingStep, setExitingStep] = useState(/** @type {import('../../types').Step['id'] | null} */ (null));
 
-    // Detect step change during render — no useEffect needed.
-    // See: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
     if (prevStep !== activeStep) {
         setPrevStep(activeStep);
         setExitingStep(prevStep);
@@ -49,14 +41,14 @@ export function Background() {
     return (
         <div class={styles.background}>
             {exitingStep && (
-                <div
-                    key={'exit-' + exitingStep}
+                <Illustration
+                    key={exitingStep}
+                    step={exitingStep}
                     class={cn(styles.illustration, styles.slideOut)}
-                    style={bgVars(exitingStep)}
                     onAnimationEnd={() => setExitingStep(null)}
                 />
             )}
-            <div key={activeStep} class={cn(styles.illustration, styles.slideIn)} style={bgVars(activeStep)} />
+            <Illustration key={activeStep} step={activeStep} class={cn(styles.illustration, styles.slideIn)} />
         </div>
     );
 }
