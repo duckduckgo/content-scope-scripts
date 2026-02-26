@@ -918,6 +918,7 @@ export const platformSpecificFeatures = [
     'breakageReporting',
     'print',
     'webInterferenceDetection',
+    'webDetection',
     'pageObserver',
     'hover',
 ];
