@@ -52,7 +52,7 @@ export async function isTeamMember(github, org, teamSlug, username) {
         return data.state === 'active';
     } catch (error) {
         if (error.status === 401) {
-            throw new Error(`GitHub token returned 401 — check that DAX_PAT is valid and has read:org scope`);
+            throw error;
         }
         return false;
     }
