@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const surrogatesDir = join(scriptDir, '../../node_modules/@duckduckgo/tracker-surrogates/surrogates');
@@ -26,4 +27,7 @@ for (const file of files) {
 output += '};\n';
 
 writeFileSync(outputPath, output);
+
+execSync(`npx prettier --write "${outputPath}"`, { stdio: 'inherit' });
+
 console.log(`Generated surrogates map with ${files.length} entries at ${outputPath}`);
