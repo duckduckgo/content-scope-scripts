@@ -123,12 +123,16 @@ export class TrackerProtection extends ContentFeature {
         this._setupFetchInterception();
         this._setupImageSrcInterception();
 
-        window.addEventListener('load', () => this._processPageOnLoad(), { once: true });
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this._processExistingElements(), { once: true });
-        } else {
+        if (document.readyState === 'complete') {
             this._processExistingElements();
+            this._processPageOnLoad();
+        } else {
+            window.addEventListener('load', () => this._processPageOnLoad(), { once: true });
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => this._processExistingElements(), { once: true });
+            } else {
+                this._processExistingElements();
+            }
         }
     }
 
@@ -198,15 +202,19 @@ export class TrackerProtection extends ContentFeature {
         const originalFetch = window.fetch;
 
         window.fetch = function (...args) {
-            if (args.length > 0) {
-                const input = args[0];
-                if (typeof input === 'string') {
-                    checkAndReport(input, 'fetch');
-                } else if (input instanceof URL) {
-                    checkAndReport(input.href, 'fetch');
-                } else if (input?.url) {
-                    checkAndReport(input.url, 'fetch');
+            try {
+                if (args.length > 0) {
+                    const input = args[0];
+                    if (typeof input === 'string') {
+                        checkAndReport(input, 'fetch');
+                    } else if (input instanceof URL) {
+                        checkAndReport(input.href, 'fetch');
+                    } else if (input?.url) {
+                        checkAndReport(input.url, 'fetch');
+                    }
                 }
+            } catch {
+                // Never break the original fetch call
             }
             return originalFetch.apply(window, args);
         };
@@ -324,9 +332,12 @@ export class TrackerProtection extends ContentFeature {
         const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
         if (!result) return;
 
+        const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
         let blocked = false;
         if (this._isUnprotectedDomain) {
             result.reason = 'unprotectedDomain';
+        } else if (isAllowlisted) {
+            blocked = false;
         } else if (result.action !== 'ignore') {
             blocked = true;
         }
@@ -342,7 +353,7 @@ export class TrackerProtection extends ContentFeature {
                 ownerName: result.tracker.owner?.name || null,
                 category: result.tracker.categories?.[0] || null,
                 prevalence: result.entity?.prevalence ?? null,
-                isAllowlisted: this._resolver.isAllowlisted(topUrl, url),
+                isAllowlisted,
             });
         }
     }
@@ -372,15 +383,17 @@ export class TrackerProtection extends ContentFeature {
             return false;
         }
 
+        const hasSurrogate = result.action === 'redirect';
+        const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
+
         let blocked = false;
         if (this._isUnprotectedDomain) {
             result.reason = 'unprotectedDomain';
+        } else if (isAllowlisted) {
+            blocked = false;
         } else if (result.action !== 'ignore') {
             blocked = true;
         }
-
-        const hasSurrogate = result.action === 'redirect';
-        const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
 
         let willLoadSurrogate = false;
         if (blocked && hasSurrogate && !isAllowlisted && result.matchedRule?.surrogate) {

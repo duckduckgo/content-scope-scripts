@@ -7,7 +7,9 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const surrogatesDir = join(scriptDir, '../../node_modules/@duckduckgo/tracker-surrogates/surrogates');
 const outputPath = join(scriptDir, '../src/features/tracker-protection/surrogates.js');
 
-const files = readdirSync(surrogatesDir).filter((f) => f.endsWith('.js'));
+const files = readdirSync(surrogatesDir)
+    .filter((f) => f.endsWith('.js'))
+    .sort();
 
 let output = '// @ts-nocheck\n';
 output += '/**\n';
