@@ -149,9 +149,8 @@ export class TrackerProtection extends ContentFeature {
         });
 
         const startObserving = () => {
-            const rootElement = document.body || document.documentElement;
-            if (rootElement && this._observer) {
-                this._observer.observe(rootElement, {
+            if (document.documentElement && this._observer) {
+                this._observer.observe(document.documentElement, {
                     childList: true,
                     subtree: true,
                     attributeFilter: ['src'],
@@ -159,7 +158,7 @@ export class TrackerProtection extends ContentFeature {
             }
         };
 
-        if (document.body || document.documentElement) {
+        if (document.documentElement) {
             startObserving();
         } else {
             document.addEventListener('DOMContentLoaded', startObserving, { once: true });
@@ -268,7 +267,7 @@ export class TrackerProtection extends ContentFeature {
 
         for (const el of document.scripts) {
             if (el.src && !seenUrls.has(el.src)) {
-                this._checkAndReport(el.src, 'script');
+                this._checkAndBlock(el.src, 'script', el);
             }
         }
         for (const el of document.querySelectorAll('link')) {
