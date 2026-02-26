@@ -338,6 +338,150 @@ describe('TrackerResolver', () => {
             expect(allowedResult?.reason).toBe('matched rule - exception');
         });
     });
+
+    describe('CNAME resolution', () => {
+        it('should resolve CNAME to tracker domain', () => {
+            const dataWithCnames = {
+                ...sampleTrackerData,
+                cnames: {
+                    'cdn.somesite.com': 'tracker.com',
+                },
+            };
+
+            const resolver = new TrackerResolver({
+                trackerData: dataWithCnames,
+                surrogates: sampleSurrogates,
+            });
+
+            const result = resolver.getTrackerData(
+                'https://cdn.somesite.com/pixel.gif',
+                'https://example.com',
+            );
+
+            expect(result).not.toBeNull();
+            expect(result?.tracker.domain).toBe('tracker.com');
+            expect(result?.action).toBe('block');
+            expect(result?.reason).toBe('default block');
+        });
+
+        it('should handle CNAME with subdomain walking', () => {
+            const dataWithCnames = {
+                ...sampleTrackerData,
+                cnames: {
+                    'sub.cdn.example.com': 'sub.tracker.com',
+                },
+            };
+
+            const resolver = new TrackerResolver({
+                trackerData: dataWithCnames,
+                surrogates: sampleSurrogates,
+            });
+
+            const result = resolver.getTrackerData(
+                'https://sub.cdn.example.com/pixel.gif',
+                'https://example.com',
+            );
+
+            expect(result).not.toBeNull();
+            // Should walk up from sub.tracker.com to tracker.com
+            expect(result?.tracker.domain).toBe('tracker.com');
+            expect(result?.action).toBe('block');
+        });
+
+        it('should return null when CNAME resolves to non-tracker', () => {
+            const dataWithCnames = {
+                ...sampleTrackerData,
+                cnames: {
+                    'cdn.example.com': 'safe-cdn.com',
+                },
+            };
+
+            const resolver = new TrackerResolver({
+                trackerData: dataWithCnames,
+                surrogates: sampleSurrogates,
+            });
+
+            const result = resolver.getTrackerData(
+                'https://cdn.example.com/script.js',
+                'https://example.com',
+            );
+
+            expect(result).toBeNull();
+        });
+
+        it('should match rules after CNAME resolution', () => {
+            const dataWithCnames = {
+                ...sampleTrackerData,
+                cnames: {
+                    'masked-tracker.cdn.com': 'tracker.com',
+                },
+            };
+
+            const resolver = new TrackerResolver({
+                trackerData: dataWithCnames,
+                surrogates: sampleSurrogates,
+            });
+
+            // Should resolve CNAME and match surrogate rule
+            const result = resolver.getTrackerData(
+                'https://masked-tracker.cdn.com/scripts/script.js',
+                'https://example.com',
+            );
+
+            expect(result).not.toBeNull();
+            expect(result?.tracker.domain).toBe('tracker.com');
+            expect(result?.matchedRule).toBeDefined();
+            expect(result?.matchedRule?.surrogate).toBe('script.js');
+            expect(result?.action).toBe('redirect');
+            expect(result?.reason).toBe('matched rule - surrogate');
+        });
+
+        it('should prefer direct domain match over CNAME', () => {
+            // If a domain is both directly in trackers AND has a CNAME,
+            // the direct match should take precedence
+            const dataWithCnames = {
+                trackers: {
+                    'direct.com': {
+                        domain: 'direct.com',
+                        default: 'ignore',
+                        owner: { name: 'Direct Inc', displayName: 'Direct' },
+                    },
+                    'tracker.com': {
+                        domain: 'tracker.com',
+                        default: 'block',
+                        owner: { name: 'Tracker Inc', displayName: 'Tracker' },
+                    },
+                },
+                entities: {
+                    'Direct Inc': { domains: ['direct.com'] },
+                    'Tracker Inc': { domains: ['tracker.com'] },
+                },
+                domains: {
+                    'direct.com': 'Direct Inc',
+                    'tracker.com': 'Tracker Inc',
+                },
+                cnames: {
+                    'direct.com': 'tracker.com',
+                },
+            };
+
+            const resolver = new TrackerResolver({
+                trackerData: dataWithCnames,
+                surrogates: sampleSurrogates,
+            });
+
+            const result = resolver.getTrackerData(
+                'https://direct.com/pixel.gif',
+                'https://example.com',
+            );
+
+            expect(result).not.toBeNull();
+            // Should use direct match, not CNAME
+            expect(result?.tracker.domain).toBe('direct.com');
+            expect(result?.action).toBe('ignore');
+            expect(result?.reason).toBe('default ignore');
+        });
+    });
 });
 
 // Note: TrackerProtection feature tests that require browser APIs (MutationObserver, document, window)

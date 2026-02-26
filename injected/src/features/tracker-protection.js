@@ -171,19 +171,22 @@ export class TrackerProtection extends ContentFeature {
         /** @type {WeakSet<XMLHttpRequest>} */
         const xhrTracked = new WeakSet();
 
-        xhrProto.open = function (_method, url) {
+        // @ts-expect-error - Overload signature doesn't match our wrapper
+        xhrProto.open = function (method, url, async, username, password) {
             xhrUrls.set(this, String(url));
-            return originalOpen.apply(this, arguments);
+            // Must provide async=true to match the second overload signature
+            const asyncValue = async === undefined ? true : async;
+            return originalOpen.call(this, method, url, asyncValue, username, password);
         };
 
-        xhrProto.send = function () {
+        xhrProto.send = function (...args) {
             if (!xhrTracked.has(this)) {
                 xhrTracked.add(this);
                 this.addEventListener('error', () => {
                     checkAndReport(xhrUrls.get(this) || '', 'xmlhttprequest');
                 });
             }
-            return originalSend.apply(this, arguments);
+            return originalSend.apply(this, args);
         };
 
         this._originalXHROpen = originalOpen;
@@ -194,9 +197,9 @@ export class TrackerProtection extends ContentFeature {
         const checkAndReport = this._checkAndReport.bind(this);
         const originalFetch = window.fetch;
 
-        window.fetch = function () {
-            if (arguments.length > 0) {
-                const input = arguments[0];
+        window.fetch = function (...args) {
+            if (args.length > 0) {
+                const input = args[0];
                 if (typeof input === 'string') {
                     checkAndReport(input, 'fetch');
                 } else if (input instanceof URL) {
@@ -205,7 +208,7 @@ export class TrackerProtection extends ContentFeature {
                     checkAndReport(input.url, 'fetch');
                 }
             }
-            return originalFetch.apply(window, arguments);
+            return originalFetch.apply(window, args);
         };
 
         this._originalFetch = originalFetch;
@@ -380,7 +383,7 @@ export class TrackerProtection extends ContentFeature {
         const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
 
         let willLoadSurrogate = false;
-        if (blocked && hasSurrogate && !isAllowlisted) {
+        if (blocked && hasSurrogate && !isAllowlisted && result.matchedRule?.surrogate) {
             const surrogateName = result.matchedRule.surrogate;
             willLoadSurrogate = !CTL_SURROGATES.includes(surrogateName) || this._ctlEnabled === true;
         }
@@ -400,7 +403,7 @@ export class TrackerProtection extends ContentFeature {
             });
         }
 
-        if (willLoadSurrogate) {
+        if (willLoadSurrogate && result.matchedRule?.surrogate) {
             const surrogateName = result.matchedRule.surrogate;
             const loaded = this._loadSurrogate(surrogateName, element);
 
