@@ -9,7 +9,6 @@ injected/src/features/autofill-import.js @duckduckgo/content-scope-scripts-owner
 injected/src/features/page-context.js @duckduckgo/content-scope-scripts-owners @noisysocks
 injected/src/features/web-detection.js @duckduckgo/content-scope-scripts-owners @jdorweiler @GuiltyDolphin
 injected/src/features/web-detection/ @duckduckgo/content-scope-scripts-owners @jdorweiler @GuiltyDolphin
-injected/src/features/web-interference-detection.js @duckduckgo/content-scope-scripts-owners @jdorweiler @GuiltyDolphin
 injected/src/detectors/ @duckduckgo/content-scope-scripts-owners @jdorweiler @GuiltyDolphin
 
 # Broker protection
@@ -39,7 +38,7 @@ injected/src/features/api-manipulation.js @duckduckgo/content-scope-scripts-owne
 injected/src/features/exception-handler.js @duckduckgo/content-scope-scripts-owners
 injected/src/features/gpc.js @duckduckgo/content-scope-scripts-owners
 injected/src/features/performance-metrics.js @duckduckgo/content-scope-scripts-owners
-injected/src/features/web-interference-detection.js @duckduckgo/content-scope-scripts-owners
+injected/src/features/web-interference-detection.js @duckduckgo/content-scope-scripts-owners @jdorweiler @GuiltyDolphin
 injected/src/features/web-telemetry.js @duckduckgo/content-scope-scripts-owners
 injected/src/detectors/detections/adwall-detection.js @duckduckgo/content-scope-scripts-owners
 injected/src/detectors/detections/bot-detection.js @duckduckgo/content-scope-scripts-owners
