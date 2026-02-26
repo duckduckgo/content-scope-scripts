@@ -3487,6 +3487,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   position: relative;
   min-height: calc(200 * var(--px-in-rem));
   padding-bottom: calc(12 * var(--px-in-rem));
+  isolation: isolate;
 }
 .NextStepsListCard_card {
   background-color: var(--ds-color-theme-surface-secondary);

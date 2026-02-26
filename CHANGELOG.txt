@@ -1,3 +1,1 @@
-- Add VeryCriticalUpdate RMF placeholder icon for NTP (#2298)
-- Add assign-reviewer workflow (#2321)
-- Inject feature documentation (#2208)
+- Isolate z-index in next steps list to prevent overlaying omnibox (#2323)
