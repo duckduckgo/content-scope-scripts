@@ -353,10 +353,7 @@ describe('TrackerResolver', () => {
                 surrogates: sampleSurrogates,
             });
 
-            const result = resolver.getTrackerData(
-                'https://cdn.somesite.com/pixel.gif',
-                'https://example.com',
-            );
+            const result = resolver.getTrackerData('https://cdn.somesite.com/pixel.gif', 'https://example.com');
 
             expect(result).not.toBeNull();
             expect(result?.tracker.domain).toBe('tracker.com');
@@ -377,10 +374,7 @@ describe('TrackerResolver', () => {
                 surrogates: sampleSurrogates,
             });
 
-            const result = resolver.getTrackerData(
-                'https://sub.cdn.example.com/pixel.gif',
-                'https://example.com',
-            );
+            const result = resolver.getTrackerData('https://sub.cdn.example.com/pixel.gif', 'https://example.com');
 
             expect(result).not.toBeNull();
             // Should walk up from sub.tracker.com to tracker.com
@@ -401,10 +395,7 @@ describe('TrackerResolver', () => {
                 surrogates: sampleSurrogates,
             });
 
-            const result = resolver.getTrackerData(
-                'https://cdn.example.com/script.js',
-                'https://example.com',
-            );
+            const result = resolver.getTrackerData('https://cdn.example.com/script.js', 'https://example.com');
 
             expect(result).toBeNull();
         });
@@ -423,10 +414,7 @@ describe('TrackerResolver', () => {
             });
 
             // Should resolve CNAME and match surrogate rule
-            const result = resolver.getTrackerData(
-                'https://masked-tracker.cdn.com/scripts/script.js',
-                'https://example.com',
-            );
+            const result = resolver.getTrackerData('https://masked-tracker.cdn.com/scripts/script.js', 'https://example.com');
 
             expect(result).not.toBeNull();
             expect(result?.tracker.domain).toBe('tracker.com');
@@ -470,10 +458,7 @@ describe('TrackerResolver', () => {
                 surrogates: sampleSurrogates,
             });
 
-            const result = resolver.getTrackerData(
-                'https://direct.com/pixel.gif',
-                'https://example.com',
-            );
+            const result = resolver.getTrackerData('https://direct.com/pixel.gif', 'https://example.com');
 
             expect(result).not.toBeNull();
             // Should use direct match, not CNAME
