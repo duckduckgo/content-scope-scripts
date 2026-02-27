@@ -5,6 +5,7 @@ on:
         types: [submitted, dismissed]
     pull_request_target:
         types: [opened, synchronize, reopened]
+    merge_group:
 
 permissions:
     checks: write
@@ -12,7 +13,15 @@ permissions:
     pull-requests: read
 
 jobs:
+    # In the merge queue, review validation already passed on the PR — just succeed.
+    review_validation:
+        if: ${{ github.event_name == 'merge_group' }}
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "Review already validated before entering merge queue"
+
     validate_review:
+        if: ${{ github.event_name != 'merge_group' }}
         runs-on: ubuntu-latest
 
         steps:
