@@ -15,14 +15,12 @@
 .illustration {
     position: absolute;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .illustration img {
     display: block;
-    width: 100%;
-    height: auto;
 }
 
 /* --- Intro: slide in from bottom --- */
