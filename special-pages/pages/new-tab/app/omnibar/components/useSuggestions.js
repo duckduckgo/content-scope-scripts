@@ -48,9 +48,6 @@ const initialState = {
     suggestionsVisible: true,
 };
 
-/** @type {[]} */
-const EMPTY_ARRAY = [];
-
 /**
  * @type {import('preact/hooks').Reducer<State, Action>}
  */
@@ -205,7 +202,7 @@ export function useSuggestions({ term, setTerm }) {
     };
 
     return {
-        suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
+        suggestions: state.suggestionsVisible ? state.suggestions : [],
         selectedSuggestion,
         updateSuggestions,
         selectPreviousSuggestion,

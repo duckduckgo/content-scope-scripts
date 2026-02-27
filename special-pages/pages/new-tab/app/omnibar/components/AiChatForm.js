@@ -126,7 +126,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     };
 
     return (
-        <form ref={formRef} class={styles.form} onSubmit={handleSubmit}>
+        <form ref={formRef} class={styles.form} onSubmit={handleSubmit} onClick={() => textAreaRef.current?.focus()}>
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
