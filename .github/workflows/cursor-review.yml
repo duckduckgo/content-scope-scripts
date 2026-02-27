@@ -25,10 +25,18 @@ jobs:
                           if (data.state === 'active') {
                               console.log(`✅ ${author} is an active member of duckduckgo/core`);
                           } else {
-                              core.setFailed(`${author} is not an active member of duckduckgo/core`);
+                              core.setFailed(`${author} is not an active member of duckduckgo/core (state: ${data.state})`);
                           }
                       } catch (error) {
-                          core.setFailed(`${author} is not a member of duckduckgo/core`);
+                          const status = error.status ?? 'unknown';
+                          console.error(`Team membership check failed for ${author}: HTTP ${status} — ${error.message}`);
+                          if (status === 403) {
+                              core.setFailed(`Token lacks permission to check team membership (HTTP 403). Ensure DAX_PAT has the read:org scope.`);
+                          } else if (status === 404) {
+                              core.setFailed(`${author} is not a member of duckduckgo/core (HTTP 404)`);
+                          } else {
+                              core.setFailed(`Team membership check failed for ${author}: HTTP ${status} — ${error.message}`);
+                          }
                       }
 
             - name: Dismiss stale Dax approval on new push
