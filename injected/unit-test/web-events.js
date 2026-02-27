@@ -44,9 +44,7 @@ describe('WebEvents', () => {
         it('strips unknown fields and never passes nativeClient', () => {
             // Even if someone passes nativeClient in the event object, fireEvent destructures
             // only { type, data }, so nativeClient should never appear in the outgoing message.
-            const { params } = captureNotify(
-                /** @type {any} */ ({ type: 'adwall', nativeClient: { bad: true } }),
-            );
+            const { params } = captureNotify(/** @type {any} */ ({ type: 'adwall', nativeClient: { bad: true } }));
             expect('nativeClient' in params).toBe(false);
         });
     });
