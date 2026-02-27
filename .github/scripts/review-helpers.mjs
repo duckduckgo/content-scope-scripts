@@ -42,29 +42,24 @@ export async function findRiskLevel(github, { owner, repo, prNumber }) {
     return null;
 }
 
-/**
- * Checks team membership using the GitHub REST API directly via fetch.
- * Requires a token with read:org scope.
- */
-export async function isTeamMember(orgToken, org, teamSlug, username) {
-    const url = `https://api.github.com/orgs/${org}/teams/${teamSlug}/memberships/${username}`;
-    const resp = await fetch(url, {
-        headers: {
-            Authorization: `token ${orgToken}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
-    });
-    if (resp.status === 401) {
-        throw Object.assign(new Error('Org token returned 401 — check that DAX_PAT is valid and has read:org scope'), { status: 401 });
+export async function isTeamMember(github, orgToken, org, teamSlug, username) {
+    try {
+        const { data } = await github.request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
+            org,
+            team_slug: teamSlug,
+            username,
+            headers: { authorization: `token ${orgToken}` },
+        });
+        return data.state === 'active';
+    } catch (error) {
+        if (error.status === 401) throw error;
+        return false;
     }
-    if (!resp.ok) return false;
-    const data = await resp.json();
-    return data.state === 'active';
 }
 
-export async function findTeamForUser(orgToken, org, teams, username) {
+export async function findTeamForUser(github, orgToken, org, teams, username) {
     for (const team of teams) {
-        if (await isTeamMember(orgToken, org, team, username)) {
+        if (await isTeamMember(github, orgToken, org, team, username)) {
             return team;
         }
     }
@@ -103,7 +98,7 @@ export async function findAuthorizedApproval(github, { owner, repo, prNumber, or
     }
 
     for (const review of approved) {
-        const team = await findTeamForUser(orgToken, org, teams, review.user.login);
+        const team = await findTeamForUser(github, orgToken, org, teams, review.user.login);
         if (team) return { user: review.user.login, team };
     }
 
