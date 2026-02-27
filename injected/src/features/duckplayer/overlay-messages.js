@@ -143,7 +143,7 @@ export class DuckPlayerOverlayMessages {
 
 /**
  * @param {Event} event
- * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
+ * @returns {asserts event is CustomEvent<{kind: string, data: import("../duck-player.js").UserValues}>}
  */
 function assertCustomEvent(event) {
     if (!('detail' in event)) throw new Error('none-custom event');
