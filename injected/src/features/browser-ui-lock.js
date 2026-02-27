@@ -11,8 +11,8 @@ import ContentFeature from '../content-feature.js';
  * @see https://app.asana.com/0/0/1209424908894123
  */
 export default class BrowserUiLock extends ContentFeature {
-    /** @type {boolean} */
-    _currentLockState = false;
+    /** @type {boolean | null} Null ensures the first evaluation always sends a notification */
+    _currentLockState = null;
 
     /** @type {MutationObserver | null} */
     _mutationObserver = null;
@@ -22,6 +22,9 @@ export default class BrowserUiLock extends ContentFeature {
 
     /** @type {number | null} */
     _rafId = null;
+
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    _delayedEvalTimerId = null;
 
     /**
      * Enable URL change listening to reset and re-evaluate on SPA navigations
@@ -54,6 +57,15 @@ export default class BrowserUiLock extends ContentFeature {
      */
     _startObserving() {
         this._scheduleEvaluation();
+        // Cancel any pending delayed evaluation from a previous navigation
+        if (this._delayedEvalTimerId !== null) {
+            clearTimeout(this._delayedEvalTimerId);
+        }
+        // Re-evaluate after a short delay to catch late-rendering content (e.g. back navigation)
+        this._delayedEvalTimerId = setTimeout(() => {
+            this._delayedEvalTimerId = null;
+            this._scheduleEvaluation();
+        }, 300);
         this._setupMutationObserver();
         this._setupResizeObserver();
     }

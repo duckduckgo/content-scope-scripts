@@ -164,9 +164,21 @@ describe('BrowserUiLock', () => {
             expect(feature._messaging.notify).not.toHaveBeenCalled();
         });
 
-        it('should deduplicate repeated false values', () => {
+        it('should notify on first evaluation even when unlocked', () => {
             const feature = createFeature();
-            // default _currentLockState is false
+            // _currentLockState starts as null, so first unlock should still notify
+            feature._notifyIfChanged(false);
+
+            // @ts-expect-error - mock messaging
+            expect(feature._messaging.notify).toHaveBeenCalledWith('uiLockChanged', { locked: false });
+        });
+
+        it('should not notify on repeated unlocked values after first evaluation', () => {
+            const feature = createFeature();
+            feature._notifyIfChanged(false);
+            // @ts-expect-error - mock messaging
+            feature._messaging.notify.calls.reset();
+
             feature._notifyIfChanged(false);
 
             // @ts-expect-error - mock messaging
