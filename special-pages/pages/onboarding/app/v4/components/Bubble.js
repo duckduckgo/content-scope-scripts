@@ -4,8 +4,7 @@ import cn from 'classnames';
 import styles from './Bubble.module.css';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import { useAnimate } from '../hooks/useAnimate';
-
-const BORDER_WIDTH = 1.5;
+import { ProgressIndicator } from './ProgressIndicator';
 
 /**
  * @typedef {object} BubbleProps
@@ -16,6 +15,7 @@ const BORDER_WIDTH = 1.5;
  * @property {number} [bounceDelay] - Delay in ms before the scale-bounce animation starts
  * @property {boolean} [exiting] - When true, fades out the container via CSS animation
  * @property {() => void} [onExitComplete] - Called when the fade-out animation ends
+ * @property {import('../data/data-types').Progress} [progress] - When provided, renders a progress badge pinned to the bubble's top edge
  */
 
 /**
@@ -49,15 +49,18 @@ export function Bubble({
     bounceDelay,
     exiting = false,
     onExitComplete,
+    progress,
     ...props
 }) {
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const isMounted = useRef(false);
     const { isReducedMotion } = useEnv();
-    const [frameRef, animateBounce] = /** @type {[import('preact').RefObject<HTMLDivElement>, import('../hooks/useAnimate').AnimateFn]} */ (
+    const [frameRef, animateFrame] = /** @type {[import('preact').RefObject<HTMLDivElement>, import('../hooks/useAnimate').AnimateFn]} */ (
         useAnimate()
     );
+    const [progressBadgeRef, animateProgressBadge] =
+        /** @type {[import('preact').RefObject<HTMLDivElement>, import('../hooks/useAnimate').AnimateFn]} */ (useAnimate());
 
     // One-way flag: false on initial mount, true after the first transition.
     // Suppresses fade-in and bounce animations until content has exited once.
@@ -65,19 +68,22 @@ export function Bubble({
 
     useLayoutEffect(() => {
         const content = contentRef.current;
-        if (!content || !onHeight) return;
+        const frame = frameRef.current;
+        if (!content || !frame || !onHeight) return;
 
         const observer = new ResizeObserver(() => {
-            onHeight(BORDER_WIDTH * 2 + content.offsetHeight);
+            onHeight(measureHeight(content, frame));
         });
         observer.observe(content);
         return () => observer.disconnect();
     }, [onHeight]);
 
     useEffect(() => {
-        if (!isMounted.current) return;
+        const content = contentRef.current;
+        const frame = frameRef.current;
+        if (!isMounted.current || !content || !frame) return;
 
-        animateBounce(
+        animateFrame(
             [
                 { scale: 1, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' },
                 { scale: 1.07, offset: 0.5, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' },
@@ -88,7 +94,20 @@ export function Bubble({
                 delay: bounceDelay,
             },
         );
-    }, [bounceKey, animateBounce, bounceDelay]);
+
+        const offsetY = 0.035 * measureHeight(content, frame);
+        animateProgressBadge(
+            [
+                { transform: 'translateY(-50%)', easing: 'cubic-bezier(0.17, 0, 0.83, 1)' },
+                { transform: `translateY(calc(-50% - ${offsetY}px))`, offset: 0.5, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' },
+                { transform: 'translateY(-50%)' },
+            ],
+            {
+                duration: 467,
+                delay: bounceDelay,
+            },
+        );
+    }, [bounceKey, animateFrame, animateProgressBadge, bounceDelay]);
 
     /** @param {import('preact').JSX.TargetedAnimationEvent<HTMLDivElement>} e */
     const handleAnimationEnd = (e) => {
@@ -111,6 +130,11 @@ export function Bubble({
                 <BottomLeftTail active={tail === 'bottom-left'} />
                 <RightTail active={tail === 'right'} />
             </div>
+            {progress && (
+                <div ref={progressBadgeRef} class={styles.progressBadge}>
+                    <ProgressIndicator current={progress.current} total={progress.total} />
+                </div>
+            )}
             <div
                 ref={containerCallback}
                 class={cn(styles.container, isMounted.current && (exiting ? styles.fadeOut : styles.fadeIn))}
@@ -122,6 +146,15 @@ export function Bubble({
             </div>
         </div>
     );
+}
+
+/**
+ * @param {HTMLElement} content
+ * @param {HTMLElement} frame
+ */
+function measureHeight(content, frame) {
+    const computed = getComputedStyle(frame);
+    return parseFloat(computed.borderTopWidth) + parseFloat(computed.borderBottomWidth) + content.offsetHeight;
 }
 
 function BottomLeftTail({ active }) {

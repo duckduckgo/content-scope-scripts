@@ -2,6 +2,17 @@
     position: relative;
 }
 
+.progressBadge {
+    position: absolute;
+    top: 0;
+    right: var(--sp-9); /* 36px — aligned with bubble border-radius */
+    transform: translateY(-50%);
+    background: var(--bubble-bg);
+    padding: 6px 10px 6px var(--sp-2);
+    border: 1.5px solid var(--bubble-border);
+    border-radius: var(--sp-16); /* 64px — full pill */
+}
+
 .frame {
     position: absolute;
     inset: 0;

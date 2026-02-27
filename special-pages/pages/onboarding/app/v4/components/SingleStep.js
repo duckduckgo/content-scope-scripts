@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { Bubble } from './Bubble';
-import { ProgressIndicator } from './ProgressIndicator';
 import { useStepConfig } from '../hooks/useStepConfig';
 import { useGlobalDispatch } from '../../global';
 import styles from './SingleStep.module.css';
@@ -36,12 +35,6 @@ export function SingleStep() {
 
     return (
         <div class={styles.layout} style={{ width }}>
-            {showProgress && (
-                <div class={styles.progressBadge}>
-                    <ProgressIndicator current={progress.current} total={progress.total} />
-                </div>
-            )}
-
             <Bubble
                 class={styles.bubble}
                 style={{
@@ -57,6 +50,7 @@ export function SingleStep() {
                 exiting={globalState.exiting}
                 contentWidth={width}
                 onExitComplete={topBubble ? handleExitComplete : undefined}
+                progress={showProgress && topBubble ? progress : undefined}
             >
                 {topBubble?.content}
             </Bubble>
@@ -82,6 +76,7 @@ export function SingleStep() {
                 bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
                 exiting={globalState.exiting}
                 onExitComplete={topBubble ? undefined : handleExitComplete}
+                progress={showProgress && !topBubble ? progress : undefined}
             >
                 {bottomBubble?.content}
             </Bubble>
