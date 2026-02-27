@@ -35,7 +35,7 @@
         opacity: 0;
         animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
     }
-    19.78%, 90.11% {
+    29.67%, 90.11% {
         opacity: 1;
         animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
     }
