@@ -66,7 +66,7 @@ Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `mes
 
 ## Messaging Constraints
 
-- **Never include `nativeClient` as a field in any message sent to the client.** The `nativeClient` field is reserved for native platform use — native implementations inject a `nativeData` field into incoming messages, and `nativeClient` is reserved for that layer. When constructing `notify()` or `request()` params, only pass explicitly defined fields (destructure rather than spread).
+- **Never include `nativeData` as a field in any message sent to the client.** The `nativeData` field is reserved for native platform use — native implementations inject a `nativeData` field into incoming messages, and `nativeData` is reserved for that layer. When constructing `notify()` or `request()` params, only pass explicitly defined fields (destructure rather than spread).
 
 ## Notes
 

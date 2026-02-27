@@ -31,21 +31,21 @@ describe('WebEvents', () => {
             expect(params).toEqual({ type: 'adwall', data: { extra: 'info' } });
         });
 
-        it('never includes nativeClient in the params', () => {
+        it('never includes nativeData in the params', () => {
             const { params } = captureNotify({ type: 'adwall' });
-            expect('nativeClient' in params).toBe(false);
+            expect('nativeData' in params).toBe(false);
         });
 
-        it('never includes nativeClient even when data is provided', () => {
+        it('never includes nativeData even when data is provided', () => {
             const { params } = captureNotify({ type: 'adwall', data: { foo: 'bar' } });
-            expect('nativeClient' in params).toBe(false);
+            expect('nativeData' in params).toBe(false);
         });
 
-        it('strips unknown fields and never passes nativeClient', () => {
-            // Even if someone passes nativeClient in the event object, fireEvent destructures
-            // only { type, data }, so nativeClient should never appear in the outgoing message.
-            const { params } = captureNotify(/** @type {any} */ ({ type: 'adwall', nativeClient: { bad: true } }));
-            expect('nativeClient' in params).toBe(false);
+        it('strips unknown fields and never passes nativeData', () => {
+            // Even if someone passes nativeData in the event object, fireEvent destructures
+            // only { type, data }, so nativeData should never appear in the outgoing message.
+            const { params } = captureNotify(/** @type {any} */ ({ type: 'adwall', nativeData: { bad: true } }));
+            expect('nativeData' in params).toBe(false);
         });
     });
 });

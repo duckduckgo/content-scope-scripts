@@ -86,7 +86,7 @@ test.describe('WebEvents message flow', () => {
         }
     });
 
-    test('webEvent messages never contain a nativeClient field', async ({ page }, testInfo) => {
+    test('webEvent messages never contain a nativeData field', async ({ page }, testInfo) => {
         const collector = await setupWithAutoRun(page, testInfo.project.use, CONFIG_ENABLED);
 
         await page.clock.fastForward(100);
@@ -95,9 +95,9 @@ test.describe('WebEvents message flow', () => {
         expect(webEventMessages.length).toBeGreaterThanOrEqual(1);
 
         for (const msg of webEventMessages) {
-            expect(msg.payload).not.toHaveProperty('nativeClient');
+            expect(msg.payload).not.toHaveProperty('nativeData');
             expect(/** @type {import('../../messaging/index.js').NotificationMessage} */ (msg.payload).params).not.toHaveProperty(
-                'nativeClient',
+                'nativeData',
             );
         }
     });

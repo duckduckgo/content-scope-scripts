@@ -107,7 +107,7 @@ this.subscribe('eventName', (data) => { ... });
 
 ### Reserved Fields
 
-The `nativeClient` field is **reserved for native platform use** and must never be included in messages sent from C-S-S to the client. Native implementations inject a `nativeData` field into incoming messages; `nativeClient` is reserved for that layer. Including it in outgoing messages would conflict with native-side processing.
+The `nativeData` field is **reserved for native platform use** and must never be included in messages sent from C-S-S to the client. Native implementations inject a `nativeData` field into incoming messages; `nativeData` is reserved for that layer. Including it in outgoing messages would conflict with native-side processing.
 
 When constructing notification or request params, only pass explicitly defined fields:
 
@@ -115,7 +115,7 @@ When constructing notification or request params, only pass explicitly defined f
 // ✅ Correct — only known fields
 this.messaging.notify('webEvent', { type, data });
 
-// ❌ Wrong — spreading unknown fields risks leaking nativeClient
+// ❌ Wrong — spreading unknown fields risks leaking nativeData
 this.messaging.notify('webEvent', eventObject);
 ```
 
