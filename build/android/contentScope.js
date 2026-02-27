@@ -12149,8 +12149,8 @@ ${iframeContent}
   var BrowserUiLock = class extends ContentFeature {
     constructor() {
       super(...arguments);
-      /** @type {boolean} */
-      __publicField(this, "_currentLockState", false);
+      /** @type {boolean | null} Null ensures the first evaluation always sends a notification */
+      __publicField(this, "_currentLockState", null);
       /** @type {MutationObserver | null} */
       __publicField(this, "_mutationObserver", null);
       /** @type {ResizeObserver | null} */
@@ -12187,7 +12187,7 @@ ${iframeContent}
       this._setupResizeObserver();
     }
     /**
-     * Set up MutationObserver to watch for style/class attribute changes on html and body.
+     * Set up MutationObserver to watch for style/class/content changes on html and body.
      */
     _setupMutationObserver() {
       if (this._mutationObserver) {
@@ -12254,10 +12254,10 @@ ${iframeContent}
       try {
         const html2 = document.documentElement;
         const body = document.body;
-        if (html2 && this._hasVisibleScrollbar(html2)) {
+        if (html2 && this._hasExplicitlyVisibleScrollbar(html2)) {
           return false;
         }
-        if (body && this._hasVisibleScrollbar(body)) {
+        if (body && this._hasExplicitlyVisibleScrollbar(body)) {
           return false;
         }
         return true;
@@ -12272,10 +12272,11 @@ ${iframeContent}
      * @param {Element} el
      * @returns {boolean}
      */
-    _hasVisibleScrollbar(el) {
+    _hasExplicitlyVisibleScrollbar(el) {
       const style = getComputedStyle(el);
       const overflowY = style.overflowY;
-      return el.scrollHeight > el.clientHeight && overflowY !== "hidden" && overflowY !== "clip";
+      const overflowTypes = this.getFeatureSetting("overflowTypes") ?? ["hidden", "clip", "auto"];
+      return el.scrollHeight > el.clientHeight && !overflowTypes.includes(overflowY);
     }
     /**
      * Notify native if lock state changed

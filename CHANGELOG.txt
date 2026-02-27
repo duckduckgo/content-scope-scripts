@@ -1,2 +1,2 @@
-- Review workflow (#2317)
-- Add webDetection to platformSpecificFeatures (#2325)
+- Ensure BrowserUiLock C-S-S is calling native side at least once on every page load. (#2328)
+- Dual items context (#2327)
