@@ -46,7 +46,7 @@
 /* --- bubble intro on getStarted (first step with bubbles) --- */
 
 :global([data-current="getStarted"]) .bubble {
-    animation: scale-up 0.9s both, slide-up 0.9s both, fade-in 0.9s both;
+    animation: scale-up 0.9s 0.15s both, slide-up 0.9s 0.15s both, fade-in 0.9s 0.15s both;
 }
 
 @keyframes scale-up {
