@@ -318,6 +318,41 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
+     * Report a non-tracker third-party request for the privacy dashboard.
+     * Only reports if the URL is from a different eTLD+1 than the page.
+     * @param {string} url
+     * @param {string} topUrl
+     */
+    _reportThirdPartyRequest(url, topUrl) {
+        try {
+            const requestHost = new URL(url).hostname;
+            const pageHost = new URL(topUrl).hostname;
+            if (requestHost === pageHost) return;
+
+            const requestParts = requestHost.split('.');
+            const pageParts = pageHost.split('.');
+            const requestDomain = requestParts.slice(-2).join('.');
+            const pageDomain = pageParts.slice(-2).join('.');
+            if (requestDomain === pageDomain) return;
+
+            this.notify('trackerDetected', {
+                url,
+                blocked: false,
+                reason: 'thirdPartyRequest',
+                isSurrogate: false,
+                pageUrl: this._topLevelUrl?.href || '',
+                entityName: null,
+                ownerName: null,
+                category: null,
+                prevalence: null,
+                isAllowlisted: false,
+            });
+        } catch {
+            // Invalid URL
+        }
+    }
+
+    /**
      * Report a resource URL for tracker detection without surrogate handling.
      * Used for non-script resources (XHR, fetch, images, iframes, links).
      * @param {string} url
@@ -330,7 +365,10 @@ export class TrackerProtection extends ContentFeature {
 
         const topUrl = this._topLevelUrl?.toString() || '';
         const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
-        if (!result) return;
+        if (!result) {
+            this._reportThirdPartyRequest(url, topUrl);
+            return;
+        }
 
         const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
         let blocked = false;
@@ -380,6 +418,7 @@ export class TrackerProtection extends ContentFeature {
         const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
 
         if (!result) {
+            this._reportThirdPartyRequest(url, topUrl);
             return false;
         }
 
