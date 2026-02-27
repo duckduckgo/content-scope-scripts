@@ -419,6 +419,7 @@ export class TrackerProtection extends ContentFeature {
      */
     _checkAndReport(url, resourceType) {
         if (!url || !this._resolver || !this._seenUrls || this._seenUrls.has(url)) return;
+        if (!url.startsWith('http://') && !url.startsWith('https://')) return;
         this._seenUrls.add(url);
         if (!this._blockingEnabled) return;
 
@@ -463,10 +464,17 @@ export class TrackerProtection extends ContentFeature {
      * @param {HTMLElement | null} element
      */
     _checkAndBlock(url, resourceType, element = null) {
-        if (!url || !this._resolver || !this._seenUrls || this._seenUrls.has(url)) {
+        if (!url || !this._resolver || !this._seenUrls) {
+            return false;
+        }
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
             return false;
         }
 
+        // Mark as seen for scan deduplication (_processPageOnLoad / _scanExistingScripts
+        // check _seenUrls before calling), but don't prevent re-processing of dynamically
+        // added script elements with the same URL — surrogates are idempotent and must
+        // re-execute for each script instance, matching old surrogates.js behavior.
         this._seenUrls.add(url);
 
         if (!this._blockingEnabled) {
