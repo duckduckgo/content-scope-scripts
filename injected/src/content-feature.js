@@ -104,7 +104,7 @@ export default class ContentFeature extends ConfigFeature {
      *
      * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
      *
-     * @type {ExposeMethods<any> | undefined}
+     * @type {ExposeMethods<string> | undefined}
      */
     _exposedMethods;
 
