@@ -42,25 +42,24 @@ export async function findRiskLevel(github, { owner, repo, prNumber }) {
     return null;
 }
 
-export async function isTeamMember(github, org, teamSlug, username) {
+export async function isTeamMember(github, orgToken, org, teamSlug, username) {
     try {
-        const { data } = await github.rest.teams.getMembershipForUserInOrg({
+        const { data } = await github.request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
             org,
             team_slug: teamSlug,
             username,
+            headers: { authorization: `token ${orgToken}` },
         });
         return data.state === 'active';
     } catch (error) {
-        if (error.status === 401) {
-            throw error;
-        }
+        if (error.status === 401) throw error;
         return false;
     }
 }
 
-export async function findTeamForUser(github, org, teams, username) {
+export async function findTeamForUser(github, orgToken, org, teams, username) {
     for (const team of teams) {
-        if (await isTeamMember(github, org, team, username)) {
+        if (await isTeamMember(github, orgToken, org, team, username)) {
             return team;
         }
     }
@@ -72,10 +71,10 @@ export async function findTeamForUser(github, org, teams, username) {
  * Checks daxtheduck first, then team membership for each approver.
  *
  * @param github - Octokit client for repo operations (GITHUB_TOKEN is sufficient)
- * @param opts.orgGithub - Optional Octokit client with read:org scope for team membership checks.
- *                         Falls back to `github` if not provided.
+ * @param opts.orgToken - Token with read:org scope for team membership checks (e.g. DAX_PAT).
+ *                        If not provided, team membership checks are skipped.
  */
-export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgGithub }) {
+export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgToken }) {
     const { data: reviews } = await github.rest.pulls.listReviews({
         owner,
         repo,
@@ -93,9 +92,13 @@ export async function findAuthorizedApproval(github, { owner, repo, prNumber, or
         return { user: DAX_USERNAME, team: null };
     }
 
-    const teamClient = orgGithub ?? github;
+    if (!orgToken) {
+        console.log('No org token available — skipping team membership checks');
+        return null;
+    }
+
     for (const review of approved) {
-        const team = await findTeamForUser(teamClient, org, teams, review.user.login);
+        const team = await findTeamForUser(github, orgToken, org, teams, review.user.login);
         if (team) return { user: review.user.login, team };
     }
 
