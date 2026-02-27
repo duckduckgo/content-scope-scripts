@@ -12,4 +12,10 @@
 
     display: flow-root;
     position: relative;
+
+    /* Vertically center the tallest step (~620px) near 45% of the viewport.
+       310px = half of 620px. The top padding is fixed so that content that
+       grows (e.g. systemSettings adding rows) extends downward without
+       shifting the vertical position. */
+    padding-top: max(var(--sp-5), calc(45vh - 310px));
 }
