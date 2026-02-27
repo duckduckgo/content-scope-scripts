@@ -30,6 +30,10 @@ export function SingleStep() {
 
     const width = bubbleWidth === 'narrow' ? NARROW_WIDTH : WIDE_WIDTH;
 
+    // When the top bubble is hidden (no topBubble), mirror the bottom bubble's
+    // height so it's pre-sized for a smooth "split" transition when it appears.
+    const effectiveTopHeight = topBubble ? topHeight : bottomHeight;
+
     return (
         <div class={styles.layout} style={{ width }}>
             {showProgress && (
@@ -43,7 +47,7 @@ export function SingleStep() {
                 style={{
                     top: 0,
                     width,
-                    height: topHeight,
+                    height: effectiveTopHeight,
                     visibility: topBubble ? 'visible' : 'hidden',
                 }}
                 tail={topBubble?.tail}
@@ -58,7 +62,7 @@ export function SingleStep() {
             </Bubble>
 
             {illustration?.background && (
-                <div class={styles.illustrationBackground} style={{ top: topBubble ? topHeight + GAP : 0 }}>
+                <div class={styles.illustrationBackground} style={{ top: topBubble ? effectiveTopHeight + GAP : 0 }}>
                     {illustration.background}
                 </div>
             )}
@@ -66,7 +70,7 @@ export function SingleStep() {
             <Bubble
                 class={styles.bubble}
                 style={{
-                    top: topBubble ? topHeight + GAP : 0,
+                    top: topBubble ? effectiveTopHeight + GAP : 0,
                     width,
                     height: bottomHeight,
                     visibility: bottomBubble ? 'visible' : 'hidden',
@@ -83,7 +87,7 @@ export function SingleStep() {
             </Bubble>
 
             {illustration?.foreground && (
-                <div class={styles.illustrationForeground} style={{ top: topBubble ? topHeight + GAP : 0 }}>
+                <div class={styles.illustrationForeground} style={{ top: topBubble ? effectiveTopHeight + GAP : 0 }}>
                     {illustration.foreground}
                 </div>
             )}
