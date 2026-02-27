@@ -96,7 +96,9 @@ test.describe('WebEvents message flow', () => {
 
         for (const msg of webEventMessages) {
             expect(msg.payload).not.toHaveProperty('nativeClient');
-            expect(msg.payload.params).not.toHaveProperty('nativeClient');
+            expect(/** @type {import('../../messaging/index.js').NotificationMessage} */ (msg.payload).params).not.toHaveProperty(
+                'nativeClient',
+            );
         }
     });
 });
