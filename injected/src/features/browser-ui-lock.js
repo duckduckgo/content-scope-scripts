@@ -23,9 +23,6 @@ export default class BrowserUiLock extends ContentFeature {
     /** @type {number | null} */
     _rafId = null;
 
-    /** @type {ReturnType<typeof setTimeout> | null} */
-    _delayedEvalTimerId = null;
-
     /**
      * Enable URL change listening to reset and re-evaluate on SPA navigations
      */
@@ -57,21 +54,12 @@ export default class BrowserUiLock extends ContentFeature {
      */
     _startObserving() {
         this._scheduleEvaluation();
-        // Cancel any pending delayed evaluation from a previous navigation
-        if (this._delayedEvalTimerId !== null) {
-            clearTimeout(this._delayedEvalTimerId);
-        }
-        // Re-evaluate after a short delay to catch late-rendering content (e.g. back navigation)
-        this._delayedEvalTimerId = setTimeout(() => {
-            this._delayedEvalTimerId = null;
-            this._scheduleEvaluation();
-        }, 300);
         this._setupMutationObserver();
         this._setupResizeObserver();
     }
 
     /**
-     * Set up MutationObserver to watch for style/class attribute changes on html and body.
+     * Set up MutationObserver to watch for style/class/content changes on html and body.
      */
     _setupMutationObserver() {
         if (this._mutationObserver) {
@@ -151,10 +139,10 @@ export default class BrowserUiLock extends ContentFeature {
             const body = document.body;
 
             // If either html or body has a visible scrollbar, don't lock
-            if (html && this._hasVisibleScrollbar(html)) {
+            if (html && this._hasExplicitlyVisibleScrollbar(html)) {
                 return false;
             }
-            if (body && this._hasVisibleScrollbar(body)) {
+            if (body && this._hasExplicitlyVisibleScrollbar(body)) {
                 return false;
             }
 
@@ -173,10 +161,11 @@ export default class BrowserUiLock extends ContentFeature {
      * @param {Element} el
      * @returns {boolean}
      */
-    _hasVisibleScrollbar(el) {
+    _hasExplicitlyVisibleScrollbar(el) {
         const style = getComputedStyle(el);
         const overflowY = style.overflowY;
-        return el.scrollHeight > el.clientHeight && overflowY !== 'hidden' && overflowY !== 'clip';
+        const overflowTypes = this.getFeatureSetting('overflowTypes') ?? ['hidden', 'clip', 'auto'];
+        return el.scrollHeight > el.clientHeight && !overflowTypes.includes(overflowY);
     }
 
     /**
