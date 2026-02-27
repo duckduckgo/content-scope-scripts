@@ -165,6 +165,28 @@ test('tracker-protection: re-executes surrogate for repeated script additions', 
     expect(all).toHaveLength(2);
 });
 
+test('tracker-protection: skips surrogate when script has integrity attribute', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(() => {
+        const script = document.createElement('script');
+        script.integrity = 'sha512-fakehash';
+        script.crossOrigin = 'anonymous';
+        script.src = 'https://tracker.example/scripts/analytics.js';
+        document.body.appendChild(script);
+    });
+
+    const detected = await collector.waitForMessage('trackerDetected', 1);
+    expect(detected[0].payload.params.blocked).toBe(true);
+    expect(detected[0].payload.params.isSurrogate).toBe(false);
+
+    await page.waitForTimeout(200);
+    const allMessages = await collector.outgoingMessages();
+    const injected = trackerMessages(allMessages).filter((m) => m.payload.method === 'surrogateInjected');
+    expect(injected).toHaveLength(0);
+});
+
 test('tracker-protection: reports but does not block on unprotected domain', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, UNPROTECTED_CONFIG);

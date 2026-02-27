@@ -504,7 +504,8 @@ export class TrackerProtection extends ContentFeature {
         let willLoadSurrogate = false;
         if (blocked && hasSurrogate && !isAllowlisted && result.matchedRule?.surrogate) {
             const surrogateName = result.matchedRule.surrogate;
-            willLoadSurrogate = !CTL_SURROGATES.includes(surrogateName) || this._ctlEnabled === true;
+            const hasIntegrityCheck = element instanceof HTMLScriptElement && element.integrity;
+            willLoadSurrogate = !hasIntegrityCheck && (!CTL_SURROGATES.includes(surrogateName) || this._ctlEnabled === true);
         }
 
         if (result.tracker) {
