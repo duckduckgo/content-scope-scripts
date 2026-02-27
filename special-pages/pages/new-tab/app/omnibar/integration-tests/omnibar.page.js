@@ -23,6 +23,10 @@ export class OmnibarPage {
         await this.ntp.mocks.waitForCallCount({ method: 'omnibar_getConfig', count: 1 });
     }
 
+    async focusChatInput() {
+        await this.chatInput().click();
+    }
+
     searchInput() {
         return this.context().getByRole('combobox');
     }
