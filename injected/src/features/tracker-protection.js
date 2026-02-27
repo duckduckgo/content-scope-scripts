@@ -49,8 +49,6 @@ export class TrackerProtection extends ContentFeature {
         /** @type {TrackerResolver | null} */
         this._resolver = null;
         /** @type {Set<string>} */
-        this._loadedSurrogates = new Set();
-        /** @type {Set<string>} */
         this._seenUrls = new Set();
         /** @type {URL | null} */
         this._topLevelUrl = null;
@@ -484,11 +482,7 @@ export class TrackerProtection extends ContentFeature {
      * @returns {boolean} true if the surrogate was successfully executed
      */
     _loadSurrogate(pattern, targetElement) {
-        if (!this._loadedSurrogates || !this._resolver) {
-            return false;
-        }
-
-        if (this._loadedSurrogates.has(pattern)) {
+        if (!this._resolver) {
             return false;
         }
 
@@ -503,7 +497,6 @@ export class TrackerProtection extends ContentFeature {
             }
 
             surrogateFn();
-            this._loadedSurrogates.add(pattern);
 
             if (targetElement && 'onload' in targetElement && typeof targetElement.onload === 'function') {
                 targetElement.onload(new Event('load'));
