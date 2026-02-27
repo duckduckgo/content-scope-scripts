@@ -1,15 +1,20 @@
 .bubble {
+    position: relative;
+}
+
+.frame {
+    position: absolute;
+    inset: 0;
     background: var(--bubble-bg);
     border-radius: var(--sp-9); /* 36px */
     border: 1.5px solid var(--bubble-border);
     box-shadow: 0 7px 12px rgba(0, 0, 0, 0.03);
-    position: relative;
 }
 
 .container {
     overflow: hidden;
     position: absolute;
-    inset: 0;
+    inset: 1.5px; /* match .frame border width */
 }
 
 .fadeOut {
