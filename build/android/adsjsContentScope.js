@@ -532,6 +532,7 @@
     "breakageReporting",
     "print",
     "webInterferenceDetection",
+    "webDetection",
     "pageObserver",
     "hover"
   ];

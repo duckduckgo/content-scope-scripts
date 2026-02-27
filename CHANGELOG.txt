@@ -1,1 +1,2 @@
-- Isolate z-index in next steps list to prevent overlaying omnibox (#2323)
+- Review workflow (#2317)
+- Add webDetection to platformSpecificFeatures (#2325)
