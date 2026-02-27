@@ -7,7 +7,7 @@
  * - Use `{ key: value }` message payloads, not primitives
  * - Handler name is `contentScopeScripts` (not `contentScopeScriptsIsolated`)
  */
-import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../../messaging/index.js';
+import { Messaging, TestTransportConfig } from '../../../messaging/index.js';
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js';
 import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js';
 import { getStyles, getConfig } from './click-to-load/ctl-config.js';
@@ -2010,13 +2010,8 @@ export default class ClickToLoad extends ContentFeature {
             this._messaging = new Messaging(this.messagingContext, config);
             return this._messaging;
         } else if (this.platform.name === 'ios' || this.platform.name === 'macos') {
-            const config = new WebkitMessagingConfig({
-                secret: '',
-                hasModernWebkitAPI: true,
-                webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
-            });
-            this._messaging = new Messaging(this.messagingContext, config);
-            return this._messaging;
+            // Use the parent class's messaging which uses the config from args
+            return super.messaging;
         } else {
             // TODO: Android does support Messaging now, but CTL is not yet integrated there.
             throw new Error('Messaging not supported yet on platform: ' + this.name);

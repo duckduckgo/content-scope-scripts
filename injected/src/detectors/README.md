@@ -1,12 +1,12 @@
 # Web Interference Detection
 
-This directory contains web interference detection functionality for content-scope-scripts. Detectors identify CAPTCHAs, fraud warnings, and other interference patterns to support breakage reporting and PIR automation.
+This directory contains web interference detection functionality for content-scope-scripts. Detectors identify CAPTCHAs, fraud warnings, adwalls, and other interference patterns to support breakage reporting and PIR automation.
 
 ## Architecture
 
 The system provides simple detection utilities that can be called on-demand:
 
-- **Detection utilities** - Pure functions (`runBotDetection`, `runFraudDetection`) that scan DOM when called
+- **Detection utilities** - Pure functions (`runBotDetection`, `runFraudDetection`, `runAdwallDetection`) that scan DOM when called
 - **Direct imports** - Features (breakage reporting, PIR) import detection functions directly
 - **`WebInterferenceDetection`** - Optional ContentFeature wrapper for messaging (PIR use, not currently bundled)
 
@@ -16,6 +16,7 @@ The system provides simple detection utilities that can be called on-demand:
 ```
 detectors/
 ├── detections/
+│   ├── adwall-detection.js        # adwall/ad-blocker wall detection utility
 │   ├── bot-detection.js           # CAPTCHA/bot detection utility
 │   └── fraud-detection.js         # fraud/phishing warning utility
 ├── utils/
@@ -57,6 +58,12 @@ Detectors are configured via `privacy-configuration/features/web-interference-de
           "type": "phishing",
           "selectors": [".warning-banner"]
         }
+      },
+      "adwallDetection": {
+        "generic": {
+          "state": "enabled",
+          "textPatterns": ["disable.*ad\\s*block", "ad\\s*block.*detected"]
+        }
       }
     }
   }
@@ -93,7 +100,9 @@ The framework automatically applies conditional changes based on the current URL
 **Breakage reporting** (internal feature):
 
 ```javascript
-import { runBotDetection, runFraudDetection } from '../detectors/detections/bot-detection.js';
+import { runBotDetection } from '../detectors/detections/bot-detection.js';
+import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
+import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
 
 // Get detector config from privacy-configuration
 const detectorSettings = this.getFeatureSetting('webInterferenceDetection', 'interferenceTypes');
@@ -102,6 +111,7 @@ if (detectorSettings) {
     const result = {
         botDetection: runBotDetection(detectorSettings.botDetection),
         fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
+        adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
     };
 }
 ```
@@ -111,7 +121,7 @@ if (detectorSettings) {
 ```javascript
 // Via messaging
 this.messaging.request('detectInterference', {
-  types: ['botDetection', 'fraudDetection']
+  types: ['botDetection', 'fraudDetection', 'adwallDetection']
 });
 ```
 

@@ -13,4 +13,5 @@
     color: var(--color-black-at-96);
     letter-spacing: -0.015em;
     flex-shrink: 0;
+    text-transform: uppercase;
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Adwall Page</title>
+    <style>
+        .adblock-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .adblock-modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 500px;
+        }
+        .adblock-modal-content h2 {
+            color: #d32f2f;
+            margin-bottom: 20px;
+        }
+        .adblock-modal-content p {
+            color: #333;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>News Article</h1>
+    <p>This is a sample news article that you cannot read because of the adwall.</p>
+
+    <!-- Mock adwall overlay -->
+    <div class="adblock-modal" id="adblock-overlay">
+        <div class="adblock-modal-content">
+            <h2>Ad Blocker Detected!</h2>
+            <p>Please disable your ad blocker to continue reading this article.</p>
+            <p>Our journalism depends on advertising revenue to stay free for everyone.</p>
+            <p>Whitelist this site in your adblocker settings, then refresh the page.</p>
+        </div>
+    </div>
+</body>
+</html>
+

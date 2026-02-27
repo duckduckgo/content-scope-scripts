@@ -1,17 +1,15 @@
 import { h } from 'preact';
 import styles from './NewBadge.module.css';
+import { useTypedTranslationWith } from '../types.js';
 
 /**
- * Badge component that displays text in a yellow rounded rectangle.
- *
- * @param {object} props
- * @param {string} props.text - The text to display in the badge
- * @param {import('preact').ComponentProps<'span'>} [props.rest] - Additional HTML attributes
+ * @typedef {import('../strings.json')} Strings
  */
-export function NewBadge({ text, ...rest }) {
-    return (
-        <span class={styles.badge} {...rest}>
-            {text?.toUpperCase() || 'NEW'}
-        </span>
-    );
+
+/**
+ * Badge component that displays "NEW" text in a yellow rounded rectangle.
+ */
+export function NewBadge() {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    return <span class={styles.badge}>{t('newBadge')}</span>;
 }

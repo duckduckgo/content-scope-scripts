@@ -109,7 +109,7 @@ export class SpecialErrorPage {
     get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/special-error',
-            apple: () => '../build/apple/pages/special-error',
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/special-error',
         });
     }
 
@@ -401,12 +401,16 @@ export class SpecialErrorPage {
 
     async overrideTestLinks() {
         const { page } = this;
-        await page.context().route(/dub\.duckduckgo\.com|use-devtesting..\.duckduckgo\.com/, (route) =>
-            route.fulfill({
-                status: 200,
-                body: 'OK',
-            }),
-        );
+        await page
+            .context()
+            .route(
+                /dub\.duckduckgo\.com|use-devtesting..\.duckduckgo\.com|duckduckgo\.com\/duckduckgo-help-pages\/|duckduckgo\.com\/malicious-site-protection\/report-error/,
+                (route) =>
+                    route.fulfill({
+                        status: 200,
+                        body: 'OK',
+                    }),
+            );
     }
 
     /**

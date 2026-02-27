@@ -285,6 +285,30 @@
     "title": "No targeted ads. No targeted recommendations. Just your video.",
     "note": "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
+  "duckPlayer_adFree_title": {
+    "title": "Watch YouTube ad-free!",
+    "note": "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
+  "duckPlayer_adFree_subtitle": {
+    "title": "No need for a premium subscription or third-party plugins.{newline}Just your video, without the ads.",
+    "note": "Subtitle for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
+  "addressBarMode_title": {
+    "title": "Want easy access to private AI Chat?",
+    "note": "Title for the Address Bar Mode feature step in onboarding"
+  },
+  "addressBarMode_searchAndDuckAi": {
+    "title": "Search & Duck.ai",
+    "note": "Button label for enabling search with Duck.ai in the address bar"
+  },
+  "addressBarMode_searchOnly": {
+    "title": "Search Only",
+    "note": "Button label for search only mode in the address bar"
+  },
+  "addressBarMode_footer": {
+    "title": "AI features are private and optional. You can make changes in <b>Settings > AI Features</b>.",
+    "note": "Footer text explaining AI features are optional and can be changed in settings. The <b> tag is used to bold the settings path."
+  },
   "customize_title_v3": {
     "title": "Let’s customize a few things…",
     "note": "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."
@@ -413,6 +437,10 @@
     "title": "No protection",
     "note": "The level of protection offered by a browser on a specific feature in the comparison table."
   },
+  "comparison_aiChat": {
+    "title": "Chat privately with AI chatbots (optional)",
+    "note": "The description of a browser privacy feature in the comparison table."
+  },
   "browser_DuckDuckGo": {
     "title": "DuckDuckGo",
     "note": "Brand name of the DuckDuckGo browser"
@@ -424,5 +452,21 @@
   "browser_Safari": {
     "title": "Safari",
     "note": "Brand name of the Apple Safari browser"
+  },
+  "welcome_title_v4": {
+    "title": "Welcome to DuckDuckGo!",
+    "note": "Page title for the first step in the v4 onboarding process"
+  },
+  "getStarted_title_v4": {
+    "title": "Hi there!{paragraph}Ready for a faster browser{newline}that keeps you protected?",
+    "note": "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+  },
+  "getStartedButton_v4": {
+    "title": "Let’s do it!",
+    "note": "Button label prompting user to start the v4 onboarding process."
+  },
+  "makeDefaultAccept_title_v4": {
+    "title": "Excellent! Let’s move on.",
+    "note": "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
   }
 }
