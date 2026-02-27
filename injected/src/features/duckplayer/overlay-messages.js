@@ -142,12 +142,13 @@ export class DuckPlayerOverlayMessages {
 }
 
 /**
- * @param {any} event
+ * @param {Event} event
  * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
  */
 function assertCustomEvent(event) {
     if (!('detail' in event)) throw new Error('none-custom event');
-    if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string');
+    const detail = /** @type {{kind: unknown}} */ (event.detail);
+    if (typeof detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string');
 }
 
 export class Pixel {
