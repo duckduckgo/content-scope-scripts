@@ -45,7 +45,7 @@ test('tracker-protection: loads surrogate for matching rule', async ({ page }, t
     expect(injected[0].payload.params.isSurrogate).toBe(true);
 });
 
-test('tracker-protection: ignores non-tracker URLs', async ({ page }, testInfo) => {
+test('tracker-protection: reports non-tracker third-party URL as thirdPartyRequest', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, CONFIG);
 
@@ -53,11 +53,16 @@ test('tracker-protection: ignores non-tracker URLs', async ({ page }, testInfo) 
         /** @type {any} */ (window).addTrackerScript('https://safe-site.example/scripts/app.js');
     });
 
-    await page.waitForTimeout(200);
+    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const detection = messages[0].payload.params;
 
-    const allMessages = await collector.outgoingMessages();
-    const trackerDetections = trackerMessages(allMessages).filter((m) => m.payload.method === 'trackerDetected');
-    expect(trackerDetections).toHaveLength(0);
+    expect(detection.url).toBe('https://safe-site.example/scripts/app.js');
+    expect(detection.blocked).toBe(false);
+    expect(detection.reason).toBe('thirdPartyRequest');
+    expect(detection.isSurrogate).toBe(false);
+    expect(detection.entityName).toBeNull();
+    expect(detection.prevalence).toBeNull();
+    expect(detection.isAllowlisted).toBe(false);
 });
 
 test('tracker-protection: does not send messages when disabled', async ({ page }, testInfo) => {
