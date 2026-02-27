@@ -87,10 +87,6 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/message-bridge/config/message-bridge-disabled.json'),
         // Legacy conditionalChanges format (domain at root instead of condition.domain)
         path.resolve(__dirname, '../integration-test/test-pages/ua-ch-brands/config/domain-brand-override-legacy.json'),
-        // Pending privacy-configuration schema update (PR duckduckgo/privacy-configuration#4587)
-        path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/web-events.json'),
-        path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/web-events-disabled.json'),
-        path.resolve(__dirname, '../integration-test/test-pages/web-detection/config/web-events-exception.json'),
     ];
     for (const configPath of configFiles) {
         if (legacyAllowlist.includes(configPath)) {
