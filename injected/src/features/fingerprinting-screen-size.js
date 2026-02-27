@@ -1,6 +1,7 @@
 import ContentFeature from '../content-feature';
 
 export default class FingerprintingScreenSize extends ContentFeature {
+    /** @type {Record<string, any>} */
     origPropertyValues = {};
 
     init() {
@@ -50,6 +51,10 @@ export default class FingerprintingScreenSize extends ContentFeature {
      * can mean second or more monitors have very large or negative values. This function maps a given
      * given coordinate value to the proper place on the main screen.
      */
+    /**
+     * @param {number} value
+     * @param {number} targetDimension
+     */
     normalizeWindowDimension(value, targetDimension) {
         if (value > targetDimension) {
             return value % targetDimension;
@@ -60,6 +65,10 @@ export default class FingerprintingScreenSize extends ContentFeature {
         return value;
     }
 
+    /**
+     * @param {string} property
+     * @param {number} value
+     */
     setWindowPropertyValue(property, value) {
         // Here we don't update the prototype getter because the values are updated dynamically
         try {

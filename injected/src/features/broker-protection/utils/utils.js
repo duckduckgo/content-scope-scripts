@@ -95,7 +95,7 @@ function isXpath(selector) {
 
 /**
  * @param {Element|Node} element
- * @param selector
+ * @param {string} selector
  * @returns {HTMLElement[] | null}
  */
 function safeQuerySelectorAll(element, selector) {
@@ -110,7 +110,7 @@ function safeQuerySelectorAll(element, selector) {
 }
 /**
  * @param {Element|Node} element
- * @param selector
+ * @param {string} selector
  * @returns {HTMLElement | null}
  */
 function safeQuerySelector(element, selector) {
@@ -126,7 +126,7 @@ function safeQuerySelector(element, selector) {
 
 /**
  * @param {Node} element
- * @param selector
+ * @param {string} selector
  * @returns {HTMLElement | null}
  */
 function safeQuerySelectorXPath(element, selector) {
@@ -145,7 +145,7 @@ function safeQuerySelectorXPath(element, selector) {
 
 /**
  * @param {Element|Node} element
- * @param selector
+ * @param {string} selector
  * @returns {HTMLElement[] | null}
  */
 function safeQuerySelectorAllXpath(element, selector) {
@@ -235,11 +235,11 @@ export function matchingPair(a, b) {
 /**
  * Sorts an array of addresses by state, then by city within the state.
  *
- * @param {any} addresses
- * @return {Array}
+ * @param {{state: string; city: string}[]} addresses
+ * @return {{state: string; city: string}[]}
  */
 export function sortAddressesByStateAndCity(addresses) {
-    return addresses.sort((a, b) => {
+    return addresses.sort((/** @type {{state: string; city: string}} */ a, /** @type {{state: string; city: string}} */ b) => {
         if (a.state < b.state) {
             return -1;
         }
@@ -253,6 +253,7 @@ export function sortAddressesByStateAndCity(addresses) {
 /**
  * Returns a SHA-1 hash of the profile
  */
+/** @param {any} profile */
 export async function hashObject(profile) {
     const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)); // encode as (utf-8)
     const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8); // hash the message

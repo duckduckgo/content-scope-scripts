@@ -23,11 +23,11 @@ export class CustomError extends HTMLElement {
 
     policy = createPolicy();
     /** @type {Logger} */
-    logger;
+    logger = /** @type {Logger} */ (/** @type {unknown} */ (undefined));
     /** @type {boolean} */
     testMode = false;
     /** @type {YouTubeError} */
-    error;
+    error = /** @type {YouTubeError} */ (/** @type {unknown} */ (undefined));
     /** @type {string} */
     title = '';
     /** @type {string[]} */

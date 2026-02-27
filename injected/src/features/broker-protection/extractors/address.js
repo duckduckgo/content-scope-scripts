@@ -36,7 +36,7 @@ export class AddressFullExtractor {
                 // at least 'city' is required.
                 .filter((parsed) => Boolean(parsed?.city))
                 .map((addr) => {
-                    return { city: addr.city, state: addr.state || null };
+                    return { city: /** @type {string} */ (addr.city), state: addr.state || null };
                 })
         );
     }

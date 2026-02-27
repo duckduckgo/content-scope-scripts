@@ -41,7 +41,7 @@ export class ActionExecutorBase extends ContentFeature {
             }
         } catch (e) {
             this.log.error('unhandled exception: ', e);
-            return this.messaging.notify('actionError', { error: e.toString() });
+            return this.messaging.notify('actionError', { error: e instanceof Error ? e.toString() : String(e) });
         }
     }
 
@@ -75,6 +75,7 @@ export class ActionExecutorBase extends ContentFeature {
     }
 
     /**
+     * @param {any} action
      * @returns {any}
      */
     retryConfigFor(action) {
@@ -118,7 +119,7 @@ export default class BrokerProtection extends ActionExecutorBase {
          * Special case for when expectation or condition contains a check for an element, retry it
          */
         if (!retryConfig && (action.actionType === 'expectation' || action.actionType === 'condition')) {
-            if (action.expectations.some((x) => x.type === 'element')) {
+            if (action.expectations.some((/** @type {any} */ x) => x.type === 'element')) {
                 return {
                     interval: { ms: 1000 },
                     maxAttempts: 30,

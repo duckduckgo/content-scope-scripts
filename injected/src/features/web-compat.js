@@ -25,6 +25,7 @@ const MSG_SCREEN_LOCK = 'screenLock';
 const MSG_SCREEN_UNLOCK = 'screenUnlock';
 const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 
+/** @param {any} data */
 function canShare(data) {
     if (typeof data !== 'object') return false;
     // Make an in-place shallow copy of the data
@@ -60,17 +61,27 @@ function canShare(data) {
 class PermissionStatus extends EventTarget {
     #hasChangeListener = false;
 
+    /**
+     * @param {string} name
+     * @param {string} state
+     */
     constructor(name, state) {
         super();
         this.name = name;
         this.state = state;
-        this.onchange = null; // noop
+        /** @type {((this: PermissionStatus, ev: Event) => any) | null} */
+        this.onchange = null;
     }
 
     get hasChangeListener() {
         return this.#hasChangeListener;
     }
 
+    /**
+     * @param {string} type
+     * @param {EventListenerOrEventListenerObject | null} callback
+     * @param {boolean | AddEventListenerOptions} [options]
+     */
     addEventListener(type, callback, options) {
         if (type === 'change') this.#hasChangeListener = true;
         super.addEventListener(type, callback, options);
@@ -79,6 +90,7 @@ class PermissionStatus extends EventTarget {
 
 /**
  * Clean data before sending to the Android side
+ * @param {any} data
  * @returns {ShareRequestData}
  */
 function cleanShareData(data) {
@@ -86,7 +98,7 @@ function cleanShareData(data) {
     const dataToSend = {};
 
     // only send the keys we care about
-    for (const key of ['title', 'text', 'url']) {
+    for (const key of /** @type {const} */ (['title', 'text', 'url'])) {
         if (key in data) dataToSend[key] = data[key];
     }
 
@@ -115,7 +127,7 @@ export class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeScreenLockRequest = null;
 
-    /** @type {Map<string, object>} */
+    /** @type {Map<string, Record<string, any>>} */
     #webNotifications = new Map();
 
     /** @type {ReturnType<typeof setTimeout> | undefined} */
@@ -215,7 +227,7 @@ export class WebCompat extends ContentFeature {
             configurable: true,
             enumerable: true,
             writable: true,
-            value: async (data) => {
+            value: async (/** @type {any} */ data) => {
                 if (!canShare(data)) return Promise.reject(new TypeError('Invalid share data'));
                 if (this.#activeShareRequest) {
                     return Promise.reject(new DOMException('Share already in progress', 'InvalidStateError'));
@@ -230,7 +242,7 @@ export class WebCompat extends ContentFeature {
                 try {
                     resp = await this.#activeShareRequest;
                 } catch (err) {
-                    throw new DOMException(err.message, 'DataError');
+                    throw new DOMException(/** @type {Error} */ (err).message, 'DataError');
                 } finally {
                     this.#activeShareRequest = null;
                 }
@@ -325,8 +337,11 @@ export class WebCompat extends ContentFeature {
         const nativeEnabled = settings.nativeEnabled !== false;
 
         // Wrap native calls - no-op when nativeEnabled is false
+        /** @type {(name: any, data: any) => void} */
         const nativeNotify = nativeEnabled ? (name, data) => feature.notify(name, data) : () => {};
+        /** @type {(name: any, data: any) => Promise<any>} */
         const nativeRequest = nativeEnabled ? (name, data) => feature.request(name, data) : () => Promise.resolve({ permission: 'denied' });
+        /** @type {(name: any, cb: any) => () => void} */
         const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {};
         // Permission is 'default' when enabled (not yet determined), 'denied' when disabled
         /** @type {NotificationPermission} */
@@ -451,7 +466,7 @@ export class WebCompat extends ContentFeature {
         );
 
         // Subscribe to notification events from native
-        nativeSubscribe('notificationEvent', (data) => {
+        nativeSubscribe('notificationEvent', (/** @type {any} */ data) => {
             const notification = this.#webNotifications.get(data.id);
             if (!notification) return;
 
@@ -502,6 +517,7 @@ export class WebCompat extends ContentFeature {
     }
 
     cleanIframeValue() {
+        /** @param {any} val */
         function cleanValueData(val) {
             const clone = Object.assign({}, val);
             const deleteKeys = ['iframeProto', 'iframeData', 'remap'];
@@ -524,7 +540,7 @@ export class WebCompat extends ContentFeature {
                     });
                     if (parts.length > 0) {
                         parts.forEach((part) => {
-                            if (part[0] === cleanKey) {
+                            if (part[0] === cleanKey && part[1] !== undefined) {
                                 const val = JSON.parse(decodeURIComponent(part[1]));
                                 part[1] = encodeURIComponent(JSON.stringify(cleanValueData(val)));
                             }
@@ -543,8 +559,8 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Handles permission query with native messaging support.
-     * @param {Object} query - The permission query object
-     * @param {Object} settings - The permission settings
+     * @param {{name?: string}} query - The permission query object
+     * @param {{supportedPermissions?: Record<string, {native?: boolean, name?: string}>}} settings - The permission settings
      * @returns {Promise<PermissionStatus|null>} - Returns PermissionStatus if handled, null to fall through
      */
     async handlePermissionQuery(query, settings) {
@@ -554,6 +570,7 @@ export class WebCompat extends ContentFeature {
 
         try {
             const permSetting = settings.supportedPermissions[query.name];
+            if (!permSetting) return null;
             const returnName = permSetting.name || query.name;
             const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
             const returnStatus = response.state || 'prompt';
@@ -576,7 +593,7 @@ export class WebCompat extends ContentFeature {
      *   change event could be dispatched twice accidentally.
      *
      * @param {PermissionStatus} status
-     * @param {Object} query
+     * @param {{name?: string}} query
      */
     pollForPermissionChange(status, query) {
         if (this.#permissionPollingTimer) {
@@ -619,6 +636,7 @@ export class WebCompat extends ContentFeature {
         this.#permissionPollingTimer = setTimeout(tick, 1000);
     }
 
+    /** @param {any} settings */
     permissionsPresentFix(settings) {
         const originalQuery = window.navigator.permissions.query;
         if (typeof originalQuery !== 'function') {
@@ -652,6 +670,7 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Adds missing permissions API for Android WebView.
+     * @param {any} settings
      */
     permissionsFix(settings) {
         if (window.navigator.permissions) {
@@ -662,7 +681,7 @@ export class WebCompat extends ContentFeature {
         }
         const permissions = {};
         permissions.query = new Proxy(
-            async (query) => {
+            async (/** @type {any} */ query) => {
                 this.addDebugFlag();
 
                 // Validate required arguments
@@ -723,7 +742,7 @@ export class WebCompat extends ContentFeature {
         ];
 
         this.wrapProperty(globalThis.ScreenOrientation.prototype, 'lock', {
-            value: async (requestedOrientation) => {
+            value: async (/** @type {string} */ requestedOrientation) => {
                 if (!requestedOrientation) {
                     return Promise.reject(
                         new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present."),
@@ -745,7 +764,7 @@ export class WebCompat extends ContentFeature {
                 try {
                     resp = await this.#activeScreenLockRequest;
                 } catch (err) {
-                    throw new DOMException(err.message, 'DataError');
+                    throw new DOMException(/** @type {Error} */ (err).message, 'DataError');
                 } finally {
                     this.#activeScreenLockRequest = null;
                 }
@@ -839,7 +858,7 @@ export class WebCompat extends ContentFeature {
             });
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.safari.pushNotification, 'requestPermission', {
-                value: (_name, _domain, _options, callback) => {
+                value: (/** @type {any} */ _name, /** @type {any} */ _domain, /** @type {any} */ _options, /** @type {any} */ callback) => {
                     if (typeof callback === 'function') {
                         callback(new SafariRemoteNotificationPermission());
                         return;
@@ -882,7 +901,7 @@ export class WebCompat extends ContentFeature {
             this.shimInterface(
                 'MediaMetadata',
                 class {
-                    constructor(metadata = {}) {
+                    constructor(metadata = /** @type {any} */ ({})) {
                         this.title = metadata.title;
                         this.artist = metadata.artist;
                         this.album = metadata.album;
@@ -1007,12 +1026,13 @@ export class WebCompat extends ContentFeature {
         const settings = this.getFeatureSetting('messageHandlers');
 
         // Do nothing if `messageHandlers` is absent
-        if (!globalThis.webkit?.messageHandlers) return;
+        const wk = /** @type {Record<string, any>} */ (/** @type {unknown} */ (globalThis));
+        if (!wk.webkit?.messageHandlers) return;
         // This should never occur, but keeps typescript happy
         if (!settings) return;
 
         // Handler strategies: 'reflect' (pass through), 'undefined' (hide), 'polyfill' (stub)
-        const proxy = new Proxy(globalThis.webkit.messageHandlers, {
+        const proxy = new Proxy(wk.webkit.messageHandlers, {
             get(target, messageName, receiver) {
                 const handlerName = String(messageName);
 
@@ -1039,8 +1059,8 @@ export class WebCompat extends ContentFeature {
             },
         });
 
-        globalThis.webkit = {
-            ...globalThis.webkit,
+        wk.webkit = {
+            ...wk.webkit,
             messageHandlers: proxy,
         };
     }
@@ -1081,13 +1101,13 @@ export class WebCompat extends ContentFeature {
         /** @type {NodeListOf<HTMLMetaElement>} **/
         const viewportTags = document.querySelectorAll('meta[name=viewport i]');
         // Chrome respects only the last viewport tag - modify existing rather than adding new
-        const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
+        const viewportTag = viewportTags.length === 0 ? null : (viewportTags[viewportTags.length - 1] ?? null);
         const viewportContent = viewportTag?.getAttribute('content') || '';
         /** @type {readonly string[]} **/
         const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : [];
         /** @type {readonly string[][]} **/
         const parsedViewportContent = viewportContentParts.map((part) => {
-            const [key, value] = part.split('=').map((p) => p.trim().toLowerCase());
+            const [key = '', value = ''] = part.split('=').map((p) => p.trim().toLowerCase());
             return [key, value];
         });
 
@@ -1102,6 +1122,7 @@ export class WebCompat extends ContentFeature {
         }
 
         // otherwise, check for special cases
+        /** @type {Record<string, string | number>} */
         const forcedValues = {};
 
         if (this.forcedZoomEnabled) {
@@ -1134,13 +1155,14 @@ export class WebCompat extends ContentFeature {
             const initialScalePart = parsedViewportContent.find(([key]) => key === 'initial-scale');
             if (!widthPart && initialScalePart) {
                 // Chromium accepts float values for initial-scale
-                const parsedInitialScale = parseFloat(initialScalePart[1]);
+                const parsedInitialScale = parseFloat(initialScalePart[1] ?? '');
                 if (parsedInitialScale !== 1) {
                     forcedValues.width = 'device-width';
                 }
             }
         }
 
+        /** @type {string[]} */
         const newContent = [];
         Object.keys(forcedValues).forEach((key) => {
             newContent.push(`${key}=${forcedValues[key]}`);
@@ -1148,9 +1170,10 @@ export class WebCompat extends ContentFeature {
 
         if (newContent.length > 0) {
             // need to override at least one viewport component
-            parsedViewportContent.forEach(([key], idx) => {
-                if (!(key in forcedValues)) {
-                    newContent.push(viewportContentParts[idx].trim()); // reuse the original values, not the parsed ones
+            parsedViewportContent.forEach(([key = ''], idx) => {
+                if (key && !(key in forcedValues)) {
+                    const part = viewportContentParts[idx];
+                    if (part) newContent.push(part.trim());
                 }
             });
             this.forceViewportTag(viewportTag, newContent.join(', '));
@@ -1223,9 +1246,9 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Helper to wrap a promise with timeout
-     * @param {Promise} promise - Promise to wrap
+     * @param {Promise<any>} promise - Promise to wrap
      * @param {number} timeoutMs - Timeout in milliseconds
-     * @returns {Promise} Promise that rejects on timeout
+     * @returns {Promise<any>} Promise that rejects on timeout
      */
     withTimeout(promise, timeoutMs) {
         const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new Error('Request timeout')), timeoutMs));
@@ -1241,13 +1264,11 @@ export class WebCompat extends ContentFeature {
         }
 
         const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-            /**
-             * @param {MediaDevices['enumerateDevices']} target
-             * @param {MediaDevices} thisArg
-             * @param {Parameters<MediaDevices['enumerateDevices']>} args
-             * @returns {Promise<MediaDeviceInfo[]>}
-             */
-            apply: async (target, thisArg, args) => {
+            apply: async (
+                /** @type {MediaDevices['enumerateDevices']} */ target,
+                /** @type {MediaDevices | undefined} */ thisArg,
+                /** @type {any[]} */ args,
+            ) => {
                 const settings = this.getFeatureSetting('enumerateDevices') || {};
                 const timeoutEnabled = settings.timeoutEnabled !== false;
                 const timeoutMs = settings.timeoutMs ?? 2000;

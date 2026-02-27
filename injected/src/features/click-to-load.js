@@ -28,14 +28,18 @@ import { registerCustomElements } from './click-to-load/components';
 
 let devMode = false;
 let isYoutubePreviewsEnabled = false;
+/** @type {string | undefined} */
 let appID;
 
 const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle';
 
 // Configuration for how the placeholder elements should look and behave.
 // @see {getConfig}
+/** @type {any} */
 let config = null;
+/** @type {any} */
 let sharedStrings = null;
+/** @type {any} */
 let styles = null;
 
 /**
@@ -57,7 +61,9 @@ const mobilePlatforms = ['android', 'ios'];
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
 //       places.
+/** @type {string[]} */
 const entities = [];
+/** @type {Record<string, any>} */
 const entityData = {};
 
 // Used to avoid displaying placeholders for the same tracking element twice.
@@ -66,6 +72,7 @@ const knownTrackingElements = new WeakSet();
 // Promise that is resolved when the Click to Load feature init() function has
 // finished its work, enough that it's now safe to replace elements with
 // placeholders.
+/** @type {any} */
 let readyToDisplayPlaceholdersResolver;
 const readyToDisplayPlaceholders = new Promise((resolve) => {
     readyToDisplayPlaceholdersResolver = resolve;
@@ -74,6 +81,7 @@ const readyToDisplayPlaceholders = new Promise((resolve) => {
 // Promise that is resolved when the page has finished loading (and
 // readyToDisplayPlaceholders has resolved). Wait for this before sending
 // essential messages to surrogate scripts.
+/** @type {any} */
 let afterPageLoadResolver;
 const afterPageLoad = new Promise((resolve) => {
     afterPageLoadResolver = resolve;
@@ -106,7 +114,7 @@ const ctl = {
  *********************************************************/
 class DuckWidget {
     /**
-     * @param {Object} widgetData
+     * @param {any} widgetData
      *   The configuration for this "widget" as determined in ctl-config.js.
      * @param {HTMLElement} originalElement
      *   The original tracking element to replace with a placeholder.
@@ -119,7 +127,9 @@ class DuckWidget {
         this.clickAction = { ...widgetData.clickAction }; // shallow copy
         this.replaceSettings = widgetData.replaceSettings;
         this.originalElement = originalElement;
+        /** @type {HTMLElement | null} */
         this.placeholderElement = null;
+        /** @type {Record<string, any>} */
         this.dataElements = {};
         this.gatherDataElements();
         this.entity = entity;
@@ -327,7 +337,7 @@ class DuckWidget {
         //  2. The onError event doesn't fire for blocked iframes on Chrome.
         if (originalHostname !== 'www.youtube-nocookie.com') {
             url.hostname = 'www.youtube-nocookie.com';
-            onError = (event) => {
+            onError = (/** @type {any} */ event) => {
                 url.hostname = originalHostname;
                 videoElement.src = url.href;
                 event.stopImmediatePropagation();
@@ -404,14 +414,14 @@ class DuckWidget {
      * The function that's called when the user clicks to load some content.
      * Unblocks the content, puts it back in the page, and removes the
      * placeholder.
-     * @param {HTMLIFrameElement} originalElement
+     * @param {HTMLElement} originalElement
      *   The original tracking element.
      * @param {HTMLElement} replacementElement
      *   The placeholder element.
      */
     clickFunction(originalElement, replacementElement) {
         let clicked = false;
-        const handleClick = (e) => {
+        const handleClick = (/** @type {any} */ e) => {
             // Ensure that the click is created by a user event & prevent double clicks from adding more animations
             if (e.isTrusted && !clicked) {
                 e.stopPropagation();
@@ -453,7 +463,7 @@ class DuckWidget {
 
                     // Loading animation (FB can take some time to load)
                     const loadingImg = document.createElement('img');
-                    loadingImg.setAttribute('src', loadingImages[this.getMode()]);
+                    loadingImg.setAttribute('src', /** @type {any} */ (loadingImages)[this.getMode()]);
                     loadingImg.setAttribute('height', '14px');
                     loadingImg.style.cssText = styles.loadingImg;
 
@@ -482,7 +492,7 @@ class DuckWidget {
                             fbElement = this.createFBIFrame();
                             break;
                         case 'youtube-video':
-                            onError = this.adjustYouTubeVideoElement(originalElement);
+                            onError = this.adjustYouTubeVideoElement(/** @type {HTMLIFrameElement} */ (originalElement));
                             fbElement = originalElement;
                             break;
                         default:
@@ -518,7 +528,7 @@ class DuckWidget {
         };
         // If this is a login button, show modal if needed
         if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
-            return (e) => {
+            return (/** @type {any} */ e) => {
                 // Even if the user cancels the login attempt, consider Facebook Click to
                 // Load to have been active on the page if the user reports the page as broken.
                 if (this.entity === 'Facebook, Inc.') {
@@ -593,11 +603,12 @@ function replaceTrackingElement(widget, trackingElement, placeholderElement) {
 
     // First hide the element, since we need to keep it in the DOM until the
     // events have been dispatched.
+    /** @type {[string, string]} */
     const originalDisplay = [elementToReplace.style.getPropertyValue('display'), elementToReplace.style.getPropertyPriority('display')];
     elementToReplace.style.setProperty('display', 'none', 'important');
 
     // Add the placeholder element to the page.
-    elementToReplace.parentElement.insertBefore(placeholderElement, elementToReplace);
+    /** @type {HTMLElement} */ (elementToReplace.parentElement).insertBefore(placeholderElement, elementToReplace);
 
     // While the placeholder is shown (and original element hidden)
     // synchronously, the events are dispatched (and original element removed
@@ -711,7 +722,7 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
-        ctl.messaging.subscribe('setYoutubePreviewsEnabled', ({ value }) => {
+        ctl.messaging.subscribe('setYoutubePreviewsEnabled', (/** @type {any} */ { value }) => {
             isYoutubePreviewsEnabled = value;
             replaceYouTubeCTL(trackingElement, widget);
         });
@@ -941,6 +952,7 @@ function notifyFacebookLogin() {
  * Unblock the entity, close the login dialog and continue the Facebook login
  * flow. Called after the user clicks to proceed after the warning dialog is
  * shown.
+ * @this {any}
  * @param {string} entity
  */
 async function runLogin(entity) {
@@ -955,7 +967,7 @@ async function runLogin(entity) {
         return abortSurrogateConfirmation(this.entity);
     }
     // Communicate with surrogate to run login
-    originalWindowDispatchEvent(
+    /** @type {Function} */ (originalWindowDispatchEvent)(
         createCustomEvent('ddg-ctp-run-login', {
             detail: {
                 entity,
@@ -970,7 +982,7 @@ async function runLogin(entity) {
  * @param {string} entity
  */
 function abortSurrogateConfirmation(entity) {
-    originalWindowDispatchEvent(
+    /** @type {Function} */ (originalWindowDispatchEvent)(
         createCustomEvent('ddg-ctp-cancel-modal', {
             detail: {
                 entity,
@@ -1027,7 +1039,7 @@ function resizeElementToMatch(sourceElement, targetElement) {
     }
 
     for (const key of stylesToCopy) {
-        targetElement.style[key] = computedStyle[key];
+        /** @type {any} */ (targetElement.style)[key] = /** @type {any} */ (computedStyle)[key];
     }
 
     // If the parent element is very small (and its dimensions can be trusted) set a max height/width
@@ -1445,7 +1457,7 @@ function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
     shadowRoot.appendChild(pageOverlay);
     shadowRoot.appendChild(modal);
 
-    document.body.insertBefore(modalContainer, document.body.childNodes[0]);
+    document.body.insertBefore(modalContainer, document.body.childNodes[0] ?? null);
 }
 
 /**
@@ -1784,12 +1796,12 @@ function createYouTubePreview(originalElement, widget) {
  */
 
 export default class ClickToLoad extends ContentFeature {
-    /** @type {MessagingContext} */
+    /** @type {MessagingContext | undefined} */
     #messagingContext;
 
     listenForUpdateChanges = true;
 
-    async init(args) {
+    async init(/** @type {any} */ args) {
         /**
          * Bail if no messaging backend - this is a debugging feature to ensure we don't
          * accidentally enabled this
@@ -1830,6 +1842,7 @@ export default class ClickToLoad extends ContentFeature {
             entities.push(entity);
 
             const shouldShowLoginModal = !!config[entity].informationalModal;
+            /** @type {any} */
             const currentEntityData = { shouldShowLoginModal };
 
             if (shouldShowLoginModal) {
@@ -1845,7 +1858,7 @@ export default class ClickToLoad extends ContentFeature {
         }
 
         // Listen for window events from "surrogate" scripts.
-        window.addEventListener('ddg-ctp', (/** @type {CustomEvent} */ event) => {
+        window.addEventListener('ddg-ctp', (/** @type {any} */ event) => {
             if (!('detail' in event)) return;
 
             const entity = event.detail?.entity;
@@ -1902,13 +1915,13 @@ export default class ClickToLoad extends ContentFeature {
         // To counter that, catch "ddg-ctp-surrogate-load" events dispatched
         // _after_ page, so the "ddg-ctp-ready" event can be dispatched again.
         window.addEventListener('ddg-ctp-surrogate-load', () => {
-            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+            /** @type {Function} */ (originalWindowDispatchEvent)(createCustomEvent('ddg-ctp-ready'));
         });
 
         // Then wait for any in-progress element replacements, before letting
         // the surrogate scripts know to start.
         window.setTimeout(() => {
-            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+            /** @type {Function} */ (originalWindowDispatchEvent)(createCustomEvent('ddg-ctp-ready'));
         }, 0);
     }
 
@@ -1917,6 +1930,7 @@ export default class ClickToLoad extends ContentFeature {
      * used to connect only these Platforms responses with the temporary implementation of
      * SendMessageMessagingTransport that wraps this communication.
      * This can be removed once they have their own Messaging integration.
+     * @param {any} [message]
      */
     update(message) {
         // TODO: Once all Click to Load messages include the feature property, drop

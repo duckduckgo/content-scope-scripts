@@ -64,7 +64,7 @@ export class DuckPlayerNativeMessages {
      * @param {(mediaControlSettings: MediaControlSettings) => void} callback
      */
     subscribeToMediaControl(callback) {
-        return this.messaging.subscribe(constants.MSG_NAME_MEDIA_CONTROL, callback);
+        return this.messaging.subscribe(constants.MSG_NAME_MEDIA_CONTROL, /** @type {(value: unknown) => void} */ (callback));
     }
 
     /**
@@ -72,7 +72,7 @@ export class DuckPlayerNativeMessages {
      * @param {(muteSettings: MuteSettings) => void} callback
      */
     subscribeToMuteAudio(callback) {
-        return this.messaging.subscribe(constants.MSG_NAME_MUTE_AUDIO, callback);
+        return this.messaging.subscribe(constants.MSG_NAME_MUTE_AUDIO, /** @type {(value: unknown) => void} */ (callback));
     }
 
     /**
@@ -80,7 +80,7 @@ export class DuckPlayerNativeMessages {
      * @param {(urlSettings: UrlChangeSettings) => void} callback
      */
     subscribeToURLChange(callback) {
-        return this.messaging.subscribe(constants.MSG_NAME_URL_CHANGE, callback);
+        return this.messaging.subscribe(constants.MSG_NAME_URL_CHANGE, /** @type {(value: unknown) => void} */ (callback));
     }
 
     /**

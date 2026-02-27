@@ -47,10 +47,12 @@ export default class PerformanceMetrics extends ContentFeature {
         }
     }
 
+    /** @param {() => void} callback */
     waitForNextTask(callback) {
         setTimeout(callback, 0);
     }
 
+    /** @param {() => void} callback */
     waitForAfterPageLoad(callback) {
         if (document.readyState === 'complete') {
             this.waitForNextTask(callback);

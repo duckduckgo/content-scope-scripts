@@ -98,7 +98,7 @@ export default class ApiManipulation extends ContentFeature {
     removeApiMethod(api, key) {
         try {
             if (hasOwnProperty.call(api, key)) {
-                delete api[key];
+                delete (/** @type {Record<string, any>} */ (api)[key]);
             }
         } catch (e) {}
     }
@@ -112,6 +112,7 @@ export default class ApiManipulation extends ContentFeature {
     wrapApiDescriptor(api, key, change) {
         const getterValue = change.getterValue;
         if (getterValue) {
+            /** @type {PropertyDescriptor} */
             const descriptor = {
                 get: () => processAttr(getterValue, undefined),
             };
@@ -129,7 +130,7 @@ export default class ApiManipulation extends ContentFeature {
                     enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
                     configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
                 };
-                this.defineProperty(api, key, defineDescriptor);
+                this.defineProperty(api, key, /** @type {import('../wrapper-utils').StrictPropertyDescriptor} */ (defineDescriptor));
                 return;
             }
             this.wrapProperty(api, key, descriptor);
@@ -148,7 +149,7 @@ export default class ApiManipulation extends ContentFeature {
         if (!lastPart) {
             return null;
         }
-        let obj = window;
+        let obj = /** @type {any} */ (window);
         for (const part of parts) {
             obj = obj[part];
             if (!obj) {

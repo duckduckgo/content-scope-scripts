@@ -53,7 +53,7 @@ export class DuckPlayerNativeYoutube {
 
     onLoad() {
         this.sideEffects.add('started polling current timestamp', () => {
-            const handler = (timestamp) => {
+            const handler = (/** @type {number} */ timestamp) => {
                 this.messages.notifyCurrentTimestamp(timestamp.toFixed(0));
             };
 

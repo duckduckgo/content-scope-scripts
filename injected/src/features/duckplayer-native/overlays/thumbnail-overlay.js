@@ -12,14 +12,14 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     static OVERLAY_CLICKED = 'overlay-clicked';
 
     policy = createPolicy();
-    /** @type {Logger} */
-    logger;
+    /** @type {Logger | null} */
+    logger = null;
     /** @type {boolean} */
     testMode = false;
-    /** @type {HTMLElement} */
-    container;
+    /** @type {HTMLElement | null} */
+    container = null;
     /** @type {string} */
-    href;
+    href = '';
 
     static register() {
         if (!customElementsGet(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
@@ -68,7 +68,7 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
         if (this.testMode) {
             this.logger?.log('Appending thumbnail', imageUrl);
         }
-        appendImageAsBackground(this.container, '.ddg-vpo-bg', imageUrl);
+        if (this.container) appendImageAsBackground(this.container, '.ddg-vpo-bg', imageUrl);
     }
 
     /**

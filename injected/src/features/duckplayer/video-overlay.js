@@ -253,12 +253,26 @@ export class VideoOverlay {
             elem.testMode = this.environment.isTestMode();
             elem.text = mobileStrings(this.environment.strings('overlays.json'));
             elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo());
-            elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                return this.mobileOptOut(e.detail.remember).catch(console.error);
-            });
-            elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                return this.mobileOptIn(e.detail.remember, params).catch(console.error);
-            });
+            elem.addEventListener(
+                DDGVideoOverlayMobile.OPT_OUT,
+                /** @type {EventListener} */ (
+                    /** @type {unknown} */ (
+                        (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                            return this.mobileOptOut(e.detail.remember).catch(console.error);
+                        }
+                    )
+                ),
+            );
+            elem.addEventListener(
+                DDGVideoOverlayMobile.OPT_IN,
+                /** @type {EventListener} */ (
+                    /** @type {unknown} */ (
+                        (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                            return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+                        }
+                    )
+                ),
+            );
             targetElement.appendChild(elem);
 
             return () => {
@@ -288,18 +302,32 @@ export class VideoOverlay {
                 drawer.testMode = this.environment.isTestMode();
                 drawer.text = mobileStrings(this.environment.strings('overlays.json'));
                 drawer.addEventListener(DDGVideoDrawerMobile.OPEN_INFO, () => this.messages.openInfo());
-                drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                    return this.mobileOptOut(e.detail.remember).catch(console.error);
-                });
+                drawer.addEventListener(
+                    DDGVideoDrawerMobile.OPT_OUT,
+                    /** @type {EventListener} */ (
+                        /** @type {unknown} */ (
+                            (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                                return this.mobileOptOut(e.detail.remember).catch(console.error);
+                            }
+                        )
+                    ),
+                );
                 drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, () => {
                     return this.dismissOverlay();
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.THUMBNAIL_CLICK, () => {
                     return this.dismissOverlay();
                 });
-                drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                    return this.mobileOptIn(e.detail.remember, params).catch(console.error);
-                });
+                drawer.addEventListener(
+                    DDGVideoDrawerMobile.OPT_IN,
+                    /** @type {EventListener} */ (
+                        /** @type {unknown} */ (
+                            (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                                return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+                            }
+                        )
+                    ),
+                );
                 drawerTargetElement.appendChild(drawer);
 
                 if (thumbnailOverlay.container) {
@@ -376,6 +404,7 @@ export class VideoOverlay {
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
         const videoId = params?.id;
 
+        if (!videoId) return;
         const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
         appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
     }

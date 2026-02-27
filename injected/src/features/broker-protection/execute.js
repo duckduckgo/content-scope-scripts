@@ -40,7 +40,7 @@ export async function execute(action, inputData, root = document) {
         console.log('unhandled exception: ', e);
         return new ErrorResponse({
             actionID: action.id,
-            message: `unhandled exception: ${e.message}`,
+            message: `unhandled exception: ${e instanceof Error ? e.message : String(e)}`,
         });
     }
 }

@@ -20,7 +20,7 @@ export default class HarmfulApis extends ContentFeature {
     init() {
         // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
-        this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype;
+        this.navigatorPrototype = globalThis.Navigator?.prototype || /** @type {any} */ (globalThis).WorkerNavigator?.prototype;
 
         this.removeDeviceOrientationEvents(this.getFeatureSetting('deviceOrientation'));
         this.blockGenericSensorApi(this.getFeatureSetting('GenericSensor'));
@@ -50,19 +50,23 @@ export default class HarmfulApis extends ContentFeature {
         if (!permissions || permissions.length === 0) {
             return;
         }
-        this.wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
-            // call the original function first in case it throws an error
-            const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject]);
+        this.wrapMethod(
+            globalThis.Permissions.prototype,
+            'query',
+            /** @this {any} */ async function (nativeImpl, queryObject) {
+                // call the original function first in case it throws an error
+                const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject]);
 
-            if (permissions.includes(queryObject.name)) {
-                return {
-                    name: queryObject.name,
-                    state: 'denied',
-                    status: 'denied',
-                };
-            }
-            return origResult;
-        });
+                if (permissions.includes(queryObject.name)) {
+                    return {
+                        name: queryObject.name,
+                        state: 'denied',
+                        status: 'denied',
+                    };
+                }
+                return origResult;
+            },
+        );
     }
 
     /**
@@ -84,13 +88,17 @@ export default class HarmfulApis extends ContentFeature {
                     });
                 }
             }
-            this.wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-                if (eventsToBlock.includes(type) && this === globalThis) {
-                    console.log('blocked event', type);
-                    return;
-                }
-                return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
-            });
+            this.wrapMethod(
+                globalThis.EventTarget.prototype,
+                'addEventListener',
+                /** @this {any} */ function (nativeImpl, type, ...restArgs) {
+                    if (eventsToBlock.includes(type) && this === globalThis) {
+                        console.log('blocked event', type);
+                        return;
+                    }
+                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
+                },
+            );
         }
     }
 
@@ -104,15 +112,19 @@ export default class HarmfulApis extends ContentFeature {
         const permissionsToFilter = settings.filterPermissions ?? ['accelerometer', 'ambient-light-sensor', 'gyroscope', 'magnetometer'];
         this.filterPermissionQuery(permissionsToFilter);
         if (settings.blockSensorStart) {
-            this.wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
-                // block all sensors
-                const EventCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Event;
-                const error = new EventCls('error', {
-                    error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError'),
-                });
-                // isTrusted will be false, but not much we can do here
-                this.dispatchEvent(error);
-            });
+            this.wrapMethod(
+                /** @type {any} */ (globalThis).Sensor?.prototype,
+                'start',
+                /** @this {any} */ function () {
+                    // block all sensors
+                    const EventCls = 'SensorErrorEvent' in globalThis ? /** @type {any} */ (globalThis).SensorErrorEvent : Event;
+                    const error = new EventCls('error', {
+                        error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError'),
+                    });
+                    // isTrusted will be false, but not much we can do here
+                    this.dispatchEvent(error);
+                },
+            );
         }
     }
 
@@ -123,75 +135,84 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        this.wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
-            const nativeResult = await DDGReflect.apply(nativeImpl, this, [hints]); // this may throw an error, and that is fine
-            const filteredResult = {};
-            const highEntropyValues = settings.highEntropyValues || {};
-            for (const [key, value] of Object.entries(nativeResult)) {
-                let result = value;
+        this.wrapMethod(
+            /** @type {any} */ (globalThis).NavigatorUAData?.prototype,
+            'getHighEntropyValues',
+            /** @this {any} */ async function (nativeImpl, hints) {
+                const nativeResult = await DDGReflect.apply(nativeImpl, this, [hints]); // this may throw an error, and that is fine
+                /** @type {Record<string, any>} */
+                const filteredResult = {};
+                const highEntropyValues = settings.highEntropyValues || {};
+                for (const [key, value] of Object.entries(nativeResult)) {
+                    let result = value;
 
-                switch (key) {
-                    case 'brands':
-                        if (highEntropyValues.trimBrands) {
-                            result = value.map((brand) => {
-                                return {
-                                    brand: brand.brand,
-                                    version: stripVersion(brand.version),
-                                };
-                            });
-                        }
-                        break;
-                    case 'model':
-                        if (typeof highEntropyValues.model !== 'undefined') {
-                            result = highEntropyValues.model;
-                        }
-                        break;
-                    case 'platformVersion':
-                        if (highEntropyValues.trimPlatformVersion) {
-                            result = stripVersion(value, highEntropyValues.trimPlatformVersion);
-                        }
-                        break;
-                    case 'uaFullVersion':
-                        if (highEntropyValues.trimUaFullVersion) {
-                            result = stripVersion(value, highEntropyValues.trimUaFullVersion);
-                        }
-                        break;
-                    case 'fullVersionList':
-                        if (highEntropyValues.trimFullVersionList) {
-                            result = value.map((brand) => {
-                                return {
-                                    brand: brand.brand,
-                                    version: stripVersion(brand.version, highEntropyValues.trimFullVersionList),
-                                };
-                            });
-                        }
-                        break;
-                    case 'architecture':
-                        if (typeof highEntropyValues.architecture !== 'undefined') {
-                            result = highEntropyValues.architecture;
-                        }
-                        break;
-                    case 'bitness':
-                        if (typeof highEntropyValues.bitness !== 'undefined') {
-                            result = highEntropyValues.bitness;
-                        }
-                        break;
-                    case 'platform':
-                        if (typeof highEntropyValues.platform !== 'undefined') {
-                            result = highEntropyValues.platform;
-                        }
-                        break;
-                    case 'mobile':
-                        if (typeof highEntropyValues.mobile !== 'undefined') {
-                            result = highEntropyValues.mobile;
-                        }
-                        break;
+                    switch (key) {
+                        case 'brands':
+                            if (highEntropyValues.trimBrands) {
+                                result = value.map(
+                                    /** @param {any} brand */ (brand) => {
+                                        return {
+                                            brand: brand.brand,
+                                            version: stripVersion(brand.version),
+                                        };
+                                    },
+                                );
+                            }
+                            break;
+                        case 'model':
+                            if (typeof highEntropyValues.model !== 'undefined') {
+                                result = highEntropyValues.model;
+                            }
+                            break;
+                        case 'platformVersion':
+                            if (highEntropyValues.trimPlatformVersion) {
+                                result = stripVersion(value, highEntropyValues.trimPlatformVersion);
+                            }
+                            break;
+                        case 'uaFullVersion':
+                            if (highEntropyValues.trimUaFullVersion) {
+                                result = stripVersion(value, highEntropyValues.trimUaFullVersion);
+                            }
+                            break;
+                        case 'fullVersionList':
+                            if (highEntropyValues.trimFullVersionList) {
+                                result = value.map(
+                                    /** @param {any} brand */ (brand) => {
+                                        return {
+                                            brand: brand.brand,
+                                            version: stripVersion(brand.version, highEntropyValues.trimFullVersionList),
+                                        };
+                                    },
+                                );
+                            }
+                            break;
+                        case 'architecture':
+                            if (typeof highEntropyValues.architecture !== 'undefined') {
+                                result = highEntropyValues.architecture;
+                            }
+                            break;
+                        case 'bitness':
+                            if (typeof highEntropyValues.bitness !== 'undefined') {
+                                result = highEntropyValues.bitness;
+                            }
+                            break;
+                        case 'platform':
+                            if (typeof highEntropyValues.platform !== 'undefined') {
+                                result = highEntropyValues.platform;
+                            }
+                            break;
+                        case 'mobile':
+                            if (typeof highEntropyValues.mobile !== 'undefined') {
+                                result = highEntropyValues.mobile;
+                            }
+                            break;
+                    }
+
+                    filteredResult[key] = result;
                 }
-
-                filteredResult[key] = result;
-            }
-            return filteredResult;
-        });
+                return filteredResult;
+            },
+        );
     }
 
     /**
@@ -227,13 +248,13 @@ export default class HarmfulApis extends ContentFeature {
             return;
         }
         if ('showOpenFilePicker' in globalThis && settings.disableOpenFilePicker) {
-            delete globalThis.showOpenFilePicker;
+            delete (/** @type {any} */ (globalThis).showOpenFilePicker);
         }
         if ('showSaveFilePicker' in globalThis && settings.disableSaveFilePicker) {
-            delete globalThis.showSaveFilePicker;
+            delete (/** @type {any} */ (globalThis).showSaveFilePicker);
         }
         if ('showDirectoryPicker' in globalThis && settings.disableDirectoryPicker) {
-            delete globalThis.showDirectoryPicker;
+            delete (/** @type {any} */ (globalThis).showDirectoryPicker);
         }
         if (
             'DataTransferItem' in globalThis &&
@@ -268,24 +289,28 @@ export default class HarmfulApis extends ContentFeature {
             return;
         }
         if (settings.filterEvents && settings.filterEvents.length > 0) {
-            this.wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-                if (settings.filterEvents?.includes(type) && this instanceof globalThis.Bluetooth) {
-                    return;
-                }
-                return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
-            });
+            this.wrapMethod(
+                EventTarget.prototype,
+                'addEventListener',
+                /** @this {any} */ function (nativeImpl, type, ...restArgs) {
+                    if (settings.filterEvents?.includes(type) && this instanceof /** @type {any} */ (globalThis).Bluetooth) {
+                        return;
+                    }
+                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
+                },
+            );
         }
 
         this.filterPermissionQuery(settings.filterPermissions ?? ['bluetooth']);
 
         if (settings.blockRequestDevice) {
-            this.wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
+            this.wrapMethod(/** @type {any} */ (globalThis).Bluetooth?.prototype, 'requestDevice', function () {
                 return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'));
             });
         }
 
         if (settings.blockGetAvailability) {
-            this.wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false));
+            this.wrapMethod(/** @type {any} */ (globalThis).Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false));
         }
     }
 
@@ -296,7 +321,7 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        this.wrapMethod(globalThis.USB?.prototype, 'requestDevice', function () {
+        this.wrapMethod(/** @type {any} */ (globalThis).USB?.prototype, 'requestDevice', function () {
             return Promise.reject(new DOMException('No device selected.', 'NotFoundError'));
         });
     }
@@ -308,7 +333,7 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        this.wrapMethod(globalThis.Serial?.prototype, 'requestPort', function () {
+        this.wrapMethod(/** @type {any} */ (globalThis).Serial?.prototype, 'requestPort', function () {
             return Promise.reject(new DOMException('No port selected.', 'NotFoundError'));
         });
     }
@@ -321,7 +346,7 @@ export default class HarmfulApis extends ContentFeature {
             return;
         }
         // Chrome 113 does not throw errors, and only returns an empty array here
-        this.wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => Promise.resolve([]));
+        this.wrapMethod(/** @type {any} */ (globalThis).HID?.prototype, 'requestDevice', () => Promise.resolve([]));
     }
 
     /**
@@ -345,7 +370,7 @@ export default class HarmfulApis extends ContentFeature {
             return;
         }
         if ('IdleDetector' in globalThis) {
-            delete globalThis.IdleDetector;
+            delete (/** @type {any} */ (globalThis).IdleDetector);
             this.filterPermissionQuery(settings.filterPermissions ?? ['idle-detection']);
         }
     }
@@ -358,13 +383,13 @@ export default class HarmfulApis extends ContentFeature {
             return;
         }
         if ('NDEFReader' in globalThis && settings.disableNdefReader) {
-            delete globalThis.NDEFReader;
+            delete (/** @type {any} */ (globalThis).NDEFReader);
         }
         if ('NDEFMessage' in globalThis && settings.disableNdefMessage) {
-            delete globalThis.NDEFMessage;
+            delete (/** @type {any} */ (globalThis).NDEFMessage);
         }
         if ('NDEFRecord' in globalThis && settings.disableNdefRecord) {
-            delete globalThis.NDEFRecord;
+            delete (/** @type {any} */ (globalThis).NDEFRecord);
         }
     }
 
@@ -381,16 +406,20 @@ export default class HarmfulApis extends ContentFeature {
             values.unshift(0);
             // now, values is a sorted array of positive numbers, with 0 as the first element
             if (values.length > 0) {
-                this.wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl, ...args) {
-                    const result = await DDGReflect.apply(nativeImpl, this, args);
-                    // find the first allowed value from the right that is smaller than the result
-                    let i = values.length - 1;
-                    while (i > 0 && values[i] > result.quota) {
-                        i--;
-                    }
-                    result.quota = values[i];
-                    return result;
-                });
+                this.wrapMethod(
+                    /** @type {any} */ (globalThis).StorageManager?.prototype,
+                    'estimate',
+                    /** @this {any} */ async function (nativeImpl, ...args) {
+                        const result = await DDGReflect.apply(nativeImpl, this, args);
+                        // find the first allowed value from the right that is smaller than the result
+                        let i = values.length - 1;
+                        while (i > 0 && (values[i] ?? 0) > result.quota) {
+                            i--;
+                        }
+                        result.quota = values[i] ?? 0;
+                        return result;
+                    },
+                );
             }
         }
     }

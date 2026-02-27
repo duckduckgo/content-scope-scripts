@@ -53,6 +53,7 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  * @property {StyleTagException[]} [styleTagExceptions]
  */
 
+/** @type {string[]} */
 let adLabelStrings = [];
 const parser = new DOMParser();
 let hiddenElements = new WeakMap();
@@ -267,7 +268,9 @@ function extractTimeoutRules(rules) {
         return rules;
     }
 
+    /** @type {ElementHidingRule[]} */
     const strictHideRules = [];
+    /** @type {ElementHidingRule[]} */
     const timeoutRules = [];
 
     rules.forEach((rule) => {
@@ -345,6 +348,7 @@ function unhideLoadedAds() {
 /**
  * Wrap selector(s) in :is(..) to make them forgiving
  */
+/** @param {string} selector */
 function forgivingSelector(selector) {
     return `:is(${selector})`;
 }
@@ -358,6 +362,7 @@ export default class ElementHiding extends ContentFeature {
             return;
         }
 
+        /** @type {ElementHidingRule[]} */
         let activeRules;
         /** @type {ElementHidingRule[]} */
         const globalRules = this.getFeatureSetting('rules');
@@ -403,7 +408,7 @@ export default class ElementHiding extends ContentFeature {
         // remove overrides and rules that match overrides from array of rules to be applied to page
         overrideRules.forEach((override) => {
             activeRules = activeRules.filter((rule) => {
-                return rule.selector !== override.selector;
+                return !('selector' in rule && 'selector' in override) || rule.selector !== override.selector;
             });
         });
 

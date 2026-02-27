@@ -11,7 +11,7 @@ import ContentFeature from '../content-feature.js';
  */
 export class DuckAiDataClearing extends ContentFeature {
     init() {
-        this.messaging.subscribe('duckAiClearData', (/** @type {{chatId?: string} | undefined} */ params) => this.clearData(params));
+        this.messaging.subscribe('duckAiClearData', (/** @type {any} */ params) => this.clearData(params));
 
         this.notify('duckAiClearDataReady');
     }
@@ -89,7 +89,7 @@ export class DuckAiDataClearing extends ContentFeature {
             try {
                 operation(key);
             } catch (error) {
-                errors.push(error);
+                errors.push(/** @type {Error} */ (error));
                 this.log.error('Error in localStorage operation:', error);
             }
         }
@@ -108,7 +108,7 @@ export class DuckAiDataClearing extends ContentFeature {
                     operation(objectStore, transaction, dbName, storeName);
                 });
             } catch (error) {
-                errors.push(error);
+                errors.push(/** @type {Error} */ (error));
                 this.log.error('Error in IndexedDB operation:', error);
             }
         }
@@ -150,7 +150,7 @@ export class DuckAiDataClearing extends ContentFeature {
         }
 
         const originalLength = data.chats.length;
-        data.chats = data.chats.filter((chat) => chat.chatId !== chatId);
+        data.chats = data.chats.filter((/** @type {any} */ chat) => chat.chatId !== chatId);
 
         if (data.chats.length < originalLength) {
             window.localStorage.setItem(localStorageKey, JSON.stringify(data));
@@ -160,6 +160,7 @@ export class DuckAiDataClearing extends ContentFeature {
         }
     }
 
+    /** @param {string} localStorageKey */
     clearSavedAIChats(localStorageKey) {
         this.log.info(`Clearing '${localStorageKey}'`);
         window.localStorage.removeItem(localStorageKey);

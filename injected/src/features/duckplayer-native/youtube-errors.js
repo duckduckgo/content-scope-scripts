@@ -6,7 +6,7 @@
 
 export const YOUTUBE_ERROR_EVENT = 'ddg-duckplayer-youtube-error';
 
-/** @type {Record<string,YouTubeError>} */
+/** @type {{ageRestricted: YouTubeError, signInRequired: YouTubeError, noEmbed: YouTubeError, unknown: YouTubeError}} */
 export const YOUTUBE_ERRORS = {
     ageRestricted: 'age-restricted',
     signInRequired: 'sign-in-required',
@@ -42,7 +42,7 @@ export function checkForError(errorSelector, node) {
  * @returns {YouTubeError}
  */
 export function getErrorType(windowObject, signInRequiredSelector, logger) {
-    const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: object }} */ (windowObject);
+    const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: { get(key: string): any } }} */ (windowObject);
     const currentDocument = currentWindow.document;
 
     if (!currentWindow || !currentDocument) {

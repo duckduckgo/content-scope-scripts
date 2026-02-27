@@ -2,7 +2,7 @@ import { toString as capturedToString } from './captured-globals.js';
 
 /**
  * @param {unknown} input
- * @return {input is Object}
+ * @return {input is Record<string, unknown>}
  */
 export function isObject(input) {
     return capturedToString.call(input) === '[object Object]';
