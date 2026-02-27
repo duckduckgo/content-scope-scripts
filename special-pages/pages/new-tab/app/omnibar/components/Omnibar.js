@@ -1,5 +1,5 @@
-import { h } from 'preact';
-import { useCallback, useContext, useState } from 'preact/hooks';
+import { Fragment, h } from 'preact';
+import { useCallback, useContext, useRef, useState } from 'preact/hooks';
 import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
@@ -10,7 +10,7 @@ import { SearchForm } from './SearchForm';
 import { SearchFormProvider } from './SearchFormProvider';
 import { SuggestionsList } from './SuggestionsList';
 import { AiChatsList } from './AiChatsList';
-import { AiChatsProvider } from './AiChatsProvider';
+import { AiChatsProvider, useAiChatsContext } from './AiChatsProvider';
 import { TabSwitcher } from './TabSwitcher';
 import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { Popover } from '../../components/Popover';
@@ -109,31 +109,66 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                 </div>
             )}
             <SearchFormProvider term={query} setTerm={setQuery}>
-                <AiChatsProvider query={query}>
+                <AiChatsProvider query={query} autoFocus={autoFocus}>
                     <div class={styles.spacer}>
                         <div class={styles.popup}>
-                            <ResizingContainer className={styles.field}>
-                                {mode === 'search' ? (
-                                    <SearchForm
-                                        autoFocus={autoFocus}
-                                        onOpenSuggestion={handleOpenSuggestion}
-                                        onSubmit={handleSubmitSearch}
-                                        onSubmitChat={handleSubmitChat}
-                                    />
-                                ) : (
-                                    <AiChatForm query={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
-                                )}
-                            </ResizingContainer>
-
                             {mode === 'search' ? (
-                                <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                                <>
+                                    <ResizingContainer className={styles.field}>
+                                        <SearchForm
+                                            autoFocus={autoFocus}
+                                            onOpenSuggestion={handleOpenSuggestion}
+                                            onSubmit={handleSubmitSearch}
+                                            onSubmitChat={handleSubmitChat}
+                                        />
+                                    </ResizingContainer>
+                                    <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                                </>
                             ) : (
-                                <AiChatsList className={styles.aiChatsList} />
+                                <AiChatContent query={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
                             )}
                         </div>
                     </div>
                 </AiChatsProvider>
             </SearchFormProvider>
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {string} props.query
+ * @param {boolean} [props.autoFocus]
+ * @param {(query: string) => void} props.onChange
+ * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
+ */
+function AiChatContent({ query, autoFocus, onChange, onSubmit }) {
+    const { showChats, hideChats } = useAiChatsContext();
+    const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+
+    /** @type {(value: string) => void} */
+    const handleChange = (value) => {
+        onChange(value);
+        showChats();
+    };
+
+    return (
+        <div
+            ref={containerRef}
+            onFocus={() => showChats()}
+            // Using onBlurCapture to work around WebKit which doesn't fire blur event when user selects address bar.
+            onBlurCapture={(event) => {
+                if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
+                    return;
+                }
+
+                hideChats();
+            }}
+        >
+            <ResizingContainer className={styles.field}>
+                <AiChatForm query={query} autoFocus={autoFocus} onChange={handleChange} onSubmit={onSubmit} />
+            </ResizingContainer>
+            <AiChatsList className={styles.aiChatsList} />
         </div>
     );
 }

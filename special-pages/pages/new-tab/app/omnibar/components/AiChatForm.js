@@ -126,7 +126,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     };
 
     return (
-        <form ref={formRef} class={styles.form} onClick={() => textAreaRef.current?.focus()} onSubmit={handleSubmit}>
+        <form ref={formRef} class={styles.form} onSubmit={handleSubmit}>
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
@@ -144,8 +144,12 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                     onChange(event.currentTarget.value);
                 }}
             />
-            <div class={styles.buttons}>
+            <div
+                tabIndex={-1} // Needed so that WebKit sets event.relatedTarget when firing blur event
+                class={styles.buttons}
+            >
                 <button
+                    tabIndex={0}
                     type="submit"
                     class={styles.submitButton}
                     aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
