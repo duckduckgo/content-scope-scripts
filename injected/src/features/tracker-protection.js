@@ -20,6 +20,54 @@ import { surrogates as bundledSurrogates } from './tracker-protection/surrogates
 const CTL_SURROGATES = ['fb-sdk.js'];
 
 /**
+ * Well-known two-part TLDs where naive slice(-2) would produce incorrect eTLD+1.
+ * Used by _getApproxETLDp1 for third-party request reporting only.
+ * @type {Set<string>}
+ */
+const TWO_PART_TLDS = new Set([
+    'co.uk',
+    'co.jp',
+    'co.kr',
+    'co.nz',
+    'co.za',
+    'co.in',
+    'co.id',
+    'co.il',
+    'co.th',
+    'com.au',
+    'com.br',
+    'com.cn',
+    'com.mx',
+    'com.tr',
+    'com.tw',
+    'com.ar',
+    'com.co',
+    'com.hk',
+    'com.sg',
+    'com.ua',
+    'com.vn',
+    'com.pk',
+    'com.ng',
+    'com.eg',
+    'com.ph',
+    'com.my',
+    'net.au',
+    'org.au',
+    'org.uk',
+    'ac.uk',
+    'gov.uk',
+    'ne.jp',
+    'or.jp',
+    'ac.jp',
+    'go.jp',
+    'or.kr',
+    'ac.kr',
+    'go.kr',
+    'gob.mx',
+    'org.mx',
+]);
+
+/**
  * Get the tab's top-level URL, handling iframes
  * @returns {URL | null}
  */
@@ -122,14 +170,13 @@ export class TrackerProtection extends ContentFeature {
         this._setupImageSrcInterception();
 
         if (document.readyState === 'complete') {
-            this._processExistingElements();
             this._processPageOnLoad();
         } else {
             window.addEventListener('load', () => this._processPageOnLoad(), { once: true });
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => this._processExistingElements(), { once: true });
+                document.addEventListener('DOMContentLoaded', () => this._scanExistingScripts(), { once: true });
             } else {
-                this._processExistingElements();
+                this._scanExistingScripts();
             }
         }
     }
@@ -273,46 +320,62 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
-     * Process existing DOM elements that may have loaded before interception started
+     * Early scan for scripts at DOMContentLoaded, before the full page load.
+     * Catches head scripts that may have loaded before the MutationObserver started.
      */
-    _processExistingElements() {
+    _scanExistingScripts() {
         if (!this._seenUrls) return;
-        const seenUrls = this._seenUrls;
-
         for (const el of document.scripts) {
-            if (el.src && !seenUrls.has(el.src)) {
+            if (el.src && !this._seenUrls.has(el.src)) {
                 this._checkAndBlock(el.src, 'script', el);
             }
         }
     }
 
     /**
-     * On page load, scan all resource elements for tracker reporting
+     * On page load, scan all resource elements for tracker reporting.
+     * Scripts are included here too — _seenUrls deduplication prevents
+     * re-processing any that were already caught by _scanExistingScripts.
      */
     _processPageOnLoad() {
         if (!this._seenUrls) return;
-        const seenUrls = this._seenUrls;
 
         for (const el of document.scripts) {
-            if (el.src && !seenUrls.has(el.src)) {
+            if (el.src && !this._seenUrls.has(el.src)) {
                 this._checkAndBlock(el.src, 'script', el);
             }
         }
         for (const el of document.querySelectorAll('link')) {
-            if (/** @type {HTMLLinkElement} */ (el).href && !seenUrls.has(/** @type {HTMLLinkElement} */ (el).href)) {
+            if (/** @type {HTMLLinkElement} */ (el).href && !this._seenUrls.has(/** @type {HTMLLinkElement} */ (el).href)) {
                 this._checkAndReport(/** @type {HTMLLinkElement} */ (el).href, 'link');
             }
         }
         for (const el of document.images) {
-            if (el.naturalWidth === 0 && el.src && !seenUrls.has(el.src)) {
+            if (el.naturalWidth === 0 && el.src && !this._seenUrls.has(el.src)) {
                 this._checkAndReport(el.src, 'image');
             }
         }
         for (const el of document.querySelectorAll('iframe')) {
-            if (/** @type {HTMLIFrameElement} */ (el).src && !seenUrls.has(/** @type {HTMLIFrameElement} */ (el).src)) {
+            if (/** @type {HTMLIFrameElement} */ (el).src && !this._seenUrls.has(/** @type {HTMLIFrameElement} */ (el).src)) {
                 this._checkAndReport(/** @type {HTMLIFrameElement} */ (el).src, 'iframe');
             }
         }
+    }
+
+    /**
+     * Approximate eTLD+1 from a hostname. Uses a hardcoded list of well-known
+     * two-part TLDs to handle cases like .co.uk, .com.au, etc.
+     * @param {string} hostname
+     * @returns {string}
+     */
+    _getApproxETLDp1(hostname) {
+        const parts = hostname.split('.');
+        if (parts.length <= 2) return hostname;
+        const lastTwo = parts.slice(-2).join('.');
+        if (TWO_PART_TLDS.has(lastTwo)) {
+            return parts.slice(-3).join('.');
+        }
+        return lastTwo;
     }
 
     /**
@@ -327,10 +390,8 @@ export class TrackerProtection extends ContentFeature {
             const pageHost = new URL(topUrl).hostname;
             if (requestHost === pageHost) return;
 
-            const requestParts = requestHost.split('.');
-            const pageParts = pageHost.split('.');
-            const requestDomain = requestParts.slice(-2).join('.');
-            const pageDomain = pageParts.slice(-2).join('.');
+            const requestDomain = this._getApproxETLDp1(requestHost);
+            const pageDomain = this._getApproxETLDp1(pageHost);
             if (requestDomain === pageDomain) return;
 
             this.notify('trackerDetected', {
