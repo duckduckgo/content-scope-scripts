@@ -28,7 +28,7 @@ injected/entry-points/extension-mv3.js @duckduckgo/content-scope-scripts-owners 
 injected/entry-points/windows.js @duckduckgo/content-scope-scripts-owners @duckduckgo/team-windows-development
 
 # Special Pages
-special-pages/ @duckduckgo/content-scope-scripts-owners @shakyShane @mgurgel
+# special-pages/ @duckduckgo/content-scope-scripts-owners @shakyShane @mgurgel
 
 # Others
 types-generator/ @duckduckgo/content-scope-scripts-owners @shakyShane
