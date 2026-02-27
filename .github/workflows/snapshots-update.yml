@@ -32,15 +32,18 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v5
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
               with:
-                  path: |
-                      ~/.npm
-                      ~/.cache/ms-playwright
-                  key: ${{ runner.os }}-node-playwright-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-playwright-
-                      ${{ runner.os }}-node-
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
+            - name: Cache Playwright browsers
+              uses: actions/cache@v5
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
 
             - name: Install SF Pro Fonts
               run: |
@@ -50,6 +53,7 @@ jobs:
                   hdiutil detach '/Volumes/SFProFonts'
 
             - name: Install dependencies
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci
 
             - name: Build all
