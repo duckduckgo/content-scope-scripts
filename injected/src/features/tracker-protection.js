@@ -436,6 +436,7 @@ export class TrackerProtection extends ContentFeature {
             result.reason = 'unprotectedDomain';
         } else if (isAllowlisted) {
             blocked = false;
+            result.reason = 'matched rule - exception';
         } else if (result.action !== 'ignore') {
             blocked = true;
         }
@@ -497,6 +498,7 @@ export class TrackerProtection extends ContentFeature {
             result.reason = 'unprotectedDomain';
         } else if (isAllowlisted) {
             blocked = false;
+            result.reason = 'matched rule - exception';
         } else if (result.action !== 'ignore') {
             blocked = true;
         }
@@ -568,8 +570,8 @@ export class TrackerProtection extends ContentFeature {
 
             surrogateFn();
 
-            if (targetElement && 'onload' in targetElement && typeof targetElement.onload === 'function') {
-                targetElement.onload(new Event('load'));
+            if (targetElement) {
+                targetElement.dispatchEvent(new Event('load'));
             }
             return true;
         } catch (e) {
