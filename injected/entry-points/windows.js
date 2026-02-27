@@ -2,7 +2,7 @@
  * @module Windows integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig, platformSpecificFeatures } from './../src/utils';
+import { processConfig, platformSpecificFeatures, getLoadArgs } from './../src/utils';
 import { WindowsMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -26,13 +26,7 @@ function initCode() {
         },
     });
 
-    load({
-        platform: processedConfig.platform,
-        site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig,
-        messageSecret: processedConfig.messageSecret,
-    });
+    load(getLoadArgs(processedConfig));
 
     init(processedConfig);
 

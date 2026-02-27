@@ -1,8 +1,9 @@
 import { OnboardingMessages } from './messages';
 import { render, h } from 'preact';
-import './styles/global.css'; // global styles
-import { App, SkipLink } from './components/App.js';
-import { App2 } from './components/App2';
+import './shared/styles/global.css'; // global styles
+import { App as AppV3 } from './v3/App.js';
+import { App as AppV4 } from './v4/App.js';
+import { SkipLink } from './shared/components/SkipLink.js';
 import { GlobalProvider } from './global';
 import { Components } from './Components';
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider';
@@ -11,9 +12,10 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { Settings } from './settings';
 import { callWithRetry } from '../../../shared/call-with-retry';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider';
-import { SettingsProvider } from './components/SettingsProvider';
+import { SettingsProvider } from './shared/components/SettingsProvider';
 import enStrings from '../public/locales/en/onboarding.json';
-import { stepDefinitions as stepDefinitionsV3 } from './components/v3/data';
+import { stepDefinitions as stepDefinitionsV3 } from './v3/data/data';
+import { stepDefinitions as stepDefinitionsV4 } from './v4/data/data';
 import { mockTransport } from '../src/mock-transport.js';
 
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
@@ -61,11 +63,13 @@ async function init() {
                       return enStrings;
                   });
 
+    const defaultStepDefinitions = init.order === 'v4' ? stepDefinitionsV4 : stepDefinitionsV3;
+
     const settings = new Settings()
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withStepDefinitions(init.order === 'v3' ? stepDefinitionsV3 : null)
+        .withStepDefinitions(defaultStepDefinitions)
         .withStepDefinitions(init.stepDefinitions)
         .withNamedOrder(init.order)
         .withNamedOrder(environment.urlParams.get('order'))
@@ -73,12 +77,12 @@ async function init() {
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
         .withFirst(environment.urlParams.get('page'));
 
-    const AppComponent = settings.orderName === 'v3' ? App2 : App;
-
     const root = document.querySelector('#app');
     if (!root) throw new Error('could not render, root element missing');
 
     if (environment.display === 'app') {
+        const AppComponent = settings.orderName === 'v4' ? AppV4 : AppV3;
+
         render(
             <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
                 <UpdateEnvironment search={window.location.search} />

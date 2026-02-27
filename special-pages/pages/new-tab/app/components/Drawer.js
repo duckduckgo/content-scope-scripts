@@ -6,6 +6,7 @@ import { useMessaging } from '../types.js';
 const CLOSE_DRAWER_EVENT = 'close-drawer';
 const TOGGLE_DRAWER_EVENT = 'toggle-drawer';
 const OPEN_DRAWER_EVENT = 'open-drawer';
+const TOGGLE_DRAWER_COMPLETE_EVENT = 'toggle-drawer-complete';
 
 /**
  * @typedef {'hidden' | 'visible'} DrawerVisibility
@@ -73,6 +74,7 @@ export function useDrawer(initial) {
         const toggle = () => {
             const next = visibility.value === 'hidden' ? 'visible' : 'hidden';
             update(next);
+            window.dispatchEvent(new CustomEvent(TOGGLE_DRAWER_COMPLETE_EVENT, { detail: { state: next } }));
         };
 
         // the 3 methods that can be triggered from anywhere in the app
@@ -162,15 +164,23 @@ function _close() {
  * @param {object} callbacks
  * @param {() => void} [callbacks.onOpen] - Called when drawer opens
  * @param {() => void} [callbacks.onClose] - Called when drawer closes
- * @param {() => void} [callbacks.onToggle] - Called when drawer toggles
+ * @param {(state: DrawerVisibility) => void} [callbacks.onToggle] - Called when drawer toggles, with the new state
  * @param {any[]} [deps] - Dependency array controlling when listeners are re-registered
  */
 export function useDrawerEventListeners({ onOpen, onClose, onToggle }, deps = []) {
-    useEffect(() => {
+    // useLayoutEffect ensures listeners are registered before drawer auto-open events fire.
+    useLayoutEffect(() => {
         const controller = new AbortController();
         if (onOpen) window.addEventListener(OPEN_DRAWER_EVENT, onOpen, { signal: controller.signal });
         if (onClose) window.addEventListener(CLOSE_DRAWER_EVENT, onClose, { signal: controller.signal });
-        if (onToggle) window.addEventListener(TOGGLE_DRAWER_EVENT, onToggle, { signal: controller.signal });
+        if (onToggle) {
+            window.addEventListener(
+                TOGGLE_DRAWER_COMPLETE_EVENT,
+                /** @param {CustomEvent<{state: DrawerVisibility}>} e */
+                (e) => onToggle(e.detail.state),
+                { signal: controller.signal },
+            );
+        }
         return () => controller.abort();
     }, deps);
 }

@@ -8,14 +8,19 @@ build/
 /screens
 test-results/
 playwright-report/
-Sources/ContentScopeScripts/dist/
 test-results
-!Sources/ContentScopeScripts/dist/pages/.gitignore
+
+# Apple Package
+Sources/ContentScopeScripts/dist/*.js
+Sources/ContentScopeScripts/dist/pages/*
+!Sources/ContentScopeScripts/dist/pages/
+!Sources/ContentScopeScripts/dist/pages/.gitkeep
 
 # Test output files (generated during tests)
 injected/unit-test/fixtures/page-context/output/
 
-# Local Netlify folder
-.netlify
+# Coverage output
+coverage/
+
 # VS Code user config
 .vscode

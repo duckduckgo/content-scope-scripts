@@ -2,8 +2,15 @@
  * @module Android AdsJS integration
  */
 import { load, init, updateFeatureArgs } from '../src/content-scope-features.js';
-import { processConfig, isBeingFramed } from './../src/utils';
+import { processConfig, isBeingFramed, getLoadArgs } from './../src/utils';
 import { AndroidAdsjsMessagingConfig, MessagingContext, Messaging } from '../../messaging/index.js';
+
+/**
+ * @typedef {import('../src/content-scope-features.js').LoadArgs & {
+ *     debug?: boolean,
+ *     objectName?: string
+ * }} ProcessedConfig
+ */
 
 /**
  * Send initial ping once per frame to establish communication with the platform.
@@ -11,7 +18,7 @@ import { AndroidAdsjsMessagingConfig, MessagingContext, Messaging } from '../../
  * When response is received, updates all loaded feature configurations.
  *
  * @param {AndroidAdsjsMessagingConfig} messagingConfig
- * @param {object} processedConfig - The base configuration
+ * @param {ProcessedConfig} processedConfig - The base configuration
  */
 async function sendInitialPingAndUpdate(messagingConfig, processedConfig) {
     // Only send ping in top context, not in frames
@@ -22,7 +29,7 @@ async function sendInitialPingAndUpdate(messagingConfig, processedConfig) {
     try {
         // Create messaging context for the initial ping
         const messagingContext = new MessagingContext({
-            context: 'contentScopeScripts',
+            context: processedConfig.messagingContextName,
             env: processedConfig.debug ? 'development' : 'production',
             featureName: 'messaging',
         });
@@ -58,28 +65,23 @@ function initCode() {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const userPreferences = $USER_PREFERENCES$;
 
-    const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences);
+    const processedConfig = /** @type {ProcessedConfig} */ (processConfig(config, userUnprotectedDomains, userPreferences));
 
     const configConstruct = processedConfig;
     const objectName = configConstruct.objectName || 'contentScopeAdsjs';
 
-    processedConfig.messagingConfig = new AndroidAdsjsMessagingConfig({
+    const messagingConfig = new AndroidAdsjsMessagingConfig({
         objectName,
         target: globalThis,
-        debug: processedConfig.debug,
+        debug: processedConfig.debug ?? false,
     });
+    processedConfig.messagingConfig = messagingConfig;
 
     // Send initial ping asynchronously to update feature configurations when response arrives
-    sendInitialPingAndUpdate(processedConfig.messagingConfig, processedConfig);
+    sendInitialPingAndUpdate(messagingConfig, processedConfig);
 
     // Load and init features immediately with base configuration
-    load({
-        platform: processedConfig.platform,
-        site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig,
-        messageSecret: processedConfig.messageSecret,
-    });
+    load(getLoadArgs(processedConfig));
 
     init(processedConfig);
 }

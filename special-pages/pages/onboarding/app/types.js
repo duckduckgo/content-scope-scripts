@@ -13,68 +13,45 @@ import { useContext } from 'preact/hooks';
  *   | 'placebo-ad-blocking'
  *   | 'aggressive-ad-blocking'
  *   | 'youtube-ad-blocking'
+ *   | 'address-bar-mode'
  * } SystemValueId - Each setting that can be updated should have a unique ID listed here.
  */
 
 /**
  * @typedef {WelcomeStep
  *   | GetStartedStep
- *   | PrivateByDefaultStep
- *   | CleanerBrowsingStep
  *   | SystemSettingsStep
  *   | CustomizeStep
- *   | SummaryStep
- *   | DockSingleStep
- *   | ImportSingleStep
  *   | MakeDefaultSingleStep
  *   | DuckPlayerSingleStep
+ *   | AddressBarModeStep
  * } Step
+ * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
  * @typedef {{ kind: 'info'; id: 'getStarted' }} GetStartedStep
- * @typedef {{ kind: 'info'; id: 'privateByDefault' }} PrivateByDefaultStep
- * @typedef {{ kind: 'info'; id: 'cleanerBrowsing' }} CleanerBrowsingStep
  * @typedef {{ kind: 'settings'; id: 'systemSettings'; rows: SystemValueId[]; }} SystemSettingsStep
  * @typedef {{ kind: 'settings'; id: 'customize'; rows: SystemValueId[]; }} CustomizeStep
- * @typedef {{ kind: 'settings'; id: 'dockSingle'; rows: SystemValueId[]; }} DockSingleStep
- * @typedef {{ kind: 'settings'; id: 'importSingle'; rows: SystemValueId[]; }} ImportSingleStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
- * @typedef {{ kind: 'info'; id: 'duckPlayerSingle' }} DuckPlayerSingleStep
- * @typedef {{ kind: 'info'; id: 'summary' }} SummaryStep
+ * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
+ * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
  */
 
 /** @type {Step['id'][]} */
 export const EVERY_PAGE_ID = [
     'welcome',
     'getStarted',
-    'privateByDefault',
-    'cleanerBrowsing',
     'systemSettings',
-    'customize',
-    'summary',
-    'dockSingle',
-    'importSingle',
     'makeDefaultSingle',
     'duckPlayerSingle',
-];
-
-/** @type {Step['id'][]} */
-export const DEFAULT_ORDER = ['welcome', 'getStarted', 'privateByDefault', 'cleanerBrowsing', 'systemSettings', 'customize', 'summary'];
-
-/** @type {Step['id'][]} */
-export const ALT_ORDER = [
-    'welcome',
-    'getStarted',
-    'privateByDefault',
-    'cleanerBrowsing',
-    'dockSingle',
-    'importSingle',
-    'makeDefaultSingle',
     'customize',
-    'summary',
+    'addressBarMode',
 ];
 
 /** @type {Step['id'][]} */
-export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize'];
+export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
+
+/** @type {Step['id'][]} */
+export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
@@ -91,7 +68,7 @@ export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
 
 /**
  * @typedef {Object} GlobalState
- * @property {import("./data").StepDefinitions} stepDefinitions
+ * @property {StepDefinitions} stepDefinitions
  * @property {Step} step
  * @property {Step['id'][]} order
  * @property {Step['id']} activeStep

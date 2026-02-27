@@ -47,7 +47,7 @@
     font-weight: 600;
     font-size: calc(11 * var(--px-in-rem));
     line-height: calc(14 * var(--px-in-rem));
-    color: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-text-primary);
     /* needed for some languages */
     text-wrap: wrap;
 

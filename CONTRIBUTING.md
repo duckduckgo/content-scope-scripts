@@ -102,6 +102,29 @@ npm run serve-special-pages
 
 Releases are created via GitHub Actions: [Release workflow](https://github.com/duckduckgo/content-scope-scripts/actions/workflows/build.yml)
 
+### Why release branches exist
+
+C-S-S is consumed by native apps (Android, iOS, macOS, Windows) that each use a different dependency mechanism (npm, Swift Package Manager, git submodules). These consumers need **built artifacts** (`build/`, `Sources/ContentScopeScripts/dist/`) — not source code they'd have to compile themselves.
+
+On `main` and feature branches, `build/` and `Sources/ContentScopeScripts/dist/*.js` are **gitignored**. This keeps diffs clean: PRs show only source changes, not thousands of lines of generated JavaScript.
+
+Built artifacts live on dedicated branches:
+
+| Branch | Purpose | How it's created |
+|--------|---------|-----------------|
+| `releases` | Production releases. Tags (e.g. `12.38.0`) point here. | Manual `workflow_dispatch` on `build.yml` |
+| `pr-releases/<branch>` | Per-PR build artifacts for cross-repo testing. | Automatic via `build-pr.yml` on every PR push |
+
+The `releases` branch is the long-lived equivalent of "what `main` would look like if we checked in build output". The `pr-releases/` branches are ephemeral — created when a PR is opened/updated, deleted when it's closed.
+
+**Why not check build output into `main` directly?**
+
+- Rebasing becomes painful: every commit in a rebase would require rebuilding and re-staging `build/` and `Sources/`.
+- PRs become unreadable: generated diffs dwarf the actual source changes.
+- Merge conflicts in generated files are meaningless noise.
+
+The separate-branch approach was adopted via [Tech Design: Build automation for content-scope-scripts](https://app.asana.com/0/1201614831475344/1203979567756832/f).
+
 ### Creating a release
 
 1. Go to [Actions → Release](https://github.com/duckduckgo/content-scope-scripts/actions/workflows/build.yml)
@@ -110,3 +133,58 @@ Releases are created via GitHub Actions: [Release workflow](https://github.com/d
 4. Click "Run workflow"
 
 The workflow creates a tag and GitHub release automatically. Build artifacts on the `releases` branch are consumed by native app repos.
+
+### PR build branches
+
+When you push to any branch (except `main`, `releases`, or `pr-releases/*`), the `build-pr.yml` workflow automatically:
+
+1. Builds all workspaces (`npm run build`)
+2. Pushes the source + build artifacts to `pr-releases/<your-branch-name>`
+3. If an open PR exists for the branch, updates the PR description and posts a comment with:
+   - Static preview entry points (docs, static pages, integration pages)
+   - Integration commands for each platform
+
+The build branch is created on the first push and updated on every subsequent push. It's deleted automatically when the source branch is deleted.
+
+**Using a PR build branch in a native client:**
+
+```sh
+# Android / Extension (npm)
+npm i github:duckduckgo/content-scope-scripts#pr-releases/my-feature-branch
+
+# Apple (Swift Package Manager) — in Package.swift
+.package(url: "https://github.com/duckduckgo/content-scope-scripts.git",
+         branch: "pr-releases/my-feature-branch")
+
+# Windows (git submodule)
+git -C submodules/content-scope-scripts fetch origin pr-releases/my-feature-branch
+git -C submodules/content-scope-scripts checkout origin/pr-releases/my-feature-branch
+```
+
+Use `<build-commit-hash>` from the PR build comment for cache-safe preview links.
+
+**Static preview entry points for that build commit:**
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/index.html
+```
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/injected/integration-test/test-pages/index.html
+```
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/build/integration/pages/index.html
+```
+
+### Breaking Changes Protocol
+
+**When making breaking changes:**
+
+1. Ensure you land a **major release** version bump.
+2. **Test and complete the native application side first** before merging the C-S-S repo change.
+3. Only merge the C-S-S change after native app support is complete.
+
+**Why This Matters**
+
+This prevents any engineer from having a breaking change and broken workflow. The native application must be tested and complete before the C-S-S repo change is merged.
