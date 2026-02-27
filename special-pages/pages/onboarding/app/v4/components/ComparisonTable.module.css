@@ -70,7 +70,7 @@
     width: var(--sp-5);
     background-image: url('../../../public/assets/img/v4/icons/check-circle.svg');
     animation: bouncein 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
-    animation-delay: calc(300ms + var(--row-index) * 80ms);
+    animation-delay: calc(400ms + var(--row-index) * 80ms);
 
     [data-reduced-motion="true"] & {
         animation: none;

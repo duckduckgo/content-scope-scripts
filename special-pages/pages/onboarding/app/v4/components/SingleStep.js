@@ -51,6 +51,7 @@ export function SingleStep() {
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
                 exiting={globalState.exiting}
+                contentWidth={width}
                 onExitComplete={topBubble ? handleExitComplete : undefined}
             >
                 {topBubble?.content}
@@ -71,6 +72,7 @@ export function SingleStep() {
                     visibility: bottomBubble ? 'visible' : 'hidden',
                 }}
                 tail={bottomBubble?.tail}
+                contentWidth={width}
                 onHeight={setBottomHeight}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={167} // 5f from t=0 (3f after size start at 2f)

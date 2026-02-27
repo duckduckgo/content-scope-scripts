@@ -17,7 +17,7 @@
 }
 
 .fadeIn {
-    animation: fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 233ms backwards;
+    animation: fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 400ms backwards;
 }
 
 @keyframes fade-out {

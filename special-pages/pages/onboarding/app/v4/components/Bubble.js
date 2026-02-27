@@ -9,6 +9,7 @@ import { useMergedRef } from '../hooks/useMergedRef';
 /**
  * @typedef {object} BubbleProps
  * @property {'bottom-left' | 'right'} [tail] - Direction of the speech bubble tail
+ * @property {number} [contentWidth] - Explicit width for the content measurement div (prevents height mis-measurement during width transitions)
  * @property {(height: number) => void} [onHeight] - Callback reporting measured border height
  * @property {string} [bounceKey] - When this value changes, the bubble plays a scale-bounce animation
  * @property {number} [bounceDelay] - Delay in ms before the scale-bounce animation starts
@@ -36,7 +37,18 @@ import { useMergedRef } from '../hooks/useMergedRef';
  *
  * @param {BubbleProps & import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
  */
-export function Bubble({ children, tail, class: className, onHeight, bounceKey, bounceDelay, exiting = false, onExitComplete, ...props }) {
+export function Bubble({
+    children,
+    tail,
+    class: className,
+    contentWidth,
+    onHeight,
+    bounceKey,
+    bounceDelay,
+    exiting = false,
+    onExitComplete,
+    ...props
+}) {
     const bubbleRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -100,7 +112,9 @@ export function Bubble({ children, tail, class: className, onHeight, bounceKey, 
                 class={cn(styles.container, isMounted.current && (exiting ? styles.fadeOut : styles.fadeIn))}
                 onAnimationEnd={handleAnimationEnd}
             >
-                <div ref={contentRef}>{children}</div>
+                <div ref={contentRef} style={contentWidth ? { width: contentWidth } : undefined}>
+                    {children}
+                </div>
             </div>
             <BottomLeftTail active={tail === 'bottom-left'} />
             <RightTail active={tail === 'right'} />
