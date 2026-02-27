@@ -5,9 +5,23 @@ on:
         types: [submitted, dismissed]
     pull_request_target:
         types: [opened, synchronize, reopened]
+    merge_group:
+
+permissions:
+    checks: write
+    contents: read
+    pull-requests: read
 
 jobs:
+    # In the merge queue, review validation already passed on the PR — just succeed.
     review_validation:
+        if: ${{ github.event_name == 'merge_group' }}
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "Review already validated before entering merge queue"
+
+    validate_review:
+        if: ${{ github.event_name != 'merge_group' }}
         runs-on: ubuntu-latest
 
         steps:
@@ -28,32 +42,70 @@ jobs:
                   script: |
                       const { loadRequiredTeams, findAuthorizedApproval } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
+                      const sha = context.payload.pull_request.head.sha;
+                      const repo = { owner: context.repo.owner, repo: context.repo.repo };
+
+                      async function upsertCheck({ status, conclusion, title, summary }) {
+                          const { data: { check_runs } } = await github.rest.checks.listForRef({
+                              ...repo, ref: sha, check_name: 'review_validation'
+                          });
+                          const pending = check_runs.find(c => c.status !== 'completed');
+                          const params = {
+                              ...repo,
+                              status,
+                              output: { title, summary },
+                              ...(conclusion && { conclusion }),
+                              ...(status === 'completed' && { completed_at: new Date().toISOString() })
+                          };
+                          if (pending) {
+                              await github.rest.checks.update({ ...params, check_run_id: pending.id });
+                          } else {
+                              await github.rest.checks.create({ ...params, name: 'review_validation', head_sha: sha });
+                          }
+                      }
 
                       let approval;
                       try {
                           approval = await findAuthorizedApproval(github, {
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
+                              ...repo,
                               prNumber: context.payload.pull_request.number,
                               org: 'duckduckgo',
                               teams,
                               orgToken: process.env.ORG_TOKEN || undefined
                           });
                       } catch (error) {
-                          if (error.status === 401) {
-                              core.setFailed('DAX_PAT returned 401 — token may be expired or misconfigured');
-                          } else {
-                              core.setFailed(`Review validation failed: ${error.message} (status: ${error.status ?? 'unknown'})`);
-                          }
+                          const msg = error.status === 401
+                              ? 'DAX_PAT returned 401 — token may be expired or misconfigured'
+                              : `Review validation failed: ${error.message} (status: ${error.status ?? 'unknown'})`;
+                          await upsertCheck({
+                              status: 'completed', conclusion: 'failure',
+                              title: 'Validation error', summary: msg
+                          });
+                          core.setFailed(msg);
                           return;
                       }
 
                       if (approval) {
                           const via = approval.team ? `(member of ${approval.team})` : '';
+                          await upsertCheck({
+                              status: 'completed', conclusion: 'success',
+                              title: `Approved by ${approval.user}`,
+                              summary: `✅ Approved by ${approval.user} ${via}`.trim()
+                          });
                           console.log(`✅ Approved by ${approval.user} ${via}`);
+                      } else if (context.eventName === 'pull_request_target') {
+                          await upsertCheck({
+                              status: 'in_progress',
+                              title: 'Waiting for approval',
+                              summary: 'Waiting for approval from an authorized reviewer.\n\nRequired teams: ' +
+                                  teams.map(t => `@duckduckgo/${t}`).join(', ')
+                          });
+                          console.log('⏳ No approval yet — status set to pending');
                       } else {
-                          core.setFailed(
-                              '❌ No approved review from daxtheduck or a member of the required teams: ' +
-                              teams.map(t => `@duckduckgo/${t}`).join(', ')
-                          );
+                          const msg = '❌ No approved review from daxtheduck or a member of the required teams: ' +
+                              teams.map(t => `@duckduckgo/${t}`).join(', ');
+                          await upsertCheck({
+                              status: 'completed', conclusion: 'failure',
+                              title: 'No authorized approval', summary: msg
+                          });
                       }
