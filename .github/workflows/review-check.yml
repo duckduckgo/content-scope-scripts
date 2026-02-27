@@ -22,11 +22,18 @@ jobs:
 
             - name: Validate approved review from authorized reviewer
               uses: actions/github-script@v8
+              env:
+                  ORG_TOKEN: ${{ secrets.DAX_PAT }}
               with:
-                  github-token: ${{ secrets.DAX_PAT }}
                   script: |
                       const { loadRequiredTeams, findAuthorizedApproval } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
+
+                      let orgGithub;
+                      if (process.env.ORG_TOKEN) {
+                          const { getOctokit } = require('@actions/github');
+                          orgGithub = getOctokit(process.env.ORG_TOKEN);
+                      }
 
                       let approval;
                       try {
@@ -35,7 +42,8 @@ jobs:
                               repo: context.repo.repo,
                               prNumber: context.payload.pull_request.number,
                               org: 'duckduckgo',
-                              teams
+                              teams,
+                              orgGithub
                           });
                       } catch (error) {
                           if (error.status === 401) {
