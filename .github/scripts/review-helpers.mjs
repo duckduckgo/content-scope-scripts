@@ -42,25 +42,29 @@ export async function findRiskLevel(github, { owner, repo, prNumber }) {
     return null;
 }
 
-export async function isTeamMember(github, org, teamSlug, username) {
-    try {
-        const { data } = await github.rest.teams.getMembershipForUserInOrg({
-            org,
-            team_slug: teamSlug,
-            username,
-        });
-        return data.state === 'active';
-    } catch (error) {
-        if (error.status === 401) {
-            throw error;
-        }
-        return false;
+/**
+ * Checks team membership using the GitHub REST API directly via fetch.
+ * Requires a token with read:org scope.
+ */
+export async function isTeamMember(orgToken, org, teamSlug, username) {
+    const url = `https://api.github.com/orgs/${org}/teams/${teamSlug}/memberships/${username}`;
+    const resp = await fetch(url, {
+        headers: {
+            Authorization: `token ${orgToken}`,
+            Accept: 'application/vnd.github.v3+json',
+        },
+    });
+    if (resp.status === 401) {
+        throw Object.assign(new Error('Org token returned 401 — check that DAX_PAT is valid and has read:org scope'), { status: 401 });
     }
+    if (!resp.ok) return false;
+    const data = await resp.json();
+    return data.state === 'active';
 }
 
-export async function findTeamForUser(github, org, teams, username) {
+export async function findTeamForUser(orgToken, org, teams, username) {
     for (const team of teams) {
-        if (await isTeamMember(github, org, team, username)) {
+        if (await isTeamMember(orgToken, org, team, username)) {
             return team;
         }
     }
@@ -72,10 +76,10 @@ export async function findTeamForUser(github, org, teams, username) {
  * Checks daxtheduck first, then team membership for each approver.
  *
  * @param github - Octokit client for repo operations (GITHUB_TOKEN is sufficient)
- * @param opts.orgGithub - Optional Octokit client with read:org scope for team membership checks.
- *                         Falls back to `github` if not provided.
+ * @param opts.orgToken - Token with read:org scope for team membership checks (e.g. DAX_PAT).
+ *                        If not provided, team membership checks are skipped.
  */
-export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgGithub }) {
+export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgToken }) {
     const { data: reviews } = await github.rest.pulls.listReviews({
         owner,
         repo,
@@ -93,9 +97,13 @@ export async function findAuthorizedApproval(github, { owner, repo, prNumber, or
         return { user: DAX_USERNAME, team: null };
     }
 
-    const teamClient = orgGithub ?? github;
+    if (!orgToken) {
+        console.log('No org token available — skipping team membership checks');
+        return null;
+    }
+
     for (const review of approved) {
-        const team = await findTeamForUser(teamClient, org, teams, review.user.login);
+        const team = await findTeamForUser(orgToken, org, teams, review.user.login);
         if (team) return { user: review.user.login, team };
     }
 

@@ -29,12 +29,6 @@ jobs:
                       const { loadRequiredTeams, findAuthorizedApproval } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
 
-                      let orgGithub;
-                      if (process.env.ORG_TOKEN) {
-                          const { getOctokit } = require('@actions/github');
-                          orgGithub = getOctokit(process.env.ORG_TOKEN);
-                      }
-
                       let approval;
                       try {
                           approval = await findAuthorizedApproval(github, {
@@ -43,7 +37,7 @@ jobs:
                               prNumber: context.payload.pull_request.number,
                               org: 'duckduckgo',
                               teams,
-                              orgGithub
+                              orgToken: process.env.ORG_TOKEN || undefined
                           });
                       } catch (error) {
                           if (error.status === 401) {
