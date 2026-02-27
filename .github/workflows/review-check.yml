@@ -22,19 +22,37 @@ jobs:
 
             - name: Validate approved review from authorized reviewer
               uses: actions/github-script@v8
+              env:
+                  ORG_TOKEN: ${{ secrets.DAX_PAT }}
               with:
-                  github-token: ${{ secrets.DAX_PAT }}
                   script: |
                       const { loadRequiredTeams, findAuthorizedApproval } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
 
-                      const approval = await findAuthorizedApproval(github, {
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          prNumber: context.payload.pull_request.number,
-                          org: 'duckduckgo',
-                          teams
-                      });
+                      let orgGithub;
+                      if (process.env.ORG_TOKEN) {
+                          const { getOctokit } = require('@actions/github');
+                          orgGithub = getOctokit(process.env.ORG_TOKEN);
+                      }
+
+                      let approval;
+                      try {
+                          approval = await findAuthorizedApproval(github, {
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              prNumber: context.payload.pull_request.number,
+                              org: 'duckduckgo',
+                              teams,
+                              orgGithub
+                          });
+                      } catch (error) {
+                          if (error.status === 401) {
+                              core.setFailed('DAX_PAT returned 401 — token may be expired or misconfigured');
+                          } else {
+                              core.setFailed(`Review validation failed: ${error.message} (status: ${error.status ?? 'unknown'})`);
+                          }
+                          return;
+                      }
 
                       if (approval) {
                           const via = approval.team ? `(member of ${approval.team})` : '';

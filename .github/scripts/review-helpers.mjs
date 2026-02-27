@@ -50,7 +50,10 @@ export async function isTeamMember(github, org, teamSlug, username) {
             username,
         });
         return data.state === 'active';
-    } catch {
+    } catch (error) {
+        if (error.status === 401) {
+            throw error;
+        }
         return false;
     }
 }
@@ -67,8 +70,12 @@ export async function findTeamForUser(github, org, teams, username) {
 /**
  * Returns { user, team } for the first authorized approval, or null.
  * Checks daxtheduck first, then team membership for each approver.
+ *
+ * @param github - Octokit client for repo operations (GITHUB_TOKEN is sufficient)
+ * @param opts.orgGithub - Optional Octokit client with read:org scope for team membership checks.
+ *                         Falls back to `github` if not provided.
  */
-export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams }) {
+export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgGithub }) {
     const { data: reviews } = await github.rest.pulls.listReviews({
         owner,
         repo,
@@ -86,8 +93,9 @@ export async function findAuthorizedApproval(github, { owner, repo, prNumber, or
         return { user: DAX_USERNAME, team: null };
     }
 
+    const teamClient = orgGithub ?? github;
     for (const review of approved) {
-        const team = await findTeamForUser(github, org, teams, review.user.login);
+        const team = await findTeamForUser(teamClient, org, teams, review.user.login);
         if (team) return { user: review.user.login, team };
     }
 
