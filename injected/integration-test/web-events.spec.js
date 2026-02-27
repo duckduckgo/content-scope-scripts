@@ -85,4 +85,18 @@ test.describe('WebEvents message flow', () => {
             expect(msg.payload.featureName).toBe('webEvents');
         }
     });
+
+    test('webEvent messages never contain a nativeClient field', async ({ page }, testInfo) => {
+        const collector = await setupWithAutoRun(page, testInfo.project.use, CONFIG_ENABLED);
+
+        await page.clock.fastForward(100);
+
+        const webEventMessages = await getMessagesOfType(collector, 'webEvent');
+        expect(webEventMessages.length).toBeGreaterThanOrEqual(1);
+
+        for (const msg of webEventMessages) {
+            expect(msg.payload).not.toHaveProperty('nativeClient');
+            expect(msg.payload.params).not.toHaveProperty('nativeClient');
+        }
+    });
 });

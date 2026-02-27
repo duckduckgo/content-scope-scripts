@@ -64,6 +64,10 @@ Features are bundled per-platform in `entry-points/`:
 
 Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`, `breakageReporting`, `webInterferenceDetection`, `webDetection`, `webEvents` (see `utils.js` `platformSpecificFeatures`).
 
+## Messaging Constraints
+
+- **Never include `nativeClient` as a field in any message sent to the client.** The `nativeClient` field is reserved for native platform use — native implementations inject a `nativeData` field into incoming messages, and `nativeClient` is reserved for that layer. When constructing `notify()` or `request()` params, only pass explicitly defined fields (destructure rather than spread).
+
 ## Notes
 
 - When running Playwright commands, use `--reporter list` to prevent hanging
