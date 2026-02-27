@@ -6,6 +6,11 @@ on:
     pull_request_target:
         types: [opened, synchronize, reopened]
 
+permissions:
+    actions: write
+    contents: read
+    pull-requests: read
+
 jobs:
     review_validation:
         runs-on: ubuntu-latest
@@ -56,4 +61,36 @@ jobs:
                               '❌ No approved review from daxtheduck or a member of the required teams: ' +
                               teams.map(t => `@duckduckgo/${t}`).join(', ')
                           );
+                      }
+
+            - name: Re-run stale failed checks
+              if: success() && github.event_name == 'pull_request_review'
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const headBranch = context.payload.pull_request.head.ref;
+                      const { data: { workflow_runs: runs } } = await github.rest.actions.listWorkflowRuns({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          workflow_id: 'review-check.yml',
+                          branch: headBranch,
+                          event: 'pull_request_target',
+                          per_page: 5
+                      });
+
+                      const failed = runs.find(r => r.conclusion === 'failure');
+                      if (!failed) {
+                          console.log('No stale failed pull_request_target runs found');
+                          return;
+                      }
+
+                      try {
+                          await github.rest.actions.reRunWorkflowFailedJobs({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              run_id: failed.id
+                          });
+                          console.log(`Re-triggered run #${failed.run_number} (${failed.id})`);
+                      } catch (err) {
+                          console.log(`Could not re-run: ${err.message}`);
                       }
