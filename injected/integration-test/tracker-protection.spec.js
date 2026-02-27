@@ -6,6 +6,7 @@ const CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-
 const DISABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-disabled.json';
 const CTL_DISABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-ctl-disabled.json';
 const UNPROTECTED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-unprotected.json';
+const ALLOWLISTED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-allowlisted.json';
 
 function trackerMessages(messages) {
     return messages.filter((m) => m.payload.featureName === 'trackerProtection');
@@ -185,6 +186,23 @@ test('tracker-protection: skips surrogate when script has integrity attribute', 
     const allMessages = await collector.outgoingMessages();
     const injected = trackerMessages(allMessages).filter((m) => m.payload.method === 'surrogateInjected');
     expect(injected).toHaveLength(0);
+});
+
+test('tracker-protection: reports allowlisted tracker with ruleException reason', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, ALLOWLISTED_CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/pixel.js');
+    });
+
+    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const detection = messages[0].payload.params;
+
+    expect(detection.url).toBe('https://tracker.example/pixel.js');
+    expect(detection.blocked).toBe(false);
+    expect(detection.reason).toBe('matched rule - exception');
+    expect(detection.isAllowlisted).toBe(true);
 });
 
 test('tracker-protection: reports but does not block on unprotected domain', async ({ page }, testInfo) => {
