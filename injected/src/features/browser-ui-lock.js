@@ -11,8 +11,8 @@ import ContentFeature from '../content-feature.js';
  * @see https://app.asana.com/0/0/1209424908894123
  */
 export default class BrowserUiLock extends ContentFeature {
-    /** @type {boolean} */
-    _currentLockState = false;
+    /** @type {boolean | null} Null ensures the first evaluation always sends a notification */
+    _currentLockState = null;
 
     /** @type {MutationObserver | null} */
     _mutationObserver = null;
@@ -59,7 +59,7 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     /**
-     * Set up MutationObserver to watch for style/class attribute changes on html and body.
+     * Set up MutationObserver to watch for style/class/content changes on html and body.
      */
     _setupMutationObserver() {
         if (this._mutationObserver) {
@@ -139,10 +139,10 @@ export default class BrowserUiLock extends ContentFeature {
             const body = document.body;
 
             // If either html or body has a visible scrollbar, don't lock
-            if (html && this._hasVisibleScrollbar(html)) {
+            if (html && this._hasExplicitlyVisibleScrollbar(html)) {
                 return false;
             }
-            if (body && this._hasVisibleScrollbar(body)) {
+            if (body && this._hasExplicitlyVisibleScrollbar(body)) {
                 return false;
             }
 
@@ -161,10 +161,11 @@ export default class BrowserUiLock extends ContentFeature {
      * @param {Element} el
      * @returns {boolean}
      */
-    _hasVisibleScrollbar(el) {
+    _hasExplicitlyVisibleScrollbar(el) {
         const style = getComputedStyle(el);
         const overflowY = style.overflowY;
-        return el.scrollHeight > el.clientHeight && overflowY !== 'hidden' && overflowY !== 'clip';
+        const overflowTypes = this.getFeatureSetting('overflowTypes') ?? ['hidden', 'clip', 'auto'];
+        return el.scrollHeight > el.clientHeight && !overflowTypes.includes(overflowY);
     }
 
     /**
