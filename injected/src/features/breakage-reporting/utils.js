@@ -8,7 +8,27 @@ export function getJsPerformanceMetrics() {
 }
 
 /** @typedef {{error: string, success: false}} ErrorObject */
-/** @typedef {{success: true, metrics: any}} PerformanceMetricsResponse */
+/**
+ * @typedef {object} ExpandedPerformanceMetrics
+ * @property {number} loadComplete
+ * @property {number} domComplete
+ * @property {number} domContentLoaded
+ * @property {number} domInteractive
+ * @property {number | null} firstContentfulPaint
+ * @property {number | null} largestContentfulPaint
+ * @property {number} timeToFirstByte
+ * @property {number} responseTime
+ * @property {number} serverTime
+ * @property {number} transferSize
+ * @property {number} encodedBodySize
+ * @property {number} decodedBodySize
+ * @property {number} resourceCount
+ * @property {number} totalResourcesSize
+ * @property {string} protocol
+ * @property {number} redirectCount
+ * @property {string} navigationType
+ */
+/** @typedef {{success: true, metrics: ExpandedPerformanceMetrics}} PerformanceMetricsResponse */
 
 /**
  * Convenience function to return an error object
