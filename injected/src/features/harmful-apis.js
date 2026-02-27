@@ -411,7 +411,7 @@ export default class HarmfulApis extends ContentFeature {
 @typedef {{ blockSensorStart: boolean }} GenericSensorConfigMixin
 @typedef {{ highEntropyValues: { trimBrands: boolean, model: string, trimPlatformVersion: number, trimUaFullVersion: number, trimFullVersionList: number, architecture: string, bitness: string, mobile: boolean, platform: string } }} UaClientHintsConfigMixin
 @typedef {{ }} NetworkInformationConfigMixin
-@typedef {{ returnValue: any }} GetInstalledRelatedAppsConfigMixin
+@typedef {{ returnValue: string[] }} GetInstalledRelatedAppsConfigMixin
 @typedef {{ disableOpenFilePicker: boolean, disableSaveFilePicker: boolean, disableDirectoryPicker: boolean, disableGetAsFileSystemHandle: boolean }} FileSystemAccessConfigMixin
 @typedef {{ screenIsExtended?: boolean }} WindowPlacementConfigMixin
 @typedef {{ blockGetAvailability: boolean, blockRequestDevice: boolean }} WebBluetoothConfigMixin
