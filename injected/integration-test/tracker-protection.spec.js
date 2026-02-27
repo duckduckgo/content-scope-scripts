@@ -130,6 +130,41 @@ test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, te
     expect(injected).toHaveLength(0);
 });
 
+test('tracker-protection: ignores data URIs and non-HTTP URLs', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerImage('data:image/png;base64,iVBORw0KGgo=');
+        /** @type {any} */ (window).addTrackerScript('blob:https://example.com/abc');
+    });
+
+    await page.waitForTimeout(200);
+
+    const allMessages = await collector.outgoingMessages();
+    const trackerDetections = trackerMessages(allMessages).filter((m) => m.payload.method === 'trackerDetected');
+    expect(trackerDetections).toHaveLength(0);
+});
+
+test('tracker-protection: re-executes surrogate for repeated script additions', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
+    });
+
+    const first = await collector.waitForMessage('surrogateInjected', 1);
+    expect(first).toHaveLength(1);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
+    });
+
+    const all = await collector.waitForMessage('surrogateInjected', 2);
+    expect(all).toHaveLength(2);
+});
+
 test('tracker-protection: reports but does not block on unprotected domain', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, UNPROTECTED_CONFIG);
