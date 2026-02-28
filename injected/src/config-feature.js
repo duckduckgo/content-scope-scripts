@@ -131,12 +131,13 @@ export default class ConfigFeature {
      */
     matchConditionalFeatureSetting(featureKeyName) {
         const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
-        return conditionalChanges.filter((/** @type {any} */ rule) => {
+        return conditionalChanges.filter((/** @type {ConditionalSettingEntry} */ rule) => {
             let condition = rule.condition;
             // Support shorthand for domain matching for backwards compatibility
-            if (condition === undefined && 'domain' in rule) {
+            if (condition === undefined && 'domain' in rule && rule.domain !== undefined) {
                 condition = this._domainToConditonBlocks(rule.domain);
             }
+            if (condition === undefined) return false;
             return this._matchConditionalBlockOrArray(condition);
         });
     }
