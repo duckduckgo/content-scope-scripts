@@ -134,7 +134,7 @@ export class ErrorResponse {
  * @typedef {object} SuccessResponseInterface
  * @property {PirAction['id']} actionID
  * @property {PirAction['actionType']} actionType
- * @property {any} response
+ * @property {unknown} response
  * @property {import("./actions/extract").Action[]} [next]
  * @property {Record<string, any>} [meta] - optional meta data
  */
