@@ -1039,7 +1039,7 @@ export function isDuckAiSidebar() {
  * @template {object} C
  * @param {D} defaults - The default values
  * @param {C} config - The config to merge (may be partial or undefined)
- * @returns {any}
+ * @returns {D & C}
  */
 export function withDefaults(defaults, config) {
     // If config is undefined, use defaults
