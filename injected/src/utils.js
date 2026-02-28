@@ -578,7 +578,7 @@ const DEBUG_MAX_TIMES = 5000;
 
 /**
  * @param {string} feature
- * @param {Record<string, any>} message
+ * @param {Record<string, unknown>} message
  * @param {boolean} [allowNonDebug]
  */
 export function postDebugMessage(feature, message, allowNonDebug = false) {
@@ -588,7 +588,7 @@ export function postDebugMessage(feature, message, allowNonDebug = false) {
     if (numberOfTimesDebugged(feature) > DEBUG_MAX_TIMES) {
         return;
     }
-    if (message.stack) {
+    if (typeof message.stack === 'string') {
         const scriptOrigins = [...getStackTraceOrigins(message.stack)];
         message.scriptOrigins = scriptOrigins;
     }
@@ -959,7 +959,7 @@ export function legacySendMessage(messageType, options) {
 
 /**
  * Takes a function that returns an element and tries to execute it until it returns a valid result or the max attempts are reached.
- * @param {() => any} fn - Function to try executing
+ * @param {() => (Element | HTMLElement | null | undefined)} fn - Function to try executing
  * @param {number} [maxAttempts=4] - The maximum number of attempts to find the element.
  * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
  * @param {string} [strategy='exponential'] - The retry strategy
