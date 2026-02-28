@@ -28,7 +28,7 @@ const getCaptchaContainer = (root, selector) => {
  * Returns the supporting code to inject for the given captcha type
  *
  * @param {import('../types.js').PirAction} action
- * @return {import('../types.js').ActionResponse}
+ * @return {import('../types.js').ActionResponse<Record<string, unknown>>}
  */
 export function getSupportingCodeToInject(action) {
     const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;

@@ -1,5 +1,6 @@
 /**
- * @typedef {SuccessResponse | ErrorResponse} ActionResponse
+ * @template [T=unknown]
+ * @typedef {SuccessResponse<T> | ErrorResponse} ActionResponse
  * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
  * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string; failSilently?: boolean}} Expectation
  */
@@ -131,28 +132,31 @@ export class ErrorResponse {
 }
 
 /**
+ * @template [T=unknown]
  * @typedef {object} SuccessResponseInterface
  * @property {PirAction['id']} actionID
  * @property {PirAction['actionType']} actionType
- * @property {unknown} response
+ * @property {T} response
  * @property {import("./actions/extract").Action[]} [next]
  * @property {Record<string, unknown>} [meta] - optional meta data
  */
 
 /**
  * Represents success, `response` can contain other complex types
+ * @template [T=unknown]
  */
 export class SuccessResponse {
     /**
-     * @param {SuccessResponseInterface} params
+     * @param {SuccessResponseInterface<T>} params
      */
     constructor(params) {
         this.success = params;
     }
 
     /**
-     * @param {SuccessResponseInterface} params
-     * @return {SuccessResponse}
+     * @template U
+     * @param {SuccessResponseInterface<U>} params
+     * @return {SuccessResponse<U>}
      * @static
      * @memberof SuccessResponse
      */

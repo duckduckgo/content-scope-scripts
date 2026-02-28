@@ -23,8 +23,8 @@ export function navigate(action, userData) {
     }
 
     const response = {
-        .../** @type {Record<string, unknown>} */ (urlResult.success.response),
-        .../** @type {Record<string, unknown>} */ (codeToInjectResponse.success.response),
+        ...urlResult.success.response,
+        ...codeToInjectResponse.success.response,
     };
 
     return new SuccessResponse({ actionID, actionType, response });
