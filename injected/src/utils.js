@@ -775,6 +775,7 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
  * @param {string[]} userList
  * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
+ * @returns {Record<string, any>}
  */
 export function processConfig(data, userList, preferences, platformSpecificFeatures = []) {
     const topLevelHostname = getTabHostname();
