@@ -9,11 +9,11 @@ function review(login, state, id = 1) {
 function makeGitHub(reviews, { memberOf = [] } = {}) {
     const listReviews = mock.fn();
     return {
-        paginate: mock.fn(async (_endpoint, _params) => reviews),
+        paginate: mock.fn((_endpoint, _params) => Promise.resolve(reviews)),
         rest: { pulls: { listReviews } },
-        request: mock.fn(async (_route, opts) => {
-            if (memberOf.includes(opts.team_slug)) return { data: { state: 'active' } };
-            throw Object.assign(new Error('Not Found'), { status: 404 });
+        request: mock.fn((_route, opts) => {
+            if (memberOf.includes(opts.team_slug)) return Promise.resolve({ data: { state: 'active' } });
+            return Promise.reject(Object.assign(new Error('Not Found'), { status: 404 }));
         }),
     };
 }
