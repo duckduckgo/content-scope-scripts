@@ -943,7 +943,7 @@ export function createCustomEvent(eventName, eventDetail) {
 /**
  * @deprecated
  * @param {string} messageType
- * @param {any} options
+ * @param {unknown} options
  */
 export function legacySendMessage(messageType, options) {
     // FF & Chrome
