@@ -309,7 +309,7 @@ export default class ContentFeature extends ConfigFeature {
      * If the value is not an object, return the value.
      * If the value is an object, check its type property.
      * @param {string} attrName
-     * @param {any} defaultValue - The default value to use if the config setting is not set
+     * @param {unknown} defaultValue - The default value to use if the config setting is not set
      * @returns The value of the config setting or the default value
      */
     getFeatureAttr(attrName, defaultValue) {
