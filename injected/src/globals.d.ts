@@ -29,6 +29,14 @@ interface ImportMeta {
     pageName?: string;
 }
 
+interface TrustedTypesPolicy {
+    createHTML(input: string): string;
+}
+
+interface TrustedTypePolicyFactory {
+    createPolicy(name: string, rules: { createHTML: (s: string) => string }): TrustedTypesPolicy;
+}
+
 declare module '*.svg' {
     const content: string;
     export default content;
