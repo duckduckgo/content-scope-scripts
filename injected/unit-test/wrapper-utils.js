@@ -347,7 +347,6 @@ describe('wrapFunction', () => {
         const wrapped = wrapFunction(function (/** @type {number} */ a, /** @type {number} */ b) {
             return real(a, b) * 2;
         }, real);
-        // @ts-expect-error - proxy is callable via apply trap
         expect(wrapped(2, 3)).toBe(10); // (2+3)*2
     });
 
