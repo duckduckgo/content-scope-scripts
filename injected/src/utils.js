@@ -808,13 +808,37 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
 }
 
 /**
- * Extract the properties needed for the load() function from processedConfig.
+ * Extract LoadArgs properties from processedConfig.
  * @param {Record<string, any>} processedConfig
  * @returns {import('./content-scope-features.js').LoadArgs}
  */
 export function getLoadArgs(processedConfig) {
-    const { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts } = processedConfig;
-    return { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts };
+    const {
+        platform,
+        site,
+        bundledConfig,
+        messagingConfig,
+        messageSecret,
+        messagingContextName,
+        currentCohorts,
+        debug,
+        featureSettings,
+        assets,
+        stringExemptionLists,
+    } = processedConfig;
+    return {
+        platform,
+        site,
+        bundledConfig,
+        messagingConfig,
+        messageSecret,
+        messagingContextName,
+        currentCohorts,
+        debug,
+        featureSettings,
+        assets,
+        stringExemptionLists,
+    };
 }
 
 /**

@@ -23,7 +23,7 @@ function initCode() {
 
     load(getLoadArgs(processedConfig));
 
-    init(/** @type {import('../src/content-scope-features.js').LoadArgs} */ (processedConfig));
+    init(getLoadArgs(processedConfig));
 
     // Not supported:
     // update(message)
