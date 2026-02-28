@@ -363,7 +363,7 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * @param {any} [_args]
+     * @param {unknown} [_args]
      */
     load(_args) {}
 
