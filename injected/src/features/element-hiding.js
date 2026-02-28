@@ -395,9 +395,9 @@ export default class ElementHiding extends ContentFeature {
         }
 
         // collect all matching rules for domain
-        /** @type {(import('../config-feature.js').ConditionalSettingEntry & {rules?: ElementHidingRule[]})[]} */
-        const domainEntries = this.matchConditionalFeatureSetting('domains');
-        const activeDomainRules = domainEntries.flatMap((item) => item.rules || []);
+        const activeDomainRules = this.matchConditionalFeatureSetting('domains').flatMap((item) => {
+            return Array.isArray(item.rules) ? /** @type {ElementHidingRule[]} */ (item.rules) : [];
+        });
 
         const overrideRules = activeDomainRules.filter(/** @returns {rule is ElementHidingRuleHide} */ (rule) => rule.type === 'override');
 
