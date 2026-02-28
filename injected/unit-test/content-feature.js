@@ -1210,7 +1210,7 @@ describe('ContentFeature class', () => {
                  * @param {Record<string, any>} [features={}]
                  */
                 constructor(features = {}) {
-                    super(name, {}, features, {});
+                    super(name, {}, features, /** @type {any} */ ({}));
                     // Add methods to instance
                     for (const [methodName, fn] of Object.entries(methods)) {
                         this[methodName] = fn.bind(this);
@@ -1382,7 +1382,7 @@ describe('ContentFeature class', () => {
             it('should maintain correct this context when calling target method', async () => {
                 class TargetFeature extends ContentFeature {
                     constructor() {
-                        super('targetFeature', {}, {}, {});
+                        super('targetFeature', {}, {}, /** @type {any} */ ({}));
                         this._exposedMethods = this._declareExposedMethods(['getFeatureName']);
                         this.customProperty = 'custom value';
                     }
@@ -1440,7 +1440,7 @@ describe('ContentFeature class', () => {
                 it('should return error if target feature init throws an error', async () => {
                     class FailingFeature extends ContentFeature {
                         constructor() {
-                            super('failingFeature', {}, {}, {});
+                            super('failingFeature', {}, {}, /** @type {any} */ ({}));
                             this._exposedMethods = this._declareExposedMethods(['someMethod']);
                         }
                         init() {
