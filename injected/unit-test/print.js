@@ -26,12 +26,12 @@ describe('Print feature', () => {
             'print',
             {},
             {},
-            {
+            /** @type {any} */ ({
                 site: {
                     domain: 'example.com',
                     url: 'http://example.com',
                 },
-            },
+            }),
         );
 
         // Mock the notify method
