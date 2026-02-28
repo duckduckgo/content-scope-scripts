@@ -90,9 +90,7 @@ export function trustedUnsafe(string) {
  * @return {{createHTML: (s: string) => string}}
  */
 export function createPolicy() {
-    const trustedTypes = /** @type {TrustedTypesLike | undefined} */ (
-        /** @type {{trustedTypes?: unknown}} */ (globalThis).trustedTypes
-    );
+    const trustedTypes = /** @type {TrustedTypesLike | undefined} */ (/** @type {{trustedTypes?: unknown}} */ (globalThis).trustedTypes);
     if (trustedTypes?.createPolicy) {
         return trustedTypes.createPolicy('ddg-default', { createHTML: (s) => s });
     }

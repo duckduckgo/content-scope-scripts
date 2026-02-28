@@ -313,7 +313,7 @@ describe('content-scope-features additionalCheck conditional', () => {
 
             const disabledFeature = new MockFeature('testFeature', {}, disabledArgs);
             disabledFeature.callLoad();
-            await disabledFeature.callInit(disabledArgs);
+            await disabledFeature.callInit(/** @type {any} */ (disabledArgs));
 
             expect(disabledFeature.loadCalled).toBe(false); // Should not load
             expect(disabledFeature.initCalled).toBe(false); // Should not init
@@ -346,7 +346,7 @@ describe('content-scope-features additionalCheck conditional', () => {
 
             const enabledFeature = new MockFeature('testFeature', {}, enabledArgs);
             enabledFeature.callLoad();
-            await enabledFeature.callInit(enabledArgs);
+            await enabledFeature.callInit(/** @type {any} */ (enabledArgs));
 
             expect(enabledFeature.loadCalled).toBe(true); // Should load
             expect(enabledFeature.initCalled).toBe(true); // Should init

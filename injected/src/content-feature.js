@@ -329,7 +329,7 @@ export default class ContentFeature extends ConfigFeature {
     init(_args) {}
 
     /**
-     * @param {object} args
+     * @param {import('./content-scope-features.js').LoadArgs} args
      */
     async callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
