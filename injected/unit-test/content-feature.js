@@ -1,5 +1,18 @@
 import ContentFeature, { CallFeatureMethodError } from '../src/content-feature.js';
 
+/**
+ * @param {Partial<import('../src/content-scope-features.js').LoadArgs>} [overrides]
+ * @returns {import('../src/content-scope-features.js').LoadArgs}
+ */
+function testArgs(overrides = {}) {
+    return {
+        site: { domain: 'example.com', url: 'https://example.com' },
+        platform: /** @type {import('../src/utils.js').Platform} */ ({ name: 'extension' }),
+        messagingContextName: 'test',
+        ...overrides,
+    };
+}
+
 describe('ContentFeature class', () => {
     class BaseTestFeature extends ContentFeature {
         constructor(featureName, importConfig, args) {
@@ -78,7 +91,7 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature('test', {}, args);
-        me.callInit(/** @type {any} */ (args));
+        me.callInit(testArgs(args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -196,7 +209,7 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature2('test', {}, args);
-        me.callInit(/** @type {any} */ (args));
+        me.callInit(testArgs(args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -304,7 +317,7 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature3('test', {}, args);
-        me.callInit(/** @type {any} */ (args));
+        me.callInit(testArgs(args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
     it('Should respect minSupportedVersion as a condition', () => {
@@ -322,9 +335,10 @@ describe('ContentFeature class', () => {
                 domain: 'example.com',
                 url: 'http://example.com',
             },
-            platform: {
+            platform: /** @type {import('../src/utils.js').Platform} */ ({
+                name: 'extension',
                 version: '1.1.0',
-            },
+            }),
             bundledConfig: {
                 features: {
                     test: {
@@ -368,7 +382,7 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature3('test', {}, args);
-        me.callInit(/** @type {any} */ (args));
+        me.callInit(testArgs(args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -387,9 +401,10 @@ describe('ContentFeature class', () => {
                 domain: 'example.com',
                 url: 'http://example.com',
             },
-            platform: {
+            platform: /** @type {import('../src/utils.js').Platform} */ ({
+                name: 'extension',
                 version: '1.1.0',
-            },
+            }),
             bundledConfig: {
                 features: {
                     test: {
@@ -429,11 +444,12 @@ describe('ContentFeature class', () => {
                         },
                     },
                 },
+                unprotectedTemporary: [],
             },
         };
 
         const me = new MyTestFeature4('test', {}, args);
-        me.callInit(/** @type {any} */ (args));
+        me.callInit(testArgs(args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -1210,7 +1226,7 @@ describe('ContentFeature class', () => {
                  * @param {Record<string, any>} [features={}]
                  */
                 constructor(features = {}) {
-                    super(name, {}, features, /** @type {any} */ ({}));
+                    super(name, {}, features, testArgs());
                     // Add methods to instance
                     for (const [methodName, fn] of Object.entries(methods)) {
                         this[methodName] = fn.bind(this);
@@ -1294,7 +1310,7 @@ describe('ContentFeature class', () => {
 
                 const targetFeature = new TargetFeature();
                 if (initFeature) {
-                    await targetFeature.callInit(/** @type {any} */ ({}));
+                    await targetFeature.callInit(testArgs());
                 }
                 const features = { targetFeature };
 
@@ -1367,9 +1383,9 @@ describe('ContentFeature class', () => {
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const featureA = new FeatureA();
-                featureA.callInit(/** @type {any} */ ({}));
+                featureA.callInit(testArgs());
                 const featureB = new FeatureB();
-                featureB.callInit(/** @type {any} */ ({}));
+                featureB.callInit(testArgs());
                 const features = { featureA, featureB };
                 const callerFeature = new CallerFeature(features);
 
@@ -1382,7 +1398,7 @@ describe('ContentFeature class', () => {
             it('should maintain correct this context when calling target method', async () => {
                 class TargetFeature extends ContentFeature {
                     constructor() {
-                        super('targetFeature', {}, {}, /** @type {any} */ ({}));
+                        super('targetFeature', {}, {}, testArgs());
                         this._exposedMethods = this._declareExposedMethods(['getFeatureName']);
                         this.customProperty = 'custom value';
                     }
@@ -1393,7 +1409,7 @@ describe('ContentFeature class', () => {
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const targetFeature = new TargetFeature();
-                targetFeature.callInit(/** @type {any} */ ({}));
+                targetFeature.callInit(testArgs());
                 const features = { targetFeature };
                 const callerFeature = new CallerFeature(features);
 
@@ -1416,7 +1432,7 @@ describe('ContentFeature class', () => {
                     expect(targetMethod).not.toHaveBeenCalled();
 
                     // Initialize the feature
-                    targetFeature.callInit(/** @type {any} */ ({}));
+                    targetFeature.callInit(testArgs());
 
                     // Now await the result
                     const result = await resultPromise;
@@ -1440,7 +1456,7 @@ describe('ContentFeature class', () => {
                 it('should return error if target feature init throws an error', async () => {
                     class FailingFeature extends ContentFeature {
                         constructor() {
-                            super('failingFeature', {}, {}, /** @type {any} */ ({}));
+                            super('failingFeature', {}, {}, testArgs());
                             this._exposedMethods = this._declareExposedMethods(['someMethod']);
                         }
                         init() {
@@ -1460,7 +1476,7 @@ describe('ContentFeature class', () => {
                     const resultPromise = callerFeature.callFeatureMethod('failingFeature', 'someMethod');
 
                     // Try to initialize (this will throw)
-                    await expectAsync(failingFeature.callInit(/** @type {any} */ ({}))).toBeRejectedWithError('init failed');
+                    await expectAsync(failingFeature.callInit(testArgs())).toBeRejectedWithError('init failed');
 
                     // The callFeatureMethod should return an error (not reject)
                     const result = await resultPromise;
@@ -1487,7 +1503,7 @@ describe('ContentFeature class', () => {
                     expect(targetMethod).not.toHaveBeenCalled();
 
                     // Initialize the feature
-                    targetFeature.callInit(/** @type {any} */ ({}));
+                    targetFeature.callInit(testArgs());
 
                     // Both should resolve
                     const [result1, result2] = await Promise.all([promise1, promise2]);

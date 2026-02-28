@@ -288,7 +288,8 @@ describe('content-scope-features additionalCheck conditional', () => {
             // Test case 1: additionalCheck disabled
             const disabledArgs = {
                 site: { domain: 'blocked-site.com', url: 'http://blocked-site.com' },
-                platform: { name: 'test' },
+                platform: /** @type {import('../src/utils.js').Platform} */ ({ name: 'extension' }),
+                messagingContextName: 'test',
                 bundledConfig: {
                     features: {
                         testFeature: {
@@ -313,7 +314,7 @@ describe('content-scope-features additionalCheck conditional', () => {
 
             const disabledFeature = new MockFeature('testFeature', {}, disabledArgs);
             disabledFeature.callLoad();
-            await disabledFeature.callInit(/** @type {any} */ (disabledArgs));
+            await disabledFeature.callInit(disabledArgs);
 
             expect(disabledFeature.loadCalled).toBe(false); // Should not load
             expect(disabledFeature.initCalled).toBe(false); // Should not init
@@ -321,7 +322,8 @@ describe('content-scope-features additionalCheck conditional', () => {
             // Test case 2: additionalCheck enabled
             const enabledArgs = {
                 site: { domain: 'trusted-site.com', url: 'http://trusted-site.com' },
-                platform: { name: 'test' },
+                platform: /** @type {import('../src/utils.js').Platform} */ ({ name: 'extension' }),
+                messagingContextName: 'test',
                 bundledConfig: {
                     features: {
                         testFeature: {
@@ -346,7 +348,7 @@ describe('content-scope-features additionalCheck conditional', () => {
 
             const enabledFeature = new MockFeature('testFeature', {}, enabledArgs);
             enabledFeature.callLoad();
-            await enabledFeature.callInit(/** @type {any} */ (enabledArgs));
+            await enabledFeature.callInit(enabledArgs);
 
             expect(enabledFeature.loadCalled).toBe(true); // Should load
             expect(enabledFeature.initCalled).toBe(true); // Should init
