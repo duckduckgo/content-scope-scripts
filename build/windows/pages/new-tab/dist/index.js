@@ -30108,7 +30108,7 @@
   // pages/new-tab/app/telemetry/telemetry.js
   var _Telemetry = class _Telemetry {
     eventTarget = new EventTarget();
-    /** @type {any[]} */
+    /** @type {Record<string, unknown>[]} */
     eventStore = [];
     storeEnabled = false;
     /**

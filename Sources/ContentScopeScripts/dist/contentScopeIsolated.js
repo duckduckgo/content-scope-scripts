@@ -4917,7 +4917,7 @@
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
-     * @return {any[]}
+     * @return {ConditionalSettingEntry[]}
      * @protected
      */
     matchConditionalFeatureSetting(featureKeyName) {
@@ -5315,7 +5315,7 @@
        *
        * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
        *
-       * @type {ExposeMethods<any> | undefined}
+       * @type {ExposeMethods<string> | undefined}
        */
       __publicField(this, "_exposedMethods");
       this.setArgs(this.args);
@@ -5905,7 +5905,10 @@
         try {
           assertCustomEvent(evt);
           if (evt.detail.kind === MSG_NAME_SET_VALUES) {
-            return this.setUserValues(evt.detail.data).then((updated) => respond(MSG_NAME_PUSH_DATA, updated)).catch(console.error);
+            return this.setUserValues(
+              /** @type {import("../duck-player.js").UserValues} */
+              evt.detail.data
+            ).then((updated) => respond(MSG_NAME_PUSH_DATA, updated)).catch(console.error);
           }
           if (evt.detail.kind === MSG_NAME_READ_VALUES_SERP) {
             return this.getUserValues().then((updated) => respond(MSG_NAME_PUSH_DATA, updated)).catch(console.error);
@@ -5922,7 +5925,11 @@
   };
   function assertCustomEvent(event) {
     if (!("detail" in event)) throw new Error("none-custom event");
-    if (typeof event.detail.kind !== "string") throw new Error("custom event requires detail.kind to be a string");
+    const detail = (
+      /** @type {{kind: unknown}} */
+      event.detail
+    );
+    if (typeof detail.kind !== "string") throw new Error("custom event requires detail.kind to be a string");
   }
   var Pixel = class {
     /**

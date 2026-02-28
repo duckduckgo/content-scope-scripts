@@ -4169,7 +4169,7 @@
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
-     * @return {any[]}
+     * @return {ConditionalSettingEntry[]}
      * @protected
      */
     matchConditionalFeatureSetting(featureKeyName) {
@@ -4567,7 +4567,7 @@
        *
        * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
        *
-       * @type {ExposeMethods<any> | undefined}
+       * @type {ExposeMethods<string> | undefined}
        */
       __publicField(this, "_exposedMethods");
       this.setArgs(this.args);
@@ -6937,7 +6937,12 @@
       if (shouldInjectStyleTag) {
         shouldInjectStyleTag = this.matchConditionalFeatureSetting("styleTagExceptions").length === 0;
       }
-      const activeDomainRules = this.matchConditionalFeatureSetting("domains").flatMap((item) => item.rules);
+      const activeDomainRules = this.matchConditionalFeatureSetting("domains").flatMap((item) => {
+        return (
+          /** @type {ElementHidingRule[]} */
+          item.rules || []
+        );
+      });
       const overrideRules = activeDomainRules.filter((rule) => {
         return rule.type === "override";
       });
