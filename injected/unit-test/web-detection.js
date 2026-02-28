@@ -35,7 +35,7 @@ function runDetectorsInEnv(detectorsConfig, env = {}) {
             bundledConfig: undefined,
             messagingContextName: 'test',
         };
-        const instance = new WebDetection('webDetection', /** @type {any} */ (undefined), {}, args);
+        const instance = new WebDetection('webDetection', {}, {}, args);
         instance.init();
         return instance.runDetectors({ trigger: 'breakageReport' });
     } finally {
