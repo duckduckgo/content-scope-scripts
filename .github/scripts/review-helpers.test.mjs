@@ -6,7 +6,7 @@ function review(login, state, id = 1) {
     return { id, state, user: { login } };
 }
 
-function makeGitHub(reviews, { memberOf = [] } = {}) {
+function makeGitHub(reviews, { memberOf = /** @type {string[]} */ ([]) } = {}) {
     const listReviews = mock.fn();
     return {
         paginate: mock.fn((_endpoint, _params) => Promise.resolve(reviews)),
