@@ -808,11 +808,22 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
 }
 
 /**
- * Extract LoadArgs properties from processedConfig.
+ * Extract the minimal properties needed for load() to construct feature instances.
  * @param {Record<string, any>} processedConfig
  * @returns {import('./content-scope-features.js').LoadArgs}
  */
 export function getLoadArgs(processedConfig) {
+    const { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts } = processedConfig;
+    return { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts };
+}
+
+/**
+ * Extract all LoadArgs properties for init(). init() stores these as the feature's
+ * runtime args (this.args), so it gets the full set including debug, featureSettings, etc.
+ * @param {Record<string, any>} processedConfig
+ * @returns {import('./content-scope-features.js').LoadArgs}
+ */
+export function getInitArgs(processedConfig) {
     const {
         platform,
         site,

@@ -2,7 +2,7 @@
  * @module Windows integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig, platformSpecificFeatures, getLoadArgs } from './../src/utils';
+import { processConfig, platformSpecificFeatures, getLoadArgs, getInitArgs } from './../src/utils';
 import { WindowsMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -28,7 +28,7 @@ function initCode() {
 
     load(getLoadArgs(processedConfig));
 
-    init(getLoadArgs(processedConfig));
+    init(getInitArgs(processedConfig));
 
     // Not supported:
     // update(message)
