@@ -82,12 +82,19 @@ export function trustedUnsafe(string) {
 }
 
 /**
+ * @typedef {{ createPolicy?: (name: string, rules: {createHTML: (s: string) => string}) => {createHTML: (s: string) => string} }} TrustedTypesLike
+ */
+
+/**
  * Use a policy if trustedTypes is available
- * @return {{createHTML: (s: string) => any}}
+ * @return {{createHTML: (s: string) => string}}
  */
 export function createPolicy() {
-    if (/** @type {any} */ (globalThis).trustedTypes) {
-        return /** @type {any} */ (globalThis).trustedTypes?.createPolicy?.('ddg-default', { createHTML: (/** @type {string} */ s) => s });
+    const trustedTypes = /** @type {TrustedTypesLike | undefined} */ (
+        /** @type {{trustedTypes?: unknown}} */ (globalThis).trustedTypes
+    );
+    if (trustedTypes?.createPolicy) {
+        return trustedTypes.createPolicy('ddg-default', { createHTML: (s) => s });
     }
     return {
         createHTML: (s) => s,
