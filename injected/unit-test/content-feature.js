@@ -78,7 +78,7 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature('test', {}, args);
-        me.callInit(args);
+        me.callInit(/** @type {any} */ (args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -196,7 +196,7 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature2('test', {}, args);
-        me.callInit(args);
+        me.callInit(/** @type {any} */ (args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -304,7 +304,7 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature3('test', {}, args);
-        me.callInit(args);
+        me.callInit(/** @type {any} */ (args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
     it('Should respect minSupportedVersion as a condition', () => {
@@ -368,7 +368,7 @@ describe('ContentFeature class', () => {
             },
         };
         const me = new MyTestFeature3('test', {}, args);
-        me.callInit(args);
+        me.callInit(/** @type {any} */ (args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -433,7 +433,7 @@ describe('ContentFeature class', () => {
         };
 
         const me = new MyTestFeature4('test', {}, args);
-        me.callInit(args);
+        me.callInit(/** @type {any} */ (args));
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
@@ -1294,7 +1294,7 @@ describe('ContentFeature class', () => {
 
                 const targetFeature = new TargetFeature();
                 if (initFeature) {
-                    await targetFeature.callInit({});
+                    await targetFeature.callInit(/** @type {any} */ ({}));
                 }
                 const features = { targetFeature };
 
@@ -1367,9 +1367,9 @@ describe('ContentFeature class', () => {
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const featureA = new FeatureA();
-                featureA.callInit({});
+                featureA.callInit(/** @type {any} */ ({}));
                 const featureB = new FeatureB();
-                featureB.callInit({});
+                featureB.callInit(/** @type {any} */ ({}));
                 const features = { featureA, featureB };
                 const callerFeature = new CallerFeature(features);
 
@@ -1393,7 +1393,7 @@ describe('ContentFeature class', () => {
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const targetFeature = new TargetFeature();
-                targetFeature.callInit({});
+                targetFeature.callInit(/** @type {any} */ ({}));
                 const features = { targetFeature };
                 const callerFeature = new CallerFeature(features);
 
@@ -1416,7 +1416,7 @@ describe('ContentFeature class', () => {
                     expect(targetMethod).not.toHaveBeenCalled();
 
                     // Initialize the feature
-                    targetFeature.callInit({});
+                    targetFeature.callInit(/** @type {any} */ ({}));
 
                     // Now await the result
                     const result = await resultPromise;
@@ -1460,7 +1460,7 @@ describe('ContentFeature class', () => {
                     const resultPromise = callerFeature.callFeatureMethod('failingFeature', 'someMethod');
 
                     // Try to initialize (this will throw)
-                    await expectAsync(failingFeature.callInit({})).toBeRejectedWithError('init failed');
+                    await expectAsync(failingFeature.callInit(/** @type {any} */ ({}))).toBeRejectedWithError('init failed');
 
                     // The callFeatureMethod should return an error (not reject)
                     const result = await resultPromise;
@@ -1487,7 +1487,7 @@ describe('ContentFeature class', () => {
                     expect(targetMethod).not.toHaveBeenCalled();
 
                     // Initialize the feature
-                    targetFeature.callInit({});
+                    targetFeature.callInit(/** @type {any} */ ({}));
 
                     // Both should resolve
                     const [result1, result2] = await Promise.all([promise1, promise2]);

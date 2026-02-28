@@ -329,9 +329,10 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
         }
     }
 
+    const implObj = /** @type {object} */ (implInstance);
     // mask toString() and toString.toString() on the instance
-    const proxiedInstance = new Proxy(implInstance, {
-        get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`),
+    const proxiedInstance = new Proxy(implObj, {
+        get: toStringGetTrap(implObj, `[object ${ImplClass.name}]`),
     });
 
     /** @type {StrictPropertyDescriptor} */
@@ -344,9 +345,11 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
         const getter = function get() {
             return proxiedInstance;
         };
-        const proxiedGetter = new Proxy(getter, {
-            get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
-        });
+        const proxiedGetter = /** @type {() => any} */ (
+            new Proxy(getter, {
+                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
+            })
+        );
         descriptor = {
             configurable: true,
             enumerable: true,
