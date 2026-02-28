@@ -167,7 +167,7 @@ function createMessagingInterface(featureName, send, appendToken, context) {
 
         /**
          * @param {string} name
-         * @param {(d: any) => void} callback
+         * @param {(d: unknown) => void} callback
          * @returns {() => void}
          */
         subscribe(name, callback) {
