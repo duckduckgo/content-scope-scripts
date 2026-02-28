@@ -958,7 +958,7 @@ export function legacySendMessage(messageType, options) {
 
 /**
  * Takes a function that returns an element and tries to execute it until it returns a valid result or the max attempts are reached.
- * @param {() => any} fn - Function to try executing
+ * @param {() => unknown} fn - Function to try executing
  * @param {number} [maxAttempts=4] - The maximum number of attempts to find the element.
  * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
  * @param {string} [strategy='exponential'] - The retry strategy
