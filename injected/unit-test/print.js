@@ -26,12 +26,14 @@ describe('Print feature', () => {
             'print',
             {},
             {},
-            /** @type {any} */ ({
+            {
                 site: {
                     domain: 'example.com',
                     url: 'http://example.com',
                 },
-            }),
+                platform: /** @type {import('../src/utils.js').Platform} */ ({ name: 'extension' }),
+                messagingContextName: 'test',
+            },
         );
 
         // Mock the notify method
