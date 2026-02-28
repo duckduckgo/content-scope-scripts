@@ -113,7 +113,7 @@ export function wrapFunction(functionValue, realTarget) {
 
 /**
  * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
- * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
+ * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
  * @param {string} propertyName
  * @param {Partial<PropertyDescriptor>} descriptor
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
