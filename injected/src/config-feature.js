@@ -139,6 +139,7 @@ export default class ConfigFeature {
             if (condition === undefined && rule.domain !== undefined) {
                 condition = this._domainToConditonBlocks(rule.domain);
             }
+            if (condition === undefined) return true;
             return this._matchConditionalBlockOrArray(condition);
         });
     }
@@ -158,12 +159,10 @@ export default class ConfigFeature {
 
     /**
      * Takes multiple conditional blocks and returns true if any apply.
-     * When conditionBlock is undefined (no condition specified), the rule always matches.
-     * @param {ConditionBlockOrArray | undefined} conditionBlock
+     * @param {ConditionBlockOrArray} conditionBlock
      * @returns {boolean}
      */
     _matchConditionalBlockOrArray(conditionBlock) {
-        if (conditionBlock === undefined) return true;
         if (Array.isArray(conditionBlock)) {
             return conditionBlock.some((block) => this._matchConditionalBlock(block));
         }
