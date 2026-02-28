@@ -6,7 +6,7 @@ import { ErrorResponse, SuccessResponse } from '../types.js';
  *
  * @param action
  * @param {Record<string, any>} userData
- * @return {import('../types.js').ActionResponse}
+ * @return {import('../types.js').ActionResponse<{url: string}>}
  */
 export function buildUrl(action, userData) {
     const result = replaceTemplatedUrl(action, userData);
