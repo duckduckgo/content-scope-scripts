@@ -29,7 +29,7 @@ function initCode() {
 
     load(getLoadArgs(processedConfig));
 
-    init(processedConfig);
+    init(/** @type {import('../src/content-scope-features.js').LoadArgs} */ (processedConfig));
 }
 
 initCode();
