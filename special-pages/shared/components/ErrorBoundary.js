@@ -3,7 +3,7 @@ import { Component } from 'preact';
 /**
  * @typedef {{
  *   fallback: import("preact").ComponentChild,
- *   didCatch: (params: {error: Error; message: string, info: any}) => void,
+ *   didCatch: (params: {error: Error; message: string, info: import("preact").ErrorInfo}) => void,
  *   context?: string;
  * }} Props
  *
