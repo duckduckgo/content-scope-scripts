@@ -502,7 +502,7 @@ export default class ContentFeature extends ConfigFeature {
 
     /**
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
+     * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
      * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
