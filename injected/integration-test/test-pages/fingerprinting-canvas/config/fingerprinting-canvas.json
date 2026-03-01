@@ -1,0 +1,14 @@
+{
+    "readme": "This config is used to test the fingerprinting canvas feature which modifies canvas output.",
+    "version": 1,
+    "features": {
+        "fingerprintingCanvas": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "additionalEnabledCheck": "enabled"
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

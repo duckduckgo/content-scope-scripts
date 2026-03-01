@@ -62,7 +62,7 @@ export class SendMessageMessagingTransport {
     /**
      * Callback for update() handler. This connects messages sent from the Platform
      * with callback functions in the _queue.
-     * @param {any} response
+     * @param {unknown} response
      */
     onResponse(response) {
         this._queue.forEach((subscription) => subscription(response));
@@ -93,6 +93,7 @@ export class SendMessageMessagingTransport {
      * @return {Promise<any>}
      */
     request(req) {
+        /** @type {(eventData: any) => boolean} */
         let comparator = (eventData) => {
             return eventData.responseMessageType === req.method;
         };
@@ -128,12 +129,14 @@ export class SendMessageMessagingTransport {
      * @param {(value: unknown | undefined) => void} callback
      */
     subscribe(msg, callback) {
+        /** @type {(eventData: any) => boolean} */
         const comparator = (eventData) => {
             return eventData.messageType === msg.subscriptionName || eventData.responseMessageType === msg.subscriptionName;
         };
 
         // only forward the 'params' ('response' in current format), to match expected
         // callback from a SubscriptionEvent
+        /** @type {(eventData: any) => void} */
         const cb = (eventData) => {
             return callback(eventData.response);
         };

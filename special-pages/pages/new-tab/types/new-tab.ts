@@ -117,7 +117,8 @@ export type RMFIcon =
   | "Radar"
   | "RadarCheckGreen"
   | "RadarCheckPurple"
-  | "Subscription";
+  | "Subscription"
+  | "VeryCriticalUpdate";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature

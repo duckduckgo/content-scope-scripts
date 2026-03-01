@@ -85,6 +85,8 @@ describe('test-pages/*/config/*.json schema validation', () => {
         // Message bridge configs
         path.resolve(__dirname, '../integration-test/test-pages/message-bridge/config/message-bridge-enabled.json'),
         path.resolve(__dirname, '../integration-test/test-pages/message-bridge/config/message-bridge-disabled.json'),
+        // Legacy conditionalChanges format (domain at root instead of condition.domain)
+        path.resolve(__dirname, '../integration-test/test-pages/ua-ch-brands/config/domain-brand-override-legacy.json'),
     ];
     for (const configPath of configFiles) {
         if (legacyAllowlist.includes(configPath)) {

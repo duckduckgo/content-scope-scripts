@@ -9,6 +9,23 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MessagingTransport, MissingHandler } from '../index.js';
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
+import { ensureNavigatorDuckDuckGo } from '../../injected/src/navigator-global.js';
+import {
+    TextDecoder as _TextDecoder,
+    Uint8Array as _Uint8Array,
+    Uint32Array as _Uint32Array,
+    JSONparse,
+    Arrayfrom,
+    Promise as _Promise,
+    Error as _Error,
+    ReflectDeleteProperty,
+    objectDefineProperty,
+    getRandomValues,
+    generateKey,
+    exportKey,
+    importKey,
+    decrypt,
+} from '../../injected/src/captured-globals.js';
 
 /**
  * @example
@@ -23,16 +40,16 @@ import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
  * ```
  *
  * @example
- * On macOS 10 however, the process is a little more involved. A method will be appended to `window`
- * that allows the response to be delivered there instead. It's not exactly this, but you can visualize the flow
- * as being something along the lines of:
+ * On macOS 10 however, the process is a little more involved. A method will be appended to
+ * `navigator.duckduckgo.messageHandlers` that allows the response to be delivered there instead.
+ * It's not exactly this, but you can visualize the flow as being something along the lines of:
  *
  * ```js
- * // add the window method
- * window["_0123456"] = (response) => {
+ * // add the callback method to navigator.duckduckgo.messageHandlers
+ * navigator.duckduckgo.messageHandlers["_0123456"] = (response) => {
  *    // decrypt `response` and deliver the result to the caller here
  *    // then remove the temporary method
- *    delete window['_0123456']
+ *    delete navigator.duckduckgo.messageHandlers['_0123456']
  * };
  *
  * // send the data + `messageHanding` values
@@ -48,7 +65,7 @@ import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
  *
  * // later in swift, the following JavaScript snippet will be executed
  * (() => {
- *   window['_0123456']({
+ *   navigator.duckduckgo.messageHandlers['_0123456']({
  *     ciphertext: [12, 13, 4],
  *     tag: [3, 5, 67, 56]
  *   })
@@ -57,6 +74,9 @@ import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
  * @implements {MessagingTransport}
  */
 export class WebkitMessagingTransport {
+    /** @type {Record<string, any>} */
+    capturedWebkitHandlers = {};
+
     /**
      * @param {WebkitMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext
@@ -64,7 +84,6 @@ export class WebkitMessagingTransport {
     constructor(config, messagingContext) {
         this.messagingContext = messagingContext;
         this.config = config;
-        this.globals = captureGlobals();
         if (!this.config.hasModernWebkitAPI) {
             this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
         }
@@ -77,7 +96,7 @@ export class WebkitMessagingTransport {
      * @internal
      */
     wkSend(handler, data = {}) {
-        if (!(handler in this.globals.window.webkit.messageHandlers)) {
+        if (!(handler in window.webkit.messageHandlers)) {
             throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
         }
         if (!this.config.hasModernWebkitAPI) {
@@ -88,13 +107,13 @@ export class WebkitMessagingTransport {
                     secret: this.config.secret,
                 },
             };
-            if (!(handler in this.globals.capturedWebkitHandlers)) {
+            if (!(handler in this.capturedWebkitHandlers)) {
                 throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
             } else {
-                return this.globals.capturedWebkitHandlers[handler](outgoing);
+                return this.capturedWebkitHandlers[handler](outgoing);
             }
         }
-        return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
+        return window.webkit.messageHandlers[handler].postMessage?.(data);
     }
 
     /**
@@ -107,7 +126,7 @@ export class WebkitMessagingTransport {
     async wkSendAndWait(handler, data) {
         if (this.config.hasModernWebkitAPI) {
             const response = await this.wkSend(handler, data);
-            return this.globals.JSONparse(response || '{}');
+            return JSONparse(response || '{}');
         }
 
         try {
@@ -115,26 +134,26 @@ export class WebkitMessagingTransport {
             const key = await this.createRandKey();
             const iv = this.createRandIv();
 
-            const { ciphertext, tag } = await new this.globals.Promise((/** @type {any} */ resolve) => {
+            const { ciphertext, tag } = await new _Promise((/** @type {any} */ resolve) => {
                 this.generateRandomMethod(randMethodName, resolve);
 
                 // @ts-expect-error - this is a carve-out for catalina that will be removed soon
                 data.messageHandling = new SecureMessagingParams({
                     methodName: randMethodName,
                     secret: this.config.secret,
-                    key: this.globals.Arrayfrom(key),
-                    iv: this.globals.Arrayfrom(iv),
+                    key: Arrayfrom(key),
+                    iv: Arrayfrom(iv),
                 });
                 this.wkSend(handler, data);
             });
 
-            const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-            const decrypted = await this.decrypt(
+            const cipher = new _Uint8Array([...ciphertext, ...tag]);
+            const decrypted = await this.decryptResponse(
                 /** @type {BufferSource} */ (/** @type {unknown} */ (cipher)),
                 /** @type {BufferSource} */ (/** @type {unknown} */ (key)),
                 iv,
             );
-            return this.globals.JSONparse(decrypted || '{}');
+            return JSONparse(decrypted || '{}');
         } catch (e) {
             // re-throw when the error is just a 'MissingHandler'
             if (e instanceof MissingHandler) {
@@ -166,24 +185,24 @@ export class WebkitMessagingTransport {
             }
             // forward the error if one was given explicity
             if (data.error) {
-                throw new Error(data.error.message);
+                throw new _Error(data.error.message);
             }
         }
 
-        throw new Error('an unknown error occurred');
+        throw new _Error('an unknown error occurred');
     }
 
     /**
-     * Generate a random method name and adds it to the global scope
+     * Generate a random method name and adds it to navigator.duckduckgo.messageHandlers
      * The native layer will use this method to send the response
      * @param {string | number} randomMethodName
      * @param {Function} callback
      * @internal
      */
     generateRandomMethod(randomMethodName, callback) {
-        this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+        const target = ensureNavigatorDuckDuckGo().messageHandlers;
+        objectDefineProperty(target, randomMethodName, {
             enumerable: false,
-            // configurable, To allow for deletion later
             configurable: true,
             writable: false,
             /**
@@ -191,7 +210,7 @@ export class WebkitMessagingTransport {
              */
             value: (...args) => {
                 callback(...args);
-                delete this.globals.window[randomMethodName];
+                ReflectDeleteProperty(target, randomMethodName);
             },
         });
     }
@@ -201,7 +220,7 @@ export class WebkitMessagingTransport {
      * @return {string}
      */
     randomString() {
-        return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
+        return '' + getRandomValues(new _Uint32Array(1))[0];
     }
 
     /**
@@ -226,9 +245,9 @@ export class WebkitMessagingTransport {
      * @internal
      */
     async createRandKey() {
-        const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
-        const exportedKey = await this.globals.exportKey('raw', key);
-        return new this.globals.Uint8Array(exportedKey);
+        const key = await generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
+        const exportedKey = await exportKey('raw', key);
+        return new _Uint8Array(exportedKey);
     }
 
     /**
@@ -236,7 +255,7 @@ export class WebkitMessagingTransport {
      * @internal
      */
     createRandIv() {
-        return this.globals.getRandomValues(new this.globals.Uint8Array(12));
+        return getRandomValues(new _Uint8Array(12));
     }
 
     /**
@@ -246,16 +265,16 @@ export class WebkitMessagingTransport {
      * @returns {Promise<string>}
      * @internal
      */
-    async decrypt(ciphertext, key, iv) {
-        const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt']);
+    async decryptResponse(ciphertext, key, iv) {
+        const cryptoKey = await importKey('raw', key, 'AES-GCM', false, ['decrypt']);
         const algo = {
             name: 'AES-GCM',
             iv,
         };
 
-        const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
+        const decrypted = await decrypt(algo, cryptoKey, ciphertext);
 
-        const dec = new this.globals.TextDecoder();
+        const dec = new _TextDecoder();
         return dec.decode(decrypted);
     }
 
@@ -276,7 +295,7 @@ export class WebkitMessagingTransport {
                  */
                 const original = handlers[webkitMessageHandlerName];
                 const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
-                this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+                this.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
                 delete handlers[webkitMessageHandlerName].postMessage;
             }
         }
@@ -287,11 +306,11 @@ export class WebkitMessagingTransport {
      * @param {(value: unknown) => void} callback
      */
     subscribe(msg, callback) {
-        // for now, bail if there's already a handler setup for this subscription
-        if (msg.subscriptionName in this.globals.window) {
-            throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+        const target = ensureNavigatorDuckDuckGo().messageHandlers;
+        if (msg.subscriptionName in target) {
+            throw new _Error(`A subscription with the name ${msg.subscriptionName} already exists`);
         }
-        this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+        objectDefineProperty(target, msg.subscriptionName, {
             enumerable: false,
             configurable: true,
             writable: false,
@@ -304,7 +323,7 @@ export class WebkitMessagingTransport {
             },
         });
         return () => {
-            this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+            ReflectDeleteProperty(target, msg.subscriptionName);
         };
     }
 }
@@ -370,7 +389,7 @@ export class SecureMessagingParams {
      */
     constructor(params) {
         /**
-         * The method that's been appended to `window` to be called later
+         * The method that's been appended to `navigator.duckduckgo.messageHandlers` to be called later
          */
         this.methodName = params.methodName;
         /**
@@ -386,40 +405,4 @@ export class SecureMessagingParams {
          */
         this.iv = params.iv;
     }
-}
-
-/**
- * Capture some globals used for messaging handling to prevent page
- * scripts from tampering with this
- */
-function captureGlobals() {
-    // Create base with null prototype
-    const globals = {
-        window,
-        getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
-        TextEncoder,
-        TextDecoder,
-        Uint8Array,
-        Uint16Array,
-        Uint32Array,
-        JSONstringify: window.JSON.stringify,
-        JSONparse: window.JSON.parse,
-        Arrayfrom: window.Array.from,
-        Promise: window.Promise,
-        Error: window.Error,
-        ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
-        ObjectDefineProperty: window.Object.defineProperty,
-        addEventListener: window.addEventListener.bind(window),
-        /** @type {Record<string, any>} */
-        capturedWebkitHandlers: {},
-    };
-    if (isSecureContext) {
-        // skip for HTTP content since window.crypto.subtle is unavailable
-        globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
-        globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
-        globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
-        globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
-        globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
-    }
-    return globals;
 }

@@ -12,6 +12,9 @@ on:
 
 jobs:
     sync:
+        if: >-
+            !startsWith(github.event.pull_request.head.ref, 'cursor/') &&
+            !startsWith(github.event.pull_request.head.ref, 'claude/')
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6

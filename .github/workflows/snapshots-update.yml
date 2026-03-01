@@ -32,17 +32,33 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v5
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
               with:
                   path: |
-                      ~/.npm
-                      ~/.cache/ms-playwright
-                  key: ${{ runner.os }}-node-playwright-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-playwright-
-                      ${{ runner.os }}-node-
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
+            - name: Cache Playwright browsers
+              uses: actions/cache@v5
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+
+            - name: Install SF Pro Fonts
+              run: |
+                  curl -L -o SF-Pro.dmg 'https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg'
+                  hdiutil attach SF-Pro.dmg
+                  sudo installer -pkg '/Volumes/SFProFonts/SF Pro Fonts.pkg' -target /
+                  hdiutil detach '/Volumes/SFProFonts'
 
             - name: Install dependencies
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci
 
             - name: Build all
@@ -53,7 +69,8 @@ jobs:
 
             - name: Run Screenshot tests
               id: screenshot_tests
-              run: npm run test-int-snapshots
+              # Disable retries to fail fast - we just need to identify failing tests
+              run: npm run test-int-snapshots -- --retries=0
 
             - if: ${{ steps.screenshot_tests.conclusion == 'success' }}
               run: |
@@ -62,7 +79,8 @@ jobs:
             - name: Re-Running Playwright to update snapshots
               id: screenshot_tests_update
               if: ${{ failure() && steps.screenshot_tests.conclusion == 'failure' }}
-              run: npm run test-int-snapshots-update
+              # Disable retries since we're updating snapshots, not verifying them
+              run: npm run test-int-snapshots-update -- --retries=0
 
             - name: Commit the updated files to the PR branch
               if: ${{ failure() && steps.screenshot_tests_update.conclusion == 'success' }}
