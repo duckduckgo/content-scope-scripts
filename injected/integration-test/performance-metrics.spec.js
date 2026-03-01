@@ -17,6 +17,8 @@ test('sends firstContentfulPaint message', async ({ page }, testInfo) => {
     expect(messages).toHaveLength(1);
     expect(messages[0].payload.method).toBe('firstContentfulPaint');
     expect(messages[0].payload.params.value).toBeGreaterThan(0);
+
+    await collector.flushCoverage();
 });
 
 test('sends expandedPerformanceMetricsResult on page load', async ({ page }, testInfo) => {
@@ -31,4 +33,6 @@ test('sends expandedPerformanceMetricsResult on page load', async ({ page }, tes
     // Verify the expanded metrics contain expected structure
     const params = messages[0].payload.params;
     expect(params).toBeDefined();
+
+    await collector.flushCoverage();
 });
