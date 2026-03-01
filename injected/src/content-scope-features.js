@@ -38,6 +38,9 @@ const isHTMLDocument =
  * @property {Record<string, unknown>} [featureSettings]
  * @property {import('./content-feature.js').AssetConfig} [assets]
  * @property {Record<string, string[]>} [stringExemptionLists]
+ * @property {boolean} [desktopModeEnabled]
+ * @property {boolean} [forcedZoomEnabled]
+ * @property {boolean} [isDdgWebView]
  */
 
 /**
