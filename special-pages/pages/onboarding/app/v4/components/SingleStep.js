@@ -1,41 +1,82 @@
 import { h } from 'preact';
+import { useState } from 'preact/hooks';
 import { Bubble } from './Bubble';
 import { ProgressIndicator } from './ProgressIndicator';
 import { useStepConfig } from '../hooks/useStepConfig';
+import { useGlobalDispatch } from '../../global';
 import styles from './SingleStep.module.css';
+
+const NARROW_WIDTH = 349;
+const WIDE_WIDTH = 493;
+const GAP = 8;
 
 /**
  * Main layout component for v4 steps.
- * Steps with bubbles get the bubble layout (padding, max-width).
+ * Steps with bubbles use absolute positioning; the layout measures bubble heights.
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
-    const { content, topBubble, bottomBubble, showProgress, progress, topBubbleTail, globalState } = useStepConfig();
-    const isGetStarted = globalState.activeStep === 'getStarted';
+    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey } = useStepConfig();
+    const dispatch = useGlobalDispatch();
+    const handleExitComplete = () => dispatch({ kind: 'advance' });
+
+    const [topHeight, setTopHeight] = useState(0);
+    const [bottomHeight, setBottomHeight] = useState(0);
 
     // No bubbles — render content directly (e.g., welcome step has its own full-page layout)
     if (!topBubble && !bottomBubble) {
         return content || null;
     }
 
+    const width = bubbleWidth === 'narrow' ? NARROW_WIDTH : WIDE_WIDTH;
+
     return (
-        <div class={styles.layout}>
-            <div class={isGetStarted ? styles.bubbleColumn : styles.bubbleColumnWide}>
-                {topBubble && (
-                    <Bubble tail={topBubbleTail} class={isGetStarted ? styles.bubbleGetStartedIntro : undefined}>
-                        {showProgress && (
-                            <div class={styles.progressBadge}>
-                                <ProgressIndicator current={progress.current} total={progress.total} />
-                            </div>
-                        )}
-                        {topBubble}
-                    </Bubble>
-                )}
+        <div class={styles.layout} style={{ width }}>
+            {showProgress && (
+                <div class={styles.progressBadge}>
+                    <ProgressIndicator current={progress.current} total={progress.total} />
+                </div>
+            )}
 
-                {bottomBubble && <Bubble>{bottomBubble}</Bubble>}
+            <Bubble
+                class={styles.bubble}
+                style={{
+                    top: 0,
+                    width,
+                    height: topHeight,
+                    visibility: topBubble ? 'visible' : 'hidden',
+                }}
+                tail={topBubble?.tail}
+                illustration={topBubble?.illustration}
+                onHeight={setTopHeight}
+                bounceKey={bounceKey || globalState.activeStep}
+                bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
+                exiting={globalState.exiting}
+                onExitComplete={topBubble ? handleExitComplete : undefined}
+            >
+                {topBubble?.content}
+            </Bubble>
 
-                {content}
-            </div>
+            <Bubble
+                class={styles.bubble}
+                style={{
+                    top: topBubble ? topHeight + GAP : 0,
+                    width,
+                    height: bottomHeight,
+                    visibility: bottomBubble ? 'visible' : 'hidden',
+                }}
+                tail={bottomBubble?.tail}
+                illustration={bottomBubble?.illustration}
+                onHeight={setBottomHeight}
+                bounceKey={bounceKey || globalState.activeStep}
+                bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
+                exiting={globalState.exiting}
+                onExitComplete={topBubble ? undefined : handleExitComplete}
+            >
+                {bottomBubble?.content}
+            </Bubble>
+
+            {content}
         </div>
     );
 }

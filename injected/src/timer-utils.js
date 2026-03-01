@@ -20,7 +20,7 @@ export async function retry(fn, config = DEFAULT_RETRY_CONFIG) {
         try {
             lastResult = await Promise.resolve(fn());
         } catch (e) {
-            exceptions.push(e.toString());
+            exceptions.push(String(e));
         }
 
         // stop when there's a good result to return

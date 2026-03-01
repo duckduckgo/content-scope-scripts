@@ -3,6 +3,8 @@ import {
     postDebugMessage,
     initStringExemptionLists,
     processConfig,
+    computeEnabledFeatures,
+    parseFeatureSettings,
     satisfiesMinVersion,
     isMaxSupportedVersion,
     getTabHostname,
@@ -14,6 +16,7 @@ import {
     getStackTraceOrigins,
     isFeatureBroken,
     isPlatformSpecificFeature,
+    platformSpecificFeatures,
     isGloballyDisabled,
     createCustomEvent,
     isDuckAi,
@@ -23,6 +26,7 @@ import {
     initStringExemptionLists as initExemptions,
     isBeingFramed,
 } from '../src/utils.js';
+import ConfigFeature from '../src/config-feature.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
 /**
@@ -1060,6 +1064,7 @@ describe('Helpers checks', () => {
             expect(isPlatformSpecificFeature('navigatorInterface')).toBeTrue();
             expect(isPlatformSpecificFeature('messageBridge')).toBeTrue();
             expect(isPlatformSpecificFeature('favicon')).toBeTrue();
+            expect(isPlatformSpecificFeature('webDetection')).toBeTrue();
         });
 
         it('returns false for non-platform features', () => {
@@ -1070,15 +1075,28 @@ describe('Helpers checks', () => {
 
     describe('isGloballyDisabled', () => {
         it('returns true when site is allowlisted', () => {
-            expect(isGloballyDisabled({ site: { allowlisted: true, isBroken: false } })).toBeTrue();
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: true, isBroken: false },
+            });
+            expect(isGloballyDisabled(args)).toBeTrue();
         });
 
         it('returns true when site is broken', () => {
-            expect(isGloballyDisabled({ site: { allowlisted: false, isBroken: true } })).toBeTrue();
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: false, isBroken: true },
+            });
+            expect(isGloballyDisabled(args)).toBeTrue();
         });
 
         it('returns false when neither', () => {
-            expect(isGloballyDisabled({ site: { allowlisted: false, isBroken: false } })).toBeFalse();
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: false, isBroken: false },
+            });
+            expect(isGloballyDisabled(args)).toBeFalse();
+        });
+
+        it('platformSpecificFeatures includes webDetection so it loads when globally disabled', () => {
+            expect(platformSpecificFeatures).toContain('webDetection');
         });
     });
 
@@ -1183,6 +1201,179 @@ describe('Helpers checks', () => {
                 },
             });
             expect(shouldExemptUrl('testType', 'https://exempt.example.com/lib.js')).toBeTrue();
+        });
+    });
+
+    describe('computeEnabledFeatures', () => {
+        it('always includes platform-specific features not in remote config', () => {
+            const data = {
+                features: {
+                    regularFeature: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const platformFeatures = ['navigatorInterface', 'messageBridge'];
+            const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformFeatures);
+            expect(result).toContain('navigatorInterface');
+            expect(result).toContain('messageBridge');
+            expect(result).toContain('regularFeature');
+        });
+
+        it('includes platform-specific features present in remote config when enabled', () => {
+            const data = {
+                features: {
+                    regularFeature: { state: 'enabled', settings: {}, exceptions: [] },
+                    navigatorInterface: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const platformFeatures = ['navigatorInterface', 'messageBridge'];
+            const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformFeatures);
+            expect(result).toContain('navigatorInterface');
+            expect(result).toContain('messageBridge');
+            expect(result).toContain('regularFeature');
+        });
+
+        it('allows remote config to disable platform-specific features explicitly', () => {
+            const data = {
+                features: {
+                    navigatorInterface: { state: 'disabled', settings: {}, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const platformFeatures = ['navigatorInterface', 'messageBridge'];
+            const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformFeatures);
+            expect(result).not.toContain('navigatorInterface');
+            expect(result).toContain('messageBridge');
+        });
+
+        it('includes webDetection as platform-specific feature not in remote config', () => {
+            const data = {
+                features: {
+                    regularFeature: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).toContain('webDetection');
+            expect(result).toContain('regularFeature');
+        });
+
+        it('keeps webDetection even when a regular feature has an exception for the domain', () => {
+            const data = {
+                features: {
+                    regularFeature: { state: 'enabled', settings: {}, exceptions: [{ domain: 'broken.com' }] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'broken.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).toContain('webDetection');
+            expect(result).not.toContain('regularFeature');
+        });
+
+        it('disables webDetection when explicitly set to disabled in remote config', () => {
+            const data = {
+                features: {
+                    webDetection: { state: 'disabled', settings: {}, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).not.toContain('webDetection');
+        });
+
+        it('respects conditionalChanges targeting a specific domain for webDetection settings', () => {
+            const settings = {
+                webDetection: {
+                    toggle: 'disabled',
+                    conditionalChanges: [
+                        {
+                            condition: { domain: 'target.com' },
+                            patchSettings: [{ op: 'replace', path: '/toggle', value: 'enabled' }],
+                        },
+                    ],
+                },
+            };
+
+            const featureOnTarget = new ConfigFeature('web-detection', {
+                site: { domain: 'target.com', url: 'http://target.com' },
+                platform: { name: 'ios' },
+                featureSettings: structuredClone(settings),
+                messagingContextName: 'contentScopeScripts',
+            });
+            expect(featureOnTarget.getFeatureSettingEnabled('toggle')).toBeTrue();
+
+            const featureOnOther = new ConfigFeature('web-detection', {
+                site: { domain: 'other.com', url: 'http://other.com' },
+                platform: { name: 'ios' },
+                featureSettings: structuredClone(settings),
+                messagingContextName: 'contentScopeScripts',
+            });
+            expect(featureOnOther.getFeatureSettingEnabled('toggle')).toBeFalse();
+        });
+
+        it('disables webDetection on a domain present in its exceptions array', () => {
+            const data = {
+                features: {
+                    webDetection: { state: 'enabled', settings: {}, exceptions: [{ domain: 'excepted.com' }] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'excepted.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).not.toContain('webDetection');
+        });
+
+        it('keeps webDetection disabled when state is disabled even with exceptions for the domain (no negation)', () => {
+            const data = {
+                features: {
+                    webDetection: { state: 'disabled', settings: {}, exceptions: [{ domain: 'excepted.com' }] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'excepted.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).not.toContain('webDetection');
+        });
+    });
+
+    describe('parseFeatureSettings', () => {
+        it('returns settings for enabled features', () => {
+            const data = {
+                features: {
+                    featureA: { state: 'enabled', settings: { key: 'value' }, exceptions: [] },
+                    featureB: { state: 'enabled', settings: { other: true }, exceptions: [] },
+                    featureC: { state: 'enabled', settings: {}, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = parseFeatureSettings(data, ['featureA', 'featureB']);
+            expect(result).toEqual({
+                featureA: { key: 'value' },
+                featureB: { other: true },
+            });
+        });
+
+        it('skips features not in enabledFeatures list', () => {
+            const data = {
+                features: {
+                    featureA: { state: 'enabled', settings: { key: 'value' }, exceptions: [] },
+                    featureB: { state: 'enabled', settings: { other: true }, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = parseFeatureSettings(data, ['featureA']);
+            expect(result).toEqual({ featureA: { key: 'value' } });
+            expect(result.featureB).toBeUndefined();
+        });
+
+        it('handles enabled features not present in remote config (platform-specific features)', () => {
+            const data = {
+                features: {
+                    featureA: { state: 'enabled', settings: { key: 'value' }, exceptions: [] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = parseFeatureSettings(data, ['featureA', 'navigatorInterface', 'messageBridge']);
+            expect(result).toEqual({ featureA: { key: 'value' } });
         });
     });
 });
