@@ -144,7 +144,7 @@ export function reducer(state, action) {
  * @param {Object} props - The properties for the NavigationProvider component.
  * @param {import('./types').Step['id'][]} props.order - The order of screens to display
  * @param {import("preact").ComponentChild} props.children - The children components.
- * @param {import('./v1/data/data').StepDefinitions} props.stepDefinitions -
+ * @param {import('./types').StepDefinitions} props.stepDefinitions -
  * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
  */

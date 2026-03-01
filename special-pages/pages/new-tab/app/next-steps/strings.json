@@ -40,11 +40,11 @@
     "note": "Button text of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_emailProtection_title": {
-    "title": "Protect Your Inbox",
+    "title": "Protect Your Email Address and Block Trackers",
     "note": "Title of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_summary": {
-    "title": "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
     "note": "Summary of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_actionText": {
@@ -60,7 +60,7 @@
     "note": "Summary of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_actionText": {
-    "title": "Try DuckPlayer",
+    "title": "Try Duck Player",
     "note": "Button text of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_addAppDockMac_title": {

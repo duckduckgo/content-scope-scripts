@@ -53,5 +53,5 @@ Top-level commands (`npm run build`, `npm run lint`) also work from this directo
 ## Notes
 
 - Use `.github/pull_request_template.md` when creating a pull request.
-- Use Netlify links (`https://deploy-preview-<pr-number>--content-scope-scripts.netlify.app/build/pages/<name>/`) in the testing steps of a pull request.
+- Use the `Build Branch` PR comment links (docs/static pages/integration pages) in testing steps for pull requests.
 - Playwright MCP server (if available) or `npx playwright` can be used to validate UI changes if desired. Use `npm run watch -- --page <name>` if user hasn't already done so and then navigate to `http://localhost:8000`.
