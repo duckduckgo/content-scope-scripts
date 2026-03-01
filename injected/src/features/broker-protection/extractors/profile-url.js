@@ -12,17 +12,17 @@ export class ProfileUrlExtractor {
      */
     extract(strs, extractorParams) {
         if (strs.length === 0) return null;
+        const firstStr = /** @type {string} */ (strs[0]);
         const profile = {
-            profileUrl: strs[0],
-            identifier: strs[0],
+            profileUrl: firstStr,
+            identifier: firstStr,
         };
 
         if (!extractorParams.identifierType || !extractorParams.identifier) {
             return profile;
         }
 
-        const profileUrl = strs[0];
-        profile.identifier = this.getIdFromProfileUrl(profileUrl, extractorParams.identifierType, extractorParams.identifier);
+        profile.identifier = this.getIdFromProfileUrl(firstStr, extractorParams.identifierType, extractorParams.identifier);
         return profile;
     }
 
