@@ -137,7 +137,8 @@ export default class ConfigFeature {
             if (condition === undefined && 'domain' in rule && rule.domain !== undefined) {
                 condition = this._domainToConditonBlocks(rule.domain);
             }
-            if (condition === undefined) return false;
+            // condition-less rules (no condition, no domain) match unconditionally
+            if (condition === undefined) return true;
             return this._matchConditionalBlockOrArray(condition);
         });
     }

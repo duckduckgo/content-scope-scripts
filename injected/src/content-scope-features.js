@@ -39,6 +39,9 @@ const isHTMLDocument =
  * @property {import('./content-feature.js').AssetConfig} [assets]
  * @property {Record<string, string[]>} [stringExemptionLists]
  * @property {import('./features/tracker-protection/tracker-resolver.js').TrackerData} [trackerData]
+ * @property {boolean} [desktopModeEnabled]
+ * @property {boolean} [forcedZoomEnabled]
+ * @property {boolean} [isDdgWebView]
  */
 
 /**

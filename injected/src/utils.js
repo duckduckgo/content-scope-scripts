@@ -840,6 +840,9 @@ export function getInitArgs(processedConfig) {
         featureSettings,
         assets,
         stringExemptionLists,
+        desktopModeEnabled,
+        forcedZoomEnabled,
+        isDdgWebView,
     } = processedConfig;
     return {
         platform,
@@ -853,6 +856,9 @@ export function getInitArgs(processedConfig) {
         featureSettings,
         assets,
         stringExemptionLists,
+        desktopModeEnabled,
+        forcedZoomEnabled,
+        isDdgWebView,
     };
 }
 
