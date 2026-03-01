@@ -13,19 +13,16 @@ permissions:
     pull-requests: read
 
 jobs:
-    # In the merge queue, review validation already passed on the PR — just succeed.
     review_validation:
-        if: ${{ github.event_name == 'merge_group' }}
-        runs-on: ubuntu-latest
-        steps:
-            - run: echo "Review already validated before entering merge queue"
-
-    validate_review:
-        if: ${{ github.event_name != 'merge_group' }}
         runs-on: ubuntu-latest
 
         steps:
+            - name: Merge queue pass-through
+              if: ${{ github.event_name == 'merge_group' }}
+              run: echo "Review already validated before entering merge queue"
+
             - name: Checkout base branch
+              if: ${{ github.event_name != 'merge_group' }}
               uses: actions/checkout@v6
               with:
                   ref: ${{ github.event.pull_request.base.ref }}
@@ -35,6 +32,7 @@ jobs:
                   sparse-checkout-cone-mode: false
 
             - name: Validate approved review from authorized reviewer
+              if: ${{ github.event_name != 'merge_group' }}
               uses: actions/github-script@v8
               env:
                   ORG_TOKEN: ${{ secrets.DAX_PAT }}
