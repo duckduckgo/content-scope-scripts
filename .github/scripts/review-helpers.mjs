@@ -75,17 +75,20 @@ export async function findTeamForUser(github, orgToken, org, teams, username) {
  *                        If not provided, team membership checks are skipped.
  */
 export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgToken }) {
-    const { data: reviews } = await github.rest.pulls.listReviews({
+    const reviews = await github.paginate(github.rest.pulls.listReviews, {
         owner,
         repo,
         pull_number: prNumber,
     });
 
-    const latestByUser = new Map();
+    const DECISION_STATES = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
+    const latestDecisionByUser = new Map();
     for (const r of reviews) {
-        if (r.user?.login) latestByUser.set(r.user.login, r);
+        if (r.user?.login && DECISION_STATES.has(r.state)) {
+            latestDecisionByUser.set(r.user.login, r);
+        }
     }
-    const approved = [...latestByUser.values()].filter((r) => r.state === 'APPROVED');
+    const approved = [...latestDecisionByUser.values()].filter((r) => r.state === 'APPROVED');
     if (approved.length === 0) return null;
 
     if (approved.some((r) => r.user.login === DAX_USERNAME)) {
