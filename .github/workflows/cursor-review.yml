@@ -43,7 +43,7 @@ jobs:
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
-                      const { data: reviews } = await github.rest.pulls.listReviews({
+                      const reviews = await github.paginate(github.rest.pulls.listReviews, {
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                           pull_number: context.payload.pull_request.number
@@ -108,7 +108,7 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const { DAX_USERNAME } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
-                      const { data: reviews } = await github.rest.pulls.listReviews({
+                      const reviews = await github.paginate(github.rest.pulls.listReviews, {
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                           pull_number: context.payload.pull_request.number
