@@ -1,0 +1,72 @@
+.background {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: white;
+
+    @media (prefers-color-scheme: dark) {
+        background-color: #133E7C;
+    }
+}
+
+.illustration {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+    background-image: var(--bg-light);
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    background-size: contain;
+
+    @media (prefers-color-scheme: dark) {
+        background-image: var(--bg-dark);
+    }
+}
+
+/* --- Intro: slide in from offset --- */
+
+.slideIn {
+    animation: slide-in 0.7s var(--bg-slide-in-delay) both;
+}
+
+@keyframes slide-in {
+    0% {
+        translate: var(--bg-dx) var(--bg-dy);
+        animation-timing-function: cubic-bezier(0.10, 0.85, 0.64, 0.99);
+    }
+    100% {
+        translate: 0 0;
+    }
+}
+
+/* --- Outro: slide out to offset + fade --- */
+
+.slideOut {
+    animation: slide-out 0.7s both, fade-out var(--bg-fade-duration) both;
+}
+
+@keyframes slide-out {
+    0% {
+        translate: 0 0;
+        animation-timing-function: cubic-bezier(0.10, 0.85, 0.64, 0.99);
+    }
+    100% {
+        translate: var(--bg-dx) var(--bg-dy);
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
+    }
+    100% {
+        opacity: 0;
+    }
+}

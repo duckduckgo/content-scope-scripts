@@ -26,6 +26,7 @@ export const baseFeatures = /** @type {FeatureName[]} */ ([
 
 const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
+    'contextMenu',
     'cookie',
     'messageBridge',
     'duckPlayer',
@@ -34,6 +35,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'duckAiChatHistory',
     'harmfulApis',
     'webCompat',
+    'webDetection',
     'webInterferenceDetection',
     'windowsPermissionUsage',
     'uaChBrands',
@@ -44,12 +46,17 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
+    'print',
+    'pageObserver',
+    'hover',
+    'browserUiLock',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'pageContext'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext', 'print'],
     'apple-isolated': [
+        'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
@@ -58,11 +65,25 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
+        'webDetection',
+        'pageObserver',
+        'hover',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
-    android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge', 'pageContext'],
+    android: [
+        ...baseFeatures,
+        'webCompat',
+        'webDetection',
+        'webInterferenceDetection',
+        'breakageReporting',
+        'duckPlayer',
+        'messageBridge',
+        'pageContext',
+        'browserUiLock',
+    ],
     'android-broker-protection': ['brokerProtection'],
+    'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
         'apiManipulation',
@@ -73,11 +94,13 @@ export const platformSupport = {
         'fingerprintingAudio',
         'fingerprintingBattery',
         'gpc',
+        'webDetection',
         'breakageReporting',
     ],
     windows: [
         'cookie',
         ...baseFeatures,
+        'webDetection',
         'webInterferenceDetection',
         'webTelemetry',
         'windowsPermissionUsage',
@@ -92,8 +115,8 @@ export const platformSupport = {
         'performanceMetrics',
         'duckAiChatHistory',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
+    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
     integration: [...baseFeatures, ...otherFeatures],
 };

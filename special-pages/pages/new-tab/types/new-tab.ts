@@ -117,7 +117,8 @@ export type RMFIcon =
   | "Radar"
   | "RadarCheckGreen"
   | "RadarCheckPurple"
-  | "Subscription";
+  | "Subscription"
+  | "VeryCriticalUpdate";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -189,6 +190,7 @@ export interface NewTabMessages {
     | CustomizerOnBackgroundUpdateSubscription
     | CustomizerOnColorUpdateSubscription
     | CustomizerOnImagesUpdateSubscription
+    | CustomizerOnShowThemeVariantPopoverUpdateSubscription
     | CustomizerOnThemeUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
@@ -1155,6 +1157,19 @@ export interface CustomizerOnImagesUpdateSubscription {
 }
 export interface UserImageData {
   userImages: UserImage[];
+}
+/**
+ * Generated from @see "../messages/customizer_onShowThemeVariantPopoverUpdate.subscribe.json"
+ */
+export interface CustomizerOnShowThemeVariantPopoverUpdateSubscription {
+  subscriptionEvent: "customizer_onShowThemeVariantPopoverUpdate";
+  params: ShowThemeVariantPopoverData;
+}
+export interface ShowThemeVariantPopoverData {
+  /**
+   * Controls a popover that onboards users to the theme variant feature
+   */
+  showThemeVariantPopover: boolean;
 }
 /**
  * Generated from @see "../messages/customizer_onThemeUpdate.subscribe.json"

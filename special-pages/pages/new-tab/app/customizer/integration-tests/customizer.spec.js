@@ -511,4 +511,24 @@ test.describe('newtab customizer', () => {
             },
         });
     });
+
+    test('accepts show theme variant popover update via subscription (show)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': false, themeVariant: 'default' } });
+        await expect(cp.themeVariantPopover()).not.toBeVisible();
+        await cp.acceptsShowThemeVariantPopoverUpdate(true);
+        await expect(cp.themeVariantPopover()).toBeVisible();
+    });
+
+    test('accepts show theme variant popover update via subscription (hide)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': true, themeVariant: 'default' } });
+        await expect(cp.themeVariantPopover()).toBeVisible();
+        await cp.acceptsShowThemeVariantPopoverUpdate(false);
+        await expect(cp.themeVariantPopover()).not.toBeVisible();
+    });
 });

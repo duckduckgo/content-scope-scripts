@@ -69,7 +69,8 @@ export function customizerMockTransport() {
                 case 'customizer_onColorUpdate':
                 case 'customizer_onThemeUpdate':
                 case 'customizer_onBackgroundUpdate':
-                case 'customizer_onImagesUpdate': {
+                case 'customizer_onImagesUpdate':
+                case 'customizer_onShowThemeVariantPopoverUpdate': {
                     subscriptions.set(sub, cb);
                     return () => {
                         console.log('-- did remove sub', sub);

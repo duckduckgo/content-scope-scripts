@@ -27,7 +27,7 @@
           "fraudDetection": {
             "px": {
               "state": "enabled",
-              "vendor": "PerimeterX",
+              "type": "PerimeterX",
               "selectors": ["#px-captcha", "[id^='px-']"]
             }
           },

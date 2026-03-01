@@ -55,8 +55,7 @@ export class CustomizerService {
         /** @type {Service<ShowThemeVariantPopoverData>} */
         this.showThemeVariantPopoverService = new Service(
             {
-                // No subscribe - native doesn't push updates for this
-                // No persist - we use a dedicated notify instead
+                subscribe: (cb) => ntp.messaging.subscribe('customizer_onShowThemeVariantPopoverUpdate', cb),
             },
             { showThemeVariantPopover: initial.showThemeVariantPopover ?? false },
         );
