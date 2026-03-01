@@ -81,6 +81,10 @@ Follow the error handling guidelines in [`guides/error-handling.md`](guides/erro
 - Never leave promises unhandled — use `.catch()` or `try/catch` with `await`
 - Return `null`/sentinel values for expected missing data instead of throwing
 
+### Strict TypeScript
+
+All **new** source files under `injected/src/` must be added to the `CORE_FILES` set in `scripts/check-strict-core.js`. This enforces TypeScript strict mode (`strict: true`, `noUncheckedIndexedAccess`). Run `npm run tsc-strict-core` to verify. Do not remove existing entries from the set.
+
 ## Debugging
 
 See [`guides/debugging.md`](guides/debugging.md) for debugging resources including script integrity validation, feature triage checklist, and platform-specific troubleshooting.
@@ -89,3 +93,11 @@ See [`guides/debugging.md`](guides/debugging.md) for debugging resources includi
 
 - When running Playwright commands, use `--reporter list` to prevent the Shell tool from hanging
 - Use `.github/pull_request_template.md` when creating a pull request.
+
+## Cursor Cloud specific instructions
+
+- Node 22 and npm are pre-installed. Playwright browsers + system deps are pre-installed. Just run `npm ci` to refresh dependencies.
+- `npm run serve-special-pages` actually serves on **port 3210** (not 3221 as the Commands table above states). The injected test pages serve on port 3220 as documented.
+- Integration tests for injected workspace may show 2 flaky iOS mobile drawer timeouts (`duckplayer-mobile-drawer.spec.js`); these are pre-existing timing issues, not environment problems.
+- No Docker, databases, or external services are needed. All tests are self-contained with local HTTP servers and mocked native messaging.
+- On headless Linux, `xvfb` is pre-installed. The injected workspace provides `npm run test-int-x` which wraps Playwright with `xvfb-run`, but standard `npm run test-int` also works in this environment.

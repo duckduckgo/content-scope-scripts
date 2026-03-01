@@ -19,6 +19,8 @@ unit-test/                # Jasmine unit tests
 
 **Adding a new feature:** Add to `baseFeatures` or `otherFeatures` in `src/features.js`, then add to relevant platform arrays in `platformSupport`. Build the project after adding a new feature in `src/features/` to keep types up-to-date (`npm run build`).
 
+**Strict TypeScript:** All new feature files must be added to the `CORE_FILES` set in `scripts/check-strict-core.js`. This enforces full TypeScript strict mode (`strict: true`, `noUncheckedIndexedAccess`) on the file. Run `npm run tsc-strict-core` from the repo root to verify. Existing files in the set must not regress.
+
 ## TypeScript
 
 JSDoc types in JavaScript files. Import types via `@typedef`:
@@ -60,7 +62,7 @@ Features are bundled per-platform in `entry-points/`:
 - `windows.js` - Windows
 - `extension-mv3.js` - Browser extension
 
-Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`, `breakageReporting`, `webInterferenceDetection` (see `utils.js` `platformSpecificFeatures`).
+Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`, `breakageReporting`, `webInterferenceDetection`, `webDetection` (see `utils.js` `platformSpecificFeatures`).
 
 ## Notes
 

@@ -1,0 +1,23 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--sp-8); /* 32px */
+    padding: var(--sp-12); /* 48px */
+}
+
+.imageContainer {
+    align-self: stretch;
+    overflow: hidden;
+    border-radius: var(--sp-2); /* 8px */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.promoImage {
+    display: block;
+    width: 100%;
+    height: auto;
+}
