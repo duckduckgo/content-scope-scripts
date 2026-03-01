@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the fingerprinting temporary storage feature which caps quota to prevent fingerprinting.",
+    "version": 1,
+    "features": {
+        "fingerprintingTemporaryStorage": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

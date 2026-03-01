@@ -16,14 +16,16 @@ interface ImportMeta {
         | 'apple'
         | 'apple-isolated'
         | 'apple-ai-clear'
+        | 'apple-ai-history'
         | 'android'
         | 'windows'
         | 'integration'
         | 'chrome-mv3'
         | 'android-broker-protection'
         | 'android-autofill-import'
-        | 'android-adsjs';
-    trackerLookup?: Record<string, unknown>;
+        | 'android-adsjs'
+        | 'android-ai-history';
+    trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
 }
 
@@ -45,9 +47,11 @@ declare module '*.riv' {
 }
 
 declare module 'ddg:platformFeatures' {
+    type FeatureMap = import('./features.js').FeatureMap;
+    type LoadArgs = import('./content-scope-features.js').LoadArgs;
     const output: Record<
         string,
-        new (featureName: string, importConfig: ImportConfig, args: LoadArgs) => import('./content-feature').default
+        new <K extends keyof FeatureMap>(featureName: K, importConfig: *, features: Partial<FeatureMap>, args: LoadArgs) => FeatureMap[K]
     >;
     export default output;
 }

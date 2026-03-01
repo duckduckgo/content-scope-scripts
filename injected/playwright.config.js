@@ -1,6 +1,9 @@
 /* global process */
 import { defineConfig, devices } from '@playwright/test';
 
+const TEST_PAGE_SERVER_PORT = 3220;
+const TEST_PAGE_SERVER_BASE_URL = `http://localhost:${TEST_PAGE_SERVER_PORT}/`;
+
 export default defineConfig({
     projects: [
         {
@@ -14,16 +17,21 @@ export default defineConfig({
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/breakage-reporting.spec.js',
                 'integration-test/duck-ai-data-clearing.spec.js',
+                'integration-test/duck-ai-chat-history.spec.js',
+                'integration-test/web-detection.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
         {
             name: 'apple-isolated',
             testMatch: [
+                'integration-test/context-menu.spec.js',
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/favicon.spec.js',
+                'integration-test/page-observer.spec.js',
+                'integration-test/hover.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
@@ -43,12 +51,14 @@ export default defineConfig({
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/duckplayer-native.spec.js',
+                'integration-test/favicon.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
             name: 'android',
             testMatch: [
+                'integration-test/browser-ui-lock.spec.js',
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/web-compat-android.spec.js',
@@ -102,13 +112,13 @@ export default defineConfig({
         reuseExistingServer: true,
         ignoreHTTPSErrors: true,
         command: 'npm run bundle-entry-points && npm run serve',
-        port: 3220,
+        port: TEST_PAGE_SERVER_PORT,
     },
     use: {
         /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
         actionTimeout: 1000,
         /* Base URL to use in actions like `await page.goto('/')`. */
-        baseURL: 'http://localhost:3220/',
+        baseURL: TEST_PAGE_SERVER_BASE_URL,
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
         video: { mode: 'on-first-retry' },

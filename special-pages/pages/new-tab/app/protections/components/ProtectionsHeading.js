@@ -117,7 +117,7 @@ export function ProtectionsHeading({
                         <h3 class={styles.title}>
                             {formatter.format(animatedCookiePopUpsBlocked)} <span>{cookiePopUpsBlockedHeading}</span>
                         </h3>
-                        {showProtectionsReportNewLabel && <NewBadge text={t('protections_newBadge')} />}
+                        {showProtectionsReportNewLabel && <NewBadge />}
                     </div>
                 )}
             </div>

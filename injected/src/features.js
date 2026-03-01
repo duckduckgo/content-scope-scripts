@@ -1,5 +1,14 @@
+/**
+ * Re-export auto-generated feature map types.
+ * The FeatureMap type is generated from src/features/*.js files.
+ * Run `npm run build-types` to regenerate, or it runs automatically on build.
+ *
+ * @typedef {import('./types/feature-map').FeatureMap} FeatureMap
+ * @typedef {import('./types/feature-map').FeatureName} FeatureName
+ */
+
 // Features must exist in either `baseFeatures` or `otherFeatures`
-export const baseFeatures = /** @type {const} */ ([
+export const baseFeatures = /** @type {FeatureName[]} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
@@ -15,15 +24,18 @@ export const baseFeatures = /** @type {const} */ ([
     'apiManipulation',
 ]);
 
-const otherFeatures = /** @type {const} */ ([
+const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
+    'contextMenu',
     'cookie',
     'messageBridge',
     'duckPlayer',
     'duckPlayerNative',
     'duckAiDataClearing',
+    'duckAiChatHistory',
     'harmfulApis',
     'webCompat',
+    'webDetection',
     'webInterferenceDetection',
     'windowsPermissionUsage',
     'uaChBrands',
@@ -34,13 +46,17 @@ const otherFeatures = /** @type {const} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
+    'print',
+    'pageObserver',
+    'hover',
+    'browserUiLock',
 ]);
 
-/** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'pageContext'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext', 'print'],
     'apple-isolated': [
+        'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
@@ -49,10 +65,25 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
+        'webDetection',
+        'pageObserver',
+        'hover',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
-    android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge'],
+    'apple-ai-history': ['duckAiChatHistory'],
+    android: [
+        ...baseFeatures,
+        'webCompat',
+        'webDetection',
+        'webInterferenceDetection',
+        'breakageReporting',
+        'duckPlayer',
+        'messageBridge',
+        'pageContext',
+        'browserUiLock',
+    ],
     'android-broker-protection': ['brokerProtection'],
+    'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
         'apiManipulation',
@@ -63,11 +94,13 @@ export const platformSupport = {
         'fingerprintingAudio',
         'fingerprintingBattery',
         'gpc',
+        'webDetection',
         'breakageReporting',
     ],
     windows: [
         'cookie',
         ...baseFeatures,
+        'webDetection',
         'webInterferenceDetection',
         'webTelemetry',
         'windowsPermissionUsage',
@@ -79,9 +112,11 @@ export const platformSupport = {
         'webCompat',
         'pageContext',
         'duckAiDataClearing',
+        'performanceMetrics',
+        'duckAiChatHistory',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
+    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
     integration: [...baseFeatures, ...otherFeatures],
 };

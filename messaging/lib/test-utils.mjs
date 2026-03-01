@@ -434,8 +434,11 @@ export function simulateSubscriptionMessage(params) {
         }
         case 'apple':
         case 'apple-isolated': {
-            if (!(params.name in window)) throw new Error('subscription fn not found for: ' + params.injectName);
-            window[params.name](subscriptionEvent);
+            const fn = navigator.duckduckgo?.messageHandlers?.[params.name] ?? /** @type {Record<string, any>} */ (window)?.[params.name];
+            if (typeof fn !== 'function') {
+                throw new Error(`subscription fn not found for: ${params.name} (${params.injectName})`);
+            }
+            fn(subscriptionEvent);
             break;
         }
         case 'integration': {
