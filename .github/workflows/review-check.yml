@@ -10,6 +10,7 @@ on:
 permissions:
     contents: read
     pull-requests: read
+    statuses: write
 
 jobs:
     review_validation:
@@ -39,8 +40,19 @@ jobs:
                   script: |
                       const { loadRequiredTeams, findAuthorizedApproval } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
+                      const sha = context.payload.pull_request.head.sha;
                       const repo = { owner: context.repo.owner, repo: context.repo.repo };
                       const teamsList = teams.map(t => `@duckduckgo/${t}`).join(', ');
+
+                      async function setReviewStatus({ state, description }) {
+                          await github.rest.repos.createCommitStatus({
+                              ...repo,
+                              sha,
+                              state,
+                              context: 'Authorized Review',
+                              description: description.substring(0, 140)
+                          });
+                      }
 
                       let approval;
                       try {
@@ -55,28 +67,24 @@ jobs:
                           const msg = error.status === 401
                               ? 'DAX_PAT returned 401 — token may be expired or misconfigured'
                               : `Review validation failed: ${error.message} (status: ${error.status ?? 'unknown'})`;
+                          await setReviewStatus({ state: 'error', description: msg });
                           core.setFailed(msg);
                           return;
                       }
 
                       if (approval) {
                           const via = approval.team ? `(member of ${approval.team})` : '';
-                          await core.summary
-                              .addHeading('Review Validation', 3)
-                              .addRaw(`✅ Approved by ${approval.user} ${via}`.trim())
-                              .write();
-                          core.info(`✅ Approved by ${approval.user} ${via}`);
+                          const desc = `Approved by ${approval.user} ${via}`.trim();
+                          await setReviewStatus({ state: 'success', description: desc });
+                          core.info(`✅ ${desc}`);
                       } else if (context.eventName === 'pull_request_target') {
-                          await core.summary
-                              .addHeading('Review Validation', 3)
-                              .addRaw(`⏳ Waiting for approval from an authorized reviewer.\n\nRequired teams: ${teamsList}`)
-                              .write();
-                          core.setFailed(`Waiting for approval. Required teams: ${teamsList}`);
+                          await setReviewStatus({
+                              state: 'pending',
+                              description: `Waiting for approval. Required teams: ${teamsList}`
+                          });
+                          core.info('⏳ No approval yet — commit status set to pending');
                       } else {
-                          const msg = `No approved review from daxtheduck or a member of: ${teamsList}`;
-                          await core.summary
-                              .addHeading('Review Validation', 3)
-                              .addRaw(`❌ ${msg}`)
-                              .write();
-                          core.setFailed(msg);
+                          const desc = `No approved review from daxtheduck or a member of: ${teamsList}`;
+                          await setReviewStatus({ state: 'failure', description: desc });
+                          core.setFailed(desc);
                       }
