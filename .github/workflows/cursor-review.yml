@@ -12,6 +12,7 @@ jobs:
         steps:
             - name: Verify author is in duckduckgo/core
               uses: actions/github-script@v8
+              id: membership
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
@@ -24,21 +25,24 @@ jobs:
                           });
                           if (data.state === 'active') {
                               console.log(`✅ ${author} is an active member of duckduckgo/core`);
+                              core.setOutput('is_member', 'true');
                           } else {
-                              core.setFailed(`${author} is not an active member of duckduckgo/core`);
+                              console.log(`⏭️ ${author} is not an active member — skipping auto-review`);
+                              core.setOutput('is_member', 'false');
                           }
                       } catch (error) {
                           if (error.status === 401) {
                               core.setFailed(`DAX_PAT returned 401 — token may be expired or misconfigured`);
                           } else if (error.status === 404) {
-                              core.setFailed(`${author} is not a member of duckduckgo/core`);
+                              console.log(`⏭️ ${author} is not a member of duckduckgo/core — skipping auto-review`);
+                              core.setOutput('is_member', 'false');
                           } else {
                               core.setFailed(`Failed to check team membership for ${author}: ${error.message} (status: ${error.status})`);
                           }
                       }
 
             - name: Dismiss stale Dax approval on new push
-              if: github.event.action == 'synchronize'
+              if: steps.membership.outputs.is_member == 'true' && github.event.action == 'synchronize'
               uses: actions/github-script@v8
               with:
                   github-token: ${{ secrets.DAX_PAT }}
@@ -63,6 +67,7 @@ jobs:
                       }
 
             - name: Checkout base branch
+              if: steps.membership.outputs.is_member == 'true'
               uses: actions/checkout@v6
               with:
                   # Always read from base branch to prevent PRs tampering with the team list
@@ -73,9 +78,11 @@ jobs:
                   sparse-checkout-cone-mode: false
 
             - name: Debounce delay
+              if: steps.membership.outputs.is_member == 'true'
               run: sleep 5
 
             - name: Wait for Cursor Bugbot
+              if: steps.membership.outputs.is_member == 'true'
               uses: fountainhead/action-wait-for-check@v1.2.0
               id: wait-for-cursor
               with:
@@ -85,7 +92,7 @@ jobs:
                   timeoutSeconds: 600
 
             - name: Check Cursor Bugbot risk assessment
-              if: steps.wait-for-cursor.outputs.conclusion == 'success'
+              if: steps.membership.outputs.is_member == 'true' && steps.wait-for-cursor.outputs.conclusion == 'success'
               uses: actions/github-script@v8
               id: risk_check
               with:
@@ -102,6 +109,7 @@ jobs:
                       core.setOutput('is_low_risk', riskLevel?.toLowerCase() === 'low');
 
             - name: Check for existing Dax approval
+              if: steps.membership.outputs.is_member == 'true'
               uses: actions/github-script@v8
               id: check_reviews
               with:
@@ -119,6 +127,7 @@ jobs:
 
             - name: Auto approve
               if: |
+                  steps.membership.outputs.is_member == 'true' &&
                   steps.wait-for-cursor.outputs.conclusion == 'success' &&
                   steps.risk_check.outputs.is_low_risk == 'true' &&
                   steps.check_reviews.outputs.has_approved_review == 'false'
@@ -129,8 +138,9 @@ jobs:
 
             - name: Find previous review comment
               if: |
-                  steps.wait-for-cursor.outputs.conclusion != 'success' ||
-                  steps.risk_check.outputs.is_low_risk != 'true'
+                  steps.membership.outputs.is_member == 'true' &&
+                  (steps.wait-for-cursor.outputs.conclusion != 'success' ||
+                  steps.risk_check.outputs.is_low_risk != 'true')
               uses: peter-evans/find-comment@v4
               id: find_comment
               with:
@@ -141,6 +151,7 @@ jobs:
 
             - name: Post manual review required comment
               if: |
+                  steps.membership.outputs.is_member == 'true' &&
                   (steps.wait-for-cursor.outputs.conclusion != 'success' ||
                   steps.risk_check.outputs.is_low_risk != 'true') &&
                   steps.find_comment.outputs.comment-id == ''
