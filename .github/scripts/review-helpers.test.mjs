@@ -95,7 +95,8 @@ describe('findAuthorizedApproval', () => {
         await findAuthorizedApproval(gh, BASE_OPTS);
         assert.equal(gh.paginate.mock.calls.length, 1);
         assert.equal(gh.rest.pulls.listReviews.mock.calls.length, 0);
-        assert.equal(fetchMock?.mock.calls.length, 0);
+        assert.ok(fetchMock);
+        assert.equal(fetchMock.mock.calls.length, 0);
     });
 
     it('multiple approvers — dax takes priority over team member', async () => {
@@ -107,7 +108,8 @@ describe('findAuthorizedApproval', () => {
     it('uses orgToken in fetch authorization header, not GITHUB_TOKEN', async () => {
         const gh = makeGitHub([review('alice', 'APPROVED')], { memberOf: ['core'] });
         await findAuthorizedApproval(gh, { ...BASE_OPTS, orgToken: 'my-org-token' });
-        const [, opts] = /** @type {any} */ (fetchMock)?.mock.calls[0].arguments;
+        assert.ok(fetchMock);
+        const [, opts] = /** @type {[unknown, {headers: {authorization: string}}]} */ (fetchMock.mock.calls[0].arguments);
         assert.equal(opts.headers.authorization, 'token my-org-token');
     });
 
