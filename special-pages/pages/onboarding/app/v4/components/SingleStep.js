@@ -1,13 +1,10 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
+import cn from 'classnames';
 import { Bubble } from './Bubble';
 import { useStepConfig } from '../hooks/useStepConfig';
 import { useGlobalDispatch } from '../../global';
 import styles from './SingleStep.module.css';
-
-const NARROW_WIDTH = 349;
-const WIDE_WIDTH = 493;
-const GAP = 8;
 
 /**
  * Main layout component for v4 steps.
@@ -27,50 +24,36 @@ export function SingleStep() {
         return content || null;
     }
 
-    const width = bubbleWidth === 'narrow' ? NARROW_WIDTH : WIDE_WIDTH;
-
-    // When the top bubble is hidden (no topBubble), mirror the bottom bubble's
-    // height so it's pre-sized for a smooth "split" transition when it appears.
-    const effectiveTopHeight = topBubble ? topHeight : bottomHeight;
-
     return (
-        <div class={styles.layout} style={{ width }}>
+        <div
+            class={cn(styles.layout, {
+                [styles.hasTop]: !!topBubble,
+                [styles.hasBottom]: !!bottomBubble,
+                [styles.narrow]: bubbleWidth === 'narrow',
+            })}
+            style={{
+                '--bubble-top-height': `${topHeight}px`,
+                '--bubble-bottom-height': `${bottomHeight}px`,
+            }}
+        >
             <Bubble
-                class={styles.bubble}
-                style={{
-                    top: 0,
-                    width,
-                    height: effectiveTopHeight,
-                    visibility: topBubble ? 'visible' : 'hidden',
-                }}
+                class={styles.topBubble}
                 tail={topBubble?.tail}
                 onHeight={setTopHeight}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
                 exiting={globalState.exiting}
-                contentWidth={width}
                 onExitComplete={topBubble ? handleExitComplete : undefined}
                 progress={showProgress && topBubble ? progress : undefined}
             >
                 {topBubble?.content}
             </Bubble>
 
-            {illustration?.background && (
-                <div class={styles.illustrationBackground} style={{ top: topBubble ? effectiveTopHeight + GAP : 0 }}>
-                    {illustration.background}
-                </div>
-            )}
+            {illustration?.background && <div class={styles.illustrationBackground}>{illustration.background}</div>}
 
             <Bubble
-                class={styles.bubble}
-                style={{
-                    top: topBubble ? effectiveTopHeight + GAP : 0,
-                    width,
-                    height: bottomHeight,
-                    visibility: bottomBubble ? 'visible' : 'hidden',
-                }}
+                class={styles.bottomBubble}
                 tail={bottomBubble?.tail}
-                contentWidth={width}
                 onHeight={setBottomHeight}
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
@@ -81,11 +64,7 @@ export function SingleStep() {
                 {bottomBubble?.content}
             </Bubble>
 
-            {illustration?.foreground && (
-                <div class={styles.illustrationForeground} style={{ top: topBubble ? effectiveTopHeight + GAP : 0 }}>
-                    {illustration.foreground}
-                </div>
-            )}
+            {illustration?.foreground && <div class={styles.illustrationForeground}>{illustration.foreground}</div>}
 
             {content}
         </div>

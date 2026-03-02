@@ -9,7 +9,6 @@ import { ProgressIndicator } from './ProgressIndicator';
 /**
  * @typedef {object} BubbleProps
  * @property {'bottom-left' | 'right'} [tail] - Direction of the speech bubble tail
- * @property {number} [contentWidth] - Explicit width for the content measurement div (prevents height mis-measurement during width transitions)
  * @property {(height: number) => void} [onHeight] - Callback reporting measured border height
  * @property {string} [bounceKey] - When this value changes, the bubble plays a scale-bounce animation
  * @property {number} [bounceDelay] - Delay in ms before the scale-bounce animation starts
@@ -43,7 +42,6 @@ export function Bubble({
     children,
     tail,
     class: className,
-    contentWidth,
     onHeight,
     bounceKey,
     bounceDelay,
@@ -140,7 +138,7 @@ export function Bubble({
                 class={cn(styles.container, isMounted.current && (exiting ? styles.fadeOut : styles.fadeIn))}
                 onAnimationEnd={handleAnimationEnd}
             >
-                <div ref={contentRef} style={contentWidth ? { width: contentWidth } : undefined}>
+                <div ref={contentRef} class={styles.content}>
                     {children}
                 </div>
             </div>

@@ -1,9 +1,11 @@
 .root {
+    align-items: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
     gap: var(--sp-5);
+    justify-content: flex-start;
+    margin-top: 45vh;
+    transform: translateY(-50%);
     width: 100%;
 }
 
