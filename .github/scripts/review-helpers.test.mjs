@@ -1,26 +1,39 @@
-import { describe, it, mock } from 'node:test';
+import { describe, it, mock, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { findAuthorizedApproval, DAX_USERNAME } from './review-helpers.mjs';
+
+const originalFetch = globalThis.fetch;
 
 function review(login, state, id = 1) {
     return { id, state, user: { login } };
 }
 
+function mockFetch(memberOf = /** @type {string[]} */ ([])) {
+    globalThis.fetch = mock.fn((url) => {
+        const teamMatch = String(url).match(/\/teams\/([^/]+)\/memberships\//);
+        if (teamMatch && memberOf.includes(decodeURIComponent(teamMatch[1]))) {
+            return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ state: 'active' }) });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
+    });
+}
+
 function makeGitHub(reviews, { memberOf = /** @type {string[]} */ ([]) } = {}) {
     const listReviews = mock.fn();
+    mockFetch(memberOf);
     return {
         paginate: mock.fn((_endpoint, _params) => Promise.resolve(reviews)),
         rest: { pulls: { listReviews } },
-        request: mock.fn((_route, opts) => {
-            if (memberOf.includes(opts.team_slug)) return Promise.resolve({ data: { state: 'active' } });
-            return Promise.reject(Object.assign(new Error('Not Found'), { status: 404 }));
-        }),
     };
 }
 
 const BASE_OPTS = { owner: 'o', repo: 'r', prNumber: 1, org: 'duckduckgo', teams: ['core'], orgToken: 'tok' };
 
 describe('findAuthorizedApproval', () => {
+    afterEach(() => {
+        globalThis.fetch = originalFetch;
+    });
+
     it('returns null when there are no reviews', async () => {
         const gh = makeGitHub([]);
         assert.equal(await findAuthorizedApproval(gh, BASE_OPTS), null);
@@ -77,11 +90,19 @@ describe('findAuthorizedApproval', () => {
         await findAuthorizedApproval(gh, BASE_OPTS);
         assert.equal(gh.paginate.mock.calls.length, 1);
         assert.equal(gh.rest.pulls.listReviews.mock.calls.length, 0);
+        assert.equal(globalThis.fetch.mock.calls.length, 0);
     });
 
     it('multiple approvers — dax takes priority over team member', async () => {
         const gh = makeGitHub([review('alice', 'APPROVED', 1), review(DAX_USERNAME, 'APPROVED', 2)], { memberOf: ['core'] });
         const result = await findAuthorizedApproval(gh, BASE_OPTS);
         assert.deepEqual(result, { user: DAX_USERNAME, team: null });
+    });
+
+    it('uses orgToken in fetch authorization header, not GITHUB_TOKEN', async () => {
+        const gh = makeGitHub([review('alice', 'APPROVED')], { memberOf: ['core'] });
+        await findAuthorizedApproval(gh, { ...BASE_OPTS, orgToken: 'my-org-token' });
+        const [, opts] = globalThis.fetch.mock.calls[0].arguments;
+        assert.equal(opts.headers.authorization, 'token my-org-token');
     });
 });
