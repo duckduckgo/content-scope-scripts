@@ -113,12 +113,12 @@ jobs:
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci
             - name: Download unit coverage
-              uses: actions/download-artifact@v7
+              uses: actions/download-artifact@v8
               with:
                   name: coverage-unit
                   path: injected/coverage/
             - name: Download integration coverage
-              uses: actions/download-artifact@v7
+              uses: actions/download-artifact@v8
               with:
                   name: coverage-integration
                   path: injected/coverage/integration/
