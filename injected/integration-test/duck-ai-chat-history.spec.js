@@ -76,7 +76,7 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.chats[0].pinned).toBe(false);
     });
 
-    test('strips messages from chat objects', async ({ page }) => {
+    test('strips messages from chat objects but includes firstUserMessageContent', async ({ page }) => {
         await page.click('#setup-data');
 
         const result = await requestChats();
@@ -87,6 +87,9 @@ test.describe('duck-ai-chat-history', () => {
         // But other properties should still be present
         expect(result.pinnedChats[0].title).toBeDefined();
         expect(result.pinnedChats[0].chatId).toBeDefined();
+        // firstUserMessageContent field should contain the first user message content
+        expect(result.pinnedChats[0].firstUserMessageContent).toBe('Test message');
+        expect(result.chats[0].firstUserMessageContent).toBe('Test message');
     });
 
     test('filters chats by title query', async ({ page }) => {
@@ -113,6 +116,63 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.success).toBe(true);
         expect(result.pinnedChats).toHaveLength(0);
         expect(result.chats).toHaveLength(0);
+    });
+
+    test('search matches against user query content, not just title', async ({ page }) => {
+        await page.evaluate(() => {
+            const chats = [
+                {
+                    chatId: 'chat-1',
+                    title: 'Recipe Ideas',
+                    model: 'gpt-4.1-internal',
+                    messages: [{ content: 'What are some healthy dinner recipes for beginners?', role: 'user' }],
+                    lastEdit: new Date().toISOString(),
+                    pinned: false,
+                },
+                {
+                    chatId: 'chat-2',
+                    title: 'Travel Planning',
+                    model: 'gpt-4.1-internal',
+                    messages: [{ content: 'Help me plan a trip to Japan', role: 'user' }],
+                    lastEdit: new Date().toISOString(),
+                    pinned: false,
+                },
+            ];
+            localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+        });
+
+        // "dinner" only appears in the user query, not the title
+        const result = await requestChats({ query: 'dinner' });
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(1);
+        expect(result.chats[0].chatId).toBe('chat-1');
+    });
+
+    test('firstUserMessageContent is undefined when chat has no messages', async ({ page }) => {
+        await page.evaluate(() => {
+            const chats = [
+                {
+                    chatId: 'no-messages',
+                    title: 'Chat without messages',
+                    messages: [],
+                    lastEdit: new Date().toISOString(),
+                    pinned: false,
+                },
+                {
+                    chatId: 'missing-messages',
+                    title: 'Chat with missing messages field',
+                    lastEdit: new Date().toISOString(),
+                    pinned: false,
+                },
+            ];
+            localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+        });
+
+        const result = await requestChats();
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(2);
+        expect(result.chats[0].firstUserMessageContent).toBeNull();
+        expect(result.chats[1].firstUserMessageContent).toBeNull();
     });
 
     test('handles non-string title values gracefully during search', async ({ page }) => {

@@ -235,6 +235,19 @@ export class DuckAiChatHistory extends ContentFeature {
     }
 
     /**
+     * @param {object} chat - Chat object
+     * @returns {string|null} The first user message content, or null if not found
+     */
+    extractFirstUserMessageContent(chat) {
+        const messages = chat?.messages;
+        if (!Array.isArray(messages)) {
+            return null;
+        }
+        const firstUserMessage = messages.find((msg) => msg?.role === 'user');
+        return typeof firstUserMessage?.content === 'string' ? firstUserMessage.content : null;
+    }
+
+    /**
      * Formats a chat object for sending to native, extracting only needed keys
      * @param {object} chat - Chat object
      * @returns {object} Formatted chat object
@@ -249,6 +262,7 @@ export class DuckAiChatHistory extends ContentFeature {
         return {
             chatId: chat?.chatId,
             title: chat?.title,
+            firstUserMessageContent: this.extractFirstUserMessageContent(chat),
             model: chat?.model,
             lastEdit,
             pinned: chat?.pinned,
@@ -256,15 +270,18 @@ export class DuckAiChatHistory extends ContentFeature {
     }
 
     /**
-     * Checks if a chat matches the search query by checking if all query words appear in title
+     * Checks if a chat matches the search query by checking if all query words appear in title or first user message
      * @param {object} chat - Chat object
      * @param {string} query - Lowercase search query
-     * @returns {boolean} True if chat title contains all query words
+     * @returns {boolean} True if chat title or first user message contains all query words
      */
     chatMatchesQuery(chat, query) {
         const title = typeof chat.title === 'string' ? chat.title.toLowerCase() : '';
+        const firstUserQuery = this.extractFirstUserMessageContent(chat);
+        const formattedUserQuery = typeof firstUserQuery === 'string' ? firstUserQuery.toLowerCase() : '';
         const words = query.split(/\s+/).filter((w) => w);
-        return words.every((word) => title.includes(word));
+
+        return words.every((word) => title.includes(word) || formattedUserQuery.includes(word));
     }
 
     /**
