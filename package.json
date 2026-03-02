@@ -45,7 +45,7 @@
     "@playwright/test": "^1.58.2",
     "ajv": "^8.18.0",
     "esbuild": "^0.27.3",
-    "eslint": "^10.0.1",
+    "eslint": "^10.0.2",
     "minimist": "^1.2.8",
     "prettier": "3.8.1",
     "stylelint": "^15.11.0",
@@ -54,7 +54,7 @@
     "ts-json-schema-generator": "^2.5.0",
     "typedoc": "^0.28.17",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.56.0"
+    "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.2",
