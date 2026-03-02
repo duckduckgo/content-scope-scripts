@@ -8,14 +8,18 @@ function review(login, state, id = 1) {
     return { id, state, user: { login } };
 }
 
+/** @type {import('node:test').Mock<Function> | null} */
+let fetchMock = null;
+
 function mockFetch(memberOf = /** @type {string[]} */ ([])) {
-    globalThis.fetch = mock.fn((url) => {
+    fetchMock = mock.fn((url) => {
         const teamMatch = String(url).match(/\/teams\/([^/]+)\/memberships\//);
         if (teamMatch && memberOf.includes(decodeURIComponent(teamMatch[1]))) {
             return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ state: 'active' }) });
         }
         return Promise.resolve({ ok: false, status: 404 });
     });
+    globalThis.fetch = /** @type {any} */ (fetchMock);
 }
 
 function makeGitHub(reviews, { memberOf = /** @type {string[]} */ ([]) } = {}) {
@@ -32,6 +36,7 @@ const BASE_OPTS = { owner: 'o', repo: 'r', prNumber: 1, org: 'duckduckgo', teams
 describe('findAuthorizedApproval', () => {
     afterEach(() => {
         globalThis.fetch = originalFetch;
+        fetchMock = null;
     });
 
     it('returns null when there are no reviews', async () => {
@@ -90,7 +95,7 @@ describe('findAuthorizedApproval', () => {
         await findAuthorizedApproval(gh, BASE_OPTS);
         assert.equal(gh.paginate.mock.calls.length, 1);
         assert.equal(gh.rest.pulls.listReviews.mock.calls.length, 0);
-        assert.equal(globalThis.fetch.mock.calls.length, 0);
+        assert.equal(fetchMock?.mock.calls.length, 0);
     });
 
     it('multiple approvers — dax takes priority over team member', async () => {
@@ -102,7 +107,17 @@ describe('findAuthorizedApproval', () => {
     it('uses orgToken in fetch authorization header, not GITHUB_TOKEN', async () => {
         const gh = makeGitHub([review('alice', 'APPROVED')], { memberOf: ['core'] });
         await findAuthorizedApproval(gh, { ...BASE_OPTS, orgToken: 'my-org-token' });
-        const [, opts] = globalThis.fetch.mock.calls[0].arguments;
+        const [, opts] = /** @type {any} */ (fetchMock)?.mock.calls[0].arguments;
         assert.equal(opts.headers.authorization, 'token my-org-token');
+    });
+
+    it('network failure in fetch is treated as not a member', async () => {
+        const gh = {
+            paginate: mock.fn(() => Promise.resolve([review('alice', 'APPROVED')])),
+            rest: { pulls: { listReviews: mock.fn() } },
+        };
+        fetchMock = mock.fn(() => Promise.reject(new Error('network error')));
+        globalThis.fetch = /** @type {any} */ (fetchMock);
+        assert.equal(await findAuthorizedApproval(gh, BASE_OPTS), null);
     });
 });
