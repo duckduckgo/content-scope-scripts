@@ -34,8 +34,7 @@ export function AiChatsList({ className }) {
         <div role="listbox" id={aiChatsListId} class={cn(styles.list, className)} aria-label={t('omnibar_aiChatsListLabel')}>
             {chats.map((chat) => {
                 const showQuery = Boolean(
-                    chat.firstUserMessageContent &&
-                        chat.firstUserMessageContent.toLowerCase() !== chat.title.toLowerCase(),
+                    chat.title && chat.firstUserMessageContent && chat.title.toLowerCase() !== chat.firstUserMessageContent.toLowerCase(),
                 );
                 const displayText = showQuery ? `${chat.title} - "${chat.firstUserMessageContent}"` : chat.title;
 
