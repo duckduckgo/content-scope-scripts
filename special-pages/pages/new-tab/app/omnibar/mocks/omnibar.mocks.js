@@ -99,24 +99,28 @@ const allMockChats = [
     {
         chatId: 'chat-001',
         title: 'Edit: feedback quality & timing',
+        firstUserMessageContent: 'What is the feedback quality & timing?',
         pinned: true,
         lastEdit: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
     },
     {
         chatId: 'chat-002',
         title: 'Progression plan summary Progression plan summary Progression plan summary Progression plan summary Progression plan summary',
+        firstUserMessageContent: 'Help me create a career progression plan for my team',
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
     },
     {
         chatId: 'chat-003',
         title: mockAiChatTitleWithSearchTerm,
+        firstUserMessageContent: 'What are the key milestones for onboarding new employees?',
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     },
     {
         chatId: 'chat-004',
         title: 'Share knowledge effectively.',
+        firstUserMessageContent: 'Share knowledge effectively.',
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
     },
@@ -129,22 +133,38 @@ const allMockChats = [
     {
         chatId: 'chat-006',
         title: 'Budget forecast Q3 review',
+        firstUserMessageContent: 'Can you help me review and forecast the Q3 budget?',
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString(),
     },
     {
         chatId: 'chat-007',
         title: 'Team retro & action items',
+        firstUserMessageContent: 'Summarize our last team retro and list action items',
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
     },
     {
         chatId: 'chat-008',
         title: 'Migration plan for legacy services',
+        firstUserMessageContent: 'Help me plan the migration of our legacy services to the new platform',
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21).toISOString(),
     },
 ];
+
+/**
+ * Returns the expected visible text for an AI chat item.
+ * Mirrors the display logic in AiChatsList.js.
+ * @param {import("../../../types/new-tab").AiChat} chat
+ * @returns {string}
+ */
+export function getExpectedAiChatText(chat) {
+    if (chat.firstUserMessageContent && chat.firstUserMessageContent.toLowerCase() !== chat.title.toLowerCase()) {
+        return `${chat.title} - "${chat.firstUserMessageContent}"`;
+    }
+    return chat.title;
+}
 
 /**
  * @param {string} [query]
@@ -152,7 +172,13 @@ const allMockChats = [
  */
 export function getMockAiChats(query) {
     const trimmed = (query ?? '').trim().toLowerCase();
-    const filtered = trimmed ? allMockChats.filter((chat) => chat.title.toLowerCase().includes(trimmed)) : allMockChats;
+    const filtered = trimmed
+        ? allMockChats.filter(
+              (chat) =>
+                  chat.title.toLowerCase().includes(trimmed) ||
+                  (chat.firstUserMessageContent && chat.firstUserMessageContent.toLowerCase().includes(trimmed)),
+          )
+        : allMockChats;
     return { chats: filtered.slice(0, MAX_RESULTS) };
 }
 

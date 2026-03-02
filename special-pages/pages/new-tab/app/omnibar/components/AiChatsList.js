@@ -32,30 +32,38 @@ export function AiChatsList({ className }) {
 
     return (
         <div role="listbox" id={aiChatsListId} class={cn(styles.list, className)} aria-label={t('omnibar_aiChatsListLabel')}>
-            {chats.map((chat) => (
-                <button
-                    key={chat.chatId}
-                    role="option"
-                    id={getAiChatElementId(chat.chatId)}
-                    class={styles.item}
-                    tabIndex={chat === selectedChat ? 0 : -1}
-                    aria-selected={chat === selectedChat}
-                    onMouseOver={() => setSelectedChat(chat)}
-                    onMouseLeave={() => clearSelectedChat()}
-                    onClick={(event) => {
-                        event.preventDefault();
-                        openAiChat({
-                            chatId: chat.chatId,
-                            target: eventToTarget(event, platformName),
-                            trigger: 'mouse',
-                            isPinned: Boolean(chat.pinned),
-                        });
-                    }}
-                >
-                    {chat.pinned ? <PinIcon /> : <ChatBubbleIcon />}
-                    <span class={styles.title}>{chat.title}</span>
-                </button>
-            ))}
+            {chats.map((chat) => {
+                const showQuery = Boolean(
+                    chat.firstUserMessageContent &&
+                        chat.firstUserMessageContent.toLowerCase() !== chat.title.toLowerCase(),
+                );
+                const displayText = showQuery ? `${chat.title} - "${chat.firstUserMessageContent}"` : chat.title;
+
+                return (
+                    <button
+                        key={chat.chatId}
+                        role="option"
+                        id={getAiChatElementId(chat.chatId)}
+                        class={styles.item}
+                        tabIndex={chat === selectedChat ? 0 : -1}
+                        aria-selected={chat === selectedChat}
+                        onMouseOver={() => setSelectedChat(chat)}
+                        onMouseLeave={() => clearSelectedChat()}
+                        onClick={(event) => {
+                            event.preventDefault();
+                            openAiChat({
+                                chatId: chat.chatId,
+                                target: eventToTarget(event, platformName),
+                                trigger: 'mouse',
+                                isPinned: Boolean(chat.pinned),
+                            });
+                        }}
+                    >
+                        {chat.pinned ? <PinIcon /> : <ChatBubbleIcon />}
+                        <span class={styles.title}>{displayText}</span>
+                    </button>
+                );
+            })}
         </div>
     );
 }

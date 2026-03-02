@@ -1034,6 +1034,10 @@ export interface AiChat {
    * ISO timestamp of last edit
    */
   lastEdit?: string;
+  /**
+   * Content of the first user message in the chat
+   */
+  firstUserMessageContent?: string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"

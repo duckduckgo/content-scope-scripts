@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
 import { CustomizerPage } from '../../customizer/integration-tests/customizer.page.js';
-import { getMockAiChats, mockAiChatsSearchTerm, mockAiChatTitleWithSearchTerm } from '../mocks/omnibar.mocks.js';
+import { getMockAiChats, getExpectedAiChatText, mockAiChatsSearchTerm, mockAiChatTitleWithSearchTerm } from '../mocks/omnibar.mocks.js';
 
 test.describe('omnibar widget', () => {
     test('fetches config on load', async ({ page }, workerInfo) => {
@@ -1335,7 +1335,10 @@ test.describe('omnibar widget', () => {
 
             await omnibar.chatInput().fill(mockAiChatsSearchTerm);
             await expect(omnibar.aiChats()).toHaveCount(1);
-            await expect(omnibar.aiChats().first()).toHaveText(mockAiChatTitleWithSearchTerm);
+            const searchChat = /** @type {import("../../../types/new-tab").AiChat} */ (
+                mockChats.find((chat) => chat.title === mockAiChatTitleWithSearchTerm)
+            );
+            await expect(omnibar.aiChats().first()).toHaveText(getExpectedAiChatText(searchChat));
 
             await omnibar.chatInput().fill('');
 
@@ -1373,7 +1376,7 @@ test.describe('omnibar widget', () => {
 
             for (let i = 0; i < mockChats.length; i++) {
                 await omnibar.chatInput().press('ArrowDown');
-                await omnibar.expectSelectedAiChatToHaveText(mockChats[i].title);
+                await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(mockChats[i]));
             }
 
             await omnibar.chatInput().press('ArrowDown');
@@ -1396,7 +1399,7 @@ test.describe('omnibar widget', () => {
 
             for (let i = mockChats.length - 1; i >= 0; i--) {
                 await omnibar.chatInput().press('ArrowUp');
-                await omnibar.expectSelectedAiChatToHaveText(mockChats[i].title);
+                await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(mockChats[i]));
             }
 
             await omnibar.chatInput().press('ArrowUp');
@@ -1416,7 +1419,7 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
 
             await omnibar.chatInput().press('ArrowDown');
-            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+            await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(firstChat));
             await omnibar.chatInput().press('Enter');
 
             await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
@@ -1440,7 +1443,7 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
 
             await omnibar.chatInput().press('ArrowDown');
-            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+            await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(firstChat));
             await omnibar.chatInput().press('Meta+Enter');
 
             await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
@@ -1514,7 +1517,7 @@ test.describe('omnibar widget', () => {
             const firstChat = getMockAiChats().chats[0];
 
             await omnibar.chatInput().press('ArrowDown');
-            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+            await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(firstChat));
 
             await omnibar.chatInput().press('Escape');
             await omnibar.expectNoAiChatSelection();
@@ -1536,11 +1539,11 @@ test.describe('omnibar widget', () => {
 
             // Hover over first chat
             await omnibar.aiChats().nth(0).hover();
-            await omnibar.expectSelectedAiChatToHaveText(mockChats[0].title);
+            await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(mockChats[0]));
 
             // Hover over second chat
             await omnibar.aiChats().nth(1).hover();
-            await omnibar.expectSelectedAiChatToHaveText(mockChats[1].title);
+            await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(mockChats[1]));
 
             // Mouse out to clear selection
             await omnibar.chatInput().hover();
@@ -1558,7 +1561,7 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
 
             await omnibar.chatInput().press('ArrowDown');
-            await omnibar.expectSelectedAiChatToHaveText(getMockAiChats().chats[0].title);
+            await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(getMockAiChats().chats[0]));
 
             await omnibar.chatInput().fill(mockAiChatsSearchTerm);
             await omnibar.expectNoAiChatSelection();
@@ -1599,10 +1602,10 @@ test.describe('omnibar widget', () => {
 
             await omnibar.chatInput().fill(mockAiChatsSearchTerm);
             await expect(omnibar.aiChats()).toHaveCount(1);
-            await expect(omnibar.aiChats().first()).toHaveText(mockAiChatTitleWithSearchTerm);
+            await expect(omnibar.aiChats().first()).toHaveText(getExpectedAiChatText(searchChat));
 
             await omnibar.chatInput().press('ArrowDown');
-            await omnibar.expectSelectedAiChatToHaveText(mockAiChatTitleWithSearchTerm);
+            await omnibar.expectSelectedAiChatToHaveText(getExpectedAiChatText(searchChat));
 
             await omnibar.chatInput().press('Enter');
 
