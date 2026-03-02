@@ -31,14 +31,12 @@ jobs:
                               core.setOutput('is_member', 'false');
                           }
                       } catch (error) {
-                          if (error.status === 401) {
-                              core.setFailed(`DAX_PAT returned 401 — token may be expired or misconfigured`);
-                          } else if (error.status === 404) {
+                          if (error.status === 404) {
                               console.log(`⏭️ ${author} is not a member of duckduckgo/core — skipping auto-review`);
-                              core.setOutput('is_member', 'false');
                           } else {
-                              core.setFailed(`Failed to check team membership for ${author}: ${error.message} (status: ${error.status})`);
+                              console.log(`⚠️ Could not verify ${author}: ${error.message} (status: ${error.status})`);
                           }
+                          core.setOutput('is_member', 'false');
                       }
 
     cursor_auto_review:
