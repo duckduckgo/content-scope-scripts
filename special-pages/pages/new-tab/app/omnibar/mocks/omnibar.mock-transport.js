@@ -69,7 +69,7 @@ export function omnibarMockTransport() {
                 }
                 case 'omnibar_getAiChats': {
                     await new Promise((resolve) => setTimeout(resolve, 100));
-                    return getMockAiChats();
+                    return getMockAiChats(msg.params.query);
                 }
                 default: {
                     throw new Error('unhandled request' + msg);

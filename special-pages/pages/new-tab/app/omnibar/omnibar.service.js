@@ -143,11 +143,12 @@ export class OmnibarService {
     }
 
     /**
-     * Get recent AI chats
+     * Get recent AI chats, optionally filtered by query
+     * @param {string} query
      * @returns {Promise<AiChatsData>}
      */
-    getAiChats() {
-        return this.ntp.messaging.request('omnibar_getAiChats', {});
+    getAiChats(query) {
+        return this.ntp.messaging.request('omnibar_getAiChats', { query });
     }
 
     /**

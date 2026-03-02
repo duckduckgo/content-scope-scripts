@@ -1,12 +1,11 @@
-import { useContext, useEffect, useMemo, useState } from 'preact/hooks';
+import { useContext, useEffect, useState } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
  */
 
-/** @type {[]} */
-const EMPTY_ARRAY = [];
+const DEBOUNCE_MS = 150;
 
 /**
  * @param {string} chatId
@@ -23,7 +22,7 @@ export function getAiChatElementId(chatId) {
  */
 export function useAiChats({ query, initiallyVisible }) {
     const { getAiChats } = useContext(OmnibarContext);
-    const [allChats, setAllChats] = useState(/** @type {AiChat[]} */ ([]));
+    const [chats, setChats] = useState(/** @type {AiChat[]} */ ([]));
     const [selectedIndex, setSelectedIndex] = useState(/** @type {number | null} */ (null));
     const [chatsVisible, setChatsVisible] = useState(Boolean(initiallyVisible));
     const [prevQuery, setPrevQuery] = useState(query);
@@ -36,42 +35,36 @@ export function useAiChats({ query, initiallyVisible }) {
     useEffect(() => {
         let cancelled = false;
 
-        async function fetchChats() {
+        const isInitial = !query;
+        const delay = isInitial ? 0 : DEBOUNCE_MS;
+
+        const timerId = setTimeout(async () => {
             try {
-                const data = await getAiChats();
+                const data = await getAiChats(query);
                 if (!cancelled) {
-                    setAllChats(data.chats);
+                    setChats(data.chats);
                 }
             } catch (e) {
                 console.error('Failed to fetch AI chats:', e);
             }
-        }
-        fetchChats();
+        }, delay);
 
         return () => {
             cancelled = true;
+            clearTimeout(timerId);
         };
-    }, [getAiChats]);
+    }, [getAiChats, query]);
 
-    const filteredChats = useMemo(() => {
-        const trimmedQuery = query.trim().toLowerCase();
-        if (!trimmedQuery) {
-            return allChats;
-        }
-
-        return allChats.filter((chat) => chat.title.toLowerCase().includes(trimmedQuery));
-    }, [allChats, query]);
-
-    const selectedChat = selectedIndex !== null && selectedIndex < filteredChats.length ? filteredChats[selectedIndex] : null;
+    const selectedChat = selectedIndex !== null && selectedIndex < chats.length ? chats[selectedIndex] : null;
 
     const selectPreviousChat = () => {
-        if (filteredChats.length === 0) {
+        if (chats.length === 0) {
             return false;
         }
 
         setSelectedIndex((prev) => {
             if (prev === null) {
-                return filteredChats.length - 1;
+                return chats.length - 1;
             }
 
             if (prev === 0) {
@@ -85,7 +78,7 @@ export function useAiChats({ query, initiallyVisible }) {
     };
 
     const selectNextChat = () => {
-        if (filteredChats.length === 0) {
+        if (chats.length === 0) {
             return false;
         }
 
@@ -94,7 +87,7 @@ export function useAiChats({ query, initiallyVisible }) {
                 return 0;
             }
 
-            if (prev === filteredChats.length - 1) {
+            if (prev === chats.length - 1) {
                 return null;
             }
 
@@ -106,7 +99,7 @@ export function useAiChats({ query, initiallyVisible }) {
 
     /** @type {(chat: AiChat) => void} */
     const setSelectedChat = (chat) => {
-        const index = filteredChats.indexOf(chat);
+        const index = chats.indexOf(chat);
         setSelectedIndex(index === -1 ? null : index);
     };
 
@@ -123,7 +116,7 @@ export function useAiChats({ query, initiallyVisible }) {
     };
 
     return {
-        chats: chatsVisible ? filteredChats : EMPTY_ARRAY,
+        chats: chatsVisible ? chats : [],
         selectedChat,
         selectPreviousChat,
         selectNextChat,

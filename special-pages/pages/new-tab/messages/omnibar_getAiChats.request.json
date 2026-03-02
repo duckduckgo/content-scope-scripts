@@ -2,5 +2,11 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Get AI Chats Request",
   "type": "object",
-  "properties": {}
+  "required": ["query"],
+  "properties": {
+    "query": {
+      "description": "Search query to filter chats by title. Empty string returns recent chats (native applies 7-day filter).",
+      "type": "string"
+    }
+  }
 }
