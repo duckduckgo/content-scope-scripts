@@ -30,7 +30,7 @@ describe('BrowserUiLock', () => {
         return feature;
     }
 
-    describe('_hasVisibleScrollbar', () => {
+    describe('_hasExplicitlyVisibleScrollbar', () => {
         /** @type {typeof globalThis.getComputedStyle | undefined} */
         let originalGetComputedStyle;
 
@@ -70,70 +70,43 @@ describe('BrowserUiLock', () => {
         it('should return true when content overflows and overflow is visible', () => {
             const feature = createFeature();
             const el = createMockElement(1000, 500, 'visible');
-            expect(feature._hasVisibleScrollbar(el)).toBe(true);
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(true);
         });
 
-        it('should return true when content overflows and overflow is auto', () => {
+        it('should return false when content overflows and overflow is auto (default config)', () => {
             const feature = createFeature();
             const el = createMockElement(1000, 500, 'auto');
-            expect(feature._hasVisibleScrollbar(el)).toBe(true);
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
         });
 
         it('should return true when content overflows and overflow is scroll', () => {
             const feature = createFeature();
             const el = createMockElement(1000, 500, 'scroll');
-            expect(feature._hasVisibleScrollbar(el)).toBe(true);
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(true);
         });
 
         it('should return false when content overflows but overflow is hidden', () => {
             const feature = createFeature();
             const el = createMockElement(1000, 500, 'hidden');
-            expect(feature._hasVisibleScrollbar(el)).toBe(false);
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
         });
 
         it('should return false when content overflows but overflow is clip', () => {
             const feature = createFeature();
             const el = createMockElement(1000, 500, 'clip');
-            expect(feature._hasVisibleScrollbar(el)).toBe(false);
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
         });
 
         it('should return false when content fits (no overflow)', () => {
             const feature = createFeature();
             const el = createMockElement(500, 500, 'auto');
-            expect(feature._hasVisibleScrollbar(el)).toBe(false);
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
         });
 
         it('should return false when content is smaller than viewport', () => {
             const feature = createFeature();
             const el = createMockElement(300, 500, 'auto');
-            expect(feature._hasVisibleScrollbar(el)).toBe(false);
-        });
-    });
-
-    describe('lock conditions', () => {
-        /**
-         * Check if element has visible scrollbar
-         * @param {number} scrollHeight
-         * @param {number} clientHeight
-         * @param {string} overflowY
-         */
-        function hasVisibleScrollbar(scrollHeight, clientHeight, overflowY) {
-            return scrollHeight > clientHeight && overflowY !== 'hidden' && overflowY !== 'clip';
-        }
-
-        it('should lock when no visible scrollbar (content fits viewport)', () => {
-            const hasScrollbar = hasVisibleScrollbar(500, 800, 'auto');
-            expect(hasScrollbar).toBe(false); // no scrollbar = lock
-        });
-
-        it('should lock when overflow is hidden (no visible scrollbar)', () => {
-            const hasScrollbar = hasVisibleScrollbar(1000, 500, 'hidden');
-            expect(hasScrollbar).toBe(false); // hidden = no scrollbar = lock
-        });
-
-        it('should NOT lock when there is a visible scrollbar', () => {
-            const hasScrollbar = hasVisibleScrollbar(1000, 500, 'auto');
-            expect(hasScrollbar).toBe(true); // scrollbar visible = no lock
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
         });
     });
 
@@ -164,9 +137,21 @@ describe('BrowserUiLock', () => {
             expect(feature._messaging.notify).not.toHaveBeenCalled();
         });
 
-        it('should deduplicate repeated false values', () => {
+        it('should notify on first evaluation even when unlocked', () => {
             const feature = createFeature();
-            // default _currentLockState is false
+            // _currentLockState starts as null, so first unlock should still notify
+            feature._notifyIfChanged(false);
+
+            // @ts-expect-error - mock messaging
+            expect(feature._messaging.notify).toHaveBeenCalledWith('uiLockChanged', { locked: false });
+        });
+
+        it('should not notify on repeated unlocked values after first evaluation', () => {
+            const feature = createFeature();
+            feature._notifyIfChanged(false);
+            // @ts-expect-error - mock messaging
+            feature._messaging.notify.calls.reset();
+
             feature._notifyIfChanged(false);
 
             // @ts-expect-error - mock messaging

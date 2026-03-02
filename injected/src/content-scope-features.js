@@ -156,7 +156,7 @@ export async function init(args) {
 }
 
 /**
- * @param {any} args
+ * @param {LoadArgs} args
  */
 export function update(args) {
     if (!isHTMLDocument) {
