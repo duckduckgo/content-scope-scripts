@@ -49,8 +49,8 @@
 }
 
 .starIcon {
-    width: var(--sp-5); /* 20px */
-    height: var(--sp-5); /* 20px */
+    width: var(--sp-6); /* 24px */
+    height: var(--sp-6); /* 24px */
     flex-shrink: 0;
 }
 
@@ -67,4 +67,3 @@
 .startButton {
     margin-top: var(--sp-8); /* 32px */
 }
-
