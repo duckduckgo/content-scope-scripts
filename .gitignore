@@ -26,4 +26,5 @@ coverage/
 .vscode
 
 # Claude Code
-.claude/
+.claude/*
+!.claude/skills/
