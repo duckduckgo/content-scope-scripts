@@ -926,13 +926,15 @@ describe('Helpers checks', () => {
 
         it('should handle config replacing object with primitive', () => {
             const defaults = { nested: { a: 1 } };
-            const config = { nested: 'replaced' };
+            const config = /** @type {const} */ ({ nested: 'replaced' });
+            // @ts-expect-error - testing runtime behavior with incompatible types
             expect(withDefaults(defaults, config)).toEqual({ nested: 'replaced' });
         });
 
         it('should handle config replacing primitive with object', () => {
             const defaults = { value: 'string' };
             const config = { value: { nested: true } };
+            // @ts-expect-error - testing runtime behavior with incompatible types
             expect(withDefaults(defaults, config)).toEqual({ value: { nested: true } });
         });
 
