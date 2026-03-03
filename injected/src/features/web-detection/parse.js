@@ -52,6 +52,7 @@ import { withDefaults } from '../../utils.js';
 
 /**
  * @typedef {object} FireEventAction
+ * @property {FeatureState} [state] - whether this action is enabled
  * @property {string} type
  */
 

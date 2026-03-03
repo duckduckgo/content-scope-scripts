@@ -198,6 +198,16 @@ describe('WebDetection', () => {
             expect(result.actions.fireEvent).toEqual({ type: 'adwall' });
         });
 
+        it('should preserve fireEvent state when configured', () => {
+            const result = oneDetectorConfigParsed({
+                match: { text: { pattern: 'test' } },
+                actions: /** @type {any} */ ({
+                    fireEvent: { type: 'adwall', state: 'disabled' },
+                }),
+            });
+            expect(result.actions.fireEvent).toEqual({ type: 'adwall', state: 'disabled' });
+        });
+
         it('should not have fireEvent when not configured', () => {
             const result = oneDetectorConfigParsed({
                 match: { text: { pattern: 'test' } },
@@ -479,6 +489,82 @@ describe('WebDetection', () => {
             expect(results.length).toBe(2);
             expect(results.find((r) => r.detectorId === 'group.broken')?.detected).toBe('error');
             expect(results.find((r) => r.detectorId === 'group.working')?.detected).toBe(true);
+        });
+    });
+
+    describe('_executeFireEvent', () => {
+        /**
+         * @returns {WebDetection}
+         */
+        function createInstance() {
+            const args = {
+                site: { domain: 'example.com', url: 'https://example.com/page' },
+                platform: {},
+                featureSettings: { webDetection: { detectors: {} } },
+                bundledConfig: undefined,
+                messagingContextName: 'test',
+            };
+            const originalWindow = globalThis.window;
+            const mockSelf = {};
+            // @ts-expect-error - mocking for test
+            globalThis.window = { self: mockSelf, top: mockSelf };
+            try {
+                const instance = new WebDetection('webDetection', undefined, {}, args);
+                instance.init();
+                return instance;
+            } finally {
+                globalThis.window = originalWindow;
+            }
+        }
+
+        it('should fire when fireEvent state is enabled', async () => {
+            const instance = createInstance();
+            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
+            await instance._executeFireEvent(
+                { actions: { fireEvent: { type: 'adwall', state: 'enabled' } } },
+                true,
+            );
+            expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 'adwall' });
+        });
+
+        it('should fire when fireEvent state is omitted (defaults to enabled)', async () => {
+            const instance = createInstance();
+            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
+            await instance._executeFireEvent(
+                { actions: { fireEvent: { type: 'adwall' } } },
+                true,
+            );
+            expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 'adwall' });
+        });
+
+        it('should not fire when fireEvent state is disabled', async () => {
+            const instance = createInstance();
+            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
+            await instance._executeFireEvent(
+                { actions: { fireEvent: { type: 'adwall', state: 'disabled' } } },
+                true,
+            );
+            expect(instance.callFeatureMethod).not.toHaveBeenCalled();
+        });
+
+        it('should not fire when detected is false', async () => {
+            const instance = createInstance();
+            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
+            await instance._executeFireEvent(
+                { actions: { fireEvent: { type: 'adwall', state: 'enabled' } } },
+                false,
+            );
+            expect(instance.callFeatureMethod).not.toHaveBeenCalled();
+        });
+
+        it('should not fire when fireEvent action is absent', async () => {
+            const instance = createInstance();
+            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
+            await instance._executeFireEvent(
+                { actions: {} },
+                true,
+            );
+            expect(instance.callFeatureMethod).not.toHaveBeenCalled();
         });
     });
 
