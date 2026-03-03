@@ -6,32 +6,11 @@
     margin: 0 auto;
 }
 
-.imageContainer {
-    position: relative;
+.video {
     width: 100%;
+    height: auto;
     aspect-ratio: 384 / 188;
     border-radius: var(--sp-2);
-}
-
-.frame {
-    position: absolute;
-    inset: 0;
-    object-fit: cover;
-    opacity: 0;
-
-    &.previous {
-        opacity: 1;
-    }
-
-    &.active {
-        z-index: 1;
-        opacity: 1;
-        transition: opacity 300ms ease;
-    }
-
-    [data-reduced-motion="true"] &.active {
-        transition: none;
-    }
 }
 
 .instruction {

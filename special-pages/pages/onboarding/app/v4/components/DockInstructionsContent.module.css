@@ -7,35 +7,12 @@
     padding: var(--sp-12); /* 48px */
 }
 
-.imageContainer {
-    position: relative;
+.video {
     width: 100%;
+    height: auto;
     aspect-ratio: 384 / 188;
     border-radius: var(--sp-2); /* 8px */
-    overflow: hidden;
-}
-
-.frame {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
     object-fit: cover;
-    opacity: 0;
-
-    &.previous {
-        opacity: 1;
-    }
-
-    &.active {
-        z-index: 1;
-        opacity: 1;
-        transition: opacity 300ms ease;
-    }
-
-    [data-reduced-motion="true"] &.active {
-        transition: none;
-    }
 }
 
 .instruction {
