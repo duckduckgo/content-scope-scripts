@@ -3,6 +3,7 @@ import { useContext } from 'preact/hooks';
 import { GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { Button } from './Button';
+import { LottieAnimation } from './LottieAnimation';
 import styles from './DuckPlayerContent.module.css';
 
 /**
@@ -19,6 +20,7 @@ export function DuckPlayerContent() {
         <div class={styles.root}>
             <div class={styles.imageContainer}>
                 <img src="assets/img/v4/duck-player-promo.svg" alt="" class={styles.promoImage} />
+                <LottieAnimation src="assets/lottie/v4/sparkle.json" class={styles.sparkle} width={34} height={43} />
             </div>
             <Button variant="primary" size="stretch" onClick={advance}>
                 {t('nextButton')}

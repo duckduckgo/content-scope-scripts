@@ -8,12 +8,21 @@
 }
 
 .imageContainer {
+    position: relative;
     align-self: stretch;
-    overflow: hidden;
+    overflow: visible;
     border-radius: var(--sp-2); /* 8px */
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.sparkle {
+    position: absolute;
+    top: -4px;
+    left: -13px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
 
 .promoImage {
