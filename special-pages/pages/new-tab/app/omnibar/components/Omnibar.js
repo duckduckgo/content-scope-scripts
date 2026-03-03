@@ -155,8 +155,8 @@ function AiChatContent({ query, autoFocus, onChange, onSubmit }) {
     return (
         <div
             ref={containerRef}
-            onFocus={() => showChats()}
-            // Using onBlurCapture to work around WebKit which doesn't fire blur event when user selects address bar.
+            // Using capture-phase events because WebKit doesn't reliably fire bubbling focus/blur (e.g. address bar, window refocus).
+            onFocusCapture={() => showChats()}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
                     return;
