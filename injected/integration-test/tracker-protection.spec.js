@@ -205,6 +205,49 @@ test('tracker-protection: reports allowlisted tracker with ruleException reason'
     expect(detection.isAllowlisted).toBe(true);
 });
 
+test('tracker-protection: pageUrl matches top-frame URL for tracker detection', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    const pageUrl = page.url();
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/pixel.js');
+    });
+
+    const messages = await collector.waitForMessage('trackerDetected', 1);
+    expect(messages[0].payload.params.pageUrl).toBe(pageUrl);
+});
+
+test('tracker-protection: pageUrl matches top-frame URL for surrogate injection', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    const pageUrl = page.url();
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
+    });
+
+    const injected = await collector.waitForMessage('surrogateInjected', 1);
+    expect(injected[0].payload.params.pageUrl).toBe(pageUrl);
+});
+
+test('tracker-protection: non-tracker third-party request includes pageUrl and entity fields', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://safe-site.example/scripts/widget.js');
+    });
+
+    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const detection = messages[0].payload.params;
+
+    expect(detection.blocked).toBe(false);
+    expect(detection.pageUrl).toBe(page.url());
+    expect(typeof detection.reason).toBe('string');
+    expect(detection.isSurrogate).toBe(false);
+});
+
 test('tracker-protection: reports but does not block on unprotected domain', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, UNPROTECTED_CONFIG);

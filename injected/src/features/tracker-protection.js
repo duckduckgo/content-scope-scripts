@@ -11,11 +11,12 @@
  */
 
 import ContentFeature from '../content-feature.js';
-import { TrackerResolver, REASON_RULE_EXCEPTION, REASON_FIRST_PARTY } from './tracker-protection/tracker-resolver.js';
+import { TrackerResolver, REASON_RULE_EXCEPTION } from './tracker-protection/tracker-resolver.js';
 import { parseSurrogates } from './tracker-protection/surrogates-parser.js';
 
 export const REASON_UNPROTECTED_DOMAIN = 'unprotectedDomain';
 export const REASON_THIRD_PARTY_REQUEST = 'thirdPartyRequest';
+export const REASON_AFFILIATED_THIRD_PARTY = 'thirdPartyRequestOwnedByFirstParty';
 
 /**
  * CTL surrogates that require CTL feature to be enabled
@@ -338,7 +339,7 @@ export class TrackerProtection extends ContentFeature {
             if (this._resolver) {
                 const affiliation = this._resolver.getEntityAffiliation(requestHost, pageHost);
                 if (affiliation.affiliated) {
-                    reason = REASON_FIRST_PARTY;
+                    reason = REASON_AFFILIATED_THIRD_PARTY;
                     entityName = affiliation.entityName;
                     ownerName = affiliation.ownerName;
                     prevalence = affiliation.prevalence;
