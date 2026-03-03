@@ -1331,6 +1331,28 @@ describe('Helpers checks', () => {
             const result = computeEnabledFeatures(data, 'excepted.com', { name: 'ios' }, platformSpecificFeatures);
             expect(result).not.toContain('webDetection');
         });
+
+        it('disables webEvents on a domain present in its exceptions array', () => {
+            const data = {
+                features: {
+                    webEvents: { state: 'enabled', settings: {}, exceptions: [{ domain: 'excepted.com' }] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'excepted.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).not.toContain('webEvents');
+        });
+
+        it('does not disable webEvents on a non-matching domain', () => {
+            const data = {
+                features: {
+                    webEvents: { state: 'enabled', settings: {}, exceptions: [{ domain: 'excepted.com' }] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'allowed.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).toContain('webEvents');
+        });
     });
 
     describe('parseFeatureSettings', () => {

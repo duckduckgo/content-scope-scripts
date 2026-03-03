@@ -2,6 +2,7 @@ import { JSDOM } from 'jsdom';
 import { parseDetectors } from '../src/features/web-detection/parse.js';
 import { evaluateMatch } from '../src/features/web-detection/matching.js';
 import WebDetection from '../src/features/web-detection.js';
+import WebEvents from '../src/features/web-events.js';
 
 /**
  * @typedef {object} TestEnv
@@ -551,6 +552,79 @@ describe('WebDetection', () => {
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
             await instance._executeFireEvent(actionsConfig({}), true);
             expect(instance.callFeatureMethod).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('fireEvent with webEvents feature lifecycle', () => {
+        /** @type {typeof globalThis.window} */
+        let originalWindow;
+
+        beforeEach(() => {
+            originalWindow = globalThis.window;
+            const mockSelf = {};
+            // @ts-expect-error - mocking for test
+            globalThis.window = { self: mockSelf, top: mockSelf };
+        });
+
+        afterEach(() => {
+            globalThis.window = originalWindow;
+        });
+
+        const defaultArgs = {
+            site: { domain: 'example.com', url: 'https://example.com/page' },
+            platform: {},
+            featureSettings: { webDetection: { detectors: {} } },
+            bundledConfig: undefined,
+            messagingContextName: 'test',
+        };
+
+        /**
+         * @param {Partial<import('../src/features/web-detection/parse.js').DetectorActions>} overrides
+         * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
+         */
+        const actionsConfig = (overrides) =>
+            /** @type {any} */ ({ actions: { breakageReportData: { state: 'enabled' }, ...overrides } });
+
+        const fireEventConfig = actionsConfig({ fireEvent: { type: 'adwall', state: 'enabled' } });
+
+        it('should not fire when webEvents feature is not loaded', async () => {
+            const instance = new WebDetection('webDetection', undefined, {}, defaultArgs);
+            instance.init();
+
+            // callFeatureMethod will return CallFeatureMethodError (feature not found)
+            await instance._executeFireEvent(fireEventConfig, true);
+            // Completes without error
+        });
+
+        it('should not fire when webEvents feature is skipped (disabled on page)', async () => {
+            /** @type {Partial<import('../src/features.js').FeatureMap>} */
+            const features = {};
+            const webEvents = new WebEvents('webEvents', undefined, features, defaultArgs);
+            features.webEvents = webEvents;
+            webEvents.markFeatureAsSkipped('feature disabled for this site');
+            const fireEventSpy = spyOn(webEvents, 'fireEvent');
+
+            const instance = new WebDetection('webDetection', undefined, features, defaultArgs);
+            instance.init();
+
+            // callFeatureMethod will return CallFeatureMethodError (skipped)
+            await instance._executeFireEvent(fireEventConfig, true);
+            expect(fireEventSpy).not.toHaveBeenCalled();
+        });
+
+        it('should fire when webEvents feature is loaded and ready', async () => {
+            /** @type {Partial<import('../src/features.js').FeatureMap>} */
+            const features = {};
+            const webEvents = new WebEvents('webEvents', undefined, features, defaultArgs);
+            features.webEvents = webEvents;
+            await webEvents.callInit(defaultArgs);
+            const fireEventSpy = spyOn(webEvents, 'fireEvent');
+
+            const instance = new WebDetection('webDetection', undefined, features, defaultArgs);
+            instance.init();
+
+            await instance._executeFireEvent(fireEventConfig, true);
+            expect(fireEventSpy).toHaveBeenCalledWith({ type: 'adwall' });
         });
     });
 
