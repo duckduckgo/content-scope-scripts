@@ -22,7 +22,6 @@ export const REASON_THIRD_PARTY_REQUEST = 'thirdPartyRequest';
  */
 const CTL_SURROGATES = ['fb-sdk.js'];
 
-
 /**
  * Get the tab's top-level URL, handling iframes
  * @returns {URL | null}
@@ -374,6 +373,8 @@ export class TrackerProtection extends ContentFeature {
         } else if (isAllowlisted) {
             blocked = false;
             result.reason = REASON_RULE_EXCEPTION;
+        } else if (result.matchedRule?.action?.startsWith('block-ctl-') && !this._ctlEnabled) {
+            blocked = false;
         } else if (result.action !== 'ignore') {
             blocked = true;
         }
@@ -436,6 +437,8 @@ export class TrackerProtection extends ContentFeature {
         } else if (isAllowlisted) {
             blocked = false;
             result.reason = REASON_RULE_EXCEPTION;
+        } else if (result.matchedRule?.action?.startsWith('block-ctl-') && !this._ctlEnabled) {
+            blocked = false;
         } else if (result.action !== 'ignore') {
             blocked = true;
         }

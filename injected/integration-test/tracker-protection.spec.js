@@ -122,6 +122,7 @@ test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, te
     });
 
     const detected = await collector.waitForMessage('trackerDetected', 1);
+    expect(detected[0].payload.params.blocked).toBe(false);
     expect(detected[0].payload.params.isSurrogate).toBe(false);
 
     // Ensure no surrogateInjected message sent
