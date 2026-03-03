@@ -13,7 +13,7 @@ export const ddgShimMark = Symbol('ddgShimMark');
 /**
  * FIXME: this function is not needed anymore after FF xray removal
  * Like Object.defineProperty, but with support for Firefox's mozProxies.
- * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
+ * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
  * @param {string | symbol} propertyName
  * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
  */
@@ -113,7 +113,7 @@ export function wrapFunction(functionValue, realTarget) {
 
 /**
  * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
- * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
+ * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
  * @param {string} propertyName
  * @param {Partial<PropertyDescriptor>} descriptor
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
@@ -150,7 +150,7 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
 
 /**
  * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
- * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
+ * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
  * @param {string} propertyName
  * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property

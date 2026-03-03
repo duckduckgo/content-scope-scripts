@@ -3,15 +3,26 @@ name: Review Validation
 on:
     pull_request_review:
         types: [submitted, dismissed]
-    pull_request_target:
+    pull_request:
         types: [opened, synchronize, reopened]
+    merge_group:
+
+permissions:
+    contents: read
+    pull-requests: read
+    statuses: write
 
 jobs:
     review_validation:
         runs-on: ubuntu-latest
 
         steps:
+            - name: Merge queue pass-through
+              if: ${{ github.event_name == 'merge_group' }}
+              run: echo "Review already validated before entering merge queue"
+
             - name: Checkout base branch
+              if: ${{ github.event_name != 'merge_group' }}
               uses: actions/checkout@v6
               with:
                   ref: ${{ github.event.pull_request.base.ref }}
@@ -21,6 +32,7 @@ jobs:
                   sparse-checkout-cone-mode: false
 
             - name: Validate approved review from authorized reviewer
+              if: ${{ github.event_name != 'merge_group' }}
               uses: actions/github-script@v8
               env:
                   ORG_TOKEN: ${{ secrets.DAX_PAT }}
@@ -28,32 +40,51 @@ jobs:
                   script: |
                       const { loadRequiredTeams, findAuthorizedApproval } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
+                      const sha = context.payload.pull_request.head.sha;
+                      const repo = { owner: context.repo.owner, repo: context.repo.repo };
+                      const teamsList = teams.map(t => `@duckduckgo/${t}`).join(', ');
+
+                      async function setReviewStatus({ state, description }) {
+                          await github.rest.repos.createCommitStatus({
+                              ...repo,
+                              sha,
+                              state,
+                              context: 'Authorized Review',
+                              description: description.substring(0, 140)
+                          });
+                      }
 
                       let approval;
                       try {
                           approval = await findAuthorizedApproval(github, {
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
+                              ...repo,
                               prNumber: context.payload.pull_request.number,
                               org: 'duckduckgo',
                               teams,
                               orgToken: process.env.ORG_TOKEN || undefined
                           });
                       } catch (error) {
-                          if (error.status === 401) {
-                              core.setFailed('DAX_PAT returned 401 — token may be expired or misconfigured');
-                          } else {
-                              core.setFailed(`Review validation failed: ${error.message} (status: ${error.status ?? 'unknown'})`);
-                          }
+                          const msg = error.status === 401
+                              ? 'DAX_PAT returned 401 — token may be expired or misconfigured'
+                              : `Review validation failed: ${error.message} (status: ${error.status ?? 'unknown'})`;
+                          await setReviewStatus({ state: 'error', description: msg });
+                          core.setFailed(msg);
                           return;
                       }
 
                       if (approval) {
                           const via = approval.team ? `(member of ${approval.team})` : '';
-                          console.log(`✅ Approved by ${approval.user} ${via}`);
+                          const desc = `Approved by ${approval.user} ${via}`.trim();
+                          await setReviewStatus({ state: 'success', description: desc });
+                          core.info(`✅ ${desc}`);
+                      } else if (context.eventName === 'pull_request') {
+                          await setReviewStatus({
+                              state: 'pending',
+                              description: `Waiting for approval. Required teams: ${teamsList}`
+                          });
+                          core.info('⏳ No approval yet — commit status set to pending');
                       } else {
-                          core.setFailed(
-                              '❌ No approved review from daxtheduck or a member of the required teams: ' +
-                              teams.map(t => `@duckduckgo/${t}`).join(', ')
-                          );
+                          const desc = `No approved review from daxtheduck or a member of: ${teamsList}`;
+                          await setReviewStatus({ state: 'failure', description: desc });
+                          core.setFailed(desc);
                       }

@@ -5,13 +5,14 @@ on:
         types: [opened, synchronize, reopened]
 
 jobs:
-    cursor_auto_review:
+    check_membership:
         runs-on: ubuntu-latest
-        concurrency: cursor-review-${{ github.event.pull_request.number }}
-
+        outputs:
+            is_member: ${{ steps.membership.outputs.is_member }}
         steps:
             - name: Verify author is in duckduckgo/core
               uses: actions/github-script@v8
+              id: membership
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
@@ -24,26 +25,34 @@ jobs:
                           });
                           if (data.state === 'active') {
                               console.log(`✅ ${author} is an active member of duckduckgo/core`);
+                              core.setOutput('is_member', 'true');
                           } else {
-                              core.setFailed(`${author} is not an active member of duckduckgo/core`);
+                              console.log(`⏭️ ${author} is not an active member — skipping auto-review`);
+                              core.setOutput('is_member', 'false');
                           }
                       } catch (error) {
-                          if (error.status === 401) {
-                              core.setFailed(`DAX_PAT returned 401 — token may be expired or misconfigured`);
-                          } else if (error.status === 404) {
-                              core.setFailed(`${author} is not a member of duckduckgo/core`);
+                          if (error.status === 404) {
+                              console.log(`⏭️ ${author} is not a member of duckduckgo/core — skipping auto-review`);
                           } else {
-                              core.setFailed(`Failed to check team membership for ${author}: ${error.message} (status: ${error.status})`);
+                              console.log(`⚠️ Could not verify ${author}: ${error.message} (status: ${error.status})`);
                           }
+                          core.setOutput('is_member', 'false');
                       }
 
+    cursor_auto_review:
+        needs: check_membership
+        if: needs.check_membership.outputs.is_member == 'true'
+        runs-on: ubuntu-latest
+        concurrency: cursor-review-${{ github.event.pull_request.number }}
+
+        steps:
             - name: Dismiss stale Dax approval on new push
               if: github.event.action == 'synchronize'
               uses: actions/github-script@v8
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
-                      const { data: reviews } = await github.rest.pulls.listReviews({
+                      const reviews = await github.paginate(github.rest.pulls.listReviews, {
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                           pull_number: context.payload.pull_request.number
@@ -65,7 +74,6 @@ jobs:
             - name: Checkout base branch
               uses: actions/checkout@v6
               with:
-                  # Always read from base branch to prevent PRs tampering with the team list
                   ref: ${{ github.event.pull_request.base.ref }}
                   sparse-checkout: |
                       .github/REQUIRED_TEAMS
@@ -108,7 +116,7 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const { DAX_USERNAME } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
-                      const { data: reviews } = await github.rest.pulls.listReviews({
+                      const reviews = await github.paginate(github.rest.pulls.listReviews, {
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                           pull_number: context.payload.pull_request.number
