@@ -268,7 +268,7 @@ export default class AutofillImport extends ActionExecutorBase {
      * Creates an overlay element to animate, by adding a div to the body
      * and styling it based on the found element.
      * @param {HTMLElement|Element} mainElement
-     * @param {any} style
+     * @param {ButtonAnimationStyle} style
      */
     createOverlayElement(mainElement, style) {
         this.removeOverlayIfNeeded();
