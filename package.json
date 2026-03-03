@@ -56,7 +56,6 @@
     "typescript-eslint": "^8.56.0"
   },
   "dependencies": {
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1771345164456",
     "immutable-json-patch": "^6.0.2",
     "urlpattern-polyfill": "^10.1.0"
   }
