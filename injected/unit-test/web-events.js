@@ -9,7 +9,14 @@ describe('WebEvents', () => {
         function captureNotify(event) {
             /** @type {{ method: string, params: Record<string, any> } | null} */
             let captured = null;
-            const instance = Object.create(WebEvents.prototype);
+            const args = {
+                site: { domain: 'example.com', url: 'https://example.com' },
+                platform: {},
+                featureSettings: {},
+                bundledConfig: undefined,
+                messagingContextName: 'test',
+            };
+            const instance = new WebEvents('webEvents', undefined, {}, args);
             instance._messaging = {
                 notify: (/** @type {string} */ method, /** @type {Record<string, any>} */ params) => {
                     captured = { method, params };
