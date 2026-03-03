@@ -44,15 +44,16 @@ export async function findRiskLevel(github, { owner, repo, prNumber }) {
 
 export async function isTeamMember(github, orgToken, org, teamSlug, username) {
     try {
-        const { data } = await github.request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
+        const Ctor = /** @type {new (opts: {auth: string}) => typeof github} */ (github.constructor);
+        const orgClient = new Ctor({ auth: orgToken });
+        const { data } = await orgClient.request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
             org,
             team_slug: teamSlug,
             username,
-            headers: { authorization: `token ${orgToken}` },
         });
         return data.state === 'active';
     } catch (error) {
-        if (error.status === 401) throw error;
+        if (/** @type {any} */ (error).status === 401) throw error;
         return false;
     }
 }
