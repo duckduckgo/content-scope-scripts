@@ -523,9 +523,114 @@ describe('TrackerResolver', () => {
             expect(result?.reason).toBe('default ignore');
         });
     });
-});
 
-// Note: TrackerProtection feature tests that require browser APIs (MutationObserver, document, window)
-// are better suited for integration tests with jsdom or in-browser testing.
-// The TrackerResolver class tests above cover the core logic that was previously
-// tested in the Swift SurrogatesUserScriptsTests and ContentBlockerRulesUserScriptsTests.
+    describe('getEntityAffiliation (P0-5)', () => {
+        it('should detect affiliated domains (same entity)', () => {
+            const result = resolver.getEntityAffiliation('facebook.net', 'facebook.com');
+            expect(result.affiliated).toBe(true);
+            expect(result.ownerName).toBe('Facebook, Inc.');
+            expect(result.entityName).toBe('Facebook');
+            expect(result.prevalence).toBe(0.5);
+        });
+
+        it('should detect affiliated subdomains', () => {
+            const result = resolver.getEntityAffiliation('cdn.facebook.net', 'www.facebook.com');
+            expect(result.affiliated).toBe(true);
+            expect(result.ownerName).toBe('Facebook, Inc.');
+        });
+
+        it('should return not affiliated for different entities', () => {
+            const result = resolver.getEntityAffiliation('tracker.com', 'facebook.com');
+            expect(result.affiliated).toBe(false);
+            expect(result.ownerName).toBeNull();
+            expect(result.entityName).toBeNull();
+            expect(result.prevalence).toBeNull();
+        });
+
+        it('should return not affiliated when request domain has no entity', () => {
+            const result = resolver.getEntityAffiliation('unknown-cdn.com', 'facebook.com');
+            expect(result.affiliated).toBe(false);
+        });
+
+        it('should return not affiliated when page domain has no entity', () => {
+            const result = resolver.getEntityAffiliation('tracker.com', 'random-page.com');
+            expect(result.affiliated).toBe(false);
+        });
+
+        it('should return not affiliated when neither domain has entity', () => {
+            const result = resolver.getEntityAffiliation('unknown.com', 'random.com');
+            expect(result.affiliated).toBe(false);
+        });
+    });
+
+    describe('P0-2: affiliated third-party tracker reporting', () => {
+        it('should mark entity-affiliated tracker as first party with ignore action', () => {
+            const result = resolver.getTrackerData('https://connect.facebook.net/en_US/sdk.js', 'https://facebook.com');
+            expect(result).not.toBeNull();
+            expect(result.firstParty).toBe(true);
+            expect(result.action).toBe('ignore');
+            expect(result.reason).toBe('first party');
+        });
+    });
+
+    describe('P0-3: unaffiliated third-party tracker reporting', () => {
+        it('should block unaffiliated tracker with default block action', () => {
+            const result = resolver.getTrackerData('https://tracker.com/pixel.gif', 'https://example.com');
+            expect(result).not.toBeNull();
+            expect(result.firstParty).toBe(false);
+            expect(result.action).toBe('block');
+            expect(result.reason).toBe('default block');
+        });
+
+        it('should allow unaffiliated tracker with default ignore action', () => {
+            const result = resolver.getTrackerData('https://allowed-tracker.com/script.js', 'https://example.com');
+            expect(result).not.toBeNull();
+            expect(result.firstParty).toBe(false);
+            expect(result.action).toBe('ignore');
+            expect(result.reason).toBe('default ignore');
+        });
+    });
+
+    describe('P0-4: non-tracker same-hostname suppression', () => {
+        it('should return null for non-tracker domain (native handles eTLD+1 filtering)', () => {
+            const result = resolver.getTrackerData('https://cdn.example.com/image.png', 'https://example.com');
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('P0-6: entity/metadata fidelity in tracker results', () => {
+        it('should include entity displayName and prevalence', () => {
+            const result = resolver.getTrackerData('https://tracker.com/pixel.gif', 'https://example.com');
+            expect(result).not.toBeNull();
+            expect(result.entity).not.toBeNull();
+            expect(result.entity.displayName).toBe('Fake Tracking Inc');
+            expect(result.entity.prevalence).toBe(0.1);
+        });
+
+        it('should include tracker owner info', () => {
+            const result = resolver.getTrackerData('https://tracker.com/pixel.gif', 'https://example.com');
+            expect(result).not.toBeNull();
+            expect(result.tracker.owner.name).toBe('Fake Tracking Inc');
+            expect(result.tracker.owner.displayName).toBe('FT Inc');
+        });
+
+        it('should include tracker category data', () => {
+            const dataWithCategory = {
+                ...sampleTrackerData,
+                trackers: {
+                    ...sampleTrackerData.trackers,
+                    'analytics-tracker.com': {
+                        domain: 'analytics-tracker.com',
+                        default: 'block',
+                        owner: { name: 'Analytics Corp' },
+                        categories: ['Analytics'],
+                    },
+                },
+            };
+            const r = new TrackerResolver({ trackerData: dataWithCategory, surrogates: sampleSurrogates });
+            const result = r.getTrackerData('https://analytics-tracker.com/pixel.gif', 'https://example.com');
+            expect(result).not.toBeNull();
+            expect(result?.tracker.categories).toEqual(['Analytics']);
+        });
+    });
+});

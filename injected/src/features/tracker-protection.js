@@ -11,7 +11,7 @@
  */
 
 import ContentFeature from '../content-feature.js';
-import { TrackerResolver, REASON_RULE_EXCEPTION } from './tracker-protection/tracker-resolver.js';
+import { TrackerResolver, REASON_RULE_EXCEPTION, REASON_FIRST_PARTY } from './tracker-protection/tracker-resolver.js';
 import { parseSurrogates } from './tracker-protection/surrogates-parser.js';
 
 export const REASON_UNPROTECTED_DOMAIN = 'unprotectedDomain';
@@ -330,16 +330,31 @@ export class TrackerProtection extends ContentFeature {
             const pageHost = new URL(topUrl).hostname;
             if (requestHost === pageHost) return;
 
+            let reason = REASON_THIRD_PARTY_REQUEST;
+            let entityName = null;
+            let ownerName = null;
+            let prevalence = null;
+
+            if (this._resolver) {
+                const affiliation = this._resolver.getEntityAffiliation(requestHost, pageHost);
+                if (affiliation.affiliated) {
+                    reason = REASON_FIRST_PARTY;
+                    entityName = affiliation.entityName;
+                    ownerName = affiliation.ownerName;
+                    prevalence = affiliation.prevalence;
+                }
+            }
+
             this.notify('trackerDetected', {
                 url,
                 blocked: false,
-                reason: REASON_THIRD_PARTY_REQUEST,
+                reason,
                 isSurrogate: false,
                 pageUrl: this._topLevelUrl?.href || '',
-                entityName: null,
-                ownerName: null,
+                entityName,
+                ownerName,
                 category: null,
-                prevalence: null,
+                prevalence,
                 isAllowlisted: false,
             });
         } catch {

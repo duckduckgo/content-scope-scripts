@@ -493,6 +493,30 @@ export class TrackerResolver {
     }
 
     /**
+     * Check entity affiliation between a request and page domain.
+     * Used for non-tracker requests to determine "owned by first party" classification.
+     * @param {string} requestHost
+     * @param {string} pageHost
+     * @returns {{ affiliated: boolean, entityName: string | null, ownerName: string | null, prevalence: number | null }}
+     */
+    getEntityAffiliation(requestHost, pageHost) {
+        const requestOwner = this._findTrackerOwner(requestHost);
+        const normalizedPageHost = pageHost.replace(/^www\./, '');
+        const pageOwner = this._findTrackerOwner(normalizedPageHost);
+
+        if (requestOwner && pageOwner && requestOwner === pageOwner) {
+            const entity = this._trackerData?.entities?.[requestOwner];
+            return {
+                affiliated: true,
+                entityName: entity?.displayName || requestOwner,
+                ownerName: requestOwner,
+                prevalence: entity?.prevalence ?? null,
+            };
+        }
+        return { affiliated: false, entityName: null, ownerName: null, prevalence: null };
+    }
+
+    /**
      * Get surrogate function for a pattern
      * @param {string} pattern
      * @returns {(() => void) | undefined}
