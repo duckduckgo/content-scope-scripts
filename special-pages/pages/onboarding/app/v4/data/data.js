@@ -58,13 +58,21 @@ export const stepsConfig = {
             bounceKey: `${globalState.activeStep}-${globalState.activeRow}`,
         };
     },
-    duckPlayerSingle: ({ t }) => {
+    duckPlayerSingle: ({ t, globalState }) => {
+        const duckPlayerDef = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
+        const isAdFree = duckPlayerDef.variant === 'ad-free';
+
         return {
             topBubble: {
-                content: <StepHeader title={t('duckPlayer_adFree_title')} subtitle={t('duckPlayer_adFree_subtitle', { newline: ' ' })} />,
+                content: (
+                    <StepHeader
+                        title={isAdFree ? t('duckPlayer_adFree_title') : t('duckPlayer_title')}
+                        subtitle={isAdFree ? t('duckPlayer_adFree_subtitle', { newline: ' ' }) : t('duckPlayer_subtitle')}
+                    />
+                ),
                 tail: 'right',
             },
-            bottomBubble: { content: <DuckPlayerContent /> },
+            bottomBubble: { content: <DuckPlayerContent isAdFree={isAdFree} /> },
             showProgress: true,
         };
     },

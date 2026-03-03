@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { OnboardingV4Page } from './onboarding.v4.page.js';
 
 test.describe('onboarding v4', () => {
@@ -155,6 +155,59 @@ test.describe('onboarding v4', () => {
         });
     });
 
+    test.describe('Given I am on the duck player step with ad-free variant', () => {
+        test('Then it shows ad-free copy and hides the toggle button', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    duckPlayerSingle: {
+                        variant: 'ad-free',
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            // Ad-free title and subtitle are shown
+            await expect(page.getByRole('heading', { name: 'Watch YouTube ad-free!', level: 2 })).toBeVisible();
+            await expect(page.getByText(/No need for a premium subscription/)).toBeVisible();
+
+            // Toggle button is hidden
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).not.toBeVisible();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).not.toBeVisible();
+
+            // Can advance past the step
+            await page.getByRole('button', { name: 'Next' }).click();
+        });
+    });
+
+    test.describe('Given I am on the duck player step without ad-free variant', () => {
+        test('Then it shows default copy and the toggle button', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            // Default title and subtitle are shown
+            await expect(page.getByRole('heading', { name: /Drowning in ads/, level: 2 })).toBeVisible();
+            await expect(page.getByText(/No targeted ads/)).toBeVisible();
+
+            // Toggle button is visible
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Can toggle
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Can advance past the step
+            await page.getByRole('button', { name: 'Next' }).click();
+        });
+    });
+
     test('shows v4 flow', async ({ page }, workerInfo) => {
         const onboarding = OnboardingV4Page.create(page, workerInfo);
         onboarding.withInitData({
@@ -189,7 +242,9 @@ test.describe('onboarding v4', () => {
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Duckplayer
-        await page.getByText('Watch YouTube ad-free').waitFor({ timeout: 1000 });
+        await page.getByText('Drowning in ads').waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+        await page.getByRole('button', { name: 'See With Duck Player' }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Customize

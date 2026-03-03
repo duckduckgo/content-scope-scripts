@@ -30,3 +30,37 @@
     width: 100%;
     height: auto;
 }
+
+/* --- Rive animation (default variant) --- */
+
+.animationContainer {
+    display: flex;
+    justify-content: center;
+    align-self: stretch;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid var(--ds-surface-decoration-primary);
+
+    & canvas {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* --- Button row (default variant) --- */
+
+.actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: var(--sp-2); /* 8px */
+    align-self: stretch;
+}
+
+.toggleButton,
+.nextButton {
+    flex: 1 1 0;
+    padding-left: var(--sp-2); /* 8px */
+    padding-right: var(--sp-2); /* 8px */
+}
