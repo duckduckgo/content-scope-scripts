@@ -42,7 +42,7 @@
 
 .footer {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--sp-2); /* 8px */
     align-self: stretch;
     margin-top: calc(26 * var(--px-in-rem)); /* 26px */
