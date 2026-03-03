@@ -126,4 +126,76 @@ describe('parseSurrogates', () => {
         expect('fb-sdk.js' in result).toBe(true);
         expect('google-analytics.com/ga.js' in result).toBe(false);
     });
+
+    // P1-3: Surrogates parser robustness
+
+    it('should handle CRLF line endings', () => {
+        const text = 'example.com/crlf.js application/javascript\r\nglobalThis.__crlfTest = 1;\r\n';
+        const result = parseSurrogates(text);
+        expect(Object.keys(result)).toEqual(['crlf.js']);
+        result['crlf.js']();
+        expect(globalThis.__crlfTest).toBe(1);
+        delete globalThis.__crlfTest;
+    });
+
+    it('should handle multiple consecutive blank lines between entries', () => {
+        const text = [
+            'example.com/a.js application/javascript',
+            'globalThis.__a = 1;',
+            '',
+            '',
+            '',
+            'example.com/b.js application/javascript',
+            'globalThis.__b = 2;',
+        ].join('\n');
+
+        const result = parseSurrogates(text);
+        expect('a.js' in result).toBe(true);
+        expect('b.js' in result).toBe(true);
+    });
+
+    it('should skip blocks that are only comments', () => {
+        const text = [
+            '# Just a comment block',
+            '# Nothing else here',
+            '',
+            'example.com/real.js application/javascript',
+            'globalThis.__real = true;',
+        ].join('\n');
+
+        const result = parseSurrogates(text);
+        expect(Object.keys(result)).toEqual(['real.js']);
+    });
+
+    it('should handle header with no slash (bare filename)', () => {
+        const text = 'noop.js application/javascript\n/* noop */\n';
+        const result = parseSurrogates(text);
+        expect(Object.keys(result)).toEqual(['noop.js']);
+    });
+
+    // P1-4: Large payload
+
+    it('should parse a large number of surrogates', () => {
+        const entries = [];
+        for (let i = 0; i < 200; i++) {
+            entries.push(`example.com/surrogate${i}.js application/javascript`);
+            entries.push(`globalThis.__s${i} = ${i};`);
+            entries.push('');
+        }
+        const text = entries.join('\n');
+        const result = parseSurrogates(text);
+        expect(Object.keys(result).length).toBe(200);
+        result['surrogate0.js']();
+        expect(globalThis.__s0).toBe(0);
+        delete globalThis.__s0;
+        result['surrogate199.js']();
+        expect(globalThis.__s199).toBe(199);
+        delete globalThis.__s199;
+    });
+
+    // P1-5: Absent surrogates
+
+    it('should return empty map for whitespace-only input', () => {
+        expect(parseSurrogates('   \n\n   ')).toEqual({});
+    });
 });
