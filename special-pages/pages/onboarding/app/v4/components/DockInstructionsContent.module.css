@@ -1,0 +1,58 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--sp-8); /* 32px */
+    padding: var(--sp-12); /* 48px */
+}
+
+.imageContainer {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 384 / 188;
+    border-radius: var(--sp-2); /* 8px */
+    overflow: hidden;
+}
+
+.frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+
+    &.previous {
+        opacity: 1;
+    }
+
+    &.active {
+        z-index: 1;
+        opacity: 1;
+        transition: opacity 300ms ease;
+    }
+
+    [data-reduced-motion="true"] &.active {
+        transition: none;
+    }
+}
+
+.instruction {
+    display: flex;
+    gap: var(--sp-2); /* 8px */
+    align-self: stretch;
+}
+
+.icon {
+    width: var(--sp-6); /* 24px */
+    height: var(--sp-6); /* 24px */
+    flex-shrink: 0;
+}
+
+.instructionText {
+    margin: 0;
+    font-size: calc(14 * var(--px-in-rem));
+    line-height: calc(20 * var(--px-in-rem));
+    color: var(--ds-text-primary);
+}
