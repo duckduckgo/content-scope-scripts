@@ -22,7 +22,6 @@ export const REASON_THIRD_PARTY_REQUEST = 'thirdPartyRequest';
  */
 const CTL_SURROGATES = ['fb-sdk.js'];
 
-
 /**
  * Get the tab's top-level URL, handling iframes
  * @returns {URL | null}
