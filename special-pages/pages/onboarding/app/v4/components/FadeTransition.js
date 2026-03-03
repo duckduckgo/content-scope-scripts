@@ -38,10 +38,7 @@ export function FadeTransition({ transitionKey, children }) {
     };
 
     return (
-        <div
-            class={cn(phase === 'exiting' && styles.fadeOut, phase === 'entering' && styles.fadeIn)}
-            onAnimationEnd={handleAnimationEnd}
-        >
+        <div class={cn(phase === 'exiting' && styles.fadeOut, phase === 'entering' && styles.fadeIn)} onAnimationEnd={handleAnimationEnd}>
             {phase === 'idle' ? children : snapshot.content}
         </div>
     );
