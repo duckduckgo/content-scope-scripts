@@ -165,7 +165,7 @@ function _close() {
  * @param {() => void} [callbacks.onOpen] - Called when drawer opens
  * @param {() => void} [callbacks.onClose] - Called when drawer closes
  * @param {(state: DrawerVisibility) => void} [callbacks.onToggle] - Called when drawer toggles, with the new state
- * @param {any[]} [deps] - Dependency array controlling when listeners are re-registered
+ * @param {ReadonlyArray<unknown>} [deps] - Dependency array controlling when listeners are re-registered
  */
 export function useDrawerEventListeners({ onOpen, onClose, onToggle }, deps = []) {
     // useLayoutEffect ensures listeners are registered before drawer auto-open events fire.
