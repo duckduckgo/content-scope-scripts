@@ -33,11 +33,6 @@ export function AiChatsList({ className }) {
     return (
         <div role="listbox" id={aiChatsListId} class={cn(styles.list, className)} aria-label={t('omnibar_aiChatsListLabel')}>
             {chats.map((chat) => {
-                const showQuery = Boolean(
-                    chat.title && chat.firstUserMessageContent && chat.title.toLowerCase() !== chat.firstUserMessageContent.toLowerCase(),
-                );
-                const displayText = showQuery ? `${chat.title} - "${chat.firstUserMessageContent}"` : chat.title;
-
                 return (
                     <button
                         key={chat.chatId}
@@ -59,7 +54,7 @@ export function AiChatsList({ className }) {
                         }}
                     >
                         {chat.pinned ? <PinIcon /> : <ChatBubbleIcon />}
-                        <span class={styles.title}>{displayText}</span>
+                        <span class={styles.title}>{chat.title}</span>
                     </button>
                 );
             })}

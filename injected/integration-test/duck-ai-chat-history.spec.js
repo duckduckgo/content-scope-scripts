@@ -76,7 +76,7 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.chats[0].pinned).toBe(false);
     });
 
-    test('strips messages from chat objects but includes firstUserMessageContent', async ({ page }) => {
+    test('strips messages from chat objects', async ({ page }) => {
         await page.click('#setup-data');
 
         const result = await requestChats();
@@ -87,9 +87,6 @@ test.describe('duck-ai-chat-history', () => {
         // But other properties should still be present
         expect(result.pinnedChats[0].title).toBeDefined();
         expect(result.pinnedChats[0].chatId).toBeDefined();
-        // firstUserMessageContent field should contain the first user message content
-        expect(result.pinnedChats[0].firstUserMessageContent).toBe('Test message');
-        expect(result.chats[0].firstUserMessageContent).toBe('Test message');
     });
 
     test('filters chats by title query', async ({ page }) => {
@@ -148,7 +145,7 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.chats[0].chatId).toBe('chat-1');
     });
 
-    test('firstUserMessageContent is undefined when chat has no messages', async ({ page }) => {
+    test('firstUserMessageContent is not exposed in the response', async ({ page }) => {
         await page.evaluate(() => {
             const chats = [
                 {
@@ -159,8 +156,9 @@ test.describe('duck-ai-chat-history', () => {
                     pinned: false,
                 },
                 {
-                    chatId: 'missing-messages',
-                    title: 'Chat with missing messages field',
+                    chatId: 'with-messages',
+                    title: 'Chat with messages',
+                    messages: [{ content: 'Hello world', role: 'user' }],
                     lastEdit: new Date().toISOString(),
                     pinned: false,
                 },
@@ -171,8 +169,9 @@ test.describe('duck-ai-chat-history', () => {
         const result = await requestChats();
         expect(result.success).toBe(true);
         expect(result.chats).toHaveLength(2);
-        expect(result.chats[0].firstUserMessageContent).toBeNull();
-        expect(result.chats[1].firstUserMessageContent).toBeNull();
+        // firstUserMessageContent should not be in the response regardless of messages
+        expect(result.chats[0].firstUserMessageContent).toBeUndefined();
+        expect(result.chats[1].firstUserMessageContent).toBeUndefined();
     });
 
     test('handles non-string title values gracefully during search', async ({ page }) => {

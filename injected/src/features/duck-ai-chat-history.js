@@ -262,7 +262,6 @@ export class DuckAiChatHistory extends ContentFeature {
         return {
             chatId: chat?.chatId,
             title: chat?.title,
-            firstUserMessageContent: this.extractFirstUserMessageContent(chat),
             model: chat?.model,
             lastEdit,
             pinned: chat?.pinned,

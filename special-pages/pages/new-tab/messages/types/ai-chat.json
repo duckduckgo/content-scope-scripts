@@ -19,10 +19,6 @@
     "lastEdit": {
       "description": "ISO timestamp of last edit",
       "type": "string"
-    },
-    "firstUserMessageContent": {
-      "description": "Content of the first user message in the chat",
-      "type": "string"
     }
   }
 }
