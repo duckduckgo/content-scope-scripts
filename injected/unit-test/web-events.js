@@ -3,7 +3,7 @@ import { WebEvents } from '../src/features/web-events.js';
 describe('WebEvents', () => {
     describe('fireEvent', () => {
         /**
-         * @param {Record<string, any>} event
+         * @param {{ type: string, data?: Record<string, unknown> }} event
          * @returns {{ method: string, params: Record<string, any> }}
          */
         function captureNotify(event) {
@@ -17,6 +17,7 @@ describe('WebEvents', () => {
                 messagingContextName: 'test',
             };
             const instance = new WebEvents('webEvents', undefined, {}, args);
+            // @ts-expect-error - partial mock: only notify is needed for this test
             instance._messaging = {
                 notify: (/** @type {string} */ method, /** @type {Record<string, any>} */ params) => {
                     captured = { method, params };
