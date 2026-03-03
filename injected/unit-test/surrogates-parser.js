@@ -59,7 +59,7 @@ describe('parseSurrogates', () => {
     it('should handle IIFE surrogates correctly', () => {
         const text = [
             'doubleclick.net/ad_status.js application/javascript',
-            "(() => {",
+            '(() => {',
             "  'use strict';",
             '  globalThis.__ad_status = 1;',
             '})();',
