@@ -188,14 +188,14 @@ describe('WebDetection', () => {
             expect(result.actions.breakageReportData.state).toBe('disabled');
         });
 
-        it('should preserve fireEvent action when present', () => {
+        it('should preserve fireEvent action when present and default state to enabled', () => {
             const result = oneDetectorConfigParsed({
                 match: { text: { pattern: 'test' } },
                 actions: /** @type {any} - fireEvent not yet in published schema */ ({
                     fireEvent: { type: 'adwall' },
                 }),
             });
-            expect(result.actions.fireEvent).toEqual({ type: 'adwall' });
+            expect(result.actions.fireEvent).toEqual({ type: 'adwall', state: 'enabled' });
         });
 
         it('should preserve fireEvent state when configured', () => {
@@ -224,7 +224,7 @@ describe('WebDetection', () => {
                 }),
             });
             expect(result.actions.breakageReportData.state).toBe('enabled');
-            expect(result.actions.fireEvent).toEqual({ type: 'adwall' });
+            expect(result.actions.fireEvent).toEqual({ type: 'adwall', state: 'enabled' });
         });
 
         /**
@@ -517,53 +517,39 @@ describe('WebDetection', () => {
             }
         }
 
+        /**
+         * @param {Partial<import('../src/features/web-detection/parse.js').DetectorActions>} overrides
+         * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
+         */
+        const actionsConfig = (overrides) =>
+            /** @type {any} */ ({ actions: { breakageReportData: { state: 'enabled' }, ...overrides } });
+
         it('should fire when fireEvent state is enabled', async () => {
             const instance = createInstance();
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(
-                { actions: { fireEvent: { type: 'adwall', state: 'enabled' } } },
-                true,
-            );
-            expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 'adwall' });
-        });
-
-        it('should fire when fireEvent state is omitted (defaults to enabled)', async () => {
-            const instance = createInstance();
-            spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(
-                { actions: { fireEvent: { type: 'adwall' } } },
-                true,
-            );
+            await instance._executeFireEvent(actionsConfig({ fireEvent: { type: 'adwall', state: 'enabled' } }), true);
+            // @ts-expect-error - Jasmine spy type inference doesn't match callFeatureMethod's overloaded signature
             expect(instance.callFeatureMethod).toHaveBeenCalledWith('webEvents', 'fireEvent', { type: 'adwall' });
         });
 
         it('should not fire when fireEvent state is disabled', async () => {
             const instance = createInstance();
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(
-                { actions: { fireEvent: { type: 'adwall', state: 'disabled' } } },
-                true,
-            );
+            await instance._executeFireEvent(actionsConfig({ fireEvent: { type: 'adwall', state: 'disabled' } }), true);
             expect(instance.callFeatureMethod).not.toHaveBeenCalled();
         });
 
         it('should not fire when detected is false', async () => {
             const instance = createInstance();
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(
-                { actions: { fireEvent: { type: 'adwall', state: 'enabled' } } },
-                false,
-            );
+            await instance._executeFireEvent(actionsConfig({ fireEvent: { type: 'adwall', state: 'enabled' } }), false);
             expect(instance.callFeatureMethod).not.toHaveBeenCalled();
         });
 
         it('should not fire when fireEvent action is absent', async () => {
             const instance = createInstance();
             spyOn(instance, 'callFeatureMethod').and.resolveTo(undefined);
-            await instance._executeFireEvent(
-                { actions: {} },
-                true,
-            );
+            await instance._executeFireEvent(actionsConfig({}), true);
             expect(instance.callFeatureMethod).not.toHaveBeenCalled();
         });
     });

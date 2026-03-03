@@ -151,7 +151,7 @@ export default class WebDetection extends ContentFeature {
      */
     async _executeFireEvent(detectorConfig, detected) {
         if (detected !== true || !detectorConfig.actions.fireEvent) return;
-        if (!this._isStateEnabled(detectorConfig.actions.fireEvent.state ?? 'enabled')) return;
+        if (!this._isStateEnabled(detectorConfig.actions.fireEvent.state)) return;
         try {
             await this.callFeatureMethod('webEvents', 'fireEvent', {
                 type: detectorConfig.actions.fireEvent.type,

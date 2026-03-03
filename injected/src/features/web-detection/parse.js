@@ -1,5 +1,3 @@
-import { withDefaults } from '../../utils.js';
-
 /**
  * @typedef {import('../../utils.js').FeatureState} FeatureState
  */
@@ -44,34 +42,31 @@ import { withDefaults } from '../../utils.js';
  */
 
 /**
- * Base properties supported by all actions.
- *
- * @typedef {object} ActionBase
- * @property {FeatureState} state - whether the action is enabled
- */
-
-/**
  * @typedef {object} FireEventAction
- * @property {FeatureState} [state] - whether this action is enabled
+ * @property {FeatureState} state - whether this action is enabled
  * @property {string} type
  */
 
 /**
  * Actions to take when a detector matches.
  * breakageReportData is always present (defaults to enabled).
- * All other actions are opt-in by presence and assumed enabled when present (unless otherwise specified).
+ * fireEvent is opt-in by presence; when present, sub-fields are fully resolved.
  *
+ * @typedef {object} ActionState
+ * @property {FeatureState} state - whether the action is enabled
+ */
+
+/**
  * @typedef {object} DetectorActions
- * @property {ActionBase} breakageReportData - Whether to include in breakage report data
+ * @property {ActionState} breakageReportData - Whether to include in breakage report data
  * @property {FireEventAction} [fireEvent] - fire a detection event to the client via webEvents
  */
 
 /**
  * Normalized detector configuration.
  *
- * The user-facing configuration has optional attributes that are required
- * under-the-hood. This type represents the normalized configuration once
- * default values have been applied.
+ * Every optional field from the raw config is resolved to a concrete value.
+ * Consumers never need fallback defaults.
  *
  * @typedef {object} DetectorConfig
  * @property {FeatureState} state - Whether the detector is enabled
@@ -81,11 +76,8 @@ import { withDefaults } from '../../utils.js';
  */
 
 /**
- * Default runConditions - applied only when config doesn't provide runConditions.
- *
- * NOTE: We make this an array so that specifying custom runConditions overrides rather than merges.
- *
- * By default, detectors will only trigger in the top frame.
+ * Default runConditions — by default, detectors only trigger in the top frame.
+ * Specifying custom runConditions in config replaces (not merges) these defaults.
  */
 const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').ConditionBlock[]} */ ([
     {
@@ -94,33 +86,8 @@ const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').Cond
 ]);
 
 /**
- * Default configuration values for detectors.
- *
- * This is merged deeply with the config such that any time the config provides
- * a scalar or nested value, the default value is overridden.
- */
-const DEFAULTS = {
-    state: /** @type {FeatureState} */ ('enabled'),
-    triggers: {
-        breakageReport: {
-            state: /** @type {FeatureState} */ ('enabled'),
-            runConditions: DEFAULT_RUN_CONDITIONS,
-        },
-        auto: {
-            state: /** @type {FeatureState} */ ('disabled'),
-            runConditions: DEFAULT_RUN_CONDITIONS,
-        },
-    },
-    actions: {
-        breakageReportData: {
-            state: /** @type {FeatureState} */ ('enabled'),
-        },
-    },
-};
-
-/**
  * Validate that a name matches the required format.
- * Names must start with a lowercase letter and contain only alphanumeric characters and underscores.
+ * Names must start with a letter and contain only alphanumeric characters and underscores.
  *
  * @param {string} name
  * @returns {boolean}
@@ -130,13 +97,38 @@ function isValidName(name) {
 }
 
 /**
- * Normalize a raw detector configuration by applying defaults.
+ * Normalize a raw detector configuration by applying defaults explicitly.
  *
  * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} config
  * @returns {DetectorConfig}
  */
 function normalizeDetector(config) {
-    return withDefaults(DEFAULTS, config);
+    const fireEvent = config.actions?.fireEvent;
+
+    return {
+        state: config.state ?? 'enabled',
+        match: config.match,
+        triggers: {
+            breakageReport: {
+                state: config.triggers?.breakageReport?.state ?? 'enabled',
+                runConditions: config.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS,
+            },
+            auto: {
+                state: config.triggers?.auto?.state ?? 'disabled',
+                runConditions: config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS,
+                when: config.triggers?.auto?.when ?? { intervalMs: [] },
+            },
+        },
+        actions: {
+            breakageReportData: { state: config.actions?.breakageReportData?.state ?? 'enabled' },
+            ...(fireEvent && {
+                fireEvent: {
+                    state: fireEvent.state ?? 'enabled',
+                    type: fireEvent.type,
+                },
+            }),
+        },
+    };
 }
 
 /**
