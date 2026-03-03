@@ -1,44 +1,35 @@
-import { describe, it, mock, afterEach } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { findAuthorizedApproval, DAX_USERNAME } from './review-helpers.mjs';
-
-const originalFetch = globalThis.fetch;
 
 function review(login, state, id = 1) {
     return { id, state, user: { login } };
 }
 
-/** @type {import('node:test').Mock<Function> | null} */
-let fetchMock = null;
-
-function mockFetch(memberOf = /** @type {string[]} */ ([])) {
-    fetchMock = mock.fn((url) => {
-        const teamMatch = String(url).match(/\/teams\/([^/]+)\/memberships\//);
-        if (teamMatch && memberOf.includes(decodeURIComponent(teamMatch[1]))) {
-            return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({ state: 'active' }) });
-        }
-        return Promise.resolve({ ok: false, status: 404 });
-    });
-    globalThis.fetch = /** @type {any} */ (fetchMock);
-}
-
 function makeGitHub(reviews, { memberOf = /** @type {string[]} */ ([]) } = {}) {
     const listReviews = mock.fn();
-    mockFetch(memberOf);
+    const requestMock = mock.fn((_route, opts) => {
+        if (memberOf.includes(opts.team_slug)) return Promise.resolve({ data: { state: 'active' } });
+        return Promise.reject(Object.assign(new Error('Not Found'), { status: 404 }));
+    });
+
+    class MockOctokit {
+        constructor() {
+            this.request = requestMock;
+        }
+    }
+
     return {
         paginate: mock.fn((_endpoint, _params) => Promise.resolve(reviews)),
         rest: { pulls: { listReviews } },
+        constructor: MockOctokit,
+        _requestMock: requestMock,
     };
 }
 
 const BASE_OPTS = { owner: 'o', repo: 'r', prNumber: 1, org: 'duckduckgo', teams: ['core'], orgToken: 'tok' };
 
 describe('findAuthorizedApproval', () => {
-    afterEach(() => {
-        globalThis.fetch = originalFetch;
-        fetchMock = null;
-    });
-
     it('returns null when there are no reviews', async () => {
         const gh = makeGitHub([]);
         assert.equal(await findAuthorizedApproval(gh, BASE_OPTS), null);
@@ -95,8 +86,7 @@ describe('findAuthorizedApproval', () => {
         await findAuthorizedApproval(gh, BASE_OPTS);
         assert.equal(gh.paginate.mock.calls.length, 1);
         assert.equal(gh.rest.pulls.listReviews.mock.calls.length, 0);
-        assert.ok(fetchMock);
-        assert.equal(fetchMock.mock.calls.length, 0);
+        assert.equal(gh._requestMock.mock.calls.length, 0);
     });
 
     it('multiple approvers — dax takes priority over team member', async () => {
@@ -105,21 +95,40 @@ describe('findAuthorizedApproval', () => {
         assert.deepEqual(result, { user: DAX_USERNAME, team: null });
     });
 
-    it('uses orgToken in fetch authorization header, not GITHUB_TOKEN', async () => {
-        const gh = makeGitHub([review('alice', 'APPROVED')], { memberOf: ['core'] });
-        await findAuthorizedApproval(gh, { ...BASE_OPTS, orgToken: 'my-org-token' });
-        assert.ok(fetchMock);
-        const [, opts] = /** @type {[unknown, {headers: {authorization: string}}]} */ (fetchMock.mock.calls[0].arguments);
-        assert.equal(opts.headers.authorization, 'token my-org-token');
-    });
-
-    it('network failure in fetch is treated as not a member', async () => {
+    it('constructs a new Octokit with orgToken for team membership checks', async () => {
+        let capturedAuth;
+        const requestMock = mock.fn((_route, opts) => {
+            if (opts.team_slug === 'core') return Promise.resolve({ data: { state: 'active' } });
+            return Promise.reject(Object.assign(new Error('Not Found'), { status: 404 }));
+        });
+        class SpyOctokit {
+            /** @param {{ auth: string }} opts */
+            constructor(opts) {
+                capturedAuth = opts.auth;
+                this.request = requestMock;
+            }
+        }
         const gh = {
             paginate: mock.fn(() => Promise.resolve([review('alice', 'APPROVED')])),
             rest: { pulls: { listReviews: mock.fn() } },
+            constructor: SpyOctokit,
         };
-        fetchMock = mock.fn(() => Promise.reject(new Error('network error')));
-        globalThis.fetch = /** @type {any} */ (fetchMock);
+        await findAuthorizedApproval(gh, { ...BASE_OPTS, orgToken: 'my-org-token' });
+        assert.equal(capturedAuth, 'my-org-token');
+    });
+
+    it('network failure is treated as not a member', async () => {
+        const requestMock = mock.fn(() => Promise.reject(new Error('network error')));
+        class FailOctokit {
+            constructor() {
+                this.request = requestMock;
+            }
+        }
+        const gh = {
+            paginate: mock.fn(() => Promise.resolve([review('alice', 'APPROVED')])),
+            rest: { pulls: { listReviews: mock.fn() } },
+            constructor: FailOctokit,
+        };
         assert.equal(await findAuthorizedApproval(gh, BASE_OPTS), null);
     });
 });

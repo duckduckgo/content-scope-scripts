@@ -42,18 +42,15 @@ export async function findRiskLevel(github, { owner, repo, prNumber }) {
     return null;
 }
 
-export async function isTeamMember(_github, orgToken, org, teamSlug, username) {
+export async function isTeamMember(github, orgToken, org, teamSlug, username) {
     try {
-        const url = `https://api.github.com/orgs/${encodeURIComponent(org)}/teams/${encodeURIComponent(teamSlug)}/memberships/${encodeURIComponent(username)}`;
-        const response = await fetch(url, {
-            headers: {
-                authorization: `token ${orgToken}`,
-                accept: 'application/vnd.github+json',
-            },
+        const Ctor = /** @type {new (opts: {auth: string}) => typeof github} */ (github.constructor);
+        const orgClient = new Ctor({ auth: orgToken });
+        const { data } = await orgClient.request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
+            org,
+            team_slug: teamSlug,
+            username,
         });
-        if (response.status === 401) throw Object.assign(new Error('Unauthorized'), { status: 401 });
-        if (!response.ok) return false;
-        const data = await response.json();
         return data.state === 'active';
     } catch (error) {
         if (/** @type {any} */ (error).status === 401) throw error;
