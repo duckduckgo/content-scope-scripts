@@ -522,8 +522,7 @@ describe('WebDetection', () => {
          * @param {Partial<import('../src/features/web-detection/parse.js').DetectorActions>} overrides
          * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
          */
-        const actionsConfig = (overrides) =>
-            /** @type {any} */ ({ actions: { breakageReportData: { state: 'enabled' }, ...overrides } });
+        const actionsConfig = (overrides) => /** @type {any} */ ({ actions: { breakageReportData: { state: 'enabled' }, ...overrides } });
 
         it('should fire when fireEvent state is enabled', async () => {
             const instance = createInstance();
@@ -582,8 +581,7 @@ describe('WebDetection', () => {
          * @param {Partial<import('../src/features/web-detection/parse.js').DetectorActions>} overrides
          * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
          */
-        const actionsConfig = (overrides) =>
-            /** @type {any} */ ({ actions: { breakageReportData: { state: 'enabled' }, ...overrides } });
+        const actionsConfig = (overrides) => /** @type {any} */ ({ actions: { breakageReportData: { state: 'enabled' }, ...overrides } });
 
         const fireEventConfig = actionsConfig({ fireEvent: { type: 'adwall', state: 'enabled' } });
 

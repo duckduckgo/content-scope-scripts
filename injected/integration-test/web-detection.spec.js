@@ -486,9 +486,7 @@ test.describe('WebDetection Feature', () => {
                 config.features.webDetection.settings.conditionalChanges = [
                     {
                         domain: 'localhost',
-                        patchSettings: [
-                            { op: 'add', path: '/detectors/autorun/basic_auto/actions/fireEvent/state', value: 'disabled' },
-                        ],
+                        patchSettings: [{ op: 'add', path: '/detectors/autorun/basic_auto/actions/fireEvent/state', value: 'disabled' }],
                     },
                 ];
             });
@@ -509,9 +507,7 @@ test.describe('WebDetection Feature', () => {
                 config.features.webDetection.settings.conditionalChanges = [
                     {
                         domain: 'localhost',
-                        patchSettings: [
-                            { op: 'replace', path: '/detectors/autorun/basic_auto/actions/fireEvent/state', value: 'enabled' },
-                        ],
+                        patchSettings: [{ op: 'replace', path: '/detectors/autorun/basic_auto/actions/fireEvent/state', value: 'enabled' }],
                     },
                 ];
             });
@@ -525,7 +521,9 @@ test.describe('WebDetection Feature', () => {
             expect(webEvents[0].type).toBe('adwall');
         });
 
-        test('does not send webEvent when webEvents feature state is disabled on this site via conditionalChanges', async ({ page }, testInfo) => {
+        test('does not send webEvent when webEvents feature state is disabled on this site via conditionalChanges', async ({
+            page,
+        }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
                 // webEvents is enabled globally, but conditionalChanges disables it on localhost
                 config.features.webEvents.settings = {
