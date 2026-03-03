@@ -11,61 +11,17 @@
  */
 
 import ContentFeature from '../content-feature.js';
-import { TrackerResolver } from './tracker-protection/tracker-resolver.js';
-import { surrogates as bundledSurrogates } from './tracker-protection/surrogates.js';
+import { TrackerResolver, REASON_RULE_EXCEPTION } from './tracker-protection/tracker-resolver.js';
+import { parseSurrogates } from './tracker-protection/surrogates-parser.js';
+
+export const REASON_UNPROTECTED_DOMAIN = 'unprotectedDomain';
+export const REASON_THIRD_PARTY_REQUEST = 'thirdPartyRequest';
 
 /**
  * CTL surrogates that require CTL feature to be enabled
  */
 const CTL_SURROGATES = ['fb-sdk.js'];
 
-/**
- * Well-known two-part TLDs where naive slice(-2) would produce incorrect eTLD+1.
- * Used by _getApproxETLDp1 for third-party request reporting only.
- * @type {Set<string>}
- */
-const TWO_PART_TLDS = new Set([
-    'co.uk',
-    'co.jp',
-    'co.kr',
-    'co.nz',
-    'co.za',
-    'co.in',
-    'co.id',
-    'co.il',
-    'co.th',
-    'com.au',
-    'com.br',
-    'com.cn',
-    'com.mx',
-    'com.tr',
-    'com.tw',
-    'com.ar',
-    'com.co',
-    'com.hk',
-    'com.sg',
-    'com.ua',
-    'com.vn',
-    'com.pk',
-    'com.ng',
-    'com.eg',
-    'com.ph',
-    'com.my',
-    'net.au',
-    'org.au',
-    'org.uk',
-    'ac.uk',
-    'gov.uk',
-    'ne.jp',
-    'or.jp',
-    'ac.jp',
-    'go.jp',
-    'or.kr',
-    'ac.kr',
-    'go.kr',
-    'gob.mx',
-    'org.mx',
-]);
 
 /**
  * Get the tab's top-level URL, handling iframes
@@ -120,7 +76,7 @@ export class TrackerProtection extends ContentFeature {
             return;
         }
 
-        const surrogates = bundledSurrogates;
+        const surrogates = parseSurrogates(this.getFeatureSetting('surrogates'));
 
         // Parse trackerData - it's passed as a JSON string from native
         let trackerData = this.getFeatureSetting('trackerData');
@@ -141,9 +97,10 @@ export class TrackerProtection extends ContentFeature {
             trackerData,
             surrogates,
             allowlist: this.getFeatureSetting('allowlist'),
-            unprotectedDomains: [
+            userUnprotectedDomains: this.getFeatureSetting('userUnprotectedDomains') || [],
+            wildcardUnprotectedDomains: [
                 ...(this.getFeatureSetting('tempUnprotectedDomains') || []),
-                ...(this.getFeatureSetting('userUnprotectedDomains') || []),
+                ...(this.getFeatureSetting('contentBlockingExceptions') || []),
             ],
         });
 
@@ -363,24 +320,8 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
-     * Approximate eTLD+1 from a hostname. Uses a hardcoded list of well-known
-     * two-part TLDs to handle cases like .co.uk, .com.au, etc.
-     * @param {string} hostname
-     * @returns {string}
-     */
-    _getApproxETLDp1(hostname) {
-        const parts = hostname.split('.');
-        if (parts.length <= 2) return hostname;
-        const lastTwo = parts.slice(-2).join('.');
-        if (TWO_PART_TLDS.has(lastTwo)) {
-            return parts.slice(-3).join('.');
-        }
-        return lastTwo;
-    }
-
-    /**
      * Report a non-tracker third-party request for the privacy dashboard.
-     * Only reports if the URL is from a different eTLD+1 than the page.
+     * Reports all cross-hostname requests; native applies PSL-based eTLD+1 filtering.
      * @param {string} url
      * @param {string} topUrl
      */
@@ -390,14 +331,10 @@ export class TrackerProtection extends ContentFeature {
             const pageHost = new URL(topUrl).hostname;
             if (requestHost === pageHost) return;
 
-            const requestDomain = this._getApproxETLDp1(requestHost);
-            const pageDomain = this._getApproxETLDp1(pageHost);
-            if (requestDomain === pageDomain) return;
-
             this.notify('trackerDetected', {
                 url,
                 blocked: false,
-                reason: 'thirdPartyRequest',
+                reason: REASON_THIRD_PARTY_REQUEST,
                 isSurrogate: false,
                 pageUrl: this._topLevelUrl?.href || '',
                 entityName: null,
@@ -433,10 +370,10 @@ export class TrackerProtection extends ContentFeature {
         const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
         let blocked = false;
         if (this._isUnprotectedDomain) {
-            result.reason = 'unprotectedDomain';
+            result.reason = REASON_UNPROTECTED_DOMAIN;
         } else if (isAllowlisted) {
             blocked = false;
-            result.reason = 'matched rule - exception';
+            result.reason = REASON_RULE_EXCEPTION;
         } else if (result.action !== 'ignore') {
             blocked = true;
         }
@@ -495,10 +432,10 @@ export class TrackerProtection extends ContentFeature {
 
         let blocked = false;
         if (this._isUnprotectedDomain) {
-            result.reason = 'unprotectedDomain';
+            result.reason = REASON_UNPROTECTED_DOMAIN;
         } else if (isAllowlisted) {
             blocked = false;
-            result.reason = 'matched rule - exception';
+            result.reason = REASON_RULE_EXCEPTION;
         } else if (result.action !== 'ignore') {
             blocked = true;
         }
@@ -546,8 +483,8 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
-     * Load a surrogate script. Surrogates are bundled at build time from
-     * @duckduckgo/tracker-surrogates as callable functions.
+     * Load a surrogate script. Surrogates are parsed at init from the
+     * surrogates.txt payload provided by native via config settings.
      *
      * @param {string} pattern - Surrogate pattern (e.g., "adsbygoogle.js")
      * @param {HTMLElement | null} targetElement - Original element being replaced

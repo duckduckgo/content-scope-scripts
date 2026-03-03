@@ -3,6 +3,16 @@
  * Provides tracker matching against TDS (Tracker Data Set)
  */
 
+/** @module TrackerReasons */
+export const REASON_FIRST_PARTY = 'first party';
+export const REASON_RULE_EXCEPTION = 'matched rule - exception';
+export const REASON_DEFAULT_IGNORE = 'default ignore';
+export const REASON_MATCHED_RULE_IGNORE = 'matched rule - ignore';
+export const REASON_DEFAULT_BLOCK = 'default block';
+export const REASON_SURROGATE = 'matched rule - surrogate';
+export const REASON_MATCHED_RULE_BLOCK = 'matched rule - block';
+export const REASON_NO_MATCH = 'no match';
+
 /**
  * @typedef {object} RuleOptions
  * @property {string[]} [types] - Resource types (e.g., 'script', 'image')
@@ -83,7 +93,9 @@ export class TrackerResolver {
      * @param {TrackerData} config.trackerData
      * @param {Record<string, () => void>} config.surrogates
      * @param {Record<string, AllowlistEntry[]>} [config.allowlist]
-     * @param {string[]} [config.unprotectedDomains]
+     * @param {string[]} [config.unprotectedDomains] - Legacy: all treated as wildcard. Use userUnprotectedDomains + wildcardUnprotectedDomains instead.
+     * @param {string[]} [config.userUnprotectedDomains] - Exact-match only (user-toggled)
+     * @param {string[]} [config.wildcardUnprotectedDomains] - Wildcard domain-walk (temp + contentBlocking exceptions)
      */
     constructor(config) {
         /** @type {TrackerData | null} */
@@ -93,7 +105,9 @@ export class TrackerResolver {
         /** @type {Record<string, AllowlistEntry[]>} */
         this._allowlist = {};
         /** @type {string[]} */
-        this._unprotectedDomains = [];
+        this._userUnprotectedDomains = [];
+        /** @type {string[]} */
+        this._wildcardUnprotectedDomains = [];
 
         if (config.trackerData) {
             this._trackerData = this._processTrackerData(config.trackerData);
@@ -104,8 +118,14 @@ export class TrackerResolver {
         if (config.allowlist) {
             this._allowlist = config.allowlist;
         }
+        if (config.userUnprotectedDomains) {
+            this._userUnprotectedDomains = config.userUnprotectedDomains;
+        }
+        if (config.wildcardUnprotectedDomains) {
+            this._wildcardUnprotectedDomains = config.wildcardUnprotectedDomains;
+        }
         if (config.unprotectedDomains) {
-            this._unprotectedDomains = config.unprotectedDomains;
+            this._wildcardUnprotectedDomains = this._wildcardUnprotectedDomains.concat(config.unprotectedDomains);
         }
     }
 
@@ -361,35 +381,34 @@ export class TrackerResolver {
      */
     _getAction({ firstParty, matchedRule, matchedRuleException, defaultAction, redirectUrl }) {
         if (firstParty) {
-            return { action: 'ignore', reason: 'first party' };
+            return { action: 'ignore', reason: REASON_FIRST_PARTY };
         }
         if (matchedRuleException) {
-            return { action: 'ignore', reason: 'matched rule - exception' };
+            return { action: 'ignore', reason: REASON_RULE_EXCEPTION };
         }
         if (!matchedRule && defaultAction === 'ignore') {
-            return { action: 'ignore', reason: 'default ignore' };
+            return { action: 'ignore', reason: REASON_DEFAULT_IGNORE };
         }
         if (matchedRule?.action === 'ignore') {
-            return { action: 'ignore', reason: 'matched rule - ignore' };
+            return { action: 'ignore', reason: REASON_MATCHED_RULE_IGNORE };
         }
         if (!matchedRule && defaultAction === 'block') {
-            return { action: 'block', reason: 'default block' };
+            return { action: 'block', reason: REASON_DEFAULT_BLOCK };
         }
         if (matchedRule) {
             const ruleAction = matchedRule.action;
             if (ruleAction && ruleAction !== 'block' && !ruleAction.startsWith('block-ctl-')) {
                 // Unknown/unsupported rule action — fall through to default
             } else if (redirectUrl) {
-                return { action: 'redirect', reason: 'matched rule - surrogate' };
+                return { action: 'redirect', reason: REASON_SURROGATE };
             } else {
-                return { action: 'block', reason: 'matched rule - block' };
+                return { action: 'block', reason: REASON_MATCHED_RULE_BLOCK };
             }
         }
         if (defaultAction === 'block') {
-            return { action: 'block', reason: 'default block' };
+            return { action: 'block', reason: REASON_DEFAULT_BLOCK };
         }
-        // Default: no matching rule and no default action
-        return { action: 'ignore', reason: 'no match' };
+        return { action: 'ignore', reason: REASON_NO_MATCH };
     }
 
     /**
@@ -439,25 +458,38 @@ export class TrackerResolver {
     }
 
     /**
-     * Check if domain is unprotected
+     * Check if domain is unprotected (user-toggled, exact match only)
      * @param {string} domain
      */
-    isUnprotectedDomain(domain) {
-        // Check exact match first (handles single-part domains like "localhost")
-        if (this._unprotectedDomains.includes(domain)) {
+    isUserUnprotectedDomain(domain) {
+        return this._userUnprotectedDomains.includes(domain);
+    }
+
+    /**
+     * Check if domain is unprotected via wildcard matching (temp + contentBlocking exceptions).
+     * Walks up subdomains.
+     * @param {string} domain
+     */
+    isWildcardUnprotectedDomain(domain) {
+        if (this._wildcardUnprotectedDomains.includes(domain)) {
             return true;
         }
-
-        // Walk up subdomains (but not to TLD)
         const parts = domain.split('.');
         while (parts.length > 1) {
             parts.shift();
-            const parentDomain = parts.join('.');
-            if (this._unprotectedDomains.includes(parentDomain)) {
+            if (this._wildcardUnprotectedDomains.includes(parts.join('.'))) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Check if domain is unprotected by any source
+     * @param {string} domain
+     */
+    isUnprotectedDomain(domain) {
+        return this.isUserUnprotectedDomain(domain) || this.isWildcardUnprotectedDomain(domain);
     }
 
     /**
