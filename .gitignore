@@ -24,3 +24,6 @@ coverage/
 
 # VS Code user config
 .vscode
+
+# Claude Code
+.claude/
