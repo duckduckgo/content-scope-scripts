@@ -1,7 +1,7 @@
 .layout {
     --bubble-width: 493px;
     --bubble-height: auto;
-    --bubble-leading: max(var(--sp-5), calc(45vh - var(--bubble-height) / 2));
+    --bubble-leading: max(var(--sp-10), calc(40vh - var(--bubble-height) / 2));
 
     &.narrow {
         --bubble-width: 349px;

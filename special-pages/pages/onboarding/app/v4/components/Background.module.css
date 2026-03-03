@@ -19,6 +19,12 @@
     transform: translateX(-50%);
 }
 
+.rightAligned {
+    left: auto;
+    right: 0;
+    transform: none;
+}
+
 .illustration img {
     display: block;
 }

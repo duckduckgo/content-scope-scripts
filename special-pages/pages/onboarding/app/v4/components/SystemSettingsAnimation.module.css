@@ -1,7 +1,7 @@
 .background, .foreground {
     position: absolute;
     left: calc(100% - 80px);
-    top: calc((var(--bubble-bottom-height) - 140px) / 2);
+    top: calc((var(--bubble-bottom-height) - 140px) / 2 + 8px);
 }
 
 .fadeOut {

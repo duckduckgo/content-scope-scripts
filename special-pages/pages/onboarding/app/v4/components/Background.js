@@ -15,7 +15,7 @@ function Illustration({ step, class: className, onAnimationEnd }) {
     const idx = ORDER_V4.indexOf(step);
     const num = String(idx + 1).padStart(2, '0');
     return (
-        <picture class={className} onAnimationEnd={onAnimationEnd}>
+        <picture class={cn(className, step === 'welcome' && styles.rightAligned)} onAnimationEnd={onAnimationEnd}>
             <source srcset={`assets/img/v4/background-${num}-dark.svg`} media="(prefers-color-scheme: dark)" />
             <img src={`assets/img/v4/background-${num}-light.svg`} alt="" />
         </picture>
