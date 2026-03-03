@@ -166,24 +166,80 @@ describe('TrackerResolver', () => {
             expect(resolver.isUnprotectedDomain('example.com')).toBe(false);
         });
 
-        it('should return true for unprotected domain', () => {
-            const resolverWithUnprotected = new TrackerResolver({
+        it('should return true for wildcard-unprotected domain (legacy config)', () => {
+            const r = new TrackerResolver({
                 trackerData: sampleTrackerData,
                 surrogates: sampleSurrogates,
                 allowlist: {},
                 unprotectedDomains: ['unprotected.com'],
             });
-            expect(resolverWithUnprotected.isUnprotectedDomain('unprotected.com')).toBe(true);
+            expect(r.isUnprotectedDomain('unprotected.com')).toBe(true);
         });
 
-        it('should match subdomain of unprotected domain', () => {
-            const resolverWithUnprotected = new TrackerResolver({
+        it('should match subdomain via wildcard (legacy config)', () => {
+            const r = new TrackerResolver({
                 trackerData: sampleTrackerData,
                 surrogates: sampleSurrogates,
                 allowlist: {},
                 unprotectedDomains: ['unprotected.com'],
             });
-            expect(resolverWithUnprotected.isUnprotectedDomain('sub.unprotected.com')).toBe(true);
+            expect(r.isUnprotectedDomain('sub.unprotected.com')).toBe(true);
+        });
+
+        it('should match user-unprotected domain exactly', () => {
+            const r = new TrackerResolver({
+                trackerData: sampleTrackerData,
+                surrogates: sampleSurrogates,
+                userUnprotectedDomains: ['exact.com'],
+                wildcardUnprotectedDomains: [],
+            });
+            expect(r.isUnprotectedDomain('exact.com')).toBe(true);
+            expect(r.isUserUnprotectedDomain('exact.com')).toBe(true);
+        });
+
+        it('should NOT match subdomain of user-unprotected domain', () => {
+            const r = new TrackerResolver({
+                trackerData: sampleTrackerData,
+                surrogates: sampleSurrogates,
+                userUnprotectedDomains: ['exact.com'],
+                wildcardUnprotectedDomains: [],
+            });
+            expect(r.isUnprotectedDomain('sub.exact.com')).toBe(false);
+            expect(r.isUserUnprotectedDomain('sub.exact.com')).toBe(false);
+        });
+
+        it('should match subdomain of wildcard-unprotected domain', () => {
+            const r = new TrackerResolver({
+                trackerData: sampleTrackerData,
+                surrogates: sampleSurrogates,
+                userUnprotectedDomains: [],
+                wildcardUnprotectedDomains: ['wildcard.com'],
+            });
+            expect(r.isUnprotectedDomain('sub.wildcard.com')).toBe(true);
+            expect(r.isWildcardUnprotectedDomain('sub.wildcard.com')).toBe(true);
+        });
+
+        it('should match wildcard-unprotected domain exactly too', () => {
+            const r = new TrackerResolver({
+                trackerData: sampleTrackerData,
+                surrogates: sampleSurrogates,
+                userUnprotectedDomains: [],
+                wildcardUnprotectedDomains: ['wildcard.com'],
+            });
+            expect(r.isUnprotectedDomain('wildcard.com')).toBe(true);
+        });
+
+        it('should combine user and wildcard lists', () => {
+            const r = new TrackerResolver({
+                trackerData: sampleTrackerData,
+                surrogates: sampleSurrogates,
+                userUnprotectedDomains: ['user.com'],
+                wildcardUnprotectedDomains: ['temp.com'],
+            });
+            expect(r.isUnprotectedDomain('user.com')).toBe(true);
+            expect(r.isUnprotectedDomain('sub.user.com')).toBe(false);
+            expect(r.isUnprotectedDomain('temp.com')).toBe(true);
+            expect(r.isUnprotectedDomain('sub.temp.com')).toBe(true);
         });
     });
 
