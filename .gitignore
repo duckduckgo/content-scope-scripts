@@ -28,3 +28,4 @@ coverage/
 # Claude Code
 .claude/*
 !.claude/skills/
+!.claude/settings.json
