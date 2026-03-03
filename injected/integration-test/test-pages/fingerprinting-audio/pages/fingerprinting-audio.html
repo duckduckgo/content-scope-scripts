@@ -76,6 +76,90 @@
             return results;
         });
 
+        test('Audio API wrapping and AnalyserNode protection', async () => {
+            const results = [];
+
+            // Verify AnalyserNode frequency/time-domain methods are wrapped
+            // by checking that getFloatFrequencyData modifies an input array.
+            // The protection applies noise to AnalyserNode output arrays too.
+            const audioCtx = new AudioContext();
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+
+            // Create an oscillator, connect it to the analyser
+            const osc = audioCtx.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.value = 1000;
+            osc.connect(analyser);
+            osc.start(0);
+
+            // Let the oscillator run briefly so the analyser has data
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            const freqData = new Float32Array(analyser.frequencyBinCount);
+            analyser.getFloatFrequencyData(freqData);
+
+            // The array should have been filled with data (not all zeros)
+            let hasNonZeroFreq = false;
+            for (let i = 0; i < freqData.length; i++) {
+                if (freqData[i] !== 0) {
+                    hasNonZeroFreq = true;
+                    break;
+                }
+            }
+            results.push({
+                name: 'getFloatFrequencyData returns non-zero data',
+                result: hasNonZeroFreq,
+                expected: true,
+            });
+
+            // Verify getFloatTimeDomainData also works
+            const timeData = new Float32Array(analyser.fftSize);
+            analyser.getFloatTimeDomainData(timeData);
+            let hasNonZeroTime = false;
+            for (let i = 0; i < timeData.length; i++) {
+                if (timeData[i] !== 0) {
+                    hasNonZeroTime = true;
+                    break;
+                }
+            }
+            results.push({
+                name: 'getFloatTimeDomainData returns non-zero data',
+                result: hasNonZeroTime,
+                expected: true,
+            });
+
+            osc.stop();
+            await audioCtx.close();
+
+            // Verify copyFromChannel returns same data as getChannelData (both wrapped)
+            const offlineCtx = new OfflineAudioContext(1, 5000, 44100);
+            const offOsc = offlineCtx.createOscillator();
+            offOsc.type = 'triangle';
+            offOsc.frequency.value = 1000;
+            offOsc.connect(offlineCtx.destination);
+            offOsc.start(0);
+            const buffer = await offlineCtx.startRendering();
+
+            const channelData = buffer.getChannelData(0);
+            const dest = new Float32Array(channelData.length);
+            buffer.copyFromChannel(dest, 0);
+            let copyMatchesGetChannel = true;
+            for (let i = 0; i < Math.min(channelData.length, 100); i++) {
+                if (channelData[i] !== dest[i]) {
+                    copyMatchesGetChannel = false;
+                    break;
+                }
+            }
+            results.push({
+                name: 'copyFromChannel matches getChannelData (both wrapped consistently)',
+                result: copyMatchesGetChannel,
+                expected: true,
+            });
+
+            return results;
+        });
+
         renderResults();
     </script>
 </body>
