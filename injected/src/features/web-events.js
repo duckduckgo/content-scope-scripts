@@ -17,7 +17,7 @@ export class WebEvents extends ContentFeature {
      *
      * @param {{ type: string, data?: Record<string, unknown> }} event
      */
-    fireEvent({ type, data }) {
+    fireEvent({ type, data = {} }) {
         if (!this.getFeatureSettingEnabled('state', 'enabled')) return;
         this.messaging.notify(MSG_WEB_EVENT, { type, data });
     }

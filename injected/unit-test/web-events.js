@@ -31,12 +31,32 @@ describe('WebEvents', () => {
         it('sends correct method and params for a basic event', () => {
             const { method, params } = captureNotify({ type: 'adwall' });
             expect(method).toBe('webEvent');
-            expect(params).toEqual({ type: 'adwall', data: undefined });
+            expect(params).toEqual({ type: 'adwall', data: {} });
         });
 
         it('forwards data field when provided', () => {
             const { params } = captureNotify({ type: 'adwall', data: { extra: 'info' } });
             expect(params).toEqual({ type: 'adwall', data: { extra: 'info' } });
+        });
+
+        it('sends empty object for data when not provided', () => {
+            const { params } = captureNotify({ type: 'adwall' });
+            expect(params.data).toEqual({});
+        });
+
+        it('sends empty object for data when explicitly undefined', () => {
+            const { params } = captureNotify({ type: 'adwall', data: undefined });
+            expect(params.data).toEqual({});
+        });
+
+        it('preserves provided data object', () => {
+            const { params } = captureNotify({ type: 'adwall', data: { detected: true, score: 0.9 } });
+            expect(params.data).toEqual({ detected: true, score: 0.9 });
+        });
+
+        it('preserves empty data object when explicitly provided', () => {
+            const { params } = captureNotify({ type: 'adwall', data: {} });
+            expect(params.data).toEqual({});
         });
 
         it('never includes nativeData in the params', () => {
