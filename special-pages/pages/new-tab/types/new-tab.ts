@@ -73,6 +73,7 @@ export type ShowDuckAiSetting = boolean;
  * Controls a popover that onboards users and points them towards how to disable the feature via the customizer
  */
 export type ShowCustomizePopover = boolean;
+export type EnableRecentAIChats = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -577,6 +578,7 @@ export interface OmnibarConfig {
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
+  enableRecentAiChats?: EnableRecentAIChats;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"

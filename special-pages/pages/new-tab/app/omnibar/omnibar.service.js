@@ -10,20 +10,7 @@ import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
  * @typedef {import("../../types/new-tab.js").OpenAIChatAction} OpenAIChatAction
  */
 
-const AI_CHATS_TIMEOUT_MS = 3000;
-const EMPTY_AI_CHATS = /** @type {AiChatsData} */ ({ chats: [] });
-
-class AiChatsTimeoutError extends Error {
-    constructor() {
-        super('getAiChats: native did not respond within timeout');
-        this.name = 'AiChatsTimeoutError';
-    }
-}
-
 export class OmnibarService {
-    /** @type {boolean} */
-    _aiChatsSupported = true;
-
     /**
      * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
      * @internal
@@ -157,26 +144,11 @@ export class OmnibarService {
 
     /**
      * Get recent AI chats, optionally filtered by query.
-     * Uses a timeout to detect when native doesn't support this message (rollout gap).
-     * After a single timeout, stops requesting to avoid accumulating leaked listeners.
      * @param {string} query
      * @returns {Promise<AiChatsData>}
      */
-    async getAiChats(query) {
-        if (!this._aiChatsSupported) {
-            return EMPTY_AI_CHATS;
-        }
-
-        const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new AiChatsTimeoutError()), AI_CHATS_TIMEOUT_MS));
-        try {
-            return await Promise.race([this.ntp.messaging.request('omnibar_getAiChats', { query }), timeout]);
-        } catch (e) {
-            if (e instanceof AiChatsTimeoutError) {
-                this._aiChatsSupported = false;
-                return EMPTY_AI_CHATS;
-            }
-            throw e;
-        }
+    getAiChats(query) {
+        return this.ntp.messaging.request('omnibar_getAiChats', { query });
     }
 
     /**

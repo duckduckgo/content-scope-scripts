@@ -29,10 +29,11 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
  * @param {OmnibarConfig['mode']} props.mode
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
  * @param {boolean} props.enableAi
+ * @param {boolean} props.enableRecentAiChats
  * @param {boolean} props.showCustomizePopover
  * @param {string|null|undefined} props.tabId
  */
-export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }) {
+export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCustomizePopover, tabId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -109,7 +110,7 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                 </div>
             )}
             <SearchFormProvider term={query} setTerm={setQuery}>
-                <AiChatsProvider query={query} autoFocus={autoFocus}>
+                <AiChatsProvider query={query} autoFocus={autoFocus} enableRecentAiChats={enableRecentAiChats}>
                     <div class={styles.spacer}>
                         <div class={styles.popup}>
                             {mode === 'search' ? (
@@ -125,7 +126,13 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                                     <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
                                 </>
                             ) : (
-                                <AiChatContent query={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
+                                <AiChatContent
+                                    query={query}
+                                    autoFocus={autoFocus}
+                                    enableRecentAiChats={enableRecentAiChats}
+                                    onChange={setQuery}
+                                    onSubmit={handleSubmitChat}
+                                />
                             )}
                         </div>
                     </div>
@@ -139,36 +146,37 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
+ * @param {boolean} props.enableRecentAiChats
  * @param {(query: string) => void} props.onChange
  * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  */
-function AiChatContent({ query, autoFocus, onChange, onSubmit }) {
+function AiChatContent({ query, autoFocus, enableRecentAiChats, onChange, onSubmit }) {
     const { showChats, hideChats } = useAiChatsContext();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
 
     /** @type {(value: string) => void} */
     const handleChange = (value) => {
         onChange(value);
-        showChats();
+        showChats?.();
     };
 
     return (
         <div
             ref={containerRef}
             // Using capture-phase events because WebKit doesn't reliably fire bubbling focus/blur (e.g. address bar, window refocus).
-            onFocusCapture={() => showChats()}
+            onFocusCapture={() => showChats?.()}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
                     return;
                 }
 
-                hideChats();
+                hideChats?.();
             }}
         >
             <ResizingContainer className={styles.field}>
                 <AiChatForm query={query} autoFocus={autoFocus} onChange={handleChange} onSubmit={onSubmit} />
             </ResizingContainer>
-            <AiChatsList className={styles.aiChatsList} />
+            {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
     );
 }

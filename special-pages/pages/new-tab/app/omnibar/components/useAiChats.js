@@ -19,8 +19,9 @@ export function getAiChatElementId(chatId) {
  * @param {object} params
  * @param {string} params.query - text to match against chat titles (case-insensitive)
  * @param {boolean} [params.initiallyVisible] - initial visibility of the chats list
+ * @param {boolean} [params.enableRecentAiChats] - when false, skips fetching and returns empty chats
  */
-export function useAiChats({ query, initiallyVisible }) {
+export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
     const { getAiChats } = useContext(OmnibarContext);
     const [chats, setChats] = useState(/** @type {AiChat[]} */ ([]));
     const [selectedIndex, setSelectedIndex] = useState(/** @type {number | null} */ (null));
@@ -33,6 +34,11 @@ export function useAiChats({ query, initiallyVisible }) {
     }
 
     useEffect(() => {
+        if (!enableRecentAiChats) {
+            setChats([]);
+            return;
+        }
+
         let cancelled = false;
 
         const isInitial = !query;
@@ -53,7 +59,7 @@ export function useAiChats({ query, initiallyVisible }) {
             cancelled = true;
             clearTimeout(timerId);
         };
-    }, [getAiChats, query]);
+    }, [enableRecentAiChats, getAiChats, query]);
 
     const selectedChat = selectedIndex !== null && selectedIndex < chats.length ? chats[selectedIndex] : null;
 
