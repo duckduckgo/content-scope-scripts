@@ -8,6 +8,12 @@ import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detect
 export default class BreakageReporting extends ContentFeature {
     init() {
         const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled('expandedPerformanceMetrics', 'enabled');
+        // Temporary flag to also include expanded perf metrics in the breakageData payload
+        // for platforms that don't yet consume the top-level key (not Apple).
+        const includePerformanceMetricsInBreakageData = this.getFeatureSettingEnabled(
+            'includePerformanceMetricsInBreakageData',
+            'disabled',
+        );
 
         this.messaging.subscribe('getBreakageReportValues', async () => {
             // Payload that will be URL-encoded and passed directly through to breakage reports.
@@ -55,7 +61,9 @@ export default class BreakageReporting extends ContentFeature {
                 const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
                 if (expandedPerformanceMetrics.success) {
                     result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
-                    breakageDataPayload.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
+                    if (includePerformanceMetricsInBreakageData) {
+                        breakageDataPayload.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
+                    }
                 }
             }
 

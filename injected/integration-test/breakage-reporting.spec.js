@@ -150,10 +150,13 @@ test.describe('Breakage Reporting Feature', () => {
         expect(adwallResult.detected).toBe(true);
     });
 
-    test('includes expandedPerformanceMetrics in breakageData when expandedPerformanceMetrics is enabled', async ({ page }, testInfo) => {
+    test('includes expandedPerformanceMetrics in breakageData when both flags are enabled', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
-        config.features.breakageReporting.settings = { expandedPerformanceMetrics: 'enabled' };
+        config.features.breakageReporting.settings = {
+            expandedPerformanceMetrics: 'enabled',
+            includePerformanceMetricsInBreakageData: 'enabled',
+        };
         await collector.load(HTML, config);
 
         const breakageFeature = new BreakageReportingSpec(page);
@@ -174,12 +177,15 @@ test.describe('Breakage Reporting Feature', () => {
         expect(decodedBreakageData.expandedPerformanceMetrics.resourceCount).toEqual(expect.any(Number));
     });
 
-    test('does not include expandedPerformanceMetrics in breakageData when expandedPerformanceMetrics is disabled', async ({
+    test('does not include expandedPerformanceMetrics in breakageData when includePerformanceMetricsInBreakageData is disabled', async ({
         page,
     }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
-        config.features.breakageReporting.settings = { expandedPerformanceMetrics: 'disabled' };
+        config.features.breakageReporting.settings = {
+            expandedPerformanceMetrics: 'enabled',
+            includePerformanceMetricsInBreakageData: 'disabled',
+        };
         await collector.load(HTML, config);
 
         const breakageFeature = new BreakageReportingSpec(page);
@@ -190,7 +196,7 @@ test.describe('Breakage Reporting Feature', () => {
         const calls = await collector.outgoingMessages();
 
         const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
-        expect(result.params?.expandedPerformanceMetrics).toBeUndefined();
+        expect(result.params?.expandedPerformanceMetrics).toBeDefined();
 
         const decodedBreakageData = JSON.parse(decodeURIComponent(result.params?.breakageData));
         expect(decodedBreakageData.expandedPerformanceMetrics).toBeUndefined();
