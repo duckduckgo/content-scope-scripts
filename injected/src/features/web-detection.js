@@ -150,14 +150,14 @@ export default class WebDetection extends ContentFeature {
      * @param {DetectorMatchResult} detected
      */
     async _executeFireEvent(detectorConfig, detected) {
-        if (detected !== true || !detectorConfig.actions.fireEvent) return;
-        if (!this._isStateEnabled(detectorConfig.actions.fireEvent.state)) return;
         try {
+            if (detected !== true || !detectorConfig.actions.fireEvent) return;
+            if (!this._isStateEnabled(detectorConfig.actions.fireEvent.state)) return;
             await this.callFeatureMethod('webEvents', 'fireEvent', {
                 type: detectorConfig.actions.fireEvent.type,
             });
         } catch {
-            // webEvents may not be loaded on this platform - silently ignore
+            // webEvents may not be loaded on this platform or guard checks failed - silently ignore
         }
     }
 
