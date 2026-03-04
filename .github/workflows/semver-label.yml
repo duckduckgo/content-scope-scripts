@@ -10,19 +10,56 @@ permissions:
 
 jobs:
     semver_label:
+        if: startsWith(github.event.pull_request.head.ref, 'release-')
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout
+            - name: Checkout base branch
               uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.ref }}
+                  path: base
 
-            - name: Get PR diff and files
-              id: diff
+            - name: Checkout PR branch
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.head.ref }}
+                  repository: ${{ github.event.pull_request.head.repo.full_name }}
+                  path: pr
+                  fetch-depth: 0
+
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: 'base/.nvmrc'
+
+            - name: Build base branch
+              run: |
+                  cd base
+                  npm install
+                  npm run build
+
+            - name: Build PR branch
+              env:
+                  BASE_REF: ${{ github.event.pull_request.base.ref }}
+              run: |
+                  cd pr
+                  git config --global user.email "dax@duck.com"
+                  git config --global user.name "dax"
+                  git fetch origin "$BASE_REF"
+                  git rebase -X theirs "origin/$BASE_REF"
+                  npm install
+                  npm run build
+
+            - name: Create build diff
+              run: |
+                  node base/.github/scripts/diff-directories.js base pr > /tmp/build_diff.txt
+
+            - name: Get PR source files
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
               run: |
-                  gh pr diff "$PR_NUMBER" > /tmp/pr_diff.txt 2>/dev/null || true
                   gh pr view "$PR_NUMBER" --json files --jq '.files[].path' > /tmp/pr_files.txt 2>/dev/null || true
 
             - name: Run semver analysis
@@ -32,10 +69,10 @@ jobs:
                   PR_TITLE: ${{ github.event.pull_request.title }}
                   PR_BODY: ${{ github.event.pull_request.body }}
               run: |
-                  export PR_DIFF="$(cat /tmp/pr_diff.txt 2>/dev/null || echo '')"
+                  export BUILD_DIFF="$(cat /tmp/build_diff.txt 2>/dev/null || echo '')"
                   export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
 
-                  RESULT=$(node .github/scripts/semver-analysis.mjs)
+                  RESULT=$(node base/.github/scripts/semver-analysis.mjs)
                   echo "Raw result: $RESULT"
 
                   SEVERITY=$(echo "$RESULT" | jq -r '.severity')
