@@ -60,7 +60,7 @@ export class OnboardingPage {
         this.defaultResponses = {
             ...this.defaultResponses,
             init: { ...this.defaultResponses.init, getCustomizeStepRowsSupported: true },
-            getCustomizeStepRows: { result: { rows } },
+            getCustomizeStepRows: { rows },
         };
         this.mocks.defaultResponses(this.defaultResponses);
         return this;

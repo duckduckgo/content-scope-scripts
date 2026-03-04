@@ -227,8 +227,7 @@ export function GlobalProvider({
                         (async () => {
                             try {
                                 const response = await Promise.race([messaging.getCustomizeStepRows(), withTimeout(2000)]);
-                                const result = response?.result ?? response;
-                                const rows = result?.rows ?? defaultRows;
+                                 const rows = response?.rows ?? defaultRows;
                                 dispatch({ kind: 'set-customize-rows', rows });
                                 dispatch({ kind: 'advance' });
                                 messaging.stepCompleted({ id: state.activeStep });
