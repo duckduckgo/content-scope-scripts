@@ -150,7 +150,7 @@ test.describe('Breakage Reporting Feature', () => {
         expect(adwallResult.detected).toBe(true);
     });
 
-    test('includes performanceMetrics in breakageData when expandedPerformanceMetrics is enabled', async ({ page }, testInfo) => {
+    test('includes expandedPerformanceMetrics in breakageData when expandedPerformanceMetrics is enabled', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
         config.features.breakageReporting.settings = { expandedPerformanceMetrics: 'enabled' };
@@ -168,13 +168,15 @@ test.describe('Breakage Reporting Feature', () => {
         expect(result.params?.breakageData).toBeDefined();
 
         const decodedBreakageData = JSON.parse(decodeURIComponent(result.params?.breakageData));
-        expect(decodedBreakageData.performanceMetrics).toBeDefined();
-        expect(decodedBreakageData.performanceMetrics.loadComplete).toEqual(expect.any(Number));
-        expect(decodedBreakageData.performanceMetrics.firstContentfulPaint).toEqual(expect.any(Number));
-        expect(decodedBreakageData.performanceMetrics.resourceCount).toEqual(expect.any(Number));
+        expect(decodedBreakageData.expandedPerformanceMetrics).toBeDefined();
+        expect(decodedBreakageData.expandedPerformanceMetrics.loadComplete).toEqual(expect.any(Number));
+        expect(decodedBreakageData.expandedPerformanceMetrics.firstContentfulPaint).toEqual(expect.any(Number));
+        expect(decodedBreakageData.expandedPerformanceMetrics.resourceCount).toEqual(expect.any(Number));
     });
 
-    test('does not include performanceMetrics in breakageData when expandedPerformanceMetrics is disabled', async ({ page }, testInfo) => {
+    test('does not include expandedPerformanceMetrics in breakageData when expandedPerformanceMetrics is disabled', async ({
+        page,
+    }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
         config.features.breakageReporting.settings = { expandedPerformanceMetrics: 'disabled' };
@@ -191,7 +193,7 @@ test.describe('Breakage Reporting Feature', () => {
         expect(result.params?.expandedPerformanceMetrics).toBeUndefined();
 
         const decodedBreakageData = JSON.parse(decodeURIComponent(result.params?.breakageData));
-        expect(decodedBreakageData.performanceMetrics).toBeUndefined();
+        expect(decodedBreakageData.expandedPerformanceMetrics).toBeUndefined();
     });
 
     test('does not detect adwall on clean page', async ({ page }, testInfo) => {

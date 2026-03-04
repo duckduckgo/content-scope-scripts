@@ -55,7 +55,7 @@ export default class BreakageReporting extends ContentFeature {
                 const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
                 if (expandedPerformanceMetrics.success) {
                     result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
-                    breakageDataPayload.performanceMetrics = expandedPerformanceMetrics.metrics;
+                    breakageDataPayload.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
                 }
             }
 
