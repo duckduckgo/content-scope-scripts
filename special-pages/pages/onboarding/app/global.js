@@ -222,11 +222,17 @@ export function GlobalProvider({
                     if (state.getCustomizeStepRowsSupported) {
                         const customizeStep = /** @type {import('./types').CustomizeStep | undefined} */ (state.stepDefinitions.customize);
                         const defaultRows = customizeStep?.rows ?? ['bookmarks', 'session-restore', 'home-shortcut'];
-                        const withTimeout = (ms) =>
-                            new Promise((_resolve, reject) => setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms));
+                        const withTimeout = (ms) => {
+                            let timeoutId;
+                            const promise = new Promise((_resolve, reject) => {
+                                timeoutId = setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms);
+                            });
+                            return { promise, clear: () => clearTimeout(timeoutId) };
+                        };
+                        const { promise: timeoutPromise, clear: clearRaceTimeout } = withTimeout(2000);
                         (async () => {
                             try {
-                                const response = await Promise.race([messaging.getCustomizeStepRows(), withTimeout(2000)]);
+                                const response = await Promise.race([messaging.getCustomizeStepRows(), timeoutPromise]);
                                 const rows = response?.rows ?? defaultRows;
                                 dispatch({ kind: 'set-customize-rows', rows });
                                 dispatch({ kind: 'advance' });
@@ -234,6 +240,8 @@ export function GlobalProvider({
                             } catch {
                                 dispatch({ kind: 'advance' });
                                 messaging.stepCompleted({ id: state.activeStep });
+                            } finally {
+                                clearRaceTimeout();
                             }
                         })();
                         return;
