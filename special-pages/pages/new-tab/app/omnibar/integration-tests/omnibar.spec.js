@@ -337,6 +337,20 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.toggleDuckAiButton()).toHaveCount(0);
     });
 
+    test('suggestions do not include Duck.ai when AI is disabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': false } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+
+        await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).not.toBeVisible();
+    });
+
     test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
