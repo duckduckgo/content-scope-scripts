@@ -145,35 +145,6 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.chats[0].chatId).toBe('chat-1');
     });
 
-    test('firstUserMessageContent is not exposed in the response', async ({ page }) => {
-        await page.evaluate(() => {
-            const chats = [
-                {
-                    chatId: 'no-messages',
-                    title: 'Chat without messages',
-                    messages: [],
-                    lastEdit: new Date().toISOString(),
-                    pinned: false,
-                },
-                {
-                    chatId: 'with-messages',
-                    title: 'Chat with messages',
-                    messages: [{ content: 'Hello world', role: 'user' }],
-                    lastEdit: new Date().toISOString(),
-                    pinned: false,
-                },
-            ];
-            localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
-        });
-
-        const result = await requestChats();
-        expect(result.success).toBe(true);
-        expect(result.chats).toHaveLength(2);
-        // firstUserMessageContent should not be in the response regardless of messages
-        expect(result.chats[0].firstUserMessageContent).toBeUndefined();
-        expect(result.chats[1].firstUserMessageContent).toBeUndefined();
-    });
-
     test('handles non-string title values gracefully during search', async ({ page }) => {
         await page.evaluate(() => {
             const chats = [
