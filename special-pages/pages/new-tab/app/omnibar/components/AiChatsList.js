@@ -4,14 +4,12 @@ import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { ChatBubbleIcon, PinIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
-import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
 import styles from './AiChatsList.module.css';
 
 /**
- * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
@@ -21,7 +19,6 @@ import styles from './AiChatsList.module.css';
  * @param {string} [props.className]
  */
 export function AiChatsList({ className }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { openAiChat } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const { chats, selectedChat, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
@@ -31,7 +28,7 @@ export function AiChatsList({ className }) {
     }
 
     return (
-        <div role="listbox" id={aiChatsListId} class={cn(styles.list, className)} aria-label={t('omnibar_aiChatsListLabel')}>
+        <div role="listbox" id={aiChatsListId} class={cn(styles.list, className)}>
             {chats.map((chat) => {
                 return (
                     <button
