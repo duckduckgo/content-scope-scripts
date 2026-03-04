@@ -12,7 +12,7 @@ permissions:
 
 jobs:
     trigger_release:
-        if: github.event.pull_request.merged == true
+        if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-')
         runs-on: ubuntu-latest
 
         steps:
@@ -22,10 +22,10 @@ jobs:
               with:
                   script: |
                       const pr = context.payload.pull_request;
-                      const semverLabels = ['major', 'minor', 'patch'];
-                      const label = pr.labels.find(l => semverLabels.includes(l.name));
+                      const releaseLabels = ['major', 'minor'];
+                      const label = pr.labels.find(l => releaseLabels.includes(l.name));
                       if (!label) {
-                          core.info(`PR #${pr.number} has no semver label — skipping`);
+                          core.info(`PR #${pr.number} has no release label (major/minor) — skipping`);
                           return;
                       }
 
