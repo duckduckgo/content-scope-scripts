@@ -5,7 +5,10 @@
   "features": {
     "breakageReporting": {
       "state": "enabled",
-      "exceptions": []
+      "exceptions": [],
+      "settings": {
+        "expandedPerformanceMetrics": "enabled"
+      }
     },
     "webInterferenceDetection": {
       "state": "enabled",

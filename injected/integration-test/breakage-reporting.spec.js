@@ -11,6 +11,7 @@ test.describe('Breakage Reporting Feature', () => {
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
         // disable webInterferenceDetection feature so it doesn't add data to the breakage report
         config.features.webInterferenceDetection.state = 'disabled';
+        config.features.breakageReporting.settings = { expandedPerformanceMetrics: 'disabled' };
         await collector.load(HTML, config);
 
         const breakageFeature = new BreakageReportingSpec(page);
@@ -22,6 +23,7 @@ test.describe('Breakage Reporting Feature', () => {
 
         const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
         expect(result.params?.detectorData).toBeUndefined();
+        expect(result.params?.expandedPerformanceMetrics).toBeUndefined();
         expect(result.params?.breakageData).toBeUndefined();
     });
 
@@ -147,6 +149,52 @@ test.describe('Breakage Reporting Feature', () => {
         const adwallResult = result.params?.detectorData?.adwallDetection.results[0];
         expect(adwallResult.detectorId).toBe('generic');
         expect(adwallResult.detected).toBe(true);
+    });
+
+    test('includes expandedPerformanceMetrics in both result and breakageData when enabled', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG);
+
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigateToPage('/breakage-reporting/pages/no-challenge.html');
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+        const calls = await collector.outgoingMessages();
+
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+
+        // Top-level expandedPerformanceMetrics should be present
+        expect(result.params?.expandedPerformanceMetrics).toBeDefined();
+        expect(result.params?.expandedPerformanceMetrics.loadComplete).toEqual(expect.any(Number));
+        expect(result.params?.expandedPerformanceMetrics.domComplete).toEqual(expect.any(Number));
+        expect(result.params?.expandedPerformanceMetrics.firstContentfulPaint).toEqual(expect.any(Number));
+        expect(result.params?.expandedPerformanceMetrics.resourceCount).toEqual(expect.any(Number));
+        expect(result.params?.expandedPerformanceMetrics.navigationType).toBeDefined();
+
+        // breakageData should also contain expandedPerformanceMetrics
+        expect(result.params?.breakageData).toBeDefined();
+        const decodedBreakageData = JSON.parse(decodeURIComponent(result.params?.breakageData));
+        expect(decodedBreakageData.expandedPerformanceMetrics).toEqual(result.params?.expandedPerformanceMetrics);
+    });
+
+    test('excludes expandedPerformanceMetrics when setting is disabled', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        config.features.breakageReporting.settings = { expandedPerformanceMetrics: 'disabled' };
+        config.features.webInterferenceDetection.state = 'disabled';
+        await collector.load(HTML, config);
+
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigate();
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+        const calls = await collector.outgoingMessages();
+
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        expect(result.params?.expandedPerformanceMetrics).toBeUndefined();
+        expect(result.params?.breakageData).toBeUndefined();
     });
 
     test('does not detect adwall on clean page', async ({ page }, testInfo) => {
