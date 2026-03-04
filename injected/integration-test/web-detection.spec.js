@@ -521,17 +521,14 @@ test.describe('WebDetection Feature', () => {
             expect(webEvents[0].type).toBe('adwall');
         });
 
-        test('does not send webEvent when webEvents feature state is disabled on this site via conditionalChanges', async ({
-            page,
-        }, testInfo) => {
+        test('does not send webEvent when webEvents is disabled on this site via additionalCheck', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
-                // webEvents is enabled globally, but conditionalChanges disables it on localhost
                 config.features.webEvents.settings = {
-                    state: 'enabled',
+                    additionalCheck: 'enabled',
                     conditionalChanges: [
                         {
                             domain: 'localhost',
-                            patchSettings: [{ op: 'replace', path: '/state', value: 'disabled' }],
+                            patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'disabled' }],
                         },
                     ],
                 };
@@ -544,15 +541,14 @@ test.describe('WebDetection Feature', () => {
             expect(webEvents.length).toBe(0);
         });
 
-        test('sends webEvent when webEvents feature state is enabled on this site via conditionalChanges', async ({ page }, testInfo) => {
+        test('sends webEvent when webEvents is enabled on this site via additionalCheck', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
-                // webEvents settings state is disabled by default, but enabled on localhost via conditionalChanges
                 config.features.webEvents.settings = {
-                    state: 'disabled',
+                    additionalCheck: 'disabled',
                     conditionalChanges: [
                         {
                             domain: 'localhost',
-                            patchSettings: [{ op: 'replace', path: '/state', value: 'enabled' }],
+                            patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'enabled' }],
                         },
                     ],
                 };

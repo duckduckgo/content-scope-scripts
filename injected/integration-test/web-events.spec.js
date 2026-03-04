@@ -51,7 +51,7 @@ test.describe('WebEvents message flow', () => {
         expect(webEventMessages.length).toBe(0);
     });
 
-    test('does not send webEvent message when webEvents is disabled on this site via conditionalChanges', async ({ page }, testInfo) => {
+    test('does not send webEvent message when webEvents is disabled on this site via additionalCheck', async ({ page }, testInfo) => {
         const collector = await setupWithAutoRun(page, testInfo.project.use, CONFIG_EXCEPTION);
 
         await page.clock.fastForward(100);
