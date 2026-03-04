@@ -6,139 +6,47 @@ on:
             - main
 
 permissions:
-    contents: write
-    pull-requests: write
+    contents: read
     actions: write
 
 jobs:
-    semver_analysis:
+    trigger_release:
         runs-on: ubuntu-latest
-        outputs:
-            severity: ${{ steps.analyse.outputs.severity }}
-            pr_number: ${{ steps.find_pr.outputs.pr_number }}
 
         steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-
-            - name: Find merged PR
-              id: find_pr
+            - name: Find merged PR and check label
+              id: check
               uses: actions/github-script@v8
               with:
                   script: |
-                      const commits = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                      const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                           commit_sha: context.sha
                       });
-                      const merged = commits.data.find(pr => pr.merged_at && pr.base.ref === 'main');
+                      const merged = prs.find(pr => pr.merged_at && pr.base.ref === 'main');
                       if (!merged) {
                           core.info('No merged PR found for this commit — skipping');
-                          core.setOutput('pr_number', '');
                           return;
                       }
-                      core.setOutput('pr_number', merged.number.toString());
-                      core.setOutput('pr_title', merged.title);
-                      core.setOutput('pr_body', merged.body || '');
 
-            - name: Get PR diff and files
-              if: steps.find_pr.outputs.pr_number != ''
-              id: diff
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  PR_NUMBER: ${{ steps.find_pr.outputs.pr_number }}
-              run: |
-                  gh pr diff "$PR_NUMBER" > /tmp/pr_diff.txt 2>/dev/null || true
-                  gh pr view "$PR_NUMBER" --json files --jq '.files[].path' > /tmp/pr_files.txt 2>/dev/null || true
-
-            - name: Run semver analysis
-              if: steps.find_pr.outputs.pr_number != ''
-              id: analyse
-              env:
-                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-                  PR_TITLE: ${{ steps.find_pr.outputs.pr_title }}
-                  PR_BODY: ${{ steps.find_pr.outputs.pr_body }}
-              run: |
-                  export PR_DIFF="$(cat /tmp/pr_diff.txt 2>/dev/null || echo '')"
-                  export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
-
-                  RESULT=$(node .github/scripts/semver-analysis.mjs)
-                  echo "Raw result: $RESULT"
-
-                  SEVERITY=$(echo "$RESULT" | jq -r '.severity')
-                  REASONING=$(echo "$RESULT" | jq -r '.reasoning')
-
-                  echo "severity=$SEVERITY" >> "$GITHUB_OUTPUT"
-
-            - name: Label PR
-              if: steps.find_pr.outputs.pr_number != '' && steps.analyse.outputs.severity != ''
-              uses: actions/github-script@v8
-              with:
-                  script: |
-                      const prNumber = parseInt('${{ steps.find_pr.outputs.pr_number }}');
-                      const label = '${{ steps.analyse.outputs.severity }}';
                       const semverLabels = ['major', 'minor', 'patch'];
-
-                      const labelColors = { major: 'B60205', minor: 'FBCA04', patch: '0E8A16' };
-                      const labelDescriptions = {
-                          major: 'Breaking change — triggers major version bump',
-                          minor: 'New feature — triggers minor version bump',
-                          patch: 'Bug fix / internal — no release needed'
-                      };
-
-                      try {
-                          await github.rest.issues.getLabel({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              name: label
-                          });
-                      } catch {
-                          await github.rest.issues.createLabel({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              name: label,
-                              color: labelColors[label],
-                              description: labelDescriptions[label]
-                          });
+                      const label = merged.labels.find(l => semverLabels.includes(l.name));
+                      if (!label) {
+                          core.info(`PR #${merged.number} has no semver label — skipping`);
+                          return;
                       }
 
-                      const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          issue_number: prNumber
-                      });
-                      for (const l of currentLabels) {
-                          if (semverLabels.includes(l.name) && l.name !== label) {
-                              await github.rest.issues.removeLabel({
-                                  owner: context.repo.owner,
-                                  repo: context.repo.repo,
-                                  issue_number: prNumber,
-                                  name: l.name
-                              });
-                          }
-                      }
+                      core.info(`PR #${merged.number} labeled "${label.name}"`);
+                      core.setOutput('severity', label.name);
+                      core.setOutput('pr_number', merged.number.toString());
 
-                      await github.rest.issues.addLabels({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          issue_number: prNumber,
-                          labels: [label]
-                      });
-                      console.log(`Applied label: ${label}`);
-
-    trigger_release:
-        needs: semver_analysis
-        if: needs.semver_analysis.outputs.severity == 'major' || needs.semver_analysis.outputs.severity == 'minor'
-        runs-on: ubuntu-latest
-
-        steps:
             - name: Trigger Release workflow
+              if: steps.check.outputs.severity == 'major' || steps.check.outputs.severity == 'minor'
               uses: actions/github-script@v8
               with:
                   script: |
-                      const severity = '${{ needs.semver_analysis.outputs.severity }}';
-                      console.log(`Triggering Release workflow with version_bump=${severity}`);
-
+                      const severity = '${{ steps.check.outputs.severity }}';
                       await github.rest.actions.createWorkflowDispatch({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
@@ -146,5 +54,4 @@ jobs:
                           ref: 'main',
                           inputs: { version_bump: severity }
                       });
-
-                      console.log(`✅ Release workflow dispatched for ${severity} bump (PR #${{ needs.semver_analysis.outputs.pr_number }})`);
+                      console.log(`Release workflow dispatched for ${severity} bump (PR #${{ steps.check.outputs.pr_number }})`);
