@@ -91,7 +91,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | ExecErrorEvent
  *   | DismissEvent
  *   | DismisstoSettingsEvent
- *   | ErrorBoundaryEvent 
+ *   | ErrorBoundaryEvent
  *   | SetCustomizeRowsEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
