@@ -15,7 +15,6 @@ jobs:
         runs-on: ubuntu-latest
         outputs:
             severity: ${{ steps.analyse.outputs.severity }}
-            reasoning: ${{ steps.analyse.outputs.reasoning }}
             pr_number: ${{ steps.find_pr.outputs.pr_number }}
 
         steps:
@@ -70,27 +69,21 @@ jobs:
                   REASONING=$(echo "$RESULT" | jq -r '.reasoning')
 
                   echo "severity=$SEVERITY" >> "$GITHUB_OUTPUT"
-                  {
-                    echo "reasoning<<SEMVER_EOF"
-                    echo "$REASONING"
-                    echo "SEMVER_EOF"
-                  } >> "$GITHUB_OUTPUT"
 
-            - name: Label PR with semver tag
+            - name: Label PR
               if: steps.find_pr.outputs.pr_number != '' && steps.analyse.outputs.severity != ''
               uses: actions/github-script@v8
               with:
                   script: |
                       const prNumber = parseInt('${{ steps.find_pr.outputs.pr_number }}');
-                      const severity = '${{ steps.analyse.outputs.severity }}';
-                      const label = `semver-${severity}`;
+                      const label = '${{ steps.analyse.outputs.severity }}';
+                      const semverLabels = ['major', 'minor', 'patch'];
 
-                      // Ensure the label exists
-                      const labelColors = { 'semver-major': 'B60205', 'semver-minor': 'FBCA04', 'semver-patch': '0E8A16' };
+                      const labelColors = { major: 'B60205', minor: 'FBCA04', patch: '0E8A16' };
                       const labelDescriptions = {
-                          'semver-major': 'Breaking change — triggers major version bump',
-                          'semver-minor': 'New feature — triggers minor version bump',
-                          'semver-patch': 'Bug fix / internal — no release needed'
+                          major: 'Breaking change — triggers major version bump',
+                          minor: 'New feature — triggers minor version bump',
+                          patch: 'Bug fix / internal — no release needed'
                       };
 
                       try {
@@ -109,14 +102,13 @@ jobs:
                           });
                       }
 
-                      // Remove any existing semver labels
                       const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                           issue_number: prNumber
                       });
                       for (const l of currentLabels) {
-                          if (l.name.startsWith('semver-') && l.name !== label) {
+                          if (semverLabels.includes(l.name) && l.name !== label) {
                               await github.rest.issues.removeLabel({
                                   owner: context.repo.owner,
                                   repo: context.repo.repo,
@@ -133,57 +125,6 @@ jobs:
                           labels: [label]
                       });
                       console.log(`Applied label: ${label}`);
-
-            - name: Comment analysis on PR
-              if: steps.find_pr.outputs.pr_number != '' && steps.analyse.outputs.severity != ''
-              uses: actions/github-script@v8
-              env:
-                  SEMVER_REASONING: ${{ steps.analyse.outputs.reasoning }}
-              with:
-                  script: |
-                      const prNumber = parseInt('${{ steps.find_pr.outputs.pr_number }}');
-                      const severity = '${{ steps.analyse.outputs.severity }}';
-                      const reasoning = process.env.SEMVER_REASONING || '';
-                      const marker = '<!-- SEMVER_ANALYSIS -->';
-
-                      const emoji = { major: '🔴', minor: '🟡', patch: '🟢' };
-                      const action = severity === 'patch'
-                          ? 'No release will be created.'
-                          : `A **${severity}** release will be triggered automatically.`;
-
-                      const body = [
-                          marker,
-                          `### ${emoji[severity]} Semver Classification: \`${severity}\``,
-                          '',
-                          reasoning,
-                          '',
-                          action
-                      ].join('\n');
-
-                      const { data: comments } = await github.rest.issues.listComments({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          issue_number: prNumber
-                      });
-                      const existing = comments.find(
-                          c => c.user.login === 'github-actions[bot]' && c.body.includes(marker)
-                      );
-
-                      if (existing) {
-                          await github.rest.issues.updateComment({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              comment_id: existing.id,
-                              body
-                          });
-                      } else {
-                          await github.rest.issues.createComment({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              issue_number: prNumber,
-                              body
-                          });
-                      }
 
     trigger_release:
         needs: semver_analysis
