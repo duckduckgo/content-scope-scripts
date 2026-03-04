@@ -14,6 +14,11 @@
  * ```
  *
  * @module Configuration
+ *
+ * @typedef {import('../injected/src/utils.js').RemoteConfig} RemoteConfig
+ * @typedef {import('../injected/src/utils.js').Platform} Platform
+ * @typedef {import('../injected/src/utils.js').UserPreferences} UserPreferences
+ * @typedef {import('../injected/src/content-scope-features.js').LoadArgs} LoadArgs
  */
 
 export { default as ConfigFeature } from '../injected/src/config-feature.js';

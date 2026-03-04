@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Remote configuration processing and feature config for DuckDuckGo privacy features",
   "main": "index.js",
+  "types": "index.d.ts",
   "type": "module",
   "scripts": {
     "test": "echo '✅ Tests are within parent project, for now'"
