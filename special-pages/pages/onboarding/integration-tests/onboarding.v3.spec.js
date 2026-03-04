@@ -700,5 +700,37 @@ test.describe('onboarding v3', () => {
             // ▶️ Then I can toggle it afterward
             await onboarding.startBrowsing();
         });
+
+    test.describe('Given getCustomizeStepRows behavior', () => {
+        test('When customize step has reduced rows (no bookmarks), only those rows are shown', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                ...onboarding.defaultResponses.init,
+                order: 'v3',
+                stepDefinitions: {
+                    ...onboarding.defaultResponses.init.stepDefinitions,
+                    customize: { id: 'customize', kind: 'settings', rows: ['session-restore', 'home-shortcut'] },
+                },
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'customize' });
+            await page.getByRole('button', { name: 'Enable Session Restore' }).waitFor({ timeout: 10000 });
+            await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
+            await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
+        });
+
+        test('When customize step has default rows, all three rows including bookmarks are shown', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
+                env: 'development',
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'customize' });
+            await page.getByRole('button', { name: 'Show Bookmarks Bar' }).waitFor({ timeout: 10000 });
+            await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).toBeVisible();
+        });
+    });
     });
 });

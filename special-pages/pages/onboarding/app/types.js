@@ -76,6 +76,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @property {number} activeRow
  * @property {boolean} activeStepVisible
  * @property {boolean} exiting
+ * @property {boolean} [getCustomizeStepRowsSupported]
  * @property {Status} status
  * @property {Partial<Record<SystemValueId, SystemValue>>} values
  * @property {Record<SystemValueId, UIValue>} UIValues
@@ -90,7 +91,8 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | ExecErrorEvent
  *   | DismissEvent
  *   | DismisstoSettingsEvent
- *   | ErrorBoundaryEvent} GlobalEvents
+ *   | ErrorBoundaryEvent 
+ *   | SetCustomizeRowsEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -101,7 +103,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
- *
+ * @typedef {{ kind: "set-customize-rows"; rows: SystemValueId[] }} SetCustomizeRowsEvent
  */
 
 /** @type {ImportMeta['injectName'][]} */

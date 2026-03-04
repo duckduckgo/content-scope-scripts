@@ -60,6 +60,21 @@ export function reducer(state, action) {
                         exiting: true,
                     };
                 }
+                case 'set-customize-rows': {
+                    const customizeStep = state.stepDefinitions.customize;
+                    return {
+                        ...state,
+                        stepDefinitions: {
+                            ...state.stepDefinitions,
+                            customize: {
+                                ...customizeStep,
+                                id: 'customize',
+                                kind: 'settings',
+                                rows: action.rows,
+                            },
+                        },
+                    };
+                }
                 default:
                     return state;
             }
@@ -147,8 +162,9 @@ export function reducer(state, action) {
  * @param {import('./types').StepDefinitions} props.stepDefinitions -
  * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
+ * @param {boolean} [props.getCustomizeStepRowsSupported] - When true, advance to customize will request rows from host; when false, advance immediately (no 2s delay on unsupported platforms).
  */
-export function GlobalProvider({ order, children, stepDefinitions, messaging, firstPage = 'welcome' }) {
+export function GlobalProvider({ order, children, stepDefinitions, messaging, firstPage = 'welcome', getCustomizeStepRowsSupported = false }) {
     const [state, dispatch] = useReducer(reducer, {
         status: { kind: 'idle' },
         order,
@@ -159,6 +175,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,
+        getCustomizeStepRowsSupported,
         values: {},
         UIValues: {
             dock: 'idle',
@@ -177,13 +194,40 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
     const platform = usePlatformName();
     const proxy = useCallback(
         (/** @type {GlobalEvents} */ msg) => {
+            if (msg.kind === 'advance') {
+                const nextStep = state.order[state.order.indexOf(state.activeStep) + 1];
+                if (nextStep === 'customize') {
+                    if (state.getCustomizeStepRowsSupported) {
+                        const defaultRows = state.stepDefinitions.customize?.rows ?? ['bookmarks', 'session-restore', 'home-shortcut'];
+                        const withTimeout = (ms) => new Promise((resolve, reject) => setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms));
+                        (async () => {
+                            try {
+                                const response = await Promise.race([messaging.getCustomizeStepRows(), withTimeout(2000)]);
+                                const result = response?.result ?? response;
+                                const rows = result?.rows ?? defaultRows;
+                                dispatch({ kind: 'set-customize-rows', rows });
+                                dispatch({ kind: 'advance' });
+                                messaging.stepCompleted({ id: state.activeStep });
+                            } catch {
+                                dispatch({ kind: 'advance' });
+                                messaging.stepCompleted({ id: state.activeStep });
+                            }
+                        })();
+                        return;
+                    }
+                    dispatch(msg);
+                    messaging.stepCompleted({ id: state.activeStep });
+                    return;
+                }
+            }
+
             /**
              * Regular global state updates
              */
             dispatch(msg);
 
             /**
-             * Side effects that don't impact global state
+             * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
                 messaging.stepCompleted({ id: state.activeStep });

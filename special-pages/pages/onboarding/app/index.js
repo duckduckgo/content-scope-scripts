@@ -93,6 +93,7 @@ async function init() {
                             order={settings.order}
                             stepDefinitions={settings.stepDefinitions}
                             firstPage={settings.first}
+                            getCustomizeStepRowsSupported={init.getCustomizeStepRowsSupported ?? false}
                         >
                             <AppComponent>{environment.env === 'development' && <SkipLink />}</AppComponent>
                         </GlobalProvider>

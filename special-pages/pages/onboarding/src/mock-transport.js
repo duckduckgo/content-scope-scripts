@@ -48,6 +48,12 @@ export function mockTransport() {
                         order: 'v3',
                         locale: 'en',
                         env: 'development',
+                        getCustomizeStepRowsSupported: true,
+                    });
+                }
+                case 'getCustomizeStepRows': {
+                    return Promise.resolve({
+                        rows: ['bookmarks', 'session-restore', 'home-shortcut'],
                     });
                 }
                 case 'requestImport':

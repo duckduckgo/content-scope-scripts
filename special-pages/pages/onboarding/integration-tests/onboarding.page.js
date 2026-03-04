@@ -55,6 +55,20 @@ export class OnboardingPage {
     }
 
     /**
+     * Sets init.getCustomizeStepRowsSupported and mock response for getCustomizeStepRows (for integration tests).
+     * @param {string[]} [rows=['session-restore', 'home-shortcut']]
+     */
+    withGetCustomizeStepRowsSupported(rows = ['session-restore', 'home-shortcut']) {
+        this.defaultResponses = {
+            ...this.defaultResponses,
+            init: { ...this.defaultResponses.init, getCustomizeStepRowsSupported: true },
+            getCustomizeStepRows: { result: { rows } },
+        };
+        this.mocks.defaultResponses(this.defaultResponses);
+        return this;
+    }
+
+    /**
      * Opens a page with optional parameters.
      * This method ensures that mocks are installed and routes are set up before navigating to the page.
      *

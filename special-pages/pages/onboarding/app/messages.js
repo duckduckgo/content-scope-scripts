@@ -9,6 +9,7 @@
  * @property {string[]} [exclude] - ability to exclude screens
  * @property {ImportMeta['env']} [env] - optional override for the running override
  * @property {string} locale
+ * @property {boolean|undefined} [getCustomizeStepRowsSupported] - Optional; only Windows supports it. When true, platform handles getCustomizeStepRows for customize step rows
  * @property {{ name: 'macos'|'windows'|'android'|'ios'}} [platform]
  */
 
@@ -157,6 +158,17 @@ export class OnboardingMessages {
      */
     reportInitException(params) {
         this.messaging.notify('reportInitException', params);
+    }
+
+    /**
+     * Request the list of rows to show on the customize step. Call when the user is about to see
+     * the customize step (e.g. after they may have completed import with bookmarks bar enabled).
+     * Native may return fewer rows (e.g. omit bookmarks if already enabled).
+     *
+     * @returns {Promise<{rows: string[]}>}
+     */
+    getCustomizeStepRows() {
+        return this.messaging.request('getCustomizeStepRows');
     }
 
     /**
