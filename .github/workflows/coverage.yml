@@ -43,7 +43,7 @@ jobs:
             - name: Generate coverage report
               run: npm run coverage-report -w injected
             - name: Upload coverage artifacts
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               with:
                   name: coverage-unit
                   path: injected/coverage/
@@ -81,7 +81,7 @@ jobs:
             - name: Run integration tests with coverage
               run: xvfb-run --server-args='-screen 0 1024x768x24' npm run coverage-int -w injected
             - name: Upload coverage artifacts
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               with:
                   name: coverage-integration
                   path: injected/coverage/integration/
@@ -113,31 +113,31 @@ jobs:
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci
             - name: Download unit coverage
-              uses: actions/download-artifact@v7
+              uses: actions/download-artifact@v8
               with:
                   name: coverage-unit
                   path: injected/coverage/
             - name: Download integration coverage
-              uses: actions/download-artifact@v7
+              uses: actions/download-artifact@v8
               with:
                   name: coverage-integration
                   path: injected/coverage/integration/
             - name: Generate merged report
               run: npm run coverage-report -w injected
             - name: Upload merged report
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               with:
                   name: coverage-merged-report
                   path: injected/coverage/
                   retention-days: 30
             - name: Upload unit HTML coverage report
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               with:
                   name: html-coverage-unit
                   path: injected/coverage/unit/
                   retention-days: 30
             - name: Upload integration HTML coverage report
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v7
               with:
                   name: html-coverage-integration
                   path: injected/coverage/integration-report/

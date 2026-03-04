@@ -9290,7 +9290,7 @@
         throw new Error("Unknown action type");
     }
   }
-  function useSuggestions({ term, setTerm }) {
+  function useSuggestions({ term, setTerm, enableAi }) {
     const { onSuggestions, getSuggestions } = x2(OmnibarContext);
     const [state, dispatch] = h2(reducer2, initialState);
     y2(() => {
@@ -9303,7 +9303,7 @@
           ...suggestion,
           id: `suggestion-${index2}`
         }));
-        if (term2.trim().length > 0) {
+        if (term2.trim().length > 0 && enableAi) {
           suggestions.push({
             kind: "aiChat",
             chat: term2,
@@ -9316,7 +9316,7 @@
           suggestions
         });
       });
-    }, [onSuggestions]);
+    }, [onSuggestions, enableAi]);
     const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
     const updateSuggestions = (term2) => {
       clearSelectedSuggestion();
@@ -9383,8 +9383,8 @@
   });
 
   // pages/new-tab/app/omnibar/components/SearchFormProvider.js
-  function SearchFormProvider({ term, setTerm, children }) {
-    const suggestions = useSuggestions({ term, setTerm });
+  function SearchFormProvider({ term, setTerm, enableAi, children }) {
+    const suggestions = useSuggestions({ term, setTerm, enableAi });
     const suggestionsListId = g2();
     return /* @__PURE__ */ _(
       SearchFormContext.Provider,
@@ -10141,7 +10141,7 @@
           }
         }
       )
-    )), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, mode === "search" ? /* @__PURE__ */ _(
+    )), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery, enableAi }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, mode === "search" ? /* @__PURE__ */ _(
       SearchForm,
       {
         autoFocus,
