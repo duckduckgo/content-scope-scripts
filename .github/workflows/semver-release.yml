@@ -1,0 +1,209 @@
+name: Semver Auto-Release
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+    pull-requests: write
+    actions: write
+
+jobs:
+    semver_analysis:
+        runs-on: ubuntu-latest
+        outputs:
+            severity: ${{ steps.analyse.outputs.severity }}
+            reasoning: ${{ steps.analyse.outputs.reasoning }}
+            pr_number: ${{ steps.find_pr.outputs.pr_number }}
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Find merged PR
+              id: find_pr
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const commits = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          commit_sha: context.sha
+                      });
+                      const merged = commits.data.find(pr => pr.merged_at && pr.base.ref === 'main');
+                      if (!merged) {
+                          core.info('No merged PR found for this commit — skipping');
+                          core.setOutput('pr_number', '');
+                          return;
+                      }
+                      core.setOutput('pr_number', merged.number.toString());
+                      core.setOutput('pr_title', merged.title);
+                      core.setOutput('pr_body', merged.body || '');
+
+            - name: Get PR diff and files
+              if: steps.find_pr.outputs.pr_number != ''
+              id: diff
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PR_NUMBER: ${{ steps.find_pr.outputs.pr_number }}
+              run: |
+                  gh pr diff "$PR_NUMBER" > /tmp/pr_diff.txt 2>/dev/null || true
+                  gh pr view "$PR_NUMBER" --json files --jq '.files[].path' > /tmp/pr_files.txt 2>/dev/null || true
+
+            - name: Run semver analysis
+              if: steps.find_pr.outputs.pr_number != ''
+              id: analyse
+              env:
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  PR_TITLE: ${{ steps.find_pr.outputs.pr_title }}
+                  PR_BODY: ${{ steps.find_pr.outputs.pr_body }}
+              run: |
+                  export PR_DIFF="$(cat /tmp/pr_diff.txt 2>/dev/null || echo '')"
+                  export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
+
+                  RESULT=$(node .github/scripts/semver-analysis.mjs)
+                  echo "Raw result: $RESULT"
+
+                  SEVERITY=$(echo "$RESULT" | jq -r '.severity')
+                  REASONING=$(echo "$RESULT" | jq -r '.reasoning')
+
+                  echo "severity=$SEVERITY" >> "$GITHUB_OUTPUT"
+                  {
+                    echo "reasoning<<SEMVER_EOF"
+                    echo "$REASONING"
+                    echo "SEMVER_EOF"
+                  } >> "$GITHUB_OUTPUT"
+
+            - name: Label PR with semver tag
+              if: steps.find_pr.outputs.pr_number != '' && steps.analyse.outputs.severity != ''
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const prNumber = parseInt('${{ steps.find_pr.outputs.pr_number }}');
+                      const severity = '${{ steps.analyse.outputs.severity }}';
+                      const label = `semver-${severity}`;
+
+                      // Ensure the label exists
+                      const labelColors = { 'semver-major': 'B60205', 'semver-minor': 'FBCA04', 'semver-patch': '0E8A16' };
+                      const labelDescriptions = {
+                          'semver-major': 'Breaking change — triggers major version bump',
+                          'semver-minor': 'New feature — triggers minor version bump',
+                          'semver-patch': 'Bug fix / internal — no release needed'
+                      };
+
+                      try {
+                          await github.rest.issues.getLabel({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              name: label
+                          });
+                      } catch {
+                          await github.rest.issues.createLabel({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              name: label,
+                              color: labelColors[label],
+                              description: labelDescriptions[label]
+                          });
+                      }
+
+                      // Remove any existing semver labels
+                      const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: prNumber
+                      });
+                      for (const l of currentLabels) {
+                          if (l.name.startsWith('semver-') && l.name !== label) {
+                              await github.rest.issues.removeLabel({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  issue_number: prNumber,
+                                  name: l.name
+                              });
+                          }
+                      }
+
+                      await github.rest.issues.addLabels({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: prNumber,
+                          labels: [label]
+                      });
+                      console.log(`Applied label: ${label}`);
+
+            - name: Comment analysis on PR
+              if: steps.find_pr.outputs.pr_number != '' && steps.analyse.outputs.severity != ''
+              uses: actions/github-script@v8
+              env:
+                  SEMVER_REASONING: ${{ steps.analyse.outputs.reasoning }}
+              with:
+                  script: |
+                      const prNumber = parseInt('${{ steps.find_pr.outputs.pr_number }}');
+                      const severity = '${{ steps.analyse.outputs.severity }}';
+                      const reasoning = process.env.SEMVER_REASONING || '';
+                      const marker = '<!-- SEMVER_ANALYSIS -->';
+
+                      const emoji = { major: '🔴', minor: '🟡', patch: '🟢' };
+                      const action = severity === 'patch'
+                          ? 'No release will be created.'
+                          : `A **${severity}** release will be triggered automatically.`;
+
+                      const body = [
+                          marker,
+                          `### ${emoji[severity]} Semver Classification: \`${severity}\``,
+                          '',
+                          reasoning,
+                          '',
+                          action
+                      ].join('\n');
+
+                      const { data: comments } = await github.rest.issues.listComments({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: prNumber
+                      });
+                      const existing = comments.find(
+                          c => c.user.login === 'github-actions[bot]' && c.body.includes(marker)
+                      );
+
+                      if (existing) {
+                          await github.rest.issues.updateComment({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              comment_id: existing.id,
+                              body
+                          });
+                      } else {
+                          await github.rest.issues.createComment({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              issue_number: prNumber,
+                              body
+                          });
+                      }
+
+    trigger_release:
+        needs: semver_analysis
+        if: needs.semver_analysis.outputs.severity == 'major' || needs.semver_analysis.outputs.severity == 'minor'
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Trigger Release workflow
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const severity = '${{ needs.semver_analysis.outputs.severity }}';
+                      console.log(`Triggering Release workflow with version_bump=${severity}`);
+
+                      await github.rest.actions.createWorkflowDispatch({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          workflow_id: 'build.yml',
+                          ref: 'main',
+                          inputs: { version_bump: severity }
+                      });
+
+                      console.log(`✅ Release workflow dispatched for ${severity} bump (PR #${{ needs.semver_analysis.outputs.pr_number }})`);
