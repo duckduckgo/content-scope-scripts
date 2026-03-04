@@ -207,11 +207,23 @@ export function GlobalProvider({
                     if (state.getCustomizeStepRowsSupported) {
                         const customizeStep = /** @type {import('./types').CustomizeStep | undefined} */ (state.stepDefinitions.customize);
                         const defaultRows = customizeStep?.rows ?? ['bookmarks', 'session-restore', 'home-shortcut'];
-                        const withTimeout = (ms) =>
-                            new Promise((_resolve, reject) => setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms));
+                        const withTimeout = (ms) => {
+                            /** @type {ReturnType<typeof setTimeout> | undefined} */
+                            let timeout;
+                            const promise = new Promise((_resolve, reject) => {
+                                timeout = setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms);
+                            });
+                            return {
+                                promise,
+                                clear() {
+                                    if (timeout) clearTimeout(timeout);
+                                },
+                            };
+                        };
                         (async () => {
+                            const timeout = withTimeout(2000);
                             try {
-                                const response = await Promise.race([messaging.getCustomizeStepRows(), withTimeout(2000)]);
+                                const response = await Promise.race([messaging.getCustomizeStepRows(), timeout.promise]);
                                 const rows = response?.rows ?? defaultRows;
                                 dispatch({ kind: 'set-customize-rows', rows });
                                 dispatch({ kind: 'advance' });
@@ -219,6 +231,8 @@ export function GlobalProvider({
                             } catch {
                                 dispatch({ kind: 'advance' });
                                 messaging.stepCompleted({ id: state.activeStep });
+                            } finally {
+                                timeout.clear();
                             }
                         })();
                         return;
