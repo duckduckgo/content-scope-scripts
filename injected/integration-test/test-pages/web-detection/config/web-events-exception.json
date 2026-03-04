@@ -1,5 +1,5 @@
 {
-    "readme": "Config with webEvents disabled via site exception - no webEvent messages should be sent",
+    "readme": "Config with webEvents disabled via conditionalChanges on localhost - no webEvent messages should be sent",
     "version": 1,
     "unprotectedTemporary": [],
     "features": {
@@ -37,12 +37,18 @@
         "webEvents": {
             "state": "enabled",
             "hash": "test",
-            "exceptions": [
-                {
-                    "domain": "localhost",
-                    "reason": "test: disable webEvents on localhost"
-                }
-            ]
+            "exceptions": [],
+            "settings": {
+                "state": "enabled",
+                "conditionalChanges": [
+                    {
+                        "domain": "localhost",
+                        "patchSettings": [
+                            { "op": "replace", "path": "/state", "value": "disabled" }
+                        ]
+                    }
+                ]
+            }
         }
     }
 }
