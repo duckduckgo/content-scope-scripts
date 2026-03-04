@@ -157,20 +157,20 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onChange, onSubm
     /** @type {(value: string) => void} */
     const handleChange = (value) => {
         onChange(value);
-        showChats?.();
+        showChats();
     };
 
     return (
         <div
             ref={containerRef}
             // Using capture-phase events because WebKit doesn't reliably fire bubbling focus/blur (e.g. address bar, window refocus).
-            onFocusCapture={() => showChats?.()}
+            onFocusCapture={() => showChats()}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
                     return;
                 }
 
-                hideChats?.();
+                hideChats();
             }}
         >
             <ResizingContainer className={styles.field}>
