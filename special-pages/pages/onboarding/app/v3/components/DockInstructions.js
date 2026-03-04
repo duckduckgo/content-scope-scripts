@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEnv} from '../../../../../shared/components/EnvironmentProvider';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import { Trans } from '../../../../../shared/components/TranslationsProvider';
 import { useTypedTranslation } from '../../types';
 import styles from './DockInstructions.module.css';
