@@ -7,7 +7,7 @@ export type RemoteConfig = {
         string,
         {
             state: string;
-            settings: any;
+            settings?: any;
             exceptions: { domain: string }[];
             minSupportedVersion?: string | number;
         }
@@ -44,7 +44,7 @@ export type LoadArgs = {
     messagingConfig?: any;
     messageSecret?: string;
     messagingContextName: string;
-    currentCohorts?: Array<{ feature: string; cohort: string; subfeature: string }>;
+    currentCohorts?: Array<{ feature: string; cohort: string | null; subfeature: string }>;
     debug?: boolean;
     featureSettings?: Record<string, unknown>;
     assets?: any;
