@@ -10,6 +10,7 @@ export function omnibarMockTransport() {
         enableAi: true,
         showAiSetting: true,
         showCustomizePopover: false,
+        enableRecentAiChats: true,
     };
 
     /** @type {Map<string, (d: any) => void>} */
