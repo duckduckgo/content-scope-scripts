@@ -2039,6 +2039,7 @@
     "print",
     "webInterferenceDetection",
     "webDetection",
+    "webEvents",
     "pageObserver",
     "hover"
   ];
@@ -2119,6 +2120,7 @@
       "harmfulApis",
       "webCompat",
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "windowsPermissionUsage",
       "uaChBrands",
@@ -2136,7 +2138,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext", "print"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "pageContext", "print"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -2148,6 +2150,7 @@
       "messageBridge",
       "favicon",
       "webDetection",
+      "webEvents",
       "pageObserver",
       "hover"
     ],
@@ -2157,6 +2160,7 @@
       ...baseFeatures,
       "webCompat",
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "breakageReporting",
       "duckPlayer",
@@ -2177,12 +2181,14 @@
       "fingerprintingBattery",
       "gpc",
       "webDetection",
+      "webEvents",
       "breakageReporting"
     ],
     windows: [
       "cookie",
       ...baseFeatures,
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "webTelemetry",
       "windowsPermissionUsage",
@@ -2197,9 +2203,9 @@
       "performanceMetrics",
       "duckAiChatHistory"
     ],
-    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
+    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
   };
 

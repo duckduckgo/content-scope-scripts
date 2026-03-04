@@ -2093,6 +2093,7 @@
     "print",
     "webInterferenceDetection",
     "webDetection",
+    "webEvents",
     "pageObserver",
     "hover"
   ];
@@ -2108,47 +2109,6 @@
   function legacySendMessage(messageType, options) {
     return originalWindowDispatchEvent && originalWindowDispatchEvent(
       createCustomEvent("sendMessageProxy" + messageSecret, { detail: JSON.stringify({ messageType, options }) })
-    );
-  }
-  function withDefaults(defaults, config2) {
-    if (config2 === void 0) {
-      return (
-        /** @type {D & C} */
-        defaults
-      );
-    }
-    if (
-      // if defaults are undefined
-      defaults === void 0 || // or either config or defaults are a non-object value that we can't merge
-      Array.isArray(defaults) || defaults === null || typeof defaults !== "object" || Array.isArray(config2) || config2 === null || typeof config2 !== "object"
-    ) {
-      return (
-        /** @type {D & C} */
-        /** @type {unknown} */
-        config2
-      );
-    }
-    const result = {};
-    const d = (
-      /** @type {any} */
-      defaults
-    );
-    const c = (
-      /** @type {any} */
-      config2
-    );
-    for (const key of new Set2([...Object.keys(d), ...Object.keys(c)])) {
-      result[key] = withDefaults(
-        /** @type {any} */
-        d[key],
-        /** @type {any} */
-        c[key]
-      );
-    }
-    return (
-      /** @type {D & C} */
-      /** @type {unknown} */
-      result
     );
   }
 
@@ -2186,6 +2146,7 @@
       "harmfulApis",
       "webCompat",
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "windowsPermissionUsage",
       "uaChBrands",
@@ -2203,7 +2164,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext", "print"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "pageContext", "print"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -2215,6 +2176,7 @@
       "messageBridge",
       "favicon",
       "webDetection",
+      "webEvents",
       "pageObserver",
       "hover"
     ],
@@ -2224,6 +2186,7 @@
       ...baseFeatures,
       "webCompat",
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "breakageReporting",
       "duckPlayer",
@@ -2244,12 +2207,14 @@
       "fingerprintingBattery",
       "gpc",
       "webDetection",
+      "webEvents",
       "breakageReporting"
     ],
     windows: [
       "cookie",
       ...baseFeatures,
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "webTelemetry",
       "windowsPermissionUsage",
@@ -2264,9 +2229,9 @@
       "performanceMetrics",
       "duckAiChatHistory"
     ],
-    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
+    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
   };
 
@@ -16921,41 +16886,40 @@ ul.messages {
       }
     ]
   );
-  var DEFAULTS = {
-    state: (
-      /** @type {FeatureState} */
-      "enabled"
-    ),
-    triggers: {
-      breakageReport: {
-        state: (
-          /** @type {FeatureState} */
-          "enabled"
-        ),
-        runConditions: DEFAULT_RUN_CONDITIONS
-      },
-      auto: {
-        state: (
-          /** @type {FeatureState} */
-          "disabled"
-        ),
-        runConditions: DEFAULT_RUN_CONDITIONS
-      }
-    },
-    actions: {
-      breakageReportData: {
-        state: (
-          /** @type {FeatureState} */
-          "enabled"
-        )
-      }
-    }
-  };
   function isValidName(name) {
     return /^[a-zA-Z][a-zA-Z0-9_]*$/.test(name);
   }
   function normalizeDetector(config2) {
-    return withDefaults(DEFAULTS, config2);
+    const fireEvent = config2.actions?.fireEvent;
+    return {
+      // Detectors are enabled by default
+      state: config2.state ?? "enabled",
+      match: config2.match,
+      triggers: {
+        // breakageReport: enabled by default - detectors participate in breakage report flow
+        breakageReport: {
+          state: config2.triggers?.breakageReport?.state ?? "enabled",
+          runConditions: config2.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS
+        },
+        // auto: disabled by default - detectors must opt in to automatic execution
+        auto: {
+          state: config2.triggers?.auto?.state ?? "disabled",
+          runConditions: config2.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS,
+          when: config2.triggers?.auto?.when ?? { intervalMs: [] }
+        }
+      },
+      actions: {
+        // breakageReportData: enabled by default - detection results included in breakage reports
+        breakageReportData: { state: config2.actions?.breakageReportData?.state ?? "enabled" },
+        // fireEvent: only present when configured - opt-in action that sends events to the client via webEvents
+        ...fireEvent && {
+          fireEvent: {
+            state: fireEvent.state ?? "enabled",
+            type: fireEvent.type
+          }
+        }
+      }
+    };
   }
   function parseDetectors(detectorsConfig) {
     const detectors = {};
@@ -17062,7 +17026,7 @@ ul.messages {
     /**
      *
      * @param {DetectorConfig} detectorConfig
-     * @returns {true | false | 'error'}
+     * @returns {DetectorMatchResult}
      */
     _evaluateMatch(detectorConfig) {
       try {
@@ -17123,10 +17087,27 @@ ul.messages {
           } catch {
           }
         }
+        this._executeFireEvent(detectorConfig, detected);
       } catch (e) {
         if (this.isDebug) {
           this.log.error(`Error running auto-detector ${fullDetectorId}:`, e);
         }
+      }
+    }
+    /**
+     * Fire a web event via webEvents if the detector has a fireEvent action and detection succeeded.
+     *
+     * @param {DetectorConfig} detectorConfig
+     * @param {DetectorMatchResult} detected
+     */
+    async _executeFireEvent(detectorConfig, detected) {
+      try {
+        if (detected !== true || !detectorConfig.actions.fireEvent) return;
+        if (!this._isStateEnabled(detectorConfig.actions.fireEvent.state)) return;
+        await this.callFeatureMethod("webEvents", "fireEvent", {
+          type: detectorConfig.actions.fireEvent.type
+        });
+      } catch {
       }
     }
     /**
@@ -17163,6 +17144,7 @@ ul.messages {
               });
             }
           }
+          this._executeFireEvent(detectorConfig, detected);
         }
       }
       return results;
@@ -17170,6 +17152,32 @@ ul.messages {
   };
   _detectors = new WeakMap();
   _matchedDetectors = new WeakMap();
+
+  // src/features/web-events.js
+  init_define_import_meta_trackerLookup();
+  var MSG_WEB_EVENT = "webEvent";
+  var WebEvents = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "_exposedMethods", this._declareExposedMethods(["fireEvent"]));
+    }
+    init() {
+    }
+    /**
+     * Forward a web event to the client via messaging.
+     *
+     * Other features (e.g. webDetection) call this via:
+     * ```js
+     * this.callFeatureMethod('webEvents', 'fireEvent', { type: 'adwall' });
+     * ```
+     *
+     * @param {{ type: string, data?: Record<string, unknown> }} event
+     */
+    fireEvent({ type, data: data2 = {} }) {
+      this.messaging.notify(MSG_WEB_EVENT, { type, data: data2 });
+    }
+  };
+  var web_events_default = WebEvents;
 
   // src/features/page-observer.js
   init_define_import_meta_trackerLookup();
@@ -17222,6 +17230,7 @@ ul.messages {
     ddg_feature_messageBridge: message_bridge_default,
     ddg_feature_favicon: favicon_default,
     ddg_feature_webDetection: WebDetection,
+    ddg_feature_webEvents: web_events_default,
     ddg_feature_pageObserver: page_observer_default,
     ddg_feature_hover: hover_default
   };

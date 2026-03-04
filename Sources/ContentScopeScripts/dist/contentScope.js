@@ -1388,6 +1388,7 @@
     "print",
     "webInterferenceDetection",
     "webDetection",
+    "webEvents",
     "pageObserver",
     "hover"
   ];
@@ -1413,47 +1414,6 @@
       return url.searchParams.has("duckai") || url.searchParams.get("ia") === "chat";
     }
     return false;
-  }
-  function withDefaults(defaults, config) {
-    if (config === void 0) {
-      return (
-        /** @type {D & C} */
-        defaults
-      );
-    }
-    if (
-      // if defaults are undefined
-      defaults === void 0 || // or either config or defaults are a non-object value that we can't merge
-      Array.isArray(defaults) || defaults === null || typeof defaults !== "object" || Array.isArray(config) || config === null || typeof config !== "object"
-    ) {
-      return (
-        /** @type {D & C} */
-        /** @type {unknown} */
-        config
-      );
-    }
-    const result = {};
-    const d = (
-      /** @type {any} */
-      defaults
-    );
-    const c = (
-      /** @type {any} */
-      config
-    );
-    for (const key of new Set2([...Object.keys(d), ...Object.keys(c)])) {
-      result[key] = withDefaults(
-        /** @type {any} */
-        d[key],
-        /** @type {any} */
-        c[key]
-      );
-    }
-    return (
-      /** @type {D & C} */
-      /** @type {unknown} */
-      result
-    );
   }
 
   // src/features.js
@@ -1490,6 +1450,7 @@
       "harmfulApis",
       "webCompat",
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "windowsPermissionUsage",
       "uaChBrands",
@@ -1507,7 +1468,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext", "print"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "pageContext", "print"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -1519,6 +1480,7 @@
       "messageBridge",
       "favicon",
       "webDetection",
+      "webEvents",
       "pageObserver",
       "hover"
     ],
@@ -1528,6 +1490,7 @@
       ...baseFeatures,
       "webCompat",
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "breakageReporting",
       "duckPlayer",
@@ -1548,12 +1511,14 @@
       "fingerprintingBattery",
       "gpc",
       "webDetection",
+      "webEvents",
       "breakageReporting"
     ],
     windows: [
       "cookie",
       ...baseFeatures,
       "webDetection",
+      "webEvents",
       "webInterferenceDetection",
       "webTelemetry",
       "windowsPermissionUsage",
@@ -1568,9 +1533,9 @@
       "performanceMetrics",
       "duckAiChatHistory"
     ],
-    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webInterferenceDetection", "breakageReporting"],
+    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
   };
 
@@ -9660,269 +9625,6 @@ ul.messages {
     }
   };
 
-  // src/features/web-detection.js
-  init_define_import_meta_trackerLookup();
-
-  // src/features/web-detection/parse.js
-  init_define_import_meta_trackerLookup();
-  var DEFAULT_RUN_CONDITIONS = (
-    /** @type {import('../../config-feature.js').ConditionBlock[]} */
-    [
-      {
-        context: { top: true }
-      }
-    ]
-  );
-  var DEFAULTS = {
-    state: (
-      /** @type {FeatureState} */
-      "enabled"
-    ),
-    triggers: {
-      breakageReport: {
-        state: (
-          /** @type {FeatureState} */
-          "enabled"
-        ),
-        runConditions: DEFAULT_RUN_CONDITIONS
-      },
-      auto: {
-        state: (
-          /** @type {FeatureState} */
-          "disabled"
-        ),
-        runConditions: DEFAULT_RUN_CONDITIONS
-      }
-    },
-    actions: {
-      breakageReportData: {
-        state: (
-          /** @type {FeatureState} */
-          "enabled"
-        )
-      }
-    }
-  };
-  function isValidName(name) {
-    return /^[a-zA-Z][a-zA-Z0-9_]*$/.test(name);
-  }
-  function normalizeDetector(config) {
-    return withDefaults(DEFAULTS, config);
-  }
-  function parseDetectors(detectorsConfig) {
-    const detectors = {};
-    if (!detectorsConfig) {
-      return detectors;
-    }
-    for (const [groupName, groupConfig] of Object.entries(detectorsConfig)) {
-      if (!isValidName(groupName)) {
-        continue;
-      }
-      const groupDetectors = {};
-      for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
-        if (!isValidName(detectorId)) {
-          continue;
-        }
-        groupDetectors[detectorId] = normalizeDetector(detectorConfig);
-      }
-      detectors[groupName] = groupDetectors;
-    }
-    return detectors;
-  }
-
-  // src/features/web-detection/matching.js
-  init_define_import_meta_trackerLookup();
-  function asArray(value, defaultValue = []) {
-    if (value === void 0) return defaultValue;
-    return Array.isArray(value) ? value : [value];
-  }
-  function isVisible(element) {
-    const style = getComputedStyle(element);
-    const rect = element.getBoundingClientRect();
-    return rect.width > 0.5 && rect.height > 0.5 && style.display !== "none" && style.visibility !== "hidden" && parseFloat(style.opacity) > 0.05;
-  }
-  function evaluateSingleTextCondition(condition) {
-    const patterns = asArray(condition.pattern);
-    const selectors = asArray(condition.selector, ["body"]);
-    const patternComb = new RegExp(patterns.join("|"), "i");
-    return selectors.some((selector) => {
-      const elements = document.querySelectorAll(selector);
-      for (const element of elements) {
-        if (patternComb.test(element.textContent || "")) {
-          return true;
-        }
-      }
-      return false;
-    });
-  }
-  function evaluateSingleElementCondition(config) {
-    const visibility = config.visibility ?? "any";
-    return asArray(config.selector).some((selector) => {
-      if (visibility === "any") {
-        return document.querySelector(selector) !== null;
-      }
-      for (const element of document.querySelectorAll(selector)) {
-        if (visibility === "visible" && isVisible(element)) {
-          return true;
-        }
-        if (visibility === "hidden" && !isVisible(element)) {
-          return true;
-        }
-      }
-      return false;
-    });
-  }
-  function evaluateORCondition(condition, singleConditionEvaluator) {
-    if (condition === void 0) return true;
-    if (Array.isArray(condition)) {
-      return condition.some((v2) => singleConditionEvaluator(v2));
-    }
-    return singleConditionEvaluator(condition);
-  }
-  function evaluateSingleMatchCondition(condition) {
-    if (!evaluateORCondition(condition.text, evaluateSingleTextCondition)) {
-      return false;
-    }
-    if (!evaluateORCondition(condition.element, evaluateSingleElementCondition)) {
-      return false;
-    }
-    return true;
-  }
-  function evaluateMatch(conditions) {
-    return evaluateORCondition(conditions, evaluateSingleMatchCondition);
-  }
-
-  // src/features/web-detection.js
-  var _detectors, _matchedDetectors;
-  var WebDetection = class extends ContentFeature {
-    constructor() {
-      super(...arguments);
-      /** @type {Record<string, Record<string, DetectorConfig>>} */
-      __privateAdd(this, _detectors, {});
-      /** @type {Map<string, boolean>} */
-      __privateAdd(this, _matchedDetectors, /* @__PURE__ */ new Map());
-      __publicField(this, "_exposedMethods", this._declareExposedMethods(["runDetectors"]));
-    }
-    /**
-     * Initialize the feature by loading detector configurations
-     */
-    init() {
-      const detectorsConfig = this.getFeatureSetting("detectors");
-      __privateSet(this, _detectors, parseDetectors(detectorsConfig));
-      this._scheduleAutoRunDetectors();
-    }
-    /**
-     *
-     * @param {DetectorConfig} detectorConfig
-     * @returns {true | false | 'error'}
-     */
-    _evaluateMatch(detectorConfig) {
-      try {
-        return evaluateMatch(detectorConfig.match);
-      } catch {
-        return "error";
-      }
-    }
-    /**
-     * Schedule automatic detector execution based on configured intervals.
-     */
-    _scheduleAutoRunDetectors() {
-      const detectorsByInterval = /* @__PURE__ */ new Map();
-      for (const [groupName, groupDetectors] of Object.entries(__privateGet(this, _detectors))) {
-        for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
-          if (!this._shouldRunDetector(detectorConfig, { trigger: "auto" })) continue;
-          const autoTrigger = detectorConfig.triggers.auto;
-          const fullDetectorId = `${groupName}.${detectorId}`;
-          for (const interval of autoTrigger.when.intervalMs) {
-            const atInterval = detectorsByInterval.get(interval) ?? [];
-            atInterval.push({
-              detectorId: fullDetectorId,
-              config: detectorConfig
-            });
-            detectorsByInterval.set(interval, atInterval);
-          }
-        }
-      }
-      for (const [interval, detectors] of detectorsByInterval.entries()) {
-        setTimeout(() => {
-          for (const { detectorId, config } of detectors) {
-            this._runAutoDetector(detectorId, config);
-          }
-        }, interval);
-      }
-    }
-    /**
-     * Run a single detector with the auto trigger
-     * @param {string} fullDetectorId - The full detector ID (groupName.detectorId)
-     * @param {DetectorConfig} detectorConfig - The detector configuration
-     */
-    _runAutoDetector(fullDetectorId, detectorConfig) {
-      try {
-        if (__privateGet(this, _matchedDetectors).get(fullDetectorId)) {
-          return;
-        }
-        const detected = this._evaluateMatch(detectorConfig);
-        if (detected === true) {
-          __privateGet(this, _matchedDetectors).set(fullDetectorId, true);
-        }
-        if (this.isDebug && detected !== false) {
-          try {
-            this.messaging?.notify("webDetectionAutoRun", {
-              detectorId: fullDetectorId,
-              detected,
-              timestamp: Date.now()
-            });
-          } catch {
-          }
-        }
-      } catch (e) {
-        if (this.isDebug) {
-          this.log.error(`Error running auto-detector ${fullDetectorId}:`, e);
-        }
-      }
-    }
-    /**
-     * Check if a detector should be triggered.
-     *
-     * @param {DetectorConfig} config
-     * @param {RunDetectionOptions} options
-     * @returns {boolean}
-     */
-    _shouldRunDetector(config, options) {
-      if (!this._isStateEnabled(config.state)) return false;
-      const triggerSettings = config.triggers[options.trigger];
-      if (!triggerSettings || !this._isStateEnabled(triggerSettings.state)) return false;
-      if (triggerSettings.runConditions && !this._matchConditionalBlockOrArray(triggerSettings.runConditions)) return false;
-      return true;
-    }
-    /**
-     * Run all detectors for a specific trigger.
-     *
-     * @param {RunDetectionOptions} options
-     * @returns {DetectorResult[]}
-     */
-    runDetectors(options) {
-      const results = [];
-      for (const [groupName, groupDetectors] of Object.entries(__privateGet(this, _detectors))) {
-        for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
-          if (!this._shouldRunDetector(detectorConfig, options)) continue;
-          const detected = this._evaluateMatch(detectorConfig);
-          if (options.trigger === "breakageReport" && this._isStateEnabled(detectorConfig.actions.breakageReportData.state)) {
-            if (detected !== false) {
-              results.push({
-                detectorId: `${groupName}.${detectorId}`,
-                detected
-              });
-            }
-          }
-        }
-      }
-      return results;
-    }
-  };
-  _detectors = new WeakMap();
-  _matchedDetectors = new WeakMap();
-
   // src/features/web-interference-detection.js
   init_define_import_meta_trackerLookup();
 
@@ -9943,7 +9645,7 @@ ul.messages {
     }
     return selectors.some((selector) => {
       const element = document.querySelector(selector);
-      return element && isVisible2(element);
+      return element && isVisible(element);
     });
   }
   function checkWindowProperties(properties) {
@@ -9952,7 +9654,7 @@ ul.messages {
     }
     return properties.some((prop) => typeof window?.[prop] !== "undefined");
   }
-  function isVisible2(element) {
+  function isVisible(element) {
     const computedStyle = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
     return rect.width > 0.5 && rect.height > 0.5 && computedStyle.display !== "none" && computedStyle.visibility !== "hidden" && +computedStyle.opacity > 0.05;
@@ -10308,7 +10010,7 @@ ul.messages {
         return true;
       }
       const adElements = root.querySelectorAll(this.cachedAdSelector);
-      const hasAd = Array.from(adElements).some((el) => isVisible2(el) && this.looksLikeAdNode(el));
+      const hasAd = Array.from(adElements).some((el) => isVisible(el) && this.looksLikeAdNode(el));
       if (hasAd) {
         this.log.info("Ad detected: child element matches ad selector");
       }
@@ -10324,7 +10026,7 @@ ul.messages {
         return false;
       }
       const background = document.querySelector(selectors.background);
-      if (!background || !isVisible2(background)) {
+      if (!background || !isVisible(background)) {
         return false;
       }
       const thumbnail = document.querySelector(selectors.thumbnail);
@@ -10336,11 +10038,11 @@ ul.messages {
       const videoNotPlaying = !video || video.paused && video.currentTime < 1;
       if (image) {
         const img = image.querySelector("img");
-        if (img && img.src && isVisible2(image)) {
+        if (img && img.src && isVisible(image)) {
           return true;
         }
       }
-      if (thumbnail && isVisible2(thumbnail) && videoNotPlaying) {
+      if (thumbnail && isVisible(thumbnail) && videoNotPlaying) {
         return true;
       }
       return false;
@@ -10364,7 +10066,7 @@ ul.messages {
           /** @type {HTMLElement | null} */
           document.querySelector(selector)
         );
-        if (el && isVisible2(el)) {
+        if (el && isVisible(el)) {
           const text = el.innerText || el.textContent || "";
           for (const pattern of patterns) {
             if (pattern.test(text)) {
@@ -10390,7 +10092,7 @@ ul.messages {
           if (pattern.test(bodyText)) {
             const dialogs = document.querySelectorAll('[role="dialog"], [aria-modal="true"], .ytd-popup-container');
             for (const dialog of dialogs) {
-              if (dialog instanceof HTMLElement && isVisible2(dialog)) {
+              if (dialog instanceof HTMLElement && isVisible(dialog)) {
                 const dialogText = dialog.innerText || "";
                 if (pattern.test(dialogText)) {
                   return dialogText.trim().substring(0, maxLen);
@@ -11320,7 +11022,6 @@ ${iframeContent}
     ddg_feature_elementHiding: ElementHiding,
     ddg_feature_exceptionHandler: ExceptionHandler,
     ddg_feature_apiManipulation: ApiManipulation,
-    ddg_feature_webDetection: WebDetection,
     ddg_feature_webInterferenceDetection: WebInterferenceDetection,
     ddg_feature_pageContext: PageContext,
     ddg_feature_print: print_default
