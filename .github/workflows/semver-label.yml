@@ -1,0 +1,98 @@
+name: Semver Label
+
+on:
+    pull_request_target:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: read
+    pull-requests: write
+
+jobs:
+    semver_label:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Get PR diff and files
+              id: diff
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+              run: |
+                  gh pr diff "$PR_NUMBER" > /tmp/pr_diff.txt 2>/dev/null || true
+                  gh pr view "$PR_NUMBER" --json files --jq '.files[].path' > /tmp/pr_files.txt 2>/dev/null || true
+
+            - name: Run semver analysis
+              id: analyse
+              env:
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  PR_TITLE: ${{ github.event.pull_request.title }}
+                  PR_BODY: ${{ github.event.pull_request.body }}
+              run: |
+                  export PR_DIFF="$(cat /tmp/pr_diff.txt 2>/dev/null || echo '')"
+                  export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
+
+                  RESULT=$(node .github/scripts/semver-analysis.mjs)
+                  echo "Raw result: $RESULT"
+
+                  SEVERITY=$(echo "$RESULT" | jq -r '.severity')
+                  echo "severity=$SEVERITY" >> "$GITHUB_OUTPUT"
+
+            - name: Label PR
+              if: steps.analyse.outputs.severity != ''
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const prNumber = context.payload.pull_request.number;
+                      const label = '${{ steps.analyse.outputs.severity }}';
+                      const semverLabels = ['major', 'minor', 'patch'];
+
+                      const labelColors = { major: 'B60205', minor: 'FBCA04', patch: '0E8A16' };
+                      const labelDescriptions = {
+                          major: 'Breaking change — triggers major version bump',
+                          minor: 'New feature — triggers minor version bump',
+                          patch: 'Bug fix / internal — no release needed'
+                      };
+
+                      try {
+                          await github.rest.issues.getLabel({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              name: label
+                          });
+                      } catch {
+                          await github.rest.issues.createLabel({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              name: label,
+                              color: labelColors[label],
+                              description: labelDescriptions[label]
+                          });
+                      }
+
+                      const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: prNumber
+                      });
+                      for (const l of currentLabels) {
+                          if (semverLabels.includes(l.name) && l.name !== label) {
+                              await github.rest.issues.removeLabel({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  issue_number: prNumber,
+                                  name: l.name
+                              });
+                          }
+                      }
+
+                      await github.rest.issues.addLabels({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: prNumber,
+                          labels: [label]
+                      });
+                      console.log(`Applied label: ${label}`);
