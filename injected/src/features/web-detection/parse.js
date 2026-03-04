@@ -97,7 +97,15 @@ function isValidName(name) {
 }
 
 /**
- * Normalize a raw detector configuration by applying defaults explicitly.
+ * Normalize a raw detector configuration by resolving all optional fields to concrete values.
+ * After normalization, consumers never need fallback defaults.
+ *
+ * Default behavior (when fields are omitted from config):
+ * - Detector is enabled
+ * - breakageReport trigger is enabled, restricted to top frame
+ * - auto trigger is disabled (opt-in only), restricted to top frame, no intervals
+ * - breakageReportData action is enabled (results included in breakage reports)
+ * - other actions are enabled by default if present, but can be explicitly disabled. If omitted they are not enabled
  *
  * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} config
  * @returns {DetectorConfig}
@@ -106,13 +114,16 @@ function normalizeDetector(config) {
     const fireEvent = config.actions?.fireEvent;
 
     return {
+        // Detectors are enabled by default
         state: config.state ?? 'enabled',
         match: config.match,
         triggers: {
+            // breakageReport: enabled by default - detectors participate in breakage report flow
             breakageReport: {
                 state: config.triggers?.breakageReport?.state ?? 'enabled',
                 runConditions: config.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS,
             },
+            // auto: disabled by default - detectors must opt in to automatic execution
             auto: {
                 state: config.triggers?.auto?.state ?? 'disabled',
                 runConditions: config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS,
@@ -120,7 +131,9 @@ function normalizeDetector(config) {
             },
         },
         actions: {
+            // breakageReportData: enabled by default - detection results included in breakage reports
             breakageReportData: { state: config.actions?.breakageReportData?.state ?? 'enabled' },
+            // fireEvent: only present when configured - opt-in action that sends events to the client via webEvents
             ...(fireEvent && {
                 fireEvent: {
                     state: fireEvent.state ?? 'enabled',
