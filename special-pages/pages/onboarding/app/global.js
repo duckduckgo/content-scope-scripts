@@ -177,7 +177,14 @@ export function reducer(state, action) {
  * @param {import('./types').Step['id']} [props.firstPage]
  * @param {boolean} [props.getCustomizeStepRowsSupported] - When true, advance to customize will request rows from host; when false, advance immediately (no 2s delay on unsupported platforms).
  */
-export function GlobalProvider({ order, children, stepDefinitions, messaging, firstPage = 'welcome', getCustomizeStepRowsSupported = false }) {
+export function GlobalProvider({
+    order,
+    children,
+    stepDefinitions,
+    messaging,
+    firstPage = 'welcome',
+    getCustomizeStepRowsSupported = false,
+}) {
     const [state, dispatch] = useReducer(reducer, {
         status: { kind: 'idle' },
         order,
@@ -215,7 +222,8 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                     if (state.getCustomizeStepRowsSupported) {
                         const customizeStep = /** @type {import('./types').CustomizeStep | undefined} */ (state.stepDefinitions.customize);
                         const defaultRows = customizeStep?.rows ?? ['bookmarks', 'session-restore', 'home-shortcut'];
-                        const withTimeout = (ms) => new Promise((_resolve, reject) => setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms));
+                        const withTimeout = (ms) =>
+                            new Promise((_resolve, reject) => setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms));
                         (async () => {
                             try {
                                 const response = await Promise.race([messaging.getCustomizeStepRows(), withTimeout(2000)]);
