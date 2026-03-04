@@ -59,8 +59,6 @@ export const platformSupport = {
         'webCompat',
         'duckPlayerNative',
         ...baseFeatures,
-        'webDetection',
-        'webEvents',
         'webInterferenceDetection',
         'pageContext',
         'print',
