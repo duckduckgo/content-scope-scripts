@@ -44,10 +44,12 @@ jobs:
             - name: Label PR
               if: steps.analyse.outputs.severity != ''
               uses: actions/github-script@v8
+              env:
+                  SEVERITY: ${{ steps.analyse.outputs.severity }}
               with:
                   script: |
                       const prNumber = context.payload.pull_request.number;
-                      const label = '${{ steps.analyse.outputs.severity }}';
+                      const label = process.env.SEVERITY;
                       const semverLabels = ['major', 'minor', 'patch'];
 
                       const labelColors = { major: 'B60205', minor: 'FBCA04', patch: '0E8A16' };
