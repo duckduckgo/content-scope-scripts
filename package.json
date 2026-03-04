@@ -6,6 +6,7 @@
     "injected",
     "special-pages",
     "messaging",
+    "configuration",
     "build",
     "Sources/ContentScopeScripts/dist"
   ],
@@ -37,6 +38,7 @@
     "injected",
     "special-pages",
     "messaging",
+    "configuration",
     "types-generator"
   ],
   "devDependencies": {

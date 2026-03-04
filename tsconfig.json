@@ -27,6 +27,7 @@
     "types-generator",
     "special-pages",
     "messaging",
+    "configuration",
     "playwright.config.js",
     "injected",
     "injected/src/globals.d.ts",
