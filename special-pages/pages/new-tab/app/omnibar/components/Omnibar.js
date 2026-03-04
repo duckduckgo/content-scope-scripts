@@ -106,7 +106,7 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                     )}
                 </div>
             )}
-            <SearchFormProvider term={query} setTerm={setQuery}>
+            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi}>
                 <div class={styles.spacer}>
                     <div class={styles.popup}>
                         <ResizingContainer className={styles.field}>

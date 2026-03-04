@@ -22,10 +22,11 @@ const SearchFormContext = createContext(null);
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
+ * @param {boolean} props.enableAi
  * @param {import('preact').ComponentChildren} props.children
  */
-export function SearchFormProvider({ term, setTerm, children }) {
-    const suggestions = useSuggestions({ term, setTerm });
+export function SearchFormProvider({ term, setTerm, enableAi, children }) {
+    const suggestions = useSuggestions({ term, setTerm, enableAi });
     const suggestionsListId = useId();
     return (
         <SearchFormContext.Provider
