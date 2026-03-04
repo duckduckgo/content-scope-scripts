@@ -10,9 +10,10 @@ permissions:
 
 jobs:
     semver_label:
-        if: startsWith(github.event.pull_request.head.ref, 'release-')
+        if: >-
+            contains(fromJSON('["release-major","release-minor","release-patch"]'),
+            github.event.pull_request.head.ref)
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout base branch
               uses: actions/checkout@v6
