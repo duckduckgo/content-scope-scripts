@@ -213,8 +213,9 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                 const nextStep = state.order[state.order.indexOf(state.activeStep) + 1];
                 if (nextStep === 'customize') {
                     if (state.getCustomizeStepRowsSupported) {
-                        const defaultRows = state.stepDefinitions.customize?.rows ?? ['bookmarks', 'session-restore', 'home-shortcut'];
-                        const withTimeout = (ms) => new Promise((resolve, reject) => setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms));
+                        const customizeStep = /** @type {import('./types').CustomizeStep | undefined} */ (state.stepDefinitions.customize);
+                        const defaultRows = customizeStep?.rows ?? ['bookmarks', 'session-restore', 'home-shortcut'];
+                        const withTimeout = (ms) => new Promise((_resolve, reject) => setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms));
                         (async () => {
                             try {
                                 const response = await Promise.race([messaging.getCustomizeStepRows(), withTimeout(2000)]);
