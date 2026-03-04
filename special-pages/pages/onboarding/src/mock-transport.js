@@ -48,7 +48,7 @@ export function mockTransport() {
                         order: 'v3',
                         locale: 'en',
                         env: 'development',
-                        getCustomizeStepRowsSupported: true,
+                        getCustomizeStepRowsSupported: false,
                     });
                 }
                 case 'getCustomizeStepRows': {
