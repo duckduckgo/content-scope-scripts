@@ -60,7 +60,7 @@ export class OmnibarPage {
     }
 
     aiChatsList() {
-        return this.context().getByRole('listbox', { name: 'Recent AI Chats' });
+        return this.context().getByRole('listbox');
     }
 
     aiChats() {

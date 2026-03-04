@@ -19,7 +19,7 @@ export function getAiChatElementId(chatId) {
  * @param {object} params
  * @param {string} params.query - text to match against chat titles (case-insensitive)
  * @param {boolean} [params.initiallyVisible] - initial visibility of the chats list
- * @param {boolean} [params.enableRecentAiChats] - when false, skips fetching and returns empty chats
+ * @param {boolean} [params.enableRecentAiChats]
  */
 export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
     const { getAiChats } = useContext(OmnibarContext);
