@@ -45,9 +45,14 @@ You also receive the list of changed **source files** and the PR title/descripti
 ## Classification rules:
 
 **MAJOR** (breaking change) — assign when ANY of these apply:
-- Build artifacts removed that native apps reference (files listed under "Removed Files")
-- Entry point or platform build files removed or renamed
-- Source file list shows removed/renamed exports from messaging/, deleted schema files, or deleted entry points
+- Build artifacts removed that native apps reference (files listed under "Removed Files") — but NOT removal of subresources within special-pages (e.g. images, fonts, sub-chunks)
+- Removed or renamed exports from messaging/
+- Changed method signatures, constructor parameters, or return types in public messaging classes
+- Removed or renamed build artifact files that native apps reference
+- Removed, renamed, or changed the shape of LoadArgs or feature init/load contracts
+- Removed or renamed JSON schema message types
+- Deleted or moved entry point files
+- Any change that would cause a downstream consumer's existing code to fail without modification
 
 **MINOR** (new feature / non-breaking enhancement) — assign when ANY of these apply:
 - New build artifacts added (files listed under "New Files")
