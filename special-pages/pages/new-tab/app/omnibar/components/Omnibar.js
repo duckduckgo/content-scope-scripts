@@ -109,7 +109,7 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
                     )}
                 </div>
             )}
-            <SearchFormProvider term={query} setTerm={setQuery}>
+            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi}>
                 <AiChatsProvider query={query} autoFocus={autoFocus} enableRecentAiChats={enableRecentAiChats}>
                     <div class={styles.spacer}>
                         <div class={styles.popup}>

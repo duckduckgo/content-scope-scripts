@@ -1,0 +1,60 @@
+name: Semver Auto-Release
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: read
+    actions: write
+
+jobs:
+    trigger_release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Find merged PR and check label
+              id: check
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          commit_sha: context.sha
+                      });
+                      const merged = prs.find(pr => pr.merged_at && pr.base.ref === 'main');
+                      if (!merged) {
+                          core.info('No merged PR found for this commit — skipping');
+                          return;
+                      }
+
+                      const semverLabels = ['major', 'minor', 'patch'];
+                      const label = merged.labels.find(l => semverLabels.includes(l.name));
+                      if (!label) {
+                          core.info(`PR #${merged.number} has no semver label — skipping`);
+                          return;
+                      }
+
+                      core.info(`PR #${merged.number} labeled "${label.name}"`);
+                      core.setOutput('severity', label.name);
+                      core.setOutput('pr_number', merged.number.toString());
+
+            - name: Trigger Release workflow
+              if: steps.check.outputs.severity == 'major' || steps.check.outputs.severity == 'minor'
+              uses: actions/github-script@v8
+              env:
+                  SEVERITY: ${{ steps.check.outputs.severity }}
+                  PR_NUMBER: ${{ steps.check.outputs.pr_number }}
+              with:
+                  script: |
+                      const severity = process.env.SEVERITY;
+                      await github.rest.actions.createWorkflowDispatch({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          workflow_id: 'build.yml',
+                          ref: 'main',
+                          inputs: { version_bump: severity }
+                      });
+                      console.log(`Release workflow dispatched for ${severity} bump (PR #${process.env.PR_NUMBER})`);
