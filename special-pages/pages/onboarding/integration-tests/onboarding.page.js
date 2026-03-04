@@ -48,10 +48,8 @@ export class OnboardingPage {
     }
 
     withInitData(data) {
-        this.mocks.defaultResponses({
-            ...this.defaultResponses,
-            init: data,
-        });
+        this.defaultResponses = { ...this.defaultResponses, init: data };
+        this.mocks.defaultResponses(this.defaultResponses);
     }
 
     /**

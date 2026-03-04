@@ -705,15 +705,13 @@ test.describe('onboarding v3', () => {
             test('When customize step has reduced rows (no bookmarks), only those rows are shown', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingV3Page.create(page, workerInfo);
                 onboarding.withInitData({
-                    ...onboarding.defaultResponses.init,
                     order: 'v3',
-                    stepDefinitions: {
-                        ...onboarding.defaultResponses.init.stepDefinitions,
-                        customize: { id: 'customize', kind: 'settings', rows: ['session-restore', 'home-shortcut'] },
-                    },
+                    stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
                 });
+                onboarding.withGetCustomizeStepRowsSupported(['session-restore', 'home-shortcut']);
                 await onboarding.reducedMotion();
-                await onboarding.openPage({ env: 'app', page: 'customize' });
+                await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+                await page.getByRole('button', { name: 'Next' }).click();
                 await page.getByRole('button', { name: 'Enable Session Restore' }).waitFor({ timeout: 10000 });
                 await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
                 await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
@@ -726,8 +724,10 @@ test.describe('onboarding v3', () => {
                     env: 'development',
                     order: 'v3',
                 });
+                onboarding.withGetCustomizeStepRowsSupported(['bookmarks', 'session-restore', 'home-shortcut']);
                 await onboarding.reducedMotion();
-                await onboarding.openPage({ env: 'app', page: 'customize' });
+                await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+                await page.getByRole('button', { name: 'Next' }).click();
                 await page.getByRole('button', { name: 'Show Bookmarks Bar' }).waitFor({ timeout: 10000 });
                 await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).toBeVisible();
             });
