@@ -11,6 +11,9 @@ inputs:
     pr-pre-build:
         description: Shell commands to run in the PR directory before npm install (e.g. rebase)
         default: ''
+    diff-script-source:
+        description: Path to source the diff-directories.js script from (defaults to base-path)
+        default: ''
     output-file:
         description: Path to write the diff output
         default: diff.txt
@@ -50,5 +53,5 @@ runs:
           run: |
               cp -r ${{ inputs.base-path }}/Sources/ContentScopeScripts/dist ${{ inputs.base-path }}/build/apple 2>/dev/null || true
               cp -r ${{ inputs.pr-path }}/Sources/ContentScopeScripts/dist ${{ inputs.pr-path }}/build/apple 2>/dev/null || true
-              node ${{ inputs.base-path }}/.github/scripts/diff-directories.js ${{ inputs.base-path }} ${{ inputs.pr-path }} > ${{ inputs.output-file }}
+              node ${{ inputs.diff-script-source || inputs.base-path }}/.github/scripts/diff-directories.js ${{ inputs.base-path }} ${{ inputs.pr-path }} > ${{ inputs.output-file }}
               echo "Build diff size: $(wc -c < ${{ inputs.output-file }}) bytes"
