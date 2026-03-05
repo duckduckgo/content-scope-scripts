@@ -68,31 +68,17 @@ function reducer(state, action) {
                 selectedIndex: null,
             };
         case 'previousChat': {
-            let nextIndex;
-            if (state.selectedIndex === null) {
-                nextIndex = state.chats.length - 1;
-            } else if (state.selectedIndex === 0) {
-                nextIndex = null;
-            } else {
-                nextIndex = state.selectedIndex - 1;
-            }
+            const nextIndex = state.selectedIndex === null ? state.chats.length - 1 : state.selectedIndex - 1;
             return {
                 ...state,
-                selectedIndex: nextIndex,
+                selectedIndex: nextIndex < 0 ? null : nextIndex,
             };
         }
         case 'nextChat': {
-            let nextIndex;
-            if (state.selectedIndex === null) {
-                nextIndex = 0;
-            } else if (state.selectedIndex === state.chats.length - 1) {
-                nextIndex = null;
-            } else {
-                nextIndex = state.selectedIndex + 1;
-            }
+            const nextIndex = state.selectedIndex === null ? 0 : state.selectedIndex + 1;
             return {
                 ...state,
-                selectedIndex: nextIndex,
+                selectedIndex: nextIndex >= state.chats.length ? null : nextIndex,
             };
         }
         default:
