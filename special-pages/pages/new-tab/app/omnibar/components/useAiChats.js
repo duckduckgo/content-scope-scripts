@@ -81,8 +81,13 @@ function reducer(state, action) {
                 selectedIndex: nextIndex >= state.chats.length ? null : nextIndex,
             };
         }
-        default:
-            throw new Error('Unknown action type');
+        default: {
+            /** @type {never} */
+            const _exhaustiveCheck = action;
+            console.warn('Unknown action type', _exhaustiveCheck);
+
+            return state;
+        }
     }
 }
 
