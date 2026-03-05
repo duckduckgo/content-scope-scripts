@@ -24,7 +24,8 @@ interface ImportMeta {
         | 'android-broker-protection'
         | 'android-autofill-import'
         | 'android-adsjs'
-        | 'android-ai-history';
+        | 'android-ai-history'
+        | 'android-ai-clear';
     trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
 }
