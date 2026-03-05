@@ -3786,6 +3786,11 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .Omnibar_popup .Omnibar_field {
   margin: 1px;
 }
+.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .Omnibar_popup .Omnibar_aiChatsList {
+  margin-left: -2px;
+  margin-right: -2px;
+  margin-top: 3px;
+}
 .Omnibar_root:has([role=listbox]) .Omnibar_popup {
   border-radius: 15px;
   margin: 0;
@@ -3960,6 +3965,47 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   height: 9px;
   margin: 0;
   width: 9px;
+}
+
+/* pages/new-tab/app/omnibar/components/AiChatsList.module.css */
+.AiChatsList_list {
+  border-top: 1px solid var(--ds-color-theme-container-border-primary);
+  display: flex;
+  flex-direction: column;
+  padding: calc(3px + var(--sp-1));
+}
+.AiChatsList_item {
+  align-items: center;
+  background: none;
+  border-radius: 4px;
+  border: none;
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: flex;
+  height: var(--sp-8);
+  justify-content: flex-start;
+  padding: 0 var(--sp-2) 0 0;
+}
+.AiChatsList_item svg {
+  flex: none;
+  margin: var(--sp-2);
+}
+.AiChatsList_item[aria-selected=true],
+.AiChatsList_item:hover,
+.AiChatsList_item:active {
+  color: var(--ds-color-theme-accent-content-primary);
+}
+.AiChatsList_item[aria-selected=true],
+.AiChatsList_item:hover {
+  background: var(--ds-color-theme-accent-primary);
+}
+.AiChatsList_item:active {
+  background: var(--ds-color-theme-accent-secondary);
+}
+.AiChatsList_title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* pages/new-tab/app/omnibar/components/TabSwitcher.module.css */

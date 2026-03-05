@@ -1651,6 +1651,20 @@
       }
     ), /* @__PURE__ */ _("path", { d: "M7.62 3.271c.099-.396.661-.396.76 0l.22.878a3.27 3.27 0 0 0 2.376 2.376l.878.22c.396.099.396.661 0 .76l-.878.22A3.27 3.27 0 0 0 8.6 10.102l-.219.877c-.099.396-.661.396-.76 0l-.22-.877a3.27 3.27 0 0 0-2.377-2.377l-.877-.22c-.396-.099-.396-.661 0-.76l.877-.22A3.27 3.27 0 0 0 7.4 4.15l.22-.878Z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
+  function ChatBubbleIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#Chat-Bubble-16_svg__a)" }, /* @__PURE__ */ _("path", { d: "M14.75 7.12503C14.75 9.49689 13.1054 11.6393 10.5881 12.5518L10.5397 12.5694L10.4929 12.5909C9.68293 12.9625 8.16901 13.3763 6.42883 13.7642C5.30911 14.0138 4.14548 14.2419 3.1051 14.4334L3.40222 14.0907C4.18337 13.19 3.95633 11.9225 3.18689 11.2408C1.96753 10.1604 1.25 8.70239 1.25 7.12503C1.25001 4.01256 4.13202 1.25003 8 1.25003V3.24249e-05L7.89661 0.000642776C3.56038 0.0495577 0.0555134 3.17104 0.000610352 7.03299L0 7.12503C0 9.06839 0.873547 10.8301 2.29004 12.1155L2.35791 12.1763C2.66711 12.4503 2.73332 12.9192 2.48315 13.2411L2.45789 13.2718L1.16431 14.7635C0.722686 15.2727 1.15027 16.0468 1.81458 15.9326C4.46985 15.4766 9.12259 14.5948 11.0142 13.727C13.9385 12.6669 16 10.1104 16 7.12503L15.9994 7.03299C15.9441 3.14039 12.3838 3.24249e-05 8 3.24249e-05V1.25003C11.868 1.25003 14.75 4.01256 14.75 7.12503Z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Chat-Bubble-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function PinIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        d: "M6.30348 1.02821C6.58492 0.972304 6.87723 1.0005 7.14235 1.11024C7.40737 1.22009 7.63424 1.40692 7.79371 1.6454C7.95296 1.88383 8.03765 2.16435 8.03785 2.45106V2.93642L8.04469 3.07118C8.07589 3.38504 8.21532 3.68011 8.4402 3.90517C8.69733 4.16229 9.04628 4.30731 9.40993 4.30751H9.55153C10.113 4.30616 10.6695 4.41594 11.1882 4.63075C11.7068 4.84558 12.178 5.1617 12.574 5.55946C12.846 5.83156 12.9996 6.2011 12.9998 6.58583C12.9998 6.92286 12.8825 7.24833 12.6707 7.50673L12.575 7.61317L10.5359 9.65126L14.8172 13.9325L14.8972 14.0311C15.0571 14.2737 15.0305 14.6038 14.8172 14.8173C14.6037 15.0308 14.2736 15.0573 14.031 14.8974L13.9324 14.8173L9.65114 10.536L7.61305 12.5741C7.35164 12.8357 7.00024 12.9876 6.63063 12.9989C6.26109 13.0102 5.9007 12.8806 5.62379 12.6356L5.62086 12.6327C5.18689 12.2432 4.84383 11.7617 4.61696 11.2245C4.39342 10.6949 4.28883 10.123 4.30836 9.54872L4.30739 9.41005L4.30055 9.27431C4.26923 8.96046 4.13003 8.66531 3.90504 8.44032C3.67997 8.21542 3.38496 8.07601 3.07106 8.04481L2.93629 8.03798H2.45094C2.16422 8.03779 1.88372 7.95307 1.64528 7.79384C1.40668 7.6343 1.21995 7.40667 1.11012 7.14149C1.00054 6.87653 0.97224 6.58485 1.02809 6.3036C1.08412 6.02209 1.22163 5.76246 1.42457 5.55946L5.55934 1.4247L5.63844 1.35146C5.82776 1.18839 6.05723 1.0772 6.30348 1.02821ZM6.54664 2.2538C6.50764 2.26163 6.47127 2.28135 6.44313 2.30946L6.44215 2.30849L2.30836 6.44228L2.30934 6.44325C2.2812 6.4714 2.26151 6.50776 2.25368 6.54677C2.24591 6.58582 2.25022 6.62714 2.26539 6.66396C2.28064 6.70053 2.30671 6.73171 2.33961 6.7538C2.37277 6.77596 2.41204 6.78793 2.45192 6.78798H2.93629L3.19508 6.80067C3.79503 6.86037 4.35971 7.12655 4.78981 7.55653C5.28095 8.04787 5.557 8.71435 5.55739 9.40907V9.54872L5.55641 9.57411C5.54037 9.97279 5.6132 10.3706 5.76832 10.7382C5.92328 11.1051 6.15773 11.4338 6.45387 11.7001C6.49216 11.7333 6.5418 11.7514 6.59254 11.7499C6.64384 11.7482 6.69297 11.7266 6.72926 11.6903L11.6902 6.72938L11.7156 6.69813C11.7375 6.66523 11.7498 6.62594 11.7498 6.58583C11.7496 6.53256 11.7279 6.48094 11.6902 6.44325L11.6892 6.44228C11.4095 6.16102 11.0762 5.93785 10.7097 5.78603C10.3432 5.63428 9.95015 5.55642 9.55348 5.55751H9.40895C8.71423 5.5571 8.04774 5.28108 7.55641 4.78993C7.12645 4.35987 6.86125 3.7951 6.80153 3.19521L6.78785 2.93642V2.45204L6.77907 2.39345C6.77337 2.37472 6.76561 2.3562 6.75465 2.33974C6.73253 2.30676 6.70049 2.28077 6.66383 2.26552C6.627 2.25032 6.58573 2.24603 6.54664 2.2538Z",
+        "clip-rule": "evenodd"
+      }
+    ));
+  }
   function AiChatColorIcon(props) {
     return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Ai-Chat-Color-16_svg__a)" }, /* @__PURE__ */ _(
       "path",
@@ -8602,6 +8616,47 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/omnibar.ai-chats.service.js
+  var EVENT_DATA2, _eventTarget2, _lastFetchId2, OmnibarAiChatsService;
+  var init_omnibar_ai_chats_service = __esm({
+    "pages/new-tab/app/omnibar/omnibar.ai-chats.service.js"() {
+      "use strict";
+      EVENT_DATA2 = "data";
+      OmnibarAiChatsService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp
+         * @internal
+         */
+        constructor(ntp) {
+          __privateAdd(this, _eventTarget2, new EventTarget());
+          __privateAdd(this, _lastFetchId2, 0);
+          this.ntp = ntp;
+        }
+        /**
+         * @param {string} query
+         */
+        async triggerFetch(query) {
+          const fetchId = ++__privateWrapper(this, _lastFetchId2)._;
+          const data2 = await this.ntp.messaging.request("omnibar_getAiChats", { query });
+          if (fetchId === __privateGet(this, _lastFetchId2)) {
+            __privateGet(this, _eventTarget2).dispatchEvent(new CustomEvent(EVENT_DATA2, { detail: { data: data2 } }));
+          }
+        }
+        /**
+         * @param {(data: AiChatsData) => void} cb
+         * @returns {() => void}
+         */
+        onData(cb) {
+          const handler = (event) => cb(event.detail.data);
+          __privateGet(this, _eventTarget2).addEventListener(EVENT_DATA2, handler);
+          return () => __privateGet(this, _eventTarget2).removeEventListener(EVENT_DATA2, handler);
+        }
+      };
+      _eventTarget2 = new WeakMap();
+      _lastFetchId2 = new WeakMap();
+    }
+  });
+
   // pages/new-tab/app/omnibar/omnibar.service.js
   var OmnibarService;
   var init_omnibar_service = __esm({
@@ -8609,6 +8664,7 @@
       "use strict";
       init_service();
       init_omnibar_suggestions_service();
+      init_omnibar_ai_chats_service();
       OmnibarService = class {
         /**
          * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
@@ -8622,6 +8678,7 @@
             persist: (data2) => ntp.messaging.notify("omnibar_setConfig", data2)
           });
           this.suggestionsService = new OmnibarSuggestionsService(ntp);
+          this.aiChatsService = new OmnibarAiChatsService(ntp);
         }
         name() {
           return "OmnibarService";
@@ -8725,6 +8782,29 @@
         submitChat(params) {
           this.ntp.messaging.notify("omnibar_submitChat", params);
         }
+        /**
+         * Trigger a fetch for recent AI chats, optionally filtered by query.
+         * Results arrive via {@link onAiChats}.
+         * @param {string} query
+         */
+        getAiChats(query) {
+          this.aiChatsService.triggerFetch(query);
+        }
+        /**
+         * Subscribe to AI chats updates. Returns a function to unsubscribe.
+         * @param {(data: AiChatsData) => void} cb
+         * @returns {() => void}
+         */
+        onAiChats(cb) {
+          return this.aiChatsService.onData(cb);
+        }
+        /**
+         * Open a specific AI chat
+         * @param {OpenAIChatAction} params
+         */
+        openAiChat(params) {
+          this.ntp.messaging.notify("omnibar_openAiChat", params);
+        }
       };
     }
   });
@@ -8793,6 +8873,26 @@
       },
       [service]
     );
+    const getAiChats = q2(
+      (query) => {
+        if (!service.current) throw new Error("Service not available");
+        return service.current?.getAiChats(query);
+      },
+      [service]
+    );
+    const onAiChats = q2(
+      (cb) => {
+        if (!service.current) throw new Error("Service not available");
+        return service.current.onAiChats(cb);
+      },
+      [service]
+    );
+    const openAiChat = q2(
+      (params) => {
+        service.current?.openAiChat(params);
+      },
+      [service]
+    );
     return /* @__PURE__ */ _(
       OmnibarContext.Provider,
       {
@@ -8805,7 +8905,10 @@
           onSuggestions,
           openSuggestion,
           submitSearch,
-          submitChat
+          submitChat,
+          getAiChats,
+          onAiChats,
+          openAiChat
         }
       },
       /* @__PURE__ */ _(OmnibarServiceContext.Provider, { value: service.current }, props.children)
@@ -8872,6 +8975,18 @@
         /** @type {(params: {chat: string, target: OpenTarget}) => void} */
         submitChat: () => {
           throw new Error("must implement");
+        },
+        /** @type {(query: string) => void} */
+        getAiChats: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(cb: (data: AiChatsData) => void) => (() => void)} */
+        onAiChats: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(params: OpenAIChatAction) => void} */
+        openAiChat: () => {
+          throw new Error("must implement");
         }
       });
       OmnibarServiceContext = R(
@@ -8897,6 +9012,159 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/useAiChats.js
+  function getAiChatElementId(chatId) {
+    return `ai-chat-${chatId}`;
+  }
+  function reducer2(state, action) {
+    switch (action.type) {
+      case "setChats":
+        return {
+          ...state,
+          chats: action.payload,
+          selectedIndex: null
+        };
+      case "hideChats":
+        return {
+          ...state,
+          chatsVisible: false
+        };
+      case "showChats":
+        return {
+          ...state,
+          chatsVisible: true
+        };
+      case "setSelectedChat": {
+        const nextIndex = state.chats.indexOf(action.payload);
+        if (nextIndex === -1) return { ...state, selectedIndex: null };
+        return {
+          ...state,
+          selectedIndex: nextIndex
+        };
+      }
+      case "clearSelectedChat":
+        return {
+          ...state,
+          selectedIndex: null
+        };
+      case "previousChat": {
+        const nextIndex = state.selectedIndex === null ? state.chats.length - 1 : state.selectedIndex - 1;
+        return {
+          ...state,
+          selectedIndex: nextIndex < 0 ? null : nextIndex
+        };
+      }
+      case "nextChat": {
+        const nextIndex = state.selectedIndex === null ? 0 : state.selectedIndex + 1;
+        return {
+          ...state,
+          selectedIndex: nextIndex >= state.chats.length ? null : nextIndex
+        };
+      }
+      default: {
+        const _exhaustiveCheck = action;
+        console.warn("Unknown action type", _exhaustiveCheck);
+        return state;
+      }
+    }
+  }
+  function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
+    const { getAiChats, onAiChats } = x2(OmnibarContext);
+    const [state, dispatch] = h2(reducer2, {
+      chats: [],
+      selectedIndex: null,
+      chatsVisible: Boolean(initiallyVisible)
+    });
+    y2(() => {
+      if (!enableRecentAiChats) {
+        dispatch({ type: "setChats", payload: [] });
+        return;
+      }
+      return onAiChats((data2) => {
+        dispatch({ type: "setChats", payload: data2.chats });
+      });
+    }, [onAiChats, enableRecentAiChats]);
+    y2(() => {
+      if (!enableRecentAiChats) return;
+      getAiChats(query);
+    }, [getAiChats, query, enableRecentAiChats]);
+    const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
+    const selectPreviousChat = () => {
+      if (state.chats.length === 0) return false;
+      dispatch({ type: "previousChat" });
+      return true;
+    };
+    const selectNextChat = () => {
+      if (state.chats.length === 0) return false;
+      dispatch({ type: "nextChat" });
+      return true;
+    };
+    const setSelectedChat = (chat) => {
+      dispatch({ type: "setSelectedChat", payload: chat });
+    };
+    const clearSelectedChat = () => {
+      dispatch({ type: "clearSelectedChat" });
+    };
+    const hideChats = () => {
+      dispatch({ type: "hideChats" });
+    };
+    const showChats = () => {
+      dispatch({ type: "showChats" });
+    };
+    return {
+      chats: state.chatsVisible ? state.chats : EMPTY_ARRAY,
+      selectedChat,
+      selectPreviousChat,
+      selectNextChat,
+      setSelectedChat,
+      clearSelectedChat,
+      hideChats,
+      showChats
+    };
+  }
+  var EMPTY_ARRAY;
+  var init_useAiChats = __esm({
+    "pages/new-tab/app/omnibar/components/useAiChats.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+      EMPTY_ARRAY = [];
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/AiChatsProvider.js
+  function AiChatsProvider({ query, autoFocus, enableRecentAiChats, children }) {
+    const aiChatsState = useAiChats({ query, initiallyVisible: autoFocus, enableRecentAiChats });
+    const aiChatsListId = g2();
+    return /* @__PURE__ */ _(
+      AiChatsContext.Provider,
+      {
+        value: {
+          ...aiChatsState,
+          aiChatsListId
+        }
+      },
+      children
+    );
+  }
+  function useAiChatsContext() {
+    const context = x2(AiChatsContext);
+    if (!context) {
+      throw new Error("useAiChatsContext must be used within an AiChatsProvider");
+    }
+    return context;
+  }
+  var AiChatsContext;
+  var init_AiChatsProvider = __esm({
+    "pages/new-tab/app/omnibar/components/AiChatsProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_useAiChats();
+      AiChatsContext = R(null);
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/AiChatForm.module.css
   var AiChatForm_default;
   var init_AiChatForm = __esm({
@@ -8913,12 +9181,14 @@
   });
 
   // pages/new-tab/app/omnibar/components/AiChatForm.js
-  function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
+  function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
     const platformName = usePlatformName();
+    const { openAiChat } = x2(OmnibarContext);
+    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } = useAiChatsContext();
     const formRef = A2(
       /** @type {HTMLFormElement|null} */
       null
@@ -8944,24 +9214,56 @@
       } else {
         form.classList.remove(AiChatForm_default.hasScroll);
       }
-    }, [chat]);
-    const disabled = chat.length === 0;
+    }, [query]);
+    const disabled = query.length === 0;
     const handleSubmit = (event) => {
       event.preventDefault();
       if (disabled) return;
       onSubmit({
-        chat,
+        chat: query,
         target: "same-tab"
       });
     };
     const handleKeyDown = (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        if (disabled) return;
-        onSubmit({
-          chat,
-          target: eventToTarget2(event, platformName)
-        });
+      switch (event.key) {
+        case "ArrowUp": {
+          const success = selectPreviousChat();
+          if (success) event.preventDefault();
+          break;
+        }
+        case "ArrowDown": {
+          const success = selectNextChat();
+          if (success) event.preventDefault();
+          break;
+        }
+        case "Escape":
+          if (selectedChat) {
+            event.preventDefault();
+            clearSelectedChat();
+          }
+          break;
+        case "Enter":
+          if (event.shiftKey) {
+            break;
+          }
+          event.preventDefault();
+          if (selectedChat) {
+            openAiChat({
+              chatId: selectedChat.chatId,
+              target: eventToTarget2(event, platformName),
+              trigger: "keyboard",
+              isPinned: Boolean(selectedChat.pinned)
+            });
+            break;
+          }
+          if (disabled) {
+            break;
+          }
+          onSubmit({
+            chat: query,
+            target: eventToTarget2(event, platformName)
+          });
+          break;
       }
     };
     const handleClickSubmit = (event) => {
@@ -8969,35 +9271,51 @@
       if (disabled) return;
       event.stopPropagation();
       onSubmit({
-        chat,
+        chat: query,
         target: eventToTarget2(event, platformName)
       });
     };
-    return /* @__PURE__ */ _("form", { ref: formRef, class: AiChatForm_default.form, onClick: () => textAreaRef.current?.focus(), onSubmit: handleSubmit }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("form", { ref: formRef, class: AiChatForm_default.form, onSubmit: handleSubmit, onClick: () => textAreaRef.current?.focus() }, /* @__PURE__ */ _(
       "textarea",
       {
         ref: textAreaRef,
         class: AiChatForm_default.textarea,
-        value: chat,
+        value: query,
         placeholder: t4("omnibar_aiChatFormPlaceholder"),
         "aria-label": t4("omnibar_aiChatFormPlaceholder"),
+        "aria-expanded": chats.length > 0,
+        "aria-haspopup": "listbox",
+        "aria-controls": aiChatsListId,
+        "aria-activedescendant": selectedChat ? getAiChatElementId(selectedChat.chatId) : void 0,
         autoComplete: "off",
         rows: 1,
         onKeyDown: handleKeyDown,
-        onChange: (event) => onChange(event.currentTarget.value)
+        onChange: (event) => {
+          onChange(event.currentTarget.value);
+          showChats();
+          clearSelectedChat();
+        }
       }
-    ), /* @__PURE__ */ _("div", { class: AiChatForm_default.buttons }, /* @__PURE__ */ _(
-      "button",
+    ), /* @__PURE__ */ _(
+      "div",
       {
-        type: "submit",
-        class: AiChatForm_default.submitButton,
-        "aria-label": t4("omnibar_aiChatFormSubmitButtonLabel"),
-        disabled: chat.length === 0,
-        onClick: handleClickSubmit,
-        onAuxClick: handleClickSubmit
+        tabIndex: -1,
+        class: AiChatForm_default.buttons
       },
-      /* @__PURE__ */ _(ArrowRightIcon, null)
-    )));
+      /* @__PURE__ */ _(
+        "button",
+        {
+          tabIndex: 0,
+          type: "submit",
+          class: AiChatForm_default.submitButton,
+          "aria-label": t4("omnibar_aiChatFormSubmitButtonLabel"),
+          disabled,
+          onClick: handleClickSubmit,
+          onAuxClick: handleClickSubmit
+        },
+        /* @__PURE__ */ _(ArrowRightIcon, null)
+      )
+    ));
   }
   var init_AiChatForm2 = __esm({
     "pages/new-tab/app/omnibar/components/AiChatForm.js"() {
@@ -9008,6 +9326,9 @@
       init_Icons2();
       init_settings_provider();
       init_types();
+      init_OmnibarProvider();
+      init_AiChatsProvider();
+      init_useAiChats();
       init_AiChatForm();
     }
   });
@@ -9023,7 +9344,8 @@
         popover: "Omnibar_popover",
         spacer: "Omnibar_spacer",
         popup: "Omnibar_popup",
-        field: "Omnibar_field"
+        field: "Omnibar_field",
+        aiChatsList: "Omnibar_aiChatsList"
       };
     }
   });
@@ -9232,7 +9554,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/useSuggestions.js
-  function reducer2(state, action) {
+  function reducer3(state, action) {
     switch (action.type) {
       case "setSuggestions":
         return {
@@ -9297,7 +9619,7 @@
   }
   function useSuggestions({ term, setTerm, enableAi }) {
     const { onSuggestions, getSuggestions } = x2(OmnibarContext);
-    const [state, dispatch] = h2(reducer2, initialState);
+    const [state, dispatch] = h2(reducer3, initialState);
     y2(() => {
       return onSuggestions((data2, term2) => {
         const suggestions = [
@@ -9361,7 +9683,7 @@
       dispatch({ type: "hideSuggestions" });
     };
     return {
-      suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
+      suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY2,
       selectedSuggestion,
       updateSuggestions,
       selectPreviousSuggestion,
@@ -9371,7 +9693,7 @@
       hideSuggestions
     };
   }
-  var initialState, EMPTY_ARRAY;
+  var initialState, EMPTY_ARRAY2;
   var init_useSuggestions = __esm({
     "pages/new-tab/app/omnibar/components/useSuggestions.js"() {
       "use strict";
@@ -9383,7 +9705,7 @@
         selectedIndex: null,
         suggestionsVisible: true
       };
-      EMPTY_ARRAY = [];
+      EMPTY_ARRAY2 = [];
     }
   });
 
@@ -9757,6 +10079,70 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/AiChatsList.module.css
+  var AiChatsList_default;
+  var init_AiChatsList = __esm({
+    "pages/new-tab/app/omnibar/components/AiChatsList.module.css"() {
+      AiChatsList_default = {
+        list: "AiChatsList_list",
+        item: "AiChatsList_item",
+        title: "AiChatsList_title"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/AiChatsList.js
+  function AiChatsList({ className }) {
+    const { openAiChat } = x2(OmnibarContext);
+    const platformName = usePlatformName();
+    const { chats, selectedChat, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    if (chats.length === 0) {
+      return null;
+    }
+    return /* @__PURE__ */ _("div", { role: "listbox", id: aiChatsListId, class: (0, import_classnames10.default)(AiChatsList_default.list, className) }, chats.map((chat) => {
+      return /* @__PURE__ */ _(
+        "button",
+        {
+          key: chat.chatId,
+          role: "option",
+          id: getAiChatElementId(chat.chatId),
+          class: AiChatsList_default.item,
+          tabIndex: chat === selectedChat ? 0 : -1,
+          "aria-selected": chat === selectedChat,
+          onMouseOver: () => setSelectedChat(chat),
+          onMouseLeave: () => clearSelectedChat(),
+          onClick: (event) => {
+            event.preventDefault();
+            openAiChat({
+              chatId: chat.chatId,
+              target: eventToTarget2(event, platformName),
+              trigger: "mouse",
+              isPinned: Boolean(chat.pinned)
+            });
+          }
+        },
+        chat.pinned ? /* @__PURE__ */ _(PinIcon, null) : /* @__PURE__ */ _(ChatBubbleIcon, null),
+        /* @__PURE__ */ _("span", { class: AiChatsList_default.title }, chat.title)
+      );
+    }));
+  }
+  var import_classnames10;
+  var init_AiChatsList2 = __esm({
+    "pages/new-tab/app/omnibar/components/AiChatsList.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames10 = __toESM(require_classnames(), 1);
+      init_hooks_module();
+      init_handlers();
+      init_Icons2();
+      init_settings_provider();
+      init_OmnibarProvider();
+      init_AiChatsProvider();
+      init_useAiChats();
+      init_AiChatsList();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/TabSwitcher.module.css
   var TabSwitcher_default;
   var init_TabSwitcher = __esm({
@@ -10087,7 +10473,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/Omnibar.js
-  function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }) {
+  function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCustomizePopover, tabId }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -10146,7 +10532,7 @@
           }
         }
       )
-    )), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery, enableAi }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, mode === "search" ? /* @__PURE__ */ _(
+    )), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery, enableAi }, /* @__PURE__ */ _(AiChatsProvider, { query, autoFocus, enableRecentAiChats }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, mode === "search" ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ _(
       SearchForm,
       {
         autoFocus,
@@ -10154,7 +10540,38 @@
         onSubmit: handleSubmitSearch,
         onSubmitChat: handleSubmitChat
       }
-    ) : /* @__PURE__ */ _(AiChatForm, { chat: query, autoFocus, onChange: setQuery, onSubmit: handleSubmitChat })), mode === "search" && /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })))));
+    )), /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ _(
+      AiChatContent,
+      {
+        query,
+        autoFocus,
+        enableRecentAiChats,
+        onChange: setQuery,
+        onSubmit: handleSubmitChat
+      }
+    ))))));
+  }
+  function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
+    const { showChats, hideChats } = useAiChatsContext();
+    const containerRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    return /* @__PURE__ */ _(
+      "div",
+      {
+        ref: containerRef,
+        onFocusCapture: () => showChats(),
+        onBlurCapture: (event) => {
+          if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
+            return;
+          }
+          hideChats();
+        }
+      },
+      /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ _(AiChatForm, { query, autoFocus, onChange, onSubmit })),
+      enableRecentAiChats && /* @__PURE__ */ _(AiChatsList, { className: Omnibar_default.aiChatsList })
+    );
   }
   var init_Omnibar2 = __esm({
     "pages/new-tab/app/omnibar/components/Omnibar.js"() {
@@ -10170,6 +10587,8 @@
       init_SearchForm2();
       init_SearchFormProvider();
       init_SuggestionsList2();
+      init_AiChatsList2();
+      init_AiChatsProvider();
       init_TabSwitcher2();
       init_PersistentOmnibarValuesProvider();
       init_Popover2();
@@ -10188,7 +10607,7 @@
     return /* @__PURE__ */ _(k, null, state.config.showAiSetting && /* @__PURE__ */ _(AiSetting, { enableAi: state.config?.enableAi === true, setEnableAi, omnibarVisible: visible }), visible && /* @__PURE__ */ _(OmnibarReadyState, { config: state.config, key: current.value, tabId: current.value }));
   }
   function OmnibarReadyState({ config, tabId }) {
-    const { enableAi = true, showAiSetting = true, showCustomizePopover = false, mode: defaultMode } = config;
+    const { enableAi = true, showAiSetting = true, showCustomizePopover = false, enableRecentAiChats = false, mode: defaultMode } = config;
     const { setMode } = x2(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
     return /* @__PURE__ */ _(
@@ -10197,6 +10616,7 @@
         mode: modeForCurrentTab,
         setMode,
         enableAi: showAiSetting && enableAi,
+        enableRecentAiChats,
         showCustomizePopover,
         tabId
       }
@@ -10555,7 +10975,7 @@
     return /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames10.default)(Tooltip_default.tooltipContainer, className),
+        class: (0, import_classnames11.default)(Tooltip_default.tooltipContainer, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -10569,14 +10989,14 @@
       isVisible && /* @__PURE__ */ _("div", { id: tooltipId, class: Tooltip_default.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
     );
   }
-  var import_classnames10;
+  var import_classnames11;
   var init_Tooltip2 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_Tooltip();
-      import_classnames10 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
     }
   });
 
@@ -10853,7 +11273,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -10864,16 +11284,16 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ _(NewBadge, null))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ _(NewBadge, null))));
   }
-  var import_classnames11;
+  var import_classnames12;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
       init_types();
       init_PrivacyStats();
       init_ShowHideButton();
-      import_classnames11 = __toESM(require_classnames(), 1);
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
       init_NewBadge2();
@@ -10943,9 +11363,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames12.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames13.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames12;
+  var import_classnames13;
   var init_ProtectionsHeadingLegacy = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeadingLegacy.js"() {
       "use strict";
@@ -10953,7 +11373,7 @@
       init_hooks_module();
       init_PrivacyStatsLegacy();
       init_ShowHideButton();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames13 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -11012,14 +11432,14 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames13.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames14.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames13.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames14.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === "collapsed";
@@ -11028,28 +11448,28 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames13.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames14.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames13.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames14.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Protections_default.block, Protections_default.empty) }, children);
   }
   function ProtectionsEmptyLegacy({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
   }
-  var import_classnames13;
+  var import_classnames14;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames14 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -12103,7 +12523,7 @@
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames15.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -12114,7 +12534,7 @@
     ), /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames15.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url8,
@@ -12123,13 +12543,13 @@
       canBurn ? shouldDisplayLegacyActivity ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(FireIcon, null) : /* @__PURE__ */ _(Cross, null)
     ));
   }
-  var import_classnames14, ActivityItem, ActivityItemLegacy;
+  var import_classnames15, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames14 = __toESM(require_classnames(), 1);
+      import_classnames15 = __toESM(require_classnames(), 1);
       init_Activity();
       init_ActivityLegacy();
       init_FaviconWithState2();
@@ -12156,7 +12576,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames14.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames15.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -12184,7 +12604,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames14.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ _("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames15.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ _("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -28614,20 +29034,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url8]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
     y2(() => doneBurning(url8), [url8]);
     return null;
   }
-  var import_classnames15, BurnAnimationLazy;
+  var import_classnames16, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames15 = __toESM(require_classnames(), 1);
+      import_classnames16 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -28737,15 +29157,15 @@
 
   // pages/new-tab/app/components/TickPill/TickPill.js
   function TickPill({ text: text2, className, displayTick = true }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ _("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ _(Check, null)), /* @__PURE__ */ _("span", { class: TickPill_default.text }, text2));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ _("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ _(Check, null)), /* @__PURE__ */ _("span", { class: TickPill_default.text }, text2));
   }
-  var import_classnames16;
+  var import_classnames17;
   var init_TickPill2 = __esm({
     "pages/new-tab/app/components/TickPill/TickPill.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
-      import_classnames16 = __toESM(require_classnames(), 1);
+      import_classnames17 = __toESM(require_classnames(), 1);
       init_TickPill();
     }
   });
@@ -29556,7 +29976,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames17.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames18.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -29573,12 +29993,12 @@
     }
     return null;
   }
-  var import_classnames17;
+  var import_classnames18;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames17 = __toESM(require_classnames(), 1);
+      import_classnames18 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -29757,7 +30177,7 @@
   // pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js
   function SubscriptionWinBackBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames18.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ _("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ _("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames19.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ _("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ _("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
@@ -29766,11 +30186,11 @@
     }
     return null;
   }
-  var import_classnames18;
+  var import_classnames19;
   var init_SubscriptionWinBackBanner2 = __esm({
     "pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js"() {
       "use strict";
-      import_classnames18 = __toESM(require_classnames(), 1);
+      import_classnames19 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -29931,7 +30351,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames19.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -29993,12 +30413,12 @@
     }
     return null;
   }
-  var import_classnames19;
+  var import_classnames20;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames19 = __toESM(require_classnames(), 1);
+      import_classnames20 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -30038,7 +30458,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames30 = __toESM(require_classnames(), 1);
+  var import_classnames31 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -30402,7 +30822,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames29 = __toESM(require_classnames(), 1);
+  var import_classnames30 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -30438,7 +30858,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -30463,7 +30883,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ _("ul", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -30497,7 +30917,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -30517,7 +30937,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -30539,7 +30959,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -30579,7 +30999,7 @@
       return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
         "button",
         {
-          class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -30594,7 +31014,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -30620,7 +31040,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -30633,7 +31053,7 @@
     return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames21.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames22.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -30644,7 +31064,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames21.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames22.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -30655,7 +31075,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames21.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames22.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -30669,7 +31089,7 @@
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_preact_module();
   init_signals_module();
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
   init_types();
 
   // pages/new-tab/app/customizer/components/ThemeSection.module.css
@@ -30712,7 +31132,7 @@
     return /* @__PURE__ */ _("div", { class: ThemeSection_default.root }, /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames22.default)(ThemeSection_default.segmentedControl, {
+        class: (0, import_classnames23.default)(ThemeSection_default.segmentedControl, {
           [ThemeSection_default.vertical]: ["pl", "ru"].includes(locale)
         }),
         role: "radiogroup",
@@ -30783,7 +31203,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames24 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
 
@@ -30840,8 +31260,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames23.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames23.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames24.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -30884,7 +31304,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames24 = __toESM(require_classnames(), 1);
+  var import_classnames25 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -30913,7 +31333,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames24.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames25.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -30950,7 +31370,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames24.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -30975,12 +31395,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames24.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames25 = __toESM(require_classnames(), 1);
+  var import_classnames26 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -31008,12 +31428,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames25.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames26.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
         "button",
@@ -31041,7 +31461,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames26 = __toESM(require_classnames(), 1);
+  var import_classnames27 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -31085,7 +31505,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames26.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames27.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -31100,7 +31520,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
@@ -31137,7 +31557,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
@@ -31148,24 +31568,24 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames27 = __toESM(require_classnames(), 1);
+  var import_classnames28 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
     return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ _("span", null, title), showNewBadge && /* @__PURE__ */ _(NewBadge, null)), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames27.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames28.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames28 = __toESM(require_classnames(), 1);
+  var import_classnames29 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
     return /* @__PURE__ */ _(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames28.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames29.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
@@ -31210,7 +31630,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames29.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames30.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -31280,7 +31700,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames29.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames29.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames30.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames30.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -31337,7 +31757,7 @@
         "data-drawer-visibility": visibility,
         "data-has-theme-variants": hasThemeVariants
       },
-      /* @__PURE__ */ _("main", { class: (0, import_classnames30.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))),
+      /* @__PURE__ */ _("main", { class: (0, import_classnames31.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))),
       /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
         CustomizerButton,
         {
@@ -31352,7 +31772,7 @@
       /* @__PURE__ */ _(
         "aside",
         {
-          class: (0, import_classnames30.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+          class: (0, import_classnames31.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
           tabindex: tabIndex,
           "aria-hidden": hidden,
           "data-theme": browser,
@@ -36355,6 +36775,64 @@
       }
     };
   }
+  var mockAiChatsSearchTerm = "milestone";
+  var mockAiChatTitleWithSearchTerm = `Onboarding ${mockAiChatsSearchTerm}s overview`;
+  var MAX_RESULTS = 5;
+  var allMockChats = [
+    {
+      chatId: "chat-001",
+      title: "Edit: feedback quality & timing",
+      pinned: true,
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 30).toISOString()
+    },
+    {
+      chatId: "chat-002",
+      title: "Progression plan summary Progression plan summary Progression plan summary Progression plan summary Progression plan summary",
+      pinned: false,
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 2).toISOString()
+    },
+    {
+      chatId: "chat-003",
+      title: mockAiChatTitleWithSearchTerm,
+      pinned: false,
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 24).toISOString()
+    },
+    {
+      chatId: "chat-004",
+      title: "Share knowledge effectively.",
+      pinned: false,
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 48).toISOString()
+    },
+    {
+      chatId: "chat-005",
+      title: "Rubrics for O-X projects",
+      pinned: false,
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 72).toISOString()
+    },
+    {
+      chatId: "chat-006",
+      title: "Budget forecast Q3 review",
+      pinned: false,
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 24 * 8).toISOString()
+    },
+    {
+      chatId: "chat-007",
+      title: "Team retro & action items",
+      pinned: false,
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 24 * 12).toISOString()
+    },
+    {
+      chatId: "chat-008",
+      title: "Migration plan for legacy services",
+      pinned: false,
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 24 * 21).toISOString()
+    }
+  ];
+  function getMockAiChats(query) {
+    const trimmed = (query ?? "").trim().toLowerCase();
+    const filtered = trimmed ? allMockChats.filter((chat) => chat.title.toLowerCase().includes(trimmed)) : allMockChats;
+    return { chats: filtered.slice(0, MAX_RESULTS) };
+  }
   function containsIgnoreCase(text2, searchTerm) {
     return text2.toLowerCase().includes(searchTerm.toLowerCase());
   }
@@ -36364,12 +36842,19 @@
 
   // pages/new-tab/app/omnibar/mocks/omnibar.mock-transport.js
   var url5 = typeof window !== "undefined" ? new URL(window.location.href) : new URL("https://example.com");
+  function parseBooleanQueryParam(param) {
+    const value2 = url5.searchParams.get(param);
+    if (value2 === "true") return true;
+    if (value2 === "false") return false;
+    return null;
+  }
   function omnibarMockTransport() {
     const config = {
       mode: "search",
       enableAi: true,
       showAiSetting: true,
-      showCustomizePopover: false
+      showCustomizePopover: false,
+      enableRecentAiChats: false
     };
     const subs = /* @__PURE__ */ new Map();
     return new TestTransportConfig({
@@ -36414,23 +36899,19 @@
             if (modeOverride === "search" || modeOverride === "ai") {
               config.mode = modeOverride;
             }
-            const enableAiOverride = url5.searchParams.get("omnibar.enableAi");
-            if (enableAiOverride === "true" || enableAiOverride === "false") {
-              config.enableAi = enableAiOverride === "true";
-            }
-            const showAiSettingOverride = url5.searchParams.get("omnibar.showAiSetting");
-            if (showAiSettingOverride === "true" || showAiSettingOverride === "false") {
-              config.showAiSetting = showAiSettingOverride === "true";
-            }
-            const showCustomizePopoverOverride = url5.searchParams.get("omnibar.showCustomizePopover");
-            if (showCustomizePopoverOverride === "true" || showCustomizePopoverOverride === "false") {
-              config.showCustomizePopover = showCustomizePopoverOverride === "true";
-            }
+            config.enableAi = parseBooleanQueryParam("omnibar.enableAi") ?? config.enableAi;
+            config.showAiSetting = parseBooleanQueryParam("omnibar.showAiSetting") ?? config.showAiSetting;
+            config.showCustomizePopover = parseBooleanQueryParam("omnibar.showCustomizePopover") ?? config.showCustomizePopover;
+            config.enableRecentAiChats = parseBooleanQueryParam("omnibar.enableRecentAiChats") ?? config.enableRecentAiChats;
             return config;
           }
           case "omnibar_getSuggestions": {
             await new Promise((resolve) => setTimeout(resolve, 100));
             return getMockSuggestions(msg.params.term);
+          }
+          case "omnibar_getAiChats": {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            return getMockAiChats(msg.params.query);
           }
           default: {
             throw new Error("unhandled request" + msg);
