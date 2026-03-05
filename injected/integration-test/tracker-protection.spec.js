@@ -8,6 +8,8 @@ const CTL_DISABLED_CONFIG = './integration-test/test-pages/tracker-protection/co
 const CTL_ENABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-ctl-enabled.json';
 const UNPROTECTED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-unprotected.json';
 const ALLOWLISTED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-allowlisted.json';
+const CTL_ACTION_PREFIX_DISABLED_CONFIG =
+    './integration-test/test-pages/tracker-protection/config/tracker-protection-ctl-action-prefix-disabled.json';
 
 function trackerMessages(messages) {
     return messages.filter((m) => m.payload.featureName === 'trackerProtection');
@@ -328,4 +330,22 @@ test('tracker-protection: reports but does not block on unprotected domain', asy
     const messages = await collector.waitForMessage('trackerDetected', 1);
     expect(messages[0].payload.params.blocked).toBe(false);
     expect(messages[0].payload.params.reason).toBe('unprotectedDomain');
+});
+
+test('tracker-protection: CTL disabled suppresses non-fb block-ctl-* surrogate', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CTL_ACTION_PREFIX_DISABLED_CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
+    });
+
+    const detected = await collector.waitForMessage('trackerDetected', 1);
+    expect(detected[0].payload.params.blocked).toBe(true); // legacy parity
+    expect(detected[0].payload.params.isSurrogate).toBe(false); // critical regression assertion
+
+    await page.waitForTimeout(200);
+    const allMessages = await collector.outgoingMessages();
+    const injected = trackerMessages(allMessages).filter((m) => m.payload.method === 'surrogateInjected');
+    expect(injected).toHaveLength(0);
 });
