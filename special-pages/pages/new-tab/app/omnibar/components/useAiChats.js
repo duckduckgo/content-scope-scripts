@@ -109,7 +109,6 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
         chatsVisible: Boolean(initiallyVisible),
     });
 
-    // Subscribe to AI chats data pushed from the service
     useEffect(() => {
         if (!enableRecentAiChats) {
             dispatch({ type: 'setChats', payload: [] });
@@ -121,7 +120,6 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
         });
     }, [onAiChats, enableRecentAiChats]);
 
-    // Trigger a fetch whenever the query changes
     useEffect(() => {
         if (!enableRecentAiChats) return;
         getAiChats(query);
