@@ -8,8 +8,6 @@ jobs:
     auto_respond:
         if: github.actor != 'dependabot[bot]'
         runs-on: ubuntu-latest
-        env:
-            BASE_REF: ${{ github.event.pull_request.base.ref }}
 
         steps:
             - name: Checkout action definition
@@ -39,8 +37,8 @@ jobs:
                   pr-pre-build: |
                       git config --global user.email "dax@duck.com"
                       git config --global user.name "dax"
-                      git fetch origin "$BASE_REF"
-                      git rebase -X theirs "origin/$BASE_REF"
+                      git fetch origin "${{ github.event.pull_request.base.ref }}"
+                      git rebase -X theirs "origin/${{ github.event.pull_request.base.ref }}"
 
             - name: Find Previous Comment
               uses: peter-evans/find-comment@v4
