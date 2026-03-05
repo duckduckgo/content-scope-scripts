@@ -9,7 +9,6 @@ import {
     camelcase,
     iterateDataKey,
     isSupportedVersion,
-    withDefaults,
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
@@ -423,64 +422,5 @@ describe('iterateDataKey properties', () => {
             }),
             { numRuns: 50 },
         );
-    });
-});
-
-// --- withDefaults ---
-
-describe('withDefaults properties', () => {
-    it('returns defaults when config is undefined', () => {
-        fc.assert(
-            fc.property(fc.anything(), (defaults) => {
-                const result = withDefaults(defaults, undefined);
-                // Use Object.is to handle NaN correctly
-                expect(Object.is(result, defaults)).toBeTrue();
-            }),
-            { numRuns: 50 },
-        );
-    });
-
-    // Exclude __proto__ and constructor since computed property keys with these
-    // values have special semantics in JavaScript object literals.
-    const safeKey = () => fc.string().filter((s) => s !== '__proto__' && s !== 'constructor');
-
-    it('config values take precedence over defaults for flat objects', () => {
-        fc.assert(
-            fc.property(safeKey(), fc.string(), fc.string(), (key, defaultVal, configVal) => {
-                const defaults = { [key]: defaultVal };
-                const config = { [key]: configVal };
-                const result = withDefaults(defaults, config);
-                expect(result[key]).toBe(configVal);
-            }),
-            { numRuns: 50 },
-        );
-    });
-
-    it('defaults fill in missing config keys', () => {
-        fc.assert(
-            fc.property(safeKey(), fc.string(), (key, val) => {
-                const defaults = { [key]: val, extra: 'default' };
-                const config = { [key]: 'override' };
-                const result = withDefaults(defaults, config);
-                expect(result.extra).toBe('default');
-                expect(result[key]).toBe('override');
-            }),
-            { numRuns: 50 },
-        );
-    });
-
-    it('returns config directly when defaults is undefined', () => {
-        fc.assert(
-            fc.property(fc.anything(), (config) => {
-                const result = withDefaults(undefined, config);
-                expect(Object.is(result, config)).toBeTrue();
-            }),
-            { numRuns: 20 },
-        );
-    });
-
-    it('arrays in config replace arrays in defaults (no merge)', () => {
-        const result = withDefaults({ items: [1, 2, 3] }, { items: [4, 5] });
-        expect(result.items).toEqual([4, 5]);
     });
 });
