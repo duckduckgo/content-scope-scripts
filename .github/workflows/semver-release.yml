@@ -24,15 +24,15 @@ jobs:
               with:
                   script: |
                       const pr = context.payload.pull_request;
-                      const releaseLabels = ['major', 'minor'];
+                      const releaseLabels = ['semver-major', 'semver-minor'];
                       const label = pr.labels.find(l => releaseLabels.includes(l.name));
                       if (!label) {
-                          core.info(`PR #${pr.number} has no release label (major/minor) — skipping`);
+                          core.info(`PR #${pr.number} has no release label (semver-major/semver-minor) — skipping`);
                           return;
                       }
 
                       core.info(`PR #${pr.number} labeled "${label.name}"`);
-                      core.setOutput('severity', label.name);
+                      core.setOutput('severity', label.name.replace('semver-', ''));
                       core.setOutput('pr_number', pr.number.toString());
 
             - name: Trigger Release workflow
