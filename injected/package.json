@@ -34,7 +34,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1771345164456",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1772634901001",
     "@duckduckgo/tracker-surrogates": "github:duckduckgo/tracker-surrogates#0528e3226df15b1a3e319ad68ef76612a8f26623",
     "esbuild": "^0.27.3",
     "minimist": "^1.2.8",
