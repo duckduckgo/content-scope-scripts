@@ -1,0 +1,54 @@
+{
+    "readme": "Config with webEvents disabled on localhost via additionalCheck + conditionalChanges",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "webDetection": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": [],
+            "settings": {
+                "detectors": {
+                    "adwall": {
+                        "fire_event_text": {
+                            "match": {
+                                "text": {
+                                    "pattern": "ad ?block(er)? detected"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "intervalMs": [50]
+                                    }
+                                }
+                            },
+                            "actions": {
+                                "fireEvent": {
+                                    "type": "adwall"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "webEvents": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": [],
+            "settings": {
+                "additionalCheck": "enabled",
+                "conditionalChanges": [
+                    {
+                        "condition": { "domain": "localhost" },
+                        "patchSettings": [
+                            { "op": "replace", "path": "/additionalCheck", "value": "disabled" }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}
