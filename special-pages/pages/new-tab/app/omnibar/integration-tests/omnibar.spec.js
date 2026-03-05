@@ -1305,7 +1305,7 @@ test.describe('omnibar widget', () => {
 
             const mockChats = getMockAiChats().chats;
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
 
@@ -1321,7 +1321,7 @@ test.describe('omnibar widget', () => {
             await ntp.reducedMotion();
             const firstChat = getMockAiChats().chats[0];
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
 
@@ -1342,7 +1342,7 @@ test.describe('omnibar widget', () => {
             await ntp.reducedMotion();
             const mockChats = getMockAiChats().chats;
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
             await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
@@ -1364,7 +1364,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
 
@@ -1381,7 +1381,7 @@ test.describe('omnibar widget', () => {
 
             const mockChats = getMockAiChats().chats;
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
             await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
@@ -1404,7 +1404,7 @@ test.describe('omnibar widget', () => {
 
             const mockChats = getMockAiChats().chats;
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
             await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
@@ -1427,7 +1427,7 @@ test.describe('omnibar widget', () => {
 
             const firstChat = getMockAiChats().chats[0];
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
             await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
@@ -1451,7 +1451,7 @@ test.describe('omnibar widget', () => {
 
             const firstChat = getMockAiChats().chats[0];
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
             await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
@@ -1475,7 +1475,7 @@ test.describe('omnibar widget', () => {
 
             const firstChat = getMockAiChats().chats[0];
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
 
@@ -1500,7 +1500,7 @@ test.describe('omnibar widget', () => {
 
             const firstChat = getMockAiChats().chats[0];
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
 
@@ -1523,7 +1523,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
             await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
@@ -1544,7 +1544,7 @@ test.describe('omnibar widget', () => {
 
             const mockChats = getMockAiChats().chats;
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
 
@@ -1569,7 +1569,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
             await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
@@ -1586,7 +1586,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
 
@@ -1610,7 +1610,7 @@ test.describe('omnibar widget', () => {
             const searchChat = mockChats.find((chat) => chat.title === mockAiChatTitleWithSearchTerm);
             if (!searchChat) throw new Error('Expected to find a chat matching the search term');
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.mode': 'ai' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' } });
             await omnibar.ready();
             await omnibar.focusChatInput();
 
@@ -1636,7 +1636,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true } });
             await omnibar.ready();
 
             await expect(omnibar.aiChatsList()).not.toBeVisible();
