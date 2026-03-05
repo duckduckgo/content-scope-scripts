@@ -31,7 +31,12 @@
 
 .primary:hover:not(:disabled),
 .primary:active:not(:disabled) {
-    background: var(--ds-accent-button-secondary);
+    filter: brightness(0.85);
+}
+
+:global(.theme-dark) .primary:hover:not(:disabled),
+:global(.theme-dark) .primary:active:not(:disabled) {
+    filter: brightness(1.15);
 }
 
 /* --- Secondary (standard) --- */

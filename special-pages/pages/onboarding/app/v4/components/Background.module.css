@@ -6,10 +6,10 @@
     height: 100vh;
     overflow: hidden;
     background-color: var(--ds-surface-tertiary);
+}
 
-    @media (prefers-color-scheme: dark) {
-        background-color: var(--ds-accent-alt-primary);
-    }
+:global(.theme-dark) .background {
+    background-color: var(--ds-accent-alt-primary);
 }
 
 .illustration {
