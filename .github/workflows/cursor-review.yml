@@ -153,6 +153,9 @@ jobs:
                   steps.risk_check.outputs.is_low_risk != 'true') &&
                   steps.find_comment.outputs.comment-id == ''
               uses: actions/github-script@v8
+              env:
+                  CURSOR_CONCLUSION: ${{ steps.wait-for-cursor.outputs.conclusion }}
+                  RISK_LEVEL: ${{ steps.risk_check.outputs.risk_level }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
@@ -160,8 +163,8 @@ jobs:
                       const teams = loadRequiredTeams();
                       const teamList = formatTeamList(teams);
 
-                      const cursorPassed = '${{ steps.wait-for-cursor.outputs.conclusion }}' === 'success';
-                      const riskLevel = '${{ steps.risk_check.outputs.risk_level }}';
+                      const cursorPassed = process.env.CURSOR_CONCLUSION === 'success';
+                      const riskLevel = process.env.RISK_LEVEL;
 
                       const reason = cursorPassed
                           ? `Cursor assessed this PR as **${riskLevel} Risk** (only Low Risk is auto-approved).`
