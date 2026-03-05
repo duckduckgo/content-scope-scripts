@@ -41,6 +41,7 @@ You also receive the list of changed **source files** and the PR title/descripti
 3. **Feature config contracts** — LoadArgs shape, feature init/load signatures in content-scope-features.js
 4. **Generated types from JSON schemas** — message types consumed by special-pages and injected features
 5. **Entry points** — injected/entry-points/*.js files and their export shapes
+6. **Platform feature bundles** — \`platformSupport\` in features.js maps feature names to platform builds (apple, apple-isolated, android, windows, chrome-mv3, firefox, etc.). Native apps expect specific features in specific bundles and execution contexts (page world vs isolated world). Adding or removing a feature from a platform entry changes what the native app receives.
 
 ## Classification rules:
 
@@ -52,6 +53,9 @@ You also receive the list of changed **source files** and the PR title/descripti
 - Removed, renamed, or changed the shape of LoadArgs or feature init/load contracts
 - Removed or renamed JSON schema message types
 - Deleted or moved entry point files
+- Removed features from any \`platformSupport\` entry in features.js — native apps have corresponding code for each bundled feature and removing one is a breaking change
+- Moved features between execution contexts / content script worlds (e.g. \`apple\` → \`apple-isolated\`) — native apps may only load one world's script, so a feature moving worlds can disappear from the app's perspective
+- Changed init/load behaviour in content-scope-features.js that introduces new cross-world runtime requirements (e.g. message bridges, event forwarding) that native apps must support
 - Any change that would cause a downstream consumer's existing code to fail without modification
 
 **MINOR** (new feature / non-breaking enhancement) — assign when ANY of these apply:
