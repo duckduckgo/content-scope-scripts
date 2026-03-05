@@ -39,5 +39,13 @@
         "font-family-no-missing-generic-family-keyword": null,
         "font-family-name-quotes": null,
         "value-no-vendor-prefix": null
-    }
+    },
+    "overrides": [
+        {
+            "files": ["injected/src/**/*.css"],
+            "rules": {
+                "color-function-alias-notation": null
+            }
+        }
+    ]
 }

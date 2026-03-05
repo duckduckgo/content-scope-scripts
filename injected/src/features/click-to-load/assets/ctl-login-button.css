@@ -14,9 +14,9 @@
 /* Popover */
 .ddg-popover {
     background: #ffffff;
-    border: 1px solid rgb(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 16px;
-    box-shadow: 0px 2px 6px rgb(0, 0, 0, 0.12), 0px 8px 16px rgb(0, 0, 0, 0.08);
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 8px 16px rgba(0, 0, 0, 0.08);
     width: 360px;
     margin-top: 10px;
     z-index: 2147483647;
@@ -26,7 +26,7 @@
 .ddg-popover-arrow {
     display: inline-block;
     background: #ffffff;
-    border: solid rgb(0, 0, 0, 0.1);
+    border: solid rgba(0, 0, 0, 0.1);
     border-width: 0 1px 1px 0;
     padding: 5px;
     transform: rotate(-135deg);
@@ -52,7 +52,7 @@
     padding: 12px;
     max-height: 44px;
     border-bottom: 1px solid;
-    border-color: rgb(196, 196, 196, 0.3);
+    border-color: rgba(196, 196, 196, 0.3);
     margin: 0;
     margin-bottom: 4px;
 }
