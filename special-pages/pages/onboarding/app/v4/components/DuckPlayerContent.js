@@ -81,20 +81,16 @@ function DuckPlayerAdFree() {
  * The `ThenReverse` states handle mid-playback toggles: instead of cutting
  * the video short, the current clip finishes and then the reverse plays.
  *
- * @param {() => void} playWithVideo
- * @param {() => void} playWithoutVideo
  * @returns {(state: DPState, action: DPAction) => DPState}
  */
-function createVideoReducer(playWithVideo, playWithoutVideo) {
+function createVideoReducer() {
     return (state, action) => {
         switch (state) {
             case 'initial':
                 if (action === 'autoPlay') {
-                    playWithVideo();
                     return 'toWithDuckPlayer';
                 }
                 if (action === 'toggle') {
-                    playWithoutVideo();
                     return 'toWithoutDuckPlayer';
                 }
                 return state;
@@ -105,13 +101,11 @@ function createVideoReducer(playWithVideo, playWithoutVideo) {
             case 'toWithDuckPlayerThenReverse':
                 if (action === 'toggle') return 'toWithDuckPlayer';
                 if (action === 'videoEnded') {
-                    playWithoutVideo();
                     return 'toWithoutDuckPlayer';
                 }
                 return state;
             case 'withDuckPlayer':
                 if (action === 'toggle') {
-                    playWithoutVideo();
                     return 'toWithoutDuckPlayer';
                 }
                 return state;
@@ -122,13 +116,11 @@ function createVideoReducer(playWithVideo, playWithoutVideo) {
             case 'toWithoutDuckPlayerThenReverse':
                 if (action === 'toggle') return 'toWithoutDuckPlayer';
                 if (action === 'videoEnded') {
-                    playWithVideo();
                     return 'toWithDuckPlayer';
                 }
                 return state;
             case 'withoutDuckPlayer':
                 if (action === 'toggle') {
-                    playWithVideo();
                     return 'toWithDuckPlayer';
                 }
                 return state;
@@ -165,13 +157,16 @@ function DuckPlayerDefault() {
         video.play();
     };
 
-    const [state, dispatch] = useReducer(
-        createVideoReducer(
-            () => playVideo(withVideoRef.current),
-            () => playVideo(withoutVideoRef.current),
-        ),
-        'initial',
-    );
+    const [state, dispatch] = useReducer(createVideoReducer(), 'initial');
+
+    // Trigger video playback when state transitions to states that require it
+    useEffect(() => {
+        if (state === 'toWithDuckPlayer') {
+            playVideo(withVideoRef.current);
+        } else if (state === 'toWithoutDuckPlayer') {
+            playVideo(withoutVideoRef.current);
+        }
+    }, [state, isReducedMotion]);
 
     // Auto-play after bubble entry animation (400ms delay + 267ms duration = 667ms)
     useEffect(() => {
