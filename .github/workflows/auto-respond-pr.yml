@@ -48,6 +48,8 @@ jobs:
 
             - name: Create diff of file outputs
               run: |
+                  cp -r base/Sources/ContentScopeScripts/dist base/build/apple 2>/dev/null || true
+                  cp -r pr/Sources/ContentScopeScripts/dist pr/build/apple 2>/dev/null || true
                   node pr/.github/scripts/diff-directories.js base pr > diff.txt
 
             - name: Find Previous Comment
