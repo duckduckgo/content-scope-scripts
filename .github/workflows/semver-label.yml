@@ -15,16 +15,14 @@ jobs:
             - name: Checkout base branch
               uses: actions/checkout@v6
               with:
-                  ref: ${{ github.event.pull_request.base.ref }}
+                  ref: ${{ github.event.pull_request.base.sha }}
                   path: base
 
-            - name: Checkout PR branch
+            - name: Checkout PR merge result
               uses: actions/checkout@v6
               with:
-                  ref: ${{ github.event.pull_request.head.ref }}
-                  repository: ${{ github.event.pull_request.head.repo.full_name }}
+                  ref: refs/pull/${{ github.event.pull_request.number }}/merge
                   path: pr
-                  fetch-depth: 0
 
             - name: Use Node.js
               uses: actions/setup-node@v6
@@ -33,25 +31,24 @@ jobs:
 
             - name: Build base branch
               run: |
+                  echo "Base SHA: $(git -C base rev-parse HEAD)"
                   cd base
                   npm install
                   npm run build
 
             - name: Build PR branch
-              env:
-                  BASE_REF: ${{ github.event.pull_request.base.ref }}
               run: |
+                  echo "PR merge SHA: $(git -C pr rev-parse HEAD)"
                   cd pr
-                  git config --global user.email "dax@duck.com"
-                  git config --global user.name "dax"
-                  git fetch origin "$BASE_REF"
-                  git rebase -X theirs "origin/$BASE_REF"
                   npm install
                   npm run build
 
             - name: Create build diff
               run: |
+                  cp -r base/Sources/ContentScopeScripts/dist base/build/apple 2>/dev/null || true
+                  cp -r pr/Sources/ContentScopeScripts/dist pr/build/apple 2>/dev/null || true
                   node base/.github/scripts/diff-directories.js base pr > /tmp/build_diff.txt
+                  echo "Build diff size: $(wc -c < /tmp/build_diff.txt) bytes"
 
             - name: Get PR source files
               env:
