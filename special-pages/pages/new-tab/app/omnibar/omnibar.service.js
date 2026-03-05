@@ -1,5 +1,6 @@
 import { Service } from '../service.js';
 import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
+import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
 
 /**
  * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
@@ -26,6 +27,7 @@ export class OmnibarService {
         });
 
         this.suggestionsService = new OmnibarSuggestionsService(ntp);
+        this.aiChatsService = new OmnibarAiChatsService(ntp);
     }
 
     name() {
@@ -143,12 +145,21 @@ export class OmnibarService {
     }
 
     /**
-     * Get recent AI chats, optionally filtered by query.
+     * Trigger a fetch for recent AI chats, optionally filtered by query.
+     * Results arrive via {@link onAiChats}.
      * @param {string} query
-     * @returns {Promise<AiChatsData>}
      */
     getAiChats(query) {
-        return this.ntp.messaging.request('omnibar_getAiChats', { query });
+        this.aiChatsService.triggerFetch(query);
+    }
+
+    /**
+     * Subscribe to AI chats updates. Returns a function to unsubscribe.
+     * @param {(data: AiChatsData) => void} cb
+     * @returns {() => void}
+     */
+    onAiChats(cb) {
+        return this.aiChatsService.onData(cb);
     }
 
     /**

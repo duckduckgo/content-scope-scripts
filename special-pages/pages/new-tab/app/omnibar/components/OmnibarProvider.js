@@ -52,8 +52,12 @@ export const OmnibarContext = createContext({
     submitChat: () => {
         throw new Error('must implement');
     },
-    /** @type {(query: string) => Promise<AiChatsData>} */
+    /** @type {(query: string) => void} */
     getAiChats: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(cb: (data: AiChatsData) => void) => (() => void)} */
+    onAiChats: () => {
         throw new Error('must implement');
     },
     /** @type {(params: OpenAIChatAction) => void} */
@@ -154,12 +158,19 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {(query: string) => Promise<AiChatsData>} */
+    /** @type {(query: string) => void} */
     const getAiChats = useCallback(
         (query) => {
-            if (!service.current) throw new Error('Service not available');
+            service.current?.getAiChats(query);
+        },
+        [service],
+    );
 
-            return service.current.getAiChats(query);
+    /** @type {(cb: (data: AiChatsData) => void) => (() => void)} */
+    const onAiChats = useCallback(
+        (cb) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.onAiChats(cb);
         },
         [service],
     );
@@ -185,6 +196,7 @@ export function OmnibarProvider(props) {
                 submitSearch,
                 submitChat,
                 getAiChats,
+                onAiChats,
                 openAiChat,
             }}
         >

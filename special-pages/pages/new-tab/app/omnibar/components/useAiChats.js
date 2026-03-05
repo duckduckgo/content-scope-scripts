@@ -1,11 +1,9 @@
-import { useContext, useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useReducer } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
  */
-
-const DEBOUNCE_MS = 150;
 
 /**
  * @param {string} chatId
@@ -16,113 +14,161 @@ export function getAiChatElementId(chatId) {
 }
 
 /**
+ * @typedef {{
+ *   chats: AiChat[],
+ *   selectedIndex: number | null,
+ *   chatsVisible: boolean
+ * }} State
+ */
+
+/**
+ * @typedef {(
+ *   | { type: 'setChats', payload: AiChat[] }
+ *   | { type: 'hideChats' }
+ *   | { type: 'showChats' }
+ *   | { type: 'setSelectedChat', payload: AiChat }
+ *   | { type: 'clearSelectedChat' }
+ *   | { type: 'previousChat' }
+ *   | { type: 'nextChat' }
+ * )} Action
+ */
+
+/**
+ * @type {import('preact/hooks').Reducer<State, Action>}
+ */
+function reducer(state, action) {
+    switch (action.type) {
+        case 'setChats':
+            return {
+                ...state,
+                chats: action.payload,
+                selectedIndex: null,
+            };
+        case 'hideChats':
+            return {
+                ...state,
+                chatsVisible: false,
+            };
+        case 'showChats':
+            return {
+                ...state,
+                chatsVisible: true,
+            };
+        case 'setSelectedChat': {
+            const nextIndex = state.chats.indexOf(action.payload);
+            if (nextIndex === -1) return { ...state, selectedIndex: null };
+            return {
+                ...state,
+                selectedIndex: nextIndex,
+            };
+        }
+        case 'clearSelectedChat':
+            return {
+                ...state,
+                selectedIndex: null,
+            };
+        case 'previousChat': {
+            let nextIndex;
+            if (state.selectedIndex === null) {
+                nextIndex = state.chats.length - 1;
+            } else if (state.selectedIndex === 0) {
+                nextIndex = null;
+            } else {
+                nextIndex = state.selectedIndex - 1;
+            }
+            return {
+                ...state,
+                selectedIndex: nextIndex,
+            };
+        }
+        case 'nextChat': {
+            let nextIndex;
+            if (state.selectedIndex === null) {
+                nextIndex = 0;
+            } else if (state.selectedIndex === state.chats.length - 1) {
+                nextIndex = null;
+            } else {
+                nextIndex = state.selectedIndex + 1;
+            }
+            return {
+                ...state,
+                selectedIndex: nextIndex,
+            };
+        }
+        default:
+            throw new Error('Unknown action type');
+    }
+}
+
+/** @type {AiChat[]} */
+const EMPTY_ARRAY = [];
+
+/**
  * @param {object} params
  * @param {string} params.query - text to match against chat titles (case-insensitive)
  * @param {boolean} [params.initiallyVisible] - initial visibility of the chats list
  * @param {boolean} [params.enableRecentAiChats]
  */
 export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
-    const { getAiChats } = useContext(OmnibarContext);
-    const [chats, setChats] = useState(/** @type {AiChat[]} */ ([]));
-    const [selectedIndex, setSelectedIndex] = useState(/** @type {number | null} */ (null));
-    const [chatsVisible, setChatsVisible] = useState(Boolean(initiallyVisible));
-    const [prevQuery, setPrevQuery] = useState(query);
+    const { getAiChats, onAiChats } = useContext(OmnibarContext);
 
-    if (query !== prevQuery) {
-        setPrevQuery(query);
-        setSelectedIndex(null);
-    }
+    const [state, dispatch] = useReducer(reducer, {
+        chats: [],
+        selectedIndex: null,
+        chatsVisible: Boolean(initiallyVisible),
+    });
 
+    // Subscribe to AI chats data pushed from the service
     useEffect(() => {
         if (!enableRecentAiChats) {
-            setChats([]);
+            dispatch({ type: 'setChats', payload: [] });
             return;
         }
 
-        let cancelled = false;
+        return onAiChats((data) => {
+            dispatch({ type: 'setChats', payload: data.chats });
+        });
+    }, [onAiChats, enableRecentAiChats]);
 
-        const isInitial = !query;
-        const delay = isInitial ? 0 : DEBOUNCE_MS;
+    // Trigger a fetch whenever the query changes
+    useEffect(() => {
+        if (!enableRecentAiChats) return;
+        getAiChats(query);
+    }, [getAiChats, query, enableRecentAiChats]);
 
-        const timerId = setTimeout(async () => {
-            try {
-                const data = await getAiChats(query);
-                if (!cancelled) {
-                    setChats(data.chats);
-                }
-            } catch (e) {
-                console.error('Failed to fetch AI chats:', e);
-            }
-        }, delay);
-
-        return () => {
-            cancelled = true;
-            clearTimeout(timerId);
-        };
-    }, [enableRecentAiChats, getAiChats, query]);
-
-    const selectedChat = selectedIndex !== null && selectedIndex < chats.length ? chats[selectedIndex] : null;
+    const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
 
     const selectPreviousChat = () => {
-        if (chats.length === 0) {
-            return false;
-        }
-
-        setSelectedIndex((prev) => {
-            if (prev === null) {
-                return chats.length - 1;
-            }
-
-            if (prev === 0) {
-                return null;
-            }
-
-            return prev - 1;
-        });
-
+        if (state.chats.length === 0) return false;
+        dispatch({ type: 'previousChat' });
         return true;
     };
 
     const selectNextChat = () => {
-        if (chats.length === 0) {
-            return false;
-        }
-
-        setSelectedIndex((prev) => {
-            if (prev === null) {
-                return 0;
-            }
-
-            if (prev === chats.length - 1) {
-                return null;
-            }
-
-            return prev + 1;
-        });
-
+        if (state.chats.length === 0) return false;
+        dispatch({ type: 'nextChat' });
         return true;
     };
 
     /** @type {(chat: AiChat) => void} */
     const setSelectedChat = (chat) => {
-        const index = chats.indexOf(chat);
-        setSelectedIndex(index === -1 ? null : index);
+        dispatch({ type: 'setSelectedChat', payload: chat });
     };
 
     const clearSelectedChat = () => {
-        setSelectedIndex(null);
+        dispatch({ type: 'clearSelectedChat' });
     };
 
     const hideChats = () => {
-        setChatsVisible(false);
+        dispatch({ type: 'hideChats' });
     };
 
     const showChats = () => {
-        setChatsVisible(true);
+        dispatch({ type: 'showChats' });
     };
 
     return {
-        chats: chatsVisible ? chats : [],
+        chats: state.chatsVisible ? state.chats : EMPTY_ARRAY,
         selectedChat,
         selectPreviousChat,
         selectNextChat,
