@@ -5,7 +5,7 @@
   "required": ["query"],
   "properties": {
     "query": {
-      "description": "Search query to filter chats by title. Empty string returns recent chats (native applies 7-day filter).",
+      "description": "Search query to filter chats.",
       "type": "string"
     }
   }

@@ -1009,13 +1009,13 @@ export interface OmnibarGetAiChatsRequest {
 }
 export interface GetAIChatsRequest {
   /**
-   * Search query to filter chats by title. Empty string returns recent chats (native applies 7-day filter).
+   * Search query to filter chats.
    */
   query: string;
 }
 export interface AiChatsData {
   /**
-   * Combined list of chats (pinned first, then unpinned by recency)
+   * List of AI chats
    */
   chats: AiChat[];
 }

@@ -6,7 +6,7 @@
   "properties": {
     "chats": {
       "type": "array",
-      "description": "Combined list of chats (pinned first, then unpinned by recency)",
+      "description": "List of AI chats",
       "items": {
         "$ref": "ai-chat.json"
       }
