@@ -12,6 +12,13 @@ jobs:
     semver_label:
         runs-on: ubuntu-latest
         steps:
+            - name: Checkout action definition
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.sha }}
+                  sparse-checkout: .github/actions
+                  sparse-checkout-cone-mode: false
+
             - name: Checkout base branch
               uses: actions/checkout@v6
               with:

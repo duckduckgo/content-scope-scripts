@@ -8,8 +8,16 @@ jobs:
     auto_respond:
         if: github.actor != 'dependabot[bot]'
         runs-on: ubuntu-latest
+        env:
+            BASE_REF: ${{ github.event.pull_request.base.ref }}
 
         steps:
+            - name: Checkout action definition
+              uses: actions/checkout@v6
+              with:
+                  sparse-checkout: .github/actions
+                  sparse-checkout-cone-mode: false
+
             - name: Checkout base branch
               uses: actions/checkout@v6
               with:
@@ -27,8 +35,6 @@ jobs:
 
             - name: Build and diff
               uses: ./.github/actions/build-and-diff
-              env:
-                  BASE_REF: ${{ github.event.pull_request.base.ref }}
               with:
                   pr-pre-build: |
                       git config --global user.email "dax@duck.com"
