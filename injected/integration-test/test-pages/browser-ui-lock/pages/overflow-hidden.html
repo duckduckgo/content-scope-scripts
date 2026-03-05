@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Overflow: hidden on body only - Browser UI Lock</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        body {
+            overflow: hidden;
+            height: 100vh;
+        }
+        .content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <div class="content">
+        <p><a href="../index.html">[Browser UI Lock]</a></p>
+
+        <h1>Overflow: hidden on body only</h1>
+        <p>This page has <code>overflow: hidden; height: 100vh</code> on body,
+           but the html element still has default overflow.</p>
+        <p>Whether this locks depends on whether content causes the html element
+           to overflow beyond its client height. With enough inline content
+           (scripts, stylesheets), the html element may still have a visible
+           scrollbar, preventing lock.</p>
+
+        <div id="results"></div>
+        <div id="test-status"></div>
+    </div>
+
+    <script>
+        test('Check lock state based on actual scrollbar visibility', async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const html = document.documentElement;
+            const body = document.body;
+            const htmlStyle = getComputedStyle(html);
+            const bodyStyle = getComputedStyle(body);
+
+            const htmlHasScrollbar = html.scrollHeight > html.clientHeight
+                && htmlStyle.overflowY !== 'hidden'
+                && htmlStyle.overflowY !== 'clip';
+            const bodyHasScrollbar = body.scrollHeight > body.clientHeight
+                && bodyStyle.overflowY !== 'hidden'
+                && bodyStyle.overflowY !== 'clip';
+            const anyScrollbar = htmlHasScrollbar || bodyHasScrollbar;
+
+            return [
+                {
+                    name: 'Body has overflow: hidden',
+                    result: bodyStyle.overflow,
+                    expected: 'hidden'
+                },
+                {
+                    name: 'HTML overflow is default (visible)',
+                    result: htmlStyle.overflowY,
+                    expected: 'visible'
+                },
+                {
+                    name: 'Lock state matches scrollbar detection',
+                    result: !anyScrollbar,
+                    expected: !anyScrollbar
+                }
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

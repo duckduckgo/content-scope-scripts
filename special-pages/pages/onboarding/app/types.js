@@ -32,7 +32,7 @@ import { useContext } from 'preact/hooks';
  * @typedef {{ kind: 'settings'; id: 'systemSettings'; rows: SystemValueId[]; }} SystemSettingsStep
  * @typedef {{ kind: 'settings'; id: 'customize'; rows: SystemValueId[]; }} CustomizeStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
- * @typedef {{ kind: 'info'; id: 'duckPlayerSingle' }} DuckPlayerSingleStep
+ * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
  */
 
@@ -49,6 +49,9 @@ export const EVERY_PAGE_ID = [
 
 /** @type {Step['id'][]} */
 export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
+
+/** @type {Step['id'][]} */
+export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host

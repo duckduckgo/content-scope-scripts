@@ -1,4 +1,4 @@
-import { shimInterface, shimProperty } from '../src/wrapper-utils.js';
+import { shimInterface, shimProperty, wrapProperty, wrapMethod, wrapFunction, wrapToString } from '../src/wrapper-utils.js';
 
 describe('Shim API', () => {
     // MediaSession is just an example, to make it close to reality
@@ -264,5 +264,127 @@ describe('Shim API', () => {
 
             expect(getter.toString()).toBe('function get mediaSession() { [native code] }');
         });
+    });
+});
+
+describe('wrapProperty', () => {
+    it('returns undefined for null object', () => {
+        expect(wrapProperty(null, 'test', {}, Object.defineProperty)).toBeUndefined();
+    });
+
+    it('returns undefined when property does not exist', () => {
+        expect(wrapProperty({}, 'nonExistent', { get: () => 1 }, Object.defineProperty)).toBeUndefined();
+    });
+
+    it('wraps a getter property', () => {
+        const obj = {};
+        Object.defineProperty(obj, 'prop', {
+            get: () => 'original',
+            configurable: true,
+            enumerable: true,
+        });
+        const origDesc = wrapProperty(obj, 'prop', { get: () => 'wrapped' }, Object.defineProperty);
+        expect(origDesc).toBeDefined();
+        expect(obj.prop).toBe('wrapped');
+    });
+
+    it('wraps a value property', () => {
+        const obj = { prop: 'original' };
+        const origDesc = wrapProperty(obj, 'prop', { value: 'wrapped' }, Object.defineProperty);
+        expect(origDesc).toBeDefined();
+        expect(obj.prop).toBe('wrapped');
+    });
+
+    it('throws when descriptor type mismatches', () => {
+        const obj = {};
+        Object.defineProperty(obj, 'prop', {
+            get: () => 'original',
+            configurable: true,
+            enumerable: true,
+        });
+        expect(() => wrapProperty(obj, 'prop', { value: 'mismatch' }, Object.defineProperty)).toThrowError(/Property descriptor/);
+    });
+});
+
+describe('wrapMethod', () => {
+    it('returns undefined for null object', () => {
+        expect(wrapMethod(null, 'test', () => {}, Object.defineProperty)).toBeUndefined();
+    });
+
+    it('returns undefined when method does not exist', () => {
+        expect(wrapMethod({}, 'nonExistent', () => {}, Object.defineProperty)).toBeUndefined();
+    });
+
+    it('wraps a method and calls the wrapper', () => {
+        const obj = {
+            greet(name) {
+                return `Hello, ${name}`;
+            },
+        };
+        const origDesc = wrapMethod(
+            obj,
+            'greet',
+            (origFn, ...args) => {
+                return origFn.call(obj, ...args) + '!';
+            },
+            Object.defineProperty,
+        );
+        expect(origDesc).toBeDefined();
+        expect(obj.greet('World')).toBe('Hello, World!');
+    });
+
+    it('throws when property is not a function', () => {
+        const obj = { notAMethod: 42 };
+        expect(() => wrapMethod(obj, 'notAMethod', () => {}, Object.defineProperty)).toThrowError(/does not look like a method/);
+    });
+});
+
+describe('wrapFunction', () => {
+    it('creates a proxy that calls the wrapped function', () => {
+        const real = function add(/** @type {number} */ a, /** @type {number} */ b) {
+            return a + b;
+        };
+        const wrapped = wrapFunction(function (/** @type {number} */ a, /** @type {number} */ b) {
+            return real(a, b) * 2;
+        }, real);
+        // @ts-expect-error - proxy is callable via apply trap
+        expect(wrapped(2, 3)).toBe(10); // (2+3)*2
+    });
+
+    it('preserves toString of the real target', () => {
+        function original() {}
+        /** @type {any} */
+        const wrapped = wrapFunction(() => {}, original);
+        expect(wrapped.toString()).toBe(original.toString());
+    });
+
+    it('returns non-toString properties from the real target', () => {
+        /** @type {any} */
+        const original = function () {};
+        original.customProp = 'test';
+        /** @type {any} */
+        const wrapped = wrapFunction(() => {}, original);
+        expect(wrapped.customProp).toBe('test');
+    });
+});
+
+describe('wrapToString', () => {
+    it('returns non-functions unchanged', () => {
+        expect(wrapToString(42, () => {})).toBe(42);
+        expect(wrapToString('str', () => {})).toBe('str');
+    });
+
+    it('wraps a function to fake toString', () => {
+        function original() {}
+        const wrapper = () => {};
+        const wrapped = wrapToString(wrapper, original);
+        expect(wrapped.toString()).toBe(original.toString());
+    });
+
+    it('supports custom mockValue', () => {
+        function original() {}
+        const wrapper = () => {};
+        const wrapped = wrapToString(wrapper, original, 'custom toString');
+        expect(wrapped.toString()).toBe('custom toString');
     });
 });

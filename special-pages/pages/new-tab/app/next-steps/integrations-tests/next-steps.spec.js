@@ -41,7 +41,7 @@ test.describe('newtab NextSteps cards', () => {
         await expect(page.getByText('Bring Your Stuff')).toBeVisible();
         await expect(page.getByText('Set as Default Browser')).toBeVisible();
         // does not render the 4th one
-        await expect(page.getByRole('button', { name: 'Try DuckPlayer' })).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Try Duck Player' })).not.toBeVisible();
     });
 
     test('renders multiple, shows all when expanded', async ({ page }, workerInfo) => {
@@ -49,12 +49,12 @@ test.describe('newtab NextSteps cards', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ nextSteps: ['bringStuff', 'defaultApp', 'blockCookies', 'duckplayer'] });
         // while collapsed, 4th item action button unavailable
-        await expect(page.getByRole('button', { name: 'Try DuckPlayer' })).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Try Duck Player' })).not.toBeVisible();
 
         await page.locator('[data-entry-point="nextSteps"]').getByRole('button', { name: 'Show More' }).click();
 
         await expect(page.locator('h3').filter({ hasText: 'Block Cookie Pop-ups' })).toBeVisible();
-        await page.getByRole('button', { name: 'Try DuckPlayer' }).click();
+        await page.getByRole('button', { name: 'Try Duck Player' }).click();
         await ntp.mocks.waitForCallCount({ method: 'nextSteps_action', count: 1 });
     });
 

@@ -5,7 +5,8 @@ import { load, init, update } from '../src/content-scope-features.js';
 import { computeLimitedSiteObject } from '../src/utils.js';
 import { getSharedMessagingTransport } from '../src/sendmessage-transport.js';
 
-const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
+const randomValue = /** @type {number} */ (crypto.getRandomValues(new Uint32Array(1))[0]);
+const secret = (randomValue / 2 ** 32).toString().replace('0.', '');
 
 load({
     platform: {

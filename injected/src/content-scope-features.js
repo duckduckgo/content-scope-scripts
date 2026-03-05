@@ -4,7 +4,9 @@ import { PerformanceMonitor } from './performance';
 import platformFeatures from 'ddg:platformFeatures';
 import { registerForURLChanges } from './url-change';
 
+/** @type {LoadArgs | null} */
 let initArgs = null;
+/** @type {LoadArgs[]} */
 const updates = [];
 /**
  * @type {Partial<import('./features.js').FeatureMap>}
@@ -27,11 +29,15 @@ const isHTMLDocument =
  * @typedef {object} LoadArgs
  * @property {import('./content-feature').Site} site
  * @property {import('./utils.js').Platform} platform
- * @property {import('./utils.js').RemoteConfig} bundledConfig
+ * @property {import('./utils.js').RemoteConfig} [bundledConfig]
  * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
  * @property {string} [messageSecret] - optional, used in the messageBridge creation
  * @property {string} messagingContextName - the context name for messaging (e.g. 'contentScopeScripts')
  * @property {Array<{feature: string, cohort: string, subfeature: string}>} [currentCohorts]
+ * @property {boolean} [debug]
+ * @property {Record<string, unknown>} [featureSettings]
+ * @property {import('./content-feature.js').AssetConfig} [assets]
+ * @property {Record<string, string[]>} [stringExemptionLists]
  */
 
 /**
@@ -48,7 +54,7 @@ export function load(args) {
         injectName: import.meta.injectName,
     };
 
-    const bundledFeatureNames = typeof importConfig.injectName === 'string' ? platformSupport[importConfig.injectName] : [];
+    const bundledFeatureNames = typeof importConfig.injectName === 'string' ? (platformSupport[importConfig.injectName] ?? []) : [];
 
     // prettier-ignore
     const featuresToLoad = isGloballyDisabled(args)
@@ -61,6 +67,12 @@ export function load(args) {
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
+            if (!ContentFeature) {
+                if (args.debug) {
+                    console.error('Missing feature constructor for', featureName);
+                }
+                continue;
+            }
             const featureInstance = new ContentFeature(featureName, importConfig, _features, args);
             // Short term fix to disable the feature whilst we roll out Android adsjs
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
@@ -88,13 +100,19 @@ async function getFeatures() {
     return _features;
 }
 
+/**
+ * @param {any} args
+ */
 export async function init(args) {
     const mark = performanceMonitor.mark('init');
+    /** @type {LoadArgs} */
     initArgs = args;
     if (!isHTMLDocument) {
         return;
     }
-    registerMessageSecret(args.messageSecret);
+    if (args.messageSecret) {
+        registerMessageSecret(args.messageSecret);
+    }
     initStringExemptionLists(args);
     const features = await getFeatures();
     // use allSettled to ensure the main thread isn't blocked if one of the features fails to init
@@ -137,6 +155,9 @@ export async function init(args) {
     }
 }
 
+/**
+ * @param {LoadArgs} args
+ */
 export function update(args) {
     if (!isHTMLDocument) {
         return;
@@ -176,14 +197,22 @@ export async function updateFeatureArgs(updatedArgs) {
     });
 }
 
+/**
+ * @param {LoadArgs} args
+ * @param {string} featureName
+ * @returns {boolean}
+ */
 function alwaysInitExtensionFeatures(args, featureName) {
     return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
 }
 
+/**
+ * @param {LoadArgs | undefined} args
+ */
 async function updateFeaturesInner(args) {
     const features = await getFeatures();
     Object.entries(features).forEach(([featureName, featureInstance]) => {
-        if (!isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
+        if (initArgs && !isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
             featureInstance.update(args);
         }
     });

@@ -1,4 +1,6 @@
-import { readFileSync } from 'fs';
+/* global process */
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
 import {
     mockAndroidMessaging,
     mockResponses,
@@ -14,6 +16,10 @@ import { perPlatform } from '../type-helpers.mjs';
 import { windowsGlobalPolyfills } from '../shared.mjs';
 import { processConfig } from '../../src/utils.js';
 import { gotoAndWait } from '../helpers/harness.js';
+
+const COLLECT_COVERAGE = process.env.COLLECT_COVERAGE === '1';
+const COVERAGE_DIR = join(import.meta.dirname, '..', '..', 'coverage', 'integration');
+let coverageFileCounter = 0;
 
 /**
  * @typedef {import('../../src/utils.js').Platform} Platform
@@ -49,6 +55,8 @@ import { gotoAndWait } from '../helpers/harness.js';
 export class ResultsCollector {
     #userPreferences = {};
     #mockResponses = {};
+    #coverageStarted = false;
+
     /**
      * @param {import('@playwright/test').Page} page
      * @param {import('../type-helpers.mjs').Build} build
@@ -75,8 +83,42 @@ export class ResultsCollector {
         if (this.platform.name === 'extension') {
             return await this._loadExtension(htmlPath, configPath, platform);
         }
+
+        // Start V8 coverage collection before the page loads (non-extension only)
+        if (COLLECT_COVERAGE && typeof this.page.coverage?.startJSCoverage === 'function') {
+            await this.page.coverage.startJSCoverage({ resetOnNavigation: false });
+            this.#coverageStarted = true;
+        }
+
         await this.setup({ config: configPath, platform });
         await this.page.goto(htmlPath);
+    }
+
+    /**
+     * Flush collected V8 coverage data to disk and stop coverage collection.
+     * Must be called explicitly after all page interactions are complete.
+     * Only active when COLLECT_COVERAGE=1 and coverage was started via load().
+     *
+     * Typical usage in a spec:
+     * ```js
+     * const collector = ResultsCollector.create(page, testInfo.project.use);
+     * await collector.load(HTML, CONFIG);
+     * const results = await collector.results();
+     * // ... assertions ...
+     * await collector.flushCoverage(); // call once at the end
+     * ```
+     */
+    async flushCoverage() {
+        if (!this.#coverageStarted || typeof this.page.coverage?.stopJSCoverage !== 'function') {
+            return;
+        }
+        this.#coverageStarted = false;
+        const coverage = await this.page.coverage.stopJSCoverage();
+        if (coverage.length > 0) {
+            mkdirSync(COVERAGE_DIR, { recursive: true });
+            const filename = `coverage-${process.pid}-${Date.now()}-${coverageFileCounter++}.json`;
+            writeFileSync(join(COVERAGE_DIR, filename), JSON.stringify(coverage));
+        }
     }
 
     /**
@@ -121,6 +163,7 @@ export class ResultsCollector {
                 ...platform,
             },
             sessionKey: 'test',
+            ...this.#userPreferences,
         };
 
         const processedConfig = processConfig(
@@ -230,7 +273,13 @@ export class ResultsCollector {
         if (beforeAwait) {
             await beforeAwait();
         }
-        return await resultsPromise;
+        const results = await resultsPromise;
+
+        // Flush V8 coverage data to disk after collecting results.
+        // Only active when COLLECT_COVERAGE=1 (nightly coverage workflow).
+        await this.flushCoverage();
+
+        return results;
     }
 
     /**

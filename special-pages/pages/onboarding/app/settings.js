@@ -1,4 +1,4 @@
-import { EVERY_PAGE_ID, ORDER_V3 } from './types';
+import { EVERY_PAGE_ID, ORDER_V3, ORDER_V4 } from './types';
 import { stepDefinitions as defaultStepDefinitions } from './v3/data/data';
 
 /**
@@ -9,7 +9,7 @@ export class Settings {
      * @param {object} params
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
-     * @param {'v3'} [params.orderName] - determine the order of screens
+     * @param {'v3'|'v4'} [params.orderName] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./types.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
@@ -74,6 +74,13 @@ export class Settings {
                 ...this,
                 orderName: named,
                 order: ORDER_V3,
+            });
+        }
+        if (named === 'v4') {
+            return new Settings({
+                ...this,
+                orderName: named,
+                order: ORDER_V4,
             });
         }
         console.warn('ignoring named order:', named);
