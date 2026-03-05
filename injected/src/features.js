@@ -56,15 +56,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: [
-        'webCompat',
-        'duckPlayerNative',
-        ...baseFeatures,
-        'webInterferenceDetection',
-        'pageContext',
-        'print',
-        'trackerProtection',
-    ],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'pageContext', 'print', 'trackerProtection'],
     'apple-isolated': [
         'contextMenu',
         'duckPlayer',
