@@ -25,32 +25,16 @@ jobs:
                   path: pr
                   fetch-depth: 0
 
-            - name: Run build script on base branch
-              run: |
-                  cd base
-                  npm install
-                  npm run build
-                  cd ..
-
-            - name: Run build script on PR branch
+            - name: Build and diff
+              uses: ./.github/actions/build-and-diff
               env:
                   BASE_REF: ${{ github.event.pull_request.base.ref }}
-              run: |
-                  cd pr
-                  git config --global user.email "dax@duck.com"
-                  git config --global user.name "dax"
-                  echo "$BASE_REF"
-                  git fetch origin "$BASE_REF"
-                  git rebase -X theirs "origin/$BASE_REF"
-                  npm install
-                  npm run build
-                  cd ..
-
-            - name: Create diff of file outputs
-              run: |
-                  cp -r base/Sources/ContentScopeScripts/dist base/build/apple 2>/dev/null || true
-                  cp -r pr/Sources/ContentScopeScripts/dist pr/build/apple 2>/dev/null || true
-                  node pr/.github/scripts/diff-directories.js base pr > diff.txt
+              with:
+                  pr-pre-build: |
+                      git config --global user.email "dax@duck.com"
+                      git config --global user.name "dax"
+                      git fetch origin "$BASE_REF"
+                      git rebase -X theirs "origin/$BASE_REF"
 
             - name: Find Previous Comment
               uses: peter-evans/find-comment@v4
