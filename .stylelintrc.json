@@ -1,11 +1,7 @@
 {
     "extends": ["stylelint-config-standard"],
-    "plugins": ["stylelint-csstree-validator"],
     "ignoreFiles": ["build/**/*.css", "Sources/**/*.css", "docs/**/*.css", "special-pages/pages/**/*/dist/*.css"],
     "rules": {
-        "csstree/validator": {
-            "ignoreProperties": ["text-wrap", "view-transition-name", "composes", "text-box-trim", "text-box-edge"]
-        },
         "property-no-unknown": [
             true,
             {
