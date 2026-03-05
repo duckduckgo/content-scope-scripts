@@ -1,7 +1,8 @@
 name: Semver Auto-Release
 
 on:
-    push:
+    pull_request:
+        types: [closed]
         branches:
             - main
 
@@ -11,42 +12,38 @@ permissions:
 
 jobs:
     trigger_release:
+        if: >-
+            github.event.pull_request.merged == true &&
+            contains(fromJSON('["release-major","release-minor","release-patch"]'),
+            github.event.pull_request.head.ref)
         runs-on: ubuntu-latest
-
         steps:
-            - name: Find merged PR and check label
+            - name: Check for semver label
               id: check
               uses: actions/github-script@v8
               with:
                   script: |
-                      const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          commit_sha: context.sha
-                      });
-                      const merged = prs.find(pr => pr.merged_at && pr.base.ref === 'main');
-                      if (!merged) {
-                          core.info('No merged PR found for this commit — skipping');
-                          return;
-                      }
-
-                      const semverLabels = ['major', 'minor', 'patch'];
-                      const label = merged.labels.find(l => semverLabels.includes(l.name));
+                      const pr = context.payload.pull_request;
+                      const releaseLabels = ['semver-major', 'semver-minor'];
+                      const label = pr.labels.find(l => releaseLabels.includes(l.name));
                       if (!label) {
-                          core.info(`PR #${merged.number} has no semver label — skipping`);
+                          core.info(`PR #${pr.number} has no release label (semver-major/semver-minor) — skipping`);
                           return;
                       }
 
-                      core.info(`PR #${merged.number} labeled "${label.name}"`);
-                      core.setOutput('severity', label.name);
-                      core.setOutput('pr_number', merged.number.toString());
+                      core.info(`PR #${pr.number} labeled "${label.name}"`);
+                      core.setOutput('severity', label.name.replace('semver-', ''));
+                      core.setOutput('pr_number', pr.number.toString());
 
             - name: Trigger Release workflow
-              if: steps.check.outputs.severity == 'major' || steps.check.outputs.severity == 'minor'
+              if: steps.check.outputs.severity
               uses: actions/github-script@v8
+              env:
+                  SEVERITY: ${{ steps.check.outputs.severity }}
+                  PR_NUMBER: ${{ steps.check.outputs.pr_number }}
               with:
                   script: |
-                      const severity = '${{ steps.check.outputs.severity }}';
+                      const severity = process.env.SEVERITY;
                       await github.rest.actions.createWorkflowDispatch({
                           owner: context.repo.owner,
                           repo: context.repo.repo,
@@ -54,4 +51,4 @@ jobs:
                           ref: 'main',
                           inputs: { version_bump: severity }
                       });
-                      console.log(`Release workflow dispatched for ${severity} bump (PR #${{ steps.check.outputs.pr_number }})`);
+                      console.log(`Release workflow dispatched for ${severity} bump (PR #${process.env.PR_NUMBER})`);
