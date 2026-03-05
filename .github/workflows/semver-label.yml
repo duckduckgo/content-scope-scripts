@@ -11,18 +11,50 @@ permissions:
 jobs:
     semver_label:
         runs-on: ubuntu-latest
-
         steps:
-            - name: Checkout
+            - name: Checkout base branch
               uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.sha }}
+                  path: base
 
-            - name: Get PR diff and files
-              id: diff
+            - name: Checkout PR merge result
+              uses: actions/checkout@v6
+              with:
+                  ref: refs/pull/${{ github.event.pull_request.number }}/merge
+                  path: pr
+
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: 'base/.nvmrc'
+
+            - name: Build base branch
+              run: |
+                  echo "Base SHA: $(git -C base rev-parse HEAD)"
+                  cd base
+                  npm install
+                  npm run build
+
+            - name: Build PR branch
+              run: |
+                  echo "PR merge SHA: $(git -C pr rev-parse HEAD)"
+                  cd pr
+                  npm install
+                  npm run build
+
+            - name: Create build diff
+              run: |
+                  cp -r base/Sources/ContentScopeScripts/dist base/build/apple 2>/dev/null || true
+                  cp -r pr/Sources/ContentScopeScripts/dist pr/build/apple 2>/dev/null || true
+                  node base/.github/scripts/diff-directories.js base pr > /tmp/build_diff.txt
+                  echo "Build diff size: $(wc -c < /tmp/build_diff.txt) bytes"
+
+            - name: Get PR source files
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
               run: |
-                  gh pr diff "$PR_NUMBER" > /tmp/pr_diff.txt 2>/dev/null || true
                   gh pr view "$PR_NUMBER" --json files --jq '.files[].path' > /tmp/pr_files.txt 2>/dev/null || true
 
             - name: Run semver analysis
@@ -32,10 +64,10 @@ jobs:
                   PR_TITLE: ${{ github.event.pull_request.title }}
                   PR_BODY: ${{ github.event.pull_request.body }}
               run: |
-                  export PR_DIFF="$(cat /tmp/pr_diff.txt 2>/dev/null || echo '')"
+                  export BUILD_DIFF="$(cat /tmp/build_diff.txt 2>/dev/null || echo '')"
                   export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
 
-                  RESULT=$(node .github/scripts/semver-analysis.mjs)
+                  RESULT=$(node base/.github/scripts/semver-analysis.mjs)
                   echo "Raw result: $RESULT"
 
                   SEVERITY=$(echo "$RESULT" | jq -r '.severity')
@@ -44,17 +76,20 @@ jobs:
             - name: Label PR
               if: steps.analyse.outputs.severity != ''
               uses: actions/github-script@v8
+              env:
+                  SEVERITY: ${{ steps.analyse.outputs.severity }}
               with:
                   script: |
                       const prNumber = context.payload.pull_request.number;
-                      const label = '${{ steps.analyse.outputs.severity }}';
-                      const semverLabels = ['major', 'minor', 'patch'];
+                      const severity = process.env.SEVERITY;
+                      const label = `semver-${severity}`;
+                      const semverLabels = ['semver-major', 'semver-minor', 'semver-patch'];
 
-                      const labelColors = { major: 'B60205', minor: 'FBCA04', patch: '0E8A16' };
+                      const labelColors = { 'semver-major': 'B60205', 'semver-minor': 'FBCA04', 'semver-patch': '0E8A16' };
                       const labelDescriptions = {
-                          major: 'Breaking change — triggers major version bump',
-                          minor: 'New feature — triggers minor version bump',
-                          patch: 'Bug fix / internal — no release needed'
+                          'semver-major': 'Breaking change — triggers major version bump',
+                          'semver-minor': 'New feature — triggers minor version bump',
+                          'semver-patch': 'Bug fix / internal — no release needed'
                       };
 
                       try {
