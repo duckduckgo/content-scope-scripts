@@ -5,6 +5,7 @@ const HTML = '/tracker-protection/pages/tracker-protection.html';
 const CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection.json';
 const DISABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-disabled.json';
 const CTL_DISABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-ctl-disabled.json';
+const CTL_ENABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-ctl-enabled.json';
 const UNPROTECTED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-unprotected.json';
 const ALLOWLISTED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-allowlisted.json';
 
@@ -113,6 +114,57 @@ test('tracker-protection: detects tracker from XHR error', async ({ page }, test
     expect(messages[0].payload.params.blocked).toBe(true);
 });
 
+// Gap coverage: fetch(URL) interception
+test('tracker-protection: detects tracker from fetch with URL object', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(async () => {
+        await fetch(new URL('https://tracker.example/pixel.js')).catch(() => {});
+    });
+
+    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const detection = messages[0].payload.params;
+    expect(detection.url).toBe('https://tracker.example/pixel.js');
+    expect(detection.blocked).toBe(true);
+    expect(detection.entityName).toBe('Tracker Inc');
+});
+
+// Gap coverage: fetch(Request) interception
+test('tracker-protection: detects tracker from fetch with Request object', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(async () => {
+        await fetch(new Request('https://tracker.example/beacon.js')).catch(() => {});
+    });
+
+    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const detection = messages[0].payload.params;
+    expect(detection.url).toBe('https://tracker.example/beacon.js');
+    expect(detection.blocked).toBe(true);
+    expect(detection.ownerName).toBe('Tracker Inc');
+});
+
+// Gap coverage: Image.src descriptor interception
+test('tracker-protection: detects tracker from Image src assignment', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(() => {
+        const img = new Image();
+        img.src = 'https://tracker.example/pixel.gif';
+        img.dispatchEvent(new Event('error'));
+    });
+
+    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const detection = messages[0].payload.params;
+    expect(detection.url).toBe('https://tracker.example/pixel.gif');
+    expect(detection.blocked).toBe(true);
+    expect(detection.entityName).toBe('Tracker Inc');
+});
+
+// Gap coverage: CTL disabled contract (legacy parity) — blocked but no surrogate
 test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, CTL_DISABLED_CONFIG);
@@ -122,13 +174,30 @@ test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, te
     });
 
     const detected = await collector.waitForMessage('trackerDetected', 1);
+    expect(detected[0].payload.params.blocked).toBe(true);
     expect(detected[0].payload.params.isSurrogate).toBe(false);
 
-    // Ensure no surrogateInjected message sent
     await page.waitForTimeout(200);
     const allMessages = await collector.outgoingMessages();
     const injected = trackerMessages(allMessages).filter((m) => m.payload.method === 'surrogateInjected');
     expect(injected).toHaveLength(0);
+});
+
+// Gap coverage: CTL enabled contract (legacy parity)
+test('tracker-protection: CTL enabled injects fb-sdk surrogate', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CTL_ENABLED_CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://facebook.example/sdk.js');
+    });
+
+    const detected = await collector.waitForMessage('trackerDetected', 1);
+    expect(detected[0].payload.params.blocked).toBe(true);
+    expect(detected[0].payload.params.isSurrogate).toBe(true);
+
+    const injected = await collector.waitForMessage('surrogateInjected', 1);
+    expect(injected[0].payload.params.url).toBe('https://facebook.example/sdk.js');
 });
 
 test('tracker-protection: ignores data URIs and non-HTTP URLs', async ({ page }, testInfo) => {
