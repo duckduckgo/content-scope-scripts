@@ -8,13 +8,22 @@ function review(login, state, id = 1) {
 
 function makeGitHub(reviews, { memberOf = /** @type {string[]} */ ([]) } = {}) {
     const listReviews = mock.fn();
+    const requestMock = mock.fn((_route, opts) => {
+        if (memberOf.includes(opts.team_slug)) return Promise.resolve({ data: { state: 'active' } });
+        return Promise.reject(Object.assign(new Error('Not Found'), { status: 404 }));
+    });
+
+    class MockOctokit {
+        constructor() {
+            this.request = requestMock;
+        }
+    }
+
     return {
         paginate: mock.fn((_endpoint, _params) => Promise.resolve(reviews)),
         rest: { pulls: { listReviews } },
-        request: mock.fn((_route, opts) => {
-            if (memberOf.includes(opts.team_slug)) return Promise.resolve({ data: { state: 'active' } });
-            return Promise.reject(Object.assign(new Error('Not Found'), { status: 404 }));
-        }),
+        constructor: MockOctokit,
+        _requestMock: requestMock,
     };
 }
 
@@ -77,11 +86,49 @@ describe('findAuthorizedApproval', () => {
         await findAuthorizedApproval(gh, BASE_OPTS);
         assert.equal(gh.paginate.mock.calls.length, 1);
         assert.equal(gh.rest.pulls.listReviews.mock.calls.length, 0);
+        assert.equal(gh._requestMock.mock.calls.length, 0);
     });
 
     it('multiple approvers — dax takes priority over team member', async () => {
         const gh = makeGitHub([review('alice', 'APPROVED', 1), review(DAX_USERNAME, 'APPROVED', 2)], { memberOf: ['core'] });
         const result = await findAuthorizedApproval(gh, BASE_OPTS);
         assert.deepEqual(result, { user: DAX_USERNAME, team: null });
+    });
+
+    it('constructs a new Octokit with orgToken for team membership checks', async () => {
+        let capturedAuth;
+        const requestMock = mock.fn((_route, opts) => {
+            if (opts.team_slug === 'core') return Promise.resolve({ data: { state: 'active' } });
+            return Promise.reject(Object.assign(new Error('Not Found'), { status: 404 }));
+        });
+        class SpyOctokit {
+            /** @param {{ auth: string }} opts */
+            constructor(opts) {
+                capturedAuth = opts.auth;
+                this.request = requestMock;
+            }
+        }
+        const gh = {
+            paginate: mock.fn(() => Promise.resolve([review('alice', 'APPROVED')])),
+            rest: { pulls: { listReviews: mock.fn() } },
+            constructor: SpyOctokit,
+        };
+        await findAuthorizedApproval(gh, { ...BASE_OPTS, orgToken: 'my-org-token' });
+        assert.equal(capturedAuth, 'my-org-token');
+    });
+
+    it('network failure is treated as not a member', async () => {
+        const requestMock = mock.fn(() => Promise.reject(new Error('network error')));
+        class FailOctokit {
+            constructor() {
+                this.request = requestMock;
+            }
+        }
+        const gh = {
+            paginate: mock.fn(() => Promise.resolve([review('alice', 'APPROVED')])),
+            rest: { pulls: { listReviews: mock.fn() } },
+            constructor: FailOctokit,
+        };
+        assert.equal(await findAuthorizedApproval(gh, BASE_OPTS), null);
     });
 });
