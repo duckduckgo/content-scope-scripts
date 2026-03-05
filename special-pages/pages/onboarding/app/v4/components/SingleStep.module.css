@@ -91,7 +91,8 @@
 
 /* --- bubble intro on getStarted (first step with bubbles) --- */
 
-:global([data-current="getStarted"]) .bubble {
+:global([data-current="getStarted"]) .topBubble,
+:global([data-current="getStarted"]) .bottomBubble {
     animation: scale-up 0.9s 0.15s both, slide-up 0.9s 0.15s both, fade-in 0.9s 0.15s both;
 }
 
@@ -125,7 +126,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    :global([data-current="getStarted"]) .bubble {
+    :global([data-current="getStarted"]) .topBubble,
+    :global([data-current="getStarted"]) .bottomBubble {
         animation: none;
     }
 }
