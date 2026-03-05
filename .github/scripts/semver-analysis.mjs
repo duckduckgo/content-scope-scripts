@@ -53,7 +53,7 @@ You also receive the list of changed **source files** and the PR title/descripti
 - Removed, renamed, or changed the shape of LoadArgs or feature init/load contracts
 - Removed or renamed JSON schema message types
 - Deleted or moved entry point files
-- Changed which features are included in a platform bundle (added or removed features from any \`platformSupport\` entry in features.js) — native apps have corresponding code for each bundled feature
+- Removed features from any \`platformSupport\` entry in features.js — native apps have corresponding code for each bundled feature and removing one is a breaking change
 - Moved features between execution contexts / content script worlds (e.g. \`apple\` → \`apple-isolated\`) — native apps may only load one world's script, so a feature moving worlds can disappear from the app's perspective
 - Changed init/load behaviour in content-scope-features.js that introduces new cross-world runtime requirements (e.g. message bridges, event forwarding) that native apps must support
 - Any change that would cause a downstream consumer's existing code to fail without modification
