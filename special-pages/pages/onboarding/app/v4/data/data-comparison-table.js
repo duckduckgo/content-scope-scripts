@@ -51,7 +51,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         icon: 'duck-ai.svg',
         title: t('comparison_aiChat'),
         statuses: {
-            chrome: SupportStatus.PARTIAL_SUPPORT,
+            chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
             ddg: SupportStatus.FULL_SUPPORT,
         },
@@ -61,7 +61,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         title: t('comparison_blockTrackers'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
-            safari: SupportStatus.PARTIAL_SUPPORT,
+            safari: SupportStatus.NOT_SUPPORTED,
             ddg: SupportStatus.FULL_SUPPORT,
         },
     },
