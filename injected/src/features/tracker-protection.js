@@ -19,11 +19,6 @@ export const REASON_THIRD_PARTY_REQUEST = 'thirdPartyRequest';
 export const REASON_AFFILIATED_THIRD_PARTY = 'thirdPartyRequestOwnedByFirstParty';
 
 /**
- * CTL surrogates that require CTL feature to be enabled
- */
-const CTL_SURROGATES = ['fb-sdk.js'];
-
-/**
  * Get the tab's top-level URL, handling iframes
  * @returns {URL | null}
  */
@@ -457,9 +452,9 @@ export class TrackerProtection extends ContentFeature {
 
         let willLoadSurrogate = false;
         if (blocked && hasSurrogate && !isAllowlisted && result.matchedRule?.surrogate) {
-            const surrogateName = result.matchedRule.surrogate;
             const hasIntegrityCheck = element instanceof HTMLScriptElement && element.integrity;
-            willLoadSurrogate = !hasIntegrityCheck && (!CTL_SURROGATES.includes(surrogateName) || this._ctlEnabled === true);
+            const isCtlSurrogate = result.matchedRule?.action?.startsWith('block-ctl-') === true;
+            willLoadSurrogate = !hasIntegrityCheck && (!isCtlSurrogate || this._ctlEnabled === true);
         }
 
         if (result.tracker) {
