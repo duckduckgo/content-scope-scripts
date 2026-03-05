@@ -16,7 +16,8 @@ if (files.length === 0) {
     process.exit(1);
 }
 
-let output = '// @ts-nocheck\n';
+let output = '/* eslint-disable */\n';
+output += '// @ts-nocheck\n';
 output += '/**\n';
 output += ' * Auto-generated surrogate function map.\n';
 output += ' * Built from @duckduckgo/tracker-surrogates.\n';
