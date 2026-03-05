@@ -2,7 +2,7 @@ body[data-theme="light"] {
     --theme-background-color: var(--color-gray-20);
     --theme-text-primary-color: var(--color-black-at-84);
     --link-color: var(--color-black);
-    --border-color: rgba(0, 0, 0, 0.1);
+    --border-color: rgb(0, 0, 0, 0.1);
     --container-bg: var(--color-white);
     --advanced-info-bg: var(--color-black-at-3);
     --visit-site-color: var(--color-black);

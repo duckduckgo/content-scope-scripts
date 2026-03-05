@@ -24,17 +24,17 @@
     /* Override ToggleButton theme to match Figma — light */
     --toggle-accent-light: #4397E0;
     --toggle-accent-text-light: #1074CC;
-    --toggle-accent-bg-light: rgba(161, 207, 247, 0.08);
-    --toggle-border-light: rgba(0, 0, 0, 0.20);
-    --toggle-color-light: rgba(36, 35, 35, 0.96);
+    --toggle-accent-bg-light: rgb(161, 207, 247, 0.08);
+    --toggle-border-light: rgb(0, 0, 0, 0.20);
+    --toggle-color-light: rgb(36, 35, 35, 0.96);
     --toggle-radio-light: #4397E0;
 
     /* Override ToggleButton theme to match Figma — dark */
     --toggle-accent-dark: #75B6EB;
     --toggle-accent-text-dark: #75B6EB;
-    --toggle-accent-bg-dark: rgba(161, 207, 247, 0.08);
+    --toggle-accent-bg-dark: rgb(161, 207, 247, 0.08);
     --toggle-bg-dark: #011D34;
-    --toggle-border-dark: rgba(255, 255, 255, 0.36);
+    --toggle-border-dark: rgb(255, 255, 255, 0.36);
     --toggle-color-dark: white;
     --toggle-radio-dark: #75B6EB;
     --toggle-radio-check-dark: #222222;

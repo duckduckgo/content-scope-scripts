@@ -67,10 +67,10 @@
 }
 
 .radioCircleUnselected {
-  --radio-unselected: rgba(0, 0, 0, 0.36);
+  --radio-unselected: rgb(0, 0, 0, 0.36);
   stroke: var(--radio-unselected);
   fill: none;
   @media (prefers-color-scheme: dark) {
-    --radio-unselected: rgba(255, 255, 255, 0.24);
+    --radio-unselected: rgb(255, 255, 255, 0.24);
   }
 }

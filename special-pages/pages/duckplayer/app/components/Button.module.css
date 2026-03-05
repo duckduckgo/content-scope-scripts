@@ -1,7 +1,7 @@
 .button {
-    --button-background: rgba(255, 255, 255, 0.18);
-    --button-color: rgba(255, 255, 255, 1);
-    --button-background-hover: rgba(255, 255, 255, 0.2);
+    --button-background: rgb(255, 255, 255, 0.18);
+    --button-color: rgb(255, 255, 255, 1);
+    --button-background-hover: rgb(255, 255, 255, 0.2);
 
     align-items: center;
     border: none;
@@ -21,7 +21,7 @@
     text-decoration: none;
 
     [data-layout="mobile"] & {
-        --button-background: rgba(255, 255, 255, 0.12);
+        --button-background: rgb(255, 255, 255, 0.12);
     }
 }
 
@@ -76,7 +76,7 @@
 .highlight {
     transition: all .3s ease-in-out;
     transition-delay: 2s;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgb(255, 255, 255, 0.2);
 }
 
 .highlight .icon img {

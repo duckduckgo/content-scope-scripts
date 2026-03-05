@@ -56,11 +56,11 @@
 }
 
 .ddg-mobile-drawer-overlay {
-    --overlay-background: rgba(0, 0, 0, 0.6);
+    --overlay-background: rgb(0, 0, 0, 0.6);
     --drawer-background: #fafafa;
-    --drawer-color: rgba(0, 0, 0, 0.84);
-    --button-background: rgba(0, 0, 0, 0.06);
-    --button-color: rgba(0, 0, 0, 0.84);
+    --drawer-color: rgb(0, 0, 0, 0.84);
+    --button-background: rgb(0, 0, 0, 0.06);
+    --button-color: rgb(0, 0, 0, 0.84);
     --button-accent-background: #3969ef;
     --button-accent-color: #fff;
     --switch-off-background: #888;
@@ -80,15 +80,15 @@
 @media (prefers-color-scheme: dark) {
     .ddg-mobile-drawer-overlay {
         --drawer-background: #333;
-        --drawer-color: rgba(255, 255, 255, 0.84);
-        --button-background: rgba(255, 255, 255, 0.18);
+        --drawer-color: rgb(255, 255, 255, 0.84);
+        --button-background: rgb(255, 255, 255, 0.18);
         --button-color: #fff;
         --button-accent-background: #7295f6;
-        --button-accent-color: rgba(0, 0, 0, 0.84);
+        --button-accent-color: rgb(0, 0, 0, 0.84);
         --switch-off-background: #888;
         --switch-on-background: #7295f6;
         --switch-thumb-background: #fff;
-        --info-color: rgba(255, 255, 255, 0.84);
+        --info-color: rgb(255, 255, 255, 0.84);
     }
 }
 
@@ -107,7 +107,7 @@
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     bottom: -100vh;
-    box-shadow: 0px -4px 12px 0px rgba(0, 0, 0, 0.10), 0px -20px 40px 0px rgba(0, 0, 0, 0.08);
+    box-shadow: 0px -4px 12px 0px rgb(0, 0, 0, 0.10), 0px -20px 40px 0px rgb(0, 0, 0, 0.08);
     box-sizing: border-box;
     color: var(--drawer-color);
     display: flex;
@@ -364,7 +364,7 @@
     left: 2px;
     width: 27px;
     height: 27px;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);
+    box-shadow: 0 1px 4px 0 rgb(0, 0, 0, 0.25);
 }
 
 .ios-switch:active .thumb {

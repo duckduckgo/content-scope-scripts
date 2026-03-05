@@ -2,7 +2,7 @@
     background: var(--bubble-bg);
     border-radius: var(--sp-9); /* 36px */
     border: 1.5px solid var(--bubble-border);
-    box-shadow: 0 7px 12px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 7px 12px rgb(0, 0, 0, 0.03);
     isolation: isolate;
     position: relative;
 }

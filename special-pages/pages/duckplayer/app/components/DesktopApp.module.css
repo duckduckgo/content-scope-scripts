@@ -49,7 +49,7 @@
     height: 100%;
     width: 100%;
     max-width: 3840px;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgb(255, 255, 255, 0.85);
 }
 
 .portrait {
@@ -84,8 +84,8 @@
 .landscape .wrapper {
     display: grid;
     grid-template-columns: 60% 1fr;
-    grid-column-gap: 8px;
-    background: rgba(0, 0, 0, 0.3);
+    column-gap: 8px;
+    background: rgb(0, 0, 0, 0.3);
     border-radius: var(--outer-radius);
     padding: 8px;
     @media screen  and (max-width: 700px) {
@@ -108,7 +108,7 @@
     grid-template-areas: 'header' 'controls' 'switch';
     grid-template-rows: max-content max-content auto;
     grid-template-columns: 1fr;
-    grid-row-gap: 12px;
+    row-gap: 12px;
 }
 
 /* When the RHS has a checked checkbox, we can center the other content */

@@ -95,7 +95,7 @@ body {
 [data-platform="integration"],
 [data-platform="macos"] {
     .customScroller {
-        --webkit-thumb-color: rgba(136, 136, 136, 0.8);
+        --webkit-thumb-color: rgb(136, 136, 136, 0.8);
 
         &::-webkit-scrollbar {
             width: var(--scrollbar-width);

@@ -19,7 +19,7 @@
     line-height: var(--sp-11);
     text-align: center;
     color: var(--color-black-at-96);
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     animation: slide-up 3.033s both, fade-in-out 3.033s both;
 
     @media (prefers-color-scheme: dark) {

@@ -107,7 +107,7 @@ body {
 .header-container .description-container {
     position: relative;
     width: 100%;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .watermark-container {

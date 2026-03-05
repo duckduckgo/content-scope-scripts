@@ -64,7 +64,7 @@
     }
 
     &[aria-expanded="true"] {
-        background: rgba(0, 0, 0, 0.03);
+        background: rgb(0, 0, 0, 0.03);
     }
 }
 
@@ -84,8 +84,8 @@
 
 
 .secondary {
-    background: rgba(0, 0, 0, 0.01);
-    border: 1px solid rgba(0, 0, 0, 0.09);
+    background: rgb(0, 0, 0, 0.01);
+    border: 1px solid rgb(0, 0, 0, 0.09);
     color: var(--ddg-color-primary);
     min-width: 80px;
 
@@ -96,37 +96,37 @@
     }
 }
 .secondary:hover {
-    background: rgba(0, 0, 0, 0.03);
+    background: rgb(0, 0, 0, 0.03);
 }
 
 .secondary:active {
-    background: rgba(0, 0, 0, 0.06);
+    background: rgb(0, 0, 0, 0.06);
 }
 
 .primary {
     background:
-        radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%),
+        radial-gradient(70.96% 100% at 49.83% 0%, rgb(107, 78, 186, 0) 39.72%, rgb(107, 78, 186, 0.24) 100%),
         var(--ddg-color-primary);
     box-shadow:
-        0px 4px 6px rgba(64, 38, 115, 0.16),
-        0px 6px 16px rgba(38, 64, 115, 0.16),
-        inset 0px 1px 0px rgba(255, 255, 255, 0.32);
+        0px 4px 6px rgb(64, 38, 115, 0.16),
+        0px 6px 16px rgb(38, 64, 115, 0.16),
+        inset 0px 1px 0px rgb(255, 255, 255, 0.32);
     min-width: 116px;
 }
 
 .primary:hover {
     background: radial-gradient(
             70.96% 100% at 49.83% 0%,
-            rgba(107, 78, 186, 0) 39.72%,
-            rgba(107, 78, 186, 0.4) 100%
+            rgb(107, 78, 186, 0) 39.72%,
+            rgb(107, 78, 186, 0.4) 100%
     ),
     #2b55ca;
 }
 .primary:active {
     background: radial-gradient(
             70.96% 100% at 49.83% 0%,
-            rgba(107, 78, 186, 0) 39.72%,
-            rgba(107, 78, 186, 0.24) 100%
+            rgb(107, 78, 186, 0) 39.72%,
+            rgb(107, 78, 186, 0.24) 100%
     ),
     #1e42a4;
 }

@@ -84,11 +84,11 @@
 body:not([data-platform-name]) {
     & .button {
         background-blend-mode: normal, color-burn, normal;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.06) 100%), #007aff;
+        background: linear-gradient(180deg, rgb(255, 255, 255, 0.12) 0%, rgb(255, 255, 255, 0) 100%), linear-gradient(180deg, rgb(0, 0, 0, 0) 0%, rgb(0, 0, 0, 0.06) 100%), #007aff;
 
         border-radius: var(--sp-2);
-        border: 1px solid rgba(40, 145, 255, 0.05);
-        box-shadow: 0 0 1px 0 rgba(40, 145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1);
+        border: 1px solid rgb(40, 145, 255, 0.05);
+        box-shadow: 0 0 1px 0 rgb(40, 145, 255, 0.05), 0 1px 1px 0 rgb(40, 145, 255, 0.1);
         color: white;
         font-size: calc(13 * var(--px-in-rem));
         font-weight: 600;
@@ -96,11 +96,11 @@ body:not([data-platform-name]) {
         padding: 0 var(--sp-4);
 
         &:hover:not(:disabled) {
-            background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749db;
+            background: linear-gradient(0deg, rgb(255, 255, 255, 0) 0%, rgb(255, 255, 255, 0.16) 100%), #2749db;
         }
 
         &:active:not(:disabled) {
-            background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #1743d1;
+            background: linear-gradient(0deg, rgb(255, 255, 255, 0) 0%, rgb(255, 255, 255, 0.16) 100%), #1743d1;
         }
     }
 }
@@ -112,24 +112,24 @@ body:not([data-platform-name]) {
 
     /* Standard button variant */
     --macos-control-standard-background-rest: var(--color-white);
-    --macos-control-standard-background-rest--dark: rgba(255, 255, 255, 0.28);
+    --macos-control-standard-background-rest--dark: rgb(255, 255, 255, 0.28);
     --macos-control-standard-background-pressed: #e7e7e7;
-    --macos-control-standard-background-pressed--dark: rgba(255, 255, 255, 0.4);
-    --macos-control-standard-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.2) inset, 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 1px 0 rgba(0, 0, 0, 0.2);
+    --macos-control-standard-background-pressed--dark: rgb(255, 255, 255, 0.4);
+    --macos-control-standard-shadow: 0 1px 0 0 rgb(255, 255, 255, 0.2) inset, 0 1px 0 0 rgb(255, 255, 255, 0.05) inset, 0 0 0 1px rgb(0, 0, 0, 0.1), 0 0 1px 0 rgb(0, 0, 0, 0.05), 0 1px 1px 0 rgb(0, 0, 0, 0.2);
 
     /* Accent Branded variant */
     --macos-accent-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
     --macos-accent-color-secondary: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
     --macos-accent-color-tertiary: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-light-accent-tertiary));
-    --macos-control-accent-branded-background-rest: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), var(--macos-accent-color);
-    --macos-control-accent-branded-background-hover: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), var(--macos-accent-color-secondary);
-    --macos-control-accent-branded-background-pressed: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), var(--macos-accent-color-tertiary);
-    --macos-control-accent-branded-background-focus: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), var(--macos-accent-color);
+    --macos-control-accent-branded-background-rest: linear-gradient(0deg, rgb(255, 255, 255, 0) 0%, rgb(255, 255, 255, 0.16) 100%), var(--macos-accent-color);
+    --macos-control-accent-branded-background-hover: linear-gradient(0deg, rgb(255, 255, 255, 0) 0%, rgb(255, 255, 255, 0.16) 100%), var(--macos-accent-color-secondary);
+    --macos-control-accent-branded-background-pressed: linear-gradient(0deg, rgb(255, 255, 255, 0) 0%, rgb(255, 255, 255, 0.16) 100%), var(--macos-accent-color-tertiary);
+    --macos-control-accent-branded-background-focus: linear-gradient(0deg, rgb(255, 255, 255, 0) 0%, rgb(255, 255, 255, 0.16) 100%), var(--macos-accent-color);
 
-    --macos-control-accent-branded-shadow-rest: 0 1px 0 0 rgba(255, 255, 255, 0) inset, 0 1px 0 0 rgba(255, 255, 255, 0) inset, 0 0 0 1px rgba(0, 122, 255, 0.05), 0 0 1px 0 rgba(0, 122, 255, 0.05), 0 1px 1px 0 rgba(0, 122, 255, 0.1);
-    --macos-control-accent-branded-shadow-pressed: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 0px 0px 0.5px rgba(0, 122, 255, 0.05), 0px 0px 1px 0px rgba(0, 122, 255, 0.05), 0px 1px 1px 0px rgba(0, 122, 255, 0.10);
-    --macos-control-accent-branded-shadow-hover: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 0px 0px 0.5px rgba(0, 122, 255, 0.05), 0px 0px 1px 0px rgba(0, 122, 255, 0.05), 0px 1px 1px 0px rgba(0, 122, 255, 0.10);
-    --macos-control-accent-branded-shadow-disabled: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgba(0, 0, 0, 0.10), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.20);
+    --macos-control-accent-branded-shadow-rest: 0 1px 0 0 rgb(255, 255, 255, 0) inset, 0 1px 0 0 rgb(255, 255, 255, 0) inset, 0 0 0 1px rgb(0, 122, 255, 0.05), 0 0 1px 0 rgb(0, 122, 255, 0.05), 0 1px 1px 0 rgb(0, 122, 255, 0.1);
+    --macos-control-accent-branded-shadow-pressed: 0px 0.5px 0px 0px rgb(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgb(255, 255, 255, 0.00) inset, 0px 0px 0px 0.5px rgb(0, 122, 255, 0.05), 0px 0px 1px 0px rgb(0, 122, 255, 0.05), 0px 1px 1px 0px rgb(0, 122, 255, 0.10);
+    --macos-control-accent-branded-shadow-hover: 0px 0.5px 0px 0px rgb(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgb(255, 255, 255, 0.00) inset, 0px 0px 0px 0.5px rgb(0, 122, 255, 0.05), 0px 0px 1px 0px rgb(0, 122, 255, 0.05), 0px 1px 1px 0px rgb(0, 122, 255, 0.10);
+    --macos-control-accent-branded-shadow-disabled: 0px 0.5px 0px 0px rgb(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgb(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgb(0, 0, 0, 0.10), 0px 0px 1px 0px rgb(0, 0, 0, 0.05), 0px 1px 1px 0px rgb(0, 0, 0, 0.20);
 
     [data-theme="dark"] & {
         --macos-control-focused-shadow: 0 0 0 2.5px var(--ds-color-theme-accent-glow-primary, var(--ds-color-theme-default-dark-accent-glow-primary)), 0 0 0 1px var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary)) inset, 0 0 1px 0 var(--ds-color-theme-shadow-primary, var(--ds-color-theme-default-dark-shadow-primary)), 0 1px 1px 0 var(--ds-color-theme-shadow-primary, var(--ds-color-theme-default-dark-shadow-primary));
@@ -225,7 +225,7 @@ body:not([data-platform-name]) {
         --button-text: var(--color-blue-50);
 
         /* Active */
-        --button-bg--active: rgba(57, 105, 239, 0.12);
+        --button-bg--active: rgb(57, 105, 239, 0.12);
         --button-text--active: var(--color-blue-70);
 
         /* Disabled */
@@ -253,7 +253,7 @@ body:not([data-platform-name]) {
             --button-text: var(--color-blue-30);
 
             /* Active */
-            --button-bg--active: rgba(114, 149, 246, 0.2);
+            --button-bg--active: rgb(114, 149, 246, 0.2);
             --button-text--active: var(--color-blue-20);
 
             /* Disabled */

@@ -1,10 +1,10 @@
 .tooltip {
     position: absolute;
-    background: linear-gradient(0deg, rgba(48, 48, 48, 0.35), rgba(48, 48, 48, 0.35)), rgba(33, 33, 33, 0.55);
+    background: linear-gradient(0deg, rgb(48, 48, 48, 0.35), rgb(48, 48, 48, 0.35)), rgb(33, 33, 33, 0.55);
     background-blend-mode: normal, luminosity;
     box-shadow: inset 0px 0px 1px #ffffff;
     filter: drop-shadow(0px 0px 1px #000000) drop-shadow(0px 0px 1px #000000) drop-shadow(0px 0px 1px #000000)
-    drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.2));
+    drop-shadow(0px 8px 16px rgb(0, 0, 0, 0.2));
     backdrop-filter: blur(76px);
     border-radius: 10px;
     width: 300px;

@@ -34,14 +34,14 @@
 
 .progress[value]::-webkit-progress-bar {
     border-radius: 64px;
-    background: rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: rgb(0, 0, 0, 0.06);
+    border: 1px solid rgb(0, 0, 0, 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
     .progress[value]::-webkit-progress-bar {
-        background: rgba(255, 255, 255, 0.09);
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgb(255, 255, 255, 0.09);
+        border: 1px solid rgb(255, 255, 255, 0.18);
     }
 }
 

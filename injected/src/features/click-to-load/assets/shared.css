@@ -1,14 +1,14 @@
 :host {
     /* Color palette */
-    --ddg-shade-06: rgba(0, 0, 0, 0.06);
-    --ddg-shade-12: rgba(0, 0, 0, 0.12);
-    --ddg-shade-18: rgba(0, 0, 0, 0.18);
-    --ddg-shade-36: rgba(0, 0, 0, 0.36);
-    --ddg-shade-84: rgba(0, 0, 0, 0.84);
-    --ddg-tint-12: rgba(255, 255, 255, 0.12);
-    --ddg-tint-18: rgba(255, 255, 255, 0.18);
-    --ddg-tint-24: rgba(255, 255, 255, 0.24);
-    --ddg-tint-84: rgba(255, 255, 255, 0.84);
+    --ddg-shade-06: rgb(0, 0, 0, 0.06);
+    --ddg-shade-12: rgb(0, 0, 0, 0.12);
+    --ddg-shade-18: rgb(0, 0, 0, 0.18);
+    --ddg-shade-36: rgb(0, 0, 0, 0.36);
+    --ddg-shade-84: rgb(0, 0, 0, 0.84);
+    --ddg-tint-12: rgb(255, 255, 255, 0.12);
+    --ddg-tint-18: rgb(255, 255, 255, 0.18);
+    --ddg-tint-24: rgb(255, 255, 255, 0.24);
+    --ddg-tint-84: rgb(255, 255, 255, 0.84);
     /* Tokens */
     --ddg-color-primary: #3969ef;
     --ddg-color-bg-01: #ffffff;

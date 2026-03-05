@@ -6,7 +6,7 @@
 .inset {
     border-radius: var(--outer-radius);
     padding: 8px;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(0, 0, 0, 0.3);
 }
 
 .topBar {

@@ -52,7 +52,7 @@
         max-height: 100%;
         margin: 0 auto;
         overflow: hidden;
-        background: rgba(0, 0, 0, 0.3);
+        background: rgb(0, 0, 0, 0.3);
         border-radius: 0;
     }
     .iframe.mobile {

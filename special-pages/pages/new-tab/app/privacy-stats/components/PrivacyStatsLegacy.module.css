@@ -72,14 +72,14 @@
 
 .body {
     display: grid;
-    grid-row-gap:  var(--sp-3);
+    row-gap:  var(--sp-3);
 
 }
 
 .list {
     display: grid;
     grid-template-columns: auto;
-    grid-row-gap: calc(6 * var(--px-in-rem));
+    row-gap: calc(6 * var(--px-in-rem));
     transition: opacity ease-in-out 0.3s, visibility ease-in-out 0.3s;
 
     &:not(:empty) {
@@ -90,7 +90,7 @@
 .row {
     min-height: 2rem;
     display: grid;
-    grid-gap: var(--sp-2);
+    gap: var(--sp-2);
     grid-template-columns: auto auto 40%;
     grid-template-areas: 'company count bar';
     align-items: center;

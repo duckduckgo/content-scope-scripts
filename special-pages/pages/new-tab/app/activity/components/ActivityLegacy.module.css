@@ -77,14 +77,14 @@
     background: var(--color-black-at-12);
     transition: transform .2s;
 
-    border: 0.5px solid rgba(0, 0, 0, 0.09);
-    background: rgba(255, 255, 255, 0.30);
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.12), 0px 0px 1.5px 0px rgba(0, 0, 0, 0.16);
+    border: 0.5px solid rgb(0, 0, 0, 0.09);
+    background: rgb(255, 255, 255, 0.30);
+    box-shadow: 0px 1px 2px 0px rgb(0, 0, 0, 0.12), 0px 0px 1.5px 0px rgb(0, 0, 0, 0.16);
 
     [data-theme="dark"] & {
-        border: 0.5px solid rgba(255, 255, 255, 0.09);
-        background: rgba(0, 0, 0, 0.18);
-        box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.12), 0px 0px 1.5px 0px rgba(0, 0, 0, 0.16);
+        border: 0.5px solid rgb(255, 255, 255, 0.09);
+        background: rgb(0, 0, 0, 0.18);
+        box-shadow: 0px 1px 2px 0px rgb(0, 0, 0, 0.12), 0px 0px 1.5px 0px rgb(0, 0, 0, 0.16);
         backdrop-filter: blur(24px);
     }
 

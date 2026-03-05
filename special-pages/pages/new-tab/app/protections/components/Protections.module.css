@@ -31,15 +31,15 @@
     grid-template-columns: 1fr 1fr;
     border-radius: 6px;
 
-    --border-color: rgba(0, 0, 0, 0.09);
-    --background: rgba(0, 0, 0, 0.06);
+    --border-color: rgb(0, 0, 0, 0.09);
+    --background: rgb(0, 0, 0, 0.06);
 
     border: 1px solid var(--border-color);
     background: var(--background);
 
     [data-theme="dark"] & {
         --border-color: var(--color-white-at-12);
-        --background: rgba(255, 255, 255, 0.09);
+        --background: rgb(255, 255, 255, 0.09);
     }
 }
 
@@ -80,7 +80,7 @@
         background: white;
 
         [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.25);
+            background: rgb(255, 255, 255, 0.25);
         }
 
         &:after {
@@ -107,16 +107,16 @@
 
     }
     .active {
-        border: 0.5px solid rgba(0, 0, 0, 0.10);
+        border: 0.5px solid rgb(0, 0, 0, 0.10);
         background: #FFF;
 
         &:not(:focus-visible) {
             /* Mac/Control/Standard */
-            box-shadow: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgba(0, 0, 0, 0.10), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.20);
+            box-shadow: 0px 0.5px 0px 0px rgb(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgb(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgb(0, 0, 0, 0.10), 0px 0px 1px 0px rgb(0, 0, 0, 0.05), 0px 1px 1px 0px rgb(0, 0, 0, 0.20);
         }
 
         [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.25);
+            background: rgb(255, 255, 255, 0.25);
         }
     }
 }

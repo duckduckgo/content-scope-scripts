@@ -5,7 +5,7 @@
     height: 32px;
     border: 0;
     box-shadow: none;
-    background: rgba(136, 136, 136, 0.5);
+    background: rgb(136, 136, 136, 0.5);
     border-radius: 32px;
     position: relative;
     transition: all .3s;
@@ -31,7 +31,7 @@
     left: calc(100% - 32px + 4px)
 }
 .switch[aria-checked="true"] {
-    background: rgba(57, 105, 239, 1)
+    background: rgb(57, 105, 239, 1)
 }
 
 .ios {
@@ -44,7 +44,7 @@
     left: 2px;
     width: 27px;
     height: 27px;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)
+    box-shadow: 0 1px 4px 0 rgb(0, 0, 0, 0.25)
 }
 
 .ios:active .thumb {

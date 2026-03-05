@@ -30,7 +30,7 @@ body[data-display="components"] {
 
     display: grid;
     grid-template-columns: auto;
-    grid-row-gap: 2rem;
+    row-gap: 2rem;
 }
 
 body:has(.tubeGrid):has([data-isolated=true]) {
@@ -44,7 +44,7 @@ body:has(.tubeGrid):has([data-isolated=true]) {
 .tubeGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, 540px);
-    grid-column-gap: 12px;
+    column-gap: 12px;
     align-items: flex-start;
 
     + .tubeGrid {
@@ -88,9 +88,9 @@ body:has(.tubeGrid):has([data-isolated=true]) {
     padding: 1rem;
     border-bottom: 1px dotted gray;
     display: grid;
-    grid-row-gap: .5rem;
+    row-gap: .5rem;
     align-items: center;
-    grid-column-gap: 1rem;
+    column-gap: 1rem;
     grid-template-columns: max-content;
 }
 

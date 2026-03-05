@@ -44,7 +44,7 @@
     line-height: var(--sp-7); /* 28px */
     text-align: center;
     color: var(--color-black-at-96);
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
     margin: 0;
@@ -62,7 +62,7 @@
     line-height: 22px;
     text-align: center;
     color: var(--color-black-at-96);
-    word-wrap: break-word;
+    overflow-wrap: break-word;
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
     white-space: pre-line;

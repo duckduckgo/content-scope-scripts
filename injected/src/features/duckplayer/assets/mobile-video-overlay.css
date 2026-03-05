@@ -80,7 +80,7 @@
     right: 0;
     bottom: 0;
     color: white;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgb(0, 0, 0, 0.6);
     text-align: center;
 }
 
@@ -95,8 +95,8 @@
     right: 0;
     bottom: 0;
     background:
-            linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 60%),
-            radial-gradient(circle at bottom, rgba(131, 58, 180, 0.8), rgba(253, 29, 29, 0.6), rgba(252, 176, 69, 0.4));
+            linear-gradient(180deg, rgb(0, 0, 0, 1) 0%, rgb(0, 0, 0, 0.5) 40%, rgb(0, 0, 0, 0) 60%),
+            radial-gradient(circle at bottom, rgb(131, 58, 180, 0.8), rgb(253, 29, 29, 0.6), rgb(252, 176, 69, 0.4));
 }
 
 .bg:after {
@@ -109,7 +109,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgb(0,0,0,0.7);
     text-align: center;
 }
 
@@ -119,9 +119,9 @@
     margin: 0 auto;
     overflow: hidden;
     display: grid;
-    color: rgba(255, 255, 255, 0.96);
+    color: rgb(255, 255, 255, 0.96);
     position: relative;
-    grid-column-gap: var(--logo-gap);
+    column-gap: var(--logo-gap);
     grid-template-columns: var(--logo-size) auto calc(12px + 16px);
     grid-template-rows:
             auto
@@ -230,7 +230,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 1);
+    color: rgb(255, 255, 255, 1);
     text-decoration: none;
     line-height: 16px;
     padding: 0 12px;
@@ -261,11 +261,11 @@
 }
 
 .button--info svg path {
-    fill: rgba(255, 255, 255, 0.84);
+    fill: rgb(255, 255, 255, 0.84);
 }
 
 .cancel {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(255, 255, 255, 0.3);
     min-height: 40px;
 }
 
@@ -310,7 +310,7 @@
     height: 32px;
     border: 0;
     box-shadow: none;
-    background: rgba(136, 136, 136, 0.5);
+    background: rgb(136, 136, 136, 0.5);
     border-radius: 32px;
     position: relative;
     transition: all .3s;
@@ -333,7 +333,7 @@
 }
 
 .switch[aria-checked="true"] {
-    background: rgba(57, 105, 239, 1)
+    background: rgb(57, 105, 239, 1)
 }
 
 .ios-switch {
@@ -346,7 +346,7 @@
     left: 2px;
     width: 20px;
     height: 20px;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)
+    box-shadow: 0 1px 4px 0 rgb(0, 0, 0, 0.25)
 }
 
 .ios-switch:active .thumb {

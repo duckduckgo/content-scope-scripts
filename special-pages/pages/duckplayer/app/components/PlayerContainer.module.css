@@ -5,7 +5,7 @@
 .inset {
     padding: 8px;
     border-radius: var(--outer-radius);
-    background: rgba(0, 0, 0, 0.3);
+    background: rgb(0, 0, 0, 0.3);
     transition: background 1s;
 }
 

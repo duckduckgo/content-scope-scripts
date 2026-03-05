@@ -1,9 +1,9 @@
 .popover {
     align-items: center;
     display: flex;
-    filter: drop-shadow(0 0 calc(0.5px) rgba(0, 0, 0, 0.75))
-            drop-shadow(0 0 calc(1px) rgba(0, 0, 0, 0.25))
-            drop-shadow(0 calc(8px) calc(24px) rgba(0, 0, 0, 0.20));
+    filter: drop-shadow(0 0 calc(0.5px) rgb(0, 0, 0, 0.75))
+            drop-shadow(0 0 calc(1px) rgb(0, 0, 0, 0.25))
+            drop-shadow(0 calc(8px) calc(24px) rgb(0, 0, 0, 0.20));
     flex-direction: row;
     left: calc(100% + var(--popover-offset-x, 0px));
     outline: none;

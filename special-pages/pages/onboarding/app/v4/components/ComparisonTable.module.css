@@ -29,10 +29,10 @@
 .row:nth-child(odd) {
     & .rowHeading,
     & .rowCell {
-        background: rgba(161, 207, 247, 0.16);
+        background: rgb(161, 207, 247, 0.16);
 
         @media (prefers-color-scheme: dark) {
-            background: rgba(161, 207, 247, 0.12);
+            background: rgb(161, 207, 247, 0.12);
         }
     }
 
@@ -106,7 +106,7 @@
     background-position: center center;
     background-repeat: no-repeat;
     border-radius: var(--sp-2);
-    box-shadow: 0px 1.25px 3.75px 0px rgba(0, 0, 0, 0.10), 0px 5px 10px 0px rgba(0, 0, 0, 0.08);
+    box-shadow: 0px 1.25px 3.75px 0px rgb(0, 0, 0, 0.10), 0px 5px 10px 0px rgb(0, 0, 0, 0.08);
     display: inline-block;
     margin: 0 var(--sp-2);
     height: var(--sp-10);
