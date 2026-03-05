@@ -150,15 +150,9 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
  * @param {(query: string) => void} props.onChange
  * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  */
-function AiChatContent({ query, autoFocus, enableRecentAiChats, onChange, onSubmit }) {
+function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { showChats, hideChats } = useAiChatsContext();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
-
-    /** @type {(value: string) => void} */
-    const handleChange = (value) => {
-        onChange(value);
-        showChats();
-    };
 
     return (
         <div
@@ -174,7 +168,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onChange, onSubm
             }}
         >
             <ResizingContainer className={styles.field}>
-                <AiChatForm query={query} autoFocus={autoFocus} onChange={handleChange} onSubmit={onSubmit} />
+                <AiChatForm query={query} autoFocus={autoFocus} onChange={onChange} onSubmit={onSubmit} />
             </ResizingContainer>
             {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
