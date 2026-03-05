@@ -23,7 +23,7 @@ export default tseslint.config(
             'playwright-report',
             'test-results',
             'injected/src/types',
-            'injected/src/features/tracker-protection/surrogates.js',
+            'injected/src/features/tracker-protection/surrogates-generated.js',
             '.idea',
             'Sources/',
         ],

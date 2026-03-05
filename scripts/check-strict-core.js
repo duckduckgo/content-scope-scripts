@@ -85,7 +85,6 @@ const CORE_FILES = new Set([
     'injected/src/features/print.js',
     'injected/src/features/referrer.js',
     'injected/src/features/tracker-protection.js',
-    'injected/src/features/tracker-protection/surrogates-parser.js',
     'injected/src/features/tracker-protection/tracker-resolver.js',
     'injected/src/features/web-detection.js',
     'injected/src/types/feature-map.ts',

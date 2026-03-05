@@ -12,7 +12,7 @@
 
 import ContentFeature from '../content-feature.js';
 import { TrackerResolver, REASON_RULE_EXCEPTION } from './tracker-protection/tracker-resolver.js';
-import { parseSurrogates } from './tracker-protection/surrogates-parser.js';
+import { surrogates as bundledSurrogates } from './tracker-protection/surrogates-generated.js';
 
 export const REASON_UNPROTECTED_DOMAIN = 'unprotectedDomain';
 export const REASON_THIRD_PARTY_REQUEST = 'thirdPartyRequest';
@@ -76,7 +76,7 @@ export class TrackerProtection extends ContentFeature {
             return;
         }
 
-        const surrogates = parseSurrogates(this.getFeatureSetting('surrogates'));
+        const surrogates = bundledSurrogates;
 
         // Parse trackerData - it's passed as a JSON string from native
         let trackerData = this.getFeatureSetting('trackerData');
