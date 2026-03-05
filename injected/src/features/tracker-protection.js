@@ -498,8 +498,7 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
-     * Load a surrogate script. Surrogates are parsed at init from the
-     * surrogates.txt payload provided by native via config settings.
+     * Load a surrogate script from the build-time generated surrogate map.
      *
      * @param {string} pattern - Surrogate pattern (e.g., "adsbygoogle.js")
      * @param {HTMLElement | null} targetElement - Original element being replaced
