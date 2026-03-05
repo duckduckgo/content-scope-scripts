@@ -42,25 +42,25 @@ export async function findRiskLevel(github, { owner, repo, prNumber }) {
     return null;
 }
 
-export async function isTeamMember(github, org, teamSlug, username) {
+export async function isTeamMember(github, orgToken, org, teamSlug, username) {
     try {
-        const { data } = await github.rest.teams.getMembershipForUserInOrg({
+        const Ctor = /** @type {new (opts: {auth: string}) => typeof github} */ (github.constructor);
+        const orgClient = new Ctor({ auth: orgToken });
+        const { data } = await orgClient.request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
             org,
             team_slug: teamSlug,
             username,
         });
         return data.state === 'active';
     } catch (error) {
-        if (error.status === 401) {
-            throw error;
-        }
+        if (/** @type {any} */ (error).status === 401) throw error;
         return false;
     }
 }
 
-export async function findTeamForUser(github, org, teams, username) {
+export async function findTeamForUser(github, orgToken, org, teams, username) {
     for (const team of teams) {
-        if (await isTeamMember(github, org, team, username)) {
+        if (await isTeamMember(github, orgToken, org, team, username)) {
             return team;
         }
     }
@@ -72,30 +72,37 @@ export async function findTeamForUser(github, org, teams, username) {
  * Checks daxtheduck first, then team membership for each approver.
  *
  * @param github - Octokit client for repo operations (GITHUB_TOKEN is sufficient)
- * @param opts.orgGithub - Optional Octokit client with read:org scope for team membership checks.
- *                         Falls back to `github` if not provided.
+ * @param opts.orgToken - Token with read:org scope for team membership checks (e.g. DAX_PAT).
+ *                        If not provided, team membership checks are skipped.
  */
-export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgGithub }) {
-    const { data: reviews } = await github.rest.pulls.listReviews({
+export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgToken }) {
+    const reviews = await github.paginate(github.rest.pulls.listReviews, {
         owner,
         repo,
         pull_number: prNumber,
     });
 
-    const latestByUser = new Map();
+    const DECISION_STATES = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
+    const latestDecisionByUser = new Map();
     for (const r of reviews) {
-        if (r.user?.login) latestByUser.set(r.user.login, r);
+        if (r.user?.login && DECISION_STATES.has(r.state)) {
+            latestDecisionByUser.set(r.user.login, r);
+        }
     }
-    const approved = [...latestByUser.values()].filter((r) => r.state === 'APPROVED');
+    const approved = [...latestDecisionByUser.values()].filter((r) => r.state === 'APPROVED');
     if (approved.length === 0) return null;
 
     if (approved.some((r) => r.user.login === DAX_USERNAME)) {
         return { user: DAX_USERNAME, team: null };
     }
 
-    const teamClient = orgGithub ?? github;
+    if (!orgToken) {
+        console.log('No org token available — skipping team membership checks');
+        return null;
+    }
+
     for (const review of approved) {
-        const team = await findTeamForUser(teamClient, org, teams, review.user.login);
+        const team = await findTeamForUser(github, orgToken, org, teams, review.user.login);
         if (team) return { user: review.user.login, team };
     }
 

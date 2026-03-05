@@ -62,7 +62,7 @@ export class SendMessageMessagingTransport {
     /**
      * Callback for update() handler. This connects messages sent from the Platform
      * with callback functions in the _queue.
-     * @param {any} response
+     * @param {unknown} response
      */
     onResponse(response) {
         this._queue.forEach((subscription) => subscription(response));

@@ -121,7 +121,7 @@ export function useModeWithLocalPersistence(tabId, defaultMode) {
 }
 
 /**
- * @param {any} condition
+ * @param {unknown} condition
  * @param {string} [message]
  * @return {asserts condition}
  */
