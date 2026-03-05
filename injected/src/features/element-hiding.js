@@ -60,7 +60,7 @@ let modifiedElements = new WeakMap();
 let appliedRules = new Set();
 let shouldInjectStyleTag = false;
 let styleTagInjected = false;
-/** @type {boolean} Cached per-pass; falls back to per-node checks when false. */
+/** @type {boolean} Cached per-pass via hasCustomElements(document.body). */
 let useDOMParser = false;
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000];
@@ -218,12 +218,10 @@ function isDomNodeEmpty(node) {
 
     // Use cloneNode for performance, but fall back to DOMParser when custom elements
     // are present to avoid triggering custom element constructors (page-observable).
-    // useDOMParser is cached per-pass via hasCustomElements check in hideAdNodes/unhideLoadedAds.
-    // If the page-level cache is false, still check the node before cloning.
-    const shouldUseDOMParser = useDOMParser || hasCustomElements(node);
+    // useDOMParser is cached per-pass via hasCustomElements(document.body) in hideAdNodes/unhideLoadedAds.
     /** @type {HTMLElement} */
     let parsedNode;
-    if (shouldUseDOMParser) {
+    if (useDOMParser) {
         // DOMParser wraps content in <html><head>...</head><body>...</body></html>
         if (!parser) {
             parser = new DOMParser();
