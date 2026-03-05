@@ -616,6 +616,7 @@
       "browserUiLock"
     ],
     "android-broker-protection": ["brokerProtection"],
+    "android-ai-clear": ["duckAiDataClearing"],
     "android-ai-history": ["duckAiChatHistory"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
