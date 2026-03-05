@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { compileFunction } from 'vm';
 import { transform } from 'esbuild';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +30,13 @@ output += 'export const surrogates = {\n';
 
 for (const file of files) {
     const code = readFileSync(join(surrogatesDir, file), 'utf-8').replace(/^\s*[\r\n]/gm, '');
+    try {
+        compileFunction(code);
+    } catch (e) {
+        console.error(`FATAL: Surrogate "${file}" is not a valid function body (possible scope escape):`);
+        console.error(e.message);
+        process.exit(1);
+    }
     const indented = code
         .split('\n')
         .map((line) => (line ? '        ' + line : ''))
