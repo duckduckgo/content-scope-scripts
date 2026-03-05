@@ -4,6 +4,7 @@
     "postinstall": "npm run copy-sjcl",
     "copy-sjcl": "node scripts/generateSJCL.js",
     "build-surrogates": "node scripts/buildSurrogates.js",
+    "precheck-surrogates": "npm run build-surrogates",
     "check-surrogates": "node scripts/checkSurrogatesGenerated.js",
     "prebuild": "npm run build-surrogates",
     "build": "npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
