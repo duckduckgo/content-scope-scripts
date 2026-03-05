@@ -10,9 +10,10 @@ permissions:
 
 jobs:
     semver_label:
-        if: startsWith(github.event.pull_request.head.ref, 'release-')
+        if: >-
+            contains(fromJSON('["release-major","release-minor","release-patch"]'),
+            github.event.pull_request.head.ref)
         runs-on: ubuntu-latest
-
         steps:
             - name: Checkout base branch
               uses: actions/checkout@v6
@@ -86,14 +87,15 @@ jobs:
               with:
                   script: |
                       const prNumber = context.payload.pull_request.number;
-                      const label = process.env.SEVERITY;
-                      const semverLabels = ['major', 'minor', 'patch'];
+                      const severity = process.env.SEVERITY;
+                      const label = `semver-${severity}`;
+                      const semverLabels = ['semver-major', 'semver-minor', 'semver-patch'];
 
-                      const labelColors = { major: 'B60205', minor: 'FBCA04', patch: '0E8A16' };
+                      const labelColors = { 'semver-major': 'B60205', 'semver-minor': 'FBCA04', 'semver-patch': '0E8A16' };
                       const labelDescriptions = {
-                          major: 'Breaking change — triggers major version bump',
-                          minor: 'New feature — triggers minor version bump',
-                          patch: 'Bug fix / internal — no release needed'
+                          'semver-major': 'Breaking change — triggers major version bump',
+                          'semver-minor': 'New feature — triggers minor version bump',
+                          'semver-patch': 'Bug fix / internal — no release needed'
                       };
 
                       try {
