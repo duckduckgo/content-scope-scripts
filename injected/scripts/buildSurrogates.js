@@ -32,7 +32,8 @@ for (const file of files) {
         .split('\n')
         .map((line) => (line ? '        ' + line : ''))
         .join('\n');
-    output += `    '${file}': function() {\n${indented}\n    },\n`;
+    const safeFile = file.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    output += `    '${safeFile}': function() {\n${indented}\n    },\n`;
 }
 
 output += '};\n';
