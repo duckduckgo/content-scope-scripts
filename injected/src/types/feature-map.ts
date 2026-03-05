@@ -42,6 +42,7 @@ import type Referrer from '../features/referrer.js';
 import type UaChBrands from '../features/ua-ch-brands.js';
 import type WebCompat from '../features/web-compat.js';
 import type WebDetection from '../features/web-detection.js';
+import type WebEvents from '../features/web-events.js';
 import type WebInterferenceDetection from '../features/web-interference-detection.js';
 import type WebTelemetry from '../features/web-telemetry.js';
 import type WindowsPermissionUsage from '../features/windows-permission-usage.js';
@@ -86,6 +87,7 @@ export interface FeatureMap {
     uaChBrands: UaChBrands;
     webCompat: WebCompat;
     webDetection: WebDetection;
+    webEvents: WebEvents;
     webInterferenceDetection: WebInterferenceDetection;
     webTelemetry: WebTelemetry;
     windowsPermissionUsage: WindowsPermissionUsage;
