@@ -16,9 +16,7 @@ import styles from './Background.module.css';
 function Illustration({ step, class: className, isDarkMode, onAnimationEnd }) {
     const idx = ORDER_V4.indexOf(step);
     const num = String(idx + 1).padStart(2, '0');
-    const src = isDarkMode
-        ? `assets/img/v4/background-${num}-dark.svg`
-        : `assets/img/v4/background-${num}-light.svg`;
+    const src = isDarkMode ? `assets/img/v4/background-${num}-dark.svg` : `assets/img/v4/background-${num}-light.svg`;
     return (
         <picture class={cn(className, step === 'welcome' && styles.rightAligned)} onAnimationEnd={onAnimationEnd}>
             <img src={src} alt="" />
