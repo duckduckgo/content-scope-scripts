@@ -206,6 +206,74 @@ test.describe('onboarding v4', () => {
             // Can advance past the step
             await page.getByRole('button', { name: 'Next' }).click();
         });
+
+        test('Mid-playback toggle queues reverse video', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            const enabledVideo = page.locator('video[src*="enabled"]');
+            const disabledVideo = page.locator('video[src*="disabled"]');
+
+            // End the autoPlay video to reach withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+
+            // Toggle → toWithoutDuckPlayer (disabled video "plays")
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Toggle mid-playback → toWithoutDuckPlayerThenReverse
+            // Button changes instantly; disabled video stays visible (current clip finishes)
+            await page.getByRole('button', { name: 'See With Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+            await expect(disabledVideo).toBeVisible();
+
+            // Simulate disabled video ending → reducer plays enabled video (toWithDuckPlayer)
+            await disabledVideo.dispatchEvent('ended');
+            await expect(enabledVideo).toBeVisible();
+            await expect(disabledVideo).not.toBeVisible();
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Simulate enabled video ending → withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+        });
+
+        test('Double toggle during playback cancels the reverse', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            const enabledVideo = page.locator('video[src*="enabled"]');
+            const disabledVideo = page.locator('video[src*="disabled"]');
+
+            // End the autoPlay video to reach withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+
+            // Toggle → toWithoutDuckPlayer
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Toggle mid-playback → toWithoutDuckPlayerThenReverse
+            await page.getByRole('button', { name: 'See With Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Toggle again → back to toWithoutDuckPlayer (reverse cancelled)
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Video ends normally → withoutDuckPlayer (no reverse plays)
+            await disabledVideo.dispatchEvent('ended');
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+        });
     });
 
     test('shows v4 flow', async ({ page }, workerInfo) => {

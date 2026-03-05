@@ -1,13 +1,12 @@
 import { h } from 'preact';
-import { useContext, useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useReducer, useRef } from 'preact/hooks';
+import cn from 'classnames';
 import { GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
-import { RiveAnimation } from '../../shared/components/RiveAnimation';
 import { Button } from './Button';
 import { LottieAnimation } from './LottieAnimation';
 import styles from './DuckPlayerContent.module.css';
-import onboardingAnimation from '../../shared/animations/Onboarding.riv';
 
 /**
  * Bottom bubble content for the duckPlayerSingle step.
@@ -48,45 +47,168 @@ function DuckPlayerAdFree() {
 }
 
 /**
- * Default variant: Rive animation with before/after toggle + Next button.
+ * @typedef {'initial'
+ *   | 'toWithDuckPlayer' | 'toWithDuckPlayerThenReverse'
+ *   | 'withDuckPlayer'
+ *   | 'toWithoutDuckPlayer' | 'toWithoutDuckPlayerThenReverse'
+ *   | 'withoutDuckPlayer'
+ * } DPState
+ *
+ * @typedef {'toggle' | 'videoEnded' | 'autoPlay'} DPAction
+ */
+
+/**
+ * State machine for video playback:
+ *
+ * ```
+ *   initial ──[auto-play]─────────────────────────▶ toWithDuckPlayer
+ *   initial ──[toggle]───────────────────────────▶ toWithoutDuckPlayer
+ *
+ *   toWithDuckPlayer ──[video ended]──────────▶ withDuckPlayer
+ *   toWithDuckPlayer ──[toggle]───────────────▶ toWithDuckPlayerThenReverse
+ *   toWithDuckPlayerThenReverse ──[toggle]────▶ toWithDuckPlayer
+ *   toWithDuckPlayerThenReverse ──[ended]─────▶ toWithoutDuckPlayer
+ *
+ *   withDuckPlayer ──[toggle]─────────────────▶ toWithoutDuckPlayer
+ *   toWithoutDuckPlayer ──[video ended]───────▶ withoutDuckPlayer
+ *   toWithoutDuckPlayer ──[toggle]────────────▶ toWithoutDuckPlayerThenReverse
+ *   toWithoutDuckPlayerThenReverse ──[toggle]─▶ toWithoutDuckPlayer
+ *   toWithoutDuckPlayerThenReverse ──[ended]──▶ toWithDuckPlayer
+ *
+ *   withoutDuckPlayer ──[toggle]──────────────▶ toWithDuckPlayer
+ * ```
+ *
+ * The `ThenReverse` states handle mid-playback toggles: instead of cutting
+ * the video short, the current clip finishes and then the reverse plays.
+ *
+ * @param {() => void} playWithVideo
+ * @param {() => void} playWithoutVideo
+ * @returns {(state: DPState, action: DPAction) => DPState}
+ */
+function createVideoReducer(playWithVideo, playWithoutVideo) {
+    return (state, action) => {
+        switch (state) {
+            case 'initial':
+                if (action === 'autoPlay') {
+                    playWithVideo();
+                    return 'toWithDuckPlayer';
+                }
+                if (action === 'toggle') {
+                    playWithoutVideo();
+                    return 'toWithoutDuckPlayer';
+                }
+                return state;
+            case 'toWithDuckPlayer':
+                if (action === 'videoEnded') return 'withDuckPlayer';
+                if (action === 'toggle') return 'toWithDuckPlayerThenReverse';
+                return state;
+            case 'toWithDuckPlayerThenReverse':
+                if (action === 'toggle') return 'toWithDuckPlayer';
+                if (action === 'videoEnded') {
+                    playWithoutVideo();
+                    return 'toWithoutDuckPlayer';
+                }
+                return state;
+            case 'withDuckPlayer':
+                if (action === 'toggle') {
+                    playWithoutVideo();
+                    return 'toWithoutDuckPlayer';
+                }
+                return state;
+            case 'toWithoutDuckPlayer':
+                if (action === 'videoEnded') return 'withoutDuckPlayer';
+                if (action === 'toggle') return 'toWithoutDuckPlayerThenReverse';
+                return state;
+            case 'toWithoutDuckPlayerThenReverse':
+                if (action === 'toggle') return 'toWithoutDuckPlayer';
+                if (action === 'videoEnded') {
+                    playWithVideo();
+                    return 'toWithDuckPlayer';
+                }
+                return state;
+            case 'withoutDuckPlayer':
+                if (action === 'toggle') {
+                    playWithVideo();
+                    return 'toWithDuckPlayer';
+                }
+                return state;
+            default:
+                return state;
+        }
+    };
+}
+
+/**
+ * Default variant: mp4 video transition with before/after toggle + Next button.
  */
 function DuckPlayerDefault() {
     const { t } = useTypedTranslation();
-    const { isDarkMode, isReducedMotion } = useEnv();
-    const dispatch = useContext(GlobalDispatch);
+    const { isReducedMotion } = useEnv();
+    const globalDispatch = useContext(GlobalDispatch);
 
-    const [animationState, setAnimationState] = useState(/** @type {'before' | 'after'} */ ('before'));
-    const [toggleState, setToggleState] = useState(/** @type {'before' | 'after'} */ ('after'));
+    const withVideoRef = useRef(/** @type {HTMLVideoElement | null} */ (null));
+    const withoutVideoRef = useRef(/** @type {HTMLVideoElement | null} */ (null));
 
-    // Auto-transition the Rive animation to 'after' after the bubble entry animation completes
-    // (400ms fade-in delay + 267ms fade-in duration = 667ms)
+    /**
+     * Play a video, or seek to end if reduced-motion is preferred.
+     * @param {HTMLVideoElement | null} video
+     */
+    const playVideo = (video) => {
+        if (!video) return;
+        if (isReducedMotion) {
+            if (Number.isFinite(video.duration)) {
+                video.currentTime = video.duration;
+            }
+            return;
+        }
+        video.currentTime = 0;
+        video.play();
+    };
+
+    const [state, dispatch] = useReducer(
+        createVideoReducer(
+            () => playVideo(withVideoRef.current),
+            () => playVideo(withoutVideoRef.current),
+        ),
+        'initial',
+    );
+
+    // Auto-play after bubble entry animation (400ms delay + 267ms duration = 667ms)
     useEffect(() => {
-        const id = setTimeout(() => setAnimationState('after'), isReducedMotion ? 0 : 667);
+        const id = setTimeout(() => dispatch('autoPlay'), isReducedMotion ? 0 : 667);
         return () => clearTimeout(id);
     }, [isReducedMotion]);
 
-    const toggle = () => {
-        const next = toggleState === 'before' ? 'after' : 'before';
-        setToggleState(next);
-        setAnimationState(next);
-    };
-    const advance = () => dispatch({ kind: 'enqueue-next' });
+    const advance = () => globalDispatch({ kind: 'enqueue-next' });
+
+    const isWithVideoShown = ['initial', 'toWithDuckPlayer', 'toWithDuckPlayerThenReverse', 'withDuckPlayer'].includes(state);
+    const isHideTextShown = ['initial', 'withDuckPlayer', 'toWithDuckPlayer', 'toWithoutDuckPlayerThenReverse'].includes(state);
 
     return (
         <div class={styles.root}>
-            <div class={styles.animationContainer}>
-                <RiveAnimation
-                    animation={onboardingAnimation}
-                    state={animationState}
-                    isDarkMode={isDarkMode}
-                    artboard="Duck Player"
-                    inputName="Duck Player?"
-                    stateMachine="State Machine 2"
+            <div class={styles.videoContainer}>
+                <video
+                    ref={withVideoRef}
+                    class={cn(styles.video, { [styles.hidden]: !isWithVideoShown })}
+                    src="assets/videos/duck-player-enabled.mp4"
+                    muted
+                    playsInline
+                    preload="auto"
+                    onEnded={() => dispatch('videoEnded')}
+                />
+                <video
+                    ref={withoutVideoRef}
+                    class={cn(styles.video, { [styles.hidden]: isWithVideoShown })}
+                    src="assets/videos/duck-player-disabled.mp4"
+                    muted
+                    playsInline
+                    preload="auto"
+                    onEnded={() => dispatch('videoEnded')}
                 />
             </div>
             <div class={styles.actions}>
-                <Button variant="secondary" class={styles.toggleButton} onClick={toggle}>
-                    {toggleState === 'after' ? t('beforeAfter_duckPlayer_hide') : t('beforeAfter_duckPlayer_show')}
+                <Button variant="secondary" class={styles.toggleButton} onClick={() => dispatch('toggle')}>
+                    {isHideTextShown ? t('beforeAfter_duckPlayer_hide') : t('beforeAfter_duckPlayer_show')}
                 </Button>
                 <Button variant="primary" class={styles.nextButton} onClick={advance}>
                     {t('nextButton')}

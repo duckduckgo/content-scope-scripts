@@ -31,20 +31,26 @@
     height: auto;
 }
 
-/* --- Rive animation (default variant) --- */
+/* --- Video (default variant) --- */
 
-.animationContainer {
-    display: flex;
-    justify-content: center;
+.videoContainer {
+    position: relative;
     align-self: stretch;
     overflow: hidden;
     border-radius: 12px;
-    border: 1px solid var(--ds-surface-decoration-primary);
+}
 
-    & canvas {
-        display: block;
-        width: 100%;
-        height: auto;
+.video {
+    display: block;
+    width: 100%;
+    height: auto;
+    position: relative;
+
+    &.hidden {
+        position: absolute;
+        top: 0;
+        left: 0;
+        visibility: hidden;
     }
 }
 
