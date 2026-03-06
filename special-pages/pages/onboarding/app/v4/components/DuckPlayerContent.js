@@ -155,8 +155,13 @@ function DuckPlayerDefault() {
         /** @param {DPAction} action */
         (action) => {
             const next = videoReducer(state, action);
-            if (next === 'toWithDuckPlayer') playVideo(withVideoRef.current);
-            if (next === 'toWithoutDuckPlayer') playVideo(withoutVideoRef.current);
+            // Only play video if not canceling a reverse (video is already playing)
+            if (next === 'toWithDuckPlayer' && state !== 'toWithDuckPlayerThenReverse') {
+                playVideo(withVideoRef.current);
+            }
+            if (next === 'toWithoutDuckPlayer' && state !== 'toWithoutDuckPlayerThenReverse') {
+                playVideo(withoutVideoRef.current);
+            }
             dispatch(action);
         },
         [state],
