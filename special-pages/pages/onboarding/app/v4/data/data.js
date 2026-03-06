@@ -56,13 +56,13 @@ export const stepsConfig = {
                         {overlay === 'dock-instructions' ? <DockInstructionsContent /> : <SettingsContent />}
                     </FadeTransition>
                 ),
-                illustration: overlay
-                    ? undefined
-                    : {
-                          background: <SystemSettingsBackground />,
-                          foreground: <SystemSettingsForeground />,
-                      },
             },
+            illustration: overlay
+                ? undefined
+                : {
+                      background: <SystemSettingsBackground />,
+                      foreground: <SystemSettingsForeground />,
+                  },
             showProgress: true,
             bounceKey: `${globalState.activeStep}-${globalState.activeRow}-${overlay ?? 'none'}`,
         };

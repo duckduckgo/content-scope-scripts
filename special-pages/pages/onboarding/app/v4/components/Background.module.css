@@ -7,7 +7,7 @@
     overflow: hidden;
     background-color: var(--ds-surface-tertiary);
 
-    @media (prefers-color-scheme: dark) {
+    :global(.theme-dark) & {
         background-color: var(--ds-accent-alt-primary);
     }
 }
