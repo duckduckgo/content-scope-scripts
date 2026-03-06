@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const generatedPath = join(scriptDir, '../src/features/tracker-protection/surrogates-generated.js');
@@ -18,7 +18,7 @@ if (!content.trim()) {
 }
 
 try {
-    const mod = await import(generatedPath);
+    const mod = await import(pathToFileURL(generatedPath).href);
     const keys = Object.keys(mod.surrogates || {});
     if (keys.length === 0) {
         console.error('FATAL: surrogates-generated.js exports zero surrogates.');
