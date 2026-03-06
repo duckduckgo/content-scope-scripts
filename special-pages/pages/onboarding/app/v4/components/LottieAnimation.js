@@ -8,6 +8,7 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  *
  * @param {object} props
  * @param {string} props.src - Path to the Lottie JSON file (relative to public/)
+ * @param {string} [props.darkSrc] - Dark mode path to the Lottie JSON file (relative to public/)
  * @param {number} [props.width] - Width in pixels
  * @param {number} [props.height] - Height in pixels
  * @param {boolean} [props.loop] - Whether to loop the animation
@@ -15,37 +16,45 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  * @param {string} [props.label] - Accessible label for the animation
  * @param {string} [props.class] - CSS class name for the container
  */
-export function LottieAnimation({ src, width, height, loop = false, onComplete, label, class: className }) {
+export function LottieAnimation({ src, darkSrc, width, height, loop = false, onComplete, label, class: className }) {
     const ref = useRef(/** @type {HTMLDivElement | null} */ (null));
-    const { isReducedMotion } = useEnv();
+    const frameRef = useRef(/** @type {number} */ (0));
+    const { isReducedMotion, isDarkMode } = useEnv();
+    const resolvedSrc = darkSrc && isDarkMode ? darkSrc : src;
 
     useEffect(() => {
         if (!ref.current) return;
+
+        const startFrame = frameRef.current;
 
         /** @type {import('lottie-web').AnimationItem | null} */
         const animation = lottie.loadAnimation({
             container: ref.current,
             renderer: 'svg',
             loop,
-            autoplay: !isReducedMotion,
-            path: src,
+            autoplay: !isReducedMotion && startFrame === 0,
+            path: resolvedSrc,
         });
 
-        if (isReducedMotion) {
-            const showLastFrame = () => {
-                animation.goToAndStop(animation.totalFrames - 1, true);
-            };
-            animation.addEventListener('DOMLoaded', showLastFrame);
-        }
+        animation.addEventListener('DOMLoaded', () => {
+            const lastFrame = animation.totalFrames - 1;
+            if (isReducedMotion) {
+                animation.goToAndStop(lastFrame, true);
+            } else if (startFrame > 0) {
+                const frame = Math.min(startFrame, lastFrame);
+                animation.goToAndPlay(frame, true);
+            }
+        });
 
         if (onComplete && !loop) {
             animation.addEventListener('complete', onComplete);
         }
 
         return () => {
+            frameRef.current = animation.currentFrame;
             animation.destroy();
         };
-    }, [src, loop, onComplete, isReducedMotion]);
+    }, [resolvedSrc, loop, onComplete, isReducedMotion]);
 
     return (
         <div

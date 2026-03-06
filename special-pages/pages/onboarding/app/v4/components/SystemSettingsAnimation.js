@@ -15,6 +15,7 @@ export function SystemSettingsBackground() {
         <LottieAnimation
             class={cn(styles.background, exiting && styles.fadeOut)}
             src="assets/lottie/v4/dax-in-spotlight-pointing-background.json"
+            darkSrc="assets/lottie/v4/dax-in-spotlight-pointing-background-dark.json"
             width={170}
             height={170}
         />

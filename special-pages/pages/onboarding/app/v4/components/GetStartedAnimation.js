@@ -17,6 +17,7 @@ export function GetStartedAnimation({ class: className }) {
         <LottieAnimation
             class={cn(styles.root, exiting && styles.fadeOut, className)}
             src="assets/lottie/v4/dax-in-spotlight-thumbs-up.json"
+            darkSrc="assets/lottie/v4/dax-in-spotlight-thumbs-up-dark.json"
             width={274}
             height={274}
         />

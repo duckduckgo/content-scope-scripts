@@ -37,7 +37,13 @@ function DuckPlayerAdFree() {
         <div class={styles.root}>
             <div class={styles.imageContainer}>
                 <img src="assets/img/v4/duck-player-promo.svg" alt="" class={styles.promoImage} />
-                <LottieAnimation src="assets/lottie/v4/sparkle.json" class={styles.sparkle} width={34} height={43} />
+                <LottieAnimation
+                    src="assets/lottie/v4/sparkle.json"
+                    darkSrc="assets/lottie/v4/sparkle-dark.json"
+                    class={styles.sparkle}
+                    width={34}
+                    height={43}
+                />
             </div>
             <Button variant="primary" size="stretch" onClick={advance}>
                 {t('nextButton')}

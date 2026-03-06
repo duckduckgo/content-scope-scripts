@@ -82,7 +82,15 @@ export function MakeDefaultContent() {
         <div class={styles.root}>
             <h2 ref={titleRef} class={styles.title}>
                 {showSuccess ? t('makeDefaultAccept_title_v4') : t('protectionsActivated_title')}
-                {showSuccess && <LottieAnimation src="assets/lottie/v4/sparkle.json" class={styles.sparkle} width={34} height={43} />}
+                {showSuccess && (
+                    <LottieAnimation
+                        src="assets/lottie/v4/sparkle.json"
+                        darkSrc="assets/lottie/v4/sparkle-dark.json"
+                        class={styles.sparkle}
+                        width={34}
+                        height={43}
+                    />
+                )}
             </h2>
 
             <ComparisonTable />
