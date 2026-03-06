@@ -4,8 +4,9 @@ import styles from './Player.module.css';
 import { useEffect, useRef } from 'preact/hooks';
 import { useSettings, useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
-import { Settings } from '../settings';
-import { useTypedTranslation } from '../types.js';
+import { Settings } from '../settings.js';
+import { PLAYBACK_EVENT } from '../features/buffering-metrics.js';
+import { useTypedTranslation, useMessaging } from '../types.js';
 
 /**
  * @import {EmbedSettings} from '../embed-settings.js';
@@ -20,7 +21,21 @@ import { useTypedTranslation } from '../types.js';
  * @param {EmbedSettings} props.embed
  */
 export function Player({ src, layout, embed }) {
+    const messaging = useMessaging();
+    const settings = useSettings();
     const { ref, didLoad } = useIframeEffects(src, embed);
+
+    useEffect(() => {
+        if (settings.platform.name !== 'windows') return;
+
+        /** @type {(event: CustomEvent<import('../../types/duckplayer').PlaybackEvent>) => void} */
+        const handler = (event) => {
+            messaging.notifyPlaybackEvent(event.detail);
+        };
+        window.addEventListener(PLAYBACK_EVENT, handler);
+        return () => window.removeEventListener(PLAYBACK_EVENT, handler);
+    }, [messaging, settings.platform.name]);
+
     const wrapperClasses = cn({
         [styles.root]: true,
         [styles.player]: true,
@@ -111,6 +126,7 @@ function useIframeEffects(src, embed) {
             features.mouseCapture(),
             features.errorDetection(),
             features.replaceWatchLinks(() => openOnYoutube(embed)),
+            features.bufferingMetrics(),
         ];
 
         /**
