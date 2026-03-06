@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useContext, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
@@ -60,15 +60,19 @@ function DuckPlayerAdFree() {
  *   | 'withoutDuckPlayer'
  * } DPState
  *
- * @typedef {'toggle' | 'videoEnded' | 'autoPlay'} DPAction
+ * @typedef {'toggle' | 'videoEnded' | 'autoPlay'} DPEvent
+ *
+ * @typedef {object} DPActions
+ * @property {() => void} playWithVideo
+ * @property {() => void} playWithoutVideo
  */
 
 /**
  * State machine for video playback:
  *
  * ```
- *   initial ──[auto-play]─────────────────────────▶ toWithDuckPlayer
- *   initial ──[toggle]───────────────────────────▶ toWithoutDuckPlayer
+ *   initial ──[auto-play]─────────────────────▶ toWithDuckPlayer
+ *   initial ──[toggle]────────────────────────▶ toWithoutDuckPlayer
  *
  *   toWithDuckPlayer ──[video ended]──────────▶ withDuckPlayer
  *   toWithDuckPlayer ──[toggle]───────────────▶ toWithDuckPlayerThenReverse
@@ -87,61 +91,60 @@ function DuckPlayerAdFree() {
  * The `ThenReverse` states handle mid-playback toggles: instead of cutting
  * the video short, the current clip finishes and then the reverse plays.
  *
- * @param {() => void} playWithVideo
- * @param {() => void} playWithoutVideo
- * @returns {(state: DPState, action: DPAction) => DPState}
+ * @param {DPState} state
+ * @param {DPEvent} event
+ * @param {DPActions} actions
+ * @returns {DPState}
  */
-function createVideoReducer(playWithVideo, playWithoutVideo) {
-    return (state, action) => {
-        switch (state) {
-            case 'initial':
-                if (action === 'autoPlay') {
-                    playWithVideo();
-                    return 'toWithDuckPlayer';
-                }
-                if (action === 'toggle') {
-                    playWithoutVideo();
-                    return 'toWithoutDuckPlayer';
-                }
-                return state;
-            case 'toWithDuckPlayer':
-                if (action === 'videoEnded') return 'withDuckPlayer';
-                if (action === 'toggle') return 'toWithDuckPlayerThenReverse';
-                return state;
-            case 'toWithDuckPlayerThenReverse':
-                if (action === 'toggle') return 'toWithDuckPlayer';
-                if (action === 'videoEnded') {
-                    playWithoutVideo();
-                    return 'toWithoutDuckPlayer';
-                }
-                return state;
-            case 'withDuckPlayer':
-                if (action === 'toggle') {
-                    playWithoutVideo();
-                    return 'toWithoutDuckPlayer';
-                }
-                return state;
-            case 'toWithoutDuckPlayer':
-                if (action === 'videoEnded') return 'withoutDuckPlayer';
-                if (action === 'toggle') return 'toWithoutDuckPlayerThenReverse';
-                return state;
-            case 'toWithoutDuckPlayerThenReverse':
-                if (action === 'toggle') return 'toWithoutDuckPlayer';
-                if (action === 'videoEnded') {
-                    playWithVideo();
-                    return 'toWithDuckPlayer';
-                }
-                return state;
-            case 'withoutDuckPlayer':
-                if (action === 'toggle') {
-                    playWithVideo();
-                    return 'toWithDuckPlayer';
-                }
-                return state;
-            default:
-                return state;
-        }
-    };
+function fsm(state, event, actions) {
+    switch (state) {
+        case 'initial':
+            if (event === 'autoPlay') {
+                actions.playWithVideo();
+                return 'toWithDuckPlayer';
+            }
+            if (event === 'toggle') {
+                actions.playWithoutVideo();
+                return 'toWithoutDuckPlayer';
+            }
+            return state;
+        case 'toWithDuckPlayer':
+            if (event === 'videoEnded') return 'withDuckPlayer';
+            if (event === 'toggle') return 'toWithDuckPlayerThenReverse';
+            return state;
+        case 'toWithDuckPlayerThenReverse':
+            if (event === 'toggle') return 'toWithDuckPlayer';
+            if (event === 'videoEnded') {
+                actions.playWithoutVideo();
+                return 'toWithoutDuckPlayer';
+            }
+            return state;
+        case 'withDuckPlayer':
+            if (event === 'toggle') {
+                actions.playWithoutVideo();
+                return 'toWithoutDuckPlayer';
+            }
+            return state;
+        case 'toWithoutDuckPlayer':
+            if (event === 'videoEnded') return 'withoutDuckPlayer';
+            if (event === 'toggle') return 'toWithoutDuckPlayerThenReverse';
+            return state;
+        case 'toWithoutDuckPlayerThenReverse':
+            if (event === 'toggle') return 'toWithoutDuckPlayer';
+            if (event === 'videoEnded') {
+                actions.playWithVideo();
+                return 'toWithDuckPlayer';
+            }
+            return state;
+        case 'withoutDuckPlayer':
+            if (event === 'toggle') {
+                actions.playWithVideo();
+                return 'toWithDuckPlayer';
+            }
+            return state;
+        default:
+            return state;
+    }
 }
 
 /**
@@ -151,42 +154,52 @@ function DuckPlayerDefault() {
     const { t } = useTypedTranslation();
     const { isReducedMotion } = useEnv();
     const globalDispatch = useContext(GlobalDispatch);
-
     const withVideoRef = useRef(/** @type {HTMLVideoElement | null} */ (null));
     const withoutVideoRef = useRef(/** @type {HTMLVideoElement | null} */ (null));
 
+    // --- State machine ---
+
+    const [state, setState] = useState(/** @type {DPState} */ ('initial'));
+
     /**
      * Play a video, or seek to end if reduced-motion is preferred.
-     * @param {HTMLVideoElement | null} video
+     * @type {(video: HTMLVideoElement | null) => void}
      */
-    const playVideo = (video) => {
-        if (!video) return;
-        if (isReducedMotion) {
-            if (Number.isFinite(video.duration)) {
-                video.currentTime = video.duration;
+    const playVideo = useCallback(
+        (video) => {
+            if (!video) return;
+            if (isReducedMotion) {
+                if (Number.isFinite(video.duration)) {
+                    video.currentTime = video.duration;
+                }
+                return;
             }
-            return;
-        }
-        video.currentTime = 0;
-        video.play();
-    };
-
-    const [state, dispatch] = useReducer(
-        createVideoReducer(
-            () => playVideo(withVideoRef.current),
-            () => playVideo(withoutVideoRef.current),
-        ),
-        'initial',
+            video.currentTime = 0;
+            video.play();
+        },
+        [isReducedMotion],
     );
 
-    // Auto-play after bubble entry animation (400ms delay + 267ms duration = 667ms)
+    /** @type {(event: DPEvent) => void} */
+    const send = useCallback(
+        (event) => {
+            const actions = {
+                playWithVideo: () => playVideo(withVideoRef.current),
+                playWithoutVideo: () => playVideo(withoutVideoRef.current),
+            };
+            setState(fsm(state, event, actions));
+        },
+        [state, playVideo],
+    );
+
     useEffect(() => {
-        const id = setTimeout(() => dispatch('autoPlay'), isReducedMotion ? 0 : 667);
+        const id = setTimeout(() => send('autoPlay'), isReducedMotion ? 0 : 667);
         return () => clearTimeout(id);
-    }, [isReducedMotion]);
+    }, [send, isReducedMotion]);
+
+    // --- Derived state ---
 
     const advance = () => globalDispatch({ kind: 'enqueue-next' });
-
     const isWithVideoShown = ['initial', 'toWithDuckPlayer', 'toWithDuckPlayerThenReverse', 'withDuckPlayer'].includes(state);
     const isHideTextShown = ['initial', 'withDuckPlayer', 'toWithDuckPlayer', 'toWithoutDuckPlayerThenReverse'].includes(state);
 
@@ -200,7 +213,7 @@ function DuckPlayerDefault() {
                     muted
                     playsInline
                     preload="auto"
-                    onEnded={() => dispatch('videoEnded')}
+                    onEnded={() => send('videoEnded')}
                 />
                 <video
                     ref={withoutVideoRef}
@@ -209,11 +222,11 @@ function DuckPlayerDefault() {
                     muted
                     playsInline
                     preload="auto"
-                    onEnded={() => dispatch('videoEnded')}
+                    onEnded={() => send('videoEnded')}
                 />
             </div>
             <div class={styles.actions}>
-                <Button variant="secondary" class={styles.toggleButton} onClick={() => dispatch('toggle')}>
+                <Button variant="secondary" class={styles.toggleButton} onClick={() => send('toggle')}>
                     {isHideTextShown ? t('beforeAfter_duckPlayer_hide') : t('beforeAfter_duckPlayer_show')}
                 </Button>
                 <Button variant="primary" class={styles.nextButton} onClick={advance}>
