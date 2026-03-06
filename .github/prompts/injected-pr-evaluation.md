@@ -111,7 +111,7 @@ Evaluate every changed line against these categories. Flag anything that could b
 ### 4. Data Exfiltration Vectors
 
 - **`postMessage` without origin restriction**: Any `window.postMessage()` or `iframe.contentWindow.postMessage()` without a specific `targetOrigin` (using `'*'`) leaks data to any listening frame.
-- **URL construction with user data**: Building URLs that include page-derived data (e.g., for image fetches, API calls) can leak browsing context to third parties. Verify all external URL construction.
+- **URL construction with page-derived data**: Building URLs that include page-derived data (e.g., for image fetches, API calls) can leak browsing context to third parties. Verify all external URL construction.
 - **`eval()` / `Function()` / `new Function()`**: Direct code execution from strings. The codebase avoids this in C-S-S itself (broker-protection serializes functions for native execution). Flag any new dynamic code execution.
 - **CSS injection**: If feature code injects `<style>` elements or sets `element.style` with page-derived values, CSS injection can exfiltrate data via `url()` or attribute selectors.
 - **fetch / XHR from content script**: Content script fetches may carry cookies and bypass CORS. Any new network requests from feature code are high-risk.
