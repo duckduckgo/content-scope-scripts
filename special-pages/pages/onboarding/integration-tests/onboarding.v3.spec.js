@@ -765,5 +765,41 @@ test.describe('onboarding v3', () => {
             // ▶️ Then I can toggle it afterward
             await onboarding.startBrowsing();
         });
+
+        test.describe('Given onConfigUpdate behavior', () => {
+            test('When config update has reduced customize rows (no bookmarks), only those rows are shown', async ({
+                page,
+            }, workerInfo) => {
+                test.skip(workerInfo.project.name !== 'windows');
+                const onboarding = OnboardingV3Page.create(page, workerInfo);
+                onboarding.withInitData({
+                    order: 'v3',
+                    stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
+                });
+                await onboarding.reducedMotion();
+                await onboarding.openPage({ env: 'app', page: 'customize' });
+                await onboarding.pushConfigUpdate({ stepDefinitions: { customize: { rows: ['session-restore', 'home-shortcut'] } } });
+                await page.getByRole('button', { name: 'Enable Session Restore' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
+                await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
+            });
+
+            test('When config update has default customize rows, bookmarks row is shown first', async ({ page }, workerInfo) => {
+                test.skip(workerInfo.project.name !== 'windows');
+                const onboarding = OnboardingV3Page.create(page, workerInfo);
+                onboarding.withInitData({
+                    stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
+                    env: 'development',
+                    order: 'v3',
+                });
+                await onboarding.reducedMotion();
+                await onboarding.openPage({ env: 'app', page: 'customize' });
+                await onboarding.pushConfigUpdate({
+                    stepDefinitions: { customize: { rows: ['bookmarks', 'session-restore', 'home-shortcut'] } },
+                });
+                await page.getByRole('button', { name: 'Show Bookmarks Bar' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).toBeVisible();
+            });
+        });
     });
 });

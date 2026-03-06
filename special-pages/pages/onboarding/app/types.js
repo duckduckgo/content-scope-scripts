@@ -98,7 +98,8 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | DismisstoSettingsEvent
  *   | ErrorBoundaryEvent
  *   | ShowOverlayEvent
- *   | DismissOverlayEvent} GlobalEvents
+ *   | DismissOverlayEvent
+ *   | ConfigUpdateEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -111,7 +112,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
  * @typedef {{ kind: "show-overlay"; overlay: OverlayId }} ShowOverlayEvent
  * @typedef {{ kind: "dismiss-overlay" }} DismissOverlayEvent
- *
+ * @typedef {{ kind: "config-update"; stepDefinitions?: Record<string, any>; exclude?: Step['id'][] }} ConfigUpdateEvent
  */
 
 /** @type {ImportMeta['injectName'][]} */
