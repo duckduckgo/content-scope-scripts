@@ -5,9 +5,9 @@
     padding: var(--sp-9) var(--sp-12); /* 36px 48px */
     gap: var(--sp-7); /* 28px */
 
-    :global([data-current="addressBarMode"]) & {
+    :global([data-current='addressBarMode']) & {
         padding-top: var(--sp-11); /* 44px */
-        padding-bottom: var(--sp-11);
+        padding-bottom: var(--sp-11); /* 44px */
     }
 }
 

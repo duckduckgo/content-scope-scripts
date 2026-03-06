@@ -30,9 +30,10 @@
  * @property {ImportMeta['platform']} platformName - Current platform
  * @property {import('../../types').GlobalState} globalState - Application state
  * @property {Progress} progress - Step progress
- * @property {() => void} advance - Function that advances to the next step
+ * @property {() => void} advance - Function that advances to the next step (immediate, no exit animation)
+ * @property {() => void} enqueueNext - Function that triggers exit animation, then advances
  * @property {() => void} dismiss - Function that dismisses onboarding completely
- * @property {(id: import('../../types').SystemValueId) => void} enableSystemValue - Function that switches a system setting to ON
+ * @property {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} updateSystemValue - Dispatches a system value update
  */
 
 /**

@@ -1,7 +1,6 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
 import styles from './App.module.css';
-import { GlobalContext, GlobalDispatch } from '../global';
+import { useGlobalDispatch, useGlobalState } from '../global';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 import { usePlatformName } from '../shared/components/SettingsProvider';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
@@ -16,8 +15,8 @@ import { SingleStep } from './components/SingleStep';
 export function App({ children }) {
     const { debugState, isDarkMode } = useEnv();
     const platformName = usePlatformName();
-    const globalState = useContext(GlobalContext);
-    const dispatch = useContext(GlobalDispatch);
+    const globalState = useGlobalState();
+    const dispatch = useGlobalDispatch();
 
     const { activeStep, exiting } = globalState;
 
@@ -40,6 +39,10 @@ export function App({ children }) {
     );
 }
 
+/**
+ * @param {object} props
+ * @param {import('../types').GlobalState} props.state
+ */
 function Debug(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state;
     const debugData = { order, step, exiting, activeStep, nextStep };

@@ -30,14 +30,14 @@
   width: var(--address-bar-width);
   height: var(--address-bar-height);
   background-color: #fff; /* Default/fallback - overridden by inline style */
-  border-radius: 15px;
+  border-radius: calc(15 * var(--px-in-rem));
   pointer-events: none;
   transition: var(--address-bar-transition), background-color 300ms ease;
 }
 
 .bgReduced {
   height: var(--address-bar-height-reduced);
-  border-radius: 11px;
+  border-radius: calc(11 * var(--px-in-rem));
 }
 
 /* CSS border overlay */
@@ -49,7 +49,7 @@
   width: var(--address-bar-width);
   height: var(--address-bar-height);
   border: 2px solid;
-  border-radius: 15px;
+  border-radius: calc(15 * var(--px-in-rem));
   pointer-events: none;
   box-sizing: border-box;
   transition: var(--address-bar-transition);
@@ -57,7 +57,7 @@
 
 .borderReduced {
   height: var(--address-bar-height-reduced);
-  border-radius: 11px;
+  border-radius: calc(11 * var(--px-in-rem));
 }
 
 /* Regular search icon - positioned on right side of address bar */

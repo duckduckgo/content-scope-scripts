@@ -1,19 +1,18 @@
 .button {
-    display: inline-flex;
-    justify-content: center;
     align-items: center;
-    gap: var(--sp-2); /* 8px */
-    min-width: var(--sp-32);
-    padding: var(--sp-4) var(--sp-6); /* 16px 24px */
-    border: none;
     border-radius: var(--sp-16); /* 64px */
+    border: none;
     cursor: pointer;
-    height: var(--sp-9); /* 36px */
-
+    display: inline-flex;
     font-family: var(--font-product);
     font-size: calc(15 * var(--px-in-rem));
     font-weight: 400;
+    gap: var(--sp-2); /* 8px */
+    height: var(--sp-9); /* 36px */
+    justify-content: center;
     line-height: calc(15 * var(--px-in-rem));
+    min-width: var(--sp-32); /* 128px */
+    padding: var(--sp-4) var(--sp-6); /* 16px 24px */
     text-align: center;
 }
 
@@ -21,8 +20,6 @@
     opacity: 0.4;
     cursor: default;
 }
-
-/* --- Primary (accent) --- */
 
 .primary {
     background: var(--ds-accent-button-primary);
@@ -34,8 +31,6 @@
     background: var(--ds-accent-button-secondary);
 }
 
-/* --- Secondary (standard) --- */
-
 .secondary {
     background: var(--ds-control-primary-background-color);
     color: var(--ds-text-primary);
@@ -45,8 +40,6 @@
 .secondary:active:not(:disabled) {
     background: var(--ds-control-secondary-background-color);
 }
-
-/* --- Size variants --- */
 
 .wide {
     padding-left: var(--sp-24); /* 96px */

@@ -1,9 +1,5 @@
 .root {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-self: stretch;
-    padding: var(--sp-12); /* 48px */
+    gap: 0;
 }
 
 .previewContainer {

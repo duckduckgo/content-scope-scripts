@@ -1,12 +1,3 @@
-.root {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-self: stretch;
-    gap: var(--sp-8); /* 32px */
-    padding: var(--sp-12); /* 48px */
-}
-
 .imageContainer {
     position: relative;
     align-self: stretch;
@@ -37,7 +28,7 @@
     position: relative;
     align-self: stretch;
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: var(--sp-3); /* 12px */
 }
 
 .video {

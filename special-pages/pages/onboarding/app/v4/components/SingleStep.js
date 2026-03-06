@@ -3,7 +3,6 @@ import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import { Bubble } from './Bubble';
 import { useStepConfig } from '../hooks/useStepConfig';
-import { useGlobalDispatch } from '../../global';
 import styles from './SingleStep.module.css';
 
 /**
@@ -12,9 +11,8 @@ import styles from './SingleStep.module.css';
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
-    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey, illustration } = useStepConfig();
-    const dispatch = useGlobalDispatch();
-    const handleExitComplete = () => dispatch({ kind: 'advance' });
+    const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey, illustration, advance } =
+        useStepConfig();
 
     const [topHeight, setTopHeight] = useState(0);
     const [bottomHeight, setBottomHeight] = useState(0);
@@ -43,7 +41,7 @@ export function SingleStep() {
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={300} // 9f from t=0 (7f after size start at 2f)
                 exiting={globalState.exiting}
-                onExitComplete={topBubble ? handleExitComplete : undefined}
+                onExitComplete={topBubble ? advance : undefined}
                 progress={showProgress && topBubble ? progress : undefined}
             >
                 {topBubble?.content}
@@ -58,7 +56,7 @@ export function SingleStep() {
                 bounceKey={bounceKey || globalState.activeStep}
                 bounceDelay={167} // 5f from t=0 (3f after size start at 2f)
                 exiting={globalState.exiting}
-                onExitComplete={topBubble ? undefined : handleExitComplete}
+                onExitComplete={topBubble ? undefined : advance}
                 progress={showProgress && !topBubble ? progress : undefined}
             >
                 {bottomBubble?.content}

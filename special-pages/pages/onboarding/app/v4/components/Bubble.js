@@ -50,16 +50,18 @@ export function Bubble({
     progress,
     ...props
 }) {
+    const { isReducedMotion } = useEnv();
+
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const isMounted = useRef(false);
     const prevBounceKey = useRef(bounceKey);
-    const { isReducedMotion } = useEnv();
-    const [frameRef, animateFrame] = /** @type {[import('preact').RefObject<HTMLDivElement>, import('../hooks/useAnimate').AnimateFn]} */ (
-        useAnimate()
-    );
-    const [progressBadgeRef, animateProgressBadge] =
-        /** @type {[import('preact').RefObject<HTMLDivElement>, import('../hooks/useAnimate').AnimateFn]} */ (useAnimate());
+
+    /** @type {[import('preact').RefObject<HTMLDivElement>, import('../hooks/useAnimate').AnimateFn]} */
+    const [frameRef, animateFrame] = useAnimate();
+
+    /** @type {[import('preact').RefObject<HTMLDivElement>, import('../hooks/useAnimate').AnimateFn]} */
+    const [progressBadgeRef, animateProgressBadge] = useAnimate();
 
     // One-way flag: false on initial mount, true after the first transition.
     // Suppresses fade-in and fade-out CSS animations until content has exited once.
@@ -112,7 +114,7 @@ export function Bubble({
     }, [bounceKey, animateFrame, animateProgressBadge, bounceDelay]);
 
     /** @param {import('preact').JSX.TargetedAnimationEvent<HTMLDivElement>} e */
-    const handleAnimationEnd = (e) => {
+    const complete = (e) => {
         if (exiting && e.target === containerRef.current) {
             onExitComplete?.();
         }
@@ -140,7 +142,7 @@ export function Bubble({
             <div
                 ref={containerCallback}
                 class={cn(styles.container, isMounted.current && (exiting ? styles.fadeOut : styles.fadeIn))}
-                onAnimationEnd={handleAnimationEnd}
+                onAnimationEnd={complete}
             >
                 <div ref={contentRef} class={styles.content}>
                     {children}

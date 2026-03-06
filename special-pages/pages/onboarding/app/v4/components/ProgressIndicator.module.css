@@ -16,27 +16,27 @@
 }
 
 .active {
-    width: var(--sp-3);
-    height: var(--sp-3);
+    width: var(--sp-3); /* 12px */
+    height: var(--sp-3); /* 12px */
     background: var(--ds-accent-primary);
 }
 
 .complete {
-    width: 6px;
-    height: 6px;
+    width: calc(6 * var(--px-in-rem));
+    height: calc(6 * var(--px-in-rem));
     background: var(--ds-accent-primary);
 }
 
 .incomplete {
-    width: 6px;
-    height: 6px;
+    width: calc(6 * var(--px-in-rem));
+    height: calc(6 * var(--px-in-rem));
     background: var(--ds-accent-alt-primary);
 }
 
 .text {
     font-family: var(--font-product);
-    font-size: var(--sp-3);
+    font-size: var(--sp-3); /* 12px */
     font-weight: 400;
-    line-height: var(--sp-3);
+    line-height: var(--sp-3); /* 12px */
     color: var(--ds-text-primary);
 }

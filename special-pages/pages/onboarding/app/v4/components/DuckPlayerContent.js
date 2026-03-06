@@ -1,10 +1,10 @@
 import { h } from 'preact';
-import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
-import { GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import { Button } from './Button';
+import { Container } from './Container';
 import { LottieAnimation } from './LottieAnimation';
 import styles from './DuckPlayerContent.module.css';
 
@@ -16,25 +16,22 @@ import styles from './DuckPlayerContent.module.css';
  *
  * @param {object} props
  * @param {boolean} props.isAdFree
+ * @param {() => void} props.advance
  */
-export function DuckPlayerContent({ isAdFree }) {
-    if (isAdFree) {
-        return <DuckPlayerAdFree />;
-    }
-    return <DuckPlayerDefault />;
+export function DuckPlayerContent({ isAdFree, advance }) {
+    return isAdFree ? <DuckPlayerAdFree advance={advance} /> : <DuckPlayerDefault advance={advance} />;
 }
 
 /**
  * Ad-free variant: static promo image + Next button.
+ *
+ * @param {object} props
+ * @param {() => void} props.advance
  */
-function DuckPlayerAdFree() {
+function DuckPlayerAdFree({ advance }) {
     const { t } = useTypedTranslation();
-    const dispatch = useContext(GlobalDispatch);
-
-    const advance = () => dispatch({ kind: 'enqueue-next' });
-
     return (
-        <div class={styles.root}>
+        <Container>
             <div class={styles.imageContainer}>
                 <img src="assets/img/v4/duck-player-promo.svg" alt="" class={styles.promoImage} />
                 <LottieAnimation
@@ -48,7 +45,7 @@ function DuckPlayerAdFree() {
             <Button variant="primary" size="stretch" onClick={advance}>
                 {t('nextButton')}
             </Button>
-        </div>
+        </Container>
     );
 }
 
@@ -66,20 +63,23 @@ function DuckPlayerAdFree() {
  *  - phase: lifecycle of the current video
  *  - reverse: when true, the other video plays once the current one ends
  */
-function DuckPlayerDefault() {
+/**
+ * @param {object} props
+ * @param {() => void} props.advance
+ */
+function DuckPlayerDefault({ advance }) {
     const { t } = useTypedTranslation();
     const { isReducedMotion } = useEnv();
-    const globalDispatch = useContext(GlobalDispatch);
 
     const videosRef = useRef(/** @type {Record<DPTarget, HTMLVideoElement | null>} */ ({ with: null, without: null }));
 
     const [state, setState] = useState(/** @type {DPState} */ ({ target: 'with', phase: 'initial', reverse: false }));
 
-    /** @type {(t: DPTarget) => DPTarget} */
-    const flip = (t) => (t === 'with' ? 'without' : 'with');
+    /** @type {(target: DPTarget) => DPTarget} */
+    const flip = (target) => (target === 'with' ? 'without' : 'with');
 
-    /** @param {DPTarget} t */
-    const videoFor = (t) => videosRef.current[t];
+    /** @param {DPTarget} target */
+    const videoFor = (target) => videosRef.current[target];
 
     /** @param {HTMLVideoElement | null} video */
     const play = (video) => {
@@ -126,7 +126,7 @@ function DuckPlayerDefault() {
         }
     };
 
-    const handleEnd = () => {
+    const end = () => {
         if (state.reverse) {
             // A reverse was queued — play the other video now
             const next = flip(state.target);
@@ -138,11 +138,10 @@ function DuckPlayerDefault() {
         }
     };
 
-    const advance = () => globalDispatch({ kind: 'enqueue-next' });
     const toggleLabel = state.reverse ? flip(state.target) : state.target;
 
     return (
-        <div class={styles.root}>
+        <Container>
             <div class={styles.videoContainer}>
                 <video
                     ref={(el) => {
@@ -153,7 +152,7 @@ function DuckPlayerDefault() {
                     muted
                     playsInline
                     preload="auto"
-                    onEnded={handleEnd}
+                    onEnded={end}
                 />
                 <video
                     ref={(el) => {
@@ -164,7 +163,7 @@ function DuckPlayerDefault() {
                     muted
                     playsInline
                     preload="auto"
-                    onEnded={handleEnd}
+                    onEnded={end}
                 />
             </div>
             <div class={styles.actions}>
@@ -175,6 +174,6 @@ function DuckPlayerDefault() {
                     {t('nextButton')}
                 </Button>
             </div>
-        </div>
+        </Container>
     );
 }

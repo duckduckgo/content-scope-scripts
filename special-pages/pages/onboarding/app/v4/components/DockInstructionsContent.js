@@ -1,27 +1,31 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
-import { GlobalDispatch } from '../../global';
+import { useGlobalDispatch } from '../../global';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import { Trans } from '../../../../../shared/components/TranslationsProvider';
 import { useTypedTranslation } from '../../types';
 import { Button } from './Button';
+import { Container } from './Container';
 import styles from './DockInstructionsContent.module.css';
 
 /**
  * Bottom bubble content for the dock-instructions overlay.
  * Shows a looping video with instruction text and a Next button.
+ *
+ * @param {object} props
+ * @param {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} props.updateSystemValue
  */
-export function DockInstructionsContent() {
+export function DockInstructionsContent({ updateSystemValue }) {
     const { t } = useTypedTranslation();
     const { isReducedMotion } = useEnv();
-    const dispatch = useContext(GlobalDispatch);
-    const handleNext = () => {
+    const dispatch = useGlobalDispatch();
+
+    const next = () => {
         dispatch({ kind: 'dismiss-overlay' });
-        dispatch({ kind: 'update-system-value', id: 'dock-instructions', payload: { enabled: true }, current: true });
+        updateSystemValue('dock-instructions', { enabled: true }, true);
     };
 
     return (
-        <div class={styles.root}>
+        <Container>
             <video
                 class={styles.video}
                 src="assets/video/dock-instructions/add-to-dock.mp4"
@@ -38,9 +42,9 @@ export function DockInstructionsContent() {
                     <Trans str={t('dockInstructions_body')} values={{}} />
                 </p>
             </div>
-            <Button variant="primary" size="stretch" onClick={handleNext}>
+            <Button variant="primary" size="stretch" onClick={next}>
                 {t('nextButton')}
             </Button>
-        </div>
+        </Container>
     );
 }

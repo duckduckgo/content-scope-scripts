@@ -33,7 +33,7 @@ export const tableIconPrefix = 'assets/img/steps/v4/';
 /**
  * Comparison table matrix
  *
- * Safari was removed from the latest comparison table layout. Keeping it the data just in case it comes back.
+ * Safari was removed from the latest comparison table layout. Keeping the data just in case it comes back.
  *
  * @type {(t: ReturnType<typeof import('../../types')['useTypedTranslation']>['t'], adBlockingEnabled?: boolean) => FeatureSupportData[]}
  */

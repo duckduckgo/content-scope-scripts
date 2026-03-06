@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import styles from './AddressBarPreview.module.css';
 
 const ICON_TRANSITION = { transition: 'opacity 250ms ease-in-out' };
@@ -55,8 +56,8 @@ export function AddressBarPreview({ isReduced, isDarkMode = false }) {
           };
 
     return (
-        <div className={styles.wrapper}>
-            <svg fill="none" viewBox="0 0 432 208" xmlns="http://www.w3.org/2000/svg" className={styles.image}>
+        <div class={styles.wrapper}>
+            <svg fill="none" viewBox="0 0 432 208" xmlns="http://www.w3.org/2000/svg" class={styles.image}>
                 <defs>
                     <clipPath id="clip-main">
                         <rect width="432" height="208" fill="#fff" rx="20" />
@@ -153,18 +154,15 @@ export function AddressBarPreview({ isReduced, isDarkMode = false }) {
 
             {/* CSS Background overlay - animates smoothly with CSS */}
             <div
-                className={`${styles.bgOverlay} ${isReduced ? styles.bgReduced : ''}`}
+                class={cn(styles.bgOverlay, isReduced && styles.bgReduced)}
                 style={{ backgroundColor: colors.addressBarBg, boxShadow: colors.addressBarShadow }}
             />
             {/* CSS Border overlay - animates smoothly with CSS */}
-            <div
-                className={`${styles.borderOverlay} ${isReduced ? styles.borderReduced : ''}`}
-                style={{ borderColor: colors.addressBarBorder }}
-            />
+            <div class={cn(styles.borderOverlay, isReduced && styles.borderReduced)} style={{ borderColor: colors.addressBarBorder }} />
 
             {/* Regular search icon - shown when in search-only mode */}
             <svg
-                className={styles.regularIcon}
+                class={styles.regularIcon}
                 style={{ opacity: isReduced ? 1 : 0, ...ICON_TRANSITION }}
                 viewBox="0 0 12 12"
                 fill="none"
@@ -178,7 +176,7 @@ export function AddressBarPreview({ isReduced, isDarkMode = false }) {
 
             {/* Extended icon (AI chat pill) - shown when in search-and-duckai mode */}
             <svg
-                className={styles.extendedIcon}
+                class={styles.extendedIcon}
                 style={{ opacity: isReduced ? 0 : 1, ...ICON_TRANSITION }}
                 viewBox="0 0 56 20"
                 fill="none"

@@ -1,7 +1,6 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
 import cn from 'classnames';
-import { GlobalContext } from '../../global';
+import { useGlobalState } from '../../global';
 import styles from './GetStartedAnimation.module.css';
 import { LottieAnimation } from './LottieAnimation';
 
@@ -12,7 +11,7 @@ import { LottieAnimation } from './LottieAnimation';
  * @param {string} [props.class] - Optional CSS class
  */
 export function GetStartedAnimation({ class: className }) {
-    const { exiting } = useContext(GlobalContext);
+    const { exiting } = useGlobalState();
     return (
         <LottieAnimation
             class={cn(styles.root, exiting && styles.fadeOut, className)}

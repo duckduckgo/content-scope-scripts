@@ -8,7 +8,7 @@
     right: var(--sp-9); /* 36px — aligned with bubble border-radius */
     transform: translateY(-50%);
     background: var(--bubble-bg);
-    padding: 6px 10px 6px var(--sp-2);
+    padding: calc(6 * var(--px-in-rem)) calc(10 * var(--px-in-rem)) calc(6 * var(--px-in-rem)) var(--sp-2);
     border: 1.5px solid var(--bubble-border);
     border-radius: var(--sp-16); /* 64px — full pill */
 }
@@ -38,16 +38,6 @@
 
 .fadeIn {
     animation: fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 400ms backwards;
-}
-
-@keyframes fade-out {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-
-@keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
 }
 
 /* Clip wrapper for bottom-left tail — overflow creates the tuck/untuck effect */
@@ -88,6 +78,16 @@
             transform: translateX(-2px);
         }
     }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

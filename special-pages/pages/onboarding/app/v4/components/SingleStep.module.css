@@ -89,8 +89,6 @@
     z-index: 1;
 }
 
-/* --- bubble intro on getStarted (first step with bubbles) --- */
-
 :global([data-current="getStarted"]) .topBubble,
 :global([data-current="getStarted"]) .bottomBubble {
     animation: scale-up 0.9s 0.15s both, slide-up 0.9s 0.15s both, fade-in 0.9s 0.15s both;
