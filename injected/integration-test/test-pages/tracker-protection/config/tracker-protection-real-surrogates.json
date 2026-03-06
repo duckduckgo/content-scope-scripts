@@ -1,0 +1,19 @@
+{
+  "readme": "Config for real-surrogate E2E tests. Uses real Google domains with surrogate names matching bundled surrogates.",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": false,
+        "trackerData": "{\"trackers\":{\"google-analytics.com\":{\"domain\":\"google-analytics.com\",\"owner\":{\"name\":\"Google LLC\",\"displayName\":\"Google\"},\"default\":\"block\",\"rules\":[{\"rule\":\"google-analytics\\\\.com/analytics\\\\.js\",\"surrogate\":\"analytics.js\"}]},\"googletagmanager.com\":{\"domain\":\"googletagmanager.com\",\"owner\":{\"name\":\"Google LLC\",\"displayName\":\"Google\"},\"default\":\"block\",\"rules\":[{\"rule\":\"googletagmanager\\\\.com/gtm\\\\.js\",\"surrogate\":\"gtm.js\"}]},\"googletagservices.com\":{\"domain\":\"googletagservices.com\",\"owner\":{\"name\":\"Google LLC\",\"displayName\":\"Google\"},\"default\":\"block\",\"rules\":[{\"rule\":\"googletagservices\\\\.com/tag/js/gpt\\\\.js\",\"surrogate\":\"gpt.js\"}]}},\"entities\":{\"Google LLC\":{\"domains\":[\"google-analytics.com\",\"googletagmanager.com\",\"googletagservices.com\"],\"displayName\":\"Google\",\"prevalence\":0.8}},\"domains\":{\"google-analytics.com\":\"Google LLC\",\"googletagmanager.com\":\"Google LLC\",\"googletagservices.com\":\"Google LLC\"}}",
+        "allowlist": {},
+        "tempUnprotectedDomains": [],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}

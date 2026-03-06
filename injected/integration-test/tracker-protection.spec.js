@@ -10,6 +10,7 @@ const UNPROTECTED_CONFIG = './integration-test/test-pages/tracker-protection/con
 const ALLOWLISTED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-allowlisted.json';
 const CTL_ACTION_PREFIX_DISABLED_CONFIG =
     './integration-test/test-pages/tracker-protection/config/tracker-protection-ctl-action-prefix-disabled.json';
+const REAL_SURROGATES_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-real-surrogates.json';
 
 function trackerMessages(messages) {
     return messages.filter((m) => m.payload.featureName === 'trackerProtection');
@@ -348,4 +349,48 @@ test('tracker-protection: CTL disabled suppresses non-fb block-ctl-* surrogate',
     const allMessages = await collector.outgoingMessages();
     const injected = trackerMessages(allMessages).filter((m) => m.payload.method === 'surrogateInjected');
     expect(injected).toHaveLength(0);
+});
+
+// Real-surrogate E2E: confirm bundled surrogates load and define expected globals
+const realSurrogateCases = [
+    { url: 'https://google-analytics.com/analytics.js', globalCheck: "typeof window.ga === 'function'", label: 'analytics.js' },
+    { url: 'https://www.googletagmanager.com/gtm.js', globalCheck: "typeof window.ga !== 'undefined'", label: 'gtm.js' },
+    { url: 'https://www.googletagservices.com/tag/js/gpt.js', globalCheck: "typeof window.googletag === 'object'", label: 'gpt.js' },
+];
+
+for (const { url, globalCheck, label } of realSurrogateCases) {
+    test(`tracker-protection: real surrogate ${label} blocks, injects, and defines global`, async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, REAL_SURROGATES_CONFIG);
+
+        await page.evaluate((src) => {
+            /** @type {any} */ (window).addTrackerScript(src);
+        }, url);
+
+        const detected = await collector.waitForMessage('trackerDetected', 1);
+        expect(detected[0].payload.params.blocked).toBe(true);
+
+        const injected = await collector.waitForMessage('surrogateInjected', 1);
+        expect(injected[0].payload.params.url).toBe(url);
+
+        const globalDefined = await page.evaluate((check) => {
+            return eval(check); // eslint-disable-line no-eval
+        }, globalCheck);
+        expect(globalDefined).toBe(true);
+    });
+}
+
+// MutationObserver path: DOM-appended <img> element (distinct from new Image().src descriptor)
+test('tracker-protection: detects tracker from DOM-appended img element', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerImage('https://tracker.example/pixel.gif');
+    });
+
+    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const detection = messages[0].payload.params;
+    expect(detection.url).toBe('https://tracker.example/pixel.gif');
+    expect(detection.blocked).toBe(true);
 });
