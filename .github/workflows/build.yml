@@ -45,6 +45,8 @@ jobs:
 
             - name: Calculate next version
               id: version
+              env:
+                  VERSION_BUMP: ${{ github.event.inputs.version_bump }}
               run: |
                   # Get the latest tag (no longer using v prefix, filter out legacy v-prefixed tags)
                   LATEST_TAG=$(git tag | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
@@ -66,7 +68,7 @@ jobs:
                   MINOR=$(echo $VERSION_WITHOUT_V | cut -d. -f2)
 
                   # Calculate next version based on input
-                  if [ "${{ github.event.inputs.version_bump }}" = "major" ]; then
+                  if [ "$VERSION_BUMP" = "major" ]; then
                     NEXT_MAJOR=$((MAJOR + 1))
                     NEXT_MINOR=0
                   else
