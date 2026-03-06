@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { transform } from 'esbuild';
+import { compileFunction } from 'vm';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const surrogatesDir = join(scriptDir, '../../node_modules/@duckduckgo/tracker-surrogates/surrogates');
@@ -29,6 +30,13 @@ output += 'export const surrogates = {\n';
 
 for (const file of files) {
     const code = readFileSync(join(surrogatesDir, file), 'utf-8').replace(/^\s*[\r\n]/gm, '');
+    try {
+        compileFunction(code);
+    } catch (e) {
+        console.error(`FATAL: Invalid surrogate JavaScript in "${file}"`);
+        console.error(e.message);
+        process.exit(1);
+    }
     const indented = code
         .split('\n')
         .map((line) => (line ? '        ' + line : ''))
