@@ -11,6 +11,28 @@ export const GlobalContext = createContext(/** @type {GlobalState} */ ({}));
 export const GlobalDispatch = createContext(/** @type {import("preact/hooks").Dispatch<GlobalEvents>} */ ({}));
 
 /**
+ * @param {GlobalState} state
+ * @param {import('./types.js').ConfigUpdateEvent} action
+ * @return {GlobalState}
+ */
+function withConfigUpdate(state, action) {
+    let nextStepDefinitions = state.stepDefinitions;
+    if (action.stepDefinitions) {
+        nextStepDefinitions = { ...state.stepDefinitions };
+        for (const [key, value] of Object.entries(action.stepDefinitions)) {
+            nextStepDefinitions[key] = nextStepDefinitions[key] ? { ...nextStepDefinitions[key], ...value } : value;
+        }
+    }
+    const nextOrder = action.exclude ? state.order.filter((id) => !action.exclude?.includes(id)) : state.order;
+    return {
+        ...state,
+        stepDefinitions: nextStepDefinitions,
+        order: nextOrder,
+        step: nextStepDefinitions[state.activeStep] ?? state.step,
+    };
+}
+
+/**
  * All application state is managed here.
  *
  * @param {GlobalState} state
@@ -61,23 +83,7 @@ export function reducer(state, action) {
                     };
                 }
                 case 'config-update': {
-                    let nextStepDefs = state.stepDefinitions;
-                    if (action.stepDefinitions) {
-                        nextStepDefs = { ...state.stepDefinitions };
-                        for (const [key, value] of Object.entries(action.stepDefinitions)) {
-                            nextStepDefs[key] = nextStepDefs[key] ? { ...nextStepDefs[key], ...value } : value;
-                        }
-                    }
-                    let nextOrder = state.order;
-                    if (action.exclude) {
-                        nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
-                    }
-                    return {
-                        ...state,
-                        stepDefinitions: nextStepDefs,
-                        order: nextOrder,
-                        step: nextStepDefs[state.activeStep] ?? state.step,
-                    };
+                    return withConfigUpdate(state, action);
                 }
                 default:
                     return state;
@@ -151,23 +157,7 @@ export function reducer(state, action) {
                     };
                 }
                 case 'config-update': {
-                    let nextStepDefsExec = state.stepDefinitions;
-                    if (action.stepDefinitions) {
-                        nextStepDefsExec = { ...state.stepDefinitions };
-                        for (const [key, value] of Object.entries(action.stepDefinitions)) {
-                            nextStepDefsExec[key] = nextStepDefsExec[key] ? { ...nextStepDefsExec[key], ...value } : value;
-                        }
-                    }
-                    let nextOrderExec = state.order;
-                    if (action.exclude) {
-                        nextOrderExec = state.order.filter((id) => !action.exclude?.includes(id));
-                    }
-                    return {
-                        ...state,
-                        stepDefinitions: nextStepDefsExec,
-                        order: nextOrderExec,
-                        step: nextStepDefsExec[state.activeStep] ?? state.step,
-                    };
+                    return withConfigUpdate(state, action);
                 }
                 default:
                     throw new Error('unhandled ' + action.kind);

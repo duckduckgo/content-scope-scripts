@@ -74,7 +74,11 @@ export function mockTransport() {
                 return () => {};
             }
             const msg = /** @type {{ method?: string; subscriptionName?: string }} */ (_msg);
-            const name = typeof _msg === 'string' ? _msg : (msg.subscriptionName ?? msg.method ?? 'onConfigUpdate');
+            const name = typeof _msg === 'string' ? _msg : (msg.subscriptionName ?? msg.method);
+            if (!name) {
+                console.warn('subscribe called without subscription name', _msg);
+                return () => {};
+            }
             if (!window.__playwright_01.subscriptions) {
                 window.__playwright_01.subscriptions = new Map();
             }
