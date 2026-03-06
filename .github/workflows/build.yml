@@ -93,6 +93,13 @@ jobs:
                   cat ${{ github.workspace }}/CHANGELOG.txt
                   echo "Current tag is: $(git rev-list --tags --max-count=1)"
 
+            - name: Abort if changelog is empty
+              run: |
+                  if [ ! -s "${{ github.workspace }}/CHANGELOG.txt" ]; then
+                    echo "::error::Changelog is empty — no commits found since the last release tag. Aborting to prevent a blank release."
+                    exit 1
+                  fi
+
             - name: Ensure clean release branch from main
               run: |
                   # Remove all tracked and untracked files except .git and .github
