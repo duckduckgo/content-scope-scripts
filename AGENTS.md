@@ -30,7 +30,14 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `performance-metrics` - Performance tracking
 - `referrer` - Referrer protection
 - `web-compat` - Site compatibility fixes
+- `web-detection` - Web detection framework
 - `web-interference-detection` / `web-telemetry` - Monitoring
+- `duck-ai-chat-history` - Duck AI chat history
+- `duck-ai-data-clearing` - Duck AI data clearing
+- `page-context` - Page context
+- `print` - Print protection
+- `ua-ch-brands` - User-Agent Client Hints brands
+- `windows-permission-usage` - Windows permission usage
 
 **Docs:** `injected/docs/README.md` (index to all docs)
 

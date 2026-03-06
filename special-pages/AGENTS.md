@@ -42,7 +42,7 @@ Run from `special-pages/` directory:
 |---------|---------|
 | `npm run test-unit` | Unit tests |
 | `npm run test-int -- --reporter list` | Integration tests (all platforms) |
-| `npm run test-int -- --project ios --repoter list` | Single platform |
+| `npm run test-int -- --project ios --reporter list` | Single platform |
 | `npm run test-int -- --grep "test name" --reporter list` | Run integration tests matching a pattern |
 | `npm run test-int -- pages/new-tab/integration-tests/new-tab.spec.js --reporter list` | Run single integration test suite |
 | `npm run test-int-x -- --reporter list` | Exclude screenshot tests |

@@ -17,7 +17,7 @@ This document provides platform-specific build instructions, troubleshooting ste
     - Check file hash/timestamp to ensure it's been rebuilt
 
 2. **Check where it lives in the native application:**
-    - **iOS/macOS**: `apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js`
+    - **iOS/macOS**: `content-scope-scripts/Sources/ContentScopeScripts/dist/contentScope.js` (resolved via SPM path dependency in apple-browsers)
     - **Android**: `android/node_modules/@duckduckgo/content-scope-scripts/build/android/contentScope.js` (referenced by build.gradle files)
     - **Windows**:
         - Main: `windows-browser/WindowsBrowser/Application/ContentScripts/contentScope.js` (embedded resource from `submodules/content-scope-scripts/build/windows/contentScope.js`)
@@ -67,7 +67,7 @@ C_S_S_SOURCEMAPS=1 npm run build
 - **Set up Autofill as a Local Dependency:**
     - Drag the folder from Finder into the directory panel in Xcode.
 - **Privacy Config Files:**
-    - Both apps bundle a privacy config file: [macos-config.json](https://github.com/duckduckgo/apple-browsers/blob/main/macOS/DuckDuckGo/ContentBlocker/macos-config.json) & [ios-config.json](https://github.com/duckduckgo/apple-browsers/blob/main/iOS/Core/ios-config.json).
+    - Both apps bundle a privacy config file: [macos-config.json](https://github.com/duckduckgo/apple-browsers/blob/main/macOS/DuckDuckGo/ContentBlocker/Resources/macos-config.json) & [ios-config.json](https://github.com/duckduckgo/apple-browsers/blob/main/iOS/Core/ios-config.json).
     - To test privacy config changes, update this file as well as the config endpoint for remote updates ([macOS](https://github.com/duckduckgo/apple-browsers/blob/main/macOS/DuckDuckGo/Application/AppConfigurationURLProvider.swift#L60) & [iOS](https://github.com/duckduckgo/apple-browsers/blob/main/iOS/Core/AppURLs.swift#L49)).
 - **If you receive errors related to packages:**
     - File > Packages > Reset Package Caches
