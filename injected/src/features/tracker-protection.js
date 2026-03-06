@@ -457,12 +457,18 @@ export class TrackerProtection extends ContentFeature {
             willLoadSurrogate = !hasIntegrityCheck && (!isCtlSurrogate || this._ctlEnabled === true);
         }
 
+        let surrogateLoaded = false;
+        if (willLoadSurrogate && result.matchedRule?.surrogate) {
+            const surrogateName = result.matchedRule.surrogate;
+            surrogateLoaded = this._loadSurrogate(surrogateName, element);
+        }
+
         if (result.tracker) {
             this.notify('trackerDetected', {
                 url,
                 blocked,
                 reason: result.reason || null,
-                isSurrogate: willLoadSurrogate,
+                isSurrogate: surrogateLoaded,
                 pageUrl: this._topLevelUrl?.href || '',
                 entityName: result.entity?.displayName || result.tracker.owner?.displayName || null,
                 ownerName: result.tracker.owner?.name || null,
@@ -472,21 +478,19 @@ export class TrackerProtection extends ContentFeature {
             });
         }
 
-        if (willLoadSurrogate && result.matchedRule?.surrogate) {
-            const surrogateName = result.matchedRule.surrogate;
-            const loaded = this._loadSurrogate(surrogateName, element);
+        if (surrogateLoaded) {
+            this.notify('surrogateInjected', {
+                url,
+                blocked: true,
+                reason: result.reason,
+                isSurrogate: true,
+                pageUrl: this._topLevelUrl?.href || '',
+            });
+            return true;
+        }
 
-            if (loaded) {
-                this.notify('surrogateInjected', {
-                    url,
-                    blocked: true,
-                    reason: result.reason,
-                    isSurrogate: true,
-                    pageUrl: this._topLevelUrl?.href || '',
-                });
-            }
-
-            return loaded;
+        if (willLoadSurrogate) {
+            return false;
         }
 
         return blocked;
@@ -510,12 +514,11 @@ export class TrackerProtection extends ContentFeature {
         }
 
         try {
+            surrogateFn();
+
             if (targetElement && 'onerror' in targetElement) {
                 targetElement.onerror = null;
             }
-
-            surrogateFn();
-
             if (targetElement) {
                 targetElement.dispatchEvent(new Event('load'));
             }

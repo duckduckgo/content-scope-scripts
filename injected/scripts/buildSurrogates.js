@@ -31,7 +31,7 @@ output += 'export const surrogates = {\n';
 for (const file of files) {
     const code = readFileSync(join(surrogatesDir, file), 'utf-8').replace(/^\s*[\r\n]/gm, '');
     try {
-        compileFunction(code);
+        compileFunction('"use strict";\n' + code);
     } catch (e) {
         console.error(`FATAL: Invalid surrogate JavaScript in "${file}"`);
         console.error(e.message);
