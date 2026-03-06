@@ -91,7 +91,7 @@ export function reducer(state, action) {
                         order: nextOrder,
                         step: nextStepDefs[state.activeStep] ?? state.step,
                     };
-                }            
+                }
                 default:
                     return state;
             }
