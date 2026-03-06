@@ -42,7 +42,7 @@
     "@fingerprintjs/fingerprintjs": "^5.1.0",
     "@types/chrome": "^0.1.37",
     "@types/jasmine": "^6.0.0",
-    "@types/node": "^25.3.3",
+    "@types/node": "^25.3.5",
     "@types/seedrandom": "^3.0.8",
     "c8": "^11.0.0",
     "fast-check": "^4.5.2",
