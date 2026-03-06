@@ -12,6 +12,13 @@ jobs:
     semver_label:
         runs-on: ubuntu-latest
         steps:
+            - name: Checkout action definition
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.sha }}
+                  sparse-checkout: .github/actions
+                  sparse-checkout-cone-mode: false
+
             - name: Checkout base branch
               uses: actions/checkout@v6
               with:
@@ -24,31 +31,10 @@ jobs:
                   ref: refs/pull/${{ github.event.pull_request.number }}/merge
                   path: pr
 
-            - name: Use Node.js
-              uses: actions/setup-node@v6
+            - name: Build and diff
+              uses: ./.github/actions/build-and-diff
               with:
-                  node-version-file: 'base/.nvmrc'
-
-            - name: Build base branch
-              run: |
-                  echo "Base SHA: $(git -C base rev-parse HEAD)"
-                  cd base
-                  npm install
-                  npm run build
-
-            - name: Build PR branch
-              run: |
-                  echo "PR merge SHA: $(git -C pr rev-parse HEAD)"
-                  cd pr
-                  npm install
-                  npm run build
-
-            - name: Create build diff
-              run: |
-                  cp -r base/Sources/ContentScopeScripts/dist base/build/apple 2>/dev/null || true
-                  cp -r pr/Sources/ContentScopeScripts/dist pr/build/apple 2>/dev/null || true
-                  node base/.github/scripts/diff-directories.js base pr > /tmp/build_diff.txt
-                  echo "Build diff size: $(wc -c < /tmp/build_diff.txt) bytes"
+                  output-file: /tmp/build_diff.txt
 
             - name: Get PR source files
               env:

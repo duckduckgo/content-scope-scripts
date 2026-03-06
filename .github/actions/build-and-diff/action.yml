@@ -1,0 +1,54 @@
+name: Build and Diff
+description: Build base and PR branches, then diff the build outputs
+
+inputs:
+    base-path:
+        description: Path to the checked-out base branch
+        default: base
+    pr-path:
+        description: Path to the checked-out PR branch
+        default: pr
+    pr-pre-build:
+        description: Shell commands to run in the PR directory before npm install (e.g. rebase)
+        default: ''
+    output-file:
+        description: Path to write the diff output
+        default: diff.txt
+
+outputs:
+    diff-file:
+        description: Path to the diff output file
+        value: ${{ inputs.output-file }}
+
+runs:
+    using: composite
+    steps:
+        - name: Use Node.js
+          uses: actions/setup-node@v6
+          with:
+              node-version-file: '${{ inputs.base-path }}/.nvmrc'
+
+        - name: Build base branch
+          shell: bash
+          run: |
+              echo "Base SHA: $(git -C ${{ inputs.base-path }} rev-parse HEAD)"
+              cd ${{ inputs.base-path }}
+              npm install
+              npm run build
+
+        - name: Build PR branch
+          shell: bash
+          run: |
+              echo "PR SHA: $(git -C ${{ inputs.pr-path }} rev-parse HEAD)"
+              cd ${{ inputs.pr-path }}
+              ${{ inputs.pr-pre-build }}
+              npm install
+              npm run build
+
+        - name: Create build diff
+          shell: bash
+          run: |
+              cp -r ${{ inputs.base-path }}/Sources/ContentScopeScripts/dist ${{ inputs.base-path }}/build/apple 2>/dev/null || true
+              cp -r ${{ inputs.pr-path }}/Sources/ContentScopeScripts/dist ${{ inputs.pr-path }}/build/apple 2>/dev/null || true
+              node ${{ inputs.pr-path }}/.github/scripts/diff-directories.js ${{ inputs.base-path }} ${{ inputs.pr-path }} > ${{ inputs.output-file }}
+              echo "Build diff size: $(wc -c < ${{ inputs.output-file }}) bytes"
