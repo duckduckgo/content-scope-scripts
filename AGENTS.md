@@ -8,15 +8,18 @@ This is an npm workspace monorepo with four sub-projects:
 
 ### `injected/` - Browser Privacy Features
 
-JavaScript features injected into web pages for privacy protections. Features extend `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
+JavaScript features injected into web pages for privacy protections. Features extend `ContentFeature` (which extends `ConfigFeature`) and integrate with remote configuration for per-site enable/disable.
 
 **Features** (in `injected/src/features/`):
 - `api-manipulation` - API behavior modifications
 - `autofill-import` - Credential import support
 - `breakage-reporting` - Site breakage reports
 - `broker-protection` - Data broker removal automation
+- `browser-ui-lock` - Browser UI lock controls
 - `click-to-load` - Social embed blocking
+- `context-menu` - Context menu customization
 - `cookie` - Cookie management
+- `duck-ai-chat-history` / `duck-ai-data-clearing` - Duck AI features
 - `duck-player` / `duck-player-native` - YouTube privacy player
 - `element-hiding` - Hide page elements
 - `exception-handler` - Error handling
@@ -25,19 +28,18 @@ JavaScript features injected into web pages for privacy protections. Features ex
 - `google-rejected` - Google rejection handling
 - `gpc` - Global Privacy Control
 - `harmful-apis` - Dangerous API restrictions
+- `hover` - Hover behavior modifications
 - `message-bridge` - Page↔content script messaging
 - `navigator-interface` - Navigator API modifications
+- `page-context` / `page-observer` - Page context and observation
 - `performance-metrics` - Performance tracking
+- `print` - Print behavior modifications
 - `referrer` - Referrer protection
-- `web-compat` - Site compatibility fixes
-- `web-detection` - Web detection framework
-- `web-interference-detection` / `web-telemetry` - Monitoring
-- `duck-ai-chat-history` - Duck AI chat history
-- `duck-ai-data-clearing` - Duck AI data clearing
-- `page-context` - Page context
-- `print` - Print protection
 - `ua-ch-brands` - User-Agent Client Hints brands
-- `windows-permission-usage` - Windows permission usage
+- `web-compat` - Site compatibility fixes
+- `web-detection` / `web-events` - Web detection and event handling
+- `web-interference-detection` / `web-telemetry` - Monitoring
+- `windows-permission-usage` - Windows permission tracking
 
 **Docs:** `injected/docs/README.md` (index to all docs)
 
@@ -79,7 +81,7 @@ Run from root. Use `nvm use` to set the correct Node version.
 | `npm run lint` | ESLint + TypeScript + Prettier |
 | `npm run lint-fix` | Auto-fix lint issues |
 | `npm run serve` | Serve injected test pages (port 3220) |
-| `npm run serve-special-pages` | Serve special pages (port 3221) |
+| `npm run serve-special-pages` | Serve special pages (port 3210) |
 
 ## Coding Standards
 
@@ -104,7 +106,7 @@ See [`guides/debugging.md`](guides/debugging.md) for debugging resources includi
 ## Cursor Cloud specific instructions
 
 - Node 22 and npm are pre-installed. Playwright browsers + system deps are pre-installed. Just run `npm ci` to refresh dependencies.
-- `npm run serve-special-pages` actually serves on **port 3210** (not 3221 as the Commands table above states). The injected test pages serve on port 3220 as documented.
+- `npm run serve-special-pages` serves on **port 3210**. The injected test pages serve on port 3220 as documented.
 - Integration tests for injected workspace may show 2 flaky iOS mobile drawer timeouts (`duckplayer-mobile-drawer.spec.js`); these are pre-existing timing issues, not environment problems.
 - No Docker, databases, or external services are needed. All tests are self-contained with local HTTP servers and mocked native messaging.
 - On headless Linux, `xvfb` is pre-installed. The injected workspace provides `npm run test-int-x` which wraps Playwright with `xvfb-run`, but standard `npm run test-int` also works in this environment.

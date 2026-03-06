@@ -60,7 +60,7 @@ Features are bundled per-platform in `entry-points/`:
 - `windows.js` - Windows
 - `extension-mv3.js` - Browser extension
 
-Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`, `breakageReporting`, `print`, `webInterferenceDetection` (see `utils.js` `platformSpecificFeatures`).
+Platform-specific features: `contextMenu`, `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`, `breakageReporting`, `print`, `webInterferenceDetection`, `webDetection`, `webEvents`, `pageObserver`, `hover` (see `utils.js` `platformSpecificFeatures`).
 
 ## Notes
 

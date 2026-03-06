@@ -36,8 +36,8 @@ The following is a guideline for when using native JavaScript syntax or built-in
 
 #### Extensions
 
-- **Chrome**: Version 96+ - [Chrome manifest reference](https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/249d8d6ebe38b9b8265ba311909c8971c422122c/browsers/chrome/manifest.json#L6)
-- **Firefox**: Version 91+ - [Firefox manifest reference](https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/249d8d6ebe38b9b8265ba311909c8971c422122c/browsers/firefox/manifest.json#L6)
+- **Chrome**: Version 128+ - [Chrome manifest reference](https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/main/browsers/chrome/manifest.json)
+- **Firefox**: Version 102+ - [Firefox manifest reference](https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/main/browsers/firefox/manifest.json)
 
 ## Platform-Specific Implementation Details
 
