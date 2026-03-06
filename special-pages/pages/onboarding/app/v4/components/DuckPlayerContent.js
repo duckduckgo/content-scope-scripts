@@ -152,12 +152,16 @@ function DuckPlayerDefault() {
     /**
      * Play a video, or seek to end if reduced-motion is preferred.
      * @param {HTMLVideoElement | null} video
+     * @param {() => void} [onEnded]
      */
-    const playVideo = (video) => {
+    const playVideo = (video, onEnded) => {
         if (!video) return;
         if (isReducedMotion) {
             if (Number.isFinite(video.duration)) {
                 video.currentTime = video.duration;
+            }
+            if (onEnded) {
+                queueMicrotask(onEnded);
             }
             return;
         }
@@ -167,8 +171,8 @@ function DuckPlayerDefault() {
 
     const [state, dispatch] = useReducer(
         createVideoReducer(
-            () => playVideo(withVideoRef.current),
-            () => playVideo(withoutVideoRef.current),
+            () => playVideo(withVideoRef.current, () => dispatch('videoEnded')),
+            () => playVideo(withoutVideoRef.current, () => dispatch('videoEnded')),
         ),
         'initial',
     );
