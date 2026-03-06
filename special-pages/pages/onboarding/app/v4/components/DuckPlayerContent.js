@@ -113,7 +113,7 @@ function DuckPlayerDefault() {
         const { target, phase, reverse } = state;
         if (phase === 'initial') {
             // Queue a reverse so auto-play will switch to "without" once the "with" video ends
-            setState({ target, phase, reverse: true });
+            setState({ target, phase, reverse: !reverse });
         } else if (phase === 'playing') {
             // Mid-playback: queue or cancel a reverse instead of cutting the video short
             if (!reverse) reset(videoFor(flip(target)));
