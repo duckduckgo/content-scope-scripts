@@ -15,6 +15,12 @@ import ConfigFeature from './config-feature.js';
  */
 
 /**
+ * @typedef {object} ContentFeatureImportMeta
+ * @property {import('./trackers.js').TrackerNode} [trackerLookup]
+ * @property {ImportMeta['injectName']} [injectName]
+ */
+
+/**
  * @typedef {object} Site
  * @property {string | null} domain
  * @property {string | null} url
@@ -83,7 +89,7 @@ export default class ContentFeature extends ConfigFeature {
      */
     listenForConfigUpdates = false;
 
-    /** @type {ImportMeta} */
+    /** @type {ContentFeatureImportMeta} */
     #importConfig;
 
     /**
@@ -110,13 +116,13 @@ export default class ContentFeature extends ConfigFeature {
 
     /**
      * @param {string} featureName
-     * @param {*} importConfig
+     * @param {ContentFeatureImportMeta} importConfig
      * @param {Partial<FeatureMap>} features
-     * @param {*} args
+     * @param {import('./content-scope-features.js').LoadArgs} args
      */
     constructor(featureName, importConfig, features, args) {
         super(featureName, args);
-        this.setArgs(this.args);
+        this.setArgs(args);
         this.monitor = new PerformanceMonitor();
         this.#features = features;
         this.#importConfig = importConfig;
@@ -323,7 +329,7 @@ export default class ContentFeature extends ConfigFeature {
     init(_args) {}
 
     /**
-     * @param {object} args
+     * @param {import('./content-scope-features.js').LoadArgs} args
      */
     async callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
@@ -355,7 +361,7 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * @param {any} args
+     * @param {import('./content-scope-features.js').LoadArgs} args
      */
     setArgs(args) {
         this.args = args;
@@ -504,7 +510,7 @@ export default class ContentFeature extends ConfigFeature {
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
      * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
-     * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
+     * @param {(originalFn: Function, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapMethod(object, propertyName, wrapperFn) {

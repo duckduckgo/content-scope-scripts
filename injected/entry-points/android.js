@@ -2,7 +2,7 @@
  * @module Android integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig, getLoadArgs } from './../src/utils';
+import { processConfig, getLoadArgs, getInitArgs } from './../src/utils';
 import { AndroidMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -29,7 +29,7 @@ function initCode() {
 
     load(getLoadArgs(processedConfig));
 
-    init(processedConfig);
+    init(getInitArgs(processedConfig));
 }
 
 initCode();

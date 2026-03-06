@@ -57,21 +57,7 @@ export default class ConfigFeature {
     /** @type {string} */
     name;
 
-    /**
-     * @type {{
-     *   debug?: boolean,
-     *   platform: import('./utils.js').Platform,
-     *   desktopModeEnabled?: boolean,
-     *   forcedZoomEnabled?: boolean,
-     *   isDdgWebView?: boolean,
-     *   featureSettings?: Record<string, unknown>,
-     *   assets?: import('./content-feature.js').AssetConfig | undefined,
-     *   site: import('./content-feature.js').Site,
-     *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
-     *   messagingContextName: string,
-     *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
-     * } | null}
-     */
+    /** @type {import('./content-scope-features.js').LoadArgs | null} */
     #args;
 
     /**
@@ -131,12 +117,14 @@ export default class ConfigFeature {
      */
     matchConditionalFeatureSetting(featureKeyName) {
         const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
-        return conditionalChanges.filter((/** @type {any} */ rule) => {
+        return conditionalChanges.filter((/** @type {ConditionalSettingEntry} */ rule) => {
             let condition = rule.condition;
             // Support shorthand for domain matching for backwards compatibility
-            if (condition === undefined && 'domain' in rule) {
+            if (condition === undefined && 'domain' in rule && rule.domain !== undefined) {
                 condition = this._domainToConditonBlocks(rule.domain);
             }
+            // condition-less rules (no condition, no domain) match unconditionally
+            if (condition === undefined) return true;
             return this._matchConditionalBlockOrArray(condition);
         });
     }
