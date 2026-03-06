@@ -73,7 +73,9 @@ export const stepsConfig = {
         };
     },
     duckPlayerSingle: ({ t, globalState, enqueueNext }) => {
-        const duckPlayerStep = /** @type {import('../../types').DuckPlayerSingleStep | undefined} */ (globalState.stepDefinitions?.duckPlayerSingle);
+        const duckPlayerStep = /** @type {import('../../types').DuckPlayerSingleStep | undefined} */ (
+            globalState.stepDefinitions?.duckPlayerSingle
+        );
         const isAdFree = duckPlayerStep?.variant === 'ad-free';
 
         return {
