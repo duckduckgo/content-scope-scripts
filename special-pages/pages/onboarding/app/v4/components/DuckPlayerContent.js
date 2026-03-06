@@ -187,9 +187,9 @@ function DuckPlayerDefault() {
                 playWithVideo: () => playVideo(withVideoRef.current),
                 playWithoutVideo: () => playVideo(withoutVideoRef.current),
             };
-            setState(fsm(state, event, actions));
+            setState((prev) => fsm(prev, event, actions));
         },
-        [state, playVideo],
+        [playVideo],
     );
 
     useEffect(() => {
