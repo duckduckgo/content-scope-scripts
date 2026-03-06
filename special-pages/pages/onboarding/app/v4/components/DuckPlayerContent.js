@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useContext, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useContext, useEffect, useReducer, useRef, useCallback } from 'preact/hooks';
 import cn from 'classnames';
 import { GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
@@ -137,7 +137,7 @@ function DuckPlayerDefault() {
      * Play a video, or seek to end if reduced-motion is preferred.
      * @param {HTMLVideoElement | null} video
      */
-    const playVideo = (video) => {
+    const playVideo = useCallback((video) => {
         if (!video) return;
         if (isReducedMotion) {
             if (Number.isFinite(video.duration)) {
@@ -147,23 +147,24 @@ function DuckPlayerDefault() {
         }
         video.currentTime = 0;
         video.play();
-    };
+    }, [isReducedMotion]);
 
     const [state, dispatch] = useReducer(videoReducer, 'initial');
 
     /** @param {DPAction} action */
-    const send = (action) => {
+    const send = useCallback((action) => {
         const next = videoReducer(state, action);
         if (next === 'toWithDuckPlayer') playVideo(withVideoRef.current);
         if (next === 'toWithoutDuckPlayer') playVideo(withoutVideoRef.current);
         dispatch(action);
-    };
+    }, [state, playVideo]);
 
     // Auto-play after bubble entry animation (400ms delay + 267ms duration = 667ms)
     useEffect(() => {
+        if (state !== 'initial') return;
         const id = setTimeout(() => send('autoPlay'), isReducedMotion ? 0 : 667);
         return () => clearTimeout(id);
-    }, [isReducedMotion]);
+    }, [isReducedMotion, send, state]);
 
     const advance = () => globalDispatch({ kind: 'enqueue-next' });
 
