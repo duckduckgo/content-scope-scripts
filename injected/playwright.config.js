@@ -42,7 +42,8 @@ export default defineConfig({
             testMatch: [
                 'integration-test/navigator-interface-insecure.js',
                 'integration-test/webcompat.spec.js',
-                'integration-test/message-bridge-apple.spec.js'
+                'integration-test/message-bridge-apple.spec.js',
+                'integration-test/url-change-bridge.spec.js'
             ],
             use: { injectName: 'apple', platform: 'macos' },
         },
