@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useContext, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
@@ -151,19 +151,22 @@ function DuckPlayerDefault() {
 
     const [state, dispatch] = useReducer(videoReducer, 'initial');
 
-    /** @param {DPAction} action */
-    const send = (action) => {
-        const next = videoReducer(state, action);
-        if (next === 'toWithDuckPlayer') playVideo(withVideoRef.current);
-        if (next === 'toWithoutDuckPlayer') playVideo(withoutVideoRef.current);
-        dispatch(action);
-    };
+    const send = useCallback(
+        /** @param {DPAction} action */
+        (action) => {
+            const next = videoReducer(state, action);
+            if (next === 'toWithDuckPlayer') playVideo(withVideoRef.current);
+            if (next === 'toWithoutDuckPlayer') playVideo(withoutVideoRef.current);
+            dispatch(action);
+        },
+        [state],
+    );
 
     // Auto-play after bubble entry animation (400ms delay + 267ms duration = 667ms)
     useEffect(() => {
         const id = setTimeout(() => send('autoPlay'), isReducedMotion ? 0 : 667);
         return () => clearTimeout(id);
-    }, [isReducedMotion]);
+    }, [send, isReducedMotion]);
 
     const advance = () => globalDispatch({ kind: 'enqueue-next' });
 
