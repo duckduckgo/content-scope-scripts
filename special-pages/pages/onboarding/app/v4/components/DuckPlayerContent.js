@@ -137,27 +137,33 @@ function DuckPlayerDefault() {
      * Play a video, or seek to end if reduced-motion is preferred.
      * @param {HTMLVideoElement | null} video
      */
-    const playVideo = useCallback((video) => {
-        if (!video) return;
-        if (isReducedMotion) {
-            if (Number.isFinite(video.duration)) {
-                video.currentTime = video.duration;
+    const playVideo = useCallback(
+        (video) => {
+            if (!video) return;
+            if (isReducedMotion) {
+                if (Number.isFinite(video.duration)) {
+                    video.currentTime = video.duration;
+                }
+                return;
             }
-            return;
-        }
-        video.currentTime = 0;
-        video.play();
-    }, [isReducedMotion]);
+            video.currentTime = 0;
+            video.play();
+        },
+        [isReducedMotion],
+    );
 
     const [state, dispatch] = useReducer(videoReducer, 'initial');
 
     /** @param {DPAction} action */
-    const send = useCallback((action) => {
-        const next = videoReducer(state, action);
-        if (next === 'toWithDuckPlayer') playVideo(withVideoRef.current);
-        if (next === 'toWithoutDuckPlayer') playVideo(withoutVideoRef.current);
-        dispatch(action);
-    }, [state, playVideo]);
+    const send = useCallback(
+        (action) => {
+            const next = videoReducer(state, action);
+            if (next === 'toWithDuckPlayer') playVideo(withVideoRef.current);
+            if (next === 'toWithoutDuckPlayer') playVideo(withoutVideoRef.current);
+            dispatch(action);
+        },
+        [state, playVideo],
+    );
 
     // Auto-play after bubble entry animation (400ms delay + 267ms duration = 667ms)
     useEffect(() => {
