@@ -1,0 +1,19 @@
+{
+  "readme": "Test unprotected domain behavior - reports but doesn't block",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": true,
+        "trackerData": "{\"trackers\":{\"tracker.example\":{\"domain\":\"tracker.example\",\"owner\":{\"name\":\"Tracker Inc\",\"displayName\":\"Tracker Inc\"},\"default\":\"block\"}},\"entities\":{\"Tracker Inc\":{\"domains\":[\"tracker.example\"],\"displayName\":\"Tracker Inc\"}},\"domains\":{\"tracker.example\":\"Tracker Inc\"}}",
+        "allowlist": {},
+        "tempUnprotectedDomains": ["localhost"],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}

@@ -1,0 +1,19 @@
+{
+  "readme": "Config for tracker-protection integration tests with sample tracker data and surrogate rules.",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": true,
+        "trackerData": "{\"trackers\":{\"tracker.example\":{\"domain\":\"tracker.example\",\"owner\":{\"name\":\"Tracker Inc\",\"displayName\":\"Tracker Inc\"},\"default\":\"block\",\"rules\":[{\"rule\":\"tracker\\\\.example/scripts/analytics\\\\.js\",\"surrogate\":\"analytics.js\"}]},\"allowed.example\":{\"domain\":\"allowed.example\",\"owner\":{\"name\":\"Allowed Inc\"},\"default\":\"ignore\",\"rules\":[]}},\"entities\":{\"Tracker Inc\":{\"domains\":[\"tracker.example\"],\"displayName\":\"Tracker Inc\",\"prevalence\":0.1},\"Test Site Inc\":{\"domains\":[\"localhost\",\"affiliated-cdn.example\"],\"displayName\":\"Test Site Inc\",\"prevalence\":0.05}},\"domains\":{\"tracker.example\":\"Tracker Inc\",\"localhost\":\"Test Site Inc\",\"affiliated-cdn.example\":\"Test Site Inc\"}}",
+        "allowlist": {},
+        "tempUnprotectedDomains": [],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}
