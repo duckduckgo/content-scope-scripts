@@ -85,6 +85,13 @@ export function reducer(state, action) {
                     if (action.exclude) {
                         nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
                     }
+                    return {
+                        ...state,
+                        stepDefinitions: nextStepDefs,
+                        order: nextOrder,
+                        step: nextStepDefs[state.activeStep] ?? state.step,
+                    };
+                }            
                 default:
                     return state;
             }
