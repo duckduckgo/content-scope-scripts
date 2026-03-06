@@ -28,5 +28,10 @@ coverage/
 # VS Code user config
 .vscode
 
+# Playwright CLI
+.playwright-cli
+
 # Claude Code
-.claude/
+.claude/*
+!.claude/skills/
+!.claude/settings.json
