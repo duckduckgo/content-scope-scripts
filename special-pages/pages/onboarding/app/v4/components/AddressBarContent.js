@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { useTypedTranslation } from '../../types';
 import { Trans } from '../../../../../shared/components/TranslationsProvider';
 import { useGlobalState } from '../../global';
@@ -29,6 +29,11 @@ export function AddressBarContent({ dismiss, updateSystemValue }) {
 
     const [selectedOption, setSelectedOption] = useState(/** @type {AddressBarOption} */ ('search-and-duckai'));
     const isPending = status.kind === 'executing';
+
+    // Send initial preference on mount
+    useEffect(() => {
+        updateSystemValue('address-bar-mode', { enabled: selectedOption === 'search-and-duckai' }, true);
+    }, []);
 
     /** @param {AddressBarOption} option */
     const select = (option) => {
