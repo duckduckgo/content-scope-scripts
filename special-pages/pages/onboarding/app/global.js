@@ -49,6 +49,7 @@ export function reducer(state, action) {
                             activeRow: 0,
                             activeStepVisible: false,
                             exiting: false,
+                            overlay: null,
                             step: state.stepDefinitions[state.order[nextPageIndex]],
                         };
                     }
@@ -58,6 +59,18 @@ export function reducer(state, action) {
                     return {
                         ...state,
                         exiting: true,
+                    };
+                }
+                case 'show-overlay': {
+                    return {
+                        ...state,
+                        overlay: action.overlay,
+                    };
+                }
+                case 'dismiss-overlay': {
+                    return {
+                        ...state,
+                        overlay: null,
                     };
                 }
                 default:
@@ -159,6 +172,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,
+        overlay: null,
         values: {},
         UIValues: {
             dock: 'idle',
@@ -171,6 +185,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             'aggressive-ad-blocking': 'idle',
             'youtube-ad-blocking': 'idle',
             'address-bar-mode': 'idle',
+            'dock-instructions': 'idle',
         },
     });
 

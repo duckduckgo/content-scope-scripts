@@ -329,6 +329,65 @@ test.describe('onboarding v4', () => {
         await onboarding.startBrowsing();
     });
 
+    test.describe('Given I am on the settings step with dock-instructions variant', () => {
+        test('When I click Show Me How, it shows dock instructions overlay', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+
+            await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
+            await expect(page.getByText('Options')).toBeVisible();
+            await expect(page.getByText('Keep in Dock')).toBeVisible();
+        });
+
+        test('When I click Show Me How then Next, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+            await onboarding.dismissDockInstructions();
+
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+
+        test('When I skip dock-instructions, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+    });
+
     test.describe('Given I am on the settings step', () => {
         test('When I have choosen to add to dock/taskbar', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
