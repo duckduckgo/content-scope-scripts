@@ -1,0 +1,13 @@
+{
+  "browser": {
+    "isolated": true
+  },
+  "network": {
+    "allowedOrigins": [
+      "https://localhost:*",
+      "http://localhost:*",
+      "https://127.0.0.1:*",
+      "http://127.0.0.1:*"
+    ]
+  }
+}
