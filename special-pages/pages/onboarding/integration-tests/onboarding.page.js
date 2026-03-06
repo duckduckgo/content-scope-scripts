@@ -53,17 +53,11 @@ export class OnboardingPage {
     }
 
     /**
-     * Sets init.getCustomizeStepRowsSupported and mock response for getCustomizeStepRows (for integration tests).
-     * @param {string[]} [rows=['session-restore', 'home-shortcut']]
+     * Push an onConfigUpdate subscription event (e.g. stepDefinitions.customize.rows for integration tests).
+     * @param {{ stepDefinitions?: Record<string, any>; exclude?: string[] }} payload
      */
-    withGetCustomizeStepRowsSupported(rows = ['session-restore', 'home-shortcut']) {
-        this.defaultResponses = {
-            ...this.defaultResponses,
-            init: { ...this.defaultResponses.init, getCustomizeStepRowsSupported: true },
-            getCustomizeStepRows: { rows },
-        };
-        this.mocks.defaultResponses(this.defaultResponses);
-        return this;
+    async pushConfigUpdate(payload) {
+        await this.mocks.simulateSubscriptionMessage('onConfigUpdate', payload);
     }
 
     /**

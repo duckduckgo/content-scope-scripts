@@ -60,19 +60,23 @@ export function reducer(state, action) {
                         exiting: true,
                     };
                 }
-                case 'set-customize-rows': {
-                    const customizeStep = state.stepDefinitions.customize;
+                case 'config-update': {
+                    let nextStepDefs = state.stepDefinitions;
+                    if (action.stepDefinitions) {
+                        nextStepDefs = { ...state.stepDefinitions };
+                        for (const [key, value] of Object.entries(action.stepDefinitions)) {
+                            nextStepDefs[key] = nextStepDefs[key] ? { ...nextStepDefs[key], ...value } : value;
+                        }
+                    }
+                    let nextOrder = state.order;
+                    if (action.exclude) {
+                        nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
+                    }
                     return {
                         ...state,
-                        stepDefinitions: {
-                            ...state.stepDefinitions,
-                            customize: {
-                                ...customizeStep,
-                                id: 'customize',
-                                kind: 'settings',
-                                rows: action.rows,
-                            },
-                        },
+                        stepDefinitions: nextStepDefs,
+                        order: nextOrder,
+                        step: nextStepDefs[state.activeStep] ?? state.step,
                     };
                 }
                 default:
@@ -146,6 +150,25 @@ export function reducer(state, action) {
                         status: { kind: 'idle', error: action.message },
                     };
                 }
+                case 'config-update': {
+                    let nextStepDefsExec = state.stepDefinitions;
+                    if (action.stepDefinitions) {
+                        nextStepDefsExec = { ...state.stepDefinitions };
+                        for (const [key, value] of Object.entries(action.stepDefinitions)) {
+                            nextStepDefsExec[key] = nextStepDefsExec[key] ? { ...nextStepDefsExec[key], ...value } : value;
+                        }
+                    }
+                    let nextOrderExec = state.order;
+                    if (action.exclude) {
+                        nextOrderExec = state.order.filter((id) => !action.exclude?.includes(id));
+                    }
+                    return {
+                        ...state,
+                        stepDefinitions: nextStepDefsExec,
+                        order: nextOrderExec,
+                        step: nextStepDefsExec[state.activeStep] ?? state.step,
+                    };
+                }
                 default:
                     throw new Error('unhandled ' + action.kind);
             }
@@ -162,16 +185,8 @@ export function reducer(state, action) {
  * @param {import('./types').StepDefinitions} props.stepDefinitions -
  * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
- * @param {boolean} [props.getCustomizeStepRowsSupported] - When true, advance to customize will request rows from host; when false, advance immediately (no 2s delay on unsupported platforms).
  */
-export function GlobalProvider({
-    order,
-    children,
-    stepDefinitions,
-    messaging,
-    firstPage = 'welcome',
-    getCustomizeStepRowsSupported = false,
-}) {
+export function GlobalProvider({ order, children, stepDefinitions, messaging, firstPage = 'welcome' }) {
     const [state, dispatch] = useReducer(reducer, {
         status: { kind: 'idle' },
         order,
@@ -182,7 +197,6 @@ export function GlobalProvider({
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,
-        getCustomizeStepRowsSupported,
         values: {},
         UIValues: {
             dock: 'idle',
@@ -201,42 +215,6 @@ export function GlobalProvider({
     const platform = usePlatformName();
     const proxy = useCallback(
         (/** @type {GlobalEvents} */ msg) => {
-            if (msg.kind === 'advance') {
-                const nextStep = state.order[state.order.indexOf(state.activeStep) + 1];
-                if (nextStep === 'customize') {
-                    if (state.getCustomizeStepRowsSupported) {
-                        const customizeStep = /** @type {import('./types').CustomizeStep | undefined} */ (state.stepDefinitions.customize);
-                        const defaultRows = customizeStep?.rows ?? ['bookmarks', 'session-restore', 'home-shortcut'];
-                        const withTimeout = (ms) => {
-                            let timeoutId;
-                            const promise = new Promise((_resolve, reject) => {
-                                timeoutId = setTimeout(() => reject(new Error('getCustomizeStepRows timeout')), ms);
-                            });
-                            return { promise, clear: () => clearTimeout(timeoutId) };
-                        };
-                        const { promise: timeoutPromise, clear: clearRaceTimeout } = withTimeout(2000);
-                        (async () => {
-                            try {
-                                const response = await Promise.race([messaging.getCustomizeStepRows(), timeoutPromise]);
-                                const rows = response?.rows ?? defaultRows;
-                                dispatch({ kind: 'set-customize-rows', rows });
-                                dispatch({ kind: 'advance' });
-                                messaging.stepCompleted({ id: state.activeStep });
-                            } catch {
-                                dispatch({ kind: 'advance' });
-                                messaging.stepCompleted({ id: state.activeStep });
-                            } finally {
-                                clearRaceTimeout();
-                            }
-                        })();
-                        return;
-                    }
-                    dispatch(msg);
-                    messaging.stepCompleted({ id: state.activeStep });
-                    return;
-                }
-            }
-
             /**
              * Regular global state updates
              */
@@ -258,6 +236,16 @@ export function GlobalProvider({
         [state, messaging],
     );
 
+    useEffect(() => {
+        const unsubscribe = messaging.onConfigUpdate((data) => {
+            dispatch({
+                kind: 'config-update',
+                stepDefinitions: data.stepDefinitions,
+                exclude: /** @type {import('./types.js').ConfigUpdateEvent['exclude']} */ (data.exclude),
+            });
+        });
+        return unsubscribe;
+    }, [messaging]);
     // handle *fatal* state (from error boundary)
     useEffect(() => {
         if (state.status.kind !== 'fatal') return;
