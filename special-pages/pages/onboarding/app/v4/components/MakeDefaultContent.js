@@ -1,9 +1,12 @@
 import { h } from 'preact';
-import { useContext, useState } from 'preact/hooks';
-import { GlobalDispatch, useGlobalState } from '../../global';
+import { useState } from 'preact/hooks';
+import { useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { ComparisonTable } from './ComparisonTable';
 import { Button } from './Button';
+import { Container } from './Container';
+import { Title } from './Title';
+import { LottieAnimation } from './LottieAnimation';
 import { useAnimate } from '../hooks/useAnimate';
 import { usePresence } from '../hooks/usePresence';
 import { useFlip } from '../hooks/useFlip';
@@ -12,56 +15,49 @@ import styles from './MakeDefaultContent.module.css';
 /**
  * Top bubble content for the makeDefaultSingle step.
  * Shows title (changes after user makes default), comparison table, and Skip/Make Default buttons.
+ *
+ * @param {object} props
+ * @param {() => void} props.advance
+ * @param {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} props.updateSystemValue
  */
-export function MakeDefaultContent() {
+export function MakeDefaultContent({ advance, updateSystemValue }) {
     const { t } = useTypedTranslation();
-    const dispatch = useContext(GlobalDispatch);
-    const appState = useGlobalState();
-    const { status } = appState;
+    const globalState = useGlobalState();
 
     // Skip button visibility: hidden while the native call is in flight or after it succeeds
-    const defaultBrowserUIValue = appState.UIValues['default-browser'];
-    const isPending = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id === 'default-browser';
-    const showSkipButton = !isPending && defaultBrowserUIValue === 'idle';
+    const isPending =
+        globalState.status.kind === 'executing' &&
+        globalState.status.action.kind === 'update-system-value' &&
+        globalState.status.action.id === 'default-browser';
+    const showSkipButton = !isPending && globalState.UIValues['default-browser'] === 'idle';
 
-    // Title text swaps in the middle of bounce animation, so it can't be derived from global state
+    // Title text swaps mid-bounce so it can't be derived from global state
     const [showSuccess, setShowSuccess] = useState(false);
 
-    // Animation hooks: usePresence (skip button fade out) must come before useFlip (make default
-    // button slide) so the skip button leaves flow before useFlip measures the new layout
+    // Hook order matters: usePresence removes the skip button from flow before useFlip measures layout
     /** @type {[import('preact').RefObject<HTMLHeadingElement>, import('../hooks/useAnimate').AnimateFn]} */
     const [titleRef, animateTitle] = useAnimate();
+
     /** @type {[import('preact').RefObject<HTMLButtonElement>, boolean]} */
     const [skipButtonRef, skipButtonMounted] = usePresence(showSkipButton, {
         keyframes: [{ opacity: 1 }, { opacity: 0 }],
         options: { duration: 300, easing: 'ease-out' },
     });
+
     /** @type {import('preact').RefObject<HTMLButtonElement>} */
-    const makeDefaultButtonRef = useFlip({ duration: 300, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' });
+    const primaryButtonRef = useFlip({ duration: 300, easing: 'cubic-bezier(0.17, 0, 0.83, 1)' });
 
-    // When the global state resets to idle after an error, showSkipButton becomes true again. Reset
-    // local animation state to match
-    if (showSuccess && showSkipButton) {
-        setShowSuccess(false);
-    }
-    if (showSkipButton && makeDefaultButtonRef.current) {
-        makeDefaultButtonRef.current.style.minWidth = '';
-    }
-
-    const advance = () => dispatch({ kind: 'enqueue-next' });
+    // Reset local animation state when global state returns to idle after an error
+    if (showSuccess && showSkipButton) setShowSuccess(false);
+    if (showSkipButton && primaryButtonRef.current) primaryButtonRef.current.style.minWidth = '';
 
     const enableDefaultBrowser = () => {
         // Lock button width before text shrinks from "Make Default" to "Next"
-        if (makeDefaultButtonRef.current) {
-            makeDefaultButtonRef.current.style.minWidth = `${makeDefaultButtonRef.current.offsetWidth}px`;
+        if (primaryButtonRef.current) {
+            primaryButtonRef.current.style.minWidth = `${primaryButtonRef.current.offsetWidth}px`;
         }
 
-        dispatch({
-            kind: 'update-system-value',
-            id: 'default-browser',
-            payload: { enabled: true },
-            current: true,
-        });
+        updateSystemValue('default-browser', { enabled: true }, true);
 
         // Fire-and-forget sequential title bounce (text swaps at midpoint)
         (async () => {
@@ -78,10 +74,19 @@ export function MakeDefaultContent() {
     };
 
     return (
-        <div class={styles.root}>
-            <h2 ref={titleRef} class={styles.title}>
+        <Container class={styles.root}>
+            <Title titleRef={titleRef} class={styles.title}>
                 {showSuccess ? t('makeDefaultAccept_title_v4') : t('protectionsActivated_title')}
-            </h2>
+                {showSuccess && (
+                    <LottieAnimation
+                        src="assets/lottie/v4/sparkle.json"
+                        darkSrc="assets/lottie/v4/sparkle-dark.json"
+                        class={styles.sparkle}
+                        width={34}
+                        height={43}
+                    />
+                )}
+            </Title>
 
             <ComparisonTable />
 
@@ -91,10 +96,10 @@ export function MakeDefaultContent() {
                         {t('skipButton')}
                     </Button>
                 )}
-                <Button buttonRef={makeDefaultButtonRef} disabled={isPending} onClick={showSkipButton ? enableDefaultBrowser : advance}>
+                <Button buttonRef={primaryButtonRef} disabled={isPending} onClick={showSkipButton ? enableDefaultBrowser : advance}>
                     {showSkipButton ? t('makeDefaultButton') : t('nextButton')}
                 </Button>
             </div>
-        </div>
+        </Container>
     );
 }

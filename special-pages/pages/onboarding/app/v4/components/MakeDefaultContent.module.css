@@ -1,30 +1,19 @@
 .root {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-self: stretch;
-    gap: var(--sp-8); /* 32px */
     padding: var(--sp-9) var(--sp-12); /* 36px 48px */
 }
 
 .title {
-    font-family: var(--font-display);
-    font-size: var(--sp-6); /* 24px */
-    font-weight: 700;
-    line-height: var(--sp-7); /* 28px */
-    text-align: center;
-    color: var(--color-black-at-96);
-    margin: 0;
-    padding: 2px var(--sp-3);
-    text-box-trim: trim-both;
-    text-box-edge: cap alphabetic;
-
-    @media (prefers-color-scheme: dark) {
-        color: white;
-    }
+    position: relative;
+    padding: calc(2 * var(--px-in-rem)) var(--sp-3); /* 2px 12px */
 }
 
-/* --- Buttons --- */
+.sparkle {
+    position: absolute;
+    top: 0;
+    left: -7px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
 
 .actions {
     position: relative;
@@ -33,6 +22,10 @@
     align-items: flex-start;
     gap: var(--sp-2); /* 8px */
     align-self: stretch;
+
+    [data-platform-name='windows'] & > *:last-child {
+        order: -1;
+    }
 }
 
 .skipButton {

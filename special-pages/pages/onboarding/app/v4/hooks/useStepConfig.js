@@ -10,7 +10,8 @@ import { stepsConfig } from '../data/data';
  * @returns {import('../data/data-types').Progress}
  */
 function calculateProgress(order, activeStep) {
-    const progressSteps = order.slice(2, order.length);
+    // Skip 'welcome' and 'getStarted' — they don't show the progress indicator
+    const progressSteps = order.slice(2);
 
     return {
         current: progressSteps.indexOf(activeStep) + 1,
@@ -36,15 +37,16 @@ export function useStepConfig() {
         dispatch({ kind: 'advance' });
     };
 
+    const enqueueNext = () => dispatch({ kind: 'enqueue-next' });
     const dismiss = () => dispatch({ kind: 'dismiss' });
 
-    /** @type {(id: import('../../types').SystemValueId) => void} */
-    const enableSystemValue = (id) =>
+    /** @type {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} */
+    const updateSystemValue = (id, payload, current) =>
         dispatch({
             kind: 'update-system-value',
             id,
-            payload: { enabled: true },
-            current: true,
+            payload,
+            current,
         });
 
     /** @type {import('../data/data-types').StepConfigParams} */
@@ -54,8 +56,9 @@ export function useStepConfig() {
         globalState,
         progress,
         advance,
+        enqueueNext,
         dismiss,
-        enableSystemValue,
+        updateSystemValue,
     };
 
     if (!stepsConfig[activeStep]) {
