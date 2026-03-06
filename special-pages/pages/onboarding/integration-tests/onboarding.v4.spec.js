@@ -215,6 +215,9 @@ test.describe('onboarding v4', () => {
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+            // Disable reduced motion so that playVideo() calls video.play()
+            // instead of seeking to duration (which fires 'ended' immediately in WebKit).
+            await page.emulateMedia({ reducedMotion: 'no-preference' });
 
             const enabledVideo = page.locator('video[src*="enabled"]');
             const disabledVideo = page.locator('video[src*="disabled"]');
@@ -251,6 +254,7 @@ test.describe('onboarding v4', () => {
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+            await page.emulateMedia({ reducedMotion: 'no-preference' });
 
             const enabledVideo = page.locator('video[src*="enabled"]');
             const disabledVideo = page.locator('video[src*="disabled"]');
