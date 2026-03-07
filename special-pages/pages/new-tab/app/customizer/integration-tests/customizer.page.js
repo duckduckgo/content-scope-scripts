@@ -420,10 +420,10 @@ export class CustomizerPage {
                 });
             });
 
-        // This test is here to prevent changes to the solid colors from impacting the UI
-        // these need to be exact to prevent migrations from becoming a problem
+        // This test is here to catch changes to the solid colors.
+        // The order of these need to be exact to prevent issues when user migrates from the native customizer to the web customizer.
         expect(styles).toStrictEqual([
-            { style: 'background: rgb(0, 0, 0);', value: 'color01' },
+            { style: 'background: rgb(17, 17, 17);', value: 'color01' },
             { style: 'background: rgb(52, 46, 66);', value: 'color02' },
             { style: 'background: rgb(77, 95, 127);', value: 'color03' },
             { style: 'background: rgb(154, 151, 157);', value: 'color04' },
