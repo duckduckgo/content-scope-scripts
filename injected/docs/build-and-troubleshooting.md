@@ -96,8 +96,17 @@ C_S_S_SOURCEMAPS=1 npm run build
 
 ## Windows
 
-- [Work with content-scope-scripts repo on Windows](./development-utilities.md#windows-development)
-- [Debugging `autofill.js` (or other submodules) on Windows](https://app.asana.com/1/137249556945/project/1198964220583541/task/1208938714611510)
+- Visual Studio in Parallels is extremely usable on an M-series Mac. 
+    - Make sure you get Parallels Pro so that you can set it to use ~8 CPUs and ~16 GB RAM.
+    - You can purchase this using your Ramp card.
+- Set up Visual Studio per the instructions in the [Windows browser README](https://github.com/duckduckgo/windows-browser/blob/develop/README.md).
+- To test C-S-S changes, you can create a directory symlink (`mklink /D`) between `submodules/content-scope-scripts` ↔ the `content-scope-scripts` directory in macOS.
+    - This lets you make C-S-S changes in macOS and then see them in the Windows app.
+    - Remember to configure Parallels to share your macOS disk.
+- A nice-to-have is to [set up a WSL environment](https://learn.microsoft.com/en-us/windows/wsl/setup/environment) so that you can use familiar command line tools within Windows (git, vim, Clalude Code, etc.)
+- Other guides:
+    - [Work with content-scope-scripts repo on Windows](./development-utilities.md#windows-development)
+    - [Debugging `autofill.js` (or other submodules) on Windows](https://app.asana.com/1/137249556945/project/1198964220583541/task/1208938714611510)
 
 ## Extensions
 
