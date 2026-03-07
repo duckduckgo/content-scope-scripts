@@ -694,7 +694,7 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     urlChanged() {
-        this.handleLocation(window.location);
+        void this.handleLocation(window.location);
     }
 
     init() {

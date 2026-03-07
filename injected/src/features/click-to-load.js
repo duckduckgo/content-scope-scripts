@@ -426,94 +426,101 @@ class DuckWidget {
                 }
                 const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
                 // eslint-disable-next-line promise/prefer-await-to-then
-                unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
-                    // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
-                    if (response && response.type === 'ddg-ctp-user-cancel') {
-                        return abortSurrogateConfirmation(this.entity);
-                    }
-
-                    const parent = replacementElement.parentNode;
-
-                    // The placeholder was removed from the DOM while we loaded
-                    // the original content, give up.
-                    if (!parent) return;
-
-                    // If we allow everything when this element is clicked,
-                    // notify surrogate to enable SDK and replace original element.
-                    if (this.clickAction.type === 'allowFull') {
-                        parent.replaceChild(originalElement, replacementElement);
-                        this.dispatchEvent(window, 'ddg-ctp-load-sdk');
-                        return;
-                    }
-                    // Create a container for the new FB element
-                    const fbContainer = document.createElement('div');
-                    fbContainer.style.cssText = styles.wrapperDiv;
-                    const fadeIn = document.createElement('div');
-                    fadeIn.style.cssText = 'display: none; opacity: 0;';
-
-                    // Loading animation (FB can take some time to load)
-                    const loadingImg = document.createElement('img');
-                    loadingImg.setAttribute('src', loadingImages[this.getMode()]);
-                    loadingImg.setAttribute('height', '14px');
-                    loadingImg.style.cssText = styles.loadingImg;
-
-                    // Always add the animation to the button, regardless of click source
-                    if (clickElement.nodeName === 'BUTTON') {
-                        clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild);
-                    } else {
-                        // try to find the button
-                        let el = clickElement;
-                        let button = null;
-                        while (button === null && el !== null) {
-                            button = el.querySelector('button');
-                            el = el.parentElement;
+                void unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then(
+                    (response) => {
+                        // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
+                        if (response && response.type === 'ddg-ctp-user-cancel') {
+                            return abortSurrogateConfirmation(this.entity);
                         }
-                        if (button) {
-                            button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild);
+
+                        const parent = replacementElement.parentNode;
+
+                        // The placeholder was removed from the DOM while we loaded
+                        // the original content, give up.
+                        if (!parent) return;
+
+                        // If we allow everything when this element is clicked,
+                        // notify surrogate to enable SDK and replace original element.
+                        if (this.clickAction.type === 'allowFull') {
+                            parent.replaceChild(originalElement, replacementElement);
+                            this.dispatchEvent(window, 'ddg-ctp-load-sdk');
+                            return;
                         }
-                    }
+                        // Create a container for the new FB element
+                        const fbContainer = document.createElement('div');
+                        fbContainer.style.cssText = styles.wrapperDiv;
+                        const fadeIn = document.createElement('div');
+                        fadeIn.style.cssText = 'display: none; opacity: 0;';
 
-                    fbContainer.appendChild(fadeIn);
+                        // Loading animation (FB can take some time to load)
+                        const loadingImg = document.createElement('img');
+                        loadingImg.setAttribute('src', loadingImages[this.getMode()]);
+                        loadingImg.setAttribute('height', '14px');
+                        loadingImg.style.cssText = styles.loadingImg;
 
-                    let fbElement;
-                    let onError = null;
-                    switch (this.clickAction.type) {
-                        case 'iFrame':
-                            fbElement = this.createFBIFrame();
-                            break;
-                        case 'youtube-video':
-                            onError = this.adjustYouTubeVideoElement(originalElement);
-                            fbElement = originalElement;
-                            break;
-                        default:
-                            fbElement = originalElement;
-                            break;
-                    }
+                        // Always add the animation to the button, regardless of click source
+                        if (clickElement.nodeName === 'BUTTON') {
+                            clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild);
+                        } else {
+                            // try to find the button
+                            let el = clickElement;
+                            let button = null;
+                            while (button === null && el !== null) {
+                                button = el.querySelector('button');
+                                el = el.parentElement;
+                            }
+                            if (button) {
+                                button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild);
+                            }
+                        }
 
-                    // Modify the overlay to include a Facebook iFrame, which
-                    // starts invisible. Once loaded, fade out and remove the
-                    // overlay then fade in the Facebook content.
-                    parent.replaceChild(fbContainer, replacementElement);
-                    fbContainer.appendChild(replacementElement);
-                    fadeIn.appendChild(fbElement);
-                    fbElement.addEventListener(
-                        'load',
-                        async () => {
-                            await this.fadeOutElement(replacementElement);
-                            fbContainer.replaceWith(fbElement);
-                            this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
-                            await this.fadeInElement(fadeIn);
-                            // Focus on new element for screen readers.
-                            fbElement.focus();
-                        },
-                        { once: true },
-                    );
-                    // Note: This event only fires on Firefox, on Chrome the frame's
-                    //       load event will always fire.
-                    if (onError) {
-                        fbElement.addEventListener('error', onError, { once: true });
-                    }
-                });
+                        fbContainer.appendChild(fadeIn);
+
+                        let fbElement;
+                        let onError = null;
+                        switch (this.clickAction.type) {
+                            case 'iFrame':
+                                fbElement = this.createFBIFrame();
+                                break;
+                            case 'youtube-video':
+                                onError = this.adjustYouTubeVideoElement(originalElement);
+                                fbElement = originalElement;
+                                break;
+                            default:
+                                fbElement = originalElement;
+                                break;
+                        }
+
+                        // Modify the overlay to include a Facebook iFrame, which
+                        // starts invisible. Once loaded, fade out and remove the
+                        // overlay then fade in the Facebook content.
+                        parent.replaceChild(fbContainer, replacementElement);
+                        fbContainer.appendChild(replacementElement);
+                        fadeIn.appendChild(fbElement);
+                        fbElement.addEventListener(
+                            'load',
+                            async () => {
+                                await this.fadeOutElement(replacementElement);
+                                fbContainer.replaceWith(fbElement);
+                                this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
+                                await this.fadeInElement(fadeIn);
+                                // Focus on new element for screen readers.
+                                fbElement.focus();
+                            },
+                            { once: true },
+                        );
+                        // Note: This event only fires on Firefox, on Chrome the frame's
+                        //       load event will always fire.
+                        if (onError) {
+                            fbElement.addEventListener('error', onError, { once: true });
+                        }
+                    },
+                    (error) => {
+                        console.error('Failed to unblock click-to-load content', error);
+                        this.isUnblocked = false;
+                        clicked = false;
+                    },
+                );
             }
         };
         // If this is a login button, show modal if needed
@@ -603,7 +610,7 @@ function replaceTrackingElement(widget, trackingElement, placeholderElement) {
     // synchronously, the events are dispatched (and original element removed
     // from the DOM) asynchronously after the page has finished loading.
     // eslint-disable-next-line promise/prefer-await-to-then
-    afterPageLoad.then(() => {
+    void afterPageLoad.then(() => {
         // With page load complete, and both elements in the DOM, the events can
         // be dispatched.
         widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element');
@@ -949,7 +956,13 @@ async function runLogin(entity) {
     }
 
     const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
-    const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
+    let response;
+    try {
+        response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
+    } catch (e) {
+        console.error('Failed to unblock click-to-load login flow', e);
+        return;
+    }
     // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
     if (response && response.type === 'ddg-ctp-user-cancel') {
         return abortSurrogateConfirmation(this.entity);
@@ -1755,22 +1768,27 @@ function createYouTubePreview(originalElement, widget) {
     // We use .then() instead of await here to show the placeholder right away
     // while the YouTube endpoint takes it time to respond.
     const videoURL = originalElement.src || originalElement.getAttribute('data-src');
-    ctl.messaging
+    void ctl.messaging
         .request('getYouTubeVideoDetails', { videoURL })
         // eslint-disable-next-line promise/prefer-await-to-then
-        .then(({ videoURL: videoURLResp, status, title, previewImage }) => {
-            if (!status || videoURLResp !== videoURL) {
-                return;
-            }
-            if (status === 'success') {
-                titleElement.innerText = title;
-                titleElement.title = title;
-                if (previewImage) {
-                    previewImageElement.setAttribute('src', previewImage);
+        .then(
+            ({ videoURL: videoURLResp, status, title, previewImage }) => {
+                if (!status || videoURLResp !== videoURL) {
+                    return;
                 }
-                widget.autoplay = true;
-            }
-        });
+                if (status === 'success') {
+                    titleElement.innerText = title;
+                    titleElement.title = title;
+                    if (previewImage) {
+                        previewImageElement.setAttribute('src', previewImage);
+                    }
+                    widget.autoplay = true;
+                }
+            },
+            (error) => {
+                console.warn('Failed to fetch YouTube video details', error);
+            },
+        );
 
     /** Share Feedback Link */
     const feedbackRow = makeShareFeedbackRow();
@@ -1867,7 +1885,7 @@ export default class ClickToLoad extends ContentFeature {
                 if (entityData[entity].shouldShowLoginModal) {
                     handleUnblockConfirmation(this.platform.name, entity, runLogin, entity);
                 } else {
-                    runLogin(entity);
+                    void runLogin(entity);
                 }
             }
         });
