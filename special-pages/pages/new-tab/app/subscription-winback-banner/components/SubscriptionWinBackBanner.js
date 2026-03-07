@@ -6,6 +6,7 @@ import styles from './SubscriptionWinBackBanner.module.css';
 import { SubscriptionWinBackBannerContext } from '../SubscriptionWinBackBannerProvider';
 import { useContext } from 'preact/hooks';
 import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
+import { useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @typedef { import("../../../types/new-tab").SubscriptionWinBackBannerMessage} SubscriptionWinBackBannerMessage
@@ -39,6 +40,7 @@ export function SubscriptionWinBackBanner({ message, action, dismiss }) {
 
 export function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = useContext(SubscriptionWinBackBannerContext);
+    useWidgetDidRender(state.status);
 
     if (state.status === 'ready' && state.data.content) {
         return <SubscriptionWinBackBanner message={state.data.content} action={action} dismiss={dismiss} />;

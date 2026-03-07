@@ -7,6 +7,7 @@ import { ActivityConsumer } from '../../activity/components/Activity.js';
 import { PrivacyStatsProvider } from '../../privacy-stats/components/PrivacyStatsProvider.js';
 import { BodyExpanderProvider } from '../../privacy-stats/components/BodyExpansionProvider.js';
 import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStatsConsumer.js';
+import { useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @import {ProtectionsData, ProtectionsConfig} from '../../../types/new-tab.js';
@@ -26,6 +27,8 @@ import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStat
  */
 export function ProtectionsConsumer() {
     const { state } = useContext(ProtectionsContext);
+    useWidgetDidRender(state.status);
+
     if (state.status === 'ready') {
         return <ProtectionsReadyState data={state.data} config={state.config} />;
     }
