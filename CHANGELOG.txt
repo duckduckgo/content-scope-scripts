@@ -1,1 +1,6 @@
-- New tab: show recent duckai chats (#2311)
+- Update Favorites and Protections Report icons in NTP customize panel (#2416)
+- Add dock instructions overlay to v3 and v4 onboarding (#2320)
+- Add .playwright-cli to .gitignore (#2418)
+- Remove onboarding v1/v2 spec references from Playwright config (#2252)
+- Add playwright-cli config for isolated browsing and origin restrictions (#2417)
+- Add agent skills and auto-prettier hooks for Claude Code and Cursor (#2386)

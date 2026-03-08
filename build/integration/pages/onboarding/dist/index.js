@@ -25443,6 +25443,7 @@
                 activeRow: 0,
                 activeStepVisible: false,
                 exiting: false,
+                overlay: null,
                 step: state.stepDefinitions[state.order[nextPageIndex]]
               };
             }
@@ -25452,6 +25453,18 @@
             return {
               ...state,
               exiting: true
+            };
+          }
+          case "show-overlay": {
+            return {
+              ...state,
+              overlay: action.overlay
+            };
+          }
+          case "dismiss-overlay": {
+            return {
+              ...state,
+              overlay: null
             };
           }
           default:
@@ -25525,6 +25538,7 @@
       activeRow: 0,
       activeStepVisible: false,
       exiting: false,
+      overlay: null,
       values: {},
       UIValues: {
         dock: "idle",
@@ -25536,7 +25550,8 @@
         "placebo-ad-blocking": "idle",
         "aggressive-ad-blocking": "idle",
         "youtube-ad-blocking": "idle",
-        "address-bar-mode": "idle"
+        "address-bar-mode": "idle",
+        "dock-instructions": "idle"
       }
     });
     const platform = usePlatformName();
@@ -26820,6 +26835,14 @@
     makeDefaultAccept_title_v4: {
       title: "Excellent! Let\u2019s move on.",
       note: "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
+    },
+    "row_dock-instructions_accept": {
+      title: "Show Me How",
+      note: "Button text that opens the dock instructions overlay."
+    },
+    dockInstructions_body: {
+      title: "Hold control and click the DuckDuckGo app icon, then choose <strong>Options</strong> > <strong>Keep in Dock</strong>.",
+      note: "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
     }
   };
 
@@ -27708,6 +27731,7 @@
     const dispatch = useGlobalDispatch();
     const appState = useGlobalState();
     if (appState.step.kind !== "settings") throw new Error("unreachable, for TS benefit");
+    const mountedWhileVisible = A2(appState.activeStepVisible);
     const { step, status } = appState;
     const pendingId = status.kind === "executing" && status.action.kind === "update-system-value" && status.action.id;
     const rows = step.rows.map((rowId, index2) => {
@@ -27721,7 +27745,8 @@
         data: data2[rowId](t3, platform)
       };
     });
-    return /* @__PURE__ */ _(SlideIn, null, /* @__PURE__ */ _(Stack, null, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), /* @__PURE__ */ _(PlainList, { variant: "bordered", animate: true }, rows.filter((item) => item.visible).map((item, index2) => {
+    const Animation2 = mountedWhileVisible.current ? FadeIn : SlideIn;
+    return /* @__PURE__ */ _(Animation2, null, /* @__PURE__ */ _(Stack, null, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), /* @__PURE__ */ _(PlainList, { variant: "bordered", animate: true }, rows.filter((item) => item.visible).map((item, index2) => {
       return /* @__PURE__ */ _(SettingListItem, { key: item.id, dispatch, item, index: index2 });
     }))));
   }
@@ -27734,6 +27759,10 @@
       usePlatformName()
     );
     const accept = () => {
+      if (data2.id === "dock-instructions") {
+        dispatch({ kind: "show-overlay", overlay: "dock-instructions" });
+        return;
+      }
       dispatch({
         kind: "update-system-value",
         id: data2.id,
@@ -27790,6 +27819,34 @@
     );
   }
 
+  // pages/onboarding/app/v3/components/DockInstructions.module.css
+  var DockInstructions_default = {
+    root: "DockInstructions_root",
+    video: "DockInstructions_video",
+    instruction: "DockInstructions_instruction",
+    icon: "DockInstructions_icon",
+    instructionText: "DockInstructions_instructionText"
+  };
+
+  // pages/onboarding/app/v3/components/DockInstructions.js
+  function DockInstructions() {
+    const { isReducedMotion } = useEnv();
+    const { t: t3 } = useTypedTranslation();
+    return /* @__PURE__ */ _("div", { className: DockInstructions_default.root }, /* @__PURE__ */ _(
+      "video",
+      {
+        className: DockInstructions_default.video,
+        src: "assets/video/dock-instructions/add-to-dock.mp4",
+        autoPlay: !isReducedMotion,
+        loop: true,
+        muted: true,
+        playsinline: true,
+        width: 384,
+        height: 188
+      }
+    ), /* @__PURE__ */ _("div", { className: DockInstructions_default.instruction }, /* @__PURE__ */ _("img", { src: "assets/img/steps/v3/Add-To-Dock-Color-24.svg", alt: "", className: DockInstructions_default.icon }), /* @__PURE__ */ _("p", { className: DockInstructions_default.instructionText }, /* @__PURE__ */ _(Trans, { str: t3("dockInstructions_body"), values: {} }))));
+  }
+
   // pages/onboarding/app/v3/data/data.js
   var stepsConfig = {
     welcome: ({ t: t3, advance }) => {
@@ -27835,10 +27892,28 @@
         content: /* @__PURE__ */ _(MakeDefaultStep, null)
       };
     },
-    systemSettings: ({ t: t3, globalState, advance }) => {
-      const { step, activeRow } = globalState;
+    systemSettings: ({ t: t3, globalState, advance, dismissOverlay, enableSystemValue }) => {
+      const { step, activeRow, overlay } = globalState;
       const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */
       step.rows.length;
+      if (overlay === "dock-instructions") {
+        return {
+          variant: "box",
+          heading: {
+            title: t3("systemSettings_title_v3"),
+            subtitle: t3("systemSettings_subtitle_v3"),
+            speechBubble: true
+          },
+          acceptButton: {
+            text: t3("nextButton"),
+            handler: () => {
+              dismissOverlay();
+              enableSystemValue("dock-instructions");
+            }
+          },
+          content: /* @__PURE__ */ _(DockInstructions, null)
+        };
+      }
       return {
         variant: "box",
         heading: {
@@ -28013,6 +28088,15 @@
       kind: "toggle",
       acceptText: t3("startBrowsing"),
       accepButtonVariant: "primary"
+    }),
+    "dock-instructions": (t3) => ({
+      id: "dock-instructions",
+      icon: "v3/Add-To-Dock-Color-24.svg",
+      title: t3("row_dock_title_v3"),
+      secondaryText: t3("row_dock_summary_v3"),
+      kind: "one-time",
+      acceptText: t3("row_dock-instructions_accept"),
+      accepButtonVariant: "primary"
     })
   };
   var stepDefinitions = {
@@ -28080,6 +28164,7 @@
       set: (value2) => setStep(activeStep, value2),
       toggle: () => toggleStep(activeStep)
     };
+    const dismissOverlay = () => dispatch({ kind: "dismiss-overlay" });
     const configParams = {
       t: t3,
       platformName,
@@ -28088,7 +28173,8 @@
       advance,
       dismiss,
       enableSystemValue,
-      beforeAfter
+      beforeAfter,
+      dismissOverlay
     };
     if (!stepsConfig[activeStep]) {
       throw new Error(`Missing step config for ${activeStep}`);
@@ -28409,12 +28495,13 @@
   };
 
   // pages/onboarding/app/v3/components/SingleStep.js
-  function StepGrid({ progress, dismissButton, acceptButton, children }) {
-    return /* @__PURE__ */ _("div", { className: SingleStep_default.container }, /* @__PURE__ */ _("div", { className: SingleStep_default.content }, /* @__PURE__ */ _(Stack, { animate: true }, children)), /* @__PURE__ */ _("div", { className: SingleStep_default.progress }, /* @__PURE__ */ _(SingleLineProgress, { current: progress.current, total: progress.total })), /* @__PURE__ */ _("div", { className: SingleStep_default.buttonBar }, (dismissButton || acceptButton) && /* @__PURE__ */ _(SlideIn, null, /* @__PURE__ */ _("div", { class: SingleStep_default.buttonBarContents }, /* @__PURE__ */ _("div", { className: SingleStep_default.dismiss }, dismissButton), /* @__PURE__ */ _("div", { className: SingleStep_default.accept }, acceptButton)))));
+  function StepGrid({ progress, dismissButton, acceptButton, hideProgress, buttonAnimation = "slide", children }) {
+    const ButtonAnimation = buttonAnimation === "fade" ? FadeIn : SlideIn;
+    return /* @__PURE__ */ _("div", { className: SingleStep_default.container }, /* @__PURE__ */ _("div", { className: SingleStep_default.content }, /* @__PURE__ */ _(Stack, { animate: true }, children)), /* @__PURE__ */ _("div", { className: SingleStep_default.progress }, !hideProgress && /* @__PURE__ */ _(SingleLineProgress, { current: progress.current, total: progress.total })), /* @__PURE__ */ _("div", { className: SingleStep_default.buttonBar }, (dismissButton || acceptButton) && /* @__PURE__ */ _(ButtonAnimation, null, /* @__PURE__ */ _("div", { class: SingleStep_default.buttonBarContents }, /* @__PURE__ */ _("div", { className: SingleStep_default.dismiss }, dismissButton), /* @__PURE__ */ _("div", { className: SingleStep_default.accept }, acceptButton)))));
   }
   function SingleStep() {
     const dispatch = useGlobalDispatch();
-    const { variant, heading, dismissButton, acceptButton, content: content2, progress } = useStepConfig();
+    const { variant, heading, dismissButton, acceptButton, content: content2, progress, globalState } = useStepConfig();
     const classes = (0, import_classnames9.default)({
       [SingleStep_default.panel]: true,
       [SingleStep_default.boxed]: variant === "box"
@@ -28424,6 +28511,8 @@
       StepGrid,
       {
         progress,
+        hideProgress: !!globalState.overlay,
+        buttonAnimation: globalState.overlay ? "fade" : "slide",
         dismissButton: dismissButton && /* @__PURE__ */ _(ElasticButton, { ...dismissButton, elastic: false, variant: "secondary", onClick: dismissButton.handler }),
         acceptButton: acceptButton && /* @__PURE__ */ _(ElasticButton, { ...acceptButton, elastic: true, variant: "primary", onClick: acceptButton.handler })
       },
@@ -28633,6 +28722,7 @@
       null
     );
     const isMounted = A2(false);
+    const prevBounceKey = A2(bounceKey);
     const { isReducedMotion } = useEnv();
     const [bounceRef, animateBounce] = useAnimate();
     const mergedBubbleRef = useMergedRef(bubbleRef, bounceRef);
@@ -28649,7 +28739,8 @@
       return () => observer.disconnect();
     }, [onHeight]);
     y2(() => {
-      if (!isMounted.current) return;
+      if (prevBounceKey.current === bounceKey) return;
+      prevBounceKey.current = bounceKey;
       animateBounce(
         [
           { scale: 1, easing: "cubic-bezier(0.17, 0, 0.83, 1)" },
@@ -29185,6 +29276,10 @@
     const iconRef = useFlip();
     const handleAction = (enabled2) => {
       if (isExiting || isEntering) return;
+      if (data2.id === "dock-instructions" && enabled2) {
+        dispatch({ kind: "show-overlay", overlay: "dock-instructions" });
+        return;
+      }
       if (current) onAction();
       dispatch({
         kind: "update-system-value",
@@ -29838,6 +29933,77 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_ss_fg" }, /* @__PURE__ */ _("rect", { width: "68.7272", height: "58.2272", fill: "white" })))));
   }
 
+  // pages/onboarding/app/v4/components/FadeTransition.js
+  var import_classnames17 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/v4/components/FadeTransition.module.css
+  var FadeTransition_default = {
+    fadeOut: "FadeTransition_fadeOut",
+    "fade-out": "FadeTransition_fade-out",
+    fadeIn: "FadeTransition_fadeIn",
+    "fade-in": "FadeTransition_fade-in"
+  };
+
+  // pages/onboarding/app/v4/components/FadeTransition.js
+  function FadeTransition({ transitionKey, children }) {
+    const { isReducedMotion } = useEnv();
+    const [snapshot, setSnapshot] = d2({ key: transitionKey, content: children });
+    const [phase, setPhase] = d2(
+      /** @type {'idle' | 'exiting' | 'entering'} */
+      "idle"
+    );
+    if (transitionKey !== snapshot.key && phase === "idle") {
+      if (isReducedMotion) {
+        setSnapshot({ key: transitionKey, content: children });
+      } else {
+        setPhase("exiting");
+      }
+    }
+    const handleAnimationEnd = (e3) => {
+      if (e3.target !== e3.currentTarget) return;
+      if (phase === "exiting") {
+        setSnapshot({ key: transitionKey, content: children });
+        setPhase("entering");
+      } else if (phase === "entering") {
+        setPhase("idle");
+      }
+    };
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(phase === "exiting" && FadeTransition_default.fadeOut, phase === "entering" && FadeTransition_default.fadeIn), onAnimationEnd: handleAnimationEnd }, phase === "idle" ? children : snapshot.content);
+  }
+
+  // pages/onboarding/app/v4/components/DockInstructionsContent.module.css
+  var DockInstructionsContent_default = {
+    root: "DockInstructionsContent_root",
+    video: "DockInstructionsContent_video",
+    instruction: "DockInstructionsContent_instruction",
+    icon: "DockInstructionsContent_icon",
+    instructionText: "DockInstructionsContent_instructionText"
+  };
+
+  // pages/onboarding/app/v4/components/DockInstructionsContent.js
+  function DockInstructionsContent() {
+    const { t: t3 } = useTypedTranslation();
+    const { isReducedMotion } = useEnv();
+    const dispatch = x2(GlobalDispatch);
+    const handleNext = () => {
+      dispatch({ kind: "dismiss-overlay" });
+      dispatch({ kind: "update-system-value", id: "dock-instructions", payload: { enabled: true }, current: true });
+    };
+    return /* @__PURE__ */ _("div", { class: DockInstructionsContent_default.root }, /* @__PURE__ */ _(
+      "video",
+      {
+        class: DockInstructionsContent_default.video,
+        src: "assets/video/dock-instructions/add-to-dock.mp4",
+        autoPlay: !isReducedMotion,
+        loop: true,
+        muted: true,
+        playsinline: true,
+        width: 384,
+        height: 188
+      }
+    ), /* @__PURE__ */ _("div", { class: DockInstructionsContent_default.instruction }, /* @__PURE__ */ _("img", { src: "assets/img/steps/v4/dock.svg", alt: "", class: DockInstructionsContent_default.icon }), /* @__PURE__ */ _("p", { class: DockInstructionsContent_default.instructionText }, /* @__PURE__ */ _(Trans, { str: t3("dockInstructions_body"), values: {} }))), /* @__PURE__ */ _(Button2, { variant: "primary", size: "stretch", onClick: handleNext }, t3("nextButton")));
+  }
+
   // pages/onboarding/app/v4/data/data.js
   var stepsConfig2 = {
     welcome: ({ advance }) => {
@@ -29864,20 +30030,21 @@
       };
     },
     systemSettings: ({ t: t3, globalState }) => {
+      const overlay = globalState.overlay;
       return {
         topBubble: {
           content: /* @__PURE__ */ _(StepHeader, { title: t3("systemSettings_title_v3"), subtitle: t3("systemSettings_subtitle_v3") }),
           tail: "right"
         },
         bottomBubble: {
-          content: /* @__PURE__ */ _(SettingsContent, null),
-          illustration: {
+          content: /* @__PURE__ */ _(FadeTransition, { transitionKey: overlay ?? "none" }, overlay === "dock-instructions" ? /* @__PURE__ */ _(DockInstructionsContent, null) : /* @__PURE__ */ _(SettingsContent, null)),
+          illustration: overlay ? void 0 : {
             background: /* @__PURE__ */ _(DaxSystemSettingsBackground, null),
             foreground: /* @__PURE__ */ _(DaxSystemSettingsForeground, null)
           }
         },
         showProgress: true,
-        bounceKey: `${globalState.activeStep}-${globalState.activeRow}`
+        bounceKey: `${globalState.activeStep}-${globalState.activeRow}-${overlay ?? "none"}`
       };
     },
     duckPlayerSingle: ({ t: t3 }) => {
@@ -29990,6 +30157,14 @@
       title: t3("addressBarMode_title"),
       kind: "toggle",
       acceptText: t3("startBrowsing")
+    }),
+    "dock-instructions": (t3) => ({
+      id: "dock-instructions",
+      icon: "v4/dock.svg",
+      title: t3("row_dock_title_v3"),
+      secondaryText: t3("row_dock_summary_v3"),
+      kind: "one-time",
+      acceptText: t3("row_dock-instructions_accept")
     })
   };
   var stepDefinitions2 = {
@@ -31777,6 +31952,20 @@
                 id: "systemSettings",
                 kind: "settings",
                 rows: ["dock", "import", `${adBlocking}-ad-blocking`]
+              };
+            }
+            const dockVariant = url.searchParams.get("dock");
+            if (dockVariant === "instructions") {
+              const existing = stepDefinitions3.systemSettings;
+              const rows = existing ? [...existing.rows] : ["dock", "import"];
+              const dockIndex = rows.indexOf("dock");
+              if (dockIndex !== -1) {
+                rows[dockIndex] = "dock-instructions";
+              }
+              stepDefinitions3.systemSettings = {
+                id: "systemSettings",
+                kind: "settings",
+                rows
               };
             }
             const duckPlayerVariant = url.searchParams.get("duckPlayer");
