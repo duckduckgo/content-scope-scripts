@@ -53,12 +53,13 @@ export function Bubble({
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const isMounted = useRef(false);
+    const prevBounceKey = useRef(bounceKey);
     const { isReducedMotion } = useEnv();
     const [bounceRef, animateBounce] = useAnimate();
     const mergedBubbleRef = useMergedRef(bubbleRef, bounceRef);
 
     // One-way flag: false on initial mount, true after the first transition.
-    // Suppresses fade-in and bounce animations until content has exited once.
+    // Suppresses fade-in and fade-out CSS animations until content has exited once.
     if (exiting) isMounted.current = true;
 
     useLayoutEffect(() => {
@@ -75,7 +76,8 @@ export function Bubble({
     }, [onHeight]);
 
     useEffect(() => {
-        if (!isMounted.current) return;
+        if (prevBounceKey.current === bounceKey) return;
+        prevBounceKey.current = bounceKey;
 
         animateBounce(
             [
