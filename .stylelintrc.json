@@ -1,11 +1,7 @@
 {
     "extends": ["stylelint-config-standard"],
-    "plugins": ["stylelint-csstree-validator"],
     "ignoreFiles": ["build/**/*.css", "Sources/**/*.css", "docs/**/*.css", "special-pages/pages/**/*/dist/*.css"],
     "rules": {
-        "csstree/validator": {
-            "ignoreProperties": ["text-wrap", "view-transition-name", "composes", "text-box-trim", "text-box-edge"]
-        },
         "property-no-unknown": [
             true,
             {
@@ -42,6 +38,8 @@
         "declaration-block-no-shorthand-property-overrides": null,
         "font-family-no-missing-generic-family-keyword": null,
         "font-family-name-quotes": null,
-        "value-no-vendor-prefix": null
+        "value-no-vendor-prefix": null,
+        "color-function-alias-notation": null,
+        "property-no-deprecated": null
     }
 }
