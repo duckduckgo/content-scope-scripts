@@ -5,6 +5,9 @@ import { Bubble } from './Bubble';
 import { useStepConfig } from '../hooks/useStepConfig';
 import styles from './SingleStep.module.css';
 
+/** @type {string|null} */
+const bubbleWidthOverride = new URLSearchParams(window.location.search).get('bubbleWidth');
+
 /**
  * Main layout component for v4 steps.
  * Steps with bubbles use absolute positioning; the layout measures bubble heights.
@@ -16,6 +19,15 @@ export function SingleStep() {
 
     const [topHeight, setTopHeight] = useState(0);
     const [bottomHeight, setBottomHeight] = useState(0);
+
+    /** @type {Record<string, string>} */
+    const layoutStyle = {
+        '--bubble-top-height': `${topHeight}px`,
+        '--bubble-bottom-height': `${bottomHeight}px`,
+    };
+    if (bubbleWidthOverride) {
+        layoutStyle['--bubble-width'] = /^\d+$/.test(bubbleWidthOverride) ? `${bubbleWidthOverride}px` : bubbleWidthOverride;
+    }
 
     // No bubbles — render content directly (e.g., welcome step has its own full-page layout)
     if (!topBubble && !bottomBubble) {
@@ -29,10 +41,7 @@ export function SingleStep() {
                 [styles.hasBottom]: !!bottomBubble,
                 [styles.narrow]: bubbleWidth === 'narrow',
             })}
-            style={{
-                '--bubble-top-height': `${topHeight}px`,
-                '--bubble-bottom-height': `${bottomHeight}px`,
-            }}
+            style={layoutStyle}
         >
             <Bubble
                 class={styles.topBubble}
