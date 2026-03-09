@@ -33,6 +33,22 @@ export function mockTransport() {
                         };
                     }
 
+                    const dockVariant = url.searchParams.get('dock');
+                    if (dockVariant === 'instructions') {
+                        const existing = stepDefinitions.systemSettings;
+                        const rows = existing ? [...existing.rows] : ['dock', 'import'];
+                        // replace 'dock' with 'dock-instructions'
+                        const dockIndex = rows.indexOf('dock');
+                        if (dockIndex !== -1) {
+                            rows[dockIndex] = 'dock-instructions';
+                        }
+                        stepDefinitions.systemSettings = {
+                            id: 'systemSettings',
+                            kind: 'settings',
+                            rows,
+                        };
+                    }
+
                     const duckPlayerVariant = url.searchParams.get('duckPlayer');
                     if (duckPlayerVariant === 'ad-free') {
                         stepDefinitions.duckPlayerSingle = {
