@@ -45,6 +45,9 @@ jobs:
             - name: Build (injected only)
               if: ${{ matrix.workspace == 'injected' }}
               run: npm run build -w injected
+            - name: Smoke check web-ext CLI (injected only)
+              if: ${{ matrix.workspace == 'injected' }}
+              run: npm exec -w injected web-ext -- --version
             - run: npm run test-unit -w ${{ matrix.workspace }}
     unit:
         runs-on: ${{ matrix.os }}
