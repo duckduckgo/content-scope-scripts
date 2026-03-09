@@ -8,6 +8,10 @@ import { isBeingFramed } from '../utils.js';
  */
 export class PageObserver extends ContentFeature {
     init() {
+        if (this.platform.name === 'ios') {
+            return;
+        }
+        
         // Only operate in the main frame
         if (isBeingFramed()) return;
 
