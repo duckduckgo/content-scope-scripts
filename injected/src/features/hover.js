@@ -11,6 +11,11 @@ import { findClosestAnchor } from '../utils/dom-metadata.js';
  */
 export class Hover extends ContentFeature {
     init() {
+        // iOS doesn't need hover, so we shouldn't override there
+        if (this.platform.name === 'ios') {
+            return;
+        }
+
         document.addEventListener(
             'mouseover',
             (event) => {

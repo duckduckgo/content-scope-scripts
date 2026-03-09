@@ -14,7 +14,12 @@ import { useContext } from 'preact/hooks';
  *   | 'aggressive-ad-blocking'
  *   | 'youtube-ad-blocking'
  *   | 'address-bar-mode'
+ *   | 'dock-instructions'
  * } SystemValueId - Each setting that can be updated should have a unique ID listed here.
+ */
+
+/**
+ * @typedef {'dock-instructions'} OverlayId
  */
 
 /**
@@ -79,6 +84,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @property {Status} status
  * @property {Partial<Record<SystemValueId, SystemValue>>} values
  * @property {Record<SystemValueId, UIValue>} UIValues
+ * @property {OverlayId|null} overlay
  */
 
 /**
@@ -90,7 +96,9 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | ExecErrorEvent
  *   | DismissEvent
  *   | DismisstoSettingsEvent
- *   | ErrorBoundaryEvent} GlobalEvents
+ *   | ErrorBoundaryEvent
+ *   | ShowOverlayEvent
+ *   | DismissOverlayEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -101,6 +109,8 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
+ * @typedef {{ kind: "show-overlay"; overlay: OverlayId }} ShowOverlayEvent
+ * @typedef {{ kind: "dismiss-overlay" }} DismissOverlayEvent
  *
  */
 

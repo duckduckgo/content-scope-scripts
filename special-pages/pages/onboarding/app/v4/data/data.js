@@ -8,6 +8,8 @@ import { WelcomeContent } from '../components/WelcomeContent';
 import { GetStartedContent } from '../components/GetStartedContent';
 import { GetStartedAnimation } from '../components/GetStartedAnimation';
 import { DaxSystemSettingsBackground, DaxSystemSettingsForeground } from '../components/Illustrations';
+import { FadeTransition } from '../components/FadeTransition';
+import { DockInstructionsContent } from '../components/DockInstructionsContent';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -42,20 +44,27 @@ export const stepsConfig = {
         };
     },
     systemSettings: ({ t, globalState }) => {
+        const overlay = globalState.overlay;
         return {
             topBubble: {
                 content: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} />,
                 tail: 'right',
             },
             bottomBubble: {
-                content: <SettingsContent />,
-                illustration: {
-                    background: <DaxSystemSettingsBackground />,
-                    foreground: <DaxSystemSettingsForeground />,
-                },
+                content: (
+                    <FadeTransition transitionKey={overlay ?? 'none'}>
+                        {overlay === 'dock-instructions' ? <DockInstructionsContent /> : <SettingsContent />}
+                    </FadeTransition>
+                ),
+                illustration: overlay
+                    ? undefined
+                    : {
+                          background: <DaxSystemSettingsBackground />,
+                          foreground: <DaxSystemSettingsForeground />,
+                      },
             },
             showProgress: true,
-            bounceKey: `${globalState.activeStep}-${globalState.activeRow}`,
+            bounceKey: `${globalState.activeStep}-${globalState.activeRow}-${overlay ?? 'none'}`,
         };
     },
     duckPlayerSingle: ({ t }) => {
@@ -183,6 +192,14 @@ export const settingsRowItems = {
         title: t('addressBarMode_title'),
         kind: 'toggle',
         acceptText: t('startBrowsing'),
+    }),
+    'dock-instructions': (t) => ({
+        id: 'dock-instructions',
+        icon: 'v4/dock.svg',
+        title: t('row_dock_title_v3'),
+        secondaryText: t('row_dock_summary_v3'),
+        kind: 'one-time',
+        acceptText: t('row_dock-instructions_accept'),
     }),
 };
 
