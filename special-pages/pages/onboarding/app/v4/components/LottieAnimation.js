@@ -12,34 +12,56 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  * @param {number} [props.width] - Width in pixels
  * @param {number} [props.height] - Height in pixels
  * @param {boolean} [props.loop] - Whether to loop the animation
+ * @param {boolean} [props.autoplay] - Whether to auto-play when loaded (default true)
  * @param {() => void} [props.onComplete] - Called when the animation finishes (if not looping)
  * @param {string} [props.label] - Accessible label for the animation
+ * @param {import('preact').RefObject<import('lottie-web').AnimationItem | null>} [props.animationRef] - Ref to the underlying lottie AnimationItem
  * @param {string} [props.class] - CSS class name for the container
  */
-export function LottieAnimation({ src, darkSrc, width, height, loop = false, onComplete, label, class: className }) {
-    const ref = useRef(/** @type {HTMLDivElement | null} */ (null));
-    const frameRef = useRef(/** @type {number} */ (0));
+export function LottieAnimation({
+    src,
+    darkSrc,
+    width,
+    height,
+    loop = false,
+    autoplay = true,
+    onComplete,
+    label,
+    class: className,
+    animationRef,
+}) {
     const { isReducedMotion, isDarkMode } = useEnv();
     const resolvedSrc = darkSrc && isDarkMode ? darkSrc : src;
 
+    const containerRef = useRef(/** @type {HTMLDivElement | null} */ (null));
+
+    // Keep track of frame between unmount and re-mount so that animation starts where it left off
+    // e.g. when user switches between light and dark mode.
+    const frameRef = useRef(/** @type {number} */ (0));
+
     useEffect(() => {
-        if (!ref.current) return;
+        if (!containerRef.current) return;
 
         const startFrame = frameRef.current;
 
-        /** @type {import('lottie-web').AnimationItem | null} */
         const animation = lottie.loadAnimation({
-            container: ref.current,
+            container: containerRef.current,
             renderer: 'svg',
             loop,
-            autoplay: !isReducedMotion && startFrame === 0,
+            autoplay: autoplay && !isReducedMotion && startFrame === 0,
             path: resolvedSrc,
         });
+
+        if (animationRef) {
+            animationRef.current = animation;
+        }
 
         animation.addEventListener('DOMLoaded', () => {
             const lastFrame = animation.totalFrames - 1;
             if (isReducedMotion) {
                 animation.goToAndStop(lastFrame, true);
+            } else if (!autoplay) {
+                animation.goToAndStop(0, true);
             } else if (startFrame > 0) {
                 const frame = Math.min(startFrame, lastFrame);
                 animation.goToAndPlay(frame, true);
@@ -52,13 +74,14 @@ export function LottieAnimation({ src, darkSrc, width, height, loop = false, onC
 
         return () => {
             frameRef.current = animation.currentFrame;
+            if (animationRef) animationRef.current = null;
             animation.destroy();
         };
     }, [resolvedSrc, loop, onComplete, isReducedMotion]);
 
     return (
         <div
-            ref={ref}
+            ref={containerRef}
             class={className}
             role={label ? 'img' : 'presentation'}
             aria-label={label}

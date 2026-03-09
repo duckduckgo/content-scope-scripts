@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import { useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { ComparisonTable } from './ComparisonTable';
@@ -10,6 +10,7 @@ import { LottieAnimation } from './LottieAnimation';
 import { useAnimate } from '../hooks/useAnimate';
 import { usePresence } from '../hooks/usePresence';
 import { useFlip } from '../hooks/useFlip';
+import cn from 'classnames';
 import styles from './MakeDefaultContent.module.css';
 
 /**
@@ -33,6 +34,9 @@ export function MakeDefaultContent({ advance, updateSystemValue }) {
 
     // Title text swaps mid-bounce so it can't be derived from global state
     const [showSuccess, setShowSuccess] = useState(false);
+
+    /** @type {import('preact').RefObject<import('lottie-web').AnimationItem | null>} */
+    const sparkleRef = useRef(null);
 
     // Hook order matters: usePresence removes the skip button from flow before useFlip measures layout
     /** @type {[import('preact').RefObject<HTMLHeadingElement>, import('../hooks/useAnimate').AnimateFn]} */
@@ -66,6 +70,7 @@ export function MakeDefaultContent({ advance, updateSystemValue }) {
                 easing: 'cubic-bezier(0.17, 0, 0.83, 1)',
             });
             setShowSuccess(true);
+            sparkleRef.current?.goToAndPlay(6, true);
             await animateTitle([{ scale: 1.07 }, { scale: 1 }], {
                 duration: 233,
                 easing: 'cubic-bezier(0.17, 0, 0.83, 1)',
@@ -75,18 +80,20 @@ export function MakeDefaultContent({ advance, updateSystemValue }) {
 
     return (
         <Container class={styles.root}>
-            <Title titleRef={titleRef} class={styles.title}>
-                {showSuccess ? t('makeDefaultAccept_title_v4') : t('protectionsActivated_title')}
-                {showSuccess && (
-                    <LottieAnimation
-                        src="assets/lottie/v4/sparkle.json"
-                        darkSrc="assets/lottie/v4/sparkle-dark.json"
-                        class={styles.sparkle}
-                        width={34}
-                        height={43}
-                    />
-                )}
-            </Title>
+            <div class={styles.titleContainer}>
+                <Title titleRef={titleRef} class={styles.title}>
+                    {showSuccess ? t('makeDefaultAccept_title_v4') : t('protectionsActivated_title')}
+                </Title>
+                <LottieAnimation
+                    src="assets/lottie/v4/sparkle.json"
+                    darkSrc="assets/lottie/v4/sparkle-dark.json"
+                    class={cn(styles.sparkle, { [styles.hidden]: !showSuccess })}
+                    width={34}
+                    height={43}
+                    autoplay={false}
+                    animationRef={sparkleRef}
+                />
+            </div>
 
             <ComparisonTable />
 

@@ -2,8 +2,11 @@
     padding: var(--sp-9) var(--sp-12); /* 36px 48px */
 }
 
-.title {
+.titleContainer {
     position: relative;
+}
+
+.title {
     padding: calc(2 * var(--px-in-rem)) var(--sp-3); /* 2px 12px */
 }
 
@@ -13,6 +16,10 @@
     left: -7px;
     transform: translate(-50%, -50%);
     pointer-events: none;
+
+    &.hidden {
+        visibility: hidden;
+    }
 }
 
 .actions {
