@@ -47,10 +47,8 @@ export function useContextMenu() {
         function handler(e) {
             // Allow native context menu on text inputs and textareas (e.g. for copy/paste)
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-                console.debug('contextmenu: allowing native menu for', e.target.tagName);
                 return;
             }
-            console.debug('contextmenu: intercepted, sending custom menu to native');
             e.preventDefault();
             e.stopImmediatePropagation();
             const items = getItems();
