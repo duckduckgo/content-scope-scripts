@@ -77,14 +77,10 @@ jobs:
                           const desc = `Approved by ${approval.user} ${via}`.trim();
                           await setReviewStatus({ state: 'success', description: desc });
                           core.info(`✅ ${desc}`);
-                      } else if (context.eventName === 'pull_request') {
+                      } else {
                           await setReviewStatus({
                               state: 'pending',
                               description: `Waiting for approval. Required teams: ${teamsList}`
                           });
                           core.info('⏳ No approval yet — commit status set to pending');
-                      } else {
-                          const desc = `No approved review from daxtheduck or a member of: ${teamsList}`;
-                          await setReviewStatus({ state: 'failure', description: desc });
-                          core.setFailed(desc);
                       }
