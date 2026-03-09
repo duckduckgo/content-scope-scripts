@@ -73,6 +73,7 @@ export type ShowDuckAiSetting = boolean;
  * Controls a popover that onboards users and points them towards how to disable the feature via the customizer
  */
 export type ShowCustomizePopover = boolean;
+export type EnableRecentAIChats = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -146,6 +147,7 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarOpenAiChatNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSubmitChatNotification
@@ -175,6 +177,7 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
     | OmnibarGetSuggestionsRequest
     | ProtectionsGetConfigRequest
@@ -498,6 +501,28 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_openAiChat.notify.json"
+ */
+export interface OmnibarOpenAiChatNotification {
+  method: "omnibar_openAiChat";
+  params: OpenAIChatAction;
+}
+export interface OpenAIChatAction {
+  /**
+   * The ID of the chat to open
+   */
+  chatId: string;
+  target: OpenTarget;
+  /**
+   * Whether the chat was opened via mouse click or keyboard
+   */
+  trigger: "mouse" | "keyboard";
+  /**
+   * Whether the chat is pinned
+   */
+  isPinned: boolean;
+}
+/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -553,6 +578,7 @@ export interface OmnibarConfig {
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
+  enableRecentAiChats?: EnableRecentAIChats;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -972,6 +998,44 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_getAiChats.request.json"
+ */
+export interface OmnibarGetAiChatsRequest {
+  method: "omnibar_getAiChats";
+  params: GetAIChatsRequest;
+  result: AiChatsData;
+}
+export interface GetAIChatsRequest {
+  /**
+   * Search query to filter chats.
+   */
+  query: string;
+}
+export interface AiChatsData {
+  /**
+   * List of AI chats
+   */
+  chats: AiChat[];
+}
+export interface AiChat {
+  /**
+   * Unique identifier for the chat
+   */
+  chatId: string;
+  /**
+   * Display title of the chat
+   */
+  title: string;
+  /**
+   * Whether the chat is pinned
+   */
+  pinned?: boolean;
+  /**
+   * ISO timestamp of last edit
+   */
+  lastEdit?: string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"

@@ -7,7 +7,7 @@ import { ColorSelection } from './ColorSelection.js';
 import { GradientSelection } from './GradientSelection.js';
 import { useSignal } from '@preact/signals';
 import { ImageSelection } from './ImageSelection.js';
-import { ArrowIndentCenteredIcon, DuckFoot, SearchIcon, Shield } from '../../components/Icons.js';
+import { ArrowIndentCenteredIcon, FavoriteIcon, SearchIcon, Shield } from '../../components/Icons.js';
 
 /** @type {import('./CustomizerMenu.js').VisibilityRowData[]} */
 const ROWS = [
@@ -32,7 +32,7 @@ const ROWS = [
     {
         id: 'favorites',
         title: 'Favorites',
-        icon: <Shield />,
+        icon: <FavoriteIcon />,
         toggle: noop('toggle favorites'),
         visibility: 'hidden',
         index: 0,
@@ -41,7 +41,7 @@ const ROWS = [
     {
         id: 'privacyStats',
         title: 'Privacy Stats',
-        icon: <DuckFoot />,
+        icon: <Shield />,
         toggle: noop('toggle favorites'),
         visibility: 'visible',
         index: 1,

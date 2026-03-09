@@ -86,6 +86,12 @@
     .field {
         margin: 1px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
     }
+
+    .aiChatsList {
+        margin-left: -2px;
+        margin-right: -2px;
+        margin-top: 3px;
+    }
 }
 
 /* Suggestions */
@@ -94,7 +100,7 @@
     margin: 0;
 
     .field {
-        margin: 3px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
+        margin: 3px; 
     }
 }
 
