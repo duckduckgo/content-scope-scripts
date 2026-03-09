@@ -2,53 +2,73 @@ import { h } from 'preact';
 import { useContext, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { GlobalContext } from '../../global';
-import { ORDER_V4 } from '../../types';
 import styles from './Background.module.css';
 
 /**
+ * Maps each step to its background image filename (without extension/variant suffix).
+ * Multiple steps can share the same background.
+ * @type {Record<import('../../types').Step['id'], string>}
+ */
+const backgroundForStep = {
+    welcome: 'background-01',
+    getStarted: 'background-01',
+    makeDefaultSingle: 'background-01',
+    systemSettings: 'background-02',
+    duckPlayerSingle: 'background-02',
+    customize: 'background-03',
+    addressBarMode: 'background-04',
+};
+
+/**
  * @param {object} props
- * @param {import('../../types').Step['id']} props.step
+ * @param {string} props.filename - background filename stem, e.g. 'background-02'
  * @param {string} props.class
+ * @param {boolean} [props.rightAligned]
  * @param {(() => void)} [props.onAnimationEnd]
  */
-function Illustration({ step, class: className, onAnimationEnd }) {
-    const idx = ORDER_V4.indexOf(step);
-    const num = String(idx + 1).padStart(2, '0');
+function Illustration({ filename, class: className, rightAligned, onAnimationEnd }) {
     return (
-        <picture class={cn(className, step === 'welcome' && styles.rightAligned)} onAnimationEnd={onAnimationEnd}>
-            <source srcset={`assets/img/v4/background-${num}-dark.svg`} media="(prefers-color-scheme: dark)" />
-            <img src={`assets/img/v4/background-${num}-light.svg`} alt="" />
+        <picture class={cn(className, rightAligned && styles.rightAligned)} onAnimationEnd={onAnimationEnd}>
+            <source srcset={`assets/img/v4/${filename}-dark.svg`} media="(prefers-color-scheme: dark)" />
+            <img src={`assets/img/v4/${filename}-light.svg`} alt="" />
         </picture>
     );
 }
 
 /**
  * Step-specific background for v4 onboarding.
- * Each step's background illustration slides in from the bottom on transition:
- * the previous step's background slides out + fades while the
- * new step's background slides in.
+ * The background illustration slides in from the bottom on transition;
+ * when consecutive steps share the same background, no animation plays.
  */
 export function Background() {
     const { activeStep } = useContext(GlobalContext);
-    const [prevStep, setPrevStep] = useState(activeStep);
-    const [exitingStep, setExitingStep] = useState(/** @type {import('../../types').Step['id'] | null} */ (null));
+    const filename = backgroundForStep[activeStep];
 
-    if (prevStep !== activeStep) {
-        setPrevStep(activeStep);
-        setExitingStep(prevStep);
+    const [prevFilename, setPrevFilename] = useState(filename);
+    const [exitingFilename, setExitingFilename] = useState(/** @type {string | null} */ (null));
+
+    if (prevFilename !== filename) {
+        setExitingFilename(prevFilename);
+        setPrevFilename(filename);
     }
 
     return (
         <div class={styles.background}>
-            {exitingStep && (
+            {exitingFilename && (
                 <Illustration
-                    key={exitingStep}
-                    step={exitingStep}
+                    key={exitingFilename}
+                    filename={exitingFilename}
+                    rightAligned={exitingFilename === 'background-01'}
                     class={cn(styles.illustration, styles.slideOut)}
-                    onAnimationEnd={() => setExitingStep(null)}
+                    onAnimationEnd={() => setExitingFilename(null)}
                 />
             )}
-            <Illustration key={activeStep} step={activeStep} class={cn(styles.illustration, styles.slideIn)} />
+            <Illustration
+                key={filename}
+                filename={filename}
+                rightAligned={filename === 'background-01'}
+                class={cn(styles.illustration, styles.slideIn)}
+            />
         </div>
     );
 }
