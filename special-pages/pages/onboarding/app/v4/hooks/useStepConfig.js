@@ -3,6 +3,7 @@ import { GlobalContext, GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { usePlatformName } from '../../shared/components/SettingsProvider';
 import { stepsConfig } from '../data/data';
+import { useMediaQuery } from '../../../../../shared/hooks/useMediaQuery.js';
 
 /**
  * @param {import('../../types').Step['id'][]} order
@@ -26,6 +27,7 @@ function calculateProgress(order, activeStep) {
 export function useStepConfig() {
     const globalState = useContext(GlobalContext);
     const platformName = usePlatformName() || 'macos';
+    const isShortViewport = useMediaQuery('(max-height: 549px)');
     const dispatch = useContext(GlobalDispatch);
     const { t } = useTypedTranslation();
 
@@ -59,6 +61,7 @@ export function useStepConfig() {
         enqueueNext,
         dismiss,
         updateSystemValue,
+        isShortViewport,
     };
 
     if (!stepsConfig[activeStep]) {

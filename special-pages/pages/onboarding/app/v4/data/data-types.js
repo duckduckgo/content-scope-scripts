@@ -34,6 +34,7 @@
  * @property {() => void} enqueueNext - Function that triggers exit animation, then advances
  * @property {() => void} dismiss - Function that dismisses onboarding completely
  * @property {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} updateSystemValue - Dispatches a system value update
+ * @property {boolean} isShortViewport - True when viewport height is below 550px
  */
 
 /**

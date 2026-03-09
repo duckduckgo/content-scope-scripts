@@ -25,15 +25,17 @@ export const stepsConfig = {
             content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: ({ enqueueNext }) => {
+    getStarted: ({ enqueueNext, isShortViewport }) => {
         return {
             bottomBubble: {
                 content: <GetStartedContent advance={enqueueNext} />,
-                tail: 'bottom-left',
+                tail: isShortViewport ? undefined : 'bottom-left',
             },
-            illustration: {
-                foreground: <GetStartedAnimation />,
-            },
+            illustration: isShortViewport
+                ? undefined
+                : {
+                      foreground: <GetStartedAnimation />,
+                  },
             bubbleWidth: 'narrow',
         };
     },
