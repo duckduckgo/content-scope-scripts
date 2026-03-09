@@ -82,8 +82,10 @@ export const stepsConfig = {
             topBubble: {
                 content: (
                     <StepHeader
-                        title={isAdFree ? t('duckPlayer_adFree_title') : t('duckPlayer_title')}
-                        subtitle={isAdFree ? t('duckPlayer_adFree_subtitle', { newline: ' ' }) : t('duckPlayer_subtitle')}
+                        title={isAdFree ? t('duckPlayer_adFree_title') : t('duckPlayer_v4_title', { newline: '\n' })}
+                        subtitle={
+                            isAdFree ? t('duckPlayer_adFree_subtitle', { newline: ' ' }) : t('duckPlayer_v4_subtitle', { newline: '\n' })
+                        }
                     />
                 ),
             },

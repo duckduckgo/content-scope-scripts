@@ -17,6 +17,7 @@
     font-weight: 700;
     line-height: var(--sp-7); /* 28px */
     text-align: center;
+    white-space: pre-line;
     color: var(--ds-text-primary);
     margin: 0;
     text-box-trim: trim-both;
@@ -29,6 +30,7 @@
     font-weight: 400;
     line-height: calc(22 * var(--px-in-rem));
     text-align: center;
+    white-space: pre-line;
     color: var(--ds-text-primary);
     margin: 0;
     text-box-trim: trim-both;
