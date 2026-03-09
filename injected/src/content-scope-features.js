@@ -166,7 +166,7 @@ export function update(args) {
         updates.push(args);
         return;
     }
-    updateFeaturesInner(args);
+    void updateFeaturesInner(args);
 }
 
 /**
