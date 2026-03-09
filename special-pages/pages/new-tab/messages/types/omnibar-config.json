@@ -26,6 +26,11 @@
       "description": "Controls a popover that onboards users and points them towards how to disable the feature via the customizer",
       "type": "boolean",
       "default": false
+    },
+    "enableRecentAiChats": {
+      "title": "Enable Recent AI Chats",
+      "type": "boolean",
+      "default": false
     }
   }
 }

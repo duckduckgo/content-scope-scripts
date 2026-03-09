@@ -134,6 +134,10 @@ function SettingListItem({ item, dispatch, onAction, onTransitionEnd }) {
     /** @param {boolean} enabled */
     const handleAction = (enabled) => {
         if (isExiting || isEntering) return;
+        if (data.id === 'dock-instructions' && enabled) {
+            dispatch({ kind: 'show-overlay', overlay: 'dock-instructions' });
+            return;
+        }
         if (current) onAction();
         dispatch({
             kind: 'update-system-value',

@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AiChat",
+  "type": "object",
+  "required": ["chatId", "title"],
+  "properties": {
+    "chatId": {
+      "description": "Unique identifier for the chat",
+      "type": "string"
+    },
+    "title": {
+      "description": "Display title of the chat",
+      "type": "string"
+    },
+    "pinned": {
+      "description": "Whether the chat is pinned",
+      "type": "boolean"
+    },
+    "lastEdit": {
+      "description": "ISO timestamp of last edit",
+      "type": "string"
+    }
+  }
+}

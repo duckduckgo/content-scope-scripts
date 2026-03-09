@@ -1,7 +1,19 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
-import { getMockSuggestions } from './omnibar.mocks.js';
+import { getMockSuggestions, getMockAiChats } from './omnibar.mocks.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
+
+/**
+ * Reads a URL query param as a boolean. Returns null if absent or not 'true'/'false'.
+ * @param {string} param
+ * @return {boolean | null}
+ */
+function parseBooleanQueryParam(param) {
+    const value = url.searchParams.get(param);
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return null;
+}
 
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
@@ -10,6 +22,7 @@ export function omnibarMockTransport() {
         enableAi: true,
         showAiSetting: true,
         showCustomizePopover: false,
+        enableRecentAiChats: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -49,23 +62,19 @@ export function omnibarMockTransport() {
                     if (modeOverride === 'search' || modeOverride === 'ai') {
                         config.mode = modeOverride;
                     }
-                    const enableAiOverride = url.searchParams.get('omnibar.enableAi');
-                    if (enableAiOverride === 'true' || enableAiOverride === 'false') {
-                        config.enableAi = enableAiOverride === 'true';
-                    }
-                    const showAiSettingOverride = url.searchParams.get('omnibar.showAiSetting');
-                    if (showAiSettingOverride === 'true' || showAiSettingOverride === 'false') {
-                        config.showAiSetting = showAiSettingOverride === 'true';
-                    }
-                    const showCustomizePopoverOverride = url.searchParams.get('omnibar.showCustomizePopover');
-                    if (showCustomizePopoverOverride === 'true' || showCustomizePopoverOverride === 'false') {
-                        config.showCustomizePopover = showCustomizePopoverOverride === 'true';
-                    }
+                    config.enableAi = parseBooleanQueryParam('omnibar.enableAi') ?? config.enableAi;
+                    config.showAiSetting = parseBooleanQueryParam('omnibar.showAiSetting') ?? config.showAiSetting;
+                    config.showCustomizePopover = parseBooleanQueryParam('omnibar.showCustomizePopover') ?? config.showCustomizePopover;
+                    config.enableRecentAiChats = parseBooleanQueryParam('omnibar.enableRecentAiChats') ?? config.enableRecentAiChats;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
                     await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate network delay
                     return getMockSuggestions(msg.params.term);
+                }
+                case 'omnibar_getAiChats': {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    return getMockAiChats(msg.params.query);
                 }
                 default: {
                     throw new Error('unhandled request' + msg);
