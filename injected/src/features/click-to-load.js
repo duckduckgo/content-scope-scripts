@@ -515,8 +515,7 @@ class DuckWidget {
                             fbElement.addEventListener('error', onError, { once: true });
                         }
                     },
-                    (error) => {
-                        console.error('Failed to unblock click-to-load content', error);
+                    () => {
                         this.isUnblocked = false;
                         clicked = false;
                     },
@@ -959,8 +958,7 @@ async function runLogin(entity) {
     let response;
     try {
         response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
-    } catch (e) {
-        console.error('Failed to unblock click-to-load login flow', e);
+    } catch {
         return;
     }
     // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
@@ -1785,9 +1783,7 @@ function createYouTubePreview(originalElement, widget) {
                     widget.autoplay = true;
                 }
             },
-            (error) => {
-                console.warn('Failed to fetch YouTube video details', error);
-            },
+            () => {},
         );
 
     /** Share Feedback Link */
