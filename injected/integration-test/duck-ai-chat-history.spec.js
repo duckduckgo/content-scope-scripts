@@ -115,6 +115,36 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.chats).toHaveLength(0);
     });
 
+    test('search matches against user query content, not just title', async ({ page }) => {
+        await page.evaluate(() => {
+            const chats = [
+                {
+                    chatId: 'chat-1',
+                    title: 'Recipe Ideas',
+                    model: 'gpt-4.1-internal',
+                    messages: [{ content: 'What are some healthy dinner recipes for beginners?', role: 'user' }],
+                    lastEdit: new Date().toISOString(),
+                    pinned: false,
+                },
+                {
+                    chatId: 'chat-2',
+                    title: 'Travel Planning',
+                    model: 'gpt-4.1-internal',
+                    messages: [{ content: 'Help me plan a trip to Japan', role: 'user' }],
+                    lastEdit: new Date().toISOString(),
+                    pinned: false,
+                },
+            ];
+            localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+        });
+
+        // "dinner" only appears in the user query, not the title
+        const result = await requestChats({ query: 'dinner' });
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(1);
+        expect(result.chats[0].chatId).toBe('chat-1');
+    });
+
     test('handles non-string title values gracefully during search', async ({ page }) => {
         await page.evaluate(() => {
             const chats = [
