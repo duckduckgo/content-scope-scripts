@@ -12,10 +12,7 @@ permissions:
 
 jobs:
     trigger_release:
-        if: >-
-            github.event.pull_request.merged == true &&
-            contains(fromJSON('["release-major","release-minor","release-patch"]'),
-            github.event.pull_request.head.ref)
+        if: github.event.pull_request.merged == true
         runs-on: ubuntu-latest
         steps:
             - name: Check for semver label
