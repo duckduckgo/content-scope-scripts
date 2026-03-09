@@ -1196,6 +1196,21 @@ test.describe('omnibar widget', () => {
         });
     });
 
+    test('right-clicking on the search input does not trigger custom context menu', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Right-click on the search input
+        await omnibar.searchInput().click({ button: 'right' });
+
+        // Assert that the custom contextMenu notification was NOT sent
+        await omnibar.expectMethodNotCalled('contextMenu');
+    });
+
     test('customize popover appears when showCustomizePopover=true', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
