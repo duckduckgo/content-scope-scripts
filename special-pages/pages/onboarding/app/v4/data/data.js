@@ -86,7 +86,6 @@ export const stepsConfig = {
                         subtitle={isAdFree ? t('duckPlayer_adFree_subtitle', { newline: ' ' }) : t('duckPlayer_subtitle')}
                     />
                 ),
-                tail: 'right',
             },
             bottomBubble: { content: <DuckPlayerContent isAdFree={isAdFree} advance={enqueueNext} /> },
             showProgress: true,
@@ -96,7 +95,7 @@ export const stepsConfig = {
         const { activeStep, activeRow } = globalState;
 
         return {
-            topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} />, tail: 'right' },
+            topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} /> },
             bottomBubble: { content: <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
             bounceKey: `${activeStep}-${activeRow}`,
@@ -106,7 +105,6 @@ export const stepsConfig = {
         return {
             topBubble: {
                 content: <StepHeader title={t('addressBarMode_title')} />,
-                tail: 'right',
             },
             bottomBubble: { content: <AddressBarContent dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
