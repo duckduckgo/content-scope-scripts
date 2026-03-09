@@ -1,6 +1,13 @@
 import { checkTextPatterns } from '../utils/detection-utils.js';
 
 /**
+ * @typedef {object} AdwallDetectorConfig
+ * @property {string} [state]
+ * @property {string[]} [textPatterns]
+ * @property {string[]} [textSources]
+ */
+
+/**
  * @typedef {object} AdwallMatch
  * @property {boolean} detected
  * @property {string} detectorId
@@ -17,7 +24,7 @@ import { checkTextPatterns } from '../utils/detection-utils.js';
  * Run adwall detection using text pattern matching.
  * Detects "disable your adblocker" type messages on the page.
  *
- * @param {Record<string, any>} config
+ * @param {Record<string, AdwallDetectorConfig>} config
  * @returns {AdwallDetectionResult}
  */
 export function runAdwallDetection(config = {}) {
@@ -29,7 +36,6 @@ export function runAdwallDetection(config = {}) {
             continue;
         }
 
-        // Check for text patterns in the document body or specific selectors
         const detected = detectAdwall(detectorConfig);
         if (detected) {
             results.push({
@@ -48,13 +54,12 @@ export function runAdwallDetection(config = {}) {
 
 /**
  * Detect adwall presence using multiple strategies
- * @param {object} patternConfig
+ * @param {AdwallDetectorConfig} patternConfig
  * @returns {boolean}
  */
 function detectAdwall(patternConfig) {
     const { textPatterns, textSources } = patternConfig;
 
-    // Check text patterns in the body
     if (checkTextPatterns(textPatterns, textSources)) {
         return true;
     }
