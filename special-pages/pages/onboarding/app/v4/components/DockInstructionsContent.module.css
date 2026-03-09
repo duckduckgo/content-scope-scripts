@@ -1,0 +1,36 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--sp-8); /* 32px */
+    padding: var(--sp-12); /* 48px */
+}
+
+.video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 384 / 188;
+    border-radius: var(--sp-2); /* 8px */
+    object-fit: cover;
+}
+
+.instruction {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2); /* 8px */
+    align-self: stretch;
+}
+
+.icon {
+    width: var(--sp-6); /* 24px */
+    height: var(--sp-6); /* 24px */
+    flex-shrink: 0;
+}
+
+.instructionText {
+    margin: 0;
+    font-size: calc(14 * var(--px-in-rem));
+    line-height: calc(20 * var(--px-in-rem));
+    color: var(--ds-text-primary);
+}

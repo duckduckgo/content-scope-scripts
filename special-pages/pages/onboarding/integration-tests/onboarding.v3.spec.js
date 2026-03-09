@@ -585,6 +585,71 @@ test.describe('onboarding v3', () => {
         });
     });
 
+    test.describe('Given I am on the settings step with dock-instructions variant', () => {
+        test('When I click Show Me How, it shows dock instructions overlay', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Click "Show Me How" to open the dock instructions overlay
+            await onboarding.showDockInstructions();
+
+            // Verify instruction content is visible
+            await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
+            await expect(page.getByText('Options')).toBeVisible();
+            await expect(page.getByText('Keep in Dock')).toBeVisible();
+        });
+
+        test('When I click Show Me How then Next, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Open and dismiss the dock instructions overlay
+            await onboarding.showDockInstructions();
+            await onboarding.dismissDockInstructions();
+
+            // The import row should now be the current row
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+
+        test('When I skip dock-instructions, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip the dock-instructions row
+            await onboarding.skippedCurrent();
+
+            // The import row should now be the current row
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+    });
+
     test.describe('Given I am on the customize step', () => {
         test('Then I can see additional information about the steps', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV3Page.create(page, workerInfo);

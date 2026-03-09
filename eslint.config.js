@@ -76,6 +76,13 @@ export default tseslint.config(
         },
     },
     {
+        files: ['messaging/**/*.js', 'injected/src/**/*.js'],
+        rules: {
+            '@typescript-eslint/no-floating-promises': 'error',
+            'no-void': ['error', { allowAsStatement: true }],
+        },
+    },
+    {
         files: ['**/scripts/*.js', '**/*.mjs', '**/unit-test/**/*.js', '**/integration-test/**/*.spec.js'],
         languageOptions: {
             globals: {
