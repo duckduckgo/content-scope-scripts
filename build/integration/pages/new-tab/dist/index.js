@@ -34115,6 +34115,8 @@
      * Sends message to the webkit layer (fire and forget)
      * @param {String} handler
      * @param {*} data
+     * @returns {*}
+     * @throws {MissingHandler}
      * @internal
      */
     wkSend(handler, data2 = {}) {
@@ -34186,9 +34188,10 @@
     }
     /**
      * @param {import('../index.js').NotificationMessage} msg
+     * @returns {Promise<void>}
      */
-    notify(msg) {
-      this.wkSend(msg.context, msg);
+    async notify(msg) {
+      await this.wkSend(msg.context, msg);
     }
     /**
      * @param {import('../index.js').RequestMessage} msg
@@ -34857,19 +34860,19 @@
      * @param {Record<string, any>} [data]
      */
     notify(name2, data2 = {}) {
-      const message = new NotificationMessage({
-        context: this.messagingContext.context,
-        featureName: this.messagingContext.featureName,
-        method: name2,
-        params: data2
-      });
       try {
-        this.transport.notify(message);
-      } catch (e4) {
-        if (this.messagingContext.env === "development") {
-          console.error("[Messaging] Failed to send notification:", e4);
-          console.error("[Messaging] Message details:", { name: name2, data: data2 });
+        const message = new NotificationMessage({
+          context: this.messagingContext.context,
+          featureName: this.messagingContext.featureName,
+          method: name2,
+          params: data2
+        });
+        const maybeAsyncResult = this.transport.notify(message);
+        if (isPromiseLike(maybeAsyncResult)) {
+          void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name2, data2);
         }
+      } catch (e4) {
+        logNotificationError(this.messagingContext.env, name2, data2, e4);
       }
     }
     /**
@@ -34955,6 +34958,26 @@
       return new TestTransport(config, messagingContext);
     }
     throw new Error("unreachable");
+  }
+  function isPromiseLike(value2) {
+    return value2 !== null && value2 !== void 0 && typeof /** @type {{then?: unknown}} */
+    value2.then === "function";
+  }
+  async function handleAsyncNotificationResult(result, env, name2, data2) {
+    try {
+      await result;
+    } catch (error) {
+      logNotificationError(env, name2, data2, error);
+    }
+  }
+  function logNotificationError(env, name2, data2, error) {
+    if (env === "development") {
+      try {
+        console.error("[Messaging] Failed to send notification:", error);
+        console.error("[Messaging] Message details:", { name: name2, data: data2 });
+      } catch {
+      }
+    }
   }
   var MissingHandler = class extends Error {
     /**

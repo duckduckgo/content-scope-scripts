@@ -2080,6 +2080,8 @@
      * Sends message to the webkit layer (fire and forget)
      * @param {String} handler
      * @param {*} data
+     * @returns {*}
+     * @throws {MissingHandler}
      * @internal
      */
     wkSend(handler, data = {}) {
@@ -2151,9 +2153,10 @@
     }
     /**
      * @param {import('../index.js').NotificationMessage} msg
+     * @returns {Promise<void>}
      */
-    notify(msg) {
-      this.wkSend(msg.context, msg);
+    async notify(msg) {
+      await this.wkSend(msg.context, msg);
     }
     /**
      * @param {import('../index.js').RequestMessage} msg
@@ -2789,19 +2792,19 @@
      * @param {Record<string, any>} [data]
      */
     notify(name, data = {}) {
-      const message = new NotificationMessage({
-        context: this.messagingContext.context,
-        featureName: this.messagingContext.featureName,
-        method: name,
-        params: data
-      });
       try {
-        this.transport.notify(message);
-      } catch (e) {
-        if (this.messagingContext.env === "development") {
-          console.error("[Messaging] Failed to send notification:", e);
-          console.error("[Messaging] Message details:", { name, data });
+        const message = new NotificationMessage({
+          context: this.messagingContext.context,
+          featureName: this.messagingContext.featureName,
+          method: name,
+          params: data
+        });
+        const maybeAsyncResult = this.transport.notify(message);
+        if (isPromiseLike(maybeAsyncResult)) {
+          void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data);
         }
+      } catch (e) {
+        logNotificationError(this.messagingContext.env, name, data, e);
       }
     }
     /**
@@ -2887,6 +2890,26 @@
       return new TestTransport(config2, messagingContext);
     }
     throw new Error("unreachable");
+  }
+  function isPromiseLike(value) {
+    return value !== null && value !== void 0 && typeof /** @type {{then?: unknown}} */
+    value.then === "function";
+  }
+  async function handleAsyncNotificationResult(result, env, name, data) {
+    try {
+      await result;
+    } catch (error) {
+      logNotificationError(env, name, data, error);
+    }
+  }
+  function logNotificationError(env, name, data, error) {
+    if (env === "development") {
+      try {
+        console.error("[Messaging] Failed to send notification:", error);
+        console.error("[Messaging] Message details:", { name, data });
+      } catch {
+      }
+    }
   }
   var MissingHandler = class extends Error {
     /**
@@ -8879,71 +8902,77 @@
             isLogin = true;
           }
           const action = this.entity === "Youtube" ? "block-ctl-yt" : "block-ctl-fb";
-          unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
-            if (response && response.type === "ddg-ctp-user-cancel") {
-              return abortSurrogateConfirmation(this.entity);
-            }
-            const parent = replacementElement.parentNode;
-            if (!parent) return;
-            if (this.clickAction.type === "allowFull") {
-              parent.replaceChild(originalElement, replacementElement);
-              this.dispatchEvent(window, "ddg-ctp-load-sdk");
-              return;
-            }
-            const fbContainer = document.createElement("div");
-            fbContainer.style.cssText = styles.wrapperDiv;
-            const fadeIn = document.createElement("div");
-            fadeIn.style.cssText = "display: none; opacity: 0;";
-            const loadingImg = document.createElement("img");
-            loadingImg.setAttribute("src", loadingImages[this.getMode()]);
-            loadingImg.setAttribute("height", "14px");
-            loadingImg.style.cssText = styles.loadingImg;
-            if (clickElement.nodeName === "BUTTON") {
-              clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild);
-            } else {
-              let el = clickElement;
-              let button = null;
-              while (button === null && el !== null) {
-                button = el.querySelector("button");
-                el = el.parentElement;
+          void unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then(
+            (response) => {
+              if (response && response.type === "ddg-ctp-user-cancel") {
+                return abortSurrogateConfirmation(this.entity);
               }
-              if (button) {
-                button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild);
+              const parent = replacementElement.parentNode;
+              if (!parent) return;
+              if (this.clickAction.type === "allowFull") {
+                parent.replaceChild(originalElement, replacementElement);
+                this.dispatchEvent(window, "ddg-ctp-load-sdk");
+                return;
               }
+              const fbContainer = document.createElement("div");
+              fbContainer.style.cssText = styles.wrapperDiv;
+              const fadeIn = document.createElement("div");
+              fadeIn.style.cssText = "display: none; opacity: 0;";
+              const loadingImg = document.createElement("img");
+              loadingImg.setAttribute("src", loadingImages[this.getMode()]);
+              loadingImg.setAttribute("height", "14px");
+              loadingImg.style.cssText = styles.loadingImg;
+              if (clickElement.nodeName === "BUTTON") {
+                clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild);
+              } else {
+                let el = clickElement;
+                let button = null;
+                while (button === null && el !== null) {
+                  button = el.querySelector("button");
+                  el = el.parentElement;
+                }
+                if (button) {
+                  button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild);
+                }
+              }
+              fbContainer.appendChild(fadeIn);
+              let fbElement;
+              let onError = null;
+              switch (this.clickAction.type) {
+                case "iFrame":
+                  fbElement = this.createFBIFrame();
+                  break;
+                case "youtube-video":
+                  onError = this.adjustYouTubeVideoElement(originalElement);
+                  fbElement = originalElement;
+                  break;
+                default:
+                  fbElement = originalElement;
+                  break;
+              }
+              parent.replaceChild(fbContainer, replacementElement);
+              fbContainer.appendChild(replacementElement);
+              fadeIn.appendChild(fbElement);
+              fbElement.addEventListener(
+                "load",
+                async () => {
+                  await this.fadeOutElement(replacementElement);
+                  fbContainer.replaceWith(fbElement);
+                  this.dispatchEvent(fbElement, "ddg-ctp-placeholder-clicked");
+                  await this.fadeInElement(fadeIn);
+                  fbElement.focus();
+                },
+                { once: true }
+              );
+              if (onError) {
+                fbElement.addEventListener("error", onError, { once: true });
+              }
+            },
+            () => {
+              this.isUnblocked = false;
+              clicked = false;
             }
-            fbContainer.appendChild(fadeIn);
-            let fbElement;
-            let onError = null;
-            switch (this.clickAction.type) {
-              case "iFrame":
-                fbElement = this.createFBIFrame();
-                break;
-              case "youtube-video":
-                onError = this.adjustYouTubeVideoElement(originalElement);
-                fbElement = originalElement;
-                break;
-              default:
-                fbElement = originalElement;
-                break;
-            }
-            parent.replaceChild(fbContainer, replacementElement);
-            fbContainer.appendChild(replacementElement);
-            fadeIn.appendChild(fbElement);
-            fbElement.addEventListener(
-              "load",
-              async () => {
-                await this.fadeOutElement(replacementElement);
-                fbContainer.replaceWith(fbElement);
-                this.dispatchEvent(fbElement, "ddg-ctp-placeholder-clicked");
-                await this.fadeInElement(fadeIn);
-                fbElement.focus();
-              },
-              { once: true }
-            );
-            if (onError) {
-              fbElement.addEventListener("error", onError, { once: true });
-            }
-          });
+          );
         }
       };
       if (this.replaceSettings.type === "loginButton" && entityData[this.entity].shouldShowLoginModal) {
@@ -8980,7 +9009,7 @@
     const originalDisplay = [elementToReplace.style.getPropertyValue("display"), elementToReplace.style.getPropertyPriority("display")];
     elementToReplace.style.setProperty("display", "none", "important");
     elementToReplace.parentElement.insertBefore(placeholderElement, elementToReplace);
-    afterPageLoad.then(() => {
+    void afterPageLoad.then(() => {
       widget.dispatchEvent(trackingElement, "ddg-ctp-tracking-element");
       widget.dispatchEvent(placeholderElement, "ddg-ctp-placeholder-element");
       elementToReplace.remove();
@@ -9194,7 +9223,12 @@
       notifyFacebookLogin();
     }
     const action = entity === "Youtube" ? "block-ctl-yt" : "block-ctl-fb";
-    const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
+    let response;
+    try {
+      response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
+    } catch {
+      return;
+    }
     if (response && response.type === "ddg-ctp-user-cancel") {
       return abortSurrogateConfirmation(this.entity);
     }
@@ -9681,19 +9715,23 @@
     innerDiv.appendChild(previewToggleRow);
     youTubePreviewDiv.appendChild(innerDiv);
     const videoURL = originalElement.src || originalElement.getAttribute("data-src");
-    ctl.messaging.request("getYouTubeVideoDetails", { videoURL }).then(({ videoURL: videoURLResp, status, title, previewImage }) => {
-      if (!status || videoURLResp !== videoURL) {
-        return;
-      }
-      if (status === "success") {
-        titleElement.innerText = title;
-        titleElement.title = title;
-        if (previewImage) {
-          previewImageElement.setAttribute("src", previewImage);
+    void ctl.messaging.request("getYouTubeVideoDetails", { videoURL }).then(
+      ({ videoURL: videoURLResp, status, title, previewImage }) => {
+        if (!status || videoURLResp !== videoURL) {
+          return;
         }
-        widget.autoplay = true;
+        if (status === "success") {
+          titleElement.innerText = title;
+          titleElement.title = title;
+          if (previewImage) {
+            previewImageElement.setAttribute("src", previewImage);
+          }
+          widget.autoplay = true;
+        }
+      },
+      () => {
       }
-    });
+    );
     const feedbackRow = makeShareFeedbackRow();
     shadowRoot.appendChild(feedbackRow);
     return { youTubePreview, shadowRoot };
@@ -9754,7 +9792,7 @@
           if (entityData[entity].shouldShowLoginModal) {
             handleUnblockConfirmation(this.platform.name, entity, runLogin, entity);
           } else {
-            runLogin(entity);
+            void runLogin(entity);
           }
         }
       });
@@ -10073,7 +10111,7 @@
           } catch {
           }
         }
-        this._executeFireEvent(detectorConfig, detected);
+        void this._executeFireEvent(detectorConfig, detected);
       } catch (e) {
         if (this.isDebug) {
           this.log.error(`Error running auto-detector ${fullDetectorId}:`, e);
@@ -10130,7 +10168,7 @@
               });
             }
           }
-          this._executeFireEvent(detectorConfig, detected);
+          void this._executeFireEvent(detectorConfig, detected);
         }
       }
       return results;
@@ -11275,7 +11313,7 @@
       updates.push(args);
       return;
     }
-    updateFeaturesInner(args);
+    void updateFeaturesInner(args);
   }
   function alwaysInitExtensionFeatures(args, featureName) {
     return args.platform.name === "extension" && alwaysInitFeatures.has(featureName);

@@ -2124,6 +2124,8 @@
      * Sends message to the webkit layer (fire and forget)
      * @param {String} handler
      * @param {*} data
+     * @returns {*}
+     * @throws {MissingHandler}
      * @internal
      */
     wkSend(handler, data = {}) {
@@ -2195,9 +2197,10 @@
     }
     /**
      * @param {import('../index.js').NotificationMessage} msg
+     * @returns {Promise<void>}
      */
-    notify(msg) {
-      this.wkSend(msg.context, msg);
+    async notify(msg) {
+      await this.wkSend(msg.context, msg);
     }
     /**
      * @param {import('../index.js').RequestMessage} msg
@@ -2838,19 +2841,19 @@
      * @param {Record<string, any>} [data]
      */
     notify(name, data = {}) {
-      const message = new NotificationMessage({
-        context: this.messagingContext.context,
-        featureName: this.messagingContext.featureName,
-        method: name,
-        params: data
-      });
       try {
-        this.transport.notify(message);
-      } catch (e) {
-        if (this.messagingContext.env === "development") {
-          console.error("[Messaging] Failed to send notification:", e);
-          console.error("[Messaging] Message details:", { name, data });
+        const message = new NotificationMessage({
+          context: this.messagingContext.context,
+          featureName: this.messagingContext.featureName,
+          method: name,
+          params: data
+        });
+        const maybeAsyncResult = this.transport.notify(message);
+        if (isPromiseLike(maybeAsyncResult)) {
+          void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data);
         }
+      } catch (e) {
+        logNotificationError(this.messagingContext.env, name, data, e);
       }
     }
     /**
@@ -2936,6 +2939,26 @@
       return new TestTransport(config, messagingContext);
     }
     throw new Error("unreachable");
+  }
+  function isPromiseLike(value) {
+    return value !== null && value !== void 0 && typeof /** @type {{then?: unknown}} */
+    value.then === "function";
+  }
+  async function handleAsyncNotificationResult(result, env, name, data) {
+    try {
+      await result;
+    } catch (error) {
+      logNotificationError(env, name, data, error);
+    }
+  }
+  function logNotificationError(env, name, data, error) {
+    if (env === "development") {
+      try {
+        console.error("[Messaging] Failed to send notification:", error);
+        console.error("[Messaging] Message details:", { name, data });
+      } catch {
+      }
+    }
   }
   var MissingHandler = class extends Error {
     /**
@@ -5614,7 +5637,7 @@
       });
       this.wrapProperty(globalThis.ScreenOrientation.prototype, "unlock", {
         value: () => {
-          this.messaging.request(MSG_SCREEN_UNLOCK, {});
+          void this.messaging.request(MSG_SCREEN_UNLOCK, {});
         }
       });
     }
@@ -6421,7 +6444,7 @@
         document.querySelector(videoSelector)
       );
       if (video?.isConnected) {
-        video.play();
+        void video.play();
       }
     };
   }
