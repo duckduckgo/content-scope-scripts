@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { useRef } from 'preact/hooks';
 import { useGlobalDispatch, useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { usePlatformName } from '../../shared/components/SettingsProvider';
@@ -23,6 +24,10 @@ export function SettingsStep({ data }) {
     const appState = useGlobalState();
     if (appState.step.kind !== 'settings') throw new Error('unreachable, for TS benefit');
 
+    // If the step was already visible when this component mounted, we're
+    // returning from an overlay — fade in instead of sliding from right.
+    const mountedWhileVisible = useRef(appState.activeStepVisible);
+
     const { step, status } = appState;
     const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id;
 
@@ -39,8 +44,9 @@ export function SettingsStep({ data }) {
         };
     });
 
+    const Animation = mountedWhileVisible.current ? FadeIn : SlideIn;
     return (
-        <SlideIn>
+        <Animation>
             <Stack>
                 {appState.status.kind === 'idle' && appState.status.error && <p>{appState.status.error}</p>}
                 <PlainList variant="bordered" animate>
@@ -51,7 +57,7 @@ export function SettingsStep({ data }) {
                         })}
                 </PlainList>
             </Stack>
-        </SlideIn>
+        </Animation>
     );
 }
 
@@ -78,6 +84,10 @@ export function SettingListItem({ index, item, dispatch }) {
     const platformName = /** @type {'macos'|'windows'} */ (usePlatformName());
 
     const accept = () => {
+        if (data.id === 'dock-instructions') {
+            dispatch({ kind: 'show-overlay', overlay: 'dock-instructions' });
+            return;
+        }
         dispatch({
             kind: 'update-system-value',
             id: data.id,

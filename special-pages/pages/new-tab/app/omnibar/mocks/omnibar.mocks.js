@@ -89,6 +89,73 @@ export function getMockSuggestions(term) {
     };
 }
 
+export const mockAiChatsSearchTerm = 'milestone';
+export const mockAiChatTitleWithSearchTerm = `Onboarding ${mockAiChatsSearchTerm}s overview`;
+
+const MAX_RESULTS = 5;
+
+/** @type {import("../../../types/new-tab").AiChat[]} */
+const allMockChats = [
+    {
+        chatId: 'chat-001',
+        title: 'Edit: feedback quality & timing',
+        pinned: true,
+        lastEdit: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    },
+    {
+        chatId: 'chat-002',
+        title: 'Progression plan summary Progression plan summary Progression plan summary Progression plan summary Progression plan summary',
+        pinned: false,
+        lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    },
+    {
+        chatId: 'chat-003',
+        title: mockAiChatTitleWithSearchTerm,
+        pinned: false,
+        lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    },
+    {
+        chatId: 'chat-004',
+        title: 'Share knowledge effectively.',
+        pinned: false,
+        lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+    },
+    {
+        chatId: 'chat-005',
+        title: 'Rubrics for O-X projects',
+        pinned: false,
+        lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+    },
+    {
+        chatId: 'chat-006',
+        title: 'Budget forecast Q3 review',
+        pinned: false,
+        lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString(),
+    },
+    {
+        chatId: 'chat-007',
+        title: 'Team retro & action items',
+        pinned: false,
+        lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
+    },
+    {
+        chatId: 'chat-008',
+        title: 'Migration plan for legacy services',
+        pinned: false,
+        lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21).toISOString(),
+    },
+];
+
+/**
+ * @param {string} [query]
+ * @return {import("../../../types/new-tab").AiChatsData}
+ */
+export function getMockAiChats(query) {
+    const trimmed = (query ?? '').trim().toLowerCase();
+    const filtered = trimmed ? allMockChats.filter((chat) => chat.title.toLowerCase().includes(trimmed)) : allMockChats;
+    return { chats: filtered.slice(0, MAX_RESULTS) };
+}
+
 /**
  * @param {string} text
  * @param {string} searchTerm

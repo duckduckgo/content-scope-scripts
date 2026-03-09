@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
 import { CustomizerPage } from '../../customizer/integration-tests/customizer.page.js';
+import { getMockAiChats, mockAiChatsSearchTerm, mockAiChatTitleWithSearchTerm } from '../mocks/omnibar.mocks.js';
 
 test.describe('omnibar widget', () => {
     test('fetches config on load', async ({ page }, workerInfo) => {
@@ -1294,5 +1295,381 @@ test.describe('omnibar widget', () => {
 
         // Popover should be dismissed
         await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test.describe('AI chats', () => {
+        test('shows recent AI chats when in AI mode', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+            for (const chat of mockChats) {
+                await expect(omnibar.aiChats().filter({ hasText: chat.title })).toHaveCount(1);
+            }
+        });
+
+        test('clicking an AI chat sends openAiChat notification', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await omnibar.aiChats().first().click();
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'same-tab',
+                trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('list is filtered by typed text', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+
+            await omnibar.chatInput().fill(mockAiChatsSearchTerm);
+            await expect(omnibar.aiChats()).toHaveCount(1);
+            const searchChat = /** @type {import("../../../types/new-tab").AiChat} */ (
+                mockChats.find((chat) => chat.title === mockAiChatTitleWithSearchTerm)
+            );
+            await expect(omnibar.aiChats().first()).toHaveText(searchChat.title);
+
+            await omnibar.chatInput().fill('');
+
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+        });
+
+        test('list is hidden when no chats match the filter', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            await omnibar.chatInput().fill('xyznonexistent123');
+            await expect(omnibar.aiChatsList()).not.toBeVisible();
+        });
+
+        test('arrow down navigates through chat list', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+
+            await omnibar.expectNoAiChatSelection();
+
+            for (let i = 0; i < mockChats.length; i++) {
+                await omnibar.chatInput().press('ArrowDown');
+                await omnibar.expectSelectedAiChatToHaveText(mockChats[i].title);
+            }
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('arrow up navigates through chat list in reverse', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+
+            await omnibar.expectNoAiChatSelection();
+
+            for (let i = mockChats.length - 1; i >= 0; i--) {
+                await omnibar.chatInput().press('ArrowUp');
+                await omnibar.expectSelectedAiChatToHaveText(mockChats[i].title);
+            }
+
+            await omnibar.chatInput().press('ArrowUp');
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('pressing enter on selected chat sends openAiChat with keyboard trigger', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'same-tab',
+                trigger: 'keyboard',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('pressing cmd+enter on selected chat opens in new tab', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+            await omnibar.chatInput().press('Meta+Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'new-tab',
+                trigger: 'keyboard',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('shift+clicking a chat opens in new window', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await omnibar
+                .aiChats()
+                .first()
+                .click({ modifiers: ['Shift'] });
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'new-window',
+                trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('cmd+clicking a chat opens in new tab', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await omnibar
+                .aiChats()
+                .first()
+                .click({ modifiers: ['Meta'] });
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'new-tab',
+                trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('escape clears chat selection', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+
+            await omnibar.chatInput().press('Escape');
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('mouse hover selects chat, mouse leave clears selection', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            // Initially no selection
+            await omnibar.expectNoAiChatSelection();
+
+            // Hover over first chat
+            await omnibar.aiChats().nth(0).hover();
+            await omnibar.expectSelectedAiChatToHaveText(mockChats[0].title);
+
+            // Hover over second chat
+            await omnibar.aiChats().nth(1).hover();
+            await omnibar.expectSelectedAiChatToHaveText(mockChats[1].title);
+
+            // Mouse out to clear selection
+            await omnibar.chatInput().hover();
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('typing clears chat selection', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(getMockAiChats().chats[0].title);
+
+            await omnibar.chatInput().fill(mockAiChatsSearchTerm);
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('enter submits query when no chat is selected', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await omnibar.chatInput().fill(mockAiChatsSearchTerm);
+            await omnibar.expectNoAiChatSelection();
+
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: mockAiChatsSearchTerm,
+                target: 'same-tab',
+            });
+        });
+
+        test('keyboard navigation works on filtered list', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+            const searchChat = mockChats.find((chat) => chat.title === mockAiChatTitleWithSearchTerm);
+            if (!searchChat) throw new Error('Expected to find a chat matching the search term');
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await omnibar.chatInput().fill(mockAiChatsSearchTerm);
+            await expect(omnibar.aiChats()).toHaveCount(1);
+            await expect(omnibar.aiChats().first()).toHaveText(searchChat.title);
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(searchChat.title);
+
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: searchChat.chatId,
+                target: 'same-tab',
+                trigger: 'keyboard',
+                isPinned: Boolean(searchChat.pinned),
+            });
+        });
+
+        test('list is hidden in search mode', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true } });
+            await omnibar.ready();
+
+            await expect(omnibar.aiChatsList()).not.toBeVisible();
+        });
     });
 });
