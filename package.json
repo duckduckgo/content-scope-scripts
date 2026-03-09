@@ -50,7 +50,7 @@
     "prettier": "3.8.1",
     "stylelint": "^17.4.0",
     "stylelint-config-standard": "^40.0.0",
-    "stylelint-csstree-validator": "^3.1.0",
+    "stylelint-csstree-validator": "^4.0.0",
     "ts-json-schema-generator": "^2.5.0",
     "typedoc": "^0.28.17",
     "typescript": "^5.9.3",
