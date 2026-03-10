@@ -9,6 +9,7 @@ import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
  * @typedef {import("../../types/new-tab.js").OpenTarget} OpenTarget
  * @typedef {import("../../types/new-tab.js").AiChatsData} AiChatsData
  * @typedef {import("../../types/new-tab.js").OpenAIChatAction} OpenAIChatAction
+ * @typedef {import("../../types/new-tab.js").SubmitChatAction} SubmitChatAction
  */
 
 export class OmnibarService {
@@ -136,9 +137,7 @@ export class OmnibarService {
 
     /**
      * Submit a chat message to Duck.ai
-     * @param {Object} params
-     * @param {string} params.chat
-     * @param {OpenTarget} params.target
+     * @param {SubmitChatAction} params
      */
     submitChat(params) {
         this.ntp.messaging.notify('omnibar_submitChat', params);

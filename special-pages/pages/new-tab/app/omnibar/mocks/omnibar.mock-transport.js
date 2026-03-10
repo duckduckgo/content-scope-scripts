@@ -23,6 +23,15 @@ export function omnibarMockTransport() {
         showAiSetting: true,
         showCustomizePopover: false,
         enableRecentAiChats: false,
+        aiModels: [
+            { id: 'gpt-4o-mini', name: 'GPT-4o mini', entityHasAccess: true },
+            { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5', entityHasAccess: true },
+            { id: 'meta-llama/Llama-4-Scout-17B-16E-Instruct', name: 'Llama 4 Scout', entityHasAccess: true },
+            { id: 'mistralai/Mistral-Small-24B-Instruct-2501', name: 'Mistral Small 3', entityHasAccess: true },
+            { id: 'gpt-4o', name: 'GPT-4o', entityHasAccess: false },
+            { id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5', entityHasAccess: false },
+            { id: 'meta-llama/Llama-4-Maverick', name: 'Llama 4 Maverick', entityHasAccess: false },
+        ],
     };
 
     /** @type {Map<string, (d: any) => void>} */

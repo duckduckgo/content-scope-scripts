@@ -86,6 +86,10 @@ export type AIModels = {
    * Display name
    */
   name: string;
+  /**
+   * Whether the user has access to this model (false = requires subscription)
+   */
+  entityHasAccess?: boolean;
 }[];
 export type FeedType = "privacy-stats" | "activity";
 /**
@@ -608,26 +612,82 @@ export interface SubmitChatAction {
   chat: string;
   target: OpenTarget;
   /**
-   * Whether web search is enabled for this chat
-   */
-  webSearch?: boolean;
-  /**
-   * The selected AI model identifier
+   * The selected AI model identifier. Optional - if not provided, the backend will use the default model.
    */
   modelId?: string;
   /**
-   * Images to attach to the chat
+   * Images to attach to the chat. Optional - maximum 3 images, each up to 5MB. WebP images are converted to PNG.
+   *
+   * @maxItems 3
    */
-  images?: {
-    /**
-     * Base64-encoded image data (without data URL prefix)
-     */
-    data: string;
-    /**
-     * Image format, e.g. jpeg, png, webp
-     */
-    format: string;
-  }[];
+  images?:
+    | []
+    | [
+        {
+          /**
+           * Base64-encoded image data (without data URL prefix)
+           */
+          data: string;
+          /**
+           * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+           */
+          format: "jpeg" | "png";
+        }
+      ]
+    | [
+        {
+          /**
+           * Base64-encoded image data (without data URL prefix)
+           */
+          data: string;
+          /**
+           * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+           */
+          format: "jpeg" | "png";
+        },
+        {
+          /**
+           * Base64-encoded image data (without data URL prefix)
+           */
+          data: string;
+          /**
+           * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+           */
+          format: "jpeg" | "png";
+        }
+      ]
+    | [
+        {
+          /**
+           * Base64-encoded image data (without data URL prefix)
+           */
+          data: string;
+          /**
+           * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+           */
+          format: "jpeg" | "png";
+        },
+        {
+          /**
+           * Base64-encoded image data (without data URL prefix)
+           */
+          data: string;
+          /**
+           * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+           */
+          format: "jpeg" | "png";
+        },
+        {
+          /**
+           * Base64-encoded image data (without data URL prefix)
+           */
+          data: string;
+          /**
+           * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+           */
+          format: "jpeg" | "png";
+        }
+      ];
 }
 /**
  * Generated from @see "../messages/omnibar_submitSearch.notify.json"

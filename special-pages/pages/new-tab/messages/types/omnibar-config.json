@@ -47,6 +47,11 @@
           "name": {
             "description": "Display name",
             "type": "string"
+          },
+          "entityHasAccess": {
+            "description": "Whether the user has access to this model (false = requires subscription)",
+            "type": "boolean",
+            "default": true
           }
         }
       }

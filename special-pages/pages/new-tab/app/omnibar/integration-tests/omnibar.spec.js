@@ -85,6 +85,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'same-tab',
+            modelId: 'gpt-4o-mini',
         });
 
         // Form should be reset to blank state after submission
@@ -108,6 +109,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'new-window',
+            modelId: 'gpt-4o-mini',
         });
     });
 
@@ -128,6 +130,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'new-tab',
+            modelId: 'gpt-4o-mini',
         });
     });
 
@@ -159,6 +162,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'first line\nsecond line',
             target: 'same-tab',
+            modelId: 'gpt-4o-mini',
         });
 
         // Form should be reset to blank state after submission
@@ -182,6 +186,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'new-tab',
+            modelId: 'gpt-4o-mini',
         });
     });
 
@@ -1626,6 +1631,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMethodCalledWith('omnibar_submitChat', {
                 chat: mockAiChatsSearchTerm,
                 target: 'same-tab',
+                modelId: 'gpt-4o-mini',
             });
         });
 
