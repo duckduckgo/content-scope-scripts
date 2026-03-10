@@ -39,8 +39,10 @@ export default class BreakageReporting extends ContentFeature {
                 breakageDataPayload.webDetection = webDetectionResults;
             }
 
-            // Only run detectors if explicitly configured
-            // Fetch interferenceTypes from webInterferenceDetection feature settings
+            // Runs detector functions directly using webInterferenceDetection's config.
+            // This means detectors execute in breakageReporting's world (apple-isolated),
+            // not in webInterferenceDetection's world — so DOM checks work but window
+            // property checks won't see page-script globals on Apple platforms.
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {
                 result.detectorData = {
