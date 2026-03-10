@@ -770,7 +770,6 @@ test.describe('onboarding v3', () => {
             test('When config update has reduced customize rows (no bookmarks), only those rows are shown', async ({
                 page,
             }, workerInfo) => {
-                test.skip(workerInfo.project.name !== 'windows');
                 const onboarding = OnboardingV3Page.create(page, workerInfo);
                 onboarding.withInitData({
                     order: 'v3',
