@@ -58,7 +58,7 @@ export function Background() {
                 <Illustration
                     key={exitingFilename}
                     filename={exitingFilename}
-                    rightAligned={exitingFilename === 'background-01'}
+                    rightAligned={exitingFilename === 'background-04'}
                     class={cn(styles.illustration, styles.slideOut)}
                     onAnimationEnd={() => setExitingFilename(null)}
                 />
@@ -66,7 +66,7 @@ export function Background() {
             <Illustration
                 key={filename}
                 filename={filename}
-                rightAligned={filename === 'background-01'}
+                rightAligned={filename === 'background-04'}
                 class={cn(styles.illustration, styles.slideIn)}
             />
         </div>
