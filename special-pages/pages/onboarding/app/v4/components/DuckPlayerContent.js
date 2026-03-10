@@ -89,7 +89,7 @@ function DuckPlayerDefault({ advance }) {
             return;
         }
         video.currentTime = 0;
-        video.play();
+        video.play().catch(() => {});
     };
 
     /** @param {HTMLVideoElement | null} video */
