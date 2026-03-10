@@ -66,5 +66,21 @@
   "omnibar_customizePopoverDescription": {
     "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
     "description": "Description message in the popover including privacy statement and customize option."
+  },
+  "omnibar_webSearchToggleLabel": {
+    "title": "Search the web",
+    "description": "Accessible label for the web search toggle button in the AI chat toolbar."
+  },
+  "omnibar_attachImageLabel": {
+    "title": "Attach image",
+    "description": "Accessible label for the attach image button in the AI chat toolbar."
+  },
+  "omnibar_removeImageLabel": {
+    "title": "Remove image",
+    "description": "Accessible label for the button to remove an attached image thumbnail."
+  },
+  "omnibar_modelSelectorLabel": {
+    "title": "Select model",
+    "description": "Accessible label for the AI model selector dropdown."
   }
 }

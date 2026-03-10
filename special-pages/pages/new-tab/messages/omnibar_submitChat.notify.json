@@ -13,6 +13,32 @@
     },
     "target": {
       "$ref": "./types/open-target.json"
+    },
+    "webSearch": {
+      "description": "Whether web search is enabled for this chat",
+      "type": "boolean"
+    },
+    "modelId": {
+      "description": "The selected AI model identifier",
+      "type": "string"
+    },
+    "images": {
+      "description": "Images to attach to the chat",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["data", "format"],
+        "properties": {
+          "data": {
+            "description": "Base64-encoded image data (without data URL prefix)",
+            "type": "string"
+          },
+          "format": {
+            "description": "Image format, e.g. jpeg, png, webp",
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }

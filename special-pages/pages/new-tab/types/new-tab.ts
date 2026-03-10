@@ -74,6 +74,19 @@ export type ShowDuckAiSetting = boolean;
  */
 export type ShowCustomizePopover = boolean;
 export type EnableRecentAIChats = boolean;
+/**
+ * List of available AI models for the model selector
+ */
+export type AIModels = {
+  /**
+   * Model identifier
+   */
+  id: string;
+  /**
+   * Display name
+   */
+  name: string;
+}[];
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -579,6 +592,7 @@ export interface OmnibarConfig {
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
   enableRecentAiChats?: EnableRecentAIChats;
+  aiModels?: AIModels;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -593,6 +607,27 @@ export interface SubmitChatAction {
    */
   chat: string;
   target: OpenTarget;
+  /**
+   * Whether web search is enabled for this chat
+   */
+  webSearch?: boolean;
+  /**
+   * The selected AI model identifier
+   */
+  modelId?: string;
+  /**
+   * Images to attach to the chat
+   */
+  images?: {
+    /**
+     * Base64-encoded image data (without data URL prefix)
+     */
+    data: string;
+    /**
+     * Image format, e.g. jpeg, png, webp
+     */
+    format: string;
+  }[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitSearch.notify.json"

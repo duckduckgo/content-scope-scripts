@@ -31,6 +31,25 @@
       "title": "Enable Recent AI Chats",
       "type": "boolean",
       "default": false
+    },
+    "aiModels": {
+      "title": "AI Models",
+      "description": "List of available AI models for the model selector",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "description": "Model identifier",
+            "type": "string"
+          },
+          "name": {
+            "description": "Display name",
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }
