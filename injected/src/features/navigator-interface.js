@@ -46,7 +46,9 @@ export default class NavigatorInterface extends ContentFeature {
                 return;
             }
 
-            const target = ensureNavigatorDuckDuckGo();
+            const target = ensureNavigatorDuckDuckGo({
+                defineProperty: this.defineProperty.bind(this),
+            });
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const context = this;
 
