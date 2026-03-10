@@ -28,7 +28,7 @@ export function DockInstructionsContent({ updateSystemValue }) {
         <Container>
             <video
                 class={styles.video}
-                src="assets/video/dock-instructions/add-to-dock.mp4"
+                src="assets/videos/add-to-dock.mp4"
                 autoPlay={!isReducedMotion}
                 loop
                 muted

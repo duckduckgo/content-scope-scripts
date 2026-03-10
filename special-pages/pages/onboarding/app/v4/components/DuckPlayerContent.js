@@ -153,7 +153,7 @@ function DuckPlayerDefault({ advance }) {
                         videosRef.current.with = el;
                     }}
                     class={cn(styles.video, { [styles.hidden]: state.target !== 'with' })}
-                    src="assets/videos/duck-player-enabled.mp4"
+                    src="assets/videos/v4/duck-player-enabled.mp4"
                     muted
                     playsInline
                     preload="auto"
@@ -164,7 +164,7 @@ function DuckPlayerDefault({ advance }) {
                         videosRef.current.without = el;
                     }}
                     class={cn(styles.video, { [styles.hidden]: state.target !== 'without' })}
-                    src="assets/videos/duck-player-disabled.mp4"
+                    src="assets/videos/v4/duck-player-disabled.mp4"
                     muted
                     playsInline
                     preload="auto"
