@@ -36,6 +36,7 @@ export function runAdwallDetection(config = {}) {
             continue;
         }
 
+        // Check for text patterns in the document body or specific selectors
         const detected = detectAdwall(detectorConfig);
         if (detected) {
             results.push({
@@ -60,6 +61,7 @@ export function runAdwallDetection(config = {}) {
 function detectAdwall(patternConfig) {
     const { textPatterns, textSources } = patternConfig;
 
+    // Check text patterns in the body
     if (checkTextPatterns(textPatterns, textSources)) {
         return true;
     }

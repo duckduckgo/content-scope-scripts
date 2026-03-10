@@ -42,6 +42,7 @@ export default class NavigatorInterface extends ContentFeature {
                 return;
             }
             if (navigator.duckduckgo?.platform) {
+                // Already fully initialized
                 return;
             }
 
