@@ -107,7 +107,7 @@ function DuckPlayerDefault({ advance }) {
             isReducedMotion ? 0 : 667,
         );
         return () => clearTimeout(id);
-    }, [isReducedMotion]);
+    }, []); // exclude isReducedMotion from deps — must not re-fire if reduced motion changes after mount
 
     const toggle = () => {
         const { target, phase, reverse } = state;
