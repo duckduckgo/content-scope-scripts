@@ -778,7 +778,12 @@ test.describe('onboarding v3', () => {
                 });
                 await onboarding.reducedMotion();
                 await onboarding.openPage({ env: 'app', page: 'customize' });
+                // before push — default rows include bookmarks
+                await page.getByRole('button', { name: 'Show Bookmarks Bar' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).toBeVisible();
+                // push config update removing bookmarks
                 await onboarding.pushConfigUpdate({ stepDefinitions: { customize: { rows: ['session-restore', 'home-shortcut'] } } });
+                // after push — bookmarks gone
                 await page.getByRole('button', { name: 'Enable Session Restore' }).waitFor({ timeout: 10000 });
                 await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
                 await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
