@@ -82,14 +82,19 @@ function DuckPlayerDefault({ advance }) {
     const videoFor = (target) => videosRef.current[target];
 
     /** @param {HTMLVideoElement | null} video */
-    const play = (video) => {
+    const play = async (video) => {
         if (!video) return;
         if (isReducedMotion) {
             if (Number.isFinite(video.duration)) video.currentTime = video.duration;
             return;
         }
         video.currentTime = 0;
-        video.play().catch(() => {});
+        try {
+            await video.play();
+        } catch (error) {
+            // Ignore errors - we can assume that our browsers support playback
+            console.error(error);
+        }
     };
 
     /** @param {HTMLVideoElement | null} video */
