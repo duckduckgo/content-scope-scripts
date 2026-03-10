@@ -78,7 +78,11 @@ export function reducer(state, action) {
                     if (action.stepDefinitions) {
                         nextStepDefs = { ...state.stepDefinitions };
                         for (const [key, value] of Object.entries(action.stepDefinitions)) {
-                            nextStepDefs[key] = nextStepDefs[key] ? { ...nextStepDefs[key], ...value } : value;
+                            if (typeof value === 'object' && value !== null && nextStepDefs[key]) {
+                                nextStepDefs[key] = { ...nextStepDefs[key], ...value };
+                            } else {
+                                nextStepDefs[key] = value;
+                            }
                         }
                     }
                     let nextOrder = state.order;
@@ -168,7 +172,11 @@ export function reducer(state, action) {
                     if (action.stepDefinitions) {
                         nextStepDefsExec = { ...state.stepDefinitions };
                         for (const [key, value] of Object.entries(action.stepDefinitions)) {
-                            nextStepDefsExec[key] = nextStepDefsExec[key] ? { ...nextStepDefsExec[key], ...value } : value;
+                            if (typeof value === 'object' && value !== null && nextStepDefsExec[key]) {
+                                nextStepDefsExec[key] = { ...nextStepDefsExec[key], ...value };
+                            } else {
+                                nextStepDefsExec[key] = value;
+                            }
                         }
                     }
                     let nextOrderExec = state.order;
