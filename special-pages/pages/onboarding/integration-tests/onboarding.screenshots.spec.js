@@ -154,8 +154,8 @@ test.describe('onboarding v4 screenshots', { tag: ['@screenshots'] }, () => {
         });
         await onboarding.reducedMotion();
         await onboarding.openPage({ debugState: false, page: 'duckPlayerSingle' });
-        // Mask the Rive animation canvas to avoid flaky comparisons due to animation frames
-        await expect(page).toHaveScreenshot('v4-5-duckPlayerSingle.png', { maxDiffPixels, mask: [page.locator('canvas')] });
+        // Mask the video animation to avoid flaky comparisons due to animation frames
+        await expect(page).toHaveScreenshot('v4-5-duckPlayerSingle.png', { maxDiffPixels, mask: [page.locator('video')] });
     });
 
     test('v4-6-customize', async ({ page }, workerInfo) => {
