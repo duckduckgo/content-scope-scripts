@@ -787,7 +787,6 @@ test.describe('onboarding v3', () => {
                 await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
                 await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
             });
-
         });
     });
 });
