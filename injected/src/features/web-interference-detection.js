@@ -14,10 +14,15 @@ export default class WebInterferenceDetection extends ContentFeature {
         // Get settings with conditionalChanges already applied by framework
         const settings = this.getFeatureSetting('interferenceTypes');
 
-        // Initialize YouTube detector early on YouTube pages to capture video load times
+        const fireEvent = (type) => {
+            this.callFeatureMethod('webEvents', 'fireEvent', { type });
+        };
+
         const hostname = window.location.hostname;
-        if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
-            runYoutubeAdDetection(settings?.youtubeAds, this.log);
+        const isYouTube = hostname === 'youtube.com' || hostname.endsWith('.youtube.com');
+        const isTestDomain = hostname === 'privacy-test-pages.site' || hostname.endsWith('.privacy-test-pages.site');
+        if (isYouTube || isTestDomain) {
+            runYoutubeAdDetection(settings?.youtubeAds, this.log, fireEvent);
         }
 
         // Register messaging handler for PIR/native requests

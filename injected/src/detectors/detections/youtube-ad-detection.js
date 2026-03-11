@@ -14,6 +14,7 @@ import { isVisible, toRegExpArray } from '../utils/detection-utils.js';
  * @property {string[]} adBlockerDetectionSelectors
  * @property {string[]} adBlockerDetectionPatterns
  * @property {{signInButton: string, avatarButton: string, premiumLogo: string}} loginStateSelectors
+ * @property {Record<string, boolean>} [fireDetectionEvents] - Per-type gating for event firing. Only types set to `true` fire events. Absent = no events.
  */
 
 /**
@@ -24,14 +25,17 @@ import { isVisible, toRegExpArray } from '../utils/detection-utils.js';
 /** @type {{info: Function, warn: Function, error: Function}} */
 const noopLogger = { info: () => {}, warn: () => {}, error: () => {} };
 
-class YouTubeAdDetector {
+export class YouTubeAdDetector {
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+     * @param {(type: string) => void} [onEvent] - Callback fired when a new detection occurs
      */
-    constructor(config, logger) {
+    constructor(config, logger, onEvent) {
         // Logger for debug output (only logs when debug mode is enabled)
         this.log = logger || noopLogger;
+        /** @type {(type: string) => void} */
+        this.onEvent = onEvent || (() => {});
 
         // All config comes from privacy-config
         this.config = {
@@ -46,6 +50,7 @@ class YouTubeAdDetector {
             adBlockerDetectionSelectors: config.adBlockerDetectionSelectors,
             adBlockerDetectionPatterns: config.adBlockerDetectionPatterns,
             loginStateSelectors: config.loginStateSelectors,
+            fireDetectionEvents: config.fireDetectionEvents,
         };
 
         // Initialize state
@@ -124,6 +129,14 @@ class YouTubeAdDetector {
         typeState.count++;
         if (details.message && 'lastMessage' in typeState) {
             typeState.lastMessage = details.message;
+        }
+
+        if (this.config.fireDetectionEvents?.[type]) {
+            try {
+                this.onEvent(`youtube_${type}`);
+            } catch {
+                // onEvent callback failure should never break detection
+            }
         }
 
         return true;
@@ -721,8 +734,9 @@ let detectorInstance = null;
 /**
  * @param {YouTubeDetectorConfig} [config] - Configuration from privacy-config
  * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+ * @param {(type: string) => void} [fireEvent] - Callback fired when a new detection occurs
  */
-export function runYoutubeAdDetection(config, logger) {
+export function runYoutubeAdDetection(config, logger, fireEvent) {
     // Only run if explicitly enabled or internal
     if (config?.state !== 'enabled' && config?.state !== 'internal') {
         return { detected: false, type: 'youtubeAds', results: [] };
@@ -738,10 +752,11 @@ export function runYoutubeAdDetection(config, logger) {
         return { detected: false, type: 'youtubeAds', results: [] };
     }
 
-    // Auto-initialize on first call if on YouTube
     const hostname = window.location.hostname;
-    if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
-        detectorInstance = new YouTubeAdDetector(config, logger);
+    const isYouTube = hostname === 'youtube.com' || hostname.endsWith('.youtube.com');
+    const isTestDomain = hostname === 'privacy-test-pages.site' || hostname.endsWith('.privacy-test-pages.site');
+    if (isYouTube || isTestDomain) {
+        detectorInstance = new YouTubeAdDetector(config, logger, fireEvent);
         detectorInstance.start();
         return detectorInstance.getResults();
     }
