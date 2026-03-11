@@ -73,16 +73,8 @@ export class TrackerProtection extends ContentFeature {
 
         const surrogates = bundledSurrogates;
 
-        // Parse trackerData - it's passed as a JSON string from native
-        let trackerData = this.getFeatureSetting('trackerData');
-        if (typeof trackerData === 'string') {
-            try {
-                trackerData = JSON.parse(trackerData);
-            } catch (e) {
-                this.log.warn('Failed to parse trackerData:', e);
-                trackerData = null;
-            }
-        }
+        // trackerData is passed as an object from native via args
+        const trackerData = this.args?.trackerData;
 
         if (!trackerData) {
             return;

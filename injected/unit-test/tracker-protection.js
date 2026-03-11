@@ -634,3 +634,69 @@ describe('TrackerResolver', () => {
         });
     });
 });
+
+describe('TrackerProtection feature args.trackerData', () => {
+    let TrackerProtection;
+
+    beforeAll(async () => {
+        // Import the feature class for testing args behavior
+        const module = await import('../src/features/tracker-protection.js');
+        TrackerProtection = module.TrackerProtection;
+    });
+
+    /**
+     * Creates a minimal TrackerProtection feature instance for testing
+     * @param {object} options
+     * @param {object} [options.trackerDataInArgs] - trackerData passed via args
+     * @param {string} [options.trackerDataInSettings] - trackerData passed via feature settings (should be ignored)
+     * @returns {InstanceType<typeof TrackerProtection>}
+     */
+    function createFeature({ trackerDataInArgs, trackerDataInSettings } = {}) {
+        const args = {
+            site: {
+                domain: 'example.com',
+                url: 'https://example.com',
+            },
+            platform: { name: 'macos' },
+            trackerData: trackerDataInArgs,
+            featureSettings: {
+                trackerProtection: {
+                    blockingEnabled: true,
+                    ...(trackerDataInSettings && { trackerData: trackerDataInSettings }),
+                },
+            },
+        };
+        const feature = new TrackerProtection('trackerProtection', {}, {}, args);
+        return feature;
+    }
+
+    it('should read trackerData from args.trackerData', () => {
+        const feature = createFeature({
+            trackerDataInArgs: sampleTrackerData,
+        });
+
+        // Access args.trackerData directly to verify it's set
+        expect(feature.args?.trackerData).toEqual(sampleTrackerData);
+    });
+
+    it('should NOT read trackerData from feature settings', () => {
+        const feature = createFeature({
+            trackerDataInSettings: JSON.stringify(sampleTrackerData),
+        });
+
+        // args.trackerData should be undefined since we only passed it in settings
+        expect(feature.args?.trackerData).toBeUndefined();
+    });
+
+    it('should prefer args.trackerData over settings.trackerData', () => {
+        const argsTrackerData = { ...sampleTrackerData, trackers: {} };
+        const feature = createFeature({
+            trackerDataInArgs: argsTrackerData,
+            trackerDataInSettings: JSON.stringify(sampleTrackerData),
+        });
+
+        // Should use args version (empty trackers), not settings version
+        expect(feature.args?.trackerData).toEqual(argsTrackerData);
+        expect(feature.args?.trackerData?.trackers).toEqual({});
+    });
+});

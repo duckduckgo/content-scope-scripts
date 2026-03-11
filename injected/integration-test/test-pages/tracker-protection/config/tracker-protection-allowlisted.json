@@ -8,14 +8,39 @@
       "settings": {
         "blockingEnabled": true,
         "ctlEnabled": true,
-        "trackerData": "{\"trackers\":{\"tracker.example\":{\"domain\":\"tracker.example\",\"owner\":{\"name\":\"Tracker Inc\",\"displayName\":\"Tracker Inc\"},\"default\":\"block\",\"rules\":[{\"rule\":\"tracker\\\\.example/scripts/analytics\\\\.js\",\"surrogate\":\"analytics.js\"}]}},\"entities\":{\"Tracker Inc\":{\"domains\":[\"tracker.example\"],\"displayName\":\"Tracker Inc\",\"prevalence\":0.1}},\"domains\":{\"tracker.example\":\"Tracker Inc\"}}",
+        "trackerData": {
+          "trackers": {
+            "tracker.example": {
+              "domain": "tracker.example",
+              "owner": {
+                "name": "Tracker Inc",
+                "displayName": "Tracker Inc"
+              },
+              "default": "block",
+              "rules": [
+                {
+                  "rule": "tracker\\.example/scripts/analytics\\.js",
+                  "surrogate": "analytics.js"
+                }
+              ]
+            }
+          },
+          "entities": {
+            "Tracker Inc": {
+              "domains": ["tracker.example"],
+              "displayName": "Tracker Inc",
+              "prevalence": 0.1
+            }
+          },
+          "domains": {
+            "tracker.example": "Tracker Inc"
+          }
+        },
         "allowlist": {
           "tracker.example": [
             {
               "rule": "tracker\\.example/pixel\\.js",
-              "domains": [
-                "<all>"
-              ]
+              "domains": ["<all>"]
             }
           ]
         },

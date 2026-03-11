@@ -1,19 +1,47 @@
 {
-    "readme": "Test CTL action-prefix gating for non-fb surrogate when ctlEnabled is false",
-    "version": 1,
-    "features": {
-        "trackerProtection": {
-            "state": "enabled",
-            "exceptions": [],
-            "settings": {
-                "blockingEnabled": true,
-                "ctlEnabled": false,
-                "trackerData": "{\"trackers\":{\"tracker.example\":{\"domain\":\"tracker.example\",\"owner\":{\"name\":\"Tracker Inc\",\"displayName\":\"Tracker Inc\"},\"default\":\"block\",\"rules\":[{\"rule\":\"tracker\\\\.example/scripts/analytics\\\\.js\",\"surrogate\":\"analytics.js\",\"action\":\"block-ctl-yt\"}]}},\"entities\":{\"Tracker Inc\":{\"domains\":[\"tracker.example\"],\"displayName\":\"Tracker Inc\",\"prevalence\":0.1}},\"domains\":{\"tracker.example\":\"Tracker Inc\"}}",
-                "allowlist": {},
-                "tempUnprotectedDomains": [],
-                "userUnprotectedDomains": []
+  "readme": "Test CTL action-prefix gating for non-fb surrogate when ctlEnabled is false",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": false,
+        "trackerData": {
+          "trackers": {
+            "tracker.example": {
+              "domain": "tracker.example",
+              "owner": {
+                "name": "Tracker Inc",
+                "displayName": "Tracker Inc"
+              },
+              "default": "block",
+              "rules": [
+                {
+                  "rule": "tracker\\.example/scripts/analytics\\.js",
+                  "surrogate": "analytics.js",
+                  "action": "block-ctl-yt"
+                }
+              ]
             }
-        }
-    },
-    "unprotectedTemporary": []
+          },
+          "entities": {
+            "Tracker Inc": {
+              "domains": ["tracker.example"],
+              "displayName": "Tracker Inc",
+              "prevalence": 0.1
+            }
+          },
+          "domains": {
+            "tracker.example": "Tracker Inc"
+          }
+        },
+        "allowlist": {},
+        "tempUnprotectedDomains": [],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
 }
