@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { ResultsCollector } from './page-objects/results-collector.js';
+import {
+    makeTrackerDataBasic,
+    makeTrackerDataFacebook,
+    makeTrackerDataGoogle,
+    makeTrackerDataCtlActionPrefix,
+} from './test-pages/tracker-protection/tracker-data-fixtures.js';
 
 const HTML = '/tracker-protection/pages/tracker-protection.html';
 const CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection.json';
@@ -18,6 +24,7 @@ function trackerMessages(messages) {
 
 test('tracker-protection: detects tracker from dynamically added script', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -36,6 +43,7 @@ test('tracker-protection: detects tracker from dynamically added script', async 
 
 test('tracker-protection: loads surrogate for matching rule', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -52,6 +60,7 @@ test('tracker-protection: loads surrogate for matching rule', async ({ page }, t
 
 test('tracker-protection: reports non-tracker third-party URL as thirdPartyRequest', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -87,6 +96,7 @@ test('tracker-protection: does not send messages when disabled', async ({ page }
 
 test('tracker-protection: reports allowed tracker with blocked=false', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -102,6 +112,7 @@ test('tracker-protection: reports allowed tracker with blocked=false', async ({ 
 
 test('tracker-protection: detects tracker from XHR error', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -120,6 +131,7 @@ test('tracker-protection: detects tracker from XHR error', async ({ page }, test
 // Gap coverage: fetch(URL) interception
 test('tracker-protection: detects tracker from fetch with URL object', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(async () => {
@@ -136,6 +148,7 @@ test('tracker-protection: detects tracker from fetch with URL object', async ({ 
 // Gap coverage: fetch(Request) interception
 test('tracker-protection: detects tracker from fetch with Request object', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(async () => {
@@ -152,6 +165,7 @@ test('tracker-protection: detects tracker from fetch with Request object', async
 // Gap coverage: Image.src descriptor interception
 test('tracker-protection: detects tracker from Image src assignment', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -170,6 +184,7 @@ test('tracker-protection: detects tracker from Image src assignment', async ({ p
 // Gap coverage: CTL disabled contract (legacy parity) — blocked but no surrogate
 test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataFacebook() });
     await collector.load(HTML, CTL_DISABLED_CONFIG);
 
     await page.evaluate(() => {
@@ -189,6 +204,7 @@ test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, te
 // Gap coverage: CTL enabled contract (legacy parity)
 test('tracker-protection: CTL enabled injects fb-sdk surrogate', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataFacebook() });
     await collector.load(HTML, CTL_ENABLED_CONFIG);
 
     await page.evaluate(() => {
@@ -205,6 +221,7 @@ test('tracker-protection: CTL enabled injects fb-sdk surrogate', async ({ page }
 
 test('tracker-protection: ignores data URIs and non-HTTP URLs', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -221,6 +238,7 @@ test('tracker-protection: ignores data URIs and non-HTTP URLs', async ({ page },
 
 test('tracker-protection: re-executes surrogate for repeated script additions', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -240,6 +258,7 @@ test('tracker-protection: re-executes surrogate for repeated script additions', 
 
 test('tracker-protection: skips surrogate when script has integrity attribute', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -262,6 +281,7 @@ test('tracker-protection: skips surrogate when script has integrity attribute', 
 
 test('tracker-protection: reports allowlisted tracker with ruleException reason', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, ALLOWLISTED_CONFIG);
 
     await page.evaluate(() => {
@@ -279,6 +299,7 @@ test('tracker-protection: reports allowlisted tracker with ruleException reason'
 
 test('tracker-protection: pageUrl matches top-frame URL for tracker detection', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     const pageUrl = page.url();
@@ -292,6 +313,7 @@ test('tracker-protection: pageUrl matches top-frame URL for tracker detection', 
 
 test('tracker-protection: pageUrl matches top-frame URL for surrogate injection', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     const pageUrl = page.url();
@@ -305,6 +327,7 @@ test('tracker-protection: pageUrl matches top-frame URL for surrogate injection'
 
 test('tracker-protection: non-tracker third-party request includes pageUrl and entity fields', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
@@ -322,6 +345,7 @@ test('tracker-protection: non-tracker third-party request includes pageUrl and e
 
 test('tracker-protection: reports but does not block on unprotected domain', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, UNPROTECTED_CONFIG);
 
     await page.evaluate(() => {
@@ -335,6 +359,7 @@ test('tracker-protection: reports but does not block on unprotected domain', asy
 
 test('tracker-protection: CTL disabled suppresses non-fb block-ctl-* surrogate', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataCtlActionPrefix() });
     await collector.load(HTML, CTL_ACTION_PREFIX_DISABLED_CONFIG);
 
     await page.evaluate(() => {
@@ -361,6 +386,7 @@ const realSurrogateCases = [
 for (const { url, globalCheck, label } of realSurrogateCases) {
     test(`tracker-protection: real surrogate ${label} blocks, injects, and defines global`, async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
+        collector.withUserPreferences({ trackerData: makeTrackerDataGoogle() });
         await collector.load(HTML, REAL_SURROGATES_CONFIG);
 
         await page.evaluate((src) => {
@@ -383,6 +409,7 @@ for (const { url, globalCheck, label } of realSurrogateCases) {
 // MutationObserver path: DOM-appended <img> element (distinct from new Image().src descriptor)
 test('tracker-protection: detects tracker from DOM-appended img element', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
 
     await page.evaluate(() => {
