@@ -24940,6 +24940,14 @@
       this.messaging.notify("reportInitException", params);
     }
     /**
+     * Subscribe to config updates pushed by native (e.g. customize step rows).
+     * @param {(data: {stepDefinitions?: Record<string, any>, exclude?: string[]}) => void} params
+     * @returns {() => void}
+     */
+    onConfigUpdate(params) {
+      return this.messaging.subscribe("onConfigUpdate", params);
+    }
+    /**
      * Sent when the user wants to enable or disable ad blocking.
      *
      * @param {import('./types').BooleanSystemValue} params
@@ -25417,6 +25425,29 @@
     {}
   );
   function reducer(state, action) {
+    if (action.kind === "config-update") {
+      let nextStepDefs = state.stepDefinitions;
+      if (action.stepDefinitions) {
+        nextStepDefs = { ...state.stepDefinitions };
+        for (const [key2, value2] of Object.entries(action.stepDefinitions)) {
+          if (typeof value2 === "object" && value2 !== null && nextStepDefs[key2]) {
+            nextStepDefs[key2] = { ...nextStepDefs[key2], ...value2 };
+          } else {
+            nextStepDefs[key2] = value2;
+          }
+        }
+      }
+      let nextOrder = state.order;
+      if (action.exclude) {
+        nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
+      }
+      return {
+        ...state,
+        stepDefinitions: nextStepDefs,
+        order: nextOrder,
+        step: nextStepDefs[state.activeStep] ?? state.step
+      };
+    }
     switch (state.status.kind) {
       case "idle": {
         switch (action.kind) {
@@ -25570,6 +25601,19 @@
       },
       [state, messaging2]
     );
+    y2(() => {
+      const unsubscribe = messaging2.onConfigUpdate((data2) => {
+        dispatch({
+          kind: "config-update",
+          stepDefinitions: data2.stepDefinitions,
+          exclude: (
+            /** @type {import('./types.js').ConfigUpdateEvent['exclude']} */
+            data2.exclude
+          )
+        });
+      });
+      return unsubscribe;
+    }, [messaging2]);
     y2(() => {
       if (state.status.kind !== "fatal") return;
       const { error } = state.status.action;
@@ -31947,6 +31991,11 @@
   // pages/onboarding/src/mock-transport.js
   var url = new URL(window.location.href);
   function mockTransport() {
+    if (typeof window !== "undefined" && window.__playwright_01) {
+      window.__playwright_01.publishSubscriptionEvent = (evt) => {
+        window.__playwright_01?.subscriptions?.get(evt.subscriptionName)?.forEach((cb) => cb(evt.params));
+      };
+    }
     return new TestTransportConfig({
       notify(_msg) {
         window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
@@ -32020,8 +32069,24 @@
       },
       subscribe(_msg, callback) {
         window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
-        callback(null);
+        if (!window.__playwright_01) {
+          return () => {
+          };
+        }
+        const msg = (
+          /** @type {{ method?: string; subscriptionName?: string }} */
+          _msg
+        );
+        const name2 = typeof _msg === "string" ? _msg : msg.subscriptionName ?? msg.method ?? "onConfigUpdate";
+        if (!window.__playwright_01.subscriptions) {
+          window.__playwright_01.subscriptions = /* @__PURE__ */ new Map();
+        }
+        if (!window.__playwright_01.subscriptions.has(name2)) {
+          window.__playwright_01.subscriptions.set(name2, /* @__PURE__ */ new Set());
+        }
+        window.__playwright_01.subscriptions.get(name2)?.add(callback);
         return () => {
+          window.__playwright_01?.subscriptions?.get(name2)?.delete(callback);
         };
       }
     });

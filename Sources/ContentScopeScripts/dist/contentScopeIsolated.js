@@ -2164,7 +2164,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "pageContext", "print"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -2177,6 +2177,7 @@
       "favicon",
       "webDetection",
       "webEvents",
+      "webInterferenceDetection",
       "pageObserver",
       "hover"
     ],
@@ -17218,6 +17219,35 @@ ul.messages {
   };
   var web_events_default = WebEvents;
 
+  // src/features/web-interference-detection.js
+  init_define_import_meta_trackerLookup();
+  var WebInterferenceDetection = class extends ContentFeature {
+    init() {
+      const settings = this.getFeatureSetting("interferenceTypes");
+      const hostname = window.location.hostname;
+      if (hostname === "youtube.com" || hostname.endsWith(".youtube.com")) {
+        runYoutubeAdDetection(settings?.youtubeAds, this.log);
+      }
+      this.messaging.subscribe("detectInterference", (params) => {
+        const { types = [] } = (
+          /** @type {DetectInterferenceParams} */
+          params ?? {}
+        );
+        const results = {};
+        if (types.includes("botDetection")) {
+          results.botDetection = runBotDetection(settings?.botDetection);
+        }
+        if (types.includes("fraudDetection")) {
+          results.fraudDetection = runFraudDetection(settings?.fraudDetection);
+        }
+        if (types.includes("adwallDetection")) {
+          results.adwallDetection = runAdwallDetection(settings?.adwallDetection);
+        }
+        return results;
+      });
+    }
+  };
+
   // src/features/page-observer.js
   init_define_import_meta_trackerLookup();
   var PageObserver = class extends ContentFeature {
@@ -17273,6 +17303,7 @@ ul.messages {
     ddg_feature_favicon: favicon_default,
     ddg_feature_webDetection: WebDetection,
     ddg_feature_webEvents: web_events_default,
+    ddg_feature_webInterferenceDetection: WebInterferenceDetection,
     ddg_feature_pageObserver: page_observer_default,
     ddg_feature_hover: hover_default
   };

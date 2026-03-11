@@ -274,25 +274,25 @@
     return "object" != typeof n3 || null == n3 || n3.__b > 0 ? n3 : d(n3) ? n3.map(q) : w({}, n3);
   }
   function B(u4, t4, i5, r4, o4, e4, f4, c4, s4) {
-    var a4, h5, v4, y5, w5, _5, m5, b4 = i5.props || p, k4 = t4.props, x4 = t4.type;
-    if ("svg" == x4 ? o4 = "http://www.w3.org/2000/svg" : "math" == x4 ? o4 = "http://www.w3.org/1998/Math/MathML" : o4 || (o4 = "http://www.w3.org/1999/xhtml"), null != e4) {
-      for (a4 = 0; a4 < e4.length; a4++) if ((w5 = e4[a4]) && "setAttribute" in w5 == !!x4 && (x4 ? w5.localName == x4 : 3 == w5.nodeType)) {
+    var a4, h5, v4, y5, w5, _5, m5, b4 = i5.props || p, k5 = t4.props, x5 = t4.type;
+    if ("svg" == x5 ? o4 = "http://www.w3.org/2000/svg" : "math" == x5 ? o4 = "http://www.w3.org/1998/Math/MathML" : o4 || (o4 = "http://www.w3.org/1999/xhtml"), null != e4) {
+      for (a4 = 0; a4 < e4.length; a4++) if ((w5 = e4[a4]) && "setAttribute" in w5 == !!x5 && (x5 ? w5.localName == x5 : 3 == w5.nodeType)) {
         u4 = w5, e4[a4] = null;
         break;
       }
     }
     if (null == u4) {
-      if (null == x4) return document.createTextNode(k4);
-      u4 = document.createElementNS(o4, x4, k4.is && k4), c4 && (l.__m && l.__m(t4, e4), c4 = false), e4 = null;
+      if (null == x5) return document.createTextNode(k5);
+      u4 = document.createElementNS(o4, x5, k5.is && k5), c4 && (l.__m && l.__m(t4, e4), c4 = false), e4 = null;
     }
-    if (null == x4) b4 === k4 || c4 && u4.data == k4 || (u4.data = k4);
+    if (null == x5) b4 === k5 || c4 && u4.data == k5 || (u4.data = k5);
     else {
       if (e4 = e4 && n.call(u4.childNodes), !c4 && null != e4) for (b4 = {}, a4 = 0; a4 < u4.attributes.length; a4++) b4[(w5 = u4.attributes[a4]).name] = w5.value;
-      for (a4 in b4) w5 = b4[a4], "dangerouslySetInnerHTML" == a4 ? v4 = w5 : "children" == a4 || a4 in k4 || "value" == a4 && "defaultValue" in k4 || "checked" == a4 && "defaultChecked" in k4 || F(u4, a4, null, w5, o4);
-      for (a4 in k4) w5 = k4[a4], "children" == a4 ? y5 = w5 : "dangerouslySetInnerHTML" == a4 ? h5 = w5 : "value" == a4 ? _5 = w5 : "checked" == a4 ? m5 = w5 : c4 && "function" != typeof w5 || b4[a4] === w5 || F(u4, a4, w5, b4[a4], o4);
+      for (a4 in b4) w5 = b4[a4], "dangerouslySetInnerHTML" == a4 ? v4 = w5 : "children" == a4 || a4 in k5 || "value" == a4 && "defaultValue" in k5 || "checked" == a4 && "defaultChecked" in k5 || F(u4, a4, null, w5, o4);
+      for (a4 in k5) w5 = k5[a4], "children" == a4 ? y5 = w5 : "dangerouslySetInnerHTML" == a4 ? h5 = w5 : "value" == a4 ? _5 = w5 : "checked" == a4 ? m5 = w5 : c4 && "function" != typeof w5 || b4[a4] === w5 || F(u4, a4, w5, b4[a4], o4);
       if (h5) c4 || v4 && (h5.__html == v4.__html || h5.__html == u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
-      else if (v4 && (u4.innerHTML = ""), P("template" == t4.type ? u4.content : u4, d(y5) ? y5 : [y5], t4, i5, r4, "foreignObject" == x4 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && S(i5, 0), c4, s4), null != e4) for (a4 = e4.length; a4--; ) g(e4[a4]);
-      c4 || (a4 = "value", "progress" == x4 && null == _5 ? u4.removeAttribute("value") : null != _5 && (_5 !== u4[a4] || "progress" == x4 && !_5 || "option" == x4 && _5 != b4[a4]) && F(u4, a4, _5, b4[a4], o4), a4 = "checked", null != m5 && m5 != u4[a4] && F(u4, a4, m5, b4[a4], o4));
+      else if (v4 && (u4.innerHTML = ""), P("template" == t4.type ? u4.content : u4, d(y5) ? y5 : [y5], t4, i5, r4, "foreignObject" == x5 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && S(i5, 0), c4, s4), null != e4) for (a4 = e4.length; a4--; ) g(e4[a4]);
+      c4 || (a4 = "value", "progress" == x5 && null == _5 ? u4.removeAttribute("value") : null != _5 && (_5 !== u4[a4] || "progress" == x5 && !_5 || "option" == x5 && _5 != b4[a4]) && F(u4, a4, _5, b4[a4], o4), a4 = "checked", null != m5 && m5 != u4[a4] && F(u4, a4, m5, b4[a4], o4));
     }
     return u4;
   }
@@ -2025,15 +2025,23 @@
   function t3() {
     if (!(s3 > 1)) {
       var i5, t4 = false;
+      !(function() {
+        var i6 = d3;
+        d3 = void 0;
+        while (void 0 !== i6) {
+          if (i6.S.v === i6.v) i6.S.i = i6.i;
+          i6 = i6.o;
+        }
+      })();
       while (void 0 !== h3) {
         var n3 = h3;
         h3 = void 0;
         v3++;
         while (void 0 !== n3) {
-          var r4 = n3.o;
-          n3.o = void 0;
+          var r4 = n3.u;
+          n3.u = void 0;
           n3.f &= -3;
-          if (!(8 & n3.f) && a3(n3)) try {
+          if (!(8 & n3.f) && w3(n3)) try {
             n3.c();
           } catch (n4) {
             if (!t4) {
@@ -2051,6 +2059,7 @@
   }
   function n2(i5) {
     if (s3 > 0) return i5();
+    e3 = ++u3;
     s3++;
     try {
       return i5();
@@ -2073,7 +2082,10 @@
   var s3 = 0;
   var v3 = 0;
   var u3 = 0;
-  function e3(i5) {
+  var e3 = 0;
+  var d3 = void 0;
+  var c3 = 0;
+  function a3(i5) {
     if (void 0 !== r3) {
       var t4 = i5.n;
       if (void 0 === t4 || t4.t !== r3) {
@@ -2097,20 +2109,21 @@
       }
     }
   }
-  function d3(i5, t4) {
+  function l3(i5, t4) {
     this.v = i5;
     this.i = 0;
     this.n = void 0;
     this.t = void 0;
+    this.l = 0;
     this.W = null == t4 ? void 0 : t4.watched;
     this.Z = null == t4 ? void 0 : t4.unwatched;
     this.name = null == t4 ? void 0 : t4.name;
   }
-  d3.prototype.brand = i4;
-  d3.prototype.h = function() {
+  l3.prototype.brand = i4;
+  l3.prototype.h = function() {
     return true;
   };
-  d3.prototype.S = function(i5) {
+  l3.prototype.S = function(i5) {
     var t4 = this, n3 = this.t;
     if (n3 !== i5 && void 0 === i5.e) {
       i5.x = n3;
@@ -2122,7 +2135,7 @@
       });
     }
   };
-  d3.prototype.U = function(i5) {
+  l3.prototype.U = function(i5) {
     var t4 = this;
     if (void 0 !== this.t) {
       var n3 = i5.e, r4 = i5.x;
@@ -2143,9 +2156,9 @@
       }
     }
   };
-  d3.prototype.subscribe = function(i5) {
+  l3.prototype.subscribe = function(i5) {
     var t4 = this;
-    return m3(function() {
+    return C3(function() {
       var n3 = t4.value, o4 = r3;
       r3 = void 0;
       try {
@@ -2155,16 +2168,16 @@
       }
     }, { name: "sub" });
   };
-  d3.prototype.valueOf = function() {
+  l3.prototype.valueOf = function() {
     return this.value;
   };
-  d3.prototype.toString = function() {
+  l3.prototype.toString = function() {
     return this.value + "";
   };
-  d3.prototype.toJSON = function() {
+  l3.prototype.toJSON = function() {
     return this.value;
   };
-  d3.prototype.peek = function() {
+  l3.prototype.peek = function() {
     var i5 = r3;
     r3 = void 0;
     try {
@@ -2173,16 +2186,24 @@
       r3 = i5;
     }
   };
-  Object.defineProperty(d3.prototype, "value", { get: function() {
-    var i5 = e3(this);
+  Object.defineProperty(l3.prototype, "value", { get: function() {
+    var i5 = a3(this);
     if (void 0 !== i5) i5.i = this.i;
     return this.v;
   }, set: function(i5) {
     if (i5 !== this.v) {
       if (v3 > 100) throw new Error("Cycle detected");
+      !(function(i6) {
+        if (0 !== s3 && 0 === v3) {
+          if (i6.l !== e3) {
+            i6.l = e3;
+            d3 = { S: i6, v: i6.v, i: i6.i, o: d3 };
+          }
+        }
+      })(this);
       this.v = i5;
       this.i++;
-      u3++;
+      c3++;
       s3++;
       try {
         for (var n3 = this.t; void 0 !== n3; n3 = n3.x) n3.t.N();
@@ -2191,14 +2212,14 @@
       }
     }
   } });
-  function c3(i5, t4) {
-    return new d3(i5, t4);
+  function y3(i5, t4) {
+    return new l3(i5, t4);
   }
-  function a3(i5) {
+  function w3(i5) {
     for (var t4 = i5.s; void 0 !== t4; t4 = t4.n) if (t4.S.i !== t4.i || !t4.S.h() || t4.S.i !== t4.i) return true;
     return false;
   }
-  function l3(i5) {
+  function _3(i5) {
     for (var t4 = i5.s; void 0 !== t4; t4 = t4.n) {
       var n3 = t4.S.n;
       if (void 0 !== n3) t4.r = n3;
@@ -2210,7 +2231,7 @@
       }
     }
   }
-  function y3(i5) {
+  function b(i5) {
     var t4 = i5.s, n3 = void 0;
     while (void 0 !== t4) {
       var r4 = t4.p;
@@ -2225,32 +2246,32 @@
     }
     i5.s = n3;
   }
-  function w3(i5, t4) {
-    d3.call(this, void 0);
+  function p3(i5, t4) {
+    l3.call(this, void 0);
     this.x = i5;
     this.s = void 0;
-    this.g = u3 - 1;
+    this.g = c3 - 1;
     this.f = 4;
     this.W = null == t4 ? void 0 : t4.watched;
     this.Z = null == t4 ? void 0 : t4.unwatched;
     this.name = null == t4 ? void 0 : t4.name;
   }
-  w3.prototype = new d3();
-  w3.prototype.h = function() {
+  p3.prototype = new l3();
+  p3.prototype.h = function() {
     this.f &= -3;
     if (1 & this.f) return false;
     if (32 == (36 & this.f)) return true;
     this.f &= -5;
-    if (this.g === u3) return true;
-    this.g = u3;
+    if (this.g === c3) return true;
+    this.g = c3;
     this.f |= 1;
-    if (this.i > 0 && !a3(this)) {
+    if (this.i > 0 && !w3(this)) {
       this.f &= -2;
       return true;
     }
     var i5 = r3;
     try {
-      l3(this);
+      _3(this);
       r3 = this;
       var t4 = this.x();
       if (16 & this.f || this.v !== t4 || 0 === this.i) {
@@ -2264,46 +2285,46 @@
       this.i++;
     }
     r3 = i5;
-    y3(this);
+    b(this);
     this.f &= -2;
     return true;
   };
-  w3.prototype.S = function(i5) {
+  p3.prototype.S = function(i5) {
     if (void 0 === this.t) {
       this.f |= 36;
       for (var t4 = this.s; void 0 !== t4; t4 = t4.n) t4.S.S(t4);
     }
-    d3.prototype.S.call(this, i5);
+    l3.prototype.S.call(this, i5);
   };
-  w3.prototype.U = function(i5) {
+  p3.prototype.U = function(i5) {
     if (void 0 !== this.t) {
-      d3.prototype.U.call(this, i5);
+      l3.prototype.U.call(this, i5);
       if (void 0 === this.t) {
         this.f &= -33;
         for (var t4 = this.s; void 0 !== t4; t4 = t4.n) t4.S.U(t4);
       }
     }
   };
-  w3.prototype.N = function() {
+  p3.prototype.N = function() {
     if (!(2 & this.f)) {
       this.f |= 6;
       for (var i5 = this.t; void 0 !== i5; i5 = i5.x) i5.t.N();
     }
   };
-  Object.defineProperty(w3.prototype, "value", { get: function() {
+  Object.defineProperty(p3.prototype, "value", { get: function() {
     if (1 & this.f) throw new Error("Cycle detected");
-    var i5 = e3(this);
+    var i5 = a3(this);
     this.h();
     if (void 0 !== i5) i5.i = this.i;
     if (16 & this.f) throw this.v;
     return this.v;
   } });
-  function b(i5, t4) {
-    return new w3(i5, t4);
+  function g2(i5, t4) {
+    return new p3(i5, t4);
   }
-  function _3(i5) {
-    var n3 = i5.u;
-    i5.u = void 0;
+  function S2(i5) {
+    var n3 = i5.m;
+    i5.m = void 0;
     if ("function" == typeof n3) {
       s3++;
       var o4 = r3;
@@ -2313,7 +2334,7 @@
       } catch (t4) {
         i5.f &= -2;
         i5.f |= 8;
-        p3(i5);
+        m3(i5);
         throw t4;
       } finally {
         r3 = o4;
@@ -2321,67 +2342,67 @@
       }
     }
   }
-  function p3(i5) {
+  function m3(i5) {
     for (var t4 = i5.s; void 0 !== t4; t4 = t4.n) t4.S.U(t4);
     i5.x = void 0;
     i5.s = void 0;
-    _3(i5);
+    S2(i5);
   }
-  function g2(i5) {
+  function x3(i5) {
     if (r3 !== this) throw new Error("Out-of-order effect");
-    y3(this);
+    b(this);
     r3 = i5;
     this.f &= -2;
-    if (8 & this.f) p3(this);
+    if (8 & this.f) m3(this);
     t3();
   }
-  function S2(i5, t4) {
+  function E2(i5, t4) {
     this.x = i5;
-    this.u = void 0;
+    this.m = void 0;
     this.s = void 0;
-    this.o = void 0;
+    this.u = void 0;
     this.f = 32;
     this.name = null == t4 ? void 0 : t4.name;
     if (f3) f3.push(this);
   }
-  S2.prototype.c = function() {
+  E2.prototype.c = function() {
     var i5 = this.S();
     try {
       if (8 & this.f) return;
       if (void 0 === this.x) return;
       var t4 = this.x();
-      if ("function" == typeof t4) this.u = t4;
+      if ("function" == typeof t4) this.m = t4;
     } finally {
       i5();
     }
   };
-  S2.prototype.S = function() {
+  E2.prototype.S = function() {
     if (1 & this.f) throw new Error("Cycle detected");
     this.f |= 1;
     this.f &= -9;
+    S2(this);
     _3(this);
-    l3(this);
     s3++;
     var i5 = r3;
     r3 = this;
-    return g2.bind(this, i5);
+    return x3.bind(this, i5);
   };
-  S2.prototype.N = function() {
+  E2.prototype.N = function() {
     if (!(2 & this.f)) {
       this.f |= 2;
-      this.o = h3;
+      this.u = h3;
       h3 = this;
     }
   };
-  S2.prototype.d = function() {
+  E2.prototype.d = function() {
     this.f |= 8;
-    if (!(1 & this.f)) p3(this);
+    if (!(1 & this.f)) m3(this);
   };
-  S2.prototype.dispose = function() {
+  E2.prototype.dispose = function() {
     this.d();
   };
-  function m3(i5, t4) {
-    var n3 = new S2(i5, t4);
+  function C3(i5, t4) {
+    var n3 = new E2(i5, t4);
     try {
       n3.c();
     } catch (i6) {
@@ -2400,7 +2421,7 @@
   var p4 = "undefined" != typeof window && !!window.__PREACT_SIGNALS_DEVTOOLS__;
   var m4 = [];
   var _4 = [];
-  m3(function() {
+  C3(function() {
     l4 = this.N;
   })();
   function g3(i5, r4) {
@@ -2416,22 +2437,22 @@
     h4 = i5 && i5.S();
   }
   function y4(i5) {
-    var n3 = this, t4 = i5.data, f4 = useSignal(t4);
-    f4.value = t4;
-    var e4 = T2(function() {
+    var n3 = this, t4 = i5.data, e4 = useSignal(t4);
+    e4.value = t4;
+    var f4 = T2(function() {
       var i6 = n3, t5 = n3.__v;
       while (t5 = t5.__) if (t5.__c) {
         t5.__c.__$f |= 4;
         break;
       }
-      var o4 = b(function() {
-        var i7 = f4.value.value;
+      var o4 = g2(function() {
+        var i7 = e4.value.value;
         return 0 === i7 ? 0 : true === i7 ? "" : i7 || "";
-      }), e5 = b(function() {
+      }), f5 = g2(function() {
         return !Array.isArray(o4.value) && !t(o4.value);
-      }), a5 = m3(function() {
+      }), a5 = C3(function() {
         this.N = F2;
-        if (e5.value) {
+        if (f5.value) {
           var n4 = o4.value;
           if (i6.__v && i6.__v.__e && 3 === i6.__v.__e.nodeType) i6.__v.__e.data = n4;
         }
@@ -2440,23 +2461,26 @@
         a5();
         v5.call(this);
       };
-      return [e5, o4];
-    }, []), a4 = e4[0], v4 = e4[1];
+      return [f5, o4];
+    }, []), a4 = f4[0], v4 = f4[1];
     return a4.value ? v4.peek() : v4.value;
   }
   y4.displayName = "ReactiveTextNode";
-  Object.defineProperties(d3.prototype, { constructor: { configurable: true, value: void 0 }, type: { configurable: true, value: y4 }, props: { configurable: true, get: function() {
-    return { data: this };
+  Object.defineProperties(l3.prototype, { constructor: { configurable: true, value: void 0 }, type: { configurable: true, value: y4 }, props: { configurable: true, get: function() {
+    var i5 = this;
+    return { data: { get value() {
+      return i5.value;
+    } } };
   } }, __b: { configurable: true, value: 1 } });
   g3("__b", function(i5, n3) {
     if ("string" == typeof n3.type) {
       var r4, t4 = n3.props;
       for (var o4 in t4) if ("children" !== o4) {
-        var f4 = t4[o4];
-        if (f4 instanceof d3) {
+        var e4 = t4[o4];
+        if (e4 instanceof l3) {
           if (!r4) n3.__np = r4 = {};
-          r4[o4] = f4;
-          t4[o4] = f4.peek();
+          r4[o4] = e4;
+          t4[o4] = e4.peek();
         }
       }
     }
@@ -2471,7 +2495,7 @@
         o4.__$f &= -2;
         if (void 0 === (r4 = o4.__$u)) o4.__$u = r4 = (function(i6, n4) {
           var r5;
-          m3(function() {
+          C3(function() {
             r5 = this;
           }, { name: n4 });
           r5.c = i6;
@@ -2499,23 +2523,23 @@
     if ("string" == typeof n3.type && (r4 = n3.__e)) {
       var t4 = n3.__np, o4 = n3.props;
       if (t4) {
-        var f4 = r4.U;
-        if (f4) for (var e4 in f4) {
-          var u4 = f4[e4];
-          if (void 0 !== u4 && !(e4 in t4)) {
+        var e4 = r4.U;
+        if (e4) for (var f4 in e4) {
+          var u4 = e4[f4];
+          if (void 0 !== u4 && !(f4 in t4)) {
             u4.d();
-            f4[e4] = void 0;
+            e4[f4] = void 0;
           }
         }
         else {
-          f4 = {};
-          r4.U = f4;
+          e4 = {};
+          r4.U = e4;
         }
         for (var a4 in t4) {
-          var c4 = f4[a4], v4 = t4[a4];
+          var c4 = e4[a4], v4 = t4[a4];
           if (void 0 === c4) {
             c4 = w4(r4, a4, v4);
-            f4[a4] = c4;
+            e4[a4] = c4;
           } else c4.o(v4, o4);
         }
         for (var s4 in t4) o4[s4] = t4[s4];
@@ -2524,19 +2548,19 @@
     i5(n3);
   });
   function w4(i5, n3, r4, t4) {
-    var o4 = n3 in i5 && void 0 === i5.ownerSVGElement, f4 = c3(r4), e4 = r4.peek();
+    var o4 = n3 in i5 && void 0 === i5.ownerSVGElement, e4 = y3(r4), f4 = r4.peek();
     return { o: function(i6, n4) {
-      f4.value = i6;
-      e4 = i6.peek();
-    }, d: m3(function() {
+      e4.value = i6;
+      f4 = i6.peek();
+    }, d: C3(function() {
       this.N = F2;
-      var r5 = f4.value.value;
-      if (e4 !== r5) {
-        e4 = void 0;
+      var r5 = e4.value.value;
+      if (f4 !== r5) {
+        f4 = void 0;
         if (o4) i5[n3] = r5;
         else if (null != r5 && (false !== r5 || "-" === n3[4])) i5.setAttribute(n3, r5);
         else i5.removeAttribute(n3);
-      } else e4 = void 0;
+      } else f4 = void 0;
     }) };
   }
   g3("unmount", function(i5, n3) {
@@ -2547,18 +2571,18 @@
         if (t4) {
           r4.U = void 0;
           for (var o4 in t4) {
-            var f4 = t4[o4];
-            if (f4) f4.d();
+            var e4 = t4[o4];
+            if (e4) e4.d();
           }
         }
       }
       n3.__np = void 0;
     } else {
-      var e4 = n3.__c;
-      if (e4) {
-        var u4 = e4.__$u;
+      var f4 = n3.__c;
+      if (f4) {
+        var u4 = f4.__$u;
         if (u4) {
-          e4.__$u = void 0;
+          f4.__$u = void 0;
           u4.d();
         }
       }
@@ -2574,20 +2598,20 @@
     var r4 = this.__$u, t4 = r4 && void 0 !== r4.s;
     for (var o4 in n3) return true;
     if (this.__f || "boolean" == typeof this.u && true === this.u) {
-      var f4 = 2 & this.__$f;
-      if (!(t4 || f4 || 4 & this.__$f)) return true;
+      var e4 = 2 & this.__$f;
+      if (!(t4 || e4 || 4 & this.__$f)) return true;
       if (1 & this.__$f) return true;
     } else {
       if (!(t4 || 4 & this.__$f)) return true;
       if (3 & this.__$f) return true;
     }
-    for (var e4 in i5) if ("__source" !== e4 && i5[e4] !== this.props[e4]) return true;
+    for (var f4 in i5) if ("__source" !== f4 && i5[f4] !== this.props[f4]) return true;
     for (var u4 in this.props) if (!(u4 in i5)) return true;
     return false;
   };
   function useSignal(i5, n3) {
     return T2(function() {
-      return c3(i5, n3);
+      return y3(i5, n3);
     }, []);
   }
   function useComputed(i5, n3) {
@@ -2595,12 +2619,12 @@
     r4.current = i5;
     d4.__$f |= 4;
     return T2(function() {
-      return b(function() {
+      return g2(function() {
         return r4.current();
       }, n3);
     }, []);
   }
-  var k3 = "undefined" == typeof requestAnimationFrame ? setTimeout : function(i5) {
+  var k4 = "undefined" == typeof requestAnimationFrame ? setTimeout : function(i5) {
     var n3 = function() {
       clearTimeout(r4);
       cancelAnimationFrame(t4);
@@ -2619,22 +2643,22 @@
     });
   }
   function T3() {
-    if (1 === m4.push(this)) (l.requestAnimationFrame || k3)(A3);
+    if (1 === m4.push(this)) (l.requestAnimationFrame || k4)(A3);
   }
-  function x3() {
+  function x4() {
     n2(function() {
       var i5;
       while (i5 = _4.shift()) l4.call(i5);
     });
   }
   function F2() {
-    if (1 === _4.push(this)) (l.requestAnimationFrame || q3)(x3);
+    if (1 === _4.push(this)) (l.requestAnimationFrame || q3)(x4);
   }
   function useSignalEffect(i5, n3) {
     var r4 = A2(i5);
     r4.current = i5;
     y2(function() {
-      return m3(function() {
+      return C3(function() {
         this.N = T3;
         return r4.current();
       }, n3);
@@ -2644,7 +2668,7 @@
   // pages/history/app/global/Providers/QueryProvider.js
   var QueryContext = R(
     /** @type {import('@preact/signals').ReadonlySignal<QueryState>} */
-    c3({
+    y3({
       term: (
         /** @type {string|null} */
         null
@@ -3567,7 +3591,7 @@
   var HistoryServiceDispatchContext = R(defaultDispatch);
   var ResultsContext = R(
     /** @type {ReadonlySignal<Results>} */
-    c3({
+    y3({
       items: [],
       heights: [],
       viewIds: [],
@@ -3576,7 +3600,7 @@
   );
   var RangesContext = R(
     /** @type {ReadonlySignal<Range[]>} */
-    c3([])
+    y3([])
   );
   function HistoryServiceProvider({ service, children, initial }) {
     const queryDispatch = useQueryDispatch();
@@ -3641,8 +3665,8 @@
           break;
         }
         case "delete-all": {
-          service.deleteRange("all").then((x4) => {
-            if (x4.kind === "delete") {
+          service.deleteRange("all").then((x5) => {
+            if (x5.kind === "delete") {
               service.refreshRanges();
             }
           }).catch(console.error);
@@ -3850,7 +3874,7 @@
   );
   var SelectionStateContext = R(
     /** @type {ReadonlySignal<SelectionState>} */
-    c3({})
+    y3({})
   );
   function SelectionProvider({ children }) {
     const { dispatch, state } = useSelectionStateApi();
@@ -5403,7 +5427,7 @@
     }
   }
   async function getStrings(environment) {
-    return environment.locale === "en" ? history_default : await fetch(`./locales/${environment.locale}/history.json`).then((x4) => x4.json()).catch((e4) => {
+    return environment.locale === "en" ? history_default : await fetch(`./locales/${environment.locale}/history.json`).then((x5) => x5.json()).catch((e4) => {
       console.error("Could not load locale", environment.locale, e4);
       return history_default;
     });
