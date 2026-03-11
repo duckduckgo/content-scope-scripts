@@ -44,12 +44,7 @@ describe('YouTubeAdDetector', () => {
             detector.reportDetection('adBlocker');
             detector.reportDetection('staticAd');
 
-            expect(events).toEqual([
-                'youtube_videoAd',
-                'youtube_playabilityError',
-                'youtube_adBlocker',
-                'youtube_staticAd',
-            ]);
+            expect(events).toEqual(['youtube_videoAd', 'youtube_playabilityError', 'youtube_adBlocker', 'youtube_staticAd']);
         });
 
         it('does not fire for duplicate detections', () => {
