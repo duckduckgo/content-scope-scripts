@@ -20,10 +20,12 @@ export default class WebInterferenceDetection extends ContentFeature {
         // Get settings with conditionalChanges already applied by framework
         const settings = this.getFeatureSetting('interferenceTypes');
 
-        const fireEvent = (type) => {
-            void this.callFeatureMethod('webEvents', 'fireEvent', { type }).catch(() => {
+        const fireEvent = async (type) => {
+            try {
+                await this.callFeatureMethod('webEvents', 'fireEvent', { type });
+            } catch {
                 // webEvents may not be loaded on this platform — silently ignore
-            });
+            }
         };
 
         runYoutubeAdDetection(settings?.youtubeAds, this.log, fireEvent);
