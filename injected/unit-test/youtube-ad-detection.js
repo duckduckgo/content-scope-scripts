@@ -1,4 +1,4 @@
-import { YouTubeAdDetector } from '../src/detectors/detections/youtube-ad-detection.js';
+import { YouTubeAdDetector, runYoutubeAdDetection, resetYoutubeAdDetection } from '../src/detectors/detections/youtube-ad-detection.js';
 
 const minimalConfig = {
     playerSelectors: ['#movie_player'],
@@ -149,6 +149,84 @@ describe('YouTubeAdDetector', () => {
             expect(result).toBe(true);
             expect(detector.state.detections.adBlocker.count).toBe(1);
             expect(detector.state.detections.adBlocker.showing).toBe(true);
+        });
+    });
+
+    describe('runYoutubeAdDetection hostname gating', () => {
+        const enabledConfig = { ...minimalConfig, state: 'enabled' };
+        const emptyResult = { detected: false, type: 'youtubeAds', results: [] };
+        let savedWindow;
+        let savedDocument;
+
+        beforeEach(() => {
+            savedWindow = globalThis.window;
+            savedDocument = globalThis.document;
+        });
+
+        afterEach(() => {
+            resetYoutubeAdDetection();
+            globalThis.window = savedWindow;
+            globalThis.document = savedDocument;
+        });
+
+        function setHostname(name) {
+            const mockDoc = { querySelector: () => null, querySelectorAll: () => [], body: null, hidden: false, readyState: 'complete' };
+            globalThis.window = /** @type {any} */ ({
+                location: { hostname: name, search: '' },
+                document: mockDoc,
+                navigator: { userActivation: { isActive: false } },
+                addEventListener: () => {},
+                performance: { now: () => 0 },
+                setTimeout: () => {},
+                setInterval: () => {},
+                URLSearchParams,
+            });
+            globalThis.document = /** @type {any} */ (mockDoc);
+        }
+
+        it('rejects other domains', () => {
+            setHostname('example.com');
+            expect(runYoutubeAdDetection(enabledConfig)).toEqual(emptyResult);
+        });
+
+        it('rejects domains containing youtube as a substring', () => {
+            setHostname('notyoutube.com');
+            expect(runYoutubeAdDetection(enabledConfig)).toEqual(emptyResult);
+        });
+
+        it('rejects localhost', () => {
+            setHostname('localhost');
+            expect(runYoutubeAdDetection(enabledConfig)).toEqual(emptyResult);
+        });
+
+        it('allows youtube.com', () => {
+            setHostname('youtube.com');
+            const result = runYoutubeAdDetection(enabledConfig);
+            expect(result).not.toEqual(emptyResult);
+        });
+
+        it('allows www.youtube.com', () => {
+            setHostname('www.youtube.com');
+            const result = runYoutubeAdDetection(enabledConfig);
+            expect(result).not.toEqual(emptyResult);
+        });
+
+        it('allows m.youtube.com', () => {
+            setHostname('m.youtube.com');
+            const result = runYoutubeAdDetection(enabledConfig);
+            expect(result).not.toEqual(emptyResult);
+        });
+
+        it('allows privacy-test-pages.site', () => {
+            setHostname('privacy-test-pages.site');
+            const result = runYoutubeAdDetection(enabledConfig);
+            expect(result).not.toEqual(emptyResult);
+        });
+
+        it('allows subdomains of privacy-test-pages.site', () => {
+            setHostname('test.privacy-test-pages.site');
+            const result = runYoutubeAdDetection(enabledConfig);
+            expect(result).not.toEqual(emptyResult);
         });
     });
 });

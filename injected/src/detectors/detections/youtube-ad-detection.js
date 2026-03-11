@@ -59,6 +59,7 @@ export class YouTubeAdDetector {
         // Intervals and tracking
         this.pollInterval = null;
         this.rerootInterval = null;
+        this.startRetryTimeout = null;
         this.trackedVideoElement = null;
         this.lastLoggedVideoId = null;
         this.currentVideoId = null;
@@ -615,7 +616,7 @@ export class YouTubeAdDetector {
         if (!root) {
             if (attempt < 25) {
                 this.log.info(`Player root not found, retrying in 500ms (attempt ${attempt}/25)`);
-                setTimeout(() => this.start(attempt + 1), 500);
+                this.startRetryTimeout = setTimeout(() => this.start(attempt + 1), 500);
             } else {
                 this.log.info('Player root not found after 25 attempts, giving up');
             }
@@ -651,6 +652,10 @@ export class YouTubeAdDetector {
      * Stop the detector
      */
     stop() {
+        if (this.startRetryTimeout) {
+            clearTimeout(this.startRetryTimeout);
+            this.startRetryTimeout = null;
+        }
         if (this.pollInterval) {
             clearInterval(this.pollInterval);
             this.pollInterval = null;
@@ -762,4 +767,14 @@ export function runYoutubeAdDetection(config, logger, fireEvent) {
     detectorInstance = new YouTubeAdDetector(config, logger, fireEvent);
     detectorInstance.start();
     return detectorInstance.getResults();
+}
+
+/**
+ * @visibleForTesting
+ */
+export function resetYoutubeAdDetection() {
+    if (detectorInstance) {
+        detectorInstance.stop();
+        detectorInstance = null;
+    }
 }
