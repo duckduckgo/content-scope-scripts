@@ -11,7 +11,7 @@ const minimalConfig = {
     playabilityErrorPatterns: [],
     adBlockerDetectionSelectors: [],
     adBlockerDetectionPatterns: [],
-    loginStateSelectors: null,
+    loginStateSelectors: { signInButton: '', avatarButton: '', premiumLogo: '' },
 };
 
 const configWithAllEvents = {
