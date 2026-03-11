@@ -23,6 +23,29 @@ export function reducer(state, action) {
     // console.log('action', action)
     // console.groupEnd()
 
+    if (action.kind === 'config-update') {
+        let nextStepDefs = state.stepDefinitions;
+        if (action.stepDefinitions) {
+            nextStepDefs = { ...state.stepDefinitions };
+            for (const [key, value] of Object.entries(action.stepDefinitions)) {
+                if (typeof value === 'object' && value !== null && nextStepDefs[key]) {
+                    nextStepDefs[key] = { ...nextStepDefs[key], ...value };
+                } else {
+                    nextStepDefs[key] = value;
+                }
+            }
+        }
+        let nextOrder = state.order;
+        if (action.exclude) {
+            nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
+        }
+        return {
+            ...state,
+            stepDefinitions: nextStepDefs,
+            order: nextOrder,
+            step: nextStepDefs[state.activeStep] ?? state.step,
+        };
+    }
     switch (state.status.kind) {
         case 'idle': {
             switch (action.kind) {
@@ -71,29 +94,6 @@ export function reducer(state, action) {
                     return {
                         ...state,
                         overlay: null,
-                    };
-                }
-                case 'config-update': {
-                    let nextStepDefs = state.stepDefinitions;
-                    if (action.stepDefinitions) {
-                        nextStepDefs = { ...state.stepDefinitions };
-                        for (const [key, value] of Object.entries(action.stepDefinitions)) {
-                            if (typeof value === 'object' && value !== null && nextStepDefs[key]) {
-                                nextStepDefs[key] = { ...nextStepDefs[key], ...value };
-                            } else {
-                                nextStepDefs[key] = value;
-                            }
-                        }
-                    }
-                    let nextOrder = state.order;
-                    if (action.exclude) {
-                        nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
-                    }
-                    return {
-                        ...state,
-                        stepDefinitions: nextStepDefs,
-                        order: nextOrder,
-                        step: nextStepDefs[state.activeStep] ?? state.step,
                     };
                 }
                 default:
@@ -165,29 +165,6 @@ export function reducer(state, action) {
                     return {
                         ...state,
                         status: { kind: 'idle', error: action.message },
-                    };
-                }
-                case 'config-update': {
-                    let nextStepDefsExec = state.stepDefinitions;
-                    if (action.stepDefinitions) {
-                        nextStepDefsExec = { ...state.stepDefinitions };
-                        for (const [key, value] of Object.entries(action.stepDefinitions)) {
-                            if (typeof value === 'object' && value !== null && nextStepDefsExec[key]) {
-                                nextStepDefsExec[key] = { ...nextStepDefsExec[key], ...value };
-                            } else {
-                                nextStepDefsExec[key] = value;
-                            }
-                        }
-                    }
-                    let nextOrderExec = state.order;
-                    if (action.exclude) {
-                        nextOrderExec = state.order.filter((id) => !action.exclude?.includes(id));
-                    }
-                    return {
-                        ...state,
-                        stepDefinitions: nextStepDefsExec,
-                        order: nextOrderExec,
-                        step: nextStepDefsExec[state.activeStep] ?? state.step,
                     };
                 }
                 default:
