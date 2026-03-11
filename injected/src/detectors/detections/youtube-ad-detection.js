@@ -737,6 +737,13 @@ let detectorInstance = null;
  * @param {(type: string) => void} [fireEvent] - Callback fired when a new detection occurs
  */
 export function runYoutubeAdDetection(config, logger, fireEvent) {
+    const hostname = window.location.hostname;
+    const isYouTube = hostname === 'youtube.com' || hostname.endsWith('.youtube.com');
+    const isTestDomain = hostname === 'privacy-test-pages.site' || hostname.endsWith('.privacy-test-pages.site');
+    if (!isYouTube && !isTestDomain) {
+        return { detected: false, type: 'youtubeAds', results: [] };
+    }
+
     // Only run if explicitly enabled or internal
     if (config?.state !== 'enabled' && config?.state !== 'internal') {
         return { detected: false, type: 'youtubeAds', results: [] };
@@ -752,14 +759,7 @@ export function runYoutubeAdDetection(config, logger, fireEvent) {
         return { detected: false, type: 'youtubeAds', results: [] };
     }
 
-    const hostname = window.location.hostname;
-    const isYouTube = hostname === 'youtube.com' || hostname.endsWith('.youtube.com');
-    const isTestDomain = hostname === 'privacy-test-pages.site' || hostname.endsWith('.privacy-test-pages.site');
-    if (isYouTube || isTestDomain) {
-        detectorInstance = new YouTubeAdDetector(config, logger, fireEvent);
-        detectorInstance.start();
-        return detectorInstance.getResults();
-    }
-
-    return { detected: false, type: 'youtubeAds', results: [] };
+    detectorInstance = new YouTubeAdDetector(config, logger, fireEvent);
+    detectorInstance.start();
+    return detectorInstance.getResults();
 }

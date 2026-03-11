@@ -18,12 +18,7 @@ export default class WebInterferenceDetection extends ContentFeature {
             this.callFeatureMethod('webEvents', 'fireEvent', { type });
         };
 
-        const hostname = window.location.hostname;
-        const isYouTube = hostname === 'youtube.com' || hostname.endsWith('.youtube.com');
-        const isTestDomain = hostname === 'privacy-test-pages.site' || hostname.endsWith('.privacy-test-pages.site');
-        if (isYouTube || isTestDomain) {
-            runYoutubeAdDetection(settings?.youtubeAds, this.log, fireEvent);
-        }
+        runYoutubeAdDetection(settings?.youtubeAds, this.log, fireEvent);
 
         // Register messaging handler for PIR/native requests
         this.messaging.subscribe('detectInterference', (params) => {
