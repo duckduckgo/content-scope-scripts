@@ -1,0 +1,31 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-6);
+    max-width: 384px;
+    margin: 0 auto;
+}
+
+.video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 384 / 188;
+    border-radius: var(--sp-2);
+}
+
+.instruction {
+    display: flex;
+    gap: var(--sp-2);
+}
+
+.icon {
+    width: var(--sp-4);
+    height: var(--sp-4);
+}
+
+.instructionText {
+    margin: 0;
+    font-size: calc(14 * var(--px-in-rem));
+    line-height: calc(20 * var(--px-in-rem));
+    color: var(--theme-txt-color);
+}

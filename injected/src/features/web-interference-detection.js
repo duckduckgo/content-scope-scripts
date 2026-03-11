@@ -9,6 +9,12 @@ import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detect
  * @property {string[]} [types]
  */
 
+/**
+ * Note: breakageReporting also runs these detectors directly by reading this
+ * feature's `interferenceTypes` settings via getFeatureSetting. Those calls
+ * execute in breakageReporting's world (apple-isolated), independent of which
+ * world this feature is bundled into.
+ */
 export default class WebInterferenceDetection extends ContentFeature {
     init() {
         // Get settings with conditionalChanges already applied by framework

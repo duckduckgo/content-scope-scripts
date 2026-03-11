@@ -45,6 +45,10 @@ export function useContextMenu() {
     const messaging = useMessaging();
     useEffect(() => {
         function handler(e) {
+            // Allow native context menu on text inputs and textareas (e.g. for copy/paste)
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+                return;
+            }
             e.preventDefault();
             e.stopImmediatePropagation();
             const items = getItems();

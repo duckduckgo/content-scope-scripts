@@ -160,6 +160,15 @@ export class OnboardingMessages {
     }
 
     /**
+     * Subscribe to config updates pushed by native (e.g. customize step rows).
+     * @param {(data: {stepDefinitions?: Record<string, any>, exclude?: string[]}) => void} params
+     * @returns {() => void}
+     */
+    onConfigUpdate(params) {
+        return this.messaging.subscribe('onConfigUpdate', params);
+    }
+
+    /**
      * Sent when the user wants to enable or disable ad blocking.
      *
      * @param {import('./types').BooleanSystemValue} params

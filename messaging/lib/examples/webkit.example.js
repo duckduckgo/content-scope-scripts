@@ -31,7 +31,7 @@ messaging.notify('sendPixel');
 /**
  * request data
  */
-(async () => {
+void (async () => {
     const result = await messaging.request('helloWorld', { foo: 'bar' });
     console.log(result);
 })();
