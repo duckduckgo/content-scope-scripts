@@ -29,11 +29,12 @@ function getTabURL() {
         framingOrigin = globalThis.top?.location.href;
     } catch {
         framingOrigin = globalThis.document.referrer;
-    }
 
-    // ancestorOrigins gives us the actual top frame URL in cross-origin iframes
-    if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
-        framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+        // ancestorOrigins only needed as fallback when top.location.href is inaccessible (e.g., cross-origin iframe).
+        // Avoid overriding full top-level URL when we already have it.
+        if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+            framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+        }
     }
 
     try {

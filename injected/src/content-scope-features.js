@@ -38,7 +38,7 @@ const isHTMLDocument =
  * @property {Record<string, unknown>} [featureSettings]
  * @property {import('./content-feature.js').AssetConfig} [assets]
  * @property {Record<string, string[]>} [stringExemptionLists]
- * @property {{trackers: Record<string, unknown>, entities: Record<string, unknown>, domains: Record<string, string>, cnames?: Record<string, string>}} [trackerData]
+ * @property {import('./features/tracker-protection/tracker-resolver.js').TrackerData} [trackerData]
  */
 
 /**

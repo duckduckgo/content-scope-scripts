@@ -234,10 +234,6 @@ export class ResultsCollector {
             windows: () => wrapWindowsScripts,
         });
 
-        // Extract trackerData from config settings for tracker-protection tests
-        // trackerData must be an object (not a JSON string)
-        const trackerDataFromConfig = config?.features?.trackerProtection?.settings?.trackerData;
-
         // read the built file from disk and do replacements
         const injectedJS = wrapFn(this.build.artifact, {
             $CONTENT_SCOPE$: config,
@@ -250,8 +246,6 @@ export class ResultsCollector {
                 javascriptInterface: this.messagingContextName,
                 messagingContextName: this.messagingContextName,
                 locale,
-                // trackerData from config as default; explicit #userPreferences.trackerData wins
-                ...(trackerDataFromConfig && { trackerData: trackerDataFromConfig }),
                 ...this.#userPreferences,
             },
         });
