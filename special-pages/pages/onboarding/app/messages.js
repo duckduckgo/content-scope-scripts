@@ -2,6 +2,7 @@
  * @typedef {Object} StepCompleteParams
  * Sent when a user has transitioned from a step to the next one
  * @property {import('./types').Step['id']} id - a unique identifier for each step
+ * @property {import('./types').Step['id'] | null} next - the step about to display, or null if this is the last step
  *
  * @typedef {Object} InitResponse
  * @property {Record<string, any>} stepDefinitions

@@ -2,6 +2,20 @@ import { test, expect } from '@playwright/test';
 import { OnboardingV3Page } from './onboarding.v3.page.js';
 
 test.describe('onboarding v3', () => {
+    test('stepCompleted includes the next step id', async ({ page }, workerInfo) => {
+        const onboarding = OnboardingV3Page.create(page, workerInfo);
+        onboarding.withInitData({
+            stepDefinitions: null,
+            order: 'v3',
+        });
+        await onboarding.reducedMotion();
+        await onboarding.openPage({ env: 'app', page: 'getStarted' });
+        await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+        await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 });
+
+        await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'makeDefaultSingle' });
+    });
+
     test.describe('Given I am on the make default step', () => {
         test('Then "Play YouTube without targeted ads" appears when ad blocking is enabled (placebo variant)', async ({
             page,
