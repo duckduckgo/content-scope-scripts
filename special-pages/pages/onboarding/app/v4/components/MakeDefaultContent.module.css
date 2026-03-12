@@ -4,6 +4,7 @@
 
 .titleContainer {
     position: relative;
+    align-self: stretch;
 }
 
 .title {
