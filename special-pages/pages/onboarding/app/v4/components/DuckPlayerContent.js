@@ -74,6 +74,8 @@ function DuckPlayerDefault({ advance }) {
     const videosRef = useRef(/** @type {Record<DPTarget, HTMLVideoElement | null>} */ ({ with: null, without: null }));
 
     const [state, setState] = useState(/** @type {DPState} */ ({ target: 'with', phase: 'initial', reverse: false }));
+    const stateRef = useRef(state);
+    stateRef.current = state;
 
     /** @type {(target: DPTarget) => DPTarget} */
     const flip = (target) => (target === 'with' ? 'without' : 'with');
@@ -89,12 +91,14 @@ function DuckPlayerDefault({ advance }) {
             return;
         }
         video.currentTime = 0;
+        /** @type {Promise<void>} */
+        const frameReady = new Promise((resolve) => video.requestVideoFrameCallback(() => resolve()));
         try {
             await video.play();
         } catch (error) {
-            // Ignore errors - we can assume that our browsers support playback
             console.error(error);
         }
+        await frameReady;
     };
 
     /** @param {HTMLVideoElement | null} video */
@@ -114,7 +118,7 @@ function DuckPlayerDefault({ advance }) {
         return () => clearTimeout(id);
     }, []); // exclude isReducedMotion from deps — must not re-fire if reduced motion changes after mount
 
-    const toggle = () => {
+    const toggle = async () => {
         const { target, phase, reverse } = state;
         if (phase === 'initial') {
             // Queue or cancel a reverse so auto-play will switch to "without" once the "with" video ends
@@ -124,18 +128,19 @@ function DuckPlayerDefault({ advance }) {
             if (!reverse) reset(videoFor(flip(target)));
             setState({ target, phase: 'playing', reverse: !reverse });
         } else {
-            // Settled: switch to the other video
+            // Settled: play the other video, wait for its first frame, then switch visibility
             const next = flip(target);
-            play(videoFor(next));
+            await play(videoFor(next));
             setState({ target: next, phase: isReducedMotion ? 'settled' : 'playing', reverse: false });
         }
     };
 
-    const end = () => {
-        if (state.reverse) {
-            // A reverse was queued — play the other video now
-            const next = flip(state.target);
-            play(videoFor(next));
+    const end = async () => {
+        const { reverse, target } = stateRef.current;
+        if (reverse) {
+            // A reverse was queued — play the other video, wait for its first frame, then switch
+            const next = flip(target);
+            await play(videoFor(next));
             setState({ target: next, phase: 'playing', reverse: false });
         } else {
             // No reverse — just settle on the current video
