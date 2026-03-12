@@ -1,23 +1,67 @@
-.root {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-self: stretch;
-    gap: var(--sp-8); /* 32px */
-    padding: var(--sp-12); /* 48px */
-}
-
 .imageContainer {
+    position: relative;
     align-self: stretch;
-    overflow: hidden;
+    overflow: visible;
     border-radius: var(--sp-2); /* 8px */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+.sparkle {
+    position: absolute;
+    top: -4px;
+    left: -13px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
 .promoImage {
     display: block;
     width: 100%;
     height: auto;
+}
+
+/* --- Video (default variant) --- */
+
+.videoContainer {
+    position: relative;
+    align-self: stretch;
+    overflow: hidden;
+    border-radius: var(--sp-3); /* 12px */
+}
+
+.video {
+    display: block;
+    width: 100%;
+    height: auto;
+    position: relative;
+
+    &.hidden {
+        position: absolute;
+        top: 0;
+        left: 0;
+        visibility: hidden;
+    }
+}
+
+/* --- Button row (default variant) --- */
+
+.actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: var(--sp-2); /* 8px */
+    align-self: stretch;
+
+    [data-platform-name="windows"] & > *:last-child {
+        order: -1;
+    }
+}
+
+.toggleButton,
+.nextButton {
+    flex: 1 1 0;
+    padding-left: var(--sp-2); /* 8px */
+    padding-right: var(--sp-2); /* 8px */
 }
