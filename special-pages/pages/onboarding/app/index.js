@@ -37,6 +37,16 @@ const messaging = createSpecialPageMessaging({
 
 const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
 
+window.addEventListener('error', (event) => {
+    const message = event.error?.message || event.message || 'unknown error';
+    onboarding.reportInitException({ message: `[uncaught] ${message}` });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    const message = event.reason?.message || String(event.reason) || 'unknown rejection';
+    onboarding.reportInitException({ message: `[unhandledrejection] ${message}` });
+});
+
 async function init() {
     const result = await callWithRetry(() => onboarding.init());
     if ('error' in result) {

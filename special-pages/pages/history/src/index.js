@@ -83,6 +83,16 @@ const messaging = createSpecialPageMessaging({
 
 const historyPage = new HistoryPage(messaging);
 
+window.addEventListener('error', (event) => {
+    const message = event.error?.message || event.message || 'unknown error';
+    historyPage.reportInitException({ message: `[uncaught] ${message}` });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    const message = event.reason?.message || String(event.reason) || 'unknown rejection';
+    historyPage.reportInitException({ message: `[unhandledrejection] ${message}` });
+});
+
 /**
  * Grab the root element from the index.html file - bail early if it's absent
  */

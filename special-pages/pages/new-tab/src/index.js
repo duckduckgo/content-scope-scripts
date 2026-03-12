@@ -110,6 +110,16 @@ const rawMessaging = createSpecialPageMessaging({
 const { messaging, telemetry } = install(rawMessaging);
 const newTabMessaging = new NewTabPage(messaging, import.meta.injectName);
 
+window.addEventListener('error', (event) => {
+    const message = event.error?.message || event.message || 'unknown error';
+    newTabMessaging.reportInitException(`[uncaught] ${message}`);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    const message = event.reason?.message || String(event.reason) || 'unknown rejection';
+    newTabMessaging.reportInitException(`[unhandledrejection] ${message}`);
+});
+
 /**
  * Grab the root element from the index.html file - bail early if it's absent
  */
