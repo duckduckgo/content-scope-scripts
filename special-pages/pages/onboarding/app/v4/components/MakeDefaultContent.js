@@ -13,6 +13,9 @@ import { useFlip } from '../hooks/useFlip';
 import cn from 'classnames';
 import styles from './MakeDefaultContent.module.css';
 
+/** @type {string|null} */
+const bubbleFadeInDelayOverride = new URLSearchParams(window.location.search).get('bubbleFadeInDelay');
+
 /**
  * Top bubble content for the makeDefaultSingle step.
  * Shows title (changes after user makes default), comparison table, and Skip/Make Default buttons.
@@ -78,6 +81,11 @@ export function MakeDefaultContent({ advance, updateSystemValue }) {
         })();
     };
 
+    const defaultBubbleDelay = 400;
+    const defaultOffset = 100;
+    const parsedOffset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
+    const staggerDelay = defaultBubbleDelay + (Number.isNaN(parsedOffset) ? defaultOffset : parsedOffset);
+
     return (
         <Container class={styles.root}>
             <div class={styles.titleContainer}>
@@ -95,17 +103,19 @@ export function MakeDefaultContent({ advance, updateSystemValue }) {
                 />
             </div>
 
-            <ComparisonTable />
+            <div class={styles.content} style={{ '--stagger-delay': `${staggerDelay}ms` }}>
+                <ComparisonTable />
 
-            <div class={styles.actions}>
-                {skipButtonMounted && (
-                    <Button buttonRef={skipButtonRef} class={styles.skipButton} variant="secondary" onClick={advance}>
-                        {t('skipButton')}
+                <div class={styles.actions}>
+                    {skipButtonMounted && (
+                        <Button buttonRef={skipButtonRef} class={styles.skipButton} variant="secondary" onClick={advance}>
+                            {t('skipButton')}
+                        </Button>
+                    )}
+                    <Button buttonRef={primaryButtonRef} disabled={isPending} onClick={showSkipButton ? enableDefaultBrowser : advance}>
+                        {showSkipButton ? t('makeDefaultButton') : t('nextButton')}
                     </Button>
-                )}
-                <Button buttonRef={primaryButtonRef} disabled={isPending} onClick={showSkipButton ? enableDefaultBrowser : advance}>
-                    {showSkipButton ? t('makeDefaultButton') : t('nextButton')}
-                </Button>
+                </div>
             </div>
         </Container>
     );
