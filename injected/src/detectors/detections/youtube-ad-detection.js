@@ -755,8 +755,11 @@ export function runYoutubeAdDetection(config, logger, fireEvent) {
         return { detected: false, type: 'youtubeAds', results: [] };
     }
 
-    // If detector already exists, return its results (even if config is undefined)
+    // If detector already exists, update callback if provided and return results
     if (detectorInstance) {
+        if (fireEvent) {
+            detectorInstance.onEvent = fireEvent;
+        }
         return detectorInstance.getResults();
     }
 
