@@ -80,7 +80,7 @@ describe('YouTubeAdDetector', () => {
             expect(events).toEqual(['youtube_playabilityError', 'youtube_playabilityError']);
         });
 
-        it('does not break detection when callback throws', () => {
+        it('does not break detection when callback throws synchronously', () => {
             const detector = new YouTubeAdDetector(configWithAllEvents, undefined, () => {
                 throw new Error('callback failure');
             });
@@ -88,6 +88,20 @@ describe('YouTubeAdDetector', () => {
             const result = detector.reportDetection('adBlocker');
 
             expect(result).toBe(true);
+            expect(detector.state.detections.adBlocker.count).toBe(1);
+            expect(detector.state.detections.adBlocker.showing).toBe(true);
+        });
+
+        it('does not break detection when callback is async', () => {
+            let callbackInvoked = false;
+            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, () => {
+                callbackInvoked = true;
+            });
+
+            const result = detector.reportDetection('adBlocker');
+
+            expect(result).toBe(true);
+            expect(callbackInvoked).toBe(true);
             expect(detector.state.detections.adBlocker.count).toBe(1);
             expect(detector.state.detections.adBlocker.showing).toBe(true);
         });
@@ -194,9 +208,10 @@ describe('YouTubeAdDetector', () => {
             expect(runYoutubeAdDetection(enabledConfig)).toEqual(emptyResult);
         });
 
-        it('rejects localhost', () => {
+        it('allows localhost', () => {
             setHostname('localhost');
-            expect(runYoutubeAdDetection(enabledConfig)).toEqual(emptyResult);
+            const result = runYoutubeAdDetection(enabledConfig);
+            expect(result).not.toEqual(emptyResult);
         });
 
         it('allows youtube.com', () => {

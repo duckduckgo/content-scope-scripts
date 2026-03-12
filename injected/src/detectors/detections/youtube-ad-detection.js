@@ -744,7 +744,8 @@ let detectorInstance = null;
 export function runYoutubeAdDetection(config, logger, fireEvent) {
     const hostname = window.location.hostname;
     const isYouTube = hostname === 'youtube.com' || hostname.endsWith('.youtube.com');
-    const isTestDomain = hostname === 'privacy-test-pages.site' || hostname.endsWith('.privacy-test-pages.site');
+    const isTestDomain =
+        hostname === 'privacy-test-pages.site' || hostname.endsWith('.privacy-test-pages.site') || hostname === 'localhost';
     if (!isYouTube && !isTestDomain) {
         return { detected: false, type: 'youtubeAds', results: [] };
     }

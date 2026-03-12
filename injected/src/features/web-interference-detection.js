@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature.js';
+import ContentFeature, { CallFeatureMethodError } from '../content-feature.js';
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
@@ -22,7 +22,10 @@ export default class WebInterferenceDetection extends ContentFeature {
 
         const fireEvent = async (type) => {
             try {
-                await this.callFeatureMethod('webEvents', 'fireEvent', { type });
+                const result = await this.callFeatureMethod('webEvents', 'fireEvent', { type });
+                if (result instanceof CallFeatureMethodError && this.isDebug) {
+                    this.log.warn('webEvents.fireEvent failed:', result.message);
+                }
             } catch {
                 // webEvents may not be loaded on this platform — silently ignore
             }
