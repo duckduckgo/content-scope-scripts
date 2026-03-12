@@ -82,7 +82,7 @@ export function MakeDefaultContent({ advance, updateSystemValue }) {
     };
 
     const defaultBubbleDelay = 400;
-    const defaultOffset = 100;
+    const defaultOffset = 250;
     const parsedOffset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
     const staggerDelay = defaultBubbleDelay + (Number.isNaN(parsedOffset) ? defaultOffset : parsedOffset);
 

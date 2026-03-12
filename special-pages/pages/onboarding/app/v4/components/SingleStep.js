@@ -74,7 +74,7 @@ export function SingleStep() {
                     topBubble
                         ? (() => {
                               const defaultTopDelay = 400; // Default fade-in delay from CSS
-                              const defaultOffset = 100; // Default 100ms offset between top and bottom
+                              const defaultOffset = 250; // Default 250ms offset between top and bottom
                               const offset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
                               return defaultTopDelay + (Number.isNaN(offset) ? defaultOffset : offset);
                           })()
