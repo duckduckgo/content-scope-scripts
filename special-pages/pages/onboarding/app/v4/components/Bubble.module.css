@@ -1,24 +1,35 @@
 .bubble {
+    position: relative;
+}
+
+.progressBadge {
+    position: absolute;
+    top: 0;
+    right: var(--sp-9); /* 36px — aligned with bubble border-radius */
+    transform: translateY(-50%);
+    background: var(--bubble-bg);
+    padding: calc(6 * var(--px-in-rem)) calc(10 * var(--px-in-rem)) calc(6 * var(--px-in-rem)) var(--sp-2);
+    border: 1.5px solid var(--bubble-border);
+    border-radius: var(--sp-16); /* 64px — full pill */
+}
+
+.frame {
+    position: absolute;
+    inset: 0;
     background: var(--bubble-bg);
     border-radius: var(--sp-9); /* 36px */
     border: 1.5px solid var(--bubble-border);
     box-shadow: 0 7px 12px rgba(0, 0, 0, 0.03);
-    isolation: isolate;
-    position: relative;
-}
-
-.background {
-    inset: 0;
-    pointer-events: none;
-    position: absolute;
-    z-index: 0;
 }
 
 .container {
     overflow: hidden;
     position: absolute;
-    inset: 0;
-    z-index: 1;
+    inset: 1.5px; /* match .frame border width */
+}
+
+.content {
+    width: var(--bubble-width);
 }
 
 .fadeOut {
@@ -26,24 +37,7 @@
 }
 
 .fadeIn {
-    animation: fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 233ms backwards;
-}
-
-@keyframes fade-out {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-
-@keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.foreground {
-    inset: 0;
-    pointer-events: none;
-    position: absolute;
-    z-index: 2;
+    animation: fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 400ms backwards;
 }
 
 /* Clip wrapper for bottom-left tail — overflow creates the tuck/untuck effect */
@@ -78,12 +72,22 @@
     & svg {
         display: block;
         transform: translateX(-100%);
-        transition: transform 333ms cubic-bezier(0.17, 0, 0.34, 1) 67ms;
+        transition: transform 333ms cubic-bezier(0.17, 0, 0.34, 1) 400ms;
 
         &.active {
             transform: translateX(-2px);
         }
     }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -25698,6 +25698,19 @@
     return x2(GlobalDispatch);
   }
 
+  // shared/hooks/useMediaQuery.js
+  function useMediaQuery(query) {
+    const [matches, setMatches] = d2(() => window.matchMedia(query).matches);
+    y2(() => {
+      const mql = window.matchMedia(query);
+      setMatches(mql.matches);
+      const handler = () => setMatches(mql.matches);
+      mql.addEventListener("change", handler);
+      return () => mql.removeEventListener("change", handler);
+    }, [query]);
+    return matches;
+  }
+
   // shared/components/EnvironmentProvider.js
   var EnvironmentContext = R({
     isReducedMotion: false,
@@ -25723,14 +25736,8 @@
     injectName = "windows",
     locale = "en"
   }) {
-    const [theme, setTheme] = d2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
+    const isDarkMode = useMediaQuery(THEME_QUERY);
     const [isReducedMotion, setReducedMotion] = d2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
-    y2(() => {
-      const mediaQueryList = window.matchMedia(THEME_QUERY);
-      const listener = (e3) => setTheme(e3.matches ? "dark" : "light");
-      mediaQueryList.addEventListener("change", listener);
-      return () => mediaQueryList.removeEventListener("change", listener);
-    }, []);
     y2(() => {
       const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY);
       const listener = (e3) => setter(e3.matches);
@@ -25751,7 +25758,7 @@
         value: {
           isReducedMotion,
           debugState,
-          isDarkMode: theme === "dark",
+          isDarkMode,
           injectName,
           willThrow,
           env,
@@ -26695,6 +26702,14 @@
     duckPlayer_subtitle: {
       title: "No targeted ads. No targeted recommendations. Just your video.",
       note: "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
+    },
+    duckPlayer_v4_title: {
+      title: "Drowning in ads on YouTube?{newline}Not with Duck Player!",
+      note: "Title for the Duck Player step in v4 onboarding, with a line break after the question."
+    },
+    duckPlayer_v4_subtitle: {
+      title: "No targeted ads. No targeted recommendations.{newline}Just your video.",
+      note: "Subtitle for the Duck Player step in v4 onboarding, with a line break before the last sentence."
     },
     duckPlayer_adFree_title: {
       title: "Watch YouTube ad-free!",
@@ -27880,7 +27895,7 @@
       "video",
       {
         className: DockInstructions_default.video,
-        src: "assets/video/dock-instructions/add-to-dock.mp4",
+        src: "assets/videos/add-to-dock.mp4",
         autoPlay: !isReducedMotion,
         loop: true,
         muted: true,
@@ -28636,6 +28651,7 @@
   var Background_default2 = {
     background: "Background_background2",
     illustration: "Background_illustration",
+    rightAligned: "Background_rightAligned",
     slideIn: "Background_slideIn",
     "slide-in": "Background_slide-in",
     slideOut: "Background_slideOut",
@@ -28644,58 +28660,67 @@
   };
 
   // pages/onboarding/app/v4/components/Background.js
-  var BG_MOTION = {
-    welcome: { dx: "325px", dy: "204px", slideInDelay: "0.133s", fadeDuration: "0.4s" },
-    default: { dx: "-74px", dy: "132px", slideInDelay: "0.2s", fadeDuration: "0.333s" }
+  var backgroundForStep = {
+    welcome: "background-01",
+    getStarted: "background-01",
+    makeDefaultSingle: "background-01",
+    systemSettings: "background-02",
+    duckPlayerSingle: "background-02",
+    customize: "background-03",
+    addressBarMode: "background-04"
   };
-  function bgVars(step) {
-    const idx = ORDER_V4.indexOf(step);
-    const num = String(idx + 1).padStart(2, "0");
-    const motion = BG_MOTION[step] ?? BG_MOTION.default;
-    return {
-      "--bg-light": `url("../assets/img/v4/background-${num}-light.svg")`,
-      "--bg-dark": `url("../assets/img/v4/background-${num}-dark.svg")`,
-      "--bg-dx": motion.dx,
-      "--bg-dy": motion.dy,
-      "--bg-slide-in-delay": motion.slideInDelay,
-      "--bg-fade-duration": motion.fadeDuration
-    };
+  function Illustration({ filename, class: className, rightAligned, onAnimationEnd }) {
+    return /* @__PURE__ */ _("picture", { class: (0, import_classnames10.default)(className, rightAligned && Background_default2.rightAligned), onAnimationEnd }, /* @__PURE__ */ _("source", { srcset: `assets/img/v4/${filename}-dark.svg`, media: "(prefers-color-scheme: dark)" }), /* @__PURE__ */ _("img", { src: `assets/img/v4/${filename}-light.svg`, alt: "" }));
   }
   function Background2() {
     const { activeStep } = x2(GlobalContext);
-    const [prevStep, setPrevStep] = d2(activeStep);
-    const [exitingStep, setExitingStep] = d2(
-      /** @type {import('../../types').Step['id'] | null} */
+    const filename = backgroundForStep[activeStep];
+    const [prevFilename, setPrevFilename] = d2(filename);
+    const [exitingFilename, setExitingFilename] = d2(
+      /** @type {string | null} */
       null
     );
-    if (prevStep !== activeStep) {
-      setPrevStep(activeStep);
-      setExitingStep(prevStep);
+    if (prevFilename !== filename) {
+      setExitingFilename(prevFilename);
+      setPrevFilename(filename);
     }
-    return /* @__PURE__ */ _("div", { class: Background_default2.background }, exitingStep && /* @__PURE__ */ _(
-      "div",
+    return /* @__PURE__ */ _("div", { class: Background_default2.background }, exitingFilename && /* @__PURE__ */ _(
+      Illustration,
       {
-        key: "exit-" + exitingStep,
+        key: exitingFilename,
+        filename: exitingFilename,
+        rightAligned: exitingFilename === "background-04",
         class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.slideOut),
-        style: bgVars(exitingStep),
-        onAnimationEnd: () => setExitingStep(null)
+        onAnimationEnd: () => setExitingFilename(null)
       }
-    ), /* @__PURE__ */ _("div", { key: activeStep, class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.slideIn), style: bgVars(activeStep) }));
+    ), /* @__PURE__ */ _(
+      Illustration,
+      {
+        key: filename,
+        filename,
+        rightAligned: filename === "background-04",
+        class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.slideIn)
+      }
+    ));
   }
 
+  // pages/onboarding/app/v4/components/SingleStep.js
+  var import_classnames24 = __toESM(require_classnames(), 1);
+
   // pages/onboarding/app/v4/components/Bubble.js
-  var import_classnames11 = __toESM(require_classnames(), 1);
+  var import_classnames12 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Bubble.module.css
   var Bubble_default = {
     bubble: "Bubble_bubble",
-    background: "Bubble_background",
+    progressBadge: "Bubble_progressBadge",
+    frame: "Bubble_frame",
     container: "Bubble_container",
+    content: "Bubble_content",
     fadeOut: "Bubble_fadeOut",
     "fade-out": "Bubble_fade-out",
     fadeIn: "Bubble_fadeIn",
     "fade-in": "Bubble_fade-in",
-    foreground: "Bubble_foreground",
     bottomLeftTail: "Bubble_bottomLeftTail",
     active: "Bubble_active",
     rightTail: "Bubble_rightTail"
@@ -28730,14 +28755,38 @@
     return [ref, animate2];
   }
 
-  // pages/onboarding/app/v4/hooks/useMergedRef.js
-  function useMergedRef(...refs) {
-    return q2((element) => {
-      for (const ref of refs) {
-        if (typeof ref === "function") ref(element);
-        else if (ref) ref.current = element;
-      }
-    }, refs);
+  // pages/onboarding/app/v4/components/ProgressIndicator.js
+  var import_classnames11 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/v4/components/ProgressIndicator.module.css
+  var ProgressIndicator_default = {
+    progress: "ProgressIndicator_progress",
+    dots: "ProgressIndicator_dots",
+    dot: "ProgressIndicator_dot",
+    active: "ProgressIndicator_active",
+    complete: "ProgressIndicator_complete",
+    incomplete: "ProgressIndicator_incomplete",
+    text: "ProgressIndicator_text"
+  };
+
+  // pages/onboarding/app/v4/components/ProgressIndicator.js
+  function ProgressIndicator({ current, total }) {
+    return /* @__PURE__ */ _("div", { class: ProgressIndicator_default.progress }, /* @__PURE__ */ _("div", { class: ProgressIndicator_default.dots }, Array.from({ length: total }, (_3, i3) => {
+      const step = i3 + 1;
+      const isActive = step === current;
+      const isComplete = step < current;
+      return /* @__PURE__ */ _(
+        "span",
+        {
+          key: i3,
+          class: (0, import_classnames11.default)(ProgressIndicator_default.dot, {
+            [ProgressIndicator_default.active]: isActive,
+            [ProgressIndicator_default.complete]: isComplete,
+            [ProgressIndicator_default.incomplete]: !isActive && !isComplete
+          })
+        }
+      );
+    })), /* @__PURE__ */ _("span", { class: ProgressIndicator_default.text }, current, " of ", total));
   }
 
   // pages/onboarding/app/v4/components/Bubble.js
@@ -28745,18 +28794,15 @@
     children,
     tail,
     class: className,
-    illustration,
     onHeight,
     bounceKey,
     bounceDelay,
     exiting = false,
     onExitComplete,
+    progress,
     ...props
   }) {
-    const bubbleRef = A2(
-      /** @type {HTMLDivElement|null} */
-      null
-    );
+    const { isReducedMotion } = useEnv();
     const containerRef = A2(
       /** @type {HTMLDivElement|null} */
       null
@@ -28767,17 +28813,15 @@
     );
     const isMounted = A2(false);
     const prevBounceKey = A2(bounceKey);
-    const { isReducedMotion } = useEnv();
-    const [bounceRef, animateBounce] = useAnimate();
-    const mergedBubbleRef = useMergedRef(bubbleRef, bounceRef);
+    const [frameRef, animateFrame] = useAnimate();
+    const [progressBadgeRef, animateProgressBadge] = useAnimate();
     if (exiting) isMounted.current = true;
     _2(() => {
-      const bubble = bubbleRef.current;
       const content2 = contentRef.current;
-      if (!bubble || !content2 || !onHeight) return;
+      const frame = frameRef.current;
+      if (!content2 || !frame || !onHeight) return;
       const observer = new ResizeObserver(() => {
-        const height2 = measureBubbleHeight(bubble, content2);
-        onHeight(height2);
+        onHeight(measureHeight(content2, frame));
       });
       observer.observe(content2);
       return () => observer.disconnect();
@@ -28785,7 +28829,10 @@
     y2(() => {
       if (prevBounceKey.current === bounceKey) return;
       prevBounceKey.current = bounceKey;
-      animateBounce(
+      const content2 = contentRef.current;
+      const frame = frameRef.current;
+      if (!content2 || !frame) return;
+      animateFrame(
         [
           { scale: 1, easing: "cubic-bezier(0.17, 0, 0.83, 1)" },
           { scale: 1.07, offset: 0.5, easing: "cubic-bezier(0.17, 0, 0.83, 1)" },
@@ -28797,8 +28844,20 @@
           delay: bounceDelay
         }
       );
-    }, [bounceKey, animateBounce, bounceDelay]);
-    const handleAnimationEnd = (e3) => {
+      const offsetY = 0.035 * measureHeight(content2, frame);
+      animateProgressBadge(
+        [
+          { transform: "translateY(-50%)", easing: "cubic-bezier(0.17, 0, 0.83, 1)" },
+          { transform: `translateY(calc(-50% - ${offsetY}px))`, offset: 0.5, easing: "cubic-bezier(0.17, 0, 0.83, 1)" },
+          { transform: "translateY(-50%)" }
+        ],
+        {
+          duration: 467,
+          delay: bounceDelay
+        }
+      );
+    }, [bounceKey, animateFrame, animateProgressBadge, bounceDelay]);
+    const complete = (e3) => {
       if (exiting && e3.target === containerRef.current) {
         onExitComplete?.();
       }
@@ -28809,26 +28868,26 @@
         onExitComplete?.();
       }
     };
-    return /* @__PURE__ */ _("div", { ref: mergedBubbleRef, class: (0, import_classnames11.default)(Bubble_default.bubble, className), ...props }, illustration?.background && /* @__PURE__ */ _("div", { class: Bubble_default.background }, illustration.background), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(Bubble_default.bubble, className), ...props }, /* @__PURE__ */ _("div", { ref: frameRef, class: Bubble_default.frame }, /* @__PURE__ */ _(BottomLeftTail, { active: tail === "bottom-left" }), /* @__PURE__ */ _(RightTail, { active: tail === "right" })), progress && /* @__PURE__ */ _("div", { ref: progressBadgeRef, class: Bubble_default.progressBadge }, /* @__PURE__ */ _(ProgressIndicator, { current: progress.current, total: progress.total })), /* @__PURE__ */ _(
       "div",
       {
         ref: containerCallback,
-        class: (0, import_classnames11.default)(Bubble_default.container, isMounted.current && (exiting ? Bubble_default.fadeOut : Bubble_default.fadeIn)),
-        onAnimationEnd: handleAnimationEnd
+        class: (0, import_classnames12.default)(Bubble_default.container, isMounted.current && (exiting ? Bubble_default.fadeOut : Bubble_default.fadeIn)),
+        onAnimationEnd: complete
       },
-      /* @__PURE__ */ _("div", { ref: contentRef }, children)
-    ), /* @__PURE__ */ _(BottomLeftTail, { active: tail === "bottom-left" }), /* @__PURE__ */ _(RightTail, { active: tail === "right" }), illustration?.foreground && /* @__PURE__ */ _("div", { class: Bubble_default.foreground }, illustration.foreground));
+      /* @__PURE__ */ _("div", { ref: contentRef, class: Bubble_default.content }, children)
+    ));
   }
-  function measureBubbleHeight(bubble, content2) {
-    const bubbleStyle = getComputedStyle(bubble);
-    return parseFloat(bubbleStyle.borderTopWidth) + parseFloat(bubbleStyle.borderBottomWidth) + content2.offsetHeight;
+  function measureHeight(content2, frame) {
+    const computed = getComputedStyle(frame);
+    return parseFloat(computed.borderTopWidth) + parseFloat(computed.borderBottomWidth) + content2.offsetHeight;
   }
   function BottomLeftTail({ active: active2 }) {
     const gradientId = g2();
     return /* @__PURE__ */ _("div", { class: Bubble_default.bottomLeftTail, "aria-hidden": "true" }, /* @__PURE__ */ _(
       "svg",
       {
-        class: (0, import_classnames11.default)(active2 && Bubble_default.active),
+        class: (0, import_classnames12.default)(active2 && Bubble_default.active),
         width: "50",
         height: "34",
         viewBox: "0 0 50 34",
@@ -28853,7 +28912,7 @@
     return /* @__PURE__ */ _("div", { class: Bubble_default.rightTail, "aria-hidden": "true" }, /* @__PURE__ */ _(
       "svg",
       {
-        class: (0, import_classnames11.default)(active2 && Bubble_default.active),
+        class: (0, import_classnames12.default)(active2 && Bubble_default.active),
         width: "24",
         height: "40",
         viewBox: "0 0 24 40",
@@ -28872,40 +28931,6 @@
       ),
       /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: gradientId, x1: "1.52344", y1: "26.5039", x2: "1.59056", y2: "26.5039", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { style: "stop-color: var(--bubble-bg)" }), /* @__PURE__ */ _("stop", { offset: "1", style: "stop-color: var(--bubble-border)" })))
     ));
-  }
-
-  // pages/onboarding/app/v4/components/ProgressIndicator.js
-  var import_classnames12 = __toESM(require_classnames(), 1);
-
-  // pages/onboarding/app/v4/components/ProgressIndicator.module.css
-  var ProgressIndicator_default = {
-    progress: "ProgressIndicator_progress",
-    dots: "ProgressIndicator_dots",
-    dot: "ProgressIndicator_dot",
-    active: "ProgressIndicator_active",
-    complete: "ProgressIndicator_complete",
-    incomplete: "ProgressIndicator_incomplete",
-    text: "ProgressIndicator_text"
-  };
-
-  // pages/onboarding/app/v4/components/ProgressIndicator.js
-  function ProgressIndicator({ current, total }) {
-    return /* @__PURE__ */ _("div", { class: ProgressIndicator_default.progress }, /* @__PURE__ */ _("div", { class: ProgressIndicator_default.dots }, Array.from({ length: total }, (_3, i3) => {
-      const step = i3 + 1;
-      const isActive = step === current;
-      const isComplete = step < current;
-      return /* @__PURE__ */ _(
-        "span",
-        {
-          key: i3,
-          class: (0, import_classnames12.default)(ProgressIndicator_default.dot, {
-            [ProgressIndicator_default.active]: isActive,
-            [ProgressIndicator_default.complete]: isComplete,
-            [ProgressIndicator_default.incomplete]: !isActive && !isComplete
-          })
-        }
-      );
-    })), /* @__PURE__ */ _("span", { class: ProgressIndicator_default.text }, current, " of ", total));
   }
 
   // pages/onboarding/app/v4/components/ComparisonTable.js
@@ -28932,7 +28957,7 @@
       icon: "duck-ai.svg",
       title: t3("comparison_aiChat"),
       statuses: {
-        chrome: SupportStatus2.PARTIAL_SUPPORT,
+        chrome: SupportStatus2.NOT_SUPPORTED,
         safari: SupportStatus2.NOT_SUPPORTED,
         ddg: SupportStatus2.FULL_SUPPORT
       }
@@ -28942,7 +28967,7 @@
       title: t3("comparison_blockTrackers"),
       statuses: {
         chrome: SupportStatus2.NOT_SUPPORTED,
-        safari: SupportStatus2.PARTIAL_SUPPORT,
+        safari: SupportStatus2.NOT_SUPPORTED,
         ddg: SupportStatus2.FULL_SUPPORT
       }
     },
@@ -29005,21 +29030,21 @@
 
   // pages/onboarding/app/v4/components/ComparisonTable.js
   function ComparisonTableColumnHeading2({ title }) {
-    const className = `browserIcon${title}`;
-    return /* @__PURE__ */ _("th", null, /* @__PURE__ */ _("span", { className: (0, import_classnames13.default)(ComparisonTable_default2.browserIcon, ComparisonTable_default2[className]), "aria-label": title }));
+    const iconClass = `browserIcon${title}`;
+    return /* @__PURE__ */ _("th", null, /* @__PURE__ */ _("span", { class: (0, import_classnames13.default)(ComparisonTable_default2.browserIcon, ComparisonTable_default2[iconClass]), "aria-label": title }));
   }
   function ComparisonTableRowHeading2({ icon, title }) {
     const path = tableIconPrefix2 + icon;
-    return /* @__PURE__ */ _("th", { scope: "row", className: ComparisonTable_default2.rowHeading }, /* @__PURE__ */ _("div", { className: ComparisonTable_default2.rowHeadingContents }, /* @__PURE__ */ _("img", { className: ComparisonTable_default2.rowIcon, src: path, "aria-hidden": "true" }), title));
+    return /* @__PURE__ */ _("th", { scope: "row", class: ComparisonTable_default2.rowHeading }, /* @__PURE__ */ _("div", { class: ComparisonTable_default2.rowHeadingContents }, /* @__PURE__ */ _("img", { class: ComparisonTable_default2.rowIcon, src: path, "aria-hidden": "true" }), title));
   }
   function ComparisonTableCell2({ status }) {
     const { t: t3 } = useTypedTranslation();
-    const arialLabel = t3(`comparison_${status}`);
-    return /* @__PURE__ */ _("td", { className: ComparisonTable_default2.rowCell }, /* @__PURE__ */ _("span", { className: (0, import_classnames13.default)(ComparisonTable_default2.status, ComparisonTable_default2[status]), "aria-label": arialLabel }));
+    const ariaLabel = t3(`comparison_${status}`);
+    return /* @__PURE__ */ _("td", { class: ComparisonTable_default2.rowCell }, /* @__PURE__ */ _("span", { class: (0, import_classnames13.default)(ComparisonTable_default2.status, ComparisonTable_default2[status]), "aria-label": ariaLabel }));
   }
   function ComparisonTableRow2({ icon, title, statuses, index: index2 }) {
     const { chrome, ddg } = statuses;
-    return /* @__PURE__ */ _("tr", { className: ComparisonTable_default2.row, style: { "--row-index": index2 } }, /* @__PURE__ */ _(ComparisonTableRowHeading2, { icon, title }), /* @__PURE__ */ _(ComparisonTableCell2, { status: chrome }), /* @__PURE__ */ _(ComparisonTableCell2, { status: ddg }));
+    return /* @__PURE__ */ _("tr", { class: ComparisonTable_default2.row, style: { "--row-index": index2 } }, /* @__PURE__ */ _(ComparisonTableRowHeading2, { icon, title }), /* @__PURE__ */ _(ComparisonTableCell2, { status: chrome }), /* @__PURE__ */ _(ComparisonTableCell2, { status: ddg }));
   }
   function ComparisonTable2() {
     const { t: t3 } = useTypedTranslation();
@@ -29030,7 +29055,7 @@
     );
     const adBlockingEnabled = systemSettingsStep?.rows?.some((row) => row === "aggressive-ad-blocking" || row === "youtube-ad-blocking") ?? false;
     const tableData = comparisonTableData2(t3, adBlockingEnabled);
-    return /* @__PURE__ */ _("table", { className: ComparisonTable_default2.table }, /* @__PURE__ */ _("caption", null), /* @__PURE__ */ _("thead", null, /* @__PURE__ */ _("tr", null, /* @__PURE__ */ _("th", null), /* @__PURE__ */ _(ComparisonTableColumnHeading2, { title: "Chrome" }), /* @__PURE__ */ _(ComparisonTableColumnHeading2, { title: "DuckDuckGo" }))), /* @__PURE__ */ _("tbody", null, tableData.map((data2, index2) => /* @__PURE__ */ _(ComparisonTableRow2, { key: index2, ...data2, index: index2 }))));
+    return /* @__PURE__ */ _("table", { class: ComparisonTable_default2.table }, /* @__PURE__ */ _("thead", null, /* @__PURE__ */ _("tr", null, /* @__PURE__ */ _("th", null), /* @__PURE__ */ _(ComparisonTableColumnHeading2, { title: "Chrome" }), /* @__PURE__ */ _(ComparisonTableColumnHeading2, { title: "DuckDuckGo" }))), /* @__PURE__ */ _("tbody", null, tableData.map((data2, index2) => /* @__PURE__ */ _(ComparisonTableRow2, { key: index2, ...data2, index: index2 }))));
   }
 
   // pages/onboarding/app/v4/components/Button.js
@@ -29057,6 +29082,102 @@
         disabled
       },
       children
+    );
+  }
+
+  // pages/onboarding/app/v4/components/Container.js
+  var import_classnames15 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/v4/components/Container.module.css
+  var Container_default = {
+    root: "Container_root"
+  };
+
+  // pages/onboarding/app/v4/components/Container.js
+  function Container({ class: className, children }) {
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(Container_default.root, className) }, children);
+  }
+
+  // pages/onboarding/app/v4/components/Title.js
+  var import_classnames16 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/v4/components/Title.module.css
+  var Title_default = {
+    title: "Title_title"
+  };
+
+  // pages/onboarding/app/v4/components/Title.js
+  function Title({ class: className, titleRef, children }) {
+    return /* @__PURE__ */ _("h2", { ref: titleRef, class: (0, import_classnames16.default)(Title_default.title, className) }, children);
+  }
+
+  // pages/onboarding/app/v4/components/LottieAnimation.js
+  var import_lottie_web = __toESM(require_lottie(), 1);
+  function LottieAnimation({
+    src,
+    darkSrc,
+    width: width2,
+    height: height2,
+    loop = false,
+    autoplay = true,
+    onComplete,
+    label,
+    class: className,
+    animationRef
+  }) {
+    const { isReducedMotion, isDarkMode } = useEnv();
+    const resolvedSrc = darkSrc && isDarkMode ? darkSrc : src;
+    const containerRef = A2(
+      /** @type {HTMLDivElement | null} */
+      null
+    );
+    const frameRef = A2(
+      /** @type {number} */
+      0
+    );
+    y2(() => {
+      if (!containerRef.current) return;
+      const startFrame = frameRef.current;
+      const animation = import_lottie_web.default.loadAnimation({
+        container: containerRef.current,
+        renderer: "svg",
+        loop,
+        autoplay: autoplay && !isReducedMotion && startFrame === 0,
+        path: resolvedSrc
+      });
+      if (animationRef) {
+        animationRef.current = animation;
+      }
+      animation.addEventListener("DOMLoaded", () => {
+        const lastFrame = animation.totalFrames - 1;
+        if (isReducedMotion) {
+          animation.goToAndStop(lastFrame, true);
+        } else if (!autoplay) {
+          animation.goToAndStop(0, true);
+        } else if (startFrame > 0) {
+          const frame = Math.min(startFrame, lastFrame);
+          animation.goToAndPlay(frame, true);
+        }
+      });
+      if (onComplete && !loop) {
+        animation.addEventListener("complete", onComplete);
+      }
+      return () => {
+        frameRef.current = animation.currentFrame;
+        if (animationRef) animationRef.current = null;
+        animation.destroy();
+      };
+    }, [resolvedSrc, loop, onComplete, isReducedMotion]);
+    return /* @__PURE__ */ _(
+      "div",
+      {
+        ref: containerRef,
+        class: className,
+        role: label ? "img" : "presentation",
+        "aria-label": label,
+        "aria-hidden": label ? void 0 : "true",
+        style: { width: width2 ? `${width2}px` : void 0, height: height2 ? `${height2}px` : void 0 }
+      }
     );
   }
 
@@ -29181,68 +29302,73 @@
     };
   }
 
+  // pages/onboarding/app/v4/components/MakeDefaultContent.js
+  var import_classnames17 = __toESM(require_classnames(), 1);
+
   // pages/onboarding/app/v4/components/MakeDefaultContent.module.css
   var MakeDefaultContent_default = {
     root: "MakeDefaultContent_root",
+    titleContainer: "MakeDefaultContent_titleContainer",
     title: "MakeDefaultContent_title",
+    sparkle: "MakeDefaultContent_sparkle",
+    hidden: "MakeDefaultContent_hidden",
     actions: "MakeDefaultContent_actions",
     skipButton: "MakeDefaultContent_skipButton"
   };
 
   // pages/onboarding/app/v4/components/MakeDefaultContent.js
-  function MakeDefaultContent() {
+  function MakeDefaultContent({ advance, updateSystemValue }) {
     const { t: t3 } = useTypedTranslation();
-    const dispatch = x2(GlobalDispatch);
-    const appState = useGlobalState();
-    const { status } = appState;
-    const defaultBrowserUIValue = appState.UIValues["default-browser"];
-    const isPending = status.kind === "executing" && status.action.kind === "update-system-value" && status.action.id === "default-browser";
-    const showSkipButton = !isPending && defaultBrowserUIValue === "idle";
+    const globalState = useGlobalState();
+    const isPending = globalState.status.kind === "executing" && globalState.status.action.kind === "update-system-value" && globalState.status.action.id === "default-browser";
+    const showSkipButton = !isPending && globalState.UIValues["default-browser"] === "idle";
     const [showSuccess, setShowSuccess] = d2(false);
+    const sparkleRef = A2(null);
     const [titleRef, animateTitle] = useAnimate();
     const [skipButtonRef, skipButtonMounted] = usePresence(showSkipButton, {
       keyframes: [{ opacity: 1 }, { opacity: 0 }],
       options: { duration: 300, easing: "ease-out" }
     });
-    const makeDefaultButtonRef = useFlip({ duration: 300, easing: "cubic-bezier(0.17, 0, 0.83, 1)" });
-    if (showSuccess && showSkipButton) {
-      setShowSuccess(false);
-    }
-    if (showSkipButton && makeDefaultButtonRef.current) {
-      makeDefaultButtonRef.current.style.minWidth = "";
-    }
-    const advance = () => dispatch({ kind: "enqueue-next" });
+    const primaryButtonRef = useFlip({ duration: 300, easing: "cubic-bezier(0.17, 0, 0.83, 1)" });
+    if (showSuccess && showSkipButton) setShowSuccess(false);
+    if (showSkipButton && primaryButtonRef.current) primaryButtonRef.current.style.minWidth = "";
     const enableDefaultBrowser = () => {
-      if (makeDefaultButtonRef.current) {
-        makeDefaultButtonRef.current.style.minWidth = `${makeDefaultButtonRef.current.offsetWidth}px`;
+      if (primaryButtonRef.current) {
+        primaryButtonRef.current.style.minWidth = `${primaryButtonRef.current.offsetWidth}px`;
       }
-      dispatch({
-        kind: "update-system-value",
-        id: "default-browser",
-        payload: { enabled: true },
-        current: true
-      });
+      updateSystemValue("default-browser", { enabled: true }, true);
       (async () => {
         await animateTitle([{ scale: 1 }, { scale: 1.07 }], {
           duration: 233,
           easing: "cubic-bezier(0.17, 0, 0.83, 1)"
         });
         setShowSuccess(true);
+        sparkleRef.current?.goToAndPlay(6, true);
         await animateTitle([{ scale: 1.07 }, { scale: 1 }], {
           duration: 233,
           easing: "cubic-bezier(0.17, 0, 0.83, 1)"
         });
       })();
     };
-    return /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.root }, /* @__PURE__ */ _("h2", { ref: titleRef, class: MakeDefaultContent_default.title }, showSuccess ? t3("makeDefaultAccept_title_v4") : t3("protectionsActivated_title")), /* @__PURE__ */ _(ComparisonTable2, null), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.actions }, skipButtonMounted && /* @__PURE__ */ _(Button2, { buttonRef: skipButtonRef, class: MakeDefaultContent_default.skipButton, variant: "secondary", onClick: advance }, t3("skipButton")), /* @__PURE__ */ _(Button2, { buttonRef: makeDefaultButtonRef, disabled: isPending, onClick: showSkipButton ? enableDefaultBrowser : advance }, showSkipButton ? t3("makeDefaultButton") : t3("nextButton"))));
+    return /* @__PURE__ */ _(Container, { class: MakeDefaultContent_default.root }, /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.titleContainer }, /* @__PURE__ */ _(Title, { titleRef, class: MakeDefaultContent_default.title }, showSuccess ? t3("makeDefaultAccept_title_v4") : t3("protectionsActivated_title")), /* @__PURE__ */ _(
+      LottieAnimation,
+      {
+        src: "assets/lottie/v4/sparkle.json",
+        darkSrc: "assets/lottie/v4/sparkle-dark.json",
+        class: (0, import_classnames17.default)(MakeDefaultContent_default.sparkle, { [MakeDefaultContent_default.hidden]: !showSuccess }),
+        width: 34,
+        height: 43,
+        autoplay: false,
+        animationRef: sparkleRef
+      }
+    )), /* @__PURE__ */ _(ComparisonTable2, null), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.actions }, skipButtonMounted && /* @__PURE__ */ _(Button2, { buttonRef: skipButtonRef, class: MakeDefaultContent_default.skipButton, variant: "secondary", onClick: advance }, t3("skipButton")), /* @__PURE__ */ _(Button2, { buttonRef: primaryButtonRef, disabled: isPending, onClick: showSkipButton ? enableDefaultBrowser : advance }, showSkipButton ? t3("makeDefaultButton") : t3("nextButton"))));
   }
 
   // pages/onboarding/app/v4/components/SettingsContent.js
-  var import_classnames15 = __toESM(require_classnames(), 1);
+  var import_classnames18 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/SettingsContent.module.css
   var SettingsContent_default = {
-    root: "SettingsContent_root",
     rows: "SettingsContent_rows",
     row: "SettingsContent_row",
     rowContent: "SettingsContent_rowContent",
@@ -29260,17 +29386,17 @@
   };
 
   // pages/onboarding/app/v4/components/SettingsContent.js
-  function SettingsContent() {
+  function SettingsContent({ advance, dismiss, updateSystemValue }) {
     const platform = usePlatformName();
     const { t: t3 } = useTypedTranslation();
     const dispatch = useGlobalDispatch();
-    const appState = useGlobalState();
+    const globalState = useGlobalState();
     const { isReducedMotion } = useEnv();
-    if (appState.step.kind !== "settings") throw new Error("unreachable, for TS benefit");
-    const { step, status, order, activeStep } = appState;
-    const isDone = appState.activeRow >= step.rows.length;
+    if (globalState.step.kind !== "settings") throw new Error("unreachable, for TS benefit");
+    const { step, status, order, activeStep } = globalState;
+    const isDone = globalState.activeRow >= step.rows.length;
     const isLastStep = order[order.length - 1] === activeStep;
-    const pendingId = status.kind === "executing" && status.action.kind === "update-system-value" && status.action.id;
+    const pendingId = status.kind === "executing" && status.action.kind === "update-system-value" ? status.action.id : null;
     const [exitingIndex, setExitingIndex] = d2(
       /** @type {number | null} */
       null
@@ -29279,33 +29405,32 @@
     const isAnimating = exitingIndex !== null;
     const rows = step.rows.map((rowId, index2) => {
       return {
-        visible: appState.activeRow >= index2 || enteringIndex === index2,
-        current: appState.activeRow === index2,
+        visible: globalState.activeRow >= index2 || enteringIndex === index2,
+        current: globalState.activeRow === index2,
         isExiting: exitingIndex === index2,
         isEntering: enteringIndex === index2,
-        systemValue: appState.values[rowId] || null,
-        uiValue: appState.UIValues[rowId],
+        systemValue: globalState.values[rowId] || null,
+        uiValue: globalState.UIValues[rowId],
         pending: pendingId === rowId,
         id: rowId,
         data: settingsRowItems2[rowId](t3, platform)
       };
     });
-    const advance = () => dispatch({ kind: "enqueue-next" });
-    const dismiss = () => dispatch({ kind: "dismiss" });
-    return /* @__PURE__ */ _("div", { class: SettingsContent_default.root }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rows }, rows.filter((item) => item.visible).map((item, index2) => /* @__PURE__ */ _(k, { key: item.id }, index2 > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(SettingsContent_default.divider, item.isEntering && SettingsContent_default.fadeIn) }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(Container, null, /* @__PURE__ */ _("div", { class: SettingsContent_default.rows }, rows.filter((item) => item.visible).map((item, index2) => /* @__PURE__ */ _(k, { key: item.id }, index2 > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(SettingsContent_default.divider, item.isEntering && SettingsContent_default.fadeIn) }), /* @__PURE__ */ _(
       SettingListItem2,
       {
         dispatch,
+        updateSystemValue,
         item,
         onAction: () => {
           if (isReducedMotion) return;
-          setExitingIndex(appState.activeRow);
+          setExitingIndex(globalState.activeRow);
         },
         onTransitionEnd: () => setExitingIndex(null)
       }
-    )))), appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), isDone && /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(SettingsContent_default.actions, isAnimating && SettingsContent_default.fadeInDelayed) }, /* @__PURE__ */ _(Button2, { size: "wide", onClick: isLastStep ? dismiss : advance }, isLastStep ? t3("startBrowsing") : t3("nextButton"), isLastStep && /* @__PURE__ */ _(Launch, null))));
+    )))), globalState.status.kind === "idle" && globalState.status.error && /* @__PURE__ */ _("p", null, globalState.status.error), isDone && /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(SettingsContent_default.actions, isAnimating && SettingsContent_default.fadeInDelayed) }, /* @__PURE__ */ _(Button2, { size: "wide", onClick: isLastStep ? dismiss : advance }, isLastStep ? t3("startBrowsing") : t3("nextButton"), isLastStep && /* @__PURE__ */ _(Launch, null))));
   }
-  function SettingListItem2({ item, dispatch, onAction, onTransitionEnd }) {
+  function SettingListItem2({ item, dispatch, updateSystemValue, onAction, onTransitionEnd }) {
     const { data: data2, current, isExiting, isEntering, pending } = item;
     const { t: t3 } = useTypedTranslation();
     const [subtitleRef, subtitleMounted] = usePresence(!isExiting, {
@@ -29325,15 +29450,10 @@
         return;
       }
       if (current) onAction();
-      dispatch({
-        kind: "update-system-value",
-        id: data2.id,
-        payload: { enabled: enabled2 },
-        current
-      });
+      updateSystemValue(data2.id, { enabled: enabled2 }, current);
     };
     const showDetails = current || isExiting || isEntering;
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(SettingsContent_default.row, isEntering && SettingsContent_default.fadeIn), "data-testid": "ListItem", "data-id": data2.id }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowContent }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowMain }, /* @__PURE__ */ _("img", { ref: iconRef, class: SettingsContent_default.rowIcon, src: "assets/img/steps/" + data2.icon, alt: "" }), /* @__PURE__ */ _("div", { class: SettingsContent_default.rowText }, /* @__PURE__ */ _("p", { class: SettingsContent_default.rowTitle }, data2.title), showDetails && data2.secondaryText && subtitleMounted && /* @__PURE__ */ _("p", { ref: subtitleRef, class: SettingsContent_default.rowSubtitle }, data2.secondaryText)), /* @__PURE__ */ _(InlineAction, { item, onAction: handleAction })), showDetails && buttonsMounted && /* @__PURE__ */ _("div", { ref: buttonsRef, class: SettingsContent_default.rowButtons }, /* @__PURE__ */ _(Button2, { variant: "secondary", disabled: pending, onClick: () => handleAction(false) }, t3("skipButton")), /* @__PURE__ */ _(Button2, { disabled: pending, onClick: () => handleAction(true) }, data2.acceptText))));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(SettingsContent_default.row, isEntering && SettingsContent_default.fadeIn), "data-testid": "ListItem", "data-id": data2.id }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowContent }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowMain }, /* @__PURE__ */ _("img", { ref: iconRef, class: SettingsContent_default.rowIcon, src: "assets/img/steps/" + data2.icon, alt: "" }), /* @__PURE__ */ _("div", { class: SettingsContent_default.rowText }, /* @__PURE__ */ _("p", { class: SettingsContent_default.rowTitle }, data2.title), showDetails && data2.secondaryText && subtitleMounted && /* @__PURE__ */ _("p", { ref: subtitleRef, class: SettingsContent_default.rowSubtitle }, data2.secondaryText)), /* @__PURE__ */ _(InlineAction, { item, onAction: handleAction })), showDetails && buttonsMounted && /* @__PURE__ */ _("div", { ref: buttonsRef, class: SettingsContent_default.rowButtons }, /* @__PURE__ */ _(Button2, { variant: "secondary", disabled: pending, onClick: () => handleAction(false) }, t3("skipButton")), /* @__PURE__ */ _(Button2, { disabled: pending, onClick: () => handleAction(true) }, data2.acceptText))));
   }
   function InlineAction({ item, onAction }) {
     const { isDarkMode } = useEnv();
@@ -29374,20 +29494,132 @@
     return /* @__PURE__ */ _("div", { class: StepHeader_default.root }, /* @__PURE__ */ _("h2", { class: StepHeader_default.title }, title), subtitle && /* @__PURE__ */ _("p", { class: StepHeader_default.subtitle }, subtitle));
   }
 
+  // pages/onboarding/app/v4/components/DuckPlayerContent.js
+  var import_classnames19 = __toESM(require_classnames(), 1);
+
   // pages/onboarding/app/v4/components/DuckPlayerContent.module.css
   var DuckPlayerContent_default = {
-    root: "DuckPlayerContent_root",
     imageContainer: "DuckPlayerContent_imageContainer",
-    promoImage: "DuckPlayerContent_promoImage"
+    sparkle: "DuckPlayerContent_sparkle",
+    promoImage: "DuckPlayerContent_promoImage",
+    videoContainer: "DuckPlayerContent_videoContainer",
+    video: "DuckPlayerContent_video",
+    hidden: "DuckPlayerContent_hidden",
+    actions: "DuckPlayerContent_actions",
+    toggleButton: "DuckPlayerContent_toggleButton",
+    nextButton: "DuckPlayerContent_nextButton"
   };
 
   // pages/onboarding/app/v4/components/DuckPlayerContent.js
-  function DuckPlayerContent() {
-    const { t: t3 } = useTypedTranslation();
-    const dispatch = x2(GlobalDispatch);
-    const advance = () => dispatch({ kind: "enqueue-next" });
-    return /* @__PURE__ */ _("div", { class: DuckPlayerContent_default.root }, /* @__PURE__ */ _("div", { class: DuckPlayerContent_default.imageContainer }, /* @__PURE__ */ _("img", { src: "assets/img/v4/duck-player-promo.svg", alt: "", class: DuckPlayerContent_default.promoImage })), /* @__PURE__ */ _(Button2, { variant: "primary", size: "stretch", onClick: advance }, t3("nextButton")));
+  function DuckPlayerContent({ isAdFree, advance }) {
+    return isAdFree ? /* @__PURE__ */ _(DuckPlayerAdFree, { advance }) : /* @__PURE__ */ _(DuckPlayerDefault, { advance });
   }
+  function DuckPlayerAdFree({ advance }) {
+    const { t: t3 } = useTypedTranslation();
+    return /* @__PURE__ */ _(Container, null, /* @__PURE__ */ _("div", { class: DuckPlayerContent_default.imageContainer }, /* @__PURE__ */ _("img", { src: "assets/img/v4/duck-player-promo.svg", alt: "", class: DuckPlayerContent_default.promoImage }), /* @__PURE__ */ _(
+      LottieAnimation,
+      {
+        src: "assets/lottie/v4/sparkle.json",
+        darkSrc: "assets/lottie/v4/sparkle-dark.json",
+        class: DuckPlayerContent_default.sparkle,
+        width: 34,
+        height: 43
+      }
+    )), /* @__PURE__ */ _(Button2, { variant: "primary", size: "stretch", onClick: advance }, t3("nextButton")));
+  }
+  function DuckPlayerDefault({ advance }) {
+    const { t: t3 } = useTypedTranslation();
+    const { isReducedMotion } = useEnv();
+    const videosRef = A2(
+      /** @type {Record<DPTarget, HTMLVideoElement | null>} */
+      { with: null, without: null }
+    );
+    const [state, setState] = d2(
+      /** @type {DPState} */
+      { target: "with", phase: "initial", reverse: false }
+    );
+    const flip = (target2) => target2 === "with" ? "without" : "with";
+    const videoFor = (target2) => videosRef.current[target2];
+    const play = async (video) => {
+      if (!video) return;
+      if (isReducedMotion) {
+        if (Number.isFinite(video.duration)) video.currentTime = video.duration;
+        return;
+      }
+      video.currentTime = 0;
+      try {
+        await video.play();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    const reset = (video) => {
+      if (video) video.currentTime = 0;
+    };
+    y2(() => {
+      const id = setTimeout(
+        () => {
+          play(videoFor("with"));
+          setState((prev) => ({ ...prev, phase: isReducedMotion ? "settled" : "playing" }));
+        },
+        isReducedMotion ? 0 : 667
+      );
+      return () => clearTimeout(id);
+    }, []);
+    const toggle = () => {
+      const { target: target2, phase, reverse } = state;
+      if (phase === "initial") {
+        setState({ target: target2, phase, reverse: !reverse });
+      } else if (phase === "playing") {
+        if (!reverse) reset(videoFor(flip(target2)));
+        setState({ target: target2, phase: "playing", reverse: !reverse });
+      } else {
+        const next = flip(target2);
+        play(videoFor(next));
+        setState({ target: next, phase: isReducedMotion ? "settled" : "playing", reverse: false });
+      }
+    };
+    const end = () => {
+      if (state.reverse) {
+        const next = flip(state.target);
+        play(videoFor(next));
+        setState({ target: next, phase: "playing", reverse: false });
+      } else {
+        setState((prev) => ({ ...prev, phase: "settled" }));
+      }
+    };
+    const toggleLabel = state.reverse ? flip(state.target) : state.target;
+    return /* @__PURE__ */ _(Container, null, /* @__PURE__ */ _("div", { class: DuckPlayerContent_default.videoContainer }, /* @__PURE__ */ _(
+      "video",
+      {
+        ref: (el) => {
+          videosRef.current.with = el;
+        },
+        class: (0, import_classnames19.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "with" }),
+        src: "assets/videos/v4/duck-player-enabled.mp4",
+        muted: true,
+        playsInline: true,
+        preload: "auto",
+        onEnded: end
+      }
+    ), /* @__PURE__ */ _(
+      "video",
+      {
+        ref: (el) => {
+          videosRef.current.without = el;
+        },
+        class: (0, import_classnames19.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "without" }),
+        src: "assets/videos/v4/duck-player-disabled.mp4",
+        muted: true,
+        playsInline: true,
+        preload: "auto",
+        onEnded: end
+      }
+    )), /* @__PURE__ */ _("div", { class: DuckPlayerContent_default.actions }, /* @__PURE__ */ _(Button2, { variant: "secondary", class: DuckPlayerContent_default.toggleButton, onClick: toggle }, toggleLabel === "with" ? t3("beforeAfter_duckPlayer_hide") : t3("beforeAfter_duckPlayer_show")), /* @__PURE__ */ _(Button2, { variant: "primary", class: DuckPlayerContent_default.nextButton, onClick: advance }, t3("nextButton"))));
+  }
+
+  // pages/onboarding/app/v4/components/AddressBarPreview.js
+  var import_classnames20 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/AddressBarPreview.module.css
   var AddressBarPreview_default2 = {
@@ -29406,64 +29638,133 @@
   function AddressBarPreview2({ isReduced, isDarkMode = false }) {
     const colors = isDarkMode ? {
       // Dark mode
-      outerBg: "#051E3D",
+      outerBg: "#123269",
       browserChrome: "#1C1C1C",
       browserBorder: "#3D3D3D",
       topBar: "#050505",
       tabsArea: "#282828",
       addressBarBg: "#3D3D3D",
       addressBarBorder: "#3377AD",
+      addressBarShadow: "none",
       iconPillOuterBg: "rgba(67, 151, 224, 0.25)",
       iconPillBg: "#4397E0",
-      iconPillIcons: "#282828",
+      iconPillIcons: "#000",
+      iconPillIconsOpacity: "0.84",
       searchIcon: "#4397E0",
       navArrows: "#fff",
-      navArrowsOpacity: "0.24"
+      navArrowsOpacity: "0.24",
+      dotOpacity: "0.16",
+      tabDetailOpacity: "0.09",
+      waveOpacity: "0.12"
     } : {
       // Light mode (matches Figma export)
       outerBg: "#4D9DFF",
       browserChrome: "#FAFAFA",
       browserBorder: "#ffffff",
-      topBar: "#e0e0e0",
+      topBar: "#E0E0E0",
       tabsArea: "#F2F2F2",
       addressBarBg: "#fff",
-      addressBarBorder: "#77B6E8",
+      addressBarBorder: "#1074CC",
+      addressBarShadow: "0 2px 12px rgba(0, 0, 0, 0.12)",
       iconPillOuterBg: "#C9E3FF",
       iconPillBg: "#1074CC",
       iconPillIcons: "#fff",
+      iconPillIconsOpacity: "1",
       searchIcon: "#1074CC",
       navArrows: "#000",
-      navArrowsOpacity: "0.36"
+      navArrowsOpacity: "0.36",
+      dotOpacity: "0.09",
+      tabDetailOpacity: "0.09",
+      waveOpacity: "0.03"
     };
-    return /* @__PURE__ */ _("div", { className: AddressBarPreview_default2.wrapper }, /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 432 208", xmlns: "http://www.w3.org/2000/svg", className: AddressBarPreview_default2.image }, /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip-main" }, /* @__PURE__ */ _("rect", { width: "432", height: "208", fill: "#fff", rx: "8" }))), /* @__PURE__ */ _("g", { clipPath: "url(#clip-main)" }, /* @__PURE__ */ _("rect", { width: "432", height: "208", fill: colors.outerBg, rx: "8" }), /* @__PURE__ */ _("path", { fill: colors.browserChrome, d: "M32 30a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v178H32z" }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: AddressBarPreview_default2.wrapper }, /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 432 208", xmlns: "http://www.w3.org/2000/svg", class: AddressBarPreview_default2.image }, /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip-main" }, /* @__PURE__ */ _("rect", { width: "432", height: "208", fill: "#fff", rx: "20" }))), /* @__PURE__ */ _("g", { clipPath: "url(#clip-main)" }, /* @__PURE__ */ _("rect", { width: "432", height: "208", fill: colors.outerBg, rx: "20" }), /* @__PURE__ */ _(
       "path",
       {
-        fill: colors.browserBorder,
-        d: "M400 30a8 8 0 0 0-8-8v-2c5.523 0 10 4.477 10 10v180H30V30c0-5.523 4.477-10 10-10v2a8 8 0 0 0-8 8v178h368zm-8-10v2H40v-2z"
+        fill: colors.browserChrome,
+        stroke: colors.browserBorder,
+        strokeWidth: "2",
+        d: "M392 23C401.389 23 409 30.611 409 40V209H23V40C23 30.611 30.611 23 40 23H392Z"
       }
-    ), /* @__PURE__ */ _("path", { fill: colors.topBar, d: "M32 30a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v50H32z" }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ _("path", { fill: colors.topBar, d: "M24 40C24 31.163 31.163 24 40 24H392C400.837 24 408 31.163 408 40V83H24V40Z" }), /* @__PURE__ */ _("g", { opacity: "0.6" }, /* @__PURE__ */ _(
       "path",
       {
         fill: colors.tabsArea,
-        d: "M166 37a8 8 0 0 0 8 8h75a8 8 0 0 1 8 8v3a8 8 0 0 1-8 8H55a8 8 0 0 1-8-8v-3a8 8 0 0 1 8-8h3a8 8 0 0 0 8-8v-5a8 8 0 0 1 8-8h84a8 8 0 0 1 8 8z"
+        d: "M237 47C232.582 47 229 43.418 229 39V34C229 29.582 225.418 26 221 26H147C142.582 26 139 29.582 139 34V39C139 43.418 135.418 47 131 47H128V52H312V47H237Z"
       }
-    ), /* @__PURE__ */ _("path", { fill: colors.tabsArea, d: "M32 53a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v28H32z" }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ _(
+      "rect",
+      {
+        x: "172",
+        y: "34",
+        width: "45",
+        height: "4",
+        rx: "2",
+        fill: colors.navArrows,
+        style: { fillOpacity: colors.tabDetailOpacity }
+      }
+    ), /* @__PURE__ */ _(
+      "rect",
+      {
+        x: "160",
+        y: "33",
+        width: "6",
+        height: "6",
+        rx: "3",
+        fill: colors.navArrows,
+        style: { fillOpacity: colors.tabDetailOpacity }
+      }
+    )), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: colors.tabsArea,
+        d: "M159 47C154.582 47 151 43.418 151 39V34C151 29.582 147.418 26 143 26H79C74.582 26 71 29.582 71 34V39C71 43.418 67.418 47 63 47H60V52H234V47H159Z"
+      }
+    ), /* @__PURE__ */ _(
+      "rect",
+      {
+        x: "91",
+        y: "34",
+        width: "45",
+        height: "4",
+        rx: "2",
+        fill: colors.navArrows,
+        style: { fillOpacity: colors.tabDetailOpacity }
+      }
+    ), /* @__PURE__ */ _(
+      "rect",
+      {
+        x: "79",
+        y: "33",
+        width: "6",
+        height: "6",
+        rx: "3",
+        fill: colors.navArrows,
+        style: { fillOpacity: colors.tabDetailOpacity }
+      }
+    ), /* @__PURE__ */ _("path", { fill: colors.tabsArea, d: "M24 55C24 50.582 27.582 47 32 47H400C404.418 47 408 50.582 408 55V83H24V55Z" }), /* @__PURE__ */ _(
       "path",
       {
         fill: colors.navArrows,
-        fillOpacity: colors.navArrowsOpacity,
-        d: "M49.86 58.267a.469.469 0 0 0-.664-.663l-3.983 3.987a1.594 1.594 0 0 0 0 2.253l3.983 3.986a.469.469 0 0 0 .663-.663l-3.979-3.981h9.65a.469.469 0 0 0 0-.938h-9.65zm326.89.702c0-.26.21-.469.469-.469h9.562a.469.469 0 1 1 0 .938h-9.562a.47.47 0 0 1-.469-.47m0 3.751c0-.26.21-.469.469-.469h9.562a.469.469 0 1 1 0 .938h-9.562a.47.47 0 0 1-.469-.47m.469 3.282a.469.469 0 1 0 0 .938h9.562a.469.469 0 1 0 0-.938z"
+        style: { fillOpacity: colors.navArrowsOpacity },
+        d: "M41.859 60.267C42.042 60.084 42.042 59.787 41.859 59.604C41.676 59.421 41.379 59.421 41.196 59.604L37.213 63.591C36.591 64.213 36.591 65.221 37.213 65.844L41.196 69.83C41.379 70.013 41.676 70.013 41.859 69.83C42.042 69.647 42.042 69.351 41.859 69.167L37.881 65.186H47.531C47.79 65.186 48 64.976 48 64.717C48 64.458 47.79 64.248 47.531 64.248H37.881L41.859 60.267ZM384.75 60.969C384.75 60.71 384.96 60.5 385.219 60.5H394.781C395.04 60.5 395.25 60.71 395.25 60.969C395.25 61.228 395.04 61.438 394.781 61.438H385.219C384.96 61.438 384.75 61.228 384.75 60.969ZM384.75 64.719C384.75 64.46 384.96 64.25 385.219 64.25H394.781C395.04 64.25 395.25 64.46 395.25 64.719C395.25 64.978 395.04 65.188 394.781 65.188H385.219C384.96 65.188 384.75 64.978 384.75 64.719ZM385.219 68C384.96 68 384.75 68.21 384.75 68.469C384.75 68.728 384.96 68.938 385.219 68.938H394.781C395.04 68.938 395.25 68.728 395.25 68.469C395.25 68.21 395.04 68 394.781 68H385.219Z"
       }
-    ))), /* @__PURE__ */ _("div", { className: `${AddressBarPreview_default2.bgOverlay} ${isReduced ? AddressBarPreview_default2.bgReduced : ""}`, style: { backgroundColor: colors.addressBarBg } }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ _("circle", { cx: "36", cy: "36", r: "3", fill: colors.navArrows, style: { fillOpacity: colors.dotOpacity } }), /* @__PURE__ */ _("circle", { cx: "46", cy: "36", r: "3", fill: colors.navArrows, style: { fillOpacity: colors.dotOpacity } }), /* @__PURE__ */ _("circle", { cx: "56", cy: "36", r: "3", fill: colors.navArrows, style: { fillOpacity: colors.dotOpacity } }), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: colors.navArrows,
+        style: { fillOpacity: colors.waveOpacity, mixBlendMode: "multiply" },
+        d: "M81.31 194.544C41.586 186.057 17.379 187.055 0 189.552V224H432V145.302C374.276 141.807 334.399 169.389 262.523 189.552C192.186 209.283 121.828 203.201 81.31 194.544Z"
+      }
+    ))), /* @__PURE__ */ _(
       "div",
       {
-        className: `${AddressBarPreview_default2.borderOverlay} ${isReduced ? AddressBarPreview_default2.borderReduced : ""}`,
-        style: { borderColor: colors.addressBarBorder }
+        class: (0, import_classnames20.default)(AddressBarPreview_default2.bgOverlay, isReduced && AddressBarPreview_default2.bgReduced),
+        style: { backgroundColor: colors.addressBarBg, boxShadow: colors.addressBarShadow }
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(AddressBarPreview_default2.borderOverlay, isReduced && AddressBarPreview_default2.borderReduced), style: { borderColor: colors.addressBarBorder } }), /* @__PURE__ */ _(
       "svg",
       {
-        className: AddressBarPreview_default2.regularIcon,
+        class: AddressBarPreview_default2.regularIcon,
         style: { opacity: isReduced ? 1 : 0, ...ICON_TRANSITION2 },
         viewBox: "0 0 12 12",
         fill: "none",
@@ -29479,7 +29780,7 @@
     ), /* @__PURE__ */ _(
       "svg",
       {
-        className: AddressBarPreview_default2.extendedIcon,
+        class: AddressBarPreview_default2.extendedIcon,
         style: { opacity: isReduced ? 0 : 1, ...ICON_TRANSITION2 },
         viewBox: "0 0 56 20",
         fill: "none",
@@ -29497,6 +29798,7 @@
         "path",
         {
           fill: colors.iconPillIcons,
+          style: { fillOpacity: colors.iconPillIconsOpacity },
           d: "M14.25 4C17.149 4 19.5 6.351 19.5 9.25C19.5 10.52 19.049 11.684 18.299 12.592L20.854 15.147L20.918 15.225C21.046 15.419 21.024 15.683 20.854 15.854C20.683 16.024 20.419 16.046 20.225 15.918L20.146 15.854L17.592 13.299C16.684 14.049 15.52 14.5 14.25 14.5C11.351 14.5 9 12.149 9 9.25C9 6.351 11.351 4 14.25 4ZM14.25 5C11.903 5 10 6.903 10 9.25C10 11.597 11.903 13.5 14.25 13.5C16.597 13.5 18.5 11.597 18.5 9.25C18.5 6.903 16.597 5 14.25 5Z"
         }
       ),
@@ -29531,88 +29833,35 @@
   };
 
   // pages/onboarding/app/v4/components/AddressBarContent.js
-  function AddressBarContent() {
+  function AddressBarContent({ dismiss, updateSystemValue }) {
     const { t: t3 } = useTypedTranslation();
     const { isDarkMode } = useEnv();
-    const dispatch = x2(GlobalDispatch);
     const { status } = useGlobalState();
-    const [selectedOption, setSelectedOption] = d2("search-and-duckai");
+    const [selectedOption, setSelectedOption] = d2(
+      /** @type {AddressBarOption} */
+      "search-and-duckai"
+    );
     const isPending = status.kind === "executing";
-    const dispatchPreference = (option) => {
-      dispatch({
-        kind: "update-system-value",
-        id: "address-bar-mode",
-        payload: { enabled: option === "search-and-duckai" },
-        current: true
-      });
-    };
-    y2(() => {
-      dispatchPreference(selectedOption);
-    }, []);
-    const handleSelection = (option) => {
+    const select = (option) => {
       if (option === selectedOption || isPending) return;
       setSelectedOption(option);
-      dispatchPreference(option);
+      updateSystemValue("address-bar-mode", { enabled: option === "search-and-duckai" }, true);
     };
-    const dismiss = () => dispatch({ kind: "dismiss" });
-    return /* @__PURE__ */ _("div", { class: AddressBarContent_default.root }, /* @__PURE__ */ _("div", { class: AddressBarContent_default.previewContainer }, /* @__PURE__ */ _(AddressBarPreview2, { isReduced: selectedOption === "search-only", isDarkMode })), /* @__PURE__ */ _("div", { class: AddressBarContent_default.toggleButtons }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(Container, { class: AddressBarContent_default.root }, /* @__PURE__ */ _("div", { class: AddressBarContent_default.previewContainer }, /* @__PURE__ */ _(AddressBarPreview2, { isReduced: selectedOption === "search-only", isDarkMode })), /* @__PURE__ */ _("div", { class: AddressBarContent_default.toggleButtons }, /* @__PURE__ */ _(
       ToggleButton,
       {
         label: t3("addressBarMode_searchAndDuckAi"),
         selected: selectedOption === "search-and-duckai",
-        onClick: () => handleSelection("search-and-duckai")
+        onClick: () => select("search-and-duckai")
       }
     ), /* @__PURE__ */ _(
       ToggleButton,
       {
         label: t3("addressBarMode_searchOnly"),
         selected: selectedOption === "search-only",
-        onClick: () => handleSelection("search-only")
+        onClick: () => select("search-only")
       }
     )), /* @__PURE__ */ _("div", { class: AddressBarContent_default.footer }, /* @__PURE__ */ _("img", { src: "assets/img/steps/v4/ai-chat.svg", alt: "", class: AddressBarContent_default.starIcon }), /* @__PURE__ */ _("span", { class: AddressBarContent_default.footerText }, /* @__PURE__ */ _(Trans, { str: t3("addressBarMode_footer"), values: {} }))), /* @__PURE__ */ _(Button2, { variant: "primary", size: "wide", class: AddressBarContent_default.startButton, onClick: dismiss }, t3("startBrowsing"), " ", /* @__PURE__ */ _(Launch, null)));
-  }
-
-  // pages/onboarding/app/v4/components/LottieAnimation.js
-  var import_lottie_web = __toESM(require_lottie(), 1);
-  function LottieAnimation({ src, width: width2, height: height2, loop = false, onComplete, label, class: className }) {
-    const ref = A2(
-      /** @type {HTMLDivElement | null} */
-      null
-    );
-    const { isReducedMotion } = useEnv();
-    y2(() => {
-      if (!ref.current) return;
-      const animation = import_lottie_web.default.loadAnimation({
-        container: ref.current,
-        renderer: "svg",
-        loop,
-        autoplay: !isReducedMotion,
-        path: src
-      });
-      if (isReducedMotion) {
-        const showLastFrame = () => {
-          animation.goToAndStop(animation.totalFrames - 1, true);
-        };
-        animation.addEventListener("DOMLoaded", showLastFrame);
-      }
-      if (onComplete && !loop) {
-        animation.addEventListener("complete", onComplete);
-      }
-      return () => {
-        animation.destroy();
-      };
-    }, [src, loop, onComplete, isReducedMotion]);
-    return /* @__PURE__ */ _(
-      "div",
-      {
-        ref,
-        class: className,
-        role: label ? "img" : "presentation",
-        "aria-label": label,
-        "aria-hidden": label ? void 0 : "true",
-        style: { width: width2 ? `${width2}px` : void 0, height: height2 ? `${height2}px` : void 0 }
-      }
-    );
   }
 
   // pages/onboarding/app/v4/components/WelcomeContent.module.css
@@ -29643,7 +29892,7 @@
       const timer = setTimeout(complete, WELCOME_ANIMATION_MS);
       return () => clearTimeout(timer);
     }, [isReducedMotion]);
-    return /* @__PURE__ */ _("div", { class: WelcomeContent_default.root, onAnimationEnd: complete }, /* @__PURE__ */ _(LottieAnimation, { class: WelcomeContent_default.logo, src: "assets/lottie/v4/dax-logo.json", width: 80, height: 80 }), /* @__PURE__ */ _("h1", { class: WelcomeContent_default.title }, t3("welcome_title_v4")));
+    return /* @__PURE__ */ _("div", { class: WelcomeContent_default.root, onAnimationEnd: complete }, /* @__PURE__ */ _(LottieAnimation, { class: WelcomeContent_default.logo, src: "assets/lottie/v4/dax-logo.json", width: 96, height: 96 }), /* @__PURE__ */ _("h1", { class: WelcomeContent_default.title }, t3("welcome_title_v4")));
   }
 
   // pages/onboarding/app/v4/components/GetStartedContent.module.css
@@ -29653,25 +29902,18 @@
     "fade-in": "GetStartedContent_fade-in",
     text: "GetStartedContent_text",
     title: "GetStartedContent_title",
-    body: "GetStartedContent_body",
-    actions: "GetStartedContent_actions"
+    body: "GetStartedContent_body"
   };
 
   // pages/onboarding/app/v4/components/GetStartedContent.js
-  function GetStartedContent() {
-    const dispatch = x2(GlobalDispatch);
+  function GetStartedContent({ advance }) {
     const { t: t3 } = useTypedTranslation();
-    const parts = t3("getStarted_title_v4", { newline: "\n" }).split("{paragraph}");
-    const title = parts[0];
-    const body = parts.slice(1).join("");
-    const handleClick = () => {
-      dispatch({ kind: "enqueue-next" });
-    };
-    return /* @__PURE__ */ _("div", { class: GetStartedContent_default.root }, /* @__PURE__ */ _("div", { class: GetStartedContent_default.text }, /* @__PURE__ */ _("h2", { class: GetStartedContent_default.title }, title), /* @__PURE__ */ _("p", { class: GetStartedContent_default.body }, body)), /* @__PURE__ */ _("div", { class: GetStartedContent_default.actions }, /* @__PURE__ */ _(Button2, { size: "stretch", onClick: handleClick }, t3("getStartedButton_v4"))));
+    const [title, body] = t3("getStarted_title_v4", { newline: "\n" }).split("{paragraph}");
+    return /* @__PURE__ */ _(Container, { class: GetStartedContent_default.root }, /* @__PURE__ */ _("div", { class: GetStartedContent_default.text }, /* @__PURE__ */ _(Title, { class: GetStartedContent_default.title }, title), /* @__PURE__ */ _("p", { class: GetStartedContent_default.body }, body)), /* @__PURE__ */ _(Button2, { size: "stretch", onClick: advance }, t3("getStartedButton_v4")));
   }
 
   // pages/onboarding/app/v4/components/GetStartedAnimation.js
-  var import_classnames16 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/GetStartedAnimation.module.css
   var GetStartedAnimation_default = {
@@ -29682,303 +29924,59 @@
 
   // pages/onboarding/app/v4/components/GetStartedAnimation.js
   function GetStartedAnimation({ class: className }) {
-    const { exiting } = x2(GlobalContext);
+    const { exiting } = useGlobalState();
     return /* @__PURE__ */ _(
       LottieAnimation,
       {
-        class: (0, import_classnames16.default)(GetStartedAnimation_default.root, exiting && GetStartedAnimation_default.fadeOut, className),
+        class: (0, import_classnames21.default)(GetStartedAnimation_default.root, exiting && GetStartedAnimation_default.fadeOut, className),
         src: "assets/lottie/v4/dax-in-spotlight-thumbs-up.json",
+        darkSrc: "assets/lottie/v4/dax-in-spotlight-thumbs-up-dark.json",
         width: 274,
         height: 274
       }
     );
   }
 
-  // pages/onboarding/app/v4/components/Illustrations.module.css
-  var Illustrations_default = {
-    systemSettingsBackground: "Illustrations_systemSettingsBackground",
-    systemSettingsForeground: "Illustrations_systemSettingsForeground"
+  // pages/onboarding/app/v4/components/SystemSettingsAnimation.js
+  var import_classnames22 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/v4/components/SystemSettingsAnimation.module.css
+  var SystemSettingsAnimation_default = {
+    background: "SystemSettingsAnimation_background",
+    foreground: "SystemSettingsAnimation_foreground",
+    fadeOut: "SystemSettingsAnimation_fadeOut",
+    "fade-out": "SystemSettingsAnimation_fade-out"
   };
 
-  // pages/onboarding/app/v4/components/Illustrations.js
-  function DaxSystemSettingsBackground() {
-    return /* @__PURE__ */ _("div", { class: Illustrations_default.systemSettingsBackground, role: "presentation", "aria-hidden": "true" }, /* @__PURE__ */ _("svg", { width: "68", height: "146", viewBox: "0 0 68 146", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_ss_bg)" }, /* @__PURE__ */ _("g", { filter: "url(#filter0_ss_bg)" }, /* @__PURE__ */ _("circle", { cx: "0.836624", cy: "77.9665", r: "66.8181", style: "fill: var(--dax-circle-fill)" })), /* @__PURE__ */ _("g", { "clip-path": "url(#clip1_ss_bg)" }, /* @__PURE__ */ _(
-      "path",
+  // pages/onboarding/app/v4/components/SystemSettingsAnimation.js
+  function SystemSettingsBackground() {
+    const { exiting } = x2(GlobalContext);
+    return /* @__PURE__ */ _(
+      LottieAnimation,
       {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M27.4499 10.6852C28.9153 11.2043 31.761 12.3957 34.37 14.5479C36.9519 16.6778 39.3201 19.7665 39.8632 24.0858C43.2361 27.1146 44.3478 30.9926 44.4976 34.5208C44.6487 38.0828 43.8225 41.3182 43.3385 43.0326L43.338 43.0335C42.7555 45.0931 41.5791 47.4206 40.5613 49.2173C40.0505 50.119 39.5753 50.8945 39.2279 51.4443C39.0542 51.7192 38.9119 51.9385 38.8131 52.089C38.764 52.1638 38.726 52.2223 38.6997 52.2618C38.6866 52.2814 38.6761 52.2972 38.6692 52.3075C38.6659 52.3123 38.6627 52.3159 38.6609 52.3185L38.6585 52.3228L38.3169 52.0926L38.6581 52.3237L38.4261 52.6665L38.0846 52.432L38.0829 52.431C38.0818 52.4303 38.0798 52.4285 38.0774 52.4269C38.0725 52.4235 38.0643 52.4188 38.0544 52.4121C38.0339 52.3982 38.003 52.3766 37.9627 52.3497C37.8818 52.2958 37.7614 52.2171 37.6076 52.1177C37.2998 51.9189 36.8553 51.6386 36.3116 51.3145C35.2224 50.6653 33.7388 49.8425 32.1556 49.1446C30.5672 48.4444 28.9034 47.8808 27.4479 47.7292C25.9864 47.5772 24.8302 47.8473 24.1185 48.6869C22.603 50.4752 23.0485 52.5627 23.9739 54.3131C24.4326 55.1808 24.9948 55.9341 25.4456 56.4723C25.6704 56.7406 25.8658 56.9541 26.0043 57.0994C26.0734 57.1719 26.1286 57.2275 26.1656 57.2644C26.184 57.2827 26.1987 57.2964 26.2078 57.3053C26.212 57.3094 26.2151 57.3128 26.2171 57.3148C26.218 57.3157 26.2188 57.3167 26.2192 57.3171L26.9256 57.9894L25.9523 58.027C25.9519 58.0271 25.9508 58.0277 25.9497 58.0278C25.9466 58.028 25.9402 58.028 25.9326 58.0285C25.9171 58.0295 25.8926 58.0308 25.8607 58.0337C25.7959 58.0398 25.6989 58.0513 25.5779 58.0705C25.3352 58.1093 24.9968 58.1815 24.6215 58.3134C23.8679 58.5784 22.9895 59.0758 22.4009 60.0053C22.2956 60.1719 22.1359 60.5941 21.9358 61.2936C21.7414 61.9736 21.5216 62.867 21.2826 63.9315C20.8047 66.0601 20.2552 68.8557 19.6863 71.9627C18.5488 78.1739 17.3371 85.6168 16.4731 91.4375L16.1384 93.8634C16.0256 94.6588 15.9109 95.4434 15.7945 96.2186L15.7962 96.2195C13.2218 113.41 9.88372 125.497 4.94977 133.836C-0.000703586 142.204 -6.55063 146.787 -15.479 148.985C-20.9273 150.326 -27.7391 149.029 -33.6338 147.16C-39.5441 145.286 -44.6105 142.811 -46.6073 141.719C-56.7377 136.181 -63.8453 127.401 -67.7208 118.723C-69.6062 114.5 -70.7289 110.292 -71.0612 106.483C-71.9949 100.369 -72.0035 93.4821 -71.3264 87.8188C-70.4674 80.6294 -67.4172 72.9634 -64.7431 70.0052C-64.1066 69.3051 -62.9553 69.5457 -62.64 70.4295C-61.954 72.3582 -61.2582 73.8236 -61.2566 73.827C-61.24 73.8038 -58.4774 69.9312 -55.2359 67.3345C-54.5501 66.7851 -53.5411 67.2757 -53.5471 68.1543C-53.5893 73.6656 -53.5308 78.6925 -49.5583 83.6601C-46.986 83.3773 -44.593 83.3064 -42.6915 83.3187C-41.399 83.3271 -40.3307 83.3742 -39.5853 83.4188C-39.2129 83.4411 -38.9204 83.4622 -38.7208 83.4785C-38.6212 83.4867 -38.5437 83.4944 -38.4917 83.4992C-38.466 83.5015 -38.4459 83.5036 -38.4325 83.5049C-38.4261 83.5054 -38.4207 83.5051 -38.4172 83.5054C-38.4158 83.5056 -38.4142 83.5063 -38.4133 83.5064L-38.412 83.506C-38.4118 83.5066 -38.413 83.5212 -38.4529 83.9167L-38.4111 83.5065L-38.4103 83.507C-21.2359 85.2815 -11.7995 81.6153 -6.40598 76.7712C-1.00685 71.9217 0.421687 65.8324 1.4382 62.4896L3.63181 54.0827C5.76581 45.9234 7.60317 38.965 8.08527 37.3451L8.08441 37.3446C8.71618 35.2233 10.2277 29.8013 13.7234 25.4434C15.476 23.2586 17.738 21.3272 20.6499 20.2153C23.3907 19.1689 26.681 18.8582 30.6207 19.7135C30.0888 18.553 29.1916 17.6245 28.1995 16.8971C27.0169 16.0301 25.7297 15.4679 24.8578 15.1513L24.8556 15.1512C24.173 14.9004 24.3172 13.949 24.9793 13.832L24.9801 13.8325L27.7147 13.3542L26.6018 11.8253C26.1818 11.2494 26.7481 10.4353 27.4495 10.6861L27.4499 10.6852Z",
-        fill: "url(#paint0_ss_bg)"
+        class: (0, import_classnames22.default)(SystemSettingsAnimation_default.background, exiting && SystemSettingsAnimation_default.fadeOut),
+        src: "assets/lottie/v4/dax-in-spotlight-pointing-background.json",
+        darkSrc: "assets/lottie/v4/dax-in-spotlight-pointing-background-dark.json",
+        width: 170,
+        height: 170
       }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M27.4499 10.6852C28.9153 11.2043 31.761 12.3957 34.37 14.5479C36.9519 16.6778 39.3201 19.7665 39.8632 24.0858C43.2361 27.1146 44.3478 30.9926 44.4976 34.5208C44.6487 38.0828 43.8225 41.3182 43.3385 43.0326L43.338 43.0335C42.7555 45.0931 41.5791 47.4206 40.5613 49.2173C40.0505 50.119 39.5753 50.8945 39.2279 51.4443C39.0542 51.7192 38.9119 51.9385 38.8131 52.089C38.764 52.1638 38.726 52.2223 38.6997 52.2618C38.6866 52.2814 38.6761 52.2972 38.6692 52.3075C38.6659 52.3123 38.6627 52.3159 38.6609 52.3185L38.6585 52.3228L38.3169 52.0926L38.6581 52.3237L38.4261 52.6665L38.0846 52.432L38.0829 52.431C38.0818 52.4303 38.0798 52.4285 38.0774 52.4269C38.0725 52.4235 38.0643 52.4188 38.0544 52.4121C38.0339 52.3982 38.003 52.3766 37.9627 52.3497C37.8818 52.2958 37.7614 52.2171 37.6076 52.1177C37.2998 51.9189 36.8553 51.6386 36.3116 51.3145C35.2224 50.6653 33.7388 49.8425 32.1556 49.1446C30.5672 48.4444 28.9034 47.8808 27.4479 47.7292C25.9864 47.5772 24.8302 47.8473 24.1185 48.6869C22.603 50.4752 23.0485 52.5627 23.9739 54.3131C24.4326 55.1808 24.9948 55.9341 25.4456 56.4723C25.6704 56.7406 25.8658 56.9541 26.0043 57.0994C26.0734 57.1719 26.1286 57.2275 26.1656 57.2644C26.184 57.2827 26.1987 57.2964 26.2078 57.3053C26.212 57.3094 26.2151 57.3128 26.2171 57.3148C26.218 57.3157 26.2188 57.3167 26.2192 57.3171L26.9256 57.9894L25.9523 58.027C25.9519 58.0271 25.9508 58.0277 25.9497 58.0278C25.9466 58.028 25.9402 58.028 25.9326 58.0285C25.9171 58.0295 25.8926 58.0308 25.8607 58.0337C25.7959 58.0398 25.6989 58.0513 25.5779 58.0705C25.3352 58.1093 24.9968 58.1815 24.6215 58.3134C23.8679 58.5784 22.9895 59.0758 22.4009 60.0053C22.2956 60.1719 22.1359 60.5941 21.9358 61.2936C21.7414 61.9736 21.5216 62.867 21.2826 63.9315C20.8047 66.0601 20.2552 68.8557 19.6863 71.9627C18.5488 78.1739 17.3371 85.6168 16.4731 91.4375L16.1384 93.8634C16.0256 94.6588 15.9109 95.4434 15.7945 96.2186L15.7962 96.2195C13.2218 113.41 9.88372 125.497 4.94977 133.836C-0.000703586 142.204 -6.55063 146.787 -15.479 148.985C-20.9273 150.326 -27.7391 149.029 -33.6338 147.16C-39.5441 145.286 -44.6105 142.811 -46.6073 141.719C-56.7377 136.181 -63.8453 127.401 -67.7208 118.723C-69.6062 114.5 -70.7289 110.292 -71.0612 106.483C-71.9949 100.369 -72.0035 93.4821 -71.3264 87.8188C-70.4674 80.6294 -67.4172 72.9634 -64.7431 70.0052C-64.1066 69.3051 -62.9553 69.5457 -62.64 70.4295C-61.954 72.3582 -61.2582 73.8236 -61.2566 73.827C-61.24 73.8038 -58.4774 69.9312 -55.2359 67.3345C-54.5501 66.7851 -53.5411 67.2757 -53.5471 68.1543C-53.5893 73.6656 -53.5308 78.6925 -49.5583 83.6601C-46.986 83.3773 -44.593 83.3064 -42.6915 83.3187C-41.399 83.3271 -40.3307 83.3742 -39.5853 83.4188C-39.2129 83.4411 -38.9204 83.4622 -38.7208 83.4785C-38.6212 83.4867 -38.5437 83.4944 -38.4917 83.4992C-38.466 83.5015 -38.4459 83.5036 -38.4325 83.5049C-38.4261 83.5054 -38.4207 83.5051 -38.4172 83.5054C-38.4158 83.5056 -38.4142 83.5063 -38.4133 83.5064L-38.412 83.506C-38.4118 83.5066 -38.413 83.5212 -38.4529 83.9167L-38.4111 83.5065L-38.4103 83.507C-21.2359 85.2815 -11.7995 81.6153 -6.40598 76.7712C-1.00685 71.9217 0.421687 65.8324 1.4382 62.4896L3.63181 54.0827C5.76581 45.9234 7.60317 38.965 8.08527 37.3451L8.08441 37.3446C8.71618 35.2233 10.2277 29.8013 13.7234 25.4434C15.476 23.2586 17.738 21.3272 20.6499 20.2153C23.3907 19.1689 26.681 18.8582 30.6207 19.7135C30.0888 18.553 29.1916 17.6245 28.1995 16.8971C27.0169 16.0301 25.7297 15.4679 24.8578 15.1513L24.8556 15.1512C24.173 14.9004 24.3172 13.949 24.9793 13.832L24.9801 13.8325L27.7147 13.3542L26.6018 11.8253C26.1818 11.2494 26.7481 10.4353 27.4495 10.6861L27.4499 10.6852Z",
-        fill: "white"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M33.6357 20.7194C33.2471 19.4977 30.7149 17.4667 27.748 16.1441C29.6441 17.6601 30.5233 19.1438 30.7259 19.6961C31.2807 19.9312 32.6395 20.4648 33.6357 20.7194Z",
-        fill: "#F8F7F3"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M20.2829 57.4802C20.108 55.5591 20.1774 53.997 20.3608 52.9366C21.0115 54.0392 22.8414 56.8164 24.3972 58.6539C23.8778 58.8234 22.6954 59.5919 22.2274 61.7423C22.0631 61.6525 20.4978 59.8402 20.2829 57.4802Z",
-        fill: "#F8F7F3"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M-49.609 83.2508C-49.7171 83.2628 -49.8161 83.3172 -49.8842 83.4021C-49.9522 83.487 -49.9838 83.5955 -49.9718 83.7037C-49.9599 83.8118 -49.9055 83.9108 -49.8206 83.9789C-49.7356 84.0469 -49.6272 84.0785 -49.519 84.0665C-49.519 84.0665 -49.519 84.0665 -49.519 84.0665C-45.847 83.6704 -42.1037 83.6113 -38.4413 83.9112L-38.5974 83.8629C-38.5969 83.8632 -38.5965 83.8634 -38.596 83.8637L-38.4412 83.9118C-35.382 84.2274 -32.3217 84.4005 -29.2536 84.3641C-21.1419 84.2538 -12.4185 82.7082 -6.12034 77.0758C-1.8439 73.3416 0.441261 67.8915 1.84042 62.6112L1.84489 62.5954C2.57636 59.793 3.30783 56.9907 4.03929 54.1883C5.50746 48.6073 6.94543 42.9968 8.48883 37.4636C9.69062 33.2426 11.3374 29.1045 14.0553 25.701C15.8426 23.4605 18.1398 21.6078 20.8089 20.599C23.8794 19.4127 27.3083 19.4034 30.5367 20.1136L31.3458 20.289L31.0003 19.5367C30.4384 18.3122 29.4944 17.3289 28.4509 16.5638C27.3909 15.7895 26.2193 15.2063 25.0032 14.7611C24.7429 14.7031 24.8 14.2515 25.0612 14.2323L25.1072 14.2213C25.1076 14.2212 25.108 14.2211 25.1083 14.221L25.0612 14.2321C25.9698 14.073 26.8784 13.9138 27.787 13.7547L28.4407 13.6401L28.0503 13.1034C27.6814 12.5961 27.3124 12.0889 26.9434 11.5816C26.7412 11.3551 27.0437 10.9292 27.3211 11.0675C29.7724 11.9478 32.1094 13.209 34.1164 14.8587C36.9699 17.1724 39.0418 20.4805 39.4607 24.1323L39.48 24.2857L39.5951 24.3891C42.4774 26.9098 43.971 30.7135 44.0922 34.5342C44.2095 37.3541 43.7284 40.1843 42.9486 42.9185C42.3348 45.0266 41.3142 47.0423 40.222 48.9902C39.6245 50.0443 38.9889 51.0902 38.323 52.0908C38.2449 52.2064 38.1668 52.3218 38.0888 52.4373L38.6677 52.3277C38.5541 52.2496 38.4405 52.1715 38.3269 52.0934L38.2909 52.0712C38.2904 52.071 38.2899 52.0707 38.2894 52.0705L38.332 52.0972C38.3275 52.094 38.3258 52.0927 38.3184 52.0877C38.3023 52.0768 38.3001 52.0754 38.2941 52.0714C38.2598 52.0483 38.2306 52.029 38.2001 52.0087C38.0807 51.929 37.9608 51.8505 37.8405 51.7727C37.4087 51.4939 36.9723 51.2238 36.5313 50.9608C35.1753 50.1542 33.7806 49.4095 32.3297 48.7683C30.802 48.104 29.2149 47.5135 27.497 47.3193C26.2835 47.1905 24.7573 47.2975 23.8097 48.4199C22.2522 50.1021 22.6044 52.7401 23.6075 54.4877C24.0322 55.292 24.5511 56.0315 25.1254 56.7206C25.384 57.0288 25.6429 57.3193 25.9431 57.6137C26.179 57.8389 26.4151 58.0643 26.6511 58.2897L26.9207 57.5741C26.5939 57.5877 26.2671 57.6013 25.9403 57.6149C25.4069 57.6547 24.9442 57.7659 24.471 57.931C23.5872 58.2418 22.7456 58.7996 22.1837 59.5977L22.1777 59.6065C22.1402 59.6623 22.1026 59.7181 22.0651 59.7739L22.0587 59.7837C21.7724 60.3186 21.6877 60.7194 21.5464 61.1783C21.2949 62.0651 21.0875 62.9514 20.887 63.8395C20.291 66.5137 19.7811 69.1986 19.2867 71.886C18.1065 78.3645 17.0436 84.8627 16.0711 91.3733C15.959 92.1862 15.8475 92.9947 15.7361 93.8033C15.6251 94.586 15.51 95.37 15.3923 96.1538L15.3492 96.4412L15.6041 96.5806C15.6048 96.581 15.6055 96.5814 15.6063 96.5817L15.3944 96.1551C13.3464 109.041 11.0801 122.256 4.59996 133.625C0.348464 141.196 -7.09898 146.704 -15.5739 148.583C-21.4807 149.932 -27.7078 148.552 -33.502 146.765C-37.6305 145.447 -41.6646 143.787 -45.5218 141.823C-45.814 141.668 -46.1101 141.512 -46.4063 141.355C-55.6205 136.323 -63.0365 128.127 -67.333 118.556C-67.3337 118.555 -67.3344 118.553 -67.3351 118.551C-67.6115 117.932 -67.8747 117.307 -68.1237 116.677C-69.4077 113.419 -70.3398 110.008 -70.6902 106.529L-70.6929 106.506C-71.2106 103.327 -71.4771 100.102 -71.5616 96.8722C-71.5632 96.8106 -71.5885 96.7519 -71.6327 96.7087C-71.6769 96.6656 -71.7362 96.6417 -71.7977 96.6423C-71.8593 96.6428 -71.9181 96.6678 -71.9615 96.7118C-72.0049 96.7557 -72.0291 96.8149 -72.0295 96.8765C-72.0295 96.8765 -72.0295 96.8765 -72.0295 96.8765C-72.0505 100.128 -71.8658 103.386 -71.401 106.616L-71.4038 106.593C-71.1105 110.164 -70.1945 113.658 -68.8964 116.981C-68.6447 117.624 -68.3776 118.261 -68.0961 118.891C-68.0954 118.893 -68.0947 118.894 -68.094 118.896C-63.7208 128.635 -56.1888 136.96 -46.801 142.089C-46.4999 142.248 -46.2037 142.405 -45.9075 142.562C-41.9941 144.553 -37.9336 146.225 -33.7538 147.56C-27.8837 149.361 -21.5826 150.799 -15.3748 149.392C-6.74001 147.493 0.998184 141.77 5.31666 134.049C11.9121 122.462 14.1571 109.204 16.2172 96.2783L16.2603 95.9911L16.0054 95.8517C16.0047 95.8514 16.004 95.851 16.0033 95.8506L16.2151 96.2773C16.333 95.4917 16.4484 94.7055 16.56 93.9185C16.6717 93.1083 16.7831 92.2998 16.8945 91.4912C17.8647 84.9955 18.9268 78.5014 20.1045 72.0357C20.5976 69.3547 21.1068 66.6742 21.698 64.0215C21.8964 63.1421 22.1026 62.2628 22.3454 61.4068C22.4658 60.9917 22.6134 60.4983 22.7612 60.2277L22.7548 60.2376C22.7923 60.1818 22.8298 60.126 22.8673 60.0702L22.8612 60.079C23.31 59.442 23.9896 58.982 24.7494 58.7139C25.145 58.5731 25.59 58.4734 25.9769 58.445C26.3017 58.4315 26.6285 58.4179 26.9553 58.4043L27.9318 58.3636L27.2249 57.6887C26.9888 57.4633 26.7528 57.238 26.5167 57.0126C26.2629 56.7638 26.0033 56.4751 25.763 56.1879C25.2207 55.5376 24.7328 54.8401 24.3426 54.1007C23.42 52.4409 23.171 50.3485 24.4433 48.9569C25.0917 48.1677 26.2888 48.0224 27.411 48.1452C28.9709 48.319 30.5134 48.8815 31.9948 49.528C33.4053 50.1513 34.775 50.8819 36.1063 51.6739C36.5391 51.9319 36.9676 52.1972 37.3901 52.4699C37.5073 52.5457 37.6238 52.622 37.7396 52.6993C37.7703 52.7198 37.8025 52.741 37.8291 52.759C37.8383 52.7652 37.8514 52.7739 37.8508 52.7735C37.847 52.7708 37.8493 52.7724 37.8487 52.772L37.8912 52.7988C37.8917 52.799 37.8922 52.7993 37.8926 52.7995L37.8566 52.7774C37.9702 52.8555 38.0838 52.9336 38.1975 53.0117L38.5421 53.2487L38.7764 52.9022C38.8545 52.7867 38.9325 52.6712 39.0106 52.5558C39.6982 51.5224 40.3355 50.4724 40.9444 49.3988C42.0543 47.4158 43.0957 45.3748 43.747 43.1441C44.5416 40.356 45.043 37.4377 44.9208 34.499C44.8009 30.5224 43.2109 26.4432 40.1488 23.7723L40.2832 24.0291C39.8425 20.1561 37.6213 16.6277 34.6436 14.2197C32.546 12.4971 30.139 11.2003 27.5999 10.2878C26.591 9.85853 25.5878 11.2251 26.2743 12.0693C26.6428 12.5759 27.0118 13.0832 27.3808 13.5904L27.6441 12.9392C26.7355 13.0984 25.827 13.2576 24.9184 13.4168L24.8713 13.4279C24.8709 13.428 24.8706 13.4281 24.8702 13.4282L24.9162 13.4173C23.8585 13.5428 23.6798 15.2268 24.7195 15.5387C25.8716 15.9598 26.9826 16.5154 27.9613 17.231C28.9269 17.9383 29.7644 18.825 30.2484 19.882L30.712 19.305C27.3754 18.5704 23.7669 18.5694 20.5139 19.8264C17.6871 20.8946 15.267 22.8553 13.4106 25.1838C10.5884 28.7182 8.9089 32.9759 7.69735 37.228C6.14133 42.8068 4.71105 48.3916 3.24118 53.9798C2.50982 56.7824 1.77851 59.5848 1.04719 62.3872L1.05166 62.3714C-0.356862 67.6691 -2.55192 72.8545 -6.67056 76.4632C-12.722 81.8865 -21.2458 83.4372 -29.2635 83.5422C-32.2935 83.5784 -35.3234 83.4075 -38.3568 83.0948L-38.202 83.143C-38.2024 83.1427 -38.2029 83.1425 -38.2034 83.1422L-38.3594 83.0939C-42.1144 82.787 -45.8727 82.8489 -49.609 83.2508Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M30.5264 19.3032C30.4234 19.2671 30.3131 19.2747 30.2184 19.3285C30.1238 19.3821 30.0526 19.4775 30.0216 19.5895C29.9907 19.7016 30.0028 19.82 30.0565 19.9145C30.1102 20.0093 30.201 20.0725 30.3079 20.0943C30.3079 20.0943 30.3079 20.0943 30.3079 20.0943C30.363 20.1054 30.419 20.1172 30.4745 20.1292C31.4783 20.349 32.4846 20.6579 33.4891 20.9661C33.5452 20.9834 33.6013 21.0006 33.6567 21.0176C33.6981 21.0302 33.7443 21.0254 33.7845 21.0058C33.8247 20.9862 33.8556 20.9533 33.8711 20.9129C33.8865 20.8725 33.8854 20.8273 33.8685 20.7859C33.8516 20.7445 33.8204 20.7101 33.7811 20.6919C33.7811 20.6919 33.7811 20.6919 33.7811 20.6919C33.7286 20.6677 33.6753 20.6431 33.622 20.6185C32.6659 20.1776 31.7084 19.7339 30.6962 19.3635C30.6399 19.3432 30.5828 19.3229 30.5264 19.3032Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M37.2891 44.6124C36.103 43.9639 35.6737 42.4724 36.3265 41.2785C36.9793 40.0846 38.4666 39.641 39.6527 40.2895C40.8388 40.938 41.2681 42.4295 40.6153 43.6234C39.9626 44.8174 38.4752 45.261 37.2891 44.6124Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M39.7975 42.2506C39.6237 42.5685 39.2277 42.6869 38.9125 42.5145C38.5972 42.3421 38.4831 41.9448 38.6569 41.627C38.8307 41.3091 39.2275 41.1912 39.542 41.3631C39.8565 41.535 39.9714 41.9327 39.7975 42.2506Z",
-        fill: "#A7A7A7"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M20.5808 45.6031C21.7412 44.2883 24.8775 42.3323 30.5098 45.5019C33.3834 47.0589 36.943 49.0194 39.4542 50.0367C43.1871 51.5512 46.2599 52.1168 48.3646 52.3997C51.3371 52.7966 52.0948 53.4812 52.0908 54.2188C52.0877 55.0234 51.101 55.883 49.703 56.4039C47.0308 57.3995 43.281 57.2558 37.8397 54.8451C32.3984 52.4344 29.7211 49.1351 26.9808 50.6247C25.7997 51.2642 25.0155 53.8754 29.648 57.3616C35.9072 62.0738 42.6884 62.9359 42.6544 64.6389C42.6225 66.3383 37.1734 66.8543 30.3341 63.186C23.4912 59.5157 20.588 54.7223 19.7472 52.6691C18.6866 50.0641 19.0712 47.3245 20.5844 45.605L20.5808 45.6031Z",
-        fill: "#FFAB23"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M19.2319 74.0118C20.9041 77.1219 24.2009 79.6833 25.8345 80.8278C26.4134 81.2296 27.2007 81.1384 27.6803 80.6134C28.5296 79.6787 29.8138 78 30.6144 75.6681C31.4186 73.3381 31.4415 71.2259 31.3462 69.9739C31.2918 69.266 30.7246 68.714 30.02 68.6797C28.0241 68.5843 23.839 68.6011 20.5999 70.0408L19.2303 74.0061L19.2319 74.0118Z",
-        fill: "#368372"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M23.1743 70.4614L23.0361 69.6089C23.3406 69.4205 24.2719 69.0013 25.5616 68.8317C27.1737 68.6198 29.9927 68.4634 30.9012 68.6437C31.8097 68.8239 31.9742 69.5756 32.0072 70.8309C31.7213 70.617 30.9419 70.306 29.3643 70.1916C28.1023 70.1 24.7118 70.3333 23.1743 70.4614Z",
-        fill: "#459F8B"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M20.4332 69.6658C20.3337 69.7099 20.2559 69.7918 20.2168 69.8933C20.1778 69.9949 20.1807 70.1079 20.2249 70.2074C20.2692 70.307 20.3511 70.3848 20.4527 70.4239C20.5542 70.463 20.6671 70.46 20.7665 70.4157C20.7665 70.4157 20.7665 70.4157 20.7665 70.4157C21.2357 70.2068 21.7224 70.03 22.2187 69.8794C24.7089 69.1386 27.3818 68.974 30.0007 69.0835C30.4868 69.0969 30.9163 69.5158 30.9446 70.0048C31.0831 71.8679 30.8467 73.7691 30.2394 75.5386C30.238 75.5427 30.2368 75.5462 30.2356 75.5496C29.629 77.3183 28.6693 78.9725 27.4352 80.3907C27.1153 80.7823 26.4988 80.8197 26.0392 80.5065C24.6174 79.5449 23.2682 78.4452 22.0408 77.2297C21.6654 76.8561 21.3027 76.47 20.9571 76.0689C20.932 76.0397 20.8959 76.0216 20.8571 76.0184C20.8183 76.0152 20.7801 76.0271 20.7504 76.0517C20.7208 76.0764 20.7021 76.1119 20.6982 76.1506C20.6943 76.1893 20.7055 76.2281 20.7297 76.2582C20.7297 76.2582 20.7297 76.2582 20.7297 76.2582C21.0665 76.6772 21.4196 77.0825 21.7852 77.4766C22.9817 78.7594 24.2894 79.9339 25.7063 80.9838C26.3092 81.4568 27.356 81.4829 27.9249 80.8368C29.2746 79.3994 30.3368 77.6832 30.9859 75.8079C30.9872 75.8042 30.9884 75.8006 30.9897 75.7969C31.6383 73.9219 31.8914 71.9212 31.7479 69.9434C31.7001 69.0671 30.9215 68.3009 30.0396 68.2759C27.3468 68.1615 24.6128 68.3197 21.9816 69.0961C21.4569 69.2546 20.9385 69.4418 20.4332 69.6658Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M14.8323 72.5108C11.5895 73.9485 7.40806 73.9672 5.40855 73.8699C4.70193 73.8392 4.13674 73.2836 4.08229 72.5756C3.98543 71.3181 4.00988 69.2115 4.8141 66.8815C5.61831 64.5515 6.8989 62.8709 7.74817 61.9362C8.22782 61.4111 9.01716 61.3163 9.59398 61.7218C11.2332 62.8646 14.5244 65.4277 16.1966 68.5378L14.8286 72.5088L14.8323 72.5108Z",
-        fill: "#368372"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M8.7505 62.2872C8.141 61.7838 9.25427 61.3036 10.1712 61.8049L15.1828 66.1444C15.3946 66.4417 15.6879 67.1624 15.167 67.6671C14.1293 66.4531 9.36001 62.7906 8.7505 62.2872Z",
-        fill: "#459F8B"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M15.8351 68.7324C15.885 68.8292 15.971 68.9014 16.0753 68.9327C16.1795 68.9641 16.2933 68.9519 16.3908 68.8995C16.4883 68.8471 16.5612 68.7588 16.5926 68.6546C16.6239 68.5504 16.6111 68.4388 16.5579 68.3438C16.5579 68.3438 16.5579 68.3438 16.5579 68.3438C16.4444 68.1406 16.325 67.9411 16.2007 67.7453C14.5725 65.223 12.2855 63.2854 9.8743 61.6457C9.21139 61.1759 8.23403 61.3217 7.72577 61.9199C7.41084 62.2835 7.12529 62.6564 6.84898 63.0417C6.71679 63.2269 6.58821 63.4151 6.4649 63.6075C6.43951 63.6471 6.43095 63.6957 6.44071 63.7421C6.45049 63.7886 6.47779 63.8292 6.51699 63.8553C6.55619 63.8813 6.6042 63.8908 6.65085 63.8818C6.69747 63.8728 6.73891 63.8462 6.76565 63.8074C6.76565 63.8074 6.76565 63.8074 6.76565 63.8074C6.89132 63.6254 7.02273 63.4463 7.15784 63.27C7.43904 62.9046 7.73629 62.5435 8.04504 62.2108C8.43778 61.7817 9.14189 61.7144 9.58694 62.0561C11.9041 63.7464 14.0732 65.7358 15.5202 68.1615C15.6307 68.3494 15.7359 68.5398 15.8351 68.7324Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M5.15842 66.8827C5.16964 66.8415 5.1661 66.7971 5.14675 66.7585C5.12742 66.72 5.09415 66.6906 5.05388 66.6767C5.01361 66.6628 4.96929 66.6654 4.9303 66.6838C4.89129 66.7022 4.86109 66.735 4.84451 66.7744C4.84451 66.7744 4.84451 66.7744 4.84451 66.7744C4.75001 66.9995 4.66165 67.2272 4.5795 67.4571C4.0074 69.0692 3.7182 70.7972 3.81315 72.5413C3.8489 73.3896 4.57897 74.1616 5.44534 74.2204C5.47173 74.2227 5.49827 74.2244 5.52493 74.2255C7.53616 74.3064 9.53447 74.0757 11.4659 73.5792C11.7012 73.5179 11.9353 73.4521 12.168 73.3816C12.2068 73.3698 12.241 73.3448 12.2626 73.3099C12.2841 73.2751 12.2915 73.2336 12.2828 73.1942C12.2741 73.1547 12.2501 73.1201 12.2159 73.0975C12.1816 73.075 12.1401 73.0666 12.1 73.0721C12.1 73.0721 12.1 73.0721 12.1 73.0721C11.8624 73.105 11.6251 73.135 11.3877 73.1624C9.4441 73.3806 7.48802 73.4637 5.56367 73.3836C5.54704 73.3828 5.53274 73.3819 5.51854 73.3806C5.05992 73.3488 4.66042 72.9523 4.6207 72.4792C4.47787 70.8626 4.62029 69.1954 4.98545 67.5757C5.03806 67.3442 5.09568 67.1131 5.15842 66.8827Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M38.2225 33.9391C38.9456 33.5187 40.0556 33.4901 41.4334 34.2435C42.8112 34.9968 43.1587 35.9076 43.2677 36.7735C43.2883 36.9507 43.071 37.0216 42.9639 36.8825C42.9393 36.8501 42.9112 36.8157 42.883 36.7813C42.5021 36.2837 42.0334 35.6718 40.9783 35.0759C39.8508 34.4405 38.977 34.3374 38.3949 34.3369C38.1971 34.3378 38.0502 34.0394 38.2225 33.9391Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M25.4904 37.3044C24.7783 38.6069 23.1444 39.0857 21.8385 38.3717C20.5326 37.6577 20.0538 36.0238 20.766 34.7213C21.4781 33.4188 23.1154 32.9419 24.4179 33.6541C25.7204 34.3662 26.2026 36.002 25.4904 37.3044Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M24.7566 35.5552C24.5621 35.911 24.1162 36.0419 23.7601 35.8472C23.4039 35.6525 23.2736 35.2065 23.4681 34.8507C23.6626 34.495 24.1093 34.3645 24.4646 34.5587C24.8198 34.7529 24.9511 35.1995 24.7566 35.5552Z",
-        fill: "#A7A7A7"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M24.6882 27.4812C26.3391 27.6529 27.3558 28.3031 28.0083 28.8862C28.1446 29.0079 28.3448 28.9004 28.2769 28.7313C27.9558 27.9474 26.9737 26.656 24.9367 26.3627C23.1189 26.0997 21.7662 26.8832 21.3418 27.6508C21.2426 27.8324 21.6049 28.0493 21.7863 27.9505C22.2759 27.6759 23.0374 27.3095 24.6882 27.4812Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M20.6694 45.6512C21.8298 44.3364 24.9661 42.3804 30.5984 45.55C33.472 47.107 37.0316 49.0675 39.5427 50.0848C43.2757 51.5994 46.3485 52.1649 48.4532 52.4478C51.4257 52.8447 52.1834 53.5293 52.1793 54.2669C52.1763 55.0715 51.1896 55.9311 49.7916 56.452C47.1193 57.4476 43.3696 57.3039 37.9247 54.8912C32.4834 52.4805 29.8097 49.1832 27.0657 50.6708C25.8847 51.3103 25.1005 53.9216 29.733 57.4077C35.9921 62.12 42.7734 62.9821 42.7394 64.6851C42.7074 66.3844 37.2583 66.9004 30.419 63.2321C23.5761 59.5618 20.6729 54.7685 19.8321 52.7152C18.7715 50.1102 19.1562 47.3706 20.6694 45.6512Z",
-        fill: "#FFAB23"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M39.0901 49.8004C39.0608 49.7913 39.0287 49.7924 39.0003 49.8049C38.9719 49.8174 38.9496 49.8402 38.9381 49.8685C38.9267 49.8968 38.9268 49.9286 38.9385 49.9574C38.9501 49.9862 38.9724 50.0092 38.9997 50.0232C38.9997 50.0232 38.9997 50.0232 38.9997 50.0232C40.4021 50.7357 41.8731 51.3193 43.3817 51.7753C44.0102 51.9651 44.6441 52.1324 45.2851 52.2772C46.3122 52.5086 47.3509 52.7049 48.3981 52.8467C49.1191 52.9444 49.8366 53.0681 50.5029 53.2776C51.1562 53.4774 51.8191 53.8425 51.7749 54.2641C51.7323 55.0137 50.6067 55.724 49.6495 56.0737C45.9092 57.4162 41.7333 56.1088 38.0863 54.5226C36.2685 53.7239 34.5716 52.7016 32.8485 51.6511C31.1986 50.7258 29.0882 49.1347 26.8729 50.317C25.212 51.3309 25.7093 53.4708 26.4733 54.6274C27.2621 55.8947 28.3555 56.865 29.4904 57.7276C33.3351 60.9322 39.2842 62.2401 42.338 64.6764C42.3713 65.0134 41.6884 65.3622 41.0607 65.4691C40.4098 65.5959 39.7155 65.6066 39.0325 65.5647C37.6549 65.475 36.2771 65.1651 34.9459 64.7409C33.4485 64.2612 31.9992 63.6315 30.6004 62.8906C28.3179 61.6848 26.2 60.1747 24.3488 58.3715L24.3385 58.3618C24.2943 58.3225 24.2504 58.2828 24.2067 58.2428C23.6745 57.7549 23.1712 57.2292 22.6929 56.6782C21.6945 55.5133 20.7524 54.2431 20.0666 52.8741C20.0556 52.8484 20.0345 52.8278 20.0083 52.8168C19.9821 52.8058 19.953 52.8052 19.927 52.8153C19.9009 52.8255 19.8799 52.8456 19.868 52.8714C19.8562 52.8972 19.8544 52.9266 19.8637 52.953C19.8637 52.953 19.8637 52.953 19.8637 52.953C20.4815 54.4178 21.2941 55.7698 22.2472 57.0402C22.7028 57.6384 23.2001 58.2099 23.7524 58.7313C23.7977 58.774 23.8433 58.8165 23.8892 58.8586L23.8789 58.8489C25.7473 60.7233 27.9059 62.3135 30.2348 63.5722C31.663 64.3464 33.1514 65.0046 34.7025 65.5018C36.0825 65.9412 37.5136 66.2663 38.9823 66.3626C39.7127 66.4067 40.4597 66.3999 41.2161 66.2536C41.5923 66.1775 41.9733 66.07 42.3431 65.8609C42.6975 65.6645 43.1316 65.2646 43.138 64.6919C43.139 64.1432 42.7708 63.8124 42.5073 63.5971C42.2214 63.3732 41.9324 63.2126 41.6423 63.0612C41.0553 62.7602 40.4745 62.5182 39.8899 62.2741C38.7235 61.7921 37.556 61.3231 36.4224 60.8106C34.145 59.787 31.9566 58.5823 29.9729 57.0866C28.8835 56.2614 27.8518 55.3283 27.1586 54.2089C26.4501 53.1476 26.2742 51.5708 27.2556 51.0234C28.86 50.0949 30.7639 51.3644 32.4333 52.3399C34.1454 53.3839 35.8902 54.4368 37.7603 55.2585C41.4847 56.8644 45.7932 58.2905 49.9309 56.8289C50.9852 56.3665 52.3364 55.8902 52.581 54.2678C52.603 53.7318 52.2166 53.2508 51.8616 53.0223C51.4983 52.7743 51.1224 52.631 50.7476 52.5095C49.9994 52.2749 49.2526 52.1495 48.5052 52.0475C47.4888 51.91 46.4695 51.7176 45.4627 51.4907C44.8342 51.3488 44.2086 51.2003 43.5826 51.045C42.0801 50.6718 40.583 50.2621 39.0901 49.8004Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M20.4892 67.643L17.9733 66.7891C16.5003 66.2873 14.8932 67.0874 14.382 68.5722L13.4018 71.413C12.8906 72.8978 13.6681 74.5085 15.1375 75.0084L17.6534 75.8623C19.1264 76.3642 20.7335 75.564 21.2447 74.0792L22.2249 71.2384C22.736 69.7536 21.9586 68.1429 20.4856 67.641L20.4892 67.643Z",
-        fill: "#368372"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M19.8882 67.3136C21.9208 67.9774 22.4582 68.8241 22.5856 70.4206C21.4913 69.8222 19.4368 68.9095 17.6215 68.5224C15.8062 68.1353 15.3387 67.3533 16.0321 67.048C16.7256 66.7427 17.8556 66.6498 19.8882 67.3136Z",
-        fill: "#459F8B"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M13.5709 71.4715C13.5761 71.4279 13.5701 71.3824 13.549 71.3431C13.528 71.3038 13.4941 71.2741 13.4535 71.2601C13.4128 71.2461 13.3678 71.2486 13.3271 71.2666C13.2862 71.2847 13.2535 71.3169 13.2307 71.3544C13.2307 71.3544 13.2307 71.3544 13.2307 71.3544C13.1341 71.519 13.0555 71.6972 12.9984 71.8842C12.8132 72.482 12.8638 73.1694 13.1451 73.7517C13.5078 74.5201 14.2035 75.1276 15.0099 75.3804C15.8545 75.6482 16.7014 75.9088 17.5482 76.1693C18.1653 76.364 18.84 76.356 19.4446 76.1563C19.8652 76.019 20.2394 75.7658 20.538 75.4565C20.6691 75.3209 20.7866 75.1746 20.8912 75.0212C20.9112 74.9916 20.9186 74.9539 20.913 74.9173C20.9074 74.8807 20.8892 74.8482 20.8612 74.8261C20.8333 74.8039 20.7975 74.7936 20.7606 74.7964C20.7237 74.7993 20.6886 74.815 20.6644 74.8412C20.5499 74.964 20.4228 75.0733 20.288 75.1687C19.9794 75.3873 19.6343 75.5321 19.2847 75.6271C18.7789 75.7659 18.2377 75.7381 17.757 75.5552C16.9262 75.2464 16.0957 74.9377 15.2628 74.6361C14.6631 74.4191 14.1696 73.9618 13.8986 73.3911C13.6921 72.958 13.5682 72.483 13.5518 71.9671C13.5468 71.8057 13.5528 71.6403 13.5709 71.4715Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M14.3059 68.4949C14.2998 68.5202 14.3045 68.5482 14.3175 68.5721C14.3307 68.596 14.3511 68.614 14.3757 68.6225C14.4004 68.631 14.4276 68.6294 14.4526 68.6186C14.4777 68.6078 14.4985 68.5887 14.5093 68.5649C14.5093 68.5649 14.5093 68.5649 14.5093 68.5649C14.6005 68.3656 14.7179 68.1812 14.8546 68.0177C15.3827 67.3862 16.15 67.1053 16.8725 67.0567C17.1977 67.0332 17.5274 67.0777 17.8383 67.1846C18.6768 67.4709 19.515 67.757 20.3532 68.0427L20.6912 67.2729C20.69 67.2723 20.6888 67.2716 20.6876 67.271L20.3491 68.0406C21.1068 68.2925 21.7022 68.9527 21.8879 69.7298C21.9989 70.1799 21.9909 70.6572 21.8615 71.1136C21.7333 71.5539 21.614 71.9975 21.5036 72.4443C21.4491 72.6647 21.3969 72.8858 21.3467 73.1077C21.3345 73.162 21.34 73.2199 21.3657 73.27C21.3913 73.3202 21.4346 73.3584 21.4868 73.3764C21.5391 73.3944 21.5967 73.3911 21.6478 73.3674C21.699 73.3437 21.739 73.3015 21.7628 73.2513C21.7628 73.2513 21.7628 73.2513 21.7628 73.2513C21.8602 73.0457 21.9554 72.8394 22.0484 72.6323C22.237 72.2125 22.4167 71.7897 22.5874 71.3637C22.8151 70.79 22.8623 70.1352 22.7112 69.5274C22.4624 68.4796 21.6481 67.5794 20.6213 67.2418L20.2828 68.0114C20.284 68.0121 20.2852 68.0127 20.2864 68.0134L20.6244 67.2436C19.7854 66.9601 18.9463 66.6769 18.1072 66.3938C17.6941 66.2534 17.2496 66.1946 16.8112 66.2281C15.8106 66.2965 14.9391 66.9909 14.5479 67.8221C14.4414 68.0398 14.362 68.2662 14.3059 68.4949Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M2.1338 130.664C-0.163548 133.751 -5.04477 137.13 -7.19822 138.434L-5.92529 124.328C-2.2817 125.154 4.43114 127.578 2.1338 130.664Z",
-        fill: "#F0EFEB"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M0.224948 96.596C1.98775 92.8384 1.40708 83.7054 -0.95534 84.5064L-2.22819 95.1545L0.224948 96.596Z",
-        fill: "#F0EFEB"
-      }
-    ))), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _(
-      "filter",
-      {
-        id: "filter0_ss_bg",
-        x: "-65.9814",
-        y: "11.1484",
-        width: "133.636",
-        height: "133.636",
-        filterUnits: "userSpaceOnUse",
-        "color-interpolation-filters": "sRGB"
-      },
-      /* @__PURE__ */ _("feFlood", { "flood-opacity": "0", result: "BackgroundImageFix" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in: "SourceGraphic", in2: "BackgroundImageFix", result: "shape" }),
-      /* @__PURE__ */ _(
-        "feTurbulence",
-        {
-          type: "fractalNoise",
-          baseFrequency: "0.37675034999847412 0.37675034999847412",
-          stitchTiles: "stitch",
-          numOctaves: "3",
-          result: "noise",
-          seed: "2151"
-        }
-      ),
-      /* @__PURE__ */ _("feComponentTransfer", { in: "noise", result: "coloredNoise1" }, /* @__PURE__ */ _("feFuncR", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _("feFuncG", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _("feFuncB", { type: "linear", slope: "2", intercept: "-0.5" }), /* @__PURE__ */ _(
-        "feFuncA",
-        {
-          type: "discrete",
-          tableValues: "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
-        }
-      )),
-      /* @__PURE__ */ _("feComposite", { operator: "in", in2: "shape", in: "coloredNoise1", result: "noise1Clipped" }),
-      /* @__PURE__ */ _("feComponentTransfer", { in: "noise1Clipped", result: "color1" }, /* @__PURE__ */ _("feFuncA", { type: "table", tableValues: "0 0.1" })),
-      /* @__PURE__ */ _("feMerge", { result: "effect1_noise_ss_bg" }, /* @__PURE__ */ _("feMergeNode", { in: "shape" }), /* @__PURE__ */ _("feMergeNode", { in: "color1" })),
-      /* @__PURE__ */ _(
-        "feTurbulence",
-        {
-          type: "fractalNoise",
-          baseFrequency: "0.19408349692821503 0.19408349692821503",
-          stitchTiles: "stitch",
-          numOctaves: "3",
-          result: "noise",
-          seed: "3494"
-        }
-      ),
-      /* @__PURE__ */ _("feColorMatrix", { in: "noise", type: "luminanceToAlpha", result: "alphaNoise" }),
-      /* @__PURE__ */ _("feComponentTransfer", { in: "alphaNoise", result: "coloredNoise1" }, /* @__PURE__ */ _(
-        "feFuncA",
-        {
-          type: "discrete",
-          tableValues: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
-        }
-      )),
-      /* @__PURE__ */ _("feComposite", { operator: "in", in2: "effect1_noise_ss_bg", in: "coloredNoise1", result: "noise1Clipped" }),
-      /* @__PURE__ */ _("feFlood", { "flood-color": "rgba(255, 255, 255, 0.18)", result: "color1Flood" }),
-      /* @__PURE__ */ _("feComposite", { operator: "in", in2: "noise1Clipped", in: "color1Flood", result: "color1" }),
-      /* @__PURE__ */ _("feMerge", { result: "effect2_noise_ss_bg" }, /* @__PURE__ */ _("feMergeNode", { in: "effect1_noise_ss_bg" }), /* @__PURE__ */ _("feMergeNode", { in: "color1" }))
-    ), /* @__PURE__ */ _("linearGradient", { id: "paint0_ss_bg", x1: "-22.7818", y1: "115.327", x2: "50.2608", y2: "218.326", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "white" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#C1E7FF" })), /* @__PURE__ */ _("clipPath", { id: "clip0_ss_bg" }, /* @__PURE__ */ _("rect", { width: "68", height: "146", fill: "white" })), /* @__PURE__ */ _("clipPath", { id: "clip1_ss_bg" }, /* @__PURE__ */ _("rect", { width: "126.829", height: "141.75", fill: "white", transform: "translate(0.112305 -6.7417) rotate(28.6681)" })))));
+    );
   }
-  function DaxSystemSettingsForeground() {
-    return /* @__PURE__ */ _("div", { class: Illustrations_default.systemSettingsForeground, role: "presentation", "aria-hidden": "true" }, /* @__PURE__ */ _("svg", { width: "69", height: "59", viewBox: "0 0 69 59", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_ss_fg)" }, /* @__PURE__ */ _(
-      "path",
+  function SystemSettingsForeground() {
+    const { exiting } = x2(GlobalContext);
+    return /* @__PURE__ */ _(
+      LottieAnimation,
       {
-        d: "M68.7428 38.3616C67.6891 25.9003 66.9894 9.28444 67.1024 1.70245C67.1024 1.70245 64.8773 6.68178 60.5819 13.8409C56.2864 20.9999 51.9877 22.4466 51.9877 22.4466C48.1727 20.5227 41.5721 18.368 37.6728 17.1818C35.2429 17.3941 8.3016 11.7782 1.47698 16.5207C-2.0416 18.0639 2.71086 25.1189 14.68 26.9147C9.51944 26.4355 7.16243 26.6606 6.97601 28.4998C6.7321 30.9061 7.75003 34.2501 18.6644 39.1554C18.618 39.5182 20.1267 39.512 20.1755 39.9191C14.4432 40.1622 17.0611 47.8135 30.1458 53.3297C37.4546 56.4109 43.5665 56.3516 49.1655 56.3516C60.7861 56.3516 70.0282 53.5621 68.7428 38.3616Z",
-        fill: "white"
+        class: (0, import_classnames22.default)(SystemSettingsAnimation_default.foreground, exiting && SystemSettingsAnimation_default.fadeOut),
+        src: "assets/lottie/v4/dax-in-spotlight-pointing-foreground.json",
+        width: 170,
+        height: 170
       }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M57.562 56.1441C57.6692 56.1258 57.7647 56.0655 57.8273 55.9765C57.8899 55.8875 57.9145 55.777 57.8958 55.6695C57.8771 55.562 57.8166 55.4664 57.7275 55.4038C57.6385 55.3412 57.5283 55.3167 57.4212 55.3357C57.4212 55.3357 57.4212 55.3357 57.4212 55.3357C56.6191 55.4774 55.8312 55.6056 55.028 55.7227C48.0935 56.8364 40.9967 56.3573 34.2602 54.3349C28.9578 52.8413 23.7309 50.5687 19.7807 46.7024C18.4398 45.3697 17.1153 43.6095 17.2352 41.795C17.2428 41.7385 17.2532 41.6811 17.2657 41.6265C17.4025 41.0777 18.0499 40.5468 18.6282 40.5355C18.7039 40.5342 18.776 40.5027 18.8287 40.4482C18.8815 40.3937 18.9104 40.3206 18.9092 40.2449C18.9081 40.1692 18.8769 40.0971 18.8225 40.0442C18.7682 39.9914 18.6951 39.9622 18.6194 39.9631C18.6194 39.9631 18.6194 39.9631 18.6194 39.9631C17.7048 40.0202 16.9641 40.6086 16.697 41.4942C16.6799 41.5668 16.6661 41.642 16.6558 41.715C16.5293 43.9766 17.9595 45.7074 19.3516 47.1434C23.3852 51.1306 28.7146 53.471 34.0687 55.0087C40.8425 57.0861 48.1337 57.6179 55.1424 56.5228C55.9552 56.4085 56.7518 56.2831 57.562 56.1441Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M51.4936 22.5445C51.565 22.5912 51.6519 22.6085 51.7358 22.5919C51.8196 22.5753 51.8934 22.5264 51.941 22.4557C51.9887 22.385 52.0063 22.2982 51.9902 22.2143C51.9741 22.1304 51.9254 22.0563 51.8554 22.0076C51.8554 22.0076 51.8554 22.0076 51.8554 22.0076C50.4352 21.0257 48.8753 20.2608 47.2906 19.5989C39.9097 16.6447 32.0568 15.3917 24.2256 14.6361C17.6647 14.0563 11.047 13.905 4.47025 14.5039C3.70002 14.5778 2.93059 14.7467 2.19924 15.1063C0.885448 15.6983 -0.109612 17.1826 -0.0280436 18.6691C0.011495 20.1465 0.79632 21.494 1.91895 22.3608C5.5836 25.2725 10.1934 26.5617 14.6639 27.2949L14.7939 26.5325C14.0764 26.4146 13.3627 26.3177 12.6422 26.2526C11.1502 26.1379 9.60014 26.0515 8.08558 26.6365C7.34468 26.924 6.60785 27.5837 6.42856 28.442C6.23709 29.2822 6.43267 30.0922 6.69103 30.8152C8.99741 35.3617 13.7692 37.2768 18.0118 39.1758C19.5956 39.8221 21.2131 40.3872 22.8536 40.8697C22.9245 40.8906 23.001 40.8823 23.066 40.847C23.1311 40.8116 23.1795 40.752 23.2005 40.6812C23.2216 40.6103 23.2137 40.5339 23.1786 40.4688C23.1434 40.4036 23.084 40.3549 23.0132 40.3336C23.0132 40.3336 23.0132 40.3336 23.0132 40.3336C21.3944 39.8454 19.7982 39.276 18.2377 38.6275C14.0733 36.7728 9.31802 34.6441 7.33401 30.5832C6.79936 29.2704 7.00036 27.7387 8.35898 27.298C9.62878 26.8094 11.1373 26.8707 12.5716 27.0009C13.268 27.0699 13.963 27.1714 14.6639 27.2949C15.1214 27.3729 15.2513 26.6104 14.7939 26.5325C10.3789 25.7551 5.97143 24.4106 2.52271 21.5893C0.619845 20.2125 0.414967 16.9619 2.66156 16.0423C3.23871 15.7586 3.88959 15.6095 4.56772 15.5461C11.0541 14.9628 17.6248 15.1153 24.1304 15.6907C31.8946 16.4384 39.6968 17.5965 46.9991 20.3235C48.5656 20.9344 50.1045 21.642 51.4936 22.5445Z",
-        fill: "black"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M67.8738 4.7244C67.8762 4.65179 67.8492 4.58076 67.7996 4.52698C67.75 4.47319 67.6817 4.44106 67.6091 4.4376C67.5366 4.43415 67.4655 4.45966 67.411 4.50848C67.3565 4.55731 67.3229 4.62546 67.3184 4.69796C67.3184 4.69796 67.3184 4.69796 67.3184 4.69796C67.2909 5.13256 67.2624 5.59892 67.2361 6.03408C67.1054 8.2159 66.9938 10.3961 66.963 12.5807C66.8981 17.3894 66.9764 22.198 67.3307 27.0014C67.4104 28.0709 67.5392 29.1377 67.7201 30.1975C67.7956 30.6385 67.8808 31.0839 67.9748 31.5214C67.9855 31.5714 68.013 31.6174 68.0544 31.6488C68.0957 31.6801 68.1469 31.6944 68.1976 31.6883C68.2482 31.6823 68.2946 31.6563 68.3274 31.6161C68.3601 31.5759 68.376 31.5247 68.3746 31.4735C68.3746 31.4735 68.3746 31.4735 68.3746 31.4735C68.3629 31.0283 68.3479 30.5777 68.3307 30.1336C68.2889 29.0661 68.2303 28.0024 68.1511 26.9403C67.7992 22.1698 67.7059 17.3818 67.7558 12.5906C67.7797 10.4141 67.7869 8.23857 67.8371 6.05904C67.8469 5.62436 67.8598 5.15853 67.8738 4.7244Z",
-        fill: "black"
-      }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_ss_fg" }, /* @__PURE__ */ _("rect", { width: "68.7272", height: "58.2272", fill: "white" })))));
+    );
   }
 
   // pages/onboarding/app/v4/components/FadeTransition.js
-  var import_classnames17 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/FadeTransition.module.css
   var FadeTransition_default = {
@@ -30003,7 +30001,7 @@
         setPhase("exiting");
       }
     }
-    const handleAnimationEnd = (e3) => {
+    const advance = (e3) => {
       if (e3.target !== e3.currentTarget) return;
       if (phase === "exiting") {
         setSnapshot({ key: transitionKey, content: children });
@@ -30012,12 +30010,11 @@
         setPhase("idle");
       }
     };
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(phase === "exiting" && FadeTransition_default.fadeOut, phase === "entering" && FadeTransition_default.fadeIn), onAnimationEnd: handleAnimationEnd }, phase === "idle" ? children : snapshot.content);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames23.default)(phase === "exiting" && FadeTransition_default.fadeOut, phase === "entering" && FadeTransition_default.fadeIn), onAnimationEnd: advance }, phase === "idle" ? children : snapshot.content);
   }
 
   // pages/onboarding/app/v4/components/DockInstructionsContent.module.css
   var DockInstructionsContent_default = {
-    root: "DockInstructionsContent_root",
     video: "DockInstructionsContent_video",
     instruction: "DockInstructionsContent_instruction",
     icon: "DockInstructionsContent_icon",
@@ -30025,19 +30022,19 @@
   };
 
   // pages/onboarding/app/v4/components/DockInstructionsContent.js
-  function DockInstructionsContent() {
+  function DockInstructionsContent({ updateSystemValue }) {
     const { t: t3 } = useTypedTranslation();
     const { isReducedMotion } = useEnv();
-    const dispatch = x2(GlobalDispatch);
-    const handleNext = () => {
+    const dispatch = useGlobalDispatch();
+    const next = () => {
       dispatch({ kind: "dismiss-overlay" });
-      dispatch({ kind: "update-system-value", id: "dock-instructions", payload: { enabled: true }, current: true });
+      updateSystemValue("dock-instructions", { enabled: true }, true);
     };
-    return /* @__PURE__ */ _("div", { class: DockInstructionsContent_default.root }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(Container, null, /* @__PURE__ */ _(
       "video",
       {
         class: DockInstructionsContent_default.video,
-        src: "assets/video/dock-instructions/add-to-dock.mp4",
+        src: "assets/videos/add-to-dock.mp4",
         autoPlay: !isReducedMotion,
         loop: true,
         muted: true,
@@ -30045,7 +30042,7 @@
         width: 384,
         height: 188
       }
-    ), /* @__PURE__ */ _("div", { class: DockInstructionsContent_default.instruction }, /* @__PURE__ */ _("img", { src: "assets/img/steps/v4/dock.svg", alt: "", class: DockInstructionsContent_default.icon }), /* @__PURE__ */ _("p", { class: DockInstructionsContent_default.instructionText }, /* @__PURE__ */ _(Trans, { str: t3("dockInstructions_body"), values: {} }))), /* @__PURE__ */ _(Button2, { variant: "primary", size: "stretch", onClick: handleNext }, t3("nextButton")));
+    ), /* @__PURE__ */ _("div", { class: DockInstructionsContent_default.instruction }, /* @__PURE__ */ _("img", { src: "assets/img/steps/v4/dock.svg", alt: "", class: DockInstructionsContent_default.icon }), /* @__PURE__ */ _("p", { class: DockInstructionsContent_default.instructionText }, /* @__PURE__ */ _(Trans, { str: t3("dockInstructions_body"), values: {} }))), /* @__PURE__ */ _(Button2, { variant: "primary", size: "stretch", onClick: next }, t3("nextButton")));
   }
 
   // pages/onboarding/app/v4/data/data.js
@@ -30055,67 +30052,77 @@
         content: /* @__PURE__ */ _(WelcomeContent, { onComplete: advance })
       };
     },
-    getStarted: () => {
+    getStarted: ({ enqueueNext, isShortViewport }) => {
       return {
         bottomBubble: {
-          content: /* @__PURE__ */ _(GetStartedContent, null),
-          tail: "bottom-left",
-          illustration: {
-            foreground: /* @__PURE__ */ _(GetStartedAnimation, null)
-          }
+          content: /* @__PURE__ */ _(GetStartedContent, { advance: enqueueNext }),
+          tail: isShortViewport ? void 0 : "bottom-left"
+        },
+        illustration: isShortViewport ? void 0 : {
+          foreground: /* @__PURE__ */ _(GetStartedAnimation, null)
         },
         bubbleWidth: "narrow"
       };
     },
-    makeDefaultSingle: () => {
+    makeDefaultSingle: ({ enqueueNext, updateSystemValue }) => {
       return {
-        bottomBubble: { content: /* @__PURE__ */ _(MakeDefaultContent, null) },
+        bottomBubble: { content: /* @__PURE__ */ _(MakeDefaultContent, { advance: enqueueNext, updateSystemValue }) },
         showProgress: true
       };
     },
-    systemSettings: ({ t: t3, globalState }) => {
-      const overlay = globalState.overlay;
+    systemSettings: ({ t: t3, globalState, enqueueNext, dismiss, updateSystemValue }) => {
+      const { overlay, activeStep, activeRow } = globalState;
       return {
         topBubble: {
           content: /* @__PURE__ */ _(StepHeader, { title: t3("systemSettings_title_v3"), subtitle: t3("systemSettings_subtitle_v3") }),
           tail: "right"
         },
         bottomBubble: {
-          content: /* @__PURE__ */ _(FadeTransition, { transitionKey: overlay ?? "none" }, overlay === "dock-instructions" ? /* @__PURE__ */ _(DockInstructionsContent, null) : /* @__PURE__ */ _(SettingsContent, null)),
-          illustration: overlay ? void 0 : {
-            background: /* @__PURE__ */ _(DaxSystemSettingsBackground, null),
-            foreground: /* @__PURE__ */ _(DaxSystemSettingsForeground, null)
-          }
+          content: /* @__PURE__ */ _(FadeTransition, { transitionKey: overlay ?? "none" }, overlay === "dock-instructions" ? /* @__PURE__ */ _(DockInstructionsContent, { updateSystemValue }) : /* @__PURE__ */ _(SettingsContent, { advance: enqueueNext, dismiss, updateSystemValue }))
+        },
+        illustration: overlay ? void 0 : {
+          background: /* @__PURE__ */ _(SystemSettingsBackground, null),
+          foreground: /* @__PURE__ */ _(SystemSettingsForeground, null)
         },
         showProgress: true,
-        bounceKey: `${globalState.activeStep}-${globalState.activeRow}-${overlay ?? "none"}`
+        bounceKey: `${activeStep}-${activeRow}-${overlay ?? "none"}`
       };
     },
-    duckPlayerSingle: ({ t: t3 }) => {
+    duckPlayerSingle: ({ t: t3, globalState, enqueueNext }) => {
+      const duckPlayerStep = (
+        /** @type {import('../../types').DuckPlayerSingleStep} */
+        globalState.stepDefinitions.duckPlayerSingle
+      );
+      const isAdFree = duckPlayerStep.variant === "ad-free";
       return {
         topBubble: {
-          content: /* @__PURE__ */ _(StepHeader, { title: t3("duckPlayer_adFree_title"), subtitle: t3("duckPlayer_adFree_subtitle", { newline: " " }) }),
-          tail: "right"
+          content: /* @__PURE__ */ _(
+            StepHeader,
+            {
+              title: isAdFree ? t3("duckPlayer_adFree_title") : t3("duckPlayer_v4_title", { newline: "\n" }),
+              subtitle: isAdFree ? t3("duckPlayer_adFree_subtitle", { newline: " " }) : t3("duckPlayer_v4_subtitle", { newline: "\n" })
+            }
+          )
         },
-        bottomBubble: { content: /* @__PURE__ */ _(DuckPlayerContent, null) },
+        bottomBubble: { content: /* @__PURE__ */ _(DuckPlayerContent, { isAdFree, advance: enqueueNext }) },
         showProgress: true
       };
     },
-    customize: ({ t: t3, globalState }) => {
+    customize: ({ t: t3, globalState, enqueueNext, dismiss, updateSystemValue }) => {
+      const { activeStep, activeRow } = globalState;
       return {
-        topBubble: { content: /* @__PURE__ */ _(StepHeader, { title: t3("customize_title_v3"), subtitle: t3("customize_subtitle_v3") }), tail: "right" },
-        bottomBubble: { content: /* @__PURE__ */ _(SettingsContent, null) },
+        topBubble: { content: /* @__PURE__ */ _(StepHeader, { title: t3("customize_title_v3"), subtitle: t3("customize_subtitle_v3") }) },
+        bottomBubble: { content: /* @__PURE__ */ _(SettingsContent, { advance: enqueueNext, dismiss, updateSystemValue }) },
         showProgress: true,
-        bounceKey: `${globalState.activeStep}-${globalState.activeRow}`
+        bounceKey: `${activeStep}-${activeRow}`
       };
     },
-    addressBarMode: ({ t: t3 }) => {
+    addressBarMode: ({ t: t3, dismiss, updateSystemValue }) => {
       return {
         topBubble: {
-          content: /* @__PURE__ */ _(StepHeader, { title: t3("addressBarMode_title") }),
-          tail: "right"
+          content: /* @__PURE__ */ _(StepHeader, { title: t3("addressBarMode_title") })
         },
-        bottomBubble: { content: /* @__PURE__ */ _(AddressBarContent, null) },
+        bottomBubble: { content: /* @__PURE__ */ _(AddressBarContent, { dismiss, updateSystemValue }) },
         showProgress: true
       };
     }
@@ -30247,7 +30254,7 @@
 
   // pages/onboarding/app/v4/hooks/useStepConfig.js
   function calculateProgress2(order, activeStep) {
-    const progressSteps = order.slice(2, order.length);
+    const progressSteps = order.slice(2);
     return {
       current: progressSteps.indexOf(activeStep) + 1,
       total: progressSteps.length
@@ -30256,6 +30263,7 @@
   function useStepConfig2() {
     const globalState = x2(GlobalContext);
     const platformName = usePlatformName() || "macos";
+    const isShortViewport = useMediaQuery("(max-height: 549px)");
     const dispatch = x2(GlobalDispatch);
     const { t: t3 } = useTypedTranslation();
     const { order, activeStep } = globalState;
@@ -30263,12 +30271,13 @@
     const advance = () => {
       dispatch({ kind: "advance" });
     };
+    const enqueueNext = () => dispatch({ kind: "enqueue-next" });
     const dismiss = () => dispatch({ kind: "dismiss" });
-    const enableSystemValue = (id) => dispatch({
+    const updateSystemValue = (id, payload, current) => dispatch({
       kind: "update-system-value",
       id,
-      payload: { enabled: true },
-      current: true
+      payload,
+      current
     });
     const configParams = {
       t: t3,
@@ -30276,8 +30285,10 @@
       globalState,
       progress,
       advance,
+      enqueueNext,
       dismiss,
-      enableSystemValue
+      updateSystemValue,
+      isShortViewport
     };
     if (!stepsConfig2[activeStep]) {
       throw new Error(`Missing step config for ${activeStep}`);
@@ -30291,80 +30302,90 @@
   // pages/onboarding/app/v4/components/SingleStep.module.css
   var SingleStep_default2 = {
     layout: "SingleStep_layout",
-    progressBadge: "SingleStep_progressBadge",
-    bubble: "SingleStep_bubble",
+    narrow: "SingleStep_narrow",
+    hasTop: "SingleStep_hasTop",
+    hasBottom: "SingleStep_hasBottom",
+    topBubble: "SingleStep_topBubble",
+    bottomBubble: "SingleStep_bottomBubble",
+    illustrationBackground: "SingleStep_illustrationBackground",
+    illustrationForeground: "SingleStep_illustrationForeground",
     "scale-up": "SingleStep_scale-up",
     "slide-up": "SingleStep_slide-up",
     "fade-in": "SingleStep_fade-in"
   };
 
   // pages/onboarding/app/v4/components/SingleStep.js
-  var NARROW_WIDTH = 349;
-  var WIDE_WIDTH = 493;
-  var GAP = 8;
+  var bubbleWidthOverride = new URLSearchParams(window.location.search).get("bubbleWidth");
   function SingleStep2() {
-    const { content: content2, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey } = useStepConfig2();
-    const dispatch = useGlobalDispatch();
-    const handleExitComplete = () => dispatch({ kind: "advance" });
+    const { content: content2, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey, illustration, advance } = useStepConfig2();
     const [topHeight, setTopHeight] = d2(0);
     const [bottomHeight, setBottomHeight] = d2(0);
+    const layoutStyle = {
+      "--bubble-top-height": `${topHeight}px`,
+      "--bubble-bottom-height": `${bottomHeight}px`
+    };
+    if (bubbleWidthOverride) {
+      layoutStyle["--bubble-width"] = /^\d+$/.test(bubbleWidthOverride) ? `${bubbleWidthOverride}px` : bubbleWidthOverride;
+    }
     if (!topBubble && !bottomBubble) {
       return content2 || null;
     }
-    const width2 = bubbleWidth === "narrow" ? NARROW_WIDTH : WIDE_WIDTH;
-    return /* @__PURE__ */ _("div", { class: SingleStep_default2.layout, style: { width: width2 } }, showProgress && /* @__PURE__ */ _("div", { class: SingleStep_default2.progressBadge }, /* @__PURE__ */ _(ProgressIndicator, { current: progress.current, total: progress.total })), /* @__PURE__ */ _(
-      Bubble,
+    return /* @__PURE__ */ _(
+      "div",
       {
-        class: SingleStep_default2.bubble,
-        style: {
-          top: 0,
-          width: width2,
-          height: topHeight,
-          visibility: topBubble ? "visible" : "hidden"
-        },
-        tail: topBubble?.tail,
-        illustration: topBubble?.illustration,
-        onHeight: setTopHeight,
-        bounceKey: bounceKey || globalState.activeStep,
-        bounceDelay: 300,
-        exiting: globalState.exiting,
-        onExitComplete: topBubble ? handleExitComplete : void 0
+        class: (0, import_classnames24.default)(SingleStep_default2.layout, {
+          [SingleStep_default2.hasTop]: !!topBubble,
+          [SingleStep_default2.hasBottom]: !!bottomBubble,
+          [SingleStep_default2.narrow]: bubbleWidth === "narrow"
+        }),
+        style: layoutStyle
       },
-      topBubble?.content
-    ), /* @__PURE__ */ _(
-      Bubble,
-      {
-        class: SingleStep_default2.bubble,
-        style: {
-          top: topBubble ? topHeight + GAP : 0,
-          width: width2,
-          height: bottomHeight,
-          visibility: bottomBubble ? "visible" : "hidden"
+      /* @__PURE__ */ _(
+        Bubble,
+        {
+          class: SingleStep_default2.topBubble,
+          tail: topBubble?.tail,
+          onHeight: setTopHeight,
+          bounceKey: bounceKey || globalState.activeStep,
+          bounceDelay: 300,
+          exiting: globalState.exiting,
+          onExitComplete: topBubble ? advance : void 0,
+          progress: showProgress && topBubble ? progress : void 0
         },
-        tail: bottomBubble?.tail,
-        illustration: bottomBubble?.illustration,
-        onHeight: setBottomHeight,
-        bounceKey: bounceKey || globalState.activeStep,
-        bounceDelay: 167,
-        exiting: globalState.exiting,
-        onExitComplete: topBubble ? void 0 : handleExitComplete
-      },
-      bottomBubble?.content
-    ), content2);
+        topBubble?.content
+      ),
+      illustration?.background && /* @__PURE__ */ _("div", { class: SingleStep_default2.illustrationBackground }, illustration.background),
+      /* @__PURE__ */ _(
+        Bubble,
+        {
+          class: SingleStep_default2.bottomBubble,
+          tail: bottomBubble?.tail,
+          onHeight: setBottomHeight,
+          bounceKey: bounceKey || globalState.activeStep,
+          bounceDelay: 167,
+          exiting: globalState.exiting,
+          onExitComplete: topBubble ? void 0 : advance,
+          progress: showProgress && !topBubble ? progress : void 0
+        },
+        bottomBubble?.content
+      ),
+      illustration?.foreground && /* @__PURE__ */ _("div", { class: SingleStep_default2.illustrationForeground }, illustration.foreground),
+      content2
+    );
   }
 
   // pages/onboarding/app/v4/App.js
   function App2({ children }) {
-    const { debugState } = useEnv();
+    const { debugState, isDarkMode } = useEnv();
     const platformName = usePlatformName();
-    const globalState = x2(GlobalContext);
-    const dispatch = x2(GlobalDispatch);
+    const globalState = useGlobalState();
+    const dispatch = useGlobalDispatch();
     const { activeStep, exiting } = globalState;
     const didCatch = ({ error }) => {
       const message = error?.message || "unknown";
       dispatch({ kind: "error-boundary", error: { message, id: activeStep } });
     };
-    return /* @__PURE__ */ _("main", { "data-platform-name": platformName || "macos", "data-app-version": "v4" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _("div", { class: App_default2.container, "data-current": activeStep, "data-exiting": String(exiting) }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(SingleStep2, null))), children);
+    return /* @__PURE__ */ _("main", { class: isDarkMode ? "theme-dark" : "theme-light", "data-platform-name": platformName || "macos", "data-app-version": "v4" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _("div", { class: App_default2.container, "data-current": activeStep, "data-exiting": String(exiting) }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(SingleStep2, null))), children);
   }
   function Debug2(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state;

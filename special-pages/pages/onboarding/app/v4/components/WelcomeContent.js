@@ -32,7 +32,7 @@ export function WelcomeContent({ onComplete }) {
 
     return (
         <div class={styles.root} onAnimationEnd={complete}>
-            <LottieAnimation class={styles.logo} src="assets/lottie/v4/dax-logo.json" width={80} height={80} />
+            <LottieAnimation class={styles.logo} src="assets/lottie/v4/dax-logo.json" width={96} height={96} />
             <h1 class={styles.title}>{t('welcome_title_v4')}</h1>
         </div>
     );

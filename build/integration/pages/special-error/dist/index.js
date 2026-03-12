@@ -2022,6 +2022,19 @@
     return "function" == typeof t3 ? t3(n2) : t3;
   }
 
+  // shared/hooks/useMediaQuery.js
+  function useMediaQuery(query) {
+    const [matches, setMatches] = d2(() => window.matchMedia(query).matches);
+    y2(() => {
+      const mql = window.matchMedia(query);
+      setMatches(mql.matches);
+      const handler = () => setMatches(mql.matches);
+      mql.addEventListener("change", handler);
+      return () => mql.removeEventListener("change", handler);
+    }, [query]);
+    return matches;
+  }
+
   // shared/components/EnvironmentProvider.js
   var EnvironmentContext = R({
     isReducedMotion: false,
@@ -2047,14 +2060,8 @@
     injectName = "windows",
     locale = "en"
   }) {
-    const [theme, setTheme] = d2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
+    const isDarkMode = useMediaQuery(THEME_QUERY);
     const [isReducedMotion, setReducedMotion] = d2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
-    y2(() => {
-      const mediaQueryList = window.matchMedia(THEME_QUERY);
-      const listener = (e3) => setTheme(e3.matches ? "dark" : "light");
-      mediaQueryList.addEventListener("change", listener);
-      return () => mediaQueryList.removeEventListener("change", listener);
-    }, []);
     y2(() => {
       const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY);
       const listener = (e3) => setter(e3.matches);
@@ -2075,7 +2082,7 @@
         value: {
           isReducedMotion,
           debugState,
-          isDarkMode: theme === "dark",
+          isDarkMode,
           injectName,
           willThrow,
           env,
