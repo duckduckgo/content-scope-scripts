@@ -67,6 +67,7 @@ export function SingleStep() {
                 exiting={globalState.exiting}
                 onExitComplete={topBubble ? undefined : advance}
                 progress={showProgress && !topBubble ? progress : undefined}
+                fadeInDelay={topBubble ? 500 : undefined}
             >
                 {bottomBubble?.content}
             </Bubble>
