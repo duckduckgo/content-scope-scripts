@@ -157,9 +157,6 @@ export class TrackerProtection extends ContentFeature {
             }
             return originalSend.apply(this, args);
         };
-
-        this._originalXHROpen = originalOpen;
-        this._originalXHRSend = originalSend;
     }
 
     _setupFetchInterception() {
@@ -183,8 +180,6 @@ export class TrackerProtection extends ContentFeature {
             }
             return originalFetch.apply(window, args);
         };
-
-        this._originalFetch = originalFetch;
     }
 
     _setupImageSrcInterception() {
@@ -192,7 +187,6 @@ export class TrackerProtection extends ContentFeature {
         const originalDescriptor = Object.getOwnPropertyDescriptor(Image.prototype, 'src');
         if (!originalDescriptor?.get || !originalDescriptor?.set) return;
 
-        this._originalImageSrc = originalDescriptor;
         /** @type {WeakSet<HTMLImageElement>} */
         const imgTracked = new WeakSet();
         const origGet = originalDescriptor.get;
