@@ -2,7 +2,7 @@ import { initStringExemptionLists, isFeatureBroken, isGloballyDisabled, platform
 import { platformSupport } from './features';
 import { PerformanceMonitor } from './performance';
 import platformFeatures from 'ddg:platformFeatures';
-import { registerForURLChanges } from './url-change';
+import { registerForURLChanges, hasNavigationAPI, broadcastURLChangesToIsolatedWorld, listenForBroadcastedURLChanges } from './url-change';
 
 /** @type {LoadArgs | null} */
 let initArgs = null;
@@ -112,6 +112,14 @@ export async function init(args) {
     }
     if (args.messageSecret) {
         registerMessageSecret(args.messageSecret);
+    }
+    if (args.messageSecret && !hasNavigationAPI()) {
+        const isIsolatedWorld = import.meta.injectName?.endsWith('-isolated');
+        if (isIsolatedWorld) {
+            listenForBroadcastedURLChanges(args.messageSecret);
+        } else {
+            broadcastURLChangesToIsolatedWorld(args.messageSecret);
+        }
     }
     initStringExemptionLists(args);
     const features = await getFeatures();
