@@ -1,33 +1,97 @@
 .layout {
-    margin: 10vh auto 0;
+    --bubble-width: 530px;
+    --bubble-height: auto;
+    --bubble-leading: max(var(--sp-10), calc(40vh - var(--bubble-height) / 2));
+
+    &.narrow {
+        --bubble-width: 349px;
+    }
+
+    &.hasTop {
+        --bubble-height: var(--bubble-top-height);
+    }
+
+    &.hasBottom {
+        --bubble-height: var(--bubble-bottom-height);
+    }
+
+    &.hasTop.hasBottom {
+        --bubble-height: calc(var(--bubble-top-height) + var(--sp-2) + var(--bubble-bottom-height));
+    }
+
+    isolation: isolate;
+    margin: 0 auto;
     position: relative;
-    transition: width 333ms cubic-bezier(0.17, 0, 0.34, 1) 67ms; /* 2f delay */
+    transition-delay: 67ms; /* 2f delay */
+    transition-duration: 333ms; /* 10f */
+    transition-property: width;
+    transition-timing-function: cubic-bezier(0.17, 0, 0.34, 1);
+    width: var(--bubble-width);
 }
 
-.progressBadge {
-    position: absolute;
-    top: 0;
-    right: var(--sp-9); /* 36px — aligned with bubble border-radius */
-    transform: translateY(-50%);
-    background: var(--bubble-bg);
-    padding: 6px 10px 6px var(--sp-2);
-    border: 1.5px solid var(--bubble-border);
-    border-radius: var(--sp-16); /* 64px — full pill */
-    z-index: 1;
-}
-
-.bubble {
+.topBubble,
+.bottomBubble {
     position: absolute;
     transition-delay: 67ms; /* 2f — size starts 2 frames after content cross-fade */
     transition-duration: 333ms; /* 10f */
     transition-property: top, width, height;
     transition-timing-function: cubic-bezier(0.17, 0, 0.34, 1);
+    width: var(--bubble-width);
 }
 
-/* --- bubble intro on getStarted (first step with bubbles) --- */
+.topBubble {
+    /*
+     * When the top bubble is hidden (no topBubble), mirror the bottom bubble's height so it's
+     * pre-sized for a smooth "split" transition when it appears.
+     */
+    height: var(--bubble-bottom-height);
+    top: var(--bubble-leading);
+    visibility: hidden;
 
-:global([data-current="getStarted"]) .bubble {
-    animation: scale-up 0.9s both, slide-up 0.9s both, fade-in 0.9s both;
+    .hasTop & {
+        height: var(--bubble-top-height);
+        visibility: visible;
+    }
+}
+
+.bottomBubble,
+.illustrationBackground,
+.illustrationForeground {
+    height: var(--bubble-bottom-height);
+    top: var(--bubble-leading);
+
+    .hasTop & {
+        top: calc(var(--bubble-leading) + var(--bubble-top-height) + var(--sp-2));
+    }
+}
+
+.bottomBubble {
+    visibility: hidden;
+
+    .hasBottom & {
+        visibility: visible;
+    }
+}
+
+.illustrationBackground,
+.illustrationForeground {
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+}
+
+.illustrationBackground {
+    z-index: -1;
+}
+
+.illustrationForeground {
+    z-index: 1;
+}
+
+:global([data-current="getStarted"]) .topBubble,
+:global([data-current="getStarted"]) .bottomBubble {
+    animation: scale-up 0.9s 0.15s both, slide-up 0.9s 0.15s both, fade-in 0.9s 0.15s both;
 }
 
 @keyframes scale-up {
@@ -60,7 +124,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    :global([data-current="getStarted"]) .bubble {
+    :global([data-current="getStarted"]) .topBubble,
+    :global([data-current="getStarted"]) .bottomBubble {
         animation: none;
     }
 }

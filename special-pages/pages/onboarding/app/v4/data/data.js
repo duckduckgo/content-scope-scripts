@@ -7,7 +7,7 @@ import { AddressBarContent } from '../components/AddressBarContent';
 import { WelcomeContent } from '../components/WelcomeContent';
 import { GetStartedContent } from '../components/GetStartedContent';
 import { GetStartedAnimation } from '../components/GetStartedAnimation';
-import { DaxSystemSettingsBackground, DaxSystemSettingsForeground } from '../components/Illustrations';
+import { SystemSettingsBackground, SystemSettingsForeground } from '../components/SystemSettingsAnimation';
 import { FadeTransition } from '../components/FadeTransition';
 import { DockInstructionsContent } from '../components/DockInstructionsContent';
 
@@ -25,26 +25,29 @@ export const stepsConfig = {
             content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: () => {
+    getStarted: ({ enqueueNext, isShortViewport }) => {
         return {
             bottomBubble: {
-                content: <GetStartedContent />,
-                tail: 'bottom-left',
-                illustration: {
-                    foreground: <GetStartedAnimation />,
-                },
+                content: <GetStartedContent advance={enqueueNext} />,
+                tail: isShortViewport ? undefined : 'bottom-left',
             },
+            illustration: isShortViewport
+                ? undefined
+                : {
+                      foreground: <GetStartedAnimation />,
+                  },
             bubbleWidth: 'narrow',
         };
     },
-    makeDefaultSingle: () => {
+    makeDefaultSingle: ({ enqueueNext, updateSystemValue }) => {
         return {
-            bottomBubble: { content: <MakeDefaultContent /> },
+            bottomBubble: { content: <MakeDefaultContent advance={enqueueNext} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
         };
     },
-    systemSettings: ({ t, globalState }) => {
-        const overlay = globalState.overlay;
+    systemSettings: ({ t, globalState, enqueueNext, dismiss, updateSystemValue }) => {
+        const { overlay, activeStep, activeRow } = globalState;
+
         return {
             topBubble: {
                 content: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} />,
@@ -53,45 +56,59 @@ export const stepsConfig = {
             bottomBubble: {
                 content: (
                     <FadeTransition transitionKey={overlay ?? 'none'}>
-                        {overlay === 'dock-instructions' ? <DockInstructionsContent /> : <SettingsContent />}
+                        {overlay === 'dock-instructions' ? (
+                            <DockInstructionsContent updateSystemValue={updateSystemValue} />
+                        ) : (
+                            <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} />
+                        )}
                     </FadeTransition>
                 ),
-                illustration: overlay
-                    ? undefined
-                    : {
-                          background: <DaxSystemSettingsBackground />,
-                          foreground: <DaxSystemSettingsForeground />,
-                      },
             },
+            illustration: overlay
+                ? undefined
+                : {
+                      background: <SystemSettingsBackground />,
+                      foreground: <SystemSettingsForeground />,
+                  },
             showProgress: true,
-            bounceKey: `${globalState.activeStep}-${globalState.activeRow}-${overlay ?? 'none'}`,
+            bounceKey: `${activeStep}-${activeRow}-${overlay ?? 'none'}`,
         };
     },
-    duckPlayerSingle: ({ t }) => {
+    duckPlayerSingle: ({ t, globalState, enqueueNext }) => {
+        const duckPlayerStep = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
+        const isAdFree = duckPlayerStep.variant === 'ad-free';
+
         return {
             topBubble: {
-                content: <StepHeader title={t('duckPlayer_adFree_title')} subtitle={t('duckPlayer_adFree_subtitle', { newline: ' ' })} />,
-                tail: 'right',
+                content: (
+                    <StepHeader
+                        title={isAdFree ? t('duckPlayer_adFree_title') : t('duckPlayer_v4_title', { newline: '\n' })}
+                        subtitle={
+                            isAdFree ? t('duckPlayer_adFree_subtitle', { newline: ' ' }) : t('duckPlayer_v4_subtitle', { newline: '\n' })
+                        }
+                    />
+                ),
             },
-            bottomBubble: { content: <DuckPlayerContent /> },
+            bottomBubble: { content: <DuckPlayerContent isAdFree={isAdFree} advance={enqueueNext} /> },
             showProgress: true,
         };
     },
-    customize: ({ t, globalState }) => {
+    customize: ({ t, globalState, enqueueNext, dismiss, updateSystemValue }) => {
+        const { activeStep, activeRow } = globalState;
+
         return {
-            topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} />, tail: 'right' },
-            bottomBubble: { content: <SettingsContent /> },
+            topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} /> },
+            bottomBubble: { content: <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
-            bounceKey: `${globalState.activeStep}-${globalState.activeRow}`,
+            bounceKey: `${activeStep}-${activeRow}`,
         };
     },
-    addressBarMode: ({ t }) => {
+    addressBarMode: ({ t, dismiss, updateSystemValue }) => {
         return {
             topBubble: {
                 content: <StepHeader title={t('addressBarMode_title')} />,
-                tail: 'right',
             },
-            bottomBubble: { content: <AddressBarContent /> },
+            bottomBubble: { content: <AddressBarContent dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
         };
     },
@@ -105,8 +122,7 @@ export const stepsConfig = {
  * @property {string} title
  * @property {string} [secondaryText]
  * @property {string} acceptText
- * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined,
- * @property acceptText is shown.
+ * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined, acceptText is shown.
  */
 
 /** @type {Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['platform']) => RowData>} */
