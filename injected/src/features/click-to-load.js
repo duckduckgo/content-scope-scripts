@@ -26,17 +26,80 @@ import { registerCustomElements } from './click-to-load/components';
  *     - `'cancelMode'`: Secondary colors styling for all themes
  */
 
+/** @typedef {'darkMode' | 'lightMode'} ThemeMode */
+
+/**
+ * @typedef {ReturnType<typeof getStyles>} CTLStyles
+ * @typedef {ReturnType<typeof getConfig>} CTLConfig
+ */
+
+/**
+ * @typedef {{
+ *   type: string,
+ *   targetURL?: string,
+ *   urlDataAttributesToPreserve?: Record<string, {default: string | number, required?: boolean}>,
+ *   styleDataAttributes?: Record<string, {name: string, unit: string, fallbackAttribute?: string}>
+ * }} ClickAction
+ */
+
+/**
+ * @typedef {{
+ *   type: string,
+ *   buttonText?: string,
+ *   buttonTextUnblockLogin?: string,
+ *   infoTitle?: string,
+ *   infoText?: string,
+ *   previewToggleText?: string,
+ *   icon?: string,
+ *   popupBodyText?: string,
+ *   placeholder?: {
+ *     previewToggleEnabledText: string,
+ *     previewInfoText: string,
+ *     previewToggleEnabledDuckDuckGoText: string,
+ *     videoPlayIcon: Record<string, string>
+ *   }
+ * }} ReplaceSettings
+ */
+
+/**
+ * @typedef {{
+ *   shouldShowLoginModal: boolean,
+ *   modalIcon?: string,
+ *   modalTitle?: string,
+ *   modalText?: string,
+ *   modalAcceptText?: string,
+ *   modalRejectText?: string
+ * }} EntityDisplayData
+ */
+
+/**
+ * @typedef {{
+ *   informationalModal: {
+ *     icon: string,
+ *     messageTitle: string,
+ *     messageBody: string,
+ *     confirmButtonText: string,
+ *     rejectButtonText: string
+ *   },
+ *   elementData: Record<string, {clickAction?: ClickAction, replaceSettings: ReplaceSettings, selectors: string[]}>
+ * }} EntityConfig
+ */
+
 let devMode = false;
 let isYoutubePreviewsEnabled = false;
+/** @type {string | undefined} */
 let appID;
 
 const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle';
 
 // Configuration for how the placeholder elements should look and behave.
 // @see {getConfig}
-let config = null;
-let sharedStrings = null;
-let styles = null;
+/** @type {Record<string, EntityConfig>} */
+let config;
+/** @type {Record<string, string>} */
+let sharedStrings;
+/** @type {CTLStyles} */
+let styles;
 
 /**
  * List of platforms where we can skip showing a Web Modal from C-S-S.
@@ -57,7 +120,9 @@ const mobilePlatforms = ['android', 'ios'];
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
 //       places.
+/** @type {string[]} */
 const entities = [];
+/** @type {Record<string, EntityDisplayData>} */
 const entityData = {};
 
 // Used to avoid displaying placeholders for the same tracking element twice.
@@ -66,6 +131,7 @@ const knownTrackingElements = new WeakSet();
 // Promise that is resolved when the Click to Load feature init() function has
 // finished its work, enough that it's now safe to replace elements with
 // placeholders.
+/** @type {((value?: void) => void) | undefined} */
 let readyToDisplayPlaceholdersResolver;
 const readyToDisplayPlaceholders = new Promise((resolve) => {
     readyToDisplayPlaceholdersResolver = resolve;
@@ -74,6 +140,7 @@ const readyToDisplayPlaceholders = new Promise((resolve) => {
 // Promise that is resolved when the page has finished loading (and
 // readyToDisplayPlaceholders has resolved). Wait for this before sending
 // essential messages to surrogate scripts.
+/** @type {((value?: void) => void) | undefined} */
 let afterPageLoadResolver;
 const afterPageLoad = new Promise((resolve) => {
     afterPageLoadResolver = resolve;
@@ -106,7 +173,7 @@ const ctl = {
  *********************************************************/
 class DuckWidget {
     /**
-     * @param {Object} widgetData
+     * @param {{clickAction?: ClickAction, replaceSettings: ReplaceSettings, selectors?: string[]}} widgetData
      *   The configuration for this "widget" as determined in ctl-config.js.
      * @param {HTMLElement} originalElement
      *   The original tracking element to replace with a placeholder.
@@ -116,10 +183,14 @@ class DuckWidget {
      *   The platform where Click to Load and the Duck Widget is running on (ie Extension, Android App, etc)
      */
     constructor(widgetData, originalElement, entity, platform) {
-        this.clickAction = { ...widgetData.clickAction }; // shallow copy
+        /** @type {ClickAction} */
+        this.clickAction = { type: '', targetURL: '', ...widgetData.clickAction }; // shallow copy
+        /** @type {ReplaceSettings} */
         this.replaceSettings = widgetData.replaceSettings;
         this.originalElement = originalElement;
+        /** @type {HTMLElement | null} */
         this.placeholderElement = null;
+        /** @type {Record<string, string>} */
         this.dataElements = {};
         this.gatherDataElements();
         this.entity = entity;
@@ -186,13 +257,15 @@ class DuckWidget {
                     } else {
                         // Our default value for width is often greater than the window size of smaller
                         // screens (ie mobile). Then use whatever is the smallest value.
-                        value = Math.min(attrSettings.default, windowWidth).toString();
+                        value = Math.min(Number(attrSettings.default), windowWidth).toString();
                     }
                 } else {
-                    value = attrSettings.default;
+                    value = String(attrSettings.default);
                 }
             }
-            this.dataElements[attrName] = value;
+            if (typeof value === 'string') {
+                this.dataElements[attrName] = value;
+            }
         }
     }
 
@@ -205,7 +278,7 @@ class DuckWidget {
         // Copying over data fields should be done lazily, since some required data may not be
         // captured until after page scripts run.
         this.copySocialDataFields();
-        return this.clickAction.targetURL;
+        return this.clickAction.targetURL || '';
     }
 
     /**
@@ -224,6 +297,14 @@ class DuckWidget {
     }
 
     /**
+     * Returns the theme mode (dark or light) for style lookups.
+     * @returns {ThemeMode}
+     */
+    getThemeMode() {
+        return this.getMode() === 'darkMode' ? 'darkMode' : 'lightMode';
+    }
+
+    /**
      * Take note of some of the tracking element's style attributes (as
      * determined by clickAction.styleDataAttributes) as a CSS string.
      *
@@ -236,7 +317,7 @@ class DuckWidget {
             // Copy elements from the original div into style attributes as directed by config
             for (const [attr, valAttr] of Object.entries(this.clickAction.styleDataAttributes)) {
                 let valueFound = this.dataElements[valAttr.name];
-                if (!valueFound) {
+                if (!valueFound && valAttr.fallbackAttribute) {
                     valueFound = this.dataElements[valAttr.fallbackAttribute];
                 }
                 let partialStyleString = '';
@@ -265,7 +346,7 @@ class DuckWidget {
         }
 
         // App ID may be set by client scripts, and is required for some elements.
-        if (this.dataElements.app_id_replace && appID != null) {
+        if (this.dataElements.app_id_replace && appID != null && this.clickAction.targetURL) {
             this.clickAction.targetURL = this.clickAction.targetURL.replace('app_id_replace', appID);
         }
 
@@ -284,7 +365,9 @@ class DuckWidget {
                 attrValue = window.location.protocol + attrValue;
             }
 
-            this.clickAction.targetURL = this.clickAction.targetURL.replace(key, encodeURIComponent(attrValue));
+            if (this.clickAction.targetURL) {
+                this.clickAction.targetURL = this.clickAction.targetURL.replace(key, encodeURIComponent(attrValue));
+            }
         }
     }
 
@@ -327,7 +410,7 @@ class DuckWidget {
         //  2. The onError event doesn't fire for blocked iframes on Chrome.
         if (originalHostname !== 'www.youtube-nocookie.com') {
             url.hostname = 'www.youtube-nocookie.com';
-            onError = (event) => {
+            onError = (/** @type {Event} */ event) => {
                 url.hostname = originalHostname;
                 videoElement.src = url.href;
                 event.stopImmediatePropagation();
@@ -404,14 +487,14 @@ class DuckWidget {
      * The function that's called when the user clicks to load some content.
      * Unblocks the content, puts it back in the page, and removes the
      * placeholder.
-     * @param {HTMLIFrameElement} originalElement
+     * @param {HTMLIFrameElement | HTMLElement} originalElement
      *   The original tracking element.
      * @param {HTMLElement} replacementElement
      *   The placeholder element.
      */
     clickFunction(originalElement, replacementElement) {
         let clicked = false;
-        const handleClick = (e) => {
+        const handleClick = (/** @type {Event} */ e) => {
             // Ensure that the click is created by a user event & prevent double clicks from adding more animations
             if (e.isTrusted && !clicked) {
                 e.stopPropagation();
@@ -420,7 +503,7 @@ class DuckWidget {
                 let isLogin = false;
                 // Logins triggered by user click means they were not triggered by the surrogate
                 const isSurrogateLogin = false;
-                const clickElement = e.srcElement; // Object.assign({}, e)
+                const clickElement = e.target instanceof Element ? e.target : null;
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true;
                 }
@@ -454,15 +537,17 @@ class DuckWidget {
 
                         // Loading animation (FB can take some time to load)
                         const loadingImg = document.createElement('img');
-                        loadingImg.setAttribute('src', loadingImages[this.getMode()]);
+                        const imgMode = this.getMode() === 'darkMode' ? 'darkMode' : 'lightMode';
+                        loadingImg.setAttribute('src', loadingImages[imgMode]);
                         loadingImg.setAttribute('height', '14px');
                         loadingImg.style.cssText = styles.loadingImg;
 
                         // Always add the animation to the button, regardless of click source
-                        if (clickElement.nodeName === 'BUTTON') {
-                            clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild);
-                        } else {
+                        if (clickElement && clickElement.nodeName === 'BUTTON') {
+                            clickElement.firstElementChild?.insertBefore(loadingImg, clickElement.firstElementChild?.firstChild ?? null);
+                        } else if (clickElement) {
                             // try to find the button
+                            /** @type {Element | null} */
                             let el = clickElement;
                             let button = null;
                             while (button === null && el !== null) {
@@ -470,7 +555,7 @@ class DuckWidget {
                                 el = el.parentElement;
                             }
                             if (button) {
-                                button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild);
+                                button.firstElementChild?.insertBefore(loadingImg, button.firstElementChild?.firstChild ?? null);
                             }
                         }
 
@@ -483,7 +568,9 @@ class DuckWidget {
                                 fbElement = this.createFBIFrame();
                                 break;
                             case 'youtube-video':
-                                onError = this.adjustYouTubeVideoElement(originalElement);
+                                if (originalElement instanceof HTMLIFrameElement) {
+                                    onError = this.adjustYouTubeVideoElement(originalElement);
+                                }
                                 fbElement = originalElement;
                                 break;
                             default:
@@ -523,8 +610,8 @@ class DuckWidget {
             }
         };
         // If this is a login button, show modal if needed
-        if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
-            return (e) => {
+        if (this.replaceSettings.type === 'loginButton' && entityData[this.entity]?.shouldShowLoginModal) {
+            return (/** @type {Event} */ e) => {
                 // Even if the user cancels the login attempt, consider Facebook Click to
                 // Load to have been active on the page if the user reports the page as broken.
                 if (this.entity === 'Facebook, Inc.') {
@@ -599,11 +686,12 @@ function replaceTrackingElement(widget, trackingElement, placeholderElement) {
 
     // First hide the element, since we need to keep it in the DOM until the
     // events have been dispatched.
+    /** @type {[string, string]} */
     const originalDisplay = [elementToReplace.style.getPropertyValue('display'), elementToReplace.style.getPropertyPriority('display')];
     elementToReplace.style.setProperty('display', 'none', 'important');
 
     // Add the placeholder element to the page.
-    elementToReplace.parentElement.insertBefore(placeholderElement, elementToReplace);
+    elementToReplace.parentElement?.insertBefore(placeholderElement, elementToReplace);
 
     // While the placeholder is shown (and original element hidden)
     // synchronously, the events are dispatched (and original element removed
@@ -627,7 +715,7 @@ function replaceTrackingElement(widget, trackingElement, placeholderElement) {
  * it on the page.
  * @param {DuckWidget} widget
  *   The CTL 'widget' associated with the tracking element.
- * @param {HTMLIFrameElement} trackingElement
+ * @param {HTMLElement} trackingElement
  *   The tracking element on the page that should be replaced with a placeholder.
  */
 function createPlaceholderElementAndReplace(widget, trackingElement) {
@@ -641,14 +729,13 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
         if (widget.shouldUseCustomElement()) {
             const facebookLoginButton = new DDGCtlLoginButton({
                 devMode,
-                label: widget.replaceSettings.buttonTextUnblockLogin,
-                hoverText: widget.replaceSettings.popupBodyText,
+                label: widget.replaceSettings.buttonTextUnblockLogin ?? '',
+                hoverText: widget.replaceSettings.popupBodyText ?? '',
                 logoIcon: facebookLogo,
                 originalElement: trackingElement,
                 learnMore: {
-                    // Localized strings for "Learn More" link.
-                    readAbout: sharedStrings.readAbout,
-                    learnMore: sharedStrings.learnMore,
+                    readAbout: sharedStrings.readAbout ?? '',
+                    learnMore: sharedStrings.learnMore ?? '',
                 },
                 onClick: widget.clickFunction.bind(widget),
             }).element;
@@ -657,10 +744,10 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
             replaceTrackingElement(widget, trackingElement, facebookLoginButton);
         } else {
             const { button, container } = makeLoginButton(
-                widget.replaceSettings.buttonText,
+                widget.replaceSettings.buttonText ?? '',
                 widget.getMode(),
-                widget.replaceSettings.popupBodyText,
-                icon,
+                widget.replaceSettings.popupBodyText ?? '',
+                icon ?? null,
                 trackingElement,
             );
             button.addEventListener('click', widget.clickFunction(trackingElement, container));
@@ -680,15 +767,14 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
              */
             const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlockedElement({
                 devMode,
-                title: widget.replaceSettings.infoTitle, // Card title text
-                body: widget.replaceSettings.infoText, // Card body text
-                unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                title: widget.replaceSettings.infoTitle ?? '', // Card title text
+                body: widget.replaceSettings.infoText ?? '', // Card body text
+                unblockBtnText: widget.replaceSettings.buttonText ?? '', // Unblock button text
                 useSlimCard: false, // Flag for using less padding on card (ie YT CTL on mobile)
                 originalElement: trackingElement, // The original element this placeholder is replacing.
                 learnMore: {
-                    // Localized strings for "Learn More" link.
-                    readAbout: sharedStrings.readAbout,
-                    learnMore: sharedStrings.learnMore,
+                    readAbout: sharedStrings.readAbout ?? '',
+                    learnMore: sharedStrings.learnMore ?? '',
                 },
                 onButtonClick: widget.clickFunction.bind(widget),
             });
@@ -698,9 +784,9 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
             showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder);
         } else {
             const icon = widget.replaceSettings.icon;
-            const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
-            const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
-            const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, icon);
+            const button = makeButton(widget.replaceSettings.buttonText ?? '', widget.getMode());
+            const textButton = makeTextButton(widget.replaceSettings.buttonText ?? '', widget.getThemeMode());
+            const { contentBlock, shadowRoot } = createContentBlock(widget, button, textButton, icon ?? null);
             button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
             textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
 
@@ -710,17 +796,23 @@ function createPlaceholderElementAndReplace(widget, trackingElement) {
     }
 
     // YouTube
-    if (widget.replaceSettings.type === 'youtube-video') {
+    if (widget.replaceSettings.type === 'youtube-video' && trackingElement instanceof HTMLIFrameElement) {
         ctl.addDebugFlag();
         ctl.messaging.notify('updateYouTubeCTLAddedFlag', { youTubeCTLAddedFlag: true });
         replaceYouTubeCTL(trackingElement, widget);
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
-        ctl.messaging.subscribe('setYoutubePreviewsEnabled', ({ value }) => {
-            isYoutubePreviewsEnabled = value;
-            replaceYouTubeCTL(trackingElement, widget);
-        });
+        ctl.messaging.subscribe(
+            'setYoutubePreviewsEnabled',
+            /** @param {unknown} msg */
+            (msg) => {
+                if (msg && typeof msg === 'object' && 'value' in msg) {
+                    isYoutubePreviewsEnabled = Boolean(msg.value);
+                }
+                replaceYouTubeCTL(trackingElement, widget);
+            },
+        );
     }
 }
 
@@ -756,26 +848,24 @@ function replaceYouTubeCTL(trackingElement, widget) {
              */
             const mobileBlockedPlaceholderElement = new DDGCtlPlaceholderBlockedElement({
                 devMode,
-                title: widget.replaceSettings.infoTitle, // Card title text
-                body: widget.replaceSettings.infoText, // Card body text
-                unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
-                useSlimCard: true, // Flag for using less padding on card (ie YT CTL on mobile)
-                originalElement: trackingElement, // The original element this placeholder is replacing.
+                title: widget.replaceSettings.infoTitle ?? '',
+                body: widget.replaceSettings.infoText ?? '',
+                unblockBtnText: widget.replaceSettings.buttonText ?? '',
+                useSlimCard: true,
+                originalElement: trackingElement,
                 learnMore: {
-                    // Localized strings for "Learn More" link.
-                    readAbout: sharedStrings.readAbout,
-                    learnMore: sharedStrings.learnMore,
+                    readAbout: sharedStrings.readAbout ?? '',
+                    learnMore: sharedStrings.learnMore ?? '',
                 },
                 withToggle: {
-                    // Toggle config to be displayed in the bottom of the placeholder
-                    isActive: false, // Toggle state
-                    dataKey: 'yt-preview-toggle', // data-key attribute for button
-                    label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
+                    isActive: false,
+                    dataKey: 'yt-preview-toggle',
+                    label: widget.replaceSettings.previewToggleText ?? '',
                     size: widget.isMobilePlatform() ? 'lg' : 'md',
-                    onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), // Toggle click callback
+                    onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }),
                 },
                 withFeedback: {
-                    label: sharedStrings.shareFeedback,
+                    label: sharedStrings.shareFeedback ?? '',
                     onClick: () => openShareFeedbackPage(),
                 },
                 onButtonClick: widget.clickFunction.bind(widget),
@@ -963,10 +1053,10 @@ async function runLogin(entity) {
     }
     // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
     if (response && response.type === 'ddg-ctp-user-cancel') {
-        return abortSurrogateConfirmation(this.entity);
+        return abortSurrogateConfirmation(entity);
     }
     // Communicate with surrogate to run login
-    originalWindowDispatchEvent(
+    originalWindowDispatchEvent?.(
         createCustomEvent('ddg-ctp-run-login', {
             detail: {
                 entity,
@@ -981,7 +1071,7 @@ async function runLogin(entity) {
  * @param {string} entity
  */
 function abortSurrogateConfirmation(entity) {
-    originalWindowDispatchEvent(
+    originalWindowDispatchEvent?.(
         createCustomEvent('ddg-ctp-cancel-modal', {
             detail: {
                 entity,
@@ -1000,16 +1090,16 @@ function openShareFeedbackPage() {
 
 /**
  * Creates a "Learn more" link element.
- * @param {displayMode} [mode='lightMode']
+ * @param {ThemeMode} [mode='lightMode']
  * @returns {HTMLAnchorElement}
  */
 function getLearnMoreLink(mode = 'lightMode') {
     const linkElement = document.createElement('a');
     linkElement.style.cssText = styles.generalLink + styles[mode].linkFont;
-    linkElement.ariaLabel = sharedStrings.readAbout;
+    linkElement.ariaLabel = sharedStrings.readAbout ?? null;
     linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/';
     linkElement.target = '_blank';
-    linkElement.textContent = sharedStrings.learnMore;
+    linkElement.textContent = sharedStrings.learnMore ?? '';
     linkElement.id = 'learnMoreLink';
     return linkElement;
 }
@@ -1038,7 +1128,7 @@ function resizeElementToMatch(sourceElement, targetElement) {
     }
 
     for (const key of stylesToCopy) {
-        targetElement.style[key] = computedStyle[key];
+        targetElement.style.setProperty(key, computedStyle.getPropertyValue(key));
     }
 
     // If the parent element is very small (and its dimensions can be trusted) set a max height/width
@@ -1071,7 +1161,7 @@ function makeFontFaceStyleElement() {
  * Create a `<style/>` element with base styles for DDG social container and
  * button to be attached to DDG wrapper elements/shadowRoot, also returns a wrapper
  * class name for Social Container link styles
- * @param {displayMode} [mode='lightMode']
+ * @param {ThemeMode} [mode='lightMode']
  * @returns {{wrapperClass: string, styleElement: HTMLStyleElement; }}
  */
 function makeBaseStyleElement(mode = 'lightMode') {
@@ -1125,7 +1215,7 @@ function makeBaseStyleElement(mode = 'lightMode') {
  * Creates an anchor element with no destination. It is expected that a click
  * handler is added to the element later.
  * @param {string} linkText
- * @param {displayMode} mode
+ * @param {ThemeMode} mode
  * @returns {HTMLAnchorElement}
  */
 function makeTextButton(linkText, mode = 'lightMode') {
@@ -1159,7 +1249,7 @@ function makeButton(buttonText, mode = 'lightMode') {
 
 /**
  * Create a toggle button.
- * @param {displayMode} mode
+ * @param {ThemeMode} mode
  * @param {boolean} [isActive=false]
  *   True if the button should be toggled by default.
  * @param {string} [classNames='']
@@ -1194,7 +1284,7 @@ function makeToggleButton(mode, isActive = false, classNames = '', dataKey = '')
  * Create a toggle button that's wrapped in a div with some text.
  * @param {string} text
  *   Text to display by the button.
- * @param {displayMode} mode
+ * @param {ThemeMode} mode
  * @param {boolean} [isActive=false]
  *   True if the button should be toggled by default.
  * @param {string} [toggleClassNames='']
@@ -1243,7 +1333,7 @@ function makeShareFeedbackLink() {
     feedbackLink.style.cssText = styles.feedbackLink;
     feedbackLink.target = '_blank';
     feedbackLink.href = '#';
-    feedbackLink.text = sharedStrings.shareFeedback;
+    feedbackLink.text = sharedStrings.shareFeedback ?? '';
     // Open Feedback Form page through background event to avoid browser blocking extension link
     feedbackLink.addEventListener('click', function (e) {
         e.preventDefault();
@@ -1275,7 +1365,7 @@ function makeShareFeedbackRow() {
  * @param {displayMode} mode
  * @param {string} hoverTextBody
  *   The hover text to display for the button.
- * @param {string?} icon
+ * @param {string | null} icon
  *   The source of the icon to display in the button, if null the default block
  *   icon is used instead.
  * @param {HTMLElement} originalElement
@@ -1292,7 +1382,7 @@ function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement)
     const shadowRoot = container.attachShadow({ mode: devMode ? 'open' : 'closed' });
     // inherit any class styles on the button
     container.className = 'fb-login-button FacebookLogin__button';
-    const { styleElement } = makeBaseStyleElement(mode);
+    const { styleElement } = makeBaseStyleElement(mode === 'darkMode' ? 'darkMode' : 'lightMode');
     styleElement.textContent += `
         #DuckDuckGoPrivacyEssentialsHoverableText {
             display: none;
@@ -1335,7 +1425,7 @@ function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement)
     const hoverText = document.createElement('div');
     hoverText.style.cssText = styles.hoverTextBody;
     hoverText.textContent = hoverTextBody + ' ';
-    hoverText.appendChild(getLearnMoreLink(mode));
+    hoverText.appendChild(getLearnMoreLink(mode === 'darkMode' ? 'darkMode' : 'lightMode'));
     hoverBox.appendChild(hoverText);
 
     hoverContainer.appendChild(hoverBox);
@@ -1381,7 +1471,9 @@ function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement)
  *   TODO: Have the caller bind these arguments to the function instead.
  */
 function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
-    const icon = entityData[entity].modalIcon;
+    const data = entityData[entity];
+    if (!data) return;
+    const icon = data.modalIcon;
 
     const modalContainer = document.createElement('div');
     modalContainer.setAttribute('data-key', 'modal');
@@ -1412,12 +1504,14 @@ function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
 
     const iconElement = document.createElement('img');
     iconElement.style.cssText = styles.icon + styles.modalIcon;
-    iconElement.setAttribute('src', icon);
+    if (icon) {
+        iconElement.setAttribute('src', icon);
+    }
     iconElement.setAttribute('height', '70px');
 
     const title = document.createElement('div');
     title.style.cssText = styles.modalContentTitle;
-    title.textContent = entityData[entity].modalTitle;
+    title.textContent = data.modalTitle ?? '';
 
     // Content
     const modalContent = document.createElement('div');
@@ -1425,7 +1519,7 @@ function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
 
     const message = document.createElement('div');
     message.style.cssText = styles.modalContentText;
-    message.textContent = entityData[entity].modalText + ' ';
+    message.textContent = (data.modalText ?? '') + ' ';
     message.appendChild(getLearnMoreLink());
 
     modalContent.appendChild(iconElement);
@@ -1435,14 +1529,14 @@ function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
     // Buttons
     const buttonRow = document.createElement('div');
     buttonRow.style.cssText = styles.modalButtonRow;
-    const allowButton = makeButton(entityData[entity].modalAcceptText, 'lightMode');
+    const allowButton = makeButton(data.modalAcceptText ?? '', 'lightMode');
     allowButton.style.cssText += styles.modalButton + 'margin-bottom: 8px;';
     allowButton.setAttribute('data-key', 'allow');
     allowButton.addEventListener('click', function doLogin() {
         acceptFunction(...acceptFunctionParams);
         document.body.removeChild(modalContainer);
     });
-    const rejectButton = makeButton(entityData[entity].modalRejectText, 'cancelMode');
+    const rejectButton = makeButton(data.modalRejectText ?? '', 'cancelMode');
     rejectButton.setAttribute('data-key', 'reject');
     rejectButton.style.cssText += styles.modalButton;
     rejectButton.addEventListener('click', closeModal);
@@ -1456,7 +1550,7 @@ function makeModal(entity, acceptFunction, ...acceptFunctionParams) {
     shadowRoot.appendChild(pageOverlay);
     shadowRoot.appendChild(modal);
 
-    document.body.insertBefore(modalContainer, document.body.childNodes[0]);
+    document.body.insertBefore(modalContainer, document.body.childNodes[0] ?? null);
 }
 
 /**
@@ -1542,12 +1636,13 @@ function createContentBlock(widget, button, textButton, img, bottomRow) {
     const shadowRoot = contentBlock.attachShadow({ mode: shadowRootMode });
 
     // Style element includes our font & overwrites page styles
-    const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode());
+    const themeMode = widget.getThemeMode();
+    const { wrapperClass, styleElement } = makeBaseStyleElement(themeMode);
     shadowRoot.appendChild(styleElement);
 
     // Create overall grid structure
     const element = document.createElement('div');
-    element.style.cssText = styles.block + styles[widget.getMode()].background + styles[widget.getMode()].textFont;
+    element.style.cssText = styles.block + styles[themeMode].background + styles[themeMode].textFont;
     if (widget.replaceSettings.type === 'youtube-video') {
         element.style.cssText += styles.youTubeDialogBlock;
     }
@@ -1576,7 +1671,7 @@ function createContentBlock(widget, button, textButton, img, bottomRow) {
 
     const contentTitle = document.createElement('div');
     contentTitle.style.cssText = styles.contentTitle;
-    contentTitle.textContent = widget.replaceSettings.infoTitle;
+    contentTitle.textContent = widget.replaceSettings.infoTitle ?? '';
     contentTitle.id = 'contentTitle';
     contentRow.appendChild(contentTitle);
     const contentText = document.createElement('div');
@@ -1614,14 +1709,15 @@ function createContentBlock(widget, button, textButton, img, bottomRow) {
  * @returns {{ blockingDialog: HTMLElement, shadowRoot: ShadowRoot }}
  */
 function createYouTubeBlockingDialog(trackingElement, widget) {
-    const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
-    const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
+    const themeMode = widget.getThemeMode();
+    const button = makeButton(widget.replaceSettings.buttonText ?? '', widget.getMode());
+    const textButton = makeTextButton(widget.replaceSettings.buttonText ?? '', themeMode);
 
     const bottomRow = document.createElement('div');
     bottomRow.style.cssText = styles.youTubeDialogBottomRow;
     const previewToggle = makeToggleButtonWithText(
-        widget.replaceSettings.previewToggleText,
-        widget.getMode(),
+        widget.replaceSettings.previewToggleText ?? '',
+        themeMode,
         false,
         '',
         '',
@@ -1657,6 +1753,7 @@ function createYouTubeBlockingDialog(trackingElement, widget) {
  *   Object containing the YouTube Preview element and its shadowRoot.
  */
 function createYouTubePreview(originalElement, widget) {
+    const themeMode = widget.getThemeMode();
     const youTubePreview = document.createElement('div');
     youTubePreview.id = originalElement.id;
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv;
@@ -1666,7 +1763,7 @@ function createYouTubePreview(originalElement, widget) {
     // Protect the contents of our placeholder inside a shadowRoot, to avoid
     // it being styled by the website's stylesheets.
     const shadowRoot = youTubePreview.attachShadow({ mode: devMode ? 'open' : 'closed' });
-    const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode());
+    const { wrapperClass, styleElement } = makeBaseStyleElement(themeMode);
     shadowRoot.appendChild(styleElement);
 
     const youTubePreviewDiv = document.createElement('div');
@@ -1701,7 +1798,7 @@ function createYouTubePreview(originalElement, widget) {
     /** Text Button on top section */
     // Use darkMode styles because the preview background is dark and causes poor contrast
     // with lightMode button, making it hard to read.
-    const textButton = makeTextButton(widget.replaceSettings.buttonText, 'darkMode');
+    const textButton = makeTextButton(widget.replaceSettings.buttonText ?? '', 'darkMode');
     textButton.id = titleID + 'TextButton';
 
     textButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview));
@@ -1715,7 +1812,8 @@ function createYouTubePreview(originalElement, widget) {
     playButton.style.cssText += styles.youTubePlayButton;
 
     const videoPlayImg = document.createElement('img');
-    const videoPlayIcon = widget.replaceSettings.placeholder.videoPlayIcon[widget.getMode()];
+    const placeholder = widget.replaceSettings.placeholder;
+    const videoPlayIcon = placeholder?.videoPlayIcon[widget.getMode()] ?? '';
     videoPlayImg.setAttribute('src', videoPlayIcon);
     playButton.appendChild(videoPlayImg);
 
@@ -1730,8 +1828,8 @@ function createYouTubePreview(originalElement, widget) {
     // TODO: Use `widget.replaceSettings.placeholder.previewToggleEnabledDuckDuckGoText` for toggle
     // copy when implementing mobile YT CTL Preview
     const previewToggle = makeToggleButtonWithText(
-        widget.replaceSettings.placeholder.previewToggleEnabledText,
-        widget.getMode(),
+        placeholder?.previewToggleEnabledText ?? '',
+        themeMode,
         true,
         '',
         styles.youTubePreviewToggleText,
@@ -1749,10 +1847,10 @@ function createYouTubePreview(originalElement, widget) {
     //          Ideally, the translation system would allow only certain element
     //          types to be included, and would avoid the URLs for links being
     //          included in the translations.
-    previewText.insertAdjacentHTML('beforeend', widget.replaceSettings.placeholder.previewInfoText);
+    previewText.insertAdjacentHTML('beforeend', placeholder?.previewInfoText ?? '');
     const previewTextLink = previewText.querySelector('a');
     if (previewTextLink) {
-        const newPreviewTextLink = getLearnMoreLink(widget.getMode());
+        const newPreviewTextLink = getLearnMoreLink(themeMode);
         newPreviewTextLink.innerText = previewTextLink.innerText;
         previewTextLink.replaceWith(newPreviewTextLink);
     }
@@ -1798,11 +1896,18 @@ function createYouTubePreview(originalElement, widget) {
  */
 
 export default class ClickToLoad extends ContentFeature {
-    /** @type {MessagingContext} */
+    /** @type {MessagingContext | undefined} */
     #messagingContext;
 
     listenForUpdateChanges = true;
 
+    /**
+     * @param {{
+     *   site?: {parentEntity?: string},
+     *   featureSettings?: {clickToLoad?: Record<string, {state?: string}>},
+     *   locale?: string
+     * }} [args]
+     */
     async init(args) {
         /**
          * Bail if no messaging backend - this is a debugging feature to ensure we don't
@@ -1843,11 +1948,14 @@ export default class ClickToLoad extends ContentFeature {
 
             entities.push(entity);
 
-            const shouldShowLoginModal = !!config[entity].informationalModal;
+            const entityCfg = config[entity];
+            if (!entityCfg) continue;
+            const shouldShowLoginModal = !!entityCfg.informationalModal;
+            /** @type {EntityDisplayData} */
             const currentEntityData = { shouldShowLoginModal };
 
             if (shouldShowLoginModal) {
-                const { informationalModal } = config[entity];
+                const { informationalModal } = entityCfg;
                 currentEntityData.modalIcon = informationalModal.icon;
                 currentEntityData.modalTitle = informationalModal.messageTitle;
                 currentEntityData.modalText = informationalModal.messageBody;
@@ -1859,26 +1967,27 @@ export default class ClickToLoad extends ContentFeature {
         }
 
         // Listen for window events from "surrogate" scripts.
-        window.addEventListener('ddg-ctp', (/** @type {CustomEvent} */ event) => {
+        window.addEventListener('ddg-ctp', (event) => {
             if (!('detail' in event)) return;
+            const detail = /** @type {CustomEvent} */ (event).detail;
 
-            const entity = event.detail?.entity;
+            const entity = detail?.entity;
             if (!entities.includes(entity)) {
                 // Unknown entity, reject
                 return;
             }
-            if (event.detail?.appID) {
-                appID = JSON.stringify(event.detail.appID).replace(/"/g, '');
+            if (detail?.appID) {
+                appID = JSON.stringify(detail.appID).replace(/"/g, '');
             }
             // Handle login call
-            if (event.detail?.action === 'login') {
+            if (detail?.action === 'login') {
                 // Even if the user cancels the login attempt, consider Facebook Click to
                 // Load to have been active on the page if the user reports the page as broken.
                 if (entity === 'Facebook, Inc.') {
                     notifyFacebookLogin();
                 }
 
-                if (entityData[entity].shouldShowLoginModal) {
+                if (entityData[entity]?.shouldShowLoginModal) {
                     handleUnblockConfirmation(this.platform.name, entity, runLogin, entity);
                 } else {
                     void runLogin(entity);
@@ -1905,9 +2014,9 @@ export default class ClickToLoad extends ContentFeature {
         // Then wait for the page to finish loading, and resolve the
         // afterPageLoad Promise.
         if (document.readyState === 'complete') {
-            afterPageLoadResolver();
+            afterPageLoadResolver?.();
         } else {
-            window.addEventListener('load', afterPageLoadResolver, { once: true });
+            window.addEventListener('load', () => afterPageLoadResolver?.(), { once: true });
         }
         await afterPageLoad;
 
@@ -1916,13 +2025,13 @@ export default class ClickToLoad extends ContentFeature {
         // To counter that, catch "ddg-ctp-surrogate-load" events dispatched
         // _after_ page, so the "ddg-ctp-ready" event can be dispatched again.
         window.addEventListener('ddg-ctp-surrogate-load', () => {
-            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+            originalWindowDispatchEvent?.(createCustomEvent('ddg-ctp-ready'));
         });
 
         // Then wait for any in-progress element replacements, before letting
         // the surrogate scripts know to start.
         window.setTimeout(() => {
-            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+            originalWindowDispatchEvent?.(createCustomEvent('ddg-ctp-ready'));
         }, 0);
     }
 
@@ -1932,7 +2041,7 @@ export default class ClickToLoad extends ContentFeature {
      * SendMessageMessagingTransport that wraps this communication.
      * This can be removed once they have their own Messaging integration.
      */
-    update(message) {
+    update(/** @type {Record<string, unknown>} */ message = {}) {
         // TODO: Once all Click to Load messages include the feature property, drop
         //       messages that don't include the feature property too.
         if (message?.feature && message?.feature !== 'clickToLoad') return;
@@ -1961,7 +2070,7 @@ export default class ClickToLoad extends ContentFeature {
 
         // Mark the feature as ready, to allow placeholder
         // replacements to start.
-        readyToDisplayPlaceholdersResolver();
+        readyToDisplayPlaceholdersResolver?.();
     }
 
     /**
@@ -1975,16 +2084,21 @@ export default class ClickToLoad extends ContentFeature {
         await readyToDisplayPlaceholders;
 
         for (const entity of Object.keys(config)) {
-            for (const widgetData of Object.values(config[entity].elementData)) {
+            const entityCfg = config[entity];
+            if (!entityCfg) continue;
+            for (const widgetData of Object.values(entityCfg.elementData)) {
                 const selector = widgetData.selectors.join();
 
+                /** @type {HTMLElement[]} */
                 let trackingElements = [];
                 if (targetElement) {
                     if (targetElement.matches(selector)) {
                         trackingElements.push(targetElement);
                     }
                 } else {
-                    trackingElements = Array.from(document.querySelectorAll(selector));
+                    trackingElements = Array.from(document.querySelectorAll(selector)).filter(
+                        (el) => el instanceof HTMLElement,
+                    );
                 }
 
                 /* eslint-disable @typescript-eslint/await-thenable */

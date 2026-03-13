@@ -145,6 +145,7 @@ const CORE_FILES = new Set([
     'injected/src/features/message-bridge/schema.js',
     'injected/src/features/navigator-interface.js',
     'injected/src/features/performance-metrics.js',
+    'injected/src/features/click-to-load.js',
     'injected/src/features/click-to-load/ctl-config.js',
     'injected/src/features/context-menu.js',
     'injected/src/features/cookie.js',
