@@ -12,11 +12,12 @@ const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
  * @returns {boolean}
  */
 export function checkNodeIsVisible(node) {
-    if (!(node instanceof Element)) {
+    // nodeType 1 is ELEMENT_NODE; using the constant avoids environments where Element is undefined
+    if (node.nodeType !== 1) {
         return false;
     }
     try {
-        const style = window.getComputedStyle(node);
+        const style = window.getComputedStyle(/** @type {Element} */ (node));
 
         // Check primary visibility properties
         if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
