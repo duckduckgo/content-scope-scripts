@@ -91,9 +91,9 @@ function DuckPlayerDefault({ advance }) {
             return;
         }
         video.currentTime = 0;
-        /** @type {Promise<void>} */
-        const frameReady = new Promise((resolve) => video.requestVideoFrameCallback(() => resolve()));
         try {
+            /** @type {Promise<void>} */
+            const frameReady = new Promise((resolve) => video.requestVideoFrameCallback(() => resolve()));
             await video.play();
             await frameReady;
         } catch (error) {
