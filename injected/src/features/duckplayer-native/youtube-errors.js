@@ -6,7 +6,7 @@
 
 export const YOUTUBE_ERROR_EVENT = 'ddg-duckplayer-youtube-error';
 
-/** @type {Record<string,YouTubeError>} */
+/** @type {{ readonly ageRestricted: YouTubeError; readonly signInRequired: YouTubeError; readonly noEmbed: YouTubeError; readonly unknown: YouTubeError }} */
 export const YOUTUBE_ERRORS = {
     ageRestricted: 'age-restricted',
     signInRequired: 'sign-in-required',
@@ -42,7 +42,7 @@ export function checkForError(errorSelector, node) {
  * @returns {YouTubeError}
  */
 export function getErrorType(windowObject, signInRequiredSelector, logger) {
-    const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: object }} */ (windowObject);
+    const currentWindow = /** @type {Window & typeof globalThis & { ytcfg?: { get: (key: string) => unknown } }} */ (windowObject);
     const currentDocument = currentWindow.document;
 
     if (!currentWindow || !currentDocument) {
@@ -59,10 +59,17 @@ export function getErrorType(windowObject, signInRequiredSelector, logger) {
     }
 
     try {
-        const playerResponseJSON = currentWindow.ytcfg?.get('PLAYER_VARS')?.embedded_player_response;
+        const playVars = currentWindow.ytcfg?.get('PLAYER_VARS');
+        const raw =
+            typeof playVars === 'object' && playVars !== null && 'embedded_player_response' in playVars
+                ? playVars.embedded_player_response
+                : undefined;
+        const playerResponseJSON = typeof raw === 'string' ? raw : undefined;
         logger?.log('Player response', playerResponseJSON);
 
-        playerResponse = JSON.parse(playerResponseJSON);
+        if (playerResponseJSON) {
+            playerResponse = JSON.parse(playerResponseJSON);
+        }
     } catch (e) {
         logger?.log('Could not parse player response', e);
     }
