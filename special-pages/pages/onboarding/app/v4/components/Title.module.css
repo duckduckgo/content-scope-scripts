@@ -3,7 +3,7 @@
     font-size: var(--sp-6); /* 24px */
     font-weight: 700;
     line-height: var(--sp-7); /* 28px */
-    text-align: center;
+    text-align: left;
     color: var(--ds-text-primary);
     word-wrap: break-word;
     text-box-trim: trim-both;

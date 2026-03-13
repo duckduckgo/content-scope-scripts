@@ -15,6 +15,7 @@ import { ProgressIndicator } from './ProgressIndicator';
  * @property {boolean} [exiting] - When true, fades out the container via CSS animation
  * @property {() => void} [onExitComplete] - Called when the fade-out animation ends
  * @property {import('../data/data-types').Progress} [progress] - When provided, renders a progress badge pinned to the bubble's top edge
+ * @property {number} [fadeInDelay] - Delay in ms before the fade-in animation starts (default 400ms via CSS)
  */
 
 /**
@@ -48,6 +49,7 @@ export function Bubble({
     exiting = false,
     onExitComplete,
     progress,
+    fadeInDelay,
     ...props
 }) {
     const { isReducedMotion } = useEnv();
@@ -142,6 +144,7 @@ export function Bubble({
             <div
                 ref={containerCallback}
                 class={cn(styles.container, isMounted.current && (exiting ? styles.fadeOut : styles.fadeIn))}
+                style={fadeInDelay !== undefined ? { '--fade-in-delay': `${fadeInDelay}ms` } : undefined}
                 onAnimationEnd={complete}
             >
                 <div ref={contentRef} class={styles.content}>
