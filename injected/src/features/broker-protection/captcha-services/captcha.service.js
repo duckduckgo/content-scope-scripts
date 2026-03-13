@@ -78,7 +78,8 @@ export async function getCaptchaInfo(action, root = document) {
     }
 
     if (PirError.isError(captchaIdentifier)) {
-        return createError(captchaIdentifier.error.message);
+        const errorMessage = captchaIdentifier.error.message;
+        return createError(errorMessage);
     }
 
     const response = {

@@ -20,6 +20,9 @@ export default class WebInterferenceDetection extends ContentFeature {
         // Get settings with conditionalChanges already applied by framework
         const settings = this.getFeatureSetting('interferenceTypes');
 
+        /**
+         * @param {string} type - Event type to fire
+         */
         const fireEvent = async (type) => {
             try {
                 const result = await this.callFeatureMethod('webEvents', 'fireEvent', { type });
