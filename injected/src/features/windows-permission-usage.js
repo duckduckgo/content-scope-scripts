@@ -24,6 +24,10 @@ export default class WindowsPermissionUsage extends ContentFeature {
             ? false // In DDG WebView, we can handle nested frames properly
             : window.self !== window.top && window.parent !== window.top; // In WebView2, we need to deny permission for nested frames
 
+        /**
+         * @param {string} name
+         * @param {object} data
+         */
         function windowsPostMessage(name, data) {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             windowsInteropPostMessage({
@@ -33,6 +37,10 @@ export default class WindowsPermissionUsage extends ContentFeature {
             });
         }
 
+        /**
+         * @param {string} permission
+         * @param {string} status
+         */
         function signalPermissionStatus(permission, status) {
             windowsPostMessage('PermissionStatusMessage', { permission, status });
             console.debug(`Permission '${permission}' is ${status}`);
@@ -49,7 +57,9 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 }
 
                 const successHandler = args[0];
-                args[0] = function (position) {
+                args[0] = /**
+                 * @param {GeolocationPosition} position
+                 */ function (position) {
                     if (pauseWatchedPositions) {
                         signalPermissionStatus(Permission.Geolocation, Status.Paused);
                     } else {
@@ -79,7 +89,9 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const getCurrentPositionProxy = new DDGProxy(this, Geolocation.prototype, 'getCurrentPosition', {
             apply(target, thisArg, args) {
                 const successHandler = args[0];
-                args[0] = function (position) {
+                args[0] = /**
+                 * @param {GeolocationPosition} position
+                 */ function (position) {
                     signalPermissionStatus(Permission.Geolocation, Status.Accessed);
                     successHandler?.(position);
                 };
@@ -92,30 +104,41 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const videoTracks = new Set();
         const audioTracks = new Set();
 
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        /**
+         * @param {string} permission
+         * @returns {Set<MediaStreamTrack> | undefined}
+         */
         function getTracks(permission) {
             switch (permission) {
                 case Permission.Camera:
                     return videoTracks;
                 case Permission.Microphone:
                     return audioTracks;
+                default:
+                    return undefined;
             }
         }
 
+        /**
+         * @param {Set<MediaStreamTrack> | MediaStreamTrack[] | undefined} [streamTracks]
+         */
         function stopTracks(streamTracks) {
-            streamTracks?.forEach((track) => track.stop());
+            streamTracks?.forEach((/** @param {MediaStreamTrack} track */ track) => track.stop());
         }
 
         function clearAllGeolocationWatch() {
             watchedPositions.forEach((id) => navigator.geolocation.clearWatch(id));
         }
 
+        /**
+         * @param {string} permission
+         */
         function pause(permission) {
             switch (permission) {
                 case Permission.Camera:
                 case Permission.Microphone: {
                     const streamTracks = getTracks(permission);
-                    streamTracks?.forEach((track) => {
+                    streamTracks?.forEach((/** @param {MediaStreamTrack} track */ track) => {
                         track.enabled = false;
                     });
                     break;
@@ -127,12 +150,15 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /**
+         * @param {string} permission
+         */
         function resume(permission) {
             switch (permission) {
                 case Permission.Camera:
                 case Permission.Microphone: {
                     const streamTracks = getTracks(permission);
-                    streamTracks?.forEach((track) => {
+                    streamTracks?.forEach((/** @param {MediaStreamTrack} track */ track) => {
                         track.enabled = true;
                     });
                     break;
@@ -144,6 +170,9 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /**
+         * @param {string} permission
+         */
         function stop(permission) {
             switch (permission) {
                 case Permission.Camera:
@@ -159,6 +188,9 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /**
+         * @param {MediaStreamTrack} track
+         */
         function monitorTrack(track) {
             if (track.readyState === 'ended') return;
 
@@ -177,6 +209,9 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /**
+         * @param {MediaStreamTrack} track
+         */
         function handleTrackEnded(track) {
             if (track.kind === 'video' && videoTracks.has(track)) {
                 console.debug(`Video stream track ${track.id} ended`);
@@ -195,14 +230,29 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /**
+         * @param {Event} e
+         */
         function videoTrackEnded(e) {
-            handleTrackEnded(e.target);
+            const target = e.target;
+            if (target instanceof MediaStreamTrack) {
+                handleTrackEnded(target);
+            }
         }
 
+        /**
+         * @param {Event} e
+         */
         function audioTrackEnded(e) {
-            handleTrackEnded(e.target);
+            const target = e.target;
+            if (target instanceof MediaStreamTrack) {
+                handleTrackEnded(target);
+            }
         }
 
+        /**
+         * @param {string} permission
+         */
         function signalTracksState(permission) {
             const tracks = getTracks(permission);
             if (!tracks) return;
@@ -227,12 +277,14 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
+        /** @type {ReturnType<typeof setTimeout> | undefined} */
         let signalVideoTracksStateTimer;
         function signalVideoTracksState() {
             clearTimeout(signalVideoTracksStateTimer);
             signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100);
         }
 
+        /** @type {ReturnType<typeof setTimeout> | undefined} */
         let signalAudioTracksStateTimer;
         function signalAudioTracksState() {
             clearTimeout(signalAudioTracksStateTimer);
@@ -242,17 +294,23 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
         const stopTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'stop', {
             apply(target, thisArg, args) {
-                handleTrackEnded(thisArg);
+                if (thisArg instanceof MediaStreamTrack) {
+                    handleTrackEnded(thisArg);
+                }
                 return DDGReflect.apply(target, thisArg, args);
             },
         });
         stopTrackProxy.overload();
 
+        /** @param {unknown} v @returns {v is MediaStreamTrack} */
+        function isMediaStreamTrack(v) {
+            return v instanceof MediaStreamTrack;
+        }
         // proxy for track.clone -> monitor the cloned track
         const cloneTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'clone', {
             apply(target, thisArg, args) {
                 const clonedTrack = DDGReflect.apply(target, thisArg, args);
-                if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
+                if (isMediaStreamTrack(clonedTrack) && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
                     // @ts-expect-error - thisArg is possibly undefined
                     console.debug(`Media stream track ${thisArg.id} has been cloned to track ${clonedTrack.id}`);
                     monitorTrack(clonedTrack);
@@ -332,31 +390,40 @@ export default class WindowsPermissionUsage extends ContentFeature {
                     }
 
                     // eslint-disable-next-line promise/prefer-await-to-then
-                    return DDGReflect.apply(target, thisArg, args).then(function (stream) {
-                        console.debug(`User stream ${stream.id} has been acquired`);
-                        userMediaStreams.add(stream);
-                        if (videoRequested) {
-                            const newVideoTracks = stream.getVideoTracks();
-                            if (newVideoTracks?.length > 0) {
-                                signalPermissionStatus(Permission.Camera, Status.Active);
+                    return DDGReflect.apply(target, thisArg, args).then(
+                        /**
+                         * @param {MediaStream} stream
+                         * @returns {MediaStream}
+                         */ function (stream) {
+                            console.debug(`User stream ${stream.id} has been acquired`);
+                            userMediaStreams.add(stream);
+                            if (videoRequested) {
+                                const newVideoTracks = stream.getVideoTracks();
+                                if (newVideoTracks?.length > 0) {
+                                    signalPermissionStatus(Permission.Camera, Status.Active);
+                                }
+                                newVideoTracks.forEach(monitorTrack);
                             }
-                            newVideoTracks.forEach(monitorTrack);
-                        }
 
-                        if (audioRequested) {
-                            const newAudioTracks = stream.getAudioTracks();
-                            if (newAudioTracks?.length > 0) {
-                                signalPermissionStatus(Permission.Microphone, Status.Active);
+                            if (audioRequested) {
+                                const newAudioTracks = stream.getAudioTracks();
+                                if (newAudioTracks?.length > 0) {
+                                    signalPermissionStatus(Permission.Microphone, Status.Active);
+                                }
+                                newAudioTracks.forEach(monitorTrack);
                             }
-                            newAudioTracks.forEach(monitorTrack);
-                        }
-                        return stream;
-                    });
+                            return stream;
+                        },
+                    );
                 },
             });
             getUserMediaProxy.overload();
         }
 
+        /**
+         * @param {string} [action]
+         * @param {string} [permission]
+         */
         function performAction(action, permission) {
             if (action && permission) {
                 switch (action) {
@@ -382,18 +449,19 @@ export default class WindowsPermissionUsage extends ContentFeature {
         });
 
         // these permissions cannot be disabled using WebView2 or DevTools protocol
+        const g = /** @type {Window & Record<string, { prototype?: object } | undefined>} */ (/** @type {unknown} */ (globalThis));
         const permissionsToDisable = [
-            { name: 'Bluetooth', prototype: () => globalThis?.Bluetooth?.prototype, method: 'requestDevice', isPromise: true },
-            { name: 'USB', prototype: () => globalThis?.USB?.prototype, method: 'requestDevice', isPromise: true },
-            { name: 'Serial', prototype: () => globalThis?.Serial?.prototype, method: 'requestPort', isPromise: true },
-            { name: 'HID', prototype: () => globalThis?.HID?.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'Bluetooth', prototype: () => g.Bluetooth?.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'USB', prototype: () => g.USB?.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'Serial', prototype: () => g.Serial?.prototype, method: 'requestPort', isPromise: true },
+            { name: 'HID', prototype: () => g.HID?.prototype, method: 'requestDevice', isPromise: true },
             {
                 name: 'Protocol handler',
-                prototype: () => globalThis?.Navigator.prototype,
+                prototype: () => g.Navigator?.prototype,
                 method: 'registerProtocolHandler',
                 isPromise: false,
             },
-            { name: 'MIDI', prototype: () => globalThis?.Navigator.prototype, method: 'requestMIDIAccess', isPromise: true },
+            { name: 'MIDI', prototype: () => g.Navigator?.prototype, method: 'requestMIDIAccess', isPromise: true },
         ];
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {
