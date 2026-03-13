@@ -54,7 +54,10 @@ export function fillMany(root, elements, data) {
             if (inputElem instanceof HTMLInputElement) {
                 results.push(setImageUpload(inputElem));
             } else {
-                results.push({ result: false, error: `element found with selector '${element.selector}', but $file_id$ requires an HTMLInputElement` });
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but $file_id$ requires an HTMLInputElement`,
+                });
             }
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()));
