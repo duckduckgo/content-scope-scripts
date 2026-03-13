@@ -44,24 +44,22 @@ function returnError(errorMessage) {
  */
 function waitForLCP(timeoutMs = 500) {
     return new Promise((resolve) => {
-        /** @type {ReturnType<typeof setTimeout> | undefined} */
-        let timeoutId;
-        /** @type {PerformanceObserver | undefined} */
-        let observer;
+        /** @type {{ id?: ReturnType<typeof setTimeout>, obs?: PerformanceObserver }} */
+        const refs = {};
 
         const cleanup = () => {
-            if (observer) observer.disconnect();
-            if (timeoutId) clearTimeout(timeoutId);
+            if (refs.obs) refs.obs.disconnect();
+            if (refs.id) clearTimeout(refs.id);
         };
 
         // Set timeout
-        timeoutId = setTimeout(() => {
+        refs.id = setTimeout(() => {
             cleanup();
             resolve(null); // Resolve with null instead of hanging
         }, timeoutMs);
 
         // Try to get existing LCP
-        observer = new PerformanceObserver((list) => {
+        refs.obs = new PerformanceObserver((list) => {
             const entries = list.getEntries();
             const lastEntry = entries[entries.length - 1];
             if (lastEntry) {
@@ -71,7 +69,7 @@ function waitForLCP(timeoutMs = 500) {
         });
 
         try {
-            observer.observe({ type: 'largest-contentful-paint', buffered: true });
+            refs.obs.observe({ type: 'largest-contentful-paint', buffered: true });
         } catch (error) {
             // Handle browser compatibility issues
             cleanup();
