@@ -1297,13 +1297,6 @@ export class WebCompat extends ContentFeature {
         }
 
         const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-            /**
-             * @param {MediaDevices['enumerateDevices']} target
-             * @param {MediaDevices} thisArg
-             * @param {Parameters<MediaDevices['enumerateDevices']>} args
-             * @returns {Promise<MediaDeviceInfo[]>}
-             */
-            // @ts-expect-error - DDGProxy apply handler signature differs from typed Proxy
             apply: async (target, thisArg, args) => {
                 const settings = this.getFeatureSetting('enumerateDevices') || {};
                 const timeoutEnabled = settings.timeoutEnabled !== false;
