@@ -118,6 +118,7 @@ export class DDGVideoOverlay extends HTMLElement {
         const watchInPlayer = containerElement.querySelector('.ddg-vpo-open');
         if (!cancelElement) return console.warn('Could not access .ddg-vpo-cancel');
         if (!watchInPlayer) return console.warn('Could not access .ddg-vpo-open');
+        /** @param {Event} e */
         const optOutHandler = (e) => {
             if (e.isTrusted) {
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
@@ -125,6 +126,7 @@ export class DDGVideoOverlay extends HTMLElement {
                 this.manager.userOptOut(remember.checked, params);
             }
         };
+        /** @param {Event} e */
         const watchInPlayerHandler = (e) => {
             if (e.isTrusted) {
                 e.preventDefault();

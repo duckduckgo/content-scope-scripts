@@ -1,7 +1,7 @@
 import { getElement, generateRandomInt } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
-import { states } from '../comparisons/constants.js';
+import { getStateFromAbbreviation } from '../comparisons/address.js';
 
 /**
  * @param {Record<string, any>} action
@@ -51,7 +51,11 @@ export function fillMany(root, elements, data) {
         }
 
         if (element.type === '$file_id$') {
-            results.push(setImageUpload(inputElem));
+            if (inputElem instanceof HTMLInputElement) {
+                results.push(setImageUpload(inputElem));
+            } else {
+                results.push({ result: false, error: `element found with selector '${element.selector}', but $file_id$ requires an HTMLInputElement` });
+            }
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()));
         } else if (element.type === '$generated_zip_code$') {
@@ -100,15 +104,21 @@ export function fillMany(root, elements, data) {
 
             const state = data.state;
 
-            if (!Object.prototype.hasOwnProperty.call(states, state)) {
+            if (typeof state !== 'string') {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`,
                 });
                 continue;
             }
-
-            const stateFull = states[state];
+            const stateFull = getStateFromAbbreviation(state);
+            if (!stateFull) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`,
+                });
+                continue;
+            }
 
             results.push(setValueForInput(inputElem, stateFull));
         } else {
@@ -226,7 +236,7 @@ function setValueForInput(el, val) {
 }
 
 /**
- * @param element
+ * @param {HTMLInputElement} element
  * @return {{result: true}|{result: false, error: string}}
  */
 function setImageUpload(element) {
@@ -250,11 +260,10 @@ function setImageUpload(element) {
         dataTransfer.items.add(new File([blob], 'id.png', { type: 'image/png' }));
 
         // Step 4: Assign the Blob to the Input Element
-        /** @type {any} */
         element.files = dataTransfer.files;
         return { result: true };
     } catch (e) {
         // failed
-        return { result: false, error: e.toString() };
+        return { result: false, error: String(e) };
     }
 }
