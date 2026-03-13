@@ -92,6 +92,23 @@ describe('YouTubeAdDetector', () => {
             expect(detector.state.detections.adBlocker.showing).toBe(true);
         });
 
+        it('does not produce unhandled rejections when async callback rejects', async () => {
+            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, () => {
+                return Promise.reject(new Error('async callback failure'));
+            });
+
+            const result = detector.reportDetection('adBlocker');
+
+            expect(result).toBe(true);
+            expect(detector.state.detections.adBlocker.count).toBe(1);
+            expect(detector.state.detections.adBlocker.showing).toBe(true);
+
+            // Flush microtask queue — if the rejection is unhandled, the
+            // runtime's unhandledrejection listener (installed by Jasmine or
+            // Node) would fail the spec.
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        });
+
         it('does not break detection when callback is async', () => {
             let callbackInvoked = false;
             const detector = new YouTubeAdDetector(configWithAllEvents, undefined, () => {

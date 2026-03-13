@@ -29,7 +29,7 @@ export class YouTubeAdDetector {
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
-     * @param {(type: string) => void} [onEvent] - Callback fired when a new detection occurs
+     * @param {(type: string) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
      */
     constructor(config, logger, onEvent) {
         // Logger for debug output (only logs when debug mode is enabled)
@@ -134,7 +134,11 @@ export class YouTubeAdDetector {
 
         if (this.config.fireDetectionEvents?.[type]) {
             try {
-                this.onEvent(`youtube_${type}`);
+                const result = /** @type {any} */ (this.onEvent(`youtube_${type}`));
+                if (result && typeof result.catch === 'function') {
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    result.catch(() => {});
+                }
             } catch {
                 // onEvent callback failure should never break detection
             }
