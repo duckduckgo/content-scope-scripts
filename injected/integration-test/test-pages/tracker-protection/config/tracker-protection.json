@@ -1,0 +1,18 @@
+{
+  "readme": "Config for tracker-protection integration tests. TrackerData is passed via withUserPreferences().",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": true,
+        "allowlist": {},
+        "tempUnprotectedDomains": [],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}

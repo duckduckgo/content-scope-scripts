@@ -1,0 +1,18 @@
+{
+  "readme": "Test CTL surrogate injection when ctlEnabled is true. TrackerData is passed via withUserPreferences().",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": true,
+        "allowlist": {},
+        "tempUnprotectedDomains": [],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}
