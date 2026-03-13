@@ -137,7 +137,7 @@ export class IconOverlay {
     hideHoverOverlay(event, force) {
         const overlay = this.getHoverOverlay();
 
-        const toElement = /** @type {Node | null} */ (event.relatedTarget ?? event.target);
+        const toElement = /** @type {Node | null} */ (event.relatedTarget);
 
         if (overlay) {
             // Prevent hiding overlay if mouseleave is triggered by user is actually hovering it and that

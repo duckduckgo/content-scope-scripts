@@ -57,7 +57,7 @@ const optionalTransforms = new Map([
     ['downcase', (value, _action) => value.toLowerCase()],
     ['upcase', (value, _action) => value.toUpperCase()],
     ['snakecase', (value, _action) => value.split(' ').join('_')],
-    ['stateFull', (value, _action) => getStateFromAbbreviation(value)],
+    ['stateFull', (value, _action) => getStateFromAbbreviation(value) ?? value],
     ['defaultIfEmpty', (value, _action, argument = '') => value || argument || ''],
     [
         'ageRange',
