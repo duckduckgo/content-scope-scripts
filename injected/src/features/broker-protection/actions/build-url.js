@@ -20,13 +20,25 @@ export function buildUrl(action, userData) {
 /**
  * Perform some basic validations before we continue into the templating.
  *
- * @param {import('../types.js').PirAction & {url?: string}} action
+ * @overload
+ * @param {import('../types.js').PirAction & {url?: string | null}} action
+ * @param {Record<string, string|number>} [userData]
+ * @return {{url: string} | {error: string}}
+ */
+/**
+ * @overload
+ * @param {Record<string, unknown>} action
+ * @param {Record<string, string|number>} [userData]
+ * @return {{url: string} | {error: string}}
+ */
+/**
+ * @param {Record<string, unknown>} action
  * @param {Record<string, string|number>} [userData]
  * @return {{url: string} | {error: string}}
  */
 export function replaceTemplatedUrl(action, userData) {
     const url = action?.url;
-    if (!url) {
+    if (!url || typeof url !== 'string') {
         return { error: 'Error: No url provided.' };
     }
 
