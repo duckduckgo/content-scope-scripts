@@ -304,11 +304,14 @@ function isValidLink(element, excludedRegions) {
      */
     if (!('href' in element)) return null;
 
+    const href = element.href;
+    if (typeof href !== 'string') return null;
+
     /**
      * If we get here, we're trying to convert the `element.href`
      * into a valid Duck Player URL
      */
-    return VideoParams.fromHref(element.href)?.toPrivatePlayerUrl();
+    return VideoParams.fromHref(href)?.toPrivatePlayerUrl();
 }
 
 export { SideEffects, VideoParams, Environment };
