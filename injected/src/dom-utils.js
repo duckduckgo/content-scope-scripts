@@ -83,11 +83,12 @@ export function trustedUnsafe(string) {
 
 /**
  * Use a policy if trustedTypes is available
- * @return {{createHTML: (s: string) => any}}
+ * @return {{createHTML: (s: string) => string}}
  */
 export function createPolicy() {
-    if (/** @type {any} */ (globalThis).trustedTypes) {
-        return /** @type {any} */ (globalThis).trustedTypes?.createPolicy?.('ddg-default', { createHTML: (/** @type {string} */ s) => s });
+    const tt = /** @type {{trustedTypes?: TrustedTypePolicyFactory}} */ (globalThis).trustedTypes;
+    if (tt) {
+        return tt.createPolicy('ddg-default', { createHTML: (s) => s });
     }
     return {
         createHTML: (s) => s,

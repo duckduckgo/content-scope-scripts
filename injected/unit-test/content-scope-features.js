@@ -288,7 +288,8 @@ describe('content-scope-features additionalCheck conditional', () => {
             // Test case 1: additionalCheck disabled
             const disabledArgs = {
                 site: { domain: 'blocked-site.com', url: 'http://blocked-site.com' },
-                platform: { name: 'test' },
+                platform: /** @type {import('../src/utils.js').Platform} */ ({ name: 'extension' }),
+                messagingContextName: 'test',
                 bundledConfig: {
                     features: {
                         testFeature: {
@@ -321,7 +322,8 @@ describe('content-scope-features additionalCheck conditional', () => {
             // Test case 2: additionalCheck enabled
             const enabledArgs = {
                 site: { domain: 'trusted-site.com', url: 'http://trusted-site.com' },
-                platform: { name: 'test' },
+                platform: /** @type {import('../src/utils.js').Platform} */ ({ name: 'extension' }),
+                messagingContextName: 'test',
                 bundledConfig: {
                     features: {
                         testFeature: {

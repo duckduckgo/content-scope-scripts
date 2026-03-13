@@ -38,6 +38,9 @@ const isHTMLDocument =
  * @property {Record<string, unknown>} [featureSettings]
  * @property {import('./content-feature.js').AssetConfig} [assets]
  * @property {Record<string, string[]>} [stringExemptionLists]
+ * @property {boolean} [desktopModeEnabled]
+ * @property {boolean} [forcedZoomEnabled]
+ * @property {boolean} [isDdgWebView]
  */
 
 /**
@@ -101,7 +104,7 @@ async function getFeatures() {
 }
 
 /**
- * @param {any} args
+ * @param {LoadArgs} args
  */
 export async function init(args) {
     const mark = performanceMonitor.mark('init');
@@ -173,7 +176,7 @@ export function update(args) {
  * Update the args for feature instances that opt in to configuration updates.
  * This is useful for applying configuration updates received after initial loading.
  *
- * @param {object} updatedArgs - The new arguments to apply to opted-in features
+ * @param {LoadArgs} updatedArgs - The new arguments to apply to opted-in features
  */
 export async function updateFeatureArgs(updatedArgs) {
     if (!isHTMLDocument) {

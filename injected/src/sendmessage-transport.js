@@ -90,10 +90,10 @@ export class SendMessageMessagingTransport {
 
     /**
      * @param {import('@duckduckgo/messaging').RequestMessage} req
-     * @return {Promise<any>}
+     * @return {Promise<unknown>}
      */
     request(req) {
-        /** @type {(eventData: any) => boolean} */
+        /** @type {(eventData: Record<string, any>) => boolean} */
         let comparator = (eventData) => {
             return eventData.responseMessageType === req.method;
         };
@@ -129,14 +129,14 @@ export class SendMessageMessagingTransport {
      * @param {(value: unknown | undefined) => void} callback
      */
     subscribe(msg, callback) {
-        /** @type {(eventData: any) => boolean} */
+        /** @type {(eventData: Record<string, any>) => boolean} */
         const comparator = (eventData) => {
             return eventData.messageType === msg.subscriptionName || eventData.responseMessageType === msg.subscriptionName;
         };
 
         // only forward the 'params' ('response' in current format), to match expected
         // callback from a SubscriptionEvent
-        /** @type {(eventData: any) => void} */
+        /** @type {(eventData: Record<string, any>) => void} */
         const cb = (eventData) => {
             return callback(eventData.response);
         };
@@ -144,8 +144,8 @@ export class SendMessageMessagingTransport {
     }
 
     /**
-     * @param {(eventData: any) => boolean} comparator
-     * @param {(value: any, unsubscribe: (()=>void)) => void} callback
+     * @param {(eventData: Record<string, any>) => boolean} comparator
+     * @param {(value: Record<string, any>, unsubscribe: (()=>void)) => void} callback
      * @internal
      */
     _subscribe(comparator, callback) {

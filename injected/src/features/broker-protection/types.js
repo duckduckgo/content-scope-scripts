@@ -1,5 +1,6 @@
 /**
- * @typedef {SuccessResponse | ErrorResponse} ActionResponse
+ * @template [T=unknown]
+ * @typedef {SuccessResponse<T> | ErrorResponse} ActionResponse
  * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
  * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string; failSilently?: boolean}} Expectation
  */
@@ -131,28 +132,31 @@ export class ErrorResponse {
 }
 
 /**
+ * @template [T=unknown]
  * @typedef {object} SuccessResponseInterface
  * @property {PirAction['id']} actionID
  * @property {PirAction['actionType']} actionType
- * @property {any} response
+ * @property {T} response
  * @property {import("./actions/extract").Action[]} [next]
- * @property {Record<string, any>} [meta] - optional meta data
+ * @property {Record<string, unknown>} [meta] - optional meta data
  */
 
 /**
  * Represents success, `response` can contain other complex types
+ * @template [T=unknown]
  */
 export class SuccessResponse {
     /**
-     * @param {SuccessResponseInterface} params
+     * @param {SuccessResponseInterface<T>} params
      */
     constructor(params) {
         this.success = params;
     }
 
     /**
-     * @param {SuccessResponseInterface} params
-     * @return {SuccessResponse}
+     * @template U
+     * @param {SuccessResponseInterface<U>} params
+     * @return {SuccessResponse<U>}
      * @static
      * @memberof SuccessResponse
      */
@@ -172,7 +176,7 @@ export class ProfileResult {
      * @param {string[]} params.matchedFields - a list of the fields in the data that were matched.
      * @param {number} params.score - value to determine
      * @param {HTMLElement} [params.element] - the parent element that was matched. Not present in JSON
-     * @param {Record<string, any>} params.scrapedData
+     * @param {Record<string, unknown>} params.scrapedData
      */
     constructor(params) {
         this.scrapedData = params.scrapedData;
@@ -184,7 +188,7 @@ export class ProfileResult {
 
     /**
      * Convert this structure into a format that can be sent between JS contexts/native
-     * @return {{result: boolean, score: number, matchedFields: string[], scrapedData: Record<string, any>}}
+     * @return {{result: boolean, score: number, matchedFields: string[], scrapedData: Record<string, unknown>}}
      */
     asData() {
         return {
@@ -217,9 +221,9 @@ export class Extractor {
  */
 export class AsyncProfileTransform {
     /**
-     * @param {Record<string, any>} _profile - The current profile value
-     * @param {Record<string, any>} _profileParams - the original action params from `action.profile`
-     * @return {Promise<Record<string, any>>}
+     * @param {Record<string, unknown>} _profile - The current profile value
+     * @param {Record<string, unknown>} _profileParams - the original action params from `action.profile`
+     * @return {Promise<Record<string, unknown>>}
      */
 
     transform(_profile, _profileParams) {

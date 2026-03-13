@@ -115,9 +115,13 @@ describe('ApiManipulation', () => {
             {},
             {},
             {
-                bundledConfig: { features: { apiManipulation: { state: 'enabled', exceptions: [] } } },
-                site: { domain: 'test.com' },
-                platform: { version: '1.0.0' },
+                bundledConfig: {
+                    features: { apiManipulation: { state: 'enabled', settings: {}, exceptions: [] } },
+                    unprotectedTemporary: [],
+                },
+                site: { domain: 'test.com', url: 'https://test.com' },
+                platform: /** @type {import('../src/utils.js').Platform} */ ({ name: 'extension', version: '1.0.0' }),
+                messagingContextName: 'test',
             },
         );
         dummyTarget = {};

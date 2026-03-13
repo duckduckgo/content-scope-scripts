@@ -25,8 +25,8 @@ export function defineProperty(object, propertyName, descriptor) {
  * return a proxy to `newFn` that fakes .toString() and .toString.toString() to resemble the `origFn`.
  * WARNING: do NOT proxy toString multiple times, as it will not work as expected.
  *
- * @param {*} newFn
- * @param {*} origFn
+ * @param {unknown} newFn
+ * @param {unknown} origFn
  * @param {string} [mockValue] - when provided, .toString() will return this value
  */
 export function wrapToString(newFn, origFn, mockValue) {
@@ -40,9 +40,9 @@ export function wrapToString(newFn, origFn, mockValue) {
 /**
  * generate a proxy handler trap that fakes .toString() and .toString.toString() to resemble the `targetFn`.
  * Note that it should be used as the get() trap.
- * @param {*} targetFn
+ * @param {object} targetFn
  * @param {string} [mockValue] - when provided, .toString() will return this value
- * @returns { (target: any, prop: string, receiver: any) => any }
+ * @returns { (target: object, prop: string | symbol, receiver: object) => any }
  */
 export function toStringGetTrap(targetFn, mockValue) {
     // We wrap two levels deep to handle toString.toString() calls
@@ -87,9 +87,9 @@ export function toStringGetTrap(targetFn, mockValue) {
 
 /**
  * Wrap functions to fix toString but also behave as closely to their real function as possible like .name and .length etc.
- * @param {*} functionValue
- * @param {*} realTarget
- * @returns {Proxy} a proxy for the function
+ * @param {Function} functionValue
+ * @param {Function} realTarget
+ * @returns {Function} a proxy for the function
  */
 export function wrapFunction(functionValue, realTarget) {
     return new Proxy(realTarget, {
@@ -152,7 +152,7 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
  * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
  * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
  * @param {string} propertyName
- * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
+ * @param {(originalFn: Function, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
@@ -329,9 +329,10 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
         }
     }
 
+    const implObj = /** @type {object} */ (implInstance);
     // mask toString() and toString.toString() on the instance
-    const proxiedInstance = new Proxy(implInstance, {
-        get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`),
+    const proxiedInstance = new Proxy(implObj, {
+        get: toStringGetTrap(implObj, `[object ${ImplClass.name}]`),
     });
 
     /** @type {StrictPropertyDescriptor} */
@@ -344,9 +345,11 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
         const getter = function get() {
             return proxiedInstance;
         };
-        const proxiedGetter = new Proxy(getter, {
-            get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
-        });
+        const proxiedGetter = /** @type {() => any} */ (
+            new Proxy(getter, {
+                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`),
+            })
+        );
         descriptor = {
             configurable: true,
             enumerable: true,
