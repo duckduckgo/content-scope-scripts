@@ -2160,11 +2160,12 @@
       "print",
       "pageObserver",
       "hover",
-      "browserUiLock"
+      "browserUiLock",
+      "trackerProtection"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -4866,6 +4867,7 @@
        *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
        *   messagingContextName: string,
        *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
+       *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
        * } | null}
        */
       __privateAdd(this, _args);

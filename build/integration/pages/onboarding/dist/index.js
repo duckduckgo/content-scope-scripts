@@ -28800,6 +28800,7 @@
     exiting = false,
     onExitComplete,
     progress,
+    fadeInDelay,
     ...props
   }) {
     const { isReducedMotion } = useEnv();
@@ -28873,6 +28874,7 @@
       {
         ref: containerCallback,
         class: (0, import_classnames12.default)(Bubble_default.container, isMounted.current && (exiting ? Bubble_default.fadeOut : Bubble_default.fadeIn)),
+        style: fadeInDelay !== void 0 ? { "--fade-in-delay": `${fadeInDelay}ms` } : void 0,
         onAnimationEnd: complete
       },
       /* @__PURE__ */ _("div", { ref: contentRef, class: Bubble_default.content }, children)
@@ -29312,11 +29314,14 @@
     title: "MakeDefaultContent_title",
     sparkle: "MakeDefaultContent_sparkle",
     hidden: "MakeDefaultContent_hidden",
+    content: "MakeDefaultContent_content",
+    "stagger-fade-in": "MakeDefaultContent_stagger-fade-in",
     actions: "MakeDefaultContent_actions",
     skipButton: "MakeDefaultContent_skipButton"
   };
 
   // pages/onboarding/app/v4/components/MakeDefaultContent.js
+  var bubbleFadeInDelayOverride = new URLSearchParams(window.location.search).get("bubbleFadeInDelay");
   function MakeDefaultContent({ advance, updateSystemValue }) {
     const { t: t3 } = useTypedTranslation();
     const globalState = useGlobalState();
@@ -29350,6 +29355,10 @@
         });
       })();
     };
+    const defaultBubbleDelay = 400;
+    const defaultOffset = 250;
+    const parsedOffset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
+    const staggerDelay = defaultBubbleDelay + (Number.isNaN(parsedOffset) ? defaultOffset : parsedOffset);
     return /* @__PURE__ */ _(Container, { class: MakeDefaultContent_default.root }, /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.titleContainer }, /* @__PURE__ */ _(Title, { titleRef, class: MakeDefaultContent_default.title }, showSuccess ? t3("makeDefaultAccept_title_v4") : t3("protectionsActivated_title")), /* @__PURE__ */ _(
       LottieAnimation,
       {
@@ -29361,7 +29370,7 @@
         autoplay: false,
         animationRef: sparkleRef
       }
-    )), /* @__PURE__ */ _(ComparisonTable2, null), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.actions }, skipButtonMounted && /* @__PURE__ */ _(Button2, { buttonRef: skipButtonRef, class: MakeDefaultContent_default.skipButton, variant: "secondary", onClick: advance }, t3("skipButton")), /* @__PURE__ */ _(Button2, { buttonRef: primaryButtonRef, disabled: isPending, onClick: showSkipButton ? enableDefaultBrowser : advance }, showSkipButton ? t3("makeDefaultButton") : t3("nextButton"))));
+    )), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.content, style: { "--stagger-delay": `${staggerDelay}ms` } }, /* @__PURE__ */ _(ComparisonTable2, null), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.actions }, skipButtonMounted && /* @__PURE__ */ _(Button2, { buttonRef: skipButtonRef, class: MakeDefaultContent_default.skipButton, variant: "secondary", onClick: advance }, t3("skipButton")), /* @__PURE__ */ _(Button2, { buttonRef: primaryButtonRef, disabled: isPending, onClick: showSkipButton ? enableDefaultBrowser : advance }, showSkipButton ? t3("makeDefaultButton") : t3("nextButton")))));
   }
 
   // pages/onboarding/app/v4/components/SettingsContent.js
@@ -29538,6 +29547,8 @@
       /** @type {DPState} */
       { target: "with", phase: "initial", reverse: false }
     );
+    const stateRef = A2(state);
+    stateRef.current = state;
     const flip = (target2) => target2 === "with" ? "without" : "with";
     const videoFor = (target2) => videosRef.current[target2];
     const play = async (video) => {
@@ -29548,7 +29559,9 @@
       }
       video.currentTime = 0;
       try {
+        const frameReady = new Promise((resolve) => video.requestVideoFrameCallback(() => resolve()));
         await video.play();
+        await frameReady;
       } catch (error) {
         console.error(error);
       }
@@ -29562,12 +29575,12 @@
           play(videoFor("with"));
           setState((prev) => ({ ...prev, phase: isReducedMotion ? "settled" : "playing" }));
         },
-        isReducedMotion ? 0 : 667
+        isReducedMotion ? 0 : 917
       );
       return () => clearTimeout(id);
     }, []);
-    const toggle = () => {
-      const { target: target2, phase, reverse } = state;
+    const toggle = async () => {
+      const { target: target2, phase, reverse } = stateRef.current;
       if (phase === "initial") {
         setState({ target: target2, phase, reverse: !reverse });
       } else if (phase === "playing") {
@@ -29575,14 +29588,15 @@
         setState({ target: target2, phase: "playing", reverse: !reverse });
       } else {
         const next = flip(target2);
-        play(videoFor(next));
+        await play(videoFor(next));
         setState({ target: next, phase: isReducedMotion ? "settled" : "playing", reverse: false });
       }
     };
-    const end = () => {
-      if (state.reverse) {
-        const next = flip(state.target);
-        play(videoFor(next));
+    const end = async () => {
+      const { reverse, target: target2 } = stateRef.current;
+      if (reverse) {
+        const next = flip(target2);
+        await play(videoFor(next));
         setState({ target: next, phase: "playing", reverse: false });
       } else {
         setState((prev) => ({ ...prev, phase: "settled" }));
@@ -30316,6 +30330,7 @@
 
   // pages/onboarding/app/v4/components/SingleStep.js
   var bubbleWidthOverride = new URLSearchParams(window.location.search).get("bubbleWidth");
+  var bubbleFadeInDelayOverride2 = new URLSearchParams(window.location.search).get("bubbleFadeInDelay");
   function SingleStep2() {
     const { content: content2, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey, illustration, advance } = useStepConfig2();
     const [topHeight, setTopHeight] = d2(0);
@@ -30365,7 +30380,13 @@
           bounceDelay: 167,
           exiting: globalState.exiting,
           onExitComplete: topBubble ? void 0 : advance,
-          progress: showProgress && !topBubble ? progress : void 0
+          progress: showProgress && !topBubble ? progress : void 0,
+          fadeInDelay: topBubble ? (() => {
+            const defaultTopDelay = 400;
+            const defaultOffset = 250;
+            const offset = bubbleFadeInDelayOverride2 ? Number.parseInt(bubbleFadeInDelayOverride2, 10) : defaultOffset;
+            return defaultTopDelay + (Number.isNaN(offset) ? defaultOffset : offset);
+          })() : void 0
         },
         bottomBubble?.content
       ),

@@ -21,7 +21,7 @@
     font-size: calc(18 * var(--px-in-rem));
     font-weight: 400;
     line-height: calc(22 * var(--px-in-rem));
-    text-align: center;
+    text-align: left;
     color: var(--ds-text-primary);
     word-wrap: break-word;
     text-box-trim: trim-both;

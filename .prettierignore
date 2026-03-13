@@ -2,6 +2,7 @@ build/**/*
 docs/**/*
 !injected/docs/**/*
 injected/src/types
+injected/src/features/tracker-protection/surrogates-generated.js
 special-pages/pages/**/types
 injected/integration-test/extension/contentScope.js
 **/*.json

@@ -840,7 +840,7 @@
     customElementsDefine: () => customElementsDefine,
     customElementsGet: () => customElementsGet,
     decrypt: () => decrypt,
-    dispatchEvent: () => dispatchEvent,
+    dispatchEvent: () => dispatchEvent2,
     encrypt: () => encrypt,
     exportKey: () => exportKey,
     functionToString: () => functionToString,
@@ -874,7 +874,7 @@
   var TypeError2 = globalThis.TypeError;
   var Symbol2 = globalThis.Symbol;
   var hasOwnProperty = Object.prototype.hasOwnProperty;
-  var dispatchEvent = globalThis.dispatchEvent?.bind(globalThis);
+  var dispatchEvent2 = globalThis.dispatchEvent?.bind(globalThis);
   var addEventListener = globalThis.addEventListener?.bind(globalThis);
   var removeEventListener = globalThis.removeEventListener?.bind(globalThis);
   var CustomEvent2 = globalThis.CustomEvent;
@@ -1464,11 +1464,12 @@
       "print",
       "pageObserver",
       "hover",
-      "browserUiLock"
+      "browserUiLock",
+      "trackerProtection"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "pageContext", "print", "trackerProtection"],
     "apple-isolated": [
       "contextMenu",
       "duckPlayer",
@@ -4188,6 +4189,7 @@
        *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
        *   messagingContextName: string,
        *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
+       *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
        * } | null}
        */
       __privateAdd(this, _args);
@@ -10232,6 +10234,3118 @@ ${iframeContent}
   };
   var print_default = Print;
 
+  // src/features/tracker-protection.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/tracker-protection/tracker-resolver.js
+  init_define_import_meta_trackerLookup();
+  var REASON_FIRST_PARTY = "first party";
+  var REASON_RULE_EXCEPTION = "matched rule - exception";
+  var REASON_DEFAULT_IGNORE = "default ignore";
+  var REASON_MATCHED_RULE_IGNORE = "matched rule - ignore";
+  var REASON_DEFAULT_BLOCK = "default block";
+  var REASON_SURROGATE = "matched rule - surrogate";
+  var REASON_MATCHED_RULE_BLOCK = "matched rule - block";
+  var REASON_NO_MATCH = "no match";
+  var TrackerResolver = class {
+    /**
+     * @param {object} config
+     * @param {TrackerData} config.trackerData
+     * @param {Record<string, () => void>} config.surrogates
+     * @param {Record<string, AllowlistEntry[]>} [config.allowlist]
+     * @param {string[]} [config.unprotectedDomains] - Legacy: all treated as wildcard. Use userUnprotectedDomains + wildcardUnprotectedDomains instead.
+     * @param {string[]} [config.userUnprotectedDomains] - Exact-match only (user-toggled)
+     * @param {string[]} [config.wildcardUnprotectedDomains] - Wildcard domain-walk (temp + contentBlocking exceptions)
+     */
+    constructor(config) {
+      this._trackerData = null;
+      this._surrogateList = {};
+      this._allowlist = {};
+      this._userUnprotectedDomains = [];
+      this._wildcardUnprotectedDomains = [];
+      if (config.trackerData) {
+        this._trackerData = this._processTrackerData(config.trackerData);
+      }
+      if (config.surrogates) {
+        this._surrogateList = config.surrogates;
+      }
+      if (config.allowlist) {
+        this._allowlist = config.allowlist;
+      }
+      if (config.userUnprotectedDomains) {
+        this._userUnprotectedDomains = config.userUnprotectedDomains;
+      }
+      if (config.wildcardUnprotectedDomains) {
+        this._wildcardUnprotectedDomains = config.wildcardUnprotectedDomains;
+      }
+      if (config.unprotectedDomains) {
+        this._wildcardUnprotectedDomains = this._wildcardUnprotectedDomains.concat(config.unprotectedDomains);
+      }
+    }
+    /**
+     * Pre-process tracker rules into RegExp objects
+     * @param {TrackerData} data
+     */
+    _processTrackerData(data) {
+      for (const name in data.trackers) {
+        const tracker = data.trackers[name];
+        if (tracker?.rules) {
+          for (const rule of tracker.rules) {
+            if (typeof rule.rule === "string") {
+              rule.rule = new RegExp(rule.rule, "ig");
+            }
+          }
+        }
+      }
+      return data;
+    }
+    /**
+     * Extract hostname from URL
+     * @param {string} url
+     * @param {boolean} [keepWWW]
+     */
+    _extractHost(url, keepWWW = false) {
+      try {
+        let hostname = new URL(url.startsWith("//") ? "http:" + url : url).hostname;
+        if (!keepWWW) {
+          hostname = hostname.replace(/^www\./, "");
+        }
+        return hostname;
+      } catch {
+        return "";
+      }
+    }
+    /**
+     * Parse URL and extract domain info
+     * @param {string} url
+     */
+    _parseUrl(url) {
+      if (url.startsWith("//")) {
+        url = "http:" + url;
+      }
+      try {
+        const parsed = new URL(url);
+        return { domain: parsed.hostname, hostname: parsed.hostname };
+      } catch {
+        return { domain: "", hostname: "" };
+      }
+    }
+    /**
+     * Get tracker data for a URL
+     * @param {string} urlToCheck - The resource URL being checked
+     * @param {string} siteUrl - The page URL
+     * @param {{ type?: string }} [request] - Request metadata
+     * @returns {TrackerMatch | null}
+     */
+    getTrackerData(urlToCheck, siteUrl, request = {}) {
+      if (!this._trackerData) {
+        return null;
+      }
+      const requestData = {
+        request,
+        siteUrl,
+        siteDomain: this._parseUrl(siteUrl).domain,
+        siteUrlSplit: this._extractHost(siteUrl).split("."),
+        urlToCheck,
+        urlToCheckDomain: this._parseUrl(urlToCheck).domain,
+        urlToCheckSplit: this._extractHost(urlToCheck).split(".")
+      };
+      const trackerResult = this._findTracker(requestData);
+      if (!trackerResult) {
+        return null;
+      }
+      const { tracker, resolvedDomain } = trackerResult;
+      if (resolvedDomain) {
+        try {
+          const originalUrl = new URL(urlToCheck);
+          requestData.urlToCheck = `${originalUrl.protocol}//${resolvedDomain}${originalUrl.pathname}${originalUrl.search}`;
+        } catch {
+        }
+      }
+      const matchedRule = this._findRule(tracker, requestData);
+      const hasSurrogate = matchedRule?.surrogate ? Boolean(this._surrogateList[matchedRule.surrogate]) : false;
+      const matchedRuleException = matchedRule ? this._matchesRuleDefinition(matchedRule, "exceptions", requestData) : false;
+      const ownerLookupDomain = resolvedDomain || requestData.urlToCheckDomain;
+      const trackerOwnerName = this._findTrackerOwner(ownerLookupDomain);
+      const websiteOwner = this._findWebsiteOwner(requestData);
+      const firstParty = trackerOwnerName && websiteOwner ? trackerOwnerName === websiteOwner : false;
+      const fullTrackerDomain = requestData.urlToCheckSplit.join(".");
+      const entity = trackerOwnerName ? this._trackerData?.entities?.[trackerOwnerName] : null;
+      const { action, reason } = this._getAction({
+        firstParty,
+        matchedRule,
+        matchedRuleException,
+        defaultAction: tracker.default,
+        redirectUrl: hasSurrogate
+      });
+      return {
+        action,
+        reason,
+        firstParty,
+        matchedRule,
+        matchedRuleException,
+        tracker,
+        entity,
+        fullTrackerDomain
+      };
+    }
+    /**
+     * Find a tracker definition by walking up the domain hierarchy,
+     * falling back to CNAME resolution if available.
+     * @param {RequestData} requestData
+     * @returns {{ tracker: Tracker, resolvedDomain?: string } | null}
+     */
+    _findTracker(requestData) {
+      const urlList = [...requestData.urlToCheckSplit];
+      while (urlList.length > 1) {
+        const trackerDomain = urlList.join(".");
+        urlList.shift();
+        const matchedTracker = this._trackerData?.trackers[trackerDomain];
+        if (matchedTracker) {
+          return { tracker: matchedTracker };
+        }
+      }
+      if (this._trackerData?.cnames) {
+        const requestHost = requestData.urlToCheckSplit.join(".");
+        const resolved = this._trackerData.cnames[requestHost];
+        if (resolved) {
+          const resolvedParts = resolved.split(".");
+          while (resolvedParts.length > 1) {
+            const resolvedDomain = resolvedParts.join(".");
+            const matchedTracker = this._trackerData.trackers[resolvedDomain];
+            if (matchedTracker) {
+              return { tracker: matchedTracker, resolvedDomain };
+            }
+            resolvedParts.shift();
+          }
+        }
+      }
+      return null;
+    }
+    /**
+     * Find tracker entity owner
+     * @param {string} domain
+     */
+    _findTrackerOwner(domain) {
+      if (!this._trackerData?.domains) return null;
+      const parts = domain.split(".");
+      while (parts.length > 1) {
+        const entityName = this._trackerData.domains[parts.join(".")];
+        if (entityName) {
+          return entityName;
+        }
+        parts.shift();
+      }
+      return null;
+    }
+    /**
+     * Find the entity owning the website
+     * @param {RequestData} requestData
+     */
+    _findWebsiteOwner(requestData) {
+      if (!this._trackerData?.domains) return null;
+      const siteUrlList = [...requestData.siteUrlSplit];
+      while (siteUrlList.length > 1) {
+        const siteToCheck = siteUrlList.join(".");
+        siteUrlList.shift();
+        const entityName = this._trackerData.domains[siteToCheck];
+        if (entityName) {
+          return entityName;
+        }
+      }
+      return null;
+    }
+    /**
+     * Find matching rule for a tracker
+     * @param {Tracker} tracker
+     * @param {RequestData} requestData
+     * @returns {TrackerRule | undefined}
+     */
+    _findRule(tracker, requestData) {
+      if (!tracker.rules?.length) return void 0;
+      return tracker.rules.find((ruleObj) => {
+        if (requestData.urlToCheck.match(ruleObj.rule)) {
+          if (ruleObj.options) {
+            return this._matchesRuleDefinition(ruleObj, "options", requestData);
+          }
+          return true;
+        }
+        return false;
+      });
+    }
+    /**
+     * Check if rule options/exceptions match request
+     * @param {TrackerRule} rule
+     * @param {'options' | 'exceptions'} type
+     * @param {RequestData} requestData
+     * @returns {boolean}
+     */
+    _matchesRuleDefinition(rule, type, requestData) {
+      const def = rule[type];
+      if (!def) return false;
+      const matchTypes = def.types?.length ? def.types.includes(requestData.request?.type || "") : true;
+      const matchDomains = def.domains?.length ? def.domains.some((d) => {
+        const siteParts = requestData.siteDomain.split(".");
+        while (siteParts.length > 1) {
+          if (siteParts.join(".") === d) return true;
+          siteParts.shift();
+        }
+        return false;
+      }) : true;
+      return matchTypes && matchDomains;
+    }
+    /**
+     * Determine blocking action and reason
+     * @param {object} params
+     * @param {boolean} params.firstParty
+     * @param {TrackerRule} [params.matchedRule]
+     * @param {boolean} params.matchedRuleException
+     * @param {string} [params.defaultAction]
+     * @param {boolean} params.redirectUrl - whether a surrogate redirect is available
+     * @returns {{ action: 'block' | 'ignore' | 'redirect', reason: string }}
+     */
+    _getAction({ firstParty, matchedRule, matchedRuleException, defaultAction, redirectUrl }) {
+      if (firstParty) {
+        return { action: "ignore", reason: REASON_FIRST_PARTY };
+      }
+      if (matchedRuleException) {
+        return { action: "ignore", reason: REASON_RULE_EXCEPTION };
+      }
+      if (!matchedRule && defaultAction === "ignore") {
+        return { action: "ignore", reason: REASON_DEFAULT_IGNORE };
+      }
+      if (matchedRule?.action === "ignore") {
+        return { action: "ignore", reason: REASON_MATCHED_RULE_IGNORE };
+      }
+      if (!matchedRule && defaultAction === "block") {
+        return { action: "block", reason: REASON_DEFAULT_BLOCK };
+      }
+      if (matchedRule) {
+        const ruleAction = matchedRule.action;
+        if (ruleAction && ruleAction !== "block" && !ruleAction.startsWith("block-ctl-")) {
+        } else if (redirectUrl) {
+          return { action: "redirect", reason: REASON_SURROGATE };
+        } else {
+          return { action: "block", reason: REASON_MATCHED_RULE_BLOCK };
+        }
+      }
+      if (defaultAction === "block") {
+        return { action: "block", reason: REASON_DEFAULT_BLOCK };
+      }
+      return { action: "ignore", reason: REASON_NO_MATCH };
+    }
+    /**
+     * Check if URL is in tracker allowlist
+     * @param {string} siteUrl - The page URL
+     * @param {string} requestUrl - The tracker URL
+     */
+    isAllowlisted(siteUrl, requestUrl) {
+      if (!Object.keys(this._allowlist).length) {
+        return false;
+      }
+      const parsedRequest = this._parseUrl(requestUrl);
+      const requestDomainParts = parsedRequest.domain.split(".");
+      let allowListEntry = null;
+      while (requestDomainParts.length > 1) {
+        const requestDomain = requestDomainParts.join(".");
+        allowListEntry = this._allowlist[requestDomain];
+        if (allowListEntry) break;
+        requestDomainParts.shift();
+      }
+      if (!allowListEntry) return false;
+      for (const entry of allowListEntry) {
+        if (requestUrl.match(entry.rule)) {
+          if (entry.domains.includes("<all>")) return true;
+          try {
+            const siteHost = new URL(siteUrl).hostname;
+            const siteDomainParts = siteHost.split(".");
+            while (siteDomainParts.length > 1) {
+              if (entry.domains.includes(siteDomainParts.join("."))) {
+                return true;
+              }
+              siteDomainParts.shift();
+            }
+          } catch {
+          }
+        }
+      }
+      return false;
+    }
+    /**
+     * Check if domain is unprotected (user-toggled, exact match only)
+     * @param {string} domain
+     */
+    isUserUnprotectedDomain(domain) {
+      return this._userUnprotectedDomains.includes(domain);
+    }
+    /**
+     * Check if domain is unprotected via wildcard matching (temp + contentBlocking exceptions).
+     * Walks up subdomains.
+     * @param {string} domain
+     */
+    isWildcardUnprotectedDomain(domain) {
+      if (this._wildcardUnprotectedDomains.includes(domain)) {
+        return true;
+      }
+      const parts = domain.split(".");
+      while (parts.length > 1) {
+        parts.shift();
+        if (this._wildcardUnprotectedDomains.includes(parts.join("."))) {
+          return true;
+        }
+      }
+      return false;
+    }
+    /**
+     * Check if domain is unprotected by any source
+     * @param {string} domain
+     */
+    isUnprotectedDomain(domain) {
+      return this.isUserUnprotectedDomain(domain) || this.isWildcardUnprotectedDomain(domain);
+    }
+    /**
+     * Check entity affiliation between a request and page domain.
+     * Used for non-tracker requests to determine "owned by first party" classification.
+     * @param {string} requestHost
+     * @param {string} pageHost
+     * @returns {{ affiliated: boolean, entityName: string | null, ownerName: string | null, prevalence: number | null }}
+     */
+    getEntityAffiliation(requestHost, pageHost) {
+      const requestOwner = this._findTrackerOwner(requestHost);
+      const normalizedPageHost = pageHost.replace(/^www\./, "");
+      const pageOwner = this._findTrackerOwner(normalizedPageHost);
+      if (requestOwner && pageOwner && requestOwner === pageOwner) {
+        const entity = this._trackerData?.entities?.[requestOwner];
+        return {
+          affiliated: true,
+          entityName: entity?.displayName || requestOwner,
+          ownerName: requestOwner,
+          prevalence: entity?.prevalence ?? null
+        };
+      }
+      return { affiliated: false, entityName: null, ownerName: null, prevalence: null };
+    }
+    /**
+     * Get surrogate function for a pattern
+     * @param {string} pattern
+     * @returns {(() => void) | undefined}
+     */
+    getSurrogate(pattern) {
+      return this._surrogateList[pattern];
+    }
+  };
+
+  // src/features/tracker-protection/surrogates-generated.js
+  init_define_import_meta_trackerLookup();
+  var surrogates = {
+    "ad_status.js": function() {
+      (() => {
+        "use strict";
+        window.google_ad_status = 1;
+      })();
+    },
+    "adsbygoogle.js": function() {
+      (() => {
+        if (window.adsbygoogle?.loaded === void 0) {
+          window.adsbygoogle = {
+            loaded: true,
+            push() {
+            }
+          };
+        }
+        if (window.gapi?._pl === void 0) {
+          const stub = {
+            go() {
+            },
+            render: () => ""
+          };
+          window.gapi = {
+            _pl: true,
+            additnow: stub,
+            autocomplete: stub,
+            backdrop: stub,
+            blogger: stub,
+            commentcount: stub,
+            comments: stub,
+            community: stub,
+            donation: stub,
+            family_creation: stub,
+            follow: stub,
+            hangout: stub,
+            health: stub,
+            interactivepost: stub,
+            load() {
+            },
+            logutil: {
+              enableDebugLogging() {
+              }
+            },
+            page: stub,
+            partnersbadge: stub,
+            person: stub,
+            platform: {
+              go() {
+              }
+            },
+            playemm: stub,
+            playreview: stub,
+            plus: stub,
+            plusone: stub,
+            post: stub,
+            profile: stub,
+            ratingbadge: stub,
+            recobar: stub,
+            savetoandroidpay: stub,
+            savetodrive: stub,
+            savetowallet: stub,
+            share: stub,
+            sharetoclassroom: stub,
+            shortlists: stub,
+            signin: stub,
+            signin2: stub,
+            surveyoptin: stub,
+            visibility: stub,
+            youtube: stub,
+            ytsubscribe: stub,
+            zoomableimage: stub
+          };
+        }
+        const spoofAdElements = () => {
+          const insElements = document.querySelectorAll("ins.adsbygoogle");
+          for (let i = 0; i < insElements.length; i++) {
+            const iframeId = "aswift_" + (i + 1);
+            const divId = iframeId + "_host";
+            if (document.getElementById(divId) || document.getElementById(iframeId)) {
+              continue;
+            }
+            const iframeElement = document.createElement("iframe");
+            iframeElement.style.setProperty("display", "none", "important");
+            iframeElement.style.setProperty("visibility", "collapse", "important");
+            iframeElement.id = iframeId;
+            iframeElement.setAttribute("name", iframeId);
+            iframeElement.setAttribute(
+              "data-google-container-id",
+              "a!" + (i + 2)
+            );
+            iframeElement.setAttribute(
+              "data-google-query-id",
+              "00000000000000-00000000000"
+            );
+            iframeElement.setAttribute("data-load-complete", "true");
+            const divElement = document.createElement("div");
+            divElement.style.setProperty("display", "none", "important");
+            divElement.style.setProperty("visibility", "collapse", "important");
+            divElement.id = divId;
+            divElement.setAttribute("title", "advertisement");
+            divElement.setAttribute("aria-label", "Advertisement");
+            divElement.appendChild(iframeElement);
+            const insElement = insElements[i];
+            insElement.style.setProperty("display", "none", "important");
+            insElement.style.setProperty("visibility", "collapse", "important");
+            insElement.setAttribute("data-ad-format", "auto");
+            insElement.setAttribute("data-adsbygoogle-status", "done");
+            insElement.setAttribute("data-ad-status", "filled");
+            insElement.appendChild(divElement);
+          }
+        };
+        if (document.readyState !== "loading") {
+          spoofAdElements();
+        } else {
+          window.addEventListener(
+            "DOMContentLoaded",
+            spoofAdElements,
+            { once: true }
+          );
+        }
+      })();
+    },
+    "amzn_ads.js": function() {
+      (() => {
+        "use strict";
+        if (window.amznads) {
+          return;
+        }
+        const noop = () => {
+        };
+        const noopHandler = {
+          get: () => {
+            return noop;
+          }
+        };
+        window.amznads = new Proxy({}, noopHandler);
+        window.amzn_ads = window.amzn_ads === void 0 ? noop : window.amzn_ads;
+        window.aax_write = window.aax_write === void 0 ? noop : window.aax_write;
+        window.aax_render_ad = window.aax_render_ad === void 0 ? noop : window.aax_render_ad;
+      })();
+    },
+    "amzn_apstag.js": function() {
+      "use strict";
+      if (!(window.apstag && window.apstag._getSlotIdToNameMapping)) {
+        const _Q = window.apstag && window.apstag._Q || [];
+        const newBid = (config) => {
+          return {
+            amznbid: "",
+            amzniid: "",
+            amznp: "",
+            amznsz: "0x0",
+            size: "0x0",
+            slotID: config.slotID
+          };
+        };
+        window.apstag = {
+          _Q,
+          _getSlotIdToNameMapping() {
+          },
+          bids() {
+          },
+          debug() {
+          },
+          deleteId() {
+          },
+          fetchBids(cfg, cb) {
+            if (!Array.isArray(cfg && cfg.slots)) {
+              return;
+            }
+            setTimeout(() => {
+              cb(cfg.slots.map((s) => newBid(s)));
+            }, 1);
+          },
+          init() {
+          },
+          punt() {
+          },
+          renderImp() {
+          },
+          renewId() {
+          },
+          setDisplayBids() {
+          },
+          targetingKeys: () => [],
+          thirdPartyData: {},
+          updateId() {
+          }
+        };
+        window.apstagLOADED = true;
+        const isIterable = (a2) => Array.isArray(a2) || typeof Symbol !== "undefined" && Symbol.iterator && a2[Symbol.iterator] || a2.toString() === "[object Arguments]";
+        _Q.push = function(prefix, args) {
+          if (isIterable(prefix) && typeof args === "undefined") {
+            [prefix, ...args] = Array.from(prefix);
+          }
+          if (args && args.length === 1 && isIterable(args[0])) {
+            args = Array.from(args[0]);
+          }
+          try {
+            switch (prefix) {
+              case "f":
+                window.apstag.fetchBids(...args);
+                break;
+              case "i":
+                window.apstag.init(...args);
+                break;
+            }
+          } catch (e) {
+            console.trace(e);
+          }
+        };
+        for (const cmd of _Q) {
+          _Q.push(cmd);
+        }
+      }
+    },
+    "analytics.js": function() {
+      (() => {
+        "use strict";
+        const noop = () => {
+        };
+        const noopHandler = {
+          get: function(target, prop) {
+            return noop;
+          }
+        };
+        const gaPointer = window.GoogleAnalyticsObject = window.GoogleAnalyticsObject === void 0 ? "ga" : window.GoogleAnalyticsObject;
+        const datalayer = window.dataLayer;
+        const Tracker = new Proxy({}, {
+          get(target, prop) {
+            if (prop === "get") {
+              return (fieldName) => {
+                if (fieldName === "linkerParam") {
+                  return "_ga=1.231587807.1974034684.1435105198";
+                }
+                return "something";
+              };
+            }
+            return noop;
+          }
+        });
+        let callQueue = null;
+        if (window[gaPointer] && Array.isArray(window[gaPointer].q)) {
+          callQueue = window[gaPointer].q;
+        }
+        const ga = function() {
+          const params = Array.from(arguments);
+          if (params.length === 1 && typeof params[0] === "function") {
+            try {
+              params[0](Tracker);
+            } catch (error) {
+            }
+            return void 0;
+          }
+          params.forEach((param) => {
+            if (param instanceof Object && typeof param.hitCallback === "function") {
+              try {
+                param.hitCallback();
+              } catch (error) {
+              }
+            }
+          });
+        };
+        ga.answer = 42;
+        ga.loaded = true;
+        ga.create = function() {
+          return new Proxy({}, noopHandler);
+        };
+        ga.getByName = function() {
+          return new Proxy({}, noopHandler);
+        };
+        ga.getAll = function() {
+          return [Tracker];
+        };
+        ga.remove = noop;
+        window[gaPointer] = ga;
+        if (datalayer && datalayer.hide && typeof datalayer.hide.end === "function") {
+          try {
+            datalayer.hide.end();
+          } catch (error) {
+          }
+        }
+        if (!(window.gaplugins && window.gaplugins.Linker)) {
+          window.gaplugins = window.gaplugins || {};
+          window.gaplugins.Linker = class {
+            autoLink() {
+            }
+            decorate(url) {
+              return url;
+            }
+            passthrough() {
+            }
+          };
+        }
+        if (callQueue) {
+          for (const args of callQueue) {
+            try {
+              ga(...args);
+            } catch (e) {
+            }
+          }
+        }
+      })();
+    },
+    "api.js": function() {
+      (() => {
+        const noop = () => {
+        };
+        const cxApiHandler = {
+          get: function(target, prop) {
+            if (typeof target[prop] !== "undefined") {
+              return Reflect.get(...arguments);
+            }
+            return noop;
+          }
+        };
+        const cxApiTarget = {
+          chooseVariation: () => {
+            return 0;
+          }
+        };
+        window.cxApi = new Proxy(cxApiTarget, cxApiHandler);
+      })();
+    },
+    "beacon.js": function() {
+      (() => {
+        "use strict";
+        const noop = () => {
+        };
+        window.udm_ = noop;
+        window._comscore = [];
+        window.COMSCORE = {
+          beacon: noop,
+          purge: () => {
+            window._comscore = [];
+          }
+        };
+      })();
+    },
+    "chartbeat.js": function() {
+      (() => {
+        "use strict";
+        const noop = () => {
+        };
+        const noopHandler = {
+          get: () => {
+            return noop;
+          }
+        };
+        const noopProxy = new Proxy({}, noopHandler);
+        window.pSUPERFLY = noopProxy;
+        window.pSUPERFLY_mab = noopProxy;
+      })();
+    },
+    "criteo.js": function() {
+      "use strict";
+      if (!(window.Criteo && window.Criteo.CallRTA)) {
+        window.Criteo = {
+          CallRTA() {
+          },
+          ComputeStandaloneDFPTargeting() {
+          },
+          DisplayAcceptableAdIfAdblocked() {
+          },
+          DisplayAd() {
+          },
+          GetBids() {
+          },
+          GetBidsForAdUnit() {
+          },
+          Passback: {
+            RequestBids() {
+            },
+            RenderAd() {
+            }
+          },
+          PubTag: {
+            Adapters: {
+              AMP() {
+              },
+              Prebid() {
+              }
+            },
+            Context: {
+              GetIdfs() {
+              },
+              SetIdfs() {
+              }
+            },
+            DirectBidding: {
+              DirectBiddingEvent() {
+              },
+              DirectBiddingSlot() {
+              },
+              DirectBiddingUrlBuilder() {
+              },
+              Size() {
+              }
+            },
+            RTA: {
+              DefaultCrtgContentName: "crtg_content",
+              DefaultCrtgRtaCookieName: "crtg_rta"
+            }
+          },
+          RenderAd() {
+          },
+          RequestBids() {
+          },
+          RequestBidsOnGoogleTagSlots() {
+          },
+          SetCCPAExplicitOptOut() {
+          },
+          SetCeh() {
+          },
+          SetDFPKeyValueTargeting() {
+          },
+          SetLineItemRanges() {
+          },
+          SetPublisherExt() {
+          },
+          SetSlotsExt() {
+          },
+          SetTargeting() {
+          },
+          SetUserExt() {
+          },
+          events: {
+            push() {
+            }
+          },
+          passbackEvents: [],
+          usePrebidEvents: true
+        };
+      }
+    },
+    "fb-sdk.js": function() {
+      (() => {
+        "use strict";
+        const facebookEntity = "Facebook, Inc.";
+        const DEFAULT_FB_SDK_URL = "https://connect.facebook.net/en_US/sdk.js?XFBML=false";
+        const originalFBURL = document?.currentScript?.src || DEFAULT_FB_SDK_URL;
+        let siteInit = function() {
+        };
+        let fbIsEnabled = false;
+        let initData = {};
+        let runInit = false;
+        const parseCalls = [];
+        const popupName = Math.random().toString(36).replace(/[^a-z]+/g, "").substr(0, 12);
+        const fbLogin = {
+          callback: function() {
+          },
+          params: void 0,
+          shouldRun: false
+        };
+        function messageAddon(detailObject) {
+          detailObject.entity = facebookEntity;
+          const event = new CustomEvent("ddg-ctp", {
+            detail: detailObject,
+            bubbles: false,
+            cancelable: false,
+            composed: false
+          });
+          dispatchEvent(event);
+        }
+        function enableFacebookSDK() {
+          if (!fbIsEnabled) {
+            window.FB = void 0;
+            window.fbAsyncInit = function() {
+              if (runInit && initData) {
+                window.FB.init(initData);
+              }
+              siteInit();
+              if (fbLogin.shouldRun) {
+                window.FB.login(fbLogin.callback, fbLogin.params);
+              }
+            };
+            const fbScript = document.createElement("script");
+            fbScript.setAttribute("crossorigin", "anonymous");
+            fbScript.setAttribute("async", "");
+            fbScript.setAttribute("defer", "");
+            fbScript.src = originalFBURL;
+            fbScript.onload = function() {
+              for (const node of parseCalls) {
+                window.FB.XFBML.parse.apply(window.FB.XFBML, node);
+              }
+            };
+            document.head.appendChild(fbScript);
+            fbIsEnabled = true;
+          } else {
+            if (initData) {
+              window.FB.init(initData);
+            }
+          }
+        }
+        function runFacebookLogin() {
+          fbLogin.shouldRun = true;
+          replaceWindowOpen();
+          loginPopup();
+          enableFacebookSDK();
+        }
+        function replaceWindowOpen() {
+          const oldOpen = window.open;
+          window.open = function(url, name, windowParams) {
+            const u = new URL(url);
+            if (u.origin === "https://www.facebook.com") {
+              name = popupName;
+            }
+            return oldOpen.call(window, url, name, windowParams);
+          };
+        }
+        function loginPopup() {
+          const width = Math.min(window.screen.width, 450);
+          const height = Math.min(window.screen.height, 450);
+          const popupParams = `width=${width},height=${height},scrollbars=1,location=1`;
+          window.open("about:blank", popupName, popupParams);
+        }
+        window.addEventListener("ddg-ctp-load-sdk", (event) => {
+          if (event.detail.entity === facebookEntity) {
+            enableFacebookSDK();
+          }
+        });
+        window.addEventListener("ddg-ctp-run-login", (event) => {
+          if (event.detail.entity === facebookEntity) {
+            runFacebookLogin();
+          }
+        });
+        window.addEventListener("ddg-ctp-cancel-modal", (event) => {
+          if (event.detail.entity === facebookEntity) {
+            fbLogin.callback({});
+          }
+        });
+        const bufferCalls = window.FB && window.FB.__buffer && window.FB.__buffer.calls;
+        function init2() {
+          if (window.fbAsyncInit) {
+            siteInit = window.fbAsyncInit;
+            window.fbAsyncInit();
+          }
+          if (bufferCalls) {
+            for (const [method, params] of bufferCalls) {
+              if (Object.prototype.hasOwnProperty.call(window.FB, method)) {
+                window.FB[method].apply(window.FB, params);
+              }
+            }
+          }
+        }
+        if (!window.FB || window.FB.__buffer) {
+          window.FB = {
+            api: function(url, cb) {
+              cb();
+            },
+            init: function(obj) {
+              if (obj) {
+                initData = obj;
+                runInit = true;
+                messageAddon({
+                  appID: obj.appId
+                });
+              }
+            },
+            ui: function(obj, cb) {
+              if (obj.method && obj.method === "share") {
+                const shareLink = "https://www.facebook.com/sharer/sharer.php?u=" + obj.href;
+                window.open(shareLink, "share-facebook", "width=550,height=235");
+              }
+              cb({});
+            },
+            getAccessToken: function() {
+            },
+            getAuthResponse: function() {
+              return { status: "" };
+            },
+            // eslint-disable-next-line node/no-callback-literal
+            getLoginStatus: function(callback) {
+              callback({ status: "unknown" });
+            },
+            getUserID: function() {
+            },
+            login: function(cb, params) {
+              fbLogin.callback = cb;
+              fbLogin.params = params;
+              messageAddon({
+                action: "login"
+              });
+            },
+            logout: function() {
+            },
+            AppEvents: {
+              EventNames: {},
+              logEvent: function(a2, b2, c) {
+              },
+              logPageView: function() {
+              }
+            },
+            Event: {
+              subscribe: function(event, callback) {
+                if (event === "xfbml.render") {
+                  callback();
+                }
+              },
+              unsubscribe: function() {
+              }
+            },
+            XFBML: {
+              parse: function(n) {
+                parseCalls.push(n);
+              }
+            }
+          };
+          if (document.readyState === "complete") {
+            init2();
+          } else {
+            window.addEventListener("load", (event) => {
+              init2();
+            });
+          }
+        }
+        window.dispatchEvent(new CustomEvent("ddg-ctp-surrogate-load"));
+      })();
+    },
+    "ga.js": function() {
+      (() => {
+        "use strict";
+        const noop = () => {
+        };
+        const noopReturnEmptyArray = () => {
+          return [];
+        };
+        const noopHandler = {
+          get: function(target, prop) {
+            if (typeof target[prop] !== "undefined") {
+              return Reflect.get(...arguments);
+            }
+            return noop;
+          }
+        };
+        const trackerTarget = {
+          _getLinkerUrl: function(arg) {
+            return arg;
+          }
+        };
+        const gaqTarget = {
+          push: function(arg) {
+            if (typeof arg === "function") {
+              try {
+                arg();
+              } catch (error) {
+              }
+              return;
+            }
+            if (Array.isArray(arg) === false) {
+              return;
+            }
+            if (arg[0] === "_link" && typeof arg[1] === "string") {
+              window.location.assign(arg[1]);
+            }
+            if (arg[0] === "_set" && arg[1] === "hitCallback" && typeof arg[2] === "function") {
+              try {
+                arg[2]();
+              } catch (error) {
+              }
+            }
+          }
+        };
+        const gatTarget = {
+          _getTracker: function() {
+            return new Proxy(trackerTarget, noopHandler);
+          },
+          _getTrackerByName: function() {
+            return new Proxy(trackerTarget, noopHandler);
+          },
+          _getTrackers: noopReturnEmptyArray
+        };
+        const gaqObj = new Proxy(gaqTarget, noopHandler);
+        const gatObj = new Proxy(gatTarget, noopHandler);
+        window._gat = gatObj;
+        const commandQueue = window._gaq && Array.isArray(window._gaq) ? window._gaq : [];
+        while (commandQueue.length > 0) {
+          gaqObj.push(commandQueue.shift());
+        }
+        window._gaq = gaqObj;
+      })();
+    },
+    "google-ima.js": function() {
+      "use strict";
+      if (!window.google || !window.google.ima || !window.google.ima.VERSION) {
+        const VERSION = "3.517.2";
+        const CheckCanAutoplay = (function() {
+          const TEST_VIDEO = new Blob(
+            [
+              new Uint32Array([
+                469762048,
+                1887007846,
+                1752392036,
+                0,
+                913273705,
+                1717987696,
+                828601953,
+                -1878917120,
+                1987014509,
+                1811939328,
+                1684567661,
+                0,
+                0,
+                0,
+                -402456576,
+                0,
+                256,
+                1,
+                0,
+                0,
+                256,
+                0,
+                0,
+                0,
+                256,
+                0,
+                0,
+                0,
+                64,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                33554432,
+                -201261056,
+                1801548404,
+                1744830464,
+                1684564852,
+                251658241,
+                0,
+                0,
+                0,
+                0,
+                16777216,
+                0,
+                -1,
+                -1,
+                0,
+                0,
+                0,
+                0,
+                256,
+                0,
+                0,
+                0,
+                256,
+                0,
+                0,
+                0,
+                64,
+                5,
+                53250,
+                -2080309248,
+                1634296941,
+                738197504,
+                1684563053,
+                1,
+                0,
+                0,
+                0,
+                0,
+                -2137614336,
+                -1,
+                -1,
+                50261,
+                754974720,
+                1919706216,
+                0,
+                0,
+                1701079414,
+                0,
+                0,
+                0,
+                1701079382,
+                1851869295,
+                1919249508,
+                16777216,
+                1852402979,
+                102,
+                1752004116,
+                100,
+                1,
+                0,
+                0,
+                1852400676,
+                102,
+                1701995548,
+                102,
+                0,
+                1,
+                1819440396,
+                32,
+                1,
+                1651799011,
+                108,
+                1937011607,
+                100,
+                0,
+                1,
+                1668702599,
+                49,
+                0,
+                1,
+                0,
+                0,
+                0,
+                33555712,
+                4718800,
+                4718592,
+                0,
+                65536,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                16776984,
+                1630601216,
+                21193590,
+                -14745500,
+                1729626337,
+                -1407254428,
+                89161945,
+                1049019,
+                9453056,
+                -251611125,
+                27269507,
+                -379058688,
+                -1329024392,
+                268435456,
+                1937011827,
+                0,
+                0,
+                268435456,
+                1668510835,
+                0,
+                0,
+                335544320,
+                2054386803,
+                0,
+                0,
+                0,
+                268435456,
+                1868788851,
+                0,
+                0,
+                671088640,
+                2019915373,
+                536870912,
+                2019914356,
+                0,
+                16777216,
+                16777216,
+                0,
+                0,
+                0
+              ])
+            ],
+            { type: "video/mp4" }
+          );
+          let testVideo;
+          return function() {
+            if (!testVideo) {
+              testVideo = document.createElement("video");
+              testVideo.style = "position:absolute; width:0; height:0; left:0; right:0; z-index:-1; border:0";
+              testVideo.setAttribute("muted", "muted");
+              testVideo.setAttribute("playsinline", "playsinline");
+              testVideo.src = URL.createObjectURL(TEST_VIDEO);
+              document.body.appendChild(testVideo);
+            }
+            return testVideo.play();
+          };
+        })();
+        const ima = {};
+        class AdDisplayContainer {
+          constructor(containerElement) {
+            const divElement = document.createElement("div");
+            divElement.style.setProperty("display", "none", "important");
+            divElement.style.setProperty("visibility", "collapse", "important");
+            containerElement.appendChild(divElement);
+          }
+          destroy() {
+          }
+          initialize() {
+          }
+        }
+        class ImaSdkSettings {
+          constructor() {
+            this.c = true;
+            this.f = {};
+            this.i = false;
+            this.l = "";
+            this.p = "";
+            this.r = 0;
+            this.t = "";
+            this.v = "";
+          }
+          getCompanionBackfill() {
+          }
+          getDisableCustomPlaybackForIOS10Plus() {
+            return this.i;
+          }
+          getFeatureFlags() {
+            return this.f;
+          }
+          getLocale() {
+            return this.l;
+          }
+          getNumRedirects() {
+            return this.r;
+          }
+          getPlayerType() {
+            return this.t;
+          }
+          getPlayerVersion() {
+            return this.v;
+          }
+          getPpid() {
+            return this.p;
+          }
+          isCookiesEnabled() {
+            return this.c;
+          }
+          setAutoPlayAdBreaks() {
+          }
+          setCompanionBackfill() {
+          }
+          setCookiesEnabled(c) {
+            this.c = !!c;
+          }
+          setDisableCustomPlaybackForIOS10Plus(i) {
+            this.i = !!i;
+          }
+          setFeatureFlags(f) {
+            this.f = f;
+          }
+          setLocale(l) {
+            this.l = l;
+          }
+          setNumRedirects(r) {
+            this.r = r;
+          }
+          setPlayerType(t) {
+            this.t = t;
+          }
+          setPlayerVersion(v2) {
+            this.v = v2;
+          }
+          setPpid(p) {
+            this.p = p;
+          }
+          setSessionId() {
+          }
+          setVpaidAllowed() {
+          }
+          setVpaidMode() {
+          }
+          // https://github.com/uBlockOrigin/uBlock-issues/issues/2265#issuecomment-1637094149
+          getDisableFlashAds() {
+          }
+          setDisableFlashAds() {
+          }
+        }
+        ImaSdkSettings.CompanionBackfillMode = {
+          ALWAYS: "always",
+          ON_MASTER_AD: "on_master_ad"
+        };
+        ImaSdkSettings.VpaidMode = {
+          DISABLED: 0,
+          ENABLED: 1,
+          INSECURE: 2
+        };
+        class EventHandler {
+          constructor() {
+            this.listeners = /* @__PURE__ */ new Map();
+          }
+          _dispatch(e) {
+            let listeners = this.listeners.get(e.type);
+            listeners = listeners ? Array.from(listeners.values()) : [];
+            for (const listener of listeners) {
+              try {
+                listener(e);
+              } catch (r) {
+                console.error(r);
+              }
+            }
+          }
+          addEventListener(types, c, options, context) {
+            if (!Array.isArray(types)) {
+              types = [types];
+            }
+            for (const t of types) {
+              if (!this.listeners.has(t)) {
+                this.listeners.set(t, /* @__PURE__ */ new Map());
+              }
+              this.listeners.get(t).set(c, c.bind(context || this));
+            }
+          }
+          removeEventListener(types, c) {
+            if (!Array.isArray(types)) {
+              types = [types];
+            }
+            for (const t of types) {
+              const typeSet = this.listeners.get(t);
+              if (typeSet) {
+                typeSet.delete(c);
+              }
+            }
+          }
+        }
+        class AdsLoader extends EventHandler {
+          constructor() {
+            super();
+            this.settings = new ImaSdkSettings();
+          }
+          contentComplete() {
+          }
+          destroy() {
+          }
+          getSettings() {
+            return this.settings;
+          }
+          getVersion() {
+            return VERSION;
+          }
+          requestAds() {
+            CheckCanAutoplay().then(
+              () => {
+                const { ADS_MANAGER_LOADED } = AdsManagerLoadedEvent.Type;
+                this._dispatch(new ima.AdsManagerLoadedEvent(ADS_MANAGER_LOADED));
+              },
+              () => {
+                const e = new ima.AdError(
+                  "adPlayError",
+                  1205,
+                  1205,
+                  "The browser prevented playback initiated without user interaction."
+                );
+                this._dispatch(new ima.AdErrorEvent(e));
+              }
+            );
+          }
+        }
+        class AdsManager extends EventHandler {
+          constructor() {
+            super();
+            this.volume = 1;
+            this._enablePreloading = false;
+          }
+          collapse() {
+          }
+          configureAdsManager() {
+          }
+          destroy() {
+          }
+          discardAdBreak() {
+          }
+          expand() {
+          }
+          focus() {
+          }
+          getAdSkippableState() {
+            return false;
+          }
+          getCuePoints() {
+            return [0];
+          }
+          getCurrentAd() {
+            return currentAd;
+          }
+          getCurrentAdCuePoints() {
+            return [];
+          }
+          getRemainingTime() {
+            return 0;
+          }
+          getVolume() {
+            return this.volume;
+          }
+          init() {
+            if (this._enablePreloading) {
+              this._dispatch(new ima.AdEvent(AdEvent.Type.LOADED));
+            }
+          }
+          isCustomClickTrackingUsed() {
+            return false;
+          }
+          isCustomPlaybackUsed() {
+            return false;
+          }
+          pause() {
+          }
+          requestNextAdBreak() {
+          }
+          resize() {
+          }
+          resume() {
+          }
+          setVolume(v2) {
+            this.volume = v2;
+          }
+          skip() {
+          }
+          start() {
+            requestAnimationFrame(() => {
+              for (const type of [
+                AdEvent.Type.LOADED,
+                AdEvent.Type.STARTED,
+                AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+                AdEvent.Type.AD_BUFFERING,
+                AdEvent.Type.FIRST_QUARTILE,
+                AdEvent.Type.MIDPOINT,
+                AdEvent.Type.THIRD_QUARTILE,
+                AdEvent.Type.COMPLETE,
+                AdEvent.Type.ALL_ADS_COMPLETED,
+                AdEvent.Type.CONTENT_RESUME_REQUESTED
+              ]) {
+                try {
+                  this._dispatch(new ima.AdEvent(type));
+                } catch (e) {
+                  console.error(e);
+                }
+              }
+            });
+          }
+          stop() {
+          }
+          updateAdsRenderingSettings() {
+          }
+        }
+        class AdsRenderingSettings {
+        }
+        class AdsRequest {
+          constructor() {
+            this.omidAccessModeRules = {};
+          }
+          setAdWillAutoPlay() {
+          }
+          setAdWillPlayMuted() {
+          }
+          setContinuousPlayback() {
+          }
+        }
+        class AdPodInfo {
+          getAdPosition() {
+            return 1;
+          }
+          getIsBumper() {
+            return false;
+          }
+          getMaxDuration() {
+            return -1;
+          }
+          getPodIndex() {
+            return 1;
+          }
+          getTimeOffset() {
+            return 0;
+          }
+          getTotalAds() {
+            return 1;
+          }
+        }
+        class Ad {
+          constructor() {
+            this._pi = new AdPodInfo();
+          }
+          getAdId() {
+            return "";
+          }
+          getAdPodInfo() {
+            return this._pi;
+          }
+          getAdSystem() {
+            return "";
+          }
+          getAdvertiserName() {
+            return "";
+          }
+          getApiFramework() {
+            return null;
+          }
+          getCompanionAds() {
+            return [];
+          }
+          getContentType() {
+            return "";
+          }
+          getCreativeAdId() {
+            return "";
+          }
+          getCreativeId() {
+            return "";
+          }
+          getDealId() {
+            return "";
+          }
+          getDescription() {
+            return "";
+          }
+          getDuration() {
+            return 8.5;
+          }
+          getHeight() {
+            return 0;
+          }
+          getMediaUrl() {
+            return null;
+          }
+          getMinSuggestedDuration() {
+            return -2;
+          }
+          getSkipTimeOffset() {
+            return -1;
+          }
+          getSurveyUrl() {
+            return null;
+          }
+          getTitle() {
+            return "";
+          }
+          getTraffickingParameters() {
+            return {};
+          }
+          getTraffickingParametersString() {
+            return "";
+          }
+          getUiElements() {
+            return [""];
+          }
+          getUniversalAdIdRegistry() {
+            return "unknown";
+          }
+          getUniversalAdIds() {
+            return [new UniversalAdIdInfo()];
+          }
+          getUniversalAdIdValue() {
+            return "unknown";
+          }
+          getVastMediaBitrate() {
+            return 0;
+          }
+          getVastMediaHeight() {
+            return 0;
+          }
+          getVastMediaWidth() {
+            return 0;
+          }
+          getWidth() {
+            return 0;
+          }
+          getWrapperAdIds() {
+            return [""];
+          }
+          getWrapperAdSystems() {
+            return [""];
+          }
+          getWrapperCreativeIds() {
+            return [""];
+          }
+          isLinear() {
+            return true;
+          }
+          isSkippable() {
+            return true;
+          }
+        }
+        class CompanionAd {
+          getAdSlotId() {
+            return "";
+          }
+          getContent() {
+            return "";
+          }
+          getContentType() {
+            return "";
+          }
+          getHeight() {
+            return 1;
+          }
+          getWidth() {
+            return 1;
+          }
+        }
+        class AdError {
+          constructor(type, code, vast, message) {
+            this.errorCode = code;
+            this.message = message;
+            this.type = type;
+            this.vastErrorCode = vast;
+          }
+          getErrorCode() {
+            return this.errorCode;
+          }
+          getInnerError() {
+            return null;
+          }
+          getMessage() {
+            return this.message;
+          }
+          getType() {
+            return this.type;
+          }
+          getVastErrorCode() {
+            return this.vastErrorCode;
+          }
+          toString() {
+            return `AdError ${this.errorCode}: ${this.message}`;
+          }
+        }
+        AdError.ErrorCode = {};
+        AdError.Type = {};
+        const currentAd = null;
+        class AdEvent {
+          constructor(type) {
+            this.type = type;
+          }
+          getAd() {
+            return currentAd;
+          }
+          getAdData() {
+            return {};
+          }
+        }
+        AdEvent.Type = {
+          AD_BREAK_READY: "adBreakReady",
+          AD_BUFFERING: "adBuffering",
+          AD_CAN_PLAY: "adCanPlay",
+          AD_METADATA: "adMetadata",
+          AD_PROGRESS: "adProgress",
+          ALL_ADS_COMPLETED: "allAdsCompleted",
+          CLICK: "click",
+          COMPLETE: "complete",
+          CONTENT_PAUSE_REQUESTED: "contentPauseRequested",
+          CONTENT_RESUME_REQUESTED: "contentResumeRequested",
+          DURATION_CHANGE: "durationChange",
+          EXPANDED_CHANGED: "expandedChanged",
+          FIRST_QUARTILE: "firstQuartile",
+          IMPRESSION: "impression",
+          INTERACTION: "interaction",
+          LINEAR_CHANGE: "linearChange",
+          LINEAR_CHANGED: "linearChanged",
+          LOADED: "loaded",
+          LOG: "log",
+          MIDPOINT: "midpoint",
+          PAUSED: "pause",
+          RESUMED: "resume",
+          SKIPPABLE_STATE_CHANGED: "skippableStateChanged",
+          SKIPPED: "skip",
+          STARTED: "start",
+          THIRD_QUARTILE: "thirdQuartile",
+          USER_CLOSE: "userClose",
+          VIDEO_CLICKED: "videoClicked",
+          VIDEO_ICON_CLICKED: "videoIconClicked",
+          VIEWABLE_IMPRESSION: "viewable_impression",
+          VOLUME_CHANGED: "volumeChange",
+          VOLUME_MUTED: "mute"
+        };
+        class AdErrorEvent {
+          constructor(error) {
+            this.type = "adError";
+            this.error = error;
+          }
+          getError() {
+            return this.error;
+          }
+          getUserRequestContext() {
+            return {};
+          }
+        }
+        AdErrorEvent.Type = {
+          AD_ERROR: "adError"
+        };
+        const manager = new AdsManager();
+        class AdsManagerLoadedEvent {
+          constructor(type) {
+            this.type = type;
+          }
+          getAdsManager(c, settings) {
+            if (settings && settings.enablePreloading) {
+              manager._enablePreloading = true;
+            }
+            return manager;
+          }
+          getUserRequestContext() {
+            return {};
+          }
+        }
+        AdsManagerLoadedEvent.Type = {
+          ADS_MANAGER_LOADED: "adsManagerLoaded"
+        };
+        class CustomContentLoadedEvent {
+        }
+        CustomContentLoadedEvent.Type = {
+          CUSTOM_CONTENT_LOADED: "deprecated-event"
+        };
+        class CompanionAdSelectionSettings {
+        }
+        CompanionAdSelectionSettings.CreativeType = {
+          ALL: "All",
+          FLASH: "Flash",
+          IMAGE: "Image"
+        };
+        CompanionAdSelectionSettings.ResourceType = {
+          ALL: "All",
+          HTML: "Html",
+          IFRAME: "IFrame",
+          STATIC: "Static"
+        };
+        CompanionAdSelectionSettings.SizeCriteria = {
+          IGNORE: "IgnoreSize",
+          SELECT_EXACT_MATCH: "SelectExactMatch",
+          SELECT_NEAR_MATCH: "SelectNearMatch"
+        };
+        class AdCuePoints {
+          getCuePoints() {
+            return [];
+          }
+        }
+        class AdProgressData {
+        }
+        class UniversalAdIdInfo {
+          getAdIdRegistry() {
+            return "";
+          }
+          getAdIdValue() {
+            return "";
+          }
+        }
+        Object.assign(ima, {
+          AdCuePoints,
+          AdDisplayContainer,
+          AdError,
+          AdErrorEvent,
+          AdEvent,
+          AdPodInfo,
+          AdProgressData,
+          AdsLoader,
+          AdsManager: manager,
+          AdsManagerLoadedEvent,
+          AdsRenderingSettings,
+          AdsRequest,
+          CompanionAd,
+          CompanionAdSelectionSettings,
+          CustomContentLoadedEvent,
+          gptProxyInstance: {},
+          ImaSdkSettings,
+          OmidAccessMode: {
+            DOMAIN: "domain",
+            FULL: "full",
+            LIMITED: "limited"
+          },
+          OmidVerificationVendor: {
+            1: "OTHER",
+            2: "GOOGLE",
+            GOOGLE: 2,
+            OTHER: 1
+          },
+          settings: new ImaSdkSettings(),
+          UiElements: {
+            AD_ATTRIBUTION: "adAttribution",
+            COUNTDOWN: "countdown"
+          },
+          UniversalAdIdInfo,
+          VERSION,
+          ViewMode: {
+            FULLSCREEN: "fullscreen",
+            NORMAL: "normal"
+          }
+        });
+        if (!window.google) {
+          window.google = {};
+        }
+        window.google.ima = ima;
+      }
+    },
+    "gpt.js": function() {
+      (() => {
+        "use strict";
+        const noop = () => {
+        };
+        const noopReturnNull = () => {
+          return null;
+        };
+        const noopReturnEmptyArray = () => {
+          return [];
+        };
+        const noopReturnEmptyString = () => {
+          return "";
+        };
+        const noopReturnThis = function() {
+          return this;
+        };
+        const noopHandler = {
+          get: function(target, prop, receiver) {
+            if (typeof target[prop] !== "undefined") {
+              return Reflect.get(...arguments);
+            }
+            return noop;
+          }
+        };
+        const noopReturnThisHandler = {
+          get: function(target, prop, receiver) {
+            if (typeof target[prop] !== "undefined") {
+              return Reflect.get(...arguments);
+            }
+            return noopReturnThis;
+          }
+        };
+        const passbackTarget = {
+          display: noop,
+          get: noopReturnNull
+        };
+        let targeting = {};
+        function setTargeting(key, value) {
+          const val = Array.isArray(value) ? value : [value];
+          targeting[key] = val;
+        }
+        function getTargeting(key) {
+          if (key in targeting) {
+            return targeting[key];
+          }
+          return [];
+        }
+        function getTargetingKeys() {
+          return Object.keys(targeting);
+        }
+        function clearTargeting(key) {
+          if (key) {
+            targeting[key] = [];
+          } else {
+            targeting = {};
+          }
+        }
+        const pubadsTarget = {
+          addEventListener: noopReturnThis,
+          clearCategoryExclusions: noopReturnThis,
+          clearTagForChildDirectedTreatment: noopReturnThis,
+          clearTargeting,
+          definePassback: function() {
+            return new Proxy(passbackTarget, noopReturnThisHandler);
+          },
+          defineOutOfPagePassback: function() {
+            return new Proxy(passbackTarget, noopReturnThisHandler);
+          },
+          get: noopReturnNull,
+          getAttributeKeys: noopReturnEmptyArray,
+          getTargetingKeys,
+          getSlots: noopReturnEmptyArray,
+          set: noopReturnThis,
+          setCategoryExclusion: noopReturnThis,
+          setCookieOptions: noopReturnThis,
+          setForceSafeFrame: noopReturnThis,
+          setLocation: noopReturnThis,
+          setPublisherProvidedId: noopReturnThis,
+          setRequestNonPersonalizedAds: noopReturnThis,
+          setSafeFrameConfig: noopReturnThis,
+          setTagForChildDirectedTreatment: noopReturnThis,
+          setTargeting,
+          getTargeting,
+          setVideoContent: noopReturnThis
+        };
+        const companionadsTarget = {
+          addEventListener: noopReturnThis
+        };
+        const sizeMappingTarget = {
+          build: noopReturnNull
+        };
+        const contentTarget = {
+          addEventListener: noopReturnThis
+        };
+        const slotTarget = {
+          get: noopReturnNull,
+          getAdUnitPath: noopReturnEmptyArray,
+          getAttributeKeys: noopReturnEmptyArray,
+          getCategoryExclusions: noopReturnEmptyArray,
+          getDomId: noopReturnEmptyString,
+          getSlotElementId: noopReturnEmptyString,
+          getTargeting,
+          getTargetingKeys
+        };
+        const gptObj = {
+          _loadStarted_: true,
+          apiReady: true,
+          pubadsReady: true,
+          cmd: [],
+          pubads: function() {
+            return new Proxy(pubadsTarget, noopHandler);
+          },
+          companionAds: function() {
+            return new Proxy(companionadsTarget, noopHandler);
+          },
+          sizeMapping: function() {
+            return new Proxy(sizeMappingTarget, noopReturnThisHandler);
+          },
+          content: function() {
+            return new Proxy(contentTarget, noopHandler);
+          },
+          defineSlot: function() {
+            return new Proxy(slotTarget, noopReturnThisHandler);
+          },
+          defineOutOfPageSlot: function() {
+            return new Proxy(slotTarget, noopReturnThisHandler);
+          },
+          defineUnit: noopReturnNull,
+          destroySlots: noop,
+          disablePublisherConsole: noop,
+          display: noop,
+          enableServices: noop,
+          getVersion: noopReturnEmptyString,
+          setAdIframeTitle: noop
+        };
+        const commandQueue = window.googletag && window.googletag.cmd.length ? window.googletag.cmd : [];
+        gptObj.cmd.push = function(arg) {
+          if (typeof arg === "function") {
+            try {
+              arg();
+            } catch (error) {
+            }
+          }
+          return 1;
+        };
+        window.googletag = gptObj;
+        while (commandQueue.length > 0) {
+          gptObj.cmd.push(commandQueue.shift());
+        }
+      })();
+    },
+    "gtm.js": function() {
+      (() => {
+        "use strict";
+        const noop = () => {
+        };
+        const datalayer = window.dataLayer;
+        window.ga = window.ga === void 0 ? noop : window.ga;
+        if (datalayer) {
+          if (typeof datalayer.push === "function") {
+            datalayer.push = (obj) => {
+              if (typeof obj === "object" && typeof obj.eventCallback === "function") {
+                const timeout = obj.eventTimeout || 10;
+                try {
+                  setTimeout(obj.eventCallback, timeout);
+                } catch (error) {
+                }
+              }
+            };
+          }
+          if (datalayer.hide && datalayer.hide.end) {
+            try {
+              datalayer.hide.end();
+            } catch (error) {
+            }
+          }
+        }
+      })();
+    },
+    "inpage_linkid.js": function() {
+      (() => {
+        const gaqObj = {
+          push: () => {
+          }
+        };
+        window._gaq = window._gaq === void 0 ? gaqObj : window._gaq;
+      })();
+    },
+    "nielsen.js": function() {
+      "use strict";
+      if (!window.nol_t) {
+        const cid = "";
+        let domain = "";
+        let schemeHost = "";
+        let scriptName = "";
+        try {
+          const url = document?.currentScript?.src;
+          const { pathname, protocol, host } = new URL(url);
+          domain = host.split(".").slice(0, -2).join(".");
+          schemeHost = `${protocol}//${host}/`;
+          scriptName = pathname.split("/").pop();
+        } catch (_2) {
+        }
+        class NolTracker {
+          constructor() {
+            this.CONST = {
+              max_tags: 20
+            };
+            this.feat = {};
+            this.globals = {
+              cid,
+              content: "0",
+              defaultApidFile: "config250",
+              defaultErrorParams: {
+                nol_vcid: "c00",
+                nol_clientid: ""
+              },
+              domain,
+              fpidSfCodeList: [""],
+              init() {
+              },
+              tagCurrRetry: -1,
+              tagMaxRetry: 3,
+              wlCurrRetry: -1,
+              wlMaxRetry: 3
+            };
+            this.pmap = [];
+            this.pvar = {
+              cid,
+              content: "0",
+              cookies_enabled: "n",
+              server: domain
+            };
+            this.scriptName = [scriptName];
+            this.version = "6.0.107";
+          }
+          addScript() {
+          }
+          catchLinkOverlay() {
+          }
+          clickEvent() {
+          }
+          clickTrack() {
+          }
+          // eslint-disable-next-line camelcase
+          do_sample() {
+          }
+          downloadEvent() {
+          }
+          eventTrack() {
+          }
+          filter() {
+          }
+          fireToUrl() {
+          }
+          getSchemeHost() {
+            return schemeHost;
+          }
+          getVersion() {
+          }
+          iframe() {
+          }
+          // eslint-disable-next-line camelcase
+          in_sample() {
+            return true;
+          }
+          injectBsdk() {
+          }
+          invite() {
+          }
+          linkTrack() {
+          }
+          mergeFeatures() {
+          }
+          pageEvent() {
+          }
+          pause() {
+          }
+          populateWhitelist() {
+          }
+          post() {
+          }
+          postClickTrack() {
+          }
+          postData() {
+          }
+          postEvent() {
+          }
+          postEventTrack() {
+          }
+          postLinkTrack() {
+          }
+          prefix() {
+            return "";
+          }
+          processDdrsSvc() {
+          }
+          random() {
+          }
+          record() {
+            return this;
+          }
+          regLinkOverlay() {
+          }
+          regListen() {
+          }
+          retrieveCiFileViaCors() {
+          }
+          sectionEvent() {
+          }
+          sendALink() {
+          }
+          sendForm() {
+          }
+          sendIt() {
+          }
+          slideEvent() {
+          }
+          whitelistAssigned() {
+          }
+        }
+        ;
+        window.nol_t = () => {
+          return new NolTracker();
+        };
+      }
+    },
+    "noop.js": function() {
+      (() => {
+        "use strict";
+      })();
+    },
+    "outbrain.js": function() {
+      (() => {
+        "use strict";
+        const noop = () => {
+        };
+        const noopHandler = {
+          get: () => {
+            return noop;
+          }
+        };
+        const noopObrExternHandler = {
+          get: function(target, prop, receiver) {
+            if (prop === "video" || prop === "feed" || prop === "recReasons") {
+              return Reflect.get(...arguments);
+            }
+            return noop;
+          }
+        };
+        const noopProxy = new Proxy({}, noopHandler);
+        const obrExternTarget = {
+          video: {
+            getVideoRecs: noop,
+            initInPlayerWidget: noop,
+            videoClicked: noop
+          },
+          feed: {
+            loadNextChunk: noop
+          },
+          recReasons: {
+            backFromScopedWidget: noop,
+            loadScopedWidget: noop,
+            onRecFollowClick: noop,
+            onRecLinkHover: noop,
+            onRecLinkHoverOut: noop
+          }
+        };
+        const obrObj = {
+          ready: true,
+          error: noop,
+          extern: new Proxy(obrExternTarget, noopObrExternHandler),
+          display: noopProxy,
+          controller: noopProxy,
+          printLog: noop,
+          IntersectionObserver: noop,
+          proxy: noopProxy,
+          languageManager: noopProxy
+        };
+        window.OBR$ = noop;
+        window.OB_releaseVer = "200037";
+        window.OBR = window.OBR === void 0 ? obrObj : window.OBR;
+        window.OB_PROXY = window.OB_PROXY === void 0 ? noopProxy : window.OB_PROXY;
+        window.outbrain = window.outbrain === void 0 ? noopProxy : window.outbrain;
+        window.outbrain_rater = window.outbrain_rater === void 0 ? noopProxy : window.outbrain_rater;
+      })();
+    },
+    "youtube-iframe-api.js": function() {
+      (() => {
+        "use strict";
+        if (typeof YT !== "undefined") {
+          return;
+        }
+        const youtubeEntityName = "Youtube";
+        const iframeAPIURL = "https://www.youtube.com/iframe_api";
+        const defaultHeight = 640;
+        const defaultWidth = 390;
+        let realOnYouTubeIframeAPIReady;
+        let RealYTPlayer = null;
+        let RealYTGet = null;
+        let youTubeIframeAPILoaded = false;
+        let youTubeIframeAPILoadingPromise = null;
+        const mockPlayerByVideoElement = /* @__PURE__ */ new WeakMap();
+        const onReadyListenerByVideoElement = /* @__PURE__ */ new WeakMap();
+        const onStateChangeListenerByVideoElement = /* @__PURE__ */ new WeakMap();
+        const otherEventListenersByVideoElement = /* @__PURE__ */ new WeakMap();
+        const videoElementsByID = /* @__PURE__ */ new Map();
+        const videoElementByPlaceholderElement = /* @__PURE__ */ new Map();
+        const placeholderElementByVideoElement = /* @__PURE__ */ new Map();
+        function* allVideoElements() {
+          yield* videoElementByPlaceholderElement.values();
+          yield* videoElementsByID.values();
+        }
+        function handleDeferredVideoLoad(target, url, eventListeners) {
+          const fakeVideoLoad = () => {
+            const listeners = otherEventListenersByVideoElement.get(target) || [];
+            for (const [eventName, listener] of listeners) {
+              switch (eventName) {
+                case "onAutoplayBlocked":
+                  listener({ target: this });
+                  break;
+                case "onStateChange":
+                  listener({ target: this, data: window.YT.PlayerState.PAUSED });
+                  break;
+              }
+            }
+          };
+          const fakeStateChange = (state) => {
+            const listeners = otherEventListenersByVideoElement.get(target) || [];
+            for (const [eventName, listener] of listeners) {
+              if (eventName === "onStateChange") {
+                listener({ target: this, data: state });
+                break;
+              }
+            }
+          };
+          this.getIframe = () => target;
+          this.loadVideoById = (videoId) => {
+            url.pathname = "/embed/" + encodeURIComponent(videoId);
+            target.src = url.href;
+            fakeVideoLoad();
+          };
+          this.loadVideoByUrl = (videoUrl) => {
+            url.pathname = new URL(videoUrl).pathname;
+            target.src = url.href;
+            fakeVideoLoad();
+          };
+          this.addEventListener = (eventName, listener) => {
+            if (typeof listener !== "function") {
+              listener = window[listener.toString()];
+            }
+            if (typeof listener !== "function") {
+              return;
+            }
+            if (!otherEventListenersByVideoElement.has(target)) {
+              otherEventListenersByVideoElement.set(target, []);
+            }
+            otherEventListenersByVideoElement.get(target).push([eventName, listener]);
+          };
+          for (const eventName of Object.keys(eventListeners)) {
+            if (eventName === "onReady") {
+              continue;
+            }
+            this.addEventListener(eventName, eventListeners[eventName]);
+          }
+          this.playVideo = fakeStateChange.bind(this, window.YT.PlayerState.PLAYING);
+          this.pauseVideo = fakeStateChange.bind(this, window.YT.PlayerState.PAUSED);
+          this.stopVideo = fakeStateChange.bind(this, window.YT.PlayerState.ENDED);
+          this.getCurrentTime = () => 0;
+          this.getDuration = () => 0;
+          this.removeEventListener = () => {
+          };
+          eventListeners.onReady({ target: this });
+        }
+        function fakeYTGet(id) {
+          if (RealYTGet) {
+            const player = RealYTGet(id);
+            if (player) {
+              return player;
+            }
+          }
+          for (const videoElement of allVideoElements()) {
+            const player = mockPlayerByVideoElement.get(videoElement);
+            if (player) {
+              return player;
+            }
+          }
+          return void 0;
+        }
+        function Player(target, config = {}, ...rest) {
+          if (youTubeIframeAPILoaded) {
+            return new RealYTPlayer(target, config, ...rest);
+          }
+          let { height, width, videoId, playerVars = {}, events } = config;
+          if (!(target instanceof Element)) {
+            const orignalTarget = target;
+            target = document.getElementById(orignalTarget);
+            if (!target) {
+              for (const videoElement of allVideoElements()) {
+                if (videoElement.id == orignalTarget) {
+                  target = videoElement;
+                  break;
+                }
+              }
+            }
+          }
+          if (videoElementByPlaceholderElement.has(target)) {
+            target = videoElementByPlaceholderElement.get(target);
+          }
+          if (!target) {
+            throw new Error("Target not found");
+          }
+          const url = new URL(window.YTConfig.host);
+          url.pathname = "/embed/";
+          if (target instanceof HTMLIFrameElement) {
+            let existingUrl;
+            try {
+              existingUrl = new URL(target.src);
+            } catch (e) {
+            }
+            if (existingUrl?.hostname === "youtube.com" || existingUrl?.hostname === "youtube-nocookie.com" || existingUrl?.hostname === "www.youtube.com" || existingUrl?.hostname === "www.youtube-nocookie.com") {
+              if (existingUrl.pathname.startsWith("/embed/")) {
+                videoId = videoId || existingUrl.pathname.substr(7);
+              }
+              for (const [key, value] of existingUrl.searchParams) {
+                url.searchParams.set(key, value);
+              }
+            }
+          }
+          if (!placeholderElementByVideoElement.has(target)) {
+            if (!playerVars.list && videoId) {
+              url.pathname += encodeURIComponent(videoId);
+            }
+            for (const [key, value] of Object.entries(playerVars)) {
+              url.searchParams.set(key, value);
+            }
+            url.searchParams.set("enablejsapi", "1");
+            if (target instanceof HTMLIFrameElement) {
+              target.src = url.href;
+            } else {
+              const videoIframe = document.createElement("iframe");
+              videoIframe.height = height?.toString() || defaultHeight;
+              videoIframe.width = width?.toString() || defaultWidth;
+              videoIframe.src = url.href;
+              if (target.id) {
+                videoIframe.id = target.id;
+              }
+              target.replaceWith(videoIframe);
+              target = videoIframe;
+            }
+            target.dispatchEvent(new CustomEvent("ddg-ctp-replace-element"));
+          }
+          if (events) {
+            if (events.onReady) {
+              if (!playerVars.list && !videoId) {
+                window.setTimeout(
+                  handleDeferredVideoLoad.bind(
+                    this,
+                    target,
+                    url,
+                    events
+                  ),
+                  0
+                );
+              } else {
+                onReadyListenerByVideoElement.set(target, events.onReady);
+              }
+            }
+            if (events.onStateChange) {
+              onStateChangeListenerByVideoElement.set(target, events.onStateChange);
+            }
+          }
+          mockPlayerByVideoElement.set(target, this);
+          this.playerInfo = {};
+          return this;
+        }
+        window.YTConfig = {
+          host: "https://www.youtube.com"
+        };
+        window.YT = {
+          loading: 1,
+          loaded: 1,
+          Player,
+          PlayerState: {
+            UNSTARTED: -1,
+            ENDED: 0,
+            PLAYING: 1,
+            PAUSED: 2,
+            BUFFERING: 3,
+            CUED: 5
+          },
+          setConfig(config) {
+            for (const key of Object.keys(config)) {
+              window.YTConfig[key] = config[key];
+            }
+          },
+          get: fakeYTGet,
+          ready() {
+          },
+          scan() {
+          },
+          subscribe() {
+          },
+          unsubscribe() {
+          }
+        };
+        function ensureYouTubeIframeAPILoaded() {
+          if (youTubeIframeAPILoaded) {
+            return Promise.resolve();
+          }
+          if (youTubeIframeAPILoadingPromise) {
+            return youTubeIframeAPILoadingPromise;
+          }
+          const loadingPromise = new Promise((resolve, reject) => {
+            window.onYouTubeIframeAPIReady = resolve;
+          }).then(() => {
+            window.onYouTubeIframeAPIReady = realOnYouTubeIframeAPIReady;
+            RealYTPlayer = window.YT.Player;
+            RealYTGet = window.YT.get;
+            window.YT.get = fakeYTGet;
+            youTubeIframeAPILoaded = true;
+            youTubeIframeAPILoadingPromise = null;
+          });
+          delete window.YT;
+          const script = document.createElement("script");
+          script.src = iframeAPIURL;
+          document.body.appendChild(script);
+          youTubeIframeAPILoadingPromise = loadingPromise;
+          return loadingPromise;
+        }
+        function onClickToPlayReady() {
+          realOnYouTubeIframeAPIReady = window.onYouTubeIframeAPIReady;
+          if (typeof realOnYouTubeIframeAPIReady === "function") {
+            realOnYouTubeIframeAPIReady();
+          }
+        }
+        function onElementAnnounced(name) {
+          return ({
+            target,
+            detail: {
+              entity,
+              widgetID: videoID,
+              replaceSettings: { type: replaceType }
+            }
+          }) => {
+            if (entity !== youtubeEntityName || replaceType !== "youtube-video") {
+              return;
+            }
+            let entry = videoElementsByID.get(videoID);
+            if (entry) {
+              entry[name] = target;
+              videoElementByPlaceholderElement.set(entry.placeholder, entry.video);
+              placeholderElementByVideoElement.set(entry.video, entry.placeholder);
+              videoElementsByID.delete(videoID);
+            } else {
+              entry = { [name]: target };
+              videoElementsByID.set(videoID, entry);
+            }
+          };
+        }
+        async function onPlaceholderClicked({
+          target,
+          detail: {
+            entity,
+            replaceSettings: { type: replaceType }
+          }
+        }) {
+          if (entity !== youtubeEntityName || replaceType !== "youtube-video") {
+            return;
+          }
+          await ensureYouTubeIframeAPILoaded();
+          const mockPlayer = mockPlayerByVideoElement.get(target);
+          if (!mockPlayer) {
+            return;
+          }
+          const onReadyListener = onReadyListenerByVideoElement.get(target);
+          const onStateChangeListener = onStateChangeListenerByVideoElement.get(target);
+          const otherEventListeners = otherEventListenersByVideoElement.get(target);
+          const config = { events: {} };
+          if (onStateChangeListener && !otherEventListeners) {
+            config.events.onStateChange = onStateChangeListener;
+          }
+          let realPlayer;
+          config.events.onReady = (...args) => {
+            const properties = Object.getOwnPropertyDescriptors(realPlayer);
+            for (const [property, descriptor] of Object.entries(properties)) {
+              if (Object.prototype.hasOwnProperty.call(descriptor, "value") && typeof descriptor.value !== "function" && !descriptor.get && !descriptor.set) {
+                delete descriptor.writable;
+                delete descriptor.value;
+                descriptor.get = () => realPlayer[property];
+                descriptor.set = (newValue) => {
+                  realPlayer[property] = newValue;
+                };
+              } else {
+                for (const key of ["get", "set", "value"]) {
+                  const value = descriptor[key];
+                  if (typeof value === "function") {
+                    descriptor[key] = value.bind(realPlayer);
+                  }
+                }
+              }
+            }
+            delete this.playerInfo;
+            Object.defineProperties(mockPlayer, properties);
+            mockPlayer.__proto__ = realPlayer;
+            if (onReadyListener) {
+              onReadyListener(...args);
+            }
+            if (otherEventListeners) {
+              for (const [eventName, eventListener] of otherEventListeners) {
+                if (eventName === "onStateChange") {
+                  let loading = true;
+                  realPlayer.addEventListener(eventName, ({ target: target2, data }) => {
+                    if (loading) {
+                      if (data === window.YT.PlayerState.PLAYING || data === window.YT.PlayerState.ENDED) {
+                        loading = false;
+                      } else {
+                        return;
+                      }
+                    }
+                    eventListener({ target: target2, data });
+                  });
+                } else {
+                  realPlayer.addEventListener(eventName, eventListener);
+                }
+              }
+            }
+          };
+          realPlayer = new RealYTPlayer(target, config);
+          onReadyListenerByVideoElement.delete(target);
+          onStateChangeListenerByVideoElement.delete(target);
+        }
+        window.addEventListener(
+          "ddg-ctp-ready",
+          onClickToPlayReady,
+          { once: true }
+        );
+        window.addEventListener(
+          "ddg-ctp-tracking-element",
+          onElementAnnounced("video"),
+          { capture: true }
+        );
+        window.addEventListener(
+          "ddg-ctp-placeholder-element",
+          onElementAnnounced("placeholder"),
+          { capture: true }
+        );
+        window.addEventListener(
+          "ddg-ctp-placeholder-clicked",
+          onPlaceholderClicked,
+          { capture: true }
+        );
+        window.dispatchEvent(new CustomEvent("ddg-ctp-surrogate-load"));
+      })();
+    }
+  };
+
+  // src/features/tracker-protection.js
+  var REASON_UNPROTECTED_DOMAIN = "unprotectedDomain";
+  var REASON_THIRD_PARTY_REQUEST = "thirdPartyRequest";
+  var REASON_AFFILIATED_THIRD_PARTY = "thirdPartyRequestOwnedByFirstParty";
+  function getTabURL() {
+    let framingOrigin = null;
+    try {
+      framingOrigin = globalThis.top?.location.href;
+    } catch {
+      framingOrigin = globalThis.document.referrer;
+      if ("ancestorOrigins" in globalThis.location && globalThis.location.ancestorOrigins.length) {
+        framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+      }
+    }
+    try {
+      return framingOrigin ? new URL(framingOrigin) : null;
+    } catch {
+      return null;
+    }
+  }
+  var TrackerProtection = class extends ContentFeature {
+    init() {
+      this._resolver = null;
+      this._seenUrls = /* @__PURE__ */ new Set();
+      this._topLevelUrl = null;
+      this._blockingEnabled = true;
+      this._isUnprotectedDomain = false;
+      this._observer = null;
+      this._topLevelUrl = getTabURL();
+      if (!this._topLevelUrl) {
+        return;
+      }
+      this._blockingEnabled = this.getFeatureSetting("blockingEnabled") !== false;
+      if (!this._blockingEnabled) {
+        this.log.info("Tracker blocking disabled via config");
+        return;
+      }
+      const surrogates2 = surrogates;
+      const trackerData = this.args?.trackerData;
+      if (!trackerData) {
+        return;
+      }
+      this._resolver = new TrackerResolver({
+        trackerData,
+        surrogates: surrogates2,
+        allowlist: this.getFeatureSetting("allowlist"),
+        userUnprotectedDomains: this.getFeatureSetting("userUnprotectedDomains") || [],
+        wildcardUnprotectedDomains: [
+          ...this.getFeatureSetting("tempUnprotectedDomains") || [],
+          ...this.getFeatureSetting("contentBlockingExceptions") || []
+        ]
+      });
+      this._isUnprotectedDomain = this._resolver.isUnprotectedDomain(this._topLevelUrl.hostname);
+      if (this._isUnprotectedDomain) {
+        this.log.info("Domain is unprotected:", this._topLevelUrl.hostname);
+      }
+      this._ctlEnabled = this.getFeatureSetting("ctlEnabled") !== false;
+      this._setupInterception();
+    }
+    /**
+     * Set up resource interception for tracker detection.
+     * Covers scripts, images, XHR, fetch, iframes, and link elements.
+     */
+    _setupInterception() {
+      this._setupMutationObserver();
+      this._setupXHRInterception();
+      this._setupFetchInterception();
+      this._setupImageSrcInterception();
+      if (document.readyState === "complete") {
+        this._processPageOnLoad();
+      } else {
+        window.addEventListener("load", () => this._processPageOnLoad(), { once: true });
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", () => this._scanExistingScripts(), { once: true });
+        } else {
+          this._scanExistingScripts();
+        }
+      }
+    }
+    _setupMutationObserver() {
+      this._observer = new MutationObserver((records) => {
+        for (const record of records) {
+          for (const node of record.addedNodes) {
+            this._processAddedNode(node);
+          }
+          if (record.target instanceof HTMLScriptElement && record.attributeName === "src") {
+            this._checkAndBlock(record.target.src, "script", record.target);
+          }
+        }
+      });
+      const startObserving = () => {
+        if (document.documentElement && this._observer) {
+          this._observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+            attributeFilter: ["src"]
+          });
+        }
+      };
+      if (document.documentElement) {
+        startObserving();
+      } else {
+        document.addEventListener("DOMContentLoaded", startObserving, { once: true });
+      }
+    }
+    _setupXHRInterception() {
+      const checkAndReport = this._checkAndReport.bind(this);
+      const xhrProto = XMLHttpRequest.prototype;
+      const originalOpen = xhrProto.open;
+      const originalSend = xhrProto.send;
+      const xhrUrls = /* @__PURE__ */ new WeakMap();
+      const xhrTracked = /* @__PURE__ */ new WeakSet();
+      xhrProto.open = function(method, url, async, username, password) {
+        xhrUrls.set(this, String(url));
+        const asyncValue = async === void 0 ? true : async;
+        return originalOpen.call(this, method, url, asyncValue, username, password);
+      };
+      xhrProto.send = function(...args) {
+        if (!xhrTracked.has(this)) {
+          xhrTracked.add(this);
+          this.addEventListener("error", () => {
+            checkAndReport(xhrUrls.get(this) || "", "xmlhttprequest");
+          });
+        }
+        return originalSend.apply(this, args);
+      };
+      this._originalXHROpen = originalOpen;
+      this._originalXHRSend = originalSend;
+    }
+    _setupFetchInterception() {
+      const checkAndReport = this._checkAndReport.bind(this);
+      const originalFetch = window.fetch;
+      window.fetch = function(...args) {
+        try {
+          if (args.length > 0) {
+            const input = args[0];
+            if (typeof input === "string") {
+              checkAndReport(input, "fetch");
+            } else if (input instanceof URL) {
+              checkAndReport(input.href, "fetch");
+            } else if (input?.url) {
+              checkAndReport(input.url, "fetch");
+            }
+          }
+        } catch {
+        }
+        return originalFetch.apply(window, args);
+      };
+      this._originalFetch = originalFetch;
+    }
+    _setupImageSrcInterception() {
+      const checkAndReport = this._checkAndReport.bind(this);
+      const originalDescriptor = Object.getOwnPropertyDescriptor(Image.prototype, "src");
+      if (!originalDescriptor?.get || !originalDescriptor?.set) return;
+      this._originalImageSrc = originalDescriptor;
+      const imgTracked = /* @__PURE__ */ new WeakSet();
+      const origGet = originalDescriptor.get;
+      const origSet = originalDescriptor.set;
+      delete Image.prototype.src;
+      Object.defineProperty(Image.prototype, "src", {
+        configurable: true,
+        get: function() {
+          return origGet.call(this);
+        },
+        set: function(value) {
+          if (!imgTracked.has(this)) {
+            imgTracked.add(this);
+            this.addEventListener("error", () => {
+              checkAndReport(origGet.call(this), "image");
+            });
+          }
+          origSet.call(this, value);
+        }
+      });
+    }
+    /**
+     * Process a node added to the DOM, including any nested scripts/images.
+     * @param {Node} node
+     */
+    _processAddedNode(node) {
+      if (node instanceof HTMLScriptElement) {
+        if (node.src) this._checkAndBlock(node.src, "script", node);
+        return;
+      }
+      if (node instanceof HTMLImageElement) {
+        if (node.src) this._checkAndReport(node.src, "image");
+        return;
+      }
+      if (node instanceof Element) {
+        for (const script of node.querySelectorAll("script[src]")) {
+          this._checkAndBlock(
+            /** @type {HTMLScriptElement} */
+            script.src,
+            "script",
+            /** @type {HTMLScriptElement} */
+            script
+          );
+        }
+        for (const img of node.querySelectorAll("img[src]")) {
+          this._checkAndReport(
+            /** @type {HTMLImageElement} */
+            img.src,
+            "image"
+          );
+        }
+      }
+    }
+    /**
+     * Early scan for scripts at DOMContentLoaded, before the full page load.
+     * Catches head scripts that may have loaded before the MutationObserver started.
+     */
+    _scanExistingScripts() {
+      if (!this._seenUrls) return;
+      for (const el of document.scripts) {
+        if (el.src && !this._seenUrls.has(el.src)) {
+          this._checkAndBlock(el.src, "script", el);
+        }
+      }
+    }
+    /**
+     * On page load, scan all resource elements for tracker reporting.
+     * Scripts are included here too — _seenUrls deduplication prevents
+     * re-processing any that were already caught by _scanExistingScripts.
+     */
+    _processPageOnLoad() {
+      if (!this._seenUrls) return;
+      for (const el of document.scripts) {
+        if (el.src && !this._seenUrls.has(el.src)) {
+          this._checkAndBlock(el.src, "script", el);
+        }
+      }
+      for (const el of document.querySelectorAll("link")) {
+        if (
+          /** @type {HTMLLinkElement} */
+          el.href && !this._seenUrls.has(
+            /** @type {HTMLLinkElement} */
+            el.href
+          )
+        ) {
+          this._checkAndReport(
+            /** @type {HTMLLinkElement} */
+            el.href,
+            "link"
+          );
+        }
+      }
+      for (const el of document.images) {
+        if (el.naturalWidth === 0 && el.src && !this._seenUrls.has(el.src)) {
+          this._checkAndReport(el.src, "image");
+        }
+      }
+      for (const el of document.querySelectorAll("iframe")) {
+        if (
+          /** @type {HTMLIFrameElement} */
+          el.src && !this._seenUrls.has(
+            /** @type {HTMLIFrameElement} */
+            el.src
+          )
+        ) {
+          this._checkAndReport(
+            /** @type {HTMLIFrameElement} */
+            el.src,
+            "iframe"
+          );
+        }
+      }
+    }
+    /**
+     * Report a non-tracker third-party request for the privacy dashboard.
+     * Reports all cross-hostname requests; native applies PSL-based eTLD+1 filtering.
+     * @param {string} url
+     * @param {string} topUrl
+     */
+    _reportThirdPartyRequest(url, topUrl) {
+      try {
+        const requestHost = new URL(url).hostname;
+        const pageHost = new URL(topUrl).hostname;
+        if (requestHost === pageHost) return;
+        let reason = REASON_THIRD_PARTY_REQUEST;
+        let entityName = null;
+        let ownerName = null;
+        let prevalence = null;
+        if (this._resolver) {
+          const affiliation = this._resolver.getEntityAffiliation(requestHost, pageHost);
+          if (affiliation.affiliated) {
+            reason = REASON_AFFILIATED_THIRD_PARTY;
+            entityName = affiliation.entityName;
+            ownerName = affiliation.ownerName;
+            prevalence = affiliation.prevalence;
+          }
+        }
+        this.notify("trackerDetected", {
+          url,
+          blocked: false,
+          reason,
+          isSurrogate: false,
+          pageUrl: this._topLevelUrl?.href || "",
+          entityName,
+          ownerName,
+          category: null,
+          prevalence,
+          isAllowlisted: false
+        });
+      } catch {
+      }
+    }
+    /**
+     * Report a resource URL for tracker detection without surrogate handling.
+     * Used for non-script resources (XHR, fetch, images, iframes, links).
+     * @param {string} url
+     * @param {string} resourceType
+     */
+    _checkAndReport(url, resourceType) {
+      if (!url || !this._resolver || !this._seenUrls || this._seenUrls.has(url)) return;
+      if (!url.startsWith("http://") && !url.startsWith("https://")) return;
+      this._seenUrls.add(url);
+      if (!this._blockingEnabled) return;
+      const topUrl = this._topLevelUrl?.toString() || "";
+      const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
+      if (!result) {
+        this._reportThirdPartyRequest(url, topUrl);
+        return;
+      }
+      const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
+      let blocked = false;
+      if (this._isUnprotectedDomain) {
+        result.reason = REASON_UNPROTECTED_DOMAIN;
+      } else if (isAllowlisted) {
+        blocked = false;
+        result.reason = REASON_RULE_EXCEPTION;
+      } else if (result.action !== "ignore") {
+        blocked = true;
+      }
+      if (result.tracker) {
+        this.notify("trackerDetected", {
+          url,
+          blocked,
+          reason: result.reason || null,
+          isSurrogate: false,
+          pageUrl: this._topLevelUrl?.href || "",
+          entityName: result.entity?.displayName || result.tracker.owner?.displayName || null,
+          ownerName: result.tracker.owner?.name || null,
+          category: result.tracker.categories?.[0] || null,
+          prevalence: result.entity?.prevalence ?? null,
+          isAllowlisted
+        });
+      }
+    }
+    /**
+     * Check a script URL and potentially load a surrogate for it.
+     * Also reports tracker detection.
+     * @param {string} url
+     * @param {string} resourceType
+     * @param {HTMLElement | null} element
+     */
+    _checkAndBlock(url, resourceType, element = null) {
+      if (!url || !this._resolver || !this._seenUrls) {
+        return false;
+      }
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        return false;
+      }
+      this._seenUrls.add(url);
+      if (!this._blockingEnabled) {
+        return false;
+      }
+      const topUrl = this._topLevelUrl?.toString() || "";
+      const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
+      if (!result) {
+        this._reportThirdPartyRequest(url, topUrl);
+        return false;
+      }
+      const hasSurrogate = result.action === "redirect";
+      const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
+      let blocked = false;
+      if (this._isUnprotectedDomain) {
+        result.reason = REASON_UNPROTECTED_DOMAIN;
+      } else if (isAllowlisted) {
+        blocked = false;
+        result.reason = REASON_RULE_EXCEPTION;
+      } else if (result.action !== "ignore") {
+        blocked = true;
+      }
+      let willLoadSurrogate = false;
+      if (blocked && hasSurrogate && !isAllowlisted && result.matchedRule?.surrogate) {
+        const hasIntegrityCheck = element instanceof HTMLScriptElement && element.integrity;
+        const isCtlSurrogate = result.matchedRule?.action?.startsWith("block-ctl-") === true;
+        willLoadSurrogate = !hasIntegrityCheck && (!isCtlSurrogate || this._ctlEnabled === true);
+      }
+      if (result.tracker) {
+        this.notify("trackerDetected", {
+          url,
+          blocked,
+          reason: result.reason || null,
+          isSurrogate: willLoadSurrogate,
+          pageUrl: this._topLevelUrl?.href || "",
+          entityName: result.entity?.displayName || result.tracker.owner?.displayName || null,
+          ownerName: result.tracker.owner?.name || null,
+          category: result.tracker.categories?.[0] || null,
+          prevalence: result.entity?.prevalence ?? null,
+          isAllowlisted
+        });
+      }
+      if (willLoadSurrogate && result.matchedRule?.surrogate) {
+        const surrogateName = result.matchedRule.surrogate;
+        const loaded = this._loadSurrogate(surrogateName, element);
+        if (loaded) {
+          this.notify("surrogateInjected", {
+            url,
+            blocked: true,
+            reason: result.reason,
+            isSurrogate: true,
+            pageUrl: this._topLevelUrl?.href || "",
+            entityName: result.entity?.displayName || result.tracker?.owner?.displayName || null,
+            ownerName: result.tracker?.owner?.name || null
+          });
+        }
+        return loaded;
+      }
+      return blocked;
+    }
+    /**
+     * Load a surrogate script from the build-time generated surrogate map.
+     *
+     * @param {string} pattern - Surrogate pattern (e.g., "adsbygoogle.js")
+     * @param {HTMLElement | null} targetElement - Original element being replaced
+     * @returns {boolean} true if the surrogate was successfully executed
+     */
+    _loadSurrogate(pattern, targetElement) {
+      if (!this._resolver) {
+        return false;
+      }
+      const surrogateFn = this._resolver.getSurrogate(pattern);
+      if (typeof surrogateFn !== "function") {
+        return false;
+      }
+      try {
+        if (targetElement && "onerror" in targetElement) {
+          targetElement.onerror = null;
+        }
+        surrogateFn();
+        if (targetElement) {
+          targetElement.dispatchEvent(new Event("load"));
+        }
+        return true;
+      } catch (e) {
+        this.log.error("Surrogate execution failed:", pattern, e);
+        return false;
+      }
+    }
+    /**
+     * Clean up on feature destroy
+     */
+    destroy() {
+      this._observer?.disconnect();
+      this._observer = null;
+      if (this._originalXHROpen && this._originalXHRSend) {
+        XMLHttpRequest.prototype.open = this._originalXHROpen;
+        XMLHttpRequest.prototype.send = this._originalXHRSend;
+      }
+      if (this._originalFetch) {
+        window.fetch = this._originalFetch;
+      }
+      if (this._originalImageSrc) {
+        delete Image.prototype.src;
+        Object.defineProperty(Image.prototype, "src", this._originalImageSrc);
+      }
+    }
+  };
+  var tracker_protection_default = TrackerProtection;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_webCompat: web_compat_default,
@@ -10250,7 +13364,8 @@ ${iframeContent}
     ddg_feature_exceptionHandler: ExceptionHandler,
     ddg_feature_apiManipulation: ApiManipulation,
     ddg_feature_pageContext: PageContext,
-    ddg_feature_print: print_default
+    ddg_feature_print: print_default,
+    ddg_feature_trackerProtection: tracker_protection_default
   };
 
   // src/url-change.js

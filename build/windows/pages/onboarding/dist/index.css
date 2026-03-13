@@ -3163,7 +3163,7 @@ h2 {
   animation: Bubble_fade-out 100ms cubic-bezier(0.66, 0, 0.34, 1) forwards;
 }
 .Bubble_fadeIn {
-  animation: Bubble_fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) 400ms backwards;
+  animation: Bubble_fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) var(--fade-in-delay, 400ms) backwards;
 }
 .Bubble_bottomLeftTail {
   position: absolute;
@@ -3424,7 +3424,7 @@ h2 {
   font-size: var(--sp-6);
   font-weight: 700;
   line-height: var(--sp-7);
-  text-align: center;
+  text-align: left;
   color: var(--ds-text-primary);
   word-wrap: break-word;
   text-box-trim: trim-both;
@@ -3438,6 +3438,7 @@ h2 {
 }
 .MakeDefaultContent_titleContainer {
   position: relative;
+  align-self: stretch;
 }
 .MakeDefaultContent_title {
   padding: calc(2 * var(--px-in-rem)) var(--sp-3);
@@ -3452,6 +3453,14 @@ h2 {
 .MakeDefaultContent_sparkle.MakeDefaultContent_hidden {
   visibility: hidden;
 }
+.MakeDefaultContent_content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  gap: var(--sp-8);
+  animation: MakeDefaultContent_stagger-fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) var(--stagger-delay, 650ms) backwards;
+}
 .MakeDefaultContent_actions {
   position: relative;
   display: flex;
@@ -3465,6 +3474,19 @@ h2 {
 }
 .MakeDefaultContent_skipButton {
   flex: 1;
+}
+@keyframes MakeDefaultContent_stagger-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .MakeDefaultContent_content {
+    animation: none;
+  }
 }
 
 /* pages/onboarding/app/v4/components/SettingsContent.module.css */
@@ -3587,7 +3609,7 @@ h2 {
   font-size: var(--sp-6);
   font-weight: 700;
   line-height: var(--sp-7);
-  text-align: center;
+  text-align: left;
   white-space: pre-line;
   color: var(--ds-text-primary);
   margin: 0;
@@ -3599,7 +3621,7 @@ h2 {
   font-size: calc(18 * var(--px-in-rem));
   font-weight: 400;
   line-height: calc(22 * var(--px-in-rem));
-  text-align: center;
+  text-align: left;
   white-space: pre-line;
   color: var(--ds-text-primary);
   margin: 0;
@@ -3645,7 +3667,8 @@ h2 {
   position: absolute;
   top: 0;
   left: 0;
-  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 .DuckPlayerContent_actions {
   display: flex;
@@ -3885,7 +3908,7 @@ h2 {
   font-size: calc(18 * var(--px-in-rem));
   font-weight: 400;
   line-height: calc(22 * var(--px-in-rem));
-  text-align: center;
+  text-align: left;
   color: var(--ds-text-primary);
   word-wrap: break-word;
   text-box-trim: trim-both;
