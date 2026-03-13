@@ -187,8 +187,7 @@ export class MessageBridge extends ContentFeature {
         }
 
         const unsubscribe = proxy.subscribe(subscriptionName, (data) => {
-            const params =
-                data !== null && typeof data === 'object' && !Array.isArray(data) ? data : undefined;
+            const params = data !== null && typeof data === 'object' && !Array.isArray(data) ? data : undefined;
             const responseEvent = new SubscriptionResponse({
                 subscriptionName,
                 featureName,

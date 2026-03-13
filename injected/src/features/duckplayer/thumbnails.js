@@ -162,8 +162,7 @@ export class Thumbnails {
 
                 // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
                 // that we know to be a thumbnail overlay, like a preview
-                const matched =
-                    target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
+                const matched = target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
                 if (matched) {
                     appendOverlay(hoverElement);
                 }
@@ -226,8 +225,7 @@ export class ClickInterception {
 
                 // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
                 // that we know to be a thumbnail overlay, like a preview
-                const matched =
-                    target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
+                const matched = target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
                 if (matched) {
                     block(validLink);
                 }
