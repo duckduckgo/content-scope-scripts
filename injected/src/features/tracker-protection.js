@@ -476,6 +476,8 @@ export class TrackerProtection extends ContentFeature {
                     reason: result.reason,
                     isSurrogate: true,
                     pageUrl: this._topLevelUrl?.href || '',
+                    entityName: result.entity?.displayName || result.tracker?.owner?.displayName || null,
+                    ownerName: result.tracker?.owner?.name || null,
                 });
             }
 

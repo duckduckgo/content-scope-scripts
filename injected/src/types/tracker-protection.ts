@@ -43,6 +43,14 @@ export interface SurrogateInjected {
    * The URL of the page where the tracker was detected
    */
   pageUrl: string;
+  /**
+   * The display name of the tracker entity
+   */
+  entityName?: string | null;
+  /**
+   * The owner name of the tracker
+   */
+  ownerName?: string | null;
 }
 /**
  * Generated from @see "../messages/tracker-protection/trackerDetected.notify.json"

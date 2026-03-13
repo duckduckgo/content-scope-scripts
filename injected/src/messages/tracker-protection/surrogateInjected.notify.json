@@ -24,6 +24,14 @@
     "pageUrl": {
       "type": "string",
       "description": "The URL of the page where the tracker was detected"
+    },
+    "entityName": {
+      "type": ["string", "null"],
+      "description": "The display name of the tracker entity"
+    },
+    "ownerName": {
+      "type": ["string", "null"],
+      "description": "The owner name of the tracker"
     }
   }
 }

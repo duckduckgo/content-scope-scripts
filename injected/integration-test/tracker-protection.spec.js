@@ -56,6 +56,8 @@ test('tracker-protection: loads surrogate for matching rule', async ({ page }, t
     const injected = await collector.waitForMessage('surrogateInjected', 1);
     expect(injected[0].payload.params.url).toBe('https://tracker.example/scripts/analytics.js');
     expect(injected[0].payload.params.isSurrogate).toBe(true);
+    expect(injected[0].payload.params.entityName).toBe('Tracker Inc');
+    expect(injected[0].payload.params.ownerName).toBe('Tracker Inc');
 });
 
 test('tracker-protection: reports non-tracker third-party URL as thirdPartyRequest', async ({ page }, testInfo) => {
