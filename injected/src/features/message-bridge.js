@@ -45,6 +45,9 @@ export class MessageBridge extends ContentFeature {
      */
     installed = false;
 
+    /**
+     * @param {{messageSecret: string, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig}} args
+     */
     init(args) {
         /**
          * This feature never operates in a frame or insecure context
@@ -66,12 +69,14 @@ export class MessageBridge extends ContentFeature {
         }
 
         /**
-         * @param {{name: string; id: string} & Record<string, any>} incoming
+         * @param {{name: string; id: string}} incoming - Event payload to dispatch
          */
         const reply = (incoming) => {
             if (!args.messageSecret) return this.log.info('ignoring because args.messageSecret was absent');
             const eventName = appendToken(incoming.name + '-' + incoming.id);
-            const event = new captured.CustomEvent(eventName, { detail: incoming });
+            /** @type {CustomEventInit} */
+            const eventInit = { detail: incoming };
+            const event = new captured.CustomEvent(String(eventName), eventInit);
             captured.dispatchEvent(event);
         };
 
@@ -81,9 +86,10 @@ export class MessageBridge extends ContentFeature {
          * @param {(instance: T) => void} callback - A callback that receives an instance of the class.
          */
         const accept = (ClassType, callback) => {
-            captured.addEventListener(appendToken(ClassType.NAME), (/** @type {CustomEvent<unknown>} */ e) => {
-                this.log.info(`${ClassType.NAME}`, JSON.stringify(e.detail));
-                const instance = ClassType.create(e.detail);
+            captured.addEventListener(String(appendToken(ClassType.NAME)), (e) => {
+                const ev = /** @type {CustomEvent<unknown>} */ (e);
+                this.log.info(`${ClassType.NAME}`, JSON.stringify(ev.detail));
+                const instance = ClassType.create(ev.detail);
                 if (instance) {
                     callback(instance);
                 } else {
@@ -97,7 +103,8 @@ export class MessageBridge extends ContentFeature {
          */
         this.log.info(`bridge is installing...`);
         accept(InstallProxy, (install) => {
-            this.installProxyFor(install, args.messagingConfig, reply);
+            const config = args.messagingConfig;
+            if (config) this.installProxyFor(install, config, reply);
         });
         accept(ProxyNotification, (notification) => this.proxyNotification(notification));
         accept(ProxyRequest, (request) => this.proxyRequest(request, reply));
@@ -111,7 +118,7 @@ export class MessageBridge extends ContentFeature {
      *
      * @param {InstallProxy} install
      * @param {import('@duckduckgo/messaging').MessagingConfig} config
-     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+     * @param {(payload: {name: string; id: string}) => void} reply
      */
     installProxyFor(install, config, reply) {
         const { id, featureName } = install;
@@ -131,7 +138,7 @@ export class MessageBridge extends ContentFeature {
 
     /**
      * @param {ProxyRequest} request
-     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+     * @param {(payload: {name: string; id: string}) => void} reply
      */
     async proxyRequest(request, reply) {
         const { id, featureName, method, params } = request;
@@ -151,10 +158,11 @@ export class MessageBridge extends ContentFeature {
             });
             reply(responseEvent);
         } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
             const errorResponseEvent = new ProxyResponse({
                 method,
                 featureName,
-                error: { message: e.message },
+                error: { message },
                 id,
             });
             reply(errorResponseEvent);
@@ -163,7 +171,7 @@ export class MessageBridge extends ContentFeature {
 
     /**
      * @param {SubscriptionRequest} subscription
-     * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
+     * @param {(payload: {name: string; id: string}) => void} reply
      */
     proxySubscription(subscription, reply) {
         const { id, featureName, subscriptionName } = subscription;
@@ -178,11 +186,13 @@ export class MessageBridge extends ContentFeature {
             this.removeSubscription(id);
         }
 
-        const unsubscribe = proxy.subscribe(subscriptionName, (/** @type {Record<string, any>} */ data) => {
+        const unsubscribe = proxy.subscribe(subscriptionName, (data) => {
+            const params =
+                data !== null && typeof data === 'object' && !Array.isArray(data) ? data : undefined;
             const responseEvent = new SubscriptionResponse({
                 subscriptionName,
                 featureName,
-                params: data,
+                params,
                 id,
             });
             reply(responseEvent);
@@ -212,6 +222,9 @@ export class MessageBridge extends ContentFeature {
         proxy.notify(notification.method, notification.params);
     }
 
+    /**
+     * @param {unknown} _args
+     */
     load(_args) {}
 }
 
