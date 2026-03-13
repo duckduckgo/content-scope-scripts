@@ -4,6 +4,7 @@
 
 .titleContainer {
     position: relative;
+    align-self: stretch;
 }
 
 .title {
@@ -22,6 +23,15 @@
     }
 }
 
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--sp-8); /* 32px — match Container gap */
+    animation: stagger-fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) var(--stagger-delay, 650ms) backwards;
+}
+
 .actions {
     position: relative;
     display: flex;
@@ -37,4 +47,15 @@
 
 .skipButton {
     flex: 1;
+}
+
+@keyframes stagger-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .content {
+        animation: none;
+    }
 }
