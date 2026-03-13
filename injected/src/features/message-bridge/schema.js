@@ -84,9 +84,8 @@ export class ProxyRequest {
         if (!('featureName' in params) || !isString(params.featureName)) return null;
         if (!('method' in params) || !isString(params.method)) return null;
         if (!('id' in params) || !isString(params.id)) return null;
-        if (('params' in params) && params.params != null && !isObject(params.params)) return null;
-        const requestParams =
-            ('params' in params) && params.params != null && isObject(params.params) ? params.params : undefined;
+        if ('params' in params && params.params != null && !isObject(params.params)) return null;
+        const requestParams = 'params' in params && params.params != null && isObject(params.params) ? params.params : undefined;
         return new ProxyRequest({
             featureName: params.featureName,
             method: params.method,
@@ -124,12 +123,10 @@ export class ProxyResponse {
         if (!('featureName' in params) || !isString(params.featureName)) return null;
         if (!('method' in params) || !isString(params.method)) return null;
         if (!('id' in params) || !isString(params.id)) return null;
-        if (('result' in params) && params.result != null && !isObject(params.result)) return null;
-        if (('error' in params) && params.error != null && !isObject(params.error)) return null;
-        const responseResult =
-            ('result' in params) && params.result != null && isObject(params.result) ? params.result : undefined;
-        const responseError =
-            ('error' in params) && params.error != null && isObject(params.error) ? params.error : undefined;
+        if ('result' in params && params.result != null && !isObject(params.result)) return null;
+        if ('error' in params && params.error != null && !isObject(params.error)) return null;
+        const responseResult = 'result' in params && params.result != null && isObject(params.result) ? params.result : undefined;
+        const responseError = 'error' in params && params.error != null && isObject(params.error) ? params.error : undefined;
         return new ProxyResponse({
             featureName: params.featureName,
             method: params.method,
@@ -166,9 +163,8 @@ export class ProxyNotification {
         if (!isObject(params)) return null;
         if (!('featureName' in params) || !isString(params.featureName)) return null;
         if (!('method' in params) || !isString(params.method)) return null;
-        if (('params' in params) && params.params != null && !isObject(params.params)) return null;
-        const notificationParams =
-            ('params' in params) && params.params != null && isObject(params.params) ? params.params : undefined;
+        if ('params' in params && params.params != null && !isObject(params.params)) return null;
+        const notificationParams = 'params' in params && params.params != null && isObject(params.params) ? params.params : undefined;
         return new ProxyNotification({
             featureName: params.featureName,
             method: params.method,
@@ -235,9 +231,8 @@ export class SubscriptionResponse {
         if (!('featureName' in params) || !isString(params.featureName)) return null;
         if (!('subscriptionName' in params) || !isString(params.subscriptionName)) return null;
         if (!('id' in params) || !isString(params.id)) return null;
-        if (('params' in params) && params.params != null && !isObject(params.params)) return null;
-        const responseParams =
-            ('params' in params) && params.params != null && isObject(params.params) ? params.params : undefined;
+        if ('params' in params && params.params != null && !isObject(params.params)) return null;
+        const responseParams = 'params' in params && params.params != null && isObject(params.params) ? params.params : undefined;
         return new SubscriptionResponse({
             featureName: params.featureName,
             subscriptionName: params.subscriptionName,

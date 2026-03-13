@@ -349,15 +349,22 @@ export class WebCompat extends ContentFeature {
             ? (/** @type {string} */ name, /** @type {Record<string, unknown>} */ data) => {
                   feature.notify(
                       /** @type {'showNotification'|'closeNotification'} */ (name),
-                      /** @type {import('../types/web-compat.js').ShowNotificationParams|import('../types/web-compat.js').CloseNotificationParams} */ (/** @type {unknown} */ (data)),
+                      /** @type {import('../types/web-compat.js').ShowNotificationParams|import('../types/web-compat.js').CloseNotificationParams} */ (
+                          /** @type {unknown} */ (data)
+                      ),
                   );
               }
             : () => {};
         const nativeRequest = nativeEnabled
-            ? (/** @type {string} */ name, /** @type {Record<string, unknown>} */ data) => feature.request(/** @type {'requestPermission'} */ (name), /** @type {import('../types/web-compat.js').RequestPermissionParams} */ (data))
+            ? (/** @type {string} */ name, /** @type {Record<string, unknown>} */ data) =>
+                  feature.request(
+                      /** @type {'requestPermission'} */ (name),
+                      /** @type {import('../types/web-compat.js').RequestPermissionParams} */ (data),
+                  )
             : () => Promise.resolve(/** @type {{ permission: NotificationPermission }} */ ({ permission: 'denied' }));
         const nativeSubscribe = nativeEnabled
-            ? (/** @type {string} */ name, /** @type {(data: { id: string; event: string }) => void} */ cb) => feature.subscribe(/** @type {'notificationEvent'} */ (name), cb)
+            ? (/** @type {string} */ name, /** @type {(data: { id: string; event: string }) => void} */ cb) =>
+                  feature.subscribe(/** @type {'notificationEvent'} */ (name), cb)
             : () => () => {};
         // Permission is 'default' when enabled (not yet determined), 'denied' when disabled
         /** @type {NotificationPermission} */
@@ -483,14 +490,14 @@ export class WebCompat extends ContentFeature {
 
         // Subscribe to notification events from native
         nativeSubscribe('notificationEvent', (/** @type {{ id: string; event: string }} */ data) => {
-                const notification = this.#webNotifications.get(data.id);
-                if (!notification) return;
+            const notification = this.#webNotifications.get(data.id);
+            if (!notification) return;
 
-                const eventName = `on${data.event}`;
-                const notif = /** @type {Record<string, unknown>} */ (notification);
-                if (typeof notif[eventName] === 'function') {
-                    try {
-                        /** @type {(ev: Event) => void} */ (notif[eventName])(new Event(data.event));
+            const eventName = `on${data.event}`;
+            const notif = /** @type {Record<string, unknown>} */ (notification);
+            if (typeof notif[eventName] === 'function') {
+                try {
+                    /** @type {(ev: Event) => void} */ (notif[eventName])(new Event(data.event));
                 } catch (e) {
                     // Error in event handler - silently ignore
                 }
@@ -922,7 +929,7 @@ export class WebCompat extends ContentFeature {
                 'MediaMetadata',
                 // @ts-expect-error - Anonymous class doesn't fully implement MediaMetadata interface
                 class {
-                            /**
+                    /**
                      * @param {{ title?: string; artist?: string; album?: string; artwork?: MediaImage[] }} [metadata]
                      */
                     constructor(metadata = {}) {
