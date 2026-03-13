@@ -2096,9 +2096,7 @@ export default class ClickToLoad extends ContentFeature {
                         trackingElements.push(targetElement);
                     }
                 } else {
-                    trackingElements = Array.from(document.querySelectorAll(selector)).filter(
-                        (el) => el instanceof HTMLElement,
-                    );
+                    trackingElements = Array.from(document.querySelectorAll(selector)).filter((el) => el instanceof HTMLElement);
                 }
 
                 /* eslint-disable @typescript-eslint/await-thenable */
