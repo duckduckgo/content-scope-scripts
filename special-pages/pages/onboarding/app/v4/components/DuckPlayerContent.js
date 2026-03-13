@@ -95,10 +95,10 @@ function DuckPlayerDefault({ advance }) {
         const frameReady = new Promise((resolve) => video.requestVideoFrameCallback(() => resolve()));
         try {
             await video.play();
+            await frameReady;
         } catch (error) {
             console.error(error);
         }
-        await frameReady;
     };
 
     /** @param {HTMLVideoElement | null} video */
@@ -106,20 +106,20 @@ function DuckPlayerDefault({ advance }) {
         if (video) video.currentTime = 0;
     };
 
-    // Auto-play after bubble entry animation (400ms delay + 267ms duration = 667ms)
+    // Auto-play after bottom bubble entry animation (650ms delay + 267ms duration = 917ms)
     useEffect(() => {
         const id = setTimeout(
             () => {
                 play(videoFor('with'));
                 setState((prev) => ({ ...prev, phase: isReducedMotion ? 'settled' : 'playing' }));
             },
-            isReducedMotion ? 0 : 667,
+            isReducedMotion ? 0 : 917,
         );
         return () => clearTimeout(id);
     }, []); // exclude isReducedMotion from deps — must not re-fire if reduced motion changes after mount
 
     const toggle = async () => {
-        const { target, phase, reverse } = state;
+        const { target, phase, reverse } = stateRef.current;
         if (phase === 'initial') {
             // Queue or cancel a reverse so auto-play will switch to "without" once the "with" video ends
             setState({ target, phase, reverse: !reverse });
