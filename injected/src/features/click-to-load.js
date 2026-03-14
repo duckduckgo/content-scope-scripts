@@ -1678,7 +1678,7 @@ function createContentBlock(widget, button, textButton, img, bottomRow) {
     contentText.style.cssText = styles.contentText;
     const contentTextSpan = document.createElement('span');
     contentTextSpan.id = 'infoText';
-    contentTextSpan.textContent = widget.replaceSettings.infoText + ' ';
+    contentTextSpan.textContent = (widget.replaceSettings.infoText ?? '') + ' ';
     contentText.appendChild(contentTextSpan);
     contentText.appendChild(getLearnMoreLink());
     contentRow.appendChild(contentText);
