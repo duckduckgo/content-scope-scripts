@@ -23,11 +23,9 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
     userLastName = userLastName.toLowerCase();
     userSuffix = userSuffix ? userSuffix.toLowerCase() : null;
 
-    // Get a list of the user's name and nicknames / full names
-    const names = getNames(userFirstName);
+    const nameVariants = getNames(userFirstName);
 
-    for (const firstName of names) {
-        // Let's check if the name matches right off the bat
+    for (const firstName of nameVariants) {
         const nameCombo1 = `${firstName} ${userLastName}`;
         if (fullNameExtracted === nameCombo1) {
             return true;
@@ -46,7 +44,6 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
             }
         }
 
-        // If there's a suffix, check that too
         if (userSuffix) {
             const nameCombo1WithSuffix = `${firstName} ${userLastName} ${userSuffix}`;
             if (fullNameExtracted === nameCombo1WithSuffix) {
@@ -56,35 +53,14 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
 
         // If the user has a name with a hyphen, we should split it on the hyphen
         // Note: They may have a last name or first name with a hyphen
-        if (userLastName && userLastName.includes('-')) {
-            const userLastNameOption2 = userLastName.split('-').join(' ');
-            const userLastNameOption3 = userLastName.split('-').join('');
-            const userLastNameOption4 = userLastName.split('-')[0];
-
-            const comparisons = [
-                `${firstName} ${userLastNameOption2}`,
-                `${firstName} ${userLastNameOption3}`,
-                `${firstName} ${userLastNameOption4}`,
-            ];
-
-            if (comparisons.includes(fullNameExtracted)) {
+        if (userLastName.includes('-')) {
+            if (matchHyphenatedLastName(fullNameExtracted, firstName, userLastName)) {
                 return true;
             }
         }
 
-        // Treat first name with the same logic as the last name
-        if (userFirstName && userFirstName.includes('-')) {
-            const userFirstNameOption2 = userFirstName.split('-').join(' ');
-            const userFirstNameOption3 = userFirstName.split('-').join('');
-            const userFirstNameOption4 = userFirstName.split('-')[0];
-
-            const comparisons = [
-                `${userFirstNameOption2} ${userLastName}`,
-                `${userFirstNameOption3} ${userLastName}`,
-                `${userFirstNameOption4} ${userLastName}`,
-            ];
-
-            if (comparisons.includes(fullNameExtracted)) {
+        if (userFirstName.includes('-')) {
+            if (matchHyphenatedFirstName(fullNameExtracted, userFirstName, userLastName)) {
                 return true;
             }
         }
@@ -92,57 +68,116 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
         // Only run this if they have a middle name
         // Note: Only do the suffix comparison if it actually exists
         if (userMiddleName) {
-            const comparisons = [
-                `${firstName} ${userMiddleName} ${userLastName}`,
-                `${firstName} ${userMiddleName} ${userLastName} ${userSuffix}`,
-                `${firstName} ${userMiddleName[0]} ${userLastName}`,
-                `${firstName} ${userMiddleName[0]} ${userLastName} ${userSuffix}`,
-                `${firstName} ${userMiddleName}${userLastName}`,
-                `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`,
-            ];
-
-            if (comparisons.includes(fullNameExtracted)) {
+            if (matchWithMiddleName(fullNameExtracted, firstName, userFirstName, userMiddleName, userLastName, userSuffix)) {
                 return true;
             }
+        }
+    }
 
-            // If it's a hyphenated last name, we have more to try
-            if (userLastName && userLastName.includes('-')) {
-                const userLastNameOption2 = userLastName.split('-').join(' ');
-                const userLastNameOption3 = userLastName.split('-').join('');
-                const userLastNameOption4 = userLastName.split('-')[0];
+    return false;
+}
 
-                const comparisons = [
-                    `${firstName} ${userMiddleName} ${userLastNameOption2}`,
-                    `${firstName} ${userMiddleName} ${userLastNameOption4}`,
-                    `${firstName} ${userMiddleName[0]} ${userLastNameOption2}`,
-                    `${firstName} ${userMiddleName[0]} ${userLastNameOption3}`,
-                    `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`,
-                ];
+/**
+ * @param {string} str
+ * @param {string} separator
+ * @returns {[first: string, ...rest: string[]]}
+ */
+function splitAtLeastOne(str, separator) {
+    const parts = str.split(separator);
+    const first = parts[0] ?? '';
+    return [first, ...parts.slice(1)];
+}
 
-                if (comparisons.includes(fullNameExtracted)) {
-                    return true;
-                }
-            }
+/**
+ * Match against hyphenated last name variants (space-separated, joined, first part only).
+ *
+ * @param {string} extracted
+ * @param {string} firstName
+ * @param {string} lastName
+ * @returns {boolean}
+ */
+function matchHyphenatedLastName(extracted, firstName, lastName) {
+    const [firstPart, ...rest] = splitAtLeastOne(lastName, '-');
+    const spaced = [firstPart, ...rest].join(' ');
+    const joined = [firstPart, ...rest].join('');
 
-            // If it's a hyphenated name, we have more to try
-            if (userFirstName && userFirstName.includes('-')) {
-                const userFirstNameOption2 = userFirstName.split('-').join(' ');
-                const userFirstNameOption3 = userFirstName.split('-').join('');
-                const userFirstNameOption4 = userFirstName.split('-')[0];
+    return [`${firstName} ${spaced}`, `${firstName} ${joined}`, `${firstName} ${firstPart}`].includes(extracted);
+}
 
-                const comparisons = [
-                    `${userFirstNameOption2} ${userMiddleName} ${userLastName}`,
-                    `${userFirstNameOption3} ${userMiddleName} ${userLastName}`,
-                    `${userFirstNameOption4} ${userMiddleName} ${userLastName}`,
-                    `${userFirstNameOption2} ${userMiddleName[0]} ${userLastName}`,
-                    `${userFirstNameOption3} ${userMiddleName[0]} ${userLastName}`,
-                    `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`,
-                ];
+/**
+ * Match against hyphenated first name variants (space-separated, joined, first part only).
+ *
+ * @param {string} extracted
+ * @param {string} firstName
+ * @param {string} lastName
+ * @returns {boolean}
+ */
+function matchHyphenatedFirstName(extracted, firstName, lastName) {
+    const [firstPart, ...rest] = splitAtLeastOne(firstName, '-');
+    const spaced = [firstPart, ...rest].join(' ');
+    const joined = [firstPart, ...rest].join('');
 
-                if (comparisons.includes(fullNameExtracted)) {
-                    return true;
-                }
-            }
+    return [`${spaced} ${lastName}`, `${joined} ${lastName}`, `${firstPart} ${lastName}`].includes(extracted);
+}
+
+/**
+ * @param {string} extracted
+ * @param {string} firstName
+ * @param {string} userFirstName
+ * @param {string} middleName
+ * @param {string} lastName
+ * @param {string | null | undefined} suffix
+ * @returns {boolean}
+ */
+function matchWithMiddleName(extracted, firstName, userFirstName, middleName, lastName, suffix) {
+    const middleInitial = middleName[0] ?? '';
+    const comparisons = [
+        `${firstName} ${middleName} ${lastName}`,
+        `${firstName} ${middleName} ${lastName} ${suffix}`,
+        `${firstName} ${middleInitial} ${lastName}`,
+        `${firstName} ${middleInitial} ${lastName} ${suffix}`,
+        `${firstName} ${middleName}${lastName}`,
+        `${firstName} ${middleName}${lastName} ${suffix}`,
+    ];
+
+    if (comparisons.includes(extracted)) {
+        return true;
+    }
+
+    if (lastName.includes('-')) {
+        const [firstPart, ...rest] = splitAtLeastOne(lastName, '-');
+        const spaced = [firstPart, ...rest].join(' ');
+        const joined = [firstPart, ...rest].join('');
+
+        const hyphenComparisons = [
+            `${firstName} ${middleName} ${spaced}`,
+            `${firstName} ${middleName} ${firstPart}`,
+            `${firstName} ${middleInitial} ${spaced}`,
+            `${firstName} ${middleInitial} ${joined}`,
+            `${firstName} ${middleInitial} ${firstPart}`,
+        ];
+
+        if (hyphenComparisons.includes(extracted)) {
+            return true;
+        }
+    }
+
+    if (userFirstName.includes('-')) {
+        const [firstPart, ...rest] = splitAtLeastOne(userFirstName, '-');
+        const spaced = [firstPart, ...rest].join(' ');
+        const joined = [firstPart, ...rest].join('');
+
+        const hyphenComparisons = [
+            `${spaced} ${middleName} ${lastName}`,
+            `${joined} ${middleName} ${lastName}`,
+            `${firstPart} ${middleName} ${lastName}`,
+            `${spaced} ${middleInitial} ${lastName}`,
+            `${joined} ${middleInitial} ${lastName}`,
+            `${firstPart} ${middleInitial} ${lastName}`,
+        ];
+
+        if (hyphenComparisons.includes(extracted)) {
+            return true;
         }
     }
 
@@ -156,7 +191,7 @@ export function isSameName(fullNameExtracted, userFirstName, userMiddleName, use
  * @return {Set<string>}
  */
 export function getNames(name) {
-    if (!noneEmptyString(name)) {
+    if (!nonEmptyString(name)) {
         return new Set();
     }
 
@@ -174,19 +209,20 @@ export function getNames(name) {
  * @return {Set<string>}
  */
 export function getNicknames(name, nicknames) {
-    const emptySet = new Set();
-
-    if (!noneEmptyString(name)) {
-        return emptySet;
+    if (!nonEmptyString(name)) {
+        return new Set();
     }
 
     name = name.toLowerCase();
 
     if (Object.prototype.hasOwnProperty.call(nicknames, name)) {
-        return new Set(nicknames[name]);
+        const values = nicknames[name];
+        if (values) {
+            return new Set(values);
+        }
     }
 
-    return emptySet;
+    return new Set();
 }
 
 /**
@@ -197,16 +233,18 @@ export function getNicknames(name, nicknames) {
  * @return {Set<string>}
  */
 export function getFullNames(name, nicknames) {
+    /** @type {Set<string>} */
     const fullNames = new Set();
 
-    if (!noneEmptyString(name)) {
+    if (!nonEmptyString(name)) {
         return fullNames;
     }
 
     name = name.toLowerCase();
 
     for (const fullName of Object.keys(nicknames)) {
-        if (nicknames[fullName]?.includes(name)) {
+        const nicknameList = nicknames[fullName];
+        if (nicknameList?.includes(name)) {
             fullNames.add(fullName);
         }
     }
@@ -215,11 +253,10 @@ export function getFullNames(name, nicknames) {
 }
 
 /**
- * This will handle all none-string types like null / undefined too
  * @param {unknown} [input]
  * @return {input is string}
  */
-function noneEmptyString(input) {
+function nonEmptyString(input) {
     if (typeof input !== 'string') return false;
     return input.trim().length > 0;
 }
