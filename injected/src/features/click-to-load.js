@@ -1096,7 +1096,7 @@ function openShareFeedbackPage() {
 function getLearnMoreLink(mode = 'lightMode') {
     const linkElement = document.createElement('a');
     linkElement.style.cssText = styles.generalLink + styles[mode].linkFont;
-    linkElement.ariaLabel = sharedStrings.readAbout ?? null;
+    linkElement.ariaLabel = sharedStrings.readAbout ?? '';
     linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/';
     linkElement.target = '_blank';
     linkElement.textContent = sharedStrings.learnMore ?? '';
@@ -1678,7 +1678,7 @@ function createContentBlock(widget, button, textButton, img, bottomRow) {
     contentText.style.cssText = styles.contentText;
     const contentTextSpan = document.createElement('span');
     contentTextSpan.id = 'infoText';
-    contentTextSpan.textContent = widget.replaceSettings.infoText + ' ';
+    contentTextSpan.textContent = (widget.replaceSettings.infoText ?? '') + ' ';
     contentText.appendChild(contentTextSpan);
     contentText.appendChild(getLearnMoreLink());
     contentRow.appendChild(contentText);
@@ -1814,7 +1814,9 @@ function createYouTubePreview(originalElement, widget) {
     const videoPlayImg = document.createElement('img');
     const placeholder = widget.replaceSettings.placeholder;
     const videoPlayIcon = placeholder?.videoPlayIcon[widget.getMode()] ?? '';
-    videoPlayImg.setAttribute('src', videoPlayIcon);
+    if (videoPlayIcon) {
+        videoPlayImg.setAttribute('src', videoPlayIcon);
+    }
     playButton.appendChild(videoPlayImg);
 
     playButton.addEventListener('click', widget.clickFunction(originalElement, youTubePreview));
