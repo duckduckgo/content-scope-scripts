@@ -28,10 +28,12 @@ class YouTubeAdDetector {
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+     * @param {((type: string) => Promise<void>)} [fireEvent] - Optional callback to fire web events on detection
      */
-    constructor(config, logger) {
+    constructor(config, logger, fireEvent) {
         // Logger for debug output (only logs when debug mode is enabled)
         this.log = logger || noopLogger;
+        this.fireEvent = fireEvent || null;
 
         // All config comes from privacy-config
         this.config = {
@@ -119,6 +121,10 @@ class YouTubeAdDetector {
         }
 
         this.log.info(`Detection: ${type}`, details.message || '');
+
+        if (this.fireEvent) {
+            this.fireEvent(type);
+        }
 
         typeState.showing = true;
         typeState.count++;
@@ -716,13 +722,11 @@ let detectorInstance = null;
 /**
  * Run YouTube ad detection
  * @param {YouTubeDetectorConfig} [config] - Configuration from privacy-config
+ * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+ * @param {((type: string) => Promise<void>)} [fireEvent] - Optional callback to fire web events on detection
  * @returns {Object} Detection results in standard format
  */
-/**
- * @param {YouTubeDetectorConfig} [config] - Configuration from privacy-config
- * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
- */
-export function runYoutubeAdDetection(config, logger) {
+export function runYoutubeAdDetection(config, logger, fireEvent) {
     // Only run if explicitly enabled or internal
     if (config?.state !== 'enabled' && config?.state !== 'internal') {
         return { detected: false, type: 'youtubeAds', results: [] };
@@ -741,7 +745,7 @@ export function runYoutubeAdDetection(config, logger) {
     // Auto-initialize on first call if on YouTube
     const hostname = window.location.hostname;
     if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
-        detectorInstance = new YouTubeAdDetector(config, logger);
+        detectorInstance = new YouTubeAdDetector(config, logger, fireEvent);
         detectorInstance.start();
         return detectorInstance.getResults();
     }
