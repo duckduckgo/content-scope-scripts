@@ -152,11 +152,11 @@ export default class UaChBrands extends ContentFeature {
                 const originalResult = await DDGReflect.apply(originalFn, this, args);
                 /** @type {Record<string, unknown>} */
                 const modifiedResult = {};
+                const hints = Array.isArray(args[0]) ? args[0] : [];
 
                 for (const [key, value] of Object.entries(originalResult)) {
                     let result = value;
 
-                    const hints = Array.isArray(args[0]) ? args[0] : [];
                     if (key === 'brands' && hints.includes('brands')) {
                         result = newBrands;
                     }
