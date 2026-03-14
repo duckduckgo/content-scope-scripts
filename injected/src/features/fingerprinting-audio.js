@@ -34,7 +34,7 @@ export default class FingerprintingAudio extends ContentFeature {
                 if (cdSum === 0) {
                     return;
                 }
-                audioKey = getDataKeySync(sessionKey, domainKey ?? '', cdSum);
+                audioKey = getDataKeySync(sessionKey, domainKey ?? 'null', cdSum);
                 setCache(thisArg, args, audioKey);
             }
             iterateDataKey(audioKey, (item, byte) => {
