@@ -1,8 +1,6 @@
 import { objectDefineProperty } from './captured-globals.js';
 
-/**
- * @typedef {(object: object, propertyName: string | symbol, descriptor: import('./wrapper-utils').StrictPropertyDescriptor) => void} DefinePropertyFn
- */
+/** @typedef {import('./wrapper-utils').DefinePropertyFn} DefinePropertyFn */
 
 /**
  * Ensures navigator.duckduckgo exists, creating it if necessary.
