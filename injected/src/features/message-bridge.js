@@ -104,7 +104,8 @@ export class MessageBridge extends ContentFeature {
         this.log.info(`bridge is installing...`);
         accept(InstallProxy, (install) => {
             const config = args.messagingConfig;
-            if (config) this.installProxyFor(install, config, reply);
+            if (!config) return this.log.info('not installing proxy, because messagingConfig was absent');
+            this.installProxyFor(install, config, reply);
         });
         accept(ProxyNotification, (notification) => this.proxyNotification(notification));
         accept(ProxyRequest, (request) => this.proxyRequest(request, reply));
