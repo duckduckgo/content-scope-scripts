@@ -933,11 +933,10 @@ export class WebCompat extends ContentFeature {
                      * @param {{ title?: string; artist?: string; album?: string; artwork?: MediaImage[] }} [metadata]
                      */
                     constructor(metadata = {}) {
-                        const m = /** @type {{ title?: string; artist?: string; album?: string; artwork?: MediaImage[] }} */ (metadata);
-                        this.title = m.title;
-                        this.artist = m.artist;
-                        this.album = m.album;
-                        this.artwork = m.artwork;
+                        this.title = metadata.title;
+                        this.artist = metadata.artist;
+                        this.album = metadata.album;
+                        this.artwork = metadata.artwork;
                     }
                 },
                 {
