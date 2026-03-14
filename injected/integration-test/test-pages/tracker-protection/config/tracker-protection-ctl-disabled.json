@@ -1,0 +1,18 @@
+{
+  "readme": "Test CTL surrogate bypass when ctlEnabled is false. TrackerData is passed via withUserPreferences().",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": false,
+        "allowlist": {},
+        "tempUnprotectedDomains": [],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}
