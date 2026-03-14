@@ -123,7 +123,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
          * @param {Set<MediaStreamTrack> | MediaStreamTrack[] | undefined} [streamTracks]
          */
         function stopTracks(streamTracks) {
-            streamTracks?.forEach((/** @param {MediaStreamTrack} track */ track) => track.stop());
+            streamTracks?.forEach((/** @type {MediaStreamTrack} */ track) => track.stop());
         }
 
         function clearAllGeolocationWatch() {
@@ -138,7 +138,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 case Permission.Camera:
                 case Permission.Microphone: {
                     const streamTracks = getTracks(permission);
-                    streamTracks?.forEach((/** @param {MediaStreamTrack} track */ track) => {
+                    streamTracks?.forEach((/** @type {MediaStreamTrack} */ track) => {
                         track.enabled = false;
                     });
                     break;
@@ -158,7 +158,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 case Permission.Camera:
                 case Permission.Microphone: {
                     const streamTracks = getTracks(permission);
-                    streamTracks?.forEach((/** @param {MediaStreamTrack} track */ track) => {
+                    streamTracks?.forEach((/** @type {MediaStreamTrack} */ track) => {
                         track.enabled = true;
                     });
                     break;
