@@ -24,28 +24,10 @@ interface ImportMeta {
         | 'android-broker-protection'
         | 'android-autofill-import'
         | 'android-adsjs'
-        | 'android-ai-history'
-        | 'android-ai-clear';
+        | 'android-ai-history';
     trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
 }
-
-interface BatteryManager extends EventTarget {
-    charging: boolean;
-    chargingTime: number;
-    dischargingTime: number;
-    level: number;
-    onchargingchange: ((this: BatteryManager, ev: Event) => unknown) | null;
-    onchargingtimechange: ((this: BatteryManager, ev: Event) => unknown) | null;
-    ondischargingtimechange: ((this: BatteryManager, ev: Event) => unknown) | null;
-    onlevelchange: ((this: BatteryManager, ev: Event) => unknown) | null;
-}
-
-// eslint-disable-next-line no-var
-declare var BatteryManager: {
-    prototype: BatteryManager;
-    new (): BatteryManager;
-};
 
 declare module '*.svg' {
     const content: string;
@@ -73,6 +55,3 @@ declare module 'ddg:platformFeatures' {
     >;
     export default output;
 }
-
-// eslint-disable-next-line no-var
-declare var ddgBookmarkImport: { postMessage(message: string): void } | undefined;
