@@ -43,7 +43,7 @@ export class PirError {
     }
 
     /**
-     * @param {object} error
+     * @param {unknown} error
      * @return {error is PirError}
      * @static
      * @memberof PirError
