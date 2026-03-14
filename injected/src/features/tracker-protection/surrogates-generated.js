@@ -8,14 +8,13 @@
 
 /** @type {Record<string, () => void>} */
 export const surrogates = {
-    'ad_status.js': function() {
+    'ad_status.js': function () {
         (() => {
             'use strict';
             window.google_ad_status = 1;
         })();
-
     },
-    'adsbygoogle.js': function() {
+    'adsbygoogle.js': function () {
         /* This Source Code Form is subject to the terms of the Mozilla Public
          * License, v. 2.0. If a copy of the MPL was not distributed with this
          * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -30,13 +29,13 @@ export const surrogates = {
             if (window.adsbygoogle?.loaded === undefined) {
                 window.adsbygoogle = {
                     loaded: true,
-                    push () {}
+                    push() {},
                 };
             }
             if (window.gapi?._pl === undefined) {
                 const stub = {
-                    go () {},
-                    render: () => ''
+                    go() {},
+                    render: () => '',
                 };
                 window.gapi = {
                     _pl: true,
@@ -53,15 +52,15 @@ export const surrogates = {
                     hangout: stub,
                     health: stub,
                     interactivepost: stub,
-                    load () {},
+                    load() {},
                     logutil: {
-                        enableDebugLogging () {}
+                        enableDebugLogging() {},
                     },
                     page: stub,
                     partnersbadge: stub,
                     person: stub,
                     platform: {
-                        go () {}
+                        go() {},
                     },
                     playemm: stub,
                     playreview: stub,
@@ -83,7 +82,7 @@ export const surrogates = {
                     visibility: stub,
                     youtube: stub,
                     ytsubscribe: stub,
-                    zoomableimage: stub
+                    zoomableimage: stub,
                 };
             }
             const spoofAdElements = () => {
@@ -91,8 +90,7 @@ export const surrogates = {
                 for (let i = 0; i < insElements.length; i++) {
                     const iframeId = 'aswift_' + (i + 1);
                     const divId = iframeId + '_host';
-                    if (document.getElementById(divId) ||
-                        document.getElementById(iframeId)) {
+                    if (document.getElementById(divId) || document.getElementById(iframeId)) {
                         continue;
                     }
                     const iframeElement = document.createElement('iframe');
@@ -100,12 +98,8 @@ export const surrogates = {
                     iframeElement.style.setProperty('visibility', 'collapse', 'important');
                     iframeElement.id = iframeId;
                     iframeElement.setAttribute('name', iframeId);
-                    iframeElement.setAttribute(
-                        'data-google-container-id', 'a!' + (i + 2)
-                    );
-                    iframeElement.setAttribute(
-                        'data-google-query-id', '00000000000000-00000000000'
-                    );
+                    iframeElement.setAttribute('data-google-container-id', 'a!' + (i + 2));
+                    iframeElement.setAttribute('data-google-query-id', '00000000000000-00000000000');
                     iframeElement.setAttribute('data-load-complete', 'true');
                     const divElement = document.createElement('div');
                     divElement.style.setProperty('display', 'none', 'important');
@@ -126,32 +120,30 @@ export const surrogates = {
             if (document.readyState !== 'loading') {
                 spoofAdElements();
             } else {
-                window.addEventListener(
-                    'DOMContentLoaded', spoofAdElements, { once: true }
-                );
+                window.addEventListener('DOMContentLoaded', spoofAdElements, { once: true });
             }
         })();
-
     },
-    'amzn_ads.js': function() {
+    'amzn_ads.js': function () {
         (() => {
             'use strict';
-            if (window.amznads) { return; }
+            if (window.amznads) {
+                return;
+            }
             const noop = () => {};
             const noopHandler = {
                 get: () => {
                     return noop;
-                }
+                },
             };
             window.amznads = new Proxy({}, noopHandler);
-            window.amzn_ads = (window.amzn_ads === undefined) ? noop : window.amzn_ads;
-            window.aax_write = (window.aax_write === undefined) ? noop : window.aax_write;
-            window.aax_render_ad = (window.aax_render_ad === undefined) ? noop : window.aax_render_ad;
+            window.amzn_ads = window.amzn_ads === undefined ? noop : window.amzn_ads;
+            window.aax_write = window.aax_write === undefined ? noop : window.aax_write;
+            window.aax_render_ad = window.aax_render_ad === undefined ? noop : window.aax_render_ad;
         })();
-
     },
-    'amzn_apstag.js': function() {
-        "use strict";
+    'amzn_apstag.js': function () {
+        'use strict';
         /* This Source Code Form is subject to the terms of the Mozilla Public
          * License, v. 2.0. If a copy of the MPL was not distributed with this
          * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -166,74 +158,73 @@ export const surrogates = {
          * mitigate major breakage in that case.
          */
         if (!(window.apstag && window.apstag._getSlotIdToNameMapping)) {
-          const _Q = (window.apstag && window.apstag._Q) || [];
-          const newBid = config => {
-            return {
-              amznbid: "",
-              amzniid: "",
-              amznp: "",
-              amznsz: "0x0",
-              size: "0x0",
-              slotID: config.slotID,
+            const _Q = (window.apstag && window.apstag._Q) || [];
+            const newBid = (config) => {
+                return {
+                    amznbid: '',
+                    amzniid: '',
+                    amznp: '',
+                    amznsz: '0x0',
+                    size: '0x0',
+                    slotID: config.slotID,
+                };
             };
-          };
-          window.apstag = {
-            _Q,
-            _getSlotIdToNameMapping() {},
-            bids() {},
-            debug() {},
-            deleteId() {},
-            fetchBids(cfg, cb) {
-              if (!Array.isArray(cfg && cfg.slots)) {
-                return;
-              }
-              setTimeout(() => {
-                cb(cfg.slots.map(s => newBid(s)));
-              }, 1);
-            },
-            init() {},
-            punt() {},
-            renderImp() {},
-            renewId() {},
-            setDisplayBids() {},
-            targetingKeys: () => [],
-            thirdPartyData: {},
-            updateId() {},
-          };
-          window.apstagLOADED = true;
-          const isIterable =
-            a => Array.isArray(a) ||
-                 (typeof Symbol !== "undefined" && Symbol.iterator && a[Symbol.iterator]) ||
-                 a.toString() === "[object Arguments]";
-          _Q.push = function(prefix, args) {
-            // TODO: Check if this code path ever _isn't_ hit, seems like a bug in the
-            //       original shim implementation?
-            if (isIterable(prefix) && typeof args === "undefined") {
-              [prefix, ...args] = Array.from(prefix);
+            window.apstag = {
+                _Q,
+                _getSlotIdToNameMapping() {},
+                bids() {},
+                debug() {},
+                deleteId() {},
+                fetchBids(cfg, cb) {
+                    if (!Array.isArray(cfg && cfg.slots)) {
+                        return;
+                    }
+                    setTimeout(() => {
+                        cb(cfg.slots.map((s) => newBid(s)));
+                    }, 1);
+                },
+                init() {},
+                punt() {},
+                renderImp() {},
+                renewId() {},
+                setDisplayBids() {},
+                targetingKeys: () => [],
+                thirdPartyData: {},
+                updateId() {},
+            };
+            window.apstagLOADED = true;
+            const isIterable = (a) =>
+                Array.isArray(a) ||
+                (typeof Symbol !== 'undefined' && Symbol.iterator && a[Symbol.iterator]) ||
+                a.toString() === '[object Arguments]';
+            _Q.push = function (prefix, args) {
+                // TODO: Check if this code path ever _isn't_ hit, seems like a bug in the
+                //       original shim implementation?
+                if (isIterable(prefix) && typeof args === 'undefined') {
+                    [prefix, ...args] = Array.from(prefix);
+                }
+                if (args && args.length === 1 && isIterable(args[0])) {
+                    args = Array.from(args[0]);
+                }
+                try {
+                    switch (prefix) {
+                        case 'f':
+                            window.apstag.fetchBids(...args);
+                            break;
+                        case 'i':
+                            window.apstag.init(...args);
+                            break;
+                    }
+                } catch (e) {
+                    console.trace(e);
+                }
+            };
+            for (const cmd of _Q) {
+                _Q.push(cmd);
             }
-            if (args && args.length === 1 && isIterable(args[0])) {
-              args = Array.from(args[0]);
-            }
-            try {
-              switch (prefix) {
-                case "f":
-                  window.apstag.fetchBids(...args);
-                  break;
-                case "i":
-                  window.apstag.init(...args);
-                  break;
-              }
-            } catch (e) {
-              console.trace(e);
-            }
-          };
-          for (const cmd of _Q) {
-            _Q.push(cmd);
-          }
         }
-
     },
-    'analytics.js': function() {
+    'analytics.js': function () {
         /* This Source Code Form is subject to the terms of the Mozilla Public
          * License, v. 2.0. If a copy of the MPL was not distributed with this
          * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -244,27 +235,31 @@ export const surrogates = {
             const noopHandler = {
                 get: function (target, prop) {
                     return noop;
-                }
+                },
             };
-            const gaPointer = window.GoogleAnalyticsObject = (window.GoogleAnalyticsObject === undefined) ? 'ga' : window.GoogleAnalyticsObject;
+            const gaPointer = (window.GoogleAnalyticsObject =
+                window.GoogleAnalyticsObject === undefined ? 'ga' : window.GoogleAnalyticsObject);
             const datalayer = window.dataLayer;
-            const Tracker = new Proxy({}, {
-                get (target, prop) {
-                    if (prop === 'get') {
-                        return (fieldName) => {
-                            if (fieldName === 'linkerParam') {
-                                // This fixed string is an example value of this API.
-                                // As the extension exposes itself with many featues we shouldn't be concerned by exposing ourselves here also.
-                                // If we randomised this to some other fake value there wouldn't be much benefit and could risk being a tracking vector.
-                                // https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#linkerParam
-                                return '_ga=1.231587807.1974034684.1435105198';
-                            }
-                            return 'something';
-                        };
-                    }
-                    return noop;
-                }
-            });
+            const Tracker = new Proxy(
+                {},
+                {
+                    get(target, prop) {
+                        if (prop === 'get') {
+                            return (fieldName) => {
+                                if (fieldName === 'linkerParam') {
+                                    // This fixed string is an example value of this API.
+                                    // As the extension exposes itself with many featues we shouldn't be concerned by exposing ourselves here also.
+                                    // If we randomised this to some other fake value there wouldn't be much benefit and could risk being a tracking vector.
+                                    // https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#linkerParam
+                                    return '_ga=1.231587807.1974034684.1435105198';
+                                }
+                                return 'something';
+                            };
+                        }
+                        return noop;
+                    },
+                },
+            );
             let callQueue = null;
             if (window[gaPointer] && Array.isArray(window[gaPointer].q)) {
                 callQueue = window[gaPointer].q;
@@ -290,9 +285,15 @@ export const surrogates = {
             };
             ga.answer = 42;
             ga.loaded = true;
-            ga.create = function () { return new Proxy({}, noopHandler); };
-            ga.getByName = function () { return new Proxy({}, noopHandler); };
-            ga.getAll = function () { return [Tracker]; };
+            ga.create = function () {
+                return new Proxy({}, noopHandler);
+            };
+            ga.getByName = function () {
+                return new Proxy({}, noopHandler);
+            };
+            ga.getAll = function () {
+                return [Tracker];
+            };
             ga.remove = noop;
             window[gaPointer] = ga;
             // prevent page delay, see https://developers.google.com/optimize
@@ -304,24 +305,23 @@ export const surrogates = {
             if (!(window.gaplugins && window.gaplugins.Linker)) {
                 window.gaplugins = window.gaplugins || {};
                 window.gaplugins.Linker = class {
-                    autoLink () {}
-                    decorate (url) {
+                    autoLink() {}
+                    decorate(url) {
                         return url;
                     }
-                    passthrough () {}
+                    passthrough() {}
                 };
             }
             if (callQueue) {
                 for (const args of callQueue) {
                     try {
                         ga(...args);
-                    } catch (e) { }
+                    } catch (e) {}
                 }
             }
         })();
-
     },
-    'api.js': function() {
+    'api.js': function () {
         (() => {
             const noop = () => {};
             const cxApiHandler = {
@@ -330,16 +330,17 @@ export const surrogates = {
                         return Reflect.get(...arguments);
                     }
                     return noop;
-                }
+                },
             };
             const cxApiTarget = {
-                chooseVariation: () => { return 0; }
+                chooseVariation: () => {
+                    return 0;
+                },
             };
             window.cxApi = new Proxy(cxApiTarget, cxApiHandler);
         })();
-
     },
-    'beacon.js': function() {
+    'beacon.js': function () {
         (() => {
             'use strict';
             const noop = () => {};
@@ -349,28 +350,26 @@ export const surrogates = {
                 beacon: noop,
                 purge: () => {
                     window._comscore = [];
-                }
+                },
             };
         })();
-
     },
-    'chartbeat.js': function() {
+    'chartbeat.js': function () {
         (() => {
             'use strict';
             const noop = () => {};
             const noopHandler = {
                 get: () => {
                     return noop;
-                }
+                },
             };
             const noopProxy = new Proxy({}, noopHandler);
             window.pSUPERFLY = noopProxy;
             window.pSUPERFLY_mab = noopProxy;
         })();
-
     },
-    'criteo.js': function() {
-        "use strict";
+    'criteo.js': function () {
+        'use strict';
         /* This Source Code Form is subject to the terms of the Mozilla Public
          * License, v. 2.0. If a copy of the MPL was not distributed with this
          * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -385,58 +384,57 @@ export const surrogates = {
          * mitigate this breakage.
          */
         if (!(window.Criteo && window.Criteo.CallRTA)) {
-          window.Criteo = {
-            CallRTA() {},
-            ComputeStandaloneDFPTargeting() {},
-            DisplayAcceptableAdIfAdblocked() {},
-            DisplayAd() {},
-            GetBids() {},
-            GetBidsForAdUnit() {},
-            Passback: {
-              RequestBids() {},
-              RenderAd() {},
-            },
-            PubTag: {
-              Adapters: {
-                AMP() {},
-                Prebid() {},
-              },
-              Context: {
-                GetIdfs() {},
-                SetIdfs() {},
-              },
-              DirectBidding: {
-                DirectBiddingEvent() {},
-                DirectBiddingSlot() {},
-                DirectBiddingUrlBuilder() {},
-                Size() {},
-              },
-              RTA: {
-                DefaultCrtgContentName: "crtg_content",
-                DefaultCrtgRtaCookieName: "crtg_rta",
-              },
-            },
-            RenderAd() {},
-            RequestBids() {},
-            RequestBidsOnGoogleTagSlots() {},
-            SetCCPAExplicitOptOut() {},
-            SetCeh() {},
-            SetDFPKeyValueTargeting() {},
-            SetLineItemRanges() {},
-            SetPublisherExt() {},
-            SetSlotsExt() {},
-            SetTargeting() {},
-            SetUserExt() {},
-            events: {
-              push() {},
-            },
-            passbackEvents: [],
-            usePrebidEvents: true,
-          };
+            window.Criteo = {
+                CallRTA() {},
+                ComputeStandaloneDFPTargeting() {},
+                DisplayAcceptableAdIfAdblocked() {},
+                DisplayAd() {},
+                GetBids() {},
+                GetBidsForAdUnit() {},
+                Passback: {
+                    RequestBids() {},
+                    RenderAd() {},
+                },
+                PubTag: {
+                    Adapters: {
+                        AMP() {},
+                        Prebid() {},
+                    },
+                    Context: {
+                        GetIdfs() {},
+                        SetIdfs() {},
+                    },
+                    DirectBidding: {
+                        DirectBiddingEvent() {},
+                        DirectBiddingSlot() {},
+                        DirectBiddingUrlBuilder() {},
+                        Size() {},
+                    },
+                    RTA: {
+                        DefaultCrtgContentName: 'crtg_content',
+                        DefaultCrtgRtaCookieName: 'crtg_rta',
+                    },
+                },
+                RenderAd() {},
+                RequestBids() {},
+                RequestBidsOnGoogleTagSlots() {},
+                SetCCPAExplicitOptOut() {},
+                SetCeh() {},
+                SetDFPKeyValueTargeting() {},
+                SetLineItemRanges() {},
+                SetPublisherExt() {},
+                SetSlotsExt() {},
+                SetTargeting() {},
+                SetUserExt() {},
+                events: {
+                    push() {},
+                },
+                passbackEvents: [],
+                usePrebidEvents: true,
+            };
         }
-
     },
-    'fb-sdk.js': function() {
+    'fb-sdk.js': function () {
         (() => {
             'use strict';
             const facebookEntity = 'Facebook, Inc.';
@@ -447,19 +445,22 @@ export const surrogates = {
             let initData = {};
             let runInit = false;
             const parseCalls = [];
-            const popupName = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 12);
+            const popupName = Math.random()
+                .toString(36)
+                .replace(/[^a-z]+/g, '')
+                .substr(0, 12);
             const fbLogin = {
                 callback: function () {},
                 params: undefined,
-                shouldRun: false
+                shouldRun: false,
             };
-            function messageAddon (detailObject) {
+            function messageAddon(detailObject) {
                 detailObject.entity = facebookEntity;
                 const event = new CustomEvent('ddg-ctp', {
                     detail: detailObject,
                     bubbles: false,
                     cancelable: false,
-                    composed: false
+                    composed: false,
                 });
                 dispatchEvent(event);
             }
@@ -476,7 +477,7 @@ export const surrogates = {
              * FB SDK loads -> SDK calls window.fbAsyncInit -> Our function calls window.FB.init (maybe) ->
              * our function calls original fbAsyncInit (if it existed)
              */
-            function enableFacebookSDK () {
+            function enableFacebookSDK() {
                 if (!fbIsEnabled) {
                     window.FB = undefined;
                     window.fbAsyncInit = function () {
@@ -506,13 +507,13 @@ export const surrogates = {
                     }
                 }
             }
-            function runFacebookLogin () {
+            function runFacebookLogin() {
                 fbLogin.shouldRun = true;
                 replaceWindowOpen();
                 loginPopup();
                 enableFacebookSDK();
             }
-            function replaceWindowOpen () {
+            function replaceWindowOpen() {
                 const oldOpen = window.open;
                 window.open = function (url, name, windowParams) {
                     const u = new URL(url);
@@ -522,31 +523,31 @@ export const surrogates = {
                     return oldOpen.call(window, url, name, windowParams);
                 };
             }
-            function loginPopup () {
+            function loginPopup() {
                 const width = Math.min(window.screen.width, 450);
                 const height = Math.min(window.screen.height, 450);
                 const popupParams = `width=${width},height=${height},scrollbars=1,location=1`;
                 window.open('about:blank', popupName, popupParams);
             }
-            window.addEventListener('ddg-ctp-load-sdk', event => {
+            window.addEventListener('ddg-ctp-load-sdk', (event) => {
                 if (event.detail.entity === facebookEntity) {
                     enableFacebookSDK();
                 }
             });
-            window.addEventListener('ddg-ctp-run-login', event => {
+            window.addEventListener('ddg-ctp-run-login', (event) => {
                 if (event.detail.entity === facebookEntity) {
                     runFacebookLogin();
                 }
             });
-            window.addEventListener('ddg-ctp-cancel-modal', event => {
+            window.addEventListener('ddg-ctp-cancel-modal', (event) => {
                 if (event.detail.entity === facebookEntity) {
-                    fbLogin.callback({ });
+                    fbLogin.callback({});
                 }
             });
             // Instead of using fbAsyncInit, some websites create a list of FB API calls
             // that should be made after init.
             const bufferCalls = window.FB && window.FB.__buffer && window.FB.__buffer.calls;
-            function init () {
+            function init() {
                 if (window.fbAsyncInit) {
                     siteInit = window.fbAsyncInit;
                     window.fbAsyncInit();
@@ -561,13 +562,15 @@ export const surrogates = {
             }
             if (!window.FB || window.FB.__buffer) {
                 window.FB = {
-                    api: function (url, cb) { cb(); },
+                    api: function (url, cb) {
+                        cb();
+                    },
                     init: function (obj) {
                         if (obj) {
                             initData = obj;
                             runInit = true;
                             messageAddon({
-                                appID: obj.appId
+                                appID: obj.appId,
                             });
                         }
                     },
@@ -584,20 +587,22 @@ export const surrogates = {
                         return { status: '' };
                     },
                     // eslint-disable-next-line node/no-callback-literal
-                    getLoginStatus: function (callback) { callback({ status: 'unknown' }); },
+                    getLoginStatus: function (callback) {
+                        callback({ status: 'unknown' });
+                    },
                     getUserID: function () {},
                     login: function (cb, params) {
                         fbLogin.callback = cb;
                         fbLogin.params = params;
                         messageAddon({
-                            action: 'login'
+                            action: 'login',
                         });
                     },
                     logout: function () {},
                     AppEvents: {
                         EventNames: {},
                         logEvent: function (a, b, c) {},
-                        logPageView: function () {}
+                        logPageView: function () {},
                     },
                     Event: {
                         subscribe: function (event, callback) {
@@ -605,13 +610,13 @@ export const surrogates = {
                                 callback();
                             }
                         },
-                        unsubscribe: function () {}
+                        unsubscribe: function () {},
                     },
                     XFBML: {
                         parse: function (n) {
                             parseCalls.push(n);
-                        }
-                    }
+                        },
+                    },
                 };
                 if (document.readyState === 'complete') {
                     init();
@@ -624,23 +629,26 @@ export const surrogates = {
             }
             window.dispatchEvent(new CustomEvent('ddg-ctp-surrogate-load'));
         })();
-
     },
-    'ga.js': function() {
+    'ga.js': function () {
         (() => {
             'use strict';
             const noop = () => {};
-            const noopReturnEmptyArray = () => { return []; };
+            const noopReturnEmptyArray = () => {
+                return [];
+            };
             const noopHandler = {
                 get: function (target, prop) {
                     if (typeof target[prop] !== 'undefined') {
                         return Reflect.get(...arguments);
                     }
                     return noop;
-                }
+                },
             };
             const trackerTarget = {
-                _getLinkerUrl: function (arg) { return arg; }
+                _getLinkerUrl: function (arg) {
+                    return arg;
+                },
             };
             const gaqTarget = {
                 push: function (arg) {
@@ -650,7 +658,9 @@ export const surrogates = {
                         } catch (error) {}
                         return;
                     }
-                    if (Array.isArray(arg) === false) { return; }
+                    if (Array.isArray(arg) === false) {
+                        return;
+                    }
                     if (arg[0] === '_link' && typeof arg[1] === 'string') {
                         window.location.assign(arg[1]);
                     }
@@ -659,26 +669,29 @@ export const surrogates = {
                             arg[2]();
                         } catch (error) {}
                     }
-                }
+                },
             };
             const gatTarget = {
-                _getTracker: function () { return new Proxy(trackerTarget, noopHandler); },
-                _getTrackerByName: function () { return new Proxy(trackerTarget, noopHandler); },
-                _getTrackers: noopReturnEmptyArray
+                _getTracker: function () {
+                    return new Proxy(trackerTarget, noopHandler);
+                },
+                _getTrackerByName: function () {
+                    return new Proxy(trackerTarget, noopHandler);
+                },
+                _getTrackers: noopReturnEmptyArray,
             };
             const gaqObj = new Proxy(gaqTarget, noopHandler);
             const gatObj = new Proxy(gatTarget, noopHandler);
             window._gat = gatObj;
-            const commandQueue = (window._gaq && Array.isArray(window._gaq)) ? window._gaq : [];
+            const commandQueue = window._gaq && Array.isArray(window._gaq) ? window._gaq : [];
             while (commandQueue.length > 0) {
                 gaqObj.push(commandQueue.shift());
             }
             window._gaq = gaqObj;
         })();
-
     },
-    'google-ima.js': function() {
-        "use strict";
+    'google-ima.js': function () {
+        'use strict';
         /* This Source Code Form is subject to the terms of the Mozilla Public
          * License, v. 2.0. If a copy of the MPL was not distributed with this
          * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -695,786 +708,630 @@ export const surrogates = {
          * site breakage, such as black bxoes where videos ought to be placed.
          */
         if (!window.google || !window.google.ima || !window.google.ima.VERSION) {
-          const VERSION = "3.517.2";
-          const CheckCanAutoplay = (function() {
-            // Sourced from: https://searchfox.org/mozilla-central/source/dom/media/gtest/negative_duration.mp4
-            const TEST_VIDEO = new Blob(
-              [
-                new Uint32Array([
-                  469762048,
-                  1887007846,
-                  1752392036,
-                  0,
-                  913273705,
-                  1717987696,
-                  828601953,
-                  -1878917120,
-                  1987014509,
-                  1811939328,
-                  1684567661,
-                  0,
-                  0,
-                  0,
-                  -402456576,
-                  0,
-                  256,
-                  1,
-                  0,
-                  0,
-                  256,
-                  0,
-                  0,
-                  0,
-                  256,
-                  0,
-                  0,
-                  0,
-                  64,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0,
-                  33554432,
-                  -201261056,
-                  1801548404,
-                  1744830464,
-                  1684564852,
-                  251658241,
-                  0,
-                  0,
-                  0,
-                  0,
-                  16777216,
-                  0,
-                  -1,
-                  -1,
-                  0,
-                  0,
-                  0,
-                  0,
-                  256,
-                  0,
-                  0,
-                  0,
-                  256,
-                  0,
-                  0,
-                  0,
-                  64,
-                  5,
-                  53250,
-                  -2080309248,
-                  1634296941,
-                  738197504,
-                  1684563053,
-                  1,
-                  0,
-                  0,
-                  0,
-                  0,
-                  -2137614336,
-                  -1,
-                  -1,
-                  50261,
-                  754974720,
-                  1919706216,
-                  0,
-                  0,
-                  1701079414,
-                  0,
-                  0,
-                  0,
-                  1701079382,
-                  1851869295,
-                  1919249508,
-                  16777216,
-                  1852402979,
-                  102,
-                  1752004116,
-                  100,
-                  1,
-                  0,
-                  0,
-                  1852400676,
-                  102,
-                  1701995548,
-                  102,
-                  0,
-                  1,
-                  1819440396,
-                  32,
-                  1,
-                  1651799011,
-                  108,
-                  1937011607,
-                  100,
-                  0,
-                  1,
-                  1668702599,
-                  49,
-                  0,
-                  1,
-                  0,
-                  0,
-                  0,
-                  33555712,
-                  4718800,
-                  4718592,
-                  0,
-                  65536,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0,
-                  0,
-                  16776984,
-                  1630601216,
-                  21193590,
-                  -14745500,
-                  1729626337,
-                  -1407254428,
-                  89161945,
-                  1049019,
-                  9453056,
-                  -251611125,
-                  27269507,
-                  -379058688,
-                  -1329024392,
-                  268435456,
-                  1937011827,
-                  0,
-                  0,
-                  268435456,
-                  1668510835,
-                  0,
-                  0,
-                  335544320,
-                  2054386803,
-                  0,
-                  0,
-                  0,
-                  268435456,
-                  1868788851,
-                  0,
-                  0,
-                  671088640,
-                  2019915373,
-                  536870912,
-                  2019914356,
-                  0,
-                  16777216,
-                  16777216,
-                  0,
-                  0,
-                  0,
-                ]),
-              ],
-              { type: "video/mp4" }
-            );
-            let testVideo;
-            return function() {
-              if (!testVideo) {
-                testVideo = document.createElement("video");
-                testVideo.style =
-                  "position:absolute; width:0; height:0; left:0; right:0; z-index:-1; border:0";
-                testVideo.setAttribute("muted", "muted");
-                testVideo.setAttribute("playsinline", "playsinline");
-                testVideo.src = URL.createObjectURL(TEST_VIDEO);
-                document.body.appendChild(testVideo);
-              }
-              return testVideo.play();
+            const VERSION = '3.517.2';
+            const CheckCanAutoplay = (function () {
+                // Sourced from: https://searchfox.org/mozilla-central/source/dom/media/gtest/negative_duration.mp4
+                const TEST_VIDEO = new Blob(
+                    [
+                        new Uint32Array([
+                            469762048, 1887007846, 1752392036, 0, 913273705, 1717987696, 828601953, -1878917120, 1987014509, 1811939328,
+                            1684567661, 0, 0, 0, -402456576, 0, 256, 1, 0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 33554432,
+                            -201261056, 1801548404, 1744830464, 1684564852, 251658241, 0, 0, 0, 0, 16777216, 0, -1, -1, 0, 0, 0, 0, 256, 0,
+                            0, 0, 256, 0, 0, 0, 64, 5, 53250, -2080309248, 1634296941, 738197504, 1684563053, 1, 0, 0, 0, 0, -2137614336,
+                            -1, -1, 50261, 754974720, 1919706216, 0, 0, 1701079414, 0, 0, 0, 1701079382, 1851869295, 1919249508, 16777216,
+                            1852402979, 102, 1752004116, 100, 1, 0, 0, 1852400676, 102, 1701995548, 102, 0, 1, 1819440396, 32, 1,
+                            1651799011, 108, 1937011607, 100, 0, 1, 1668702599, 49, 0, 1, 0, 0, 0, 33555712, 4718800, 4718592, 0, 65536, 0,
+                            0, 0, 0, 0, 0, 0, 0, 16776984, 1630601216, 21193590, -14745500, 1729626337, -1407254428, 89161945, 1049019,
+                            9453056, -251611125, 27269507, -379058688, -1329024392, 268435456, 1937011827, 0, 0, 268435456, 1668510835, 0,
+                            0, 335544320, 2054386803, 0, 0, 0, 268435456, 1868788851, 0, 0, 671088640, 2019915373, 536870912, 2019914356, 0,
+                            16777216, 16777216, 0, 0, 0,
+                        ]),
+                    ],
+                    { type: 'video/mp4' },
+                );
+                let testVideo;
+                return function () {
+                    if (!testVideo) {
+                        testVideo = document.createElement('video');
+                        testVideo.style = 'position:absolute; width:0; height:0; left:0; right:0; z-index:-1; border:0';
+                        testVideo.setAttribute('muted', 'muted');
+                        testVideo.setAttribute('playsinline', 'playsinline');
+                        testVideo.src = URL.createObjectURL(TEST_VIDEO);
+                        document.body.appendChild(testVideo);
+                    }
+                    return testVideo.play();
+                };
+            })();
+            const ima = {};
+            class AdDisplayContainer {
+                constructor(containerElement) {
+                    const divElement = document.createElement('div');
+                    divElement.style.setProperty('display', 'none', 'important');
+                    divElement.style.setProperty('visibility', 'collapse', 'important');
+                    containerElement.appendChild(divElement);
+                }
+                destroy() {}
+                initialize() {}
+            }
+            class ImaSdkSettings {
+                constructor() {
+                    this.c = true;
+                    this.f = {};
+                    this.i = false;
+                    this.l = '';
+                    this.p = '';
+                    this.r = 0;
+                    this.t = '';
+                    this.v = '';
+                }
+                getCompanionBackfill() {}
+                getDisableCustomPlaybackForIOS10Plus() {
+                    return this.i;
+                }
+                getFeatureFlags() {
+                    return this.f;
+                }
+                getLocale() {
+                    return this.l;
+                }
+                getNumRedirects() {
+                    return this.r;
+                }
+                getPlayerType() {
+                    return this.t;
+                }
+                getPlayerVersion() {
+                    return this.v;
+                }
+                getPpid() {
+                    return this.p;
+                }
+                isCookiesEnabled() {
+                    return this.c;
+                }
+                setAutoPlayAdBreaks() {}
+                setCompanionBackfill() {}
+                setCookiesEnabled(c) {
+                    this.c = !!c;
+                }
+                setDisableCustomPlaybackForIOS10Plus(i) {
+                    this.i = !!i;
+                }
+                setFeatureFlags(f) {
+                    this.f = f;
+                }
+                setLocale(l) {
+                    this.l = l;
+                }
+                setNumRedirects(r) {
+                    this.r = r;
+                }
+                setPlayerType(t) {
+                    this.t = t;
+                }
+                setPlayerVersion(v) {
+                    this.v = v;
+                }
+                setPpid(p) {
+                    this.p = p;
+                }
+                setSessionId(/* s */) {}
+                setVpaidAllowed(/* a */) {}
+                setVpaidMode(/* m */) {}
+                // https://github.com/uBlockOrigin/uBlock-issues/issues/2265#issuecomment-1637094149
+                getDisableFlashAds() {}
+                setDisableFlashAds() {}
+            }
+            ImaSdkSettings.CompanionBackfillMode = {
+                ALWAYS: 'always',
+                ON_MASTER_AD: 'on_master_ad',
             };
-          })();
-          const ima = {};
-          class AdDisplayContainer {
-            constructor(containerElement) {
-              const divElement = document.createElement("div");
-              divElement.style.setProperty("display", "none", "important");
-              divElement.style.setProperty("visibility", "collapse", "important");
-              containerElement.appendChild(divElement);
-            }
-            destroy() {}
-            initialize() {}
-          }
-          class ImaSdkSettings {
-            constructor() {
-              this.c = true;
-              this.f = {};
-              this.i = false;
-              this.l = "";
-              this.p = "";
-              this.r = 0;
-              this.t = "";
-              this.v = "";
-            }
-            getCompanionBackfill() {}
-            getDisableCustomPlaybackForIOS10Plus() {
-              return this.i;
-            }
-            getFeatureFlags() {
-              return this.f;
-            }
-            getLocale() {
-              return this.l;
-            }
-            getNumRedirects() {
-              return this.r;
-            }
-            getPlayerType() {
-              return this.t;
-            }
-            getPlayerVersion() {
-              return this.v;
-            }
-            getPpid() {
-              return this.p;
-            }
-            isCookiesEnabled() {
-              return this.c;
-            }
-            setAutoPlayAdBreaks() {}
-            setCompanionBackfill() {}
-            setCookiesEnabled(c) {
-              this.c = !!c;
-            }
-            setDisableCustomPlaybackForIOS10Plus(i) {
-              this.i = !!i;
-            }
-            setFeatureFlags(f) {
-              this.f = f;
-            }
-            setLocale(l) {
-              this.l = l;
-            }
-            setNumRedirects(r) {
-              this.r = r;
-            }
-            setPlayerType(t) {
-              this.t = t;
-            }
-            setPlayerVersion(v) {
-              this.v = v;
-            }
-            setPpid(p) {
-              this.p = p;
-            }
-            setSessionId(/* s */) {}
-            setVpaidAllowed(/* a */) {}
-            setVpaidMode(/* m */) {}
-            // https://github.com/uBlockOrigin/uBlock-issues/issues/2265#issuecomment-1637094149
-            getDisableFlashAds() {
-            }
-            setDisableFlashAds() {
-            }
-          }
-          ImaSdkSettings.CompanionBackfillMode = {
-            ALWAYS: "always",
-            ON_MASTER_AD: "on_master_ad",
-          };
-          ImaSdkSettings.VpaidMode = {
-            DISABLED: 0,
-            ENABLED: 1,
-            INSECURE: 2,
-          };
-          class EventHandler {
-            constructor() {
-              this.listeners = new Map();
-            }
-            _dispatch(e) {
-              let listeners = this.listeners.get(e.type);
-              listeners = listeners ? Array.from(listeners.values()) : [];
-              for (const listener of listeners) {
-                try {
-                  listener(e);
-                } catch (r) {
-                  console.error(r);
+            ImaSdkSettings.VpaidMode = {
+                DISABLED: 0,
+                ENABLED: 1,
+                INSECURE: 2,
+            };
+            class EventHandler {
+                constructor() {
+                    this.listeners = new Map();
                 }
-              }
-            }
-            addEventListener(types, c, options, context) {
-              if (!Array.isArray(types)) {
-                types = [types];
-              }
-              for (const t of types) {
-                if (!this.listeners.has(t)) {
-                  this.listeners.set(t, new Map());
+                _dispatch(e) {
+                    let listeners = this.listeners.get(e.type);
+                    listeners = listeners ? Array.from(listeners.values()) : [];
+                    for (const listener of listeners) {
+                        try {
+                            listener(e);
+                        } catch (r) {
+                            console.error(r);
+                        }
+                    }
                 }
-                this.listeners.get(t).set(c, c.bind(context || this));
-              }
-            }
-            removeEventListener(types, c) {
-              if (!Array.isArray(types)) {
-                types = [types];
-              }
-              for (const t of types) {
-                const typeSet = this.listeners.get(t);
-                if (typeSet) {
-                  typeSet.delete(c);
+                addEventListener(types, c, options, context) {
+                    if (!Array.isArray(types)) {
+                        types = [types];
+                    }
+                    for (const t of types) {
+                        if (!this.listeners.has(t)) {
+                            this.listeners.set(t, new Map());
+                        }
+                        this.listeners.get(t).set(c, c.bind(context || this));
+                    }
                 }
-              }
+                removeEventListener(types, c) {
+                    if (!Array.isArray(types)) {
+                        types = [types];
+                    }
+                    for (const t of types) {
+                        const typeSet = this.listeners.get(t);
+                        if (typeSet) {
+                            typeSet.delete(c);
+                        }
+                    }
+                }
             }
-          }
-          class AdsLoader extends EventHandler {
-            constructor() {
-              super();
-              this.settings = new ImaSdkSettings();
+            class AdsLoader extends EventHandler {
+                constructor() {
+                    super();
+                    this.settings = new ImaSdkSettings();
+                }
+                contentComplete() {}
+                destroy() {}
+                getSettings() {
+                    return this.settings;
+                }
+                getVersion() {
+                    return VERSION;
+                }
+                requestAds(/* r, c */) {
+                    // If autoplay is disabled and the page is trying to autoplay a tracking
+                    // ad, then IMA fails with an error, and the page is expected to request
+                    // ads again later when the user clicks to play.
+                    CheckCanAutoplay().then(
+                        () => {
+                            const { ADS_MANAGER_LOADED } = AdsManagerLoadedEvent.Type;
+                            this._dispatch(new ima.AdsManagerLoadedEvent(ADS_MANAGER_LOADED));
+                        },
+                        () => {
+                            const e = new ima.AdError(
+                                'adPlayError',
+                                1205,
+                                1205,
+                                'The browser prevented playback initiated without user interaction.',
+                            );
+                            this._dispatch(new ima.AdErrorEvent(e));
+                        },
+                    );
+                }
             }
-            contentComplete() {}
-            destroy() {}
-            getSettings() {
-              return this.settings;
+            class AdsManager extends EventHandler {
+                constructor() {
+                    super();
+                    this.volume = 1;
+                    this._enablePreloading = false;
+                }
+                collapse() {}
+                configureAdsManager() {}
+                destroy() {}
+                discardAdBreak() {}
+                expand() {}
+                focus() {}
+                getAdSkippableState() {
+                    return false;
+                }
+                getCuePoints() {
+                    return [0];
+                }
+                getCurrentAd() {
+                    return currentAd;
+                }
+                getCurrentAdCuePoints() {
+                    return [];
+                }
+                getRemainingTime() {
+                    return 0;
+                }
+                getVolume() {
+                    return this.volume;
+                }
+                init(/* w, h, m, e */) {
+                    if (this._enablePreloading) {
+                        this._dispatch(new ima.AdEvent(AdEvent.Type.LOADED));
+                    }
+                }
+                isCustomClickTrackingUsed() {
+                    return false;
+                }
+                isCustomPlaybackUsed() {
+                    return false;
+                }
+                pause() {}
+                requestNextAdBreak() {}
+                resize(/* w, h, m */) {}
+                resume() {}
+                setVolume(v) {
+                    this.volume = v;
+                }
+                skip() {}
+                start() {
+                    requestAnimationFrame(() => {
+                        for (const type of [
+                            AdEvent.Type.LOADED,
+                            AdEvent.Type.STARTED,
+                            AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+                            AdEvent.Type.AD_BUFFERING,
+                            AdEvent.Type.FIRST_QUARTILE,
+                            AdEvent.Type.MIDPOINT,
+                            AdEvent.Type.THIRD_QUARTILE,
+                            AdEvent.Type.COMPLETE,
+                            AdEvent.Type.ALL_ADS_COMPLETED,
+                            AdEvent.Type.CONTENT_RESUME_REQUESTED,
+                        ]) {
+                            try {
+                                this._dispatch(new ima.AdEvent(type));
+                            } catch (e) {
+                                console.error(e);
+                            }
+                        }
+                    });
+                }
+                stop() {}
+                updateAdsRenderingSettings(/* s */) {}
             }
-            getVersion() {
-              return VERSION;
+            class AdsRenderingSettings {}
+            class AdsRequest {
+                constructor() {
+                    this.omidAccessModeRules = {};
+                }
+                setAdWillAutoPlay() {}
+                setAdWillPlayMuted() {}
+                setContinuousPlayback() {}
             }
-            requestAds(/* r, c */) {
-              // If autoplay is disabled and the page is trying to autoplay a tracking
-              // ad, then IMA fails with an error, and the page is expected to request
-              // ads again later when the user clicks to play.
-              CheckCanAutoplay().then(
-                () => {
-                  const { ADS_MANAGER_LOADED } = AdsManagerLoadedEvent.Type;
-                  this._dispatch(new ima.AdsManagerLoadedEvent(ADS_MANAGER_LOADED));
+            class AdPodInfo {
+                getAdPosition() {
+                    return 1;
+                }
+                getIsBumper() {
+                    return false;
+                }
+                getMaxDuration() {
+                    return -1;
+                }
+                getPodIndex() {
+                    return 1;
+                }
+                getTimeOffset() {
+                    return 0;
+                }
+                getTotalAds() {
+                    return 1;
+                }
+            }
+            // eslint-disable-next-line no-unused-vars
+            class Ad {
+                constructor() {
+                    this._pi = new AdPodInfo();
+                }
+                getAdId() {
+                    return '';
+                }
+                getAdPodInfo() {
+                    return this._pi;
+                }
+                getAdSystem() {
+                    return '';
+                }
+                getAdvertiserName() {
+                    return '';
+                }
+                getApiFramework() {
+                    return null;
+                }
+                getCompanionAds() {
+                    return [];
+                }
+                getContentType() {
+                    return '';
+                }
+                getCreativeAdId() {
+                    return '';
+                }
+                getCreativeId() {
+                    return '';
+                }
+                getDealId() {
+                    return '';
+                }
+                getDescription() {
+                    return '';
+                }
+                getDuration() {
+                    return 8.5;
+                }
+                getHeight() {
+                    return 0;
+                }
+                getMediaUrl() {
+                    return null;
+                }
+                getMinSuggestedDuration() {
+                    return -2;
+                }
+                getSkipTimeOffset() {
+                    return -1;
+                }
+                getSurveyUrl() {
+                    return null;
+                }
+                getTitle() {
+                    return '';
+                }
+                getTraffickingParameters() {
+                    return {};
+                }
+                getTraffickingParametersString() {
+                    return '';
+                }
+                getUiElements() {
+                    return [''];
+                }
+                getUniversalAdIdRegistry() {
+                    return 'unknown';
+                }
+                getUniversalAdIds() {
+                    return [new UniversalAdIdInfo()];
+                }
+                getUniversalAdIdValue() {
+                    return 'unknown';
+                }
+                getVastMediaBitrate() {
+                    return 0;
+                }
+                getVastMediaHeight() {
+                    return 0;
+                }
+                getVastMediaWidth() {
+                    return 0;
+                }
+                getWidth() {
+                    return 0;
+                }
+                getWrapperAdIds() {
+                    return [''];
+                }
+                getWrapperAdSystems() {
+                    return [''];
+                }
+                getWrapperCreativeIds() {
+                    return [''];
+                }
+                isLinear() {
+                    return true;
+                }
+                isSkippable() {
+                    return true;
+                }
+            }
+            class CompanionAd {
+                getAdSlotId() {
+                    return '';
+                }
+                getContent() {
+                    return '';
+                }
+                getContentType() {
+                    return '';
+                }
+                getHeight() {
+                    return 1;
+                }
+                getWidth() {
+                    return 1;
+                }
+            }
+            class AdError {
+                constructor(type, code, vast, message) {
+                    this.errorCode = code;
+                    this.message = message;
+                    this.type = type;
+                    this.vastErrorCode = vast;
+                }
+                getErrorCode() {
+                    return this.errorCode;
+                }
+                getInnerError() {
+                    return null;
+                }
+                getMessage() {
+                    return this.message;
+                }
+                getType() {
+                    return this.type;
+                }
+                getVastErrorCode() {
+                    return this.vastErrorCode;
+                }
+                toString() {
+                    return `AdError ${this.errorCode}: ${this.message}`;
+                }
+            }
+            AdError.ErrorCode = {};
+            AdError.Type = {};
+            // TODO: Consider setting this to `new Ad()` when AdEvent.Type.LOADED fires
+            //       and clearing it again after AdEvent.Type.ALL_ADS_COMPLETED fires.
+            const currentAd = null;
+            class AdEvent {
+                constructor(type) {
+                    this.type = type;
+                }
+                getAd() {
+                    return currentAd;
+                }
+                getAdData() {
+                    return {};
+                }
+            }
+            AdEvent.Type = {
+                AD_BREAK_READY: 'adBreakReady',
+                AD_BUFFERING: 'adBuffering',
+                AD_CAN_PLAY: 'adCanPlay',
+                AD_METADATA: 'adMetadata',
+                AD_PROGRESS: 'adProgress',
+                ALL_ADS_COMPLETED: 'allAdsCompleted',
+                CLICK: 'click',
+                COMPLETE: 'complete',
+                CONTENT_PAUSE_REQUESTED: 'contentPauseRequested',
+                CONTENT_RESUME_REQUESTED: 'contentResumeRequested',
+                DURATION_CHANGE: 'durationChange',
+                EXPANDED_CHANGED: 'expandedChanged',
+                FIRST_QUARTILE: 'firstQuartile',
+                IMPRESSION: 'impression',
+                INTERACTION: 'interaction',
+                LINEAR_CHANGE: 'linearChange',
+                LINEAR_CHANGED: 'linearChanged',
+                LOADED: 'loaded',
+                LOG: 'log',
+                MIDPOINT: 'midpoint',
+                PAUSED: 'pause',
+                RESUMED: 'resume',
+                SKIPPABLE_STATE_CHANGED: 'skippableStateChanged',
+                SKIPPED: 'skip',
+                STARTED: 'start',
+                THIRD_QUARTILE: 'thirdQuartile',
+                USER_CLOSE: 'userClose',
+                VIDEO_CLICKED: 'videoClicked',
+                VIDEO_ICON_CLICKED: 'videoIconClicked',
+                VIEWABLE_IMPRESSION: 'viewable_impression',
+                VOLUME_CHANGED: 'volumeChange',
+                VOLUME_MUTED: 'mute',
+            };
+            class AdErrorEvent {
+                constructor(error) {
+                    this.type = 'adError';
+                    this.error = error;
+                }
+                getError() {
+                    return this.error;
+                }
+                getUserRequestContext() {
+                    return {};
+                }
+            }
+            AdErrorEvent.Type = {
+                AD_ERROR: 'adError',
+            };
+            const manager = new AdsManager();
+            class AdsManagerLoadedEvent {
+                constructor(type) {
+                    this.type = type;
+                }
+                getAdsManager(c, settings) {
+                    if (settings && settings.enablePreloading) {
+                        manager._enablePreloading = true;
+                    }
+                    return manager;
+                }
+                getUserRequestContext() {
+                    return {};
+                }
+            }
+            AdsManagerLoadedEvent.Type = {
+                ADS_MANAGER_LOADED: 'adsManagerLoaded',
+            };
+            class CustomContentLoadedEvent {}
+            CustomContentLoadedEvent.Type = {
+                CUSTOM_CONTENT_LOADED: 'deprecated-event',
+            };
+            class CompanionAdSelectionSettings {}
+            CompanionAdSelectionSettings.CreativeType = {
+                ALL: 'All',
+                FLASH: 'Flash',
+                IMAGE: 'Image',
+            };
+            CompanionAdSelectionSettings.ResourceType = {
+                ALL: 'All',
+                HTML: 'Html',
+                IFRAME: 'IFrame',
+                STATIC: 'Static',
+            };
+            CompanionAdSelectionSettings.SizeCriteria = {
+                IGNORE: 'IgnoreSize',
+                SELECT_EXACT_MATCH: 'SelectExactMatch',
+                SELECT_NEAR_MATCH: 'SelectNearMatch',
+            };
+            class AdCuePoints {
+                getCuePoints() {
+                    return [];
+                }
+            }
+            class AdProgressData {}
+            class UniversalAdIdInfo {
+                getAdIdRegistry() {
+                    return '';
+                }
+                getAdIdValue() {
+                    return '';
+                }
+            }
+            Object.assign(ima, {
+                AdCuePoints,
+                AdDisplayContainer,
+                AdError,
+                AdErrorEvent,
+                AdEvent,
+                AdPodInfo,
+                AdProgressData,
+                AdsLoader,
+                AdsManager: manager,
+                AdsManagerLoadedEvent,
+                AdsRenderingSettings,
+                AdsRequest,
+                CompanionAd,
+                CompanionAdSelectionSettings,
+                CustomContentLoadedEvent,
+                gptProxyInstance: {},
+                ImaSdkSettings,
+                OmidAccessMode: {
+                    DOMAIN: 'domain',
+                    FULL: 'full',
+                    LIMITED: 'limited',
                 },
-                () => {
-                  const e = new ima.AdError(
-                    "adPlayError",
-                    1205,
-                    1205,
-                    "The browser prevented playback initiated without user interaction."
-                  );
-                  this._dispatch(new ima.AdErrorEvent(e));
-                }
-              );
-            }
-          }
-          class AdsManager extends EventHandler {
-            constructor() {
-              super();
-              this.volume = 1;
-              this._enablePreloading = false;
-            }
-            collapse() {}
-            configureAdsManager() {}
-            destroy() {}
-            discardAdBreak() {}
-            expand() {}
-            focus() {}
-            getAdSkippableState() {
-              return false;
-            }
-            getCuePoints() {
-              return [0];
-            }
-            getCurrentAd() {
-              return currentAd;
-            }
-            getCurrentAdCuePoints() {
-              return [];
-            }
-            getRemainingTime() {
-              return 0;
-            }
-            getVolume() {
-              return this.volume;
-            }
-            init(/* w, h, m, e */) {
-              if (this._enablePreloading) {
-                this._dispatch(new ima.AdEvent(AdEvent.Type.LOADED));
-              }
-            }
-            isCustomClickTrackingUsed() {
-              return false;
-            }
-            isCustomPlaybackUsed() {
-              return false;
-            }
-            pause() {}
-            requestNextAdBreak() {}
-            resize(/* w, h, m */) {}
-            resume() {}
-            setVolume(v) {
-              this.volume = v;
-            }
-            skip() {}
-            start() {
-              requestAnimationFrame(() => {
-                for (const type of [
-                  AdEvent.Type.LOADED,
-                  AdEvent.Type.STARTED,
-                  AdEvent.Type.CONTENT_PAUSE_REQUESTED,
-                  AdEvent.Type.AD_BUFFERING,
-                  AdEvent.Type.FIRST_QUARTILE,
-                  AdEvent.Type.MIDPOINT,
-                  AdEvent.Type.THIRD_QUARTILE,
-                  AdEvent.Type.COMPLETE,
-                  AdEvent.Type.ALL_ADS_COMPLETED,
-                  AdEvent.Type.CONTENT_RESUME_REQUESTED,
-                ]) {
-                  try {
-                    this._dispatch(new ima.AdEvent(type));
-                  } catch (e) {
-                    console.error(e);
-                  }
-                }
-              });
-            }
-            stop() {}
-            updateAdsRenderingSettings(/* s */) {}
-          }
-          class AdsRenderingSettings {}
-          class AdsRequest {
-            constructor() {
-              this.omidAccessModeRules = {};
-            }
-            setAdWillAutoPlay() {}
-            setAdWillPlayMuted() {}
-            setContinuousPlayback() {}
-          }
-          class AdPodInfo {
-            getAdPosition() {
-              return 1;
-            }
-            getIsBumper() {
-              return false;
-            }
-            getMaxDuration() {
-              return -1;
-            }
-            getPodIndex() {
-              return 1;
-            }
-            getTimeOffset() {
-              return 0;
-            }
-            getTotalAds() {
-              return 1;
-            }
-          }
-          // eslint-disable-next-line no-unused-vars
-          class Ad {
-            constructor() {
-              this._pi = new AdPodInfo();
-            }
-            getAdId() {
-              return "";
-            }
-            getAdPodInfo() {
-              return this._pi;
-            }
-            getAdSystem() {
-              return "";
-            }
-            getAdvertiserName() {
-              return "";
-            }
-            getApiFramework() {
-              return null;
-            }
-            getCompanionAds() {
-              return [];
-            }
-            getContentType() {
-              return "";
-            }
-            getCreativeAdId() {
-              return "";
-            }
-            getCreativeId() {
-              return "";
-            }
-            getDealId() {
-              return "";
-            }
-            getDescription() {
-              return "";
-            }
-            getDuration() {
-              return 8.5;
-            }
-            getHeight() {
-              return 0;
-            }
-            getMediaUrl() {
-              return null;
-            }
-            getMinSuggestedDuration() {
-              return -2;
-            }
-            getSkipTimeOffset() {
-              return -1;
-            }
-            getSurveyUrl() {
-              return null;
-            }
-            getTitle() {
-              return "";
-            }
-            getTraffickingParameters() {
-              return {};
-            }
-            getTraffickingParametersString() {
-              return "";
-            }
-            getUiElements() {
-              return [""];
-            }
-            getUniversalAdIdRegistry() {
-              return "unknown";
-            }
-            getUniversalAdIds() {
-              return [new UniversalAdIdInfo()];
-            }
-            getUniversalAdIdValue() {
-              return "unknown";
-            }
-            getVastMediaBitrate() {
-              return 0;
-            }
-            getVastMediaHeight() {
-              return 0;
-            }
-            getVastMediaWidth() {
-              return 0;
-            }
-            getWidth() {
-              return 0;
-            }
-            getWrapperAdIds() {
-              return [""];
-            }
-            getWrapperAdSystems() {
-              return [""];
-            }
-            getWrapperCreativeIds() {
-              return [""];
-            }
-            isLinear() {
-              return true;
-            }
-            isSkippable() {
-              return true;
-            }
-          }
-          class CompanionAd {
-            getAdSlotId() {
-              return "";
-            }
-            getContent() {
-              return "";
-            }
-            getContentType() {
-              return "";
-            }
-            getHeight() {
-              return 1;
-            }
-            getWidth() {
-              return 1;
-            }
-          }
-          class AdError {
-            constructor(type, code, vast, message) {
-              this.errorCode = code;
-              this.message = message;
-              this.type = type;
-              this.vastErrorCode = vast;
-            }
-            getErrorCode() {
-              return this.errorCode;
-            }
-            getInnerError() { return null; }
-            getMessage() {
-              return this.message;
-            }
-            getType() {
-              return this.type;
-            }
-            getVastErrorCode() {
-              return this.vastErrorCode;
-            }
-            toString() {
-              return `AdError ${this.errorCode}: ${this.message}`;
-            }
-          }
-          AdError.ErrorCode = {};
-          AdError.Type = {};
-          // TODO: Consider setting this to `new Ad()` when AdEvent.Type.LOADED fires
-          //       and clearing it again after AdEvent.Type.ALL_ADS_COMPLETED fires.
-          const currentAd = null;
-          class AdEvent {
-            constructor(type) {
-              this.type = type;
-            }
-            getAd() {
-              return currentAd;
-            }
-            getAdData() {
-              return {};
-            }
-          }
-          AdEvent.Type = {
-            AD_BREAK_READY: "adBreakReady",
-            AD_BUFFERING: "adBuffering",
-            AD_CAN_PLAY: "adCanPlay",
-            AD_METADATA: "adMetadata",
-            AD_PROGRESS: "adProgress",
-            ALL_ADS_COMPLETED: "allAdsCompleted",
-            CLICK: "click",
-            COMPLETE: "complete",
-            CONTENT_PAUSE_REQUESTED: "contentPauseRequested",
-            CONTENT_RESUME_REQUESTED: "contentResumeRequested",
-            DURATION_CHANGE: "durationChange",
-            EXPANDED_CHANGED: "expandedChanged",
-            FIRST_QUARTILE: "firstQuartile",
-            IMPRESSION: "impression",
-            INTERACTION: "interaction",
-            LINEAR_CHANGE: "linearChange",
-            LINEAR_CHANGED: "linearChanged",
-            LOADED: "loaded",
-            LOG: "log",
-            MIDPOINT: "midpoint",
-            PAUSED: "pause",
-            RESUMED: "resume",
-            SKIPPABLE_STATE_CHANGED: "skippableStateChanged",
-            SKIPPED: "skip",
-            STARTED: "start",
-            THIRD_QUARTILE: "thirdQuartile",
-            USER_CLOSE: "userClose",
-            VIDEO_CLICKED: "videoClicked",
-            VIDEO_ICON_CLICKED: "videoIconClicked",
-            VIEWABLE_IMPRESSION: "viewable_impression",
-            VOLUME_CHANGED: "volumeChange",
-            VOLUME_MUTED: "mute",
-          };
-          class AdErrorEvent {
-            constructor(error) {
-              this.type = "adError";
-              this.error = error;
-            }
-            getError() {
-              return this.error;
-            }
-            getUserRequestContext() {
-              return {};
-            }
-          }
-          AdErrorEvent.Type = {
-            AD_ERROR: "adError",
-          };
-          const manager = new AdsManager();
-          class AdsManagerLoadedEvent {
-            constructor(type) {
-              this.type = type;
-            }
-            getAdsManager(c, settings) {
-              if (settings && settings.enablePreloading) {
-                manager._enablePreloading = true;
-              }
-              return manager;
-            }
-            getUserRequestContext() {
-              return {};
-            }
-          }
-          AdsManagerLoadedEvent.Type = {
-            ADS_MANAGER_LOADED: "adsManagerLoaded",
-          };
-          class CustomContentLoadedEvent {}
-          CustomContentLoadedEvent.Type = {
-            CUSTOM_CONTENT_LOADED: "deprecated-event",
-          };
-          class CompanionAdSelectionSettings {}
-          CompanionAdSelectionSettings.CreativeType = {
-            ALL: "All",
-            FLASH: "Flash",
-            IMAGE: "Image",
-          };
-          CompanionAdSelectionSettings.ResourceType = {
-            ALL: "All",
-            HTML: "Html",
-            IFRAME: "IFrame",
-            STATIC: "Static",
-          };
-          CompanionAdSelectionSettings.SizeCriteria = {
-            IGNORE: "IgnoreSize",
-            SELECT_EXACT_MATCH: "SelectExactMatch",
-            SELECT_NEAR_MATCH: "SelectNearMatch",
-          };
-          class AdCuePoints {
-            getCuePoints() {
-              return [];
-            }
-          }
-          class AdProgressData {}
-          class UniversalAdIdInfo {
-            getAdIdRegistry() {
-              return "";
-            }
-            getAdIdValue() {
-              return "";
-            }
-          }
-          Object.assign(ima, {
-            AdCuePoints,
-            AdDisplayContainer,
-            AdError,
-            AdErrorEvent,
-            AdEvent,
-            AdPodInfo,
-            AdProgressData,
-            AdsLoader,
-            AdsManager: manager,
-            AdsManagerLoadedEvent,
-            AdsRenderingSettings,
-            AdsRequest,
-            CompanionAd,
-            CompanionAdSelectionSettings,
-            CustomContentLoadedEvent,
-            gptProxyInstance: {},
-            ImaSdkSettings,
-            OmidAccessMode: {
-              DOMAIN: "domain",
-              FULL: "full",
-              LIMITED: "limited",
-            },
-            OmidVerificationVendor: {
-              1: "OTHER",
-              2: "GOOGLE",
-              GOOGLE: 2,
-              OTHER: 1
-            },
-            settings: new ImaSdkSettings(),
-            UiElements: {
-              AD_ATTRIBUTION: "adAttribution",
-              COUNTDOWN: "countdown",
-            },
-            UniversalAdIdInfo,
-            VERSION,
-            ViewMode: {
-              FULLSCREEN: "fullscreen",
-              NORMAL: "normal",
-            },
-          });
-          if (!window.google) {
-            window.google = {};
-          }
-          window.google.ima = ima;
+                OmidVerificationVendor: {
+                    1: 'OTHER',
+                    2: 'GOOGLE',
+                    GOOGLE: 2,
+                    OTHER: 1,
+                },
+                settings: new ImaSdkSettings(),
+                UiElements: {
+                    AD_ATTRIBUTION: 'adAttribution',
+                    COUNTDOWN: 'countdown',
+                },
+                UniversalAdIdInfo,
+                VERSION,
+                ViewMode: {
+                    FULLSCREEN: 'fullscreen',
+                    NORMAL: 'normal',
+                },
+            });
+            if (!window.google) {
+                window.google = {};
+            }
+            window.google.ima = ima;
         }
-
     },
-    'gpt.js': function() {
+    'gpt.js': function () {
         (() => {
             'use strict';
             const noop = () => {};
-            const noopReturnNull = () => { return null; };
-            const noopReturnEmptyArray = () => { return []; };
-            const noopReturnEmptyString = () => { return ''; };
+            const noopReturnNull = () => {
+                return null;
+            };
+            const noopReturnEmptyArray = () => {
+                return [];
+            };
+            const noopReturnEmptyString = () => {
+                return '';
+            };
             const noopReturnThis = function () {
                 return this;
             };
@@ -1484,7 +1341,7 @@ export const surrogates = {
                         return Reflect.get(...arguments);
                     }
                     return noop;
-                }
+                },
             };
             const noopReturnThisHandler = {
                 get: function (target, prop, receiver) {
@@ -1492,27 +1349,27 @@ export const surrogates = {
                         return Reflect.get(...arguments);
                     }
                     return noopReturnThis;
-                }
+                },
             };
             const passbackTarget = {
                 display: noop,
-                get: noopReturnNull
+                get: noopReturnNull,
             };
             let targeting = {};
-            function setTargeting (key, value) {
+            function setTargeting(key, value) {
                 const val = Array.isArray(value) ? value : [value];
                 targeting[key] = val;
             }
-            function getTargeting (key) {
+            function getTargeting(key) {
                 if (key in targeting) {
                     return targeting[key];
                 }
                 return [];
             }
-            function getTargetingKeys () {
+            function getTargetingKeys() {
                 return Object.keys(targeting);
             }
-            function clearTargeting (key) {
+            function clearTargeting(key) {
                 if (key) {
                     targeting[key] = [];
                 } else {
@@ -1524,8 +1381,12 @@ export const surrogates = {
                 clearCategoryExclusions: noopReturnThis,
                 clearTagForChildDirectedTreatment: noopReturnThis,
                 clearTargeting,
-                definePassback: function () { return new Proxy(passbackTarget, noopReturnThisHandler); },
-                defineOutOfPagePassback: function () { return new Proxy(passbackTarget, noopReturnThisHandler); },
+                definePassback: function () {
+                    return new Proxy(passbackTarget, noopReturnThisHandler);
+                },
+                defineOutOfPagePassback: function () {
+                    return new Proxy(passbackTarget, noopReturnThisHandler);
+                },
                 get: noopReturnNull,
                 getAttributeKeys: noopReturnEmptyArray,
                 getTargetingKeys,
@@ -1541,16 +1402,16 @@ export const surrogates = {
                 setTagForChildDirectedTreatment: noopReturnThis,
                 setTargeting,
                 getTargeting,
-                setVideoContent: noopReturnThis
+                setVideoContent: noopReturnThis,
             };
             const companionadsTarget = {
-                addEventListener: noopReturnThis
+                addEventListener: noopReturnThis,
             };
             const sizeMappingTarget = {
-                build: noopReturnNull
+                build: noopReturnNull,
             };
             const contentTarget = {
-                addEventListener: noopReturnThis
+                addEventListener: noopReturnThis,
             };
             const slotTarget = {
                 get: noopReturnNull,
@@ -1560,34 +1421,45 @@ export const surrogates = {
                 getDomId: noopReturnEmptyString,
                 getSlotElementId: noopReturnEmptyString,
                 getTargeting,
-                getTargetingKeys
+                getTargetingKeys,
             };
             const gptObj = {
                 _loadStarted_: true,
                 apiReady: true,
                 pubadsReady: true,
                 cmd: [],
-                pubads: function () { return new Proxy(pubadsTarget, noopHandler); },
-                companionAds: function () { return new Proxy(companionadsTarget, noopHandler); },
-                sizeMapping: function () { return new Proxy(sizeMappingTarget, noopReturnThisHandler); },
-                content: function () { return new Proxy(contentTarget, noopHandler); },
-                defineSlot: function () { return new Proxy(slotTarget, noopReturnThisHandler); },
-                defineOutOfPageSlot: function () { return new Proxy(slotTarget, noopReturnThisHandler); },
+                pubads: function () {
+                    return new Proxy(pubadsTarget, noopHandler);
+                },
+                companionAds: function () {
+                    return new Proxy(companionadsTarget, noopHandler);
+                },
+                sizeMapping: function () {
+                    return new Proxy(sizeMappingTarget, noopReturnThisHandler);
+                },
+                content: function () {
+                    return new Proxy(contentTarget, noopHandler);
+                },
+                defineSlot: function () {
+                    return new Proxy(slotTarget, noopReturnThisHandler);
+                },
+                defineOutOfPageSlot: function () {
+                    return new Proxy(slotTarget, noopReturnThisHandler);
+                },
                 defineUnit: noopReturnNull,
                 destroySlots: noop,
                 disablePublisherConsole: noop,
                 display: noop,
                 enableServices: noop,
                 getVersion: noopReturnEmptyString,
-                setAdIframeTitle: noop
+                setAdIframeTitle: noop,
             };
-            const commandQueue = (window.googletag && window.googletag.cmd.length) ? window.googletag.cmd : [];
+            const commandQueue = window.googletag && window.googletag.cmd.length ? window.googletag.cmd : [];
             gptObj.cmd.push = function (arg) {
                 if (typeof arg === 'function') {
                     try {
                         arg();
-                    } catch (error) {
-                    }
+                    } catch (error) {}
                 }
                 return 1;
             };
@@ -1596,14 +1468,13 @@ export const surrogates = {
                 gptObj.cmd.push(commandQueue.shift());
             }
         })();
-
     },
-    'gtm.js': function() {
+    'gtm.js': function () {
         (() => {
             'use strict';
             const noop = () => {};
             const datalayer = window.dataLayer;
-            window.ga = (window.ga === undefined) ? noop : window.ga;
+            window.ga = window.ga === undefined ? noop : window.ga;
             if (datalayer) {
                 // execute callback if exists, see https://www.simoahava.com/gtm-tips/use-eventtimeout-eventcallback/
                 if (typeof datalayer.push === 'function') {
@@ -1624,19 +1495,17 @@ export const surrogates = {
                 }
             }
         })();
-
     },
-    'inpage_linkid.js': function() {
+    'inpage_linkid.js': function () {
         (() => {
             const gaqObj = {
-                push: () => {}
+                push: () => {},
             };
-            window._gaq = (window._gaq === undefined) ? gaqObj : window._gaq;
+            window._gaq = window._gaq === undefined ? gaqObj : window._gaq;
         })();
-
     },
-    'nielsen.js': function() {
-        "use strict";
+    'nielsen.js': function () {
+        'use strict';
         /* This Source Code Form is subject to the terms of the Mozilla Public
          * License, v. 2.0. If a copy of the MPL was not distributed with this
          * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1651,119 +1520,117 @@ export const surrogates = {
          * is blocked. This shim mitigates that breakage by loading a stand-in.
          */
         if (!window.nol_t) {
-          const cid = "";
-          let domain = "";
-          let schemeHost = "";
-          let scriptName = "";
-          try {
-            const url = document?.currentScript?.src;
-            const { pathname, protocol, host } = new URL(url);
-            domain = host.split(".").slice(0, -2).join(".");
-            schemeHost = `${protocol}//${host}/`;
-            scriptName = pathname.split("/").pop();
-          } catch (_) {}
-          class NolTracker {
-            constructor() {
-              this.CONST = {
-                max_tags: 20,
-              };
-              this.feat = {};
-              this.globals = {
-                cid,
-                content: "0",
-                defaultApidFile: "config250",
-                defaultErrorParams: {
-                  nol_vcid: "c00",
-                  nol_clientid: "",
-                },
-                domain,
-                fpidSfCodeList: [""],
-                init() {},
-                tagCurrRetry: -1,
-                tagMaxRetry: 3,
-                wlCurrRetry: -1,
-                wlMaxRetry: 3,
-              };
-              this.pmap = [];
-              this.pvar = {
-                cid,
-                content: "0",
-                cookies_enabled: "n",
-                server: domain,
-              };
-              this.scriptName = [scriptName];
-              this.version = "6.0.107";
+            const cid = '';
+            let domain = '';
+            let schemeHost = '';
+            let scriptName = '';
+            try {
+                const url = document?.currentScript?.src;
+                const { pathname, protocol, host } = new URL(url);
+                domain = host.split('.').slice(0, -2).join('.');
+                schemeHost = `${protocol}//${host}/`;
+                scriptName = pathname.split('/').pop();
+            } catch (_) {}
+            class NolTracker {
+                constructor() {
+                    this.CONST = {
+                        max_tags: 20,
+                    };
+                    this.feat = {};
+                    this.globals = {
+                        cid,
+                        content: '0',
+                        defaultApidFile: 'config250',
+                        defaultErrorParams: {
+                            nol_vcid: 'c00',
+                            nol_clientid: '',
+                        },
+                        domain,
+                        fpidSfCodeList: [''],
+                        init() {},
+                        tagCurrRetry: -1,
+                        tagMaxRetry: 3,
+                        wlCurrRetry: -1,
+                        wlMaxRetry: 3,
+                    };
+                    this.pmap = [];
+                    this.pvar = {
+                        cid,
+                        content: '0',
+                        cookies_enabled: 'n',
+                        server: domain,
+                    };
+                    this.scriptName = [scriptName];
+                    this.version = '6.0.107';
+                }
+                addScript() {}
+                catchLinkOverlay() {}
+                clickEvent() {}
+                clickTrack() {}
+                // eslint-disable-next-line camelcase
+                do_sample() {}
+                downloadEvent() {}
+                eventTrack() {}
+                filter() {}
+                fireToUrl() {}
+                getSchemeHost() {
+                    return schemeHost;
+                }
+                getVersion() {}
+                iframe() {}
+                // eslint-disable-next-line camelcase
+                in_sample() {
+                    return true;
+                }
+                injectBsdk() {}
+                invite() {}
+                linkTrack() {}
+                mergeFeatures() {}
+                pageEvent() {}
+                pause() {}
+                populateWhitelist() {}
+                post() {}
+                postClickTrack() {}
+                postData() {}
+                postEvent() {}
+                postEventTrack() {}
+                postLinkTrack() {}
+                prefix() {
+                    return '';
+                }
+                processDdrsSvc() {}
+                random() {}
+                record() {
+                    return this;
+                }
+                regLinkOverlay() {}
+                regListen() {}
+                retrieveCiFileViaCors() {}
+                sectionEvent() {}
+                sendALink() {}
+                sendForm() {}
+                sendIt() {}
+                slideEvent() {}
+                whitelistAssigned() {}
             }
-            addScript() {}
-            catchLinkOverlay() {}
-            clickEvent() {}
-            clickTrack() {}
-            // eslint-disable-next-line camelcase
-            do_sample() {}
-            downloadEvent() {}
-            eventTrack() {}
-            filter() {}
-            fireToUrl() {}
-            getSchemeHost() {
-              return schemeHost;
-            }
-            getVersion() {}
-            iframe() {}
-            // eslint-disable-next-line camelcase
-            in_sample() {
-              return true;
-            }
-            injectBsdk() {}
-            invite() {}
-            linkTrack() {}
-            mergeFeatures() {}
-            pageEvent() {}
-            pause() {}
-            populateWhitelist() {}
-            post() {}
-            postClickTrack() {}
-            postData() {}
-            postEvent() {}
-            postEventTrack() {}
-            postLinkTrack() {}
-            prefix() {
-              return "";
-            }
-            processDdrsSvc() {}
-            random() {}
-            record() {
-              return this;
-            }
-            regLinkOverlay() {}
-            regListen() {}
-            retrieveCiFileViaCors() {}
-            sectionEvent() {}
-            sendALink() {}
-            sendForm() {}
-            sendIt() {}
-            slideEvent() {}
-            whitelistAssigned() {}
-          };
-          window.nol_t = () => {
-            return new NolTracker();
-          };
+            window.nol_t = () => {
+                return new NolTracker();
+            };
         }
-
     },
-    'noop.js': function() {
+    'noop.js': function () {
         (() => {
             'use strict';
         })();
-
     },
-    'outbrain.js': function() {
+    'outbrain.js': function () {
         (() => {
             'use strict';
             const noop = () => {};
             const noopHandler = {
                 get: () => {
                     return noop;
-                }
+                },
             };
             const noopObrExternHandler = {
                 get: function (target, prop, receiver) {
@@ -1771,25 +1638,25 @@ export const surrogates = {
                         return Reflect.get(...arguments);
                     }
                     return noop;
-                }
+                },
             };
             const noopProxy = new Proxy({}, noopHandler);
             const obrExternTarget = {
                 video: {
                     getVideoRecs: noop,
                     initInPlayerWidget: noop,
-                    videoClicked: noop
+                    videoClicked: noop,
                 },
                 feed: {
-                    loadNextChunk: noop
+                    loadNextChunk: noop,
                 },
                 recReasons: {
                     backFromScopedWidget: noop,
                     loadScopedWidget: noop,
                     onRecFollowClick: noop,
                     onRecLinkHover: noop,
-                    onRecLinkHoverOut: noop
-                }
+                    onRecLinkHoverOut: noop,
+                },
             };
             const obrObj = {
                 ready: true,
@@ -1800,18 +1667,17 @@ export const surrogates = {
                 printLog: noop,
                 IntersectionObserver: noop,
                 proxy: noopProxy,
-                languageManager: noopProxy
+                languageManager: noopProxy,
             };
             window.OBR$ = noop;
             window.OB_releaseVer = '200037';
-            window.OBR = (window.OBR === undefined) ? obrObj : window.OBR;
-            window.OB_PROXY = (window.OB_PROXY === undefined) ? noopProxy : window.OB_PROXY;
-            window.outbrain = (window.outbrain === undefined) ? noopProxy : window.outbrain;
-            window.outbrain_rater = (window.outbrain_rater === undefined) ? noopProxy : window.outbrain_rater;
+            window.OBR = window.OBR === undefined ? obrObj : window.OBR;
+            window.OB_PROXY = window.OB_PROXY === undefined ? noopProxy : window.OB_PROXY;
+            window.outbrain = window.outbrain === undefined ? noopProxy : window.outbrain;
+            window.outbrain_rater = window.outbrain_rater === undefined ? noopProxy : window.outbrain_rater;
         })();
-
     },
-    'youtube-iframe-api.js': function() {
+    'youtube-iframe-api.js': function () {
         (() => {
             'use strict';
             if (typeof YT !== 'undefined') {
@@ -1841,7 +1707,7 @@ export const surrogates = {
             const videoElementsByID = new Map();
             const videoElementByPlaceholderElement = new Map();
             const placeholderElementByVideoElement = new Map();
-            function* allVideoElements () {
+            function* allVideoElements() {
                 yield* videoElementByPlaceholderElement.values();
                 yield* videoElementsByID.values();
             }
@@ -1853,21 +1719,21 @@ export const surrogates = {
              *       upon if necessary (e.g. to handle similar load functions and
              *       events).
              */
-            function handleDeferredVideoLoad (target, url, eventListeners) {
+            function handleDeferredVideoLoad(target, url, eventListeners) {
                 const fakeVideoLoad = () => {
                     const listeners = otherEventListenersByVideoElement.get(target) || [];
                     for (const [eventName, listener] of listeners) {
                         switch (eventName) {
-                        case 'onAutoplayBlocked':
-                            listener({ target: this });
-                            break;
-                        case 'onStateChange':
-                            listener({ target: this, data: window.YT.PlayerState.PAUSED });
-                            break;
+                            case 'onAutoplayBlocked':
+                                listener({ target: this });
+                                break;
+                            case 'onStateChange':
+                                listener({ target: this, data: window.YT.PlayerState.PAUSED });
+                                break;
                         }
                     }
                 };
-                const fakeStateChange = state => {
+                const fakeStateChange = (state) => {
                     const listeners = otherEventListenersByVideoElement.get(target) || [];
                     for (const [eventName, listener] of listeners) {
                         if (eventName === 'onStateChange') {
@@ -1877,12 +1743,12 @@ export const surrogates = {
                     }
                 };
                 this.getIframe = () => target;
-                this.loadVideoById = videoId => {
+                this.loadVideoById = (videoId) => {
                     url.pathname = '/embed/' + encodeURIComponent(videoId);
                     target.src = url.href;
                     fakeVideoLoad();
                 };
-                this.loadVideoByUrl = videoUrl => {
+                this.loadVideoByUrl = (videoUrl) => {
                     url.pathname = new URL(videoUrl).pathname;
                     target.src = url.href;
                     fakeVideoLoad();
@@ -1922,13 +1788,13 @@ export const surrogates = {
                 this.stopVideo = fakeStateChange.bind(this, window.YT.PlayerState.ENDED);
                 this.getCurrentTime = () => 0;
                 this.getDuration = () => 0;
-                this.removeEventListener = () => { };
+                this.removeEventListener = () => {};
                 eventListeners.onReady({ target: this });
             }
             /**
              * Mock of the `YT.get` method.
              */
-            function fakeYTGet (id) {
+            function fakeYTGet(id) {
                 // Use the real YT.get if available.
                 // Note: Mock players won't be returned, so it might not work.
                 if (RealYTGet) {
@@ -1949,11 +1815,11 @@ export const surrogates = {
             /**
              * Mock of the `YT.Player` constructor.
              */
-            function Player (target, config = { }, ...rest) {
+            function Player(target, config = {}, ...rest) {
                 if (youTubeIframeAPILoaded) {
                     return new RealYTPlayer(target, config, ...rest);
                 }
-                let { height, width, videoId, playerVars = { }, events } = config;
+                let { height, width, videoId, playerVars = {}, events } = config;
                 if (!(target instanceof Element)) {
                     const orignalTarget = target;
                     target = document.getElementById(orignalTarget);
@@ -1981,11 +1847,15 @@ export const surrogates = {
                 // parameters set. Take care to check for those.
                 if (target instanceof HTMLIFrameElement) {
                     let existingUrl;
-                    try { existingUrl = new URL(target.src); } catch (e) {}
-                    if (existingUrl?.hostname === 'youtube.com' ||
+                    try {
+                        existingUrl = new URL(target.src);
+                    } catch (e) {}
+                    if (
+                        existingUrl?.hostname === 'youtube.com' ||
                         existingUrl?.hostname === 'youtube-nocookie.com' ||
                         existingUrl?.hostname === 'www.youtube.com' ||
-                        existingUrl?.hostname === 'www.youtube-nocookie.com') {
+                        existingUrl?.hostname === 'www.youtube-nocookie.com'
+                    ) {
                         // Existing iframe URL has a video ID, use that if one
                         // wasn't passed in the config.
                         if (existingUrl.pathname.startsWith('/embed/')) {
@@ -2033,11 +1903,7 @@ export const surrogates = {
                             // A few websites only set the video ID _after_ the onReady
                             // event has fired. That way of using the API doesn't make
                             // much sense, but it's still worth handling.
-                            window.setTimeout(
-                                handleDeferredVideoLoad.bind(
-                                    this, target, url, events
-                                ), 0
-                            );
+                            window.setTimeout(handleDeferredVideoLoad.bind(this, target, url, events), 0);
                         } else {
                             // Usually though, when there is an onReady event listener,
                             // that should be kept and only fired once the video is
@@ -2055,7 +1921,7 @@ export const surrogates = {
             }
             // Stub out the YouTube Iframe API.
             window.YTConfig = {
-                host: 'https://www.youtube.com'
+                host: 'https://www.youtube.com',
             };
             window.YT = {
                 loading: 1,
@@ -2067,25 +1933,25 @@ export const surrogates = {
                     PLAYING: 1,
                     PAUSED: 2,
                     BUFFERING: 3,
-                    CUED: 5
+                    CUED: 5,
                 },
-                setConfig (config) {
+                setConfig(config) {
                     for (const key of Object.keys(config)) {
                         window.YTConfig[key] = config[key];
                     }
                 },
                 get: fakeYTGet,
-                ready () { },
-                scan () { },
-                subscribe () { },
-                unsubscribe () { }
+                ready() {},
+                scan() {},
+                subscribe() {},
+                unsubscribe() {},
             };
             /**
              * Load the YouTube Iframe API, replacing the stub.
              * @return {Promise}
              *   Promise which resolves after the API has finished loading.
              */
-            function ensureYouTubeIframeAPILoaded () {
+            function ensureYouTubeIframeAPILoaded() {
                 if (youTubeIframeAPILoaded) {
                     return Promise.resolve();
                 }
@@ -2117,7 +1983,7 @@ export const surrogates = {
                 youTubeIframeAPILoadingPromise = loadingPromise;
                 return loadingPromise;
             }
-            function onClickToPlayReady () {
+            function onClickToPlayReady() {
                 // Signal to the website that the YouTube Iframe API is ready for use,
                 // even though it probably is not. That triggers the website to attempt
                 // to create any videos that it wants to, which we can then block and
@@ -2127,13 +1993,14 @@ export const surrogates = {
                     realOnYouTubeIframeAPIReady();
                 }
             }
-            function onElementAnnounced (name) {
+            function onElementAnnounced(name) {
                 return ({
                     target,
                     detail: {
-                        entity, widgetID: videoID,
-                        replaceSettings: { type: replaceType }
-                    }
+                        entity,
+                        widgetID: videoID,
+                        replaceSettings: { type: replaceType },
+                    },
                 }) => {
                     if (entity !== youtubeEntityName || replaceType !== 'youtube-video') {
                         return;
@@ -2150,12 +2017,12 @@ export const surrogates = {
                     }
                 };
             }
-            async function onPlaceholderClicked ({
+            async function onPlaceholderClicked({
                 target,
                 detail: {
                     entity,
-                    replaceSettings: { type: replaceType }
-                }
+                    replaceSettings: { type: replaceType },
+                },
             }) {
                 if (entity !== youtubeEntityName || replaceType !== 'youtube-video') {
                     return;
@@ -2168,7 +2035,7 @@ export const surrogates = {
                 const onReadyListener = onReadyListenerByVideoElement.get(target);
                 const onStateChangeListener = onStateChangeListenerByVideoElement.get(target);
                 const otherEventListeners = otherEventListenersByVideoElement.get(target);
-                const config = { events: { } };
+                const config = { events: {} };
                 if (onStateChangeListener && !otherEventListeners) {
                     config.events.onStateChange = onStateChangeListener;
                 }
@@ -2187,14 +2054,19 @@ export const surrogates = {
                     // instance.
                     const properties = Object.getOwnPropertyDescriptors(realPlayer);
                     for (const [property, descriptor] of Object.entries(properties)) {
-                        if (Object.prototype.hasOwnProperty.call(descriptor, 'value') &&
+                        if (
+                            Object.prototype.hasOwnProperty.call(descriptor, 'value') &&
                             typeof descriptor.value !== 'function' &&
-                            !descriptor.get && !descriptor.set) {
+                            !descriptor.get &&
+                            !descriptor.set
+                        ) {
                             // Plain value, replace with getter + setter.
                             delete descriptor.writable;
                             delete descriptor.value;
                             descriptor.get = () => realPlayer[property];
-                            descriptor.set = (newValue) => { realPlayer[property] = newValue; };
+                            descriptor.set = (newValue) => {
+                                realPlayer[property] = newValue;
+                            };
                         } else {
                             // Method or getter + setter. Rebind to apply to the "real"
                             // instance.
@@ -2229,8 +2101,7 @@ export const surrogates = {
                                 let loading = true;
                                 realPlayer.addEventListener(eventName, ({ target, data }) => {
                                     if (loading) {
-                                        if (data === window.YT.PlayerState.PLAYING ||
-                                            data === window.YT.PlayerState.ENDED) {
+                                        if (data === window.YT.PlayerState.PLAYING || data === window.YT.PlayerState.ENDED) {
                                             loading = false;
                                         } else {
                                             return;
@@ -2248,24 +2119,11 @@ export const surrogates = {
                 onReadyListenerByVideoElement.delete(target);
                 onStateChangeListenerByVideoElement.delete(target);
             }
-            window.addEventListener(
-                'ddg-ctp-ready', onClickToPlayReady,
-                { once: true }
-            );
-            window.addEventListener(
-                'ddg-ctp-tracking-element', onElementAnnounced('video'),
-                { capture: true }
-            );
-            window.addEventListener(
-                'ddg-ctp-placeholder-element', onElementAnnounced('placeholder'),
-                { capture: true }
-            );
-            window.addEventListener(
-                'ddg-ctp-placeholder-clicked', onPlaceholderClicked,
-                { capture: true }
-            );
+            window.addEventListener('ddg-ctp-ready', onClickToPlayReady, { once: true });
+            window.addEventListener('ddg-ctp-tracking-element', onElementAnnounced('video'), { capture: true });
+            window.addEventListener('ddg-ctp-placeholder-element', onElementAnnounced('placeholder'), { capture: true });
+            window.addEventListener('ddg-ctp-placeholder-clicked', onPlaceholderClicked, { capture: true });
             window.dispatchEvent(new CustomEvent('ddg-ctp-surrogate-load'));
         })();
-
     },
 };
