@@ -150,7 +150,7 @@ export default class ApiManipulation extends ContentFeature {
             return null;
         }
         /** @type {Record<string, unknown>} */
-        let obj = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (window));
+        let obj = globalThis;
         for (const part of parts) {
             const next = obj[part];
             if (next === undefined || next === null) {
