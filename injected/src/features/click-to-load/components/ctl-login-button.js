@@ -32,7 +32,7 @@ export class DDGCtlLoginButton {
      * @param {boolean=} params.useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
      * @param {HTMLElement} params.originalElement - The original element this placeholder is replacing.
      * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
-     * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onClick
+     * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: Event) => void} params.onClick
      */
     constructor(params) {
         this.params = params;

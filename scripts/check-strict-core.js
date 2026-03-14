@@ -66,6 +66,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/utils/expectations.js',
     'injected/src/features/broker-protection/utils/safe-call.js',
     'injected/src/features/broker-protection/utils/url.js',
+    'injected/src/features/click-to-load/components/ctl-login-button.js',
     'injected/src/features/click-to-load/components/ctl-placeholder-blocked.js',
     'injected/src/features/click-to-load/components/index.js',
     'injected/src/features/click-to-load/ctl-assets.js',
