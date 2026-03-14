@@ -60,6 +60,9 @@ import { Environment } from './duckplayer/environment.js';
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {
+    /**
+     * @param {{ locale?: string; language?: string } | undefined} [args]
+     */
     init(args) {
         /**
          * This feature never operates in a frame
@@ -103,7 +106,7 @@ export default class DuckPlayerFeature extends ContentFeature {
         const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
         if (overlaysEnabled) {
-            initOverlays(overlaySettings.youtube, env, comms);
+            void initOverlays(overlaySettings.youtube, env, comms);
         } else if (serpProxyEnabled) {
             comms.serpProxy();
         }
