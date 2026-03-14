@@ -53,10 +53,12 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  * @property {StyleTagException[]} [styleTagExceptions]
  */
 
+/** @type {string[]} */
 let adLabelStrings = [];
 const parser = new DOMParser();
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
+/** @type {Set<ElementHidingRuleHide>} */
 let appliedRules = new Set();
 let shouldInjectStyleTag = false;
 let styleTagInjected = false;
@@ -267,7 +269,9 @@ function extractTimeoutRules(rules) {
         return rules;
     }
 
+    /** @type {ElementHidingRuleHide[]} */
     const strictHideRules = [];
+    /** @type {ElementHidingRule[]} */
     const timeoutRules = [];
 
     rules.forEach((rule) => {
@@ -344,6 +348,8 @@ function unhideLoadedAds() {
 
 /**
  * Wrap selector(s) in :is(..) to make them forgiving
+ * @param {string} selector
+ * @returns {string}
  */
 function forgivingSelector(selector) {
     return `:is(${selector})`;
@@ -358,6 +364,7 @@ export default class ElementHiding extends ContentFeature {
             return;
         }
 
+        /** @type {ElementHidingRule[]} */
         let activeRules;
         /** @type {ElementHidingRule[]} */
         const globalRules = this.getFeatureSetting('rules');
@@ -381,7 +388,9 @@ export default class ElementHiding extends ContentFeature {
         }
 
         // collect all matching rules for domain
-        const activeDomainRules = this.matchConditionalFeatureSetting('domains').flatMap((item) => item.rules);
+        const activeDomainRules = this.matchConditionalFeatureSetting('domains').flatMap((item) => {
+            return /** @type {ElementHidingRule[]} */ (item.rules) || [];
+        });
 
         const overrideRules = activeDomainRules.filter((rule) => {
             return rule.type === 'override';
@@ -402,8 +411,9 @@ export default class ElementHiding extends ContentFeature {
 
         // remove overrides and rules that match overrides from array of rules to be applied to page
         overrideRules.forEach((override) => {
+            if (override.type !== 'override') return;
             activeRules = activeRules.filter((rule) => {
-                return rule.selector !== override.selector;
+                return !('selector' in rule) || rule.selector !== override.selector;
             });
         });
 
