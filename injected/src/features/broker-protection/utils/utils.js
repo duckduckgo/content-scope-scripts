@@ -212,7 +212,7 @@ export function cleanArray(input, prev = []) {
  * Determines whether the given input is a non-empty string.
  *
  * @param {any} [input] - The input to be checked.
- * @return {boolean} - True if the input is a non-empty string, false otherwise.
+ * @return {input is string} - True if the input is a non-empty string, false otherwise.
  */
 export function nonEmptyString(input) {
     if (typeof input !== 'string') return false;
@@ -228,7 +228,6 @@ export function nonEmptyString(input) {
  */
 export function matchingPair(a, b) {
     if (!nonEmptyString(a) || !nonEmptyString(b)) return false;
-    if (typeof a !== 'string' || typeof b !== 'string') return false;
     return a.toLowerCase().trim() === b.toLowerCase().trim();
 }
 
