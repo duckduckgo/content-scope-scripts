@@ -12,9 +12,9 @@ export class WebTelemetry extends ContentFeature {
 
     /**
      * @param {string} featureName
-     * @param {*} importConfig
+     * @param {Record<string, unknown>} importConfig
      * @param {Partial<import('../features.js').FeatureMap>} features
-     * @param {*} args
+     * @param {import('../content-scope-features.js').LoadArgs} args
      */
     constructor(featureName, importConfig, features, args) {
         super(featureName, importConfig, features, args);
