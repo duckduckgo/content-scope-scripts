@@ -45,7 +45,8 @@ let cookiePolicy = {
 };
 let trackerLookup = {};
 
-let loadedPolicyResolve;
+/** @type {((value?: void) => void)} */
+let loadedPolicyResolve = () => {};
 
 /**
  * @param {'ignore' | 'block' | 'restrict'} action
@@ -118,13 +119,19 @@ export default class CookieFeature extends ContentFeature {
             let tabExempted = true;
 
             if (tabHostname != null) {
-                tabExempted = exceptions.some((exception) => {
-                    return matchHostname(tabHostname, exception.domain);
-                });
+                tabExempted = exceptions.some(
+                    /** @param {{ domain: string }} exception */
+                    (exception) => {
+                        return matchHostname(tabHostname, exception.domain);
+                    },
+                );
             }
-            const frameExempted = settings.excludedCookieDomains.some((exception) => {
-                return matchHostname(globalThis.location.hostname, exception.domain);
-            });
+            const frameExempted = settings.excludedCookieDomains.some(
+                /** @param {{ domain: string }} exception */
+                (exception) => {
+                    return matchHostname(globalThis.location.hostname, exception.domain);
+                },
+            );
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
             cookiePolicy.policy = settings.firstPartyCookiePolicy;
             cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
@@ -136,10 +143,9 @@ export default class CookieFeature extends ContentFeature {
         // The cookie policy is injected into every frame immediately so that no cookie will
         // be missed.
         const document = globalThis.document;
-        // @ts-expect-error - Object is possibly 'undefined'.
-        const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
-        // @ts-expect-error - Object is possibly 'undefined'.
-        const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
+        const cookieDescriptor = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie');
+        const cookieSetter = cookieDescriptor?.set;
+        const cookieGetter = cookieDescriptor?.get;
 
         const loadPolicy = new Promise((resolve) => {
             loadedPolicyResolve = resolve;
@@ -214,7 +220,11 @@ export default class CookieFeature extends ContentFeature {
                     // apply cookie policy
                     if (cookie.getExpiry() > chosenPolicy.threshold) {
                         // check if the cookie still exists
-                        if (document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                        const firstPart = cookie.parts[0];
+                        if (
+                            firstPart !== undefined &&
+                            document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(firstPart.trim())) !== -1
+                        ) {
                             cookie.maxAge = chosenPolicy.maxAge;
 
                             debugHelper('restrict', 'expiry', setCookieContext);
@@ -241,6 +251,9 @@ export default class CookieFeature extends ContentFeature {
         });
     }
 
+    /**
+     * @param {import('../content-scope-features.js').LoadArgs & { cookie?: ExtensionCookiePolicy }} args
+     */
     init(args) {
         const restOfPolicy = {
             debug: this.isDebug,
@@ -259,11 +272,8 @@ export default class CookieFeature extends ContentFeature {
             };
         } else {
             // copy non-null entries from restOfPolicy to cookiePolicy
-            Object.keys(restOfPolicy).forEach((key) => {
-                if (restOfPolicy[key]) {
-                    cookiePolicy[key] = restOfPolicy[key];
-                }
-            });
+            const toCopy = Object.fromEntries(Object.entries(restOfPolicy).filter(([, v]) => v));
+            Object.assign(cookiePolicy, toCopy);
         }
 
         loadedPolicyResolve();
