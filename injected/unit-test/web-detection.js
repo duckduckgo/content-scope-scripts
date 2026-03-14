@@ -188,6 +188,160 @@ describe('WebDetection', () => {
             expect(result.actions.breakageReportData.state).toBe('disabled');
         });
 
+        describe('null state handling (fail-closed)', () => {
+            it('should pass through null detector state (treated as disabled by isStateEnabled)', () => {
+                const result = oneDetectorConfigParsed({
+                    // @ts-expect-error - null is not a valid state but may arrive via malformed config
+                    state: null,
+                    match: { text: { pattern: 'test' } },
+                });
+                // @ts-expect-error - null passes through for fail-closed handling
+                expect(result.state).toBe(null);
+            });
+
+            it('should pass through null trigger state', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        // @ts-expect-error - null is not a valid state
+                        breakageReport: { state: null },
+                    },
+                });
+                // @ts-expect-error - null passes through for fail-closed handling
+                expect(result.triggers.breakageReport.state).toBe(null);
+            });
+
+            it('should pass through null breakageReportData state', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - null is not a valid state
+                        breakageReportData: { state: null },
+                    },
+                });
+                // @ts-expect-error - null passes through for fail-closed handling
+                expect(result.actions.breakageReportData.state).toBe(null);
+            });
+
+            it('should pass through null auto trigger state', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            // @ts-expect-error - null is not a valid state
+                            state: null,
+                            when: { intervalMs: [100] },
+                        },
+                    },
+                });
+                // @ts-expect-error - null passes through for fail-closed handling
+                expect(result.triggers.auto.state).toBe(null);
+            });
+        });
+
+        describe('fireEvent action validation', () => {
+            it('should include fireEvent when type is a valid non-empty string', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - fireEvent not in upstream schema yet
+                        fireEvent: { type: 'adwall_detected' },
+                    },
+                });
+                expect(result.actions.fireEvent).toEqual({ state: 'enabled', type: 'adwall_detected' });
+            });
+
+            it('should allow disabling fireEvent state', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - fireEvent not in upstream schema yet
+                        fireEvent: { state: 'disabled', type: 'adwall_detected' },
+                    },
+                });
+                expect(result.actions.fireEvent).toEqual({ state: 'disabled', type: 'adwall_detected' });
+            });
+
+            it('should omit fireEvent when type is missing', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - fireEvent not in upstream schema yet
+                        fireEvent: {},
+                    },
+                });
+                expect(result.actions.fireEvent).toBeUndefined();
+            });
+
+            it('should omit fireEvent when type is empty string', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - fireEvent not in upstream schema yet
+                        fireEvent: { type: '' },
+                    },
+                });
+                expect(result.actions.fireEvent).toBeUndefined();
+            });
+
+            it('should omit fireEvent when type is not a string', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - fireEvent not in upstream schema yet
+                        fireEvent: { type: 123 },
+                    },
+                });
+                expect(result.actions.fireEvent).toBeUndefined();
+            });
+
+            it('should omit fireEvent when value is not an object', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - fireEvent not in upstream schema yet
+                        fireEvent: true,
+                    },
+                });
+                expect(result.actions.fireEvent).toBeUndefined();
+            });
+
+            it('should pass through null fireEvent state (fail-closed)', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - fireEvent not in upstream schema yet
+                        fireEvent: { state: null, type: 'adwall_detected' },
+                    },
+                });
+                // @ts-expect-error - null passes through for fail-closed handling
+                expect(result.actions.fireEvent?.state).toBe(null);
+                expect(result.actions.fireEvent?.type).toBe('adwall_detected');
+            });
+
+            it('should not include fireEvent when actions.fireEvent is absent', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                });
+                expect(result.actions.fireEvent).toBeUndefined();
+            });
+        });
+
+        describe('unknown action keys', () => {
+            it('should drop unknown action keys during normalization', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    actions: {
+                        // @ts-expect-error - unknown action key
+                        unknownAction: { state: 'enabled' },
+                    },
+                });
+                expect(Object.keys(result.actions)).toEqual(['breakageReportData']);
+                // @ts-expect-error - checking unknown key was dropped
+                expect(result.actions.unknownAction).toBeUndefined();
+            });
+        });
+
         /**
          *
          * @template T

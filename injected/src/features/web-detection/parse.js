@@ -111,8 +111,6 @@ function isValidName(name) {
  * @returns {DetectorConfig}
  */
 function normalizeDetector(config) {
-    const fireEvent = config.actions?.fireEvent;
-
     const breakageRunConditions = /** @type {import('../../config-feature.js').ConditionBlockOrArray} */ (
         config.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS
     );
@@ -120,34 +118,65 @@ function normalizeDetector(config) {
         config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS
     );
 
+    /** @type {DetectorActions} */
+    const actions = {
+        breakageReportData: { state: defaultState(config.actions?.breakageReportData?.state, 'enabled') },
+    };
+
+    const rawActions = /** @type {Record<string, unknown> | undefined} */ (config.actions);
+    // eslint-disable-next-line dot-notation -- fireEvent not in upstream schema yet
+    const fireEvent = normalizeFireEvent(rawActions?.['fireEvent']);
+    if (fireEvent) {
+        actions.fireEvent = fireEvent;
+    }
+
     return {
-        // Detectors are enabled by default
-        state: config.state ?? 'enabled',
+        state: defaultState(config.state, 'enabled'),
         match: config.match,
         triggers: {
-            // breakageReport: enabled by default - detectors participate in breakage report flow
             breakageReport: {
-                state: config.triggers?.breakageReport?.state ?? 'enabled',
+                state: defaultState(config.triggers?.breakageReport?.state, 'enabled'),
                 runConditions: breakageRunConditions,
             },
-            // auto: disabled by default - detectors must opt in to automatic execution
             auto: {
-                state: config.triggers?.auto?.state ?? 'disabled',
+                state: defaultState(config.triggers?.auto?.state, 'disabled'),
                 runConditions: autoRunConditions,
                 when: config.triggers?.auto?.when ?? { intervalMs: [] },
             },
         },
-        actions: {
-            // breakageReportData: enabled by default - detection results included in breakage reports
-            breakageReportData: { state: config.actions?.breakageReportData?.state ?? 'enabled' },
-            // fireEvent: only present when configured - opt-in action that sends events to the client via webEvents
-            ...(fireEvent && {
-                fireEvent: {
-                    state: fireEvent.state ?? 'enabled',
-                    type: fireEvent.type,
-                },
-            }),
-        },
+        actions,
+    };
+}
+
+/**
+ * Default a state field only when it is `undefined`.
+ * Explicit `null` or other non-string values pass through unchanged so that
+ * `isStateEnabled` treats them as disabled (fail-closed).
+ *
+ * @param {import('../../utils.js').FeatureState | null | undefined} value
+ * @param {import('../../utils.js').FeatureState} fallback
+ * @returns {import('../../utils.js').FeatureState}
+ */
+function defaultState(value, fallback) {
+    // @ts-expect-error - null is intentionally handled for defensive config parsing
+    return value === undefined ? fallback : value;
+}
+
+/**
+ * Normalize an optional `fireEvent` action from config.
+ * Returns the normalized action only when the config provides a valid shape
+ * (object with a non-empty string `type`). Invalid shapes are dropped.
+ *
+ * @param {unknown} raw
+ * @returns {FireEventAction | null}
+ */
+function normalizeFireEvent(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const obj = /** @type {Record<string, unknown>} */ (raw);
+    if (typeof obj.type !== 'string' || obj.type.length === 0) return null;
+    return {
+        state: defaultState(/** @type {import('../../utils.js').FeatureState | undefined} */ (obj.state), 'enabled'),
+        type: obj.type,
     };
 }
 
