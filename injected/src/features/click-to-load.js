@@ -1383,6 +1383,16 @@ function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement)
     // inherit any class styles on the button
     container.className = 'fb-login-button FacebookLogin__button';
     const { styleElement } = makeBaseStyleElement(mode === 'darkMode' ? 'darkMode' : 'lightMode');
+    if (mode === 'loginMode') {
+        styleElement.textContent += `
+            .DuckDuckGoButton.primary {
+                ${styles.loginMode.buttonBackground}
+            }
+            .DuckDuckGoButton.primary > div {
+                ${styles.loginMode.buttonFont}
+            }
+        `;
+    }
     styleElement.textContent += `
         #DuckDuckGoPrivacyEssentialsHoverableText {
             display: none;
