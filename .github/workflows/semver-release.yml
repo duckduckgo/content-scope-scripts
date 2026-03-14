@@ -1,0 +1,54 @@
+name: Semver Auto-Release
+
+on:
+    pull_request:
+        types: [closed]
+        branches:
+            - main
+
+permissions:
+    contents: read
+    actions: write
+
+jobs:
+    trigger_release:
+        if: >-
+            github.event.pull_request.merged == true &&
+            (contains(github.event.pull_request.labels.*.name, 'semver-major') ||
+            contains(github.event.pull_request.labels.*.name, 'semver-minor'))
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check for semver label
+              id: check
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const pr = context.payload.pull_request;
+                      const releaseLabels = ['semver-major', 'semver-minor'];
+                      const label = pr.labels.find(l => releaseLabels.includes(l.name));
+                      if (!label) {
+                          core.info(`PR #${pr.number} has no release label (semver-major/semver-minor) — skipping`);
+                          return;
+                      }
+
+                      core.info(`PR #${pr.number} labeled "${label.name}"`);
+                      core.setOutput('severity', label.name.replace('semver-', ''));
+                      core.setOutput('pr_number', pr.number.toString());
+
+            - name: Trigger Release workflow
+              if: steps.check.outputs.severity
+              uses: actions/github-script@v8
+              env:
+                  SEVERITY: ${{ steps.check.outputs.severity }}
+                  PR_NUMBER: ${{ steps.check.outputs.pr_number }}
+              with:
+                  script: |
+                      const severity = process.env.SEVERITY;
+                      await github.rest.actions.createWorkflowDispatch({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          workflow_id: 'build.yml',
+                          ref: 'main',
+                          inputs: { version_bump: severity }
+                      });
+                      console.log(`Release workflow dispatched for ${severity} bump (PR #${process.env.PR_NUMBER})`);

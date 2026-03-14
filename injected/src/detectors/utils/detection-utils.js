@@ -31,7 +31,7 @@ export function checkWindowProperties(properties) {
     if (!properties || !Array.isArray(properties)) {
         return false;
     }
-    return properties.some((prop) => typeof window?.[prop] !== 'undefined');
+    return properties.some((prop) => prop in window);
 }
 
 /**
@@ -59,7 +59,12 @@ export function getTextContent(element, sources) {
     if (!sources || sources.length === 0) {
         return element.textContent || '';
     }
-    return sources.map((source) => element[source] || '').join(' ');
+    return sources
+        .map((source) => {
+            const value = Reflect.get(element, source);
+            return typeof value === 'string' ? value : '';
+        })
+        .join(' ');
 }
 
 /**

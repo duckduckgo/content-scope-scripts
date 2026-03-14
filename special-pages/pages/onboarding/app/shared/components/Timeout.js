@@ -29,7 +29,7 @@ export function Timeout({ onComplete, ignore, timeout = 1000 }) {
  * @param {Object} props - The component props.
  * @param {import("preact").ComponentChild} props.children - Callback function to be called when the "Get Started" button is clicked.
  * @param {number} props.ms - Callback function to be called when the "Get Started" button is clicked.
- * @return {any}
+ * @return {import("preact").ComponentChild}
  */
 export function Delay({ children, ms = 1000 }) {
     const [shown, setShown] = useState(false);

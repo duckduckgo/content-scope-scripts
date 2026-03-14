@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { OnboardingV4Page } from './onboarding.v4.page.js';
 
 test.describe('onboarding v4', () => {
@@ -155,6 +155,131 @@ test.describe('onboarding v4', () => {
         });
     });
 
+    test.describe('Given I am on the duck player step with ad-free variant', () => {
+        test('Then it shows ad-free copy and hides the toggle button', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    duckPlayerSingle: {
+                        variant: 'ad-free',
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            // Ad-free title and subtitle are shown
+            await expect(page.getByRole('heading', { name: 'Watch YouTube ad-free!', level: 2 })).toBeVisible();
+            await expect(page.getByText(/No need for a premium subscription/)).toBeVisible();
+
+            // Toggle button is hidden
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).not.toBeVisible();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).not.toBeVisible();
+
+            // Can advance past the step
+            await page.getByRole('button', { name: 'Next' }).click();
+        });
+    });
+
+    test.describe('Given I am on the duck player step without ad-free variant', () => {
+        test('Then it shows default copy and the toggle button', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            // Default title and subtitle are shown
+            await expect(page.getByRole('heading', { name: /Drowning in ads/, level: 2 })).toBeVisible();
+            await expect(page.getByText(/No targeted ads/)).toBeVisible();
+
+            // Toggle button is visible
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Can toggle
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Can advance past the step
+            await page.getByRole('button', { name: 'Next' }).click();
+        });
+
+        test('Mid-playback toggle queues reverse video', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+            // Disable reduced motion so that playVideo() calls video.play()
+            // instead of seeking to duration (which fires 'ended' immediately in WebKit).
+            await page.emulateMedia({ reducedMotion: 'no-preference' });
+
+            const enabledVideo = page.locator('video[src*="enabled"]');
+            const disabledVideo = page.locator('video[src*="disabled"]');
+
+            // End the autoPlay video to reach withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+
+            // Toggle → toWithoutDuckPlayer (disabled video "plays")
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Toggle mid-playback → toWithoutDuckPlayerThenReverse
+            // Button changes instantly; disabled video stays visible (current clip finishes)
+            await page.getByRole('button', { name: 'See With Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+            await expect(disabledVideo).toBeVisible();
+
+            // Simulate disabled video ending → reducer plays enabled video (toWithDuckPlayer)
+            await disabledVideo.dispatchEvent('ended');
+            await expect(enabledVideo).toBeVisible();
+            await expect(disabledVideo).toHaveCSS('opacity', '0');
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Simulate enabled video ending → withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+        });
+
+        test('Double toggle during playback cancels the reverse', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+            await page.emulateMedia({ reducedMotion: 'no-preference' });
+
+            const enabledVideo = page.locator('video[src*="enabled"]');
+            const disabledVideo = page.locator('video[src*="disabled"]');
+
+            // End the autoPlay video to reach withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+
+            // Toggle → toWithoutDuckPlayer
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Toggle mid-playback → toWithoutDuckPlayerThenReverse
+            await page.getByRole('button', { name: 'See With Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Toggle again → back to toWithoutDuckPlayer (reverse cancelled)
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Video ends normally → withoutDuckPlayer (no reverse plays)
+            await disabledVideo.dispatchEvent('ended');
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+        });
+    });
+
     test('shows v4 flow', async ({ page }, workerInfo) => {
         const onboarding = OnboardingV4Page.create(page, workerInfo);
         onboarding.withInitData({
@@ -189,7 +314,9 @@ test.describe('onboarding v4', () => {
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Duckplayer
-        await page.getByText('Watch YouTube ad-free').waitFor({ timeout: 1000 });
+        await page.getByText('Drowning in ads').waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+        await page.getByRole('button', { name: 'See With Duck Player' }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Customize
@@ -204,6 +331,65 @@ test.describe('onboarding v4', () => {
         await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
         await page.getByRole('button', { name: 'Search Only' }).click();
         await onboarding.startBrowsing();
+    });
+
+    test.describe('Given I am on the settings step with dock-instructions variant', () => {
+        test('When I click Show Me How, it shows dock instructions overlay', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+
+            await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
+            await expect(page.getByText('Options')).toBeVisible();
+            await expect(page.getByText('Keep in Dock')).toBeVisible();
+        });
+
+        test('When I click Show Me How then Next, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+            await onboarding.dismissDockInstructions();
+
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+
+        test('When I skip dock-instructions, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
     });
 
     test.describe('Given I am on the settings step', () => {
@@ -402,6 +588,29 @@ test.describe('onboarding v4', () => {
 
             // ▶️ Then I can toggle it afterward
             await onboarding.startBrowsing();
+        });
+
+        test.describe('Given onConfigUpdate behavior', () => {
+            test('When config update has reduced customize rows (no bookmarks), only those rows are shown', async ({
+                page,
+            }, workerInfo) => {
+                const onboarding = OnboardingV4Page.create(page, workerInfo);
+                onboarding.withInitData({
+                    order: 'v4',
+                    stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
+                });
+                await onboarding.reducedMotion();
+                await onboarding.openPage({ env: 'app', page: 'customize' });
+                // before push - default rows include bookmarks
+                await page.getByRole('button', { name: 'Show Bookmarks Bar' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).toBeVisible();
+                // push config update removing bookmarks
+                await onboarding.pushConfigUpdate({ stepDefinitions: { customize: { rows: ['session-restore', 'home-shortcut'] } } });
+                // after push - bookmarks gone
+                await page.getByRole('button', { name: 'Enable Session Restore' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
+                await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
+            });
         });
     });
 });
