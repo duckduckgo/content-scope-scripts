@@ -22,6 +22,9 @@ import { isBeingFramed } from '../../utils.js';
  */
 /** @type {Captured} */
 const captured = capturedGlobals;
+/** EventTarget accepts custom event type strings; Window's addEventListener restricts to keyof WindowEventMap */
+/** @type {EventTarget} */
+const eventTarget = captured;
 
 export const ERROR_MSG = 'Did not install Message Bridge';
 
@@ -78,15 +81,17 @@ export function createPageWorldBridge(featureName, token, context) {
     const id = random();
     const evt = new InstallProxy({ featureName, id });
     const evtName = appendToken(DidInstall.NAME + '-' + id);
-    const didInstall = (/** @type {CustomEvent<unknown>} */ e) => {
-        const result = DidInstall.create(e.detail);
+    /** @type {EventListener} */
+    const didInstall = (e) => {
+        const detail = 'detail' in e ? e.detail : undefined;
+        const result = DidInstall.create(detail);
         if (result && result.id === id) {
             installed = true;
         }
-        captured.removeEventListener(evtName, didInstall);
+        eventTarget.removeEventListener(evtName, didInstall);
     };
 
-    captured.addEventListener(evtName, didInstall);
+    eventTarget.addEventListener(evtName, didInstall);
     send(evt);
 
     if (!installed) {
@@ -149,25 +154,27 @@ function createMessagingInterface(featureName, send, appendToken, context) {
 
             return new Promise((resolve, reject) => {
                 const responseName = appendToken(ProxyResponse.NAME + '-' + id);
-                const handler = (/** @type {CustomEvent<unknown>} */ e) => {
-                    context?.log.info('received response', e.detail);
-                    const response = ProxyResponse.create(e.detail);
+                /** @type {EventListener} */
+                const handler = (e) => {
+                    const detail = 'detail' in e ? e.detail : undefined;
+                    context?.log.info('received response', detail);
+                    const response = ProxyResponse.create(detail);
                     if (response && response.id === id) {
-                        if ('error' in response && response.error) {
-                            reject(new Error(response.error.message));
+                        if ('error' in response && response.error && 'message' in response.error) {
+                            reject(new Error(String(response.error.message)));
                         } else if ('result' in response) {
                             resolve(response.result);
                         }
-                        captured.removeEventListener(responseName, handler);
+                        eventTarget.removeEventListener(responseName, handler);
                     }
                 };
-                captured.addEventListener(responseName, handler);
+                eventTarget.addEventListener(responseName, handler);
             });
         },
 
         /**
          * @param {string} name
-         * @param {(d: any) => void} callback
+         * @param {(d: unknown) => void} callback
          * @returns {() => void}
          */
         subscribe(name, callback) {
@@ -182,9 +189,11 @@ function createMessagingInterface(featureName, send, appendToken, context) {
                 }),
             );
 
-            const handler = (/** @type {CustomEvent<unknown>} */ e) => {
-                context?.log.info('received subscription response', e.detail);
-                const subscriptionEvent = SubscriptionResponse.create(e.detail);
+            /** @type {EventListener} */
+            const handler = (e) => {
+                const detail = 'detail' in e ? e.detail : undefined;
+                context?.log.info('received subscription response', detail);
+                const subscriptionEvent = SubscriptionResponse.create(detail);
                 if (subscriptionEvent) {
                     const { id: eventId, params } = subscriptionEvent;
                     if (eventId === id) {
@@ -194,10 +203,10 @@ function createMessagingInterface(featureName, send, appendToken, context) {
             };
 
             const type = appendToken(SubscriptionResponse.NAME + '-' + id);
-            captured.addEventListener(type, handler);
+            eventTarget.addEventListener(type, handler);
 
             return () => {
-                captured.removeEventListener(type, handler);
+                eventTarget.removeEventListener(type, handler);
                 const evt = new SubscriptionUnsubscribe({ id });
                 send(evt);
             };
