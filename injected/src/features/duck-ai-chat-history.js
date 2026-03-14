@@ -1,6 +1,16 @@
 import ContentFeature from '../content-feature.js';
 
 /**
+ * @typedef {Object} ChatRecord
+ * @property {string} [chatId]
+ * @property {string} [title]
+ * @property {string} [model]
+ * @property {boolean} [pinned]
+ * @property {Array<{role?: string, content?: string}>} [messages]
+ * @property {number|string|Date} [lastEdit]
+ */
+
+/**
  * This feature is responsible for retrieving Duck.ai chat history when the `getDuckAiChats`
  * message is received. It retrieves chats from IndexedDB (preferred) or localStorage,
  * optionally filters them by a search query, then sends them to the native app via
@@ -21,22 +31,22 @@ export class DuckAiChatHistory extends ContentFeature {
     static MIN_INDEXED_DB_VERSION = 2;
 
     init() {
-        this.messaging.subscribe('getDuckAiChats', (/** @type {{query?: string, max_chats?: number, since?: number}} */ params) =>
-            this.getChats(params),
-        );
+        this.messaging.subscribe('getDuckAiChats', (value) => {
+            void this.getChats(value);
+        });
     }
 
     /**
-     * @param {object} [params]
-     * @param {string} [params.query] - Search query to filter chats by title
-     * @param {number} [params.max_chats] - Maximum number of unpinned chats to return (default: 30, pinned chats have no limit)
-     * @param {number} [params.since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
+     * @param {unknown} [params]
      */
     async getChats(params) {
+        const p = params && typeof params === 'object' ? params : {};
+        /** @type {{query?: string, max_chats?: number, since?: number}} */
+        const safeParams = p;
+        const query = (typeof safeParams.query === 'string' ? safeParams.query : '').toLowerCase().trim();
+        const maxChats = typeof safeParams.max_chats === 'number' ? safeParams.max_chats : DuckAiChatHistory.DEFAULT_MAX_CHATS;
+        const since = typeof safeParams.since === 'number' ? safeParams.since : undefined;
         try {
-            const query = params?.query?.toLowerCase().trim() || '';
-            const maxChats = params?.max_chats ?? DuckAiChatHistory.DEFAULT_MAX_CHATS;
-            const since = params?.since;
             const { pinnedChats, chats } = await this.retrieveChats(query, maxChats, since);
             this.notify('duckAiChatsResult', {
                 success: true,
@@ -48,7 +58,7 @@ export class DuckAiChatHistory extends ContentFeature {
             this.log.error('Error retrieving chats:', error);
             this.notify('duckAiChatsResult', {
                 success: false,
-                error: error?.message || 'Unknown error occurred',
+                error: error instanceof Error ? error.message : 'Unknown error occurred',
                 pinnedChats: [],
                 chats: [],
                 timestamp: Date.now(),
@@ -201,7 +211,7 @@ export class DuckAiChatHistory extends ContentFeature {
 
     /**
      * Processes chats by filtering and separating into pinned and unpinned.
-     * @param {Array<object>} allChats - All chat objects to process
+     * @param {ChatRecord[]} allChats - All chat objects to process
      * @param {string} query - Search query (empty string returns all chats)
      * @param {number} maxChats - Maximum number of unpinned chats to return
      * @param {number} [since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
@@ -220,9 +230,14 @@ export class DuckAiChatHistory extends ContentFeature {
         // Filter by query if provided
         const matchingChats = query ? filteredChats.filter((chat) => this.chatMatchesQuery(chat, query)) : filteredChats;
 
+        // Sort by lastEdit descending so the maxChats cap keeps the most recent chats
+        const sortedChats = [...matchingChats].sort((a, b) => {
+            return (this.getLastEditTime(b) ?? 0) - (this.getLastEditTime(a) ?? 0);
+        });
+
         // Separate into pinned and unpinned
         // Pinned: no limit, Unpinned: respect maxChats limit
-        for (const chat of matchingChats) {
+        for (const chat of sortedChats) {
             const formattedChat = this.formatChat(chat);
             if (chat.pinned) {
                 pinnedChats.push(formattedChat);
@@ -235,8 +250,21 @@ export class DuckAiChatHistory extends ContentFeature {
     }
 
     /**
+     * @param {ChatRecord} chat - Chat object
+     * @returns {string|null} The first user message content, or null if not found
+     */
+    extractFirstUserMessageContent(chat) {
+        const messages = chat?.messages;
+        if (!Array.isArray(messages)) {
+            return null;
+        }
+        const firstUserMessage = messages.find((msg) => msg?.role === 'user');
+        return typeof firstUserMessage?.content === 'string' ? firstUserMessage.content : null;
+    }
+
+    /**
      * Formats a chat object for sending to native, extracting only needed keys
-     * @param {object} chat - Chat object
+     * @param {ChatRecord} chat - Chat object
      * @returns {object} Formatted chat object
      */
     formatChat(chat) {
@@ -256,35 +284,44 @@ export class DuckAiChatHistory extends ContentFeature {
     }
 
     /**
-     * Checks if a chat matches the search query by checking if all query words appear in title
-     * @param {object} chat - Chat object
+     * Checks if a chat matches the search query by checking if all query words appear in title or first user message
+     * @param {ChatRecord} chat - Chat object
      * @param {string} query - Lowercase search query
-     * @returns {boolean} True if chat title contains all query words
+     * @returns {boolean} True if chat title or first user message contains all query words
      */
     chatMatchesQuery(chat, query) {
         const title = typeof chat.title === 'string' ? chat.title.toLowerCase() : '';
+        const firstUserQuery = this.extractFirstUserMessageContent(chat);
+        const formattedUserQuery = typeof firstUserQuery === 'string' ? firstUserQuery.toLowerCase() : '';
         const words = query.split(/\s+/).filter((w) => w);
-        return words.every((word) => title.includes(word));
+
+        return words.every((word) => title.includes(word) || formattedUserQuery.includes(word));
     }
 
     /**
      * Checks if a chat's lastEdit is not older than the given timestamp
-     * @param {object} chat - Chat object
+     * @param {ChatRecord} chat - Chat object
      * @param {number} since - Timestamp in milliseconds
      * @returns {boolean} True if chat is not older than the timestamp
      */
     isNotOlderThan(chat, since) {
+        const time = this.getLastEditTime(chat);
+        // If no lastEdit or malformed, include the chat (be permissive)
+        return time === null || time >= since;
+    }
+
+    /**
+     * Parses a chat's lastEdit into a numeric timestamp.
+     * Returns null if lastEdit is missing or malformed.
+     * @param {ChatRecord} chat - Chat object
+     * @returns {number | null} Timestamp in milliseconds, or null
+     */
+    getLastEditTime(chat) {
         const lastEdit = chat.lastEdit;
-        if (!lastEdit) {
-            // If no lastEdit, include the chat (be permissive)
-            return true;
-        }
-        const timestamp = new Date(lastEdit).getTime();
-        if (Number.isNaN(timestamp)) {
-            // If lastEdit is malformed/unparseable, include the chat (be permissive)
-            return true;
-        }
-        return timestamp >= since;
+        if (!lastEdit) return null;
+
+        const time = new Date(lastEdit).getTime();
+        return Number.isNaN(time) ? null : time;
     }
 }
 
