@@ -13,14 +13,38 @@ import ContentFeature from '../content-feature';
 import { DDGReflect, stripVersion } from '../utils';
 
 /**
+ * @typedef {Object} ExtendedGlobal
+ * @property {{ prototype: object }} [Permissions]
+ * @property {typeof EventTarget} [EventTarget]
+ * @property {{ prototype: object }} [Sensor]
+ * @property {typeof Event} [SensorErrorEvent]
+ * @property {{ prototype: object }} [NavigatorUAData]
+ * @property {{ prototype: object }} [DataTransferItem]
+ * @property {{ prototype: object }} [Screen]
+ * @property {{ prototype: object; new (...args: unknown[]): object }} [Bluetooth]
+ * @property {{ prototype: object }} [USB]
+ * @property {{ prototype: object }} [Serial]
+ * @property {{ prototype: object }} [HID]
+ * @property {{ prototype: object }} [StorageManager]
+ * @property {{ prototype: Navigator }} [Navigator]
+ * @property {{ prototype: Navigator }} [WorkerNavigator]
+ */
+
+/** @returns {ExtendedGlobal & Window & WorkerGlobalScope} */
+function getGlobal() {
+    return /** @type {ExtendedGlobal & Window & WorkerGlobalScope} */ (/** @type {unknown} */ (globalThis));
+}
+
+/**
  * Blocks some privacy harmful APIs.
  * @internal
  */
 export default class HarmfulApis extends ContentFeature {
     init() {
+        const g = getGlobal();
         // @ts-expect-error linting is not yet seet up for worker context
-        /** @type Navigator | WorkerNavigator */
-        this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype;
+        /** @type {Navigator | WorkerNavigator} */
+        this.navigatorPrototype = g.Navigator?.prototype || g.WorkerNavigator?.prototype;
 
         this.removeDeviceOrientationEvents(this.getFeatureSetting('deviceOrientation'));
         this.blockGenericSensorApi(this.getFeatureSetting('GenericSensor'));
@@ -50,19 +74,25 @@ export default class HarmfulApis extends ContentFeature {
         if (!permissions || permissions.length === 0) {
             return;
         }
-        this.wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
-            // call the original function first in case it throws an error
-            const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject]);
+        const permsProto = getGlobal().Permissions?.prototype;
+        if (!permsProto) return;
+        this.wrapMethod(
+            permsProto,
+            'query',
+            /** @this {Permissions} */ async function (nativeImpl, queryObject) {
+                // call the original function first in case it throws an error
+                const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject]);
 
-            if (permissions.includes(queryObject.name)) {
-                return {
-                    name: queryObject.name,
-                    state: 'denied',
-                    status: 'denied',
-                };
-            }
-            return origResult;
-        });
+                if (permissions.includes(queryObject.name)) {
+                    return {
+                        name: queryObject.name,
+                        state: 'denied',
+                        status: 'denied',
+                    };
+                }
+                return origResult;
+            },
+        );
     }
 
     /**
@@ -76,21 +106,27 @@ export default class HarmfulApis extends ContentFeature {
         if (eventsToBlock.length > 0) {
             for (const eventName of eventsToBlock) {
                 const dom0HandlerName = `on${eventName}`;
-                if (dom0HandlerName in globalThis) {
-                    this.wrapProperty(globalThis, dom0HandlerName, {
+                if (dom0HandlerName in getGlobal()) {
+                    this.wrapProperty(getGlobal(), dom0HandlerName, {
                         set: () => {
                             /* noop */
                         },
                     });
                 }
             }
-            this.wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-                if (eventsToBlock.includes(type) && this === globalThis) {
-                    console.log('blocked event', type);
-                    return;
-                }
-                return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
-            });
+            const eventTargetProto = getGlobal().EventTarget?.prototype;
+            if (!eventTargetProto) return;
+            this.wrapMethod(
+                eventTargetProto,
+                'addEventListener',
+                /** @this {EventTarget} */ function (nativeImpl, type, ...restArgs) {
+                    if (eventsToBlock.includes(type) && this === getGlobal()) {
+                        console.log('blocked event', type);
+                        return;
+                    }
+                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
+                },
+            );
         }
     }
 
@@ -104,15 +140,22 @@ export default class HarmfulApis extends ContentFeature {
         const permissionsToFilter = settings.filterPermissions ?? ['accelerometer', 'ambient-light-sensor', 'gyroscope', 'magnetometer'];
         this.filterPermissionQuery(permissionsToFilter);
         if (settings.blockSensorStart) {
-            this.wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
-                // block all sensors
-                const EventCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Event;
-                const error = new EventCls('error', {
-                    error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError'),
-                });
-                // isTrusted will be false, but not much we can do here
-                this.dispatchEvent(error);
-            });
+            const sensorProto = getGlobal().Sensor?.prototype;
+            if (!sensorProto) return;
+            this.wrapMethod(
+                sensorProto,
+                'start',
+                /** @this {EventTarget} */ function () {
+                    // block all sensors
+                    const g = getGlobal();
+                    const EventCls = 'SensorErrorEvent' in g && g.SensorErrorEvent ? g.SensorErrorEvent : Event;
+                    /** @type {EventInit & { error?: unknown }} */
+                    const eventInit = { error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError') };
+                    const error = new EventCls('error', eventInit);
+                    // isTrusted will be false, but not much we can do here
+                    this.dispatchEvent(error);
+                },
+            );
         }
     }
 
@@ -123,75 +166,86 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        this.wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
-            const nativeResult = await DDGReflect.apply(nativeImpl, this, [hints]); // this may throw an error, and that is fine
-            const filteredResult = {};
-            const highEntropyValues = settings.highEntropyValues || {};
-            for (const [key, value] of Object.entries(nativeResult)) {
-                let result = value;
+        const navUADataProto = getGlobal().NavigatorUAData?.prototype;
+        if (!navUADataProto) return;
+        this.wrapMethod(
+            navUADataProto,
+            'getHighEntropyValues',
+            /** @this {object} */ async function (nativeImpl, hints) {
+                const nativeResult = await DDGReflect.apply(nativeImpl, this, [hints]); // this may throw an error, and that is fine
+                /** @type {Record<string, unknown>} */
+                const filteredResult = {};
+                const highEntropyValues = settings.highEntropyValues || {};
+                for (const [key, value] of Object.entries(nativeResult)) {
+                    let result = value;
 
-                switch (key) {
-                    case 'brands':
-                        if (highEntropyValues.trimBrands) {
-                            result = value.map((brand) => {
-                                return {
-                                    brand: brand.brand,
-                                    version: stripVersion(brand.version),
-                                };
-                            });
-                        }
-                        break;
-                    case 'model':
-                        if (typeof highEntropyValues.model !== 'undefined') {
-                            result = highEntropyValues.model;
-                        }
-                        break;
-                    case 'platformVersion':
-                        if (highEntropyValues.trimPlatformVersion) {
-                            result = stripVersion(value, highEntropyValues.trimPlatformVersion);
-                        }
-                        break;
-                    case 'uaFullVersion':
-                        if (highEntropyValues.trimUaFullVersion) {
-                            result = stripVersion(value, highEntropyValues.trimUaFullVersion);
-                        }
-                        break;
-                    case 'fullVersionList':
-                        if (highEntropyValues.trimFullVersionList) {
-                            result = value.map((brand) => {
-                                return {
-                                    brand: brand.brand,
-                                    version: stripVersion(brand.version, highEntropyValues.trimFullVersionList),
-                                };
-                            });
-                        }
-                        break;
-                    case 'architecture':
-                        if (typeof highEntropyValues.architecture !== 'undefined') {
-                            result = highEntropyValues.architecture;
-                        }
-                        break;
-                    case 'bitness':
-                        if (typeof highEntropyValues.bitness !== 'undefined') {
-                            result = highEntropyValues.bitness;
-                        }
-                        break;
-                    case 'platform':
-                        if (typeof highEntropyValues.platform !== 'undefined') {
-                            result = highEntropyValues.platform;
-                        }
-                        break;
-                    case 'mobile':
-                        if (typeof highEntropyValues.mobile !== 'undefined') {
-                            result = highEntropyValues.mobile;
-                        }
-                        break;
+                    switch (key) {
+                        case 'brands':
+                            if (highEntropyValues.trimBrands) {
+                                result = value.map(
+                                    /** @param {{brand: string, version: string}} brand */ (brand) => {
+                                        return {
+                                            brand: brand.brand,
+                                            version: stripVersion(brand.version),
+                                        };
+                                    },
+                                );
+                            }
+                            break;
+                        case 'model':
+                            if (typeof highEntropyValues.model !== 'undefined') {
+                                result = highEntropyValues.model;
+                            }
+                            break;
+                        case 'platformVersion':
+                            if (highEntropyValues.trimPlatformVersion) {
+                                result = stripVersion(value, highEntropyValues.trimPlatformVersion);
+                            }
+                            break;
+                        case 'uaFullVersion':
+                            if (highEntropyValues.trimUaFullVersion) {
+                                result = stripVersion(value, highEntropyValues.trimUaFullVersion);
+                            }
+                            break;
+                        case 'fullVersionList':
+                            if (highEntropyValues.trimFullVersionList) {
+                                result = value.map(
+                                    /** @param {{brand: string, version: string}} brand */ (brand) => {
+                                        return {
+                                            brand: brand.brand,
+                                            version: stripVersion(brand.version, highEntropyValues.trimFullVersionList),
+                                        };
+                                    },
+                                );
+                            }
+                            break;
+                        case 'architecture':
+                            if (typeof highEntropyValues.architecture !== 'undefined') {
+                                result = highEntropyValues.architecture;
+                            }
+                            break;
+                        case 'bitness':
+                            if (typeof highEntropyValues.bitness !== 'undefined') {
+                                result = highEntropyValues.bitness;
+                            }
+                            break;
+                        case 'platform':
+                            if (typeof highEntropyValues.platform !== 'undefined') {
+                                result = highEntropyValues.platform;
+                            }
+                            break;
+                        case 'mobile':
+                            if (typeof highEntropyValues.mobile !== 'undefined') {
+                                result = highEntropyValues.mobile;
+                            }
+                            break;
+                    }
+
+                    filteredResult[key] = result;
                 }
-
-                filteredResult[key] = result;
-            }
-            return filteredResult;
-        });
+                return filteredResult;
+            },
+        );
     }
 
     /**
@@ -226,21 +280,19 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        if ('showOpenFilePicker' in globalThis && settings.disableOpenFilePicker) {
-            delete globalThis.showOpenFilePicker;
+        const g = getGlobal();
+        if ('showOpenFilePicker' in g && settings.disableOpenFilePicker) {
+            delete g.showOpenFilePicker;
         }
-        if ('showSaveFilePicker' in globalThis && settings.disableSaveFilePicker) {
-            delete globalThis.showSaveFilePicker;
+        if ('showSaveFilePicker' in g && settings.disableSaveFilePicker) {
+            delete g.showSaveFilePicker;
         }
-        if ('showDirectoryPicker' in globalThis && settings.disableDirectoryPicker) {
-            delete globalThis.showDirectoryPicker;
+        if ('showDirectoryPicker' in g && settings.disableDirectoryPicker) {
+            delete g.showDirectoryPicker;
         }
-        if (
-            'DataTransferItem' in globalThis &&
-            'getAsFileSystemHandle' in globalThis.DataTransferItem.prototype &&
-            settings.disableGetAsFileSystemHandle
-        ) {
-            delete globalThis.DataTransferItem.prototype.getAsFileSystemHandle;
+        const dataTransferItem = g.DataTransferItem;
+        if (dataTransferItem && 'getAsFileSystemHandle' in dataTransferItem.prototype && settings.disableGetAsFileSystemHandle) {
+            delete dataTransferItem.prototype.getAsFileSystemHandle;
         }
     }
 
@@ -252,7 +304,10 @@ export default class HarmfulApis extends ContentFeature {
             return;
         }
         if ('screenIsExtended' in settings) {
-            this.wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => settings.screenIsExtended });
+            const screenProto = getGlobal().Screen?.prototype;
+            if (screenProto) {
+                this.wrapProperty(screenProto, 'isExtended', { get: () => settings.screenIsExtended });
+            }
         }
         this.filterPermissionQuery(settings.filterPermissions ?? ['window-placement', 'window-management']);
     }
@@ -264,28 +319,35 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        if (!('Bluetooth' in globalThis)) {
+        const g = getGlobal();
+        if (!('Bluetooth' in g)) {
             return;
         }
         if (settings.filterEvents && settings.filterEvents.length > 0) {
-            this.wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-                if (settings.filterEvents?.includes(type) && this instanceof globalThis.Bluetooth) {
-                    return;
-                }
-                return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
-            });
+            const BluetoothConstructor = g.Bluetooth;
+            this.wrapMethod(
+                EventTarget.prototype,
+                'addEventListener',
+                /** @this {EventTarget} */ function (nativeImpl, type, ...restArgs) {
+                    if (settings.filterEvents?.includes(type) && BluetoothConstructor && this instanceof BluetoothConstructor) {
+                        return;
+                    }
+                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs]);
+                },
+            );
         }
 
         this.filterPermissionQuery(settings.filterPermissions ?? ['bluetooth']);
 
-        if (settings.blockRequestDevice) {
-            this.wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
+        const bluetoothProto = g.Bluetooth?.prototype;
+        if (settings.blockRequestDevice && bluetoothProto) {
+            this.wrapMethod(bluetoothProto, 'requestDevice', function () {
                 return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'));
             });
         }
 
-        if (settings.blockGetAvailability) {
-            this.wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false));
+        if (settings.blockGetAvailability && bluetoothProto) {
+            this.wrapMethod(bluetoothProto, 'getAvailability', () => Promise.resolve(false));
         }
     }
 
@@ -296,9 +358,12 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        this.wrapMethod(globalThis.USB?.prototype, 'requestDevice', function () {
-            return Promise.reject(new DOMException('No device selected.', 'NotFoundError'));
-        });
+        const usbProto = getGlobal().USB?.prototype;
+        if (usbProto) {
+            this.wrapMethod(usbProto, 'requestDevice', function () {
+                return Promise.reject(new DOMException('No device selected.', 'NotFoundError'));
+            });
+        }
     }
 
     /**
@@ -308,9 +373,12 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        this.wrapMethod(globalThis.Serial?.prototype, 'requestPort', function () {
-            return Promise.reject(new DOMException('No port selected.', 'NotFoundError'));
-        });
+        const serialProto = getGlobal().Serial?.prototype;
+        if (serialProto) {
+            this.wrapMethod(serialProto, 'requestPort', function () {
+                return Promise.reject(new DOMException('No port selected.', 'NotFoundError'));
+            });
+        }
     }
 
     /**
@@ -321,7 +389,10 @@ export default class HarmfulApis extends ContentFeature {
             return;
         }
         // Chrome 113 does not throw errors, and only returns an empty array here
-        this.wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => Promise.resolve([]));
+        const hidProto = getGlobal().HID?.prototype;
+        if (hidProto) {
+            this.wrapMethod(hidProto, 'requestDevice', () => Promise.resolve([]));
+        }
     }
 
     /**
@@ -344,8 +415,9 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        if ('IdleDetector' in globalThis) {
-            delete globalThis.IdleDetector;
+        const g = getGlobal();
+        if ('IdleDetector' in g) {
+            delete g.IdleDetector;
             this.filterPermissionQuery(settings.filterPermissions ?? ['idle-detection']);
         }
     }
@@ -357,14 +429,15 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return;
         }
-        if ('NDEFReader' in globalThis && settings.disableNdefReader) {
-            delete globalThis.NDEFReader;
+        const g = getGlobal();
+        if ('NDEFReader' in g && settings.disableNdefReader) {
+            delete g.NDEFReader;
         }
-        if ('NDEFMessage' in globalThis && settings.disableNdefMessage) {
-            delete globalThis.NDEFMessage;
+        if ('NDEFMessage' in g && settings.disableNdefMessage) {
+            delete g.NDEFMessage;
         }
-        if ('NDEFRecord' in globalThis && settings.disableNdefRecord) {
-            delete globalThis.NDEFRecord;
+        if ('NDEFRecord' in g && settings.disableNdefRecord) {
+            delete g.NDEFRecord;
         }
     }
 
@@ -381,16 +454,28 @@ export default class HarmfulApis extends ContentFeature {
             values.unshift(0);
             // now, values is a sorted array of positive numbers, with 0 as the first element
             if (values.length > 0) {
-                this.wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl, ...args) {
-                    const result = await DDGReflect.apply(nativeImpl, this, args);
-                    // find the first allowed value from the right that is smaller than the result
-                    let i = values.length - 1;
-                    while (i > 0 && values[i] > result.quota) {
-                        i--;
-                    }
-                    result.quota = values[i];
-                    return result;
-                });
+                const storageManagerProto = getGlobal().StorageManager?.prototype;
+                if (!storageManagerProto) return;
+                this.wrapMethod(
+                    storageManagerProto,
+                    'estimate',
+                    /** @this {StorageManager} */ async function (nativeImpl, ...args) {
+                        const result = await DDGReflect.apply(nativeImpl, this, args);
+                        // find the first allowed value from the right that is smaller than the result
+                        let i = values.length - 1;
+                        while (i > 0) {
+                            const vi = values[i];
+                            if (vi !== undefined && vi > result.quota) {
+                                i--;
+                            } else {
+                                break;
+                            }
+                        }
+                        const finalVal = values[i];
+                        result.quota = finalVal ?? 0;
+                        return result;
+                    },
+                );
             }
         }
     }
@@ -411,7 +496,7 @@ export default class HarmfulApis extends ContentFeature {
 @typedef {{ blockSensorStart: boolean }} GenericSensorConfigMixin
 @typedef {{ highEntropyValues: { trimBrands: boolean, model: string, trimPlatformVersion: number, trimUaFullVersion: number, trimFullVersionList: number, architecture: string, bitness: string, mobile: boolean, platform: string } }} UaClientHintsConfigMixin
 @typedef {{ }} NetworkInformationConfigMixin
-@typedef {{ returnValue: any }} GetInstalledRelatedAppsConfigMixin
+@typedef {{ returnValue: string[] }} GetInstalledRelatedAppsConfigMixin
 @typedef {{ disableOpenFilePicker: boolean, disableSaveFilePicker: boolean, disableDirectoryPicker: boolean, disableGetAsFileSystemHandle: boolean }} FileSystemAccessConfigMixin
 @typedef {{ screenIsExtended?: boolean }} WindowPlacementConfigMixin
 @typedef {{ blockGetAvailability: boolean, blockRequestDevice: boolean }} WebBluetoothConfigMixin
