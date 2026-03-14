@@ -331,6 +331,125 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.chats[0].chatId).toBe('old-chat');
     });
 
+    test('sorts chats by lastEdit descending so most recent are returned', async ({ page }) => {
+        const now = Date.now();
+        await page.evaluate(
+            ({ now }) => {
+                const chats = [];
+                for (let i = 0; i < 5; i++) {
+                    chats.push({
+                        chatId: `chat-${i}`,
+                        title: `Chat ${i}`,
+                        model: 'gpt-4.1-internal',
+                        messages: [{ content: 'test', role: 'user' }],
+                        lastEdit: new Date(now - i * 60 * 60 * 1000).toISOString(),
+                        pinned: false,
+                    });
+                }
+                localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+            },
+            { now },
+        );
+
+        const result = await requestChats({ max_chats: 3 });
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(3);
+        expect(result.chats[0].chatId).toBe('chat-0');
+        expect(result.chats[1].chatId).toBe('chat-1');
+        expect(result.chats[2].chatId).toBe('chat-2');
+    });
+
+    test('chats with missing or malformed lastEdit sort after valid ones', async ({ page }) => {
+        const now = Date.now();
+        await page.evaluate(
+            ({ now }) => {
+                const chats = [
+                    {
+                        chatId: 'no-edit',
+                        title: 'No lastEdit',
+                        messages: [{ content: 'test', role: 'user' }],
+                        pinned: false,
+                    },
+                    {
+                        chatId: 'malformed',
+                        title: 'Malformed lastEdit',
+                        messages: [{ content: 'test', role: 'user' }],
+                        lastEdit: 'not-a-date',
+                        pinned: false,
+                    },
+                    {
+                        chatId: 'valid',
+                        title: 'Valid lastEdit',
+                        messages: [{ content: 'test', role: 'user' }],
+                        lastEdit: new Date(now).toISOString(),
+                        pinned: false,
+                    },
+                ];
+                localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+            },
+            { now },
+        );
+
+        const result = await requestChats({ max_chats: 3 });
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(3);
+        expect(result.chats[0].chatId).toBe('valid');
+    });
+
+    test('query matches first user message content', async ({ page }) => {
+        await page.evaluate(() => {
+            const chats = [
+                {
+                    chatId: 'msg-match',
+                    title: 'Generic title',
+                    messages: [
+                        { content: 'How do I bake a sourdough loaf?', role: 'user' },
+                        { content: 'Here is a recipe...', role: 'assistant' },
+                    ],
+                    pinned: false,
+                },
+                {
+                    chatId: 'title-only',
+                    title: 'Another chat',
+                    messages: [{ content: 'Something else', role: 'user' }],
+                    pinned: false,
+                },
+            ];
+            localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+        });
+
+        const result = await requestChats({ query: 'sourdough' });
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(1);
+        expect(result.chats[0].chatId).toBe('msg-match');
+    });
+
+    test('query matches across title and first user message', async ({ page }) => {
+        await page.evaluate(() => {
+            const chats = [
+                {
+                    chatId: 'mixed-match',
+                    title: 'Cooking tips',
+                    messages: [{ content: 'Tell me about pasta', role: 'user' }],
+                    pinned: false,
+                },
+                {
+                    chatId: 'no-match',
+                    title: 'Weather report',
+                    messages: [{ content: 'What is the forecast?', role: 'user' }],
+                    pinned: false,
+                },
+            ];
+            localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+        });
+
+        // "Cooking" is in the title, "pasta" is in the first user message
+        const result = await requestChats({ query: 'Cooking pasta' });
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(1);
+        expect(result.chats[0].chatId).toBe('mixed-match');
+    });
+
     test('includes chats with missing or malformed lastEdit when using since filter', async ({ page }) => {
         const now = Date.now();
         const oneDayAgo = now - 24 * 60 * 60 * 1000;

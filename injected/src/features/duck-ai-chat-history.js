@@ -58,7 +58,9 @@ export class DuckAiChatHistory extends ContentFeature {
             this.log.error('Error retrieving chats:', error);
             this.notify('duckAiChatsResult', {
                 success: false,
-                error: error instanceof Error ? error.message : 'Unknown error occurred',
+                error: error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
+                    ? error.message
+                    : 'Unknown error occurred',
                 pinnedChats: [],
                 chats: [],
                 timestamp: Date.now(),
