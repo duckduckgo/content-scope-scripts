@@ -109,10 +109,10 @@ function cleanShareData(data) {
 }
 
 export class WebCompat extends ContentFeature {
-    /** @type {Promise<any> | null} */
+    /** @type {Promise<{failure?: {name: string, message: string}}> | null} */
     #activeShareRequest = null;
 
-    /** @type {Promise<any> | null} */
+    /** @type {Promise<{failure?: {name: string, message: string}}> | null} */
     #activeScreenLockRequest = null;
 
     /** @type {Map<string, object>} */
@@ -767,7 +767,7 @@ export class WebCompat extends ContentFeature {
 
         this.wrapProperty(globalThis.ScreenOrientation.prototype, 'unlock', {
             value: () => {
-                this.messaging.request(MSG_SCREEN_UNLOCK, {});
+                void this.messaging.request(MSG_SCREEN_UNLOCK, {});
             },
         });
     }

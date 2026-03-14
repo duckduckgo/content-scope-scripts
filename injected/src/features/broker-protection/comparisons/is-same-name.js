@@ -216,7 +216,7 @@ export function getFullNames(name, nicknames) {
 
 /**
  * This will handle all none-string types like null / undefined too
- * @param {any} [input]
+ * @param {unknown} [input]
  * @return {input is string}
  */
 function noneEmptyString(input) {

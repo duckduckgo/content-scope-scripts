@@ -48,10 +48,16 @@ export class OnboardingPage {
     }
 
     withInitData(data) {
-        this.mocks.defaultResponses({
-            ...this.defaultResponses,
-            init: data,
-        });
+        this.defaultResponses = { ...this.defaultResponses, init: data };
+        this.mocks.defaultResponses(this.defaultResponses);
+    }
+
+    /**
+     * Push an onConfigUpdate subscription event (e.g. stepDefinitions.customize.rows for integration tests).
+     * @param {{ stepDefinitions?: Record<string, any>; exclude?: string[] }} payload
+     */
+    async pushConfigUpdate(payload) {
+        await this.mocks.simulateSubscriptionMessage('onConfigUpdate', payload);
     }
 
     /**

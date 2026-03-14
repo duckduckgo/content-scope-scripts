@@ -1,0 +1,43 @@
+{
+    "readme": "Config for testing YouTube detection event firing via webInterferenceDetection + webEvents",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "webInterferenceDetection": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": [],
+            "settings": {
+                "interferenceTypes": {
+                    "youtubeAds": {
+                        "state": "enabled",
+                        "sweepIntervalMs": 500,
+                        "slowLoadThresholdMs": 5000,
+                        "playerSelectors": ["#movie_player"],
+                        "adClasses": ["ad-showing"],
+                        "adTextPatterns": [],
+                        "staticAdSelectors": { "background": "", "thumbnail": "", "image": "" },
+                        "playabilityErrorSelectors": [],
+                        "playabilityErrorPatterns": [],
+                        "adBlockerDetectionSelectors": ["[role=\"dialog\"]"],
+                        "adBlockerDetectionPatterns": ["ad\\s*blockers?\\s*(are)?\\s*not allowed"],
+                        "loginStateSelectors": {
+                            "signInButton": "",
+                            "avatarButton": "",
+                            "premiumLogo": ""
+                        },
+                        "fireDetectionEvents": {
+                            "adBlocker": true,
+                            "playabilityError": true
+                        }
+                    }
+                }
+            }
+        },
+        "webEvents": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": []
+        }
+    }
+}

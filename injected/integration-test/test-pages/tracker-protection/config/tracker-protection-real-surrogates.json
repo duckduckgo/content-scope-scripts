@@ -1,0 +1,18 @@
+{
+  "readme": "Config for real-surrogate E2E tests. TrackerData is passed via withUserPreferences().",
+  "version": 1,
+  "features": {
+    "trackerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "blockingEnabled": true,
+        "ctlEnabled": false,
+        "allowlist": {},
+        "tempUnprotectedDomains": [],
+        "userUnprotectedDomains": []
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}
