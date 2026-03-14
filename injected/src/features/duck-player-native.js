@@ -44,7 +44,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             return;
         }
 
-        const locale = (args && (args.locale ?? args.language)) ?? 'en';
+        const locale = (args && (args.locale || args.language)) || 'en';
         const env = new Environment({
             debug: this.isDebug,
             injectName: import.meta.injectName,
