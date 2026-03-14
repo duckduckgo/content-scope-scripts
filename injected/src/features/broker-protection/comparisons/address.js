@@ -14,18 +14,12 @@ export function addressMatch(userAddresses, foundAddresses) {
     });
 }
 
-/**
- * @param {string} stateAbbreviation
- * @returns {string | null}
- */
 export function getStateFromAbbreviation(stateAbbreviation) {
     if (stateAbbreviation == null || stateAbbreviation.trim() === '') {
         return null;
     }
 
-    const stateKey = stateAbbreviation.toUpperCase();
-    if (stateKey in states) {
-        return states[/** @type {keyof typeof states} */ (stateKey)];
-    }
-    return null;
+    const state = stateAbbreviation.toUpperCase();
+
+    return states[state] || null;
 }
