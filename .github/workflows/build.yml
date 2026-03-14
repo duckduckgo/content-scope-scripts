@@ -45,6 +45,8 @@ jobs:
 
             - name: Calculate next version
               id: version
+              env:
+                  VERSION_BUMP: ${{ github.event.inputs.version_bump }}
               run: |
                   # Get the latest tag (no longer using v prefix, filter out legacy v-prefixed tags)
                   LATEST_TAG=$(git tag | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
@@ -66,7 +68,7 @@ jobs:
                   MINOR=$(echo $VERSION_WITHOUT_V | cut -d. -f2)
 
                   # Calculate next version based on input
-                  if [ "${{ github.event.inputs.version_bump }}" = "major" ]; then
+                  if [ "$VERSION_BUMP" = "major" ]; then
                     NEXT_MAJOR=$((MAJOR + 1))
                     NEXT_MINOR=0
                   else
@@ -90,6 +92,13 @@ jobs:
                   ls -la ${{ github.workspace }}/CHANGELOG.txt
                   cat ${{ github.workspace }}/CHANGELOG.txt
                   echo "Current tag is: $(git rev-list --tags --max-count=1)"
+
+            - name: Abort if changelog is empty
+              run: |
+                  if [ ! -s "${{ github.workspace }}/CHANGELOG.txt" ]; then
+                    echo "::error::Changelog is empty — no commits found since the last release tag. Aborting to prevent a blank release."
+                    exit 1
+                  fi
 
             - name: Ensure clean release branch from main
               run: |
