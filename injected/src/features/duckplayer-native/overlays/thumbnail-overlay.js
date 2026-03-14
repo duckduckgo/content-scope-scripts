@@ -12,14 +12,14 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     static OVERLAY_CLICKED = 'overlay-clicked';
 
     policy = createPolicy();
-    /** @type {Logger} */
-    logger;
+    /** @type {Logger | undefined} */
+    logger = undefined;
     /** @type {boolean} */
     testMode = false;
-    /** @type {HTMLElement} */
-    container;
-    /** @type {string} */
-    href;
+    /** @type {HTMLElement | undefined} */
+    container = undefined;
+    /** @type {string | undefined} */
+    href = undefined;
 
     static register() {
         if (!customElementsGet(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) {
@@ -57,6 +57,7 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     }
 
     appendThumbnail() {
+        if (!this.href || !this.container) return;
         const params = VideoParams.forWatchPage(this.href);
         const imageUrl = params?.toLargeThumbnailUrl();
 
