@@ -411,7 +411,9 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     async findExportConfirmElement() {
-        const result = await this.runWithRetry(() => document.querySelector(this.exportConfirmButtonSelector));
+        const selector = this.exportConfirmButtonSelector;
+        if (!selector) return null;
+        const result = await this.runWithRetry(() => document.querySelector(selector));
         return result instanceof Element ? result : null;
     }
 
@@ -423,12 +425,16 @@ export default class AutofillImport extends ActionExecutorBase {
      */
     async findExportElement() {
         const findInContainer = () => {
-            const exportButtonContainer = document.querySelector(this.exportButtonContainerSelector);
+            const selector = this.exportButtonContainerSelector;
+            if (!selector) return null;
+            const exportButtonContainer = document.querySelector(selector);
             return exportButtonContainer && exportButtonContainer.querySelectorAll('button')[1];
         };
 
         const findWithLabel = () => {
-            return document.querySelector(this.exportButtonLabelTextSelector);
+            const selector = this.exportButtonLabelTextSelector;
+            if (!selector) return null;
+            return document.querySelector(selector);
         };
 
         const result = await this.runWithRetry(() => findInContainer() ?? findWithLabel());
@@ -439,8 +445,10 @@ export default class AutofillImport extends ActionExecutorBase {
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSettingsElement() {
+        const selector = this.settingsButtonSelector;
+        if (!selector) return null;
         const fn = () => {
-            const settingsButton = document.querySelector(this.settingsButtonSelector);
+            const settingsButton = document.querySelector(selector);
             return settingsButton;
         };
         const result = await this.runWithRetry(fn);
@@ -451,7 +459,9 @@ export default class AutofillImport extends ActionExecutorBase {
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSignInButton() {
-        const result = await this.runWithRetry(() => document.querySelector(this.signinButtonSelector));
+        const selector = this.signinButtonSelector;
+        if (!selector) return null;
+        const result = await this.runWithRetry(() => document.querySelector(selector));
         return result instanceof Element ? result : null;
     }
 
@@ -605,7 +615,7 @@ export default class AutofillImport extends ActionExecutorBase {
      * @returns {string}
      */
     get signinButtonSelector() {
-        return `${this.#signInButtonSettings?.selectors?.join(',') ?? ''}, ${this.signinLabelTextSelector}`;
+        return [this.#signInButtonSettings?.selectors?.join(',') ?? '', this.signinLabelTextSelector].filter(Boolean).join(', ');
     }
 
     /**
@@ -619,7 +629,7 @@ export default class AutofillImport extends ActionExecutorBase {
      * @returns {string}
      */
     get settingsButtonSelector() {
-        return `${this.#settingsButtonSettings?.selectors?.join(',') ?? ''}, ${this.settingsLabelTextSelector}`;
+        return [this.#settingsButtonSettings?.selectors?.join(',') ?? '', this.settingsLabelTextSelector].filter(Boolean).join(', ');
     }
 
     /** Bookmark import code */
