@@ -211,40 +211,45 @@ export default class CookieFeature extends ContentFeature {
             try {
                 // wait for config before doing same-site tests
                 loadPolicyThen(() => {
-                    const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
-                    const stack = getStack();
-                    const scriptOrigins = getStackTraceOrigins(stack);
-                    const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
-                    if (!shouldBlock) {
-                        debugHelper('ignore', 'disabled', setCookieContext);
-                        return;
-                    }
-                    // extract cookie expiry from cookie string
-                    const cookie = new Cookie(value);
-                    // apply cookie policy
-                    if (cookie.getExpiry() > chosenPolicy.threshold) {
-                        // check if the cookie still exists
-                        const firstPart = cookie.parts[0];
-                        if (
-                            firstPart !== undefined &&
-                            document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(firstPart.trim())) !== -1
-                        ) {
-                            cookie.maxAge = chosenPolicy.maxAge;
-
-                            debugHelper('restrict', 'expiry', setCookieContext);
-
-                            // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-                            cookieSetter.apply(document, [cookie.toString()]);
-                        } else {
-                            debugHelper('ignore', 'dissappeared', setCookieContext);
+                    try {
+                        const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
+                        const stack = getStack();
+                        const scriptOrigins = getStackTraceOrigins(stack);
+                        const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
+                        if (!shouldBlock) {
+                            debugHelper('ignore', 'disabled', setCookieContext);
+                            return;
                         }
-                    } else {
-                        debugHelper('ignore', 'expiry', setCookieContext);
+                        if (!chosenPolicy) {
+                            debugHelper('ignore', 'no-policy', setCookieContext);
+                            return;
+                        }
+                        // extract cookie expiry from cookie string
+                        const cookie = new Cookie(value);
+                        // apply cookie policy
+                        if (cookie.getExpiry() > chosenPolicy.threshold) {
+                            // check if the cookie still exists
+                            const firstPart = cookie.parts[0];
+                            if (
+                                firstPart !== undefined &&
+                                document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(firstPart.trim())) !== -1
+                            ) {
+                                cookie.maxAge = chosenPolicy.maxAge;
+
+                                debugHelper('restrict', 'expiry', setCookieContext);
+
+                                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+                                cookieSetter.apply(document, [cookie.toString()]);
+                            } else {
+                                debugHelper('ignore', 'dissappeared', setCookieContext);
+                            }
+                        } else {
+                            debugHelper('ignore', 'expiry', setCookieContext);
+                        }
+                    } catch (e) {
+                        debugHelper('ignore', 'error', setCookieContext);
+                        console.warn('Error in cookie override', e);
                     }
-                    // eslint-disable-next-line promise/prefer-await-to-then -- setCookiePolicy is a property setter that cannot be async
-                }).catch((e) => {
-                    debugHelper('ignore', 'error', setCookieContext);
-                    console.warn('Error in cookie override', e);
                 });
             } catch (e) {
                 debugHelper('ignore', 'error', setCookieContext);
