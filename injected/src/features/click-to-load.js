@@ -1301,6 +1301,12 @@ function makeLoginButton(buttonText, mode, hoverTextBody, icon, originalElement)
             .DuckDuckGoButton.primary > div {
                 ${styles.loginMode.buttonFont}
             }
+            .DuckDuckGoButton.primary:hover {
+                ${styles.loginMode.buttonBackground}
+            }
+            .DuckDuckGoButton.primary:active {
+                ${styles.loginMode.buttonBackground}
+            }
         `;
     }
     styleElement.textContent += `
