@@ -325,6 +325,15 @@ test.describe('Test integration pages', () => {
         await testPage(page, testInfo, '/cookie/pages/cookie.html', './integration-test/test-pages/cookie/config/cookie-no-policy.json');
     });
 
+    test('Cookie with malformed policy config', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/cookie/pages/cookie.html',
+            './integration-test/test-pages/cookie/config/cookie-malformed-policy.json',
+        );
+    });
+
     test('Page Context', async ({ page }, testInfo) => {
         await testPage(
             page,

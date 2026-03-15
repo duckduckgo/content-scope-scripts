@@ -1,0 +1,18 @@
+{
+    "readme": "Config with malformed policy objects (missing threshold/maxAge) to verify the cookie override fails closed without throwing or producing unhandled rejections.",
+    "version": 1,
+    "features": {
+        "cookie": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "trackerCookie": "enabled",
+                "nonTrackerCookie": "enabled",
+                "excludedCookieDomains": [],
+                "firstPartyCookiePolicy": {},
+                "firstPartyTrackerCookiePolicy": {}
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

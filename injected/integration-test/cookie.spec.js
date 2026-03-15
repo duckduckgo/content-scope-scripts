@@ -84,4 +84,26 @@ test.describe('Cookie protection tests', () => {
         });
         expect(result.rejectionCount).toEqual(0);
     });
+
+    test('extension init args path does not cause unhandled rejection', async ({ page }) => {
+        const extensionCookieArgs = {
+            cookie: { isFrame: false, isTracker: false, shouldBlock: true, isThirdPartyFrame: false },
+        };
+        await gotoAndWait(page, '/index.html', extensionCookieArgs);
+        const result = await page.evaluate(async () => {
+            /** @type {PromiseRejectionEvent[]} */
+            const rejections = [];
+            window.addEventListener('unhandledrejection', (e) => rejections.push(e));
+
+            document.cookie = 'extpath=1; expires=Wed, 21 Aug 2040 20:00:00 UTC;';
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            // eslint-disable-next-line no-undef
+            const cookie = await cookieStore.get('extpath');
+            return { rejectionCount: rejections.length, cookieName: cookie?.name };
+        });
+        expect(result.rejectionCount).toEqual(0);
+        expect(result.cookieName).toEqual('extpath');
+    });
 });

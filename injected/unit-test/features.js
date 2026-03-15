@@ -91,6 +91,8 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/web-interference-detection/config/youtube-detection-events.json'),
         // Intentionally omits firstPartyCookiePolicy/firstPartyTrackerCookiePolicy to test DEFAULT_*_POLICY fallbacks
         path.resolve(__dirname, '../integration-test/test-pages/cookie/config/cookie-no-policy.json'),
+        // Intentionally uses empty policy objects (missing threshold/maxAge) to test fail-closed behavior
+        path.resolve(__dirname, '../integration-test/test-pages/cookie/config/cookie-malformed-policy.json'),
     ];
     for (const configPath of configFiles) {
         if (legacyAllowlist.includes(configPath)) {
