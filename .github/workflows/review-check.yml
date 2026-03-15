@@ -31,6 +31,49 @@ jobs:
                       .github/scripts
                   sparse-checkout-cone-mode: false
 
+            - name: Validate referenced PR base targeting
+              if: ${{ github.event_name != 'merge_group' }}
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const pr = context.payload.pull_request;
+                      const text = `${pr.title ?? ''}\n${pr.body ?? ''}`;
+                      const refs = [...text.matchAll(/\bPR\s*#(\d+)\b/gi)];
+                      if (!refs.length) {
+                          core.info('No referenced PR detected in title/body.');
+                          return;
+                      }
+
+                      const referencedPrNumber = Number(refs[0][1]);
+                      if (!Number.isInteger(referencedPrNumber)) {
+                          core.info('Referenced PR match was not a valid integer.');
+                          return;
+                      }
+
+                      const { data: referencedPr } = await github.rest.pulls.get({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: referencedPrNumber
+                      });
+
+                      if (referencedPr.state !== 'open') {
+                          core.info(`Referenced PR #${referencedPrNumber} is not open; skipping base-branch enforcement.`);
+                          return;
+                      }
+
+                      const expectedBaseRef = referencedPr.head.ref;
+                      const actualBaseRef = pr.base.ref;
+
+                      if (actualBaseRef !== expectedBaseRef) {
+                          core.setFailed(
+                              `PR references #${referencedPrNumber} but targets '${actualBaseRef}'. ` +
+                              `Retarget to '${expectedBaseRef}' so fixes stack onto the PR being fixed.`
+                          );
+                          return;
+                      }
+
+                      core.info(`Referenced PR base targeting is valid: '${actualBaseRef}'.`);
+
             - name: Validate approved review from authorized reviewer
               if: ${{ github.event_name != 'merge_group' }}
               uses: actions/github-script@v8
