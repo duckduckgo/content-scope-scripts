@@ -71,7 +71,6 @@ test.describe('Cookie protection tests', () => {
             window.addEventListener('unhandledrejection', (e) => rejections.push(e));
 
             // Hostile page overrides console.warn to throw
-            // @ts-expect-error - intentional hostile override for test
             console.warn = () => {
                 throw new Error('hostile console.warn');
             };
