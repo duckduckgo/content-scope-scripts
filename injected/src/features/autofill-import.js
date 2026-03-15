@@ -711,6 +711,8 @@ export default class AutofillImport extends ActionExecutorBase {
             const exportId = await this.getExportId();
             if (exportId != null && exportId !== '') {
                 window.location.href = `${MANAGE_ARCHIVE_DEFAULT_BASE}/${exportId}`;
+            } else {
+                this.#processingBookmark = false;
             }
         } else if (pathname.startsWith(MANAGE_ARCHIVE_DEFAULT_BASE)) {
             // If we're on the 'manage' page, we can download the data
@@ -728,7 +730,10 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     findExportId() {
-        const tabPanelSelector = this.bookmarkImportSelectorSettings.tabPanel ?? 'div';
+        const tabPanelSelector = this.bookmarkImportSelectorSettings.tabPanel;
+        if (!tabPanelSelector) {
+            return undefined;
+        }
         const panels = document.querySelectorAll(tabPanelSelector);
         const exportPanel = panels[panels.length - 1];
         if (exportPanel == null) {
