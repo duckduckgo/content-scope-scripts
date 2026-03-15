@@ -24,6 +24,16 @@ function initialShouldBlockTrackerCookie() {
     return injectName === 'firefox' || injectName === 'chrome-mv3' || injectName === 'windows';
 }
 
+const DEFAULT_COOKIE_POLICY = {
+    threshold: 604800, // 7 days
+    maxAge: 604800, // 7 days
+};
+
+const DEFAULT_TRACKER_COOKIE_POLICY = {
+    threshold: 86400, // 1 day
+    maxAge: 86400, // 1 day
+};
+
 // Initial cookie policy pre init
 let cookiePolicy = {
     debug: false,
@@ -33,14 +43,8 @@ let cookiePolicy = {
     shouldBlockTrackerCookie: initialShouldBlockTrackerCookie(),
     shouldBlockNonTrackerCookie: false,
     isThirdPartyFrame: isThirdPartyFrame(),
-    policy: {
-        threshold: 604800, // 7 days
-        maxAge: 604800, // 7 days
-    },
-    trackerPolicy: {
-        threshold: 86400, // 1 day
-        maxAge: 86400, // 1 day
-    },
+    policy: { ...DEFAULT_COOKIE_POLICY },
+    trackerPolicy: { ...DEFAULT_TRACKER_COOKIE_POLICY },
     allowlist: /** @type {{ host: string }[]} */ ([]),
 };
 let trackerLookup = {};
@@ -133,8 +137,8 @@ export default class CookieFeature extends ContentFeature {
                 },
             );
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
-            cookiePolicy.policy = settings.firstPartyCookiePolicy;
-            cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
+            cookiePolicy.policy = settings.firstPartyCookiePolicy ?? DEFAULT_COOKIE_POLICY;
+            cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy ?? DEFAULT_TRACKER_COOKIE_POLICY;
             // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
             // This only applies when the resources that would set these cookies are unblocked.
             cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || [];
@@ -269,8 +273,9 @@ export default class CookieFeature extends ContentFeature {
             shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
             shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
             allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
-            policy: this.getFeatureSetting('firstPartyCookiePolicy') ?? cookiePolicy.policy,
-            trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy') ?? cookiePolicy.trackerPolicy,
+            policy: this.getFeatureSetting('firstPartyCookiePolicy') ?? cookiePolicy.policy ?? DEFAULT_COOKIE_POLICY,
+            trackerPolicy:
+                this.getFeatureSetting('firstPartyTrackerCookiePolicy') ?? cookiePolicy.trackerPolicy ?? DEFAULT_TRACKER_COOKIE_POLICY,
         };
         // The extension provides some additional info about the cookie policy, let's use that over our guesses
         if (args.cookie) {
