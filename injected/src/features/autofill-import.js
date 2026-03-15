@@ -665,7 +665,7 @@ export default class AutofillImport extends ActionExecutorBase {
 
             // Parse the export id from the page and then navigate to the 'manage' page
             const exportId = await this.getExportId();
-            if (exportId != null && exportId !== '') {
+            if (typeof exportId === 'string' && exportId !== '') {
                 window.location.href = `${MANAGE_ARCHIVE_DEFAULT_BASE}/${exportId}`;
             } else {
                 this.#processingBookmark = false;
