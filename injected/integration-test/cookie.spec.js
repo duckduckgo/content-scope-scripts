@@ -62,4 +62,27 @@ test.describe('Cookie protection tests', () => {
         // @ts-expect-error - expires exists at runtime but not in CookieListItem type
         expect(result?.expires).toBeLessThan(Date.now() + 605_000_000);
     });
+
+    test('hostile console.warn monkey-patch does not cause unhandled rejection', async ({ page }) => {
+        await gotoAndWait(page, '/index.html');
+        const result = await page.evaluate(async () => {
+            /** @type {PromiseRejectionEvent[]} */
+            const rejections = [];
+            window.addEventListener('unhandledrejection', (e) => rejections.push(e));
+
+            // Hostile page overrides console.warn to throw
+            // @ts-expect-error - intentional hostile override for test
+            console.warn = () => {
+                throw new Error('hostile console.warn');
+            };
+
+            document.cookie = 'hostile=test; expires=Wed, 21 Aug 2040 20:00:00 UTC;';
+
+            // Wait for async policy callback to execute
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            return { rejectionCount: rejections.length };
+        });
+        expect(result.rejectionCount).toEqual(0);
+    });
 });
