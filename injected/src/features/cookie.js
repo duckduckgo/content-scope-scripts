@@ -10,6 +10,7 @@ import {
 import { Cookie } from '../cookie.js';
 import ContentFeature from '../content-feature.js';
 import { isTrackerOrigin } from '../trackers.js';
+import { consoleWarn } from '../captured-globals.js';
 
 /**
  * @typedef ExtensionCookiePolicy
@@ -248,13 +249,13 @@ export default class CookieFeature extends ContentFeature {
                         }
                     } catch (e) {
                         debugHelper('ignore', 'error', setCookieContext);
-                        console.warn('Error in cookie override', e);
+                        consoleWarn('Error in cookie override', e);
                     }
                 });
             } catch (e) {
                 debugHelper('ignore', 'error', setCookieContext);
                 // suppress error in cookie override to avoid breakage
-                console.warn('Error in cookie override', e);
+                consoleWarn('Error in cookie override', e);
             }
         }
 
