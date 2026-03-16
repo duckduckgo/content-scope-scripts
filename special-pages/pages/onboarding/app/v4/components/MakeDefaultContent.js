@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useRef, useState } from 'preact/hooks';
 import { useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
+import { Typed } from '../../shared/components/Typed';
 import { ComparisonTable } from './ComparisonTable';
 import { Button } from './Button';
 import { Container } from './Container';
@@ -10,6 +11,7 @@ import { LottieAnimation } from './LottieAnimation';
 import { useAnimate } from '../hooks/useAnimate';
 import { usePresence } from '../hooks/usePresence';
 import { useFlip } from '../hooks/useFlip';
+import { useTypingEffect } from './TypingEffectContext';
 import cn from 'classnames';
 import styles from './MakeDefaultContent.module.css';
 
@@ -27,6 +29,7 @@ const bubbleFadeInDelayOverride = new URLSearchParams(window.location.search).ge
 export function MakeDefaultContent({ advance, updateSystemValue }) {
     const { t } = useTypedTranslation();
     const globalState = useGlobalState();
+    const { isTyping, hideContent, typingPaused, onTitleComplete } = useTypingEffect();
 
     // Skip button visibility: hidden while the native call is in flight or after it succeeds
     const isPending =
@@ -90,7 +93,13 @@ export function MakeDefaultContent({ advance, updateSystemValue }) {
         <Container class={styles.root}>
             <div class={styles.titleContainer}>
                 <Title titleRef={titleRef} class={styles.title}>
-                    {showSuccess ? t('makeDefaultAccept_title_v4') : t('protectionsActivated_title')}
+                    {isTyping && !showSuccess ? (
+                        <Typed text={t('protectionsActivated_title')} paused={typingPaused} onComplete={onTitleComplete} />
+                    ) : showSuccess ? (
+                        t('makeDefaultAccept_title_v4')
+                    ) : (
+                        t('protectionsActivated_title')
+                    )}
                 </Title>
                 <LottieAnimation
                     src="assets/lottie/v4/sparkle.json"
@@ -103,7 +112,13 @@ export function MakeDefaultContent({ advance, updateSystemValue }) {
                 />
             </div>
 
-            <div class={styles.content} style={{ '--stagger-delay': `${staggerDelay}ms` }}>
+            <div
+                class={cn(styles.content, {
+                    [styles.revealable]: isTyping,
+                    [styles.hidden]: hideContent,
+                })}
+                style={{ '--stagger-delay': `${staggerDelay}ms` }}
+            >
                 <ComparisonTable />
 
                 <div class={styles.actions}>

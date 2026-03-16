@@ -1,4 +1,7 @@
 import { h } from 'preact';
+import cn from 'classnames';
+import { Typed } from '../../shared/components/Typed';
+import { useTypingEffect } from './TypingEffectContext';
 import styles from './StepHeader.module.css';
 
 /**
@@ -10,10 +13,12 @@ import styles from './StepHeader.module.css';
  * @param {string} [props.subtitle]
  */
 export function StepHeader({ title, subtitle }) {
+    const { isTyping, hideContent, typingPaused, onTitleComplete } = useTypingEffect();
+
     return (
         <div class={styles.root}>
-            <h2 class={styles.title}>{title}</h2>
-            {subtitle && <p class={styles.subtitle}>{subtitle}</p>}
+            <h2 class={styles.title}>{isTyping ? <Typed text={title} paused={typingPaused} onComplete={onTitleComplete} /> : title}</h2>
+            {subtitle && <p class={cn(styles.subtitle, { [styles.hidden]: hideContent })}>{subtitle}</p>}
         </div>
     );
 }
