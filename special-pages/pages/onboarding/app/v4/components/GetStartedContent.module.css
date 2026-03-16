@@ -1,6 +1,8 @@
 .root {
     align-items: flex-start;
-    animation: slide-up 0.9s both, fade-in 0.9s both;
+    animation:
+        slide-up 0.9s both,
+        fade-in 0.9s both;
 }
 
 .text {
@@ -32,27 +34,44 @@
 }
 
 @keyframes slide-up {
-    0%, 40.74% {
+    0%,
+    40.74% {
         translate: 0 41px;
-        animation-timing-function: cubic-bezier(0.66, 0.00, 0.34, 1.00);
+        animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
     }
-    77.78%, 100% {
+    77.78%,
+    100% {
         translate: 0 0;
     }
 }
 
 @keyframes fade-in {
-    0%, 51.85% {
+    0%,
+    51.85% {
         opacity: 0;
-        animation-timing-function: cubic-bezier(0.66, 0.00, 0.34, 1.00);
+        animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
     }
-    81.48%, 100% {
+    81.48%,
+    100% {
         opacity: 1;
     }
+}
+
+.hidden {
+    opacity: 0;
+    transition: none;
+}
+
+.revealable {
+    transition: opacity 0.3s ease-in-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
     .root {
         animation: none;
+    }
+
+    .revealable {
+        transition: none;
     }
 }

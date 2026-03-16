@@ -35,4 +35,10 @@
     margin: 0;
     text-box-trim: trim-both;
     text-box-edge: cap alphabetic;
+    transition: opacity 0.3s ease-in-out;
+
+    &.hidden {
+        opacity: 0;
+        transition: none;
+    }
 }

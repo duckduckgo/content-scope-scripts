@@ -3,6 +3,7 @@ import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import { Bubble } from './Bubble';
 import { useStepConfig } from '../hooks/useStepConfig';
+import { TypingEffectProvider, useTypingEffect } from './TypingEffectContext';
 import styles from './SingleStep.module.css';
 
 /** @type {string|null} */
@@ -17,8 +18,17 @@ const bubbleFadeInDelayOverride = new URLSearchParams(window.location.search).ge
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
+    return (
+        <TypingEffectProvider>
+            <SingleStepInner />
+        </TypingEffectProvider>
+    );
+}
+
+function SingleStepInner() {
     const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey, illustration, advance } =
         useStepConfig();
+    const { isTyping, titleComplete } = useTypingEffect();
 
     const [topHeight, setTopHeight] = useState(0);
     const [bottomHeight, setBottomHeight] = useState(0);
@@ -36,6 +46,8 @@ export function SingleStep() {
     if (!topBubble && !bottomBubble) {
         return content || null;
     }
+
+    const deferBottomBubble = !!topBubble && isTyping && !titleComplete;
 
     return (
         <div
@@ -55,6 +67,7 @@ export function SingleStep() {
                 exiting={globalState.exiting}
                 onExitComplete={topBubble ? advance : undefined}
                 progress={showProgress && topBubble ? progress : undefined}
+                fadeInMode={isTyping && topBubble ? 'skip' : 'normal'}
             >
                 {topBubble?.content}
             </Bubble>
@@ -70,14 +83,17 @@ export function SingleStep() {
                 exiting={globalState.exiting}
                 onExitComplete={topBubble ? undefined : advance}
                 progress={showProgress && !topBubble ? progress : undefined}
+                fadeInMode={isTyping ? (topBubble ? (deferBottomBubble ? 'deferred' : 'normal') : 'skip') : 'normal'}
                 fadeInDelay={
                     topBubble
-                        ? (() => {
-                              const defaultTopDelay = 400; // Default fade-in delay from CSS
-                              const defaultOffset = 250; // Default 250ms offset between top and bottom
-                              const offset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
-                              return defaultTopDelay + (Number.isNaN(offset) ? defaultOffset : offset);
-                          })()
+                        ? isTyping
+                            ? 0
+                            : (() => {
+                                  const defaultTopDelay = 400; // Default fade-in delay from CSS
+                                  const defaultOffset = 250; // Default 250ms offset between top and bottom
+                                  const offset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
+                                  return defaultTopDelay + (Number.isNaN(offset) ? defaultOffset : offset);
+                              })()
                         : undefined
                 }
             >
