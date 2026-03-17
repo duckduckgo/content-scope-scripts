@@ -107,10 +107,16 @@ export function BackgroundConsumer({ browser, variant }) {
     });
 
     switch (background.kind) {
-        case 'color':
-        case 'default':
+        case 'color': {
+            const color = values.colors[background.value];
+            return <div className={styles.root} style={{ backgroundColor: color.hex }} />;
+        }
         case 'hex': {
-            return null;
+            return <div className={styles.root} style={{ backgroundColor: background.value }} />;
+        }
+        case 'default': {
+            const bg = browser.value === 'dark' ? 'var(--default-dark-background-color)' : 'var(--default-light-background-color)';
+            return <div className={styles.root} style={{ backgroundColor: bg }} />;
         }
         case 'userImage': {
             const img = background.value;
