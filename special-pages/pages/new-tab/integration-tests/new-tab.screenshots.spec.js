@@ -120,6 +120,17 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-ai-overflow.png', { maxDiffPixels });
         });
 
+        test('ai overflow with color background', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', background: 'color03' } });
+            await omnibar.ready();
+            const longText = Array.from({ length: 15 }, (_, i) => `Line ${i + 1}`).join('\n');
+            await omnibar.chatInput().fill(longText);
+            await expect(page).toHaveScreenshot('omnibar-ai-overflow-color-bg.png', { maxDiffPixels });
+        });
+
         test('customize popover', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
