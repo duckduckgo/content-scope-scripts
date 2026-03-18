@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useContext, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ArrowRightIcon, ImageIcon, ChevronSmall } from '../../components/Icons';
+import { ArrowRightIcon, ImageIcon, ChevronSmall, getModelIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
@@ -32,7 +32,8 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     const { openAiChat, state } = useContext(OmnibarContext);
     const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } = useAiChatsContext();
 
-    const aiModels = state.config?.aiModels ?? [];
+    const enableAiChatTools = state.config?.enableAiChatTools === true;
+    const aiModelSections = enableAiChatTools ? (state.config?.aiModelSections ?? []) : [];
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
@@ -47,13 +48,19 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
         getImagesForSubmission,
     } = useImageAttachments();
     const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
-        useModelSelector(aiModels);
+        useModelSelector(aiModelSections);
 
     useEffect(() => {
         if (autoFocus && textAreaRef.current) {
             textAreaRef.current.focus();
         }
     }, [autoFocus]);
+
+    useEffect(() => {
+        if (!selectedModel?.supportsImageUpload) {
+            clearAttachedImages();
+        }
+    }, [selectedModel]);
 
     useLayoutEffect(() => {
         const textArea = textAreaRef.current;
@@ -73,6 +80,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     }, [query]);
 
     const disabled = query.length === 0;
+    const SelectedModelIcon = selectedModel ? getModelIcon(selectedModel.id) : null;
 
     /**
      * @param {string} chat
@@ -81,12 +89,14 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     const submitWithToolState = (chat, target) => {
         /** @type {SubmitChatAction} */
         const params = { chat, target };
-        if (selectedModelId && aiModels.some((m) => m.id === selectedModelId && m.entityHasAccess !== false)) {
+        if (selectedModelId && aiModelSections.some((s) => s.items.some((m) => m.id === selectedModelId && m.isEnabled))) {
             params.modelId = selectedModelId;
         }
-        const images = getImagesForSubmission();
-        if (images) {
-            params.images = /** @type {SubmitChatAction['images']} */ (images);
+        if (selectedModel?.supportsImageUpload) {
+            const images = getImagesForSubmission();
+            if (images) {
+                params.images = /** @type {SubmitChatAction['images']} */ (images);
+            }
         }
         onSubmit(params);
         clearAttachedImages();
@@ -185,38 +195,40 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
             <ImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
             <div tabIndex={-1} class={styles.buttons}>
                 <div class={styles.toolButtons}>
-                    <label
-                        class={`${styles.toolButton} ${imageUploadDisabled ? styles.toolButtonDisabled : ''}`}
-                        aria-label={t('omnibar_attachImageLabel')}
-                        aria-disabled={imageUploadDisabled}
-                        role="button"
-                        tabIndex={imageUploadDisabled ? -1 : 0}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (imageUploadDisabled) e.preventDefault();
-                        }}
-                        onKeyDown={(e) => {
-                            if (imageUploadDisabled) return;
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                fileInputRef.current?.click();
-                            }
-                        }}
-                    >
-                        <ImageIcon />
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            multiple
-                            disabled={imageUploadDisabled}
-                            class={styles.hiddenFileInput}
-                            onChange={handleFileChange}
-                        />
-                    </label>
+                    {selectedModel?.supportsImageUpload && (
+                        <label
+                            class={`${styles.toolButton} ${imageUploadDisabled ? styles.toolButtonDisabled : ''}`}
+                            aria-label={t('omnibar_attachImageLabel')}
+                            aria-disabled={imageUploadDisabled}
+                            role="button"
+                            tabIndex={imageUploadDisabled ? -1 : 0}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (imageUploadDisabled) e.preventDefault();
+                            }}
+                            onKeyDown={(e) => {
+                                if (imageUploadDisabled) return;
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    fileInputRef.current?.click();
+                                }
+                            }}
+                        >
+                            <ImageIcon />
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                multiple
+                                disabled={imageUploadDisabled}
+                                class={styles.hiddenFileInput}
+                                onChange={handleFileChange}
+                            />
+                        </label>
+                    )}
                 </div>
                 <div class={styles.rightButtons}>
-                    {aiModels.length > 0 && (
+                    {aiModelSections.length > 0 && (
                         <div class={styles.modelSelector}>
                             <button
                                 ref={modelButtonRef}
@@ -230,7 +242,8 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                                     toggleDropdown();
                                 }}
                             >
-                                <span class={styles.modelButtonLabel}>{selectedModel?.name ?? t('omnibar_modelSelectorLabel')}</span>
+                                {SelectedModelIcon && <SelectedModelIcon />}
+                                <span class={styles.modelButtonLabel}>{selectedModel?.shortName ?? t('omnibar_modelSelectorLabel')}</span>
                                 <ChevronSmall />
                             </button>
                         </div>
@@ -251,12 +264,11 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
             {modelDropdownOpen && dropdownPos && (
                 <ModelDropdown
                     dropdownRef={dropdownRef}
-                    models={aiModels}
+                    sections={aiModelSections}
                     selectedModelId={selectedModel?.id}
                     dropdownPos={dropdownPos}
                     onSelect={selectModel}
                     ariaLabel={t('omnibar_modelSelectorLabel')}
-                    sectionHeader={t('omnibar_advancedModelsSectionHeader')}
                 />
             )}
         </form>

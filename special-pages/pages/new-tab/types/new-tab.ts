@@ -75,21 +75,42 @@ export type ShowDuckAiSetting = boolean;
 export type ShowCustomizePopover = boolean;
 export type EnableRecentAIChats = boolean;
 /**
- * List of available AI models for the model selector
+ * Feature flag to enable AI chat tools (model selector, image attachments)
  */
-export type AIModels = {
+export type EnableAIChatTools = boolean;
+/**
+ * Sections of AI models for the model selector. Each section has an optional header and a list of model items.
+ */
+export type AIModelSections = {
   /**
-   * Model identifier
+   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
    */
-  id: string;
+  header?: string;
   /**
-   * Display name
+   * List of AI models in this section
    */
-  name: string;
-  /**
-   * Whether the user has access to this model (false = requires subscription)
-   */
-  entityHasAccess?: boolean;
+  items: {
+    /**
+     * Model identifier
+     */
+    id: string;
+    /**
+     * Full display name
+     */
+    name: string;
+    /**
+     * Short display name for the model selector button
+     */
+    shortName: string;
+    /**
+     * Whether the model is enabled and selectable
+     */
+    isEnabled: boolean;
+    /**
+     * Whether this model supports image attachments
+     */
+    supportsImageUpload: boolean;
+  }[];
 }[];
 export type FeedType = "privacy-stats" | "activity";
 /**
@@ -596,7 +617,8 @@ export interface OmnibarConfig {
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
   enableRecentAiChats?: EnableRecentAIChats;
-  aiModels?: AIModels;
+  enableAiChatTools?: EnableAIChatTools;
+  aiModelSections?: AIModelSections;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"

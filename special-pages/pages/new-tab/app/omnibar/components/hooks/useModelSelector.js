@@ -1,32 +1,30 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 
 /**
- * @typedef {import('../../../../types/new-tab.js').AIModels} AIModels
- * @typedef {AIModels[number]} AIModel
+ * @typedef {import('../../../../types/new-tab.js').AIModelSections} AIModelSections
+ * @typedef {AIModelSections[number]['items'][number]} AIModelItem
  */
-
-/** @param {AIModel} m */
-const isAccessible = (m) => m.entityHasAccess !== false;
 
 /**
- * @param {AIModels} aiModels
+ * @param {AIModelSections} aiModelSections
  */
-export function useModelSelector(aiModels) {
+export function useModelSelector(aiModelSections) {
     const [selectedModelId, setSelectedModelId] = useState(/** @type {string|null} */ (null));
     const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
     const [dropdownPos, setDropdownPos] = useState(/** @type {{right: number, top: number}|null} */ (null));
     const modelButtonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
     const dropdownRef = useRef(/** @type {HTMLUListElement|null} */ (null));
 
-    const firstAccessible = aiModels.find(isAccessible) ?? null;
-    const selectedModel = aiModels.find((m) => m.id === selectedModelId && isAccessible(m)) ?? firstAccessible;
+    const allModels = aiModelSections.flatMap((s) => s.items);
+    const firstEnabled = allModels.find((m) => m.isEnabled) ?? null;
+    const selectedModel = allModels.find((m) => m.id === selectedModelId && m.isEnabled) ?? firstEnabled;
 
     useEffect(() => {
-        if (!firstAccessible) return;
-        if (!selectedModelId || !aiModels.some((m) => m.id === selectedModelId && isAccessible(m))) {
-            setSelectedModelId(firstAccessible.id);
+        if (!firstEnabled) return;
+        if (!selectedModelId || !allModels.some((m) => m.id === selectedModelId && m.isEnabled)) {
+            setSelectedModelId(firstEnabled.id);
         }
-    }, [aiModels, selectedModelId, firstAccessible]);
+    }, [aiModelSections, selectedModelId, firstEnabled]);
 
     useEffect(() => {
         if (!modelDropdownOpen) return;
@@ -59,7 +57,7 @@ export function useModelSelector(aiModels) {
 
     /** @param {string} id */
     const selectModel = (id) => {
-        if (!aiModels.some((m) => m.id === id && isAccessible(m))) return;
+        if (!allModels.some((m) => m.id === id && m.isEnabled)) return;
         setSelectedModelId(id);
         setModelDropdownOpen(false);
     };

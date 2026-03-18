@@ -23,14 +23,72 @@ export function omnibarMockTransport() {
         showAiSetting: true,
         showCustomizePopover: false,
         enableRecentAiChats: false,
-        aiModels: [
-            { id: 'gpt-4o-mini', name: 'GPT-4o mini', entityHasAccess: true },
-            { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5', entityHasAccess: true },
-            { id: 'meta-llama/Llama-4-Scout-17B-16E-Instruct', name: 'Llama 4 Scout', entityHasAccess: true },
-            { id: 'mistralai/Mistral-Small-24B-Instruct-2501', name: 'Mistral Small 3', entityHasAccess: true },
-            { id: 'gpt-4o', name: 'GPT-4o', entityHasAccess: false },
-            { id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5', entityHasAccess: false },
-            { id: 'meta-llama/Llama-4-Maverick', name: 'Llama 4 Maverick', entityHasAccess: false },
+        enableAiChatTools: true,
+        aiModelSections: [
+            {
+                items: [
+                    { id: 'gpt-4o-mini', name: 'GPT-4o mini', shortName: '4o-mini', isEnabled: true, supportsImageUpload: true },
+                    { id: 'gpt-5-mini', name: 'GPT-5 mini', shortName: 'GPT-5', isEnabled: true, supportsImageUpload: true },
+                    { id: 'openai_gpt-oss-120b', name: 'GPT-OSS 120B', shortName: 'GPT-OSS', isEnabled: true, supportsImageUpload: false },
+                    {
+                        id: 'meta-llama_Llama-4-Scout-17B-16E-Instruct',
+                        name: 'Llama 4 Scout',
+                        shortName: 'Scout',
+                        isEnabled: true,
+                        supportsImageUpload: false,
+                    },
+                    {
+                        id: 'claude-haiku-4-5',
+                        name: 'Claude Haiku 4.5',
+                        shortName: 'Haiku 4.5',
+                        isEnabled: true,
+                        supportsImageUpload: true,
+                    },
+                    {
+                        id: 'mistralai_Mistral-Small-24B-Instruct-2501',
+                        name: 'Mistral Small 3',
+                        shortName: 'Mistral',
+                        isEnabled: true,
+                        supportsImageUpload: false,
+                    },
+                    {
+                        id: 'claude-3-5-haiku-latest',
+                        name: 'Claude 3.5 Haiku',
+                        shortName: 'Claude 3.5 Haiku',
+                        isEnabled: true,
+                        supportsImageUpload: true,
+                    },
+                ],
+            },
+            {
+                header: 'Advanced Models - DuckDuckGo subscription',
+                items: [
+                    { id: 'gpt-4o', name: 'GPT-4o', shortName: 'GPT-4o', isEnabled: false, supportsImageUpload: true },
+                    { id: 'gpt-5_2', name: 'GPT-5.2', shortName: 'GPT-5.2', isEnabled: false, supportsImageUpload: true },
+                    {
+                        id: 'claude-sonnet-4-5',
+                        name: 'Claude Sonnet 4.5',
+                        shortName: 'Sonnet 4.5',
+                        isEnabled: false,
+                        supportsImageUpload: true,
+                    },
+                    {
+                        id: 'meta-llama_Llama-4-Maverick-17B-128E-Instruct-FP8',
+                        name: 'Llama 4 Maverick',
+                        shortName: 'Maverick',
+                        isEnabled: false,
+                        supportsImageUpload: false,
+                    },
+                    { id: 'claude-opus-4-6', name: 'Claude Opus 4.6', shortName: 'Opus 4.6', isEnabled: false, supportsImageUpload: true },
+                    {
+                        id: 'claude-sonnet-4',
+                        name: 'Claude 4 Sonnet',
+                        shortName: 'Claude 4 Sonnet',
+                        isEnabled: false,
+                        supportsImageUpload: true,
+                    },
+                ],
+            },
         ],
     };
 
