@@ -3,7 +3,7 @@ import { useContext, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { GlobalContext } from '../../global';
 import styles from './Background.module.css';
-import { CustomizeAnimation } from './CustomizeAnimation';
+import { DaxBobbingAnimation } from './DaxBobbingAnimation';
 
 /**
  * Maps each step to its background image filename (without extension/variant suffix).
@@ -71,7 +71,7 @@ export function Background() {
                 class={cn(styles.illustration, styles.slideIn)}
             />
             {(filename === 'background-03' || exitingFilename === 'background-03') && (
-                <CustomizeAnimation exiting={exitingFilename === 'background-03'} />
+                <DaxBobbingAnimation exiting={exitingFilename === 'background-03'} />
             )}
         </div>
     );
