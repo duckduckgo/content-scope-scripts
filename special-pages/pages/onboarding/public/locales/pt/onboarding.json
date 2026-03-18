@@ -284,6 +284,14 @@
     "title" : "Sem anúncios segmentados. Nenhuma recomendação específica. Só o teu vídeo.",
     "note" : "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
+  "duckPlayer_v4_title" : {
+    "title" : "Já não suportas ver anúncios no YouTube?{newline}Usa o Duck Player!",
+    "note" : "Title for the Duck Player step in v4 onboarding, with a line break after the question."
+  },
+  "duckPlayer_v4_subtitle" : {
+    "title" : "Sem anúncios segmentados. Nenhuma recomendação específica.{newline}Apenas o teu vídeo.",
+    "note" : "Subtitle for the Duck Player step in v4 onboarding, with a line break before the last sentence."
+  },
   "duckPlayer_adFree_title" : {
     "title" : "Vê YouTube sem anúncios!",
     "note" : "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
@@ -451,5 +459,29 @@
   "browser_Safari" : {
     "title" : "Safari",
     "note" : "Brand name of the Apple Safari browser"
+  },
+  "welcome_title_v4" : {
+    "title" : "Damos-lhe as boas-vindas ao DuckDuckGo!",
+    "note" : "Page title for the first step in the v4 onboarding process"
+  },
+  "getStarted_title_v4" : {
+    "title" : "Olá!{paragraph}Pronto para um navegador mais rápido{newline}que te mantém protegido?",
+    "note" : "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+  },
+  "getStartedButton_v4" : {
+    "title" : "Vamos lá!",
+    "note" : "Button label prompting user to start the v4 onboarding process."
+  },
+  "makeDefaultAccept_title_v4" : {
+    "title" : "Excelente! Vamos em frente.",
+    "note" : "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
+  },
+  "row_dock-instructions_accept" : {
+    "title" : "Mostrar-me como",
+    "note" : "Button text that opens the dock instructions overlay."
+  },
+  "dockInstructions_body" : {
+    "title" : "Mantém premida a tecla control e clica no ícone da aplicação DuckDuckGo e, de seguida, escolhe <strong>Opções</strong> &gt; <strong>Manter no Dock</strong>.",
+    "note" : "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
   }
 }
