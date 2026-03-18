@@ -149,8 +149,11 @@
     (!n3.__d && (n3.__d = true) && i.push(n3) && !I.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)(I);
   }
   function I() {
-    for (var n3, l5 = 1; i.length; ) i.length > l5 && i.sort(e), n3 = i.shift(), l5 = i.length, C(n3);
-    I.__r = 0;
+    try {
+      for (var n3, l5 = 1; i.length; ) i.length > l5 && i.sort(e), n3 = i.shift(), l5 = i.length, C(n3);
+    } finally {
+      i.length = I.__r = 0;
+    }
   }
   function P(n3, l5, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
     var a4, h5, y5, d5, w5, g6, _5, m5 = t4 && t4.__k || v, b4 = l5.length;
@@ -224,7 +227,7 @@
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (a4 = l.__b) && a4(u4);
     n: if ("function" == typeof T5) try {
-      if (S3 = u4.props, C4 = "prototype" in T5 && T5.prototype.render, M3 = (a4 = T5.contextType) && i5[a4.__c], $2 = a4 ? M3 ? M3.props.value : a4.__ : i5, t4.__c ? b4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (C4 ? u4.__c = h5 = new T5(S3, $2) : (u4.__c = h5 = new x(S3, $2), h5.constructor = T5, h5.render = G), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), C4 && null == h5.__s && (h5.__s = h5.state), C4 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, T5.getDerivedStateFromProps(S3, h5.__s))), y5 = h5.props, _5 = h5.state, h5.__v = u4, p5) C4 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), C4 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
+      if (S3 = u4.props, C4 = T5.prototype && T5.prototype.render, M3 = (a4 = T5.contextType) && i5[a4.__c], $2 = a4 ? M3 ? M3.props.value : a4.__ : i5, t4.__c ? b4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (C4 ? u4.__c = h5 = new T5(S3, $2) : (u4.__c = h5 = new x(S3, $2), h5.constructor = T5, h5.render = G), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), C4 && null == h5.__s && (h5.__s = h5.state), C4 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, T5.getDerivedStateFromProps(S3, h5.__s))), y5 = h5.props, _5 = h5.state, h5.__v = u4, p5) C4 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), C4 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
       else {
         if (C4 && null == T5.getDerivedStateFromProps && S3 !== y5 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(S3, $2), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(S3, h5.__s, $2)) {
           u4.__v != t4.__v && (h5.props = S3, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
@@ -369,7 +372,7 @@
 
   // ../node_modules/preact/devtools/dist/devtools.module.js
   var i2;
-  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.28.4", l, { Fragment: k, Component: x });
+  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.0", l, { Fragment: k, Component: x });
 
   // ../messaging/lib/windows.js
   var WindowsMessagingTransport = class {
@@ -389,8 +392,8 @@
         Error: window.Error,
         String: window.String
       };
-      for (const [methodName, fn2] of Object.entries(this.config.methods)) {
-        if (typeof fn2 !== "function") {
+      for (const [methodName, fn] of Object.entries(this.config.methods)) {
+        if (typeof fn !== "function") {
           throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
         }
       }
@@ -1109,9 +1112,9 @@
      * @param {(...args: any[]) => any} fn
      * @param {string} [context]
      */
-    _tryCatch(fn2, context = "none") {
+    _tryCatch(fn, context = "none") {
       try {
-        return fn2();
+        return fn();
       } catch (e4) {
         if (this.debug) {
           console.error("AndroidMessagingConfig error:", context);
@@ -1325,9 +1328,9 @@
      * @param {(...args: any[]) => any} fn
      * @param {string} [context]
      */
-    _tryCatch(fn2, context = "none") {
+    _tryCatch(fn, context = "none") {
       try {
-        return fn2();
+        return fn();
       } catch (e4) {
         if (this.debug) {
           console.error("AndroidAdsjsMessagingConfig error:", context);
@@ -3252,11 +3255,11 @@
   var HistoryRangeService = _HistoryRangeService;
 
   // pages/new-tab/app/utils.js
-  function viewTransition(fn2) {
+  function viewTransition(fn) {
     if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
-      return document.startViewTransition(fn2);
+      return document.startViewTransition(fn);
     }
-    return fn2();
+    return fn();
   }
 
   // pages/history/app/history.service.js
@@ -4072,20 +4075,20 @@
     for (var r4 in t4) if ("__source" !== r4 && n3[r4] !== t4[r4]) return true;
     return false;
   }
-  function N2(n3, t4) {
+  function M2(n3, t4) {
     this.props = n3, this.context = t4;
   }
-  function M2(n3, e4) {
+  function N2(n3, e4) {
     function r4(n4) {
-      var t4 = this.props.ref, r5 = t4 == n4.ref;
-      return !r5 && t4 && (t4.call ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || !r5 : E3(this.props, n4);
+      var t4 = this.props.ref;
+      return t4 != n4.ref && t4 && ("function" == typeof t4 ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || t4 != n4.ref : E3(this.props, n4);
     }
     function u4(e5) {
       return this.shouldComponentUpdate = r4, _(n3, e5);
     }
-    return u4.displayName = "Memo(" + (n3.displayName || n3.name) + ")", u4.prototype.isReactComponent = true, u4.__f = true, u4.type = n3, u4;
+    return u4.displayName = "Memo(" + (n3.displayName || n3.name) + ")", u4.__f = u4.prototype.isReactComponent = true, u4.type = n3, u4;
   }
-  (N2.prototype = new x()).isPureReactComponent = true, N2.prototype.shouldComponentUpdate = function(n3, t4) {
+  (M2.prototype = new x()).isPureReactComponent = true, M2.prototype.shouldComponentUpdate = function(n3, t4) {
     return E3(this.props, n3) || E3(this.state, t4);
   };
   var T4 = l.__b;
@@ -4093,14 +4096,14 @@
     n3.type && n3.type.__f && n3.ref && (n3.props.ref = n3.ref, n3.ref = null), T4 && T4(n3);
   };
   var A4 = "undefined" != typeof Symbol && Symbol.for && /* @__PURE__ */ Symbol.for("react.forward_ref") || 3911;
-  var U = l.__e;
+  var O3 = l.__e;
   l.__e = function(n3, t4, e4, r4) {
     if (n3.then) {
       for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k), u4.__c(n3, t4);
     }
-    U(n3, t4, e4, r4);
+    O3(n3, t4, e4, r4);
   };
-  var F4 = l.unmount;
+  var U = l.unmount;
   function V2(n3, t4, e4) {
     return n3 && (n3.__c && n3.__c.__H && (n3.__c.__H.__.forEach(function(n4) {
       "function" == typeof n4.__c && n4.__c();
@@ -4117,8 +4120,7 @@
     this.__u = 0, this.o = null, this.__b = null;
   }
   function j3(n3) {
-    if (!n3.__) return null;
-    var t4 = n3.__.__c;
+    var t4 = n3.__ && n3.__.__c;
     return t4 && t4.__a && t4.__a(n3);
   }
   function B3() {
@@ -4126,7 +4128,7 @@
   }
   l.unmount = function(n3) {
     var t4 = n3.__c;
-    t4 && (t4.__z = true), t4 && t4.__R && t4.__R(), t4 && 32 & n3.__u && (n3.type = null), F4 && F4(n3);
+    t4 && (t4.__z = true), t4 && t4.__R && t4.__R(), t4 && 32 & n3.__u && (n3.type = null), U && U(n3);
   }, (P3.prototype = new x()).__c = function(n3, t4) {
     var e4 = t4.__c, r4 = this;
     null == r4.o && (r4.o = []), r4.o.push(e4);
@@ -4195,7 +4197,7 @@
   var X = function(n3) {
     return ("undefined" != typeof Symbol && "symbol" == typeof /* @__PURE__ */ Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n3);
   };
-  x.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t4) {
+  x.prototype.isReactComponent = true, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t4) {
     Object.defineProperty(x.prototype, t4, { configurable: true, get: function() {
       return this["UNSAFE_" + t4];
     }, set: function(n3) {
@@ -4203,25 +4205,22 @@
     } });
   });
   var en = l.event;
-  function rn() {
-  }
-  function un() {
-    return this.cancelBubble;
-  }
-  function on() {
-    return this.defaultPrevented;
-  }
   l.event = function(n3) {
-    return en && (n3 = en(n3)), n3.persist = rn, n3.isPropagationStopped = un, n3.isDefaultPrevented = on, n3.nativeEvent = n3;
+    return en && (n3 = en(n3)), n3.persist = function() {
+    }, n3.isPropagationStopped = function() {
+      return this.cancelBubble;
+    }, n3.isDefaultPrevented = function() {
+      return this.defaultPrevented;
+    }, n3.nativeEvent = n3;
   };
-  var ln;
-  var cn = { enumerable: false, configurable: true, get: function() {
+  var rn;
+  var un = { configurable: true, get: function() {
     return this.class;
   } };
-  var fn = l.vnode;
+  var on = l.vnode;
   l.vnode = function(n3) {
     "string" == typeof n3.type && (function(n4) {
-      var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 === e4.indexOf("-");
+      var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 == e4.indexOf("-");
       for (var i5 in t4) {
         var l5 = t4[i5];
         if (!("value" === i5 && "defaultValue" in t4 && null == l5 || Q2 && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
@@ -4229,22 +4228,22 @@
           "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l5 ? l5 = "" : "translate" === c4 && "no" === l5 ? l5 = false : "o" === c4[0] && "n" === c4[1] ? "ondoubleclick" === c4 ? i5 = "ondblclick" : "onchange" !== c4 || "input" !== e4 && "textarea" !== e4 || X(t4.type) ? "onfocus" === c4 ? i5 = "onfocusin" : "onblur" === c4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = c4) : c4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l5 && (l5 = void 0), "oninput" === c4 && u4[i5 = c4] && (i5 = "oninputCapture"), u4[i5] = l5;
         }
       }
-      "select" == e4 && u4.multiple && Array.isArray(u4.value) && (u4.value = L(t4.children).forEach(function(n5) {
+      "select" == e4 && (u4.multiple && Array.isArray(u4.value) && (u4.value = L(t4.children).forEach(function(n5) {
         n5.props.selected = -1 != u4.value.indexOf(n5.props.value);
-      })), "select" == e4 && null != u4.defaultValue && (u4.value = L(t4.children).forEach(function(n5) {
+      })), null != u4.defaultValue && (u4.value = L(t4.children).forEach(function(n5) {
         n5.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n5.props.value) : u4.defaultValue == n5.props.value;
-      })), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", cn)) : t4.className && (u4.class = u4.className = t4.className), n4.props = u4;
-    })(n3), n3.$$typeof = q4, fn && fn(n3);
+      }))), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", un)) : t4.className && (u4.class = u4.className = t4.className), n4.props = u4;
+    })(n3), n3.$$typeof = q4, on && on(n3);
   };
-  var an = l.__r;
+  var ln = l.__r;
   l.__r = function(n3) {
-    an && an(n3), ln = n3.__c;
+    ln && ln(n3), rn = n3.__c;
   };
-  var sn = l.diffed;
+  var cn = l.diffed;
   l.diffed = function(n3) {
-    sn && sn(n3);
+    cn && cn(n3);
     var t4 = n3.props, e4 = n3.__e;
-    null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), ln = null;
+    null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), rn = null;
   };
 
   // pages/history/app/components/Item.js
@@ -4438,7 +4437,7 @@
   }
 
   // pages/history/app/components/Item.js
-  var Item = M2(
+  var Item = N2(
     /**
      * Renders an individual item with specific styles and layout determined by props.
      *
@@ -4524,7 +4523,7 @@
       });
     }));
   }
-  var VisibleItems = M2(VirtualizedList);
+  var VisibleItems = N2(VirtualizedList);
   function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
     const [{ start, end }, setVisibleRange] = d2({ start: 0, end: 1 });
     const mainScrollerRef = A2(
@@ -5298,12 +5297,12 @@
   }
 
   // shared/call-with-retry.js
-  async function callWithRetry(fn2, params = {}) {
+  async function callWithRetry(fn, params = {}) {
     const { maxAttempts = 10, intervalMs = 300 } = params;
     let attempt = 1;
     while (attempt <= maxAttempts) {
       try {
-        return { value: await fn2(), attempt };
+        return { value: await fn(), attempt };
       } catch (error) {
         if (attempt === maxAttempts) {
           return { error: `Max attempts reached: ${error}` };

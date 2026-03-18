@@ -11,12 +11,12 @@
   };
   var __defNormalProp = (obj, key2, value2) => key2 in obj ? __defProp(obj, key2, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj[key2] = value2;
   var __glob = (map) => (path) => {
-    var fn2 = map[path];
-    if (fn2) return fn2();
+    var fn = map[path];
+    if (fn) return fn();
     throw new Error("Module not found in bundle: " + path);
   };
-  var __esm = (fn2, res) => function __init() {
-    return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
   };
   var __commonJS = (cb, mod2) => function __require() {
     return mod2 || (0, cb[__getOwnPropNames(cb)[0]])((mod2 = { exports: {} }).exports, mod2), mod2.exports;
@@ -99,8 +99,11 @@
     (!n3.__d && (n3.__d = true) && i.push(n3) && !I.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)(I);
   }
   function I() {
-    for (var n3, l5 = 1; i.length; ) i.length > l5 && i.sort(e), n3 = i.shift(), l5 = i.length, C(n3);
-    I.__r = 0;
+    try {
+      for (var n3, l5 = 1; i.length; ) i.length > l5 && i.sort(e), n3 = i.shift(), l5 = i.length, C(n3);
+    } finally {
+      i.length = I.__r = 0;
+    }
   }
   function P(n3, l5, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
     var a4, h5, y5, d5, w5, g6, _5, m5 = t4 && t4.__k || v, b4 = l5.length;
@@ -174,7 +177,7 @@
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (a4 = l.__b) && a4(u4);
     n: if ("function" == typeof T5) try {
-      if (S3 = u4.props, C4 = "prototype" in T5 && T5.prototype.render, M3 = (a4 = T5.contextType) && i5[a4.__c], $2 = a4 ? M3 ? M3.props.value : a4.__ : i5, t4.__c ? b4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (C4 ? u4.__c = h5 = new T5(S3, $2) : (u4.__c = h5 = new x(S3, $2), h5.constructor = T5, h5.render = G), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), C4 && null == h5.__s && (h5.__s = h5.state), C4 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, T5.getDerivedStateFromProps(S3, h5.__s))), y5 = h5.props, _5 = h5.state, h5.__v = u4, p5) C4 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), C4 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
+      if (S3 = u4.props, C4 = T5.prototype && T5.prototype.render, M3 = (a4 = T5.contextType) && i5[a4.__c], $2 = a4 ? M3 ? M3.props.value : a4.__ : i5, t4.__c ? b4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (C4 ? u4.__c = h5 = new T5(S3, $2) : (u4.__c = h5 = new x(S3, $2), h5.constructor = T5, h5.render = G), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), C4 && null == h5.__s && (h5.__s = h5.state), C4 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, T5.getDerivedStateFromProps(S3, h5.__s))), y5 = h5.props, _5 = h5.state, h5.__v = u4, p5) C4 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), C4 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
       else {
         if (C4 && null == T5.getDerivedStateFromProps && S3 !== y5 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(S3, $2), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(S3, h5.__s, $2)) {
           u4.__v != t4.__v && (h5.props = S3, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
@@ -1386,7 +1389,7 @@
         });
       });
       return () => {
-        cleanupsCurr.forEach((fn2) => fn2());
+        cleanupsCurr.forEach((fn) => fn());
       };
     }, [values2, str]);
     return /* @__PURE__ */ _("span", { ref, dangerouslySetInnerHTML: { __html: str } });
@@ -2182,18 +2185,18 @@
     for (var r4 in t4) if ("__source" !== r4 && n3[r4] !== t4[r4]) return true;
     return false;
   }
-  function N2(n3, t4) {
+  function M2(n3, t4) {
     this.props = n3, this.context = t4;
   }
-  function M2(n3, e4) {
+  function N2(n3, e4) {
     function r4(n4) {
-      var t4 = this.props.ref, r5 = t4 == n4.ref;
-      return !r5 && t4 && (t4.call ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || !r5 : E3(this.props, n4);
+      var t4 = this.props.ref;
+      return t4 != n4.ref && t4 && ("function" == typeof t4 ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || t4 != n4.ref : E3(this.props, n4);
     }
     function u4(e5) {
       return this.shouldComponentUpdate = r4, _(n3, e5);
     }
-    return u4.displayName = "Memo(" + (n3.displayName || n3.name) + ")", u4.prototype.isReactComponent = true, u4.__f = true, u4.type = n3, u4;
+    return u4.displayName = "Memo(" + (n3.displayName || n3.name) + ")", u4.__f = u4.prototype.isReactComponent = true, u4.type = n3, u4;
   }
   function V2(n3, t4, e4) {
     return n3 && (n3.__c && n3.__c.__H && (n3.__c.__H.__.forEach(function(n4) {
@@ -2211,8 +2214,7 @@
     this.__u = 0, this.o = null, this.__b = null;
   }
   function j3(n3) {
-    if (!n3.__) return null;
-    var t4 = n3.__.__c;
+    var t4 = n3.__ && n3.__.__c;
     return t4 && t4.__a && t4.__a(n3);
   }
   function z3(n3) {
@@ -2231,22 +2233,14 @@
   function B3() {
     this.i = null, this.l = null;
   }
-  function rn() {
-  }
-  function un() {
-    return this.cancelBubble;
-  }
-  function on() {
-    return this.defaultPrevented;
-  }
-  var T4, A4, U, F4, H2, q4, G2, J2, K2, Q2, X, en, ln, cn, fn, an, sn;
+  var T4, A4, O3, U, H2, q4, G2, J2, K2, Q2, X, en, rn, un, on, ln, cn;
   var init_compat_module = __esm({
     "../node_modules/preact/compat/dist/compat.module.js"() {
       init_preact_module();
       init_preact_module();
       init_hooks_module();
       init_hooks_module();
-      (N2.prototype = new x()).isPureReactComponent = true, N2.prototype.shouldComponentUpdate = function(n3, t4) {
+      (M2.prototype = new x()).isPureReactComponent = true, M2.prototype.shouldComponentUpdate = function(n3, t4) {
         return E3(this.props, n3) || E3(this.state, t4);
       };
       T4 = l.__b;
@@ -2254,17 +2248,17 @@
         n3.type && n3.type.__f && n3.ref && (n3.props.ref = n3.ref, n3.ref = null), T4 && T4(n3);
       };
       A4 = "undefined" != typeof Symbol && Symbol.for && /* @__PURE__ */ Symbol.for("react.forward_ref") || 3911;
-      U = l.__e;
+      O3 = l.__e;
       l.__e = function(n3, t4, e4, r4) {
         if (n3.then) {
           for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k), u4.__c(n3, t4);
         }
-        U(n3, t4, e4, r4);
+        O3(n3, t4, e4, r4);
       };
-      F4 = l.unmount;
+      U = l.unmount;
       l.unmount = function(n3) {
         var t4 = n3.__c;
-        t4 && (t4.__z = true), t4 && t4.__R && t4.__R(), t4 && 32 & n3.__u && (n3.type = null), F4 && F4(n3);
+        t4 && (t4.__z = true), t4 && t4.__R && t4.__R(), t4 && 32 & n3.__u && (n3.type = null), U && U(n3);
       }, (P3.prototype = new x()).__c = function(n3, t4) {
         var e4 = t4.__c, r4 = this;
         null == r4.o && (r4.o = []), r4.o.push(e4);
@@ -2333,7 +2327,7 @@
       X = function(n3) {
         return ("undefined" != typeof Symbol && "symbol" == typeof /* @__PURE__ */ Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n3);
       };
-      x.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t4) {
+      x.prototype.isReactComponent = true, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t4) {
         Object.defineProperty(x.prototype, t4, { configurable: true, get: function() {
           return this["UNSAFE_" + t4];
         }, set: function(n3) {
@@ -2342,15 +2336,20 @@
       });
       en = l.event;
       l.event = function(n3) {
-        return en && (n3 = en(n3)), n3.persist = rn, n3.isPropagationStopped = un, n3.isDefaultPrevented = on, n3.nativeEvent = n3;
+        return en && (n3 = en(n3)), n3.persist = function() {
+        }, n3.isPropagationStopped = function() {
+          return this.cancelBubble;
+        }, n3.isDefaultPrevented = function() {
+          return this.defaultPrevented;
+        }, n3.nativeEvent = n3;
       };
-      cn = { enumerable: false, configurable: true, get: function() {
+      un = { configurable: true, get: function() {
         return this.class;
       } };
-      fn = l.vnode;
+      on = l.vnode;
       l.vnode = function(n3) {
         "string" == typeof n3.type && (function(n4) {
-          var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 === e4.indexOf("-");
+          var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 == e4.indexOf("-");
           for (var i5 in t4) {
             var l5 = t4[i5];
             if (!("value" === i5 && "defaultValue" in t4 && null == l5 || Q2 && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
@@ -2358,22 +2357,22 @@
               "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l5 ? l5 = "" : "translate" === c4 && "no" === l5 ? l5 = false : "o" === c4[0] && "n" === c4[1] ? "ondoubleclick" === c4 ? i5 = "ondblclick" : "onchange" !== c4 || "input" !== e4 && "textarea" !== e4 || X(t4.type) ? "onfocus" === c4 ? i5 = "onfocusin" : "onblur" === c4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = c4) : c4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l5 && (l5 = void 0), "oninput" === c4 && u4[i5 = c4] && (i5 = "oninputCapture"), u4[i5] = l5;
             }
           }
-          "select" == e4 && u4.multiple && Array.isArray(u4.value) && (u4.value = L(t4.children).forEach(function(n5) {
+          "select" == e4 && (u4.multiple && Array.isArray(u4.value) && (u4.value = L(t4.children).forEach(function(n5) {
             n5.props.selected = -1 != u4.value.indexOf(n5.props.value);
-          })), "select" == e4 && null != u4.defaultValue && (u4.value = L(t4.children).forEach(function(n5) {
+          })), null != u4.defaultValue && (u4.value = L(t4.children).forEach(function(n5) {
             n5.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n5.props.value) : u4.defaultValue == n5.props.value;
-          })), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", cn)) : t4.className && (u4.class = u4.className = t4.className), n4.props = u4;
-        })(n3), n3.$$typeof = q4, fn && fn(n3);
+          }))), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", un)) : t4.className && (u4.class = u4.className = t4.className), n4.props = u4;
+        })(n3), n3.$$typeof = q4, on && on(n3);
       };
-      an = l.__r;
+      ln = l.__r;
       l.__r = function(n3) {
-        an && an(n3), ln = n3.__c;
+        ln && ln(n3), rn = n3.__c;
       };
-      sn = l.diffed;
+      cn = l.diffed;
       l.diffed = function(n3) {
-        sn && sn(n3);
+        cn && cn(n3);
         var t4 = n3.props, e4 = n3.__e;
-        null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), ln = null;
+        null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), rn = null;
       };
     }
   });
@@ -2561,7 +2560,7 @@
         fading: "fading",
         settled: "settled"
       };
-      ImageCrossFade = M2(ImageCrossFade_);
+      ImageCrossFade = N2(ImageCrossFade_);
     }
   });
 
@@ -3303,8 +3302,8 @@
         /**
          * @param {(old: Data, next: Data, trigger: InvocationSource) => Data} fn
          */
-        withUpdater(fn2) {
-          this.accept = fn2;
+        withUpdater(fn) {
+          this.accept = fn;
           return this;
         }
         /**
@@ -4394,14 +4393,14 @@
   });
 
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js
-  function once(fn2) {
+  function once(fn) {
     var cache = null;
     return function wrapped() {
       if (!cache) {
         for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
           args[_key] = arguments[_key];
         }
-        var result = fn2.apply(this, args);
+        var result = fn.apply(this, args);
         cache = {
           result
         };
@@ -4645,7 +4644,7 @@
   var rafSchd, raf_schd_esm_default;
   var init_raf_schd_esm = __esm({
     "../node_modules/raf-schd/dist/raf-schd.esm.js"() {
-      rafSchd = function rafSchd2(fn2) {
+      rafSchd = function rafSchd2(fn) {
         var lastArgs = [];
         var frameId = null;
         var wrapperFn = function wrapperFn2() {
@@ -4658,7 +4657,7 @@
           }
           frameId = requestAnimationFrame(function() {
             frameId = null;
-            fn2.apply(void 0, lastArgs);
+            fn.apply(void 0, lastArgs);
           });
         };
         wrapperFn.cancel = function() {
@@ -4769,19 +4768,19 @@
   var init_dispatch_consumer_event = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js"() {
       init_raf_schd_esm();
-      scheduleOnDrag = raf_schd_esm_default(function(fn2) {
-        return fn2();
+      scheduleOnDrag = raf_schd_esm_default(function(fn) {
+        return fn();
       });
       dragStart = /* @__PURE__ */ (function() {
         var scheduled = null;
-        function schedule(fn2) {
+        function schedule(fn) {
           var frameId = requestAnimationFrame(function() {
             scheduled = null;
-            fn2();
+            fn();
           });
           scheduled = {
             frameId,
-            fn: fn2
+            fn
           };
         }
         function flush() {
@@ -5077,8 +5076,8 @@
       fns[_key] = arguments[_key];
     }
     return function cleanup() {
-      fns.forEach(function(fn2) {
-        return fn2();
+      fns.forEach(function(fn) {
+        return fn();
       });
     };
   }
@@ -5127,13 +5126,13 @@
     if (!t4) {
       if (Array.isArray(r4) || (t4 = _unsupportedIterableToArray2(r4)) || e4 && r4 && "number" == typeof r4.length) {
         t4 && (r4 = t4);
-        var _n = 0, F5 = function F6() {
+        var _n = 0, F4 = function F5() {
         };
-        return { s: F5, n: function n3() {
+        return { s: F4, n: function n3() {
           return _n >= r4.length ? { done: true } : { done: false, value: r4[_n++] };
         }, e: function e5(r5) {
           throw r5;
-        }, f: F5 };
+        }, f: F4 };
       }
       throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
     }
@@ -5407,13 +5406,13 @@
     if (!t4) {
       if (Array.isArray(r4) || (t4 = _unsupportedIterableToArray3(r4)) || e4 && r4 && "number" == typeof r4.length) {
         t4 && (r4 = t4);
-        var _n = 0, F5 = function F6() {
+        var _n = 0, F4 = function F5() {
         };
-        return { s: F5, n: function n3() {
+        return { s: F4, n: function n3() {
           return _n >= r4.length ? { done: true } : { done: false, value: r4[_n++] };
         }, e: function e5(r5) {
           throw r5;
-        }, f: F5 };
+        }, f: F4 };
       }
       throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
     }
@@ -6867,7 +6866,7 @@
       init_types();
       init_Icons2();
       init_FaviconWithState2();
-      Tile = M2(
+      Tile = N2(
         /**
          * @param {object} props
          * @param {Favorite['url']} props.url
@@ -6918,7 +6917,7 @@
           );
         }
       );
-      PlusIconMemo = M2(PlusIconWrapper);
+      PlusIconMemo = N2(PlusIconWrapper);
     }
   });
 
@@ -6934,7 +6933,7 @@
       init_Favorites2();
       init_hooks_module();
       init_FavoritesProvider();
-      TileRow = M2(
+      TileRow = N2(
         /**
          * Represents a row of tiles with optional placeholders to fill empty spaces in the first row.
          * @param {object} props - An object containing parameters for the TileRow_ function.
@@ -6976,11 +6975,11 @@
   });
 
   // pages/new-tab/app/utils.js
-  function viewTransition(fn2) {
+  function viewTransition(fn) {
     if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
-      return document.startViewTransition(fn2);
+      return document.startViewTransition(fn);
     }
-    return fn2();
+    return fn();
   }
   function noop(named) {
     return () => {
@@ -7298,7 +7297,7 @@
       init_signals_module();
       init_utils2();
       init_DocumentVisibility();
-      FavoritesMemo = M2(Favorites);
+      FavoritesMemo = N2(Favorites);
       ROW_CAPACITY = 6;
       ITEM_HEIGHT = 96;
       ROW_GAP = 8;
@@ -9938,7 +9937,6 @@
           "aria-haspopup": "listbox",
           "aria-controls": suggestionsListId,
           "aria-activedescendant": selectedSuggestion?.id,
-          spellcheck: false,
           autoComplete: "off",
           autoCorrect: "off",
           autoCapitalize: "off",
@@ -10469,11 +10467,12 @@
         if (!tabId) return;
         if (v4.source === "manual") {
           values2?.update({ id: tabId, value: v4.data.mode });
+          setState(v4.data.mode);
         }
         if (v4.data.enableAi === false) {
           values2?.updateAll({ value: "search" });
+          setState("search");
         }
-        setState(v4.data.mode);
       });
     }, [service, tabId, values2, defaultMode]);
     return mode;
@@ -11882,7 +11881,7 @@
         "google-analytics-google": "google-analytics",
         "google-ads-google": "google-ads"
       };
-      CompanyIcon = M2(
+      CompanyIcon = N2(
         /**
          * @param {object} props
          * @param {string} props.displayName
@@ -12187,9 +12186,9 @@
     );
     return /* @__PURE__ */ _(ActivityBurningSignalContext.Provider, { value: { burning, exiting, animation, showBurnAnimation, doneBurning } }, /* @__PURE__ */ _(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
   }
-  function toPromise(fn2) {
+  function toPromise(fn) {
     return new Promise((resolve) => {
-      const cleanup = fn2({
+      const cleanup = fn({
         next: (v4) => {
           resolve(v4);
           cleanup();
@@ -12594,7 +12593,7 @@
       init_NormalizeDataProvider();
       init_BurnProvider();
       init_constants();
-      ActivityItem = M2(
+      ActivityItem = N2(
         /**
          * @param {object} props
          * @param {boolean} props.canBurn
@@ -12622,7 +12621,7 @@
           )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url8, title, shouldDisplayLegacyActivity: false })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
         }
       );
-      ActivityItemLegacy = M2(
+      ActivityItemLegacy = N2(
         /**
          * @param {object} props
          * @param {boolean} props.canBurn
@@ -13133,15 +13132,15 @@
               });
             }
           };
-          function createWorker(fn2) {
+          function createWorker(fn) {
             if (window.Worker && window.Blob && getWebWorker()) {
-              var blob = new Blob(["var _workerSelf = self; self.onmessage = ", fn2.toString()], {
+              var blob = new Blob(["var _workerSelf = self; self.onmessage = ", fn.toString()], {
                 type: "text/javascript"
               });
               var url8 = URL.createObjectURL(blob);
               return new Worker(url8);
             }
-            workerFn = fn2;
+            workerFn = fn;
             return workerProxy;
           }
           function setupWorker() {
@@ -26465,7 +26464,7 @@
             function ease(t4, tMin, tMax, val1, val2) {
               return applyEase(easeInOutBez, t4, tMin, tMax, val1, val2);
             }
-            function applyEase(fn2, t4, tMin, tMax, val1, val2) {
+            function applyEase(fn, t4, tMin, tMax, val1, val2) {
               if (val1 === void 0) {
                 val1 = tMin;
                 val2 = tMax;
@@ -26477,7 +26476,7 @@
               } else if (t4 < 0) {
                 t4 = 0;
               }
-              var mult = fn2(t4);
+              var mult = fn(t4);
               if ($bm_isInstanceOfArray(val1)) {
                 var iKey;
                 var lenKey = val1.length;
@@ -29357,7 +29356,7 @@
       init_ActivityInteractionsContext();
       init_Protections2();
       init_TickPill2();
-      BurnableItem = M2(
+      BurnableItem = N2(
         /**
          * @param {object} props
          * @param {string} props.id
@@ -29393,7 +29392,7 @@
           ));
         }
       );
-      RemovableItem = M2(
+      RemovableItem = N2(
         /**
          * @param {object} props
          * @param {string} props.id
@@ -30479,7 +30478,7 @@
   // ../node_modules/preact/devtools/dist/devtools.module.js
   init_preact_module();
   var i2;
-  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.28.4", l, { Fragment: k, Component: x });
+  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.0", l, { Fragment: k, Component: x });
 
   // pages/new-tab/src/index.js
   init_preact_module();
@@ -30828,8 +30827,8 @@
       ));
     }), env === "development" && /* @__PURE__ */ _(Centered, { "data-entry-point": "debug" }, /* @__PURE__ */ _(DebugCustomized, { index: widgets.length, isOpenInitially: window.location.search.includes("debugWidget") })));
   }
-  function WidgetLoader({ fn: fn2 }) {
-    const result = fn2?.();
+  function WidgetLoader({ fn }) {
+    const result = fn?.();
     return result;
   }
 
@@ -32544,6 +32543,10 @@
   init_widget_config_provider();
 
   // pages/new-tab/app/settings.js
+  function detectPlatform() {
+    if (globalThis.navigator?.userAgent?.includes("Windows")) return "windows";
+    return "macos";
+  }
   var Settings = class _Settings {
     /**
      * @param {object} params
@@ -32552,7 +32555,7 @@
      * @param {{state: 'enabled' | 'disabled'}} [params.adBlocking]
      */
     constructor({
-      platform = { name: "macos" },
+      platform = { name: detectPlatform() },
       customizerDrawer = { state: "enabled", autoOpen: false },
       adBlocking = { state: "disabled" }
     }) {
@@ -33832,8 +33835,8 @@
         Error: window.Error,
         String: window.String
       };
-      for (const [methodName, fn2] of Object.entries(this.config.methods)) {
-        if (typeof fn2 !== "function") {
+      for (const [methodName, fn] of Object.entries(this.config.methods)) {
+        if (typeof fn !== "function") {
           throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
         }
       }
@@ -34552,9 +34555,9 @@
      * @param {(...args: any[]) => any} fn
      * @param {string} [context]
      */
-    _tryCatch(fn2, context = "none") {
+    _tryCatch(fn, context = "none") {
       try {
-        return fn2();
+        return fn();
       } catch (e4) {
         if (this.debug) {
           console.error("AndroidMessagingConfig error:", context);
@@ -34768,9 +34771,9 @@
      * @param {(...args: any[]) => any} fn
      * @param {string} [context]
      */
-    _tryCatch(fn2, context = "none") {
+    _tryCatch(fn, context = "none") {
       try {
-        return fn2();
+        return fn();
       } catch (e4) {
         if (this.debug) {
           console.error("AndroidAdsjsMessagingConfig error:", context);
@@ -36104,12 +36107,12 @@
   }
 
   // shared/call-with-retry.js
-  async function callWithRetry(fn2, params = {}) {
+  async function callWithRetry(fn, params = {}) {
     const { maxAttempts = 10, intervalMs = 300 } = params;
     let attempt = 1;
     while (attempt <= maxAttempts) {
       try {
-        return { value: await fn2(), attempt };
+        return { value: await fn(), attempt };
       } catch (error) {
         if (attempt === maxAttempts) {
           return { error: `Max attempts reached: ${error}` };

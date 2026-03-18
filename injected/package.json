@@ -37,7 +37,7 @@
   "dependencies": {
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1772634901001",
     "@duckduckgo/tracker-surrogates": "github:duckduckgo/tracker-surrogates#0528e3226df15b1a3e319ad68ef76612a8f26623",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.27.4",
     "minimist": "^1.2.8",
     "parse-address": "^1.1.2",
     "seedrandom": "^3.0.5",
@@ -50,13 +50,13 @@
     "@fingerprintjs/fingerprintjs": "^5.1.0",
     "@types/chrome": "^0.1.37",
     "@types/jasmine": "^6.0.0",
-    "@types/node": "^25.3.5",
+    "@types/node": "^25.5.0",
     "@types/seedrandom": "^3.0.8",
     "c8": "^11.0.0",
     "fast-check": "^4.6.0",
     "jasmine": "^6.1.0",
-    "jsdom": "^28.1.0",
+    "jsdom": "^29.0.0",
     "monocart-coverage-reports": "^2.12.9",
-    "web-ext": "^9.3.0"
+    "web-ext": "^10.0.0"
   }
 }

@@ -12730,17 +12730,16 @@ ul.messages {
   }
   function waitForLCP(timeoutMs = 500) {
     return new Promise((resolve) => {
-      let timeoutId;
-      let observer;
+      const refs = {};
       const cleanup = () => {
-        if (observer) observer.disconnect();
-        if (timeoutId) clearTimeout(timeoutId);
+        if (refs.obs) refs.obs.disconnect();
+        if (refs.id) clearTimeout(refs.id);
       };
-      timeoutId = setTimeout(() => {
+      refs.id = setTimeout(() => {
         cleanup();
         resolve(null);
       }, timeoutMs);
-      observer = new PerformanceObserver((list) => {
+      refs.obs = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1];
         if (lastEntry) {
@@ -12749,7 +12748,7 @@ ul.messages {
         }
       });
       try {
-        observer.observe({ type: "largest-contentful-paint", buffered: true });
+        refs.obs.observe({ type: "largest-contentful-paint", buffered: true });
       } catch (error) {
         cleanup();
         resolve(null);
@@ -12808,7 +12807,8 @@ ul.messages {
       }
       return returnError("No navigation timing found");
     } catch (e) {
-      return returnError("JavaScript execution error: " + e.message);
+      const message = e instanceof Error ? e.message : String(e);
+      return returnError("JavaScript execution error: " + message);
     }
   }
 
@@ -12836,7 +12836,7 @@ ul.messages {
     if (!properties || !Array.isArray(properties)) {
       return false;
     }
-    return properties.some((prop) => typeof window?.[prop] !== "undefined");
+    return properties.some((prop) => prop in window);
   }
   function isVisible(element) {
     const computedStyle = getComputedStyle(element);
@@ -12847,7 +12847,10 @@ ul.messages {
     if (!sources || sources.length === 0) {
       return element.textContent || "";
     }
-    return sources.map((source) => element[source] || "").join(" ");
+    return sources.map((source) => {
+      const value = Reflect.get(element, source);
+      return typeof value === "string" ? value : "";
+    }).join(" ");
   }
   function matchesSelectors(selectors) {
     if (!selectors || !Array.isArray(selectors)) {
@@ -12992,9 +12995,12 @@ ul.messages {
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+     * @param {(type: string) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
      */
-    constructor(config2, logger) {
+    constructor(config2, logger, onEvent) {
       this.log = logger || noopLogger;
+      this.onEvent = onEvent || (() => {
+      });
       this.config = {
         playerSelectors: config2.playerSelectors,
         adClasses: config2.adClasses,
@@ -13006,11 +13012,13 @@ ul.messages {
         playabilityErrorPatterns: config2.playabilityErrorPatterns,
         adBlockerDetectionSelectors: config2.adBlockerDetectionSelectors,
         adBlockerDetectionPatterns: config2.adBlockerDetectionPatterns,
-        loginStateSelectors: config2.loginStateSelectors
+        loginStateSelectors: config2.loginStateSelectors,
+        fireDetectionEvents: config2.fireDetectionEvents
       };
       this.state = this.createInitialState();
       this.pollInterval = null;
       this.rerootInterval = null;
+      this.startRetryTimeout = null;
       this.trackedVideoElement = null;
       this.lastLoggedVideoId = null;
       this.currentVideoId = null;
@@ -13081,6 +13089,19 @@ ul.messages {
       typeState.count++;
       if (details.message && "lastMessage" in typeState) {
         typeState.lastMessage = details.message;
+      }
+      if (this.config.fireDetectionEvents?.[type]) {
+        try {
+          const result = (
+            /** @type {any} */
+            this.onEvent(`youtube_${type}`)
+          );
+          if (result && typeof result.catch === "function") {
+            result.catch(() => {
+            });
+          }
+        } catch {
+        }
       }
       return true;
     }
@@ -13480,7 +13501,7 @@ ul.messages {
       if (!root) {
         if (attempt < 25) {
           this.log.info(`Player root not found, retrying in 500ms (attempt ${attempt}/25)`);
-          setTimeout(() => this.start(attempt + 1), 500);
+          this.startRetryTimeout = setTimeout(() => this.start(attempt + 1), 500);
         } else {
           this.log.info("Player root not found after 25 attempts, giving up");
         }
@@ -13506,6 +13527,10 @@ ul.messages {
      * Stop the detector
      */
     stop() {
+      if (this.startRetryTimeout) {
+        clearTimeout(this.startRetryTimeout);
+        this.startRetryTimeout = null;
+      }
       if (this.pollInterval) {
         clearInterval(this.pollInterval);
         this.pollInterval = null;
@@ -13560,23 +13585,28 @@ ul.messages {
     }
   };
   var detectorInstance = null;
-  function runYoutubeAdDetection(config2, logger) {
+  function runYoutubeAdDetection(config2, logger, fireEvent) {
+    const hostname = window.location.hostname;
+    const isYouTube = hostname === "youtube.com" || hostname.endsWith(".youtube.com");
+    const isTestDomain = hostname === "privacy-test-pages.site" || hostname.endsWith(".privacy-test-pages.site") || hostname === "localhost";
+    if (!isYouTube && !isTestDomain) {
+      return { detected: false, type: "youtubeAds", results: [] };
+    }
     if (config2?.state !== "enabled" && config2?.state !== "internal") {
       return { detected: false, type: "youtubeAds", results: [] };
     }
     if (detectorInstance) {
+      if (fireEvent) {
+        detectorInstance.onEvent = fireEvent;
+      }
       return detectorInstance.getResults();
     }
     if (!config2) {
       return { detected: false, type: "youtubeAds", results: [] };
     }
-    const hostname = window.location.hostname;
-    if (hostname === "youtube.com" || hostname.endsWith(".youtube.com")) {
-      detectorInstance = new YouTubeAdDetector(config2, logger);
-      detectorInstance.start();
-      return detectorInstance.getResults();
-    }
-    return { detected: false, type: "youtubeAds", results: [] };
+    detectorInstance = new YouTubeAdDetector(config2, logger, fireEvent);
+    detectorInstance.start();
+    return detectorInstance.getResults();
   }
 
   // src/features/breakage-reporting.js
@@ -13584,7 +13614,10 @@ ul.messages {
     init() {
       const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled("expandedPerformanceMetrics", "enabled");
       this.messaging.subscribe("getBreakageReportValues", async () => {
-        const breakageDataPayload = {};
+        const breakageDataPayload = (
+          /** @type {Record<string, unknown>} */
+          {}
+        );
         const jsPerformance = getJsPerformanceMetrics();
         const referrer = document.referrer;
         const result = {
@@ -13672,9 +13705,15 @@ ul.messages {
       } catch (e) {
       }
     }
+    /**
+     * @param {() => void} callback
+     */
     waitForNextTask(callback) {
       setTimeout(callback, 0);
     }
+    /**
+     * @param {() => void} callback
+     */
     waitForAfterPageLoad(callback) {
       if (document.readyState === "complete") {
         this.waitForNextTask(callback);
@@ -16880,7 +16919,7 @@ ul.messages {
       "link[href][rel='apple-touch-icon-precomposed']"
     ];
     const elements = document.head.querySelectorAll(selectors.join(","));
-    return Array.from(elements).map((link) => {
+    return Array.from(elements).filter((el) => el instanceof HTMLLinkElement).map((link) => {
       const href = link.href || "";
       const rel = link.getAttribute("rel") || "";
       const type = link.type || "";
@@ -17226,10 +17265,16 @@ ul.messages {
   var WebInterferenceDetection = class extends ContentFeature {
     init() {
       const settings = this.getFeatureSetting("interferenceTypes");
-      const hostname = window.location.hostname;
-      if (hostname === "youtube.com" || hostname.endsWith(".youtube.com")) {
-        runYoutubeAdDetection(settings?.youtubeAds, this.log);
-      }
+      const fireEvent = async (type) => {
+        try {
+          const result = await this.callFeatureMethod("webEvents", "fireEvent", { type });
+          if (result instanceof CallFeatureMethodError && this.isDebug) {
+            this.log.warn("webEvents.fireEvent failed:", result.message);
+          }
+        } catch {
+        }
+      };
+      runYoutubeAdDetection(settings?.youtubeAds, this.log, fireEvent);
       this.messaging.subscribe("detectInterference", (params) => {
         const { types = [] } = (
           /** @type {DetectInterferenceParams} */

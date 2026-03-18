@@ -4976,7 +4976,8 @@
     )
   };
   var trackerLookup = {};
-  var loadedPolicyResolve;
+  var loadedPolicyResolve = () => {
+  };
   function debugHelper(action, reason, ctx) {
     cookiePolicy.debug && postDebugMessage("jscookie", {
       action,
@@ -5023,21 +5024,28 @@
         const tabHostname = getTabHostname();
         let tabExempted = true;
         if (tabHostname != null) {
-          tabExempted = exceptions.some((exception) => {
-            return matchHostname(tabHostname, exception.domain);
-          });
+          tabExempted = exceptions.some(
+            /** @param {{ domain: string }} exception */
+            (exception) => {
+              return matchHostname(tabHostname, exception.domain);
+            }
+          );
         }
-        const frameExempted = settings.excludedCookieDomains.some((exception) => {
-          return matchHostname(globalThis.location.hostname, exception.domain);
-        });
+        const frameExempted = settings.excludedCookieDomains.some(
+          /** @param {{ domain: string }} exception */
+          (exception) => {
+            return matchHostname(globalThis.location.hostname, exception.domain);
+          }
+        );
         cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
         cookiePolicy.policy = settings.firstPartyCookiePolicy;
         cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
         cookiePolicy.allowlist = this.getFeatureSetting("allowlist", "adClickAttribution") || [];
       }
       const document2 = globalThis.document;
-      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, "cookie").set;
-      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, "cookie").get;
+      const cookieDescriptor = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, "cookie");
+      const cookieSetter = cookieDescriptor?.set;
+      const cookieGetter = cookieDescriptor?.get;
       const loadPolicy = new Promise((resolve) => {
         loadedPolicyResolve = resolve;
       });
@@ -5091,7 +5099,8 @@
             }
             const cookie = new Cookie(value);
             if (cookie.getExpiry() > chosenPolicy.threshold) {
-              if (document2.cookie.split(";").findIndex((kv) => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+              const firstPart = cookie.parts[0];
+              if (firstPart !== void 0 && document2.cookie.split(";").findIndex((kv) => kv.trim().startsWith(firstPart.trim())) !== -1) {
                 cookie.maxAge = chosenPolicy.maxAge;
                 debugHelper("restrict", "expiry", setCookieContext);
                 cookieSetter.apply(document2, [cookie.toString()]);
@@ -5112,6 +5121,9 @@
         get: getCookiePolicy
       });
     }
+    /**
+     * @param {import('../content-scope-features.js').LoadArgs & { cookie?: ExtensionCookiePolicy }} args
+     */
     init(args) {
       const restOfPolicy = {
         debug: this.isDebug,
@@ -5131,11 +5143,8 @@
           ...restOfPolicy
         };
       } else {
-        Object.keys(restOfPolicy).forEach((key) => {
-          if (restOfPolicy[key]) {
-            cookiePolicy[key] = restOfPolicy[key];
-          }
-        });
+        const toCopy = Object.fromEntries(Object.entries(restOfPolicy).filter(([, v2]) => v2));
+        Object.assign(cookiePolicy, toCopy);
       }
       loadedPolicyResolve();
     }
@@ -6084,6 +6093,9 @@
 
   // src/features/gpc.js
   var GlobalPrivacyControl = class extends ContentFeature {
+    /**
+     * @param {{globalPrivacyControlValue?: boolean}} args
+     */
     init(args) {
       try {
         if (args.globalPrivacyControlValue) {
@@ -6664,14 +6676,23 @@
   // src/features/navigator-interface.js
   var store = {};
   var NavigatorInterface = class extends ContentFeature {
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     load(args) {
       if (this.matchConditionalFeatureSetting("privilegedDomains").length) {
         this.injectNavigatorInterface(args);
       }
     }
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     init(args) {
       this.injectNavigatorInterface(args);
     }
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     injectNavigatorInterface(args) {
       try {
         if (!args.platform || !args.platform.name) {
@@ -10225,7 +10246,7 @@
     if (!properties || !Array.isArray(properties)) {
       return false;
     }
-    return properties.some((prop) => typeof window?.[prop] !== "undefined");
+    return properties.some((prop) => prop in window);
   }
   function isVisible2(element) {
     const computedStyle = getComputedStyle(element);
@@ -10236,7 +10257,10 @@
     if (!sources || sources.length === 0) {
       return element.textContent || "";
     }
-    return sources.map((source) => element[source] || "").join(" ");
+    return sources.map((source) => {
+      const value = Reflect.get(element, source);
+      return typeof value === "string" ? value : "";
+    }).join(" ");
   }
   function matchesSelectors(selectors) {
     if (!selectors || !Array.isArray(selectors)) {
@@ -10378,9 +10402,12 @@
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+     * @param {(type: string) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
      */
-    constructor(config2, logger) {
+    constructor(config2, logger, onEvent) {
       this.log = logger || noopLogger;
+      this.onEvent = onEvent || (() => {
+      });
       this.config = {
         playerSelectors: config2.playerSelectors,
         adClasses: config2.adClasses,
@@ -10392,11 +10419,13 @@
         playabilityErrorPatterns: config2.playabilityErrorPatterns,
         adBlockerDetectionSelectors: config2.adBlockerDetectionSelectors,
         adBlockerDetectionPatterns: config2.adBlockerDetectionPatterns,
-        loginStateSelectors: config2.loginStateSelectors
+        loginStateSelectors: config2.loginStateSelectors,
+        fireDetectionEvents: config2.fireDetectionEvents
       };
       this.state = this.createInitialState();
       this.pollInterval = null;
       this.rerootInterval = null;
+      this.startRetryTimeout = null;
       this.trackedVideoElement = null;
       this.lastLoggedVideoId = null;
       this.currentVideoId = null;
@@ -10467,6 +10496,19 @@
       typeState.count++;
       if (details.message && "lastMessage" in typeState) {
         typeState.lastMessage = details.message;
+      }
+      if (this.config.fireDetectionEvents?.[type]) {
+        try {
+          const result = (
+            /** @type {any} */
+            this.onEvent(`youtube_${type}`)
+          );
+          if (result && typeof result.catch === "function") {
+            result.catch(() => {
+            });
+          }
+        } catch {
+        }
       }
       return true;
     }
@@ -10866,7 +10908,7 @@
       if (!root) {
         if (attempt < 25) {
           this.log.info(`Player root not found, retrying in 500ms (attempt ${attempt}/25)`);
-          setTimeout(() => this.start(attempt + 1), 500);
+          this.startRetryTimeout = setTimeout(() => this.start(attempt + 1), 500);
         } else {
           this.log.info("Player root not found after 25 attempts, giving up");
         }
@@ -10892,6 +10934,10 @@
      * Stop the detector
      */
     stop() {
+      if (this.startRetryTimeout) {
+        clearTimeout(this.startRetryTimeout);
+        this.startRetryTimeout = null;
+      }
       if (this.pollInterval) {
         clearInterval(this.pollInterval);
         this.pollInterval = null;
@@ -10946,33 +10992,44 @@
     }
   };
   var detectorInstance = null;
-  function runYoutubeAdDetection(config2, logger) {
+  function runYoutubeAdDetection(config2, logger, fireEvent) {
+    const hostname = window.location.hostname;
+    const isYouTube = hostname === "youtube.com" || hostname.endsWith(".youtube.com");
+    const isTestDomain = hostname === "privacy-test-pages.site" || hostname.endsWith(".privacy-test-pages.site") || hostname === "localhost";
+    if (!isYouTube && !isTestDomain) {
+      return { detected: false, type: "youtubeAds", results: [] };
+    }
     if (config2?.state !== "enabled" && config2?.state !== "internal") {
       return { detected: false, type: "youtubeAds", results: [] };
     }
     if (detectorInstance) {
+      if (fireEvent) {
+        detectorInstance.onEvent = fireEvent;
+      }
       return detectorInstance.getResults();
     }
     if (!config2) {
       return { detected: false, type: "youtubeAds", results: [] };
     }
-    const hostname = window.location.hostname;
-    if (hostname === "youtube.com" || hostname.endsWith(".youtube.com")) {
-      detectorInstance = new YouTubeAdDetector(config2, logger);
-      detectorInstance.start();
-      return detectorInstance.getResults();
-    }
-    return { detected: false, type: "youtubeAds", results: [] };
+    detectorInstance = new YouTubeAdDetector(config2, logger, fireEvent);
+    detectorInstance.start();
+    return detectorInstance.getResults();
   }
 
   // src/features/web-interference-detection.js
   var WebInterferenceDetection = class extends ContentFeature {
     init() {
       const settings = this.getFeatureSetting("interferenceTypes");
-      const hostname = window.location.hostname;
-      if (hostname === "youtube.com" || hostname.endsWith(".youtube.com")) {
-        runYoutubeAdDetection(settings?.youtubeAds, this.log);
-      }
+      const fireEvent = async (type) => {
+        try {
+          const result = await this.callFeatureMethod("webEvents", "fireEvent", { type });
+          if (result instanceof CallFeatureMethodError && this.isDebug) {
+            this.log.warn("webEvents.fireEvent failed:", result.message);
+          }
+        } catch {
+        }
+      };
+      runYoutubeAdDetection(settings?.youtubeAds, this.log, fireEvent);
       this.messaging.subscribe("detectInterference", (params) => {
         const { types = [] } = (
           /** @type {DetectInterferenceParams} */
@@ -11004,17 +11061,16 @@
   }
   function waitForLCP(timeoutMs = 500) {
     return new Promise((resolve) => {
-      let timeoutId;
-      let observer;
+      const refs = {};
       const cleanup = () => {
-        if (observer) observer.disconnect();
-        if (timeoutId) clearTimeout(timeoutId);
+        if (refs.obs) refs.obs.disconnect();
+        if (refs.id) clearTimeout(refs.id);
       };
-      timeoutId = setTimeout(() => {
+      refs.id = setTimeout(() => {
         cleanup();
         resolve(null);
       }, timeoutMs);
-      observer = new PerformanceObserver((list) => {
+      refs.obs = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1];
         if (lastEntry) {
@@ -11023,7 +11079,7 @@
         }
       });
       try {
-        observer.observe({ type: "largest-contentful-paint", buffered: true });
+        refs.obs.observe({ type: "largest-contentful-paint", buffered: true });
       } catch (error) {
         cleanup();
         resolve(null);
@@ -11082,7 +11138,8 @@
       }
       return returnError("No navigation timing found");
     } catch (e) {
-      return returnError("JavaScript execution error: " + e.message);
+      const message = e instanceof Error ? e.message : String(e);
+      return returnError("JavaScript execution error: " + message);
     }
   }
 
@@ -11091,7 +11148,10 @@
     init() {
       const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled("expandedPerformanceMetrics", "enabled");
       this.messaging.subscribe("getBreakageReportValues", async () => {
-        const breakageDataPayload = {};
+        const breakageDataPayload = (
+          /** @type {Record<string, unknown>} */
+          {}
+        );
         const jsPerformance = getJsPerformanceMetrics();
         const referrer = document.referrer;
         const result = {

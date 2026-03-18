@@ -3416,6 +3416,10 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   top: calc(-22 * var(--px-in-rem));
   left: 0;
 }
+.NextSteps_bubble svg {
+  display: block;
+  flex-shrink: 0;
+}
 .NextSteps_bubble svg path {
   fill: var(--ds-color-theme-accent-primary);
 }
@@ -3426,6 +3430,9 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   align-items: center;
   justify-content: center;
   padding: 0 1px;
+  margin: -0.25px -1px 0;
+}
+:root:has(body[data-platform-name=windows]) :is(.NextSteps_bubble div) {
   margin: 0 -1px;
 }
 .NextSteps_bubble div h2 {
@@ -3475,6 +3482,9 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   justify-content: center;
   padding: 0 1px;
   margin: -0.25px -1px 0;
+}
+:root:has(body[data-platform-name=windows]) :is(.NextStepsListCard_bubble div) {
+  margin: 0 -1px;
 }
 .NextStepsListCard_bubble div h2 {
   color: var(--ds-color-theme-accent-content-primary);

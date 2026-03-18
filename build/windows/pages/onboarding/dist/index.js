@@ -25026,8 +25026,11 @@
     (!n2.__d && (n2.__d = true) && i.push(n2) && !I.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)(I);
   }
   function I() {
-    for (var n2, l3 = 1; i.length; ) i.length > l3 && i.sort(e), n2 = i.shift(), l3 = i.length, C(n2);
-    I.__r = 0;
+    try {
+      for (var n2, l3 = 1; i.length; ) i.length > l3 && i.sort(e), n2 = i.shift(), l3 = i.length, C(n2);
+    } finally {
+      i.length = I.__r = 0;
+    }
   }
   function P(n2, l3, u3, t3, i3, r3, o3, e3, f3, c3, s3) {
     var a3, h3, y3, d3, w3, g3, _3, m3 = t3 && t3.__k || v, b = l3.length;
@@ -25096,7 +25099,7 @@
     if (void 0 !== u3.constructor) return null;
     128 & t3.__u && (c3 = !!(32 & t3.__u), o3 = [f3 = u3.__e = t3.__e]), (a3 = l.__b) && a3(u3);
     n: if ("function" == typeof T3) try {
-      if (S2 = u3.props, C3 = "prototype" in T3 && T3.prototype.render, M2 = (a3 = T3.contextType) && i3[a3.__c], $2 = a3 ? M2 ? M2.props.value : a3.__ : i3, t3.__c ? b = (h3 = u3.__c = t3.__c).__ = h3.__E : (C3 ? u3.__c = h3 = new T3(S2, $2) : (u3.__c = h3 = new x(S2, $2), h3.constructor = T3, h3.render = G), M2 && M2.sub(h3), h3.state || (h3.state = {}), h3.__n = i3, p3 = h3.__d = true, h3.__h = [], h3._sb = []), C3 && null == h3.__s && (h3.__s = h3.state), C3 && null != T3.getDerivedStateFromProps && (h3.__s == h3.state && (h3.__s = w({}, h3.__s)), w(h3.__s, T3.getDerivedStateFromProps(S2, h3.__s))), y3 = h3.props, _3 = h3.state, h3.__v = u3, p3) C3 && null == T3.getDerivedStateFromProps && null != h3.componentWillMount && h3.componentWillMount(), C3 && null != h3.componentDidMount && h3.__h.push(h3.componentDidMount);
+      if (S2 = u3.props, C3 = T3.prototype && T3.prototype.render, M2 = (a3 = T3.contextType) && i3[a3.__c], $2 = a3 ? M2 ? M2.props.value : a3.__ : i3, t3.__c ? b = (h3 = u3.__c = t3.__c).__ = h3.__E : (C3 ? u3.__c = h3 = new T3(S2, $2) : (u3.__c = h3 = new x(S2, $2), h3.constructor = T3, h3.render = G), M2 && M2.sub(h3), h3.state || (h3.state = {}), h3.__n = i3, p3 = h3.__d = true, h3.__h = [], h3._sb = []), C3 && null == h3.__s && (h3.__s = h3.state), C3 && null != T3.getDerivedStateFromProps && (h3.__s == h3.state && (h3.__s = w({}, h3.__s)), w(h3.__s, T3.getDerivedStateFromProps(S2, h3.__s))), y3 = h3.props, _3 = h3.state, h3.__v = u3, p3) C3 && null == T3.getDerivedStateFromProps && null != h3.componentWillMount && h3.componentWillMount(), C3 && null != h3.componentDidMount && h3.__h.push(h3.componentDidMount);
       else {
         if (C3 && null == T3.getDerivedStateFromProps && S2 !== y3 && null != h3.componentWillReceiveProps && h3.componentWillReceiveProps(S2, $2), u3.__v == t3.__v || !h3.__e && null != h3.shouldComponentUpdate && false === h3.shouldComponentUpdate(S2, h3.__s, $2)) {
           u3.__v != t3.__v && (h3.props = S2, h3.state = h3.__s, h3.__d = false), u3.__e = t3.__e, u3.__k = t3.__k, u3.__k.some(function(n3) {
@@ -28645,7 +28648,7 @@
   };
 
   // pages/onboarding/app/v4/components/Background.js
-  var import_classnames10 = __toESM(require_classnames(), 1);
+  var import_classnames11 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Background.module.css
   var Background_default2 = {
@@ -28659,6 +28662,102 @@
     "fade-out": "Background_fade-out"
   };
 
+  // pages/onboarding/app/v4/components/DaxBobbingAnimation.js
+  var import_classnames10 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/v4/components/DaxBobbingAnimation.module.css
+  var DaxBobbingAnimation_default = {
+    root: "DaxBobbingAnimation_root",
+    slideIn: "DaxBobbingAnimation_slideIn",
+    "slide-in": "DaxBobbingAnimation_slide-in",
+    slideOut: "DaxBobbingAnimation_slideOut",
+    "slide-out": "DaxBobbingAnimation_slide-out"
+  };
+
+  // pages/onboarding/app/v4/components/LottieAnimation.js
+  var import_lottie_web = __toESM(require_lottie(), 1);
+  function LottieAnimation({
+    src,
+    darkSrc,
+    width: width2,
+    height: height2,
+    loop = false,
+    autoplay = true,
+    onComplete,
+    label,
+    class: className,
+    animationRef
+  }) {
+    const { isReducedMotion, isDarkMode } = useEnv();
+    const resolvedSrc = darkSrc && isDarkMode ? darkSrc : src;
+    const containerRef = A2(
+      /** @type {HTMLDivElement | null} */
+      null
+    );
+    const frameRef = A2(
+      /** @type {number} */
+      0
+    );
+    y2(() => {
+      if (!containerRef.current) return;
+      const startFrame = frameRef.current;
+      const animation = import_lottie_web.default.loadAnimation({
+        container: containerRef.current,
+        renderer: "svg",
+        loop,
+        autoplay: autoplay && !isReducedMotion && startFrame === 0,
+        path: resolvedSrc
+      });
+      if (animationRef) {
+        animationRef.current = animation;
+      }
+      animation.addEventListener("DOMLoaded", () => {
+        const lastFrame = animation.totalFrames - 1;
+        if (isReducedMotion) {
+          animation.goToAndStop(lastFrame, true);
+        } else if (!autoplay) {
+          animation.goToAndStop(0, true);
+        } else if (startFrame > 0) {
+          const frame = Math.min(startFrame, lastFrame);
+          animation.goToAndPlay(frame, true);
+        }
+      });
+      if (onComplete && !loop) {
+        animation.addEventListener("complete", onComplete);
+      }
+      return () => {
+        frameRef.current = animation.currentFrame;
+        if (animationRef) animationRef.current = null;
+        animation.destroy();
+      };
+    }, [resolvedSrc, loop, onComplete, isReducedMotion]);
+    return /* @__PURE__ */ _(
+      "div",
+      {
+        ref: containerRef,
+        class: className,
+        role: label ? "img" : "presentation",
+        "aria-label": label,
+        "aria-hidden": label ? void 0 : "true",
+        style: { width: width2 ? `${width2}px` : void 0, height: height2 ? `${height2}px` : void 0 }
+      }
+    );
+  }
+
+  // pages/onboarding/app/v4/components/DaxBobbingAnimation.js
+  function DaxBobbingAnimation({ exiting }) {
+    return /* @__PURE__ */ _(
+      LottieAnimation,
+      {
+        class: (0, import_classnames10.default)(DaxBobbingAnimation_default.root, exiting ? DaxBobbingAnimation_default.slideOut : DaxBobbingAnimation_default.slideIn),
+        src: "assets/lottie/v4/dax-bobbing.json",
+        loop: true,
+        width: 140,
+        height: 140
+      }
+    );
+  }
+
   // pages/onboarding/app/v4/components/Background.js
   var backgroundForStep = {
     welcome: "background-01",
@@ -28670,10 +28769,11 @@
     addressBarMode: "background-04"
   };
   function Illustration({ filename, class: className, rightAligned, onAnimationEnd }) {
-    return /* @__PURE__ */ _("picture", { class: (0, import_classnames10.default)(className, rightAligned && Background_default2.rightAligned), onAnimationEnd }, /* @__PURE__ */ _("source", { srcset: `assets/img/v4/${filename}-dark.svg`, media: "(prefers-color-scheme: dark)" }), /* @__PURE__ */ _("img", { src: `assets/img/v4/${filename}-light.svg`, alt: "" }));
+    return /* @__PURE__ */ _("picture", { class: (0, import_classnames11.default)(className, rightAligned && Background_default2.rightAligned), onAnimationEnd }, /* @__PURE__ */ _("source", { srcset: `assets/img/v4/${filename}-dark.svg`, media: "(prefers-color-scheme: dark)" }), /* @__PURE__ */ _("img", { src: `assets/img/v4/${filename}-light.svg`, alt: "" }));
   }
   function Background2() {
     const { activeStep } = x2(GlobalContext);
+    const { isReducedMotion } = useEnv();
     const filename = backgroundForStep[activeStep];
     const [prevFilename, setPrevFilename] = d2(filename);
     const [exitingFilename, setExitingFilename] = d2(
@@ -28681,7 +28781,7 @@
       null
     );
     if (prevFilename !== filename) {
-      setExitingFilename(prevFilename);
+      setExitingFilename(isReducedMotion ? null : prevFilename);
       setPrevFilename(filename);
     }
     return /* @__PURE__ */ _("div", { class: Background_default2.background }, exitingFilename && /* @__PURE__ */ _(
@@ -28690,7 +28790,7 @@
         key: exitingFilename,
         filename: exitingFilename,
         rightAligned: exitingFilename === "background-04",
-        class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.slideOut),
+        class: (0, import_classnames11.default)(Background_default2.illustration, Background_default2.slideOut),
         onAnimationEnd: () => setExitingFilename(null)
       }
     ), /* @__PURE__ */ _(
@@ -28699,16 +28799,16 @@
         key: filename,
         filename,
         rightAligned: filename === "background-04",
-        class: (0, import_classnames10.default)(Background_default2.illustration, Background_default2.slideIn)
+        class: (0, import_classnames11.default)(Background_default2.illustration, Background_default2.slideIn)
       }
-    ));
+    ), (filename === "background-03" || exitingFilename === "background-03") && /* @__PURE__ */ _(DaxBobbingAnimation, { exiting: exitingFilename === "background-03" }));
   }
 
   // pages/onboarding/app/v4/components/SingleStep.js
-  var import_classnames24 = __toESM(require_classnames(), 1);
+  var import_classnames25 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Bubble.js
-  var import_classnames12 = __toESM(require_classnames(), 1);
+  var import_classnames13 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Bubble.module.css
   var Bubble_default = {
@@ -28756,7 +28856,7 @@
   }
 
   // pages/onboarding/app/v4/components/ProgressIndicator.js
-  var import_classnames11 = __toESM(require_classnames(), 1);
+  var import_classnames12 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/ProgressIndicator.module.css
   var ProgressIndicator_default = {
@@ -28779,7 +28879,7 @@
         "span",
         {
           key: i3,
-          class: (0, import_classnames11.default)(ProgressIndicator_default.dot, {
+          class: (0, import_classnames12.default)(ProgressIndicator_default.dot, {
             [ProgressIndicator_default.active]: isActive,
             [ProgressIndicator_default.complete]: isComplete,
             [ProgressIndicator_default.incomplete]: !isActive && !isComplete
@@ -28869,11 +28969,11 @@
         onExitComplete?.();
       }
     };
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(Bubble_default.bubble, className), ...props }, /* @__PURE__ */ _("div", { ref: frameRef, class: Bubble_default.frame }, /* @__PURE__ */ _(BottomLeftTail, { active: tail === "bottom-left" }), /* @__PURE__ */ _(RightTail, { active: tail === "right" })), progress && /* @__PURE__ */ _("div", { ref: progressBadgeRef, class: Bubble_default.progressBadge }, /* @__PURE__ */ _(ProgressIndicator, { current: progress.current, total: progress.total })), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Bubble_default.bubble, className), ...props }, /* @__PURE__ */ _("div", { ref: frameRef, class: Bubble_default.frame }, /* @__PURE__ */ _(BottomLeftTail, { active: tail === "bottom-left" }), /* @__PURE__ */ _(RightTail, { active: tail === "right" })), progress && /* @__PURE__ */ _("div", { ref: progressBadgeRef, class: Bubble_default.progressBadge }, /* @__PURE__ */ _(ProgressIndicator, { current: progress.current, total: progress.total })), /* @__PURE__ */ _(
       "div",
       {
         ref: containerCallback,
-        class: (0, import_classnames12.default)(Bubble_default.container, isMounted.current && (exiting ? Bubble_default.fadeOut : Bubble_default.fadeIn)),
+        class: (0, import_classnames13.default)(Bubble_default.container, isMounted.current && (exiting ? Bubble_default.fadeOut : Bubble_default.fadeIn)),
         style: fadeInDelay !== void 0 ? { "--fade-in-delay": `${fadeInDelay}ms` } : void 0,
         onAnimationEnd: complete
       },
@@ -28889,7 +28989,7 @@
     return /* @__PURE__ */ _("div", { class: Bubble_default.bottomLeftTail, "aria-hidden": "true" }, /* @__PURE__ */ _(
       "svg",
       {
-        class: (0, import_classnames12.default)(active2 && Bubble_default.active),
+        class: (0, import_classnames13.default)(active2 && Bubble_default.active),
         width: "50",
         height: "34",
         viewBox: "0 0 50 34",
@@ -28914,7 +29014,7 @@
     return /* @__PURE__ */ _("div", { class: Bubble_default.rightTail, "aria-hidden": "true" }, /* @__PURE__ */ _(
       "svg",
       {
-        class: (0, import_classnames12.default)(active2 && Bubble_default.active),
+        class: (0, import_classnames13.default)(active2 && Bubble_default.active),
         width: "24",
         height: "40",
         viewBox: "0 0 24 40",
@@ -28936,7 +29036,7 @@
   }
 
   // pages/onboarding/app/v4/components/ComparisonTable.js
-  var import_classnames13 = __toESM(require_classnames(), 1);
+  var import_classnames14 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/data/data-comparison-table.js
   var SupportStatus2 = {
@@ -29033,7 +29133,7 @@
   // pages/onboarding/app/v4/components/ComparisonTable.js
   function ComparisonTableColumnHeading2({ title }) {
     const iconClass = `browserIcon${title}`;
-    return /* @__PURE__ */ _("th", null, /* @__PURE__ */ _("span", { class: (0, import_classnames13.default)(ComparisonTable_default2.browserIcon, ComparisonTable_default2[iconClass]), "aria-label": title }));
+    return /* @__PURE__ */ _("th", null, /* @__PURE__ */ _("span", { class: (0, import_classnames14.default)(ComparisonTable_default2.browserIcon, ComparisonTable_default2[iconClass]), "aria-label": title }));
   }
   function ComparisonTableRowHeading2({ icon, title }) {
     const path = tableIconPrefix2 + icon;
@@ -29042,7 +29142,7 @@
   function ComparisonTableCell2({ status }) {
     const { t: t3 } = useTypedTranslation();
     const ariaLabel = t3(`comparison_${status}`);
-    return /* @__PURE__ */ _("td", { class: ComparisonTable_default2.rowCell }, /* @__PURE__ */ _("span", { class: (0, import_classnames13.default)(ComparisonTable_default2.status, ComparisonTable_default2[status]), "aria-label": ariaLabel }));
+    return /* @__PURE__ */ _("td", { class: ComparisonTable_default2.rowCell }, /* @__PURE__ */ _("span", { class: (0, import_classnames14.default)(ComparisonTable_default2.status, ComparisonTable_default2[status]), "aria-label": ariaLabel }));
   }
   function ComparisonTableRow2({ icon, title, statuses, index: index2 }) {
     const { chrome, ddg } = statuses;
@@ -29061,7 +29161,7 @@
   }
 
   // pages/onboarding/app/v4/components/Button.js
-  var import_classnames14 = __toESM(require_classnames(), 1);
+  var import_classnames15 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Button.module.css
   var Button_default = {
@@ -29079,7 +29179,7 @@
       {
         ref: buttonRef,
         type: "button",
-        class: (0, import_classnames14.default)(Button_default.button, Button_default[variant], size && Button_default[size], className),
+        class: (0, import_classnames15.default)(Button_default.button, Button_default[variant], size && Button_default[size], className),
         onClick,
         disabled
       },
@@ -29088,7 +29188,7 @@
   }
 
   // pages/onboarding/app/v4/components/Container.js
-  var import_classnames15 = __toESM(require_classnames(), 1);
+  var import_classnames16 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Container.module.css
   var Container_default = {
@@ -29097,11 +29197,11 @@
 
   // pages/onboarding/app/v4/components/Container.js
   function Container({ class: className, children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)(Container_default.root, className) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(Container_default.root, className) }, children);
   }
 
   // pages/onboarding/app/v4/components/Title.js
-  var import_classnames16 = __toESM(require_classnames(), 1);
+  var import_classnames17 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Title.module.css
   var Title_default = {
@@ -29110,77 +29210,7 @@
 
   // pages/onboarding/app/v4/components/Title.js
   function Title({ class: className, titleRef, children }) {
-    return /* @__PURE__ */ _("h2", { ref: titleRef, class: (0, import_classnames16.default)(Title_default.title, className) }, children);
-  }
-
-  // pages/onboarding/app/v4/components/LottieAnimation.js
-  var import_lottie_web = __toESM(require_lottie(), 1);
-  function LottieAnimation({
-    src,
-    darkSrc,
-    width: width2,
-    height: height2,
-    loop = false,
-    autoplay = true,
-    onComplete,
-    label,
-    class: className,
-    animationRef
-  }) {
-    const { isReducedMotion, isDarkMode } = useEnv();
-    const resolvedSrc = darkSrc && isDarkMode ? darkSrc : src;
-    const containerRef = A2(
-      /** @type {HTMLDivElement | null} */
-      null
-    );
-    const frameRef = A2(
-      /** @type {number} */
-      0
-    );
-    y2(() => {
-      if (!containerRef.current) return;
-      const startFrame = frameRef.current;
-      const animation = import_lottie_web.default.loadAnimation({
-        container: containerRef.current,
-        renderer: "svg",
-        loop,
-        autoplay: autoplay && !isReducedMotion && startFrame === 0,
-        path: resolvedSrc
-      });
-      if (animationRef) {
-        animationRef.current = animation;
-      }
-      animation.addEventListener("DOMLoaded", () => {
-        const lastFrame = animation.totalFrames - 1;
-        if (isReducedMotion) {
-          animation.goToAndStop(lastFrame, true);
-        } else if (!autoplay) {
-          animation.goToAndStop(0, true);
-        } else if (startFrame > 0) {
-          const frame = Math.min(startFrame, lastFrame);
-          animation.goToAndPlay(frame, true);
-        }
-      });
-      if (onComplete && !loop) {
-        animation.addEventListener("complete", onComplete);
-      }
-      return () => {
-        frameRef.current = animation.currentFrame;
-        if (animationRef) animationRef.current = null;
-        animation.destroy();
-      };
-    }, [resolvedSrc, loop, onComplete, isReducedMotion]);
-    return /* @__PURE__ */ _(
-      "div",
-      {
-        ref: containerRef,
-        class: className,
-        role: label ? "img" : "presentation",
-        "aria-label": label,
-        "aria-hidden": label ? void 0 : "true",
-        style: { width: width2 ? `${width2}px` : void 0, height: height2 ? `${height2}px` : void 0 }
-      }
-    );
+    return /* @__PURE__ */ _("h2", { ref: titleRef, class: (0, import_classnames17.default)(Title_default.title, className) }, children);
   }
 
   // pages/onboarding/app/v4/hooks/usePresence.js
@@ -29305,7 +29335,7 @@
   }
 
   // pages/onboarding/app/v4/components/MakeDefaultContent.js
-  var import_classnames17 = __toESM(require_classnames(), 1);
+  var import_classnames18 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/MakeDefaultContent.module.css
   var MakeDefaultContent_default = {
@@ -29364,7 +29394,7 @@
       {
         src: "assets/lottie/v4/sparkle.json",
         darkSrc: "assets/lottie/v4/sparkle-dark.json",
-        class: (0, import_classnames17.default)(MakeDefaultContent_default.sparkle, { [MakeDefaultContent_default.hidden]: !showSuccess }),
+        class: (0, import_classnames18.default)(MakeDefaultContent_default.sparkle, { [MakeDefaultContent_default.hidden]: !showSuccess }),
         width: 34,
         height: 43,
         autoplay: false,
@@ -29374,7 +29404,7 @@
   }
 
   // pages/onboarding/app/v4/components/SettingsContent.js
-  var import_classnames18 = __toESM(require_classnames(), 1);
+  var import_classnames19 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/SettingsContent.module.css
   var SettingsContent_default = {
@@ -29425,7 +29455,7 @@
         data: settingsRowItems2[rowId](t3, platform)
       };
     });
-    return /* @__PURE__ */ _(Container, null, /* @__PURE__ */ _("div", { class: SettingsContent_default.rows }, rows.filter((item) => item.visible).map((item, index2) => /* @__PURE__ */ _(k, { key: item.id }, index2 > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(SettingsContent_default.divider, item.isEntering && SettingsContent_default.fadeIn) }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(Container, null, /* @__PURE__ */ _("div", { class: SettingsContent_default.rows }, rows.filter((item) => item.visible).map((item, index2) => /* @__PURE__ */ _(k, { key: item.id }, index2 > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames19.default)(SettingsContent_default.divider, item.isEntering && SettingsContent_default.fadeIn) }), /* @__PURE__ */ _(
       SettingListItem2,
       {
         dispatch,
@@ -29437,7 +29467,7 @@
         },
         onTransitionEnd: () => setExitingIndex(null)
       }
-    )))), globalState.status.kind === "idle" && globalState.status.error && /* @__PURE__ */ _("p", null, globalState.status.error), isDone && /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(SettingsContent_default.actions, isAnimating && SettingsContent_default.fadeInDelayed) }, /* @__PURE__ */ _(Button2, { size: "wide", onClick: isLastStep ? dismiss : advance }, isLastStep ? t3("startBrowsing") : t3("nextButton"), isLastStep && /* @__PURE__ */ _(Launch, null))));
+    )))), globalState.status.kind === "idle" && globalState.status.error && /* @__PURE__ */ _("p", null, globalState.status.error), isDone && /* @__PURE__ */ _("div", { class: (0, import_classnames19.default)(SettingsContent_default.actions, isAnimating && SettingsContent_default.fadeInDelayed) }, /* @__PURE__ */ _(Button2, { size: "wide", onClick: isLastStep ? dismiss : advance }, isLastStep ? t3("startBrowsing") : t3("nextButton"), isLastStep && /* @__PURE__ */ _(Launch, null))));
   }
   function SettingListItem2({ item, dispatch, updateSystemValue, onAction, onTransitionEnd }) {
     const { data: data2, current, isExiting, isEntering, pending } = item;
@@ -29462,7 +29492,7 @@
       updateSystemValue(data2.id, { enabled: enabled2 }, current);
     };
     const showDetails = current || isExiting || isEntering;
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(SettingsContent_default.row, isEntering && SettingsContent_default.fadeIn), "data-testid": "ListItem", "data-id": data2.id }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowContent }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowMain }, /* @__PURE__ */ _("img", { ref: iconRef, class: SettingsContent_default.rowIcon, src: "assets/img/steps/" + data2.icon, alt: "" }), /* @__PURE__ */ _("div", { class: SettingsContent_default.rowText }, /* @__PURE__ */ _("p", { class: SettingsContent_default.rowTitle }, data2.title), showDetails && data2.secondaryText && subtitleMounted && /* @__PURE__ */ _("p", { ref: subtitleRef, class: SettingsContent_default.rowSubtitle }, data2.secondaryText)), /* @__PURE__ */ _(InlineAction, { item, onAction: handleAction })), showDetails && buttonsMounted && /* @__PURE__ */ _("div", { ref: buttonsRef, class: SettingsContent_default.rowButtons }, /* @__PURE__ */ _(Button2, { variant: "secondary", disabled: pending, onClick: () => handleAction(false) }, t3("skipButton")), /* @__PURE__ */ _(Button2, { disabled: pending, onClick: () => handleAction(true) }, data2.acceptText))));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames19.default)(SettingsContent_default.row, isEntering && SettingsContent_default.fadeIn), "data-testid": "ListItem", "data-id": data2.id }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowContent }, /* @__PURE__ */ _("div", { class: SettingsContent_default.rowMain }, /* @__PURE__ */ _("img", { ref: iconRef, class: SettingsContent_default.rowIcon, src: "assets/img/steps/" + data2.icon, alt: "" }), /* @__PURE__ */ _("div", { class: SettingsContent_default.rowText }, /* @__PURE__ */ _("p", { class: SettingsContent_default.rowTitle }, data2.title), showDetails && data2.secondaryText && subtitleMounted && /* @__PURE__ */ _("p", { ref: subtitleRef, class: SettingsContent_default.rowSubtitle }, data2.secondaryText)), /* @__PURE__ */ _(InlineAction, { item, onAction: handleAction })), showDetails && buttonsMounted && /* @__PURE__ */ _("div", { ref: buttonsRef, class: SettingsContent_default.rowButtons }, /* @__PURE__ */ _(Button2, { variant: "secondary", disabled: pending, onClick: () => handleAction(false) }, t3("skipButton")), /* @__PURE__ */ _(Button2, { disabled: pending, onClick: () => handleAction(true) }, data2.acceptText))));
   }
   function InlineAction({ item, onAction }) {
     const { isDarkMode } = useEnv();
@@ -29504,7 +29534,7 @@
   }
 
   // pages/onboarding/app/v4/components/DuckPlayerContent.js
-  var import_classnames19 = __toESM(require_classnames(), 1);
+  var import_classnames20 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/DuckPlayerContent.module.css
   var DuckPlayerContent_default = {
@@ -29609,7 +29639,7 @@
         ref: (el) => {
           videosRef.current.with = el;
         },
-        class: (0, import_classnames19.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "with" }),
+        class: (0, import_classnames20.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "with" }),
         src: "assets/videos/v4/duck-player-enabled.mp4",
         muted: true,
         playsInline: true,
@@ -29622,7 +29652,7 @@
         ref: (el) => {
           videosRef.current.without = el;
         },
-        class: (0, import_classnames19.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "without" }),
+        class: (0, import_classnames20.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "without" }),
         src: "assets/videos/v4/duck-player-disabled.mp4",
         muted: true,
         playsInline: true,
@@ -29633,7 +29663,7 @@
   }
 
   // pages/onboarding/app/v4/components/AddressBarPreview.js
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/AddressBarPreview.module.css
   var AddressBarPreview_default2 = {
@@ -29772,10 +29802,10 @@
     ))), /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames20.default)(AddressBarPreview_default2.bgOverlay, isReduced && AddressBarPreview_default2.bgReduced),
+        class: (0, import_classnames21.default)(AddressBarPreview_default2.bgOverlay, isReduced && AddressBarPreview_default2.bgReduced),
         style: { backgroundColor: colors.addressBarBg, boxShadow: colors.addressBarShadow }
       }
-    ), /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(AddressBarPreview_default2.borderOverlay, isReduced && AddressBarPreview_default2.borderReduced), style: { borderColor: colors.addressBarBorder } }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(AddressBarPreview_default2.borderOverlay, isReduced && AddressBarPreview_default2.borderReduced), style: { borderColor: colors.addressBarBorder } }), /* @__PURE__ */ _(
       "svg",
       {
         class: AddressBarPreview_default2.regularIcon,
@@ -29927,7 +29957,7 @@
   }
 
   // pages/onboarding/app/v4/components/GetStartedAnimation.js
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/GetStartedAnimation.module.css
   var GetStartedAnimation_default = {
@@ -29942,7 +29972,7 @@
     return /* @__PURE__ */ _(
       LottieAnimation,
       {
-        class: (0, import_classnames21.default)(GetStartedAnimation_default.root, exiting && GetStartedAnimation_default.fadeOut, className),
+        class: (0, import_classnames22.default)(GetStartedAnimation_default.root, exiting && GetStartedAnimation_default.fadeOut, className),
         src: "assets/lottie/v4/dax-in-spotlight-thumbs-up.json",
         darkSrc: "assets/lottie/v4/dax-in-spotlight-thumbs-up-dark.json",
         width: 274,
@@ -29952,7 +29982,7 @@
   }
 
   // pages/onboarding/app/v4/components/SystemSettingsAnimation.js
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/SystemSettingsAnimation.module.css
   var SystemSettingsAnimation_default = {
@@ -29968,7 +29998,7 @@
     return /* @__PURE__ */ _(
       LottieAnimation,
       {
-        class: (0, import_classnames22.default)(SystemSettingsAnimation_default.background, exiting && SystemSettingsAnimation_default.fadeOut),
+        class: (0, import_classnames23.default)(SystemSettingsAnimation_default.background, exiting && SystemSettingsAnimation_default.fadeOut),
         src: "assets/lottie/v4/dax-in-spotlight-pointing-background.json",
         darkSrc: "assets/lottie/v4/dax-in-spotlight-pointing-background-dark.json",
         width: 170,
@@ -29981,7 +30011,7 @@
     return /* @__PURE__ */ _(
       LottieAnimation,
       {
-        class: (0, import_classnames22.default)(SystemSettingsAnimation_default.foreground, exiting && SystemSettingsAnimation_default.fadeOut),
+        class: (0, import_classnames23.default)(SystemSettingsAnimation_default.foreground, exiting && SystemSettingsAnimation_default.fadeOut),
         src: "assets/lottie/v4/dax-in-spotlight-pointing-foreground.json",
         width: 170,
         height: 170
@@ -29990,7 +30020,7 @@
   }
 
   // pages/onboarding/app/v4/components/FadeTransition.js
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames24 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/FadeTransition.module.css
   var FadeTransition_default = {
@@ -30024,7 +30054,7 @@
         setPhase("idle");
       }
     };
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames23.default)(phase === "exiting" && FadeTransition_default.fadeOut, phase === "entering" && FadeTransition_default.fadeIn), onAnimationEnd: advance }, phase === "idle" ? children : snapshot.content);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)(phase === "exiting" && FadeTransition_default.fadeOut, phase === "entering" && FadeTransition_default.fadeIn), onAnimationEnd: advance }, phase === "idle" ? children : snapshot.content);
   }
 
   // pages/onboarding/app/v4/components/DockInstructionsContent.module.css
@@ -30348,7 +30378,7 @@
     return /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames24.default)(SingleStep_default2.layout, {
+        class: (0, import_classnames25.default)(SingleStep_default2.layout, {
           [SingleStep_default2.hasTop]: !!topBubble,
           [SingleStep_default2.hasBottom]: !!bottomBubble,
           [SingleStep_default2.narrow]: bubbleWidth === "narrow"

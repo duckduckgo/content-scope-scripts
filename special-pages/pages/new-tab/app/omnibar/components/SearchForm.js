@@ -136,7 +136,6 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat
                 aria-haspopup="listbox"
                 aria-controls={suggestionsListId}
                 aria-activedescendant={selectedSuggestion?.id}
-                spellcheck={false}
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"

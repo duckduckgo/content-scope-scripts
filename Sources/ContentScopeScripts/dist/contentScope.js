@@ -8563,6 +8563,9 @@ ul.messages {
   // src/features/gpc.js
   init_define_import_meta_trackerLookup();
   var GlobalPrivacyControl = class extends ContentFeature {
+    /**
+     * @param {{globalPrivacyControlValue?: boolean}} args
+     */
     init(args) {
       try {
         if (args.globalPrivacyControlValue) {
@@ -9157,14 +9160,23 @@ ul.messages {
   // src/features/navigator-interface.js
   var store = {};
   var NavigatorInterface = class extends ContentFeature {
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     load(args) {
       if (this.matchConditionalFeatureSetting("privilegedDomains").length) {
         this.injectNavigatorInterface(args);
       }
     }
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     init(args) {
       this.injectNavigatorInterface(args);
     }
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     injectNavigatorInterface(args) {
       try {
         if (!args.platform || !args.platform.name) {
@@ -9665,7 +9677,7 @@ ul.messages {
       "link[href][rel='apple-touch-icon-precomposed']"
     ];
     const elements = document.head.querySelectorAll(selectors.join(","));
-    return Array.from(elements).map((link) => {
+    return Array.from(elements).filter((el) => el instanceof HTMLLinkElement).map((link) => {
       const href = link.href || "";
       const rel = link.getAttribute("rel") || "";
       const type = link.type || "";
