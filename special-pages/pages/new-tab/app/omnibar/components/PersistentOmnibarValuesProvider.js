@@ -103,17 +103,22 @@ export function useModeWithLocalPersistence(tabId, defaultMode) {
         return service.onConfig((v) => {
             if (!tabId) return;
 
-            // when manually updated + enableAi === 'true', allow this tab to be recorded
+            // when manually updated, record and apply to the current tab
             if (v.source === 'manual') {
                 values?.update({ id: tabId, value: v.data.mode });
+                setState(v.data.mode);
             }
+
+            // subscription events should NOT override the current tab's mode —
+            // the user may be actively interacting with this tab in another window.
+            // The global config.mode (in OmnibarProvider) still updates so new tabs
+            // pick up the latest default.
 
             // when `enableAi` is false, we reset ALL tabs to 'search'
             if (v.data.enableAi === false) {
                 values?.updateAll({ value: 'search' });
+                setState('search');
             }
-
-            setState(v.data.mode);
         });
     }, [service, tabId, values, defaultMode]);
 
