@@ -481,7 +481,7 @@
     "note" : "Button text that opens the dock instructions overlay."
   },
   "dockInstructions_body" : {
-    "title" : "Prenez le contrôle et cliquez sur l'icône de l'application DuckDuckGo, puis choisissez <strong>Options</strong> &gt; <strong>Garder dans le Dock</strong>.",
+    "title" : "Maintenez la touche Contrôle enfoncée et cliquez sur l'icône de l'application DuckDuckGo, puis choisissez <strong>Options</strong> &gt; <strong>Garder dans le Dock</strong>.",
     "note" : "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
   }
 }
