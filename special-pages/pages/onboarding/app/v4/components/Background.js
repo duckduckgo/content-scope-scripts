@@ -2,7 +2,9 @@ import { h } from 'preact';
 import { useContext, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { GlobalContext } from '../../global';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import styles from './Background.module.css';
+import { DaxBobbingAnimation } from './DaxBobbingAnimation';
 
 /**
  * Maps each step to its background image filename (without extension/variant suffix).
@@ -42,13 +44,16 @@ function Illustration({ filename, class: className, rightAligned, onAnimationEnd
  */
 export function Background() {
     const { activeStep } = useContext(GlobalContext);
+    const { isReducedMotion } = useEnv();
     const filename = backgroundForStep[activeStep];
 
     const [prevFilename, setPrevFilename] = useState(filename);
     const [exitingFilename, setExitingFilename] = useState(/** @type {string | null} */ (null));
 
     if (prevFilename !== filename) {
-        setExitingFilename(prevFilename);
+        // When reduced motion is on, no animation plays so animationend never
+        // fires. Skip the exit state entirely to avoid stale backgrounds.
+        setExitingFilename(isReducedMotion ? null : prevFilename);
         setPrevFilename(filename);
     }
 
@@ -69,6 +74,9 @@ export function Background() {
                 rightAligned={filename === 'background-04'}
                 class={cn(styles.illustration, styles.slideIn)}
             />
+            {(filename === 'background-03' || exitingFilename === 'background-03') && (
+                <DaxBobbingAnimation exiting={exitingFilename === 'background-03'} />
+            )}
         </div>
     );
 }
