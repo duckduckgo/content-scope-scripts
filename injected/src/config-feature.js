@@ -70,6 +70,7 @@ export default class ConfigFeature {
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
      *   messagingContextName: string,
      *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
+     *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
      * } | null}
      */
     #args;

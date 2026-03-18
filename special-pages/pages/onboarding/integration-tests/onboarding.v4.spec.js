@@ -252,7 +252,7 @@ test.describe('onboarding v4', () => {
             // Simulate disabled video ending → reducer plays enabled video (toWithDuckPlayer)
             await disabledVideo.dispatchEvent('ended');
             await expect(enabledVideo).toBeVisible();
-            await expect(disabledVideo).not.toBeVisible();
+            await expect(disabledVideo).toHaveCSS('opacity', '0');
             await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
 
             // Simulate enabled video ending → withDuckPlayer

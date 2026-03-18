@@ -8,6 +8,9 @@ import styles from './SingleStep.module.css';
 /** @type {string|null} */
 const bubbleWidthOverride = new URLSearchParams(window.location.search).get('bubbleWidth');
 
+/** @type {string|null} */
+const bubbleFadeInDelayOverride = new URLSearchParams(window.location.search).get('bubbleFadeInDelay');
+
 /**
  * Main layout component for v4 steps.
  * Steps with bubbles use absolute positioning; the layout measures bubble heights.
@@ -67,6 +70,16 @@ export function SingleStep() {
                 exiting={globalState.exiting}
                 onExitComplete={topBubble ? undefined : advance}
                 progress={showProgress && !topBubble ? progress : undefined}
+                fadeInDelay={
+                    topBubble
+                        ? (() => {
+                              const defaultTopDelay = 400; // Default fade-in delay from CSS
+                              const defaultOffset = 250; // Default 250ms offset between top and bottom
+                              const offset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
+                              return defaultTopDelay + (Number.isNaN(offset) ? defaultOffset : offset);
+                          })()
+                        : undefined
+                }
             >
                 {bottomBubble?.content}
             </Bubble>
