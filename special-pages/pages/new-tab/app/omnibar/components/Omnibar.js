@@ -159,8 +159,12 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
         <div
             ref={containerRef}
             // Using capture-phase events because WebKit doesn't reliably fire bubbling focus/blur (e.g. address bar, window refocus).
-            onFocusCapture={() => showChats()}
+            // Only respond to textarea focus/blur to avoid triggering chats when interacting with toolbar buttons (model selector, image upload).
+            onFocusCapture={(event) => {
+                if (event.target instanceof HTMLTextAreaElement) showChats();
+            }}
             onBlurCapture={(event) => {
+                if (!(event.target instanceof HTMLTextAreaElement)) return;
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
                     return;
                 }
