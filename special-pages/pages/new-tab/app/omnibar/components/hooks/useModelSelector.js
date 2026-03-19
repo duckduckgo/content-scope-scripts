@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 /**
  * @typedef {import('../../../../types/new-tab.js').AIModelSections} AIModelSections
@@ -15,9 +15,12 @@ export function useModelSelector(aiModelSections) {
     const modelButtonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
     const dropdownRef = useRef(/** @type {HTMLUListElement|null} */ (null));
 
-    const allModels = aiModelSections.flatMap((s) => s.items);
-    const firstEnabled = allModels.find((m) => m.isEnabled) ?? null;
-    const selectedModel = allModels.find((m) => m.id === selectedModelId && m.isEnabled) ?? firstEnabled;
+    const allModels = useMemo(() => aiModelSections.flatMap((s) => s.items), [aiModelSections]);
+    const firstEnabled = useMemo(() => allModels.find((m) => m.isEnabled) ?? null, [allModels]);
+    const selectedModel = useMemo(
+        () => allModels.find((m) => m.id === selectedModelId && m.isEnabled) ?? firstEnabled,
+        [allModels, selectedModelId, firstEnabled],
+    );
 
     useEffect(() => {
         if (!firstEnabled) return;

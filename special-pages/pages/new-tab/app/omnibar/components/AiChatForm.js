@@ -61,7 +61,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
         if (!selectedModel?.supportsImageUpload) {
             clearAttachedImages();
         }
-    }, [selectedModel]);
+    }, [selectedModel?.supportsImageUpload]);
 
     useLayoutEffect(() => {
         const textArea = textAreaRef.current;
@@ -89,7 +89,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     const submitWithToolState = (chat, target) => {
         /** @type {SubmitChatAction} */
         const params = { chat, target };
-        if (selectedModelId && aiModelSections.some((s) => s.items.some((m) => m.id === selectedModelId && m.isEnabled))) {
+        if (selectedModel?.id === selectedModelId && selectedModelId) {
             params.modelId = selectedModelId;
         }
         if (selectedModel?.supportsImageUpload) {
