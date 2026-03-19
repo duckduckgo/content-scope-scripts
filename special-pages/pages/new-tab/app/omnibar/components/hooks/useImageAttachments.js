@@ -180,7 +180,7 @@ export function useImageAttachments() {
                 continue;
             }
             /** @type {"jpeg" | "png"} */
-            const format = img.mimeType === 'image/jpeg' ? 'jpeg' : 'png';
+            const format = /** @type {"jpeg" | "png"} */ (match[1]);
             result.push({ data: match[2], format });
         }
         return result.length > 0 ? result : undefined;
