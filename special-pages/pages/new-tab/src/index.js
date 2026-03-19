@@ -111,12 +111,22 @@ const { messaging, telemetry } = install(rawMessaging);
 const newTabMessaging = new NewTabPage(messaging, import.meta.injectName);
 
 window.addEventListener('error', (event) => {
-    const message = event.error?.message || event.message || 'unknown error';
+    let message = 'unknown error';
+    if (typeof event.error?.message === 'string') {
+        message = event.error.message;
+    } else if (event.error) {
+        message = String(event.error);
+    }
     newTabMessaging.reportInitException(`[uncaught] ${message}`);
 });
 
 window.addEventListener('unhandledrejection', (event) => {
-    const message = event.reason?.message || String(event.reason) || 'unknown rejection';
+    let message = 'unknown rejection';
+    if (typeof event.reason?.message === 'string') {
+        message = event.reason.message;
+    } else if (event.reason) {
+        message = String(event.reason);
+    }
     newTabMessaging.reportInitException(`[unhandledrejection] ${message}`);
 });
 
