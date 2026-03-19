@@ -33,6 +33,7 @@ export class OnboardingPage {
             stepCompleted: {},
             setAdBlocking: {},
             reportPageException: {},
+            reportInitException: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {

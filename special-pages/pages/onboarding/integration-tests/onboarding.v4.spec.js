@@ -613,4 +613,62 @@ test.describe('onboarding v4', () => {
             });
         });
     });
+
+    test.describe('global error listeners', () => {
+        test('reports uncaught errors via reportInitException', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                setTimeout(() => {
+                    throw new Error('test uncaught error');
+                }, 0);
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'onboarding',
+                        method: 'reportInitException',
+                        params: { message: '[uncaught] test uncaught error' },
+                    },
+                },
+            ]);
+        });
+
+        test('reports unhandled rejections via reportInitException', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                Promise.reject(new Error('test unhandled rejection'));
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'onboarding',
+                        method: 'reportInitException',
+                        params: { message: '[unhandledrejection] test unhandled rejection' },
+                    },
+                },
+            ]);
+        });
+
+        test('does not fire reportInitException during normal page load', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.waitForTimeout(200);
+            const calls = await onboarding.mocks.outgoing({ names: ['reportInitException'] });
+            expect(calls).toHaveLength(0);
+        });
+    });
 });
