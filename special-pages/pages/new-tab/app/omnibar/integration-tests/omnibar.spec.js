@@ -1396,6 +1396,27 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.imagePreviews()).toHaveCount(0);
         });
 
+        test('enforces 3-image cap', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.fileInput().setInputFiles([
+                { name: 'a.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'b.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'c.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'd.png', mimeType: 'image/png', buffer: TINY_PNG },
+            ]);
+
+            await expect(omnibar.imagePreviews()).toHaveCount(3);
+        });
+
         test('submit payload only contains schema-defined fields', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
