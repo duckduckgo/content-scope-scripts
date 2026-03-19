@@ -224,7 +224,9 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
              * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
-                messaging.stepCompleted({ id: state.activeStep });
+                const currentIndex = state.order.indexOf(state.activeStep);
+                const next = state.order[currentIndex + 1] ?? null;
+                messaging.stepCompleted({ id: state.activeStep, next });
             }
             if (msg.kind === 'dismiss-to-settings') {
                 messaging.dismissToSettings();
