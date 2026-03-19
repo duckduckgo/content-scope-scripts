@@ -9,6 +9,10 @@ const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 const FILE_READ_TIMEOUT = 30000;
 // Match apple-browsers AIChatImageAttachment.swift maxDimension
 const MAX_DIMENSION = 512;
+// Memory guard: reject files too large to safely load into a FileReader/data-URL.
+// Not a "real" size validation — images are resized to 512px so output is tiny.
+// Apple-browsers has no raw size check either; this just prevents browser OOM.
+const MAX_RAW_FILE_SIZE = 50 * 1024 * 1024;
 const MAX_ENCODED_BYTES = 10 * 1024 * 1024; // safety cap on base64 output
 
 /**
@@ -78,6 +82,10 @@ export function useImageAttachments() {
         const validFiles = Array.from(files).filter((file) => {
             if (!ALLOWED_FORMATS.includes(file.type)) {
                 console.warn(`Unsupported file type: ${file.type}. Allowed types: ${ALLOWED_FORMATS.join(', ')}`);
+                return false;
+            }
+            if (file.size > MAX_RAW_FILE_SIZE) {
+                console.warn(`File "${file.name}" too large to process (${(file.size / 1024 / 1024).toFixed(0)}MB)`);
                 return false;
             }
             return true;
