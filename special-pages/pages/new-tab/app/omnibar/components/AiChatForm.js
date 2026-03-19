@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useContext, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ArrowRightIcon, ImageIcon, ChevronSmall, getModelIcon } from '../../components/Icons';
+import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
@@ -9,8 +9,9 @@ import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
 import { useImageAttachments } from './hooks/useImageAttachments';
 import { useModelSelector } from './hooks/useModelSelector';
-import { ModelDropdown } from './ModelDropdown';
-import { ImagePreviewArea } from './ImagePreviewArea';
+import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
+import { AiChatImageUploadButton } from './AiChatImageUploadButton';
+import { AiChatModelSelector } from './AiChatModelSelector';
 import styles from './AiChatForm.module.css';
 
 /**
@@ -80,7 +81,6 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     }, [query]);
 
     const disabled = query.length === 0;
-    const SelectedModelIcon = selectedModel ? getModelIcon(selectedModel.id) : null;
 
     /**
      * @param {string} chat
@@ -192,61 +192,31 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                     clearSelectedChat();
                 }}
             />
-            <ImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
+            <AiChatImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
             <div tabIndex={-1} class={styles.buttons}>
                 <div class={styles.toolButtons}>
                     {selectedModel?.supportsImageUpload && (
-                        <label
-                            class={`${styles.toolButton} ${imageUploadDisabled ? styles.toolButtonDisabled : ''}`}
-                            aria-label={t('omnibar_attachImageLabel')}
-                            aria-disabled={imageUploadDisabled}
-                            role="button"
-                            tabIndex={imageUploadDisabled ? -1 : 0}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (imageUploadDisabled) e.preventDefault();
-                            }}
-                            onKeyDown={(e) => {
-                                if (imageUploadDisabled) return;
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    fileInputRef.current?.click();
-                                }
-                            }}
-                        >
-                            <ImageIcon />
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp"
-                                multiple
-                                disabled={imageUploadDisabled}
-                                class={styles.hiddenFileInput}
-                                onChange={handleFileChange}
-                            />
-                        </label>
+                        <AiChatImageUploadButton
+                            fileInputRef={fileInputRef}
+                            disabled={imageUploadDisabled}
+                            onChange={handleFileChange}
+                            ariaLabel={t('omnibar_attachImageLabel')}
+                        />
                     )}
                 </div>
                 <div class={styles.rightButtons}>
                     {aiModelSections.length > 0 && (
-                        <div class={styles.modelSelector}>
-                            <button
-                                ref={modelButtonRef}
-                                type="button"
-                                class={`${styles.modelButton} ${modelDropdownOpen ? styles.modelButtonOpen : ''}`}
-                                aria-label={t('omnibar_modelSelectorLabel')}
-                                aria-haspopup="listbox"
-                                aria-expanded={modelDropdownOpen}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleDropdown();
-                                }}
-                            >
-                                {SelectedModelIcon && <SelectedModelIcon />}
-                                <span class={styles.modelButtonLabel}>{selectedModel?.shortName ?? t('omnibar_modelSelectorLabel')}</span>
-                                <ChevronSmall />
-                            </button>
-                        </div>
+                        <AiChatModelSelector
+                            selectedModel={selectedModel}
+                            modelButtonRef={modelButtonRef}
+                            modelDropdownOpen={modelDropdownOpen}
+                            dropdownPos={dropdownPos}
+                            dropdownRef={dropdownRef}
+                            toggleDropdown={toggleDropdown}
+                            selectModel={selectModel}
+                            aiModelSections={aiModelSections}
+                            ariaLabel={t('omnibar_modelSelectorLabel')}
+                        />
                     )}
                     <button
                         tabIndex={0}
@@ -261,16 +231,6 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                     </button>
                 </div>
             </div>
-            {modelDropdownOpen && dropdownPos && (
-                <ModelDropdown
-                    dropdownRef={dropdownRef}
-                    sections={aiModelSections}
-                    selectedModelId={selectedModel?.id}
-                    dropdownPos={dropdownPos}
-                    onSelect={selectModel}
-                    ariaLabel={t('omnibar_modelSelectorLabel')}
-                />
-            )}
         </form>
     );
 }

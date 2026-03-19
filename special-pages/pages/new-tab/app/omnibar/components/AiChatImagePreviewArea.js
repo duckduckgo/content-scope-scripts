@@ -8,7 +8,7 @@ import styles from './AiChatForm.module.css';
  * @param {(index: number) => void} props.onRemove
  * @param {string} props.removeLabel
  */
-export function ImagePreviewArea({ images, onRemove, removeLabel }) {
+export function AiChatImagePreviewArea({ images, onRemove, removeLabel }) {
     if (images.length === 0) return null;
 
     return (

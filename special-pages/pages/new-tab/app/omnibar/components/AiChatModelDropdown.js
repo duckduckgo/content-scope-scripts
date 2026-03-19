@@ -11,7 +11,7 @@ import { getModelIcon } from '../../components/Icons';
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
-export function ModelDropdown({ sections, selectedModelId, dropdownPos, onSelect, ariaLabel, dropdownRef }) {
+export function AiChatModelDropdown({ sections, selectedModelId, dropdownPos, onSelect, ariaLabel, dropdownRef }) {
     return (
         <ul
             ref={dropdownRef}
