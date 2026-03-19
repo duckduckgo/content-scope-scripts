@@ -6,10 +6,13 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
  */
 
 /**
- * @param {AIModelSections} aiModelSections
+ * @param {object} options
+ * @param {AIModelSections} options.aiModelSections
+ * @param {string} [options.persistedModelId] - Model ID from persisted config (synced across tabs)
+ * @param {(id: string) => void} [options.onModelChange] - Called when the user selects a model, to persist the choice
  */
-export function useModelSelector(aiModelSections) {
-    const [selectedModelId, setSelectedModelId] = useState(/** @type {string|null} */ (null));
+export function useModelSelector({ aiModelSections, persistedModelId, onModelChange }) {
+    const [selectedModelId, setSelectedModelId] = useState(/** @type {string|null} */ (persistedModelId ?? null));
     const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
     const [dropdownPos, setDropdownPos] = useState(/** @type {{right: number, top: number}|null} */ (null));
     const modelButtonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
@@ -22,10 +25,19 @@ export function useModelSelector(aiModelSections) {
         [allModels, selectedModelId, firstEnabled],
     );
 
+    // Sync from persisted config (e.g. another tab changed the model)
+    useEffect(() => {
+        if (persistedModelId && allModels.some((m) => m.id === persistedModelId && m.isEnabled)) {
+            setSelectedModelId(persistedModelId);
+        }
+    }, [persistedModelId]);
+
+    // Reconcile when models list changes and current selection is invalid
     useEffect(() => {
         if (!firstEnabled) return;
         if (!selectedModelId || !allModels.some((m) => m.id === selectedModelId && m.isEnabled)) {
             setSelectedModelId(firstEnabled.id);
+            onModelChange?.(firstEnabled.id);
         }
     }, [aiModelSections, selectedModelId, firstEnabled]);
 
@@ -63,6 +75,7 @@ export function useModelSelector(aiModelSections) {
         if (!allModels.some((m) => m.id === id && m.isEnabled)) return;
         setSelectedModelId(id);
         setModelDropdownOpen(false);
+        onModelChange?.(id);
     };
 
     return {

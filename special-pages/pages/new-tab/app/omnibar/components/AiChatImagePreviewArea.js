@@ -25,7 +25,7 @@ export function AiChatImagePreviewArea({ images, onRemove, removeLabel }) {
                             onRemove(index);
                         }}
                     >
-                        <CloseSmallIcon width="10" height="10" />
+                        <CloseSmallIcon width="10" height="10" style="stroke: currentColor; stroke-width: 1px;" />
                     </button>
                 </div>
             ))}

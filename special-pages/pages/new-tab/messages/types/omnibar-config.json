@@ -38,6 +38,11 @@
       "type": "boolean",
       "default": false
     },
+    "selectedModelId": {
+      "title": "Selected Model ID",
+      "description": "The user's currently selected AI model, persisted across tabs",
+      "type": "string"
+    },
     "aiModelSections": {
       "title": "AI Model Sections",
       "description": "Sections of AI models for the model selector. Each section has an optional header and a list of model items.",

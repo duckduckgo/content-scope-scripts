@@ -30,7 +30,7 @@ import styles from './AiChatForm.module.css';
 export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { openAiChat, state } = useContext(OmnibarContext);
+    const { openAiChat, setSelectedModelId: persistModelId, state } = useContext(OmnibarContext);
     const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } = useAiChatsContext();
 
     const enableAiChatTools = state.config?.enableAiChatTools === true;
@@ -49,7 +49,11 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
         getImagesForSubmission,
     } = useImageAttachments();
     const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
-        useModelSelector(aiModelSections);
+        useModelSelector({
+            aiModelSections,
+            persistedModelId: state.config?.selectedModelId,
+            onModelChange: persistModelId,
+        });
 
     useEffect(() => {
         if (autoFocus && textAreaRef.current) {

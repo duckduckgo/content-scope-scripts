@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { ChevronSmall, getModelIcon } from '../../components/Icons';
+import { ChevronSmall } from '../../components/Icons';
 import { AiChatModelDropdown } from './AiChatModelDropdown';
 import styles from './AiChatForm.module.css';
 
@@ -26,8 +26,6 @@ export function AiChatModelSelector({
     aiModelSections,
     ariaLabel,
 }) {
-    const Icon = selectedModel ? getModelIcon(selectedModel.id) : null;
-
     return (
         <div class={styles.modelSelector}>
             <button
@@ -42,7 +40,6 @@ export function AiChatModelSelector({
                     toggleDropdown();
                 }}
             >
-                {Icon && <Icon />}
                 <span class={styles.modelButtonLabel}>{selectedModel?.shortName ?? ariaLabel}</span>
                 <ChevronSmall />
             </button>

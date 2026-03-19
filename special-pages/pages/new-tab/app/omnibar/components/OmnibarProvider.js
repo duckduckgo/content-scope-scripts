@@ -49,6 +49,10 @@ export const OmnibarContext = createContext({
     submitSearch: () => {
         throw new Error('must implement');
     },
+    /** @type {(id: string) => void} */
+    setSelectedModelId: () => {
+        throw new Error('must implement');
+    },
     /** @type {(params: SubmitChatAction) => void} */
     submitChat: () => {
         throw new Error('must implement');
@@ -113,6 +117,14 @@ export function OmnibarProvider(props) {
     const setShowCustomizePopover = useCallback(
         (showCustomizePopover) => {
             service.current?.setShowCustomizePopover(showCustomizePopover);
+        },
+        [service],
+    );
+
+    /** @type {(id: string) => void} */
+    const setSelectedModelId = useCallback(
+        (id) => {
+            service.current?.setSelectedModelId(id);
         },
         [service],
     );
@@ -192,6 +204,7 @@ export function OmnibarProvider(props) {
                 setMode,
                 setEnableAi,
                 setShowCustomizePopover,
+                setSelectedModelId,
                 getSuggestions,
                 onSuggestions,
                 openSuggestion,

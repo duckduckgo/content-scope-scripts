@@ -48,11 +48,13 @@
 }
 
 .thumbnail {
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    height: 48px;
+    border: 0.5px solid var(--color-black-at-12);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    display: block;
+    height: var(--sp-12);
     object-fit: cover;
-    width: 48px;
+    width: var(--sp-12);
 }
 
 .thumbnailWrapper {
@@ -67,13 +69,13 @@
     color: var(--ds-color-theme-surface-primary);
     cursor: pointer;
     display: flex;
-    height: 18px;
+    height: var(--sp-4);
     justify-content: center;
     padding: 0;
     position: absolute;
-    right: -5px;
-    top: -5px;
-    width: 18px;
+    right: calc(-1 * var(--sp-1));
+    top: calc(-1 * var(--sp-1));
+    width: var(--sp-4);
 
     &:hover {
         opacity: 0.8;
@@ -121,7 +123,7 @@
     width: var(--sp-7);
 
     &:hover {
-        background: rgba(0, 0, 0, 0.06);
+        background: var(--color-black-at-6);
 
         [data-theme="dark"] & {
             background: rgba(255, 255, 255, 0.10);
@@ -129,7 +131,7 @@
     }
 
     &:active {
-        background: rgba(0, 0, 0, 0.12);
+        background: var(--color-black-at-12);
 
         [data-theme="dark"] & {
             background: rgba(255, 255, 255, 0.14);
@@ -195,11 +197,11 @@
     background: none;
     border-radius: 100px;
     border: 1px solid transparent;
-    color: var(--ds-color-theme-text-secondary);
+    color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
     font-size: 12px;
-    gap: 2px;
+    gap: var(--sp-0_5);
     height: var(--sp-7);
     padding: 0 var(--sp-1) 0 var(--sp-2);
 
@@ -213,7 +215,7 @@
     }
 
     &:active {
-        background: rgba(0, 0, 0, 0.18);
+        background: var(--color-black-at-18);
 
         [data-theme="dark"] & {
             background: rgba(255, 255, 255, 0.14);
@@ -226,7 +228,7 @@
 }
 
 .modelButtonOpen {
-    background: rgba(0, 0, 0, 0.18);
+    background: var(--color-black-at-18);
     border-color: transparent;
     color: var(--ds-color-theme-text-primary);
 
@@ -240,7 +242,7 @@
     }
 
     [data-theme="dark"] & {
-        background: rgba(255, 255, 255, 0.18);
+        background: var(--color-white-at-18);
 
         &:hover {
             background: rgba(255, 255, 255, 0.20);
@@ -254,14 +256,15 @@
 
 .modelButtonLabel {
     max-width: 120px;
+	font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .modelDropdown {
-    background: #fafafa;
-    border-radius: 16px;
+    background: var(--color-gray-0);
+    border-radius: 10px;
     border: 0.5px solid rgba(0, 0, 0, 0.25);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
     list-style: none;
@@ -276,8 +279,8 @@
     [data-theme="dark"] & {
         backdrop-filter: blur(50px);
         background: rgba(30, 30, 30, 0.88);
-        border: 0.5px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        border: 0.5px solid var(--color-white-at-15);
+        box-shadow: 0 8px 32px var(--color-black-at-40);
     }
 }
 
@@ -285,23 +288,25 @@
     align-items: center;
     cursor: pointer;
     display: flex;
-    font-size: 14px;
-    gap: 2px;
-    padding: 5px var(--sp-2) 5px 6px;
+    font-size: 13px;
+    gap: 6px;
+    padding: 5px var(--sp-4) 5px 6px;
+    white-space: nowrap;
 
     &::before {
         color: transparent;
         content: '\2713';
         flex-shrink: 0;
-        font-size: 14px;
-        font-weight: 600;
-        width: 16px;
+        font-size: 13px;
+        margin-right: -5px;
+		font-weight: 700;
+        width: var(--sp-4);
     }
 
     &:hover {
         background: var(--ds-color-theme-accent-primary);
-        border-radius: 4px;
-        color: #fff;
+        border-radius: var(--border-radius-xs);
+        color: var(--color-white);
 
         &::before {
             color: transparent;
@@ -314,10 +319,12 @@
 }
 
 .modelOptionSelected {
-    font-weight: 600;
-
     &::before {
         color: var(--ds-color-theme-text-primary);
+    }
+
+    &:hover::before {
+        color: var(--color-white);
     }
 }
 
@@ -328,15 +335,25 @@
 }
 
 .modelSectionDivider {
-    border-top: 1px solid var(--ds-color-theme-surface-decoration-tertiary);
-    margin: var(--sp-1) var(--sp-3);
+    border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
+    margin: var(--sp-1) var(--sp-4);
 }
 
 .modelSectionHeader {
+    align-items: center;
     color: var(--ds-color-theme-text-tertiary);
     cursor: default;
-    font-size: 12px;
-    padding: var(--sp-2) var(--sp-3);
+    display: flex;
+    font-size: 13px;
+    gap: 6px;
+    padding: var(--sp-1) var(--sp-4) var(--sp-1) var(--sp-0_5);
+    white-space: nowrap;
+
+    &::before {
+        content: '';
+        flex-shrink: 0;
+        width: var(--sp-4);
+    }
 }
 
 .hiddenFileInput {

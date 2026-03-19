@@ -79,6 +79,10 @@ export type EnableRecentAIChats = boolean;
  */
 export type EnableAIChatTools = boolean;
 /**
+ * The user's currently selected AI model, persisted across tabs
+ */
+export type SelectedModelID = string;
+/**
  * Sections of AI models for the model selector. Each section has an optional header and a list of model items.
  */
 export type AIModelSections = {
@@ -618,6 +622,7 @@ export interface OmnibarConfig {
   showCustomizePopover?: ShowCustomizePopover;
   enableRecentAiChats?: EnableRecentAIChats;
   enableAiChatTools?: EnableAIChatTools;
+  selectedModelId?: SelectedModelID;
   aiModelSections?: AIModelSections;
 }
 /**

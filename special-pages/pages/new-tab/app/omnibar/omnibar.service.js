@@ -98,6 +98,18 @@ export class OmnibarService {
     }
 
     /**
+     * @param {string} selectedModelId
+     */
+    setSelectedModelId(selectedModelId) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                selectedModelId,
+            };
+        });
+    }
+
+    /**
      * Get suggestions for the given search term
      * @param {string} term
      * @returns {Promise<SuggestionsData>}
