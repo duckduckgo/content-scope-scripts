@@ -263,7 +263,7 @@
 }
 
 .modelDropdown {
-    background: var(--color-gray-0);
+    background: rgb(249, 249, 249);
     border-radius: 10px;
     border: 0.5px solid rgba(0, 0, 0, 0.25);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
