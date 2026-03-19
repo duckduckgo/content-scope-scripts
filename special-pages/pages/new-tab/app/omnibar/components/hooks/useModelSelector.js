@@ -25,21 +25,25 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
         [allModels, selectedModelId, firstEnabled],
     );
 
-    // Sync from persisted config (e.g. another tab changed the model)
+    // Unified reconciliation: persisted preference takes priority, then current
+    // selection (if still valid), then first enabled model as fallback.
+    // Merged into a single effect to prevent the two concerns from racing on
+    // the same render cycle (e.g. initial config load).
     useEffect(() => {
         if (persistedModelId && allModels.some((m) => m.id === persistedModelId && m.isEnabled)) {
-            setSelectedModelId(persistedModelId);
+            if (selectedModelId !== persistedModelId) {
+                setSelectedModelId(persistedModelId);
+            }
+            return;
         }
-    }, [persistedModelId]);
-
-    // Reconcile when models list changes and current selection is invalid
-    useEffect(() => {
-        if (!firstEnabled) return;
-        if (!selectedModelId || !allModels.some((m) => m.id === selectedModelId && m.isEnabled)) {
+        if (selectedModelId && allModels.some((m) => m.id === selectedModelId && m.isEnabled)) {
+            return;
+        }
+        if (firstEnabled) {
             setSelectedModelId(firstEnabled.id);
             onModelChange?.(firstEnabled.id);
         }
-    }, [aiModelSections, selectedModelId, firstEnabled]);
+    }, [persistedModelId, aiModelSections, selectedModelId, firstEnabled]);
 
     useEffect(() => {
         if (!modelDropdownOpen) return;

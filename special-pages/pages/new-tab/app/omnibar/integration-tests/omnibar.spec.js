@@ -190,6 +190,27 @@ test.describe('omnibar widget', () => {
         });
     });
 
+    test('AI chat submit uses persisted selectedModelId from config', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.selectedModelId': 'claude-haiku-4-5' } });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('hello');
+        await omnibar.chatInput().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'hello',
+            target: 'same-tab',
+            modelId: 'claude-haiku-4-5',
+        });
+    });
+
     test('mode switching preserves query state', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
@@ -1300,6 +1321,61 @@ test.describe('omnibar widget', () => {
 
         // Popover should be dismissed
         await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test.describe('AI chat image attachments', () => {
+        // 1x1 red pixel PNG
+        const TINY_PNG = Buffer.from(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==',
+            'base64',
+        );
+
+        test('submit includes images with expected format', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.fileInput().setInputFiles({ name: 'test.png', mimeType: 'image/png', buffer: TINY_PNG });
+            await expect(omnibar.imagePreviews()).toHaveCount(1);
+
+            await omnibar.chatInput().fill('describe this image');
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'describe this image',
+                target: 'same-tab',
+                modelId: 'gpt-4o-mini',
+                images: [{ data: expect.any(String), format: 'png' }],
+            });
+
+            await expect(omnibar.imagePreviews()).toHaveCount(0);
+        });
+
+        test('switching to non-image model clears attached images', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.fileInput().setInputFiles({ name: 'test.png', mimeType: 'image/png', buffer: TINY_PNG });
+            await expect(omnibar.imagePreviews()).toHaveCount(1);
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('GPT-OSS 120B').click();
+
+            await expect(omnibar.imagePreviews()).toHaveCount(0);
+        });
     });
 
     test.describe('AI chats', () => {
