@@ -54,7 +54,12 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
             if (dropdownRef.current?.contains(target)) return;
             setModelDropdownOpen(false);
         };
-        const handleScroll = () => setModelDropdownOpen(false);
+        /** @param {Event} e */
+        const handleScroll = (e) => {
+            const target = /** @type {Node} */ (e.target);
+            if (dropdownRef.current?.contains(target)) return;
+            setModelDropdownOpen(false);
+        };
         const handleResize = () => setModelDropdownOpen(false);
         document.addEventListener('click', handleClickOutside, true);
         window.addEventListener('scroll', handleScroll, true);
