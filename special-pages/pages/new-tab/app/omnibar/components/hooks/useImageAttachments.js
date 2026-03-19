@@ -14,6 +14,9 @@ const MAX_DIMENSION = 512;
 // Apple-browsers has no raw size check either; this just prevents browser OOM.
 const MAX_RAW_FILE_SIZE = 50 * 1024 * 1024;
 const MAX_ENCODED_BYTES = 10 * 1024 * 1024; // safety cap on base64 output
+// Reject decoded images whose pixel count exceeds this threshold before
+// allocating the canvas, limiting decompression-bomb memory pressure.
+const MAX_DECODED_PIXELS = 4096 * 4096;
 
 /**
  * Normalises an image via the Canvas API: converts to the target MIME type and
@@ -30,6 +33,11 @@ function normaliseImage(srcDataUrl, targetMime) {
         const img = new Image();
         img.onload = () => {
             let { naturalWidth: w, naturalHeight: h } = img;
+
+            if (w * h > MAX_DECODED_PIXELS) {
+                reject(new Error('Decoded image dimensions exceed safety threshold'));
+                return;
+            }
 
             if (w > MAX_DIMENSION || h > MAX_DIMENSION) {
                 const scale = MAX_DIMENSION / Math.max(w, h);
@@ -81,11 +89,11 @@ export function useImageAttachments() {
 
         const validFiles = Array.from(files).filter((file) => {
             if (!ALLOWED_FORMATS.includes(file.type)) {
-                console.warn(`Unsupported file type: ${file.type}. Allowed types: ${ALLOWED_FORMATS.join(', ')}`);
+                console.warn('Attachment rejected: unsupported file type');
                 return false;
             }
             if (file.size > MAX_RAW_FILE_SIZE) {
-                console.warn(`File "${file.name}" too large to process (${(file.size / 1024 / 1024).toFixed(0)}MB)`);
+                console.warn('Attachment rejected: file too large to process');
                 return false;
             }
             return true;
@@ -114,15 +122,15 @@ export function useImageAttachments() {
                             const dataUrl = await normaliseImage(rawDataUrl, targetMime);
                             resolve({ dataUrl, fileName: file.name, mimeType: targetMime });
                         } catch (err) {
-                            console.warn(`Rejecting "${file.name}": ${/** @type {Error} */ (err).message}`);
+                            console.warn('Attachment rejected: image normalisation failed');
                             reject(err);
                         }
                     };
 
                     reader.onerror = () => {
                         clearTimeout(timeoutId);
-                        console.error(`Failed to read file "${file.name}":`, reader.error);
-                        reject(new Error(`Failed to read file: ${reader.error?.message || 'Unknown error'}`));
+                        console.warn('Attachment rejected: failed to read file');
+                        reject(new Error('Failed to read file'));
                     };
 
                     const timeoutId = setTimeout(() => {
@@ -168,7 +176,7 @@ export function useImageAttachments() {
         for (const img of attachedImages) {
             const match = img.dataUrl.match(/^data:image\/(jpeg|png);base64,(.+)$/);
             if (!match) {
-                console.error(`Dropping image "${img.fileName}": data URL does not match expected format`);
+                console.warn('Dropping image at submission: data URL does not match expected format');
                 continue;
             }
             /** @type {"jpeg" | "png"} */

@@ -1377,6 +1377,45 @@ test.describe('omnibar widget', () => {
 
             await expect(omnibar.imagePreviews()).toHaveCount(0);
         });
+
+        test('rejects file with unsupported MIME type', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            // eslint-disable-next-line no-undef
+            const gifBuffer = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+            await omnibar.fileInput().setInputFiles({ name: 'test.gif', mimeType: 'image/gif', buffer: gifBuffer });
+
+            await expect(omnibar.imagePreviews()).toHaveCount(0);
+        });
+
+        test('submit payload only contains schema-defined fields', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.chatInput().fill('hello');
+            await omnibar.chatInput().press('Enter');
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_submitChat', count: 1 });
+            const payload = calls[0].payload.params;
+            const allowedKeys = ['chat', 'target', 'modelId', 'images'];
+            const extraKeys = Object.keys(payload).filter((k) => !allowedKeys.includes(k));
+            expect(extraKeys).toEqual([]);
+        });
     });
 
     test.describe('AI chats', () => {
