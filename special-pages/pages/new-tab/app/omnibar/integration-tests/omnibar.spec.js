@@ -1325,6 +1325,7 @@ test.describe('omnibar widget', () => {
 
     test.describe('AI chat image attachments', () => {
         // 1x1 red pixel PNG
+        // eslint-disable-next-line no-undef
         const TINY_PNG = Buffer.from(
             'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==',
             'base64',
