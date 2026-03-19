@@ -4,7 +4,6 @@ import { useRef, useState } from 'preact/hooks';
  * @typedef {{ dataUrl: string, fileName: string, mimeType: string }} AttachedImage
  */
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB raw file size
 const MAX_IMAGES = 3;
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 const FILE_READ_TIMEOUT = 30000;
@@ -79,12 +78,6 @@ export function useImageAttachments() {
         const validFiles = Array.from(files).filter((file) => {
             if (!ALLOWED_FORMATS.includes(file.type)) {
                 console.warn(`Unsupported file type: ${file.type}. Allowed types: ${ALLOWED_FORMATS.join(', ')}`);
-                return false;
-            }
-            if (file.size > MAX_FILE_SIZE) {
-                console.warn(
-                    `File "${file.name}" exceeds maximum size of ${MAX_FILE_SIZE / 1024 / 1024}MB (actual: ${(file.size / 1024 / 1024).toFixed(2)}MB)`,
-                );
                 return false;
             }
             return true;
