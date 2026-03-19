@@ -54,19 +54,11 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
             if (dropdownRef.current?.contains(target)) return;
             setModelDropdownOpen(false);
         };
-        /** @param {Event} e */
-        const handleScroll = (e) => {
-            const target = /** @type {Node} */ (e.target);
-            if (dropdownRef.current?.contains(target)) return;
-            setModelDropdownOpen(false);
-        };
         const handleResize = () => setModelDropdownOpen(false);
         document.addEventListener('click', handleClickOutside, true);
-        window.addEventListener('scroll', handleScroll, true);
         window.addEventListener('resize', handleResize);
         return () => {
             document.removeEventListener('click', handleClickOutside, true);
-            window.removeEventListener('scroll', handleScroll, true);
             window.removeEventListener('resize', handleResize);
         };
     }, [modelDropdownOpen]);
