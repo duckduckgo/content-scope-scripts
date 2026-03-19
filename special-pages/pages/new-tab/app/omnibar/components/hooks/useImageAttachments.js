@@ -12,7 +12,7 @@ const MAX_DIMENSION = 512;
 // Memory guard: reject files too large to safely load into a FileReader/data-URL.
 // Not a "real" size validation — images are resized to 512px so output is tiny.
 // Apple-browsers has no raw size check either; this just prevents browser OOM.
-const MAX_RAW_FILE_SIZE = 50 * 1024 * 1024;
+const MAX_RAW_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_ENCODED_BYTES = 10 * 1024 * 1024; // safety cap on base64 output
 // Reject decoded images whose pixel count exceeds this threshold before
 // allocating the canvas, limiting decompression-bomb memory pressure.

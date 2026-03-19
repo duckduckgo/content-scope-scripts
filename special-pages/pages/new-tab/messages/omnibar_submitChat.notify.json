@@ -6,6 +6,7 @@
     "chat",
     "target"
   ],
+  "additionalProperties": false,
   "properties": {
     "chat": {
       "description": "The chat message to submit to Duck.ai",
@@ -25,6 +26,7 @@
       "items": {
         "type": "object",
         "required": ["data", "format"],
+        "additionalProperties": false,
         "properties": {
           "data": {
             "description": "Base64-encoded image data (without data URL prefix)",
