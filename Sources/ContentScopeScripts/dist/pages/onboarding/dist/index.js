@@ -25593,7 +25593,9 @@
       (msg) => {
         dispatch(msg);
         if (msg.kind === "advance") {
-          messaging2.stepCompleted({ id: state.activeStep });
+          const currentIndex = state.order.indexOf(state.activeStep);
+          const next = state.order[currentIndex + 1] ?? null;
+          messaging2.stepCompleted({ id: state.activeStep, next });
         }
         if (msg.kind === "dismiss-to-settings") {
           messaging2.dismissToSettings();
@@ -32178,6 +32180,24 @@
     }
   });
   var onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
+  window.addEventListener("error", (event) => {
+    let message = "unknown error";
+    if (typeof event.error?.message === "string") {
+      message = event.error.message;
+    } else if (event.error) {
+      message = String(event.error);
+    }
+    onboarding.reportInitException({ message: `[uncaught] ${message}` });
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    let message = "unknown rejection";
+    if (typeof event.reason?.message === "string") {
+      message = event.reason.message;
+    } else if (event.reason) {
+      message = String(event.reason);
+    }
+    onboarding.reportInitException({ message: `[unhandledrejection] ${message}` });
+  });
   async function init() {
     const result = await callWithRetry(() => onboarding.init());
     if ("error" in result) {

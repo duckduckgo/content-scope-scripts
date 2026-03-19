@@ -35835,6 +35835,24 @@
   });
   var { messaging, telemetry } = install(rawMessaging);
   var newTabMessaging = new NewTabPage(messaging, "windows");
+  window.addEventListener("error", (event) => {
+    let message = "unknown error";
+    if (typeof event.error?.message === "string") {
+      message = event.error.message;
+    } else if (event.error) {
+      message = String(event.error);
+    }
+    newTabMessaging.reportInitException(`[uncaught] ${message}`);
+  });
+  window.addEventListener("unhandledrejection", (event) => {
+    let message = "unknown rejection";
+    if (typeof event.reason?.message === "string") {
+      message = event.reason.message;
+    } else if (event.reason) {
+      message = String(event.reason);
+    }
+    newTabMessaging.reportInitException(`[unhandledrejection] ${message}`);
+  });
   var root = document.querySelector("#app");
   if (!root) {
     document.documentElement.dataset.fatalError = "true";

@@ -2133,8 +2133,6 @@ body {
   user-select: none;
   -webkit-user-select: none;
   cursor: default;
-  -webkit-backdrop-filter: blur(0px);
-  backdrop-filter: blur(0px);
 }
 :root[data-fatal-error] body {
   user-select: auto;

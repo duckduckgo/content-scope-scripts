@@ -33,6 +33,7 @@ export class OnboardingPage {
             stepCompleted: {},
             setAdBlocking: {},
             reportPageException: {},
+            reportInitException: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {
@@ -289,6 +290,24 @@ export class OnboardingPage {
                     featureName: 'onboarding',
                     method: 'setShowHomeButton',
                     params: { enabled: true },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Asserts that a stepCompleted notification was fired with the expected id and next fields.
+     * @param {{ id: string, next: string | null }} expectedStep
+     */
+    async didFireStepCompleted({ id, next }) {
+        const calls = await this.mocks.outgoing({ names: ['stepCompleted'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'stepCompleted',
+                    params: { id, next },
                 },
             },
         ]);
