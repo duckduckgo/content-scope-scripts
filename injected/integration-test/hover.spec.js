@@ -60,6 +60,18 @@ test('hover sends different hrefs for different links', async ({ page }, testInf
     expect(hrefs).toContain('https://example.com/page2');
 });
 
+test('hover does not initialize on iOS platform', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(HTML, CONFIG, { name: 'ios' });
+
+    await page.hover('#link1');
+    await page.hover('#nolink');
+    await page.waitForTimeout(200);
+
+    const messages = await hoverMessages(collector);
+    expect(messages).toHaveLength(0);
+});
+
 test('hover does not send when feature is disabled', async ({ page }, testInfo) => {
     const DISABLED_CONFIG = './integration-test/test-pages/hover/config/hover-disabled.json';
     const collector = ResultsCollector.create(page, testInfo.project.use);
