@@ -26,8 +26,8 @@ export class CustomError extends HTMLElement {
     logger;
     /** @type {boolean} */
     testMode = false;
-    /** @type {YouTubeError} */
-    error;
+    /** @type {YouTubeError | undefined} */
+    error = undefined;
     /** @type {string} */
     title = '';
     /** @type {string[]} */
