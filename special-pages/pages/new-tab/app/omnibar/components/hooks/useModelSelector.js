@@ -6,6 +6,24 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
  */
 
 /**
+ * Walks up the DOM to find the nearest ancestor that creates a containing block
+ * for `position: fixed` (e.g. transform, will-change: transform, filter).
+ * @param {Element} el
+ * @returns {Element | null}
+ */
+function findContainingBlock(el) {
+    let parent = el.parentElement;
+    while (parent && parent !== document.body) {
+        const style = getComputedStyle(parent);
+        if (style.transform !== 'none' || style.willChange === 'transform' || style.filter !== 'none') {
+            return parent;
+        }
+        parent = parent.parentElement;
+    }
+    return null;
+}
+
+/**
  * @param {object} options
  * @param {AIModelSections} options.aiModelSections
  * @param {string} [options.persistedModelId] - Model ID from persisted config (synced across tabs)
@@ -66,7 +84,11 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
     const toggleDropdown = () => {
         if (!modelDropdownOpen && modelButtonRef.current) {
             const rect = modelButtonRef.current.getBoundingClientRect();
-            setDropdownPos({ right: window.innerWidth - rect.right, top: rect.bottom + 4 });
+            const cb = findContainingBlock(modelButtonRef.current);
+            const cbRect = cb?.getBoundingClientRect();
+            const rightEdge = cbRect?.right ?? window.innerWidth;
+            const topOffset = cbRect?.top ?? 0;
+            setDropdownPos({ right: rightEdge - rect.right, top: rect.bottom - topOffset + 4 });
         }
         setModelDropdownOpen((prev) => !prev);
     };
