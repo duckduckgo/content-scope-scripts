@@ -444,6 +444,51 @@ test.describe('WebDetection Feature', () => {
             expect(webEvents[0].type).toBe('adwall');
         });
 
+        test('sends webEvent when breakageReport trigger runs and detector matches', async ({ page }, testInfo) => {
+            const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+            config.features.webEvents = { state: 'enabled', hash: 'test', exceptions: [] };
+            config.features.webDetection.settings.detectors.autorun.basic_auto.triggers.auto.state = 'disabled';
+            config.features.webDetection.settings.detectors.autorun.basic_auto.actions = {
+                fireEvent: { type: 'adwall', state: 'enabled' },
+            };
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            collector.withMockResponse({ webEvent: null, webDetectionAutoRun: null });
+            await collector.load('/web-detection/index.html', config);
+            const helper = new WebDetectionTestHelper(page, collector);
+            await helper.navigateTo('/web-detection/pages/auto-run-basic.html');
+
+            await helper.runDetectors();
+            const webEvents = await helper.getWebEventNotifications();
+            const autoRunNotifications = await helper.getAutoRunNotifications();
+
+            expect(webEvents.length).toBe(1);
+            expect(webEvents[0].type).toBe('adwall');
+            expect(autoRunNotifications.length).toBe(0);
+        });
+
+        test('sends webEvent even when breakageReportData is disabled', async ({ page }, testInfo) => {
+            const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+            config.features.webEvents = { state: 'enabled', hash: 'test', exceptions: [] };
+            config.features.webDetection.settings.detectors.autorun.basic_auto.triggers.auto.state = 'disabled';
+            config.features.webDetection.settings.detectors.autorun.basic_auto.actions = {
+                breakageReportData: { state: 'disabled' },
+                fireEvent: { type: 'adwall', state: 'enabled' },
+            };
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            collector.withMockResponse({ webEvent: null, webDetectionAutoRun: null });
+            await collector.load('/web-detection/index.html', config);
+            const helper = new WebDetectionTestHelper(page, collector);
+            await helper.navigateTo('/web-detection/pages/auto-run-basic.html');
+
+            await helper.runDetectors();
+            const webEvents = await helper.getWebEventNotifications();
+            const autoRunNotifications = await helper.getAutoRunNotifications();
+
+            expect(webEvents.length).toBe(1);
+            expect(webEvents[0].type).toBe('adwall');
+            expect(autoRunNotifications.length).toBe(0);
+        });
+
         test('does not send webEvent when webEvents feature is globally disabled', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupFireEventTest(page, testInfo.project.use, (config) => {
                 config.features.webEvents.state = 'disabled';
