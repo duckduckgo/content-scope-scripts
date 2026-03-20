@@ -18,11 +18,15 @@ const pizzaRelatedData = {
     ],
     websites: ['pizzahut.com', 'dominos.com', 'papajohns.com', 'littlecaesars.com', 'pizzaexpress.com'],
     historyEntries: [
-        'Best Pizza Places in New York',
-        'Pizza Making Tips and Tricks',
-        'Italian Pizza History',
-        'Homemade Pizza Guide',
-        'Pizza Dough Calculator',
+        { title: 'Best Pizza Places in New York' },
+        { title: 'Pizza Making Tips and Tricks' },
+        { title: 'Italian Pizza History' },
+        { title: 'Homemade Pizza Guide' },
+        { title: 'Pizza Dough Calculator' },
+        {
+            title: 'Pizza Planet: Over a billion reviews & contributions for Hotels, Attractions, Restaurants, and more',
+            url: 'https://www.pizzaplanet.com/',
+        },
     ],
     openTabs: ['Chicago vs New York Pizza'],
 };
@@ -69,11 +73,11 @@ export function getMockSuggestions(term) {
             ],
             localSuggestions: [
                 ...pizzaRelatedData.historyEntries
-                    .filter((title) => containsIgnoreCase(title, term))
-                    .map((title) => ({
+                    .filter((entry) => containsIgnoreCase(entry.title, term))
+                    .map((entry) => ({
                         kind: /** @type {const} */ ('historyEntry'),
-                        title,
-                        url: `https://example.com/search?q=${encodeURIComponent(title)}`,
+                        title: entry.title,
+                        url: entry.url || `https://example.com/search?q=${encodeURIComponent(entry.title)}`,
                         score: random(80, 89),
                     })),
                 ...pizzaRelatedData.openTabs
