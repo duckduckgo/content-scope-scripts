@@ -62,4 +62,23 @@ test.describe('Cookie protection tests', () => {
         // @ts-expect-error - expires exists at runtime but not in CookieListItem type
         expect(result?.expires).toBeLessThan(Date.now() + 605_000_000);
     });
+
+    test('cookie set does not produce unhandled promise rejections', async ({ page }) => {
+        await gotoAndWait(page, '/index.html');
+        const rejections = await page.evaluate(async () => {
+            /** @type {string[]} */
+            const errors = [];
+            window.addEventListener('unhandledrejection', (e) => {
+                errors.push(e.reason?.message ?? String(e.reason));
+            });
+
+            document.cookie = 'rejection_test=1; expires=Wed, 21 Aug 2040 20:00:00 UTC;';
+            document.cookie = 'rejection_test2=2; max-age=999999;';
+
+            // allow async .then() callbacks to settle
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            return errors;
+        });
+        expect(rejections).toEqual([]);
+    });
 });
