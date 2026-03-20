@@ -154,14 +154,16 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
 function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { showChats, hideChats } = useAiChatsContext();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const hasAttachedImagesRef = useRef(false);
 
     return (
         <div
             ref={containerRef}
             // Using capture-phase events because WebKit doesn't reliably fire bubbling focus/blur (e.g. address bar, window refocus).
             // Only show chats on textarea focus to avoid triggering when toolbar buttons (model selector, image upload) receive focus.
+            // Skip when images are attached — the user's intent to use image chat is clear.
             onFocusCapture={(event) => {
-                if (event.target instanceof HTMLTextAreaElement) showChats();
+                if (event.target instanceof HTMLTextAreaElement && !hasAttachedImagesRef.current) showChats();
             }}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
@@ -172,7 +174,13 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
             }}
         >
             <ResizingContainer className={styles.field}>
-                <AiChatForm query={query} autoFocus={autoFocus} onChange={onChange} onSubmit={onSubmit} />
+                <AiChatForm
+                    query={query}
+                    autoFocus={autoFocus}
+                    onChange={onChange}
+                    onSubmit={onSubmit}
+                    hasAttachedImagesRef={hasAttachedImagesRef}
+                />
             </ResizingContainer>
             {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
         </div>

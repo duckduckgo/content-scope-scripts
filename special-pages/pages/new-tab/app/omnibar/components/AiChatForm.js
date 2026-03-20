@@ -26,12 +26,14 @@ import styles from './AiChatForm.module.css';
  * @param {boolean} [props.autoFocus]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
+ * @param {import('preact').RefObject<boolean>} props.hasAttachedImagesRef
  */
-export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
+export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedImagesRef }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat, setSelectedModelId: persistModelId, state } = useContext(OmnibarContext);
-    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } = useAiChatsContext();
+    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats, hideChats } =
+        useAiChatsContext();
 
     const enableAiChatTools = state.config?.enableAiChatTools === true;
     const aiModelSections = enableAiChatTools ? (state.config?.aiModelSections ?? []) : [];
@@ -66,6 +68,16 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
             clearAttachedImages();
         }
     }, [selectedModel?.supportsImageUpload]);
+
+    hasAttachedImagesRef.current = attachedImages.length > 0;
+
+    useEffect(() => {
+        if (attachedImages.length > 0) {
+            hideChats();
+        } else if (textAreaRef.current === document.activeElement) {
+            showChats();
+        }
+    }, [attachedImages.length]);
 
     useLayoutEffect(() => {
         const textArea = textAreaRef.current;
@@ -192,7 +204,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                 onKeyDown={handleKeyDown}
                 onChange={(event) => {
                     onChange(event.currentTarget.value);
-                    showChats();
+                    if (attachedImages.length === 0) showChats();
                     clearSelectedChat();
                 }}
             />
