@@ -54,12 +54,14 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  */
 
 let adLabelStrings = [];
-const parser = new DOMParser();
+let parser;
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
 let appliedRules = new Set();
 let shouldInjectStyleTag = false;
 let styleTagInjected = false;
+/** @type {boolean} Cached per-pass; falls back to per-node checks when false. */
+let useDOMParser = false;
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000];
 let unhideTimeouts = [1250, 2250, 3000];
@@ -190,6 +192,21 @@ function unhideNode(element) {
 }
 
 /**
+ * Check if element or any descendants contain custom elements (hyphenated tag names).
+ * Custom elements may have constructors that execute observable code when cloned.
+ * @param {HTMLElement} el
+ * @returns {boolean}
+ */
+function hasCustomElements(el) {
+    if (el.tagName.includes('-')) return true;
+    const all = el.getElementsByTagName('*');
+    for (let i = 0; i < all.length; i++) {
+        if (all[i].tagName.includes('-')) return true;
+    }
+    return false;
+}
+
+/**
  * Check if DOM element contains visible content
  * @param {HTMLElement} node
  */
@@ -198,16 +215,37 @@ function isDomNodeEmpty(node) {
     if (node.tagName === 'BODY') {
         return false;
     }
-    // use a DOMParser to remove all metadata elements before checking if
-    // the node is empty.
-    const parsedNode = parser.parseFromString(node.outerHTML, 'text/html').documentElement;
+
+    // Use cloneNode for performance, but fall back to DOMParser when custom elements
+    // are present to avoid triggering custom element constructors (page-observable).
+    // useDOMParser is cached per-pass via hasCustomElements check in hideAdNodes/unhideLoadedAds.
+    // If the page-level cache is false, still check the node before cloning.
+    const shouldUseDOMParser = useDOMParser || hasCustomElements(node);
+    /** @type {HTMLElement} */
+    let parsedNode;
+    if (shouldUseDOMParser) {
+        // DOMParser wraps content in <html><head>...</head><body>...</body></html>
+        if (!parser) {
+            parser = new DOMParser();
+        }
+        parsedNode = parser.parseFromString(node.outerHTML, 'text/html').documentElement;
+    } else {
+        parsedNode = /** @type {HTMLElement} */ (node.cloneNode(true));
+    }
+
+    if (!parsedNode) {
+        return false;
+    }
     parsedNode.querySelectorAll('base,link,meta,script,style,template,title,desc').forEach((el) => {
         el.remove();
     });
 
     const visibleText = parsedNode.innerText.trim().toLocaleLowerCase().replace(/:$/, '');
-    const mediaAndFormContent = parsedNode.querySelector(mediaAndFormSelectors);
-    const frameElements = [...parsedNode.querySelectorAll('iframe')];
+    // Check if root node itself matches (cloneNode doesn't wrap, so querySelector misses root)
+    const rootMatchesMediaForm = parsedNode.matches?.(mediaAndFormSelectors) ?? false;
+    const mediaAndFormContent = rootMatchesMediaForm || parsedNode.querySelector(mediaAndFormSelectors) !== null;
+    const rootIsIframe = parsedNode.tagName === 'IFRAME';
+    const frameElements = rootIsIframe ? [/** @type {HTMLIFrameElement} */ (parsedNode)] : [...parsedNode.querySelectorAll('iframe')];
     // query original node instead of parsedNode for img elements since heuristic relies
     // on size of image elements
     const imageElements = [...node.querySelectorAll('img,svg')];
@@ -223,12 +261,7 @@ function isDomNodeEmpty(node) {
         return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20;
     });
 
-    if (
-        (visibleText === '' || adLabelStrings.includes(visibleText)) &&
-        mediaAndFormContent === null &&
-        noFramesWithContent &&
-        !visibleImages
-    ) {
+    if ((visibleText === '' || adLabelStrings.includes(visibleText)) && !mediaAndFormContent && noFramesWithContent && !visibleImages) {
         return true;
     }
     return false;
@@ -316,6 +349,9 @@ function injectStyleTag(rules) {
 function hideAdNodes(rules) {
     const document = globalThis.document;
 
+    // Cache custom elements check once per pass to avoid repeated DOM traversal
+    useDOMParser = hasCustomElements(document.body);
+
     rules.forEach((rule) => {
         const selector = forgivingSelector(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
         const matchingElementArray = [...document.querySelectorAll(selector)];
@@ -331,6 +367,9 @@ function hideAdNodes(rules) {
  */
 function unhideLoadedAds() {
     const document = globalThis.document;
+
+    // Cache custom elements check once per pass to avoid repeated DOM traversal
+    useDOMParser = hasCustomElements(document.body);
 
     appliedRules.forEach((rule) => {
         const selector = forgivingSelector(rule.selector);
