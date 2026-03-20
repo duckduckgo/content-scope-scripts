@@ -48,13 +48,14 @@
 }
 
 .thumbnail {
-    border: 0.5px solid var(--color-black-at-12);
-    border-radius: 10px;
+    border: 2px solid var(--ds-color-theme-surface-primary);
+    border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
     display: block;
-    height: var(--sp-12);
+    height: calc(var(--sp-12) + var(--sp-0_5));
     object-fit: cover;
-    width: var(--sp-12);
+    width: calc(var(--sp-12) + var(--sp-0_5));
 }
 
 .thumbnailWrapper {
@@ -76,6 +77,11 @@
     right: calc(-1 * var(--sp-1));
     top: calc(-1 * var(--sp-1));
     width: var(--sp-4);
+
+    [data-theme="dark"] & {
+        background: var(--color-gray-40);
+        outline: 2px solid var(--ds-color-theme-surface-primary);
+    }
 
     &:hover {
         opacity: 0.8;
