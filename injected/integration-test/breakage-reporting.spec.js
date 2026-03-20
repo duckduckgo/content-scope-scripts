@@ -11,6 +11,7 @@ test.describe('Breakage Reporting Feature', () => {
         const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
         // disable webInterferenceDetection feature so it doesn't add data to the breakage report
         config.features.webInterferenceDetection.state = 'disabled';
+        config.features.breakageReporting.settings = { expandedPerformanceMetrics: 'disabled' };
         await collector.load(HTML, config);
 
         const breakageFeature = new BreakageReportingSpec(page);
@@ -147,6 +148,58 @@ test.describe('Breakage Reporting Feature', () => {
         const adwallResult = result.params?.detectorData?.adwallDetection.results[0];
         expect(adwallResult.detectorId).toBe('generic');
         expect(adwallResult.detected).toBe(true);
+    });
+
+    test('includes expandedPerformanceMetrics in breakageData when both flags are enabled', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        config.features.breakageReporting.settings = {
+            expandedPerformanceMetrics: 'enabled',
+            includePerformanceMetricsInBreakageData: 'enabled',
+        };
+        await collector.load(HTML, config);
+
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigateToPage('/breakage-reporting/pages/no-challenge.html');
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+        const calls = await collector.outgoingMessages();
+
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        expect(result.params?.expandedPerformanceMetrics).toBeDefined();
+        expect(result.params?.breakageData).toBeDefined();
+
+        const decodedBreakageData = JSON.parse(decodeURIComponent(result.params?.breakageData));
+        expect(decodedBreakageData.expandedPerformanceMetrics).toBeDefined();
+        expect(decodedBreakageData.expandedPerformanceMetrics.loadComplete).toEqual(expect.any(Number));
+        expect(decodedBreakageData.expandedPerformanceMetrics.firstContentfulPaint).toEqual(expect.any(Number));
+        expect(decodedBreakageData.expandedPerformanceMetrics.resourceCount).toEqual(expect.any(Number));
+    });
+
+    test('does not include expandedPerformanceMetrics in breakageData when includePerformanceMetricsInBreakageData is disabled', async ({
+        page,
+    }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        config.features.breakageReporting.settings = {
+            expandedPerformanceMetrics: 'enabled',
+            includePerformanceMetricsInBreakageData: 'disabled',
+        };
+        await collector.load(HTML, config);
+
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigateToPage('/breakage-reporting/pages/no-challenge.html');
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+        const calls = await collector.outgoingMessages();
+
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        expect(result.params?.expandedPerformanceMetrics).toBeDefined();
+
+        const decodedBreakageData = JSON.parse(decodeURIComponent(result.params?.breakageData));
+        expect(decodedBreakageData.expandedPerformanceMetrics).toBeUndefined();
     });
 
     test('does not detect adwall on clean page', async ({ page }, testInfo) => {
