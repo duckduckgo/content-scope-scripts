@@ -1,8 +1,8 @@
 import { getStateFromAbbreviation } from '../comparisons/address.js';
 
 /**
- * @typedef {{url: string} & Record<string, any>} BuildUrlAction
- * @typedef {Record<string, any>} BuildActionWithoutUrl
+ * @typedef {{url: string, ageRange?: string[]} & Record<string, unknown>} BuildUrlAction
+ * @typedef {Record<string, unknown>} BuildActionWithoutUrl
  * @typedef {Record<string, string|number>} UserData
  */
 
@@ -49,27 +49,28 @@ const baseTransforms = new Map([
  * Example, `/a/b/${name|capitalize}` -> applies the `capitalize` transform
  * to the name field
  *
- * @type {Map<string, ((value: string, argument: string|undefined, action: BuildUrlAction | BuildActionWithoutUrl) => string)>}
+ * @type {Map<string, ((value: string, action: BuildUrlAction | BuildActionWithoutUrl, argument?: string) => string)>}
  */
 const optionalTransforms = new Map([
-    ['hyphenated', (value) => value.split(' ').join('-')],
-    ['capitalize', (value) => capitalize(value)],
-    ['downcase', (value) => value.toLowerCase()],
-    ['upcase', (value) => value.toUpperCase()],
-    ['snakecase', (value) => value.split(' ').join('_')],
-    ['stateFull', (value) => getStateFromAbbreviation(value)],
-    ['defaultIfEmpty', (value, argument) => value || argument || ''],
+    ['hyphenated', (value, _action) => value.split(' ').join('-')],
+    ['capitalize', (value, _action) => capitalize(value)],
+    ['downcase', (value, _action) => value.toLowerCase()],
+    ['upcase', (value, _action) => value.toUpperCase()],
+    ['snakecase', (value, _action) => value.split(' ').join('_')],
+    ['stateFull', (value, _action) => getStateFromAbbreviation(value)],
+    ['defaultIfEmpty', (value, _action, argument = '') => value || argument || ''],
     [
         'ageRange',
-        (value, _, action) => {
-            if (!action.ageRange) return value;
+        (value, action) => {
+            const ageRanges = Array.isArray(action?.ageRange) ? action.ageRange : [];
+            if (ageRanges.length === 0) return value;
             const ageNumber = Number(value);
             // find matching age range
-            const ageRange = action.ageRange.find((range) => {
+            const ageRange = ageRanges.find((/** @type {string} */ range) => {
                 const [min, max] = range.split('-');
                 return ageNumber >= Number(min) && ageNumber <= Number(max);
             });
-            return ageRange || value;
+            return ageRange ?? value;
         },
     ],
 ]);
@@ -146,7 +147,7 @@ export function processTemplateStringWithUserData(input, action, userData) {
         const comparison = encodedValue ?? plainValue;
         const [dataKey, ...transforms] = comparison.split(/\||%7C/);
         const data = userData[dataKey];
-        return applyTransforms(dataKey, data, transforms, action);
+        return applyTransforms(dataKey, data ?? '', transforms, action);
     });
 }
 
@@ -164,18 +165,25 @@ function applyTransforms(dataKey, value, transformNames, action) {
     let outputString = baseTransform ? baseTransform(subject) : subject;
 
     for (const transformName of transformNames) {
-        const [name, argument] = transformName.split(':');
-        const transform = optionalTransforms.get(name);
+        const parts = transformName.split(':');
+        const name = parts[0];
+        const argument = parts[1];
+        const transform = name !== undefined ? optionalTransforms.get(name) : undefined;
         if (transform) {
-            outputString = transform(outputString, argument, action);
+            const arg = argument ?? '';
+            outputString = transform(outputString, action, arg);
         }
     }
 
     return outputString;
 }
 
+/**
+ * @param {string} s
+ * @returns {string}
+ */
 function capitalize(s) {
     const words = s.split(' ');
-    const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+    const capitalizedWords = words.map((/** @type {string} */ word) => word.charAt(0).toUpperCase() + word.slice(1));
     return capitalizedWords.join(' ');
 }
