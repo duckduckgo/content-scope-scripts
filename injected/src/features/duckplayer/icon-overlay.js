@@ -118,7 +118,7 @@ export class IconOverlay {
     /**
      * Return the offset of an HTML Element
      * @param {HTMLElement} el
-     * @returns {Object}
+     * @returns {{ top: number, left: number }}
      */
     getElementOffset(el) {
         const box = el.getBoundingClientRect();
@@ -131,11 +131,13 @@ export class IconOverlay {
 
     /**
      * Hides the hover overlay element, but only if mouse pointer is outside of the hover overlay element
+     * @param {MouseEvent} event
+     * @param {boolean} force
      */
     hideHoverOverlay(event, force) {
         const overlay = this.getHoverOverlay();
 
-        const toElement = event.toElement;
+        const toElement = /** @type {Node | null} */ (event.relatedTarget ?? event.target);
 
         if (overlay) {
             // Prevent hiding overlay if mouseleave is triggered by user is actually hovering it and that
@@ -224,15 +226,27 @@ export class IconOverlay {
         });
     }
 
+    /**
+     * @param {HTMLElement} videoElement
+     * @returns {'small' | 'medium' | 'large'}
+     */
     getThumbnailSize(videoElement) {
+        /** @type {Record<number, HTMLImageElement>} */
         const imagesByArea = {};
 
         Array.from(videoElement.querySelectorAll('img')).forEach((image) => {
             imagesByArea[image.offsetWidth * image.offsetHeight] = image;
         });
 
-        const largestImage = Math.max.apply(this, Object.keys(imagesByArea).map(Number));
+        const keys = Object.keys(imagesByArea).map(Number);
+        const largestImage = keys.length > 0 ? Math.max.apply(null, keys) : null;
+        const largestImageEl = largestImage !== null ? imagesByArea[largestImage] : undefined;
 
+        /**
+         * @param {number} width
+         * @param {number} height
+         * @returns {'small' | 'medium' | 'large'}
+         */
         const getSizeType = (width, height) => {
             if (width < 123 + 10) {
                 // match CSS: width of expanded overlay + twice the left margin.
@@ -244,7 +258,10 @@ export class IconOverlay {
             }
         };
 
-        return getSizeType(imagesByArea[largestImage].offsetWidth, imagesByArea[largestImage].offsetHeight);
+        if (!largestImageEl) {
+            return 'large';
+        }
+        return getSizeType(largestImageEl.offsetWidth, largestImageEl.offsetHeight);
     }
 
     /**
