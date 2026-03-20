@@ -7,11 +7,17 @@ import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
+import { useImageAttachments } from './hooks/useImageAttachments';
+import { useModelSelector } from './hooks/useModelSelector';
+import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
+import { AiChatImageUploadButton } from './AiChatImageUploadButton';
+import { AiChatModelSelector } from './AiChatModelSelector';
 import styles from './AiChatForm.module.css';
 
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
 
 /**
@@ -19,22 +25,59 @@ import styles from './AiChatForm.module.css';
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {(query: string) => void} props.onChange
- * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
+ * @param {(params: SubmitChatAction) => void} props.onSubmit
+ * @param {import('preact').RefObject<boolean>} props.hasAttachedImagesRef
  */
-export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
+export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedImagesRef }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { openAiChat } = useContext(OmnibarContext);
-    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } = useAiChatsContext();
+    const { openAiChat, setSelectedModelId: persistModelId, state } = useContext(OmnibarContext);
+    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats, hideChats } =
+        useAiChatsContext();
+
+    const enableAiChatTools = state.config?.enableAiChatTools === true;
+    const aiModelSections = enableAiChatTools ? (state.config?.aiModelSections ?? []) : [];
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
+
+    const {
+        attachedImages,
+        fileInputRef,
+        handleFileChange,
+        handleRemoveImage,
+        clearAttachedImages,
+        imageUploadDisabled,
+        getImagesForSubmission,
+    } = useImageAttachments();
+    const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
+        useModelSelector({
+            aiModelSections,
+            persistedModelId: state.config?.selectedModelId,
+            onModelChange: persistModelId,
+        });
 
     useEffect(() => {
         if (autoFocus && textAreaRef.current) {
             textAreaRef.current.focus();
         }
     }, [autoFocus]);
+
+    useEffect(() => {
+        if (!selectedModel?.supportsImageUpload) {
+            clearAttachedImages();
+        }
+    }, [selectedModel?.supportsImageUpload]);
+
+    hasAttachedImagesRef.current = attachedImages.length > 0;
+
+    useEffect(() => {
+        if (attachedImages.length > 0) {
+            hideChats();
+        } else if (textAreaRef.current === document.activeElement) {
+            showChats();
+        }
+    }, [attachedImages.length]);
 
     useLayoutEffect(() => {
         const textArea = textAreaRef.current;
@@ -43,7 +86,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
         if (!textArea || !form) return;
 
         const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
-        textArea.style.height = 'auto'; // Reset height
+        textArea.style.height = 'auto';
         textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
 
         if (textArea.scrollHeight > textArea.clientHeight) {
@@ -55,14 +98,31 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
 
     const disabled = query.length === 0;
 
+    /**
+     * @param {string} chat
+     * @param {OpenTarget} target
+     */
+    const submitWithToolState = (chat, target) => {
+        /** @type {SubmitChatAction} */
+        const params = { chat, target };
+        if (selectedModel?.id === selectedModelId && selectedModelId) {
+            params.modelId = selectedModelId;
+        }
+        if (selectedModel?.supportsImageUpload) {
+            const images = getImagesForSubmission();
+            if (images) {
+                params.images = /** @type {SubmitChatAction['images']} */ (images);
+            }
+        }
+        onSubmit(params);
+        clearAttachedImages();
+    };
+
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled) return;
-        onSubmit({
-            chat: query,
-            target: 'same-tab',
-        });
+        submitWithToolState(query, 'same-tab');
     };
 
     /** @type {(event: KeyboardEvent) => void} */
@@ -105,10 +165,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                     break;
                 }
 
-                onSubmit({
-                    chat: query,
-                    target: eventToTarget(event, platformName),
-                });
+                submitWithToolState(query, eventToTarget(event, platformName));
                 break;
         }
     };
@@ -118,15 +175,20 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-
-        onSubmit({
-            chat: query,
-            target: eventToTarget(event, platformName),
-        });
+        submitWithToolState(query, eventToTarget(event, platformName));
     };
 
     return (
-        <form ref={formRef} class={styles.form} onSubmit={handleSubmit} onClick={() => textAreaRef.current?.focus()}>
+        <form
+            ref={formRef}
+            class={styles.form}
+            onSubmit={handleSubmit}
+            onClick={(e) => {
+                if (e.target === e.currentTarget || e.target === textAreaRef.current) {
+                    textAreaRef.current?.focus();
+                }
+            }}
+        >
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
@@ -142,25 +204,48 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                 onKeyDown={handleKeyDown}
                 onChange={(event) => {
                     onChange(event.currentTarget.value);
-                    showChats();
+                    if (attachedImages.length === 0) showChats();
                     clearSelectedChat();
                 }}
             />
-            <div
-                tabIndex={-1} // Needed so that WebKit sets event.relatedTarget when firing blur event
-                class={styles.buttons}
-            >
-                <button
-                    tabIndex={0}
-                    type="submit"
-                    class={styles.submitButton}
-                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
-                    disabled={disabled}
-                    onClick={handleClickSubmit}
-                    onAuxClick={handleClickSubmit}
-                >
-                    <ArrowRightIcon />
-                </button>
+            <AiChatImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
+            <div tabIndex={-1} class={styles.buttons}>
+                <div class={styles.toolButtons}>
+                    {selectedModel?.supportsImageUpload && (
+                        <AiChatImageUploadButton
+                            fileInputRef={fileInputRef}
+                            disabled={imageUploadDisabled}
+                            onChange={handleFileChange}
+                            ariaLabel={t('omnibar_attachImageLabel')}
+                        />
+                    )}
+                </div>
+                <div class={styles.rightButtons}>
+                    {aiModelSections.length > 0 && (
+                        <AiChatModelSelector
+                            selectedModel={selectedModel}
+                            modelButtonRef={modelButtonRef}
+                            modelDropdownOpen={modelDropdownOpen}
+                            dropdownPos={dropdownPos}
+                            dropdownRef={dropdownRef}
+                            toggleDropdown={toggleDropdown}
+                            selectModel={selectModel}
+                            aiModelSections={aiModelSections}
+                            ariaLabel={t('omnibar_modelSelectorLabel')}
+                        />
+                    )}
+                    <button
+                        tabIndex={0}
+                        type="submit"
+                        class={styles.submitButton}
+                        aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                        disabled={disabled}
+                        onClick={handleClickSubmit}
+                        onAuxClick={handleClickSubmit}
+                    >
+                        <ArrowRightIcon />
+                    </button>
+                </div>
             </div>
         </form>
     );

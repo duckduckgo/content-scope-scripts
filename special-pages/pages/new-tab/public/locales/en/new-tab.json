@@ -229,6 +229,22 @@
     "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
     "description": "Description message in the popover including privacy statement and customize option."
   },
+  "omnibar_attachImageLabel": {
+    "title": "Attach image",
+    "description": "Accessible label for the attach image button in the AI chat toolbar."
+  },
+  "omnibar_removeImageLabel": {
+    "title": "Remove image",
+    "description": "Accessible label for the button to remove an attached image thumbnail."
+  },
+  "omnibar_modelSelectorLabel": {
+    "title": "Select model",
+    "description": "Accessible label for the AI model selector dropdown."
+  },
+  "omnibar_advancedModelsSectionHeader": {
+    "title": "Advanced Models - DuckDuckGo subscription",
+    "description": "Section header in the model picker for premium models that require a subscription."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"

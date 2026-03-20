@@ -46,6 +46,7 @@ const config = {
     readme: 'none',
     treatWarningsAsErrors: true,
     searchInComments: true,
+    blockTags: [...OptionDefaults.blockTags, '@maxItems'],
     modifierTags: [...OptionDefaults.modifierTags, '@implements'],
     highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid', 'java', 'swift'],
 };

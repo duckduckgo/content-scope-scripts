@@ -22,6 +22,7 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
 
 /**
@@ -72,7 +73,7 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
         resetForm();
     };
 
-    /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+    /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
         submitChat(params);
         resetForm();
@@ -148,17 +149,22 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
  * @param {(query: string) => void} props.onChange
- * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
+ * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
 function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { showChats, hideChats } = useAiChatsContext();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const hasAttachedImagesRef = useRef(false);
 
     return (
         <div
             ref={containerRef}
             // Using capture-phase events because WebKit doesn't reliably fire bubbling focus/blur (e.g. address bar, window refocus).
-            onFocusCapture={() => showChats()}
+            // Only show chats on textarea focus to avoid triggering when toolbar buttons (model selector, image upload) receive focus.
+            // Skip when images are attached — the user's intent to use image chat is clear.
+            onFocusCapture={(event) => {
+                if (event.target instanceof HTMLTextAreaElement && !hasAttachedImagesRef.current) showChats();
+            }}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
                     return;
@@ -168,7 +174,13 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
             }}
         >
             <ResizingContainer className={styles.field}>
-                <AiChatForm query={query} autoFocus={autoFocus} onChange={onChange} onSubmit={onSubmit} />
+                <AiChatForm
+                    query={query}
+                    autoFocus={autoFocus}
+                    onChange={onChange}
+                    onSubmit={onSubmit}
+                    hasAttachedImagesRef={hasAttachedImagesRef}
+                />
             </ResizingContainer>
             {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
