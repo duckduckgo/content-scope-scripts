@@ -50,11 +50,18 @@ export class Environment {
         return window.location.href;
     }
 
+    /**
+     * @param {string} videoId
+     * @returns {string}
+     */
     getLargeThumbnailSrc(videoId) {
         const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, 'https://i.ytimg.com');
         return url.href;
     }
 
+    /**
+     * @param {string} href
+     */
     setHref(href) {
         window.location.href = href;
     }
