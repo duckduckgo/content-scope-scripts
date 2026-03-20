@@ -34,7 +34,13 @@ export class AddressFullExtractor {
                 .flat()
                 .map((str) => parseAddress.parseLocation(str) || {})
                 // at least 'city' is required.
-                .filter((parsed) => Boolean(parsed?.city))
+                .filter(
+                    /**
+                     * @param {{ city?: string }} parsed
+                     * @return {parsed is { city: string; state?: string }}
+                     */
+                    (parsed) => Boolean(parsed?.city),
+                )
                 .map((addr) => {
                     return { city: addr.city, state: addr.state || null };
                 })
