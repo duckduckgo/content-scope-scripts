@@ -89,6 +89,14 @@ export class NewTabPage {
     statsShowLess() {
         this.messaging.notify('stats_showLess');
     }
+
+    /**
+     * Notify native that a widget has completed initial render
+     * @param {{id: string}} params
+     */
+    widgetDidRender(params) {
+        this.messaging.notify('widgetDidRender', params);
+    }
 }
 
 const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);

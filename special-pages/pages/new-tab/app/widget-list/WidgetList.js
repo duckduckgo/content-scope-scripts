@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.provider.js';
+import { WidgetConfigContext, WidgetIdProvider, WidgetVisibilityProvider } from './widget-config.provider.js';
 import { useContext } from 'preact/hooks';
 import { useMessaging } from '../types.js';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary.js';
@@ -63,9 +63,11 @@ export function WidgetList() {
                  */
                 if (!isUserConfigurable) {
                     return (
-                        <ErrorBoundary key={widget.id} didCatch={({ message }) => didCatch(message, widget.id)} fallback={null}>
-                            <WidgetLoader fn={matchingEntryPoint.factory} />
-                        </ErrorBoundary>
+                        <WidgetIdProvider key={widget.id} id={widget.id}>
+                            <ErrorBoundary didCatch={({ message }) => didCatch(message, widget.id)} fallback={null}>
+                                <WidgetLoader fn={matchingEntryPoint.factory} />
+                            </ErrorBoundary>
+                        </WidgetIdProvider>
                     );
                 }
 
@@ -73,22 +75,23 @@ export function WidgetList() {
                  * This section is for elements that the user controls the visibility of
                  */
                 return (
-                    <WidgetVisibilityProvider key={widget.id} id={widget.id} index={index}>
-                        <ErrorBoundary
-                            key={widget.id}
-                            didCatch={({ message }) => didCatch(message, widget.id)}
-                            fallback={
-                                <Centered data-entry-point={widget.id}>
-                                    <VerticalSpace>
-                                        <p>{INLINE_ERROR}</p>
-                                        <p>Widget ID: {widget.id}</p>
-                                    </VerticalSpace>
-                                </Centered>
-                            }
-                        >
-                            <WidgetLoader fn={matchingEntryPoint.factory} />
-                        </ErrorBoundary>
-                    </WidgetVisibilityProvider>
+                    <WidgetIdProvider key={widget.id} id={widget.id}>
+                        <WidgetVisibilityProvider id={widget.id} index={index}>
+                            <ErrorBoundary
+                                didCatch={({ message }) => didCatch(message, widget.id)}
+                                fallback={
+                                    <Centered data-entry-point={widget.id}>
+                                        <VerticalSpace>
+                                            <p>{INLINE_ERROR}</p>
+                                            <p>Widget ID: {widget.id}</p>
+                                        </VerticalSpace>
+                                    </Centered>
+                                }
+                            >
+                                <WidgetLoader fn={matchingEntryPoint.factory} />
+                            </ErrorBoundary>
+                        </WidgetVisibilityProvider>
+                    </WidgetIdProvider>
                 );
             })}
             {env === 'development' && (

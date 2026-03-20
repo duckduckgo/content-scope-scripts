@@ -1,6 +1,7 @@
 import { createContext, h } from 'preact';
-import { useContext } from 'preact/hooks';
+import { useContext, useEffect, useRef } from 'preact/hooks';
 import { effect, signal, useComputed, useSignal } from '@preact/signals';
+import { useMessaging } from '../types.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').WidgetConfigs} WidgetConfigs
@@ -116,4 +117,46 @@ export function WidgetVisibilityProvider(props) {
             {props.children}
         </WidgetVisibilityContext.Provider>
     );
+}
+
+const WidgetIdContext = createContext({
+    /** @type {string} */
+    widgetId: '',
+});
+
+/**
+ * @return {{ widgetId: string }}
+ */
+export function useWidgetId() {
+    return useContext(WidgetIdContext);
+}
+
+/**
+ * Provides the widget ID to all descendants
+ * @param {object} props
+ * @param {string} props.id - the widget id
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function WidgetIdProvider(props) {
+    return <WidgetIdContext.Provider value={{ widgetId: props.id }}>{props.children}</WidgetIdContext.Provider>;
+}
+
+/**
+ * Notifies native when a widget becomes ready.
+ * Only fires once per widget lifecycle.
+ * @param {'ready' | string} status - the widget's current status
+ */
+export function useWidgetDidRender(status) {
+    const messaging = useMessaging();
+    const { widgetId } = useWidgetId();
+    const didNotifyRef = useRef(false);
+
+    useEffect(() => {
+        if (status === 'ready' && !didNotifyRef.current) {
+            didNotifyRef.current = true;
+            requestAnimationFrame(() => {
+                messaging.widgetDidRender({ id: widgetId });
+            });
+        }
+    }, [status, messaging, widgetId]);
 }
