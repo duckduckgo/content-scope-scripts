@@ -37,10 +37,11 @@ export async function execute(action, inputData, root = document) {
             }
         }
     } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
         console.log('unhandled exception: ', e);
         return new ErrorResponse({
             actionID: action.id,
-            message: `unhandled exception: ${e.message}`,
+            message: `unhandled exception: ${message}`,
         });
     }
 }

@@ -79,7 +79,7 @@
  * Default runConditions — by default, detectors only trigger in the top frame.
  * Specifying custom runConditions in config replaces (not merges) these defaults.
  */
-const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').ConditionBlock[]} */ ([
+const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').ConditionBlockOrArray} */ ([
     {
         context: { top: true },
     },
@@ -113,6 +113,13 @@ function isValidName(name) {
 function normalizeDetector(config) {
     const fireEvent = config.actions?.fireEvent;
 
+    const breakageRunConditions = /** @type {import('../../config-feature.js').ConditionBlockOrArray} */ (
+        config.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS
+    );
+    const autoRunConditions = /** @type {import('../../config-feature.js').ConditionBlockOrArray} */ (
+        config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS
+    );
+
     return {
         // Detectors are enabled by default
         state: config.state ?? 'enabled',
@@ -121,12 +128,12 @@ function normalizeDetector(config) {
             // breakageReport: enabled by default - detectors participate in breakage report flow
             breakageReport: {
                 state: config.triggers?.breakageReport?.state ?? 'enabled',
-                runConditions: config.triggers?.breakageReport?.runConditions ?? DEFAULT_RUN_CONDITIONS,
+                runConditions: breakageRunConditions,
             },
             // auto: disabled by default - detectors must opt in to automatic execution
             auto: {
                 state: config.triggers?.auto?.state ?? 'disabled',
-                runConditions: config.triggers?.auto?.runConditions ?? DEFAULT_RUN_CONDITIONS,
+                runConditions: autoRunConditions,
                 when: config.triggers?.auto?.when ?? { intervalMs: [] },
             },
         },

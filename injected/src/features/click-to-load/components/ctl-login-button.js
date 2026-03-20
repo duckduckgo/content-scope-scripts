@@ -39,15 +39,14 @@ export class DDGCtlLoginButton {
 
         /**
          * Create the placeholder element to be inject in the page
-         * @type {HTMLDivElement}
          */
-        this.element = document.createElement('div');
+        this.#element = document.createElement('div');
 
         /**
          * Create the shadow root, closed to prevent any outside observers
          * @type {ShadowRoot}
          */
-        const shadow = this.element.attachShadow({
+        const shadow = this.#element.attachShadow({
             mode: this.params.devMode ? 'open' : 'closed',
         });
 

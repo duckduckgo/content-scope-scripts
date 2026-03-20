@@ -34,7 +34,7 @@ export class YouTubeAdDetector {
     constructor(config, logger, onEvent) {
         // Logger for debug output (only logs when debug mode is enabled)
         this.log = logger || noopLogger;
-        /** @type {(type: string) => void} */
+        /** @type {(type: string) => void | Promise<void>} */
         this.onEvent = onEvent || (() => {});
 
         // All config comes from privacy-config
@@ -60,13 +60,16 @@ export class YouTubeAdDetector {
         this.pollInterval = null;
         this.rerootInterval = null;
         this.startRetryTimeout = null;
+        /** @type {HTMLVideoElement | null} */
         this.trackedVideoElement = null;
+        /** @type {string | null} */
         this.lastLoggedVideoId = null;
         this.currentVideoId = null;
         this.videoLoadStartTime = null;
         this.bufferingStartTime = null;
         this.lastSweepTime = null;
         this.lastSeekTime = null;
+        /** @type {Element | null} */
         this.playerRoot = null;
 
         // Compiled regex patterns
@@ -84,11 +87,13 @@ export class YouTubeAdDetector {
     // =========================================================================
 
     createInitialState() {
+        /** @type {{count: number, showing: boolean, lastMessage: string|null}} */
+        const playabilityErrorState = { count: 0, showing: false, lastMessage: null };
         return {
             detections: {
                 videoAd: { count: 0, showing: false },
                 staticAd: { count: 0, showing: false },
-                playabilityError: { count: 0, showing: false, /** @type {string|null} */ lastMessage: null },
+                playabilityError: playabilityErrorState,
                 adBlocker: { count: 0, showing: false },
             },
             buffering: {
@@ -112,30 +117,31 @@ export class YouTubeAdDetector {
     /**
      * Report a detection event
      * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type
-     * @param {Object} [details]
+     * @param {{message?: string}} [details]
      * @returns {boolean} Whether detection was new
      */
     reportDetection(type, details = {}) {
         const typeState = this.state.detections[type];
+        const detailsMessage = details.message;
 
         if (typeState.showing) {
-            if (!details.message || typeState.lastMessage === details.message) {
+            if (!detailsMessage || ('lastMessage' in typeState && typeState.lastMessage === detailsMessage)) {
                 return false;
             }
         }
 
-        this.log.info(`Detection: ${type}`, details.message || '');
+        this.log.info(`Detection: ${type}`, detailsMessage || '');
 
         typeState.showing = true;
         typeState.count++;
-        if (details.message && 'lastMessage' in typeState) {
-            typeState.lastMessage = details.message;
+        if (detailsMessage && type === 'playabilityError') {
+            this.state.detections.playabilityError.lastMessage = detailsMessage;
         }
 
         if (this.config.fireDetectionEvents?.[type]) {
             try {
-                const result = /** @type {any} */ (this.onEvent(`youtube_${type}`));
-                if (result && typeof result.catch === 'function') {
+                const result = this.onEvent(`youtube_${type}`);
+                if (result instanceof Promise) {
                     // eslint-disable-next-line promise/prefer-await-to-then
                     result.catch(() => {});
                 }
@@ -341,16 +347,16 @@ export class YouTubeAdDetector {
      * Check for visible elements matching selectors and text patterns
      * @param {string[]} selectors
      * @param {RegExp[]} patterns
-     * @param {Object} [options]
+     * @param {{maxLength?: number, checkAttributedStrings?: boolean, checkDialogFallback?: boolean}} [options]
      * @returns {string|null} Matched text or null
      */
     checkVisiblePatternMatch(selectors, patterns, options = {}) {
         if (!selectors || !selectors.length || !patterns || !patterns.length) {
             return null;
         }
-        const maxLen = options.maxLength || 100;
-        const checkAttributedStrings = options.checkAttributedStrings || false;
-        const checkDialogFallback = options.checkDialogFallback || false;
+        const maxLen = options.maxLength ?? 100;
+        const checkAttributedStrings = options.checkAttributedStrings ?? false;
+        const checkDialogFallback = options.checkDialogFallback ?? false;
 
         for (const selector of selectors) {
             const el = /** @type {HTMLElement | null} */ (document.querySelector(selector));
