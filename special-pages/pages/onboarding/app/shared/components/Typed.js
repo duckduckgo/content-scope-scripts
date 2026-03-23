@@ -40,7 +40,7 @@ function TypedInner({ text, onComplete, paused, delay, startDelay, children, ...
     const [screenWidth, setScreenWidth] = useState(0);
     const [coords, setCoords] = useState({ left: 0, width: 0 });
     const [complete, setLocalComplete] = useState(false);
-    const [waiting, setWaiting] = useState(startDelay > 0);
+    const [waiting, setWaiting] = useState(startDelay > 0 && !isReducedMotion);
 
     const [currentText, setCurrentText] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);

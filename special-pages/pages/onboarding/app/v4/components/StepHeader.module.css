@@ -42,3 +42,9 @@
         transition: none;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .subtitle {
+        transition: none;
+    }
+}
