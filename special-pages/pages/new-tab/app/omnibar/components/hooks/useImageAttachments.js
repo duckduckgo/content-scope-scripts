@@ -7,13 +7,8 @@ import { useRef, useState } from 'preact/hooks';
 const MAX_IMAGES = 3;
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 const FILE_READ_TIMEOUT = 30000;
-// Match apple-browsers AIChatImageAttachment.swift maxDimension
 const MAX_DIMENSION = 512;
-// Memory guard: reject files too large to safely load into a FileReader/data-URL.
-// Not a "real" size validation — images are resized to 512px so output is tiny.
-// Apple-browsers has no raw size check either; this just prevents browser OOM.
-const MAX_RAW_FILE_SIZE = 10 * 1024 * 1024;
-const MAX_ENCODED_BYTES = 10 * 1024 * 1024; // safety cap on base64 output
+const MAX_ENCODED_BYTES = 10 * 1024 * 1024;
 // Reject decoded images whose pixel count exceeds this threshold before
 // allocating the canvas, limiting decompression-bomb memory pressure.
 const MAX_DECODED_PIXELS = 4096 * 4096;
@@ -77,6 +72,7 @@ export function useImageAttachments() {
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
     const [attachedImages, setAttachedImages] = useState(/** @type {AttachedImage[]} */ ([]));
 
+    const imageLimitExceeded = attachedImages.length > MAX_IMAGES;
     const imageUploadDisabled = attachedImages.length >= MAX_IMAGES;
 
     const clearAttachedImages = () => setAttachedImages([]);
@@ -92,24 +88,15 @@ export function useImageAttachments() {
                 console.warn('Attachment rejected: unsupported file type');
                 return false;
             }
-            if (file.size > MAX_RAW_FILE_SIZE) {
-                console.warn('Attachment rejected: file too large to process');
-                return false;
-            }
             return true;
         });
 
-        // Cap before the expensive read+normalise pipeline; the state updater
-        // below still enforces the limit as a race-safe final check.
-        const remaining = MAX_IMAGES - attachedImages.length;
-        const filesToProcess = validFiles.slice(0, remaining);
-
-        if (filesToProcess.length === 0) {
+        if (validFiles.length === 0) {
             input.value = '';
             return;
         }
 
-        const newImages = filesToProcess.map(
+        const newImages = validFiles.map(
             (file) =>
                 new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -148,11 +135,7 @@ export function useImageAttachments() {
         );
 
         if (images.length > 0) {
-            setAttachedImages((prev) => {
-                const cap = MAX_IMAGES - prev.length;
-                if (cap <= 0) return prev;
-                return [...prev, ...images.slice(0, cap)];
-            });
+            setAttachedImages((prev) => [...prev, ...images]);
         }
 
         input.value = '';
@@ -193,6 +176,7 @@ export function useImageAttachments() {
         handleRemoveImage,
         clearAttachedImages,
         imageUploadDisabled,
+        imageLimitExceeded,
         getImagesForSubmission,
     };
 }
