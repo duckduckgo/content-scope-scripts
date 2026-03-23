@@ -76,7 +76,7 @@
 }
 
 /* Focused */
-.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .popup {
+.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .popup {
     border-radius: 15px;
     border: 2px solid var(--ds-color-theme-accent-primary);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
