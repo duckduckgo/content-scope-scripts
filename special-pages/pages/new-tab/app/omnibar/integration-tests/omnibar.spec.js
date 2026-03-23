@@ -1414,7 +1414,9 @@ test.describe('omnibar widget', () => {
                 { name: 'd.png', mimeType: 'image/png', buffer: TINY_PNG },
             ]);
 
-            await expect(omnibar.imagePreviews()).toHaveCount(3);
+            await expect(omnibar.imagePreviews()).toHaveCount(4);
+            await expect(page.locator('[role="alert"]')).toBeVisible();
+            await expect(page.locator('button[type="submit"]')).toBeDisabled();
         });
 
         test('submit payload only contains schema-defined fields', async ({ page }, workerInfo) => {
