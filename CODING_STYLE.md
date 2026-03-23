@@ -243,4 +243,4 @@ Run linting with:
 npm run lint
 ```
 
-Follow the linting rules and fix any issues before committing code. 
+Follow the linting rules and fix any issues before committing code.
