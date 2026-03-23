@@ -23,6 +23,29 @@ export function reducer(state, action) {
     // console.log('action', action)
     // console.groupEnd()
 
+    if (action.kind === 'config-update') {
+        let nextStepDefs = state.stepDefinitions;
+        if (action.stepDefinitions) {
+            nextStepDefs = { ...state.stepDefinitions };
+            for (const [key, value] of Object.entries(action.stepDefinitions)) {
+                if (typeof value === 'object' && value !== null && nextStepDefs[key]) {
+                    nextStepDefs[key] = { ...nextStepDefs[key], ...value };
+                } else {
+                    nextStepDefs[key] = value;
+                }
+            }
+        }
+        let nextOrder = state.order;
+        if (action.exclude) {
+            nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
+        }
+        return {
+            ...state,
+            stepDefinitions: nextStepDefs,
+            order: nextOrder,
+            step: nextStepDefs[state.activeStep] ?? state.step,
+        };
+    }
     switch (state.status.kind) {
         case 'idle': {
             switch (action.kind) {
@@ -198,10 +221,12 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             dispatch(msg);
 
             /**
-             * Side effects that don't impact global state
+             * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
-                messaging.stepCompleted({ id: state.activeStep });
+                const currentIndex = state.order.indexOf(state.activeStep);
+                const next = state.order[currentIndex + 1] ?? null;
+                messaging.stepCompleted({ id: state.activeStep, next });
             }
             if (msg.kind === 'dismiss-to-settings') {
                 messaging.dismissToSettings();
@@ -213,6 +238,16 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         [state, messaging],
     );
 
+    useEffect(() => {
+        const unsubscribe = messaging.onConfigUpdate((data) => {
+            dispatch({
+                kind: 'config-update',
+                stepDefinitions: data.stepDefinitions,
+                exclude: /** @type {import('./types.js').ConfigUpdateEvent['exclude']} */ (data.exclude),
+            });
+        });
+        return unsubscribe;
+    }, [messaging]);
     // handle *fatal* state (from error boundary)
     useEffect(() => {
         if (state.status.kind !== 'fatal') return;

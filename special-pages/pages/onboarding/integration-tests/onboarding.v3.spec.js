@@ -2,6 +2,20 @@ import { test, expect } from '@playwright/test';
 import { OnboardingV3Page } from './onboarding.v3.page.js';
 
 test.describe('onboarding v3', () => {
+    test('stepCompleted includes the next step id', async ({ page }, workerInfo) => {
+        const onboarding = OnboardingV3Page.create(page, workerInfo);
+        onboarding.withInitData({
+            stepDefinitions: null,
+            order: 'v3',
+        });
+        await onboarding.reducedMotion();
+        await onboarding.openPage({ env: 'app', page: 'getStarted' });
+        await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+        await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 });
+
+        await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'makeDefaultSingle' });
+    });
+
     test.describe('Given I am on the make default step', () => {
         test('Then "Play YouTube without targeted ads" appears when ad blocking is enabled (placebo variant)', async ({
             page,
@@ -764,6 +778,29 @@ test.describe('onboarding v3', () => {
 
             // ▶️ Then I can toggle it afterward
             await onboarding.startBrowsing();
+        });
+
+        test.describe('Given onConfigUpdate behavior', () => {
+            test('When config update has reduced customize rows (no bookmarks), only those rows are shown', async ({
+                page,
+            }, workerInfo) => {
+                const onboarding = OnboardingV3Page.create(page, workerInfo);
+                onboarding.withInitData({
+                    order: 'v3',
+                    stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
+                });
+                await onboarding.reducedMotion();
+                await onboarding.openPage({ env: 'app', page: 'customize' });
+                // before push — default rows include bookmarks
+                await page.getByRole('button', { name: 'Show Bookmarks Bar' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).toBeVisible();
+                // push config update removing bookmarks
+                await onboarding.pushConfigUpdate({ stepDefinitions: { customize: { rows: ['session-restore', 'home-shortcut'] } } });
+                // after push — bookmarks gone
+                await page.getByRole('button', { name: 'Enable Session Restore' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
+                await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
+            });
         });
     });
 });
