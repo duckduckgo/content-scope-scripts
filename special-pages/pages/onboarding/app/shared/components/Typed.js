@@ -63,6 +63,7 @@ function TypedInner({ text, onComplete, paused, delay, startDelay, children, ...
         if (isReducedMotion) {
             setCurrentText(text);
             setCurrentIndex(text.length);
+            localOnComplete();
         }
     }, [isReducedMotion, localOnComplete]);
 
