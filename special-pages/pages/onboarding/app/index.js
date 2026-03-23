@@ -95,7 +95,8 @@ async function init() {
         .withNamedOrder(environment.urlParams.get('order'))
         .withExcludedScreens(init.exclude)
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
-        .withFirst(environment.urlParams.get('page'));
+        .withFirst(environment.urlParams.get('page'))
+        .withTypingEffect(environment.urlParams.get('typingEffect'));
 
     const root = document.querySelector('#app');
     if (!root) throw new Error('could not render, root element missing');
@@ -107,7 +108,7 @@ async function init() {
             <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
                 <UpdateEnvironment search={window.location.search} />
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <SettingsProvider platform={settings.platform}>
+                    <SettingsProvider platform={settings.platform} typingEffect={settings.typingEffect}>
                         <GlobalProvider
                             messaging={onboarding}
                             order={settings.order}

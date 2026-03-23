@@ -9647,7 +9647,7 @@
     const [state, dispatch] = h2(reducer3, initialState);
     y2(() => {
       return onSuggestions((data2, term2) => {
-        const suggestions = [
+        const suggestions2 = [
           ...data2.suggestions.topHits,
           ...data2.suggestions.duckduckgoSuggestions,
           ...data2.suggestions.localSuggestions
@@ -9656,7 +9656,7 @@
           id: `suggestion-${index2}`
         }));
         if (term2.trim().length > 0 && enableAi) {
-          suggestions.push({
+          suggestions2.push({
             kind: "aiChat",
             chat: term2,
             id: "suggestion-ai-chat"
@@ -9665,7 +9665,7 @@
         dispatch({
           type: "setSuggestions",
           term: term2,
-          suggestions
+          suggestions: suggestions2
         });
       });
     }, [onSuggestions, enableAi]);
@@ -9736,13 +9736,13 @@
 
   // pages/new-tab/app/omnibar/components/SearchFormProvider.js
   function SearchFormProvider({ term, setTerm, enableAi, children }) {
-    const suggestions = useSuggestions({ term, setTerm, enableAi });
+    const suggestions2 = useSuggestions({ term, setTerm, enableAi });
     const suggestionsListId = g2();
     return /* @__PURE__ */ _(
       SearchFormContext.Provider,
       {
         value: {
-          ...suggestions,
+          ...suggestions2,
           term,
           setTerm,
           suggestionsListId
@@ -9833,7 +9833,7 @@
       term: _term,
       setTerm,
       suggestionsListId,
-      suggestions,
+      suggestions: suggestions2,
       selectedSuggestion,
       updateSuggestions,
       selectPreviousSuggestion,
@@ -9860,7 +9860,6 @@
     const inputSuffix = getInputSuffix(term, selectedSuggestion);
     const inputSuffixText = useSuffixText(inputSuffix);
     const inputFont = platformName === "windows" ? "400 14px / 16px system-ui" : "500 13px / 16px system-ui";
-    const inputSuffixWidth = T2(() => measureText(inputSuffixText, inputFont), [inputSuffixText, inputFont]);
     y2(() => {
       if (autoFocus && inputRef.current) {
         inputRef.current.focus();
@@ -9910,7 +9909,7 @@
       "form",
       {
         class: SearchForm_default.form,
-        style: { "--input-font": inputFont, "--suffix-text-width": `${inputSuffixWidth}px` },
+        style: { "--input-font": inputFont },
         onSubmit: (event) => {
           event.preventDefault();
           onSubmit({
@@ -9928,7 +9927,7 @@
           class: SearchForm_default.input,
           placeholder: t4("omnibar_searchFormPlaceholder"),
           "aria-label": t4("omnibar_searchFormPlaceholder"),
-          "aria-expanded": suggestions.length > 0,
+          "aria-expanded": suggestions2.length > 0,
           "aria-haspopup": "listbox",
           "aria-controls": suggestionsListId,
           "aria-activedescendant": selectedSuggestion?.id,
@@ -9969,14 +9968,6 @@
       )
     );
   }
-  function measureText(text2, font) {
-    if (!text2) return 0;
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    if (!context) throw new Error("Failed to get canvas context");
-    context.font = font;
-    return context.measureText(text2).width;
-  }
   var init_SearchForm2 = __esm({
     "pages/new-tab/app/omnibar/components/SearchForm.js"() {
       "use strict";
@@ -10012,10 +10003,10 @@
 
   // pages/new-tab/app/omnibar/components/SuggestionsList.js
   function SuggestionsList({ onOpenSuggestion, onSubmitChat }) {
-    const { suggestionsListId, suggestions } = useSearchFormContext();
-    if (suggestions.length === 0) return null;
-    const mainSuggestions = suggestions.filter((suggestion) => suggestion.kind !== "aiChat");
-    const footerSuggestions = suggestions.filter((suggestion) => suggestion.kind === "aiChat");
+    const { suggestionsListId, suggestions: suggestions2 } = useSearchFormContext();
+    if (suggestions2.length === 0) return null;
+    const mainSuggestions = suggestions2.filter((suggestion) => suggestion.kind !== "aiChat");
+    const footerSuggestions = suggestions2.filter((suggestion) => suggestion.kind === "aiChat");
     return /* @__PURE__ */ _("div", { role: "listbox", id: suggestionsListId, class: SuggestionsList_default.list }, mainSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.main }, mainSuggestions.map((suggestion) => /* @__PURE__ */ _(
       SuggestionsListItem,
       {
@@ -18780,7 +18771,7 @@
             }
             return emptyChar;
           }
-          function measureText2(_char2, fontName, size) {
+          function measureText(_char2, fontName, size) {
             var fontData = this.getFontByName(fontName);
             var index2 = _char2;
             if (!fontData.cache[index2]) {
@@ -18883,7 +18874,7 @@
             addFonts,
             getCharData,
             getFontByName,
-            measureText: measureText2,
+            measureText,
             checkLoadedFonts,
             setIsLoaded
           };
@@ -35200,6 +35191,237 @@
     }
   };
 
+  // pages/new-tab/app/omnibar/components/Omnibar.examples.js
+  init_preact_module();
+  init_utils2();
+
+  // pages/new-tab/app/omnibar/mocks/omnibar.examples.data.js
+  var phraseSuggestion = { kind: "phrase", phrase: "pizza near me", id: "s-0" };
+  var websiteSuggestion = { kind: "website", url: "https://pizzahut.com", id: "s-1" };
+  var bookmarkSuggestion = {
+    kind: "bookmark",
+    title: "Pizza Hut",
+    url: "https://www.pizzahut.com/",
+    isFavorite: true,
+    id: "s-2",
+    score: 95
+  };
+  var historySuggestion = {
+    kind: "historyEntry",
+    title: "Best Pizza Places in New York",
+    url: "https://example.com/search?q=Best%20Pizza%20Places%20in%20New%20York",
+    id: "s-3",
+    score: 90
+  };
+  var openTabSuggestion = { kind: "openTab", title: "Chicago vs New York Pizza", tabId: "tab-1", id: "s-4", score: 85 };
+  var internalPageSuggestion = { kind: "internalPage", title: "DuckDuckGo Settings", url: "duck://settings", id: "s-5", score: 80 };
+  var aiChatSuggestion = { kind: "aiChat", chat: "pizza", id: "s-6" };
+  var suggestions = {
+    /** @type {SuggestionModel[]} */
+    allTypes: [
+      phraseSuggestion,
+      websiteSuggestion,
+      bookmarkSuggestion,
+      historySuggestion,
+      openTabSuggestion,
+      internalPageSuggestion,
+      aiChatSuggestion
+    ],
+    /** @type {SuggestionModel} */
+    shortTitleShortSuffix: { ...bookmarkSuggestion, isFavorite: false, id: "ss-0" },
+    /** @type {SuggestionModel} */
+    shortTitleLongSuffix: {
+      kind: "historyEntry",
+      title: "Pizza",
+      url: "https://www.pizzahut.com/menu/pizza/original-stuffed-crust/pepperoni-lovers-stuffed-crust",
+      id: "ss-1",
+      score: 90
+    },
+    /** @type {SuggestionModel} */
+    longTitleShortSuffix: {
+      kind: "historyEntry",
+      title: "Pizza Planet: Over a billion reviews & contributions for Hotels, Attractions, Restaurants, and more",
+      url: "https://www.pizzaplanet.com/",
+      id: "ss-2",
+      score: 90
+    },
+    /** @type {SuggestionModel} */
+    longTitleLongSuffix: {
+      kind: "historyEntry",
+      title: "Pizza Planet: Over a billion reviews & contributions for Hotels, Attractions, Restaurants, and more",
+      url: "https://www.pizzaplanet.com/Hotels-Attractions-Restaurants-and-more/reviews?sort=recent&lang=en",
+      id: "ss-3",
+      score: 90
+    },
+    /** @type {SuggestionModel} */
+    shortCompletionShortSuffix: {
+      kind: "historyEntry",
+      title: "Pizza Hut Menu",
+      url: "https://www.pizzahut.com/",
+      id: "i-0",
+      score: 90
+    },
+    /** @type {SuggestionModel} */
+    shortCompletionLongSuffix: {
+      kind: "historyEntry",
+      title: "Pizza Planet: Over a billion reviews & contributions for Hotels, Attractions, Restaurants, and more",
+      url: "https://www.pizzaplanet.com/",
+      id: "i-1",
+      score: 90
+    },
+    /** @type {SuggestionModel} */
+    longCompletionShortSuffix: {
+      kind: "historyEntry",
+      title: "Pizza Hut",
+      url: "https://www.pizzahut.com/menu/pizza/original-stuffed-crust/pepperoni-lovers",
+      id: "i-2",
+      score: 90
+    },
+    /** @type {SuggestionModel} */
+    longCompletionLongSuffix: {
+      kind: "historyEntry",
+      title: "Pizza Planet: Over a billion reviews & contributions for Hotels, Attractions, Restaurants, and more",
+      url: "https://www.pizzaplanet.com/Hotels-Attractions-Restaurants-and-more/reviews?sort=recent&lang=en",
+      id: "i-3",
+      score: 90
+    }
+  };
+
+  // pages/new-tab/app/omnibar/mocks/MockSearchFormProvider.js
+  init_preact_module();
+  init_hooks_module();
+  init_utils2();
+  init_SearchFormProvider();
+  function MockSearchFormProvider({ term, suggestions: suggestions2, selectedSuggestion: initialSelected = null, children }) {
+    const [selectedSuggestion, setSelectedSuggestion] = d2(initialSelected);
+    return /* @__PURE__ */ _(
+      SearchFormContext.Provider,
+      {
+        value: {
+          term,
+          setTerm: noop("setTerm"),
+          suggestionsListId: "mock-suggestions",
+          suggestions: suggestions2,
+          selectedSuggestion,
+          updateSuggestions: noop("updateSuggestions"),
+          selectPreviousSuggestion: () => false,
+          selectNextSuggestion: () => false,
+          setSelectedSuggestion,
+          clearSelectedSuggestion: () => setSelectedSuggestion(null),
+          hideSuggestions: noop("hideSuggestions")
+        }
+      },
+      children
+    );
+  }
+
+  // pages/new-tab/app/omnibar/components/Omnibar.examples.js
+  init_SearchForm2();
+  init_SuggestionsList2();
+  init_Omnibar();
+  function OmnibarShell({ children }) {
+    return /* @__PURE__ */ _("div", { style: "width: 600px;" }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _("div", { class: Omnibar_default.field }, children)));
+  }
+  var omnibarExamples = {
+    "omnibar.input-no-completion": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [] }, /* @__PURE__ */ _(
+        SearchForm,
+        {
+          onOpenSuggestion: noop("onOpenSuggestion"),
+          onSubmit: noop("onSubmit"),
+          onSubmitChat: noop("onSubmitChat")
+        }
+      )))
+    },
+    "omnibar.input-short-completion-short-suffix": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(
+        MockSearchFormProvider,
+        {
+          term: "pizza",
+          suggestions: [suggestions.shortCompletionShortSuffix],
+          selectedSuggestion: suggestions.shortCompletionShortSuffix
+        },
+        /* @__PURE__ */ _(
+          SearchForm,
+          {
+            onOpenSuggestion: noop("onOpenSuggestion"),
+            onSubmit: noop("onSubmit"),
+            onSubmitChat: noop("onSubmitChat")
+          }
+        )
+      ))
+    },
+    "omnibar.input-short-completion-long-suffix": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(
+        MockSearchFormProvider,
+        {
+          term: "pizza",
+          suggestions: [suggestions.shortCompletionLongSuffix],
+          selectedSuggestion: suggestions.shortCompletionLongSuffix
+        },
+        /* @__PURE__ */ _(
+          SearchForm,
+          {
+            onOpenSuggestion: noop("onOpenSuggestion"),
+            onSubmit: noop("onSubmit"),
+            onSubmitChat: noop("onSubmitChat")
+          }
+        )
+      ))
+    },
+    "omnibar.input-long-completion-short-suffix": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(
+        MockSearchFormProvider,
+        {
+          term: "pizza",
+          suggestions: [suggestions.longCompletionShortSuffix],
+          selectedSuggestion: suggestions.longCompletionShortSuffix
+        },
+        /* @__PURE__ */ _(
+          SearchForm,
+          {
+            onOpenSuggestion: noop("onOpenSuggestion"),
+            onSubmit: noop("onSubmit"),
+            onSubmitChat: noop("onSubmitChat")
+          }
+        )
+      ))
+    },
+    "omnibar.input-long-completion-long-suffix": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(
+        MockSearchFormProvider,
+        {
+          term: "pizza",
+          suggestions: [suggestions.longCompletionLongSuffix],
+          selectedSuggestion: suggestions.longCompletionLongSuffix
+        },
+        /* @__PURE__ */ _(
+          SearchForm,
+          {
+            onOpenSuggestion: noop("onOpenSuggestion"),
+            onSubmit: noop("onSubmit"),
+            onSubmitChat: noop("onSubmitChat")
+          }
+        )
+      ))
+    },
+    "omnibar.suggestions-all-types": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: suggestions.allTypes }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+    },
+    "omnibar.suggestion-short-title-short-suffix": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.shortTitleShortSuffix] }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+    },
+    "omnibar.suggestion-short-title-long-suffix": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.shortTitleLongSuffix] }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+    },
+    "omnibar.suggestion-long-title-short-suffix": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.longTitleShortSuffix] }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+    },
+    "omnibar.suggestion-long-title-long-suffix": {
+      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.longTitleLongSuffix] }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+    }
+  };
+
   // pages/new-tab/app/components/Examples.jsx
   var mainExamples = {
     ...favoritesExamples,
@@ -35207,7 +35429,8 @@
     ...nextStepsExamples,
     ...privacyStatsExamples,
     ...RMFExamples,
-    ...subscriptionWinBackBannerExamples
+    ...subscriptionWinBackBannerExamples,
+    ...omnibarExamples
   };
   var otherExamples = {
     ...otherNextStepsExamples,

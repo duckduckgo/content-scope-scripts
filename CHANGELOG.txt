@@ -1,3 +1,2 @@
-- Add `next` field to `stepCompleted` message in onboarding (#2441)
-- Add global error listeners for uncaught errors on special pages (#2442)
-- Fix omnibar backdrop-filter not working with solid color backgrounds (#2559)
+- Add typing effect variants for v4 onboarding (#2548)
+- Fix omnibar input text pushed off-screen by long suggestion suffixes (#2562)

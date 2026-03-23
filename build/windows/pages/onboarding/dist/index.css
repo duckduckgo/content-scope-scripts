@@ -3203,6 +3203,9 @@ h2 {
 .Bubble_fadeIn {
   animation: Bubble_fade-in 267ms cubic-bezier(0.66, 0, 0.34, 1) var(--fade-in-delay, 400ms) backwards;
 }
+.Bubble_deferred {
+  opacity: 0;
+}
 .Bubble_bottomLeftTail {
   position: absolute;
   bottom: -34px;
@@ -3521,9 +3524,20 @@ h2 {
     opacity: 1;
   }
 }
+.MakeDefaultContent_hidden {
+  opacity: 0;
+  transition: none;
+}
+.MakeDefaultContent_revealable {
+  transition: opacity 0.3s ease-in-out;
+  animation: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .MakeDefaultContent_content {
     animation: none;
+  }
+  .MakeDefaultContent_revealable {
+    transition: none;
   }
 }
 
@@ -3665,6 +3679,16 @@ h2 {
   margin: 0;
   text-box-trim: trim-both;
   text-box-edge: cap alphabetic;
+  transition: opacity 0.3s ease-in-out;
+}
+.StepHeader_subtitle.StepHeader_hidden {
+  opacity: 0;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .StepHeader_subtitle {
+    transition: none;
+  }
 }
 
 /* pages/onboarding/app/v4/components/DuckPlayerContent.module.css */
@@ -3958,7 +3982,7 @@ h2 {
 @keyframes GetStartedContent_slide-up {
   0%, 40.74% {
     translate: 0 41px;
-    animation-timing-function: cubic-bezier(0.66, 0.00, 0.34, 1.00);
+    animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
   }
   77.78%, 100% {
     translate: 0 0;
@@ -3967,15 +3991,25 @@ h2 {
 @keyframes GetStartedContent_fade-in {
   0%, 51.85% {
     opacity: 0;
-    animation-timing-function: cubic-bezier(0.66, 0.00, 0.34, 1.00);
+    animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
   }
   81.48%, 100% {
     opacity: 1;
   }
 }
+.GetStartedContent_hidden {
+  opacity: 0;
+  transition: none;
+}
+.GetStartedContent_revealable {
+  transition: opacity 0.3s ease-in-out;
+}
 @media (prefers-reduced-motion: reduce) {
   .GetStartedContent_root {
     animation: none;
+  }
+  .GetStartedContent_revealable {
+    transition: none;
   }
 }
 

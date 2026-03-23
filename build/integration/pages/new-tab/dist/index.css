@@ -3833,7 +3833,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   font: var(--input-font);
   left: 0;
   padding: var(--sp-3);
-  padding-right: calc(var(--suffix-text-width) + var(--sp-1) + var(--sp-8) + var(--sp-1));
+  padding-right: calc(var(--sp-1) + var(--sp-8) + var(--sp-1));
   position: absolute;
   right: 0;
 }
@@ -3848,15 +3848,20 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   outline: none;
 }
 .SearchForm_suffixSpacer {
+  flex: none;
   font: var(--input-font);
+  max-width: calc(100% - var(--sp-1) - var(--sp-8) - var(--sp-1));
   overflow: hidden;
   visibility: hidden;
   white-space: nowrap;
 }
 .SearchForm_suffix {
   color: var(--ds-color-theme-accent-primary);
-  flex: none;
   font: var(--input-font);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .SearchForm_closeButton {
   align-items: center;
@@ -3921,6 +3926,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   display: flex;
   height: var(--sp-8);
   justify-content: flex-start;
+  text-align: left;
   padding: 0 var(--sp-2) 0 0;
 }
 .SuggestionsList_item svg {
@@ -3944,15 +3950,15 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   background: var(--ds-color-theme-accent-secondary);
 }
 .SuggestionsList_title {
-  flex: none;
-  max-width: 60%;
+  flex: 0 1.5 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .SuggestionsList_suffix {
   color: var(--ds-color-theme-text-tertiary);
-  flex: initial;
+  flex: 1 1 auto;
   font-size: 12px;
   overflow: hidden;
   text-overflow: ellipsis;

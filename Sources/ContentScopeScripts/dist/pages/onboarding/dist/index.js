@@ -25408,14 +25408,18 @@
 
   // pages/onboarding/app/shared/components/SettingsProvider.js
   var SettingsContext = R(
-    /** @type {{platform: {name: ImportMeta['platform']}|undefined}} */
+    /** @type {SettingsContextValue} */
     {}
   );
-  function SettingsProvider({ platform, children }) {
-    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { platform } }, children);
+  function SettingsProvider({ platform, typingEffect = "title", children }) {
+    const value2 = T2(() => ({ platform, typingEffect }), [platform, typingEffect]);
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: value2 }, children);
   }
   function usePlatformName() {
     return x2(SettingsContext).platform?.name;
+  }
+  function useTypingEffect() {
+    return x2(SettingsContext).typingEffect;
   }
 
   // pages/onboarding/app/global.js
@@ -28252,7 +28256,7 @@
   // pages/onboarding/app/v3/components/Heading.js
   var import_classnames7 = __toESM(require_classnames(), 1);
 
-  // pages/onboarding/app/shared/components/Typed.js
+  // pages/onboarding/app/v3/components/Typed.js
   function Typed({ text: text2, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
     const globalState = x2(GlobalContext);
     const { activeStep } = globalState;
@@ -28807,7 +28811,7 @@
   }
 
   // pages/onboarding/app/v4/components/SingleStep.js
-  var import_classnames25 = __toESM(require_classnames(), 1);
+  var import_classnames27 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/Bubble.js
   var import_classnames13 = __toESM(require_classnames(), 1);
@@ -28823,6 +28827,7 @@
     "fade-out": "Bubble_fade-out",
     fadeIn: "Bubble_fadeIn",
     "fade-in": "Bubble_fade-in",
+    deferred: "Bubble_deferred",
     bottomLeftTail: "Bubble_bottomLeftTail",
     active: "Bubble_active",
     rightTail: "Bubble_rightTail"
@@ -28903,6 +28908,7 @@
     onExitComplete,
     progress,
     fadeInDelay,
+    fadeInMode = "normal",
     ...props
   }) {
     const { isReducedMotion } = useEnv();
@@ -28975,7 +28981,11 @@
       "div",
       {
         ref: containerCallback,
-        class: (0, import_classnames13.default)(Bubble_default.container, isMounted.current && (exiting ? Bubble_default.fadeOut : Bubble_default.fadeIn)),
+        class: (0, import_classnames13.default)(Bubble_default.container, {
+          [Bubble_default.fadeOut]: isMounted.current && exiting,
+          [Bubble_default.deferred]: isMounted.current && !exiting && fadeInMode === "deferred",
+          [Bubble_default.fadeIn]: isMounted.current && !exiting && fadeInMode === "normal"
+        }),
         style: fadeInDelay !== void 0 ? { "--fade-in-delay": `${fadeInDelay}ms` } : void 0,
         onAnimationEnd: complete
       },
@@ -29035,6 +29045,86 @@
       ),
       /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: gradientId, x1: "1.52344", y1: "26.5039", x2: "1.59056", y2: "26.5039", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { style: "stop-color: var(--bubble-bg)" }), /* @__PURE__ */ _("stop", { offset: "1", style: "stop-color: var(--bubble-border)" })))
     ));
+  }
+
+  // pages/onboarding/app/v4/components/Typed.js
+  function Typed2({ text: text2, onComplete = null, delay = 20, startDelay = 0, ...rest }) {
+    const globalState = x2(GlobalContext);
+    const { activeStep } = globalState;
+    const pre = A2(
+      /** @type {string|undefined} */
+      void 0
+    );
+    y2(() => {
+      if (activeStep && pre.current) {
+        if (text2 === pre.current) {
+          onComplete?.();
+          return;
+        }
+      }
+      pre.current = text2;
+    }, [activeStep, text2]);
+    return /* @__PURE__ */ _(TypedInner2, { key: text2, text: text2, onComplete, delay, startDelay, ...rest });
+  }
+  function TypedInner2({ text: text2, onComplete, delay, startDelay, ...rest }) {
+    const { isReducedMotion } = useEnv();
+    const [waiting, setWaiting] = d2(startDelay > 0 && !isReducedMotion);
+    const [currentIndex, setCurrentIndex] = d2(0);
+    y2(() => {
+      if (!waiting) return;
+      const timer = setTimeout(() => setWaiting(false), startDelay);
+      return () => clearTimeout(timer);
+    }, [waiting, startDelay]);
+    y2(() => {
+      if (waiting) return;
+      if (isReducedMotion) {
+        setCurrentIndex(text2.length);
+        onComplete?.();
+        return;
+      }
+      const controller = new AbortController();
+      let enabled2 = true;
+      document.body.addEventListener(
+        "pointerdown",
+        (e3) => {
+          let clickedElement = (
+            /** @type {HTMLElement|null} */
+            e3.target
+          );
+          let level = 0;
+          const maxLevels = 3;
+          while (clickedElement && level < maxLevels) {
+            if (clickedElement.matches("button")) {
+              return;
+            }
+            clickedElement = clickedElement.parentElement;
+            level += 1;
+          }
+          setCurrentIndex(text2.length);
+          enabled2 = false;
+        },
+        { signal: controller.signal }
+      );
+      if (currentIndex < text2.length) {
+        const timeout = setTimeout(
+          () => {
+            if (!enabled2) return;
+            setCurrentIndex((prevIndex) => prevIndex + 1);
+          },
+          text2[currentIndex] === "\n" ? delay * 10 : delay
+        );
+        return () => {
+          clearTimeout(timeout);
+          controller.abort();
+        };
+      } else {
+        onComplete?.();
+        return () => controller.abort();
+      }
+    }, [currentIndex, delay, text2, waiting]);
+    const currentText = text2.slice(0, currentIndex);
+    const remainingText = text2.slice(currentIndex);
+    return /* @__PURE__ */ _("span", { "aria-label": text2, ...rest }, currentText, remainingText && /* @__PURE__ */ _("span", { style: { visibility: "hidden" }, "aria-hidden": "true" }, remainingText));
   }
 
   // pages/onboarding/app/v4/components/ComparisonTable.js
@@ -29349,14 +29439,16 @@
     content: "MakeDefaultContent_content",
     "stagger-fade-in": "MakeDefaultContent_stagger-fade-in",
     actions: "MakeDefaultContent_actions",
-    skipButton: "MakeDefaultContent_skipButton"
+    skipButton: "MakeDefaultContent_skipButton",
+    revealable: "MakeDefaultContent_revealable"
   };
 
   // pages/onboarding/app/v4/components/MakeDefaultContent.js
   var bubbleFadeInDelayOverride = new URLSearchParams(window.location.search).get("bubbleFadeInDelay");
-  function MakeDefaultContent({ advance, updateSystemValue }) {
+  function MakeDefaultContent({ advance, onTitleComplete, updateSystemValue }) {
     const { t: t3 } = useTypedTranslation();
     const globalState = useGlobalState();
+    const hasTypingEffect = !!useTypingEffect();
     const isPending = globalState.status.kind === "executing" && globalState.status.action.kind === "update-system-value" && globalState.status.action.id === "default-browser";
     const showSkipButton = !isPending && globalState.UIValues["default-browser"] === "idle";
     const [showSuccess, setShowSuccess] = d2(false);
@@ -29391,7 +29483,22 @@
     const defaultOffset = 250;
     const parsedOffset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
     const staggerDelay = defaultBubbleDelay + (Number.isNaN(parsedOffset) ? defaultOffset : parsedOffset);
-    return /* @__PURE__ */ _(Container, { class: MakeDefaultContent_default.root }, /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.titleContainer }, /* @__PURE__ */ _(Title, { titleRef, class: MakeDefaultContent_default.title }, showSuccess ? t3("makeDefaultAccept_title_v4") : t3("protectionsActivated_title")), /* @__PURE__ */ _(
+    let titleContent;
+    if (showSuccess) {
+      titleContent = t3("makeDefaultAccept_title_v4");
+    } else if (hasTypingEffect && !globalState.activeStepVisible) {
+      titleContent = /* @__PURE__ */ _(
+        Typed2,
+        {
+          text: t3("protectionsActivated_title"),
+          startDelay: 800,
+          onComplete: onTitleComplete
+        }
+      );
+    } else {
+      titleContent = t3("protectionsActivated_title");
+    }
+    return /* @__PURE__ */ _(Container, { class: MakeDefaultContent_default.root }, /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.titleContainer }, /* @__PURE__ */ _(Title, { titleRef, class: MakeDefaultContent_default.title }, titleContent), /* @__PURE__ */ _(
       LottieAnimation,
       {
         src: "assets/lottie/v4/sparkle.json",
@@ -29402,7 +29509,18 @@
         autoplay: false,
         animationRef: sparkleRef
       }
-    )), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.content, style: { "--stagger-delay": `${staggerDelay}ms` } }, /* @__PURE__ */ _(ComparisonTable2, null), /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.actions }, skipButtonMounted && /* @__PURE__ */ _(Button2, { buttonRef: skipButtonRef, class: MakeDefaultContent_default.skipButton, variant: "secondary", onClick: advance }, t3("skipButton")), /* @__PURE__ */ _(Button2, { buttonRef: primaryButtonRef, disabled: isPending, onClick: showSkipButton ? enableDefaultBrowser : advance }, showSkipButton ? t3("makeDefaultButton") : t3("nextButton")))));
+    )), /* @__PURE__ */ _(
+      "div",
+      {
+        class: (0, import_classnames18.default)(MakeDefaultContent_default.content, {
+          [MakeDefaultContent_default.revealable]: hasTypingEffect,
+          [MakeDefaultContent_default.hidden]: hasTypingEffect && !globalState.activeStepVisible
+        }),
+        style: { "--stagger-delay": `${staggerDelay}ms` }
+      },
+      /* @__PURE__ */ _(ComparisonTable2, null),
+      /* @__PURE__ */ _("div", { class: MakeDefaultContent_default.actions }, skipButtonMounted && /* @__PURE__ */ _(Button2, { buttonRef: skipButtonRef, class: MakeDefaultContent_default.skipButton, variant: "secondary", onClick: advance }, t3("skipButton")), /* @__PURE__ */ _(Button2, { buttonRef: primaryButtonRef, disabled: isPending, onClick: showSkipButton ? enableDefaultBrowser : advance }, showSkipButton ? t3("makeDefaultButton") : t3("nextButton")))
+    ));
   }
 
   // pages/onboarding/app/v4/components/SettingsContent.js
@@ -29523,20 +29641,33 @@
     throw new Error("unreachable");
   }
 
+  // pages/onboarding/app/v4/components/StepHeader.js
+  var import_classnames20 = __toESM(require_classnames(), 1);
+
   // pages/onboarding/app/v4/components/StepHeader.module.css
   var StepHeader_default = {
     root: "StepHeader_root",
     title: "StepHeader_title",
-    subtitle: "StepHeader_subtitle"
+    subtitle: "StepHeader_subtitle",
+    hidden: "StepHeader_hidden"
   };
 
   // pages/onboarding/app/v4/components/StepHeader.js
-  function StepHeader({ title, subtitle }) {
-    return /* @__PURE__ */ _("div", { class: StepHeader_default.root }, /* @__PURE__ */ _("h2", { class: StepHeader_default.title }, title), subtitle && /* @__PURE__ */ _("p", { class: StepHeader_default.subtitle }, subtitle));
+  function StepHeader({ title, subtitle, onTitleComplete }) {
+    const hasTypingEffect = !!useTypingEffect();
+    const { activeStepVisible } = useGlobalState();
+    return /* @__PURE__ */ _("div", { class: StepHeader_default.root }, /* @__PURE__ */ _("h2", { class: StepHeader_default.title }, hasTypingEffect ? /* @__PURE__ */ _(
+      Typed2,
+      {
+        text: title,
+        startDelay: 800,
+        onComplete: onTitleComplete
+      }
+    ) : title), subtitle && /* @__PURE__ */ _("p", { class: (0, import_classnames20.default)(StepHeader_default.subtitle, { [StepHeader_default.hidden]: hasTypingEffect && !activeStepVisible }) }, subtitle));
   }
 
   // pages/onboarding/app/v4/components/DuckPlayerContent.js
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/DuckPlayerContent.module.css
   var DuckPlayerContent_default = {
@@ -29641,7 +29772,7 @@
         ref: (el) => {
           videosRef.current.with = el;
         },
-        class: (0, import_classnames20.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "with" }),
+        class: (0, import_classnames21.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "with" }),
         src: "assets/videos/v4/duck-player-enabled.mp4",
         muted: true,
         playsInline: true,
@@ -29654,7 +29785,7 @@
         ref: (el) => {
           videosRef.current.without = el;
         },
-        class: (0, import_classnames20.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "without" }),
+        class: (0, import_classnames21.default)(DuckPlayerContent_default.video, { [DuckPlayerContent_default.hidden]: state.target !== "without" }),
         src: "assets/videos/v4/duck-player-disabled.mp4",
         muted: true,
         playsInline: true,
@@ -29665,7 +29796,7 @@
   }
 
   // pages/onboarding/app/v4/components/AddressBarPreview.js
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/AddressBarPreview.module.css
   var AddressBarPreview_default2 = {
@@ -29804,10 +29935,10 @@
     ))), /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames21.default)(AddressBarPreview_default2.bgOverlay, isReduced && AddressBarPreview_default2.bgReduced),
+        class: (0, import_classnames22.default)(AddressBarPreview_default2.bgOverlay, isReduced && AddressBarPreview_default2.bgReduced),
         style: { backgroundColor: colors.addressBarBg, boxShadow: colors.addressBarShadow }
       }
-    ), /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(AddressBarPreview_default2.borderOverlay, isReduced && AddressBarPreview_default2.borderReduced), style: { borderColor: colors.addressBarBorder } }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(AddressBarPreview_default2.borderOverlay, isReduced && AddressBarPreview_default2.borderReduced), style: { borderColor: colors.addressBarBorder } }), /* @__PURE__ */ _(
       "svg",
       {
         class: AddressBarPreview_default2.regularIcon,
@@ -29941,6 +30072,9 @@
     return /* @__PURE__ */ _("div", { class: WelcomeContent_default.root, onAnimationEnd: complete }, /* @__PURE__ */ _(LottieAnimation, { class: WelcomeContent_default.logo, src: "assets/lottie/v4/dax-logo.json", width: 96, height: 96 }), /* @__PURE__ */ _("h1", { class: WelcomeContent_default.title }, t3("welcome_title_v4")));
   }
 
+  // pages/onboarding/app/v4/components/GetStartedContent.js
+  var import_classnames23 = __toESM(require_classnames(), 1);
+
   // pages/onboarding/app/v4/components/GetStartedContent.module.css
   var GetStartedContent_default = {
     root: "GetStartedContent_root",
@@ -29948,18 +30082,46 @@
     "fade-in": "GetStartedContent_fade-in",
     text: "GetStartedContent_text",
     title: "GetStartedContent_title",
-    body: "GetStartedContent_body"
+    body: "GetStartedContent_body",
+    hidden: "GetStartedContent_hidden",
+    revealable: "GetStartedContent_revealable"
   };
 
   // pages/onboarding/app/v4/components/GetStartedContent.js
-  function GetStartedContent({ advance }) {
+  function GetStartedContent({ advance, onTitleComplete }) {
     const { t: t3 } = useTypedTranslation();
+    const hasTypingEffect = !!useTypingEffect();
+    const { activeStepVisible } = useGlobalState();
     const [title, body] = t3("getStarted_title_v4", { newline: "\n" }).split("{paragraph}");
-    return /* @__PURE__ */ _(Container, { class: GetStartedContent_default.root }, /* @__PURE__ */ _("div", { class: GetStartedContent_default.text }, /* @__PURE__ */ _(Title, { class: GetStartedContent_default.title }, title), /* @__PURE__ */ _("p", { class: GetStartedContent_default.body }, body)), /* @__PURE__ */ _(Button2, { size: "stretch", onClick: advance }, t3("getStartedButton_v4")));
+    return /* @__PURE__ */ _(Container, { class: GetStartedContent_default.root }, /* @__PURE__ */ _("div", { class: GetStartedContent_default.text }, /* @__PURE__ */ _(Title, { class: GetStartedContent_default.title }, hasTypingEffect ? /* @__PURE__ */ _(
+      Typed2,
+      {
+        text: title,
+        startDelay: 800,
+        onComplete: onTitleComplete
+      }
+    ) : title), /* @__PURE__ */ _(
+      "p",
+      {
+        class: (0, import_classnames23.default)(GetStartedContent_default.body, {
+          [GetStartedContent_default.revealable]: hasTypingEffect,
+          [GetStartedContent_default.hidden]: hasTypingEffect && !activeStepVisible
+        })
+      },
+      body
+    )), /* @__PURE__ */ _(
+      Button2,
+      {
+        class: (0, import_classnames23.default)({ [GetStartedContent_default.revealable]: hasTypingEffect, [GetStartedContent_default.hidden]: hasTypingEffect && !activeStepVisible }),
+        size: "stretch",
+        onClick: advance
+      },
+      t3("getStartedButton_v4")
+    ));
   }
 
   // pages/onboarding/app/v4/components/GetStartedAnimation.js
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames24 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/GetStartedAnimation.module.css
   var GetStartedAnimation_default = {
@@ -29974,7 +30136,7 @@
     return /* @__PURE__ */ _(
       LottieAnimation,
       {
-        class: (0, import_classnames22.default)(GetStartedAnimation_default.root, exiting && GetStartedAnimation_default.fadeOut, className),
+        class: (0, import_classnames24.default)(GetStartedAnimation_default.root, exiting && GetStartedAnimation_default.fadeOut, className),
         src: "assets/lottie/v4/dax-in-spotlight-thumbs-up.json",
         darkSrc: "assets/lottie/v4/dax-in-spotlight-thumbs-up-dark.json",
         width: 274,
@@ -29984,7 +30146,7 @@
   }
 
   // pages/onboarding/app/v4/components/SystemSettingsAnimation.js
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames25 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/SystemSettingsAnimation.module.css
   var SystemSettingsAnimation_default = {
@@ -30000,7 +30162,7 @@
     return /* @__PURE__ */ _(
       LottieAnimation,
       {
-        class: (0, import_classnames23.default)(SystemSettingsAnimation_default.background, exiting && SystemSettingsAnimation_default.fadeOut),
+        class: (0, import_classnames25.default)(SystemSettingsAnimation_default.background, exiting && SystemSettingsAnimation_default.fadeOut),
         src: "assets/lottie/v4/dax-in-spotlight-pointing-background.json",
         darkSrc: "assets/lottie/v4/dax-in-spotlight-pointing-background-dark.json",
         width: 170,
@@ -30013,7 +30175,7 @@
     return /* @__PURE__ */ _(
       LottieAnimation,
       {
-        class: (0, import_classnames23.default)(SystemSettingsAnimation_default.foreground, exiting && SystemSettingsAnimation_default.fadeOut),
+        class: (0, import_classnames25.default)(SystemSettingsAnimation_default.foreground, exiting && SystemSettingsAnimation_default.fadeOut),
         src: "assets/lottie/v4/dax-in-spotlight-pointing-foreground.json",
         width: 170,
         height: 170
@@ -30022,7 +30184,7 @@
   }
 
   // pages/onboarding/app/v4/components/FadeTransition.js
-  var import_classnames24 = __toESM(require_classnames(), 1);
+  var import_classnames26 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v4/components/FadeTransition.module.css
   var FadeTransition_default = {
@@ -30056,7 +30218,7 @@
         setPhase("idle");
       }
     };
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)(phase === "exiting" && FadeTransition_default.fadeOut, phase === "entering" && FadeTransition_default.fadeIn), onAnimationEnd: advance }, phase === "idle" ? children : snapshot.content);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames26.default)(phase === "exiting" && FadeTransition_default.fadeOut, phase === "entering" && FadeTransition_default.fadeIn), onAnimationEnd: advance }, phase === "idle" ? children : snapshot.content);
   }
 
   // pages/onboarding/app/v4/components/DockInstructionsContent.module.css
@@ -30098,10 +30260,10 @@
         content: /* @__PURE__ */ _(WelcomeContent, { onComplete: advance })
       };
     },
-    getStarted: ({ enqueueNext, isShortViewport }) => {
+    getStarted: ({ enqueueNext, onTitleComplete, isShortViewport }) => {
       return {
         bottomBubble: {
-          content: /* @__PURE__ */ _(GetStartedContent, { advance: enqueueNext }),
+          content: /* @__PURE__ */ _(GetStartedContent, { advance: enqueueNext, onTitleComplete }),
           tail: isShortViewport ? void 0 : "bottom-left"
         },
         illustration: isShortViewport ? void 0 : {
@@ -30110,17 +30272,26 @@
         bubbleWidth: "narrow"
       };
     },
-    makeDefaultSingle: ({ enqueueNext, updateSystemValue }) => {
+    makeDefaultSingle: ({ enqueueNext, onTitleComplete, updateSystemValue }) => {
       return {
-        bottomBubble: { content: /* @__PURE__ */ _(MakeDefaultContent, { advance: enqueueNext, updateSystemValue }) },
+        bottomBubble: {
+          content: /* @__PURE__ */ _(MakeDefaultContent, { advance: enqueueNext, onTitleComplete, updateSystemValue })
+        },
         showProgress: true
       };
     },
-    systemSettings: ({ t: t3, globalState, enqueueNext, dismiss, updateSystemValue }) => {
+    systemSettings: ({ t: t3, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
       const { overlay, activeStep, activeRow } = globalState;
       return {
         topBubble: {
-          content: /* @__PURE__ */ _(StepHeader, { title: t3("systemSettings_title_v3"), subtitle: t3("systemSettings_subtitle_v3") }),
+          content: /* @__PURE__ */ _(
+            StepHeader,
+            {
+              title: t3("systemSettings_title_v3"),
+              subtitle: t3("systemSettings_subtitle_v3"),
+              onTitleComplete
+            }
+          ),
           tail: "right"
         },
         bottomBubble: {
@@ -30134,7 +30305,7 @@
         bounceKey: `${activeStep}-${activeRow}-${overlay ?? "none"}`
       };
     },
-    duckPlayerSingle: ({ t: t3, globalState, enqueueNext }) => {
+    duckPlayerSingle: ({ t: t3, globalState, enqueueNext, onTitleComplete }) => {
       const duckPlayerStep = (
         /** @type {import('../../types').DuckPlayerSingleStep} */
         globalState.stepDefinitions.duckPlayerSingle
@@ -30146,7 +30317,8 @@
             StepHeader,
             {
               title: isAdFree ? t3("duckPlayer_adFree_title") : t3("duckPlayer_v4_title", { newline: "\n" }),
-              subtitle: isAdFree ? t3("duckPlayer_adFree_subtitle", { newline: " " }) : t3("duckPlayer_v4_subtitle", { newline: "\n" })
+              subtitle: isAdFree ? t3("duckPlayer_adFree_subtitle", { newline: " " }) : t3("duckPlayer_v4_subtitle", { newline: "\n" }),
+              onTitleComplete
             }
           )
         },
@@ -30154,19 +30326,21 @@
         showProgress: true
       };
     },
-    customize: ({ t: t3, globalState, enqueueNext, dismiss, updateSystemValue }) => {
+    customize: ({ t: t3, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
       const { activeStep, activeRow } = globalState;
       return {
-        topBubble: { content: /* @__PURE__ */ _(StepHeader, { title: t3("customize_title_v3"), subtitle: t3("customize_subtitle_v3") }) },
+        topBubble: {
+          content: /* @__PURE__ */ _(StepHeader, { title: t3("customize_title_v3"), subtitle: t3("customize_subtitle_v3"), onTitleComplete })
+        },
         bottomBubble: { content: /* @__PURE__ */ _(SettingsContent, { advance: enqueueNext, dismiss, updateSystemValue }) },
         showProgress: true,
         bounceKey: `${activeStep}-${activeRow}`
       };
     },
-    addressBarMode: ({ t: t3, dismiss, updateSystemValue }) => {
+    addressBarMode: ({ t: t3, dismiss, onTitleComplete, updateSystemValue }) => {
       return {
         topBubble: {
-          content: /* @__PURE__ */ _(StepHeader, { title: t3("addressBarMode_title") })
+          content: /* @__PURE__ */ _(StepHeader, { title: t3("addressBarMode_title"), onTitleComplete })
         },
         bottomBubble: { content: /* @__PURE__ */ _(AddressBarContent, { dismiss, updateSystemValue }) },
         showProgress: true
@@ -30319,6 +30493,7 @@
     };
     const enqueueNext = () => dispatch({ kind: "enqueue-next" });
     const dismiss = () => dispatch({ kind: "dismiss" });
+    const onTitleComplete = () => dispatch({ kind: "title-complete" });
     const updateSystemValue = (id, payload, current) => dispatch({
       kind: "update-system-value",
       id,
@@ -30333,6 +30508,7 @@
       advance,
       enqueueNext,
       dismiss,
+      onTitleComplete,
       updateSystemValue,
       isShortViewport
     };
@@ -30362,9 +30538,15 @@
 
   // pages/onboarding/app/v4/components/SingleStep.js
   var bubbleWidthOverride = new URLSearchParams(window.location.search).get("bubbleWidth");
-  var bubbleFadeInDelayOverride2 = new URLSearchParams(window.location.search).get("bubbleFadeInDelay");
+  var staggeredBottomDelay = (() => {
+    const override = new URLSearchParams(window.location.search).get("bubbleFadeInDelay");
+    const offset = override ? Number.parseInt(override, 10) : 250;
+    return 400 + (Number.isNaN(offset) ? 250 : offset);
+  })();
   function SingleStep2() {
     const { content: content2, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey, illustration, advance } = useStepConfig2();
+    const hasTypingEffect = !!useTypingEffect();
+    const { activeStepVisible } = useGlobalState();
     const [topHeight, setTopHeight] = d2(0);
     const [bottomHeight, setBottomHeight] = d2(0);
     const layoutStyle = {
@@ -30377,10 +30559,31 @@
     if (!topBubble && !bottomBubble) {
       return content2 || null;
     }
+    let topFadeInMode = (
+      /** @type {'normal'|'skip'|'deferred'} */
+      "normal"
+    );
+    let bottomFadeInMode = (
+      /** @type {'normal'|'skip'|'deferred'} */
+      "normal"
+    );
+    let bottomFadeInDelay = (
+      /** @type {number|undefined} */
+      topBubble ? staggeredBottomDelay : void 0
+    );
+    if (hasTypingEffect) {
+      if (topBubble) {
+        topFadeInMode = "skip";
+        bottomFadeInMode = activeStepVisible ? "normal" : "deferred";
+        bottomFadeInDelay = 0;
+      } else {
+        bottomFadeInMode = "skip";
+      }
+    }
     return /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames25.default)(SingleStep_default2.layout, {
+        class: (0, import_classnames27.default)(SingleStep_default2.layout, {
           [SingleStep_default2.hasTop]: !!topBubble,
           [SingleStep_default2.hasBottom]: !!bottomBubble,
           [SingleStep_default2.narrow]: bubbleWidth === "narrow"
@@ -30397,7 +30600,8 @@
           bounceDelay: 300,
           exiting: globalState.exiting,
           onExitComplete: topBubble ? advance : void 0,
-          progress: showProgress && topBubble ? progress : void 0
+          progress: showProgress && topBubble ? progress : void 0,
+          fadeInMode: topFadeInMode
         },
         topBubble?.content
       ),
@@ -30413,12 +30617,8 @@
           exiting: globalState.exiting,
           onExitComplete: topBubble ? void 0 : advance,
           progress: showProgress && !topBubble ? progress : void 0,
-          fadeInDelay: topBubble ? (() => {
-            const defaultTopDelay = 400;
-            const defaultOffset = 250;
-            const offset = bubbleFadeInDelayOverride2 ? Number.parseInt(bubbleFadeInDelayOverride2, 10) : defaultOffset;
-            return defaultTopDelay + (Number.isNaN(offset) ? defaultOffset : offset);
-          })() : void 0
+          fadeInMode: bottomFadeInMode,
+          fadeInDelay: bottomFadeInDelay
         },
         bottomBubble?.content
       ),
@@ -31906,6 +32106,7 @@
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./types.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
+     * @param {'title'|null} [params.typingEffect] - typing effect variant for titles
      */
     constructor({
       platform = { name: "macos" },
@@ -31913,7 +32114,8 @@
       orderName = "v3",
       stepDefinitions: stepDefinitions3 = stepDefinitions,
       first = "welcome",
-      exclude = []
+      exclude = [],
+      typingEffect = "title"
     } = {}) {
       this.platform = platform;
       this.order = order;
@@ -31921,6 +32123,7 @@
       this.stepDefinitions = stepDefinitions3;
       this.first = first;
       this.exclude = exclude;
+      this.typingEffect = typingEffect;
     }
     withPlatformName(name2) {
       const valid = ["windows", "macos", "ios", "android"];
@@ -32017,6 +32220,15 @@
           first
         });
       }
+      return this;
+    }
+    /**
+     * @param {string|null|undefined} typingEffect
+     * @return {Settings}
+     */
+    withTypingEffect(typingEffect) {
+      if (typingEffect === "none") return new _Settings({ ...this, typingEffect: null });
+      if (typingEffect === "title") return new _Settings({ ...this, typingEffect: "title" });
       return this;
     }
     /**
@@ -32210,13 +32422,13 @@
       return onboarding_default;
     });
     const defaultStepDefinitions = init2.order === "v4" ? stepDefinitions2 : stepDefinitions;
-    const settings = new Settings().withPlatformName(baseEnvironment.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment.urlParams.get("platform")).withStepDefinitions(defaultStepDefinitions).withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page"));
+    const settings = new Settings().withPlatformName(baseEnvironment.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment.urlParams.get("platform")).withStepDefinitions(defaultStepDefinitions).withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page")).withTypingEffect(environment.urlParams.get("typingEffect"));
     const root2 = document.querySelector("#app");
     if (!root2) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
       const AppComponent = settings.orderName === "v4" ? App2 : App;
       J(
-        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ _(SettingsProvider, { platform: settings.platform }, /* @__PURE__ */ _(
+        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ _(SettingsProvider, { platform: settings.platform, typingEffect: settings.typingEffect }, /* @__PURE__ */ _(
           GlobalProvider,
           {
             messaging: onboarding,
