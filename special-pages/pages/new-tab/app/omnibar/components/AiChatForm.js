@@ -12,6 +12,7 @@ import { useModelSelector } from './hooks/useModelSelector';
 import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
 import { AiChatImageUploadButton } from './AiChatImageUploadButton';
 import { AiChatModelSelector } from './AiChatModelSelector';
+import { Tooltip } from '../../components/Tooltip/Tooltip.js';
 import styles from './AiChatForm.module.css';
 
 /**
@@ -48,6 +49,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         handleRemoveImage,
         clearAttachedImages,
         imageUploadDisabled,
+        imageLimitExceeded,
         getImagesForSubmission,
     } = useImageAttachments();
     const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
@@ -96,7 +98,8 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         }
     }, [query]);
 
-    const disabled = query.length === 0;
+    const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: '3' });
+    const disabled = query.length === 0 || imageLimitExceeded;
 
     /**
      * @param {string} chat
@@ -182,6 +185,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         <form
             ref={formRef}
             class={styles.form}
+            data-image-warning={imageLimitExceeded || undefined}
             onSubmit={handleSubmit}
             onClick={(e) => {
                 if (e.target === e.currentTarget || e.target === textAreaRef.current) {
@@ -189,6 +193,11 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
                 }
             }}
         >
+            {imageLimitExceeded && (
+                <p class={styles.imageWarning} role="alert">
+                    {imageLimitWarning}
+                </p>
+            )}
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
@@ -211,14 +220,24 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
             <AiChatImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
             <div tabIndex={-1} class={styles.buttons}>
                 <div class={styles.toolButtons}>
-                    {selectedModel?.supportsImageUpload && (
-                        <AiChatImageUploadButton
-                            fileInputRef={fileInputRef}
-                            disabled={imageUploadDisabled}
-                            onChange={handleFileChange}
-                            ariaLabel={t('omnibar_attachImageLabel')}
-                        />
-                    )}
+                    {selectedModel?.supportsImageUpload &&
+                        (imageUploadDisabled ? (
+                            <Tooltip content={imageLimitWarning} position="above">
+                                <AiChatImageUploadButton
+                                    fileInputRef={fileInputRef}
+                                    disabled={imageUploadDisabled}
+                                    onChange={handleFileChange}
+                                    ariaLabel={t('omnibar_attachImageLabel')}
+                                />
+                            </Tooltip>
+                        ) : (
+                            <AiChatImageUploadButton
+                                fileInputRef={fileInputRef}
+                                disabled={imageUploadDisabled}
+                                onChange={handleFileChange}
+                                ariaLabel={t('omnibar_attachImageLabel')}
+                            />
+                        ))}
                 </div>
                 <div class={styles.rightButtons}>
                     {aiModelSections.length > 0 && (

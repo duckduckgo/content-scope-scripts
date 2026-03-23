@@ -241,6 +241,10 @@
     "title": "Select model",
     "description": "Accessible label for the AI model selector dropdown."
   },
+  "omnibar_imageAttachmentLimitWarning": {
+    "title": "You can only attach {limit} images at a time",
+    "description": "Warning shown when user attaches more images than the allowed maximum."
+  },
   "omnibar_advancedModelsSectionHeader": {
     "title": "Advanced Models - DuckDuckGo subscription",
     "description": "Section header in the model picker for premium models that require a subscription."

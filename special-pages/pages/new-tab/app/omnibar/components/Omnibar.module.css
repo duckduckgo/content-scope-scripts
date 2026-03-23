@@ -94,6 +94,18 @@
     }
 }
 
+/* Image limit exceeded */
+.root:has([data-image-warning]) .popup {
+    border: 2px solid var(--color-red-50);
+    border-radius: 15px;
+    margin: 0;
+    outline: none;
+
+    .field {
+        margin: 1px;
+    }
+}
+
 /* Suggestions */
 .root:has([role="listbox"]) .popup {
     border-radius: 15px;

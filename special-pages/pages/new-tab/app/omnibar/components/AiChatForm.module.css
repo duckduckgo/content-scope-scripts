@@ -92,6 +92,14 @@
     }
 }
 
+.imageWarning {
+    align-self: stretch;
+    color: var(--color-red-50);
+    font-size: 13px;
+    margin: 0;
+    padding: var(--sp-2) var(--sp-3) 0;
+}
+
 .buttons {
     align-items: center;
     align-self: stretch;
@@ -152,7 +160,6 @@
 .toolButtonDisabled {
     color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
     cursor: default;
-    pointer-events: none;
 }
 
 .toolButtonActive {
