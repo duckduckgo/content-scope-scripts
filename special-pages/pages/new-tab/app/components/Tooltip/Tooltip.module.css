@@ -12,9 +12,8 @@
 }
 
 .tooltip {
-    position: absolute;
-    bottom: -20px;
-    left: calc(100% + 8px);
+    position: fixed;
+    pointer-events: none;
     padding: 8px 16px;
     border-radius: 12px;
     background-color: var(--ds-color-theme-surface-tertiary);
@@ -22,15 +21,23 @@
     font-size: 12px;
     line-height: 15px;
     color: var(--ds-color-theme-text-primary);
+    z-index: 1000;
+}
+
+.tooltipRight {
     white-space: normal;
     width: 236px;
-    z-index: 1000;
     animation: tooltipFadeIn 300ms ease;
 
     & span {
       display: block;
       margin-top: 22px;
     }
+}
+
+.tooltipAbove {
+    white-space: nowrap;
+    width: auto;
 }
 
 @keyframes tooltipFadeIn {
