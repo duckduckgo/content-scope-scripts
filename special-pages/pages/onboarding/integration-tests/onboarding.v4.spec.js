@@ -11,7 +11,7 @@ test.describe('onboarding v4', () => {
         await onboarding.reducedMotion();
         await onboarding.openPage({ env: 'app', page: 'getStarted' });
         await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
-        await page.getByText('Protections activated').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
 
         await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'makeDefaultSingle' });
     });
@@ -308,17 +308,17 @@ test.describe('onboarding v4', () => {
         await page.getByText('Welcome to DuckDuckGo').waitFor({ timeout: 1000 });
 
         // Get started (welcome auto-advances after ~3.7s animation)
-        await page.getByText('Hi there').waitFor({ timeout: 5000 });
+        await page.getByRole('heading', { name: 'Hi there' }).waitFor({ timeout: 5000 });
         await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
 
         // Make default
-        await page.getByText('Protections activated').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click();
         await page.getByText('Excellent!').waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Next' }).click();
 
         // System settings
-        await page.getByText('Let\u2019s get you set up!').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Let\u2019s get you set up!' }).waitFor({ timeout: 1000 });
         const dockButton = onboarding.build.switch({
             windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
             apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
@@ -328,20 +328,20 @@ test.describe('onboarding v4', () => {
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Duckplayer
-        await page.getByText('Drowning in ads').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Drowning in ads' }).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'See Without Duck Player' }).click();
         await page.getByRole('button', { name: 'See With Duck Player' }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Customize
-        await page.getByText('Let\u2019s customize a few things').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Let\u2019s customize a few things' }).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
         await page.getByRole('button', { name: 'Enable Session Restore' }).click();
         await page.getByRole('button', { name: 'Show Home Button' }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Address bar mode
-        await page.getByText('Want easy access to private AI Chat?').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
         await page.getByRole('button', { name: 'Search Only' }).click();
         await onboarding.startBrowsing();

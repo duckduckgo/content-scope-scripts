@@ -145,17 +145,11 @@ export function Bubble({
             )}
             <div
                 ref={containerCallback}
-                class={cn(
-                    styles.container,
-                    isMounted.current &&
-                        (exiting
-                            ? styles.fadeOut
-                            : fadeInMode === 'skip'
-                              ? null
-                              : fadeInMode === 'deferred'
-                                ? styles.deferred
-                                : styles.fadeIn),
-                )}
+                class={cn(styles.container, {
+                    [styles.fadeOut]: isMounted.current && exiting,
+                    [styles.deferred]: isMounted.current && !exiting && fadeInMode === 'deferred',
+                    [styles.fadeIn]: isMounted.current && !exiting && fadeInMode === 'normal',
+                })}
                 style={fadeInDelay !== undefined ? { '--fade-in-delay': `${fadeInDelay}ms` } : undefined}
                 onAnimationEnd={complete}
             >
