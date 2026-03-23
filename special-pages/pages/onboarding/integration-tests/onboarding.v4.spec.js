@@ -185,7 +185,7 @@ test.describe('onboarding v4', () => {
 
             // Ad-free title and subtitle are shown
             await expect(page.getByRole('heading', { name: 'Watch YouTube ad-free!', level: 2 })).toBeVisible();
-            await expect(page.getByText(/No need for a premium subscription/)).toBeVisible();
+            await expect(page.getByText(/No need for extensions or third-party plugins/)).toBeVisible();
 
             // Toggle button is hidden
             await expect(page.getByRole('button', { name: 'See Without Duck Player' })).not.toBeVisible();
