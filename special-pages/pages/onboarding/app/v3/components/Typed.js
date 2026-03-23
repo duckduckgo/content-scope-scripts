@@ -13,9 +13,8 @@ import { GlobalContext } from '../../global';
  * @param {(() => void) | null} [props.onComplete=null] - A callback function to be called when the typing is complete.
  * @param {boolean} [props.paused=false] - Pauses typing
  * @param {number} [props.delay=20] - The delay (in milliseconds) between each character being typed.
- * @param {number} [props.startDelay=0] - Delay (in milliseconds) before typing begins.
  */
-export function Typed({ text, children = null, onComplete = null, paused = false, delay = 20, startDelay = 0, ...rest }) {
+export function Typed({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
     const globalState = useContext(GlobalContext);
     const { activeStep } = globalState;
     const pre = useRef(/** @type {string|undefined} */ (undefined));
@@ -29,27 +28,20 @@ export function Typed({ text, children = null, onComplete = null, paused = false
         pre.current = text;
     }, [activeStep, text]);
     return (
-        <TypedInner key={text} text={text} onComplete={onComplete} paused={paused} delay={delay} startDelay={startDelay} {...rest}>
+        <TypedInner key={text} text={text} onComplete={onComplete} paused={paused} delay={delay} {...rest}>
             {children}
         </TypedInner>
     );
 }
 
-function TypedInner({ text, onComplete, paused, delay, startDelay, children, ...rest }) {
+function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
     const { isReducedMotion } = useEnv();
     const [screenWidth, setScreenWidth] = useState(0);
     const [coords, setCoords] = useState({ left: 0, width: 0 });
     const [complete, setLocalComplete] = useState(false);
-    const [waiting, setWaiting] = useState(startDelay > 0 && !isReducedMotion);
 
     const [currentText, setCurrentText] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);
-
-    useEffect(() => {
-        if (!waiting) return;
-        const timer = setTimeout(() => setWaiting(false), startDelay);
-        return () => clearTimeout(timer);
-    }, [waiting, startDelay]);
 
     const actual = useRef(/** @type {null | HTMLSpanElement } */ (null));
     const overlay = useRef(/** @type {null | HTMLSpanElement} */ (null));
@@ -63,7 +55,6 @@ function TypedInner({ text, onComplete, paused, delay, startDelay, children, ...
         if (isReducedMotion) {
             setCurrentText(text);
             setCurrentIndex(text.length);
-            localOnComplete();
         }
     }, [isReducedMotion, localOnComplete]);
 
@@ -79,7 +70,7 @@ function TypedInner({ text, onComplete, paused, delay, startDelay, children, ...
     }, []);
 
     useEffect(() => {
-        if (paused || waiting) return () => {};
+        if (paused) return () => {};
 
         const controller = new AbortController();
         let enabled = true;
@@ -124,7 +115,7 @@ function TypedInner({ text, onComplete, paused, delay, startDelay, children, ...
             localOnComplete();
             return () => controller.abort();
         }
-    }, [currentIndex, delay, text, paused, waiting]);
+    }, [currentIndex, delay, text, paused]);
 
     function updatePlacement() {
         const actualCurrent = /** @type {HTMLSpanElement} */ (actual.current);
@@ -154,7 +145,7 @@ function TypedInner({ text, onComplete, paused, delay, startDelay, children, ...
 
     return (
         <div style={{ position: 'relative', width: '100%', whiteSpace: 'pre-line' }} aria-label={text} {...rest}>
-            <span style={{ visibility: 'hidden', paddingRight: '10px' }} aria-hidden="true" ref={actual}>
+            <span style={{ visibility: 'hidden', paddingRight: '10px' }} ref={actual}>
                 {text}
             </span>
             <span

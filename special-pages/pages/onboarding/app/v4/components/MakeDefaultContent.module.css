@@ -9,7 +9,6 @@
 
 .title {
     padding: calc(2 * var(--px-in-rem)) var(--sp-3); /* 2px 12px */
-    text-box-trim: none; /* override Title's trim so height stays stable when <Typed> swaps to plain text */
 }
 
 .sparkle {

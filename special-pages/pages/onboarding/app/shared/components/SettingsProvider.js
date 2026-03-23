@@ -1,5 +1,5 @@
 import { h, createContext } from 'preact';
-import { useContext } from 'preact/hooks';
+import { useContext, useMemo } from 'preact/hooks';
 
 /**
  * @typedef {object} SettingsContextValue
@@ -16,7 +16,8 @@ const SettingsContext = createContext(/** @type {SettingsContextValue} */ ({}));
  * @param {import("preact").ComponentChild} params.children
  */
 export function SettingsProvider({ platform, typingEffect = 'title', children }) {
-    return <SettingsContext.Provider value={{ platform, typingEffect }}>{children}</SettingsContext.Provider>;
+    const value = useMemo(() => ({ platform, typingEffect }), [platform, typingEffect]);
+    return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
 
 export function usePlatformName() {

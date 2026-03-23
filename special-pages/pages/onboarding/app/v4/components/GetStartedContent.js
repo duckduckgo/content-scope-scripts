@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import { useTypedTranslation } from '../../types';
-import { Typed } from '../../shared/components/Typed';
+import { Typed } from './Typed';
 import { useTypingEffect } from '../../shared/components/SettingsProvider';
 import { useGlobalState } from '../../global';
 import { Button } from './Button';

@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useRef, useState } from 'preact/hooks';
 import { useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
-import { Typed } from '../../shared/components/Typed';
+import { Typed } from './Typed';
 import { useTypingEffect } from '../../shared/components/SettingsProvider';
 import { ComparisonTable } from './ComparisonTable';
 import { Button } from './Button';
