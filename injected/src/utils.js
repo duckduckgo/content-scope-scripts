@@ -922,6 +922,7 @@ export const platformSpecificFeatures = [
     'webEvents',
     'pageObserver',
     'hover',
+    'trackerProtection',
 ];
 /**
  * @param {string} featureName
