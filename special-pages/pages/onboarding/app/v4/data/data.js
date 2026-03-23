@@ -25,10 +25,10 @@ export const stepsConfig = {
             content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: ({ enqueueNext, isShortViewport }) => {
+    getStarted: ({ enqueueNext, onTitleComplete, isShortViewport }) => {
         return {
             bottomBubble: {
-                content: <GetStartedContent advance={enqueueNext} />,
+                content: <GetStartedContent advance={enqueueNext} onTitleComplete={onTitleComplete} />,
                 tail: isShortViewport ? undefined : 'bottom-left',
             },
             illustration: isShortViewport
@@ -39,18 +39,28 @@ export const stepsConfig = {
             bubbleWidth: 'narrow',
         };
     },
-    makeDefaultSingle: ({ enqueueNext, updateSystemValue }) => {
+    makeDefaultSingle: ({ enqueueNext, onTitleComplete, updateSystemValue }) => {
         return {
-            bottomBubble: { content: <MakeDefaultContent advance={enqueueNext} updateSystemValue={updateSystemValue} /> },
+            bottomBubble: {
+                content: (
+                    <MakeDefaultContent advance={enqueueNext} onTitleComplete={onTitleComplete} updateSystemValue={updateSystemValue} />
+                ),
+            },
             showProgress: true,
         };
     },
-    systemSettings: ({ t, globalState, enqueueNext, dismiss, updateSystemValue }) => {
+    systemSettings: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
         const { overlay, activeStep, activeRow } = globalState;
 
         return {
             topBubble: {
-                content: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} />,
+                content: (
+                    <StepHeader
+                        title={t('systemSettings_title_v3')}
+                        subtitle={t('systemSettings_subtitle_v3')}
+                        onTitleComplete={onTitleComplete}
+                    />
+                ),
                 tail: 'right',
             },
             bottomBubble: {
@@ -74,7 +84,7 @@ export const stepsConfig = {
             bounceKey: `${activeStep}-${activeRow}-${overlay ?? 'none'}`,
         };
     },
-    duckPlayerSingle: ({ t, globalState, enqueueNext }) => {
+    duckPlayerSingle: ({ t, globalState, enqueueNext, onTitleComplete }) => {
         const duckPlayerStep = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
         const isAdFree = duckPlayerStep.variant === 'ad-free';
 
@@ -86,6 +96,7 @@ export const stepsConfig = {
                         subtitle={
                             isAdFree ? t('duckPlayer_adFree_subtitle', { newline: ' ' }) : t('duckPlayer_v4_subtitle', { newline: '\n' })
                         }
+                        onTitleComplete={onTitleComplete}
                     />
                 ),
             },
@@ -93,20 +104,24 @@ export const stepsConfig = {
             showProgress: true,
         };
     },
-    customize: ({ t, globalState, enqueueNext, dismiss, updateSystemValue }) => {
+    customize: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
         const { activeStep, activeRow } = globalState;
 
         return {
-            topBubble: { content: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} /> },
+            topBubble: {
+                content: (
+                    <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} onTitleComplete={onTitleComplete} />
+                ),
+            },
             bottomBubble: { content: <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
             bounceKey: `${activeStep}-${activeRow}`,
         };
     },
-    addressBarMode: ({ t, dismiss, updateSystemValue }) => {
+    addressBarMode: ({ t, dismiss, onTitleComplete, updateSystemValue }) => {
         return {
             topBubble: {
-                content: <StepHeader title={t('addressBarMode_title')} />,
+                content: <StepHeader title={t('addressBarMode_title')} onTitleComplete={onTitleComplete} />,
             },
             bottomBubble: { content: <AddressBarContent dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
