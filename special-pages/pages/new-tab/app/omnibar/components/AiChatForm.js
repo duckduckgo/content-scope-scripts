@@ -65,12 +65,6 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         }
     }, [autoFocus]);
 
-    useEffect(() => {
-        if (!selectedModel?.supportsImageUpload) {
-            clearAttachedImages();
-        }
-    }, [selectedModel?.supportsImageUpload]);
-
     hasAttachedImagesRef.current = attachedImages.length > 0;
 
     useEffect(() => {
@@ -185,7 +179,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         <form
             ref={formRef}
             class={styles.form}
-            data-image-warning={imageLimitExceeded || undefined}
+            data-image-warning={(selectedModel?.supportsImageUpload && imageLimitExceeded) || undefined}
             onSubmit={handleSubmit}
             onClick={(e) => {
                 if (e.target === e.currentTarget || e.target === textAreaRef.current) {
@@ -193,7 +187,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
                 }
             }}
         >
-            {imageLimitExceeded && (
+            {selectedModel?.supportsImageUpload && imageLimitExceeded && (
                 <p class={styles.imageWarning} role="alert">
                     {imageLimitWarning}
                 </p>
@@ -217,7 +211,9 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
                     clearSelectedChat();
                 }}
             />
-            <AiChatImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
+            {selectedModel?.supportsImageUpload && (
+                <AiChatImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
+            )}
             <div tabIndex={-1} class={styles.buttons}>
                 <div class={styles.toolButtons}>
                     {selectedModel?.supportsImageUpload &&
