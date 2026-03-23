@@ -7,17 +7,13 @@ import { GlobalContext } from '../../global';
 /**
  * Character-by-character typing component for v4 onboarding.
  *
- * Renders as an inline <span> so it works inside elements with text-box-trim.
- * Supports startDelay for coordinating with bubble fade-in animations.
- *
  * @param {Object} props
  * @param {string} props.text - The text to type out.
  * @param {(() => void) | null} [props.onComplete=null] - Called when typing finishes.
- * @param {boolean} [props.paused=false] - Pauses typing.
  * @param {number} [props.delay=20] - Delay (ms) between each character.
  * @param {number} [props.startDelay=0] - Delay (ms) before typing begins.
  */
-export function Typed({ text, onComplete = null, paused = false, delay = 20, startDelay = 0, ...rest }) {
+export function Typed({ text, onComplete = null, delay = 20, startDelay = 0, ...rest }) {
     const globalState = useContext(GlobalContext);
     const { activeStep } = globalState;
     const pre = useRef(/** @type {string|undefined} */ (undefined));
@@ -30,14 +26,12 @@ export function Typed({ text, onComplete = null, paused = false, delay = 20, sta
         }
         pre.current = text;
     }, [activeStep, text]);
-    return <TypedInner key={text} text={text} onComplete={onComplete} paused={paused} delay={delay} startDelay={startDelay} {...rest} />;
+    return <TypedInner key={text} text={text} onComplete={onComplete} delay={delay} startDelay={startDelay} {...rest} />;
 }
 
-function TypedInner({ text, onComplete, paused, delay, startDelay, ...rest }) {
+function TypedInner({ text, onComplete, delay, startDelay, ...rest }) {
     const { isReducedMotion } = useEnv();
-    const [complete, setLocalComplete] = useState(false);
     const [waiting, setWaiting] = useState(startDelay > 0 && !isReducedMotion);
-
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
@@ -46,20 +40,14 @@ function TypedInner({ text, onComplete, paused, delay, startDelay, ...rest }) {
         return () => clearTimeout(timer);
     }, [waiting, startDelay]);
 
-    function localOnComplete() {
-        onComplete?.();
-        setLocalComplete(true);
-    }
-
     useEffect(() => {
-        if (isReducedMotion && !complete) {
+        if (waiting) return;
+
+        if (isReducedMotion) {
             setCurrentIndex(text.length);
-            localOnComplete();
+            onComplete?.();
+            return;
         }
-    }, [isReducedMotion, complete]);
-
-    useEffect(() => {
-        if (paused || waiting) return () => {};
 
         const controller = new AbortController();
         let enabled = true;
@@ -98,10 +86,10 @@ function TypedInner({ text, onComplete, paused, delay, startDelay, ...rest }) {
                 controller.abort();
             };
         } else {
-            localOnComplete();
+            onComplete?.();
             return () => controller.abort();
         }
-    }, [currentIndex, delay, text, paused, waiting]);
+    }, [currentIndex, delay, text, waiting]);
 
     const currentText = text.slice(0, currentIndex);
     const remainingText = text.slice(currentIndex);
