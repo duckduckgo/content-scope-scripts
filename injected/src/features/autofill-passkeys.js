@@ -10,7 +10,7 @@ export default class AutofillPasskeys extends ContentFeature {
     init() {
         if (!navigator.credentials || typeof navigator.credentials.get !== 'function') return;
 
-        /** @type {((value: Credential) => void) | null} */
+        /** @type {((value: Credential | null) => void) | null} */
         let pendingResolve = null;
         /** @type {((reason?: unknown) => void) | null} */
         let pendingReject = null;
@@ -47,7 +47,7 @@ export default class AutofillPasskeys extends ContentFeature {
             }
         });
 
-        this.wrapMethod(CredentialsContainer.prototype, 'get', function (originalGet, options) {
+        this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
             if (options?.mediation !== MEDIATION_CONDITIONAL) {
                 return originalGet.call(this, options);
             }
