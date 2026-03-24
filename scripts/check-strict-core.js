@@ -97,6 +97,7 @@ const CORE_FILES = new Set([
     'injected/src/features/gpc.js',
     'injected/src/features/navigator-interface.js',
     'injected/src/features/performance-metrics.js',
+    'injected/src/features/autofill-passkeys.js',
     'injected/src/types/feature-map.ts',
     'messaging/lib/messaging.types.d.ts',
     'messaging/lib/shared-types.ts',

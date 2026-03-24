@@ -9,6 +9,7 @@
 
 import type ApiManipulation from '../features/api-manipulation.js';
 import type AutofillImport from '../features/autofill-import.js';
+import type AutofillPasskeys from '../features/autofill-passkeys.js';
 import type BreakageReporting from '../features/breakage-reporting.js';
 import type BrokerProtection from '../features/broker-protection.js';
 import type BrowserUiLock from '../features/browser-ui-lock.js';
@@ -55,6 +56,7 @@ import type WindowsPermissionUsage from '../features/windows-permission-usage.js
 export interface FeatureMap {
     apiManipulation: ApiManipulation;
     autofillImport: AutofillImport;
+    autofillPasskeys: AutofillPasskeys;
     breakageReporting: BreakageReporting;
     brokerProtection: BrokerProtection;
     browserUiLock: BrowserUiLock;
