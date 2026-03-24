@@ -7,7 +7,7 @@ import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
-import { useImageAttachments } from './hooks/useImageAttachments';
+import { useImageAttachments, MAX_IMAGES } from './hooks/useImageAttachments';
 import { useModelSelector } from './hooks/useModelSelector';
 import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
 import { AiChatImageUploadButton } from './AiChatImageUploadButton';
@@ -94,7 +94,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         }
     }, [query]);
 
-    const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: '3' });
+    const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) });
     /** @type {string|null} */
     let imageErrorMessage = null;
     if (imageError) {

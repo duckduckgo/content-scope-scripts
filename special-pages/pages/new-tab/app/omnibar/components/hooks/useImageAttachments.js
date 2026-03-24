@@ -4,7 +4,7 @@ import { useRef, useState } from 'preact/hooks';
  * @typedef {{ dataUrl: string, fileName: string, mimeType: string }} AttachedImage
  */
 
-const MAX_IMAGES = 3;
+export const MAX_IMAGES = 3;
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 const FILE_READ_TIMEOUT = 30000;
 const MAX_DIMENSION = 512;
