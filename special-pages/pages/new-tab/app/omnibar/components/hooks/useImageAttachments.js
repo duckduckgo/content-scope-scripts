@@ -84,6 +84,7 @@ export function useImageAttachments() {
         const input = /** @type {HTMLInputElement} */ (event.currentTarget);
         const files = input.files;
         if (!files || files.length === 0) return;
+        setImageError(null);
 
         const existingNames = new Set(attachedImages.map((img) => img.fileName));
         const validFiles = Array.from(files).filter((file) => {
