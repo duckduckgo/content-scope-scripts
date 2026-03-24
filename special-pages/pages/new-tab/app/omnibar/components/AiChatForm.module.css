@@ -95,9 +95,23 @@
 .imageWarning {
     align-self: stretch;
     color: var(--color-red-50);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
     font-size: 13px;
     margin: 0;
     padding: var(--sp-2) var(--sp-3) 0;
+}
+
+.dismissError {
+    background: none;
+    border: none;
+    color: var(--color-red-50);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    margin-left: auto;
+    padding: 0 var(--sp-1);
 }
 
 .buttons {

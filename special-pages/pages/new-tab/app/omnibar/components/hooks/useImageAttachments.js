@@ -11,7 +11,7 @@ const MAX_DIMENSION = 512;
 const MAX_ENCODED_BYTES = 10 * 1024 * 1024;
 // Reject decoded images whose pixel count exceeds this threshold before
 // allocating the canvas, limiting decompression-bomb memory pressure.
-const MAX_DECODED_PIXELS = 4096 * 4096;
+const MAX_DECODED_PIXELS = 10000 * 10000;
 
 /**
  * Normalises an image via the Canvas API: converts to the target MIME type and
@@ -71,11 +71,13 @@ function normaliseImage(srcDataUrl, targetMime) {
 export function useImageAttachments() {
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
     const [attachedImages, setAttachedImages] = useState(/** @type {AttachedImage[]} */ ([]));
+    const [imageError, setImageError] = useState(/** @type {{ type: string, fileNames: string[] }|null} */ (null));
 
     const imageLimitExceeded = attachedImages.length > MAX_IMAGES;
     const imageUploadDisabled = attachedImages.length >= MAX_IMAGES;
 
     const clearAttachedImages = () => setAttachedImages([]);
+    const clearImageError = () => setImageError(null);
 
     /** @type {(event: Event) => Promise<void>} */
     const handleFileChange = async (event) => {
@@ -133,6 +135,24 @@ export function useImageAttachments() {
         const images = /** @type {PromiseFulfilledResult<AttachedImage>[]} */ (results.filter((r) => r.status === 'fulfilled')).map(
             (r) => r.value,
         );
+        const tooLargeNames = [];
+        const failedNames = [];
+        for (let i = 0; i < results.length; i++) {
+            const r = results[i];
+            if (r.status === 'rejected') {
+                const name = validFiles[i].name;
+                if (r.reason?.message?.includes('dimensions exceed')) {
+                    tooLargeNames.push(name);
+                } else {
+                    failedNames.push(name);
+                }
+            }
+        }
+        if (tooLargeNames.length > 0) {
+            setImageError({ type: 'imageTooLarge', fileNames: tooLargeNames });
+        } else if (failedNames.length > 0) {
+            setImageError({ type: 'processingFailed', fileNames: failedNames });
+        }
 
         if (images.length > 0) {
             setAttachedImages((prev) => [...prev, ...images]);
@@ -177,6 +197,8 @@ export function useImageAttachments() {
         clearAttachedImages,
         imageUploadDisabled,
         imageLimitExceeded,
+        imageError,
+        clearImageError,
         getImagesForSubmission,
     };
 }

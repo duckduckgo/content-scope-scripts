@@ -50,6 +50,8 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         clearAttachedImages,
         imageUploadDisabled,
         imageLimitExceeded,
+        imageError,
+        clearImageError,
         getImagesForSubmission,
     } = useImageAttachments();
     const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
@@ -93,6 +95,13 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
     }, [query]);
 
     const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: '3' });
+    /** @type {string|null} */
+    let imageErrorMessage = null;
+    if (imageError) {
+        const names = imageError.fileNames.join(', ');
+        const base = imageError.type === 'imageTooLarge' ? t('omnibar_imageTooLargeError') : t('omnibar_imageProcessingError');
+        imageErrorMessage = `${names}: ${base}`;
+    }
     const disabled = query.length === 0 || imageLimitExceeded;
 
     /**
@@ -190,6 +199,14 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
             {selectedModel?.supportsImageUpload && imageLimitExceeded && (
                 <p class={styles.imageWarning} role="alert">
                     {imageLimitWarning}
+                </p>
+            )}
+            {imageErrorMessage && (
+                <p class={styles.imageWarning} role="alert">
+                    {imageErrorMessage}
+                    <button class={styles.dismissError} type="button" onClick={clearImageError} aria-label="Dismiss">
+                        ×
+                    </button>
                 </p>
             )}
             <textarea
