@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
-const MSG_INBOUND_PASSKEY_PASSTHROUGH = 'passkeyPassthrough';
 const MSG_OUTBOUND_FEATURE = 'Autofill';
 const MSG_OUTBOUND_NAME = 'getPasskeys';
 const MEDIATION_CONDITIONAL = 'conditional';
@@ -37,18 +36,6 @@ export default class AutofillPasskeys extends ContentFeature {
 
                 const resolve = pendingResolve;
                 const reject = /** @type {(reason?: unknown) => void} */ (pendingReject);
-                pendingResolve = pendingReject = pendingOptions = null;
-
-                try {
-                    const credential = await savedOriginalGet(options);
-                    resolve(credential);
-                } catch (e) {
-                    reject(e);
-                }
-            } else if (event.data?.type === MSG_INBOUND_PASSKEY_PASSTHROUGH) {
-                const resolve = pendingResolve;
-                const reject = /** @type {(reason?: unknown) => void} */ (pendingReject);
-                const options = pendingOptions;
                 pendingResolve = pendingReject = pendingOptions = null;
 
                 try {
