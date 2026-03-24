@@ -85,9 +85,13 @@ export function useImageAttachments() {
         const files = input.files;
         if (!files || files.length === 0) return;
 
+        const existingNames = new Set(attachedImages.map((img) => img.fileName));
         const validFiles = Array.from(files).filter((file) => {
             if (!ALLOWED_FORMATS.includes(file.type)) {
                 console.warn('Attachment rejected: unsupported file type');
+                return false;
+            }
+            if (existingNames.has(file.name)) {
                 return false;
             }
             return true;
@@ -98,7 +102,16 @@ export function useImageAttachments() {
             return;
         }
 
-        const newImages = validFiles.map(
+        // Only process enough to reach MAX_IMAGES + 1 (to trigger the limit warning).
+        const processLimit = MAX_IMAGES + 1 - attachedImages.length;
+        const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
+
+        if (filesToProcess.length === 0) {
+            input.value = '';
+            return;
+        }
+
+        const newImages = filesToProcess.map(
             (file) =>
                 new Promise((resolve, reject) => {
                     const reader = new FileReader();
