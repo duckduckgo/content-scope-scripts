@@ -67,15 +67,16 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         }
     }, [autoFocus]);
 
-    hasAttachedImagesRef.current = attachedImages.length > 0;
+    const hasVisibleImages = !!(selectedModel?.supportsImageUpload && attachedImages.length > 0);
+    hasAttachedImagesRef.current = hasVisibleImages;
 
     useEffect(() => {
-        if (attachedImages.length > 0) {
+        if (hasVisibleImages) {
             hideChats();
         } else if (textAreaRef.current === document.activeElement) {
             showChats();
         }
-    }, [attachedImages.length]);
+    }, [hasVisibleImages]);
 
     useLayoutEffect(() => {
         const textArea = textAreaRef.current;
@@ -224,7 +225,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
                 onKeyDown={handleKeyDown}
                 onChange={(event) => {
                     onChange(event.currentTarget.value);
-                    if (attachedImages.length === 0) showChats();
+                    if (!hasVisibleImages) showChats();
                     clearSelectedChat();
                 }}
             />
