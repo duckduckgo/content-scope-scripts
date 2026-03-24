@@ -102,7 +102,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         const base = imageError.type === 'imageTooLarge' ? t('omnibar_imageTooLargeError') : t('omnibar_imageProcessingError');
         imageErrorMessage = `${names}: ${base}`;
     }
-    const disabled = query.length === 0 || imageLimitExceeded;
+    const disabled = query.length === 0 || (selectedModel?.supportsImageUpload && imageLimitExceeded);
 
     /**
      * @param {string} chat
