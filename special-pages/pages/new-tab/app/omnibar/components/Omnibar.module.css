@@ -106,8 +106,8 @@
     }
 }
 
-/* Suggestions */
-.root:has([role="listbox"]) .popup {
+/* Suggestions / AI chats list visible */
+.root:has([data-omnibar-list]) .popup {
     border-radius: 15px;
     margin: 0;
 
