@@ -16,6 +16,10 @@ export default class AutofillPasskeys extends ContentFeature {
         let pendingReject = null;
         /** @type {CredentialRequestOptions | null} */
         let pendingOptions = null;
+        /** @type {AbortSignal | null} */
+        let pendingSignal = null;
+        /** @type {(() => void) | null} */
+        let pendingAbortHandler = null;
 
         const savedOriginalGet = navigator.credentials.get.bind(navigator.credentials);
 
@@ -34,6 +38,11 @@ export default class AutofillPasskeys extends ContentFeature {
                 }
                 delete options.mediation;
 
+                if (pendingSignal && pendingAbortHandler) {
+                    pendingSignal.removeEventListener('abort', pendingAbortHandler);
+                }
+                pendingSignal = pendingAbortHandler = null;
+
                 const resolve = pendingResolve;
                 const reject = /** @type {(reason?: unknown) => void} */ (pendingReject);
                 pendingResolve = pendingReject = pendingOptions = null;
@@ -47,25 +56,50 @@ export default class AutofillPasskeys extends ContentFeature {
             }
         });
 
-        this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
-            if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
-                return originalGet.call(this, options);
-            }
+        this.wrapMethod(
+            CredentialsContainer.prototype,
+            'get',
+            /** @this {CredentialsContainer} */ function (originalGet, options) {
+                if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
+                    return originalGet.call(this, options);
+                }
 
-            const rpId = options?.publicKey?.rpId || location.hostname;
+                if (options.signal?.aborted) {
+                    return Promise.reject(options.signal.reason || new DOMException('The operation was aborted.', 'AbortError'));
+                }
 
-            // @ts-expect-error windowsInteropPostMessage is a Windows-specific global
-            windowsInteropPostMessage({
-                Feature: MSG_OUTBOUND_FEATURE,
-                Name: MSG_OUTBOUND_NAME,
-                Data: { rpId },
-            });
+                const rpId = options?.publicKey?.rpId || location.hostname;
 
-            return new Promise(function (resolve, reject) {
-                pendingResolve = resolve;
-                pendingReject = reject;
-                pendingOptions = options;
-            });
-        });
+                // @ts-expect-error windowsInteropPostMessage is a Windows-specific global
+                windowsInteropPostMessage({
+                    Feature: MSG_OUTBOUND_FEATURE,
+                    Name: MSG_OUTBOUND_NAME,
+                    Data: { rpId },
+                });
+
+                return new Promise(function (resolve, reject) {
+                    pendingResolve = resolve;
+                    pendingReject = reject;
+                    pendingOptions = options;
+                    pendingSignal = options.signal || null;
+
+                    if (pendingSignal) {
+                        pendingAbortHandler = function () {
+                            if (pendingSignal && pendingAbortHandler) {
+                                pendingSignal.removeEventListener('abort', pendingAbortHandler);
+                            }
+                            pendingSignal = pendingAbortHandler = null;
+
+                            if (!pendingReject) return;
+                            const pendingAbortReject = pendingReject;
+                            pendingResolve = pendingReject = pendingOptions = null;
+                            pendingAbortReject(options.signal?.reason || new DOMException('The operation was aborted.', 'AbortError'));
+                        };
+
+                        pendingSignal.addEventListener('abort', pendingAbortHandler, { once: true });
+                    }
+                });
+            },
+        );
     }
 }
