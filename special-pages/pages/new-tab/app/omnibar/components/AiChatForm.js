@@ -44,7 +44,6 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
 
     const {
         attachedImages,
-        fileInputRef,
         handleFileChange,
         handleRemoveImage,
         clearAttachedImages,
@@ -186,12 +185,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
     };
 
     const uploadButton = (
-        <AiChatImageUploadButton
-            fileInputRef={fileInputRef}
-            disabled={imageUploadDisabled}
-            onChange={handleFileChange}
-            ariaLabel={t('omnibar_attachImageLabel')}
-        />
+        <AiChatImageUploadButton disabled={imageUploadDisabled} onChange={handleFileChange} ariaLabel={t('omnibar_attachImageLabel')} />
     );
 
     return (

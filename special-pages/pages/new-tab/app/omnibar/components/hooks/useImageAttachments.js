@@ -1,4 +1,4 @@
-import { useRef, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 
 /**
  * @typedef {{ dataUrl: string, fileName: string, mimeType: string }} AttachedImage
@@ -71,7 +71,6 @@ function normaliseImage(srcDataUrl, targetMime) {
 }
 
 export function useImageAttachments() {
-    const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
     const [attachedImages, setAttachedImages] = useState(/** @type {AttachedImage[]} */ ([]));
     const [imageError, setImageError] = useState(/** @type {ImageError|null} */ (null));
 
@@ -207,7 +206,6 @@ export function useImageAttachments() {
 
     return {
         attachedImages,
-        fileInputRef,
         handleFileChange,
         handleRemoveImage,
         clearAttachedImages,

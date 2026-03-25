@@ -1,16 +1,18 @@
 import { h } from 'preact';
+import { useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { ImageIcon } from '../../components/Icons';
 import styles from './AiChatForm.module.css';
 
 /**
  * @param {object} props
- * @param {import('preact').RefObject<HTMLInputElement>} props.fileInputRef
  * @param {boolean} props.disabled
  * @param {(event: Event) => void} props.onChange
  * @param {string} props.ariaLabel
  */
-export function AiChatImageUploadButton({ fileInputRef, disabled, onChange, ariaLabel }) {
+export function AiChatImageUploadButton({ disabled, onChange, ariaLabel }) {
+    const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
+
     return (
         <label
             class={cn(styles.toolButton, disabled && styles.toolButtonDisabled)}
