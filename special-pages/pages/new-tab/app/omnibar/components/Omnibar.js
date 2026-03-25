@@ -154,7 +154,7 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
 function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { showChats, hideChats } = useAiChatsContext();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
-    const hasAttachedImagesRef = useRef(false);
+    const hasVisibleImagesRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
 
     return (
@@ -165,7 +165,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
             // Only show chats on textarea focus to avoid triggering when toolbar buttons (model selector, image upload) receive focus.
             // Skip when images are attached — the user's intent to use image chat is clear.
             onFocusCapture={(event) => {
-                if (event.target instanceof HTMLTextAreaElement && !hasAttachedImagesRef.current) showChats();
+                if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current) showChats();
             }}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
@@ -181,7 +181,9 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     autoFocus={autoFocus}
                     onChange={onChange}
                     onSubmit={onSubmit}
-                    hasAttachedImagesRef={hasAttachedImagesRef}
+                    onVisibleImagesChange={(hasImages) => {
+                        hasVisibleImagesRef.current = hasImages;
+                    }}
                     onImageWarningChange={setImageWarning}
                 />
             </ResizingContainer>

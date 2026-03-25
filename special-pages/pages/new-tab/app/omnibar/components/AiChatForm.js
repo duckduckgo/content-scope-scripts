@@ -27,10 +27,10 @@ import styles from './AiChatForm.module.css';
  * @param {boolean} [props.autoFocus]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
- * @param {import('preact').RefObject<boolean>} props.hasAttachedImagesRef
+ * @param {(hasImages: boolean) => void} props.onVisibleImagesChange
  * @param {(exceeded: boolean) => void} props.onImageWarningChange
  */
-export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedImagesRef, onImageWarningChange }) {
+export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImagesChange, onImageWarningChange }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat, setSelectedModelId: persistModelId, state } = useContext(OmnibarContext);
@@ -68,9 +68,11 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
     }, [autoFocus]);
 
     const hasVisibleImages = !!(selectedModel?.supportsImageUpload && attachedImages.length > 0);
-    hasAttachedImagesRef.current = hasVisibleImages;
 
     const showImageWarning = !!(selectedModel?.supportsImageUpload && imageLimitExceeded);
+    useEffect(() => {
+        onVisibleImagesChange(hasVisibleImages);
+    }, [hasVisibleImages]);
     useEffect(() => {
         onImageWarningChange(showImageWarning);
     }, [showImageWarning]);
