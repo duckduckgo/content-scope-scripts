@@ -185,6 +185,15 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
         submitWithToolState(query, eventToTarget(event, platformName));
     };
 
+    const uploadButton = (
+        <AiChatImageUploadButton
+            fileInputRef={fileInputRef}
+            disabled={imageUploadDisabled}
+            onChange={handleFileChange}
+            ariaLabel={t('omnibar_attachImageLabel')}
+        />
+    );
+
     return (
         <form
             ref={formRef}
@@ -237,20 +246,10 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
                     {selectedModel?.supportsImageUpload &&
                         (imageUploadDisabled ? (
                             <Tooltip content={imageLimitWarning} position="above">
-                                <AiChatImageUploadButton
-                                    fileInputRef={fileInputRef}
-                                    disabled={imageUploadDisabled}
-                                    onChange={handleFileChange}
-                                    ariaLabel={t('omnibar_attachImageLabel')}
-                                />
+                                {uploadButton}
                             </Tooltip>
                         ) : (
-                            <AiChatImageUploadButton
-                                fileInputRef={fileInputRef}
-                                disabled={imageUploadDisabled}
-                                onChange={handleFileChange}
-                                ariaLabel={t('omnibar_attachImageLabel')}
-                            />
+                            uploadButton
                         ))}
                 </div>
                 <div class={styles.rightButtons}>
