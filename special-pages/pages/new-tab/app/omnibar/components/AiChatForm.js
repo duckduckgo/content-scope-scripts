@@ -54,7 +54,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImag
         clearImageError,
         getImagesForSubmission,
     } = useImageAttachments();
-    const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
+    const { selectedModelId, selectedModel, modelDropdownOpen, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
         useModelSelector({
             aiModelSections,
             persistedModelId: state.config?.selectedModelId,
@@ -256,7 +256,6 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImag
                             selectedModel={selectedModel}
                             modelButtonRef={modelButtonRef}
                             modelDropdownOpen={modelDropdownOpen}
-                            dropdownPos={dropdownPos}
                             dropdownRef={dropdownRef}
                             toggleDropdown={toggleDropdown}
                             selectModel={selectModel}

@@ -7,20 +7,13 @@ import { getModelIcon } from '../../components/Icons';
  * @param {object} props
  * @param {import('../../../types/new-tab.js').AIModelSections} props.sections
  * @param {string} [props.selectedModelId]
- * @param {{right: number, top: number}} props.dropdownPos
  * @param {(id: string) => void} props.onSelect
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
-export function AiChatModelDropdown({ sections, selectedModelId, dropdownPos, onSelect, ariaLabel, dropdownRef }) {
+export function AiChatModelDropdown({ sections, selectedModelId, onSelect, ariaLabel, dropdownRef }) {
     return (
-        <ul
-            ref={dropdownRef}
-            class={styles.modelDropdown}
-            role="listbox"
-            aria-label={ariaLabel}
-            style={{ right: `${dropdownPos.right}px`, top: `${dropdownPos.top}px` }}
-        >
+        <ul ref={dropdownRef} class={styles.modelDropdown} role="listbox" aria-label={ariaLabel}>
             {sections.map((section, sectionIndex) => (
                 <Fragment key={sectionIndex}>
                     {section.header && (

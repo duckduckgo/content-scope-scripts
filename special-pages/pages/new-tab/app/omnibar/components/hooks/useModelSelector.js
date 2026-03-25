@@ -1,27 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { computePosition, flip, shift, offset, autoUpdate } from '@floating-ui/dom';
 
 /**
  * @typedef {import('../../../../types/new-tab.js').AIModelSections} AIModelSections
  * @typedef {AIModelSections[number]['items'][number]} AIModelItem
  */
-
-/**
- * Walks up the DOM to find the nearest ancestor that creates a containing block
- * for `position: fixed` (e.g. transform, will-change, filter, backdrop-filter).
- * @param {Element} el
- * @returns {Element | null}
- */
-function findContainingBlock(el) {
-    let parent = el.parentElement;
-    while (parent && parent !== document.body) {
-        const style = getComputedStyle(parent);
-        if (style.transform !== 'none' || style.willChange === 'transform' || style.filter !== 'none' || style.backdropFilter !== 'none') {
-            return parent;
-        }
-        parent = parent.parentElement;
-    }
-    return null;
-}
 
 /**
  * @param {object} options
@@ -32,7 +15,6 @@ function findContainingBlock(el) {
 export function useModelSelector({ aiModelSections, persistedModelId, onModelChange }) {
     const [userSelectedId, setUserSelectedId] = useState(/** @type {string|null} */ (null));
     const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
-    const [dropdownPos, setDropdownPos] = useState(/** @type {{right: number, top: number}|null} */ (null));
     const modelButtonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
     const dropdownRef = useRef(/** @type {HTMLUListElement|null} */ (null));
 
@@ -55,6 +37,24 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
         [allModels, selectedModelId, firstEnabled],
     );
 
+    useLayoutEffect(() => {
+        if (!modelDropdownOpen || !modelButtonRef.current || !dropdownRef.current) return;
+
+        const reference = modelButtonRef.current;
+        const floating = dropdownRef.current;
+
+        return autoUpdate(reference, floating, async () => {
+            const { x, y } = await computePosition(reference, floating, {
+                placement: 'bottom-end',
+                middleware: [offset(4), flip(), shift({ padding: 8 })],
+            });
+            Object.assign(floating.style, {
+                left: `${x}px`,
+                top: `${y}px`,
+            });
+        });
+    }, [modelDropdownOpen]);
+
     useEffect(() => {
         if (!modelDropdownOpen) return;
         /** @param {MouseEvent} e */
@@ -64,24 +64,13 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
             if (dropdownRef.current?.contains(target)) return;
             setModelDropdownOpen(false);
         };
-        const handleResize = () => setModelDropdownOpen(false);
         document.addEventListener('click', handleClickOutside, true);
-        window.addEventListener('resize', handleResize);
         return () => {
             document.removeEventListener('click', handleClickOutside, true);
-            window.removeEventListener('resize', handleResize);
         };
     }, [modelDropdownOpen]);
 
     const toggleDropdown = () => {
-        if (!modelDropdownOpen && modelButtonRef.current) {
-            const rect = modelButtonRef.current.getBoundingClientRect();
-            const cb = findContainingBlock(modelButtonRef.current);
-            const cbRect = cb?.getBoundingClientRect();
-            const rightEdge = cbRect?.right ?? window.innerWidth;
-            const topOffset = cbRect?.top ?? 0;
-            setDropdownPos({ right: rightEdge - rect.right, top: rect.bottom - topOffset + 4 });
-        }
         setModelDropdownOpen((prev) => !prev);
     };
 
@@ -97,7 +86,6 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
         selectedModelId,
         selectedModel,
         modelDropdownOpen,
-        dropdownPos,
         modelButtonRef,
         dropdownRef,
         toggleDropdown,

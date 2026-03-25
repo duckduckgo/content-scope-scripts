@@ -290,6 +290,7 @@
     border-radius: 10px;
     border: 0.5px solid rgba(0, 0, 0, 0.25);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
+    left: 0;
     list-style: none;
     margin: 0;
     max-height: 400px;
@@ -297,6 +298,8 @@
     overflow-y: auto;
     padding: 3px;
     position: fixed;
+    top: 0;
+    width: max-content;
     z-index: 100;
 
     [data-theme="dark"] & {

@@ -1,12 +1,18 @@
 import { h } from 'preact';
-import { useState, useId, useRef } from 'preact/hooks';
+import { useState, useId, useRef, useLayoutEffect } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
+import { computePosition, flip, shift, offset } from '@floating-ui/dom';
 import styles from './Tooltip.module.css';
 import cn from 'classnames';
 
 /**
  * @typedef {'right' | 'above'} TooltipPosition
  */
+
+const PLACEMENT_MAP = /** @type {const} */ ({
+    right: 'right',
+    above: 'top',
+});
 
 /**
  * A tooltip component that appears on hover and keyboard focus.
@@ -18,49 +24,42 @@ import cn from 'classnames';
  * @param {TooltipPosition} [props.position] - Where the tooltip appears relative to trigger. Defaults to 'right'.
  */
 export function Tooltip({ children, content, className, position = 'right' }) {
-    const [rect, setRect] = useState(/** @type {DOMRect | null} */ (null));
+    const [isVisible, setIsVisible] = useState(false);
     const tooltipId = useId();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const tooltipRef = useRef(/** @type {HTMLDivElement|null} */ (null));
 
-    const show = () => {
-        if (!containerRef.current) return;
-        setRect(containerRef.current.getBoundingClientRect());
-    };
-
-    const hide = () => setRect(null);
+    const show = () => setIsVisible(true);
+    const hide = () => setIsVisible(false);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            if (rect) {
-                hide();
-            } else {
-                show();
-            }
+            setIsVisible((prev) => !prev);
         }
         if (e.key === 'Escape') {
             hide();
         }
     };
 
-    const isVisible = rect !== null;
+    useLayoutEffect(() => {
+        if (!isVisible || !containerRef.current || !tooltipRef.current) return;
 
-    /** @type {import('preact').JSX.CSSProperties | undefined} */
-    let tooltipStyle;
-    if (rect) {
-        if (position === 'above') {
-            tooltipStyle = {
-                top: `${rect.top}px`,
-                left: `${rect.left + rect.width / 2}px`,
-                transform: 'translate(-50%, calc(-100% - 6px))',
-            };
-        } else {
-            tooltipStyle = {
-                top: `${rect.top - 20}px`,
-                left: `${rect.right + 8}px`,
-            };
-        }
-    }
+        const reference = containerRef.current;
+        const floating = tooltipRef.current;
+
+        const update = async () => {
+            const { x, y } = await computePosition(reference, floating, {
+                placement: PLACEMENT_MAP[position],
+                middleware: [offset(6), flip(), shift({ padding: 8 })],
+            });
+            Object.assign(floating.style, {
+                left: `${x}px`,
+                top: `${y}px`,
+            });
+        };
+        update();
+    }, [isVisible, position]);
 
     const tooltipClass = position === 'above' ? cn(styles.tooltip, styles.tooltipAbove) : cn(styles.tooltip, styles.tooltipRight);
 
@@ -81,10 +80,10 @@ export function Tooltip({ children, content, className, position = 'right' }) {
             {isVisible &&
                 createPortal(
                     <div
+                        ref={tooltipRef}
                         id={tooltipId}
                         class={tooltipClass}
                         role="tooltip"
-                        style={tooltipStyle}
                         dangerouslySetInnerHTML={{ __html: content }}
                     />,
                     document.body,

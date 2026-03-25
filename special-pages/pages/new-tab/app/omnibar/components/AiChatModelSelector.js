@@ -9,7 +9,6 @@ import styles from './AiChatForm.module.css';
  * @param {import('./hooks/useModelSelector').AIModelItem | null} props.selectedModel
  * @param {import('preact').RefObject<HTMLButtonElement>} props.modelButtonRef
  * @param {boolean} props.modelDropdownOpen
- * @param {{right: number, top: number} | null} props.dropdownPos
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {() => void} props.toggleDropdown
  * @param {(id: string) => void} props.selectModel
@@ -20,7 +19,6 @@ export function AiChatModelSelector({
     selectedModel,
     modelButtonRef,
     modelDropdownOpen,
-    dropdownPos,
     dropdownRef,
     toggleDropdown,
     selectModel,
@@ -44,12 +42,11 @@ export function AiChatModelSelector({
                 <span class={styles.modelButtonLabel}>{selectedModel?.shortName ?? ariaLabel}</span>
                 <ChevronSmall />
             </button>
-            {modelDropdownOpen && dropdownPos && (
+            {modelDropdownOpen && (
                 <AiChatModelDropdown
                     dropdownRef={dropdownRef}
                     sections={aiModelSections}
                     selectedModelId={selectedModel?.id}
-                    dropdownPos={dropdownPos}
                     onSelect={selectModel}
                     ariaLabel={ariaLabel}
                 />
