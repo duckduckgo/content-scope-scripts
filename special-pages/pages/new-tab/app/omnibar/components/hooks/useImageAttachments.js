@@ -6,6 +6,13 @@ import { useState } from 'preact/hooks';
  * @typedef {{ type: ImageErrorType, fileNames: string[] }} ImageError
  */
 
+class ImageTooLargeError extends Error {
+    constructor(/** @type {string} */ message) {
+        super(message);
+        this.name = 'ImageTooLargeError';
+    }
+}
+
 export const MAX_IMAGES = 3;
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
 const FILE_READ_TIMEOUT = 30000;
@@ -32,7 +39,7 @@ function normaliseImage(srcDataUrl, targetMime) {
             let { naturalWidth: w, naturalHeight: h } = img;
 
             if (w * h > MAX_DECODED_PIXELS) {
-                reject(new Error('Decoded image dimensions exceed safety threshold'));
+                reject(new ImageTooLargeError('Decoded image dimensions exceed safety threshold'));
                 return;
             }
 
@@ -59,7 +66,7 @@ function normaliseImage(srcDataUrl, targetMime) {
             }
 
             if (result.length > MAX_ENCODED_BYTES) {
-                reject(new Error(`Encoded image too large (${(result.length / 1024 / 1024).toFixed(1)}MB)`));
+                reject(new ImageTooLargeError('Encoded image exceeds size limit'));
                 return;
             }
 
@@ -156,7 +163,7 @@ export function useImageAttachments() {
             const r = results[i];
             if (r.status === 'rejected') {
                 const name = validFiles[i].name;
-                if (r.reason?.message?.includes('dimensions exceed')) {
+                if (r.reason instanceof ImageTooLargeError) {
                     tooLargeNames.push(name);
                 } else {
                     failedNames.push(name);
