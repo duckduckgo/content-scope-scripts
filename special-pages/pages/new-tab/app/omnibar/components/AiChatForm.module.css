@@ -177,11 +177,6 @@
     pointer-events: none;
 }
 
-.toolButtonActive {
-    background: var(--ds-color-theme-surface-secondary);
-    color: var(--ds-color-theme-accent-primary);
-}
-
 .submitButton {
     align-items: center;
     animation: fadeIn 0.3s ease-in-out;
