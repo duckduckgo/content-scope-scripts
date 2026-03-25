@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 /**
  * Walks up the DOM to find the nearest ancestor that creates a containing block
- * for `position: fixed` (e.g. transform, will-change: transform, filter).
+ * for `position: fixed` (e.g. transform, will-change, filter, backdrop-filter).
  * @param {Element} el
  * @returns {Element | null}
  */
@@ -15,7 +15,7 @@ function findContainingBlock(el) {
     let parent = el.parentElement;
     while (parent && parent !== document.body) {
         const style = getComputedStyle(parent);
-        if (style.transform !== 'none' || style.willChange === 'transform' || style.filter !== 'none') {
+        if (style.transform !== 'none' || style.willChange === 'transform' || style.filter !== 'none' || style.backdropFilter !== 'none') {
             return parent;
         }
         parent = parent.parentElement;
