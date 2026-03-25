@@ -2,6 +2,8 @@ import { useRef, useState } from 'preact/hooks';
 
 /**
  * @typedef {{ dataUrl: string, fileName: string, mimeType: string }} AttachedImage
+ * @typedef {'imageTooLarge' | 'processingFailed'} ImageErrorType
+ * @typedef {{ type: ImageErrorType, fileNames: string[] }} ImageError
  */
 
 export const MAX_IMAGES = 3;
@@ -71,7 +73,7 @@ function normaliseImage(srcDataUrl, targetMime) {
 export function useImageAttachments() {
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
     const [attachedImages, setAttachedImages] = useState(/** @type {AttachedImage[]} */ ([]));
-    const [imageError, setImageError] = useState(/** @type {{ type: string, fileNames: string[] }|null} */ (null));
+    const [imageError, setImageError] = useState(/** @type {ImageError|null} */ (null));
 
     const imageLimitExceeded = attachedImages.length > MAX_IMAGES;
     const imageUploadDisabled = attachedImages.length >= MAX_IMAGES;
