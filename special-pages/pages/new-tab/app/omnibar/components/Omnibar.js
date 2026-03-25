@@ -155,10 +155,12 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const { showChats, hideChats } = useAiChatsContext();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasAttachedImagesRef = useRef(false);
+    const [imageWarning, setImageWarning] = useState(false);
 
     return (
         <div
             ref={containerRef}
+            data-image-warning={imageWarning || undefined}
             // Using capture-phase events because WebKit doesn't reliably fire bubbling focus/blur (e.g. address bar, window refocus).
             // Only show chats on textarea focus to avoid triggering when toolbar buttons (model selector, image upload) receive focus.
             // Skip when images are attached — the user's intent to use image chat is clear.
@@ -180,6 +182,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     onChange={onChange}
                     onSubmit={onSubmit}
                     hasAttachedImagesRef={hasAttachedImagesRef}
+                    onImageWarningChange={setImageWarning}
                 />
             </ResizingContainer>
             {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
