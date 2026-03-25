@@ -209,7 +209,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImag
                     {imageLimitWarning}
                 </p>
             )}
-            {imageErrorMessage && (
+            {selectedModel?.supportsImageUpload && imageErrorMessage && (
                 <p class={styles.imageWarning} role="alert">
                     {imageErrorMessage}
                     <button class={styles.dismissError} type="button" onClick={clearImageError} aria-label="Dismiss">
