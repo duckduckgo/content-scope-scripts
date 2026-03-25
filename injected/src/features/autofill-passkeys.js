@@ -48,7 +48,7 @@ export default class AutofillPasskeys extends ContentFeature {
         });
 
         this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
-            if (options?.mediation !== MEDIATION_CONDITIONAL) {
+            if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
                 return originalGet.call(this, options);
             }
 
