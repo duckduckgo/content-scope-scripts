@@ -2,7 +2,7 @@ import ContentFeature from '../content-feature';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_FEATURE = 'Autofill';
-const MSG_OUTBOUND_NAME = 'getPasskeys';
+const MSG_OUTBOUND_NAME = 'registerPasskeyRequest';
 const MEDIATION_CONDITIONAL = 'conditional';
 const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
 
