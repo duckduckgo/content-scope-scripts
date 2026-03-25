@@ -56,40 +56,56 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
         [allModels, selectedModelId, firstEnabled],
     );
 
+    const cleanupRef = useRef(/** @type {(() => void) | null} */ (null));
+
     useEffect(() => {
-        if (!modelDropdownOpen) return;
+        return () => cleanupRef.current?.();
+    }, []);
+
+    const closeDropdown = () => {
+        cleanupRef.current?.();
+        cleanupRef.current = null;
+        setModelDropdownOpen(false);
+    };
+
+    const openDropdown = () => {
+        if (!modelButtonRef.current) return;
+        const rect = modelButtonRef.current.getBoundingClientRect();
+        const cb = findContainingBlock(modelButtonRef.current);
+        const cbRect = cb?.getBoundingClientRect();
+        const rightEdge = cbRect?.right ?? window.innerWidth;
+        const topOffset = cbRect?.top ?? 0;
+        setDropdownPos({ right: rightEdge - rect.right, top: rect.bottom - topOffset + 4 });
+        setModelDropdownOpen(true);
+
         /** @param {MouseEvent} e */
         const handleClickOutside = (e) => {
             const target = /** @type {Node} */ (e.target);
             if (modelButtonRef.current?.parentElement?.contains(target)) return;
             if (dropdownRef.current?.contains(target)) return;
-            setModelDropdownOpen(false);
+            closeDropdown();
         };
-        const handleResize = () => setModelDropdownOpen(false);
+        const handleResize = () => closeDropdown();
         document.addEventListener('click', handleClickOutside, true);
         window.addEventListener('resize', handleResize);
-        return () => {
+        cleanupRef.current = () => {
             document.removeEventListener('click', handleClickOutside, true);
             window.removeEventListener('resize', handleResize);
         };
-    }, [modelDropdownOpen]);
+    };
 
     const toggleDropdown = () => {
-        if (!modelDropdownOpen && modelButtonRef.current) {
-            const rect = modelButtonRef.current.getBoundingClientRect();
-            const cb = findContainingBlock(modelButtonRef.current);
-            const cbRect = cb?.getBoundingClientRect();
-            const rightEdge = cbRect?.right ?? window.innerWidth;
-            const topOffset = cbRect?.top ?? 0;
-            setDropdownPos({ right: rightEdge - rect.right, top: rect.bottom - topOffset + 4 });
+        if (modelDropdownOpen) {
+            closeDropdown();
+        } else {
+            openDropdown();
         }
-        setModelDropdownOpen((prev) => !prev);
     };
 
     /** @param {string} id */
     const selectModel = (id) => {
         if (!allModels.some((m) => m.id === id && m.isEnabled)) return;
-        setModelDropdownOpen(false);
+        closeDropdown();
         onModelChange?.(id);
     };
 
