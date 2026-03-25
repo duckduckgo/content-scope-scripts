@@ -30,7 +30,7 @@ function findContainingBlock(el) {
  * @param {(id: string) => void} [options.onModelChange] - Called when the user selects a model, to persist the choice
  */
 export function useModelSelector({ aiModelSections, persistedModelId, onModelChange }) {
-    const [selectedModelId, setSelectedModelId] = useState(/** @type {string|null} */ (persistedModelId ?? null));
+    const [userSelectedId, setUserSelectedId] = useState(/** @type {string|null} */ (null));
     const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
     const [dropdownPos, setDropdownPos] = useState(/** @type {{right: number, top: number}|null} */ (null));
     const modelButtonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
@@ -38,30 +38,22 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
 
     const allModels = useMemo(() => aiModelSections.flatMap((s) => s.items), [aiModelSections]);
     const firstEnabled = useMemo(() => allModels.find((m) => m.isEnabled) ?? null, [allModels]);
+
+    // Resolve the effective model ID: persisted > user choice > first enabled.
+    const selectedModelId = useMemo(() => {
+        if (persistedModelId && allModels.some((m) => m.id === persistedModelId && m.isEnabled)) {
+            return persistedModelId;
+        }
+        if (userSelectedId && allModels.some((m) => m.id === userSelectedId && m.isEnabled)) {
+            return userSelectedId;
+        }
+        return firstEnabled?.id ?? null;
+    }, [persistedModelId, userSelectedId, allModels, firstEnabled]);
+
     const selectedModel = useMemo(
         () => allModels.find((m) => m.id === selectedModelId && m.isEnabled) ?? firstEnabled,
         [allModels, selectedModelId, firstEnabled],
     );
-
-    // Unified reconciliation: persisted preference takes priority, then current
-    // selection (if still valid), then first enabled model as fallback.
-    // Merged into a single effect to prevent the two concerns from racing on
-    // the same render cycle (e.g. initial config load).
-    useEffect(() => {
-        if (persistedModelId && allModels.some((m) => m.id === persistedModelId && m.isEnabled)) {
-            if (selectedModelId !== persistedModelId) {
-                setSelectedModelId(persistedModelId);
-            }
-            return;
-        }
-        if (selectedModelId && allModels.some((m) => m.id === selectedModelId && m.isEnabled)) {
-            return;
-        }
-        if (firstEnabled) {
-            setSelectedModelId(firstEnabled.id);
-            onModelChange?.(firstEnabled.id);
-        }
-    }, [persistedModelId, aiModelSections, selectedModelId, firstEnabled]);
 
     useEffect(() => {
         if (!modelDropdownOpen) return;
@@ -96,7 +88,7 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
     /** @param {string} id */
     const selectModel = (id) => {
         if (!allModels.some((m) => m.id === id && m.isEnabled)) return;
-        setSelectedModelId(id);
+        setUserSelectedId(id);
         setModelDropdownOpen(false);
         onModelChange?.(id);
     };
