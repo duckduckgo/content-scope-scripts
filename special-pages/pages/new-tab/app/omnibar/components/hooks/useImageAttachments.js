@@ -216,3 +216,15 @@ export function useImageAttachments() {
         getImagesForSubmission,
     };
 }
+
+/**
+ * @param {ImageError|null} imageError
+ * @param {{imageTooLarge: string, processingFailed: string}} messages
+ * @returns {string|null}
+ */
+export function getImageErrorMessage(imageError, messages) {
+    if (!imageError) return null;
+    const names = imageError.fileNames.join(', ');
+    const base = imageError.type === 'imageTooLarge' ? messages.imageTooLarge : messages.processingFailed;
+    return `${names}: ${base}`;
+}

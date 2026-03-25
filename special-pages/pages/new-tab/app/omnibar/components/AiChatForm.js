@@ -7,7 +7,7 @@ import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
-import { useImageAttachments, MAX_IMAGES } from './hooks/useImageAttachments';
+import { useImageAttachments, MAX_IMAGES, getImageErrorMessage } from './hooks/useImageAttachments';
 import { useModelSelector } from './hooks/useModelSelector';
 import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
 import { AiChatImageUploadButton } from './AiChatImageUploadButton';
@@ -101,13 +101,10 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, hasAttachedIm
     }, [query]);
 
     const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) });
-    /** @type {string|null} */
-    let imageErrorMessage = null;
-    if (imageError) {
-        const names = imageError.fileNames.join(', ');
-        const base = imageError.type === 'imageTooLarge' ? t('omnibar_imageTooLargeError') : t('omnibar_imageProcessingError');
-        imageErrorMessage = `${names}: ${base}`;
-    }
+    const imageErrorMessage = getImageErrorMessage(imageError, {
+        imageTooLarge: t('omnibar_imageTooLargeError'),
+        processingFailed: t('omnibar_imageProcessingError'),
+    });
     const disabled = query.length === 0 || (selectedModel?.supportsImageUpload && imageLimitExceeded);
 
     /**
