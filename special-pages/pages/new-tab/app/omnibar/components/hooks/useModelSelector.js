@@ -36,7 +36,6 @@ function findContainingBlock(el) {
  * @param {(id: string) => void} [options.onModelChange] - Called when the user selects a model, to persist the choice
  */
 export function useModelSelector({ aiModelSections, persistedModelId, onModelChange }) {
-    const [userSelectedId, setUserSelectedId] = useState(/** @type {string|null} */ (null));
     const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
     const [dropdownPos, setDropdownPos] = useState(/** @type {{right: number, top: number}|null} */ (null));
     const modelButtonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
@@ -45,16 +44,12 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
     const allModels = useMemo(() => aiModelSections.flatMap((s) => s.items), [aiModelSections]);
     const firstEnabled = useMemo(() => allModels.find((m) => m.isEnabled) ?? null, [allModels]);
 
-    // Resolve the effective model ID: persisted > user choice > first enabled.
     const selectedModelId = useMemo(() => {
         if (persistedModelId && allModels.some((m) => m.id === persistedModelId && m.isEnabled)) {
             return persistedModelId;
         }
-        if (userSelectedId && allModels.some((m) => m.id === userSelectedId && m.isEnabled)) {
-            return userSelectedId;
-        }
         return firstEnabled?.id ?? null;
-    }, [persistedModelId, userSelectedId, allModels, firstEnabled]);
+    }, [persistedModelId, allModels, firstEnabled]);
 
     const selectedModel = useMemo(
         () => allModels.find((m) => m.id === selectedModelId && m.isEnabled) ?? firstEnabled,
@@ -94,7 +89,6 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
     /** @param {string} id */
     const selectModel = (id) => {
         if (!allModels.some((m) => m.id === id && m.isEnabled)) return;
-        setUserSelectedId(id);
         setModelDropdownOpen(false);
         onModelChange?.(id);
     };
