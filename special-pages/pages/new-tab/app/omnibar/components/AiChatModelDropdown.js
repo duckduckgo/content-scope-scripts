@@ -1,4 +1,5 @@
 import { Fragment, h } from 'preact';
+import cn from 'classnames';
 import styles from './AiChatForm.module.css';
 import { getModelIcon } from '../../components/Icons';
 
@@ -38,7 +39,7 @@ export function AiChatModelDropdown({ sections, selectedModelId, dropdownPos, on
                                     key={model.id}
                                     role="option"
                                     aria-disabled="true"
-                                    class={`${styles.modelOption} ${styles.modelOptionDisabled}`}
+                                    class={cn(styles.modelOption, styles.modelOptionDisabled)}
                                 >
                                     {Icon && <Icon />}
                                     <span>{model.name}</span>
@@ -50,7 +51,7 @@ export function AiChatModelDropdown({ sections, selectedModelId, dropdownPos, on
                                 key={model.id}
                                 role="option"
                                 aria-selected={model.id === selectedModelId}
-                                class={`${styles.modelOption} ${model.id === selectedModelId ? styles.modelOptionSelected : ''}`}
+                                class={cn(styles.modelOption, model.id === selectedModelId && styles.modelOptionSelected)}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onSelect(model.id);

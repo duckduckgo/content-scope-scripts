@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import { ImageIcon } from '../../components/Icons';
 import styles from './AiChatForm.module.css';
 
@@ -12,7 +13,7 @@ import styles from './AiChatForm.module.css';
 export function AiChatImageUploadButton({ fileInputRef, disabled, onChange, ariaLabel }) {
     return (
         <label
-            class={`${styles.toolButton} ${disabled ? styles.toolButtonDisabled : ''}`}
+            class={cn(styles.toolButton, disabled && styles.toolButtonDisabled)}
             aria-label={ariaLabel}
             aria-disabled={disabled}
             role="button"

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import { ChevronSmall } from '../../components/Icons';
 import { AiChatModelDropdown } from './AiChatModelDropdown';
 import styles from './AiChatForm.module.css';
@@ -31,7 +32,7 @@ export function AiChatModelSelector({
             <button
                 ref={modelButtonRef}
                 type="button"
-                class={`${styles.modelButton} ${modelDropdownOpen ? styles.modelButtonOpen : ''}`}
+                class={cn(styles.modelButton, modelDropdownOpen && styles.modelButtonOpen)}
                 aria-label={ariaLabel}
                 aria-haspopup="listbox"
                 aria-expanded={modelDropdownOpen}
