@@ -15,7 +15,13 @@ function findContainingBlock(el) {
     let parent = el.parentElement;
     while (parent && parent !== document.body) {
         const style = getComputedStyle(parent);
-        if (style.transform !== 'none' || style.willChange === 'transform' || style.filter !== 'none' || style.backdropFilter !== 'none') {
+        const wc = style.willChange;
+        if (
+            style.transform !== 'none' ||
+            style.filter !== 'none' ||
+            style.backdropFilter !== 'none' ||
+            (wc && (wc.includes('transform') || wc.includes('perspective') || wc.includes('filter')))
+        ) {
             return parent;
         }
         parent = parent.parentElement;
