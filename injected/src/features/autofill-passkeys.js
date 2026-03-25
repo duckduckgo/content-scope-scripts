@@ -24,21 +24,21 @@ export default class AutofillPasskeys extends ContentFeature {
             if (!pendingResolve) return;
 
             if (event.data?.type === MSG_INBOUND_PASSKEY_SELECTED) {
-                const raw = atob(event.data.credentialId);
-                const arr = new Uint8Array(raw.length);
-                for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-
-                const options = /** @type {CredentialRequestOptions} */ (pendingOptions);
-                if (options.publicKey) {
-                    options.publicKey.allowCredentials = [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }];
-                }
-                delete options.mediation;
-
                 const resolve = pendingResolve;
                 const reject = /** @type {(reason?: unknown) => void} */ (pendingReject);
+                const options = /** @type {CredentialRequestOptions} */ (pendingOptions);
                 pendingResolve = pendingReject = pendingOptions = null;
 
                 try {
+                    const raw = atob(event.data.credentialId);
+                    const arr = new Uint8Array(raw.length);
+                    for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+
+                    if (options.publicKey) {
+                        options.publicKey.allowCredentials = [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }];
+                    }
+                    delete options.mediation;
+
                     const credential = await savedOriginalGet(options);
                     resolve(credential);
                 } catch (e) {
@@ -47,25 +47,29 @@ export default class AutofillPasskeys extends ContentFeature {
             }
         });
 
-        this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
-            if (options?.mediation !== MEDIATION_CONDITIONAL) {
-                return originalGet.call(this, options);
-            }
+        this.wrapMethod(
+            CredentialsContainer.prototype,
+            'get',
+            /** @this {CredentialsContainer} */ function (originalGet, options) {
+                if (options?.mediation !== MEDIATION_CONDITIONAL) {
+                    return originalGet.call(this, options);
+                }
 
-            const rpId = options?.publicKey?.rpId || location.hostname;
+                const rpId = options?.publicKey?.rpId || location.hostname;
 
-            // @ts-expect-error windowsInteropPostMessage is a Windows-specific global
-            windowsInteropPostMessage({
-                Feature: MSG_OUTBOUND_FEATURE,
-                Name: MSG_OUTBOUND_NAME,
-                Data: { rpId },
-            });
+                // @ts-expect-error windowsInteropPostMessage is a Windows-specific global
+                windowsInteropPostMessage({
+                    Feature: MSG_OUTBOUND_FEATURE,
+                    Name: MSG_OUTBOUND_NAME,
+                    Data: { rpId },
+                });
 
-            return new Promise(function (resolve, reject) {
-                pendingResolve = resolve;
-                pendingReject = reject;
-                pendingOptions = options;
-            });
-        });
+                return new Promise(function (resolve, reject) {
+                    pendingResolve = resolve;
+                    pendingReject = reject;
+                    pendingOptions = options;
+                });
+            },
+        );
     }
 }
