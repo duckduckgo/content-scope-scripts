@@ -95,7 +95,6 @@ const CORE_FILES = new Set([
     'injected/src/features/fingerprinting-battery.js',
     'injected/src/features/fingerprinting-temporary-storage.js',
     'injected/src/features/gpc.js',
-    'injected/src/features/privacy-pass.js',
     'injected/src/features/navigator-interface.js',
     'injected/src/features/performance-metrics.js',
     'injected/src/types/feature-map.ts',

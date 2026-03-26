@@ -52,12 +52,11 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'hover',
     'browserUiLock',
     'trackerProtection',
-    'privacyPass',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'privacyPass'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
     'apple-isolated': [
         'contextMenu',
         'duckPlayer',
@@ -87,7 +86,6 @@ export const platformSupport = {
         'messageBridge',
         'pageContext',
         'browserUiLock',
-        'privacyPass',
     ],
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
@@ -124,7 +122,6 @@ export const platformSupport = {
         'duckAiDataClearing',
         'performanceMetrics',
         'duckAiChatHistory',
-        'privacyPass',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
