@@ -1,6 +1,6 @@
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
-import styles from './AiChatForm.module.css';
+import styles from './AiChatModelSelector.module.css';
 import { getModelIcon } from '../../components/Icons';
 
 /**

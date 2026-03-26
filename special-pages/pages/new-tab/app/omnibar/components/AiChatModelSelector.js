@@ -2,7 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { ChevronSmall } from '../../components/Icons';
 import { AiChatModelDropdown } from './AiChatModelDropdown';
-import styles from './AiChatForm.module.css';
+import styles from './AiChatModelSelector.module.css';
 
 /**
  * @param {object} props

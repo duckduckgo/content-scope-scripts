@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { CloseSmallIcon } from '../../components/Icons';
-import styles from './AiChatForm.module.css';
+import styles from './AiChatImageAttachment.module.css';
 
 /**
  * @param {object} props

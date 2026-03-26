@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { ImageIcon } from '../../components/Icons';
-import styles from './AiChatForm.module.css';
+import styles from './AiChatImageAttachment.module.css';
 
 /**
  * @param {object} props
