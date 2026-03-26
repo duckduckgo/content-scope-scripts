@@ -83,39 +83,9 @@ export type EnableAIChatTools = boolean;
  */
 export type SelectedModelID = string;
 /**
- * Sections of AI models for the model selector. Each section has an optional header and a list of model items.
+ * Sections of AI models for the model selector.
  */
-export type AIModelSections = {
-  /**
-   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
-   */
-  header?: string;
-  /**
-   * List of AI models in this section
-   */
-  items: {
-    /**
-     * Model identifier
-     */
-    id: string;
-    /**
-     * Full display name
-     */
-    name: string;
-    /**
-     * Short display name for the model selector button
-     */
-    shortName: string;
-    /**
-     * Whether the model is enabled and selectable
-     */
-    isEnabled: boolean;
-    /**
-     * Whether this model supports image attachments
-     */
-    supportsImageUpload: boolean;
-  }[];
-}[];
+export type AIModelSections = AIModelSection[];
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -624,6 +594,44 @@ export interface OmnibarConfig {
   enableAiChatTools?: EnableAIChatTools;
   selectedModelId?: SelectedModelID;
   aiModelSections?: AIModelSections;
+}
+/**
+ * A section of AI models with an optional header and a list of model items.
+ */
+export interface AIModelSection {
+  /**
+   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
+   */
+  header?: string;
+  /**
+   * List of AI models in this section
+   */
+  items: AIModelItem[];
+}
+/**
+ * An individual AI model available for selection.
+ */
+export interface AIModelItem {
+  /**
+   * Model identifier
+   */
+  id: string;
+  /**
+   * Full display name
+   */
+  name: string;
+  /**
+   * Short display name for the model selector button
+   */
+  shortName: string;
+  /**
+   * Whether the model is enabled and selectable
+   */
+  isEnabled: boolean;
+  /**
+   * Whether this model supports image attachments
+   */
+  supportsImageUpload: boolean;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
