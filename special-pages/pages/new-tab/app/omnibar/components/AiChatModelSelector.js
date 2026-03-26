@@ -6,27 +6,13 @@ import styles from './AiChatModelSelector.module.css';
 
 /**
  * @param {object} props
- * @param {import('./hooks/useModelSelector').AIModelItem | null} props.selectedModel
- * @param {import('preact').RefObject<HTMLButtonElement>} props.modelButtonRef
- * @param {boolean} props.modelDropdownOpen
- * @param {{right: number, top: number} | null} props.dropdownPos
- * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
- * @param {() => void} props.toggleDropdown
- * @param {(id: string) => void} props.selectModel
+ * @param {import('./hooks/useModelSelector').ModelSelectorState} props.selector
  * @param {import('../../../types/new-tab.js').AIModelSections} props.aiModelSections
  * @param {string} props.ariaLabel
  */
-export function AiChatModelSelector({
-    selectedModel,
-    modelButtonRef,
-    modelDropdownOpen,
-    dropdownPos,
-    dropdownRef,
-    toggleDropdown,
-    selectModel,
-    aiModelSections,
-    ariaLabel,
-}) {
+export function AiChatModelSelector({ selector, aiModelSections, ariaLabel }) {
+    const { selectedModel, modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, selectModel } = selector;
+
     return (
         <div class={styles.modelSelector}>
             <button

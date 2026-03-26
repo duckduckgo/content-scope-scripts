@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../types';
 import { MAX_IMAGES, getImageErrorMessage } from './hooks/useImageAttachments';
 import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
@@ -53,12 +53,21 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
     const hasVisibleImages = !!(supportsImageUpload && attachedImages.length > 0);
     const showImageWarning = !!(supportsImageUpload && imageLimitExceeded);
 
-    useEffect(() => {
-        onVisibleImagesChange(hasVisibleImages);
+    const prevVisibleRef = useRef(hasVisibleImages);
+    const prevWarningRef = useRef(showImageWarning);
+
+    useLayoutEffect(() => {
+        if (prevVisibleRef.current !== hasVisibleImages) {
+            prevVisibleRef.current = hasVisibleImages;
+            onVisibleImagesChange(hasVisibleImages);
+        }
     }, [hasVisibleImages]);
 
-    useEffect(() => {
-        onImageWarningChange(showImageWarning);
+    useLayoutEffect(() => {
+        if (prevWarningRef.current !== showImageWarning) {
+            prevWarningRef.current = showImageWarning;
+            onImageWarningChange(showImageWarning);
+        }
     }, [showImageWarning]);
 
     if (!supportsImageUpload) return null;

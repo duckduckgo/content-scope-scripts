@@ -27,12 +27,13 @@ export function ModelSelectorTool({ onSelectedModelChange }) {
     const enableAiChatTools = state.config?.enableAiChatTools === true;
     const aiModelSections = enableAiChatTools ? (state.config?.aiModelSections ?? []) : [];
 
-    const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
-        useModelSelector({
-            aiModelSections,
-            persistedModelId: state.config?.selectedModelId,
-            onModelChange: persistModelId,
-        });
+    const selector = useModelSelector({
+        aiModelSections,
+        persistedModelId: state.config?.selectedModelId,
+        onModelChange: persistModelId,
+    });
+
+    const { selectedModelId, selectedModel } = selector;
 
     const { registerTool, unregisterTool } = useChatTools();
 
@@ -60,17 +61,5 @@ export function ModelSelectorTool({ onSelectedModelChange }) {
 
     if (aiModelSections.length === 0) return null;
 
-    return (
-        <AiChatModelSelector
-            selectedModel={selectedModel}
-            modelButtonRef={modelButtonRef}
-            modelDropdownOpen={modelDropdownOpen}
-            dropdownPos={dropdownPos}
-            dropdownRef={dropdownRef}
-            toggleDropdown={toggleDropdown}
-            selectModel={selectModel}
-            aiModelSections={aiModelSections}
-            ariaLabel={t('omnibar_modelSelectorLabel')}
-        />
-    );
+    return <AiChatModelSelector selector={selector} aiModelSections={aiModelSections} ariaLabel={t('omnibar_modelSelectorLabel')} />;
 }

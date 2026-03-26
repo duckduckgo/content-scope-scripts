@@ -33,29 +33,25 @@ export function AiChatModelDropdown({ sections, selectedModelId, dropdownPos, on
                     )}
                     {section.items.map((model) => {
                         const Icon = getModelIcon(model.id);
-                        if (!model.isEnabled) {
-                            return (
-                                <li
-                                    key={model.id}
-                                    role="option"
-                                    aria-disabled="true"
-                                    class={cn(styles.modelOption, styles.modelOptionDisabled)}
-                                >
-                                    {Icon && <Icon />}
-                                    <span>{model.name}</span>
-                                </li>
-                            );
-                        }
                         return (
                             <li
                                 key={model.id}
                                 role="option"
-                                aria-selected={model.id === selectedModelId}
-                                class={cn(styles.modelOption, model.id === selectedModelId && styles.modelOptionSelected)}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onSelect(model.id);
-                                }}
+                                aria-selected={model.isEnabled ? model.id === selectedModelId : undefined}
+                                aria-disabled={!model.isEnabled || undefined}
+                                class={cn(
+                                    styles.modelOption,
+                                    !model.isEnabled && styles.modelOptionDisabled,
+                                    model.isEnabled && model.id === selectedModelId && styles.modelOptionSelected,
+                                )}
+                                onClick={
+                                    model.isEnabled
+                                        ? (e) => {
+                                              e.stopPropagation();
+                                              onSelect(model.id);
+                                          }
+                                        : undefined
+                                }
                             >
                                 {Icon && <Icon />}
                                 <span>{model.name}</span>
