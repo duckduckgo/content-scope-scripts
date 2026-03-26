@@ -70,7 +70,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
      */
     const submitChat = (chat, target) => {
         const toolData = getToolSubmitData();
-        onSubmit(/** @type {SubmitChatAction} */ ({ chat, target, ...toolData }));
+        onSubmit(/** @type {SubmitChatAction} */ ({ ...toolData, chat, target }));
         clearAll();
     };
 
