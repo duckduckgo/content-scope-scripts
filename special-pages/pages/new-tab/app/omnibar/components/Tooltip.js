@@ -81,13 +81,9 @@ export function Tooltip({ children, content, className, position = 'above' }) {
             {children}
             {isVisible &&
                 createPortal(
-                    <div
-                        id={tooltipId}
-                        class={tooltipClass}
-                        role="tooltip"
-                        style={tooltipStyle}
-                        dangerouslySetInnerHTML={{ __html: content }}
-                    />,
+                    <div id={tooltipId} class={tooltipClass} role="tooltip" style={tooltipStyle}>
+                        {content}
+                    </div>,
                     document.body,
                 )}
         </div>
