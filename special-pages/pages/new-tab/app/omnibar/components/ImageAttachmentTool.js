@@ -45,7 +45,6 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
                 const images = stateRef.current.getImagesForSubmission();
                 return images ? { images: /** @type {SubmitChatAction['images']} */ (images) } : {};
             },
-            isDisabled: () => supportsRef.current && stateRef.current.imageLimitExceeded,
             cleanup: () => stateRef.current.clearAttachedImages(),
         });
         return () => unregisterTool(TOOL_ID);

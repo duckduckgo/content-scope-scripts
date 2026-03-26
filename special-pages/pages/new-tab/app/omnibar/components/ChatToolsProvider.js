@@ -8,7 +8,6 @@ import { useContext, useRef } from 'preact/hooks';
 /**
  * @typedef {object} ToolRegistration
  * @property {() => Partial<SubmitChatAction>} [getSubmitData]
- * @property {() => boolean} [isDisabled]
  * @property {() => void} [cleanup]
  */
 
@@ -17,7 +16,6 @@ import { useContext, useRef } from 'preact/hooks';
  * @property {(id: string, registration: ToolRegistration) => void} registerTool
  * @property {(id: string) => void} unregisterTool
  * @property {() => Partial<SubmitChatAction>} getToolSubmitData
- * @property {() => boolean} isToolDisabled
  * @property {() => void} clearAll
  */
 
@@ -31,22 +29,18 @@ const ChatToolsContext = createContext(null);
 export function ChatToolsProvider({ children }) {
     /** @type {import('preact').RefObject<Map<string, () => Partial<SubmitChatAction>>>} */
     const submitDataFns = useRef(new Map());
-    /** @type {import('preact').RefObject<Map<string, () => boolean>>} */
-    const disableConditions = useRef(new Map());
     /** @type {import('preact').RefObject<Map<string, () => void>>} */
     const cleanupFns = useRef(new Map());
 
     /** @type {ChatToolsContextValue} */
     const value = useRef(
         /** @type {ChatToolsContextValue} */ ({
-            registerTool(id, { getSubmitData, isDisabled, cleanup }) {
+            registerTool(id, { getSubmitData, cleanup }) {
                 if (getSubmitData) submitDataFns.current?.set(id, getSubmitData);
-                if (isDisabled) disableConditions.current?.set(id, isDisabled);
                 if (cleanup) cleanupFns.current?.set(id, cleanup);
             },
             unregisterTool(id) {
                 submitDataFns.current?.delete(id);
-                disableConditions.current?.delete(id);
                 cleanupFns.current?.delete(id);
             },
             getToolSubmitData() {
@@ -56,12 +50,6 @@ export function ChatToolsProvider({ children }) {
                     Object.assign(result, fn());
                 }
                 return result;
-            },
-            isToolDisabled() {
-                for (const fn of disableConditions.current?.values() ?? []) {
-                    if (fn()) return true;
-                }
-                return false;
             },
             clearAll() {
                 for (const fn of cleanupFns.current?.values() ?? []) {
