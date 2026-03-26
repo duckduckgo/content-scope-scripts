@@ -6,7 +6,6 @@
     "chat",
     "target"
   ],
-  "additionalProperties": false,
   "properties": {
     "chat": {
       "description": "The chat message to submit to Duck.ai",
@@ -22,7 +21,6 @@
     "images": {
       "description": "Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.",
       "type": "array",
-      "maxItems": 3,
       "items": {
         "type": "object",
         "required": ["data", "format"],
@@ -30,8 +28,7 @@
         "properties": {
           "data": {
             "description": "Base64-encoded image data (without data URL prefix)",
-            "type": "string",
-            "maxLength": 10485760
+            "type": "string"
           },
           "format": {
             "description": "Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.",
