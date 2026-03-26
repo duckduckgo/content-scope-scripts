@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 /**
- * @typedef {import('../../../../types/new-tab.js').AIModelSections} AIModelSections
+ * @typedef {import('../../../../../types/new-tab.js').AIModelSections} AIModelSections
  * @typedef {AIModelSections[number]['items'][number]} AIModelItem
  * @typedef {ReturnType<typeof useModelSelector>} ModelSelectorState
  */
