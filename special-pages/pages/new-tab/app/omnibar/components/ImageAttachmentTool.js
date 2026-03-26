@@ -4,7 +4,7 @@ import { useTypedTranslationWith } from '../../types';
 import { MAX_IMAGES, getImageErrorMessage } from './hooks/useImageAttachments';
 import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
 import { AiChatImageUploadButton } from './AiChatImageUploadButton';
-import { Tooltip } from '../../components/Tooltip/Tooltip.js';
+import { Tooltip } from './Tooltip.js';
 import { useChatTools } from './ChatToolsProvider';
 import styles from './AiChatImageAttachment.module.css';
 
