@@ -38,6 +38,7 @@ import type PageContext from '../features/page-context.js';
 import type PageObserver from '../features/page-observer.js';
 import type PerformanceMetrics from '../features/performance-metrics.js';
 import type Print from '../features/print.js';
+import type PrivacyPass from '../features/privacy-pass.js';
 import type Referrer from '../features/referrer.js';
 import type TrackerProtection from '../features/tracker-protection.js';
 import type UaChBrands from '../features/ua-ch-brands.js';
@@ -84,6 +85,7 @@ export interface FeatureMap {
     pageObserver: PageObserver;
     performanceMetrics: PerformanceMetrics;
     print: Print;
+    privacyPass: PrivacyPass;
     referrer: Referrer;
     trackerProtection: TrackerProtection;
     uaChBrands: UaChBrands;
