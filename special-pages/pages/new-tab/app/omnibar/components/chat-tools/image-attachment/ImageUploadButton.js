@@ -1,8 +1,8 @@
 import { h } from 'preact';
 import { useRef } from 'preact/hooks';
 import cn from 'classnames';
-import { ImageIcon } from '../../components/Icons';
-import styles from './AiChatImageAttachment.module.css';
+import { ImageIcon } from '../../../../components/Icons';
+import styles from './ImageAttachment.module.css';
 
 /**
  * @param {object} props
@@ -10,7 +10,7 @@ import styles from './AiChatImageAttachment.module.css';
  * @param {(event: Event) => void} props.onChange
  * @param {string} props.ariaLabel
  */
-export function AiChatImageUploadButton({ disabled, onChange, ariaLabel }) {
+export function ImageUploadButton({ disabled, onChange, ariaLabel }) {
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     return (

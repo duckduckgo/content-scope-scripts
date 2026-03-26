@@ -1,14 +1,14 @@
 import { h } from 'preact';
-import { CloseSmallIcon } from '../../components/Icons';
-import styles from './AiChatImageAttachment.module.css';
+import { CloseSmallIcon } from '../../../../components/Icons';
+import styles from './ImageAttachment.module.css';
 
 /**
  * @param {object} props
- * @param {import('./hooks/useImageAttachments').AttachedImage[]} props.images
+ * @param {import('./useImageAttachments').AttachedImage[]} props.images
  * @param {(index: number) => void} props.onRemove
  * @param {string} props.removeLabel
  */
-export function AiChatImagePreviewArea({ images, onRemove, removeLabel }) {
+export function ImagePreviewArea({ images, onRemove, removeLabel }) {
     if (images.length === 0) return null;
 
     return (

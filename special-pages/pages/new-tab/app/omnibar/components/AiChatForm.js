@@ -7,7 +7,7 @@ import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
-import { useChatTools } from './ChatToolsProvider';
+import { useChatTools } from './chat-tools/ChatToolsProvider';
 import styles from './AiChatForm.module.css';
 
 /**

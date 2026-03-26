@@ -2,7 +2,7 @@ import { createContext, h } from 'preact';
 import { useContext, useRef } from 'preact/hooks';
 
 /**
- * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
+ * @typedef {import('../../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
 
 /**

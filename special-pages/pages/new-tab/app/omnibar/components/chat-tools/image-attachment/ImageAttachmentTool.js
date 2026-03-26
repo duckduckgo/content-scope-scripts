@@ -1,17 +1,17 @@
 import { Fragment, h } from 'preact';
 import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
-import { useTypedTranslationWith } from '../../types';
-import { MAX_IMAGES, getImageErrorMessage } from './hooks/useImageAttachments';
-import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
-import { AiChatImageUploadButton } from './AiChatImageUploadButton';
-import { Tooltip } from './Tooltip.js';
-import { useChatTools } from './ChatToolsProvider';
-import styles from './AiChatImageAttachment.module.css';
+import { useTypedTranslationWith } from '../../../../types';
+import { MAX_IMAGES, getImageErrorMessage } from './useImageAttachments';
+import { ImagePreviewArea } from './ImagePreviewArea';
+import { ImageUploadButton as ImageUploadButtonUI } from './ImageUploadButton';
+import { Tooltip } from '../../Tooltip.js';
+import { useChatTools } from '../ChatToolsProvider';
+import styles from './ImageAttachment.module.css';
 
 /**
- * @typedef {import('../strings.json')} Strings
- * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
- * @typedef {import('./hooks/useImageAttachments').ImageAttachmentState} ImageAttachmentState
+ * @typedef {import('../../../strings.json')} Strings
+ * @typedef {import('../../../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
+ * @typedef {import('./useImageAttachments').ImageAttachmentState} ImageAttachmentState
  */
 
 const TOOL_ID = 'imageAttachment';
@@ -93,7 +93,7 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
                     </button>
                 </p>
             )}
-            <AiChatImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
+            <ImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
         </>
     );
 }
@@ -111,7 +111,7 @@ export function ImageUploadButton({ state }) {
 
     const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) });
     const uploadButton = (
-        <AiChatImageUploadButton disabled={imageUploadDisabled} onChange={handleFileChange} ariaLabel={t('omnibar_attachImageLabel')} />
+        <ImageUploadButtonUI disabled={imageUploadDisabled} onChange={handleFileChange} ariaLabel={t('omnibar_attachImageLabel')} />
     );
 
     if (imageUploadDisabled) {

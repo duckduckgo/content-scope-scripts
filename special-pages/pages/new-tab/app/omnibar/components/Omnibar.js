@@ -16,10 +16,10 @@ import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.
 import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
-import { ChatToolsProvider } from './ChatToolsProvider';
-import { ImageAttachmentContent, ImageUploadButton } from './ImageAttachmentTool';
-import { useImageAttachments } from './hooks/useImageAttachments';
-import { ModelSelectorTool } from './ModelSelectorTool';
+import { ChatToolsProvider } from './chat-tools/ChatToolsProvider';
+import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
+import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
+import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 
 /**
  * @typedef {import('../strings.json')} Strings

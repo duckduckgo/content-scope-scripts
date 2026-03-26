@@ -1,14 +1,14 @@
 import { h } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
-import { useTypedTranslationWith } from '../../types';
-import { OmnibarContext } from './OmnibarProvider';
-import { useModelSelector } from './hooks/useModelSelector';
-import { AiChatModelSelector } from './AiChatModelSelector';
-import { useChatTools } from './ChatToolsProvider';
+import { useTypedTranslationWith } from '../../../../types';
+import { OmnibarContext } from '../../OmnibarProvider';
+import { useModelSelector } from './useModelSelector';
+import { ModelSelector } from './ModelSelector';
+import { useChatTools } from '../ChatToolsProvider';
 
 /**
- * @typedef {import('../strings.json')} Strings
- * @typedef {import('./hooks/useModelSelector').AIModelItem} AIModelItem
+ * @typedef {import('../../../strings.json')} Strings
+ * @typedef {import('./useModelSelector').AIModelItem} AIModelItem
  */
 
 const TOOL_ID = 'modelSelector';
@@ -61,5 +61,5 @@ export function ModelSelectorTool({ onSelectedModelChange }) {
 
     if (aiModelSections.length === 0) return null;
 
-    return <AiChatModelSelector selector={selector} aiModelSections={aiModelSections} ariaLabel={t('omnibar_modelSelectorLabel')} />;
+    return <ModelSelector selector={selector} aiModelSections={aiModelSections} ariaLabel={t('omnibar_modelSelectorLabel')} />;
 }

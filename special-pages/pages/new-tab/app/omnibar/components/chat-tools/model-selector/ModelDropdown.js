@@ -1,18 +1,18 @@
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
-import styles from './AiChatModelSelector.module.css';
-import { getModelIcon } from '../../components/Icons';
+import styles from './ModelSelector.module.css';
+import { getModelIcon } from '../../../../components/Icons';
 
 /**
  * @param {object} props
- * @param {import('../../../types/new-tab.js').AIModelSections} props.sections
+ * @param {import('../../../../../types/new-tab.js').AIModelSections} props.sections
  * @param {string} [props.selectedModelId]
  * @param {{right: number, top: number}} props.dropdownPos
  * @param {(id: string) => void} props.onSelect
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
-export function AiChatModelDropdown({ sections, selectedModelId, dropdownPos, onSelect, ariaLabel, dropdownRef }) {
+export function ModelDropdown({ sections, selectedModelId, dropdownPos, onSelect, ariaLabel, dropdownRef }) {
     return (
         <ul
             ref={dropdownRef}

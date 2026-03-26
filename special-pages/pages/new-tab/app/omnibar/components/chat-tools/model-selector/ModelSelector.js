@@ -1,16 +1,16 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import { ChevronSmall } from '../../components/Icons';
-import { AiChatModelDropdown } from './AiChatModelDropdown';
-import styles from './AiChatModelSelector.module.css';
+import { ChevronSmall } from '../../../../components/Icons';
+import { ModelDropdown } from './ModelDropdown';
+import styles from './ModelSelector.module.css';
 
 /**
  * @param {object} props
- * @param {import('./hooks/useModelSelector').ModelSelectorState} props.selector
- * @param {import('../../../types/new-tab.js').AIModelSections} props.aiModelSections
+ * @param {import('./useModelSelector').ModelSelectorState} props.selector
+ * @param {import('../../../../../types/new-tab.js').AIModelSections} props.aiModelSections
  * @param {string} props.ariaLabel
  */
-export function AiChatModelSelector({ selector, aiModelSections, ariaLabel }) {
+export function ModelSelector({ selector, aiModelSections, ariaLabel }) {
     const { selectedModel, modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, selectModel } = selector;
 
     return (
@@ -31,7 +31,7 @@ export function AiChatModelSelector({ selector, aiModelSections, ariaLabel }) {
                 <ChevronSmall />
             </button>
             {modelDropdownOpen && dropdownPos && (
-                <AiChatModelDropdown
+                <ModelDropdown
                     dropdownRef={dropdownRef}
                     sections={aiModelSections}
                     selectedModelId={selectedModel?.id}
