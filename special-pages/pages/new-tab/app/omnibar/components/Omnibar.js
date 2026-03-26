@@ -163,6 +163,12 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const [supportsImageUpload, setSupportsImageUpload] = useState(false);
     const imageState = useImageAttachments();
 
+    /** @type {(query: string) => void} */
+    const handleChange = (value) => {
+        onChange(value);
+        if (!hasVisibleImagesRef.current) showChats();
+    };
+
     return (
         <div
             ref={containerRef}
@@ -184,7 +190,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                         query={query}
                         autoFocus={autoFocus}
                         disabled={query.length === 0 || imageWarning}
-                        onChange={onChange}
+                        onChange={handleChange}
                         onSubmit={onSubmit}
                         leftSlot={supportsImageUpload && <ImageUploadButton state={imageState} />}
                         rightSlot={
@@ -200,7 +206,11 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                             supportsImageUpload={supportsImageUpload}
                             onVisibleImagesChange={(hasImages) => {
                                 hasVisibleImagesRef.current = hasImages;
-                                if (hasImages) hideChats();
+                                if (hasImages) {
+                                    hideChats();
+                                } else if (document.activeElement?.tagName === 'TEXTAREA') {
+                                    showChats();
+                                }
                             }}
                             onImageWarningChange={setImageWarning}
                         />
