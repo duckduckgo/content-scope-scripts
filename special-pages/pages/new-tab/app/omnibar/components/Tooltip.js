@@ -1,8 +1,10 @@
 import { h } from 'preact';
-import { useState, useId, useRef } from 'preact/hooks';
+import { useState, useId, useRef, useCallback } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
 import styles from './Tooltip.module.css';
 import cn from 'classnames';
+
+const VIEWPORT_PADDING = 8;
 
 /**
  * @typedef {'right' | 'above'} TooltipPosition
@@ -22,6 +24,24 @@ export function Tooltip({ children, content, className, position = 'above' }) {
     const [rect, setRect] = useState(/** @type {DOMRect | null} */ (null));
     const tooltipId = useId();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+
+    /** @type {(el: HTMLDivElement | null) => void} */
+    const tooltipRef = useCallback(
+        (el) => {
+            if (!el || !rect) return;
+            const tooltipRect = el.getBoundingClientRect();
+            const viewportWidth = document.documentElement.clientWidth;
+
+            if (tooltipRect.left < VIEWPORT_PADDING) {
+                el.style.left = `${VIEWPORT_PADDING}px`;
+                el.style.transform = `translateY(calc(-100% - 6px))`;
+            } else if (tooltipRect.right > viewportWidth - VIEWPORT_PADDING) {
+                el.style.left = `${viewportWidth - VIEWPORT_PADDING - tooltipRect.width}px`;
+                el.style.transform = `translateY(calc(-100% - 6px))`;
+            }
+        },
+        [rect],
+    );
 
     const show = () => {
         if (!containerRef.current) return;
@@ -81,7 +101,7 @@ export function Tooltip({ children, content, className, position = 'above' }) {
             {children}
             {isVisible &&
                 createPortal(
-                    <div id={tooltipId} class={tooltipClass} role="tooltip" style={tooltipStyle}>
+                    <div ref={tooltipRef} id={tooltipId} class={tooltipClass} role="tooltip" style={tooltipStyle}>
                         {content}
                     </div>,
                     document.body,
