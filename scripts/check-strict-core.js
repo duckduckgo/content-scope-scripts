@@ -87,6 +87,7 @@ const CORE_FILES = new Set([
     'injected/src/features/tracker-protection.js',
     'injected/src/features/tracker-protection/tracker-resolver.js',
     'injected/src/features/web-detection.js',
+    'injected/src/features/web-rtc-detection.js',
     'injected/src/detectors/detections/adwall-detection.js',
     'injected/src/detectors/detections/bot-detection.js',
     'injected/src/detectors/utils/detection-utils.js',
