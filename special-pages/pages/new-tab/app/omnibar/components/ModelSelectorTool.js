@@ -1,0 +1,76 @@
+import { h } from 'preact';
+import { useContext, useEffect, useRef } from 'preact/hooks';
+import { useTypedTranslationWith } from '../../types';
+import { OmnibarContext } from './OmnibarProvider';
+import { useModelSelector } from './hooks/useModelSelector';
+import { AiChatModelSelector } from './AiChatModelSelector';
+import { useChatTools } from './ChatToolsProvider';
+
+/**
+ * @typedef {import('../strings.json')} Strings
+ * @typedef {import('./hooks/useModelSelector').AIModelItem} AIModelItem
+ */
+
+const TOOL_ID = 'modelSelector';
+
+/**
+ * Self-contained model selector tool. Registers its submit data
+ * (modelId) with the ChatToolsContext.
+ *
+ * @param {object} props
+ * @param {(model: AIModelItem | null) => void} [props.onSelectedModelChange]
+ */
+export function ModelSelectorTool({ onSelectedModelChange }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { setSelectedModelId: persistModelId, state } = useContext(OmnibarContext);
+
+    const enableAiChatTools = state.config?.enableAiChatTools === true;
+    const aiModelSections = enableAiChatTools ? (state.config?.aiModelSections ?? []) : [];
+
+    const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
+        useModelSelector({
+            aiModelSections,
+            persistedModelId: state.config?.selectedModelId,
+            onModelChange: persistModelId,
+        });
+
+    const { registerTool, unregisterTool } = useChatTools();
+
+    const selectedModelIdRef = useRef(selectedModelId);
+    selectedModelIdRef.current = selectedModelId;
+    const selectedModelRef = useRef(selectedModel);
+    selectedModelRef.current = selectedModel;
+
+    useEffect(() => {
+        registerTool(TOOL_ID, {
+            getSubmitData: () => {
+                const id = selectedModelIdRef.current;
+                if (selectedModelRef.current?.id === id && id) {
+                    return { modelId: id };
+                }
+                return {};
+            },
+        });
+        return () => unregisterTool(TOOL_ID);
+    }, []);
+
+    useEffect(() => {
+        onSelectedModelChange?.(selectedModel ?? null);
+    }, [selectedModel]);
+
+    if (aiModelSections.length === 0) return null;
+
+    return (
+        <AiChatModelSelector
+            selectedModel={selectedModel}
+            modelButtonRef={modelButtonRef}
+            modelDropdownOpen={modelDropdownOpen}
+            dropdownPos={dropdownPos}
+            dropdownRef={dropdownRef}
+            toggleDropdown={toggleDropdown}
+            selectModel={selectModel}
+            aiModelSections={aiModelSections}
+            ariaLabel={t('omnibar_modelSelectorLabel')}
+        />
+    );
+}

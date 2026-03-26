@@ -100,6 +100,7 @@
     gap: var(--sp-2);
     font-size: 13px;
     margin: 0;
+    order: -1;
     padding: var(--sp-2) var(--sp-3) 0;
 }
 
@@ -135,6 +136,7 @@
     align-items: center;
     display: flex;
     gap: var(--sp-2);
+    margin-left: auto;
 }
 
 .toolButton {

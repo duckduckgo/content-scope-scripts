@@ -4,6 +4,7 @@ import { useState } from 'preact/hooks';
  * @typedef {{ dataUrl: string, fileName: string, mimeType: string }} AttachedImage
  * @typedef {'imageTooLarge' | 'processingFailed'} ImageErrorType
  * @typedef {{ type: ImageErrorType, fileNames: string[] }} ImageError
+ * @typedef {ReturnType<typeof useImageAttachments>} ImageAttachmentState
  */
 
 class ImageTooLargeError extends Error {

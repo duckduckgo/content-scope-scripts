@@ -7,12 +7,7 @@ import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
-import { useImageAttachments, MAX_IMAGES, getImageErrorMessage } from './hooks/useImageAttachments';
-import { useModelSelector } from './hooks/useModelSelector';
-import { AiChatImagePreviewArea } from './AiChatImagePreviewArea';
-import { AiChatImageUploadButton } from './AiChatImageUploadButton';
-import { AiChatModelSelector } from './AiChatModelSelector';
-import { Tooltip } from '../../components/Tooltip/Tooltip.js';
+import { useChatTools } from './ChatToolsProvider';
 import styles from './AiChatForm.module.css';
 
 /**
@@ -22,68 +17,35 @@ import styles from './AiChatForm.module.css';
  */
 
 /**
+ * A simple form shell for the AI chat input. Renders a textarea, submit button,
+ * and tool-provided UI via slots. Knows nothing about specific tools
+ * (images, models); those register their submit data via ChatToolsContext.
+ *
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
+ * @param {boolean} [props.disabled]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
- * @param {(hasImages: boolean) => void} props.onVisibleImagesChange
- * @param {(exceeded: boolean) => void} props.onImageWarningChange
+ * @param {import('preact').ComponentChildren} [props.children]
+ * @param {import('preact').ComponentChildren} [props.leftSlot]
+ * @param {import('preact').ComponentChildren} [props.rightSlot]
  */
-export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImagesChange, onImageWarningChange }) {
+export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, leftSlot, rightSlot }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { openAiChat, setSelectedModelId: persistModelId, state } = useContext(OmnibarContext);
-    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats, hideChats } =
-        useAiChatsContext();
-
-    const enableAiChatTools = state.config?.enableAiChatTools === true;
-    const aiModelSections = enableAiChatTools ? (state.config?.aiModelSections ?? []) : [];
+    const { openAiChat } = useContext(OmnibarContext);
+    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } = useAiChatsContext();
+    const { getToolSubmitData, clearAll } = useChatTools();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
-
-    const {
-        attachedImages,
-        handleFileChange,
-        handleRemoveImage,
-        clearAttachedImages,
-        imageUploadDisabled,
-        imageLimitExceeded,
-        imageError,
-        clearImageError,
-        getImagesForSubmission,
-    } = useImageAttachments();
-    const { selectedModelId, selectedModel, modelDropdownOpen, dropdownPos, modelButtonRef, dropdownRef, toggleDropdown, selectModel } =
-        useModelSelector({
-            aiModelSections,
-            persistedModelId: state.config?.selectedModelId,
-            onModelChange: persistModelId,
-        });
 
     useEffect(() => {
         if (autoFocus && textAreaRef.current) {
             textAreaRef.current.focus();
         }
     }, [autoFocus]);
-
-    const hasVisibleImages = !!(selectedModel?.supportsImageUpload && attachedImages.length > 0);
-
-    const showImageWarning = !!(selectedModel?.supportsImageUpload && imageLimitExceeded);
-    useEffect(() => {
-        onVisibleImagesChange(hasVisibleImages);
-    }, [hasVisibleImages]);
-    useEffect(() => {
-        onImageWarningChange(showImageWarning);
-    }, [showImageWarning]);
-
-    useEffect(() => {
-        if (hasVisibleImages) {
-            hideChats();
-        } else if (textAreaRef.current === document.activeElement) {
-            showChats();
-        }
-    }, [hasVisibleImages]);
 
     useLayoutEffect(() => {
         const textArea = textAreaRef.current;
@@ -102,38 +64,21 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImag
         }
     }, [query]);
 
-    const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) });
-    const imageErrorMessage = getImageErrorMessage(imageError, {
-        imageTooLarge: t('omnibar_imageTooLargeError'),
-        processingFailed: t('omnibar_imageProcessingError'),
-    });
-    const disabled = query.length === 0 || (selectedModel?.supportsImageUpload && imageLimitExceeded);
-
     /**
      * @param {string} chat
      * @param {OpenTarget} target
      */
-    const submitWithToolState = (chat, target) => {
-        /** @type {SubmitChatAction} */
-        const params = { chat, target };
-        if (selectedModel?.id === selectedModelId && selectedModelId) {
-            params.modelId = selectedModelId;
-        }
-        if (selectedModel?.supportsImageUpload) {
-            const images = getImagesForSubmission();
-            if (images) {
-                params.images = /** @type {SubmitChatAction['images']} */ (images);
-            }
-        }
-        onSubmit(params);
-        clearAttachedImages();
+    const submitChat = (chat, target) => {
+        const toolData = getToolSubmitData();
+        onSubmit(/** @type {SubmitChatAction} */ ({ chat, target, ...toolData }));
+        clearAll();
     };
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled) return;
-        submitWithToolState(query, 'same-tab');
+        submitChat(query, 'same-tab');
     };
 
     /** @type {(event: KeyboardEvent) => void} */
@@ -176,7 +121,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImag
                     break;
                 }
 
-                submitWithToolState(query, eventToTarget(event, platformName));
+                submitChat(query, eventToTarget(event, platformName));
                 break;
         }
     };
@@ -186,12 +131,8 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImag
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-        submitWithToolState(query, eventToTarget(event, platformName));
+        submitChat(query, eventToTarget(event, platformName));
     };
-
-    const uploadButton = (
-        <AiChatImageUploadButton disabled={imageUploadDisabled} onChange={handleFileChange} ariaLabel={t('omnibar_attachImageLabel')} />
-    );
 
     return (
         <form
@@ -204,19 +145,6 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImag
                 }
             }}
         >
-            {selectedModel?.supportsImageUpload && imageLimitExceeded && (
-                <p class={styles.imageWarning} role="alert">
-                    {imageLimitWarning}
-                </p>
-            )}
-            {selectedModel?.supportsImageUpload && imageErrorMessage && (
-                <p class={styles.imageWarning} role="alert">
-                    {imageErrorMessage}
-                    <button class={styles.dismissError} type="button" onClick={clearImageError} aria-label="Dismiss">
-                        ×
-                    </button>
-                </p>
-            )}
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
@@ -232,38 +160,15 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit, onVisibleImag
                 onKeyDown={handleKeyDown}
                 onChange={(event) => {
                     onChange(event.currentTarget.value);
-                    if (!hasVisibleImages) showChats();
+                    showChats();
                     clearSelectedChat();
                 }}
             />
-            {selectedModel?.supportsImageUpload && (
-                <AiChatImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
-            )}
+            {children}
             <div tabIndex={-1} class={styles.buttons}>
-                <div class={styles.toolButtons}>
-                    {selectedModel?.supportsImageUpload &&
-                        (imageUploadDisabled ? (
-                            <Tooltip content={imageLimitWarning} position="above">
-                                {uploadButton}
-                            </Tooltip>
-                        ) : (
-                            uploadButton
-                        ))}
-                </div>
+                {leftSlot}
                 <div class={styles.rightButtons}>
-                    {aiModelSections.length > 0 && (
-                        <AiChatModelSelector
-                            selectedModel={selectedModel}
-                            modelButtonRef={modelButtonRef}
-                            modelDropdownOpen={modelDropdownOpen}
-                            dropdownPos={dropdownPos}
-                            dropdownRef={dropdownRef}
-                            toggleDropdown={toggleDropdown}
-                            selectModel={selectModel}
-                            aiModelSections={aiModelSections}
-                            ariaLabel={t('omnibar_modelSelectorLabel')}
-                        />
-                    )}
+                    {rightSlot}
                     <button
                         tabIndex={0}
                         type="submit"

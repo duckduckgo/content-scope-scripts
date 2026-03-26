@@ -16,6 +16,10 @@ import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.
 import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
+import { ChatToolsProvider } from './ChatToolsProvider';
+import { ImageAttachmentContent, ImageUploadButton } from './ImageAttachmentTool';
+import { useImageAttachments } from './hooks/useImageAttachments';
+import { ModelSelectorTool } from './ModelSelectorTool';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -156,14 +160,13 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
+    const [supportsImageUpload, setSupportsImageUpload] = useState(false);
+    const imageState = useImageAttachments();
 
     return (
         <div
             ref={containerRef}
             data-image-warning={imageWarning || undefined}
-            // Using capture-phase events because WebKit doesn't reliably fire bubbling focus/blur (e.g. address bar, window refocus).
-            // Only show chats on textarea focus to avoid triggering when toolbar buttons (model selector, image upload) receive focus.
-            // Skip when images are attached — the user's intent to use image chat is clear.
             onFocusCapture={(event) => {
                 if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current) showChats();
             }}
@@ -176,16 +179,33 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
             }}
         >
             <ResizingContainer className={styles.field}>
-                <AiChatForm
-                    query={query}
-                    autoFocus={autoFocus}
-                    onChange={onChange}
-                    onSubmit={onSubmit}
-                    onVisibleImagesChange={(hasImages) => {
-                        hasVisibleImagesRef.current = hasImages;
-                    }}
-                    onImageWarningChange={setImageWarning}
-                />
+                <ChatToolsProvider>
+                    <AiChatForm
+                        query={query}
+                        autoFocus={autoFocus}
+                        disabled={query.length === 0 || imageWarning}
+                        onChange={onChange}
+                        onSubmit={onSubmit}
+                        leftSlot={supportsImageUpload && <ImageUploadButton state={imageState} />}
+                        rightSlot={
+                            <ModelSelectorTool
+                                onSelectedModelChange={(model) => {
+                                    setSupportsImageUpload(model?.supportsImageUpload ?? false);
+                                }}
+                            />
+                        }
+                    >
+                        <ImageAttachmentContent
+                            state={imageState}
+                            supportsImageUpload={supportsImageUpload}
+                            onVisibleImagesChange={(hasImages) => {
+                                hasVisibleImagesRef.current = hasImages;
+                                if (hasImages) hideChats();
+                            }}
+                            onImageWarningChange={setImageWarning}
+                        />
+                    </AiChatForm>
+                </ChatToolsProvider>
             </ResizingContainer>
             {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
