@@ -6,7 +6,7 @@ import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
-import { getAiChatElementId } from './useAiChats';
+import { getAiChatElementId, VIEW_ALL_CHATS_ELEMENT_ID } from './useAiChats';
 import styles from './AiChatForm.module.css';
 
 /**
@@ -32,8 +32,9 @@ import styles from './AiChatForm.module.css';
 export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, toolbarLeft, toolbarRight }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { openAiChat } = useContext(OmnibarContext);
-    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    const { openAiChat, viewAllAiChats } = useContext(OmnibarContext);
+    const { chats, selectedChat, viewAllChatsSelected, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } =
+        useAiChatsContext();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
@@ -82,7 +83,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 break;
             }
             case 'Escape':
-                if (selectedChat) {
+                if (selectedChat || viewAllChatsSelected) {
                     event.preventDefault();
                     clearSelectedChat();
                 }
@@ -93,6 +94,13 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 }
 
                 event.preventDefault();
+
+                if (viewAllChatsSelected) {
+                    viewAllAiChats({
+                        target: eventToTarget(event, platformName),
+                    });
+                    break;
+                }
 
                 if (selectedChat) {
                     openAiChat({
@@ -141,7 +149,9 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 aria-expanded={chats.length > 0}
                 aria-haspopup="listbox"
                 aria-controls={aiChatsListId}
-                aria-activedescendant={selectedChat ? getAiChatElementId(selectedChat.chatId) : undefined}
+                aria-activedescendant={
+                    selectedChat ? getAiChatElementId(selectedChat.chatId) : viewAllChatsSelected ? VIEW_ALL_CHATS_ELEMENT_ID : undefined
+                }
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}

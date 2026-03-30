@@ -69,6 +69,10 @@ export const OmnibarContext = createContext({
     openAiChat: () => {
         throw new Error('must implement');
     },
+    /** @type {(params: {target: OpenTarget}) => void} */
+    viewAllAiChats: () => {
+        throw new Error('must implement');
+    },
 });
 
 export const OmnibarServiceContext = createContext(/** @type {OmnibarService|null} */ (null));
@@ -197,6 +201,14 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(params: {target: OpenTarget}) => void} */
+    const viewAllAiChats = useCallback(
+        (params) => {
+            service.current?.viewAllAiChats(params);
+        },
+        [service],
+    );
+
     return (
         <OmnibarContext.Provider
             value={{
@@ -213,6 +225,7 @@ export function OmnibarProvider(props) {
                 getAiChats,
                 onAiChats,
                 openAiChat,
+                viewAllAiChats,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

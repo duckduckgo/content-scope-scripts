@@ -13,6 +13,8 @@ export function getAiChatElementId(chatId) {
     return `ai-chat-${chatId}`;
 }
 
+export const VIEW_ALL_CHATS_ELEMENT_ID = 'ai-chats-view-all';
+
 /**
  * @typedef {{
  *   chats: AiChat[],
@@ -27,9 +29,10 @@ export function getAiChatElementId(chatId) {
  *   | { type: 'hideChats' }
  *   | { type: 'showChats' }
  *   | { type: 'setSelectedChat', payload: AiChat }
+ *   | { type: 'selectViewAllChats' }
  *   | { type: 'clearSelectedChat' }
- *   | { type: 'previousChat' }
- *   | { type: 'nextChat' }
+ *   | { type: 'previousChat', hasViewAllChats: boolean }
+ *   | { type: 'nextChat', hasViewAllChats: boolean }
  * )} Action
  */
 
@@ -67,18 +70,25 @@ function reducer(state, action) {
                 ...state,
                 selectedIndex: null,
             };
+        case 'selectViewAllChats':
+            return {
+                ...state,
+                selectedIndex: state.chats.length,
+            };
         case 'previousChat': {
-            const nextIndex = state.selectedIndex === null ? state.chats.length - 1 : state.selectedIndex - 1;
+            const maxIndex = action.hasViewAllChats ? state.chats.length : state.chats.length - 1;
+            const nextIndex = state.selectedIndex === null ? maxIndex : state.selectedIndex - 1;
             return {
                 ...state,
                 selectedIndex: nextIndex < 0 ? null : nextIndex,
             };
         }
         case 'nextChat': {
+            const maxIndex = action.hasViewAllChats ? state.chats.length : state.chats.length - 1;
             const nextIndex = state.selectedIndex === null ? 0 : state.selectedIndex + 1;
             return {
                 ...state,
-                selectedIndex: nextIndex >= state.chats.length ? null : nextIndex,
+                selectedIndex: nextIndex > maxIndex ? null : nextIndex,
             };
         }
         default: {
@@ -99,8 +109,9 @@ const EMPTY_ARRAY = [];
  * @param {string} params.query - text to match against chat titles (case-insensitive)
  * @param {boolean} [params.initiallyVisible] - initial visibility of the chats list
  * @param {boolean} [params.enableRecentAiChats]
+ * @param {boolean} [params.showViewAllAiChats]
  */
-export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
+export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats }) {
     const { getAiChats, onAiChats } = useContext(OmnibarContext);
 
     const [state, dispatch] = useReducer(reducer, {
@@ -126,22 +137,29 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
     }, [getAiChats, query, enableRecentAiChats]);
 
     const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
+    const viewAllChatsSelected = Boolean(showViewAllAiChats) && state.selectedIndex === state.chats.length;
+
+    const hasViewAllChats = Boolean(showViewAllAiChats);
 
     const selectPreviousChat = () => {
         if (state.chats.length === 0) return false;
-        dispatch({ type: 'previousChat' });
+        dispatch({ type: 'previousChat', hasViewAllChats });
         return true;
     };
 
     const selectNextChat = () => {
         if (state.chats.length === 0) return false;
-        dispatch({ type: 'nextChat' });
+        dispatch({ type: 'nextChat', hasViewAllChats });
         return true;
     };
 
     /** @type {(chat: AiChat) => void} */
     const setSelectedChat = (chat) => {
         dispatch({ type: 'setSelectedChat', payload: chat });
+    };
+
+    const selectViewAllChats = () => {
+        dispatch({ type: 'selectViewAllChats' });
     };
 
     const clearSelectedChat = () => {
@@ -159,9 +177,11 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
     return {
         chats: state.chatsVisible ? state.chats : EMPTY_ARRAY,
         selectedChat,
+        viewAllChatsSelected,
         selectPreviousChat,
         selectNextChat,
         setSelectedChat,
+        selectViewAllChats,
         clearSelectedChat,
         hideChats,
         showChats,

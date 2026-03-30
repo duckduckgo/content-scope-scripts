@@ -20,10 +20,11 @@ const AiChatsContext = createContext(null);
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} [props.enableRecentAiChats]
+ * @param {boolean} [props.showViewAllAiChats]
  * @param {import('preact').ComponentChildren} props.children
  */
-export function AiChatsProvider({ query, autoFocus, enableRecentAiChats, children }) {
-    const aiChatsState = useAiChats({ query, initiallyVisible: autoFocus, enableRecentAiChats });
+export function AiChatsProvider({ query, autoFocus, enableRecentAiChats, showViewAllAiChats, children }) {
+    const aiChatsState = useAiChats({ query, initiallyVisible: autoFocus, enableRecentAiChats, showViewAllAiChats });
     const aiChatsListId = useId();
 
     return (
