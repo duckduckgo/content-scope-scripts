@@ -205,6 +205,29 @@ test.describe('newtab widgets', () => {
             ]);
         });
 
+        test('reports unknown unhandled rejections when reason is missing', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+
+            await page.evaluate(() => {
+                Promise.reject();
+            });
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'newTabPage',
+                        method: 'reportInitException',
+                        params: { message: '[unhandledrejection] unknown rejection' },
+                    },
+                },
+            ]);
+        });
+
         test('does not fire reportInitException during normal page load', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();

@@ -311,6 +311,28 @@ test.describe('history', () => {
             ]);
         });
 
+        test('reports unknown unhandled rejections when reason is missing', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+            await hp.openPage();
+            await hp.hasEmptyState();
+
+            await page.evaluate(() => {
+                Promise.reject();
+            });
+
+            const calls = await hp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'history',
+                        method: 'reportInitException',
+                        params: { message: '[unhandledrejection] unknown rejection' },
+                    },
+                },
+            ]);
+        });
+
         test('does not fire reportInitException during normal page load', async ({ page }, workerInfo) => {
             const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
             await hp.openPage();

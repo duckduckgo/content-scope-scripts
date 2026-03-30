@@ -675,6 +675,28 @@ test.describe('onboarding v4', () => {
             ]);
         });
 
+        test('reports unknown unhandled rejections when reason is missing', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                Promise.reject();
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'onboarding',
+                        method: 'reportInitException',
+                        params: { message: '[unhandledrejection] unknown rejection' },
+                    },
+                },
+            ]);
+        });
+
         test('does not fire reportInitException during normal page load', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.reducedMotion();
