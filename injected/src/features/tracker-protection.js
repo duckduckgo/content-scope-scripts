@@ -10,11 +10,6 @@
  * - Inject surrogates for blocked scripts (when surrogateInjectionEnabled)
  * - Emit surrogateInjected signal (when surrogateInjectionEnabled)
  *
- * C-S-S does NOT:
- * - Resolve tracker/entity/reason/prevalence
- * - Determine authoritative blocked/allowed state
- * - Emit rich classification fields
- *
  * @module features/tracker-protection
  */
 
