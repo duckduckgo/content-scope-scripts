@@ -10,7 +10,35 @@
  * Requests, Notifications and Subscriptions from the TrackerProtection feature
  */
 export interface TrackerProtectionMessages {
-  notifications: SurrogateInjectedNotification | TrackerDetectedNotification;
+  notifications: ResourceObservedNotification | SurrogateInjectedNotification | TrackerDetectedNotification;
+}
+/**
+ * Generated from @see "../messages/tracker-protection/resourceObserved.notify.json"
+ */
+export interface ResourceObservedNotification {
+  method: "resourceObserved";
+  params: ResourceObserved;
+}
+/**
+ * Raw resource observation sent to native for classification. C-S-S does not classify — native TrackerResolver is sole authority.
+ */
+export interface ResourceObserved {
+  /**
+   * The URL of the intercepted resource
+   */
+  url: string;
+  /**
+   * Resource type: script, image, xmlhttprequest, fetch, iframe, link
+   */
+  resourceType: string;
+  /**
+   * Script-side context hint. NOT authoritative — native TrackerResolver determines final blocking state.
+   */
+  potentiallyBlocked: boolean;
+  /**
+   * The URL of the top-level page
+   */
+  pageUrl: string;
 }
 /**
  * Generated from @see "../messages/tracker-protection/surrogateInjected.notify.json"
@@ -20,7 +48,7 @@ export interface SurrogateInjectedNotification {
   params: SurrogateInjected;
 }
 /**
- * Notification sent when a surrogate script is injected for a blocked tracker
+ * Notification sent when a surrogate script is injected. Only emitted when surrogateInjectionEnabled is true. Native classifies via TrackerResolver.
  */
 export interface SurrogateInjected {
   /**
@@ -28,29 +56,13 @@ export interface SurrogateInjected {
    */
   url: string;
   /**
-   * Whether the request was blocked
-   */
-  blocked: boolean;
-  /**
-   * The reason for blocking (e.g., 'surrogate', 'matched rule')
-   */
-  reason?: string;
-  /**
-   * Whether a surrogate was injected
-   */
-  isSurrogate: boolean;
-  /**
-   * The URL of the page where the tracker was detected
+   * The URL of the page where the surrogate was injected
    */
   pageUrl: string;
   /**
-   * The display name of the tracker entity
+   * The name of the surrogate that was injected (e.g., 'google-analytics.com/analytics.js')
    */
-  entityName?: string | null;
-  /**
-   * The owner name of the tracker
-   */
-  ownerName?: string | null;
+  surrogateName: string;
 }
 /**
  * Generated from @see "../messages/tracker-protection/trackerDetected.notify.json"
