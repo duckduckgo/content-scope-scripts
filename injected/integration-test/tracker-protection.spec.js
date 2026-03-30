@@ -31,14 +31,12 @@ test('tracker-protection: detects tracker from dynamically added script', async 
         /** @type {any} */ (window).addTrackerScript('https://tracker.example/pixel.js');
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
 
-    expect(detection.url).toBe('https://tracker.example/pixel.js');
-    expect(detection.blocked).toBe(true);
-    expect(detection.reason).toBe('default block');
-    expect(detection.isSurrogate).toBe(false);
-    expect(detection.entityName).toBe('Tracker Inc');
+    expect(observation.url).toBe('https://tracker.example/pixel.js');
+    expect(observation.resourceType).toBe('script');
+    expect(observation.potentiallyBlocked).toBe(true);
 });
 
 test('tracker-protection: loads surrogate for matching rule', async ({ page }, testInfo) => {
@@ -50,17 +48,16 @@ test('tracker-protection: loads surrogate for matching rule', async ({ page }, t
         /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
     });
 
-    const detected = await collector.waitForMessage('trackerDetected', 1);
-    expect(detected[0].payload.params.isSurrogate).toBe(true);
+    const observed = await collector.waitForMessage('resourceObserved', 1);
+    expect(observed[0].payload.params.url).toBe('https://tracker.example/scripts/analytics.js');
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
 
     const injected = await collector.waitForMessage('surrogateInjected', 1);
     expect(injected[0].payload.params.url).toBe('https://tracker.example/scripts/analytics.js');
-    expect(injected[0].payload.params.isSurrogate).toBe(true);
-    expect(injected[0].payload.params.entityName).toBe('Tracker Inc');
-    expect(injected[0].payload.params.ownerName).toBe('Tracker Inc');
+    expect(typeof injected[0].payload.params.surrogateName).toBe('string');
 });
 
-test('tracker-protection: reports non-tracker third-party URL as thirdPartyRequest', async ({ page }, testInfo) => {
+test('tracker-protection: reports non-tracker third-party URL as resourceObserved', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
@@ -69,16 +66,12 @@ test('tracker-protection: reports non-tracker third-party URL as thirdPartyReque
         /** @type {any} */ (window).addTrackerScript('https://safe-site.example/scripts/app.js');
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
 
-    expect(detection.url).toBe('https://safe-site.example/scripts/app.js');
-    expect(detection.blocked).toBe(false);
-    expect(detection.reason).toBe('thirdPartyRequest');
-    expect(detection.isSurrogate).toBe(false);
-    expect(detection.entityName).toBeNull();
-    expect(detection.prevalence).toBeNull();
-    expect(detection.isAllowlisted).toBe(false);
+    expect(observation.url).toBe('https://safe-site.example/scripts/app.js');
+    expect(observation.potentiallyBlocked).toBe(false);
+    expect(observation.resourceType).toBe('script');
 });
 
 test('tracker-protection: does not send messages when disabled', async ({ page }, testInfo) => {
@@ -92,11 +85,11 @@ test('tracker-protection: does not send messages when disabled', async ({ page }
     await page.waitForTimeout(200);
 
     const allMessages = await collector.outgoingMessages();
-    const trackerDetections = trackerMessages(allMessages).filter((m) => m.payload.method === 'trackerDetected');
-    expect(trackerDetections).toHaveLength(0);
+    const resourceObservations = trackerMessages(allMessages).filter((m) => m.payload.method === 'resourceObserved');
+    expect(resourceObservations).toHaveLength(0);
 });
 
-test('tracker-protection: reports allowed tracker with blocked=false', async ({ page }, testInfo) => {
+test('tracker-protection: reports allowed tracker with potentiallyBlocked=false', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
@@ -105,11 +98,11 @@ test('tracker-protection: reports allowed tracker with blocked=false', async ({ 
         /** @type {any} */ (window).addTrackerScript('https://allowed.example/something.js');
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
 
-    expect(detection.url).toBe('https://allowed.example/something.js');
-    expect(detection.blocked).toBe(false);
+    expect(observation.url).toBe('https://allowed.example/something.js');
+    expect(observation.potentiallyBlocked).toBe(false);
 });
 
 test('tracker-protection: detects tracker from XHR error', async ({ page }, testInfo) => {
@@ -121,16 +114,13 @@ test('tracker-protection: detects tracker from XHR error', async ({ page }, test
         const xhr = new XMLHttpRequest();
         xhr.open('GET', 'https://tracker.example/pixel.gif');
         xhr.send();
-        // DNS failure triggers error event (timing variable: 100-500ms)
     });
 
-    // waitForMessage has 5-second timeout (sufficient for DNS failure)
-    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const messages = await collector.waitForMessage('resourceObserved', 1);
     expect(messages[0].payload.params.url).toBe('https://tracker.example/pixel.gif');
-    expect(messages[0].payload.params.blocked).toBe(true);
+    expect(messages[0].payload.params.potentiallyBlocked).toBe(true);
 });
 
-// Gap coverage: fetch(URL) interception
 test('tracker-protection: detects tracker from fetch with URL object', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
@@ -140,14 +130,12 @@ test('tracker-protection: detects tracker from fetch with URL object', async ({ 
         await fetch(new URL('https://tracker.example/pixel.js')).catch(() => {});
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
-    expect(detection.url).toBe('https://tracker.example/pixel.js');
-    expect(detection.blocked).toBe(true);
-    expect(detection.entityName).toBe('Tracker Inc');
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
+    expect(observation.url).toBe('https://tracker.example/pixel.js');
+    expect(observation.potentiallyBlocked).toBe(true);
 });
 
-// Gap coverage: fetch(Request) interception
 test('tracker-protection: detects tracker from fetch with Request object', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
@@ -157,14 +145,12 @@ test('tracker-protection: detects tracker from fetch with Request object', async
         await fetch(new Request('https://tracker.example/beacon.js')).catch(() => {});
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
-    expect(detection.url).toBe('https://tracker.example/beacon.js');
-    expect(detection.blocked).toBe(true);
-    expect(detection.ownerName).toBe('Tracker Inc');
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
+    expect(observation.url).toBe('https://tracker.example/beacon.js');
+    expect(observation.potentiallyBlocked).toBe(true);
 });
 
-// Gap coverage: Image.src descriptor interception
 test('tracker-protection: detects tracker from Image src assignment', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
@@ -176,14 +162,12 @@ test('tracker-protection: detects tracker from Image src assignment', async ({ p
         img.dispatchEvent(new Event('error'));
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
-    expect(detection.url).toBe('https://tracker.example/pixel.gif');
-    expect(detection.blocked).toBe(true);
-    expect(detection.entityName).toBe('Tracker Inc');
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
+    expect(observation.url).toBe('https://tracker.example/pixel.gif');
+    expect(observation.potentiallyBlocked).toBe(true);
 });
 
-// Gap coverage: CTL disabled contract (legacy parity) — blocked but no surrogate
 test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataFacebook() });
@@ -193,9 +177,8 @@ test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, te
         /** @type {any} */ (window).addTrackerScript('https://facebook.example/sdk.js');
     });
 
-    const detected = await collector.waitForMessage('trackerDetected', 1);
-    expect(detected[0].payload.params.blocked).toBe(true);
-    expect(detected[0].payload.params.isSurrogate).toBe(false);
+    const observed = await collector.waitForMessage('resourceObserved', 1);
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
 
     await page.waitForTimeout(200);
     const allMessages = await collector.outgoingMessages();
@@ -203,7 +186,6 @@ test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, te
     expect(injected).toHaveLength(0);
 });
 
-// Gap coverage: CTL enabled contract (legacy parity)
 test('tracker-protection: CTL enabled injects fb-sdk surrogate', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataFacebook() });
@@ -213,9 +195,8 @@ test('tracker-protection: CTL enabled injects fb-sdk surrogate', async ({ page }
         /** @type {any} */ (window).addTrackerScript('https://facebook.example/sdk.js');
     });
 
-    const detected = await collector.waitForMessage('trackerDetected', 1);
-    expect(detected[0].payload.params.blocked).toBe(true);
-    expect(detected[0].payload.params.isSurrogate).toBe(true);
+    const observed = await collector.waitForMessage('resourceObserved', 1);
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
 
     const injected = await collector.waitForMessage('surrogateInjected', 1);
     expect(injected[0].payload.params.url).toBe('https://facebook.example/sdk.js');
@@ -234,8 +215,8 @@ test('tracker-protection: ignores data URIs and non-HTTP URLs', async ({ page },
     await page.waitForTimeout(200);
 
     const allMessages = await collector.outgoingMessages();
-    const trackerDetections = trackerMessages(allMessages).filter((m) => m.payload.method === 'trackerDetected');
-    expect(trackerDetections).toHaveLength(0);
+    const resourceObservations = trackerMessages(allMessages).filter((m) => m.payload.method === 'resourceObserved');
+    expect(resourceObservations).toHaveLength(0);
 });
 
 test('tracker-protection: re-executes surrogate for repeated script additions', async ({ page }, testInfo) => {
@@ -271,9 +252,8 @@ test('tracker-protection: skips surrogate when script has integrity attribute', 
         document.body.appendChild(script);
     });
 
-    const detected = await collector.waitForMessage('trackerDetected', 1);
-    expect(detected[0].payload.params.blocked).toBe(true);
-    expect(detected[0].payload.params.isSurrogate).toBe(false);
+    const observed = await collector.waitForMessage('resourceObserved', 1);
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
 
     await page.waitForTimeout(200);
     const allMessages = await collector.outgoingMessages();
@@ -281,7 +261,7 @@ test('tracker-protection: skips surrogate when script has integrity attribute', 
     expect(injected).toHaveLength(0);
 });
 
-test('tracker-protection: reports allowlisted tracker with ruleException reason', async ({ page }, testInfo) => {
+test('tracker-protection: reports allowlisted tracker as resourceObserved', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, ALLOWLISTED_CONFIG);
@@ -290,16 +270,14 @@ test('tracker-protection: reports allowlisted tracker with ruleException reason'
         /** @type {any} */ (window).addTrackerScript('https://tracker.example/pixel.js');
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
 
-    expect(detection.url).toBe('https://tracker.example/pixel.js');
-    expect(detection.blocked).toBe(false);
-    expect(detection.reason).toBe('matched rule - exception');
-    expect(detection.isAllowlisted).toBe(true);
+    expect(observation.url).toBe('https://tracker.example/pixel.js');
+    expect(observation.potentiallyBlocked).toBe(false);
 });
 
-test('tracker-protection: pageUrl matches top-frame URL for tracker detection', async ({ page }, testInfo) => {
+test('tracker-protection: pageUrl matches top-frame URL for resource observation', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
@@ -309,7 +287,7 @@ test('tracker-protection: pageUrl matches top-frame URL for tracker detection', 
         /** @type {any} */ (window).addTrackerScript('https://tracker.example/pixel.js');
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
+    const messages = await collector.waitForMessage('resourceObserved', 1);
     expect(messages[0].payload.params.pageUrl).toBe(pageUrl);
 });
 
@@ -327,7 +305,7 @@ test('tracker-protection: pageUrl matches top-frame URL for surrogate injection'
     expect(injected[0].payload.params.pageUrl).toBe(pageUrl);
 });
 
-test('tracker-protection: non-tracker third-party request includes pageUrl and entity fields', async ({ page }, testInfo) => {
+test('tracker-protection: non-tracker third-party request includes pageUrl', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
     await collector.load(HTML, CONFIG);
@@ -336,13 +314,12 @@ test('tracker-protection: non-tracker third-party request includes pageUrl and e
         /** @type {any} */ (window).addTrackerScript('https://safe-site.example/scripts/widget.js');
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
 
-    expect(detection.blocked).toBe(false);
-    expect(detection.pageUrl).toBe(page.url());
-    expect(typeof detection.reason).toBe('string');
-    expect(detection.isSurrogate).toBe(false);
+    expect(observation.potentiallyBlocked).toBe(false);
+    expect(observation.pageUrl).toBe(page.url());
+    expect(observation.resourceType).toBe('script');
 });
 
 test('tracker-protection: reports but does not block on unprotected domain', async ({ page }, testInfo) => {
@@ -354,9 +331,8 @@ test('tracker-protection: reports but does not block on unprotected domain', asy
         /** @type {any} */ (window).addTrackerScript('https://tracker.example/pixel.js');
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    expect(messages[0].payload.params.blocked).toBe(false);
-    expect(messages[0].payload.params.reason).toBe('unprotectedDomain');
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    expect(messages[0].payload.params.potentiallyBlocked).toBe(false);
 });
 
 test('tracker-protection: CTL disabled suppresses non-fb block-ctl-* surrogate', async ({ page }, testInfo) => {
@@ -368,9 +344,8 @@ test('tracker-protection: CTL disabled suppresses non-fb block-ctl-* surrogate',
         /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
     });
 
-    const detected = await collector.waitForMessage('trackerDetected', 1);
-    expect(detected[0].payload.params.blocked).toBe(true); // legacy parity
-    expect(detected[0].payload.params.isSurrogate).toBe(false); // critical regression assertion
+    const observed = await collector.waitForMessage('resourceObserved', 1);
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
 
     await page.waitForTimeout(200);
     const allMessages = await collector.outgoingMessages();
@@ -378,7 +353,6 @@ test('tracker-protection: CTL disabled suppresses non-fb block-ctl-* surrogate',
     expect(injected).toHaveLength(0);
 });
 
-// Real-surrogate E2E: confirm bundled surrogates load and define expected globals
 const realSurrogateCases = [
     { url: 'https://google-analytics.com/analytics.js', globalCheck: "typeof window.ga === 'function'", label: 'analytics.js' },
     { url: 'https://www.googletagmanager.com/gtm.js', globalCheck: "typeof window.ga !== 'undefined'", label: 'gtm.js' },
@@ -395,8 +369,8 @@ for (const { url, globalCheck, label } of realSurrogateCases) {
             /** @type {any} */ (window).addTrackerScript(src);
         }, url);
 
-        const detected = await collector.waitForMessage('trackerDetected', 1);
-        expect(detected[0].payload.params.blocked).toBe(true);
+        const observed = await collector.waitForMessage('resourceObserved', 1);
+        expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
 
         const injected = await collector.waitForMessage('surrogateInjected', 1);
         expect(injected[0].payload.params.url).toBe(url);
@@ -408,7 +382,6 @@ for (const { url, globalCheck, label } of realSurrogateCases) {
     });
 }
 
-// MutationObserver path: DOM-appended <img> element (distinct from new Image().src descriptor)
 test('tracker-protection: detects tracker from DOM-appended img element', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
@@ -418,8 +391,8 @@ test('tracker-protection: detects tracker from DOM-appended img element', async 
         /** @type {any} */ (window).addTrackerImage('https://tracker.example/pixel.gif');
     });
 
-    const messages = await collector.waitForMessage('trackerDetected', 1);
-    const detection = messages[0].payload.params;
-    expect(detection.url).toBe('https://tracker.example/pixel.gif');
-    expect(detection.blocked).toBe(true);
+    const messages = await collector.waitForMessage('resourceObserved', 1);
+    const observation = messages[0].payload.params;
+    expect(observation.url).toBe('https://tracker.example/pixel.gif');
+    expect(observation.potentiallyBlocked).toBe(true);
 });
