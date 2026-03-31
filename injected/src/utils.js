@@ -922,7 +922,7 @@ export const platformSpecificFeatures = [
     'webEvents',
     'pageObserver',
     'hover',
-    'webRtcDetection',
+    'tabSuspension',
 ];
 /**
  * @param {string} featureName
