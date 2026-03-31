@@ -8,6 +8,7 @@
       "settings": {
         "blockingEnabled": true,
         "ctlEnabled": true,
+        "surrogateInjectionEnabled": true,
         "allowlist": {},
         "tempUnprotectedDomains": [],
         "userUnprotectedDomains": []

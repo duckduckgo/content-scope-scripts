@@ -133,7 +133,8 @@ test('tracker-protection: detects tracker from fetch with URL object', async ({ 
     const messages = await collector.waitForMessage('resourceObserved', 1);
     const observation = messages[0].payload.params;
     expect(observation.url).toBe('https://tracker.example/pixel.js');
-    expect(observation.potentiallyBlocked).toBe(true);
+    expect(observation.resourceType).toBe('fetch');
+    expect(observation.potentiallyBlocked).toBe(false);
 });
 
 test('tracker-protection: detects tracker from fetch with Request object', async ({ page }, testInfo) => {
@@ -148,7 +149,8 @@ test('tracker-protection: detects tracker from fetch with Request object', async
     const messages = await collector.waitForMessage('resourceObserved', 1);
     const observation = messages[0].payload.params;
     expect(observation.url).toBe('https://tracker.example/beacon.js');
-    expect(observation.potentiallyBlocked).toBe(true);
+    expect(observation.resourceType).toBe('fetch');
+    expect(observation.potentiallyBlocked).toBe(false);
 });
 
 test('tracker-protection: detects tracker from Image src assignment', async ({ page }, testInfo) => {
