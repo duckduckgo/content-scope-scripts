@@ -85,7 +85,6 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'same-tab',
-            modelId: 'gpt-4o-mini',
         });
 
         // Form should be reset to blank state after submission
@@ -109,7 +108,6 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'new-window',
-            modelId: 'gpt-4o-mini',
         });
     });
 
@@ -130,7 +128,6 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'new-tab',
-            modelId: 'gpt-4o-mini',
         });
     });
 
@@ -162,7 +159,6 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'first line\nsecond line',
             target: 'same-tab',
-            modelId: 'gpt-4o-mini',
         });
 
         // Form should be reset to blank state after submission
@@ -186,7 +182,6 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'new-tab',
-            modelId: 'gpt-4o-mini',
         });
     });
 
@@ -195,7 +190,9 @@ test.describe('omnibar widget', () => {
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
 
-        await ntp.openPage({ additional: { omnibar: true, 'omnibar.selectedModelId': 'claude-haiku-4-5' } });
+        await ntp.openPage({
+            additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+        });
         await omnibar.ready();
 
         await omnibar.aiTab().click();
@@ -1351,7 +1348,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1378,7 +1375,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1398,7 +1395,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1416,7 +1413,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1439,7 +1436,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1785,7 +1782,6 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMethodCalledWith('omnibar_submitChat', {
                 chat: mockAiChatsSearchTerm,
                 target: 'same-tab',
-                modelId: 'gpt-4o-mini',
             });
         });
 
