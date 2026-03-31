@@ -23,7 +23,7 @@ export function omnibarMockTransport() {
         showAiSetting: true,
         showCustomizePopover: false,
         enableRecentAiChats: false,
-        enableAiChatTools: true,
+        enableAiChatTools: false,
         aiModelSections: [
             {
                 items: [
@@ -133,6 +133,7 @@ export function omnibarMockTransport() {
                     config.showAiSetting = parseBooleanQueryParam('omnibar.showAiSetting') ?? config.showAiSetting;
                     config.showCustomizePopover = parseBooleanQueryParam('omnibar.showCustomizePopover') ?? config.showCustomizePopover;
                     config.enableRecentAiChats = parseBooleanQueryParam('omnibar.enableRecentAiChats') ?? config.enableRecentAiChats;
+                    config.enableAiChatTools = parseBooleanQueryParam('omnibar.enableAiChatTools') ?? config.enableAiChatTools;
                     config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
                     return config;
                 }
