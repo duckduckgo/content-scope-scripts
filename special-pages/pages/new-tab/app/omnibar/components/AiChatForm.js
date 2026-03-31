@@ -28,10 +28,10 @@ import styles from './AiChatForm.module.css';
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  * @param {import('preact').ComponentChildren} [props.children]
- * @param {import('preact').ComponentChildren} [props.leftSlot]
- * @param {import('preact').ComponentChildren} [props.rightSlot]
+ * @param {import('preact').ComponentChildren} [props.toolbarLeft]
+ * @param {import('preact').ComponentChildren} [props.toolbarRight]
  */
-export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, leftSlot, rightSlot }) {
+export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, toolbarLeft, toolbarRight }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat } = useContext(OmnibarContext);
@@ -165,9 +165,9 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
             />
             {children}
             <div tabIndex={-1} class={styles.buttons}>
-                {leftSlot}
+                {toolbarLeft}
                 <div class={styles.rightButtons}>
-                    {rightSlot}
+                    {toolbarRight}
                     <button
                         tabIndex={0}
                         type="submit"

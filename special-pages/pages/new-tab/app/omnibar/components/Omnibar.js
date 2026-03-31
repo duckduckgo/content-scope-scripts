@@ -192,8 +192,8 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                         disabled={query.length === 0 || imageWarning}
                         onChange={handleChange}
                         onSubmit={onSubmit}
-                        leftSlot={supportsImageUpload && <ImageUploadButton state={imageState} />}
-                        rightSlot={
+                        toolbarLeft={supportsImageUpload && <ImageUploadButton state={imageState} />}
+                        toolbarRight={
                             <ModelSelectorTool
                                 onSelectedModelChange={(model) => {
                                     setSupportsImageUpload(model?.supportsImageUpload ?? false);
