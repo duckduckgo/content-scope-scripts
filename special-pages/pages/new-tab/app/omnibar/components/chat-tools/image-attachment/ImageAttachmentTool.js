@@ -1,74 +1,27 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
 import { MAX_IMAGES, getImageErrorMessage } from './useImageAttachments';
 import { ImagePreviewArea } from './ImagePreviewArea';
 import { ImageUploadButton as ImageUploadButtonUI } from './ImageUploadButton';
 import { Tooltip } from '../../Tooltip.js';
-import { useChatTools } from '../ChatToolsProvider';
 import styles from './ImageAttachment.module.css';
 
 /**
  * @typedef {import('../../../strings.json')} Strings
- * @typedef {import('../../../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  * @typedef {import('./useImageAttachments').ImageAttachmentState} ImageAttachmentState
  */
-
-const TOOL_ID = 'imageAttachment';
 
 /**
  * Content renderer for image attachments. Renders alerts and preview
  * thumbnails in the form's content area (between textarea and toolbar).
- * Also registers image submit data with ChatToolsContext.
  *
  * @param {object} props
  * @param {ImageAttachmentState} props.state
  * @param {boolean} props.supportsImageUpload
- * @param {(hasImages: boolean) => void} props.onVisibleImagesChange
- * @param {(exceeded: boolean) => void} props.onImageWarningChange
  */
-export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleImagesChange, onImageWarningChange }) {
+export function ImageAttachmentContent({ state, supportsImageUpload }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { attachedImages, handleRemoveImage, imageLimitExceeded, imageError, clearImageError } = state;
-
-    const { registerTool, unregisterTool } = useChatTools();
-
-    const stateRef = useRef(state);
-    stateRef.current = state;
-    const supportsRef = useRef(supportsImageUpload);
-    supportsRef.current = supportsImageUpload;
-
-    useEffect(() => {
-        registerTool(TOOL_ID, {
-            getSubmitData: () => {
-                if (!supportsRef.current) return {};
-                const images = stateRef.current.getImagesForSubmission();
-                return images ? { images: /** @type {SubmitChatAction['images']} */ (images) } : {};
-            },
-            cleanup: () => stateRef.current.clearAttachedImages(),
-        });
-        return () => unregisterTool(TOOL_ID);
-    }, []);
-
-    const hasVisibleImages = !!(supportsImageUpload && attachedImages.length > 0);
-    const showImageWarning = !!(supportsImageUpload && imageLimitExceeded);
-
-    const prevVisibleRef = useRef(hasVisibleImages);
-    const prevWarningRef = useRef(showImageWarning);
-
-    useLayoutEffect(() => {
-        if (prevVisibleRef.current !== hasVisibleImages) {
-            prevVisibleRef.current = hasVisibleImages;
-            onVisibleImagesChange(hasVisibleImages);
-        }
-    }, [hasVisibleImages]);
-
-    useLayoutEffect(() => {
-        if (prevWarningRef.current !== showImageWarning) {
-            prevWarningRef.current = showImageWarning;
-            onImageWarningChange(showImageWarning);
-        }
-    }, [showImageWarning]);
 
     if (!supportsImageUpload) return null;
 

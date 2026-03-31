@@ -195,7 +195,9 @@ test.describe('omnibar widget', () => {
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
 
-        await ntp.openPage({ additional: { omnibar: true, 'omnibar.selectedModelId': 'claude-haiku-4-5' } });
+        await ntp.openPage({
+            additional: { omnibar: true, 'omnibar.enableAiChatTools': true, 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+        });
         await omnibar.ready();
 
         await omnibar.aiTab().click();
@@ -1351,7 +1353,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': true } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1378,7 +1380,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': true } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1398,7 +1400,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': true } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1416,7 +1418,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': true } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();
@@ -1439,7 +1441,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': true } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();

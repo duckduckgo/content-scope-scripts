@@ -7,26 +7,24 @@ import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
-import { useChatTools } from './chat-tools/ChatToolsProvider';
 import styles from './AiChatForm.module.css';
 
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
- * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
 
 /**
  * A simple form shell for the AI chat input. Renders a textarea, submit button,
- * and tool-provided UI via slots. Knows nothing about specific tools
- * (images, models); those register their submit data via ChatToolsContext.
+ * and tool-provided UI via slots. The parent owns all tool state and assembles
+ * the submit payload; this component just provides (chat, target) on submit.
  *
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} [props.disabled]
  * @param {(query: string) => void} props.onChange
- * @param {(params: SubmitChatAction) => void} props.onSubmit
+ * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.leftSlot]
  * @param {import('preact').ComponentChildren} [props.rightSlot]
@@ -36,7 +34,6 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
     const platformName = usePlatformName();
     const { openAiChat } = useContext(OmnibarContext);
     const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
-    const { getToolSubmitData, clearAll } = useChatTools();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
@@ -64,21 +61,11 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         }
     }, [query]);
 
-    /**
-     * @param {string} chat
-     * @param {OpenTarget} target
-     */
-    const submitChat = (chat, target) => {
-        const toolData = getToolSubmitData();
-        onSubmit(/** @type {SubmitChatAction} */ ({ ...toolData, chat, target }));
-        clearAll();
-    };
-
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled) return;
-        submitChat(query, 'same-tab');
+        onSubmit(query, 'same-tab');
     };
 
     /** @type {(event: KeyboardEvent) => void} */
@@ -121,7 +108,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                     break;
                 }
 
-                submitChat(query, eventToTarget(event, platformName));
+                onSubmit(query, eventToTarget(event, platformName));
                 break;
         }
     };
@@ -131,7 +118,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-        submitChat(query, eventToTarget(event, platformName));
+        onSubmit(query, eventToTarget(event, platformName));
     };
 
     return (
