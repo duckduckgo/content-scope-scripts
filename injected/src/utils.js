@@ -922,6 +922,7 @@ export const platformSpecificFeatures = [
     'webEvents',
     'pageObserver',
     'hover',
+    'trackerProtection', // only enabled on apple platforms
 ];
 /**
  * @param {string} featureName
