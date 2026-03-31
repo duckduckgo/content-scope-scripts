@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './ModelSelector.module.css';
-import { getModelIcon } from '../../../../components/Icons';
+import { getModelIcon } from './Icons';
 
 /**
  * @param {object} props
