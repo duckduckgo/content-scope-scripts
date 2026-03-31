@@ -16,7 +16,6 @@ import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.
 import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
-import { ChatToolsProvider } from './chat-tools/ChatToolsProvider';
 import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
@@ -157,16 +156,41 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
  */
 function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { showChats, hideChats } = useAiChatsContext();
+    const { state } = useContext(OmnibarContext);
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
+    const selectedModelIdRef = useRef(/** @type {string|null} */ (null));
     const [imageWarning, setImageWarning] = useState(false);
     const [supportsImageUpload, setSupportsImageUpload] = useState(false);
     const imageState = useImageAttachments();
+    const enableAiChatTools = state.config?.enableAiChatTools === true;
 
     /** @type {(query: string) => void} */
     const handleChange = (value) => {
         onChange(value);
         if (!hasVisibleImagesRef.current) showChats();
+    };
+
+    /**
+     * @param {string} chat
+     * @param {import('../../../types/new-tab.js').OpenTarget} target
+     */
+    const handleSubmit = (chat, target) => {
+        /** @type {SubmitChatAction} */
+        const action = { chat, target };
+
+        if (enableAiChatTools) {
+            const images = imageState.getImagesForSubmission();
+            if (images) {
+                action.images = /** @type {SubmitChatAction['images']} */ (images);
+            }
+            if (selectedModelIdRef.current) {
+                action.modelId = selectedModelIdRef.current;
+            }
+        }
+
+        onSubmit(action);
+        imageState.clearAttachedImages();
     };
 
     return (
@@ -185,37 +209,36 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
             }}
         >
             <ResizingContainer className={styles.field}>
-                <ChatToolsProvider>
-                    <AiChatForm
-                        query={query}
-                        autoFocus={autoFocus}
-                        disabled={query.length === 0 || imageWarning}
-                        onChange={handleChange}
-                        onSubmit={onSubmit}
-                        toolbarLeft={supportsImageUpload && <ImageUploadButton state={imageState} />}
-                        toolbarRight={
-                            <ModelSelectorTool
-                                onSelectedModelChange={(model) => {
-                                    setSupportsImageUpload(model?.supportsImageUpload ?? false);
-                                }}
-                            />
-                        }
-                    >
-                        <ImageAttachmentContent
-                            state={imageState}
-                            supportsImageUpload={supportsImageUpload}
-                            onVisibleImagesChange={(hasImages) => {
-                                hasVisibleImagesRef.current = hasImages;
-                                if (hasImages) {
-                                    hideChats();
-                                } else if (document.activeElement?.tagName === 'TEXTAREA') {
-                                    showChats();
-                                }
+                <AiChatForm
+                    query={query}
+                    autoFocus={autoFocus}
+                    disabled={query.length === 0 || imageWarning}
+                    onChange={handleChange}
+                    onSubmit={handleSubmit}
+                    toolbarLeft={supportsImageUpload && <ImageUploadButton state={imageState} />}
+                    toolbarRight={
+                        <ModelSelectorTool
+                            onSelectedModelChange={(model) => {
+                                selectedModelIdRef.current = model?.id ?? null;
+                                setSupportsImageUpload(model?.supportsImageUpload ?? false);
                             }}
-                            onImageWarningChange={setImageWarning}
                         />
-                    </AiChatForm>
-                </ChatToolsProvider>
+                    }
+                >
+                    <ImageAttachmentContent
+                        state={imageState}
+                        supportsImageUpload={supportsImageUpload}
+                        onVisibleImagesChange={(hasImages) => {
+                            hasVisibleImagesRef.current = hasImages;
+                            if (hasImages) {
+                                hideChats();
+                            } else if (document.activeElement?.tagName === 'TEXTAREA') {
+                                showChats();
+                            }
+                        }}
+                        onImageWarningChange={setImageWarning}
+                    />
+                </AiChatForm>
             </ResizingContainer>
             {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
