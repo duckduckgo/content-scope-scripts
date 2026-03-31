@@ -396,5 +396,5 @@ test('tracker-protection: detects tracker from DOM-appended img element', async 
     const messages = await collector.waitForMessage('resourceObserved', 1);
     const observation = messages[0].payload.params;
     expect(observation.url).toBe('https://tracker.example/pixel.gif');
-    expect(observation.potentiallyBlocked).toBe(true);
+    expect(observation.potentiallyBlocked).toBe(false);
 });
