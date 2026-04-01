@@ -1,9 +1,13 @@
 import ContentFeature from '../content-feature.js';
 import { wrapToString } from '../wrapper-utils.js';
-import { getOwnPropertyDescriptor, objectDefineProperty, Reflect as safeReflect, Proxy as SafeProxy } from '../captured-globals.js';
-
-// Capture setTimeout early to prevent page tampering
-const safeSetTimeout = globalThis.setTimeout.bind(globalThis);
+import {
+    getOwnPropertyDescriptor,
+    objectDefineProperty,
+    Reflect as safeReflect,
+    Proxy as SafeProxy,
+    setTimeout as safeSetTimeout,
+} from '../captured-globals.js';
+import { shouldExemptMethod, camelcase } from '../utils.js';
 
 /**
  * Detects conditions that should prevent tab suspension.
@@ -30,6 +34,7 @@ export class TabSuspension extends ContentFeature {
 
         const settings = this.getFeatureSetting('webRtcDetection') || {};
         const nativeEnabled = settings.nativeEnabled !== false;
+        const featureName = camelcase(this.name);
 
         /** @type {ReturnType<typeof setTimeout> | null} */
         let pendingNotify = null;
@@ -52,6 +57,10 @@ export class TabSuspension extends ContentFeature {
              * @param {Function} newTarget
              */
             construct(target, args, newTarget) {
+                // Check exemption list to reduce third-party breakage
+                if (shouldExemptMethod(featureName)) {
+                    return safeReflect.construct(target, args, newTarget);
+                }
                 const instance = safeReflect.construct(target, args, newTarget);
                 // Notify only after successful construction
                 notify({ isActive: true });
@@ -79,20 +88,31 @@ export class TabSuspension extends ContentFeature {
             OriginalRTC.prototype.constructor = wrappedRTC;
         }
 
-        // Install via descriptor, guarding against non-configurable descriptors
+        // Install via descriptor, guarding against non-configurable and accessor descriptors
         const originalDescriptor = getOwnPropertyDescriptor(globalThis, 'RTCPeerConnection');
-        if (originalDescriptor && originalDescriptor.configurable !== false) {
-            objectDefineProperty(globalThis, 'RTCPeerConnection', {
-                ...originalDescriptor,
-                value: wrappedRTC,
-            });
-        } else {
-            // Fallback: try direct assignment if descriptor is non-configurable but writable
+        if (!originalDescriptor || originalDescriptor.configurable === false) {
+            // Non-configurable: try direct assignment, fail closed if that doesn't work
             try {
                 globalThis.RTCPeerConnection = /** @type {any} */ (wrappedRTC);
             } catch {
                 // Cannot override RTCPeerConnection on this engine — fail closed (no wrapping)
             }
+            return;
+        }
+
+        // Branch on descriptor kind: data vs accessor
+        if ('value' in originalDescriptor) {
+            objectDefineProperty(globalThis, 'RTCPeerConnection', {
+                ...originalDescriptor,
+                value: wrappedRTC,
+            });
+        } else {
+            // Accessor descriptor: preserve shape by wrapping the getter
+            objectDefineProperty(globalThis, 'RTCPeerConnection', {
+                ...originalDescriptor,
+                get: () => wrappedRTC,
+                set: originalDescriptor.set,
+            });
         }
     }
 }
