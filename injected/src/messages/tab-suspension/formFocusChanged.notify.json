@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "FormFocusChanged",
+  "required": ["isFocused"],
+  "properties": {
+    "isFocused": {
+      "type": "boolean",
+      "description": "True when a form-like input element has received focus."
+    }
+  },
+  "additionalProperties": false
+}
