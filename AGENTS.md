@@ -100,19 +100,21 @@ Apply when the PR introduces new functionality visible to native clients. Struct
 - New feature file in `injected/src/features/`
 - New entry in `injected/src/features.js` (`otherFeatures`, `baseFeatures`, or `platformSupport`)
 - New entry in `injected/src/types/feature-map.ts`
+- New or changed entry in `platformSpecificFeatures` in `injected/src/utils.js`
 - New message schema directory under `injected/src/messages/<feature>/`
+- New message schema file (`.notify.json`, `.request.json`, `.subscribe.json`) in an existing feature's message directory — this adds a new native API even without a new feature
 - New type definition file in `injected/src/types/<feature>.ts`
 - New special page directory in `special-pages/pages/<name>/`
-- New public messaging API (request, notify, or subscribe) consumed by native clients
-- New sub-feature with its own settings/config gate inside an existing feature
+- New sub-feature with its own settings/config gate inside an existing feature (e.g. a new `*Enabled` setting that gates behavior)
 - New captured globals in `injected/src/captured-globals.js` added to support a new feature
+- Backward-incompatible changes to existing message schemas (adding/removing required fields, renaming methods) **when coordinated with paired native PRs** in the same release cycle
 
 ### `semver-patch` — Bug Fix / Internal
 
-Apply when no new feature surface is added. Examples:
+Apply when no new feature surface is added **and** no message schema contracts change. Examples:
 
 - Bug fixes within existing feature files
-- Refactoring that doesn't change public APIs or feature registration
+- Refactoring that doesn't change public APIs, feature registration, or message schemas
 - Test additions/modifications for existing features
 - Documentation, lint fixes, CI/workflow changes
 - Dependency updates
@@ -124,7 +126,7 @@ Apply when native clients would break without coordinated updates. Examples:
 
 - Removing or renaming a feature from `features.js` / `platformSupport`
 - Removing or renaming message schemas that native clients consume
-- Changing message schema shapes in backward-incompatible ways
+- Backward-incompatible changes to message schemas **without** a paired native PR
 - Removing a special page that native clients embed
 
 ### How to apply
