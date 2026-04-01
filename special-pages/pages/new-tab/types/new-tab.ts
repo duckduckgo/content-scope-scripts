@@ -74,6 +74,18 @@ export type ShowDuckAiSetting = boolean;
  */
 export type ShowCustomizePopover = boolean;
 export type EnableRecentAIChats = boolean;
+/**
+ * Feature flag to enable AI chat tools (model selector, image attachments)
+ */
+export type EnableAIChatTools = boolean;
+/**
+ * The user's currently selected AI model, persisted across tabs
+ */
+export type SelectedModelID = string;
+/**
+ * Sections of AI models for the model selector.
+ */
+export type AIModelSections = AIModelSection[];
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -579,6 +591,47 @@ export interface OmnibarConfig {
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
   enableRecentAiChats?: EnableRecentAIChats;
+  enableAiChatTools?: EnableAIChatTools;
+  selectedModelId?: SelectedModelID;
+  aiModelSections?: AIModelSections;
+}
+/**
+ * A section of AI models with an optional header and a list of model items.
+ */
+export interface AIModelSection {
+  /**
+   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
+   */
+  header?: string;
+  /**
+   * List of AI models in this section
+   */
+  items: AIModelItem[];
+}
+/**
+ * An individual AI model available for selection.
+ */
+export interface AIModelItem {
+  /**
+   * Model identifier
+   */
+  id: string;
+  /**
+   * Full display name
+   */
+  name: string;
+  /**
+   * Short display name for the model selector button
+   */
+  shortName: string;
+  /**
+   * Whether the model is enabled and selectable
+   */
+  isEnabled: boolean;
+  /**
+   * Whether this model supports image attachments
+   */
+  supportsImageUpload: boolean;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -593,6 +646,23 @@ export interface SubmitChatAction {
    */
   chat: string;
   target: OpenTarget;
+  /**
+   * The selected AI model identifier. Optional - if not provided, the backend will use the default model.
+   */
+  modelId?: string;
+  /**
+   * Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.
+   */
+  images?: {
+    /**
+     * Base64-encoded image data (without data URL prefix)
+     */
+    data: string;
+    /**
+     * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+     */
+    format: "jpeg" | "png";
+  }[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitSearch.notify.json"
