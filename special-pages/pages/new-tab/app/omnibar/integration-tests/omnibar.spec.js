@@ -1077,7 +1077,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(19);
+        await omnibar.expectSuggestionsCount(20);
 
         // Click outside the search field (on the page body)
         await page.click('body', { position: { x: 100, y: 100 } });
@@ -1102,7 +1102,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(19);
+        await omnibar.expectSuggestionsCount(20);
 
         // Focus outside the search form (press Shift+Tab to move focus to pill switcher)
         await omnibar.searchInput().press('Shift+Tab');
@@ -1164,7 +1164,7 @@ test.describe('omnibar widget', () => {
 
         // Wait for suggestions to appear
         await omnibar.waitForSuggestions();
-        await omnibar.expectSuggestionsCount(19);
+        await omnibar.expectSuggestionsCount(20);
 
         // Click close button
         await omnibar.closeButton().click();
@@ -1194,6 +1194,21 @@ test.describe('omnibar widget', () => {
                 { id: 'protections', title: 'Protections Report' },
             ],
         });
+    });
+
+    test('right-clicking on the search input does not trigger custom context menu', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Right-click on the search input
+        await omnibar.searchInput().click({ button: 'right' });
+
+        // Assert that the custom contextMenu notification was NOT sent
+        await omnibar.expectMethodNotCalled('contextMenu');
     });
 
     test('customize popover appears when showCustomizePopover=true', async ({ page }, workerInfo) => {

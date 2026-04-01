@@ -26,6 +26,7 @@
     display: flex;
     height: var(--sp-8);
     justify-content: flex-start;
+    text-align: left;
     padding: 0 var(--sp-2) 0 0;
 
     svg {
@@ -33,7 +34,7 @@
         margin: var(--sp-2);
     }
 
-    &[aria-selected="true"],
+    &[aria-selected='true'],
     &:active {
         color: var(--ds-color-theme-accent-content-primary);
 
@@ -46,7 +47,7 @@
         }
     }
 
-    &[aria-selected="true"] {
+    &[aria-selected='true'] {
         background: var(--ds-color-theme-accent-primary);
     }
 
@@ -56,8 +57,8 @@
 }
 
 .title {
-    flex: none;
-    max-width: 60%;
+    flex: 0 1.5 auto; /* shrink 1.5x faster than suffix to match native's lower title compression resistance */
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -65,7 +66,7 @@
 
 .suffix {
     color: var(--ds-color-theme-text-tertiary);
-    flex: initial;
+    flex: 1 1 auto;
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;

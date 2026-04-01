@@ -11,7 +11,7 @@
     font-size: calc(14 * var(--px-in-rem));
     font-weight: 400;
     line-height: calc(16 * var(--px-in-rem));
-    padding: var(--sp-3) var(--sp-1) var(--sp-3) var(--sp-3);
+    padding: var(--sp-3) var(--sp-1) var(--sp-3) var(--sp-3); /* 12px 4px 12px 12px */
 }
 
 .rowCell {
@@ -19,42 +19,34 @@
 }
 
 .rowCell + .rowCell {
-    border-left: 1px solid var(--color-black-at-9);
-
-    @media (prefers-color-scheme: dark) {
-        border-left: 1px solid var(--color-white-at-6);
-    }
+    border-left: 1px solid var(--ds-surface-decoration-primary);
 }
 
 .row:nth-child(odd) {
     & .rowHeading,
     & .rowCell {
-        background: rgba(161, 207, 247, 0.16);
-
-        @media (prefers-color-scheme: dark) {
-            background: rgba(161, 207, 247, 0.12);
-        }
+        background: var(--ds-accent-alt-glow-primary);
     }
 
     & .rowHeading {
-        border-radius: var(--sp-4) 0 0 var(--sp-4);
+        border-radius: var(--sp-4) 0 0 var(--sp-4); /* 16px */
     }
 
     & .rowCell:last-child {
-        border-radius: 0 var(--sp-4) var(--sp-4) 0;
+        border-radius: 0 var(--sp-4) var(--sp-4) 0; /* 16px */
     }
 }
 
 .rowHeadingContents {
     align-items: center;
     display: flex;
-    gap: var(--sp-3);
+    gap: var(--sp-3); /* 12px */
     text-align: left;
 }
 
 .rowIcon {
-    height: var(--sp-6);
-    width: var(--sp-6);
+    height: var(--sp-6); /* 24px */
+    width: var(--sp-6); /* 24px */
 }
 
 .status {
@@ -62,25 +54,25 @@
 }
 
 .notSupported {
-    height: var(--sp-6);
-    width: var(--sp-6);
+    height: var(--sp-6); /* 24px */
+    width: var(--sp-6); /* 24px */
     background-image: url('../../../public/assets/img/v4/icons/cross-circle.svg');
 }
 
 .partialSupport {
-    height: var(--sp-6);
-    width: var(--sp-6);
+    height: var(--sp-6); /* 24px */
+    width: var(--sp-6); /* 24px */
     background-image: url('../../../public/assets/img/v4/icons/stop-circle.svg');
 }
 
 .fullSupport {
-    height: var(--sp-5);
-    width: var(--sp-5);
+    height: var(--sp-5); /* 20px */
+    width: var(--sp-5); /* 20px */
     background-image: url('../../../public/assets/img/v4/icons/check-circle.svg');
     animation: bouncein 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
-    animation-delay: calc(300ms + var(--row-index) * 80ms);
+    animation-delay: calc(400ms + var(--row-index) * 80ms);
 
-    [data-reduced-motion="true"] & {
+    [data-reduced-motion='true'] & {
         animation: none;
     }
 }
@@ -105,12 +97,14 @@
     background-color: #fff;
     background-position: center center;
     background-repeat: no-repeat;
-    border-radius: var(--sp-2);
-    box-shadow: 0px 1.25px 3.75px 0px rgba(0, 0, 0, 0.10), 0px 5px 10px 0px rgba(0, 0, 0, 0.08);
+    border-radius: var(--sp-2); /* 8px */
+    box-shadow:
+        0px 1.25px 3.75px 0px rgba(0, 0, 0, 0.1),
+        0px 5px 10px 0px rgba(0, 0, 0, 0.08);
     display: inline-block;
-    margin: 0 var(--sp-2);
-    height: var(--sp-10);
-    width: var(--sp-10);
+    margin: 0 var(--sp-2); /* 0 8px */
+    height: var(--sp-10); /* 40px */
+    width: var(--sp-10); /* 40px */
 }
 
 .browserIconChrome {
