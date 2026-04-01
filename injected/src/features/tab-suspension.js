@@ -34,9 +34,33 @@ export class TabSuspension extends ContentFeature {
         const nativeEnabled = settings.nativeEnabled !== false;
         if (!nativeEnabled) return;
 
+        let openCount = 0;
+        const notifyState = () => {
+            this.notify('indexedDBStateChanged', { isActive: openCount > 0 });
+        };
+
+        const trackDatabase = (/** @type {IDBDatabase} */ db) => {
+            openCount++;
+            notifyState();
+            db.addEventListener('close', () => {
+                openCount = Math.max(0, openCount - 1);
+                notifyState();
+            });
+        };
+
+        // Wrap close() to catch explicit closes before the event fires
+        this.wrapMethod(IDBDatabase.prototype, 'close', function (originalClose) {
+            openCount = Math.max(0, openCount - 1);
+            notifyState();
+            return originalClose.call(this);
+        });
+
         this.wrapMethod(IDBFactory.prototype, 'open', (originalOpen, ...args) => {
-            this.notify('indexedDBConnectionOpened', { isActive: true });
-            return originalOpen.call(globalThis.indexedDB, ...args);
+            const request = originalOpen.call(globalThis.indexedDB, ...args);
+            request.addEventListener('success', () => {
+                trackDatabase(/** @type {IDBDatabase} */ (request.result));
+            });
+            return request;
         });
     }
 }

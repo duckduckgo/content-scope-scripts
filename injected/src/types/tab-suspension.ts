@@ -10,7 +10,7 @@
  * Requests, Notifications and Subscriptions from the TabSuspension feature
  */
 export interface TabSuspensionMessages {
-  notifications: FormFocusChangedNotification | IndexedDBConnectionOpenedNotification;
+  notifications: FormFocusChangedNotification | IndexedDBStateChangedNotification;
 }
 /**
  * Generated from @see "../messages/tab-suspension/formFocusChanged.notify.json"
@@ -26,15 +26,15 @@ export interface FormFocusChanged {
   isFocused: boolean;
 }
 /**
- * Generated from @see "../messages/tab-suspension/indexedDBConnectionOpened.notify.json"
+ * Generated from @see "../messages/tab-suspension/indexedDBStateChanged.notify.json"
  */
-export interface IndexedDBConnectionOpenedNotification {
-  method: "indexedDBConnectionOpened";
-  params: IndexedDBConnectionOpened;
+export interface IndexedDBStateChangedNotification {
+  method: "indexedDBStateChanged";
+  params: IndexedDBStateChanged;
 }
-export interface IndexedDBConnectionOpened {
+export interface IndexedDBStateChanged {
   /**
-   * True when an IndexedDB connection has been opened.
+   * True when at least one IndexedDB connection is open, false when all connections are closed.
    */
   isActive: boolean;
 }

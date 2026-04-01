@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "title": "IndexedDBConnectionOpened",
+  "title": "IndexedDBStateChanged",
   "required": ["isActive"],
   "properties": {
     "isActive": {
       "type": "boolean",
-      "description": "True when an IndexedDB connection has been opened."
+      "description": "True when at least one IndexedDB connection is open, false when all connections are closed."
     }
   },
   "additionalProperties": false
