@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "WebLockStateResult",
+  "required": ["isActive"],
+  "properties": {
+    "isActive": {
+      "type": "boolean",
+      "description": "True when at least one web lock is held or pending."
+    }
+  },
+  "additionalProperties": false
+}

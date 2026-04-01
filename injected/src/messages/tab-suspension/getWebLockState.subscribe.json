@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GetWebLockState",
+  "description": "Subscription for native to query current web lock state",
+  "additionalProperties": false,
+  "properties": {}
+}

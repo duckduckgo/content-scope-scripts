@@ -12,6 +12,9 @@ export class TabSuspension extends ContentFeature {
         if (this.getFeatureSettingEnabled('indexedDBDetection')) {
             this.initIndexedDBDetection();
         }
+        if (this.getFeatureSettingEnabled('webLockDetection')) {
+            this.initWebLockDetection();
+        }
     }
 
     initInputFieldFocusDetection() {
@@ -61,6 +64,23 @@ export class TabSuspension extends ContentFeature {
                 trackDatabase(/** @type {IDBDatabase} */ (request.result));
             });
             return request;
+        });
+    }
+
+    initWebLockDetection() {
+        const settings = this.getFeatureSetting('webLockDetection') || {};
+        const nativeEnabled = settings.nativeEnabled !== false;
+        if (!nativeEnabled) return;
+
+        this.subscribe('getWebLockState', async () => {
+            try {
+                const { held, pending } = await navigator.locks.query();
+                const isActive = (held?.length ?? 0) > 0 || (pending?.length ?? 0) > 0;
+                this.notify('webLockStateResult', { isActive });
+            } catch {
+                // Web Locks API unavailable (e.g. insecure context)
+                this.notify('webLockStateResult', { isActive: false });
+            }
         });
     }
 }

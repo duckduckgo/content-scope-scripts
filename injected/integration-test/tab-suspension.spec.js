@@ -7,6 +7,8 @@ const CONFIG_NATIVE_DISABLED = './integration-test/test-pages/tab-suspension/con
 const CONFIG_INDEXEDDB = './integration-test/test-pages/tab-suspension/config/tab-suspension-indexeddb.json';
 const CONFIG_INDEXEDDB_NATIVE_DISABLED =
     './integration-test/test-pages/tab-suspension/config/tab-suspension-indexeddb-native-disabled.json';
+const CONFIG_WEBLOCK = './integration-test/test-pages/tab-suspension/config/tab-suspension-weblock.json';
+const CONFIG_WEBLOCK_NATIVE_DISABLED = './integration-test/test-pages/tab-suspension/config/tab-suspension-weblock-native-disabled.json';
 
 test.describe('tabSuspension - inputFieldFocusDetection', () => {
     test('notifies on text input focus', async ({ page }, testInfo) => {
@@ -183,5 +185,53 @@ test.describe('tabSuspension - indexedDBDetection with nativeEnabled: false', ()
         const messages = await collector.outgoingMessages();
         const dbMessages = messages.filter((m) => 'method' in m.payload && m.payload.method === 'indexedDBStateChanged');
         expect(dbMessages).toHaveLength(0);
+    });
+});
+
+test.describe('tabSuspension - webLockDetection', () => {
+    test('responds isActive:true when a lock is held', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG_WEBLOCK);
+
+        // Acquire a lock that stays held while we query
+        await page.evaluate(() => {
+            navigator.locks.request('test-lock', () => new Promise(() => {}));
+        });
+
+        // Small delay to ensure the lock is acquired
+        await page.waitForTimeout(100);
+
+        // Simulate native querying the web lock state
+        await collector.simulateSubscriptionMessage('tabSuspension', 'getWebLockState', {});
+
+        const messages = await collector.waitForMessage('webLockStateResult', 1);
+        expect(messages).toHaveLength(1);
+        expect(/** @type {{params: any}} */ (messages[0].payload).params).toStrictEqual({ isActive: true });
+    });
+
+    test('responds isActive:false when no locks are held', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG_WEBLOCK);
+
+        // Simulate native querying the web lock state (no locks acquired)
+        await collector.simulateSubscriptionMessage('tabSuspension', 'getWebLockState', {});
+
+        const messages = await collector.waitForMessage('webLockStateResult', 1);
+        expect(messages).toHaveLength(1);
+        expect(/** @type {{params: any}} */ (messages[0].payload).params).toStrictEqual({ isActive: false });
+    });
+});
+
+test.describe('tabSuspension - webLockDetection with nativeEnabled: false', () => {
+    test('does not register subscription when nativeEnabled is false', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG_WEBLOCK_NATIVE_DISABLED);
+
+        // No subscription registered, so no webLockStateResult messages should appear
+        await page.waitForTimeout(500);
+
+        const messages = await collector.outgoingMessages();
+        const lockMessages = messages.filter((m) => 'method' in m.payload && m.payload.method === 'webLockStateResult');
+        expect(lockMessages).toHaveLength(0);
     });
 });

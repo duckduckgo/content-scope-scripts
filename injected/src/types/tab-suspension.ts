@@ -10,7 +10,8 @@
  * Requests, Notifications and Subscriptions from the TabSuspension feature
  */
 export interface TabSuspensionMessages {
-  notifications: FormFocusChangedNotification | IndexedDBStateChangedNotification;
+  notifications: FormFocusChangedNotification | IndexedDBStateChangedNotification | WebLockStateResultNotification;
+  subscriptions: GetWebLockStateSubscription;
 }
 /**
  * Generated from @see "../messages/tab-suspension/formFocusChanged.notify.json"
@@ -38,9 +39,34 @@ export interface IndexedDBStateChanged {
    */
   isActive: boolean;
 }
+/**
+ * Generated from @see "../messages/tab-suspension/webLockStateResult.notify.json"
+ */
+export interface WebLockStateResultNotification {
+  method: "webLockStateResult";
+  params: WebLockStateResult;
+}
+export interface WebLockStateResult {
+  /**
+   * True when at least one web lock is held or pending.
+   */
+  isActive: boolean;
+}
+/**
+ * Generated from @see "../messages/tab-suspension/getWebLockState.subscribe.json"
+ */
+export interface GetWebLockStateSubscription {
+  subscriptionEvent: "getWebLockState";
+  params: GetWebLockState;
+}
+/**
+ * Subscription for native to query current web lock state
+ */
+export interface GetWebLockState {}
 
 declare module "../features/tab-suspension.js" {
   export interface TabSuspension {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TabSuspensionMessages>['notify']
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TabSuspensionMessages>['notify'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TabSuspensionMessages>['subscribe']
   }
 }
