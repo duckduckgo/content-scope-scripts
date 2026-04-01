@@ -52,7 +52,7 @@ test.describe('tabSuspension - webRtcDetection with nativeEnabled: false', () =>
         await page.waitForTimeout(500);
 
         const messages = await collector.outgoingMessages();
-        const rtcMessages = messages.filter((m) => m.payload.method === 'webRTCConnectionChanged');
+        const rtcMessages = messages.filter((m) => 'method' in m.payload && m.payload.method === 'webRTCConnectionChanged');
         expect(rtcMessages).toHaveLength(0);
     });
 
