@@ -26,8 +26,8 @@ export interface WebRTCConnectionChanged {
   isActive: boolean;
 }
 
-declare module "../features/web-rtc-detection.js" {
-  export interface WebRtcDetection {
+declare module "../features/tab-suspension.js" {
+  export interface TabSuspension {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<WebRtcDetectionMessages>['notify']
   }
 }
