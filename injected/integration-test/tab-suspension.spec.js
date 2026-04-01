@@ -165,6 +165,41 @@ test.describe('tabSuspension - indexedDBDetection', () => {
 
         expect(result).toBe(true);
     });
+
+    test('illegal receiver on IDBFactory.prototype.open still throws TypeError', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG_INDEXEDDB);
+
+        const result = await page.evaluate(() => {
+            try {
+                IDBFactory.prototype.open.call({}, 'bad-db');
+                return 'no error';
+            } catch (e) {
+                return e instanceof TypeError ? 'TypeError' : 'other error';
+            }
+        });
+
+        expect(result).toBe('TypeError');
+    });
+
+    test('illegal receiver on IDBDatabase.prototype.close does not emit notification', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG_INDEXEDDB);
+
+        await page.evaluate(() => {
+            try {
+                IDBDatabase.prototype.close.call({});
+            } catch {
+                // expected to throw
+            }
+        });
+
+        await page.waitForTimeout(500);
+
+        const messages = await collector.outgoingMessages();
+        const dbMessages = messages.filter((m) => 'method' in m.payload && m.payload.method === 'indexedDBStateChanged');
+        expect(dbMessages).toHaveLength(0);
+    });
 });
 
 test.describe('tabSuspension - indexedDBDetection with nativeEnabled: false', () => {

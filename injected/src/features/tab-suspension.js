@@ -37,29 +37,44 @@ export class TabSuspension extends ContentFeature {
         const nativeEnabled = settings.nativeEnabled !== false;
         if (!nativeEnabled) return;
 
+        // Guard against environments where IndexedDB APIs are absent or blocked
+        if (typeof IDBFactory !== 'function' || typeof IDBDatabase !== 'function' || !globalThis.indexedDB) return;
+
         let openCount = 0;
+        /** @type {WeakSet<IDBDatabase>} */
+        const trackedDatabases = new WeakSet();
+
         const notifyState = () => {
             this.notify('indexedDBStateChanged', { isActive: openCount > 0 });
         };
 
         const trackDatabase = (/** @type {IDBDatabase} */ db) => {
+            trackedDatabases.add(db);
             openCount++;
             notifyState();
             db.addEventListener('close', () => {
+                if (!trackedDatabases.has(db)) return;
+                trackedDatabases.delete(db);
                 openCount = Math.max(0, openCount - 1);
                 notifyState();
             });
         };
 
-        // Wrap close() to catch explicit closes before the event fires
+        // Wrap close(): call native first, only update state on success.
+        // Gate on tracked instances to prevent spoofing via illegal receiver.
         this.wrapMethod(IDBDatabase.prototype, 'close', function (originalClose) {
-            openCount = Math.max(0, openCount - 1);
-            notifyState();
-            return originalClose.call(this);
+            const result = originalClose.call(this);
+            if (trackedDatabases.has(this)) {
+                trackedDatabases.delete(this);
+                openCount = Math.max(0, openCount - 1);
+                notifyState();
+            }
+            return result;
         });
 
-        this.wrapMethod(IDBFactory.prototype, 'open', (originalOpen, ...args) => {
-            const request = originalOpen.call(globalThis.indexedDB, ...args);
+        // Preserve native receiver semantics with originalOpen.call(this, ...)
+        this.wrapMethod(IDBFactory.prototype, 'open', function (originalOpen, ...args) {
+            const request = originalOpen.call(this, ...args);
             request.addEventListener('success', () => {
                 trackDatabase(/** @type {IDBDatabase} */ (request.result));
             });
