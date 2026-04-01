@@ -89,54 +89,6 @@ All **new** source files under `injected/src/` must be added to the `CORE_FILES`
 
 See [`guides/debugging.md`](guides/debugging.md) for debugging resources including script integrity validation, feature triage checklist, and platform-specific troubleshooting.
 
-## Semver Classification (PR Labels)
-
-Every PR must carry exactly one of: `semver-patch`, `semver-minor`, or `semver-major`. The release workflow (`.github/workflows/build.yml`) only supports `major` and `minor` bumps — `semver-patch` means "ships with the next minor, no standalone release."
-
-### `semver-minor` — New Feature
-
-Apply when the PR introduces new functionality visible to native clients. Structural signals (any one is sufficient):
-
-- New feature file in `injected/src/features/`
-- New entry in `injected/src/features.js` (`otherFeatures`, `baseFeatures`, or `platformSupport`)
-- New entry in `injected/src/types/feature-map.ts`
-- New or changed entry in `platformSpecificFeatures` in `injected/src/utils.js`
-- New message schema directory under `injected/src/messages/<feature>/`
-- New message schema file (`.notify.json`, `.request.json`, `.subscribe.json`) in an existing feature's message directory — this adds a new native API even without a new feature
-- New type definition file in `injected/src/types/<feature>.ts`
-- New special page directory in `special-pages/pages/<name>/`
-- New sub-feature with its own settings/config gate inside an existing feature (e.g. a new `*Enabled` setting that gates behavior)
-- New captured globals in `injected/src/captured-globals.js` added to support a new feature
-- Backward-incompatible changes to existing message schemas (adding/removing required fields, renaming methods) **when coordinated with paired native PRs** in the same release cycle
-
-### `semver-patch` — Bug Fix / Internal
-
-Apply when no new feature surface is added **and** no message schema contracts change. Examples:
-
-- Bug fixes within existing feature files
-- Refactoring that doesn't change public APIs, feature registration, or message schemas
-- Test additions/modifications for existing features
-- Documentation, lint fixes, CI/workflow changes
-- Dependency updates
-- Build tooling or script changes
-
-### `semver-major` — Breaking Change
-
-Apply when native clients would break without coordinated updates. Examples:
-
-- Removing or renaming a feature from `features.js` / `platformSupport`
-- Removing or renaming message schemas that native clients consume
-- Backward-incompatible changes to message schemas **without** a paired native PR
-- Removing a special page that native clients embed
-
-### How to apply
-
-Add the appropriate label when creating the PR. If working via the GitHub CLI:
-
-```sh
-gh pr edit <number> --add-label semver-minor
-```
-
 ## Notes
 
 - When running Playwright commands, use `--reporter list` to prevent the Shell tool from hanging
