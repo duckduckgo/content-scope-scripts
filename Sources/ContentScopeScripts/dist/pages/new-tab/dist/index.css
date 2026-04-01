@@ -3680,13 +3680,21 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   padding-bottom: var(--sp-3);
 }
 .AiChatForm_buttons {
+  align-items: center;
   align-self: stretch;
   bottom: 0;
+  display: flex;
   justify-content: space-between;
   left: 0;
   padding: var(--sp-3);
   position: absolute;
   right: 0;
+}
+.AiChatForm_rightButtons {
+  align-items: center;
+  display: flex;
+  gap: var(--sp-2);
+  margin-left: auto;
 }
 .AiChatForm_submitButton {
   align-items: center;
@@ -3699,7 +3707,6 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   display: flex;
   height: var(--sp-7);
   justify-content: center;
-  margin-left: auto;
   padding: 0;
   width: var(--sp-7);
 }
@@ -3784,26 +3791,35 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .Omnibar_root:has(input:focus, textarea:focus) .Omnibar_popup {
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08);
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .Omnibar_popup {
+.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .Omnibar_popup {
   border-radius: 15px;
   border: 2px solid var(--ds-color-theme-accent-primary);
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08);
   margin: 0;
   outline: 2px solid var(--ds-color-theme-accent-glow-primary);
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .Omnibar_popup .Omnibar_field {
+.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .Omnibar_popup .Omnibar_field {
   margin: 1px;
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .Omnibar_popup .Omnibar_aiChatsList {
+.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .Omnibar_popup .Omnibar_aiChatsList {
   margin-left: -2px;
   margin-right: -2px;
   margin-top: 3px;
 }
-.Omnibar_root:has([role=listbox]) .Omnibar_popup {
+.Omnibar_root:has([data-image-warning]) .Omnibar_popup {
+  border: 2px solid var(--color-red-50);
+  border-radius: 15px;
+  margin: 0;
+  outline: none;
+}
+.Omnibar_root:has([data-image-warning]) .Omnibar_popup .Omnibar_field {
+  margin: 1px;
+}
+.Omnibar_root:has([data-omnibar-list]) .Omnibar_popup {
   border-radius: 15px;
   margin: 0;
 }
-.Omnibar_root:has([role=listbox]) .Omnibar_popup .Omnibar_field {
+.Omnibar_root:has([data-omnibar-list]) .Omnibar_popup .Omnibar_field {
   margin: 3px;
 }
 .Omnibar_field {
@@ -4096,6 +4112,306 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   .TabSwitcher_blob {
     transition: none;
   }
+}
+
+/* pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachment.module.css */
+.ImageAttachment_imagePreviewArea {
+  align-self: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-3) 0;
+}
+.ImageAttachment_thumbnail {
+  border: 2px solid var(--ds-color-theme-surface-primary);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  display: block;
+  height: calc(var(--sp-12) + var(--sp-0_5));
+  object-fit: cover;
+  width: calc(var(--sp-12) + var(--sp-0_5));
+}
+.ImageAttachment_thumbnailWrapper {
+  position: relative;
+}
+.ImageAttachment_thumbnailRemove {
+  align-items: center;
+  background: var(--ds-color-theme-text-primary);
+  border-radius: 100%;
+  border: none;
+  color: var(--ds-color-theme-surface-primary);
+  cursor: pointer;
+  display: flex;
+  height: var(--sp-4);
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: calc(-1 * var(--sp-1));
+  top: calc(-1 * var(--sp-1));
+  width: var(--sp-4);
+}
+[data-theme=dark] .ImageAttachment_thumbnailRemove {
+  background: var(--color-gray-40);
+  outline: 2px solid var(--ds-color-theme-surface-primary);
+}
+.ImageAttachment_thumbnailRemove:hover {
+  opacity: 0.8;
+}
+.ImageAttachment_thumbnailRemove:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+.ImageAttachment_imageWarning {
+  align-self: stretch;
+  color: var(--color-red-50);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 13px;
+  margin: 0;
+  order: -1;
+  padding: var(--sp-2) var(--sp-3) 0;
+}
+.ImageAttachment_dismissError {
+  background: none;
+  border: none;
+  color: var(--color-red-50);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  margin-left: auto;
+  padding: 0 var(--sp-1);
+}
+.ImageAttachment_toolButton {
+  align-items: center;
+  background: none;
+  border-radius: 50%;
+  border: none;
+  color: var(--ds-color-theme-icons-primary);
+  cursor: pointer;
+  display: flex;
+  height: var(--sp-7);
+  justify-content: center;
+  padding: 0;
+  width: var(--sp-7);
+}
+.ImageAttachment_toolButton:hover {
+  background: var(--color-black-at-6);
+}
+[data-theme=dark] .ImageAttachment_toolButton:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+.ImageAttachment_toolButton:active {
+  background: var(--color-black-at-12);
+}
+[data-theme=dark] .ImageAttachment_toolButton:active {
+  background: rgba(255, 255, 255, 0.14);
+}
+.ImageAttachment_toolButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+.ImageAttachment_toolButtonDisabled {
+  color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
+  cursor: default;
+  pointer-events: none;
+}
+.ImageAttachment_hiddenFileInput {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 0;
+}
+
+/* pages/new-tab/app/omnibar/components/Tooltip.module.css */
+.Tooltip_container {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.Tooltip_container:focus-visible {
+  outline: 2px solid var(--ds-color-theme-accent-primary);
+  outline-offset: 2px;
+}
+.Tooltip_tooltip {
+  position: fixed;
+  pointer-events: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background-color: var(--ds-color-theme-surface-tertiary);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.20);
+  font-size: 12px;
+  line-height: 15px;
+  color: var(--ds-color-theme-text-primary);
+  z-index: 1000;
+}
+.Tooltip_tooltipRight {
+  white-space: normal;
+  width: 236px;
+  animation: Tooltip_tooltipFadeIn 300ms ease;
+}
+.Tooltip_tooltipRight span {
+  display: block;
+  margin-top: 22px;
+}
+.Tooltip_tooltipAbove {
+  white-space: nowrap;
+  width: auto;
+}
+@keyframes Tooltip_tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.module.css */
+.ModelSelector_modelSelector {
+  position: relative;
+  display: flex;
+}
+.ModelSelector_modelButton {
+  align-items: center;
+  background: none;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: flex;
+  font-size: 12px;
+  gap: var(--sp-0_5);
+  height: var(--sp-7);
+  padding: 0 var(--sp-1) 0 var(--sp-2);
+}
+.ModelSelector_modelButton:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: transparent;
+}
+[data-theme=dark] .ModelSelector_modelButton:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+.ModelSelector_modelButton:active {
+  background: var(--color-black-at-18);
+}
+[data-theme=dark] .ModelSelector_modelButton:active {
+  background: rgba(255, 255, 255, 0.14);
+}
+.ModelSelector_modelButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+.ModelSelector_modelButtonOpen {
+  background: var(--color-black-at-18);
+  border-color: transparent;
+  color: var(--ds-color-theme-text-primary);
+}
+.ModelSelector_modelButtonOpen:hover {
+  background: rgba(0, 0, 0, 0.20);
+  border-color: transparent;
+}
+.ModelSelector_modelButtonOpen:active {
+  background: rgba(0, 0, 0, 0.22);
+}
+[data-theme=dark] .ModelSelector_modelButtonOpen {
+  background: var(--color-white-at-18);
+}
+[data-theme=dark] .ModelSelector_modelButtonOpen:hover {
+  background: rgba(255, 255, 255, 0.20);
+}
+[data-theme=dark] .ModelSelector_modelButtonOpen:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+.ModelSelector_modelButtonLabel {
+  max-width: 120px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ModelSelector_modelDropdown {
+  background: rgb(249, 249, 249);
+  border-radius: 10px;
+  border: 0.5px solid rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
+  list-style: none;
+  margin: 0;
+  max-height: 400px;
+  min-width: 280px;
+  overflow-y: auto;
+  padding: 3px;
+  position: fixed;
+  z-index: 100;
+}
+[data-theme=dark] .ModelSelector_modelDropdown {
+  -webkit-backdrop-filter: blur(50px);
+  backdrop-filter: blur(50px);
+  background: rgba(30, 30, 30, 0.88);
+  border: 0.5px solid var(--color-white-at-15);
+  box-shadow: 0 8px 32px var(--color-black-at-40);
+}
+.ModelSelector_modelOption {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: 6px;
+  padding: 5px var(--sp-4) 5px 6px;
+  white-space: nowrap;
+}
+.ModelSelector_modelOption::before {
+  color: transparent;
+  content: "\2713";
+  flex-shrink: 0;
+  font-size: 13px;
+  margin-right: -5px;
+  font-weight: 700;
+  width: var(--sp-4);
+}
+.ModelSelector_modelOption:hover {
+  background: var(--ds-color-theme-accent-primary);
+  border-radius: var(--border-radius-xs);
+  color: var(--color-white);
+}
+.ModelSelector_modelOption:hover::before {
+  color: transparent;
+}
+[data-theme=dark] .ModelSelector_modelOption:hover {
+  background: #0050d0;
+}
+.ModelSelector_modelOptionSelected::before {
+  color: var(--ds-color-theme-text-primary);
+}
+.ModelSelector_modelOptionSelected:hover::before {
+  color: var(--color-white);
+}
+.ModelSelector_modelOptionDisabled {
+  color: var(--ds-color-theme-text-tertiary);
+  cursor: default;
+  pointer-events: none;
+}
+.ModelSelector_modelSectionDivider {
+  border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
+  margin: var(--sp-1) var(--sp-4);
+}
+.ModelSelector_modelSectionHeader {
+  align-items: center;
+  color: var(--ds-color-theme-text-tertiary);
+  cursor: default;
+  display: flex;
+  font-size: 13px;
+  gap: 6px;
+  padding: var(--sp-1) var(--sp-4) var(--sp-1) var(--sp-0_5);
+  white-space: nowrap;
+}
+.ModelSelector_modelSectionHeader::before {
+  content: "";
+  flex-shrink: 0;
+  width: var(--sp-4);
 }
 
 /* pages/new-tab/app/protections/components/Protections.module.css */
@@ -4399,7 +4715,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   outline: 2px solid var(--ds-color-theme-accent-primary);
   outline-offset: 2px;
 }
-.Tooltip_tooltip {
+.Tooltip_tooltip2 {
   position: absolute;
   bottom: -20px;
   left: calc(100% + 8px);
@@ -4413,13 +4729,13 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   white-space: normal;
   width: 236px;
   z-index: 1000;
-  animation: Tooltip_tooltipFadeIn 300ms ease;
+  animation: Tooltip_tooltipFadeIn2 300ms ease;
 }
-.Tooltip_tooltip span {
+.Tooltip_tooltip2 span {
   display: block;
   margin-top: 22px;
 }
-@keyframes Tooltip_tooltipFadeIn {
+@keyframes Tooltip_tooltipFadeIn2 {
   from {
     opacity: 0;
     transform: translateX(-10px);

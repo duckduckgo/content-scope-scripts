@@ -28,7 +28,7 @@ export function AiChatsList({ className }) {
     }
 
     return (
-        <div role="listbox" id={aiChatsListId} class={cn(styles.list, className)}>
+        <div role="listbox" id={aiChatsListId} data-omnibar-list class={cn(styles.list, className)}>
             {chats.map((chat) => {
                 return (
                     <button

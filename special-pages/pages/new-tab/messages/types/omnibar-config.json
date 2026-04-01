@@ -5,6 +5,51 @@
   "required": [
     "mode"
   ],
+  "$defs": {
+    "AIModelSection": {
+      "type": "object",
+      "description": "A section of AI models with an optional header and a list of model items.",
+      "required": ["items"],
+      "properties": {
+        "header": {
+          "description": "Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')",
+          "type": "string"
+        },
+        "items": {
+          "description": "List of AI models in this section",
+          "type": "array",
+          "items": { "$ref": "#/$defs/AIModelItem" }
+        }
+      }
+    },
+    "AIModelItem": {
+      "type": "object",
+      "description": "An individual AI model available for selection.",
+      "required": ["id", "name", "shortName", "isEnabled", "supportsImageUpload"],
+      "properties": {
+        "id": {
+          "description": "Model identifier",
+          "type": "string"
+        },
+        "name": {
+          "description": "Full display name",
+          "type": "string"
+        },
+        "shortName": {
+          "description": "Short display name for the model selector button",
+          "type": "string"
+        },
+        "isEnabled": {
+          "description": "Whether the model is enabled and selectable",
+          "type": "boolean"
+        },
+        "supportsImageUpload": {
+          "description": "Whether this model supports image attachments",
+          "type": "boolean"
+        }
+      }
+    }
+  },
   "properties": {
     "mode": {
       "title": "Omnibar Mode",
@@ -31,6 +76,23 @@
       "title": "Enable Recent AI Chats",
       "type": "boolean",
       "default": false
+    },
+    "enableAiChatTools": {
+      "title": "Enable AI Chat Tools",
+      "description": "Feature flag to enable AI chat tools (model selector, image attachments)",
+      "type": "boolean",
+      "default": false
+    },
+    "selectedModelId": {
+      "title": "Selected Model ID",
+      "description": "The user's currently selected AI model, persisted across tabs",
+      "type": "string"
+    },
+    "aiModelSections": {
+      "title": "AI Model Sections",
+      "description": "Sections of AI models for the model selector.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/AIModelSection" }
     }
   }
 }

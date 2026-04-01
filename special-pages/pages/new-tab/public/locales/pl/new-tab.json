@@ -652,5 +652,33 @@
   "activity_show_less_history": {
     "title": "Ukryj dodatkowe",
     "note": "Button label that hides the expanded browsing history items."
+  },
+  "omnibar_attachImageLabel": {
+    "title": "Załącz obraz",
+    "description": "Accessible label for the attach image button in the AI chat toolbar."
+  },
+  "omnibar_removeImageLabel": {
+    "title": "Usuń obraz",
+    "description": "Accessible label for the button to remove an attached image thumbnail."
+  },
+  "omnibar_modelSelectorLabel": {
+    "title": "Wybierz model",
+    "description": "Accessible label for the AI model selector dropdown."
+  },
+  "omnibar_imageAttachmentLimitWarning": {
+    "title": "Jednocześnie możesz załączyć tylko {limit} obrazów",
+    "description": "Warning shown when user attaches more images than the allowed maximum."
+  },
+  "omnibar_imageTooLargeError": {
+    "title": "Obraz jest zbyt duży. Użyj obrazu mniejszego niż 10000×10000 pikseli.",
+    "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+  },
+  "omnibar_imageProcessingError": {
+    "title": "Nie udało się przetworzyć obrazu. Wybierz inny plik.",
+    "description": "Error shown when an attached image cannot be processed."
+  },
+  "omnibar_advancedModelsSectionHeader": {
+    "title": "Zaawansowane modele – subskrypcja DuckDuckGo",
+    "description": "Section header in the model picker for premium models that require a subscription."
   }
 }

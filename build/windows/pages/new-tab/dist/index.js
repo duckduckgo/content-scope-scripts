@@ -173,23 +173,23 @@
     };
   }
   function z(n3, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
-    var a4, h5, p5, y5, _5, m5, b4, S3, C4, M3, $2, I2, A5, H3, L2, T5 = u4.type;
+    var a4, h5, p5, y5, _5, m5, b4, S3, C4, M3, $3, I2, A5, H3, L2, T5 = u4.type;
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (a4 = l.__b) && a4(u4);
     n: if ("function" == typeof T5) try {
-      if (S3 = u4.props, C4 = T5.prototype && T5.prototype.render, M3 = (a4 = T5.contextType) && i5[a4.__c], $2 = a4 ? M3 ? M3.props.value : a4.__ : i5, t4.__c ? b4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (C4 ? u4.__c = h5 = new T5(S3, $2) : (u4.__c = h5 = new x(S3, $2), h5.constructor = T5, h5.render = G), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), C4 && null == h5.__s && (h5.__s = h5.state), C4 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, T5.getDerivedStateFromProps(S3, h5.__s))), y5 = h5.props, _5 = h5.state, h5.__v = u4, p5) C4 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), C4 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
+      if (S3 = u4.props, C4 = T5.prototype && T5.prototype.render, M3 = (a4 = T5.contextType) && i5[a4.__c], $3 = a4 ? M3 ? M3.props.value : a4.__ : i5, t4.__c ? b4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (C4 ? u4.__c = h5 = new T5(S3, $3) : (u4.__c = h5 = new x(S3, $3), h5.constructor = T5, h5.render = G), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), C4 && null == h5.__s && (h5.__s = h5.state), C4 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, T5.getDerivedStateFromProps(S3, h5.__s))), y5 = h5.props, _5 = h5.state, h5.__v = u4, p5) C4 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), C4 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
       else {
-        if (C4 && null == T5.getDerivedStateFromProps && S3 !== y5 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(S3, $2), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(S3, h5.__s, $2)) {
+        if (C4 && null == T5.getDerivedStateFromProps && S3 !== y5 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(S3, $3), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(S3, h5.__s, $3)) {
           u4.__v != t4.__v && (h5.props = S3, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
             n4 && (n4.__ = u4);
           }), v.push.apply(h5.__h, h5._sb), h5._sb = [], h5.__h.length && e4.push(h5);
           break n;
         }
-        null != h5.componentWillUpdate && h5.componentWillUpdate(S3, h5.__s, $2), C4 && null != h5.componentDidUpdate && h5.__h.push(function() {
+        null != h5.componentWillUpdate && h5.componentWillUpdate(S3, h5.__s, $3), C4 && null != h5.componentDidUpdate && h5.__h.push(function() {
           h5.componentDidUpdate(y5, _5, m5);
         });
       }
-      if (h5.context = $2, h5.props = S3, h5.__P = n3, h5.__e = false, I2 = l.__r, A5 = 0, C4) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), a4 = h5.render(h5.props, h5.state, h5.context), v.push.apply(h5.__h, h5._sb), h5._sb = [];
+      if (h5.context = $3, h5.props = S3, h5.__P = n3, h5.__e = false, I2 = l.__r, A5 = 0, C4) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), a4 = h5.render(h5.props, h5.state, h5.context), v.push.apply(h5.__h, h5._sb), h5._sb = [];
       else do {
         h5.__d = false, I2 && I2(u4), a4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
       } while (h5.__d && ++A5 < 25);
@@ -1768,6 +1768,17 @@
       }
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Globe-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
+  function ImageIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("path", { fill: "currentColor", d: "M4.5 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" }), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        d: "M4 1a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4H4ZM1.25 5A2.75 2.75 0 0 1 4 2.25h8A2.75 2.75 0 0 1 14.75 5v3.866l-2.808-2.808a.625.625 0 0 0-.884 0L8 9.116 6.942 8.058a.625.625 0 0 0-.884 0l-4.394 4.394A2.737 2.737 0 0 1 1.25 11V5Zm7.634 5 1.058 1.058a.625.625 0 1 1-.884.884L6.5 9.384l-3.952 3.952A2.74 2.74 0 0 0 4 13.75h8A2.75 2.75 0 0 0 14.75 11v-.366l-3.25-3.25L8.884 10Z",
+        "clip-rule": "evenodd"
+      }
+    ));
+  }
   function HistoryIcon(props) {
     return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#History-16_svg__a)" }, /* @__PURE__ */ _("path", { d: "m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" }), /* @__PURE__ */ _("path", { d: "M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "History-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
@@ -2232,6 +2243,31 @@
   }
   function B3() {
     this.i = null, this.l = null;
+  }
+  function Z(n3) {
+    return this.getChildContext = function() {
+      return n3.context;
+    }, n3.children;
+  }
+  function Y(n3) {
+    var e4 = this, r4 = n3.h;
+    if (e4.componentWillUnmount = function() {
+      J(null, e4.v), e4.v = null, e4.h = null;
+    }, e4.h && e4.h !== r4 && e4.componentWillUnmount(), !e4.v) {
+      for (var u4 = e4.__v; null !== u4 && !u4.__m && null !== u4.__; ) u4 = u4.__;
+      e4.h = r4, e4.v = { nodeType: 1, parentNode: r4, childNodes: [], __k: { __m: u4.__m }, contains: function() {
+        return true;
+      }, namespaceURI: r4.namespaceURI, insertBefore: function(n4, t4) {
+        this.childNodes.push(n4), e4.h.insertBefore(n4, t4);
+      }, removeChild: function(n4) {
+        this.childNodes.splice(this.childNodes.indexOf(n4) >>> 1, 1), e4.h.removeChild(n4);
+      } };
+    }
+    J(_(Z, { context: e4.context }, n3.__v), e4.v);
+  }
+  function $2(n3, e4) {
+    var r4 = _(Y, { __v: n3, h: e4 });
+    return r4.containerInfo = e4, r4;
   }
   var T4, A4, O3, U, H2, q4, G2, J2, K2, Q2, X, en, rn, un, on, ln, cn;
   var init_compat_module = __esm({
@@ -8765,6 +8801,17 @@
           });
         }
         /**
+         * @param {string} selectedModelId
+         */
+        setSelectedModelId(selectedModelId) {
+          this.configService.update((old) => {
+            return {
+              ...old,
+              selectedModelId
+            };
+          });
+        }
+        /**
          * Get suggestions for the given search term
          * @param {string} term
          * @returns {Promise<SuggestionsData>}
@@ -8800,9 +8847,7 @@
         }
         /**
          * Submit a chat message to Duck.ai
-         * @param {Object} params
-         * @param {string} params.chat
-         * @param {OpenTarget} params.target
+         * @param {SubmitChatAction} params
          */
         submitChat(params) {
           this.ntp.messaging.notify("omnibar_submitChat", params);
@@ -8866,6 +8911,12 @@
       },
       [service]
     );
+    const setSelectedModelId = q2(
+      (id) => {
+        service.current?.setSelectedModelId(id);
+      },
+      [service]
+    );
     const getSuggestions = q2(
       (term) => {
         if (!service.current) throw new Error("Service not available");
@@ -8926,6 +8977,7 @@
           setMode,
           setEnableAi,
           setShowCustomizePopover,
+          setSelectedModelId,
           getSuggestions,
           onSuggestions,
           openSuggestion,
@@ -8997,7 +9049,11 @@
         submitSearch: () => {
           throw new Error("must implement");
         },
-        /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+        /** @type {(id: string) => void} */
+        setSelectedModelId: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(params: SubmitChatAction) => void} */
         submitChat: () => {
           throw new Error("must implement");
         },
@@ -9199,6 +9255,7 @@
         textarea: "AiChatForm_textarea",
         hasScroll: "AiChatForm_hasScroll",
         buttons: "AiChatForm_buttons",
+        rightButtons: "AiChatForm_rightButtons",
         submitButton: "AiChatForm_submitButton",
         fadeIn: "AiChatForm_fadeIn"
       };
@@ -9206,14 +9263,14 @@
   });
 
   // pages/new-tab/app/omnibar/components/AiChatForm.js
-  function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
+  function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, toolbarLeft, toolbarRight }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
     const platformName = usePlatformName();
     const { openAiChat } = x2(OmnibarContext);
-    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } = useAiChatsContext();
+    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
     const formRef = A2(
       /** @type {HTMLFormElement|null} */
       null
@@ -9240,14 +9297,10 @@
         form.classList.remove(AiChatForm_default.hasScroll);
       }
     }, [query]);
-    const disabled = query.length === 0;
     const handleSubmit = (event) => {
       event.preventDefault();
       if (disabled) return;
-      onSubmit({
-        chat: query,
-        target: "same-tab"
-      });
+      onSubmit(query, "same-tab");
     };
     const handleKeyDown = (event) => {
       switch (event.key) {
@@ -9284,10 +9337,7 @@
           if (disabled) {
             break;
           }
-          onSubmit({
-            chat: query,
-            target: eventToTarget2(event, platformName)
-          });
+          onSubmit(query, eventToTarget2(event, platformName));
           break;
       }
     };
@@ -9295,39 +9345,43 @@
       event.preventDefault();
       if (disabled) return;
       event.stopPropagation();
-      onSubmit({
-        chat: query,
-        target: eventToTarget2(event, platformName)
-      });
+      onSubmit(query, eventToTarget2(event, platformName));
     };
-    return /* @__PURE__ */ _("form", { ref: formRef, class: AiChatForm_default.form, onSubmit: handleSubmit, onClick: () => textAreaRef.current?.focus() }, /* @__PURE__ */ _(
-      "textarea",
+    return /* @__PURE__ */ _(
+      "form",
       {
-        ref: textAreaRef,
-        class: AiChatForm_default.textarea,
-        value: query,
-        placeholder: t4("omnibar_aiChatFormPlaceholder"),
-        "aria-label": t4("omnibar_aiChatFormPlaceholder"),
-        "aria-expanded": chats.length > 0,
-        "aria-haspopup": "listbox",
-        "aria-controls": aiChatsListId,
-        "aria-activedescendant": selectedChat ? getAiChatElementId(selectedChat.chatId) : void 0,
-        autoComplete: "off",
-        rows: 1,
-        onKeyDown: handleKeyDown,
-        onChange: (event) => {
-          onChange(event.currentTarget.value);
-          showChats();
-          clearSelectedChat();
+        ref: formRef,
+        class: AiChatForm_default.form,
+        onSubmit: handleSubmit,
+        onClick: (e4) => {
+          if (e4.target === e4.currentTarget || e4.target === textAreaRef.current) {
+            textAreaRef.current?.focus();
+          }
         }
-      }
-    ), /* @__PURE__ */ _(
-      "div",
-      {
-        tabIndex: -1,
-        class: AiChatForm_default.buttons
       },
       /* @__PURE__ */ _(
+        "textarea",
+        {
+          ref: textAreaRef,
+          class: AiChatForm_default.textarea,
+          value: query,
+          placeholder: t4("omnibar_aiChatFormPlaceholder"),
+          "aria-label": t4("omnibar_aiChatFormPlaceholder"),
+          "aria-expanded": chats.length > 0,
+          "aria-haspopup": "listbox",
+          "aria-controls": aiChatsListId,
+          "aria-activedescendant": selectedChat ? getAiChatElementId(selectedChat.chatId) : void 0,
+          autoComplete: "off",
+          rows: 1,
+          onKeyDown: handleKeyDown,
+          onChange: (event) => {
+            onChange(event.currentTarget.value);
+            clearSelectedChat();
+          }
+        }
+      ),
+      children,
+      /* @__PURE__ */ _("div", { tabIndex: -1, class: AiChatForm_default.buttons }, toolbarLeft, /* @__PURE__ */ _("div", { class: AiChatForm_default.rightButtons }, toolbarRight, /* @__PURE__ */ _(
         "button",
         {
           tabIndex: 0,
@@ -9339,8 +9393,8 @@
           onAuxClick: handleClickSubmit
         },
         /* @__PURE__ */ _(ArrowRightIcon, null)
-      )
-    ));
+      )))
+    );
   }
   var init_AiChatForm2 = __esm({
     "pages/new-tab/app/omnibar/components/AiChatForm.js"() {
@@ -10007,7 +10061,7 @@
     if (suggestions2.length === 0) return null;
     const mainSuggestions = suggestions2.filter((suggestion) => suggestion.kind !== "aiChat");
     const footerSuggestions = suggestions2.filter((suggestion) => suggestion.kind === "aiChat");
-    return /* @__PURE__ */ _("div", { role: "listbox", id: suggestionsListId, class: SuggestionsList_default.list }, mainSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.main }, mainSuggestions.map((suggestion) => /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { role: "listbox", id: suggestionsListId, "data-omnibar-list": true, class: SuggestionsList_default.list }, mainSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.main }, mainSuggestions.map((suggestion) => /* @__PURE__ */ _(
       SuggestionsListItem,
       {
         key: suggestion.id,
@@ -10114,7 +10168,7 @@
     if (chats.length === 0) {
       return null;
     }
-    return /* @__PURE__ */ _("div", { role: "listbox", id: aiChatsListId, class: (0, import_classnames10.default)(AiChatsList_default.list, className) }, chats.map((chat) => {
+    return /* @__PURE__ */ _("div", { role: "listbox", id: aiChatsListId, "data-omnibar-list": true, class: (0, import_classnames10.default)(AiChatsList_default.list, className) }, chats.map((chat) => {
       return /* @__PURE__ */ _(
         "button",
         {
@@ -10488,6 +10542,779 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/useImageAttachments.js
+  function normaliseImage(srcDataUrl, targetMime) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        let { naturalWidth: w5, naturalHeight: h5 } = img;
+        if (w5 * h5 > MAX_DECODED_PIXELS) {
+          reject(new ImageTooLargeError("Decoded image dimensions exceed safety threshold"));
+          return;
+        }
+        if (w5 > MAX_DIMENSION || h5 > MAX_DIMENSION) {
+          const scale2 = MAX_DIMENSION / Math.max(w5, h5);
+          w5 = Math.round(w5 * scale2);
+          h5 = Math.round(h5 * scale2);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w5;
+        canvas.height = h5;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Failed to get canvas 2d context"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, w5, h5);
+        const result = canvas.toDataURL(targetMime);
+        if (!result.startsWith("data:image/")) {
+          reject(new Error("Canvas produced invalid output"));
+          return;
+        }
+        if (result.length > MAX_ENCODED_BYTES) {
+          reject(new ImageTooLargeError("Encoded image exceeds size limit"));
+          return;
+        }
+        resolve(result);
+      };
+      img.onerror = () => reject(new Error("Failed to load image for conversion"));
+      img.src = srcDataUrl;
+    });
+  }
+  function useImageAttachments() {
+    const [attachedImages, setAttachedImages] = d2(
+      /** @type {AttachedImage[]} */
+      []
+    );
+    const [imageError, setImageError] = d2(
+      /** @type {ImageError|null} */
+      null
+    );
+    const imageLimitExceeded = attachedImages.length > MAX_IMAGES;
+    const imageUploadDisabled = attachedImages.length >= MAX_IMAGES;
+    const clearAttachedImages = () => setAttachedImages([]);
+    const clearImageError = () => setImageError(null);
+    const handleFileChange = async (event) => {
+      const input = (
+        /** @type {HTMLInputElement} */
+        event.currentTarget
+      );
+      const files = input.files;
+      if (!files || files.length === 0) return;
+      setImageError(null);
+      const existingNames = new Set(attachedImages.map((img) => img.fileName));
+      const validFiles = Array.from(files).filter((file) => {
+        if (!ALLOWED_FORMATS.includes(file.type)) {
+          console.warn("Attachment rejected: unsupported file type");
+          return false;
+        }
+        if (existingNames.has(file.name)) {
+          return false;
+        }
+        return true;
+      });
+      if (validFiles.length === 0) {
+        input.value = "";
+        return;
+      }
+      const processLimit = MAX_IMAGES + 1 - attachedImages.length;
+      const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
+      if (filesToProcess.length === 0) {
+        input.value = "";
+        return;
+      }
+      const newImages = filesToProcess.map(
+        (file) => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = async () => {
+            clearTimeout(timeoutId);
+            try {
+              const rawDataUrl = (
+                /** @type {string} */
+                reader.result
+              );
+              const targetMime = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
+              const dataUrl = await normaliseImage(rawDataUrl, targetMime);
+              resolve({ dataUrl, fileName: file.name, mimeType: targetMime });
+            } catch (err) {
+              console.warn("Attachment rejected: image normalisation failed");
+              reject(err);
+            }
+          };
+          reader.onerror = () => {
+            clearTimeout(timeoutId);
+            console.warn("Attachment rejected: failed to read file");
+            reject(new Error("Failed to read file"));
+          };
+          const timeoutId = setTimeout(() => {
+            reader.abort();
+            reject(new Error(`File reading timed out after ${FILE_READ_TIMEOUT / 1e3} seconds`));
+          }, FILE_READ_TIMEOUT);
+          reader.readAsDataURL(file);
+        })
+      );
+      const results = await Promise.allSettled(newImages);
+      const images = (
+        /** @type {PromiseFulfilledResult<AttachedImage>[]} */
+        results.filter((r4) => r4.status === "fulfilled").map(
+          (r4) => r4.value
+        )
+      );
+      const tooLargeNames = [];
+      const failedNames = [];
+      for (let i5 = 0; i5 < results.length; i5++) {
+        const r4 = results[i5];
+        if (r4.status === "rejected") {
+          const name2 = filesToProcess[i5].name;
+          if (r4.reason instanceof ImageTooLargeError) {
+            tooLargeNames.push(name2);
+          } else {
+            failedNames.push(name2);
+          }
+        }
+      }
+      if (tooLargeNames.length > 0) {
+        setImageError({ type: "imageTooLarge", fileNames: tooLargeNames });
+      } else if (failedNames.length > 0) {
+        setImageError({ type: "processingFailed", fileNames: failedNames });
+      }
+      if (images.length > 0) {
+        setAttachedImages((prev) => [...prev, ...images]);
+      }
+      input.value = "";
+    };
+    const handleRemoveImage = (index2) => {
+      setAttachedImages((prev) => prev.filter((_5, i5) => i5 !== index2));
+    };
+    const getImagesForSubmission = () => {
+      if (attachedImages.length === 0) return void 0;
+      const result = [];
+      for (const img of attachedImages) {
+        const match = img.dataUrl.match(/^data:image\/(jpeg|png);base64,(.+)$/);
+        if (!match) {
+          console.warn("Dropping image at submission: data URL does not match expected format");
+          continue;
+        }
+        const format = (
+          /** @type {"jpeg" | "png"} */
+          match[1]
+        );
+        result.push({ data: match[2], format });
+      }
+      return result.length > 0 ? result : void 0;
+    };
+    return {
+      attachedImages,
+      handleFileChange,
+      handleRemoveImage,
+      clearAttachedImages,
+      imageUploadDisabled,
+      imageLimitExceeded,
+      imageError,
+      clearImageError,
+      getImagesForSubmission
+    };
+  }
+  function getImageErrorMessage(imageError, messages) {
+    if (!imageError) return null;
+    const names2 = imageError.fileNames.join(", ");
+    const base = imageError.type === "imageTooLarge" ? messages.imageTooLarge : messages.processingFailed;
+    return `${names2}: ${base}`;
+  }
+  var ImageTooLargeError, MAX_IMAGES, ALLOWED_FORMATS, FILE_READ_TIMEOUT, MAX_DIMENSION, MAX_ENCODED_BYTES, MAX_DECODED_PIXELS;
+  var init_useImageAttachments = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/useImageAttachments.js"() {
+      "use strict";
+      init_hooks_module();
+      ImageTooLargeError = class extends Error {
+        constructor(message) {
+          super(message);
+          this.name = "ImageTooLargeError";
+        }
+      };
+      MAX_IMAGES = 3;
+      ALLOWED_FORMATS = ["image/jpeg", "image/png", "image/webp"];
+      FILE_READ_TIMEOUT = 3e4;
+      MAX_DIMENSION = 512;
+      MAX_ENCODED_BYTES = 10 * 1024 * 1024;
+      MAX_DECODED_PIXELS = 1e4 * 1e4;
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachment.module.css
+  var ImageAttachment_default;
+  var init_ImageAttachment = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachment.module.css"() {
+      ImageAttachment_default = {
+        imagePreviewArea: "ImageAttachment_imagePreviewArea",
+        thumbnail: "ImageAttachment_thumbnail",
+        thumbnailWrapper: "ImageAttachment_thumbnailWrapper",
+        thumbnailRemove: "ImageAttachment_thumbnailRemove",
+        imageWarning: "ImageAttachment_imageWarning",
+        dismissError: "ImageAttachment_dismissError",
+        toolButton: "ImageAttachment_toolButton",
+        toolButtonDisabled: "ImageAttachment_toolButtonDisabled",
+        hiddenFileInput: "ImageAttachment_hiddenFileInput"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImagePreviewArea.js
+  function ImagePreviewArea({ images, onRemove, removeLabel }) {
+    if (images.length === 0) return null;
+    return /* @__PURE__ */ _("div", { class: ImageAttachment_default.imagePreviewArea }, images.map((img, index2) => /* @__PURE__ */ _("div", { key: `${img.fileName}-${index2}`, class: ImageAttachment_default.thumbnailWrapper }, /* @__PURE__ */ _("img", { src: img.dataUrl, alt: "", class: ImageAttachment_default.thumbnail }), /* @__PURE__ */ _(
+      "button",
+      {
+        type: "button",
+        class: ImageAttachment_default.thumbnailRemove,
+        "aria-label": removeLabel,
+        onClick: (e4) => {
+          e4.stopPropagation();
+          onRemove(index2);
+        }
+      },
+      /* @__PURE__ */ _(CloseSmallIcon, { width: "10", height: "10", style: "stroke: currentColor; stroke-width: 1px;" })
+    ))));
+  }
+  var init_ImagePreviewArea = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImagePreviewArea.js"() {
+      "use strict";
+      init_preact_module();
+      init_Icons2();
+      init_ImageAttachment();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageUploadButton.js
+  function ImageUploadButton({ disabled, onChange, ariaLabel }) {
+    const fileInputRef = A2(
+      /** @type {HTMLInputElement|null} */
+      null
+    );
+    return /* @__PURE__ */ _(
+      "label",
+      {
+        class: (0, import_classnames11.default)(ImageAttachment_default.toolButton, disabled && ImageAttachment_default.toolButtonDisabled),
+        "aria-label": ariaLabel,
+        "aria-disabled": disabled,
+        role: "button",
+        tabIndex: disabled ? -1 : 0,
+        onClick: (e4) => {
+          e4.stopPropagation();
+          if (disabled) e4.preventDefault();
+        },
+        onKeyDown: (e4) => {
+          if (disabled) return;
+          if (e4.key === "Enter" || e4.key === " ") {
+            e4.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }
+      },
+      /* @__PURE__ */ _(ImageIcon, null),
+      /* @__PURE__ */ _(
+        "input",
+        {
+          ref: fileInputRef,
+          type: "file",
+          accept: "image/jpeg,image/png,image/webp",
+          multiple: true,
+          disabled,
+          class: ImageAttachment_default.hiddenFileInput,
+          onChange
+        }
+      )
+    );
+  }
+  var import_classnames11;
+  var init_ImageUploadButton = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageUploadButton.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      import_classnames11 = __toESM(require_classnames(), 1);
+      init_Icons2();
+      init_ImageAttachment();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/Tooltip.module.css
+  var Tooltip_default;
+  var init_Tooltip = __esm({
+    "pages/new-tab/app/omnibar/components/Tooltip.module.css"() {
+      Tooltip_default = {
+        container: "Tooltip_container",
+        tooltip: "Tooltip_tooltip",
+        tooltipRight: "Tooltip_tooltipRight",
+        tooltipFadeIn: "Tooltip_tooltipFadeIn",
+        tooltipAbove: "Tooltip_tooltipAbove"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/Tooltip.js
+  function Tooltip({ children, content: content2, className, position: position2 = "above" }) {
+    const [rect, setRect] = d2(
+      /** @type {DOMRect | null} */
+      null
+    );
+    const tooltipId = g2();
+    const containerRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const tooltipRef = q2(
+      (el) => {
+        if (!el || !rect) return;
+        const tooltipRect = el.getBoundingClientRect();
+        const viewportWidth = document.documentElement.clientWidth;
+        if (tooltipRect.left < VIEWPORT_PADDING) {
+          el.style.left = `${VIEWPORT_PADDING}px`;
+          if (position2 === "above") {
+            el.style.transform = `translateY(calc(-100% - 6px))`;
+          }
+        } else if (tooltipRect.right > viewportWidth - VIEWPORT_PADDING) {
+          el.style.left = `${viewportWidth - VIEWPORT_PADDING - tooltipRect.width}px`;
+          if (position2 === "above") {
+            el.style.transform = `translateY(calc(-100% - 6px))`;
+          }
+        }
+      },
+      [rect, position2]
+    );
+    const show = () => {
+      if (!containerRef.current) return;
+      setRect(containerRef.current.getBoundingClientRect());
+    };
+    const hide = () => setRect(null);
+    const handleKeyDown = (e4) => {
+      if (e4.key === "Enter" || e4.key === " ") {
+        e4.preventDefault();
+        if (rect) {
+          hide();
+        } else {
+          show();
+        }
+      }
+      if (e4.key === "Escape") {
+        hide();
+      }
+    };
+    const isVisible = rect !== null;
+    let tooltipStyle;
+    if (rect) {
+      if (position2 === "above") {
+        tooltipStyle = {
+          top: `${rect.top}px`,
+          left: `${rect.left + rect.width / 2}px`,
+          transform: "translate(-50%, calc(-100% - 6px))"
+        };
+      } else {
+        tooltipStyle = {
+          top: `${rect.top - 20}px`,
+          left: `${rect.right + 8}px`
+        };
+      }
+    }
+    const tooltipClass = position2 === "above" ? (0, import_classnames12.default)(Tooltip_default.tooltip, Tooltip_default.tooltipAbove) : (0, import_classnames12.default)(Tooltip_default.tooltip, Tooltip_default.tooltipRight);
+    return /* @__PURE__ */ _(
+      "div",
+      {
+        ref: containerRef,
+        class: (0, import_classnames12.default)(Tooltip_default.container, className),
+        role: "button",
+        tabIndex: 0,
+        "aria-describedby": isVisible ? tooltipId : void 0,
+        onMouseEnter: show,
+        onMouseLeave: hide,
+        onFocus: show,
+        onBlur: hide,
+        onKeyDown: handleKeyDown
+      },
+      children,
+      isVisible && $2(
+        /* @__PURE__ */ _("div", { ref: tooltipRef, id: tooltipId, class: tooltipClass, role: "tooltip", style: tooltipStyle }, content2),
+        document.body
+      )
+    );
+  }
+  var import_classnames12, VIEWPORT_PADDING;
+  var init_Tooltip2 = __esm({
+    "pages/new-tab/app/omnibar/components/Tooltip.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_compat_module();
+      init_Tooltip();
+      import_classnames12 = __toESM(require_classnames(), 1);
+      VIEWPORT_PADDING = 8;
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachmentTool.js
+  function ImageAttachmentContent({ state, supportsImageUpload, onVisibleImagesChange, onImageWarningChange }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { attachedImages, handleRemoveImage, imageLimitExceeded, imageError, clearImageError } = state;
+    const hasVisibleImages = !!(supportsImageUpload && attachedImages.length > 0);
+    const showImageWarning = !!(supportsImageUpload && imageLimitExceeded);
+    const prevVisibleRef = A2(hasVisibleImages);
+    const prevWarningRef = A2(showImageWarning);
+    _2(() => {
+      if (prevVisibleRef.current !== hasVisibleImages) {
+        prevVisibleRef.current = hasVisibleImages;
+        onVisibleImagesChange(hasVisibleImages);
+      }
+    }, [hasVisibleImages]);
+    _2(() => {
+      if (prevWarningRef.current !== showImageWarning) {
+        prevWarningRef.current = showImageWarning;
+        onImageWarningChange(showImageWarning);
+      }
+    }, [showImageWarning]);
+    if (!supportsImageUpload) return null;
+    const imageLimitWarning = t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) });
+    const imageErrorMessage = getImageErrorMessage(imageError, {
+      imageTooLarge: t4("omnibar_imageTooLargeError"),
+      processingFailed: t4("omnibar_imageProcessingError")
+    });
+    return /* @__PURE__ */ _(k, null, imageLimitExceeded && /* @__PURE__ */ _("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageLimitWarning), imageErrorMessage && /* @__PURE__ */ _("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageErrorMessage, /* @__PURE__ */ _("button", { class: ImageAttachment_default.dismissError, type: "button", onClick: clearImageError, "aria-label": "Dismiss" }, "\xD7")), /* @__PURE__ */ _(ImagePreviewArea, { images: attachedImages, onRemove: handleRemoveImage, removeLabel: t4("omnibar_removeImageLabel") }));
+  }
+  function ImageUploadButton2({ state }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { imageUploadDisabled, handleFileChange } = state;
+    const imageLimitWarning = t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) });
+    const uploadButton = /* @__PURE__ */ _(ImageUploadButton, { disabled: imageUploadDisabled, onChange: handleFileChange, ariaLabel: t4("omnibar_attachImageLabel") });
+    if (imageUploadDisabled) {
+      return /* @__PURE__ */ _(Tooltip, { content: imageLimitWarning, position: "above" }, uploadButton);
+    }
+    return uploadButton;
+  }
+  var init_ImageAttachmentTool = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachmentTool.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_useImageAttachments();
+      init_ImagePreviewArea();
+      init_ImageUploadButton();
+      init_Tooltip2();
+      init_ImageAttachment();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/model-selector/useModelSelector.js
+  function findContainingBlock(el) {
+    let parent2 = el.parentElement;
+    while (parent2 && parent2 !== document.body) {
+      const style = getComputedStyle(parent2);
+      const wc = style.willChange;
+      if (style.transform !== "none" || style.filter !== "none" || style.backdropFilter !== "none" || wc && (wc.includes("transform") || wc.includes("perspective") || wc.includes("filter"))) {
+        return parent2;
+      }
+      parent2 = parent2.parentElement;
+    }
+    return null;
+  }
+  function useModelSelector({ aiModelSections, persistedModelId, onModelChange }) {
+    const [modelDropdownOpen, setModelDropdownOpen] = d2(false);
+    const [dropdownPos, setDropdownPos] = d2(
+      /** @type {{right: number, top: number}|null} */
+      null
+    );
+    const modelButtonRef = A2(
+      /** @type {HTMLButtonElement|null} */
+      null
+    );
+    const dropdownRef = A2(
+      /** @type {HTMLUListElement|null} */
+      null
+    );
+    const allModels = T2(() => aiModelSections.flatMap((s4) => s4.items), [aiModelSections]);
+    const firstEnabled = T2(() => allModels.find((m5) => m5.isEnabled) ?? null, [allModels]);
+    const selectedModelId = T2(() => {
+      if (persistedModelId && allModels.some((m5) => m5.id === persistedModelId && m5.isEnabled)) {
+        return persistedModelId;
+      }
+      return firstEnabled?.id ?? null;
+    }, [persistedModelId, allModels, firstEnabled]);
+    const selectedModel = T2(
+      () => allModels.find((m5) => m5.id === selectedModelId && m5.isEnabled) ?? firstEnabled,
+      [allModels, selectedModelId, firstEnabled]
+    );
+    const cleanupRef = A2(
+      /** @type {(() => void) | null} */
+      null
+    );
+    y2(() => {
+      return () => cleanupRef.current?.();
+    }, []);
+    const closeDropdown = () => {
+      cleanupRef.current?.();
+      cleanupRef.current = null;
+      setModelDropdownOpen(false);
+    };
+    const openDropdown = () => {
+      if (!modelButtonRef.current) return;
+      const rect = modelButtonRef.current.getBoundingClientRect();
+      const cb = findContainingBlock(modelButtonRef.current);
+      const cbRect = cb?.getBoundingClientRect();
+      const rightEdge = cbRect?.right ?? window.innerWidth;
+      const topOffset = cbRect?.top ?? 0;
+      setDropdownPos({ right: rightEdge - rect.right, top: rect.bottom - topOffset + 4 });
+      setModelDropdownOpen(true);
+      const handleClickOutside = (e4) => {
+        const target = (
+          /** @type {Node} */
+          e4.target
+        );
+        if (modelButtonRef.current?.parentElement?.contains(target)) return;
+        if (dropdownRef.current?.contains(target)) return;
+        closeDropdown();
+      };
+      const handleResize = () => closeDropdown();
+      document.addEventListener("click", handleClickOutside, true);
+      window.addEventListener("resize", handleResize);
+      cleanupRef.current = () => {
+        document.removeEventListener("click", handleClickOutside, true);
+        window.removeEventListener("resize", handleResize);
+      };
+    };
+    const toggleDropdown = () => {
+      if (modelDropdownOpen) {
+        closeDropdown();
+      } else {
+        openDropdown();
+      }
+    };
+    const selectModel = (id) => {
+      if (!allModels.some((m5) => m5.id === id && m5.isEnabled)) return;
+      closeDropdown();
+      onModelChange?.(id);
+    };
+    return {
+      selectedModelId,
+      selectedModel,
+      modelDropdownOpen,
+      dropdownPos,
+      modelButtonRef,
+      dropdownRef,
+      toggleDropdown,
+      selectModel
+    };
+  }
+  var init_useModelSelector = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/model-selector/useModelSelector.js"() {
+      "use strict";
+      init_hooks_module();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.module.css
+  var ModelSelector_default;
+  var init_ModelSelector = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.module.css"() {
+      ModelSelector_default = {
+        modelSelector: "ModelSelector_modelSelector",
+        modelButton: "ModelSelector_modelButton",
+        modelButtonOpen: "ModelSelector_modelButtonOpen",
+        modelButtonLabel: "ModelSelector_modelButtonLabel",
+        modelDropdown: "ModelSelector_modelDropdown",
+        modelOption: "ModelSelector_modelOption",
+        modelOptionSelected: "ModelSelector_modelOptionSelected",
+        modelOptionDisabled: "ModelSelector_modelOptionDisabled",
+        modelSectionDivider: "ModelSelector_modelSectionDivider",
+        modelSectionHeader: "ModelSelector_modelSectionHeader"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/model-selector/Icons.js
+  function OpenAIIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#aiModelOpenAI_a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M14.838 6.545a4 4 0 0 0-.34-3.273 4.03 4.03 0 0 0-4.33-1.934 4 4 0 0 0-3.003-1.34 4.04 4.04 0 0 0-3.837 2.791 4 4 0 0 0-2.66 1.936 4.04 4.04 0 0 0 .496 4.725 3.98 3.98 0 0 0 .34 3.268 4.03 4.03 0 0 0 4.336 1.94 3.98 3.98 0 0 0 2.996 1.344 4.04 4.04 0 0 0 3.839-2.791 3.97 3.97 0 0 0 2.654-1.936 4.03 4.03 0 0 0-.492-4.725zm-1.244-2.749c.347.607.476 1.317.357 2.005-.02-.016-.065-.038-.091-.054l-3.18-1.842a.53.53 0 0 0-.524 0L6.432 6.062V4.479l3.076-1.783a2.99 2.99 0 0 1 4.088 1.1M6.43 7.086 8 6.176l1.568.91v1.816L8 9.812l-1.569-.91zm.73-6.042a3 3 0 0 1 1.919.694c-.021.01-.065.038-.097.054L5.804 3.629a.52.52 0 0 0-.26.455v4.313l-1.367-.79V4.04a2.997 2.997 0 0 1 2.99-3.002l-.006.005zM1.576 5.25a3 3 0 0 1 1.557-1.316V7.72c0 .19.097.358.259.455l3.72 2.151-1.374.797-3.07-1.777a3.005 3.005 0 0 1-1.093-4.098m.838 6.953a2.98 2.98 0 0 1-.357-2.005c.021.016.064.039.092.054l3.178 1.842a.53.53 0 0 0 .525 0l3.72-2.156v1.582l-3.077 1.778a2.995 2.995 0 0 1-4.087-1.095zm6.43 2.754a2.98 2.98 0 0 1-1.914-.694c.022-.01.07-.038.096-.054l3.179-1.837a.51.51 0 0 0 .259-.455V7.608l1.368.79v3.562a2.997 2.997 0 0 1-2.99 3.002v-.005zm5.59-4.207a3 3 0 0 1-1.557 1.312V8.273a.52.52 0 0 0-.259-.455L8.892 5.66l1.368-.792 3.076 1.778a3 3 0 0 1 1.093 4.097z"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "aiModelOpenAI_a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function ClaudeIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#aiModelClaude_a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "m3.139 10.64 3.148-1.765.053-.154-.053-.085h-.153l-.527-.032-1.799-.049-1.56-.065-1.511-.08-.38-.082L0 7.858l.037-.234.32-.215.458.04 1.012.07 1.52.104 1.101.065 1.633.17h.259l.037-.105-.089-.065-.07-.065-1.57-1.063-1.703-1.127-.891-.647-.482-.329-.243-.307-.105-.672.438-.482.587.04.15.04.596.458 1.272.984 1.66 1.222.243.202.098-.07.011-.048-.109-.182-.903-1.632-.964-1.66-.429-.687-.113-.413c-.04-.17-.07-.312-.07-.486L4.19.09 4.465 0l.665.089.28.242.412.944.67 1.486 1.036 2.02.304.6.162.554.06.17h.105v-.097l.086-1.138.157-1.397.154-1.798.053-.507.25-.607.499-.328.389.186.32.458-.045.296-.19 1.235-.373 1.935-.243 1.296h.142l.162-.162.655-.87 1.102-1.377.487-.547.567-.603.364-.288h.688l.507.753-.227.777-.709.899-.588.761-.842 1.134-.526.907.048.072.126-.012 1.903-.405 1.029-.185 1.227-.21.556.258.06.264-.218.539-1.313.323-1.54.308-2.292.542-.028.02.032.04 1.033.098.442.024h1.081l2.014.15.527.347.315.426-.053.324-.81.412-1.094-.259-2.552-.607-.875-.218h-.12v.072l.729.713 1.336 1.206 1.674 1.555.085.384-.215.304-.227-.032-1.47-1.106-.568-.498-1.284-1.08h-.086v.113l.296.433 1.564 2.348.08.72-.113.235-.405.141-.445-.081-.915-1.284-.944-1.446-.762-1.295-.093.053-.45 4.838-.21.247-.486.186-.405-.308-.215-.498.215-.983.259-1.284.21-1.02.19-1.268.114-.421-.007-.028-.093.012-.956 1.312-1.455 1.964-1.15 1.23-.276.11-.477-.248.044-.441.267-.393 1.592-2.025.96-1.255.62-.724-.003-.105h-.037l-4.23 2.745-.753.097-.324-.303.04-.498.153-.162 1.272-.875-.004.005z"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "aiModelClaude_a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function LlamaIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("path", { fill: "currentColor", d: "M14 7H7L6 2V0h-.5L5 1H1v2l3 1v12h2v-3h5v3h2v-6h1v1h1V8z" }));
+  }
+  function MistralIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        d: "M4.587 4.65h2.276v2.276h2.274V4.65h2.275V2.375h2.275v9.1h2.276v2.275H9.137v-2.275h2.275V9.2H9.136v2.275H6.863v2.275H.037v-2.275h2.275v-9.1h2.275zm0 4.55v2.275h2.275V9.2z",
+        "clip-rule": "evenodd"
+      }
+    ));
+  }
+  function OSSIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#aiModelOSS_a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M6.22064 14.6407C6.05983 15.2409 5.43846 15.6043 4.86677 15.3609C3.44275 14.7548 2.21703 13.7448 1.34826 12.4446C0.269975 10.8308-0.184873 8.88005 0.0684605 6.95579C0.321794 5.03153 1.26603 3.26498 2.72525 1.98528C4.18447 0.70558 6.05915 9.254e-08 8.00002 0C9.94088-9.254e-08 11.8156 0.70558 13.2748 1.98528C14.734 3.26498 15.6782 5.03153 15.9316 6.95579C16.1849 8.88005 15.7301 10.8308 14.6518 12.4446C13.783 13.7448 12.5573 14.7548 11.1333 15.3609C10.5616 15.6043 9.94021 15.2409 9.7794 14.6407L8.82516 11.0795C8.66435 10.4793 9.06047 9.87561 9.49018 9.42685C9.57281 9.34055 9.64826 9.24674 9.71544 9.1462C9.99352 8.73003 10.1108 8.22696 10.0455 7.73071C9.98015 7.23446 9.73664 6.77889 9.36033 6.44887C8.98401 6.11885 8.50055 5.93688 8.00002 5.93688C7.49949 5.93688 7.01603 6.11885 6.63971 6.44887C6.2634 6.77889 6.01989 7.23446 5.95455 7.73071C5.88922 8.22696 6.00652 8.73003 6.2846 9.14621C6.35178 9.24674 6.42723 9.34055 6.50986 9.42685C6.93957 9.87561 7.33568 10.4793 7.17487 11.0795L6.22064 14.6407Z"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "aiModelOSS_a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function getModelIcon(modelId) {
+    if (modelId.startsWith("meta-llama/") || modelId.startsWith("meta-llama_")) return LlamaIcon;
+    if (modelId.startsWith("mistralai/") || modelId.startsWith("mistralai_")) return MistralIcon;
+    if (modelId.includes("gpt-oss")) return OSSIcon;
+    if (modelId.startsWith("claude")) return ClaudeIcon;
+    if (modelId.startsWith("gpt") || modelId.startsWith("openai")) return OpenAIIcon;
+    return null;
+  }
+  var init_Icons3 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/model-selector/Icons.js"() {
+      "use strict";
+      init_preact_module();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelDropdown.js
+  function ModelDropdown({ sections, selectedModelId, dropdownPos, onSelect, ariaLabel, dropdownRef }) {
+    return /* @__PURE__ */ _(
+      "ul",
+      {
+        ref: dropdownRef,
+        class: ModelSelector_default.modelDropdown,
+        role: "listbox",
+        "aria-label": ariaLabel,
+        style: { right: `${dropdownPos.right}px`, top: `${dropdownPos.top}px` }
+      },
+      sections.map((section, sectionIndex) => /* @__PURE__ */ _(k, { key: sectionIndex }, section.header && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("li", { role: "separator", class: ModelSelector_default.modelSectionDivider }), /* @__PURE__ */ _("li", { role: "presentation", class: ModelSelector_default.modelSectionHeader }, section.header)), section.items.map((model) => {
+        const Icon = getModelIcon(model.id);
+        return /* @__PURE__ */ _(
+          "li",
+          {
+            key: model.id,
+            role: "option",
+            "aria-selected": model.isEnabled ? model.id === selectedModelId : void 0,
+            "aria-disabled": !model.isEnabled || void 0,
+            class: (0, import_classnames13.default)(
+              ModelSelector_default.modelOption,
+              !model.isEnabled && ModelSelector_default.modelOptionDisabled,
+              model.isEnabled && model.id === selectedModelId && ModelSelector_default.modelOptionSelected
+            ),
+            onClick: model.isEnabled ? (e4) => {
+              e4.stopPropagation();
+              onSelect(model.id);
+            } : void 0
+          },
+          Icon && /* @__PURE__ */ _(Icon, null),
+          /* @__PURE__ */ _("span", null, model.name)
+        );
+      })))
+    );
+  }
+  var import_classnames13;
+  var init_ModelDropdown = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelDropdown.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames13 = __toESM(require_classnames(), 1);
+      init_ModelSelector();
+      init_Icons3();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.js
+  function ModelSelector({ selector, aiModelSections, ariaLabel }) {
+    const { selectedModel, modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, selectModel } = selector;
+    return /* @__PURE__ */ _("div", { class: ModelSelector_default.modelSelector }, /* @__PURE__ */ _(
+      "button",
+      {
+        ref: modelButtonRef,
+        type: "button",
+        class: (0, import_classnames14.default)(ModelSelector_default.modelButton, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
+        "aria-label": ariaLabel,
+        "aria-haspopup": "listbox",
+        "aria-expanded": modelDropdownOpen,
+        onClick: (e4) => {
+          e4.stopPropagation();
+          toggleDropdown();
+        }
+      },
+      /* @__PURE__ */ _("span", { class: ModelSelector_default.modelButtonLabel }, selectedModel?.shortName ?? ariaLabel),
+      /* @__PURE__ */ _(ChevronSmall, null)
+    ), modelDropdownOpen && dropdownPos && /* @__PURE__ */ _(
+      ModelDropdown,
+      {
+        dropdownRef,
+        sections: aiModelSections,
+        selectedModelId: selectedModel?.id,
+        dropdownPos,
+        onSelect: selectModel,
+        ariaLabel
+      }
+    ));
+  }
+  var import_classnames14;
+  var init_ModelSelector2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames14 = __toESM(require_classnames(), 1);
+      init_Icons2();
+      init_ModelDropdown();
+      init_ModelSelector();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelectorTool.js
+  function ModelSelectorTool({ onSelectedModelChange }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { setSelectedModelId: persistModelId, state } = x2(OmnibarContext);
+    const enableAiChatTools = state.config?.enableAiChatTools === true;
+    const aiModelSections = enableAiChatTools ? state.config?.aiModelSections ?? [] : [];
+    const selector = useModelSelector({
+      aiModelSections,
+      persistedModelId: state.config?.selectedModelId,
+      onModelChange: persistModelId
+    });
+    const { selectedModel } = selector;
+    y2(() => {
+      onSelectedModelChange?.(selectedModel ?? null);
+    }, [selectedModel]);
+    if (aiModelSections.length === 0) return null;
+    return /* @__PURE__ */ _(ModelSelector, { selector, aiModelSections, ariaLabel: t4("omnibar_modelSelectorLabel") });
+  }
+  var init_ModelSelectorTool = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelectorTool.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_OmnibarProvider();
+      init_useModelSelector();
+      init_ModelSelector2();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/Omnibar.js
   function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCustomizePopover, tabId }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -10569,15 +11396,49 @@
   }
   function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { showChats, hideChats } = useAiChatsContext();
+    const { state } = x2(OmnibarContext);
     const containerRef = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
+    const hasVisibleImagesRef = A2(false);
+    const selectedModelIdRef = A2(
+      /** @type {string|null} */
+      null
+    );
+    const [imageWarning, setImageWarning] = d2(false);
+    const [supportsImageUpload, setSupportsImageUpload] = d2(false);
+    const imageState = useImageAttachments();
+    const enableAiChatTools = state.config?.enableAiChatTools === true;
+    const handleChange = (value2) => {
+      onChange(value2);
+      if (!hasVisibleImagesRef.current) showChats();
+    };
+    const handleSubmit = (chat, target) => {
+      const action = { chat, target };
+      if (enableAiChatTools) {
+        if (supportsImageUpload) {
+          const images = imageState.getImagesForSubmission();
+          if (images) {
+            action.images = /** @type {SubmitChatAction['images']} */
+            images;
+          }
+        }
+        if (selectedModelIdRef.current) {
+          action.modelId = selectedModelIdRef.current;
+        }
+      }
+      onSubmit(action);
+      imageState.clearAttachedImages();
+    };
     return /* @__PURE__ */ _(
       "div",
       {
         ref: containerRef,
-        onFocusCapture: () => showChats(),
+        "data-image-warning": imageWarning || void 0,
+        onFocusCapture: (event) => {
+          if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current) showChats();
+        },
         onBlurCapture: (event) => {
           if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
             return;
@@ -10585,7 +11446,42 @@
           hideChats();
         }
       },
-      /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ _(AiChatForm, { query, autoFocus, onChange, onSubmit })),
+      /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ _(
+        AiChatForm,
+        {
+          query,
+          autoFocus,
+          disabled: query.length === 0 || imageWarning,
+          onChange: handleChange,
+          onSubmit: handleSubmit,
+          toolbarLeft: supportsImageUpload && /* @__PURE__ */ _(ImageUploadButton2, { state: imageState }),
+          toolbarRight: /* @__PURE__ */ _(
+            ModelSelectorTool,
+            {
+              onSelectedModelChange: (model) => {
+                selectedModelIdRef.current = model?.id ?? null;
+                setSupportsImageUpload(model?.supportsImageUpload ?? false);
+              }
+            }
+          )
+        },
+        /* @__PURE__ */ _(
+          ImageAttachmentContent,
+          {
+            state: imageState,
+            supportsImageUpload,
+            onVisibleImagesChange: (hasImages) => {
+              hasVisibleImagesRef.current = hasImages;
+              if (hasImages) {
+                hideChats();
+              } else if (document.activeElement?.tagName === "TEXTAREA") {
+                showChats();
+              }
+            },
+            onImageWarningChange: setImageWarning
+          }
+        )
+      )),
       enableRecentAiChats && /* @__PURE__ */ _(AiChatsList, { className: Omnibar_default.aiChatsList })
     );
   }
@@ -10610,6 +11506,9 @@
       init_Popover2();
       init_Drawer();
       init_TranslationsProvider();
+      init_ImageAttachmentTool();
+      init_useImageAttachments();
+      init_ModelSelectorTool();
     }
   });
 
@@ -10962,19 +11861,19 @@
   });
 
   // pages/new-tab/app/components/Tooltip/Tooltip.module.css
-  var Tooltip_default;
-  var init_Tooltip = __esm({
+  var Tooltip_default2;
+  var init_Tooltip3 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.module.css"() {
-      Tooltip_default = {
+      Tooltip_default2 = {
         tooltipContainer: "Tooltip_tooltipContainer",
-        tooltip: "Tooltip_tooltip",
-        tooltipFadeIn: "Tooltip_tooltipFadeIn"
+        tooltip: "Tooltip_tooltip2",
+        tooltipFadeIn: "Tooltip_tooltipFadeIn2"
       };
     }
   });
 
   // pages/new-tab/app/components/Tooltip/Tooltip.js
-  function Tooltip({ children, content: content2, className }) {
+  function Tooltip2({ children, content: content2, className }) {
     const [isVisible, setIsVisible] = d2(false);
     const tooltipId = g2();
     const showTooltip = () => setIsVisible(true);
@@ -10991,7 +11890,7 @@
     return /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames11.default)(Tooltip_default.tooltipContainer, className),
+        class: (0, import_classnames15.default)(Tooltip_default2.tooltipContainer, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -11002,17 +11901,17 @@
         onKeyDown: handleKeyDown
       },
       children,
-      isVisible && /* @__PURE__ */ _("div", { id: tooltipId, class: Tooltip_default.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
+      isVisible && /* @__PURE__ */ _("div", { id: tooltipId, class: Tooltip_default2.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
     );
   }
-  var import_classnames11;
-  var init_Tooltip2 = __esm({
+  var import_classnames15;
+  var init_Tooltip4 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      init_Tooltip();
-      import_classnames11 = __toESM(require_classnames(), 1);
+      init_Tooltip3();
+      import_classnames15 = __toESM(require_classnames(), 1);
     }
   });
 
@@ -11289,7 +12188,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -11300,20 +12199,20 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ _(NewBadge, null))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ _(NewBadge, null))));
   }
-  var import_classnames12;
+  var import_classnames16;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
       init_types();
       init_PrivacyStats();
       init_ShowHideButton();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames16 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
       init_NewBadge2();
-      init_Tooltip2();
+      init_Tooltip4();
       init_useAnimatedCount();
       init_hooks_module();
       init_utils3();
@@ -11379,9 +12278,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames13.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames17.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames13;
+  var import_classnames17;
   var init_ProtectionsHeadingLegacy = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeadingLegacy.js"() {
       "use strict";
@@ -11389,7 +12288,7 @@
       init_hooks_module();
       init_PrivacyStatsLegacy();
       init_ShowHideButton();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames17 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -11448,14 +12347,14 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames18.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames14.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames18.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === "collapsed";
@@ -11464,28 +12363,28 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames18.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames14.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames18.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(Protections_default.block, Protections_default.empty) }, children);
   }
   function ProtectionsEmptyLegacy({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
   }
-  var import_classnames14;
+  var import_classnames18;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames14 = __toESM(require_classnames(), 1);
+      import_classnames18 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -12534,7 +13433,7 @@
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames19.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -12545,7 +13444,7 @@
     ), /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames19.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url8,
@@ -12554,13 +13453,13 @@
       canBurn ? shouldDisplayLegacyActivity ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(FireIcon, null) : /* @__PURE__ */ _(Cross, null)
     ));
   }
-  var import_classnames15, ActivityItem, ActivityItemLegacy;
+  var import_classnames19, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames15 = __toESM(require_classnames(), 1);
+      import_classnames19 = __toESM(require_classnames(), 1);
       init_Activity();
       init_ActivityLegacy();
       init_FaviconWithState2();
@@ -12587,7 +13486,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames15.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames19.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -12615,7 +13514,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames15.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ _("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames19.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ _("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -29045,20 +29944,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url8]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
     y2(() => doneBurning(url8), [url8]);
     return null;
   }
-  var import_classnames16, BurnAnimationLazy;
+  var import_classnames20, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames16 = __toESM(require_classnames(), 1);
+      import_classnames20 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -29168,15 +30067,15 @@
 
   // pages/new-tab/app/components/TickPill/TickPill.js
   function TickPill({ text: text2, className, displayTick = true }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ _("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ _(Check, null)), /* @__PURE__ */ _("span", { class: TickPill_default.text }, text2));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ _("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ _(Check, null)), /* @__PURE__ */ _("span", { class: TickPill_default.text }, text2));
   }
-  var import_classnames17;
+  var import_classnames21;
   var init_TickPill2 = __esm({
     "pages/new-tab/app/components/TickPill/TickPill.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
-      import_classnames17 = __toESM(require_classnames(), 1);
+      import_classnames21 = __toESM(require_classnames(), 1);
       init_TickPill();
     }
   });
@@ -29987,7 +30886,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames18.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames22.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -30004,12 +30903,12 @@
     }
     return null;
   }
-  var import_classnames18;
+  var import_classnames22;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames18 = __toESM(require_classnames(), 1);
+      import_classnames22 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -30188,7 +31087,7 @@
   // pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js
   function SubscriptionWinBackBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames19.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ _("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ _("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames23.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ _("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ _("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
@@ -30197,11 +31096,11 @@
     }
     return null;
   }
-  var import_classnames19;
+  var import_classnames23;
   var init_SubscriptionWinBackBanner2 = __esm({
     "pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js"() {
       "use strict";
-      import_classnames19 = __toESM(require_classnames(), 1);
+      import_classnames23 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -30362,7 +31261,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -30424,12 +31323,12 @@
     }
     return null;
   }
-  var import_classnames20;
+  var import_classnames24;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames20 = __toESM(require_classnames(), 1);
+      import_classnames24 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -30469,7 +31368,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames31 = __toESM(require_classnames(), 1);
+  var import_classnames35 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -30833,7 +31732,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames30 = __toESM(require_classnames(), 1);
+  var import_classnames34 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -30869,7 +31768,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames25 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -30894,7 +31793,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ _("ul", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -30928,7 +31827,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -30948,7 +31847,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -30970,7 +31869,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -31010,7 +31909,7 @@
       return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
         "button",
         {
-          class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -31025,7 +31924,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -31051,7 +31950,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames26 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -31064,7 +31963,7 @@
     return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames22.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames26.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -31075,7 +31974,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames22.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames26.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -31086,7 +31985,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames22.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames26.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -31100,7 +31999,7 @@
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_preact_module();
   init_signals_module();
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames27 = __toESM(require_classnames(), 1);
   init_types();
 
   // pages/new-tab/app/customizer/components/ThemeSection.module.css
@@ -31143,7 +32042,7 @@
     return /* @__PURE__ */ _("div", { class: ThemeSection_default.root }, /* @__PURE__ */ _(
       "div",
       {
-        class: (0, import_classnames23.default)(ThemeSection_default.segmentedControl, {
+        class: (0, import_classnames27.default)(ThemeSection_default.segmentedControl, {
           [ThemeSection_default.vertical]: ["pl", "ru"].includes(locale)
         }),
         role: "radiogroup",
@@ -31214,7 +32113,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames24 = __toESM(require_classnames(), 1);
+  var import_classnames28 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
 
@@ -31271,8 +32170,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames24.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames28.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames28.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -31315,7 +32214,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames25 = __toESM(require_classnames(), 1);
+  var import_classnames29 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -31344,7 +32243,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames25.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames29.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -31381,7 +32280,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -31406,12 +32305,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames29.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames26 = __toESM(require_classnames(), 1);
+  var import_classnames30 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -31439,12 +32338,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames26.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames30.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames30.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
         "button",
@@ -31472,7 +32371,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames27 = __toESM(require_classnames(), 1);
+  var import_classnames31 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -31516,7 +32415,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames27.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames31.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -31531,7 +32430,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames31.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ _(
         "button",
         {
@@ -31565,7 +32464,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames31.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
@@ -31576,24 +32475,24 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames28 = __toESM(require_classnames(), 1);
+  var import_classnames32 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
     return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ _("span", null, title), showNewBadge && /* @__PURE__ */ _(NewBadge, null)), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames28.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames32.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames29 = __toESM(require_classnames(), 1);
+  var import_classnames33 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
     return /* @__PURE__ */ _(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames29.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
@@ -31638,7 +32537,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames30.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames34.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -31708,7 +32607,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames30.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames30.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames34.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames34.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -31765,7 +32664,7 @@
         "data-drawer-visibility": visibility,
         "data-has-theme-variants": hasThemeVariants
       },
-      /* @__PURE__ */ _("main", { class: (0, import_classnames31.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))),
+      /* @__PURE__ */ _("main", { class: (0, import_classnames35.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))),
       /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
         CustomizerButton,
         {
@@ -31780,7 +32679,7 @@
       /* @__PURE__ */ _(
         "aside",
         {
-          class: (0, import_classnames31.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+          class: (0, import_classnames35.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
           tabindex: tabIndex,
           "aria-hidden": hidden,
           "data-theme": browser,
@@ -32090,6 +32989,34 @@
     omnibar_customizePopoverDescription: {
       title: "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
       description: "Description message in the popover including privacy statement and customize option."
+    },
+    omnibar_attachImageLabel: {
+      title: "Attach image",
+      description: "Accessible label for the attach image button in the AI chat toolbar."
+    },
+    omnibar_removeImageLabel: {
+      title: "Remove image",
+      description: "Accessible label for the button to remove an attached image thumbnail."
+    },
+    omnibar_modelSelectorLabel: {
+      title: "Select model",
+      description: "Accessible label for the AI model selector dropdown."
+    },
+    omnibar_imageAttachmentLimitWarning: {
+      title: "You can only attach {limit} images at a time.",
+      description: "Warning shown when user attaches more images than the allowed maximum."
+    },
+    omnibar_imageTooLargeError: {
+      title: "Image is too large. Please use an image smaller than 10000\xD710000 pixels.",
+      description: "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+    },
+    omnibar_imageProcessingError: {
+      title: "Failed to process image. Please try a different file.",
+      description: "Error shown when an attached image cannot be processed."
+    },
+    omnibar_advancedModelsSectionHeader: {
+      title: "Advanced Models - DuckDuckGo subscription",
+      description: "Section header in the model picker for premium models that require a subscription."
     },
     nextStepsList_sectionTitle: {
       title: "Next Steps",
