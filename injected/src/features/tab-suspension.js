@@ -1,12 +1,23 @@
 import ContentFeature from '../content-feature.js';
 import { wrapToString } from '../wrapper-utils.js';
-import { getOwnPropertyDescriptor, objectDefineProperty, Reflect as safeReflect } from '../captured-globals.js';
+import { getOwnPropertyDescriptor, objectDefineProperty, Reflect as safeReflect, Proxy as SafeProxy } from '../captured-globals.js';
+
+// Capture setTimeout early to prevent page tampering
+const safeSetTimeout = globalThis.setTimeout.bind(globalThis);
 
 /**
  * Detects conditions that should prevent tab suspension.
  * Sub-features are individually gated via feature settings.
  */
 export class TabSuspension extends ContentFeature {
+    /** @type {typeof RTCPeerConnection | null} */
+    #OriginalRTC = null;
+
+    load() {
+        // Capture RTCPeerConnection during load(), before page scripts can tamper with it
+        this.#OriginalRTC = globalThis.RTCPeerConnection ?? null;
+    }
+
     init() {
         if (this.getFeatureSettingEnabled('webRtcDetection')) {
             this.initWebRtcDetection();
@@ -14,8 +25,7 @@ export class TabSuspension extends ContentFeature {
     }
 
     initWebRtcDetection() {
-        // Capture the original constructor early, before the page can tamper with it
-        const OriginalRTC = globalThis.RTCPeerConnection;
+        const OriginalRTC = this.#OriginalRTC;
         if (!OriginalRTC) return;
 
         const settings = this.getFeatureSetting('webRtcDetection') || {};
@@ -27,7 +37,7 @@ export class TabSuspension extends ContentFeature {
             ? /** @param {{ isActive: boolean }} params */ (params) => {
                   // Rate-limit: coalesce rapid constructor calls into a single notification
                   if (pendingNotify !== null) return;
-                  pendingNotify = setTimeout(() => {
+                  pendingNotify = safeSetTimeout(() => {
                       pendingNotify = null;
                       this.notify('webRTCConnectionChanged', params);
                   }, 0);
@@ -48,17 +58,19 @@ export class TabSuspension extends ContentFeature {
                 return instance;
             },
             /**
-             * Preserve call-without-new behavior: native RTCPeerConnection() without new throws TypeError.
+             * Preserve call-without-new behavior: delegate to native constructor to get
+             * the engine's own TypeError rather than a hard-coded message.
+             * @param {typeof RTCPeerConnection} target
+             * @param {any} thisArg
+             * @param {any[]} args
              */
-            apply() {
-                // This matches native behavior — calling RTCPeerConnection without `new` throws
-                throw new TypeError(
-                    "Failed to construct 'RTCPeerConnection': Please use the 'new' operator, this DOM object constructor cannot be called as a function.",
-                );
+            apply(target, thisArg, args) {
+                // Calling the original constructor as a function will throw the engine's native TypeError
+                return safeReflect.apply(/** @type {any} */ (target), thisArg, args);
             },
         };
 
-        const ProxiedRTC = new Proxy(OriginalRTC, handler);
+        const ProxiedRTC = new SafeProxy(OriginalRTC, handler);
         const wrappedRTC = wrapToString(ProxiedRTC, OriginalRTC);
 
         // Ensure instance.constructor === RTCPeerConnection (the final wrapped value)
@@ -67,12 +79,21 @@ export class TabSuspension extends ContentFeature {
             OriginalRTC.prototype.constructor = wrappedRTC;
         }
 
-        // Install via descriptor to preserve descriptor fidelity
+        // Install via descriptor, guarding against non-configurable descriptors
         const originalDescriptor = getOwnPropertyDescriptor(globalThis, 'RTCPeerConnection');
-        objectDefineProperty(globalThis, 'RTCPeerConnection', {
-            ...originalDescriptor,
-            value: wrappedRTC,
-        });
+        if (originalDescriptor && originalDescriptor.configurable !== false) {
+            objectDefineProperty(globalThis, 'RTCPeerConnection', {
+                ...originalDescriptor,
+                value: wrappedRTC,
+            });
+        } else {
+            // Fallback: try direct assignment if descriptor is non-configurable but writable
+            try {
+                globalThis.RTCPeerConnection = /** @type {any} */ (wrappedRTC);
+            } catch {
+                // Cannot override RTCPeerConnection on this engine — fail closed (no wrapping)
+            }
+        }
     }
 }
 

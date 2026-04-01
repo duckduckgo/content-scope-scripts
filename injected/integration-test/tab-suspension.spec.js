@@ -129,6 +129,57 @@ test.describe('tabSuspension - webRtcDetection constructor invariants', () => {
     });
 });
 
+test.describe('tabSuspension - webRtcDetection descriptor fidelity', () => {
+    test('descriptor matches expected shape', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG);
+
+        const result = await page.evaluate(() => {
+            const desc = Object.getOwnPropertyDescriptor(window, 'RTCPeerConnection');
+            return {
+                hasValue: 'value' in (desc || {}),
+                writable: desc?.writable,
+                enumerable: desc?.enumerable,
+                configurable: desc?.configurable,
+            };
+        });
+
+        expect(result.hasValue).toBe(true);
+        expect(result.writable).toBe(true);
+        expect(result.configurable).toBe(true);
+    });
+
+    test('toString() returns native-like string', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG);
+
+        const result = await page.evaluate(() => {
+            return {
+                toString: RTCPeerConnection.toString(),
+                toStringToString: RTCPeerConnection.toString.toString(),
+            };
+        });
+
+        expect(result.toString).toContain('native code');
+        expect(result.toStringToString).toContain('native code');
+    });
+
+    test('name and length properties are preserved', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG);
+
+        const result = await page.evaluate(() => {
+            return {
+                name: RTCPeerConnection.name,
+                length: RTCPeerConnection.length,
+            };
+        });
+
+        expect(result.name).toBe('RTCPeerConnection');
+        expect(typeof result.length).toBe('number');
+    });
+});
+
 test.describe('tabSuspension - webRtcDetection with nativeEnabled: false', () => {
     test('does not notify when a peer connection is created', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
