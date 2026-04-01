@@ -414,7 +414,6 @@ export class TrackerProtection extends ContentFeature {
             return false;
         }
     }
-
 }
 
 export default TrackerProtection;
