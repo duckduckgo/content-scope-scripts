@@ -56,20 +56,22 @@ export class TrackerProtection extends ContentFeature {
         /** @type {MutationObserver | null} */
         this._observer = null;
         /** @type {boolean} */
-        this._surrogateInjectionEnabled = this.getFeatureSetting('surrogateInjectionEnabled') === true;
+        this._surrogateInjectionEnabled = this.getFeatureSettingEnabled('surrogateInjection', 'enabled');
 
+        // Get top-level URL for tracker matching
         this._topLevelUrl = getTabURL();
         if (!this._topLevelUrl) {
             return;
         }
 
-        this._blockingEnabled = this.getFeatureSetting('blockingEnabled') !== false;
+        this._blockingEnabled = this.getFeatureSettingEnabled('blocking', 'enabled');
         if (!this._blockingEnabled) {
             this.log.info('Tracker blocking disabled via config');
             return;
         }
 
         const surrogates = bundledSurrogates;
+        // trackerData is passed as an object from native via args
         const trackerData = this.args?.trackerData;
 
         if (!trackerData) {
@@ -413,22 +415,6 @@ export class TrackerProtection extends ContentFeature {
         }
     }
 
-    destroy() {
-        this._observer?.disconnect();
-        this._observer = null;
-
-        if (this._originalXHROpen && this._originalXHRSend) {
-            XMLHttpRequest.prototype.open = this._originalXHROpen;
-            XMLHttpRequest.prototype.send = this._originalXHRSend;
-        }
-        if (this._originalFetch) {
-            window.fetch = this._originalFetch;
-        }
-        if (this._originalImageSrc) {
-            delete Image.prototype.src;
-            Object.defineProperty(Image.prototype, 'src', this._originalImageSrc);
-        }
-    }
 }
 
 export default TrackerProtection;
