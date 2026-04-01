@@ -97,6 +97,10 @@ export class TrackerProtection extends ContentFeature {
         this._setupInterception();
     }
 
+    /**
+     * Set up resource interception for tracker detection.
+     * Covers scripts, images, XHR, fetch, iframes, and link elements.
+     */
     _setupInterception() {
         this._setupMutationObserver();
         this._setupXHRInterception();
@@ -230,6 +234,7 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
+     * Process a node added to the DOM, including any nested scripts/images.
      * @param {Node} node
      */
     _processAddedNode(node) {
@@ -251,6 +256,10 @@ export class TrackerProtection extends ContentFeature {
         }
     }
 
+    /**
+     * Early scan for scripts at DOMContentLoaded, before the full page load.
+     * Catches head scripts that may have loaded before the MutationObserver started.
+     */
     _scanExistingScripts() {
         if (!this._seenUrls) return;
         for (const el of document.scripts) {
@@ -260,6 +269,11 @@ export class TrackerProtection extends ContentFeature {
         }
     }
 
+    /**
+     * On page load, scan all resource elements for reporting.
+     * Scripts are included here too — _seenUrls deduplication prevents
+     * re-processing any that were already caught by _scanExistingScripts.
+     */
     _processPageOnLoad() {
         if (!this._seenUrls) return;
 
@@ -380,9 +394,11 @@ export class TrackerProtection extends ContentFeature {
     }
 
     /**
-     * @param {string} pattern
-     * @param {HTMLElement | null} targetElement
-     * @returns {boolean}
+     * Load a surrogate script from the build-time generated surrogate map.
+     *
+     * @param {string} pattern - Surrogate pattern (e.g., "adsbygoogle.js")
+     * @param {HTMLElement | null} targetElement - Original element being replaced
+     * @returns {boolean} true if the surrogate was successfully executed
      */
     _loadSurrogate(pattern, targetElement) {
         if (!this._resolver) {
