@@ -34,13 +34,17 @@ export function Tooltip({ children, content, className, position = 'above' }) {
 
             if (tooltipRect.left < VIEWPORT_PADDING) {
                 el.style.left = `${VIEWPORT_PADDING}px`;
-                el.style.transform = `translateY(calc(-100% - 6px))`;
+                if (position === 'above') {
+                    el.style.transform = `translateY(calc(-100% - 6px))`;
+                }
             } else if (tooltipRect.right > viewportWidth - VIEWPORT_PADDING) {
                 el.style.left = `${viewportWidth - VIEWPORT_PADDING - tooltipRect.width}px`;
-                el.style.transform = `translateY(calc(-100% - 6px))`;
+                if (position === 'above') {
+                    el.style.transform = `translateY(calc(-100% - 6px))`;
+                }
             }
         },
-        [rect],
+        [rect, position],
     );
 
     const show = () => {
