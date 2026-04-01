@@ -6,7 +6,7 @@
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "ctlEnabled": false,
+                "ctlEnabled": { "state": "disabled" },
                 "allowlist": {},
                 "tempUnprotectedDomains": [],
                 "userUnprotectedDomains": [],

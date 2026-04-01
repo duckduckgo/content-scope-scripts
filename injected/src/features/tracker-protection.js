@@ -92,7 +92,7 @@ export class TrackerProtection extends ContentFeature {
         this._isUnprotectedDomain = this._resolver.isUnprotectedDomain(this._topLevelUrl.hostname);
 
         /** @type {boolean} */
-        this._ctlEnabled = this.getFeatureSetting('ctlEnabled') !== false;
+        this._ctlEnabled = this.getFeatureSettingEnabled('ctlEnabled', 'enabled');
 
         this._setupInterception();
     }

@@ -6,7 +6,7 @@
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "ctlEnabled": true,
+                "ctlEnabled": { "state": "enabled" },
                 "allowlist": {
                     "tracker.example": [
                         {
