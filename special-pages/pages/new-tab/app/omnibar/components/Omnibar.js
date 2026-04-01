@@ -180,9 +180,11 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
         const action = { chat, target };
 
         if (enableAiChatTools) {
-            const images = imageState.getImagesForSubmission();
-            if (images) {
-                action.images = /** @type {SubmitChatAction['images']} */ (images);
+            if (supportsImageUpload) {
+                const images = imageState.getImagesForSubmission();
+                if (images) {
+                    action.images = /** @type {SubmitChatAction['images']} */ (images);
+                }
             }
             if (selectedModelIdRef.current) {
                 action.modelId = selectedModelIdRef.current;
