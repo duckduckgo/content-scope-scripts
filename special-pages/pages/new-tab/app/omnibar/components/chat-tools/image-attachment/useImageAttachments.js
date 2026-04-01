@@ -163,7 +163,7 @@ export function useImageAttachments() {
         for (let i = 0; i < results.length; i++) {
             const r = results[i];
             if (r.status === 'rejected') {
-                const name = validFiles[i].name;
+                const name = filesToProcess[i].name;
                 if (r.reason instanceof ImageTooLargeError) {
                     tooLargeNames.push(name);
                 } else {
