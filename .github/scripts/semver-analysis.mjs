@@ -56,6 +56,7 @@ You also receive the list of changed **source files** and the PR title/descripti
 - Removed features from any \`platformSupport\` entry in features.js — native apps have corresponding code for each bundled feature and removing one is a breaking change
 - Moved features between execution contexts / content script worlds (e.g. \`apple\` → \`apple-isolated\`) — native apps may only load one world's script, so a feature moving worlds can disappear from the app's perspective
 - Changed init/load behaviour in content-scope-features.js that introduces new cross-world runtime requirements (e.g. message bridges, event forwarding) that native apps must support
+- Existing message schema shapes changed in backward-incompatible ways (fields added/removed/renamed, required fields changed) — this changes the native API contract
 - Any change that would cause a downstream consumer's existing code to fail without modification
 
 **MINOR** (new feature / non-breaking enhancement) — assign when ANY of these apply:
@@ -64,7 +65,6 @@ You also receive the list of changed **source files** and the PR title/descripti
 - Source files show new exports, classes, or methods added without removing existing ones
 - New privacy features or significant feature enhancements visible in changed platform builds
 - New message schema file added under \`injected/src/messages/\` (e.g. \`*.notify.json\`, \`*.request.json\`, \`*.subscribe.json\`) — these define new native-facing messaging APIs even though they compile into existing build artifacts
-- Existing message schema shapes changed in backward-incompatible ways (fields added/removed/renamed, required fields changed) when paired with native PRs — this changes the native API contract
 - New feature file added under \`injected/src/features/\`
 - New entry added to \`platformSupport\` or \`platformSpecificFeatures\` in source files
 - New feature-level config gate (e.g. a new \`*Enabled\` setting that gates behavior) added to an existing feature
