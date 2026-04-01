@@ -1,17 +1,19 @@
 {
-    "readme": "Test CTL action-prefix gating for non-fb surrogate when ctlEnabled is false. TrackerData is passed via withUserPreferences().",
+    "readme": "Test CTL action-prefix gating for non-fb surrogate when ctl is false. TrackerData is passed via withUserPreferences().",
     "version": 1,
     "features": {
         "trackerProtection": {
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "ctlEnabled": { "state": "disabled" },
                 "allowlist": {},
                 "tempUnprotectedDomains": [],
                 "userUnprotectedDomains": [],
                 "blocking": {
                     "state": "enabled"
+                },
+                "ctl": {
+                    "state": "disabled"
                 }
             }
         }

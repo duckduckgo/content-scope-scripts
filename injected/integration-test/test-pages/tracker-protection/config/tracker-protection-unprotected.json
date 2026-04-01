@@ -6,13 +6,15 @@
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "ctlEnabled": { "state": "enabled" },
                 "allowlist": {},
                 "tempUnprotectedDomains": [
                     "localhost"
                 ],
                 "userUnprotectedDomains": [],
                 "blocking": {
+                    "state": "enabled"
+                },
+                "ctl": {
                     "state": "enabled"
                 }
             }

@@ -6,7 +6,6 @@
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "ctlEnabled": { "state": "enabled" },
                 "allowlist": {
                     "tracker.example": [
                         {
@@ -20,6 +19,9 @@
                 "tempUnprotectedDomains": [],
                 "userUnprotectedDomains": [],
                 "blocking": {
+                    "state": "enabled"
+                },
+                "ctl": {
                     "state": "enabled"
                 }
             }

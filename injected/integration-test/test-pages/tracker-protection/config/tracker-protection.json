@@ -6,7 +6,6 @@
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "ctlEnabled": { "state": "enabled" },
                 "allowlist": {},
                 "tempUnprotectedDomains": [],
                 "userUnprotectedDomains": [],
@@ -14,6 +13,9 @@
                     "state": "enabled"
                 },
                 "surrogateInjection": {
+                    "state": "enabled"
+                },
+                "ctl": {
                     "state": "enabled"
                 }
             }
