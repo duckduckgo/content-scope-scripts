@@ -1,0 +1,14 @@
+{
+  "readme": "Config for tabSuspension integration tests: indexedDBDetection sub-feature enabled.",
+  "version": 1,
+  "features": {
+    "tabSuspension": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "indexedDBDetection": "enabled"
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}

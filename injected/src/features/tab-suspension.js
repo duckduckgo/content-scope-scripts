@@ -9,6 +9,9 @@ export class TabSuspension extends ContentFeature {
         if (this.getFeatureSettingEnabled('inputFieldFocusDetection')) {
             this.initInputFieldFocusDetection();
         }
+        if (this.getFeatureSettingEnabled('indexedDBDetection')) {
+            this.initIndexedDBDetection();
+        }
     }
 
     initInputFieldFocusDetection() {
@@ -25,6 +28,16 @@ export class TabSuspension extends ContentFeature {
             },
             true,
         );
+    }
+    initIndexedDBDetection() {
+        const settings = this.getFeatureSetting('indexedDBDetection') || {};
+        const nativeEnabled = settings.nativeEnabled !== false;
+        if (!nativeEnabled) return;
+
+        this.wrapMethod(IDBFactory.prototype, 'open', (originalOpen, ...args) => {
+            this.notify('indexedDBConnectionOpened', { isActive: true });
+            return originalOpen.call(globalThis.indexedDB, ...args);
+        });
     }
 }
 
