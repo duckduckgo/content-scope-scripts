@@ -62,24 +62,32 @@ export class TabSuspension extends ContentFeature {
 
         // Wrap close(): call native first, only update state on success.
         // Gate on tracked instances to prevent spoofing via illegal receiver.
-        this.wrapMethod(IDBDatabase.prototype, 'close', function (originalClose) {
-            const result = originalClose.call(this);
-            if (trackedDatabases.has(this)) {
-                trackedDatabases.delete(this);
-                openCount = Math.max(0, openCount - 1);
-                notifyState();
-            }
-            return result;
-        });
+        this.wrapMethod(
+            IDBDatabase.prototype,
+            'close',
+            /** @this {IDBDatabase} */ function (originalClose) {
+                const result = originalClose.call(this);
+                if (trackedDatabases.has(this)) {
+                    trackedDatabases.delete(this);
+                    openCount = Math.max(0, openCount - 1);
+                    notifyState();
+                }
+                return result;
+            },
+        );
 
         // Preserve native receiver semantics with originalOpen.call(this, ...)
-        this.wrapMethod(IDBFactory.prototype, 'open', function (originalOpen, ...args) {
-            const request = originalOpen.call(this, ...args);
-            request.addEventListener('success', () => {
-                trackDatabase(/** @type {IDBDatabase} */ (request.result));
-            });
-            return request;
-        });
+        this.wrapMethod(
+            IDBFactory.prototype,
+            'open',
+            /** @this {IDBFactory} */ function (originalOpen, ...args) {
+                const request = originalOpen.call(this, ...args);
+                request.addEventListener('success', () => {
+                    trackDatabase(/** @type {IDBDatabase} */ (request.result));
+                });
+                return request;
+            },
+        );
     }
 
     initWebLockDetection() {
