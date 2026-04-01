@@ -3,17 +3,17 @@
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
- * @module WebRtcDetection Messages
+ * @module TabSuspension Messages
  */
 
 /**
- * Requests, Notifications and Subscriptions from the WebRtcDetection feature
+ * Requests, Notifications and Subscriptions from the TabSuspension feature
  */
-export interface WebRtcDetectionMessages {
+export interface TabSuspensionMessages {
   notifications: WebRTCConnectionChangedNotification;
 }
 /**
- * Generated from @see "../messages/web-rtc-detection/webRTCConnectionChanged.notify.json"
+ * Generated from @see "../messages/tab-suspension/webRTCConnectionChanged.notify.json"
  */
 export interface WebRTCConnectionChangedNotification {
   method: "webRTCConnectionChanged";
@@ -28,6 +28,6 @@ export interface WebRTCConnectionChanged {
 
 declare module "../features/tab-suspension.js" {
   export interface TabSuspension {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<WebRtcDetectionMessages>['notify']
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TabSuspensionMessages>['notify']
   }
 }
