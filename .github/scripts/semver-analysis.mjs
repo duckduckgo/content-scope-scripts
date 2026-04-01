@@ -63,11 +63,19 @@ You also receive the list of changed **source files** and the PR title/descripti
 - Build artifacts changed AND source files show new features, special pages, or entry points added
 - Source files show new exports, classes, or methods added without removing existing ones
 - New privacy features or significant feature enhancements visible in changed platform builds
+- New message schema file added under \`injected/src/messages/\` (e.g. \`*.notify.json\`, \`*.request.json\`, \`*.subscribe.json\`) — these define new native-facing messaging APIs even though they compile into existing build artifacts
+- Existing message schema shapes changed in backward-incompatible ways (fields added/removed/renamed, required fields changed) when paired with native PRs — this changes the native API contract
+- New feature file added under \`injected/src/features/\`
+- New entry added to \`platformSupport\` or \`platformSpecificFeatures\` in source files
+- New feature-level config gate (e.g. a new \`*Enabled\` setting that gates behavior) added to an existing feature
 
 **PATCH** (bug fix / internal) — assign when ALL of these apply:
 - No build artifacts added or removed
 - Build artifact changes are limited to content modifications of existing files
 - Source files show only bug fixes, refactors, docs, tests, CI/tooling, or dependency updates
+- No new message schema files added under \`injected/src/messages/\`
+- No changes to message schema shapes (field additions/removals/renames in \`.notify.json\`, \`.request.json\`, \`.subscribe.json\` files)
+- No new entries in \`platformSupport\` or \`platformSpecificFeatures\`
 - OR no build artifacts changed at all (docs/test/CI-only PRs)
 
 Always respond with valid JSON: { "severity": "major"|"minor"|"patch", "reasoning": "..." }
