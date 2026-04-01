@@ -45,4 +45,3 @@ export const exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.c
 export const importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
 export const encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
 export const decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
-export const setTimeout = globalThis.setTimeout.bind(globalThis);
