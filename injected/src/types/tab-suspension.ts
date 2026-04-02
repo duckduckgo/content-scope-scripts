@@ -24,7 +24,7 @@ export interface CanBeSuspendedNotification {
  */
 export interface CanBeSuspended {
   /**
-   * True when the page has no conditions preventing suspension.
+   * False when the page has conditions preventing suspension. Currently only ever sent with 'false' value.
    */
   canBeSuspended: boolean;
 }
