@@ -2,8 +2,12 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "title": "CanSuspendResult",
-  "required": ["canSuspend"],
+  "required": ["id", "canSuspend"],
   "properties": {
+    "id": {
+      "type": "string",
+      "description": "Correlation identifier from the canSuspend request."
+    },
     "canSuspend": {
       "type": "boolean",
       "description": "True when the page has no conditions preventing suspension."

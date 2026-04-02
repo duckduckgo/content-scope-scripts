@@ -14,15 +14,18 @@ const CONFIG_WEBLOCK = './integration-test/test-pages/tab-suspension/config/tab-
 /** All sub-features with nativeEnabled: false */
 const CONFIG_NATIVE_DISABLED = './integration-test/test-pages/tab-suspension/config/tab-suspension-native-disabled.json';
 
+let queryCounter = 0;
+
 /**
  * Helper to query canSuspend and return the result.
  * @param {ResultsCollector} collector
- * @returns {Promise<boolean>}
+ * @returns {Promise<{id: string, canSuspend: boolean}>}
  */
 async function queryCanSuspend(collector) {
-    await collector.simulateSubscriptionMessage('tabSuspension', 'canSuspend', {});
+    const id = `test-${++queryCounter}`;
+    await collector.simulateSubscriptionMessage('tabSuspension', 'canSuspend', { id });
     const messages = await collector.waitForMessage('canSuspendResult', 1);
-    return /** @type {{params: {canSuspend: boolean}}} */ (messages[0].payload).params.canSuspend;
+    return /** @type {{params: {id: string, canSuspend: boolean}}} */ (messages[0].payload).params;
 }
 
 test.describe('tabSuspension - canSuspend baseline', () => {
@@ -30,8 +33,9 @@ test.describe('tabSuspension - canSuspend baseline', () => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         await collector.load(HTML, CONFIG_ALL);
 
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(true);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(true);
+        expect(typeof result.id).toBe('string');
     });
 });
 
@@ -41,8 +45,9 @@ test.describe('tabSuspension - inputFieldFocusDetection', () => {
         await collector.load(HTML, CONFIG_FOCUS);
 
         await page.click('#text-input');
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(false);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(false);
+        expect(typeof result.id).toBe('string');
     });
 
     test('returns false after textarea is focused', async ({ page }, testInfo) => {
@@ -50,8 +55,9 @@ test.describe('tabSuspension - inputFieldFocusDetection', () => {
         await collector.load(HTML, CONFIG_FOCUS);
 
         await page.click('#textarea');
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(false);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(false);
+        expect(typeof result.id).toBe('string');
     });
 
     test('returns false after contentEditable is focused', async ({ page }, testInfo) => {
@@ -59,8 +65,9 @@ test.describe('tabSuspension - inputFieldFocusDetection', () => {
         await collector.load(HTML, CONFIG_FOCUS);
 
         await page.click('#contenteditable');
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(false);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(false);
+        expect(typeof result.id).toBe('string');
     });
 
     test('returns true when only non-form elements clicked', async ({ page }, testInfo) => {
@@ -68,8 +75,9 @@ test.describe('tabSuspension - inputFieldFocusDetection', () => {
         await collector.load(HTML, CONFIG_FOCUS);
 
         await page.click('#button');
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(true);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(true);
+        expect(typeof result.id).toBe('string');
     });
 });
 
@@ -85,8 +93,9 @@ test.describe('tabSuspension - indexedDBDetection', () => {
             });
         });
 
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(false);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(false);
+        expect(typeof result.id).toBe('string');
     });
 
     test('returns true after all IndexedDB connections are closed', async ({ page }, testInfo) => {
@@ -103,8 +112,9 @@ test.describe('tabSuspension - indexedDBDetection', () => {
             });
         });
 
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(true);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(true);
+        expect(typeof result.id).toBe('string');
     });
 
     test('indexedDB.open still returns a valid request', async ({ page }, testInfo) => {
@@ -147,8 +157,9 @@ test.describe('tabSuspension - indexedDBDetection', () => {
             }
         });
 
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(true);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(true);
+        expect(typeof result.id).toBe('string');
     });
 });
 
@@ -162,16 +173,18 @@ test.describe('tabSuspension - webLockDetection', () => {
         });
         await page.waitForTimeout(100);
 
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(false);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(false);
+        expect(typeof result.id).toBe('string');
     });
 
     test('returns true when no locks are held', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         await collector.load(HTML, CONFIG_WEBLOCK);
 
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(true);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(true);
+        expect(typeof result.id).toBe('string');
     });
 });
 
@@ -189,7 +202,8 @@ test.describe('tabSuspension - nativeEnabled: false', () => {
             });
         });
 
-        const canSuspend = await queryCanSuspend(collector);
-        expect(canSuspend).toBe(true);
+        const result = await queryCanSuspend(collector);
+        expect(result.canSuspend).toBe(true);
+        expect(typeof result.id).toBe('string');
     });
 });

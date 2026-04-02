@@ -22,9 +22,9 @@ export class TabSuspension extends ContentFeature {
             this.initIndexedDBDetection();
         }
 
-        this.subscribe('canSuspend', async () => {
+        this.subscribe('canSuspend', async (/** @type {{ id: string }} */ params) => {
             const canSuspend = await this.evaluateCanSuspend();
-            this.notify('canSuspendResult', { canSuspend });
+            this.notify('canSuspendResult', { id: params.id, canSuspend });
         });
     }
 

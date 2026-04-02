@@ -22,6 +22,10 @@ export interface CanSuspendResultNotification {
 }
 export interface CanSuspendResult {
   /**
+   * Correlation identifier from the canSuspend request.
+   */
+  id: string;
+  /**
    * True when the page has no conditions preventing suspension.
    */
   canSuspend: boolean;
@@ -36,7 +40,12 @@ export interface CanSuspendSubscription {
 /**
  * Subscription for native to query whether the page can be suspended
  */
-export interface CanSuspend {}
+export interface CanSuspend {
+  /**
+   * Correlation identifier echoed back in canSuspendResult.
+   */
+  id: string;
+}
 
 declare module "../features/tab-suspension.js" {
   export interface TabSuspension {
