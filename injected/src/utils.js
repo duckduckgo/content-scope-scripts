@@ -613,6 +613,10 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
     }
     const domainParts = topLevelHostname.split('.');
 
+    if (domainParts.length === 1) {
+        return featureList.some((entry) => entry.domain === topLevelHostname);
+    }
+
     // walk up the domain to see if it's unprotected
     while (domainParts.length > 1 && !unprotectedDomain) {
         const partialDomain = domainParts.join('.');
