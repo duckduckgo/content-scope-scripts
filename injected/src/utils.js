@@ -922,7 +922,6 @@ export const platformSpecificFeatures = [
     'webEvents',
     'pageObserver',
     'hover',
-    'tabSuspension',
 ];
 /**
  * @param {string} featureName
