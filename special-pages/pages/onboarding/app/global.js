@@ -102,6 +102,8 @@ export function reducer(state, action) {
         }
         case 'executing': {
             switch (action.kind) {
+                case 'telemetry':
+                    return state;
                 case 'exec-complete': {
                     if (state.step.kind === 'settings') {
                         // only advance to another row if we're updating the current item.
@@ -228,6 +230,18 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                 const next = state.order[currentIndex + 1] ?? null;
                 messaging.stepCompleted({ id: state.activeStep, next });
             }
+            if (msg.kind === 'show-overlay' && msg.overlay === 'dock-instructions') {
+                messaging.telemetryEvent({ attributes: { name: 'dock_instructions_shown' } });
+            }
+            // row_skipped fires from the proxy (user action), while row_shown fires from
+            // a useEffect (state change), because exec-complete is dispatched internally
+            // and doesn't pass through the proxy.
+            if (msg.kind === 'update-system-value' && !msg.payload.enabled && msg.current) {
+                messaging.telemetryEvent({ attributes: { name: 'row_skipped', value: msg.id } });
+            }
+            if (msg.kind === 'telemetry') {
+                messaging.telemetryEvent({ attributes: msg.attributes });
+            }
             if (msg.kind === 'dismiss-to-settings') {
                 messaging.dismissToSettings();
             }
@@ -254,6 +268,16 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         const { error } = state.status.action;
         messaging.reportPageException(error);
     }, [state.status.kind, messaging]);
+
+    // fire a telemetry event whenever a new row becomes active in a settings step
+    useEffect(() => {
+        if (state.step?.kind === 'settings') {
+            const currentRowId = state.step.rows[state.activeRow];
+            if (currentRowId) {
+                messaging.telemetryEvent({ attributes: { name: 'row_shown', value: currentRowId } });
+            }
+        }
+    }, [state.activeRow, state.activeStep, messaging]);
 
     // handle 'update-system-value' messages from the UI
     useEffect(() => {

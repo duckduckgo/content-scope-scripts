@@ -41,6 +41,7 @@
  * @property {(id: import('../../types').SystemValueId) => void} enableSystemValue - Function that switches a system setting to ON
  * @property {BeforeAfterFunctions} beforeAfter - Functions that control a step's before/after state
  * @property {() => void} dismissOverlay - Function that dismisses the current overlay
+ * @property {import("preact/hooks").Dispatch<import('../../types').GlobalEvents>} dispatch - Dispatch function for global events
  */
 
 /**

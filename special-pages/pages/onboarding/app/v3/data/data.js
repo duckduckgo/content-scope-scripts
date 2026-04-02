@@ -104,7 +104,7 @@ export const stepsConfig = {
             content: <SettingsStep data={settingsRowItems} />,
         };
     },
-    duckPlayerSingle: ({ t, advance, beforeAfter, globalState }) => {
+    duckPlayerSingle: ({ t, advance, beforeAfter, globalState, dispatch }) => {
         const duckPlayerDef = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
         const isAdFree = duckPlayerDef.variant === 'ad-free';
         const beforeAfterState = beforeAfter.get();
@@ -125,7 +125,10 @@ export const stepsConfig = {
                       startIcon: <Replay direction={beforeAfterState === 'before' ? 'forward' : 'backward'} />,
                       text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
                       longestText,
-                      handler: () => beforeAfter.toggle(),
+                      handler: () => {
+                          dispatch({ kind: 'telemetry', attributes: { name: 'duck_player_toggled' } });
+                          beforeAfter.toggle();
+                      },
                   },
             acceptButton: {
                 text: t('nextButton'),

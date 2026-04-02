@@ -69,6 +69,7 @@ export function useStepConfig() {
         enableSystemValue,
         beforeAfter,
         dismissOverlay,
+        dispatch,
     };
 
     if (!stepsConfig[activeStep]) {

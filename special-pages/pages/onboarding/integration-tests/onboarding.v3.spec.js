@@ -490,6 +490,39 @@ test.describe('onboarding v3', () => {
         await onboarding.startBrowsing();
     });
 
+    test.describe('Given I am on the duck player step', () => {
+        test('When I click the toggle button, it sends a telemetryEvent', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 3000 });
+            await page.getByLabel('See Without Duck Player').click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'duck_player_toggled' }]);
+        });
+
+        test('When I click the toggle button twice, it sends two telemetryEvents', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 3000 });
+            await page.getByLabel('See Without Duck Player').click();
+            await page.getByLabel('See With Duck Player').click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'duck_player_toggled' }, { name: 'duck_player_toggled' }]);
+        });
+    });
+
     test.describe('Given I am on the duck player step with ad-free variant', () => {
         test('Then it shows ad-free copy and hides the toggle button', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV3Page.create(page, workerInfo);
@@ -622,6 +655,91 @@ test.describe('onboarding v3', () => {
             await expect(page.getByText('Keep in Dock')).toBeVisible();
         });
 
+        test('When I click Show Me How, it sends telemetryEvents', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+
+            await onboarding.didFireTelemetryEvents([
+                { name: 'row_shown', value: 'dock-instructions' },
+                { name: 'dock_instructions_shown' },
+            ]);
+        });
+
+        test('When I click Show Me How then Next, it sends row_shown for import', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+            await onboarding.dismissDockInstructions();
+
+            await onboarding.didFireTelemetryEvents([
+                { name: 'row_shown', value: 'dock-instructions' },
+                { name: 'dock_instructions_shown' },
+                { name: 'row_shown', value: 'import' },
+            ]);
+        });
+
+        test('When I skip dock-instructions, it sends row_shown for import', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+
+            await onboarding.didFireTelemetryEvents([
+                { name: 'row_shown', value: 'dock-instructions' },
+                { name: 'row_skipped', value: 'dock-instructions' },
+                { name: 'row_shown', value: 'import' },
+            ]);
+        });
+
+        test('When I skip dock-instructions, it does not send dock_instructions_shown', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            await onboarding.didNotFireTelemetryEvent({ name: 'dock_instructions_shown' });
+        });
+
         test('When I click Show Me How then Next, it advances to the next row', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV3Page.create(page, workerInfo);
             onboarding.withInitData({
@@ -661,6 +779,59 @@ test.describe('onboarding v3', () => {
 
             // The import row should now be the current row
             await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+    });
+
+    test.describe('Given I am on the import row', () => {
+        test('When I skip import, it sends row_skipped', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip dock-instructions to get to import
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            // Skip import
+            await onboarding.skippedCurrent();
+
+            await onboarding.didFireTelemetryEvents([
+                { name: 'row_shown', value: 'dock-instructions' },
+                { name: 'row_skipped', value: 'dock-instructions' },
+                { name: 'row_shown', value: 'import' },
+                { name: 'row_skipped', value: 'import' },
+            ]);
+        });
+
+        test('When I accept import, it does not send row_skipped', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip dock-instructions to get to import
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            // Accept import
+            await onboarding.importUserData();
+
+            await onboarding.didNotFireTelemetryEvent({ name: 'row_skipped', value: 'import' });
         });
     });
 
