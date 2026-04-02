@@ -1,12 +1,25 @@
 {
-  "readme": "Config for tracker-protection integration tests with the feature disabled.",
-  "version": 1,
-  "features": {
-    "trackerProtection": {
-      "state": "disabled",
-      "exceptions": [],
-      "settings": {}
-    }
-  },
-  "unprotectedTemporary": []
+    "readme": "Config for tracker-protection integration tests with the feature disabled.",
+    "version": 1,
+    "features": {
+        "contentBlocking": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "clickToLoad": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "trackerAllowlist": {
+            "state": "enabled",
+            "settings": {
+                "allowlistedTrackers": {}
+            }
+        },
+        "trackerProtection": {
+            "state": "disabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
 }

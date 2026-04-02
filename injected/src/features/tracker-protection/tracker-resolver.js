@@ -93,9 +93,6 @@ export class TrackerResolver {
      * @param {TrackerData} config.trackerData
      * @param {Record<string, () => void>} config.surrogates
      * @param {Record<string, AllowlistEntry[]>} [config.allowlist]
-     * @param {string[]} [config.unprotectedDomains] - Legacy: all treated as wildcard. Use userUnprotectedDomains + wildcardUnprotectedDomains instead.
-     * @param {string[]} [config.userUnprotectedDomains] - Exact-match only (user-toggled)
-     * @param {string[]} [config.wildcardUnprotectedDomains] - Wildcard domain-walk (temp + contentBlocking exceptions)
      */
     constructor(config) {
         /** @type {TrackerData | null} */
@@ -104,10 +101,6 @@ export class TrackerResolver {
         this._surrogateList = {};
         /** @type {Record<string, AllowlistEntry[]>} */
         this._allowlist = {};
-        /** @type {string[]} */
-        this._userUnprotectedDomains = [];
-        /** @type {string[]} */
-        this._wildcardUnprotectedDomains = [];
 
         if (config.trackerData) {
             this._trackerData = this._processTrackerData(config.trackerData);
@@ -117,15 +110,6 @@ export class TrackerResolver {
         }
         if (config.allowlist) {
             this._allowlist = config.allowlist;
-        }
-        if (config.userUnprotectedDomains) {
-            this._userUnprotectedDomains = config.userUnprotectedDomains;
-        }
-        if (config.wildcardUnprotectedDomains) {
-            this._wildcardUnprotectedDomains = config.wildcardUnprotectedDomains;
-        }
-        if (config.unprotectedDomains) {
-            this._wildcardUnprotectedDomains = this._wildcardUnprotectedDomains.concat(config.unprotectedDomains);
         }
     }
 
@@ -455,41 +439,6 @@ export class TrackerResolver {
         }
 
         return false;
-    }
-
-    /**
-     * Check if domain is unprotected (user-toggled, exact match only)
-     * @param {string} domain
-     */
-    isUserUnprotectedDomain(domain) {
-        return this._userUnprotectedDomains.includes(domain);
-    }
-
-    /**
-     * Check if domain is unprotected via wildcard matching (temp + contentBlocking exceptions).
-     * Walks up subdomains.
-     * @param {string} domain
-     */
-    isWildcardUnprotectedDomain(domain) {
-        if (this._wildcardUnprotectedDomains.includes(domain)) {
-            return true;
-        }
-        const parts = domain.split('.');
-        while (parts.length > 1) {
-            parts.shift();
-            if (this._wildcardUnprotectedDomains.includes(parts.join('.'))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check if domain is unprotected by any source
-     * @param {string} domain
-     */
-    isUnprotectedDomain(domain) {
-        return this.isUserUnprotectedDomain(domain) || this.isWildcardUnprotectedDomain(domain);
     }
 
     /**

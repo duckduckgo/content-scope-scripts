@@ -2,20 +2,23 @@
     "readme": "Test CTL surrogate bypass when ctl is false. TrackerData is passed via withUserPreferences().",
     "version": 1,
     "features": {
+        "contentBlocking": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "clickToLoad": {
+            "state": "disabled",
+            "exceptions": []
+        },
+        "trackerAllowlist": {
+            "state": "enabled",
+            "settings": {
+                "allowlistedTrackers": {}
+            }
+        },
         "trackerProtection": {
             "state": "enabled",
-            "exceptions": [],
-            "settings": {
-                "allowlist": {},
-                "tempUnprotectedDomains": [],
-                "userUnprotectedDomains": [],
-                "blocking": {
-                    "state": "enabled"
-                },
-                "ctl": {
-                    "state": "disabled"
-                }
-            }
+            "exceptions": []
         }
     },
     "unprotectedTemporary": []

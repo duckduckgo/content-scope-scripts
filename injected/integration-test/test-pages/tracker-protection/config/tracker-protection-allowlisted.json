@@ -2,29 +2,34 @@
     "readme": "Config for tracker-protection integration tests with an allowlist entry for tracker.example on localhost. TrackerData is passed via withUserPreferences().",
     "version": 1,
     "features": {
-        "trackerProtection": {
+        "contentBlocking": {
             "state": "enabled",
-            "exceptions": [],
+            "exceptions": []
+        },
+        "clickToLoad": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "trackerAllowlist": {
+            "state": "enabled",
             "settings": {
-                "allowlist": {
-                    "tracker.example": [
-                        {
-                            "rule": "tracker\\.example/pixel\\.js",
-                            "domains": [
-                                "<all>"
-                            ]
-                        }
-                    ]
-                },
-                "tempUnprotectedDomains": [],
-                "userUnprotectedDomains": [],
-                "blocking": {
-                    "state": "enabled"
-                },
-                "ctl": {
-                    "state": "enabled"
+                "allowlistedTrackers": {
+                    "tracker.example": {
+                        "rules": [
+                            {
+                                "rule": "tracker\\.example/pixel\\.js",
+                                "domains": [
+                                    "<all>"
+                                ]
+                            }
+                        ]
+                    }
                 }
             }
+        },
+        "trackerProtection": {
+            "state": "enabled",
+            "exceptions": []
         }
     },
     "unprotectedTemporary": []

@@ -14,6 +14,7 @@
  */
 
 import ContentFeature from '../content-feature.js';
+import { isUnprotectedDomain } from '../utils.js';
 import { TrackerResolver } from './tracker-protection/tracker-resolver.js';
 import { surrogates as bundledSurrogates } from './tracker-protection/surrogates-generated.js';
 
@@ -64,7 +65,7 @@ export class TrackerProtection extends ContentFeature {
             return;
         }
 
-        this._blockingEnabled = this.getFeatureSettingEnabled('blocking', 'enabled');
+        this._blockingEnabled = this._isStateEnabled(this.bundledConfig?.features?.contentBlocking?.state);
         if (!this._blockingEnabled) {
             this.log.info('Tracker blocking disabled via config');
             return;
@@ -78,21 +79,22 @@ export class TrackerProtection extends ContentFeature {
             return;
         }
 
+        // Read allowlist from trackerAllowlist feature, stripping the rules wrapper
+        const rawAllowlist = this.bundledConfig?.features?.trackerAllowlist?.settings?.allowlistedTrackers || {};
+        const allowlist = Object.fromEntries(Object.entries(rawAllowlist).map(([k, v]) => [k, v.rules]));
+
         this._resolver = new TrackerResolver({
             trackerData,
             surrogates,
-            allowlist: this.getFeatureSetting('allowlist'),
-            userUnprotectedDomains: this.getFeatureSetting('userUnprotectedDomains') || [],
-            wildcardUnprotectedDomains: [
-                ...(this.getFeatureSetting('tempUnprotectedDomains') || []),
-                ...(this.getFeatureSetting('contentBlockingExceptions') || []),
-            ],
+            allowlist,
         });
 
-        this._isUnprotectedDomain = this._resolver.isUnprotectedDomain(this._topLevelUrl.hostname);
+        // Self-gating: handle exceptions internally instead of relying on the framework
+        const exceptions = this.bundledConfig?.features?.trackerProtection?.exceptions || [];
+        this._isUnprotectedDomain = isUnprotectedDomain(this._topLevelUrl.hostname, exceptions) || !!this.args?.site?.allowlisted;
 
         /** @type {boolean} */
-        this._ctlEnabled = this.getFeatureSettingEnabled('ctl', 'enabled');
+        this._ctlEnabled = this._isStateEnabled(this.bundledConfig?.features?.clickToLoad?.state);
 
         this._setupInterception();
     }

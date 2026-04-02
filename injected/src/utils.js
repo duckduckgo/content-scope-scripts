@@ -869,6 +869,9 @@ export function computeEnabledFeatures(data, topLevelHostname, platform, platfor
                     return false;
                 }
             }
+            if (isSelfGatingFeature(featureName)) {
+                return isStateEnabled(feature.state, platform);
+            }
             return isStateEnabled(feature.state, platform) && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
         })
         .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
@@ -925,11 +928,27 @@ export const platformSpecificFeatures = [
     'trackerProtection', // only enabled on apple platforms
 ];
 /**
+ * Features that bypass exception-based disabling in computeEnabledFeatures.
+ * These features handle their own exceptions internally (e.g., to stay active
+ * for reporting on excepted domains while adjusting behavior).
+ * @type {FeatureName[]}
+ */
+export const selfGatingFeatures = ['trackerProtection'];
+
+/**
  * @param {string} featureName
  * @returns {boolean}
  */
 export function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
+}
+
+/**
+ * @param {string} featureName
+ * @returns {boolean}
+ */
+export function isSelfGatingFeature(featureName) {
+    return selfGatingFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
 }
 
 /**
