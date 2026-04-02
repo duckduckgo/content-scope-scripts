@@ -14,9 +14,6 @@ export class TabSuspension extends ContentFeature {
         if (this.getFeatureSettingEnabled('inputFieldFocusDetection')) {
             this.initInputFieldFocusDetection();
         }
-
-        // Send initial state
-        this.notify('canBeSuspended', { canBeSuspended: this.#canBeSuspended });
     }
 
     initInputFieldFocusDetection() {
