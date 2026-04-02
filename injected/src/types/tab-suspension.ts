@@ -10,46 +10,27 @@
  * Requests, Notifications and Subscriptions from the TabSuspension feature
  */
 export interface TabSuspensionMessages {
-  notifications: CanSuspendResultNotification;
-  subscriptions: CanSuspendSubscription;
+  notifications: CanBeSuspendedNotification;
 }
 /**
- * Generated from @see "../messages/tab-suspension/canSuspendResult.notify.json"
+ * Generated from @see "../messages/tab-suspension/canBeSuspended.notify.json"
  */
-export interface CanSuspendResultNotification {
-  method: "canSuspendResult";
-  params: CanSuspendResult;
+export interface CanBeSuspendedNotification {
+  method: "canBeSuspended";
+  params: CanBeSuspended;
 }
-export interface CanSuspendResult {
-  /**
-   * Correlation identifier from the canSuspend request.
-   */
-  id: string;
+/**
+ * Notification sent when the page's suspension eligibility changes.
+ */
+export interface CanBeSuspended {
   /**
    * True when the page has no conditions preventing suspension.
    */
-  canSuspend: boolean;
-}
-/**
- * Generated from @see "../messages/tab-suspension/canSuspend.subscribe.json"
- */
-export interface CanSuspendSubscription {
-  subscriptionEvent: "canSuspend";
-  params: CanSuspend;
-}
-/**
- * Subscription for native to query whether the page can be suspended
- */
-export interface CanSuspend {
-  /**
-   * Correlation identifier echoed back in canSuspendResult.
-   */
-  id: string;
+  canBeSuspended: boolean;
 }
 
 declare module "../features/tab-suspension.js" {
   export interface TabSuspension {
-    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TabSuspensionMessages>['notify'],
-    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TabSuspensionMessages>['subscribe']
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<TabSuspensionMessages>['notify']
   }
 }
