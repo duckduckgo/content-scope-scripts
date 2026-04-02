@@ -383,10 +383,6 @@ export class TrackerProtection extends ContentFeature {
                                 });
                             }
                         }
-                    } else {
-                        // FAIL FAST: surrogateInjectionEnabled is false but we would have injected.
-                        // This is expected during shadow phase — legacy surrogates.js handles injection.
-                        // If a surrogateInjected notification is emitted here, it's a gate violation.
                     }
                 }
             }
