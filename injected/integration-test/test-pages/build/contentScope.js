@@ -2966,7 +2966,8 @@
       "pageObserver",
       "hover",
       "browserUiLock",
-      "trackerProtection"
+      "trackerProtection",
+      "tabSuspension"
     ]
   );
   var platformSupport = {
@@ -2985,7 +2986,8 @@
       "webEvents",
       "webInterferenceDetection",
       "pageObserver",
-      "hover"
+      "hover",
+      "tabSuspension"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -27115,6 +27117,51 @@ ${iframeContent}
   };
   var tracker_protection_default = TrackerProtection;
 
+  // src/features/tab-suspension.js
+  init_define_import_meta_trackerLookup();
+  var _canBeSuspended;
+  var TabSuspension = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {boolean} */
+      __privateAdd(this, _canBeSuspended, true);
+    }
+    init() {
+      if (this.getFeatureSettingEnabled("inputFieldFocusDetection", "enabled")) {
+        this.initInputFieldFocusDetection();
+      }
+    }
+    initInputFieldFocusDetection() {
+      document.addEventListener(
+        "focusin",
+        (e) => {
+          if (!__privateGet(this, _canBeSuspended)) return;
+          if (isFormElement(
+            /** @type {Element | null} */
+            e.target
+          )) {
+            __privateSet(this, _canBeSuspended, false);
+            this.notify("canBeSuspended", { canBeSuspended: false });
+          }
+        },
+        true
+      );
+    }
+  };
+  _canBeSuspended = new WeakMap();
+  function isFormElement(el) {
+    if (!el) return false;
+    const tag = el.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+    if (tag === "IFRAME") return true;
+    if (
+      /** @type {HTMLElement} */
+      el.isContentEditable
+    ) return true;
+    return false;
+  }
+  var tab_suspension_default = TabSuspension;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_fingerprintingAudio: FingerprintingAudio,
@@ -27156,7 +27203,8 @@ ${iframeContent}
     ddg_feature_pageObserver: page_observer_default,
     ddg_feature_hover: hover_default,
     ddg_feature_browserUiLock: BrowserUiLock,
-    ddg_feature_trackerProtection: tracker_protection_default
+    ddg_feature_trackerProtection: tracker_protection_default,
+    ddg_feature_tabSuspension: tab_suspension_default
   };
 
   // src/url-change.js
