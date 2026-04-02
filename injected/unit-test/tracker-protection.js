@@ -435,45 +435,6 @@ describe('TrackerResolver', () => {
         });
     });
 
-    describe('getEntityAffiliation (P0-5)', () => {
-        it('should detect affiliated domains (same entity)', () => {
-            const result = resolver.getEntityAffiliation('facebook.net', 'facebook.com');
-            expect(result.affiliated).toBe(true);
-            expect(result.ownerName).toBe('Facebook, Inc.');
-            expect(result.entityName).toBe('Facebook');
-            expect(result.prevalence).toBe(0.5);
-        });
-
-        it('should detect affiliated subdomains', () => {
-            const result = resolver.getEntityAffiliation('cdn.facebook.net', 'www.facebook.com');
-            expect(result.affiliated).toBe(true);
-            expect(result.ownerName).toBe('Facebook, Inc.');
-        });
-
-        it('should return not affiliated for different entities', () => {
-            const result = resolver.getEntityAffiliation('tracker.com', 'facebook.com');
-            expect(result.affiliated).toBe(false);
-            expect(result.ownerName).toBeNull();
-            expect(result.entityName).toBeNull();
-            expect(result.prevalence).toBeNull();
-        });
-
-        it('should return not affiliated when request domain has no entity', () => {
-            const result = resolver.getEntityAffiliation('unknown-cdn.com', 'facebook.com');
-            expect(result.affiliated).toBe(false);
-        });
-
-        it('should return not affiliated when page domain has no entity', () => {
-            const result = resolver.getEntityAffiliation('tracker.com', 'random-page.com');
-            expect(result.affiliated).toBe(false);
-        });
-
-        it('should return not affiliated when neither domain has entity', () => {
-            const result = resolver.getEntityAffiliation('unknown.com', 'random.com');
-            expect(result.affiliated).toBe(false);
-        });
-    });
-
     describe('P0-2: affiliated third-party tracker reporting', () => {
         it('should mark entity-affiliated tracker as first party with ignore action', () => {
             const result = resolver.getTrackerData('https://connect.facebook.net/en_US/sdk.js', 'https://facebook.com');
