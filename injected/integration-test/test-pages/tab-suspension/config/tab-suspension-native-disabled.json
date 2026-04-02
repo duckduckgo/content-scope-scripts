@@ -1,5 +1,5 @@
 {
-  "readme": "Config for tabSuspension integration tests: inputFieldFocusDetection enabled but nativeEnabled false.",
+  "readme": "Config for tabSuspension integration tests: all sub-features enabled but nativeEnabled false.",
   "version": 1,
   "features": {
     "tabSuspension": {
@@ -7,6 +7,14 @@
       "exceptions": [],
       "settings": {
         "inputFieldFocusDetection": {
+          "state": "enabled",
+          "nativeEnabled": false
+        },
+        "indexedDBDetection": {
+          "state": "enabled",
+          "nativeEnabled": false
+        },
+        "webLockDetection": {
           "state": "enabled",
           "nativeEnabled": false
         }

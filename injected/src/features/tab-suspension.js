@@ -3,8 +3,17 @@ import ContentFeature from '../content-feature.js';
 /**
  * Detects conditions that should prevent tab suspension.
  * Sub-features are individually gated via feature settings.
+ *
+ * Native side polls by pushing a `canSuspend` subscription message.
+ * JS checks all enabled detectors and responds with `canSuspendResult { canSuspend: bool }`.
  */
 export class TabSuspension extends ContentFeature {
+    /** @type {boolean} */
+    #hasFormInteraction = false;
+
+    /** @type {{ count: number, tracked: WeakSet<IDBDatabase> }} */
+    #indexedDBState = { count: 0, tracked: new WeakSet() };
+
     init() {
         if (this.getFeatureSettingEnabled('inputFieldFocusDetection')) {
             this.initInputFieldFocusDetection();
@@ -12,9 +21,47 @@ export class TabSuspension extends ContentFeature {
         if (this.getFeatureSettingEnabled('indexedDBDetection')) {
             this.initIndexedDBDetection();
         }
-        if (this.getFeatureSettingEnabled('webLockDetection')) {
-            this.initWebLockDetection();
+
+        this.subscribe('canSuspend', async () => {
+            const canSuspend = await this.evaluateCanSuspend();
+            this.notify('canSuspendResult', { canSuspend });
+        });
+    }
+
+    /**
+     * Evaluate whether the page can be suspended based on all enabled detectors.
+     * @returns {Promise<boolean>}
+     */
+    async evaluateCanSuspend() {
+        if (this.getFeatureSettingEnabled('inputFieldFocusDetection')) {
+            const settings = this.getFeatureSetting('inputFieldFocusDetection') || {};
+            if (settings.nativeEnabled !== false && this.#hasFormInteraction) {
+                return false;
+            }
         }
+
+        if (this.getFeatureSettingEnabled('indexedDBDetection')) {
+            const settings = this.getFeatureSetting('indexedDBDetection') || {};
+            if (settings.nativeEnabled !== false && this.#indexedDBState.count > 0) {
+                return false;
+            }
+        }
+
+        if (this.getFeatureSettingEnabled('webLockDetection')) {
+            const settings = this.getFeatureSetting('webLockDetection') || {};
+            if (settings.nativeEnabled !== false) {
+                try {
+                    const { held, pending } = await navigator.locks.query();
+                    if ((held?.length ?? 0) > 0 || (pending?.length ?? 0) > 0) {
+                        return false;
+                    }
+                } catch {
+                    // Web Locks API unavailable — not a blocker
+                }
+            }
+        }
+
+        return true;
     }
 
     initInputFieldFocusDetection() {
@@ -26,12 +73,13 @@ export class TabSuspension extends ContentFeature {
             'focusin',
             (e) => {
                 if (isFormElement(/** @type {Element | null} */ (e.target))) {
-                    this.notify('formFocusChanged', { isFocused: true });
+                    this.#hasFormInteraction = true;
                 }
             },
             true,
         );
     }
+
     initIndexedDBDetection() {
         const settings = this.getFeatureSetting('indexedDBDetection') || {};
         const nativeEnabled = settings.nativeEnabled !== false;
@@ -40,25 +88,7 @@ export class TabSuspension extends ContentFeature {
         // Guard against environments where IndexedDB APIs are absent or blocked
         if (typeof IDBFactory !== 'function' || typeof IDBDatabase !== 'function' || !globalThis.indexedDB) return;
 
-        let openCount = 0;
-        /** @type {WeakSet<IDBDatabase>} */
-        const trackedDatabases = new WeakSet();
-
-        const notifyState = () => {
-            this.notify('indexedDBStateChanged', { isActive: openCount > 0 });
-        };
-
-        const trackDatabase = (/** @type {IDBDatabase} */ db) => {
-            trackedDatabases.add(db);
-            openCount++;
-            notifyState();
-            db.addEventListener('close', () => {
-                if (!trackedDatabases.has(db)) return;
-                trackedDatabases.delete(db);
-                openCount = Math.max(0, openCount - 1);
-                notifyState();
-            });
-        };
+        const state = this.#indexedDBState;
 
         // Wrap close(): call native first, only update state on success.
         // Gate on tracked instances to prevent spoofing via illegal receiver.
@@ -67,10 +97,9 @@ export class TabSuspension extends ContentFeature {
             'close',
             /** @this {IDBDatabase} */ function (originalClose) {
                 const result = originalClose.call(this);
-                if (trackedDatabases.has(this)) {
-                    trackedDatabases.delete(this);
-                    openCount = Math.max(0, openCount - 1);
-                    notifyState();
+                if (state.tracked.has(this)) {
+                    state.tracked.delete(this);
+                    state.count = Math.max(0, state.count - 1);
                 }
                 return result;
             },
@@ -83,28 +112,18 @@ export class TabSuspension extends ContentFeature {
             /** @this {IDBFactory} */ function (originalOpen, ...args) {
                 const request = originalOpen.call(this, ...args);
                 request.addEventListener('success', () => {
-                    trackDatabase(/** @type {IDBDatabase} */ (request.result));
+                    const db = /** @type {IDBDatabase} */ (request.result);
+                    state.tracked.add(db);
+                    state.count++;
+                    db.addEventListener('close', () => {
+                        if (!state.tracked.has(db)) return;
+                        state.tracked.delete(db);
+                        state.count = Math.max(0, state.count - 1);
+                    });
                 });
                 return request;
             },
         );
-    }
-
-    initWebLockDetection() {
-        const settings = this.getFeatureSetting('webLockDetection') || {};
-        const nativeEnabled = settings.nativeEnabled !== false;
-        if (!nativeEnabled) return;
-
-        this.subscribe('getWebLockState', async () => {
-            try {
-                const { held, pending } = await navigator.locks.query();
-                const isActive = (held?.length ?? 0) > 0 || (pending?.length ?? 0) > 0;
-                this.notify('webLockStateResult', { isActive });
-            } catch {
-                // Web Locks API unavailable (e.g. insecure context)
-                this.notify('webLockStateResult', { isActive: false });
-            }
-        });
     }
 }
 

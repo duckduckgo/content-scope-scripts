@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "title": "GetWebLockState",
-  "description": "Subscription for native to query current web lock state",
+  "title": "CanSuspend",
+  "description": "Subscription for native to query whether the page can be suspended",
   "additionalProperties": false,
   "properties": {}
 }

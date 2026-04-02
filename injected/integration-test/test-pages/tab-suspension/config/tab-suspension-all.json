@@ -1,0 +1,16 @@
+{
+  "readme": "Config for tabSuspension integration tests: all sub-features enabled.",
+  "version": 1,
+  "features": {
+    "tabSuspension": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "inputFieldFocusDetection": "enabled",
+        "indexedDBDetection": "enabled",
+        "webLockDetection": "enabled"
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}

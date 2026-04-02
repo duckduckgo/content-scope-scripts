@@ -10,59 +10,33 @@
  * Requests, Notifications and Subscriptions from the TabSuspension feature
  */
 export interface TabSuspensionMessages {
-  notifications: FormFocusChangedNotification | IndexedDBStateChangedNotification | WebLockStateResultNotification;
-  subscriptions: GetWebLockStateSubscription;
+  notifications: CanSuspendResultNotification;
+  subscriptions: CanSuspendSubscription;
 }
 /**
- * Generated from @see "../messages/tab-suspension/formFocusChanged.notify.json"
+ * Generated from @see "../messages/tab-suspension/canSuspendResult.notify.json"
  */
-export interface FormFocusChangedNotification {
-  method: "formFocusChanged";
-  params: FormFocusChanged;
+export interface CanSuspendResultNotification {
+  method: "canSuspendResult";
+  params: CanSuspendResult;
 }
-export interface FormFocusChanged {
+export interface CanSuspendResult {
   /**
-   * True when a form-like input element has received focus.
+   * True when the page has no conditions preventing suspension.
    */
-  isFocused: boolean;
+  canSuspend: boolean;
 }
 /**
- * Generated from @see "../messages/tab-suspension/indexedDBStateChanged.notify.json"
+ * Generated from @see "../messages/tab-suspension/canSuspend.subscribe.json"
  */
-export interface IndexedDBStateChangedNotification {
-  method: "indexedDBStateChanged";
-  params: IndexedDBStateChanged;
-}
-export interface IndexedDBStateChanged {
-  /**
-   * True when at least one IndexedDB connection is open, false when all connections are closed.
-   */
-  isActive: boolean;
+export interface CanSuspendSubscription {
+  subscriptionEvent: "canSuspend";
+  params: CanSuspend;
 }
 /**
- * Generated from @see "../messages/tab-suspension/webLockStateResult.notify.json"
+ * Subscription for native to query whether the page can be suspended
  */
-export interface WebLockStateResultNotification {
-  method: "webLockStateResult";
-  params: WebLockStateResult;
-}
-export interface WebLockStateResult {
-  /**
-   * True when at least one web lock is held or pending.
-   */
-  isActive: boolean;
-}
-/**
- * Generated from @see "../messages/tab-suspension/getWebLockState.subscribe.json"
- */
-export interface GetWebLockStateSubscription {
-  subscriptionEvent: "getWebLockState";
-  params: GetWebLockState;
-}
-/**
- * Subscription for native to query current web lock state
- */
-export interface GetWebLockState {}
+export interface CanSuspend {}
 
 declare module "../features/tab-suspension.js" {
   export interface TabSuspension {
