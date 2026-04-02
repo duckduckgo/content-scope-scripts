@@ -83,7 +83,11 @@ export class TrackerProtection extends ContentFeature {
 
         // Read allowlist from trackerAllowlist feature, stripping the rules wrapper
         const rawAllowlist = this.bundledConfig?.features?.trackerAllowlist?.settings?.allowlistedTrackers || {};
-        const allowlist = Object.fromEntries(Object.entries(rawAllowlist).map(([k, v]) => [k, v.rules]));
+        const allowlist = Object.fromEntries(
+            Object.entries(rawAllowlist)
+                .filter(([, v]) => v?.rules)
+                .map(([k, v]) => [k, v.rules]),
+        );
 
         this._resolver = new TrackerResolver({
             trackerData,
