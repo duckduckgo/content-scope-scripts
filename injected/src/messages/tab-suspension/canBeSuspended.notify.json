@@ -7,7 +7,7 @@
   "properties": {
     "canBeSuspended": {
       "type": "boolean",
-      "description": "True when the page has no conditions preventing suspension."
+      "description": "False when the page has conditions preventing suspension. Currently only ever sent with 'false' value."
     }
   },
   "additionalProperties": false
