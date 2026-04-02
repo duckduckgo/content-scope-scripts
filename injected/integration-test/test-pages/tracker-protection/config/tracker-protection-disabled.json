@@ -12,6 +12,7 @@
         },
         "trackerAllowlist": {
             "state": "enabled",
+            "exceptions": [],
             "settings": {
                 "allowlistedTrackers": {}
             }

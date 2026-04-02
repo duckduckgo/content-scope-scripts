@@ -65,7 +65,9 @@ export class TrackerProtection extends ContentFeature {
             return;
         }
 
-        this._blockingEnabled = this._isStateEnabled(this.bundledConfig?.features?.contentBlocking?.state);
+        this._blockingEnabled = this._isStateEnabled(
+            /** @type {import('../utils.js').FeatureState | undefined} */ (this.bundledConfig?.features?.contentBlocking?.state),
+        );
         if (!this._blockingEnabled) {
             this.log.info('Tracker blocking disabled via config');
             return;
@@ -94,7 +96,9 @@ export class TrackerProtection extends ContentFeature {
         this._isUnprotectedDomain = isUnprotectedDomain(this._topLevelUrl.hostname, exceptions) || !!this.args?.site?.allowlisted;
 
         /** @type {boolean} */
-        this._ctlEnabled = this._isStateEnabled(this.bundledConfig?.features?.clickToLoad?.state);
+        this._ctlEnabled = this._isStateEnabled(
+            /** @type {import('../utils.js').FeatureState | undefined} */ (this.bundledConfig?.features?.clickToLoad?.state),
+        );
 
         this._setupInterception();
     }
