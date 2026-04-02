@@ -408,7 +408,7 @@ export class TrackerProtection extends ContentFeature {
         }
 
         if (!this._surrogateInjectionEnabled) {
-            throw new Error('_loadSurrogate called with surrogateInjectionEnabled=false — gate violation');
+            return false;
         }
 
         const surrogateFn = this._resolver.getSurrogate(pattern);
