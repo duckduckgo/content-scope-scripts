@@ -261,7 +261,7 @@ jobs:
                   path: docs
             - name: Deploy to GitHub Pages
               id: deployment
-              uses: actions/deploy-pages@v4
+              uses: actions/deploy-pages@v5
 
     # This job ensures all runtime dependencies for the injected/ subproject are correctly listed in 'dependencies' (not 'devDependencies')
     # by running the build with only production dependencies installed in injected/. It will fail if any required dependency is missing.

@@ -15,17 +15,25 @@ import styles from './AiChatForm.module.css';
  */
 
 /**
+ * A simple form shell for the AI chat input. Renders a textarea, submit button,
+ * and tool-provided UI via slots. The parent owns all tool state and assembles
+ * the submit payload; this component just provides (chat, target) on submit.
+ *
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
+ * @param {boolean} [props.disabled]
  * @param {(query: string) => void} props.onChange
- * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
+ * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
+ * @param {import('preact').ComponentChildren} [props.children]
+ * @param {import('preact').ComponentChildren} [props.toolbarLeft]
+ * @param {import('preact').ComponentChildren} [props.toolbarRight]
  */
-export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
+export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, toolbarLeft, toolbarRight }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat } = useContext(OmnibarContext);
-    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } = useAiChatsContext();
+    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
@@ -43,7 +51,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
         if (!textArea || !form) return;
 
         const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
-        textArea.style.height = 'auto'; // Reset height
+        textArea.style.height = 'auto';
         textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
 
         if (textArea.scrollHeight > textArea.clientHeight) {
@@ -53,16 +61,11 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
         }
     }, [query]);
 
-    const disabled = query.length === 0;
-
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled) return;
-        onSubmit({
-            chat: query,
-            target: 'same-tab',
-        });
+        onSubmit(query, 'same-tab');
     };
 
     /** @type {(event: KeyboardEvent) => void} */
@@ -105,10 +108,7 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                     break;
                 }
 
-                onSubmit({
-                    chat: query,
-                    target: eventToTarget(event, platformName),
-                });
+                onSubmit(query, eventToTarget(event, platformName));
                 break;
         }
     };
@@ -118,15 +118,20 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-
-        onSubmit({
-            chat: query,
-            target: eventToTarget(event, platformName),
-        });
+        onSubmit(query, eventToTarget(event, platformName));
     };
 
     return (
-        <form ref={formRef} class={styles.form} onSubmit={handleSubmit} onClick={() => textAreaRef.current?.focus()}>
+        <form
+            ref={formRef}
+            class={styles.form}
+            onSubmit={handleSubmit}
+            onClick={(e) => {
+                if (e.target === e.currentTarget || e.target === textAreaRef.current) {
+                    textAreaRef.current?.focus();
+                }
+            }}
+        >
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
@@ -142,25 +147,26 @@ export function AiChatForm({ query, autoFocus, onChange, onSubmit }) {
                 onKeyDown={handleKeyDown}
                 onChange={(event) => {
                     onChange(event.currentTarget.value);
-                    showChats();
                     clearSelectedChat();
                 }}
             />
-            <div
-                tabIndex={-1} // Needed so that WebKit sets event.relatedTarget when firing blur event
-                class={styles.buttons}
-            >
-                <button
-                    tabIndex={0}
-                    type="submit"
-                    class={styles.submitButton}
-                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
-                    disabled={disabled}
-                    onClick={handleClickSubmit}
-                    onAuxClick={handleClickSubmit}
-                >
-                    <ArrowRightIcon />
-                </button>
+            {children}
+            <div tabIndex={-1} class={styles.buttons}>
+                {toolbarLeft}
+                <div class={styles.rightButtons}>
+                    {toolbarRight}
+                    <button
+                        tabIndex={0}
+                        type="submit"
+                        class={styles.submitButton}
+                        aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                        disabled={disabled}
+                        onClick={handleClickSubmit}
+                        onAuxClick={handleClickSubmit}
+                    >
+                        <ArrowRightIcon />
+                    </button>
+                </div>
             </div>
         </form>
     );

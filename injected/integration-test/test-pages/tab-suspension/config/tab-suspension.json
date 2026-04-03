@@ -1,0 +1,14 @@
+{
+  "readme": "Config for tabSuspension integration tests: inputFieldFocusDetection sub-feature enabled.",
+  "version": 1,
+  "features": {
+    "tabSuspension": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "inputFieldFocusDetection": "enabled"
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}

@@ -41,7 +41,7 @@
     "minimist": "^1.2.8",
     "parse-address": "^1.1.2",
     "seedrandom": "^3.0.5",
-    "sjcl": "^1.0.8",
+    "sjcl": "^1.0.9",
     "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {

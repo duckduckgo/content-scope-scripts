@@ -154,6 +154,25 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.ready();
             await expect(page).toHaveScreenshot('omnibar-customize-popover.png', { maxDiffPixels });
         });
+
+        test('ai chat tools rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-rest.png', { maxDiffPixels });
+        });
+
+        test('ai chat tools focused', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-focused.png', { maxDiffPixels });
+        });
     });
 
     test.describe('customizer drawer', () => {

@@ -1,0 +1,123 @@
+.imagePreviewArea {
+    align-self: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    padding: var(--sp-3) var(--sp-3) 0;
+}
+
+.thumbnail {
+    border: 2px solid var(--ds-color-theme-surface-primary);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+    display: block;
+    height: calc(var(--sp-12) + var(--sp-0_5));
+    object-fit: cover;
+    width: calc(var(--sp-12) + var(--sp-0_5));
+}
+
+.thumbnailWrapper {
+    position: relative;
+}
+
+.thumbnailRemove {
+    align-items: center;
+    background: var(--ds-color-theme-text-primary);
+    border-radius: 100%;
+    border: none;
+    color: var(--ds-color-theme-surface-primary);
+    cursor: pointer;
+    display: flex;
+    height: var(--sp-4);
+    justify-content: center;
+    padding: 0;
+    position: absolute;
+    right: calc(-1 * var(--sp-1));
+    top: calc(-1 * var(--sp-1));
+    width: var(--sp-4);
+
+    [data-theme="dark"] & {
+        background: var(--color-gray-40);
+        outline: 2px solid var(--ds-color-theme-surface-primary);
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.imageWarning {
+    align-self: stretch;
+    color: var(--color-red-50);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 13px;
+    margin: 0;
+    order: -1;
+    padding: var(--sp-2) var(--sp-3) 0;
+}
+
+.dismissError {
+    background: none;
+    border: none;
+    color: var(--color-red-50);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    margin-left: auto;
+    padding: 0 var(--sp-1);
+}
+
+.toolButton {
+    align-items: center;
+    background: none;
+    border-radius: 50%;
+    border: none;
+    color: var(--ds-color-theme-icons-primary);
+    cursor: pointer;
+    display: flex;
+    height: var(--sp-7);
+    justify-content: center;
+    padding: 0;
+    width: var(--sp-7);
+
+    &:hover {
+        background: var(--color-black-at-6);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.10);
+        }
+    }
+
+    &:active {
+        background: var(--color-black-at-12);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.14);
+        }
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.toolButtonDisabled {
+    color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
+    cursor: default;
+    pointer-events: none;
+}
+
+.hiddenFileInput {
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    width: 0;
+}

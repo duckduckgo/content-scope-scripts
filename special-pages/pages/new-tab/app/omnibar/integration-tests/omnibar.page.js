@@ -296,6 +296,29 @@ export class OmnibarPage {
         await this.searchInput().hover();
         await this.closeButton().click();
     }
+
+    fileInput() {
+        return this.context().locator('input[type="file"]');
+    }
+
+    imagePreviews() {
+        return this.context().locator('img[alt=""]');
+    }
+
+    modelSelectorButton() {
+        return this.context().getByRole('button', { name: 'Model' });
+    }
+
+    modelDropdown() {
+        return this.page.getByRole('listbox', { name: 'Model' });
+    }
+
+    /**
+     * @param {string} modelName
+     */
+    modelOption(modelName) {
+        return this.modelDropdown().getByRole('option', { name: modelName });
+    }
 }
 
 /**
