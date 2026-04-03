@@ -230,6 +230,9 @@ jobs:
                   key: docs-output-${{ github.run_id }}
             - name: Build docs
               run: npm run docs
+            - name: Smoke test GitHub Pages setup
+              if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false }}
+              uses: actions/configure-pages@v6
         needs:
             - integration-tests
             - integration-tests-special-pages
