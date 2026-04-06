@@ -136,7 +136,7 @@ export default class BrowserUiLock extends ContentFeature {
     _detectShouldLock() {
         try {
             // Image display pages (navigating directly to an image URL) should lock
-            if ((this.getFeatureSetting('lockImagePages') ?? true) && this._isImageDisplayPage()) {
+            if (this.getFeatureSettingEnabled('lockImagePages', 'enabled') && this._isImageDisplayPage()) {
                 return true;
             }
 
