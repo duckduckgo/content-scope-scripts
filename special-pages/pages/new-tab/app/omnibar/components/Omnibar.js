@@ -20,6 +20,7 @@ import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-at
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { CreateImageTool } from './chat-tools/create-image/CreateImageTool';
+import { useSelectedModel } from './useSelectedModel';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -165,15 +166,16 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showChats, hideChats } = useAiChatsContext();
     const { state } = useContext(OmnibarContext);
+    const { selectedModel } = useSelectedModel();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
-    const selectedModelIdRef = useRef(/** @type {string|null} */ (null));
     const [imageWarning, setImageWarning] = useState(false);
-    const [supportsImageUpload, setSupportsImageUpload] = useState(false);
     const [imageGenerationMode, setImageGenerationMode] = useState(false);
     const imageState = useImageAttachments();
-    const enableAiChatTools = state.config?.enableAiChatTools === true;
+
     const enableImageGeneration = state.config?.enableImageGeneration === true;
+    const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
+    const canAttachImages = selectedModelSupportsImages || imageGenerationMode;
 
     /** @type {(query: string) => void} */
     const handleChange = (value) => {
@@ -186,8 +188,8 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
     const handleSubmit = (chat, target) => {
-        const images = supportsImageUpload || imageGenerationMode ? imageState.getImagesForSubmission() : null;
-        const modelId = !imageGenerationMode && enableAiChatTools ? selectedModelIdRef.current : null;
+        const images = canAttachImages ? imageState.getImagesForSubmission() : null;
+        const modelId = imageGenerationMode ? null : (selectedModel?.id ?? null);
 
         /** @type {SubmitChatAction} */
         const action = {
@@ -195,7 +197,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
             target,
             ...(imageGenerationMode && { mode: /** @type {const} */ ('image-generation') }),
             ...(modelId && { modelId }),
-            ...(images && { images: /** @type {SubmitChatAction['images']} */ (images) }),
+            ...(images && { images }),
         };
 
         onSubmit(action);
@@ -203,9 +205,9 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
         setImageGenerationMode(false);
     };
 
-    const handleToggleImageGeneration = useCallback(() => {
+    const handleToggleImageGeneration = () => {
         setImageGenerationMode((prev) => !prev);
-    }, []);
+    };
 
     const showRecentChats = enableRecentAiChats && !imageGenerationMode;
 
@@ -234,27 +236,18 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     onSubmit={handleSubmit}
                     toolbarLeft={
                         <Fragment>
-                            {(supportsImageUpload || imageGenerationMode) && <ImageUploadButton state={imageState} />}
+                            {canAttachImages && <ImageUploadButton state={imageState} />}
                             {enableImageGeneration && (
                                 <CreateImageTool active={imageGenerationMode} onToggle={handleToggleImageGeneration} />
                             )}
                         </Fragment>
                     }
-                    toolbarRight={
-                        !imageGenerationMode && (
-                            <ModelSelectorTool
-                                onSelectedModelChange={(model) => {
-                                    selectedModelIdRef.current = model?.id ?? null;
-                                    setSupportsImageUpload(model?.supportsImageUpload ?? false);
-                                }}
-                            />
-                        )
-                    }
+                    toolbarRight={!imageGenerationMode && <ModelSelectorTool />}
                 >
-                    {(supportsImageUpload || imageGenerationMode) && (
+                    {canAttachImages && (
                         <ImageAttachmentContent
                             state={imageState}
-                            supportsImageUpload={supportsImageUpload || imageGenerationMode}
+                            supportsImageUpload={canAttachImages}
                             onVisibleImagesChange={(hasImages) => {
                                 hasVisibleImagesRef.current = hasImages;
                                 if (hasImages) {

@@ -7,11 +7,12 @@ import styles from './ModelSelector.module.css';
 /**
  * @param {object} props
  * @param {import('./useModelSelector').ModelSelectorState} props.selector
+ * @param {import('../../../../../types/new-tab.js').AIModelItem|null} props.selectedModel
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.aiModelSections
  * @param {string} props.ariaLabel
  */
-export function ModelSelector({ selector, aiModelSections, ariaLabel }) {
-    const { selectedModel, modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, selectModel } = selector;
+export function ModelSelector({ selector, selectedModel, aiModelSections, ariaLabel }) {
+    const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, selectModel } = selector;
 
     return (
         <div class={styles.modelSelector}>

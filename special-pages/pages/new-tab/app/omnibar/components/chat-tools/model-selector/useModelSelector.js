@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 
 /**
  * @typedef {import('../../../../../types/new-tab.js').AIModelSections} AIModelSections
- * @typedef {AIModelSections[number]['items'][number]} AIModelItem
+ * @typedef {import('../../../../../types/new-tab.js').AIModelItem} AIModelItem
  * @typedef {ReturnType<typeof useModelSelector>} ModelSelectorState
  */
 
@@ -32,30 +32,14 @@ function findContainingBlock(el) {
 
 /**
  * @param {object} options
- * @param {AIModelSections} options.aiModelSections
- * @param {string} [options.persistedModelId] - Model ID from persisted config (synced across tabs)
+ * @param {AIModelItem[]} options.allModels
  * @param {(id: string) => void} [options.onModelChange] - Called when the user selects a model, to persist the choice
  */
-export function useModelSelector({ aiModelSections, persistedModelId, onModelChange }) {
+export function useModelSelector({ allModels, onModelChange }) {
     const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
     const [dropdownPos, setDropdownPos] = useState(/** @type {{right: number, top: number}|null} */ (null));
     const modelButtonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
     const dropdownRef = useRef(/** @type {HTMLUListElement|null} */ (null));
-
-    const allModels = useMemo(() => aiModelSections.flatMap((s) => s.items), [aiModelSections]);
-    const firstEnabled = useMemo(() => allModels.find((m) => m.isEnabled) ?? null, [allModels]);
-
-    const selectedModelId = useMemo(() => {
-        if (persistedModelId && allModels.some((m) => m.id === persistedModelId && m.isEnabled)) {
-            return persistedModelId;
-        }
-        return firstEnabled?.id ?? null;
-    }, [persistedModelId, allModels, firstEnabled]);
-
-    const selectedModel = useMemo(
-        () => allModels.find((m) => m.id === selectedModelId && m.isEnabled) ?? firstEnabled,
-        [allModels, selectedModelId, firstEnabled],
-    );
 
     const cleanupRef = useRef(/** @type {(() => void) | null} */ (null));
 
@@ -111,8 +95,6 @@ export function useModelSelector({ aiModelSections, persistedModelId, onModelCha
     };
 
     return {
-        selectedModelId,
-        selectedModel,
         modelDropdownOpen,
         dropdownPos,
         modelButtonRef,
