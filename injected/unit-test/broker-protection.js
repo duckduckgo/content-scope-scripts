@@ -551,6 +551,33 @@ describe('Actions', () => {
             }
         });
 
+        it('should serialize replaceWhitespace in query params (space as +, literal + as %2B)', () => {
+            const testCases = [
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/search?city=${city|replaceWhitespace: }',
+                    expected: 'https://example.com/search?city=West+Montego',
+                    data: userData2,
+                },
+                {
+                    // Query parsing treats `+` as space; use encoded `${...|replaceWhitespace:+}` like path templates.
+                    input: 'https://example.com/search?city=$%7Bcity%7CreplaceWhitespace%3A%2B%7D',
+                    expected: 'https://example.com/search?city=West%2BMontego',
+                    data: userData2,
+                },
+            ];
+            for (const testCase of testCases) {
+                const result = replaceTemplatedUrl(
+                    {
+                        id: 0,
+                        url: testCase.input,
+                    },
+                    testCase.data,
+                );
+                expect(result).toEqual({ url: testCase.expected });
+            }
+        });
+
         it('should build hyphenated url when given hyphenated state', () => {
             const result = replaceTemplatedUrl(
                 {
