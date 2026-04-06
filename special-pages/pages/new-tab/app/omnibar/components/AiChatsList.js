@@ -61,15 +61,13 @@ export function AiChatsList({ className, showViewAllAiChats }) {
                 );
             })}
             {showViewAllAiChats && (
-                <div tabIndex={-1} class={styles.footer}>
+                <div tabIndex={-1} class={styles.footer} onMouseOver={() => selectViewAllChats()} onMouseLeave={() => clearSelectedChat()}>
                     <button
                         role="option"
                         id={VIEW_ALL_CHATS_ELEMENT_ID}
                         class={styles.item}
                         tabIndex={viewAllChatsSelected ? 0 : -1}
                         aria-selected={viewAllChatsSelected}
-                        onMouseOver={() => selectViewAllChats()}
-                        onMouseLeave={() => clearSelectedChat()}
                         onClick={(event) => {
                             event.preventDefault();
                             viewAllAiChats({
