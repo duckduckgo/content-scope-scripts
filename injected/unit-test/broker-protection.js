@@ -506,6 +506,51 @@ describe('Actions', () => {
             }
         });
 
+        it('should support value substitution via replaceWhitespace:<value>', () => {
+            const testCases = [
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${firstName}/${lastName}/${city|replaceWhitespace: }',
+                    expected: 'https://example.com/a/John/Smith/West%20Montego',
+                    data: userData2,
+                },
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${firstName}/${lastName}/${city|replaceWhitespace:}',
+                    expected: 'https://example.com/a/John/Smith/WestMontego',
+                    data: userData2,
+                },
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${firstName}/${lastName}/${city|replaceWhitespace:+}',
+                    expected: 'https://example.com/a/John/Smith/West+Montego',
+                    data: userData2,
+                },
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${firstName}/${lastName}/${city|replaceWhitespace:-}',
+                    expected: 'https://example.com/a/John/Smith/West-Montego',
+                    data: userData2,
+                },
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${firstName}/${lastName}/${city|replaceWhitespace:anything}',
+                    expected: 'https://example.com/a/John/Smith/WestanythingMontego',
+                    data: userData2,
+                },
+            ];
+            for (const testCase of testCases) {
+                const result = replaceTemplatedUrl(
+                    {
+                        id: 0,
+                        url: testCase.input,
+                    },
+                    testCase.data,
+                );
+                expect(result).toEqual({ url: testCase.expected });
+            }
+        });
+
         it('should build hyphenated url when given hyphenated state', () => {
             const result = replaceTemplatedUrl(
                 {
