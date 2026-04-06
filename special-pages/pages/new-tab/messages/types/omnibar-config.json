@@ -99,6 +99,12 @@
       "description": "When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list",
       "type": "boolean",
       "default": false
+    },
+    "enableImageGeneration": {
+      "title": "Enable Image Generation",
+      "description": "Show 'Create Image' toggle in the AI chat toolbar.",
+      "type": "boolean",
+      "default": false
     }
   }
 }

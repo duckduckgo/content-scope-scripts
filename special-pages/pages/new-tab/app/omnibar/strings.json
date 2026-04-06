@@ -102,5 +102,13 @@
   "omnibar_openDuckAi": {
     "title": "Open Duck.ai",
     "description": "Link text to open the Duck.ai chat interface."
+  },
+  "omnibar_createImageLabel": {
+    "title": "Create Image",
+    "description": "Label for the toggle button to enable image generation mode in the AI chat toolbar."
+  },
+  "omnibar_imageGenerationPlaceholder": {
+    "title": "Describe the image you want to create",
+    "description": "Placeholder text for the AI chat input when image generation mode is active."
   }
 }
