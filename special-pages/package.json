@@ -43,6 +43,6 @@
     "@rive-app/canvas-single": "^2.35.2",
     "classnames": "^2.5.1",
     "lottie-web": "^5.13.0",
-    "preact": "^10.29.0"
+    "preact": "^10.29.1"
   }
 }
