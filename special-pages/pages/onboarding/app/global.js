@@ -229,13 +229,17 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                 const currentIndex = state.order.indexOf(state.activeStep);
                 const next = state.order[currentIndex + 1] ?? null;
                 messaging.stepCompleted({ id: state.activeStep, next });
+                // Fire row_shown for the first row of the incoming settings step
+                if (next) {
+                    const nextStepDef = state.stepDefinitions[next];
+                    if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
+                        messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
+                    }
+                }
             }
             if (msg.kind === 'show-overlay' && msg.overlay === 'dock-instructions') {
                 messaging.telemetryEvent({ attributes: { name: 'dock_instructions_shown' } });
             }
-            // row_skipped fires from the proxy (user action), while row_shown fires from
-            // a useEffect (state change), because exec-complete is dispatched internally
-            // and doesn't pass through the proxy.
             if (msg.kind === 'update-system-value' && !msg.payload.enabled && msg.current) {
                 messaging.telemetryEvent({ attributes: { name: 'row_skipped', value: msg.id } });
             }
@@ -269,16 +273,6 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         messaging.reportPageException(error);
     }, [state.status.kind, messaging]);
 
-    // fire a telemetry event whenever a new row becomes active in a settings step
-    useEffect(() => {
-        if (state.step?.kind === 'settings') {
-            const currentRowId = state.step.rows[state.activeRow];
-            if (currentRowId) {
-                messaging.telemetryEvent({ attributes: { name: 'row_shown', value: currentRowId } });
-            }
-        }
-    }, [state.activeRow, state.activeStep, messaging]);
-
     // handle 'update-system-value' messages from the UI
     useEffect(() => {
         if (state.status.kind !== 'executing') return;
@@ -295,6 +289,16 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                     id: action.id,
                     payload,
                 });
+                // Fire row_shown for the next row if we just completed the active row
+                if (state.step?.kind === 'settings') {
+                    const currentRow = state.step.rows[state.activeRow];
+                    if (currentRow === action.id) {
+                        const nextRowId = state.step.rows[state.activeRow + 1];
+                        if (nextRowId) {
+                            messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextRowId } });
+                        }
+                    }
+                }
             })
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch((e) => {

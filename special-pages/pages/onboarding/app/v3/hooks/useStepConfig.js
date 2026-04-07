@@ -58,6 +58,9 @@ export function useStepConfig() {
 
     const dismissOverlay = () => dispatch({ kind: 'dismiss-overlay' });
 
+    /** @type {(attributes: import('../../../types/onboarding.ts').TelemetryEvent['attributes']) => void} */
+    const telemetry = (attributes) => dispatch({ kind: 'telemetry', attributes });
+
     /** @type {import('../data/data-types').StepConfigParams} */
     const configParams = {
         t,
@@ -69,7 +72,7 @@ export function useStepConfig() {
         enableSystemValue,
         beforeAfter,
         dismissOverlay,
-        dispatch,
+        telemetry,
     };
 
     if (!stepsConfig[activeStep]) {

@@ -377,6 +377,25 @@ test.describe('onboarding v4', () => {
     });
 
     test.describe('Given I am on the settings step with dock-instructions variant', () => {
+        test('When I advance to the settings step, it sends row_shown for the first row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+                exclude: ['makeDefaultSingle'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+            await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'row_shown', value: 'dock-instructions' }]);
+        });
+
         test('When I click Show Me How, it shows dock instructions overlay', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
@@ -412,10 +431,7 @@ test.describe('onboarding v4', () => {
 
             await onboarding.showDockInstructions();
 
-            await onboarding.didFireTelemetryEvents([
-                { name: 'row_shown', value: 'dock-instructions' },
-                { name: 'dock_instructions_shown' },
-            ]);
+            await onboarding.didFireTelemetryEvents([{ name: 'dock_instructions_shown' }]);
         });
 
         test('When I click Show Me How then Next, it sends row_shown for import', async ({ page }, workerInfo) => {
@@ -434,11 +450,7 @@ test.describe('onboarding v4', () => {
             await onboarding.showDockInstructions();
             await onboarding.dismissDockInstructions();
 
-            await onboarding.didFireTelemetryEvents([
-                { name: 'row_shown', value: 'dock-instructions' },
-                { name: 'dock_instructions_shown' },
-                { name: 'row_shown', value: 'import' },
-            ]);
+            await onboarding.didFireTelemetryEvents([{ name: 'dock_instructions_shown' }, { name: 'row_shown', value: 'import' }]);
         });
 
         test('When I skip dock-instructions, it sends row_shown for import', async ({ page }, workerInfo) => {
@@ -457,7 +469,6 @@ test.describe('onboarding v4', () => {
             await onboarding.skippedCurrent();
 
             await onboarding.didFireTelemetryEvents([
-                { name: 'row_shown', value: 'dock-instructions' },
                 { name: 'row_skipped', value: 'dock-instructions' },
                 { name: 'row_shown', value: 'import' },
             ]);

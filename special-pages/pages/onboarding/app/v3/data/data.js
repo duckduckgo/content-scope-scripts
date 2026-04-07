@@ -104,7 +104,7 @@ export const stepsConfig = {
             content: <SettingsStep data={settingsRowItems} />,
         };
     },
-    duckPlayerSingle: ({ t, advance, beforeAfter, globalState, dispatch }) => {
+    duckPlayerSingle: ({ t, advance, beforeAfter, globalState, telemetry }) => {
         const duckPlayerDef = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
         const isAdFree = duckPlayerDef.variant === 'ad-free';
         const beforeAfterState = beforeAfter.get();
@@ -126,7 +126,7 @@ export const stepsConfig = {
                       text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
                       longestText,
                       handler: () => {
-                          dispatch({ kind: 'telemetry', attributes: { name: 'duck_player_toggled' } });
+                          telemetry({ name: 'duck_player_toggled' });
                           beforeAfter.toggle();
                       },
                   },
