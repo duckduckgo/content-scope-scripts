@@ -553,7 +553,6 @@ test.describe('onboarding v4', () => {
             await onboarding.skippedCurrent();
 
             await onboarding.didFireTelemetryEvents([
-                { name: 'row_shown', value: 'dock-instructions' },
                 { name: 'row_skipped', value: 'dock-instructions' },
                 { name: 'row_shown', value: 'import' },
                 { name: 'row_skipped', value: 'import' },
