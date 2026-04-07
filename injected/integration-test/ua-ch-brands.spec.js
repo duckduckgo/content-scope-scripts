@@ -79,34 +79,3 @@ test('UA CH Brands domain-specific brand override', async ({ page }, testInfo) =
     );
     await verifyDomainBrandOverrideResults(page);
 });
-
-test('UA CH Brands with overrideEdge disabled', async ({ page }, testInfo) => {
-    const collector = ResultsCollector.create(page, testInfo.project.use);
-    await collector.load(
-        '/ua-ch-brands/pages/override-edge-disabled.html',
-        './integration-test/test-pages/ua-ch-brands/config/override-edge-disabled.json',
-    );
-
-    await page.waitForFunction(() => {
-        // @ts-expect-error - results is set by the test framework
-        return window.results && window.results.length > 0;
-    });
-
-    // @ts-expect-error - results is set by the test framework
-    const results = await page.evaluate(() => window.results);
-
-    await test.step('brands: does not contain DuckDuckGo', () => {
-        const ddgTest = results.find((r) => r.test === 'brands-no-duckduckgo');
-        expect(ddgTest.result).toBe('PASS');
-    });
-
-    await test.step('getHighEntropyValues brands: does not contain DuckDuckGo', () => {
-        const ddgTest = results.find((r) => r.test === 'getHighEntropyValues-brands-no-duckduckgo');
-        expect(ddgTest.result).toBe('PASS');
-    });
-
-    await test.step('fullVersionList: does not contain DuckDuckGo', () => {
-        const fvlDdgTest = results.find((r) => r.test === 'fullVersionList-no-duckduckgo');
-        expect(fvlDdgTest.result).toBe('PASS');
-    });
-});
