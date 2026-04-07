@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useRef } from 'preact/hooks';
 import cn from 'classnames';
-import { ImageIcon } from '../../../../components/Icons';
+import { PaperclipIcon } from '../../../../components/Icons';
 import styles from './ImageAttachment.module.css';
 
 /**
@@ -32,7 +32,7 @@ export function ImageUploadButton({ disabled, onChange, ariaLabel }) {
                 }
             }}
         >
-            <ImageIcon />
+            <PaperclipIcon />
             <input
                 ref={fileInputRef}
                 type="file"

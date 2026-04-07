@@ -7,7 +7,7 @@ import { getModelIcon } from './Icons';
  * @param {object} props
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.sections
  * @param {string} [props.selectedModelId]
- * @param {{right: number, top: number}} props.dropdownPos
+ * @param {import('../useDropdown.js').DropdownPosition} props.dropdownPos
  * @param {(id: string) => void} props.onSelect
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
@@ -19,7 +19,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onSelect
             class={styles.modelDropdown}
             role="listbox"
             aria-label={ariaLabel}
-            style={{ right: `${dropdownPos.right}px`, top: `${dropdownPos.top}px` }}
+            style={{ right: dropdownPos.right, left: dropdownPos.left, top: dropdownPos.top }}
         >
             {sections.map((section, sectionIndex) => (
                 <Fragment key={sectionIndex}>

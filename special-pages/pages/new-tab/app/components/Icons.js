@@ -441,16 +441,8 @@ export function GlobeIcon(props) {
     );
 }
 
-/**
- * From DesignResourcesKit Image-16.svg (matches apple-browsers AI chat omnibar)
- * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
- */
-/**
- * Paperclip attach icon from Figma (Vector 690). The native viewBox is 17.18×10.68; rendered
- * inside a 16×16 frame with a −135° rotation to produce the diagonal paperclip orientation.
- * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
- */
-export function ImageIcon(props) {
+/** @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props */
+export function PaperclipIcon(props) {
     return (
         <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g transform="translate(8,8) rotate(-135) translate(-8.59,-5.34)">
@@ -788,7 +780,6 @@ export function SystemThemeIcon(props) {
 }
 
 /**
- * From DesignResourcesKit Options-16.svg — two horizontal sliders with ring knobs.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function ToolsIcon(props) {
