@@ -173,6 +173,42 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.chatInput().click();
             await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-focused.png', { maxDiffPixels });
         });
+
+        test('image generation rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-rest.png', { maxDiffPixels });
+        });
+
+        test('image generation tools menu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-tools-menu-open.png', { maxDiffPixels });
+        });
+
+        test('image generation active', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-active.png', { maxDiffPixels });
+        });
     });
 
     test.describe('customizer drawer', () => {
