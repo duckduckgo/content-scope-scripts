@@ -19,7 +19,7 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
 import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
-import { CreateImageTool } from './chat-tools/create-image/CreateImageTool';
+import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
 import { useSelectedModel } from './useSelectedModel';
 
 /**
@@ -237,9 +237,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     toolbarLeft={
                         <Fragment>
                             {canAttachImages && <ImageUploadButton state={imageState} />}
-                            {enableImageGeneration && (
-                                <CreateImageTool active={imageGenerationMode} onToggle={handleToggleImageGeneration} />
-                            )}
+                            {enableImageGeneration && <ToolsMenu active={imageGenerationMode} onToggle={handleToggleImageGeneration} />}
                         </Fragment>
                     }
                     toolbarRight={!imageGenerationMode && <ModelSelectorTool />}

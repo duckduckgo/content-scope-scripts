@@ -273,6 +273,14 @@
     "title": "Describe the image you want to create",
     "description": "Placeholder text for the AI chat input when image generation mode is active."
   },
+  "omnibar_toolsMenuLabel": {
+    "title": "Tools",
+    "description": "Accessible label for the tools menu button in the AI chat toolbar."
+  },
+  "omnibar_createImageDescription": {
+    "title": "Turn text into images",
+    "description": "Description for the Create Image tool shown in the tools menu dropdown."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"

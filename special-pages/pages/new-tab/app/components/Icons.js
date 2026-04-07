@@ -788,6 +788,23 @@ export function SystemThemeIcon(props) {
 }
 
 /**
+ * From DesignResourcesKit Options-16.svg — two horizontal sliders with ring knobs.
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ToolsIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M5.5 1C7.2632 1 8.72121 2.3039 8.96387 4H15.375C15.7202 4 16 4.27982 16 4.625 16 4.97018 15.7202 5.25 15.375 5.25H8.91797C8.57452 6.82244 7.17545 8 5.5 8 3.567 8 2 6.433 2 4.5 2 2.567 3.567 1 5.5 1Zm0 1.25C4.25736 2.25 3.25 3.25736 3.25 4.5 3.25 5.74264 4.25736 6.75 5.5 6.75 6.74264 6.75 7.75 5.74264 7.75 4.5 7.75 3.25736 6.74264 2.25 5.5 2.25ZM12.5 8C14.433 8 16 9.567 16 11.5 16 13.433 14.433 15 12.5 15 10.7368 15 9.27879 13.6961 9.03613 12H2.625C2.27982 12 2 11.7202 2 11.375 2 11.0298 2.27982 10.75 2.625 10.75H9.08203C9.42548 9.17756 10.8245 8 12.5 8Zm0 1.25C11.2574 9.25 10.25 10.2574 10.25 11.5 10.25 12.7426 11.2574 13.75 12.5 13.75 13.7426 13.75 14.75 12.7426 14.75 11.5 14.75 10.2574 13.7426 9.25 12.5 9.25Z"
+            />
+        </svg>
+    );
+}
+
+/**
  * Image generation icon from Figma — used in the "Create Image" toggle button.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
