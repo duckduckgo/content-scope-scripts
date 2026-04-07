@@ -48,4 +48,20 @@ test.describe('tabSuspension - inputFieldFocusDetection', () => {
         const canBeSuspendedMessages = allMessages.filter((m) => 'method' in m.payload && m.payload.method === 'canBeSuspended');
         expect(canBeSuspendedMessages.length).toBe(0);
     });
+
+    test('does not send notification when form element is focused while tab is hidden', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG_FOCUS);
+
+        // Simulate the page being hidden and dispatch focusin programmatically
+        await page.evaluate(() => {
+            Object.defineProperty(document, 'hidden', { value: true, writable: true });
+            document.querySelector('#text-input')?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+        });
+        await page.waitForTimeout(200);
+
+        const allMessages = await collector.outgoingMessages();
+        const canBeSuspendedMessages = allMessages.filter((m) => 'method' in m.payload && m.payload.method === 'canBeSuspended');
+        expect(canBeSuspendedMessages.length).toBe(0);
+    });
 });
