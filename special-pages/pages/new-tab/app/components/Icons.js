@@ -442,6 +442,24 @@ export function GlobeIcon(props) {
 }
 
 /**
+ * From DesignResourcesKit Image-16.svg (matches apple-browsers AI chat omnibar)
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ImageIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path fill="currentColor" d="M4.5 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M4 1a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4H4ZM1.25 5A2.75 2.75 0 0 1 4 2.25h8A2.75 2.75 0 0 1 14.75 5v3.866l-2.808-2.808a.625.625 0 0 0-.884 0L8 9.116 6.942 8.058a.625.625 0 0 0-.884 0l-4.394 4.394A2.737 2.737 0 0 1 1.25 11V5Zm7.634 5 1.058 1.058a.625.625 0 1 1-.884.884L6.5 9.384l-3.952 3.952A2.74 2.74 0 0 0 4 13.75h8A2.75 2.75 0 0 0 14.75 11v-.366l-3.25-3.25L8.884 10Z"
+                clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
+
+/**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/History-16.svg
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
