@@ -1,0 +1,194 @@
+.toolsMenu {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-1);
+    position: relative;
+}
+
+.toolsButton {
+    align-items: center;
+    background: var(--color-black-at-6);
+    border-radius: 16px;
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: var(--sp-1);
+    height: var(--sp-7);
+    padding: 0 6px;
+    white-space: nowrap;
+
+    [data-theme="dark"] & {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.10);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.10);
+        }
+    }
+
+    &:active {
+        background: var(--color-black-at-12);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.14);
+        }
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.toolsButtonActive {
+    background: var(--color-black-at-12);
+
+    [data-theme="dark"] & {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.14);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.16);
+        }
+    }
+}
+
+.toolsLabel {
+    font-weight: 500;
+}
+
+.activeToolChip {
+    align-items: center;
+    background: #ccdaff;
+    border-radius: 16px;
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: var(--sp-1);
+    height: var(--sp-7);
+    padding: 0 12px;
+    white-space: nowrap;
+
+    [data-theme="dark"] & {
+        background: #2b55ca;
+        color: #ccdaff;
+    }
+
+    &:hover {
+        opacity: 0.85;
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.chipLabel {
+    font-weight: 500;
+}
+
+.dropdown {
+    background: rgb(249, 249, 249);
+    border-radius: 6px;
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32), 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    margin: 0;
+    min-width: 245px;
+    overflow: hidden;
+    padding: 5px;
+    position: fixed;
+    z-index: 100;
+
+    [data-theme="dark"] & {
+        backdrop-filter: blur(76px);
+        background: rgba(30, 30, 30, 0.88);
+        border: 0.5px solid var(--color-white-at-15);
+        box-shadow: 0 10px 24px var(--color-black-at-40);
+    }
+}
+
+.menuItem {
+    align-items: center;
+    border-radius: 3px;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: 6px;
+    padding: 8px 9px;
+    white-space: nowrap;
+
+    &:hover {
+        background: var(--ds-color-theme-accent-primary);
+        color: white;
+    }
+}
+
+.menuItemSelected {
+    color: var(--ds-color-theme-text-primary);
+}
+
+.checkmark {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    margin-right: -5px;
+    width: var(--sp-4);
+
+    &::before {
+        color: transparent;
+        content: '\2713';
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+    }
+}
+
+.menuItemSelected .checkmark::before {
+    color: var(--ds-color-theme-text-primary);
+}
+
+.menuItem:hover .checkmark::before {
+    color: transparent;
+}
+
+.menuItemSelected:hover .checkmark::before {
+    color: var(--color-white);
+}
+
+.menuItemLabel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.menuItemName {
+    letter-spacing: -0.08px;
+    line-height: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.menuItemDescription {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 12px;
+    line-height: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    .menuItem:hover & {
+        color: rgba(255, 255, 255, 0.7);
+    }
+}
