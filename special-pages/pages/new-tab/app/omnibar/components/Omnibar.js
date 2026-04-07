@@ -242,21 +242,19 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     }
                     toolbarRight={!imageGenerationMode && <ModelSelectorTool />}
                 >
-                    {canAttachImages && (
-                        <ImageAttachmentContent
-                            state={imageState}
-                            supportsImageUpload={canAttachImages}
-                            onVisibleImagesChange={(hasImages) => {
-                                hasVisibleImagesRef.current = hasImages;
-                                if (hasImages) {
-                                    hideChats();
-                                } else if (document.activeElement?.tagName === 'TEXTAREA') {
-                                    showChats();
-                                }
-                            }}
-                            onImageWarningChange={setImageWarning}
-                        />
-                    )}
+                    <ImageAttachmentContent
+                        state={imageState}
+                        supportsImageUpload={canAttachImages}
+                        onVisibleImagesChange={(hasImages) => {
+                            hasVisibleImagesRef.current = hasImages;
+                            if (hasImages) {
+                                hideChats();
+                            } else if (document.activeElement?.tagName === 'TEXTAREA') {
+                                showChats();
+                            }
+                        }}
+                        onImageWarningChange={setImageWarning}
+                    />
                 </AiChatForm>
             </ResizingContainer>
             {showRecentChats && <AiChatsList className={styles.aiChatsList} />}

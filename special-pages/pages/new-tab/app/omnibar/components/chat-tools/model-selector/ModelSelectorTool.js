@@ -8,10 +8,6 @@ import { ModelSelector } from './ModelSelector';
  * @typedef {import('../../../strings.json')} Strings
  */
 
-/**
- * Model selector dropdown UI. All model state is derived via
- * useSelectedModel() hook — no callbacks needed.
- */
 export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();

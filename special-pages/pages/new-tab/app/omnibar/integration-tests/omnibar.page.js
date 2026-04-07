@@ -35,6 +35,10 @@ export class OmnibarPage {
         return this.context().getByRole('textbox', { name: 'Ask privately' });
     }
 
+    imageGenerationInput() {
+        return this.context().getByRole('textbox', { name: 'Describe the image you want to create' });
+    }
+
     chatSubmitButton() {
         return this.context().getByRole('button', { name: 'Send' });
     }
@@ -318,6 +322,22 @@ export class OmnibarPage {
      */
     modelOption(modelName) {
         return this.modelDropdown().getByRole('option', { name: modelName });
+    }
+
+    toolsMenuButton() {
+        return this.context().getByRole('button', { name: 'Tools' });
+    }
+
+    toolsMenu() {
+        return this.context().getByRole('menu', { name: 'Tools' });
+    }
+
+    createImageMenuItem() {
+        return this.toolsMenu().getByRole('menuitemcheckbox', { name: /Create Image/ });
+    }
+
+    createImageChip() {
+        return this.context().getByRole('button', { name: 'Create Image' });
     }
 }
 
