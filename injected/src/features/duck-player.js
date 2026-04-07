@@ -60,6 +60,9 @@ import { Environment } from './duckplayer/environment.js';
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {
+    /**
+     * @param {{ locale?: string; language?: string } | undefined} [args]
+     */
     init(args) {
         /**
          * This feature never operates in a frame

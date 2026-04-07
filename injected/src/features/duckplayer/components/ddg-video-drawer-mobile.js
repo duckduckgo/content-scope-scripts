@@ -28,11 +28,11 @@ export class DDGVideoDrawerMobile extends HTMLElement {
     /** @type {Text | null} */
     text = null;
     /** @type {HTMLElement | null} */
-    container;
+    container = null;
     /** @type {HTMLElement | null} */
-    drawer;
+    drawer = null;
     /** @type {HTMLElement | null} */
-    overlay;
+    overlay = null;
 
     /** @type {'idle'|'animating'} */
     animationState = 'idle';

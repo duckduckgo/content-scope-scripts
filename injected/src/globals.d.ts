@@ -73,3 +73,6 @@ declare module 'ddg:platformFeatures' {
     >;
     export default output;
 }
+
+// eslint-disable-next-line no-var
+declare var ddgBookmarkImport: { postMessage(message: string): void } | undefined;

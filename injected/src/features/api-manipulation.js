@@ -92,7 +92,7 @@ export default class ApiManipulation extends ContentFeature {
 
     /**
      * Removes a method from an API.
-     * @param {object} api
+     * @param {Record<string, unknown>} api
      * @param {string} key
      */
     removeApiMethod(api, key) {
@@ -105,13 +105,14 @@ export default class ApiManipulation extends ContentFeature {
 
     /**
      * Wraps a property with descriptor.
-     * @param {object} api
+     * @param {Record<string, unknown>} api
      * @param {string} key
      * @param {APIChange} change
      */
     wrapApiDescriptor(api, key, change) {
         const getterValue = change.getterValue;
         if (getterValue) {
+            /** @type {{ get: () => unknown; enumerable?: boolean; configurable?: boolean }} */
             const descriptor = {
                 get: () => processAttr(getterValue, undefined),
             };
@@ -139,7 +140,7 @@ export default class ApiManipulation extends ContentFeature {
     /**
      * Looks up a global object from a scope, e.g. 'Navigator.prototype'.
      * @param {string} scope the scope of the object to get to.
-     * @returns {[object, string]|null} the object at the scope.
+     * @returns {[Record<string, unknown>, string]|null} the object at the scope.
      */
     getGlobalObject(scope) {
         const parts = scope.split('.');
@@ -148,12 +149,14 @@ export default class ApiManipulation extends ContentFeature {
         if (!lastPart) {
             return null;
         }
-        let obj = window;
+        /** @type {Record<string, unknown>} */
+        let obj = globalThis;
         for (const part of parts) {
-            obj = obj[part];
-            if (!obj) {
+            const next = obj[part];
+            if (next === undefined || next === null) {
                 return null;
             }
+            obj = /** @type {Record<string, unknown>} */ (next);
         }
         return [obj, lastPart];
     }
