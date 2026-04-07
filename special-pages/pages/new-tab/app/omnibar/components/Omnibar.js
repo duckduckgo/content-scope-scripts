@@ -38,7 +38,7 @@ import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool
  * @param {boolean} props.showCustomizePopover
  * @param {string|null|undefined} props.tabId
  */
-export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats, showCustomizePopover, tabId }) {
+export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -140,7 +140,6 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
                                     query={query}
                                     autoFocus={autoFocus}
                                     enableRecentAiChats={enableRecentAiChats}
-                                    showViewAllAiChats={showViewAllAiChats}
                                     onChange={setQuery}
                                     onSubmit={handleSubmitChat}
                                 />
@@ -158,11 +157,10 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
- * @param {boolean} props.showViewAllAiChats
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
-function AiChatContent({ query, autoFocus, enableRecentAiChats, showViewAllAiChats, onSubmit, onChange }) {
+function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { showChats, hideChats } = useAiChatsContext();
     const { state } = useContext(OmnibarContext);
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -250,7 +248,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, showViewAllAiCha
                     />
                 </AiChatForm>
             </ResizingContainer>
-            {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} showViewAllAiChats={showViewAllAiChats} />}
+            {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
     );
 }

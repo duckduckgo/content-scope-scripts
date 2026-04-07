@@ -5,8 +5,8 @@ import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
-import { useAiChatsContext } from './AiChatsProvider';
-import { getAiChatElementId, VIEW_ALL_CHATS_ELEMENT_ID } from './useAiChats';
+import { useAiChatsContext, VIEW_ALL_CHATS_ELEMENT_ID } from './AiChatsProvider';
+import { getAiChatElementId } from './useAiChats';
 import styles from './AiChatForm.module.css';
 
 /**
@@ -73,13 +73,11 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
     const handleKeyDown = (event) => {
         switch (event.key) {
             case 'ArrowUp': {
-                const success = selectPreviousChat();
-                if (success) event.preventDefault();
+                if (selectPreviousChat()) event.preventDefault();
                 break;
             }
             case 'ArrowDown': {
-                const success = selectNextChat();
-                if (success) event.preventDefault();
+                if (selectNextChat()) event.preventDefault();
                 break;
             }
             case 'Escape':
@@ -150,7 +148,11 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 aria-haspopup="listbox"
                 aria-controls={aiChatsListId}
                 aria-activedescendant={
-                    selectedChat ? getAiChatElementId(selectedChat.chatId) : viewAllChatsSelected ? VIEW_ALL_CHATS_ELEMENT_ID : undefined
+                    selectedChat
+                        ? getAiChatElementId(selectedChat.chatId)
+                        : viewAllChatsSelected && chats.length > 0
+                          ? VIEW_ALL_CHATS_ELEMENT_ID
+                          : undefined
                 }
                 autoComplete="off"
                 rows={1}
