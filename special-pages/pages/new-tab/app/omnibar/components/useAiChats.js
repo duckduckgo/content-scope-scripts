@@ -126,9 +126,10 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         getAiChats(query);
     }, [getAiChats, query, enableRecentAiChats]);
 
-    const itemCount = state.chats.length + (showViewAllAiChats && state.chats.length > 0 ? 1 : 0);
+    const extraItems = showViewAllAiChats && state.chats.length > 0 ? 1 : 0;
+    const itemCount = state.chats.length + extraItems;
     const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
-    const viewAllChatsSelected = showViewAllAiChats && state.selectedIndex === state.chats.length;
+    const viewAllChatsSelected = showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
 
     const selectPreviousChat = () => {
         if (itemCount === 0) return false;
