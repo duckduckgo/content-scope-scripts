@@ -127,6 +127,13 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         onSubmit(query, eventToTarget(event, platformName));
     };
 
+    let activeDescendant;
+    if (selectedChat) {
+        activeDescendant = getAiChatElementId(selectedChat.chatId);
+    } else if (viewAllChatsSelected && chats.length > 0) {
+        activeDescendant = VIEW_ALL_CHATS_ELEMENT_ID;
+    }
+
     return (
         <form
             ref={formRef}
@@ -147,13 +154,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 aria-expanded={chats.length > 0}
                 aria-haspopup="listbox"
                 aria-controls={aiChatsListId}
-                aria-activedescendant={
-                    selectedChat
-                        ? getAiChatElementId(selectedChat.chatId)
-                        : viewAllChatsSelected && chats.length > 0
-                          ? VIEW_ALL_CHATS_ELEMENT_ID
-                          : undefined
-                }
+                aria-activedescendant={activeDescendant}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
