@@ -1,41 +1,7 @@
 .footer {
-    align-items: center;
     border-top: 1px solid var(--ds-color-theme-container-border-primary);
-    border-radius: 4px;
-    cursor: pointer;
     display: flex;
-    height: var(--sp-8);
     margin-top: var(--sp-1);
-
-    .item {
-        height: 100%;
-    }
-
-    &:has(.item[aria-selected="true"]),
-    &:hover {
-        background: var(--ds-color-theme-accent-primary);
-
-        .item {
-            color: var(--ds-color-theme-accent-content-primary);
-            background: none;
-        }
-
-        .keyCharm {
-            color: var(--ds-color-theme-accent-content-primary);
-        }
-
-        .openDuckAi {
-            color: var(--ds-color-theme-accent-content-primary);
-        }
-    }
-
-    &:has(.item:active) {
-        background: var(--ds-color-theme-accent-secondary);
-
-        .item {
-            background: none;
-        }
-    }
 }
 
 .item {
@@ -46,9 +12,10 @@
     color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
+    flex: 1;
     height: var(--sp-8);
     justify-content: flex-start;
-    padding: 0 var(--sp-2) 0 0;
+    padding: 0;
 
     svg {
         flex: none;
@@ -56,18 +23,22 @@
     }
 
     &[aria-selected="true"],
-    &:hover,
-    &:active {
-        color: var(--ds-color-theme-accent-content-primary);
-    }
-
-    &[aria-selected="true"],
     &:hover {
         background: var(--ds-color-theme-accent-primary);
+        color: var(--ds-color-theme-accent-content-primary);
+
+        .keyCharm {
+            color: var(--ds-color-theme-accent-content-primary);
+        }
+
+        .openDuckAi {
+            color: var(--ds-color-theme-accent-content-primary);
+        }
     }
 
     &:active {
         background: var(--ds-color-theme-accent-secondary);
+        color: var(--ds-color-theme-accent-content-primary);
     }
 }
 
@@ -107,15 +78,11 @@
 
 .openDuckAi {
     align-items: center;
-    background: none;
-    border: none;
     color: var(--ds-color-theme-accent-text-primary);
-    cursor: pointer;
     display: inline-flex;
     font-size: 11px;
     font-weight: 590;
     gap: 4px;
-    padding: 0;
     white-space: nowrap;
 }
 

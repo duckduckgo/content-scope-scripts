@@ -19,7 +19,7 @@ export function AiChatsListFooter() {
     const { viewAllChatsSelected } = useAiChatsContext();
 
     return (
-        <div tabIndex={-1} class={styles.footer}>
+        <div class={styles.footer}>
             <button
                 role="option"
                 id={VIEW_ALL_CHATS_ELEMENT_ID}
@@ -35,24 +35,16 @@ export function AiChatsListFooter() {
             >
                 <ListIcon />
                 <span class={styles.title}>{t('omnibar_viewAllChats')}</span>
-            </button>
-            <div class={styles.footerRight}>
-                <span class={styles.shortcutHints}>
-                    <span class={styles.keyCharm}>{'\u23ce'}</span>
+                <span class={styles.footerRight} aria-hidden="true">
+                    <span class={styles.shortcutHints}>
+                        <span class={styles.keyCharm}>{'\u23ce'}</span>
+                    </span>
+                    <span class={styles.openDuckAi}>
+                        <span>{t('omnibar_openDuckAi')}</span>
+                        <span class={styles.footerArrow}>{'\u2192'}</span>
+                    </span>
                 </span>
-                <button
-                    class={styles.openDuckAi}
-                    onClick={(event) => {
-                        event.preventDefault();
-                        viewAllAiChats({
-                            target: eventToTarget(event, platformName),
-                        });
-                    }}
-                >
-                    <span>{t('omnibar_openDuckAi')}</span>
-                    <span class={styles.footerArrow}>{'\u2192'}</span>
-                </button>
-            </div>
+            </button>
         </div>
     );
 }
