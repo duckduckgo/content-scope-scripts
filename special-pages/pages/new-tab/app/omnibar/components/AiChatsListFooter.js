@@ -13,7 +13,7 @@ import styles from './AiChatsListFooter.module.css';
  */
 
 export function AiChatsListFooter() {
-    const { viewAllAiChats, submitChat } = useContext(OmnibarContext);
+    const { viewAllAiChats } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { viewAllChatsSelected } = useAiChatsContext();
@@ -44,8 +44,7 @@ export function AiChatsListFooter() {
                     class={styles.openDuckAi}
                     onClick={(event) => {
                         event.preventDefault();
-                        submitChat({
-                            chat: '',
+                        viewAllAiChats({
                             target: eventToTarget(event, platformName),
                         });
                     }}
