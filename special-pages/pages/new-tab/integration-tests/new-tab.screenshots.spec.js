@@ -211,6 +211,44 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('omnibar web search @screenshots', () => {
+        test('web search rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-web-search-rest.png', { maxDiffPixels });
+        });
+
+        test('web search tools menu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await expect(page).toHaveScreenshot('omnibar-web-search-tools-menu-open.png', { maxDiffPixels });
+        });
+
+        test('web search active', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+            await expect(page).toHaveScreenshot('omnibar-web-search-active.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('customizer drawer', () => {
         test('sidebar ai enabled', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

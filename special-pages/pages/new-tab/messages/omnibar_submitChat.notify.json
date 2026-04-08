@@ -23,6 +23,14 @@
       "type": "string",
       "enum": ["chat", "image-generation"]
     },
+    "toolChoice": {
+      "description": "Tools to enable for this chat session.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["WebSearch"]
+      }
+    },
     "images": {
       "description": "Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.",
       "type": "array",

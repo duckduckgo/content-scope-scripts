@@ -105,6 +105,12 @@
       "description": "Show 'Create Image' toggle in the AI chat toolbar.",
       "type": "boolean",
       "default": false
+    },
+    "enableWebSearch": {
+      "title": "Enable Web Search",
+      "description": "Allow AI chat submissions to include web search tool.",
+      "type": "boolean",
+      "default": false
     }
   }
 }

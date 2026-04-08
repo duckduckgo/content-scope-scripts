@@ -281,6 +281,14 @@
     "title": "Turn text into images",
     "description": "Description for the Create Image tool shown in the tools menu dropdown."
   },
+  "omnibar_webSearchLabel": {
+    "title": "Web Search",
+    "description": "Label for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchDescription": {
+    "title": "Find current information",
+    "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"

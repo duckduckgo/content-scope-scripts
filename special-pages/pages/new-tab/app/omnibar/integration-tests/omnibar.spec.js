@@ -1465,6 +1465,93 @@ test.describe('omnibar widget', () => {
         });
     });
 
+    test.describe('AI chat web search mode', () => {
+        test('web search flag shows tools menu', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableWebSearch': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.toolsMenuButton()).toBeVisible();
+            await expect(omnibar.webSearchChip()).toHaveCount(0);
+        });
+
+        test('selecting web search shows chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableWebSearch': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+
+            await expect(omnibar.webSearchChip()).toBeVisible();
+            await expect(omnibar.modelSelectorButton()).toBeVisible();
+        });
+
+        test('web search submit sends toolChoice', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableWebSearch': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+
+            await omnibar.chatInput().fill('what happened today');
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'what happened today',
+                target: 'same-tab',
+                toolChoice: ['WebSearch'],
+                modelId: 'gpt-4o-mini',
+            });
+        });
+
+        test('submitting web search resets chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableWebSearch': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+
+            await omnibar.chatInput().fill('latest news');
+            await omnibar.chatInput().press('Enter');
+
+            await expect(omnibar.chatInput()).toBeVisible();
+            await expect(omnibar.webSearchChip()).toHaveCount(0);
+        });
+    });
+
     test.describe('AI chat image attachments', () => {
         test('submit includes images with expected format', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

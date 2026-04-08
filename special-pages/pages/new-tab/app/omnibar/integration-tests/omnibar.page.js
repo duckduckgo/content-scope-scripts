@@ -339,6 +339,14 @@ export class OmnibarPage {
     createImageChip() {
         return this.context().getByRole('button', { name: 'Create Image' });
     }
+
+    webSearchMenuItem() {
+        return this.toolsMenu().getByRole('menuitemcheckbox', { name: /Web Search/ });
+    }
+
+    webSearchChip() {
+        return this.context().getByRole('button', { name: 'Web Search' });
+    }
 }
 
 /**

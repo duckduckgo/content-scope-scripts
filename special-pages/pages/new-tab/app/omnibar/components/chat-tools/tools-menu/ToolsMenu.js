@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import { CreateImageIcon, CloseSmallIcon, ToolsIcon } from '../../../../components/Icons';
+import { CloseSmallIcon, CreateImageIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
 import { useToolsMenu } from './useToolsMenu';
 import styles from './ToolsMenu.module.css';
@@ -10,27 +10,61 @@ import styles from './ToolsMenu.module.css';
  */
 
 /**
+ * @typedef {object} ToolConfig
+ * @property {ToolId} id - Tool identifier
+ * @property {import('preact').ComponentChildren} icon - Icon component
+ * @property {string} label - Display label
+ * @property {string} description - Description shown in the menu dropdown
+ */
+
+/** @typedef {'image-generation' | 'web-search'} ToolId */
+
+/**
  * Tools menu for the AI chat toolbar. Contains a trigger button that opens a
- * dropdown letting the user activate tools like "Create Image". When a tool is
- * active, a chip is shown next to the button.
+ * dropdown letting the user activate tools like "Create Image" and "Web Search".
+ * When a tool is active, a chip is shown next to the button.
  *
  * @param {object} props
- * @param {boolean} props.active - Whether image generation mode is active
- * @param {() => void} props.onToggle - Toggle image generation mode
+ * @param {ToolId[]} props.tools - IDs of available tools to show in the menu
+ * @param {ToolId|null} props.activeTool - Currently active tool id, or null
+ * @param {(toolId: ToolId) => void} props.onToggle - Toggle a tool by id
  */
-export function ToolsMenu({ active, onToggle }) {
+export function ToolsMenu({ tools, activeTool, onToggle }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { menuOpen, buttonRef, dropdownRef, dropdownPos, toggleMenu, closeMenu } = useToolsMenu();
 
-    const handleSelect = () => {
-        onToggle();
-        closeMenu();
+    /** @param {ToolId} id @returns {ToolConfig|null} */
+    const getToolConfig = (id) => {
+        switch (id) {
+            case 'image-generation':
+                return {
+                    id,
+                    icon: <CreateImageIcon />,
+                    label: t('omnibar_createImageLabel'),
+                    description: t('omnibar_createImageDescription'),
+                };
+            case 'web-search':
+                return { id, icon: <GlobeIcon />, label: t('omnibar_webSearchLabel'), description: t('omnibar_webSearchDescription') };
+            default: {
+                /**
+                 * Exhaustiveness check — `never` means all ToolId cases are handled;
+                 * adding a new one without a case will cause a type error here.
+                 * @type {never}
+                 */
+                const _exhaustiveCheck = id;
+                console.error(`Unknown tool id: ${_exhaustiveCheck}`);
+                return null;
+            }
+        }
     };
 
-    /** @param {MouseEvent} e */
-    const handleDismissChip = (e) => {
-        e.stopPropagation();
-        onToggle();
+    const resolvedTools = /** @type {ToolConfig[]} */ (tools.map(getToolConfig).filter(Boolean));
+    const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
+
+    /** @param {ToolId} toolId */
+    const handleSelect = (toolId) => {
+        onToggle(toolId);
+        closeMenu();
     };
 
     return (
@@ -38,7 +72,7 @@ export function ToolsMenu({ active, onToggle }) {
             <button
                 ref={buttonRef}
                 type="button"
-                class={cn(styles.toolsButton, (menuOpen || active) && styles.toolsButtonActive)}
+                class={cn(styles.toolsButton, (menuOpen || activeToolConfig) && styles.toolsButtonActive)}
                 aria-label={t('omnibar_toolsMenuLabel')}
                 aria-haspopup="true"
                 aria-expanded={menuOpen}
@@ -48,12 +82,20 @@ export function ToolsMenu({ active, onToggle }) {
                 }}
             >
                 <ToolsIcon />
-                {!active && <span class={styles.toolsLabel}>{t('omnibar_toolsMenuLabel')}</span>}
+                {!activeToolConfig && <span class={styles.toolsLabel}>{t('omnibar_toolsMenuLabel')}</span>}
             </button>
-            {active && (
-                <button type="button" class={styles.activeToolChip} aria-label={t('omnibar_createImageLabel')} onClick={handleDismissChip}>
-                    <CreateImageIcon />
-                    <span class={styles.chipLabel}>{t('omnibar_createImageLabel')}</span>
+            {activeToolConfig && (
+                <button
+                    type="button"
+                    class={styles.activeToolChip}
+                    aria-label={activeToolConfig.label}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggle(activeToolConfig.id);
+                    }}
+                >
+                    {activeToolConfig.icon}
+                    <span class={styles.chipLabel}>{activeToolConfig.label}</span>
                     <CloseSmallIcon width="12" height="12" />
                 </button>
             )}
@@ -65,19 +107,22 @@ export function ToolsMenu({ active, onToggle }) {
                     aria-label={t('omnibar_toolsMenuLabel')}
                     style={{ left: `${dropdownPos.left}px`, top: `${dropdownPos.top}px` }}
                 >
-                    <li
-                        role="menuitemcheckbox"
-                        aria-checked={active}
-                        class={cn(styles.menuItem, active && styles.menuItemSelected)}
-                        onClick={handleSelect}
-                    >
-                        <span class={styles.checkmark} aria-hidden="true" />
-                        <CreateImageIcon />
-                        <div class={styles.menuItemLabel}>
-                            <span class={styles.menuItemName}>{t('omnibar_createImageLabel')}</span>
-                            <span class={styles.menuItemDescription}>{t('omnibar_createImageDescription')}</span>
-                        </div>
-                    </li>
+                    {resolvedTools.map((tool) => (
+                        <li
+                            key={tool.id}
+                            role="menuitemcheckbox"
+                            aria-checked={activeTool === tool.id}
+                            class={cn(styles.menuItem, activeTool === tool.id && styles.menuItemSelected)}
+                            onClick={() => handleSelect(tool.id)}
+                        >
+                            <span class={styles.checkmark} aria-hidden="true" />
+                            {tool.icon}
+                            <div class={styles.menuItemLabel}>
+                                <span class={styles.menuItemName}>{tool.label}</span>
+                                <span class={styles.menuItemDescription}>{tool.description}</span>
+                            </div>
+                        </li>
+                    ))}
                 </ul>
             )}
         </div>

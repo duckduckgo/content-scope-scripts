@@ -20,6 +20,7 @@ import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-at
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
+/** @typedef {import('./chat-tools/tools-menu/ToolsMenu').ToolId} ToolId */
 import { useSelectedModel } from './useSelectedModel';
 
 /**
@@ -170,17 +171,30 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const [imageGenerationMode, setImageGenerationMode] = useState(false);
+    const [activeTool, setActiveTool] = useState(/** @type {ToolId|null} */ (null));
     const imageState = useImageAttachments();
 
-    const enableImageGeneration = state.config?.enableImageGeneration === true;
+    const imageGenerationActive = activeTool === 'image-generation';
+    const webSearchActive = activeTool === 'web-search';
+
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
-    const canAttachImages = selectedModelSupportsImages || imageGenerationMode;
+    const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
+
+    /** @type {ToolId[]} */
+    const availableTools = [
+        ...(state.config?.enableImageGeneration === true ? [/** @type {const} */ ('image-generation')] : []),
+        ...(state.config?.enableWebSearch === true ? [/** @type {const} */ ('web-search')] : []),
+    ];
+
+    /** @param {ToolId} tool */
+    const handleToggleTool = (tool) => {
+        setActiveTool((prev) => (prev === tool ? null : tool));
+    };
 
     /** @type {(query: string) => void} */
     const handleChange = (value) => {
         onChange(value);
-        if (!hasVisibleImagesRef.current && !imageGenerationMode) showChats();
+        if (!hasVisibleImagesRef.current && !imageGenerationActive) showChats();
     };
 
     /**
@@ -189,34 +203,34 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
      */
     const handleSubmit = (chat, target) => {
         const images = canAttachImages ? imageState.getImagesForSubmission() : null;
-        const modelId = imageGenerationMode ? null : (selectedModel?.id ?? null);
+        const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
+        const toolChoice = webSearchActive
+            ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
+            : null;
 
         /** @type {SubmitChatAction} */
         const action = {
             chat,
             target,
-            ...(imageGenerationMode && { mode: /** @type {const} */ ('image-generation') }),
+            ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
             ...(modelId && { modelId }),
+            ...(toolChoice && { toolChoice }),
             ...(images && { images }),
         };
 
         onSubmit(action);
         imageState.clearAttachedImages();
-        setImageGenerationMode(false);
+        setActiveTool(null);
     };
 
-    const handleToggleImageGeneration = () => {
-        setImageGenerationMode((prev) => !prev);
-    };
-
-    const showRecentChats = enableRecentAiChats && !imageGenerationMode;
+    const showRecentChats = enableRecentAiChats && !imageGenerationActive;
 
     return (
         <div
             ref={containerRef}
             data-image-warning={imageWarning || undefined}
             onFocusCapture={(event) => {
-                if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationMode) showChats();
+                if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationActive) showChats();
             }}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
@@ -231,16 +245,18 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     query={query}
                     autoFocus={autoFocus}
                     disabled={query.length === 0 || imageWarning}
-                    placeholder={imageGenerationMode ? t('omnibar_imageGenerationPlaceholder') : undefined}
+                    placeholder={imageGenerationActive ? t('omnibar_imageGenerationPlaceholder') : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     toolbarLeft={
                         <Fragment>
                             {canAttachImages && <ImageUploadButton state={imageState} />}
-                            {enableImageGeneration && <ToolsMenu active={imageGenerationMode} onToggle={handleToggleImageGeneration} />}
+                            {availableTools.length > 0 && (
+                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
+                            )}
                         </Fragment>
                     }
-                    toolbarRight={!imageGenerationMode && <ModelSelectorTool />}
+                    toolbarRight={!imageGenerationActive && <ModelSelectorTool />}
                 >
                     <ImageAttachmentContent
                         state={imageState}
