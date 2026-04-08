@@ -7,7 +7,7 @@
 
 .toolsButton {
     align-items: center;
-    background: var(--color-black-at-6);
+    background: transparent;
     border-radius: 16px;
     border: none;
     color: var(--ds-color-theme-text-primary);
@@ -19,23 +19,19 @@
     padding: 0 6px;
     white-space: nowrap;
 
-    [data-theme="dark"] & {
-        background: rgba(255, 255, 255, 0.06);
-    }
-
     &:hover {
-        background: rgba(0, 0, 0, 0.10);
+        background: rgba(0, 0, 0, 0.06);
 
         [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.06);
         }
     }
 
     &:active {
-        background: var(--color-black-at-12);
+        background: rgba(0, 0, 0, 0.10);
 
         [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.10);
         }
     }
 
@@ -45,17 +41,11 @@
 }
 
 .toolsButtonActive {
-    background: var(--color-black-at-12);
-
-    [data-theme="dark"] & {
-        background: rgba(255, 255, 255, 0.12);
-    }
-
     &:hover {
-        background: rgba(0, 0, 0, 0.14);
+        background: rgba(0, 0, 0, 0.06);
 
         [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.06);
         }
     }
 }
