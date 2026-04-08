@@ -170,6 +170,8 @@
     letter-spacing: -0.08px;
     line-height: 13px;
     overflow: hidden;
+    text-box-edge: cap alphabetic;
+    text-box-trim: trim-both;
     text-overflow: ellipsis;
 }
 
@@ -178,6 +180,8 @@
     font-size: 12px;
     line-height: 15px;
     overflow: hidden;
+    text-box-edge: cap alphabetic;
+    text-box-trim: trim-both;
     text-overflow: ellipsis;
 
     .menuItem:hover & {
