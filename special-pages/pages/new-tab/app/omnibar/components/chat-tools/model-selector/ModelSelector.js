@@ -12,13 +12,18 @@ import styles from './ModelSelector.module.css';
  * @param {string} props.ariaLabel
  */
 export function ModelSelector({ selector, selectedModel, aiModelSections, ariaLabel }) {
-    const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, selectModel } = selector;
+    const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
+    const handleDropdownEscape = () => {
+        closeDropdown();
+        modelButtonRef.current?.focus();
+    };
 
     return (
         <div class={styles.modelSelector}>
             <button
                 ref={modelButtonRef}
                 type="button"
+                tabIndex={0}
                 class={cn(styles.modelButton, modelDropdownOpen && styles.modelButtonOpen)}
                 aria-label={ariaLabel}
                 aria-haspopup="listbox"
@@ -37,6 +42,8 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, ariaLa
                     sections={aiModelSections}
                     selectedModelId={selectedModel?.id}
                     dropdownPos={dropdownPos}
+                    onClose={closeDropdown}
+                    onEscape={handleDropdownEscape}
                     onSelect={selectModel}
                     ariaLabel={ariaLabel}
                 />

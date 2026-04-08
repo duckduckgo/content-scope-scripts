@@ -27,6 +27,7 @@ export function useModelSelector({ allModels, onModelChange }) {
         modelButtonRef: dropdown.buttonRef,
         dropdownRef: dropdown.dropdownRef,
         toggleDropdown: dropdown.toggle,
+        closeDropdown: dropdown.close,
         selectModel,
     };
 }

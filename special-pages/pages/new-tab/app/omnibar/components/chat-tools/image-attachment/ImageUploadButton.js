@@ -38,6 +38,7 @@ export function ImageUploadButton({ disabled, onChange, ariaLabel }) {
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 multiple
+                aria-hidden="true"
                 disabled={disabled}
                 class={styles.hiddenFileInput}
                 onChange={onChange}

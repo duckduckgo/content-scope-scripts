@@ -1552,6 +1552,68 @@ test.describe('omnibar widget', () => {
         });
     });
 
+    test.describe('AI chat popup keyboard navigation', () => {
+        test('tools menu supports keyboard navigation', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableWebSearch': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.toolsMenu()).toBeFocused();
+
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('Enter');
+            await expect(omnibar.webSearchChip()).toBeVisible();
+
+            await omnibar.toolsMenuButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.toolsMenu()).toBeFocused();
+            await page.keyboard.press('Escape');
+            await expect(omnibar.toolsMenuButton()).toBeFocused();
+        });
+
+        test('model selector supports keyboard navigation', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.modelDropdown()).toBeFocused();
+
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('Enter');
+            await expect(omnibar.modelDropdown()).toHaveCount(0);
+            await expect(omnibar.modelSelectorButton()).toContainText('GPT-5');
+
+            await omnibar.modelSelectorButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.modelDropdown()).toBeFocused();
+            await page.keyboard.press('Escape');
+            await expect(omnibar.modelSelectorButton()).toBeFocused();
+        });
+    });
+
     test.describe('AI chat image attachments', () => {
         test('submit includes images with expected format', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

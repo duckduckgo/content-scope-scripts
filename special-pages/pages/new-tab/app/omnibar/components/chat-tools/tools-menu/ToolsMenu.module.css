@@ -99,6 +99,10 @@
     position: fixed;
     z-index: 100;
 
+    &:focus-visible {
+        outline: none;
+    }
+
     [data-theme="dark"] & {
         backdrop-filter: blur(76px);
         background: rgba(30, 30, 30, 0.88);
@@ -109,8 +113,6 @@
 
 .menuItem {
     align-items: center;
-    background: transparent;
-    border: none;
     border-radius: 3px;
     color: var(--ds-color-theme-text-primary);
     cursor: pointer;
@@ -120,18 +122,20 @@
     padding: 8px 9px;
     text-align: left;
     white-space: nowrap;
-    width: 100%;
+}
 
-    &:hover {
-        background: var(--ds-color-theme-accent-primary);
-        color: var(--color-white);
-    }
+.menuItemActive {
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--color-white);
 
-    &:focus-visible {
-        background: var(--ds-color-theme-accent-primary);
-        color: var(--color-white);
-        outline: none;
+    .menuItemDescription {
+        color: rgba(255, 255, 255, 0.7);
     }
+}
+
+.menuItem:hover {
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--color-white);
 }
 
 .menuItemSelected {
@@ -173,14 +177,6 @@
     color: var(--color-white);
 }
 
-.menuItem:focus-visible .checkmark::before {
-    color: transparent;
-}
-
-.menuItemSelected:focus-visible .checkmark::before {
-    color: var(--color-white);
-}
-
 .menuItemLabel {
     display: flex;
     flex: 1;
@@ -208,10 +204,6 @@
     text-overflow: ellipsis;
 
     .menuItem:hover & {
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-    .menuItem:focus-visible & {
         color: rgba(255, 255, 255, 0.7);
     }
 }

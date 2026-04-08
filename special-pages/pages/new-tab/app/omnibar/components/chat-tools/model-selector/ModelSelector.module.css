@@ -87,6 +87,10 @@
     position: fixed;
     z-index: 100;
 
+    &:focus-visible {
+        outline: none;
+    }
+
     [data-theme="dark"] & {
         backdrop-filter: blur(50px);
         background: rgba(30, 30, 30, 0.88);
@@ -97,10 +101,12 @@
 
 .modelOption {
     align-items: center;
+    border-radius: var(--border-radius-xs);
     cursor: pointer;
     display: flex;
     font-size: 13px;
     gap: 6px;
+    outline: none;
     padding: 5px var(--sp-4) 5px 6px;
     white-space: nowrap;
 
@@ -116,12 +122,20 @@
 
     &:hover {
         background: var(--ds-color-theme-accent-primary);
-        border-radius: var(--border-radius-xs);
         color: var(--color-white);
 
         &::before {
             color: transparent;
         }
+    }
+}
+
+.modelOptionActive {
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--color-white);
+
+    &::before {
+        color: transparent;
     }
 }
 
