@@ -125,7 +125,12 @@
 }
 
 .menuItemSelected {
-    color: var(--ds-color-theme-text-primary);
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--color-white);
+}
+
+.menuItemSelected .menuItemDescription {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .checkmark {
@@ -147,7 +152,7 @@
 }
 
 .menuItemSelected .checkmark::before {
-    color: var(--ds-color-theme-text-primary);
+    color: var(--color-white);
 }
 
 .menuItem:hover .checkmark::before {
