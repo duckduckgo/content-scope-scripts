@@ -122,10 +122,6 @@
         &::before {
             color: transparent;
         }
-
-        [data-theme="dark"] & {
-            background: #0050d0;
-        }
     }
 }
 
