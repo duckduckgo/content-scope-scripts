@@ -24913,6 +24913,14 @@
       return this.messaging.request("requestSetAsDefault");
     }
     /**
+     * Sent to allow native to fire a pixel for UI interactions.
+     *
+     * @param {import('../types/onboarding.ts').TelemetryEvent} event
+     */
+    telemetryEvent(event) {
+      this.messaging.notify("telemetryEvent", event);
+    }
+    /**
      * Sent when onboarding is complete and the user has chosen to go to settings
      */
     dismissToSettings() {
@@ -25511,6 +25519,8 @@
       }
       case "executing": {
         switch (action.kind) {
+          case "telemetry":
+            return state;
           case "exec-complete": {
             if (state.step.kind === "settings") {
               const currentRow = state.step.rows[state.activeRow];
@@ -25600,6 +25610,21 @@
           const currentIndex = state.order.indexOf(state.activeStep);
           const next = state.order[currentIndex + 1] ?? null;
           messaging2.stepCompleted({ id: state.activeStep, next });
+          if (next) {
+            const nextStepDef = state.stepDefinitions[next];
+            if (nextStepDef?.kind === "settings" && nextStepDef.rows[0]) {
+              messaging2.telemetryEvent({ attributes: { name: "row_shown", value: nextStepDef.rows[0] } });
+            }
+          }
+        }
+        if (msg.kind === "show-overlay" && msg.overlay === "dock-instructions") {
+          messaging2.telemetryEvent({ attributes: { name: "dock_instructions_shown" } });
+        }
+        if (msg.kind === "update-system-value" && !msg.payload.enabled && msg.current) {
+          messaging2.telemetryEvent({ attributes: { name: "row_skipped", value: msg.id } });
+        }
+        if (msg.kind === "telemetry") {
+          messaging2.telemetryEvent({ attributes: msg.attributes });
         }
         if (msg.kind === "dismiss-to-settings") {
           messaging2.dismissToSettings();
@@ -25638,6 +25663,15 @@
           id: action.id,
           payload
         });
+        if (state.step?.kind === "settings") {
+          const currentRow = state.step.rows[state.activeRow];
+          if (currentRow === action.id) {
+            const nextRowId = state.step.rows[state.activeRow + 1];
+            if (nextRowId) {
+              messaging2.telemetryEvent({ attributes: { name: "row_shown", value: nextRowId } });
+            }
+          }
+        }
       }).catch((e3) => {
         const message = e3?.message || "unknown error";
         dispatch({ kind: "exec-error", id: action.id, message });
@@ -27996,7 +28030,7 @@
         content: /* @__PURE__ */ _(SettingsStep, { data: settingsRowItems })
       };
     },
-    duckPlayerSingle: ({ t: t3, advance, beforeAfter, globalState }) => {
+    duckPlayerSingle: ({ t: t3, advance, beforeAfter, globalState, telemetry }) => {
       const duckPlayerDef = (
         /** @type {import('../../types').DuckPlayerSingleStep} */
         globalState.stepDefinitions.duckPlayerSingle
@@ -28017,7 +28051,10 @@
           startIcon: /* @__PURE__ */ _(Replay, { direction: beforeAfterState === "before" ? "forward" : "backward" }),
           text: beforeAfterState === "before" ? t3("beforeAfter_duckPlayer_show") : t3("beforeAfter_duckPlayer_hide"),
           longestText,
-          handler: () => beforeAfter.toggle()
+          handler: () => {
+            telemetry({ name: "duck_player_toggled" });
+            beforeAfter.toggle();
+          }
         },
         acceptButton: {
           text: t3("nextButton"),
@@ -28233,6 +28270,7 @@
       toggle: () => toggleStep(activeStep)
     };
     const dismissOverlay = () => dispatch({ kind: "dismiss-overlay" });
+    const telemetry = (attributes) => dispatch({ kind: "telemetry", attributes });
     const configParams = {
       t: t3,
       platformName,
@@ -28242,7 +28280,8 @@
       dismiss,
       enableSystemValue,
       beforeAfter,
-      dismissOverlay
+      dismissOverlay,
+      telemetry
     };
     if (!stepsConfig[activeStep]) {
       throw new Error(`Missing step config for ${activeStep}`);
@@ -29702,6 +29741,7 @@
   function DuckPlayerDefault({ advance }) {
     const { t: t3 } = useTypedTranslation();
     const { isReducedMotion } = useEnv();
+    const dispatch = useGlobalDispatch();
     const videosRef = A2(
       /** @type {Record<DPTarget, HTMLVideoElement | null>} */
       { with: null, without: null }
@@ -29743,6 +29783,7 @@
       return () => clearTimeout(id);
     }, []);
     const toggle = async () => {
+      dispatch({ kind: "telemetry", attributes: { name: "duck_player_toggled" } });
       const { target: target2, phase, reverse } = stateRef.current;
       if (phase === "initial") {
         setState({ target: target2, phase, reverse: !reverse });

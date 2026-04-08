@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslation } from '../../types';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
+import { useGlobalDispatch } from '../../global';
 import { Button } from './Button';
 import { Container } from './Container';
 import { LottieAnimation } from './LottieAnimation';
@@ -70,6 +71,7 @@ function DuckPlayerAdFree({ advance }) {
 function DuckPlayerDefault({ advance }) {
     const { t } = useTypedTranslation();
     const { isReducedMotion } = useEnv();
+    const dispatch = useGlobalDispatch();
 
     const videosRef = useRef(/** @type {Record<DPTarget, HTMLVideoElement | null>} */ ({ with: null, without: null }));
 
@@ -119,6 +121,7 @@ function DuckPlayerDefault({ advance }) {
     }, []); // exclude isReducedMotion from deps — must not re-fire if reduced motion changes after mount
 
     const toggle = async () => {
+        dispatch({ kind: 'telemetry', attributes: { name: 'duck_player_toggled' } });
         const { target, phase, reverse } = stateRef.current;
         if (phase === 'initial') {
             // Queue or cancel a reverse so auto-play will switch to "without" once the "with" video ends

@@ -110,6 +110,51 @@ describe('BrowserUiLock', () => {
         });
     });
 
+    describe('_isImageDisplayPage', () => {
+        /** @type {string | undefined} */
+        let originalContentType;
+
+        beforeEach(() => {
+            originalContentType = document.contentType;
+        });
+
+        afterEach(() => {
+            if (originalContentType !== undefined) {
+                Object.defineProperty(document, 'contentType', { value: originalContentType, configurable: true });
+            }
+        });
+
+        it('should return true for image/jpeg content type', () => {
+            Object.defineProperty(document, 'contentType', { value: 'image/jpeg', configurable: true });
+            const feature = createFeature();
+            expect(feature._isImageDisplayPage()).toBe(true);
+        });
+
+        it('should return true for image/png content type', () => {
+            Object.defineProperty(document, 'contentType', { value: 'image/png', configurable: true });
+            const feature = createFeature();
+            expect(feature._isImageDisplayPage()).toBe(true);
+        });
+
+        it('should return true for image/webp content type', () => {
+            Object.defineProperty(document, 'contentType', { value: 'image/webp', configurable: true });
+            const feature = createFeature();
+            expect(feature._isImageDisplayPage()).toBe(true);
+        });
+
+        it('should return false for text/html content type', () => {
+            Object.defineProperty(document, 'contentType', { value: 'text/html', configurable: true });
+            const feature = createFeature();
+            expect(feature._isImageDisplayPage()).toBe(false);
+        });
+
+        it('should return false when contentType is undefined', () => {
+            Object.defineProperty(document, 'contentType', { value: undefined, configurable: true });
+            const feature = createFeature();
+            expect(feature._isImageDisplayPage()).toBe(false);
+        });
+    });
+
     describe('_notifyIfChanged', () => {
         it('should notify when state changes to locked', () => {
             const feature = createFeature();

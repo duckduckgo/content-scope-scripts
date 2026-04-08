@@ -1,1 +1,5 @@
-- Add Tab Suspension feature for macOS (#2590)
+- Add telemetryEvent messaging to onboarding for native pixel support (#2593)
+- tab-suspension: Don't notify if document is hidden (#2614)
+- Windows: Remove WebView2-specific logic (#2572)
+- Trigger browserUiLock feature on image only pages. (#2596)
+- build(deps): bump actions/configure-pages from 5 to 6 (#2580)
