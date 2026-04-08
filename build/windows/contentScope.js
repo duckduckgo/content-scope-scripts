@@ -15052,7 +15052,8 @@
         });
         return ageRange || value;
       }
-    ]
+    ],
+    ["replaceWhitespace", (value, argument) => value.split(" ").join(argument ?? " ")]
   ]);
   function processSearchParams(searchParams, action, userData) {
     const updatedPairs = [...searchParams].map(([key, value]) => {
