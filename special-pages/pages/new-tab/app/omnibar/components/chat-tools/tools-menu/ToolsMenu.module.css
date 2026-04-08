@@ -109,6 +109,8 @@
 
 .menuItem {
     align-items: center;
+    background: transparent;
+    border: none;
     border-radius: 3px;
     color: var(--ds-color-theme-text-primary);
     cursor: pointer;
@@ -116,11 +118,19 @@
     font-size: 13px;
     gap: 6px;
     padding: 8px 9px;
+    text-align: left;
     white-space: nowrap;
+    width: 100%;
 
     &:hover {
         background: var(--ds-color-theme-accent-primary);
         color: var(--color-white);
+    }
+
+    &:focus-visible {
+        background: var(--ds-color-theme-accent-primary);
+        color: var(--color-white);
+        outline: none;
     }
 }
 
@@ -163,6 +173,14 @@
     color: var(--color-white);
 }
 
+.menuItem:focus-visible .checkmark::before {
+    color: transparent;
+}
+
+.menuItemSelected:focus-visible .checkmark::before {
+    color: var(--color-white);
+}
+
 .menuItemLabel {
     display: flex;
     flex: 1;
@@ -190,6 +208,10 @@
     text-overflow: ellipsis;
 
     .menuItem:hover & {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .menuItem:focus-visible & {
         color: rgba(255, 255, 255, 0.7);
     }
 }
