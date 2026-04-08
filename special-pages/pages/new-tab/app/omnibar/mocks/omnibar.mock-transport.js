@@ -111,6 +111,7 @@ export function omnibarMockTransport() {
                 case 'omnibar_openSuggestion':
                 case 'omnibar_submitSearch':
                 case 'omnibar_submitChat':
+                    console.warn('notification (no-op in mock)', msg.method, msg.params);
                     break;
                 default: {
                     console.warn('unhandled notification', msg);
