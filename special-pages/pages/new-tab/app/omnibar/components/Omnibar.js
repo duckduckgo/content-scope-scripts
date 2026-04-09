@@ -34,10 +34,11 @@ import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
  * @param {boolean} props.enableAi
  * @param {boolean} props.enableRecentAiChats
+ * @param {boolean} props.showViewAllAiChats
  * @param {boolean} props.showCustomizePopover
  * @param {string|null|undefined} props.tabId
  */
-export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCustomizePopover, tabId }) {
+export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -114,7 +115,12 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
                 </div>
             )}
             <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi}>
-                <AiChatsProvider query={query} autoFocus={autoFocus} enableRecentAiChats={enableRecentAiChats}>
+                <AiChatsProvider
+                    query={query}
+                    autoFocus={autoFocus}
+                    enableRecentAiChats={enableRecentAiChats}
+                    showViewAllAiChats={showViewAllAiChats}
+                >
                     <div class={styles.spacer}>
                         <div class={styles.popup}>
                             {mode === 'search' ? (

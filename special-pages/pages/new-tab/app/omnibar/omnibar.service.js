@@ -180,4 +180,12 @@ export class OmnibarService {
     openAiChat(params) {
         this.ntp.messaging.notify('omnibar_openAiChat', params);
     }
+
+    /**
+     * Notify native to open the full AI chats list view
+     * @param {{ target: OpenTarget }} params
+     */
+    viewAllAiChats(params) {
+        this.ntp.messaging.notify('omnibar_viewAllAIChats', params);
+    }
 }

@@ -90,6 +90,7 @@ export function omnibarMockTransport() {
                 ],
             },
         ],
+        showViewAllAiChats: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -105,6 +106,13 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_viewAllAIChats':
+                case 'omnibar_openAiChat':
+                case 'omnibar_openSuggestion':
+                case 'omnibar_submitSearch':
+                case 'omnibar_submitChat':
+                    console.warn('notification (no-op in mock)', msg.method, msg.params);
+                    break;
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -135,6 +143,7 @@ export function omnibarMockTransport() {
                     config.enableRecentAiChats = parseBooleanQueryParam('omnibar.enableRecentAiChats') ?? config.enableRecentAiChats;
                     config.enableAiChatTools = parseBooleanQueryParam('omnibar.enableAiChatTools') ?? config.enableAiChatTools;
                     config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
+                    config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {

@@ -680,5 +680,13 @@
   "omnibar_advancedModelsSectionHeader": {
     "title": "Zaawansowane modele – subskrypcja DuckDuckGo",
     "description": "Section header in the model picker for premium models that require a subscription."
+  },
+  "omnibar_viewAllChats": {
+    "title": "Zobacz wszystkie czaty",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Otwórz Duck.ai",
+    "description": "Link text to open the Duck.ai chat interface."
   }
 }

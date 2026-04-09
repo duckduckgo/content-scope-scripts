@@ -1892,6 +1892,15 @@
       }
     ));
   }
+  function ListIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M9.41 10.125a.625.625 0 1 1 0 1.25H1.624a.625.625 0 1 1 0-1.25h7.784ZM14.375 4.5a.625.625 0 1 1 0 1.25H1.625a.625.625 0 1 1 0-1.25h12.75Z"
+      }
+    ));
+  }
   function ArrowIndentCenteredIcon(props) {
     return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
       "path",
@@ -8875,6 +8884,13 @@
         openAiChat(params) {
           this.ntp.messaging.notify("omnibar_openAiChat", params);
         }
+        /**
+         * Notify native to open the full AI chats list view
+         * @param {{ target: OpenTarget }} params
+         */
+        viewAllAiChats(params) {
+          this.ntp.messaging.notify("omnibar_viewAllAIChats", params);
+        }
       };
     }
   });
@@ -8969,6 +8985,12 @@
       },
       [service]
     );
+    const viewAllAiChats = q2(
+      (params) => {
+        service.current?.viewAllAiChats(params);
+      },
+      [service]
+    );
     return /* @__PURE__ */ _(
       OmnibarContext.Provider,
       {
@@ -8985,7 +9007,8 @@
           submitChat,
           getAiChats,
           onAiChats,
-          openAiChat
+          openAiChat,
+          viewAllAiChats
         }
       },
       /* @__PURE__ */ _(OmnibarServiceContext.Provider, { value: service.current }, props.children)
@@ -9068,6 +9091,10 @@
         /** @type {(params: OpenAIChatAction) => void} */
         openAiChat: () => {
           throw new Error("must implement");
+        },
+        /** @type {(params: {target: OpenTarget}) => void} */
+        viewAllAiChats: () => {
+          throw new Error("must implement");
         }
       });
       OmnibarServiceContext = R(
@@ -9129,7 +9156,7 @@
           selectedIndex: null
         };
       case "previousChat": {
-        const nextIndex = state.selectedIndex === null ? state.chats.length - 1 : state.selectedIndex - 1;
+        const nextIndex = state.selectedIndex === null ? action.itemCount - 1 : state.selectedIndex - 1;
         return {
           ...state,
           selectedIndex: nextIndex < 0 ? null : nextIndex
@@ -9139,7 +9166,7 @@
         const nextIndex = state.selectedIndex === null ? 0 : state.selectedIndex + 1;
         return {
           ...state,
-          selectedIndex: nextIndex >= state.chats.length ? null : nextIndex
+          selectedIndex: nextIndex >= action.itemCount ? null : nextIndex
         };
       }
       default: {
@@ -9149,7 +9176,7 @@
       }
     }
   }
-  function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
+  function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats = false }) {
     const { getAiChats, onAiChats } = x2(OmnibarContext);
     const [state, dispatch] = h2(reducer2, {
       chats: [],
@@ -9169,15 +9196,18 @@
       if (!enableRecentAiChats) return;
       getAiChats(query);
     }, [getAiChats, query, enableRecentAiChats]);
+    const extraItems = showViewAllAiChats && state.chats.length > 0 ? 1 : 0;
+    const itemCount = state.chats.length + extraItems;
     const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
+    const viewAllChatsSelected = showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
     const selectPreviousChat = () => {
-      if (state.chats.length === 0) return false;
-      dispatch({ type: "previousChat" });
+      if (itemCount === 0) return false;
+      dispatch({ type: "previousChat", itemCount });
       return true;
     };
     const selectNextChat = () => {
-      if (state.chats.length === 0) return false;
-      dispatch({ type: "nextChat" });
+      if (itemCount === 0) return false;
+      dispatch({ type: "nextChat", itemCount });
       return true;
     };
     const setSelectedChat = (chat) => {
@@ -9195,6 +9225,7 @@
     return {
       chats: state.chatsVisible ? state.chats : EMPTY_ARRAY,
       selectedChat,
+      viewAllChatsSelected,
       selectPreviousChat,
       selectNextChat,
       setSelectedChat,
@@ -9214,15 +9245,16 @@
   });
 
   // pages/new-tab/app/omnibar/components/AiChatsProvider.js
-  function AiChatsProvider({ query, autoFocus, enableRecentAiChats, children }) {
-    const aiChatsState = useAiChats({ query, initiallyVisible: autoFocus, enableRecentAiChats });
+  function AiChatsProvider({ query, autoFocus, enableRecentAiChats, showViewAllAiChats = false, children }) {
+    const aiChatsState = useAiChats({ query, initiallyVisible: autoFocus, enableRecentAiChats, showViewAllAiChats });
     const aiChatsListId = g2();
     return /* @__PURE__ */ _(
       AiChatsContext.Provider,
       {
         value: {
           ...aiChatsState,
-          aiChatsListId
+          aiChatsListId,
+          showViewAllAiChats
         }
       },
       children
@@ -9235,13 +9267,14 @@
     }
     return context;
   }
-  var AiChatsContext;
+  var VIEW_ALL_CHATS_ELEMENT_ID, AiChatsContext;
   var init_AiChatsProvider = __esm({
     "pages/new-tab/app/omnibar/components/AiChatsProvider.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_useAiChats();
+      VIEW_ALL_CHATS_ELEMENT_ID = "ai-chats-view-all";
       AiChatsContext = R(null);
     }
   });
@@ -9269,8 +9302,8 @@
       {}
     );
     const platformName = usePlatformName();
-    const { openAiChat } = x2(OmnibarContext);
-    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    const { openAiChat, viewAllAiChats } = x2(OmnibarContext);
+    const { chats, selectedChat, viewAllChatsSelected, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
     const formRef = A2(
       /** @type {HTMLFormElement|null} */
       null
@@ -9305,17 +9338,15 @@
     const handleKeyDown = (event) => {
       switch (event.key) {
         case "ArrowUp": {
-          const success = selectPreviousChat();
-          if (success) event.preventDefault();
+          if (selectPreviousChat()) event.preventDefault();
           break;
         }
         case "ArrowDown": {
-          const success = selectNextChat();
-          if (success) event.preventDefault();
+          if (selectNextChat()) event.preventDefault();
           break;
         }
         case "Escape":
-          if (selectedChat) {
+          if (selectedChat || viewAllChatsSelected) {
             event.preventDefault();
             clearSelectedChat();
           }
@@ -9325,6 +9356,12 @@
             break;
           }
           event.preventDefault();
+          if (viewAllChatsSelected) {
+            viewAllAiChats({
+              target: eventToTarget2(event, platformName)
+            });
+            break;
+          }
           if (selectedChat) {
             openAiChat({
               chatId: selectedChat.chatId,
@@ -9346,6 +9383,15 @@
       if (disabled) return;
       event.stopPropagation();
       onSubmit(query, eventToTarget2(event, platformName));
+    };
+    const getActiveDescendant = () => {
+      if (selectedChat) {
+        return getAiChatElementId(selectedChat.chatId);
+      }
+      if (viewAllChatsSelected && chats.length > 0) {
+        return VIEW_ALL_CHATS_ELEMENT_ID;
+      }
+      return void 0;
     };
     return /* @__PURE__ */ _(
       "form",
@@ -9370,7 +9416,7 @@
           "aria-expanded": chats.length > 0,
           "aria-haspopup": "listbox",
           "aria-controls": aiChatsListId,
-          "aria-activedescendant": selectedChat ? getAiChatElementId(selectedChat.chatId) : void 0,
+          "aria-activedescendant": getActiveDescendant(),
           autoComplete: "off",
           rows: 1,
           onKeyDown: handleKeyDown,
@@ -10148,6 +10194,67 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/AiChatsListFooter.module.css
+  var AiChatsListFooter_default;
+  var init_AiChatsListFooter = __esm({
+    "pages/new-tab/app/omnibar/components/AiChatsListFooter.module.css"() {
+      AiChatsListFooter_default = {
+        footer: "AiChatsListFooter_footer",
+        item: "AiChatsListFooter_item",
+        keyCharm: "AiChatsListFooter_keyCharm",
+        openDuckAi: "AiChatsListFooter_openDuckAi",
+        title: "AiChatsListFooter_title",
+        footerRight: "AiChatsListFooter_footerRight",
+        shortcutHints: "AiChatsListFooter_shortcutHints",
+        footerArrow: "AiChatsListFooter_footerArrow"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/AiChatsListFooter.js
+  function AiChatsListFooter() {
+    const { viewAllAiChats } = x2(OmnibarContext);
+    const platformName = usePlatformName();
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { viewAllChatsSelected } = useAiChatsContext();
+    return /* @__PURE__ */ _("div", { class: AiChatsListFooter_default.footer }, /* @__PURE__ */ _(
+      "button",
+      {
+        role: "option",
+        id: VIEW_ALL_CHATS_ELEMENT_ID,
+        class: AiChatsListFooter_default.item,
+        tabIndex: viewAllChatsSelected ? 0 : -1,
+        "aria-selected": viewAllChatsSelected,
+        onClick: (event) => {
+          event.preventDefault();
+          viewAllAiChats({
+            target: eventToTarget2(event, platformName)
+          });
+        }
+      },
+      /* @__PURE__ */ _(ListIcon, null),
+      /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.title }, t4("omnibar_viewAllChats")),
+      /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.footerRight, "aria-hidden": "true" }, /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.shortcutHints }, /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.keyCharm }, "\u23CE")), /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.openDuckAi }, /* @__PURE__ */ _("span", null, t4("omnibar_openDuckAi")), /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.footerArrow }, "\u2192")))
+    ));
+  }
+  var init_AiChatsListFooter2 = __esm({
+    "pages/new-tab/app/omnibar/components/AiChatsListFooter.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_handlers();
+      init_Icons2();
+      init_settings_provider();
+      init_types();
+      init_OmnibarProvider();
+      init_AiChatsProvider();
+      init_AiChatsListFooter();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/AiChatsList.module.css
   var AiChatsList_default;
   var init_AiChatsList = __esm({
@@ -10164,7 +10271,7 @@
   function AiChatsList({ className }) {
     const { openAiChat } = x2(OmnibarContext);
     const platformName = usePlatformName();
-    const { chats, selectedChat, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    const { chats, selectedChat, showViewAllAiChats, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
     if (chats.length === 0) {
       return null;
     }
@@ -10193,7 +10300,7 @@
         chat.pinned ? /* @__PURE__ */ _(PinIcon, null) : /* @__PURE__ */ _(ChatBubbleIcon, null),
         /* @__PURE__ */ _("span", { class: AiChatsList_default.title }, chat.title)
       );
-    }));
+    }), showViewAllAiChats && /* @__PURE__ */ _(AiChatsListFooter, null));
   }
   var import_classnames10;
   var init_AiChatsList2 = __esm({
@@ -10208,6 +10315,7 @@
       init_OmnibarProvider();
       init_AiChatsProvider();
       init_useAiChats();
+      init_AiChatsListFooter2();
       init_AiChatsList();
     }
   });
@@ -11316,7 +11424,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/Omnibar.js
-  function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCustomizePopover, tabId }) {
+  function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -11375,24 +11483,33 @@
           }
         }
       )
-    )), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery, enableAi }, /* @__PURE__ */ _(AiChatsProvider, { query, autoFocus, enableRecentAiChats }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, mode === "search" ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ _(
-      SearchForm,
-      {
-        autoFocus,
-        onOpenSuggestion: handleOpenSuggestion,
-        onSubmit: handleSubmitSearch,
-        onSubmitChat: handleSubmitChat
-      }
-    )), /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ _(
-      AiChatContent,
+    )), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery, enableAi }, /* @__PURE__ */ _(
+      AiChatsProvider,
       {
         query,
         autoFocus,
         enableRecentAiChats,
-        onChange: setQuery,
-        onSubmit: handleSubmitChat
-      }
-    ))))));
+        showViewAllAiChats
+      },
+      /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, mode === "search" ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ _(
+        SearchForm,
+        {
+          autoFocus,
+          onOpenSuggestion: handleOpenSuggestion,
+          onSubmit: handleSubmitSearch,
+          onSubmitChat: handleSubmitChat
+        }
+      )), /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ _(
+        AiChatContent,
+        {
+          query,
+          autoFocus,
+          enableRecentAiChats,
+          onChange: setQuery,
+          onSubmit: handleSubmitChat
+        }
+      )))
+    )));
   }
   function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { showChats, hideChats } = useAiChatsContext();
@@ -11522,7 +11639,14 @@
     return /* @__PURE__ */ _(k, null, state.config.showAiSetting && /* @__PURE__ */ _(AiSetting, { enableAi: state.config?.enableAi === true, setEnableAi, omnibarVisible: visible }), visible && /* @__PURE__ */ _(OmnibarReadyState, { config: state.config, key: current.value, tabId: current.value }));
   }
   function OmnibarReadyState({ config, tabId }) {
-    const { enableAi = true, showAiSetting = true, showCustomizePopover = false, enableRecentAiChats = false, mode: defaultMode } = config;
+    const {
+      enableAi = true,
+      showAiSetting = true,
+      showCustomizePopover = false,
+      enableRecentAiChats = false,
+      showViewAllAiChats = false,
+      mode: defaultMode
+    } = config;
     const { setMode } = x2(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
     return /* @__PURE__ */ _(
@@ -11532,6 +11656,7 @@
         setMode,
         enableAi: showAiSetting && enableAi,
         enableRecentAiChats,
+        showViewAllAiChats,
         showCustomizePopover,
         tabId
       }
@@ -33017,6 +33142,14 @@
     omnibar_advancedModelsSectionHeader: {
       title: "Advanced Models - DuckDuckGo subscription",
       description: "Section header in the model picker for premium models that require a subscription."
+    },
+    omnibar_viewAllChats: {
+      title: "View all chats",
+      description: "Link text to view all AI chat history."
+    },
+    omnibar_openDuckAi: {
+      title: "Open Duck.ai",
+      description: "Link text to open the Duck.ai chat interface."
     },
     nextStepsList_sectionTitle: {
       title: "Next Steps",

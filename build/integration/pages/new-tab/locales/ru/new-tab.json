@@ -680,5 +680,13 @@
   "omnibar_advancedModelsSectionHeader": {
     "title": "Расширенные модели — подписка на DuckDuckGo",
     "description": "Section header in the model picker for premium models that require a subscription."
+  },
+  "omnibar_viewAllChats": {
+    "title": "Просмотреть все чаты",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Открыть Duck.ai",
+    "description": "Link text to open the Duck.ai chat interface."
   }
 }

@@ -257,6 +257,14 @@
     "title": "Advanced Models - DuckDuckGo subscription",
     "description": "Section header in the model picker for premium models that require a subscription."
   },
+  "omnibar_viewAllChats": {
+    "title": "View all chats",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Open Duck.ai",
+    "description": "Link text to open the Duck.ai chat interface."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"

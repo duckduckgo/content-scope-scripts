@@ -7,6 +7,7 @@ import { usePlatformName } from '../../settings.provider';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
+import { AiChatsListFooter } from './AiChatsListFooter';
 import styles from './AiChatsList.module.css';
 
 /**
@@ -21,7 +22,7 @@ import styles from './AiChatsList.module.css';
 export function AiChatsList({ className }) {
     const { openAiChat } = useContext(OmnibarContext);
     const platformName = usePlatformName();
-    const { chats, selectedChat, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    const { chats, selectedChat, showViewAllAiChats, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
 
     if (chats.length === 0) {
         return null;
@@ -55,6 +56,7 @@ export function AiChatsList({ className }) {
                     </button>
                 );
             })}
+            {showViewAllAiChats && <AiChatsListFooter />}
         </div>
     );
 }
