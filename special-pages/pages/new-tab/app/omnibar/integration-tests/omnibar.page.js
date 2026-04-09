@@ -32,7 +32,7 @@ export class OmnibarPage {
     }
 
     chatInput() {
-        return this.context().getByRole('textbox', { name: 'Ask privately' });
+        return this.context().getByRole('textbox', { name: 'Ask anything privately' });
     }
 
     imageGenerationInput() {
