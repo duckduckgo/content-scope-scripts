@@ -166,7 +166,7 @@
     "description": "Title of the omnibar widget in the customizer panel."
   },
   "omnibar_aiChatFormPlaceholder": {
-    "title": "Ask privately",
+    "title": "Ask anything privately",
     "description": "Placeholder text for the AI chat input field."
   },
   "omnibar_aiChatFormSubmitButtonLabel": {
@@ -286,8 +286,12 @@
     "description": "Label for the Web Search tool shown in the tools menu dropdown."
   },
   "omnibar_webSearchDescription": {
-    "title": "Find current information",
+    "title": "Source answers from the web",
     "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_imageGenerationWithAttachmentPlaceholder": {
+    "title": "Describe changes based on the image",
+    "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
   },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",

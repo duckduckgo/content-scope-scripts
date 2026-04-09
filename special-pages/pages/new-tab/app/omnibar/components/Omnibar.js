@@ -177,6 +177,10 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const imageGenerationActive = activeTool === 'image-generation';
     const webSearchActive = activeTool === 'web-search';
 
+    const hasAttachedImages = imageState.attachedImages.length > 0;
+    const imageGenerationPlaceholder = hasAttachedImages
+        ? t('omnibar_imageGenerationWithAttachmentPlaceholder')
+        : t('omnibar_imageGenerationPlaceholder');
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
@@ -245,7 +249,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     query={query}
                     autoFocus={autoFocus}
                     disabled={query.length === 0 || imageWarning}
-                    placeholder={imageGenerationActive ? t('omnibar_imageGenerationPlaceholder') : undefined}
+                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     toolbarLeft={
