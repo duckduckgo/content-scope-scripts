@@ -93,6 +93,12 @@
       "description": "Sections of AI models for the model selector.",
       "type": "array",
       "items": { "$ref": "#/$defs/AIModelSection" }
+    },
+    "showViewAllAiChats": {
+      "title": "Show View All AI Chats",
+      "description": "When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list",
+      "type": "boolean",
+      "default": false
     }
   }
 }

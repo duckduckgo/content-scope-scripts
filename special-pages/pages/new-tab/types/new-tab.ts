@@ -86,6 +86,10 @@ export type SelectedModelID = string;
  * Sections of AI models for the model selector.
  */
 export type AIModelSections = AIModelSection[];
+/**
+ * When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list
+ */
+export type ShowViewAllAIChats = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -164,6 +168,7 @@ export interface NewTabMessages {
     | OmnibarSetConfigNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
+    | OmnibarViewAllAIChatsNotification
     | OpenNotification
     | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
@@ -594,6 +599,7 @@ export interface OmnibarConfig {
   enableAiChatTools?: EnableAIChatTools;
   selectedModelId?: SelectedModelID;
   aiModelSections?: AIModelSections;
+  showViewAllAiChats?: ShowViewAllAIChats;
 }
 /**
  * A section of AI models with an optional header and a list of model items.
@@ -676,6 +682,16 @@ export interface SubmitSearchAction {
    * The search term to submit
    */
   term: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/omnibar_viewAllAIChats.notify.json"
+ */
+export interface OmnibarViewAllAIChatsNotification {
+  method: "omnibar_viewAllAIChats";
+  params: ViewAllAIChatsAction;
+}
+export interface ViewAllAIChatsAction {
   target: OpenTarget;
 }
 /**
