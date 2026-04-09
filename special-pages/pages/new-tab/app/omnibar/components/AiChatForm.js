@@ -33,7 +33,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat, viewAllAiChats } = useContext(OmnibarContext);
-    const { chats, selectedChat, viewAllChatsSelected, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId, showChats } =
+    const { chats, selectedChat, viewAllChatsSelected, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } =
         useAiChatsContext();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
@@ -165,7 +165,6 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 onKeyDown={handleKeyDown}
                 onChange={(event) => {
                     onChange(event.currentTarget.value);
-                    showChats();
                     clearSelectedChat();
                 }}
             />
