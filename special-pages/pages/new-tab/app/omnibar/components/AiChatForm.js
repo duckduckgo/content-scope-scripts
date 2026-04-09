@@ -165,6 +165,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 onKeyDown={handleKeyDown}
                 onChange={(event) => {
                     onChange(event.currentTarget.value);
+                    showChats();
                     clearSelectedChat();
                 }}
             />
