@@ -91,7 +91,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             case 'Enter':
             case ' ':
                 e.preventDefault();
-                if (activeIndex >= 0) {
+                if (activeIndex >= 0 && activeIndex < allModels.length) {
                     onSelect(allModels[activeIndex].id);
                 }
                 break;

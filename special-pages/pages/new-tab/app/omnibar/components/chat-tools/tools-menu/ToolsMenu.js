@@ -132,7 +132,7 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
             case 'Enter':
             case ' ':
                 e.preventDefault();
-                if (activeIndex >= 0) {
+                if (activeIndex >= 0 && activeIndex < resolvedTools.length) {
                     handleSelect(resolvedTools[activeIndex].id);
                 }
                 break;
