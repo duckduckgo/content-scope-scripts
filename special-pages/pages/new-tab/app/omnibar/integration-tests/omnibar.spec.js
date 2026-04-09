@@ -1428,8 +1428,8 @@ test.describe('omnibar widget', () => {
             await omnibar.fileInput().setInputFiles({ name: 'test.png', mimeType: 'image/png', buffer: TINY_PNG });
             await expect(omnibar.imagePreviews()).toHaveCount(1);
 
-            await omnibar.imageGenerationInput().fill('turn this into pixel art');
-            await omnibar.imageGenerationInput().press('Enter');
+            await omnibar.imageGenerationWithAttachmentInput().fill('turn this into pixel art');
+            await omnibar.imageGenerationWithAttachmentInput().press('Enter');
 
             await omnibar.expectMethodCalledWith('omnibar_submitChat', {
                 chat: 'turn this into pixel art',

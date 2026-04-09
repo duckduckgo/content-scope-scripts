@@ -39,6 +39,10 @@ export class OmnibarPage {
         return this.context().getByRole('textbox', { name: 'Describe the image you want to create' });
     }
 
+    imageGenerationWithAttachmentInput() {
+        return this.context().getByRole('textbox', { name: 'Describe changes based on the image' });
+    }
+
     chatSubmitButton() {
         return this.context().getByRole('button', { name: 'Send' });
     }
