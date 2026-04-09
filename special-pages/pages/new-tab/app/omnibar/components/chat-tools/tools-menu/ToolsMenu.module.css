@@ -126,25 +126,20 @@
 
 .menuItemActive {
     background: var(--ds-color-theme-accent-primary);
-    color: var(--color-white);
+    color: var(--ds-color-theme-accent-content-primary);
 
     .menuItemDescription {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--ds-color-theme-accent-content-secondary);
     }
 }
 
 .menuItem:hover {
     background: var(--ds-color-theme-accent-primary);
-    color: var(--color-white);
+    color: var(--ds-color-theme-accent-content-primary);
 }
 
 .menuItemSelected {
-    background: var(--ds-color-theme-accent-primary);
-    color: var(--color-white);
-}
-
-.menuItemSelected .menuItemDescription {
-    color: rgba(255, 255, 255, 0.7);
+    /* No background change — only the checkmark indicates selection */
 }
 
 .checkmark {
@@ -166,7 +161,15 @@
 }
 
 .menuItemSelected .checkmark::before {
-    color: var(--color-white);
+    color: var(--ds-color-theme-text-primary);
+}
+
+.menuItemActive .checkmark::before {
+    color: transparent;
+}
+
+.menuItemActive.menuItemSelected .checkmark::before {
+    color: var(--ds-color-theme-accent-content-primary);
 }
 
 .menuItem:hover .checkmark::before {
@@ -174,7 +177,7 @@
 }
 
 .menuItemSelected:hover .checkmark::before {
-    color: var(--color-white);
+    color: var(--ds-color-theme-accent-content-primary);
 }
 
 .menuItemLabel {
@@ -204,6 +207,6 @@
     text-overflow: ellipsis;
 
     .menuItem:hover & {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--ds-color-theme-accent-content-secondary);
     }
 }

@@ -122,7 +122,7 @@
 
     &:hover {
         background: var(--ds-color-theme-accent-primary);
-        color: var(--color-white);
+        color: var(--ds-color-theme-accent-content-primary);
 
         &::before {
             color: transparent;
@@ -132,7 +132,7 @@
 
 .modelOptionActive {
     background: var(--ds-color-theme-accent-primary);
-    color: var(--color-white);
+    color: var(--ds-color-theme-accent-content-primary);
 
     &::before {
         color: transparent;
@@ -145,7 +145,13 @@
     }
 
     &:hover::before {
-        color: var(--color-white);
+        color: var(--ds-color-theme-accent-content-primary);
+    }
+}
+
+.modelOptionActive.modelOptionSelected {
+    &::before {
+        color: var(--ds-color-theme-accent-content-primary);
     }
 }
 

@@ -34,6 +34,7 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { menuOpen, buttonRef, dropdownRef, dropdownPos, toggleMenu, closeMenu } = useToolsMenu();
     const [activeIndex, setActiveIndex] = useState(-1);
+    const clearActiveIndex = () => setActiveIndex(-1);
 
     /** @param {ToolId} id @returns {ToolConfig|null} */
     const getToolConfig = (id) => {
@@ -78,7 +79,7 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
 
     useEffect(() => {
         if (!menuOpen) {
-            setActiveIndex(-1);
+            clearActiveIndex();
             return;
         }
 
@@ -193,6 +194,7 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                     aria-activedescendant={activeIndex >= 0 ? getMenuItemId(activeIndex) : undefined}
                     style={{ left: `${dropdownPos.left}px`, top: `${dropdownPos.top}px` }}
                     onKeyDown={handleMenuKeyDown}
+                    onMouseLeave={clearActiveIndex}
                 >
                     {resolvedTools.map((tool, index) => (
                         <li

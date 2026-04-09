@@ -39,6 +39,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     };
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
+    const clearActiveIndex = () => setActiveIndex(-1);
 
     /**
      * @param {number} nextEnabledPosition
@@ -114,6 +115,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             aria-activedescendant={activeIndex >= 0 ? getOptionId(activeIndex) : undefined}
             style={{ right: dropdownPos.right, left: dropdownPos.left, top: dropdownPos.top }}
             onKeyDown={handleKeyDown}
+            onMouseLeave={clearActiveIndex}
         >
             {sections.map((section, sectionIndex) => (
                 <Fragment key={sectionIndex}>
