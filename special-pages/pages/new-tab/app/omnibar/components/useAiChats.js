@@ -28,8 +28,8 @@ export function getAiChatElementId(chatId) {
  *   | { type: 'showChats' }
  *   | { type: 'setSelectedChat', payload: AiChat }
  *   | { type: 'clearSelectedChat' }
- *   | { type: 'previousChat' }
- *   | { type: 'nextChat' }
+ *   | { type: 'previousChat', itemCount: number }
+ *   | { type: 'nextChat', itemCount: number }
  * )} Action
  */
 
@@ -68,7 +68,7 @@ function reducer(state, action) {
                 selectedIndex: null,
             };
         case 'previousChat': {
-            const nextIndex = state.selectedIndex === null ? state.chats.length - 1 : state.selectedIndex - 1;
+            const nextIndex = state.selectedIndex === null ? action.itemCount - 1 : state.selectedIndex - 1;
             return {
                 ...state,
                 selectedIndex: nextIndex < 0 ? null : nextIndex,
@@ -78,7 +78,7 @@ function reducer(state, action) {
             const nextIndex = state.selectedIndex === null ? 0 : state.selectedIndex + 1;
             return {
                 ...state,
-                selectedIndex: nextIndex >= state.chats.length ? null : nextIndex,
+                selectedIndex: nextIndex >= action.itemCount ? null : nextIndex,
             };
         }
         default: {
@@ -99,8 +99,9 @@ const EMPTY_ARRAY = [];
  * @param {string} params.query - text to match against chat titles (case-insensitive)
  * @param {boolean} [params.initiallyVisible] - initial visibility of the chats list
  * @param {boolean} [params.enableRecentAiChats]
+ * @param {boolean} [params.showViewAllAiChats]
  */
-export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
+export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats = false }) {
     const { getAiChats, onAiChats } = useContext(OmnibarContext);
 
     const [state, dispatch] = useReducer(reducer, {
@@ -125,17 +126,20 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
         getAiChats(query);
     }, [getAiChats, query, enableRecentAiChats]);
 
+    const extraItems = showViewAllAiChats && state.chats.length > 0 ? 1 : 0;
+    const itemCount = state.chats.length + extraItems;
     const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
+    const viewAllChatsSelected = showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
 
     const selectPreviousChat = () => {
-        if (state.chats.length === 0) return false;
-        dispatch({ type: 'previousChat' });
+        if (itemCount === 0) return false;
+        dispatch({ type: 'previousChat', itemCount });
         return true;
     };
 
     const selectNextChat = () => {
-        if (state.chats.length === 0) return false;
-        dispatch({ type: 'nextChat' });
+        if (itemCount === 0) return false;
+        dispatch({ type: 'nextChat', itemCount });
         return true;
     };
 
@@ -159,6 +163,7 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats }) {
     return {
         chats: state.chatsVisible ? state.chats : EMPTY_ARRAY,
         selectedChat,
+        viewAllChatsSelected,
         selectPreviousChat,
         selectNextChat,
         setSelectedChat,

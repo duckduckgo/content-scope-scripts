@@ -620,6 +620,20 @@ export function LogoStacked(props) {
 }
 
 /**
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ListIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M9.41 10.125a.625.625 0 1 1 0 1.25H1.624a.625.625 0 1 1 0-1.25h7.784ZM14.375 4.5a.625.625 0 1 1 0 1.25H1.625a.625.625 0 1 1 0-1.25h12.75Z"
+            />
+        </svg>
+    );
+}
+
+/**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Arrow-Indent-Centerd-16.svg
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
