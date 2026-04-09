@@ -2180,6 +2180,7 @@
       "webDetection",
       "webEvents",
       "webInterferenceDetection",
+      "webTelemetry",
       "pageObserver",
       "hover",
       "tabSuspension"
@@ -17297,6 +17298,127 @@ ul.messages {
     }
   };
 
+  // src/features/web-telemetry.js
+  init_define_import_meta_trackerLookup();
+  var MSG_VIDEO_PLAYBACK = "video-playback";
+  var MSG_URL_CHANGED = "url-changed";
+  var WebTelemetry = class extends ContentFeature {
+    constructor(featureName, importConfig, features, args) {
+      super(featureName, importConfig, features, args);
+      __publicField(this, "listenForUrlChanges", true);
+      this.seenVideoElements = /* @__PURE__ */ new WeakSet();
+      this.seenVideoUrls = /* @__PURE__ */ new Set();
+    }
+    init() {
+      if (this.getFeatureSettingEnabled("videoPlayback")) {
+        this.videoPlaybackObserve();
+      }
+    }
+    /**
+     * @param {NavigationType} navigationType
+     */
+    urlChanged(navigationType) {
+      if (this.getFeatureSettingEnabled("urlChanged")) {
+        this.fireTelemetryForUrlChanged(navigationType);
+      }
+    }
+    getVideoUrl(video) {
+      if (video.src) {
+        return video.src;
+      }
+      if (video.currentSrc) {
+        return video.currentSrc;
+      }
+      const source = video.querySelector("source");
+      if (source && source.src) {
+        return source.src;
+      }
+      return null;
+    }
+    /**
+     * @param {NavigationType} navigationType
+     */
+    fireTelemetryForUrlChanged(navigationType) {
+      this.messaging.notify(MSG_URL_CHANGED, {
+        url: window.location.href,
+        navigationType
+      });
+    }
+    fireTelemetryForVideo(video) {
+      const videoUrl = this.getVideoUrl(video);
+      if (this.seenVideoUrls.has(videoUrl)) {
+        return;
+      }
+      if (videoUrl) {
+        this.seenVideoUrls.add(videoUrl);
+      }
+      const message = {
+        userInteraction: navigator.userActivation.isActive
+      };
+      this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
+    }
+    addPlayObserver(video) {
+      if (this.seenVideoElements.has(video)) {
+        return;
+      }
+      this.seenVideoElements.add(video);
+      video.addEventListener("play", () => this.fireTelemetryForVideo(video));
+    }
+    addListenersToAllVideos(node) {
+      if (!node) {
+        return;
+      }
+      const videos = node.querySelectorAll("video");
+      videos.forEach((video) => {
+        this.addPlayObserver(video);
+      });
+    }
+    videoPlaybackObserve() {
+      if (document.body) {
+        this.setup();
+      } else {
+        window.addEventListener(
+          "DOMContentLoaded",
+          () => {
+            this.setup();
+          },
+          { once: true }
+        );
+      }
+    }
+    setup() {
+      const documentBody = document.body;
+      if (!documentBody) return;
+      this.addListenersToAllVideos(documentBody);
+      documentBody.querySelectorAll("video").forEach((video) => {
+        if (!video.paused && !video.ended) {
+          this.fireTelemetryForVideo(video);
+        }
+      });
+      const observerCallback = (mutationsList) => {
+        for (const mutation of mutationsList) {
+          if (mutation.type === "childList") {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                if (node.tagName === "VIDEO") {
+                  this.addPlayObserver(node);
+                } else {
+                  this.addListenersToAllVideos(node);
+                }
+              }
+            });
+          }
+        }
+      };
+      const observer = new MutationObserver(observerCallback);
+      observer.observe(documentBody, {
+        childList: true,
+        subtree: true
+      });
+    }
+  };
+  var web_telemetry_default = WebTelemetry;
+
   // src/features/page-observer.js
   init_define_import_meta_trackerLookup();
   var PageObserver = class extends ContentFeature {
@@ -17399,6 +17521,7 @@ ul.messages {
     ddg_feature_webDetection: WebDetection,
     ddg_feature_webEvents: web_events_default,
     ddg_feature_webInterferenceDetection: WebInterferenceDetection,
+    ddg_feature_webTelemetry: web_telemetry_default,
     ddg_feature_pageObserver: page_observer_default,
     ddg_feature_hover: hover_default,
     ddg_feature_tabSuspension: tab_suspension_default

@@ -1,1 +1,1 @@
-- Add generic URL whitespace replacement (#2597)
+- Exporting webTelemetry to macOS (#2615)
