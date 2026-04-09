@@ -127,12 +127,17 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         onSubmit(query, eventToTarget(event, platformName));
     };
 
-    let activeDescendant;
-    if (selectedChat) {
-        activeDescendant = getAiChatElementId(selectedChat.chatId);
-    } else if (viewAllChatsSelected && chats.length > 0) {
-        activeDescendant = VIEW_ALL_CHATS_ELEMENT_ID;
-    }
+    const getActiveDescendant = () => {
+        if (selectedChat) {
+            return getAiChatElementId(selectedChat.chatId);
+        }
+
+        if (viewAllChatsSelected && chats.length > 0) {
+            return VIEW_ALL_CHATS_ELEMENT_ID;
+        }
+
+        return undefined;
+    };
 
     return (
         <form
@@ -154,7 +159,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 aria-expanded={chats.length > 0}
                 aria-haspopup="listbox"
                 aria-controls={aiChatsListId}
-                aria-activedescendant={activeDescendant}
+                aria-activedescendant={getActiveDescendant()}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
