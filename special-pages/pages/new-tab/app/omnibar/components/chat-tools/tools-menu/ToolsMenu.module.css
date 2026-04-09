@@ -56,7 +56,7 @@
 
 .activeToolChip {
     align-items: center;
-    background: #ccdaff;
+    background: rgba(0, 0, 0, 0.06);
     border-radius: 16px;
     border: none;
     color: var(--ds-color-theme-text-primary);
@@ -69,12 +69,23 @@
     white-space: nowrap;
 
     [data-theme="dark"] & {
-        background: #2b55ca;
-        color: #ccdaff;
+        background: rgba(255, 255, 255, 0.06);
     }
 
     &:hover {
-        opacity: 0.85;
+        background: rgba(0, 0, 0, 0.09);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.09);
+        }
+    }
+
+    &:active {
+        background: rgba(0, 0, 0, 0.12);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.12);
+        }
     }
 
     &:focus-visible {
