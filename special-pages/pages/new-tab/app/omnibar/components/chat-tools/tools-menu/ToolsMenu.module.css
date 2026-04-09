@@ -162,7 +162,7 @@
     &::before {
         color: transparent;
         content: '\2713';
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 700;
         left: -5px;
         line-height: 12px;
