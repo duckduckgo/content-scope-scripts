@@ -180,7 +180,7 @@ test('tracker-protection: respects CTL disabled for fb-sdk', async ({ page }, te
     });
 
     const observed = await collector.waitForMessage('resourceObserved', 1);
-    expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(false);
 
     await page.waitForTimeout(200);
     const allMessages = await collector.outgoingMessages();
@@ -347,12 +347,25 @@ test('tracker-protection: CTL disabled suppresses non-fb block-ctl-* surrogate',
     });
 
     const observed = await collector.waitForMessage('resourceObserved', 1);
-    expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(false);
 
     await page.waitForTimeout(200);
     const allMessages = await collector.outgoingMessages();
     const injected = trackerMessages(allMessages).filter((m) => m.payload.method === 'surrogateInjected');
     expect(injected).toHaveLength(0);
+});
+
+test('tracker-protection: non-CTL rule remains potentiallyBlocked when CTL disabled', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
+    await collector.load(HTML, CTL_ACTION_PREFIX_DISABLED_CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
+    });
+
+    const observed = await collector.waitForMessage('resourceObserved', 1);
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(true);
 });
 
 const realSurrogateCases = [

@@ -358,7 +358,9 @@ export class TrackerProtection extends ContentFeature {
             const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
             if (result && result.action !== 'ignore') {
                 const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
-                if (!isAllowlisted) {
+                const isCtlDisabledRule =
+                    result.matchedRule?.action?.startsWith('block-ctl-') === true && !this._ctlEnabled;
+                if (!isAllowlisted && !isCtlDisabledRule) {
                     potentiallyBlocked = true;
                 }
             }
