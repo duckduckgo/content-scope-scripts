@@ -15,6 +15,7 @@
 
 import ContentFeature from '../content-feature.js';
 import { isUnprotectedDomain } from '../utils.js';
+import { objectEntries, objectFromEntries } from '../captured-globals.js';
 import { TrackerResolver } from './tracker-protection/tracker-resolver.js';
 import { surrogates as bundledSurrogates } from './tracker-protection/surrogates-generated.js';
 
@@ -83,8 +84,8 @@ export class TrackerProtection extends ContentFeature {
 
         // Read allowlist from trackerAllowlist feature, stripping the rules wrapper
         const rawAllowlist = this.bundledConfig?.features?.trackerAllowlist?.settings?.allowlistedTrackers || {};
-        const allowlist = Object.fromEntries(
-            Object.entries(rawAllowlist)
+        const allowlist = objectFromEntries(
+            objectEntries(rawAllowlist)
                 .filter(([, v]) => v?.rules)
                 .map(([k, v]) => [k, v.rules]),
         );
