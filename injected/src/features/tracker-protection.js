@@ -13,36 +13,11 @@
 import ContentFeature from '../content-feature.js';
 import { TrackerResolver, REASON_RULE_EXCEPTION } from './tracker-protection/tracker-resolver.js';
 import { surrogates as bundledSurrogates } from './tracker-protection/surrogates-generated.js';
+import { getTabUrl } from '../utils.js';
 
 export const REASON_UNPROTECTED_DOMAIN = 'unprotectedDomain';
 export const REASON_THIRD_PARTY_REQUEST = 'thirdPartyRequest';
 export const REASON_AFFILIATED_THIRD_PARTY = 'thirdPartyRequestOwnedByFirstParty';
-
-/**
- * Get the tab's top-level URL, handling iframes
- * @returns {URL | null}
- */
-function getTabURL() {
-    let framingOrigin = null;
-
-    try {
-        framingOrigin = globalThis.top?.location.href;
-    } catch {
-        framingOrigin = globalThis.document.referrer;
-
-        // ancestorOrigins only needed as fallback when top.location.href is inaccessible (e.g., cross-origin iframe).
-        // Avoid overriding full top-level URL when we already have it.
-        if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
-            framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
-        }
-    }
-
-    try {
-        return framingOrigin ? new URL(framingOrigin) : null;
-    } catch {
-        return null;
-    }
-}
 
 export class TrackerProtection extends ContentFeature {
     init() {
@@ -60,7 +35,7 @@ export class TrackerProtection extends ContentFeature {
         this._observer = null;
 
         // Get top-level URL for tracker matching
-        this._topLevelUrl = getTabURL();
+        this._topLevelUrl = getTabUrl();
         if (!this._topLevelUrl) {
             return;
         }
@@ -518,26 +493,6 @@ export class TrackerProtection extends ContentFeature {
         } catch (e) {
             this.log.error('Surrogate execution failed:', pattern, e);
             return false;
-        }
-    }
-
-    /**
-     * Clean up on feature destroy
-     */
-    destroy() {
-        this._observer?.disconnect();
-        this._observer = null;
-
-        if (this._originalXHROpen && this._originalXHRSend) {
-            XMLHttpRequest.prototype.open = this._originalXHROpen;
-            XMLHttpRequest.prototype.send = this._originalXHRSend;
-        }
-        if (this._originalFetch) {
-            window.fetch = this._originalFetch;
-        }
-        if (this._originalImageSrc) {
-            delete Image.prototype.src;
-            Object.defineProperty(Image.prototype, 'src', this._originalImageSrc);
         }
     }
 }
