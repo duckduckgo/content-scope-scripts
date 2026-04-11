@@ -8,6 +8,7 @@ export const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
 export const toString = Object.prototype.toString;
 export const objectKeys = Object.keys;
 export const objectEntries = Object.entries;
+export const objectFromEntries = Object.fromEntries;
 export const objectDefineProperty = Object.defineProperty;
 export const URL = globalThis.URL;
 export const Proxy = globalThis.Proxy;

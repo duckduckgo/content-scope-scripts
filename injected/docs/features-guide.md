@@ -75,6 +75,13 @@ When editing core lifecycle code (`src/content-scope-features.js`, `src/utils.js
 - Current list is defined in `src/utils.js` under `platformSpecificFeatures`.
 - Rationale: these provide platform integration and must remain available even when protections are disabled.
 
+### Self-gating features (exception bypass)
+
+- `selfGatingFeatures` in `src/utils.js` (currently `['trackerProtection']`) bypass exception-based disabling in `computeEnabledFeatures`.
+- These features are always included in `enabledFeatures` when their `state` is enabled, regardless of domain exceptions.
+- The feature handles its own exceptions internally by reading `this.bundledConfig.features.<name>.exceptions` and adjusting behavior (e.g., reporting without blocking on excepted domains).
+- Use this for features that need to stay active on excepted/unprotected domains for reporting or other passive behavior.
+
 ### Always-init extension features (cookie)
 
 - `alwaysInitFeatures` in `src/content-scope-features.js` (currently `['cookie']`) bypasses `isFeatureBroken` for `platform.name === 'extension'`.
