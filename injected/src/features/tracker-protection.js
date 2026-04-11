@@ -60,6 +60,7 @@ export class TrackerProtection extends ContentFeature {
         this._isUnprotectedDomain = false;
         /** @type {MutationObserver | null} */
         this._observer = null;
+        /** @type {number} */
         this._detectedTrackerCount = 0;
 
         // Get top-level URL for tracker matching
@@ -392,6 +393,7 @@ export class TrackerProtection extends ContentFeature {
         }
 
         if (result.tracker) {
+            /** @type {number} */
             const detectedTrackerCount = this._detectedTrackerCount || 0;
             this._detectedTrackerCount = detectedTrackerCount + 1;
             this.notify('trackerDetected', {
@@ -463,6 +465,7 @@ export class TrackerProtection extends ContentFeature {
         }
 
         if (result.tracker) {
+            /** @type {number} */
             const detectedTrackerCount = this._detectedTrackerCount || 0;
             this._detectedTrackerCount = detectedTrackerCount + 1;
             this.notify('trackerDetected', {
