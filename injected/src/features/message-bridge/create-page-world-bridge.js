@@ -33,10 +33,11 @@ export const ERROR_MSG = 'Did not install Message Bridge';
  * @param {string} featureName
  * @param {string} [token]
  * @param {ContentFeature} [context]
+ * @param {string} [messagingContext]
  * @return {MessagingInterface}
  * @throws {Error}
  */
-export function createPageWorldBridge(featureName, token, context) {
+export function createPageWorldBridge(featureName, token, context, messagingContext) {
     /**
      * This feature never operates without a featureName or token
      */
@@ -76,7 +77,7 @@ export function createPageWorldBridge(featureName, token, context) {
      */
     let installed = false;
     const id = random();
-    const evt = new InstallProxy({ featureName, id });
+    const evt = new InstallProxy({ featureName, id, context: messagingContext });
     const evtName = appendToken(DidInstall.NAME + '-' + id);
     const didInstall = (/** @type {CustomEvent<unknown>} */ e) => {
         const result = DidInstall.create(e.detail);

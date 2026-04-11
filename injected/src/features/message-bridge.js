@@ -1,5 +1,5 @@
 import { Messaging } from '@duckduckgo/messaging';
-import ContentFeature from '../content-feature';
+import ContentFeature from '../content-feature.js';
 import {
     InstallProxy,
     DidInstall,
@@ -114,14 +114,20 @@ export class MessageBridge extends ContentFeature {
      * @param {(payload: {name: string; id: string} & Record<string, any>) => void} reply
      */
     installProxyFor(install, config, reply) {
-        const { id, featureName } = install;
+        const { id, featureName, context } = install;
         if (this.proxies.has(featureName)) return this.log.info('ignoring `installProxyFor` because it exists', featureName);
-        const allowed = this.getFeatureSettingEnabled(featureName);
+        const enabledFeatures = this.args?.site?.enabledFeatures || [];
+        const allowed = enabledFeatures.includes(featureName) || this.getFeatureSettingEnabled(featureName);
         if (!allowed) {
             return this.log.info('not installing proxy, because', featureName, 'was not enabled');
         }
 
-        const ctx = { ...this.messaging.messagingContext, featureName };
+        const currentMessaging = /** @type {any} */ (this.messaging);
+        const ctx = {
+            ...currentMessaging.messagingContext,
+            context: context || currentMessaging.messagingContext.context,
+            featureName,
+        };
         const messaging = new Messaging(ctx, config);
         this.proxies.set(featureName, messaging);
 

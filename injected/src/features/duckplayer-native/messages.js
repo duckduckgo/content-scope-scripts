@@ -23,7 +23,7 @@ import * as constants from './constants.js';
  */
 
 /**
- * @import {Messaging} from '@duckduckgo/messaging'
+ * @typedef {import("@duckduckgo/messaging").Messaging | import("../message-bridge/schema.js").MessagingInterface} Messaging
  *
  * A wrapper for all communications.
  *

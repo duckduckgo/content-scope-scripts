@@ -67,6 +67,7 @@ export default class ConfigFeature {
      *   assets?: import('./content-feature.js').AssetConfig | undefined,
      *   site: import('./content-feature.js').Site,
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
+     *   messageSecret?: string,
      *   messagingContextName: string,
      *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
      *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,

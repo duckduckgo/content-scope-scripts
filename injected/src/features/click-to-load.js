@@ -82,13 +82,13 @@ const afterPageLoad = new Promise((resolve) => {
 // Messaging layer for Click to Load. The messaging instance is initialized in
 // ClickToLoad.init() and updated here to be used outside ClickToLoad class
 // we need a module scoped reference.
-/** @type {import("@duckduckgo/messaging").Messaging} */
+/** @type {import("@duckduckgo/messaging").Messaging | import("./message-bridge/schema.js").MessagingInterface} */
 let _messagingModuleScope;
 /** @type function */
 let _addDebugFlag;
 const ctl = {
     /**
-     * @return {import("@duckduckgo/messaging").Messaging}
+     * @return {import("@duckduckgo/messaging").Messaging | import("./message-bridge/schema.js").MessagingInterface}
      */
     get messaging() {
         if (!_messagingModuleScope) throw new Error('Messaging not initialized');

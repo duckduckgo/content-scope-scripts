@@ -3,8 +3,9 @@ import { PerformanceMonitor } from './performance.js';
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js';
 // eslint-disable-next-line no-redeclare
 import { Proxy, Reflect, consoleLog, consoleWarn, consoleError } from './captured-globals.js';
-import { Messaging, MessagingContext } from '../../messaging/index.js';
+import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../messaging/index.js';
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
+import { createPageWorldBridge } from './features/message-bridge/create-page-world-bridge.js';
 import { isTrackerOrigin } from './trackers.js';
 import ConfigFeature from './config-feature.js';
 
@@ -60,7 +61,7 @@ export class CallFeatureMethodError extends Error {
 }
 
 export default class ContentFeature extends ConfigFeature {
-    /** @type {import('../../messaging').Messaging | undefined} */
+    /** @type {any} */
     // eslint-disable-next-line no-unused-private-class-members
     #messaging = undefined;
     /** @type {boolean} */
@@ -287,20 +288,60 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
+     * @returns {boolean}
+     */
+    _shouldUsePageWorldBridge() {
+        return (
+            (this.platform?.name === 'ios' || this.platform?.name === 'macos') &&
+            this.args?.messagingContextName === 'contentScopeScripts' &&
+            this.args?.messagingConfig instanceof WebkitMessagingConfig &&
+            typeof this.args?.messageSecret === 'string' &&
+            this.args.messageSecret.length > 0
+        );
+    }
+
+    /**
+     * @returns {any}
+     */
+    _getCachedMessaging() {
+        return this._messaging;
+    }
+
+    /**
+     * @param {any} messaging
+     */
+    _setCachedMessaging(messaging) {
+        this._messaging = messaging;
+    }
+
+    /**
      * Lazily create a messaging instance for the given Platform + feature combo
      *
-     * @return {import('@duckduckgo/messaging').Messaging}
+     * @return {any}
      */
     get messaging() {
-        if (this._messaging) return this._messaging;
+        const cachedMessaging = this._getCachedMessaging();
+        if (cachedMessaging) return cachedMessaging;
         const messagingContext = this._createMessagingContext();
+        if (this._shouldUsePageWorldBridge()) {
+            const bridge = createPageWorldBridge(
+                this.name,
+                /** @type {string} */ (this.args?.messageSecret),
+                this,
+                messagingContext.context,
+            );
+            /** @type {any} */ (bridge).messagingContext = messagingContext;
+            this._setCachedMessaging(bridge);
+            return bridge;
+        }
         let messagingConfig = this.args?.messagingConfig;
         if (!messagingConfig) {
             if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in');
             messagingConfig = extensionConstructMessagingConfig();
         }
-        this._messaging = new Messaging(messagingContext, messagingConfig);
-        return this._messaging;
+        const messaging = new Messaging(messagingContext, messagingConfig);
+        this._setCachedMessaging(messaging);
+        return messaging;
     }
 
     /**

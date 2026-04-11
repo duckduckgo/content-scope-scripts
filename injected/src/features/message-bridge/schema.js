@@ -18,10 +18,12 @@ export class InstallProxy {
      * @param {object} params
      * @param {string} params.featureName
      * @param {string} params.id
+     * @param {string} [params.context]
      */
     constructor(params) {
         this.featureName = params.featureName;
         this.id = params.id;
+        this.context = params.context;
     }
 
     /**
@@ -31,7 +33,8 @@ export class InstallProxy {
         if (!isObject(params)) return null;
         if (!isString(params.featureName)) return null;
         if (!isString(params.id)) return null;
-        return new InstallProxy({ featureName: params.featureName, id: params.id });
+        if (params.context && !isString(params.context)) return null;
+        return new InstallProxy({ featureName: params.featureName, id: params.id, context: params.context });
     }
 }
 
