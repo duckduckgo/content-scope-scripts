@@ -852,6 +852,7 @@
     importKey: () => importKey,
     objectDefineProperty: () => objectDefineProperty,
     objectEntries: () => objectEntries,
+    objectFromEntries: () => objectFromEntries,
     objectKeys: () => objectKeys,
     randomUUID: () => randomUUID,
     removeEventListener: () => removeEventListener,
@@ -867,6 +868,7 @@
   var toString = Object.prototype.toString;
   var objectKeys = Object.keys;
   var objectEntries = Object.entries;
+  var objectFromEntries = Object.fromEntries;
   var objectDefineProperty = Object.defineProperty;
   var URL2 = globalThis.URL;
   var Proxy2 = globalThis.Proxy;
@@ -1235,6 +1237,9 @@
       return false;
     }
     const domainParts = topLevelHostname.split(".");
+    if (domainParts.length === 1) {
+      return featureList.some((entry) => entry.domain === topLevelHostname);
+    }
     while (domainParts.length > 1 && !unprotectedDomain) {
       const partialDomain = domainParts.join(".");
       unprotectedDomain = featureList.filter((domain) => domain.domain === partialDomain).length > 0;
@@ -1358,6 +1363,9 @@
           return false;
         }
       }
+      if (isSelfGatingFeature(featureName)) {
+        return isStateEnabled(feature.state, platform);
+      }
       return isStateEnabled(feature.state, platform) && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
     }).concat(platformSpecificFeaturesNotInRemoteConfig);
     return enabledFeatures;
@@ -1390,10 +1398,19 @@
     "webDetection",
     "webEvents",
     "pageObserver",
-    "hover"
+    "hover",
+    "trackerProtection"
+    // only enabled on apple platforms
   ];
+  var selfGatingFeatures = ["trackerProtection"];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(
+      /** @type {import('./features.js').FeatureName} */
+      featureName
+    );
+  }
+  function isSelfGatingFeature(featureName) {
+    return selfGatingFeatures.includes(
       /** @type {import('./features.js').FeatureName} */
       featureName
     );
@@ -10267,16 +10284,11 @@ ${iframeContent}
      * @param {TrackerData} config.trackerData
      * @param {Record<string, () => void>} config.surrogates
      * @param {Record<string, AllowlistEntry[]>} [config.allowlist]
-     * @param {string[]} [config.unprotectedDomains] - Legacy: all treated as wildcard. Use userUnprotectedDomains + wildcardUnprotectedDomains instead.
-     * @param {string[]} [config.userUnprotectedDomains] - Exact-match only (user-toggled)
-     * @param {string[]} [config.wildcardUnprotectedDomains] - Wildcard domain-walk (temp + contentBlocking exceptions)
      */
     constructor(config) {
       this._trackerData = null;
       this._surrogateList = {};
       this._allowlist = {};
-      this._userUnprotectedDomains = [];
-      this._wildcardUnprotectedDomains = [];
       if (config.trackerData) {
         this._trackerData = this._processTrackerData(config.trackerData);
       }
@@ -10285,15 +10297,6 @@ ${iframeContent}
       }
       if (config.allowlist) {
         this._allowlist = config.allowlist;
-      }
-      if (config.userUnprotectedDomains) {
-        this._userUnprotectedDomains = config.userUnprotectedDomains;
-      }
-      if (config.wildcardUnprotectedDomains) {
-        this._wildcardUnprotectedDomains = config.wildcardUnprotectedDomains;
-      }
-      if (config.unprotectedDomains) {
-        this._wildcardUnprotectedDomains = this._wildcardUnprotectedDomains.concat(config.unprotectedDomains);
       }
     }
     /**
@@ -10584,60 +10587,6 @@ ${iframeContent}
         }
       }
       return false;
-    }
-    /**
-     * Check if domain is unprotected (user-toggled, exact match only)
-     * @param {string} domain
-     */
-    isUserUnprotectedDomain(domain) {
-      return this._userUnprotectedDomains.includes(domain);
-    }
-    /**
-     * Check if domain is unprotected via wildcard matching (temp + contentBlocking exceptions).
-     * Walks up subdomains.
-     * @param {string} domain
-     */
-    isWildcardUnprotectedDomain(domain) {
-      if (this._wildcardUnprotectedDomains.includes(domain)) {
-        return true;
-      }
-      const parts = domain.split(".");
-      while (parts.length > 1) {
-        parts.shift();
-        if (this._wildcardUnprotectedDomains.includes(parts.join("."))) {
-          return true;
-        }
-      }
-      return false;
-    }
-    /**
-     * Check if domain is unprotected by any source
-     * @param {string} domain
-     */
-    isUnprotectedDomain(domain) {
-      return this.isUserUnprotectedDomain(domain) || this.isWildcardUnprotectedDomain(domain);
-    }
-    /**
-     * Check entity affiliation between a request and page domain.
-     * Used for non-tracker requests to determine "owned by first party" classification.
-     * @param {string} requestHost
-     * @param {string} pageHost
-     * @returns {{ affiliated: boolean, entityName: string | null, ownerName: string | null, prevalence: number | null }}
-     */
-    getEntityAffiliation(requestHost, pageHost) {
-      const requestOwner = this._findTrackerOwner(requestHost);
-      const normalizedPageHost = pageHost.replace(/^www\./, "");
-      const pageOwner = this._findTrackerOwner(normalizedPageHost);
-      if (requestOwner && pageOwner && requestOwner === pageOwner) {
-        const entity = this._trackerData?.entities?.[requestOwner];
-        return {
-          affiliated: true,
-          entityName: entity?.displayName || requestOwner,
-          ownerName: requestOwner,
-          prevalence: entity?.prevalence ?? null
-        };
-      }
-      return { affiliated: false, entityName: null, ownerName: null, prevalence: null };
     }
     /**
      * Get surrogate function for a pattern
@@ -12890,9 +12839,6 @@ ${iframeContent}
   };
 
   // src/features/tracker-protection.js
-  var REASON_UNPROTECTED_DOMAIN = "unprotectedDomain";
-  var REASON_THIRD_PARTY_REQUEST = "thirdPartyRequest";
-  var REASON_AFFILIATED_THIRD_PARTY = "thirdPartyRequestOwnedByFirstParty";
   function getTabURL() {
     let framingOrigin = null;
     try {
@@ -12917,11 +12863,15 @@ ${iframeContent}
       this._blockingEnabled = true;
       this._isUnprotectedDomain = false;
       this._observer = null;
+      this._surrogateInjectionEnabled = this.getFeatureSettingEnabled("surrogateInjection", "enabled");
       this._topLevelUrl = getTabURL();
       if (!this._topLevelUrl) {
         return;
       }
-      this._blockingEnabled = this.getFeatureSetting("blockingEnabled") !== false;
+      this._blockingEnabled = this._isStateEnabled(
+        /** @type {import('../utils.js').FeatureState | undefined} */
+        this.bundledConfig?.features?.contentBlocking?.state
+      );
       if (!this._blockingEnabled) {
         this.log.info("Tracker blocking disabled via config");
         return;
@@ -12931,21 +12881,21 @@ ${iframeContent}
       if (!trackerData) {
         return;
       }
+      const rawAllowlist = this.bundledConfig?.features?.trackerAllowlist?.settings?.allowlistedTrackers || {};
+      const allowlist = objectFromEntries(
+        objectEntries(rawAllowlist).filter(([, v2]) => v2?.rules).map(([k, v2]) => [k, v2.rules])
+      );
       this._resolver = new TrackerResolver({
         trackerData,
         surrogates: surrogates2,
-        allowlist: this.getFeatureSetting("allowlist"),
-        userUnprotectedDomains: this.getFeatureSetting("userUnprotectedDomains") || [],
-        wildcardUnprotectedDomains: [
-          ...this.getFeatureSetting("tempUnprotectedDomains") || [],
-          ...this.getFeatureSetting("contentBlockingExceptions") || []
-        ]
+        allowlist
       });
-      this._isUnprotectedDomain = this._resolver.isUnprotectedDomain(this._topLevelUrl.hostname);
-      if (this._isUnprotectedDomain) {
-        this.log.info("Domain is unprotected:", this._topLevelUrl.hostname);
-      }
-      this._ctlEnabled = this.getFeatureSetting("ctlEnabled") !== false;
+      const exceptions = this.bundledConfig?.features?.trackerProtection?.exceptions || [];
+      this._isUnprotectedDomain = isUnprotectedDomain(this._topLevelUrl.hostname, exceptions) || !!this.args?.site?.allowlisted;
+      this._ctlEnabled = this._isStateEnabled(
+        /** @type {import('../utils.js').FeatureState | undefined} */
+        this.bundledConfig?.features?.clickToLoad?.state
+      );
       this._setupInterception();
     }
     /**
@@ -12995,7 +12945,7 @@ ${iframeContent}
       }
     }
     _setupXHRInterception() {
-      const checkAndReport = this._checkAndReport.bind(this);
+      const reportResource = this._reportResource.bind(this);
       const xhrProto = XMLHttpRequest.prototype;
       const originalOpen = xhrProto.open;
       const originalSend = xhrProto.send;
@@ -13010,7 +12960,7 @@ ${iframeContent}
         if (!xhrTracked.has(this)) {
           xhrTracked.add(this);
           this.addEventListener("error", () => {
-            checkAndReport(xhrUrls.get(this) || "", "xmlhttprequest");
+            reportResource(xhrUrls.get(this) || "", "xmlhttprequest", true);
           });
         }
         return originalSend.apply(this, args);
@@ -13019,18 +12969,18 @@ ${iframeContent}
       this._originalXHRSend = originalSend;
     }
     _setupFetchInterception() {
-      const checkAndReport = this._checkAndReport.bind(this);
+      const reportResource = this._reportResource.bind(this);
       const originalFetch = window.fetch;
       window.fetch = function(...args) {
         try {
           if (args.length > 0) {
             const input = args[0];
             if (typeof input === "string") {
-              checkAndReport(input, "fetch");
+              reportResource(input, "fetch", false);
             } else if (input instanceof URL) {
-              checkAndReport(input.href, "fetch");
+              reportResource(input.href, "fetch", false);
             } else if (input?.url) {
-              checkAndReport(input.url, "fetch");
+              reportResource(input.url, "fetch", false);
             }
           }
         } catch {
@@ -13040,7 +12990,7 @@ ${iframeContent}
       this._originalFetch = originalFetch;
     }
     _setupImageSrcInterception() {
-      const checkAndReport = this._checkAndReport.bind(this);
+      const reportResource = this._reportResource.bind(this);
       const originalDescriptor = Object.getOwnPropertyDescriptor(Image.prototype, "src");
       if (!originalDescriptor?.get || !originalDescriptor?.set) return;
       this._originalImageSrc = originalDescriptor;
@@ -13057,7 +13007,7 @@ ${iframeContent}
           if (!imgTracked.has(this)) {
             imgTracked.add(this);
             this.addEventListener("error", () => {
-              checkAndReport(origGet.call(this), "image");
+              reportResource(origGet.call(this), "image", true);
             });
           }
           origSet.call(this, value);
@@ -13074,7 +13024,7 @@ ${iframeContent}
         return;
       }
       if (node instanceof HTMLImageElement) {
-        if (node.src) this._checkAndReport(node.src, "image");
+        if (node.src) this._reportResource(node.src, "image", false);
         return;
       }
       if (node instanceof Element) {
@@ -13088,10 +13038,11 @@ ${iframeContent}
           );
         }
         for (const img of node.querySelectorAll("img[src]")) {
-          this._checkAndReport(
+          this._reportResource(
             /** @type {HTMLImageElement} */
             img.src,
-            "image"
+            "image",
+            false
           );
         }
       }
@@ -13109,7 +13060,7 @@ ${iframeContent}
       }
     }
     /**
-     * On page load, scan all resource elements for tracker reporting.
+     * On page load, scan all resource elements for reporting.
      * Scripts are included here too — _seenUrls deduplication prevents
      * re-processing any that were already caught by _scanExistingScripts.
      */
@@ -13128,16 +13079,17 @@ ${iframeContent}
             el.href
           )
         ) {
-          this._checkAndReport(
+          this._reportResource(
             /** @type {HTMLLinkElement} */
             el.href,
-            "link"
+            "link",
+            false
           );
         }
       }
       for (const el of document.images) {
         if (el.naturalWidth === 0 && el.src && !this._seenUrls.has(el.src)) {
-          this._checkAndReport(el.src, "image");
+          this._reportResource(el.src, "image", true);
         }
       }
       for (const el of document.querySelectorAll("iframe")) {
@@ -13148,98 +13100,36 @@ ${iframeContent}
             el.src
           )
         ) {
-          this._checkAndReport(
+          this._reportResource(
             /** @type {HTMLIFrameElement} */
             el.src,
-            "iframe"
+            "iframe",
+            false
           );
         }
       }
     }
     /**
-     * Report a non-tracker third-party request for the privacy dashboard.
-     * Reports all cross-hostname requests; native applies PSL-based eTLD+1 filtering.
-     * @param {string} url
-     * @param {string} topUrl
-     */
-    _reportThirdPartyRequest(url, topUrl) {
-      try {
-        const requestHost = new URL(url).hostname;
-        const pageHost = new URL(topUrl).hostname;
-        if (requestHost === pageHost) return;
-        let reason = REASON_THIRD_PARTY_REQUEST;
-        let entityName = null;
-        let ownerName = null;
-        let prevalence = null;
-        if (this._resolver) {
-          const affiliation = this._resolver.getEntityAffiliation(requestHost, pageHost);
-          if (affiliation.affiliated) {
-            reason = REASON_AFFILIATED_THIRD_PARTY;
-            entityName = affiliation.entityName;
-            ownerName = affiliation.ownerName;
-            prevalence = affiliation.prevalence;
-          }
-        }
-        this.notify("trackerDetected", {
-          url,
-          blocked: false,
-          reason,
-          isSurrogate: false,
-          pageUrl: this._topLevelUrl?.href || "",
-          entityName,
-          ownerName,
-          category: null,
-          prevalence,
-          isAllowlisted: false
-        });
-      } catch {
-      }
-    }
-    /**
-     * Report a resource URL for tracker detection without surrogate handling.
-     * Used for non-script resources (XHR, fetch, images, iframes, links).
+     * Report a raw resource observation to native. No classification.
      * @param {string} url
      * @param {string} resourceType
+     * @param {boolean} potentiallyBlocked - script-side context hint, not authoritative
      */
-    _checkAndReport(url, resourceType) {
-      if (!url || !this._resolver || !this._seenUrls || this._seenUrls.has(url)) return;
+    _reportResource(url, resourceType, potentiallyBlocked) {
+      if (!url || !this._seenUrls || this._seenUrls.has(url)) return;
       if (!url.startsWith("http://") && !url.startsWith("https://")) return;
       this._seenUrls.add(url);
       if (!this._blockingEnabled) return;
-      const topUrl = this._topLevelUrl?.toString() || "";
-      const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
-      if (!result) {
-        this._reportThirdPartyRequest(url, topUrl);
-        return;
-      }
-      const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
-      let blocked = false;
-      if (this._isUnprotectedDomain) {
-        result.reason = REASON_UNPROTECTED_DOMAIN;
-      } else if (isAllowlisted) {
-        blocked = false;
-        result.reason = REASON_RULE_EXCEPTION;
-      } else if (result.action !== "ignore") {
-        blocked = true;
-      }
-      if (result.tracker) {
-        this.notify("trackerDetected", {
-          url,
-          blocked,
-          reason: result.reason || null,
-          isSurrogate: false,
-          pageUrl: this._topLevelUrl?.href || "",
-          entityName: result.entity?.displayName || result.tracker.owner?.displayName || null,
-          ownerName: result.tracker.owner?.name || null,
-          category: result.tracker.categories?.[0] || null,
-          prevalence: result.entity?.prevalence ?? null,
-          isAllowlisted
-        });
-      }
+      this.notify("resourceObserved", {
+        url,
+        resourceType,
+        potentiallyBlocked,
+        pageUrl: this._topLevelUrl?.href || ""
+      });
     }
     /**
-     * Check a script URL and potentially load a surrogate for it.
-     * Also reports tracker detection.
+     * Check a script URL for surrogate injection. Reports raw observation to native.
+     * Surrogate injection is gated by surrogateInjectionEnabled setting.
      * @param {string} url
      * @param {string} resourceType
      * @param {HTMLElement | null} element
@@ -13256,59 +13146,45 @@ ${iframeContent}
         return false;
       }
       const topUrl = this._topLevelUrl?.toString() || "";
-      const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
-      if (!result) {
-        this._reportThirdPartyRequest(url, topUrl);
-        return false;
-      }
-      const hasSurrogate = result.action === "redirect";
-      const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
-      let blocked = false;
-      if (this._isUnprotectedDomain) {
-        result.reason = REASON_UNPROTECTED_DOMAIN;
-      } else if (isAllowlisted) {
-        blocked = false;
-        result.reason = REASON_RULE_EXCEPTION;
-      } else if (result.action !== "ignore") {
-        blocked = true;
-      }
-      let willLoadSurrogate = false;
-      if (blocked && hasSurrogate && !isAllowlisted && result.matchedRule?.surrogate) {
-        const hasIntegrityCheck = element instanceof HTMLScriptElement && element.integrity;
-        const isCtlSurrogate = result.matchedRule?.action?.startsWith("block-ctl-") === true;
-        willLoadSurrogate = !hasIntegrityCheck && (!isCtlSurrogate || this._ctlEnabled === true);
-      }
-      if (result.tracker) {
-        this.notify("trackerDetected", {
-          url,
-          blocked,
-          reason: result.reason || null,
-          isSurrogate: willLoadSurrogate,
-          pageUrl: this._topLevelUrl?.href || "",
-          entityName: result.entity?.displayName || result.tracker.owner?.displayName || null,
-          ownerName: result.tracker.owner?.name || null,
-          category: result.tracker.categories?.[0] || null,
-          prevalence: result.entity?.prevalence ?? null,
-          isAllowlisted
-        });
-      }
-      if (willLoadSurrogate && result.matchedRule?.surrogate) {
-        const surrogateName = result.matchedRule.surrogate;
-        const loaded = this._loadSurrogate(surrogateName, element);
-        if (loaded) {
-          this.notify("surrogateInjected", {
-            url,
-            blocked: true,
-            reason: result.reason,
-            isSurrogate: true,
-            pageUrl: this._topLevelUrl?.href || "",
-            entityName: result.entity?.displayName || result.tracker?.owner?.displayName || null,
-            ownerName: result.tracker?.owner?.name || null
-          });
+      let potentiallyBlocked = false;
+      if (!this._isUnprotectedDomain) {
+        const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
+        if (result && result.action !== "ignore") {
+          const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
+          const isCtlDisabledRule = result.matchedRule?.action?.startsWith("block-ctl-") === true && !this._ctlEnabled;
+          if (!isAllowlisted && !isCtlDisabledRule) {
+            potentiallyBlocked = true;
+          }
         }
-        return loaded;
+        if (result && potentiallyBlocked) {
+          const hasSurrogate = result.action === "redirect";
+          if (hasSurrogate && result.matchedRule?.surrogate) {
+            if (this._surrogateInjectionEnabled) {
+              const hasIntegrityCheck = element instanceof HTMLScriptElement && element.integrity;
+              const isCtlSurrogate = result.matchedRule?.action?.startsWith("block-ctl-") === true;
+              const shouldLoadSurrogate = !hasIntegrityCheck && (!isCtlSurrogate || this._ctlEnabled === true);
+              if (shouldLoadSurrogate) {
+                const surrogateName = result.matchedRule.surrogate;
+                const loaded = this._loadSurrogate(surrogateName, element);
+                if (loaded) {
+                  this.notify("surrogateInjected", {
+                    url,
+                    pageUrl: this._topLevelUrl?.href || "",
+                    surrogateName
+                  });
+                }
+              }
+            }
+          }
+        }
       }
-      return blocked;
+      this.notify("resourceObserved", {
+        url,
+        resourceType,
+        potentiallyBlocked,
+        pageUrl: this._topLevelUrl?.href || ""
+      });
+      return potentiallyBlocked;
     }
     /**
      * Load a surrogate script from the build-time generated surrogate map.
@@ -13319,6 +13195,9 @@ ${iframeContent}
      */
     _loadSurrogate(pattern, targetElement) {
       if (!this._resolver) {
+        return false;
+      }
+      if (!this._surrogateInjectionEnabled) {
         return false;
       }
       const surrogateFn = this._resolver.getSurrogate(pattern);
@@ -13337,24 +13216,6 @@ ${iframeContent}
       } catch (e) {
         this.log.error("Surrogate execution failed:", pattern, e);
         return false;
-      }
-    }
-    /**
-     * Clean up on feature destroy
-     */
-    destroy() {
-      this._observer?.disconnect();
-      this._observer = null;
-      if (this._originalXHROpen && this._originalXHRSend) {
-        XMLHttpRequest.prototype.open = this._originalXHROpen;
-        XMLHttpRequest.prototype.send = this._originalXHRSend;
-      }
-      if (this._originalFetch) {
-        window.fetch = this._originalFetch;
-      }
-      if (this._originalImageSrc) {
-        delete Image.prototype.src;
-        Object.defineProperty(Image.prototype, "src", this._originalImageSrc);
       }
     }
   };

@@ -1,1 +1,1 @@
-- NTP - Add "View all chats" link and footer to omnibar recent AI chats (#2584)
+- Rescope Apple surrogates/blocking scripts migration to retain native-side resolver (#2583)

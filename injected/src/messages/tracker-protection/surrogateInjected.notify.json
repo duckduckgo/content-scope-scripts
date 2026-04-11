@@ -2,36 +2,20 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "title": "SurrogateInjected",
-  "description": "Notification sent when a surrogate script is injected for a blocked tracker",
-  "required": ["url", "blocked", "isSurrogate", "pageUrl"],
+  "description": "Notification sent when a surrogate script is injected. Only emitted when surrogateInjectionEnabled is true. Native classifies via TrackerResolver.",
+  "required": ["url", "pageUrl", "surrogateName"],
   "properties": {
     "url": {
       "type": "string",
       "description": "The URL of the blocked tracker resource"
     },
-    "blocked": {
-      "type": "boolean",
-      "description": "Whether the request was blocked"
-    },
-    "reason": {
-      "type": "string",
-      "description": "The reason for blocking (e.g., 'surrogate', 'matched rule')"
-    },
-    "isSurrogate": {
-      "type": "boolean",
-      "description": "Whether a surrogate was injected"
-    },
     "pageUrl": {
       "type": "string",
-      "description": "The URL of the page where the tracker was detected"
+      "description": "The URL of the page where the surrogate was injected"
     },
-    "entityName": {
-      "type": ["string", "null"],
-      "description": "The display name of the tracker entity"
-    },
-    "ownerName": {
-      "type": ["string", "null"],
-      "description": "The owner name of the tracker"
+    "surrogateName": {
+      "type": "string",
+      "description": "The name of the surrogate that was injected (e.g., 'google-analytics.com/analytics.js')"
     }
   }
 }
