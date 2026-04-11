@@ -51,13 +51,14 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'pageObserver',
     'hover',
     'browserUiLock',
+    'spiderTrap',
     'trackerProtection',
     'tabSuspension',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection', 'spiderTrap'],
     'apple-isolated': [
         'contextMenu',
         'duckPlayer',

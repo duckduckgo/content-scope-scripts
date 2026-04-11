@@ -1,0 +1,51 @@
+.ddg-spider-trap {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2147483646;
+}
+
+.ddg-spider-trap__spider {
+    position: absolute;
+    left: var(--ddg-spider-x, 50%);
+    top: var(--ddg-spider-y, 50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #151515, #000);
+    transform: translate(-50%, -50%);
+    animation: ddg-spider-scamper 2600ms ease-in-out infinite;
+    animation-delay: var(--ddg-spider-delay, 0ms);
+}
+
+.ddg-spider-trap__spider::before,
+.ddg-spider-trap__spider::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    width: 16px;
+    height: 1px;
+    background: #111;
+}
+
+.ddg-spider-trap__spider::before {
+    left: -14px;
+    box-shadow: 0 -3px 0 #111, 0 3px 0 #111;
+}
+
+.ddg-spider-trap__spider::after {
+    right: -14px;
+    box-shadow: 0 -3px 0 #111, 0 3px 0 #111;
+}
+
+@keyframes ddg-spider-scamper {
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translate(-50%, calc(-50% - 10px)) scale(1.15);
+        opacity: 1;
+    }
+}

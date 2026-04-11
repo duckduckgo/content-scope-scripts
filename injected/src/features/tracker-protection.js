@@ -45,6 +45,8 @@ function getTabURL() {
 }
 
 export class TrackerProtection extends ContentFeature {
+    _exposedMethods = this._declareExposedMethods(['getDetectedTrackerCount']);
+
     init() {
         /** @type {TrackerResolver | null} */
         this._resolver = null;
@@ -58,6 +60,7 @@ export class TrackerProtection extends ContentFeature {
         this._isUnprotectedDomain = false;
         /** @type {MutationObserver | null} */
         this._observer = null;
+        this._detectedTrackerCount = 0;
 
         // Get top-level URL for tracker matching
         this._topLevelUrl = getTabURL();
@@ -102,6 +105,13 @@ export class TrackerProtection extends ContentFeature {
         this._ctlEnabled = this.getFeatureSetting('ctlEnabled') !== false;
 
         this._setupInterception();
+    }
+
+    /**
+     * @returns {number}
+     */
+    getDetectedTrackerCount() {
+        return this._detectedTrackerCount || 0;
     }
 
     /**
@@ -382,6 +392,8 @@ export class TrackerProtection extends ContentFeature {
         }
 
         if (result.tracker) {
+            const detectedTrackerCount = this._detectedTrackerCount || 0;
+            this._detectedTrackerCount = detectedTrackerCount + 1;
             this.notify('trackerDetected', {
                 url,
                 blocked,
@@ -451,6 +463,8 @@ export class TrackerProtection extends ContentFeature {
         }
 
         if (result.tracker) {
+            const detectedTrackerCount = this._detectedTrackerCount || 0;
+            this._detectedTrackerCount = detectedTrackerCount + 1;
             this.notify('trackerDetected', {
                 url,
                 blocked,
