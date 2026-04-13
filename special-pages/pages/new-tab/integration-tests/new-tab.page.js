@@ -55,6 +55,8 @@ export class NewtabPage {
             omnibar_openSuggestion: {},
             omnibar_submitSearch: {},
             omnibar_submitChat: {},
+            omnibar_getAiChats: { chats: [] },
+            omnibar_openAiChat: {},
         });
     }
 
@@ -77,7 +79,7 @@ export class NewtabPage {
     async openPage({
         mode = 'debug',
         additional,
-        platformName,
+        platformName = 'macos',
         willThrow = false,
         favorites,
         nextSteps,

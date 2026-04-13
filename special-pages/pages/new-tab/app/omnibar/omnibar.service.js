@@ -1,11 +1,15 @@
 import { Service } from '../service.js';
 import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
+import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
 
 /**
  * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
  * @typedef {import("../../types/new-tab.js").SuggestionsData} SuggestionsData
  * @typedef {import("../../types/new-tab.js").Suggestion} Suggestion
  * @typedef {import("../../types/new-tab.js").OpenTarget} OpenTarget
+ * @typedef {import("../../types/new-tab.js").AiChatsData} AiChatsData
+ * @typedef {import("../../types/new-tab.js").OpenAIChatAction} OpenAIChatAction
+ * @typedef {import("../../types/new-tab.js").SubmitChatAction} SubmitChatAction
  */
 
 export class OmnibarService {
@@ -24,6 +28,7 @@ export class OmnibarService {
         });
 
         this.suggestionsService = new OmnibarSuggestionsService(ntp);
+        this.aiChatsService = new OmnibarAiChatsService(ntp);
     }
 
     name() {
@@ -93,6 +98,18 @@ export class OmnibarService {
     }
 
     /**
+     * @param {string} selectedModelId
+     */
+    setSelectedModelId(selectedModelId) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                selectedModelId,
+            };
+        });
+    }
+
+    /**
      * Get suggestions for the given search term
      * @param {string} term
      * @returns {Promise<SuggestionsData>}
@@ -132,11 +149,43 @@ export class OmnibarService {
 
     /**
      * Submit a chat message to Duck.ai
-     * @param {Object} params
-     * @param {string} params.chat
-     * @param {OpenTarget} params.target
+     * @param {SubmitChatAction} params
      */
     submitChat(params) {
         this.ntp.messaging.notify('omnibar_submitChat', params);
+    }
+
+    /**
+     * Trigger a fetch for recent AI chats, optionally filtered by query.
+     * Results arrive via {@link onAiChats}.
+     * @param {string} query
+     */
+    getAiChats(query) {
+        this.aiChatsService.triggerFetch(query);
+    }
+
+    /**
+     * Subscribe to AI chats updates. Returns a function to unsubscribe.
+     * @param {(data: AiChatsData) => void} cb
+     * @returns {() => void}
+     */
+    onAiChats(cb) {
+        return this.aiChatsService.onData(cb);
+    }
+
+    /**
+     * Open a specific AI chat
+     * @param {OpenAIChatAction} params
+     */
+    openAiChat(params) {
+        this.ntp.messaging.notify('omnibar_openAiChat', params);
+    }
+
+    /**
+     * Notify native to open the full AI chats list view
+     * @param {{ target: OpenTarget }} params
+     */
+    viewAllAiChats(params) {
+        this.ntp.messaging.notify('omnibar_viewAllAIChats', params);
     }
 }

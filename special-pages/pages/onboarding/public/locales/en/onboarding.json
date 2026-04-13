@@ -285,6 +285,14 @@
     "title": "No targeted ads. No targeted recommendations. Just your video.",
     "note": "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
+  "duckPlayer_v4_title": {
+    "title": "Drowning in ads on YouTube?{newline}Not with Duck Player!",
+    "note": "Title for the Duck Player step in v4 onboarding, with a line break after the question."
+  },
+  "duckPlayer_v4_subtitle": {
+    "title": "No targeted ads. No targeted recommendations.{newline}Just your video.",
+    "note": "Subtitle for the Duck Player step in v4 onboarding, with a line break before the last sentence."
+  },
   "duckPlayer_adFree_title": {
     "title": "Watch YouTube ad-free!",
     "note": "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
@@ -468,5 +476,13 @@
   "makeDefaultAccept_title_v4": {
     "title": "Excellent! Let’s move on.",
     "note": "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
+  },
+  "row_dock-instructions_accept": {
+    "title": "Show Me How",
+    "note": "Button text that opens the dock instructions overlay."
+  },
+  "dockInstructions_body": {
+    "title": "Hold control and click the DuckDuckGo app icon, then choose <strong>Options</strong> > <strong>Keep in Dock</strong>.",
+    "note": "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
   }
 }

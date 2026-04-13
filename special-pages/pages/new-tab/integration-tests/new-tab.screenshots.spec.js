@@ -69,6 +69,21 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-search-suggestions.png', { maxDiffPixels });
         });
 
+        test('search long suggestion selected', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await omnibar.ready();
+            await omnibar.searchInput().fill('pizza');
+            await omnibar.waitForSuggestions();
+            const longSuggestion = omnibar.suggestionsList().getByRole('option', { name: /Over a billion reviews/ });
+            await longSuggestion.scrollIntoViewIfNeeded();
+            await longSuggestion.hover();
+            await expect(longSuggestion).toHaveAttribute('aria-selected', 'true');
+            await expect(page).toHaveScreenshot('omnibar-search-long-suggestion.png', { maxDiffPixels });
+        });
+
         test('ai rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -120,6 +135,17 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-ai-overflow.png', { maxDiffPixels });
         });
 
+        test('ai overflow with color background', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', background: 'color03' } });
+            await omnibar.ready();
+            const longText = Array.from({ length: 15 }, (_, i) => `Line ${i + 1}`).join('\n');
+            await omnibar.chatInput().fill(longText);
+            await expect(page).toHaveScreenshot('omnibar-ai-overflow-color-bg.png', { maxDiffPixels });
+        });
+
         test('customize popover', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -127,6 +153,25 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await ntp.openPage({ additional: { 'omnibar.showCustomizePopover': 'true' } });
             await omnibar.ready();
             await expect(page).toHaveScreenshot('omnibar-customize-popover.png', { maxDiffPixels });
+        });
+
+        test('ai chat tools rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-rest.png', { maxDiffPixels });
+        });
+
+        test('ai chat tools focused', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-focused.png', { maxDiffPixels });
         });
     });
 

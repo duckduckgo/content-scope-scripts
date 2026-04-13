@@ -1,5 +1,5 @@
-import { h } from 'preact';
-import { useCallback, useContext, useState } from 'preact/hooks';
+import { Fragment, h } from 'preact';
+import { useCallback, useContext, useRef, useState } from 'preact/hooks';
 import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
@@ -9,17 +9,23 @@ import { ResizingContainer } from './ResizingContainer';
 import { SearchForm } from './SearchForm';
 import { SearchFormProvider } from './SearchFormProvider';
 import { SuggestionsList } from './SuggestionsList';
+import { AiChatsList } from './AiChatsList';
+import { AiChatsProvider, useAiChatsContext } from './AiChatsProvider';
 import { TabSwitcher } from './TabSwitcher';
 import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
+import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
+import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
+import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  */
 
 /**
@@ -27,10 +33,12 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
  * @param {OmnibarConfig['mode']} props.mode
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
  * @param {boolean} props.enableAi
+ * @param {boolean} props.enableRecentAiChats
+ * @param {boolean} props.showViewAllAiChats
  * @param {boolean} props.showCustomizePopover
  * @param {string|null|undefined} props.tabId
  */
-export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }) {
+export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -69,7 +77,7 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
         resetForm();
     };
 
-    /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+    /** @type {(params: SubmitChatAction) => void} */
     const handleSubmitChat = (params) => {
         submitChat(params);
         resetForm();
@@ -106,25 +114,141 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                     )}
                 </div>
             )}
-            <SearchFormProvider term={query} setTerm={setQuery}>
-                <div class={styles.spacer}>
-                    <div class={styles.popup}>
-                        <ResizingContainer className={styles.field}>
+            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi}>
+                <AiChatsProvider
+                    query={query}
+                    autoFocus={autoFocus}
+                    enableRecentAiChats={enableRecentAiChats}
+                    showViewAllAiChats={showViewAllAiChats}
+                >
+                    <div class={styles.spacer}>
+                        <div class={styles.popup}>
                             {mode === 'search' ? (
-                                <SearchForm
-                                    autoFocus={autoFocus}
-                                    onOpenSuggestion={handleOpenSuggestion}
-                                    onSubmit={handleSubmitSearch}
-                                    onSubmitChat={handleSubmitChat}
-                                />
+                                <>
+                                    <ResizingContainer className={styles.field}>
+                                        <SearchForm
+                                            autoFocus={autoFocus}
+                                            onOpenSuggestion={handleOpenSuggestion}
+                                            onSubmit={handleSubmitSearch}
+                                            onSubmitChat={handleSubmitChat}
+                                        />
+                                    </ResizingContainer>
+                                    <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
+                                </>
                             ) : (
-                                <AiChatForm chat={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
+                                <AiChatContent
+                                    query={query}
+                                    autoFocus={autoFocus}
+                                    enableRecentAiChats={enableRecentAiChats}
+                                    onChange={setQuery}
+                                    onSubmit={handleSubmitChat}
+                                />
                             )}
-                        </ResizingContainer>
-                        {mode === 'search' && <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />}
+                        </div>
                     </div>
-                </div>
+                </AiChatsProvider>
             </SearchFormProvider>
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {string} props.query
+ * @param {boolean} [props.autoFocus]
+ * @param {boolean} props.enableRecentAiChats
+ * @param {(query: string) => void} props.onChange
+ * @param {(params: SubmitChatAction) => void} props.onSubmit
+ */
+function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
+    const { showChats, hideChats } = useAiChatsContext();
+    const { state } = useContext(OmnibarContext);
+    const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const hasVisibleImagesRef = useRef(false);
+    const selectedModelIdRef = useRef(/** @type {string|null} */ (null));
+    const [imageWarning, setImageWarning] = useState(false);
+    const [supportsImageUpload, setSupportsImageUpload] = useState(false);
+    const imageState = useImageAttachments();
+    const enableAiChatTools = state.config?.enableAiChatTools === true;
+
+    /** @type {(query: string) => void} */
+    const handleChange = (value) => {
+        onChange(value);
+        if (!hasVisibleImagesRef.current) showChats();
+    };
+
+    /**
+     * @param {string} chat
+     * @param {import('../../../types/new-tab.js').OpenTarget} target
+     */
+    const handleSubmit = (chat, target) => {
+        /** @type {SubmitChatAction} */
+        const action = { chat, target };
+
+        if (enableAiChatTools) {
+            if (supportsImageUpload) {
+                const images = imageState.getImagesForSubmission();
+                if (images) {
+                    action.images = /** @type {SubmitChatAction['images']} */ (images);
+                }
+            }
+            if (selectedModelIdRef.current) {
+                action.modelId = selectedModelIdRef.current;
+            }
+        }
+
+        onSubmit(action);
+        imageState.clearAttachedImages();
+    };
+
+    return (
+        <div
+            ref={containerRef}
+            data-image-warning={imageWarning || undefined}
+            onFocusCapture={(event) => {
+                if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current) showChats();
+            }}
+            onBlurCapture={(event) => {
+                if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
+                    return;
+                }
+
+                hideChats();
+            }}
+        >
+            <ResizingContainer className={styles.field}>
+                <AiChatForm
+                    query={query}
+                    autoFocus={autoFocus}
+                    disabled={query.length === 0 || imageWarning}
+                    onChange={handleChange}
+                    onSubmit={handleSubmit}
+                    toolbarLeft={supportsImageUpload && <ImageUploadButton state={imageState} />}
+                    toolbarRight={
+                        <ModelSelectorTool
+                            onSelectedModelChange={(model) => {
+                                selectedModelIdRef.current = model?.id ?? null;
+                                setSupportsImageUpload(model?.supportsImageUpload ?? false);
+                            }}
+                        />
+                    }
+                >
+                    <ImageAttachmentContent
+                        state={imageState}
+                        supportsImageUpload={supportsImageUpload}
+                        onVisibleImagesChange={(hasImages) => {
+                            hasVisibleImagesRef.current = hasImages;
+                            if (hasImages) {
+                                hideChats();
+                            } else if (document.activeElement?.tagName === 'TEXTAREA') {
+                                showChats();
+                            }
+                        }}
+                        onImageWarningChange={setImageWarning}
+                    />
+                </AiChatForm>
+            </ResizingContainer>
+            {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
     );
 }

@@ -23,6 +23,29 @@ export function reducer(state, action) {
     // console.log('action', action)
     // console.groupEnd()
 
+    if (action.kind === 'config-update') {
+        let nextStepDefs = state.stepDefinitions;
+        if (action.stepDefinitions) {
+            nextStepDefs = { ...state.stepDefinitions };
+            for (const [key, value] of Object.entries(action.stepDefinitions)) {
+                if (typeof value === 'object' && value !== null && nextStepDefs[key]) {
+                    nextStepDefs[key] = { ...nextStepDefs[key], ...value };
+                } else {
+                    nextStepDefs[key] = value;
+                }
+            }
+        }
+        let nextOrder = state.order;
+        if (action.exclude) {
+            nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
+        }
+        return {
+            ...state,
+            stepDefinitions: nextStepDefs,
+            order: nextOrder,
+            step: nextStepDefs[state.activeStep] ?? state.step,
+        };
+    }
     switch (state.status.kind) {
         case 'idle': {
             switch (action.kind) {
@@ -49,6 +72,7 @@ export function reducer(state, action) {
                             activeRow: 0,
                             activeStepVisible: false,
                             exiting: false,
+                            overlay: null,
                             step: state.stepDefinitions[state.order[nextPageIndex]],
                         };
                     }
@@ -60,12 +84,26 @@ export function reducer(state, action) {
                         exiting: true,
                     };
                 }
+                case 'show-overlay': {
+                    return {
+                        ...state,
+                        overlay: action.overlay,
+                    };
+                }
+                case 'dismiss-overlay': {
+                    return {
+                        ...state,
+                        overlay: null,
+                    };
+                }
                 default:
                     return state;
             }
         }
         case 'executing': {
             switch (action.kind) {
+                case 'telemetry':
+                    return state;
                 case 'exec-complete': {
                     if (state.step.kind === 'settings') {
                         // only advance to another row if we're updating the current item.
@@ -159,6 +197,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,
+        overlay: null,
         values: {},
         UIValues: {
             dock: 'idle',
@@ -171,6 +210,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             'aggressive-ad-blocking': 'idle',
             'youtube-ad-blocking': 'idle',
             'address-bar-mode': 'idle',
+            'dock-instructions': 'idle',
         },
     });
 
@@ -183,10 +223,28 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             dispatch(msg);
 
             /**
-             * Side effects that don't impact global state
+             * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
-                messaging.stepCompleted({ id: state.activeStep });
+                const currentIndex = state.order.indexOf(state.activeStep);
+                const next = state.order[currentIndex + 1] ?? null;
+                messaging.stepCompleted({ id: state.activeStep, next });
+                // Fire row_shown for the first row of the incoming settings step
+                if (next) {
+                    const nextStepDef = state.stepDefinitions[next];
+                    if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
+                        messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
+                    }
+                }
+            }
+            if (msg.kind === 'show-overlay' && msg.overlay === 'dock-instructions') {
+                messaging.telemetryEvent({ attributes: { name: 'dock_instructions_shown' } });
+            }
+            if (msg.kind === 'update-system-value' && !msg.payload.enabled && msg.current) {
+                messaging.telemetryEvent({ attributes: { name: 'row_skipped', value: msg.id } });
+            }
+            if (msg.kind === 'telemetry') {
+                messaging.telemetryEvent({ attributes: msg.attributes });
             }
             if (msg.kind === 'dismiss-to-settings') {
                 messaging.dismissToSettings();
@@ -198,6 +256,16 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         [state, messaging],
     );
 
+    useEffect(() => {
+        const unsubscribe = messaging.onConfigUpdate((data) => {
+            dispatch({
+                kind: 'config-update',
+                stepDefinitions: data.stepDefinitions,
+                exclude: /** @type {import('./types.js').ConfigUpdateEvent['exclude']} */ (data.exclude),
+            });
+        });
+        return unsubscribe;
+    }, [messaging]);
     // handle *fatal* state (from error boundary)
     useEffect(() => {
         if (state.status.kind !== 'fatal') return;
@@ -221,6 +289,16 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                     id: action.id,
                     payload,
                 });
+                // Fire row_shown for the next row if we just completed the active row
+                if (state.step?.kind === 'settings') {
+                    const currentRow = state.step.rows[state.activeRow];
+                    if (currentRow === action.id) {
+                        const nextRowId = state.step.rows[state.activeRow + 1];
+                        if (nextRowId) {
+                            messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextRowId } });
+                        }
+                    }
+                }
             })
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch((e) => {

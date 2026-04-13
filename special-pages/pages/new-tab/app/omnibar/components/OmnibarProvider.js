@@ -9,6 +9,9 @@ import { OmnibarService } from '../omnibar.service.js';
  * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ * @typedef {import('../../../types/new-tab.js').AiChatsData} AiChatsData
+ * @typedef {import('../../../types/new-tab.js').OpenAIChatAction} OpenAIChatAction
+ * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State
  */
 
@@ -46,8 +49,28 @@ export const OmnibarContext = createContext({
     submitSearch: () => {
         throw new Error('must implement');
     },
-    /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+    /** @type {(id: string) => void} */
+    setSelectedModelId: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(params: SubmitChatAction) => void} */
     submitChat: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(query: string) => void} */
+    getAiChats: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(cb: (data: AiChatsData) => void) => (() => void)} */
+    onAiChats: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(params: OpenAIChatAction) => void} */
+    openAiChat: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(params: {target: OpenTarget}) => void} */
+    viewAllAiChats: () => {
         throw new Error('must implement');
     },
 });
@@ -102,6 +125,14 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(id: string) => void} */
+    const setSelectedModelId = useCallback(
+        (id) => {
+            service.current?.setSelectedModelId(id);
+        },
+        [service],
+    );
+
     /** @type {(term: string) => Promise<SuggestionsData>} */
     const getSuggestions = useCallback(
         (term) => {
@@ -136,10 +167,44 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+    /** @type {(params: SubmitChatAction) => void} */
     const submitChat = useCallback(
         (params) => {
             service.current?.submitChat(params);
+        },
+        [service],
+    );
+
+    /** @type {(query: string) => void} */
+    const getAiChats = useCallback(
+        (query) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current?.getAiChats(query);
+        },
+        [service],
+    );
+
+    /** @type {(cb: (data: AiChatsData) => void) => (() => void)} */
+    const onAiChats = useCallback(
+        (cb) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.onAiChats(cb);
+        },
+        [service],
+    );
+
+    /** @type {(params: OpenAIChatAction) => void} */
+    const openAiChat = useCallback(
+        (params) => {
+            service.current?.openAiChat(params);
+        },
+        [service],
+    );
+
+    /** @type {(params: {target: OpenTarget}) => void} */
+    const viewAllAiChats = useCallback(
+        (params) => {
+            service.current?.viewAllAiChats(params);
         },
         [service],
     );
@@ -151,11 +216,16 @@ export function OmnibarProvider(props) {
                 setMode,
                 setEnableAi,
                 setShowCustomizePopover,
+                setSelectedModelId,
                 getSuggestions,
                 onSuggestions,
                 openSuggestion,
                 submitSearch,
                 submitChat,
+                getAiChats,
+                onAiChats,
+                openAiChat,
+                viewAllAiChats,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

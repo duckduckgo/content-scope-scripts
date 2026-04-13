@@ -1,9 +1,12 @@
 import { h } from 'preact';
-import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
+import { useContext, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
+import { OmnibarContext } from './OmnibarProvider';
+import { useAiChatsContext, VIEW_ALL_CHATS_ELEMENT_ID } from './AiChatsProvider';
+import { getAiChatElementId } from './useAiChats';
 import styles from './AiChatForm.module.css';
 
 /**
@@ -12,15 +15,26 @@ import styles from './AiChatForm.module.css';
  */
 
 /**
+ * A simple form shell for the AI chat input. Renders a textarea, submit button,
+ * and tool-provided UI via slots. The parent owns all tool state and assembles
+ * the submit payload; this component just provides (chat, target) on submit.
+ *
  * @param {object} props
- * @param {string} props.chat
+ * @param {string} props.query
  * @param {boolean} [props.autoFocus]
- * @param {(chat: string) => void} props.onChange
- * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
+ * @param {boolean} [props.disabled]
+ * @param {(query: string) => void} props.onChange
+ * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
+ * @param {import('preact').ComponentChildren} [props.children]
+ * @param {import('preact').ComponentChildren} [props.toolbarLeft]
+ * @param {import('preact').ComponentChildren} [props.toolbarRight]
  */
-export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
+export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, toolbarLeft, toolbarRight }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
+    const { openAiChat, viewAllAiChats } = useContext(OmnibarContext);
+    const { chats, selectedChat, viewAllChatsSelected, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } =
+        useAiChatsContext();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
@@ -38,7 +52,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
         if (!textArea || !form) return;
 
         const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
-        textArea.style.height = 'auto'; // Reset height
+        textArea.style.height = 'auto';
         textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
 
         if (textArea.scrollHeight > textArea.clientHeight) {
@@ -46,29 +60,62 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
         } else {
             form.classList.remove(styles.hasScroll);
         }
-    }, [chat]);
-
-    const disabled = chat.length === 0;
+    }, [query]);
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled) return;
-        onSubmit({
-            chat,
-            target: 'same-tab',
-        });
+        onSubmit(query, 'same-tab');
     };
 
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            if (disabled) return;
-            onSubmit({
-                chat,
-                target: eventToTarget(event, platformName),
-            });
+        switch (event.key) {
+            case 'ArrowUp': {
+                if (selectPreviousChat()) event.preventDefault();
+                break;
+            }
+            case 'ArrowDown': {
+                if (selectNextChat()) event.preventDefault();
+                break;
+            }
+            case 'Escape':
+                if (selectedChat || viewAllChatsSelected) {
+                    event.preventDefault();
+                    clearSelectedChat();
+                }
+                break;
+            case 'Enter':
+                if (event.shiftKey) {
+                    break;
+                }
+
+                event.preventDefault();
+
+                if (viewAllChatsSelected) {
+                    viewAllAiChats({
+                        target: eventToTarget(event, platformName),
+                    });
+                    break;
+                }
+
+                if (selectedChat) {
+                    openAiChat({
+                        chatId: selectedChat.chatId,
+                        target: eventToTarget(event, platformName),
+                        trigger: 'keyboard',
+                        isPinned: Boolean(selectedChat.pinned),
+                    });
+                    break;
+                }
+
+                if (disabled) {
+                    break;
+                }
+
+                onSubmit(query, eventToTarget(event, platformName));
+                break;
         }
     };
 
@@ -77,36 +124,67 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-        onSubmit({
-            chat,
-            target: eventToTarget(event, platformName),
-        });
+        onSubmit(query, eventToTarget(event, platformName));
+    };
+
+    const getActiveDescendant = () => {
+        if (selectedChat) {
+            return getAiChatElementId(selectedChat.chatId);
+        }
+
+        if (viewAllChatsSelected && chats.length > 0) {
+            return VIEW_ALL_CHATS_ELEMENT_ID;
+        }
+
+        return undefined;
     };
 
     return (
-        <form ref={formRef} class={styles.form} onClick={() => textAreaRef.current?.focus()} onSubmit={handleSubmit}>
+        <form
+            ref={formRef}
+            class={styles.form}
+            onSubmit={handleSubmit}
+            onClick={(e) => {
+                if (e.target === e.currentTarget || e.target === textAreaRef.current) {
+                    textAreaRef.current?.focus();
+                }
+            }}
+        >
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
-                value={chat}
+                value={query}
                 placeholder={t('omnibar_aiChatFormPlaceholder')}
                 aria-label={t('omnibar_aiChatFormPlaceholder')}
+                aria-expanded={chats.length > 0}
+                aria-haspopup="listbox"
+                aria-controls={aiChatsListId}
+                aria-activedescendant={getActiveDescendant()}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
-                onChange={(event) => onChange(event.currentTarget.value)}
+                onChange={(event) => {
+                    onChange(event.currentTarget.value);
+                    clearSelectedChat();
+                }}
             />
-            <div class={styles.buttons}>
-                <button
-                    type="submit"
-                    class={styles.submitButton}
-                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
-                    disabled={chat.length === 0}
-                    onClick={handleClickSubmit}
-                    onAuxClick={handleClickSubmit}
-                >
-                    <ArrowRightIcon />
-                </button>
+            {children}
+            <div tabIndex={-1} class={styles.buttons}>
+                {toolbarLeft}
+                <div class={styles.rightButtons}>
+                    {toolbarRight}
+                    <button
+                        tabIndex={0}
+                        type="submit"
+                        class={styles.submitButton}
+                        aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                        disabled={disabled}
+                        onClick={handleClickSubmit}
+                        onAuxClick={handleClickSubmit}
+                    >
+                        <ArrowRightIcon />
+                    </button>
+                </div>
             </div>
         </form>
     );

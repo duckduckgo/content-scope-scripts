@@ -33,19 +33,23 @@ jobs:
                   cd ..
 
             - name: Run build script on PR branch
+              env:
+                  BASE_REF: ${{ github.event.pull_request.base.ref }}
               run: |
                   cd pr
                   git config --global user.email "dax@duck.com"
                   git config --global user.name "dax"
-                  echo ${{ github.event.pull_request.base.ref }}
-                  git fetch origin ${{ github.event.pull_request.base.ref }}
-                  git rebase -X theirs origin/${{ github.event.pull_request.base.ref }}
+                  echo "$BASE_REF"
+                  git fetch origin "$BASE_REF"
+                  git rebase -X theirs "origin/$BASE_REF"
                   npm install
                   npm run build
                   cd ..
 
             - name: Create diff of file outputs
               run: |
+                  cp -r base/Sources/ContentScopeScripts/dist base/build/apple 2>/dev/null || true
+                  cp -r pr/Sources/ContentScopeScripts/dist pr/build/apple 2>/dev/null || true
                   node pr/.github/scripts/diff-directories.js base pr > diff.txt
 
             - name: Find Previous Comment
@@ -58,7 +62,7 @@ jobs:
                   direction: last
 
             - name: Create Comment Body
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               id: create_body
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -6,6 +6,7 @@ import { AddressBarMode } from '../pages/AddressBarMode/AddressBarMode';
 import { ElasticButton } from '../components/ElasticButton';
 import { Timeout } from '../../shared/components/Timeout';
 import { SettingsStep } from '../components/SettingsStep';
+import { DockInstructions } from '../components/DockInstructions';
 
 /**
  * This sets up individual steps in the v3 (highlights) version of onboarding
@@ -64,9 +65,28 @@ export const stepsConfig = {
             content: <MakeDefaultStep />,
         };
     },
-    systemSettings: ({ t, globalState, advance }) => {
-        const { step, activeRow } = globalState;
+    systemSettings: ({ t, globalState, advance, dismissOverlay, enableSystemValue }) => {
+        const { step, activeRow, overlay } = globalState;
         const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */ (step).rows.length;
+
+        if (overlay === 'dock-instructions') {
+            return {
+                variant: 'box',
+                heading: {
+                    title: t('systemSettings_title_v3'),
+                    subtitle: t('systemSettings_subtitle_v3'),
+                    speechBubble: true,
+                },
+                acceptButton: {
+                    text: t('nextButton'),
+                    handler: () => {
+                        dismissOverlay();
+                        enableSystemValue('dock-instructions');
+                    },
+                },
+                content: <DockInstructions />,
+            };
+        }
 
         return {
             variant: 'box',
@@ -84,7 +104,7 @@ export const stepsConfig = {
             content: <SettingsStep data={settingsRowItems} />,
         };
     },
-    duckPlayerSingle: ({ t, advance, beforeAfter, globalState }) => {
+    duckPlayerSingle: ({ t, advance, beforeAfter, globalState, telemetry }) => {
         const duckPlayerDef = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
         const isAdFree = duckPlayerDef.variant === 'ad-free';
         const beforeAfterState = beforeAfter.get();
@@ -105,7 +125,10 @@ export const stepsConfig = {
                       startIcon: <Replay direction={beforeAfterState === 'before' ? 'forward' : 'backward'} />,
                       text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
                       longestText,
-                      handler: () => beforeAfter.toggle(),
+                      handler: () => {
+                          telemetry({ name: 'duck_player_toggled' });
+                          beforeAfter.toggle();
+                      },
                   },
             acceptButton: {
                 text: t('nextButton'),
@@ -263,6 +286,15 @@ export const settingsRowItems = {
         title: t('addressBarMode_title'),
         kind: 'toggle',
         acceptText: t('startBrowsing'),
+        accepButtonVariant: 'primary',
+    }),
+    'dock-instructions': (t) => ({
+        id: 'dock-instructions',
+        icon: 'v3/Add-To-Dock-Color-24.svg',
+        title: t('row_dock_title_v3'),
+        secondaryText: t('row_dock_summary_v3'),
+        kind: 'one-time',
+        acceptText: t('row_dock-instructions_accept'),
         accepButtonVariant: 'primary',
     }),
 };

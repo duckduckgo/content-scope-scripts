@@ -35,6 +35,15 @@ import { URLPattern } from 'urlpattern-polyfill';
  */
 
 /**
+ * An entry from a conditional feature setting list.
+ * Each entry has optional condition/domain fields for matching,
+ * plus optional patchSettings for config patching.
+ * Features may add additional properties specific to their config.
+ *
+ * @typedef {{condition?: ConditionBlockOrArray, domain?: string | string[], patchSettings?: import('immutable-json-patch').JSONPatchDocument} & Record<string, unknown>} ConditionalSettingEntry
+ */
+
+/**
  * This class is extended by each feature to implement remote config handling:
  * - Parsing the remote config, with conditional logic applied,
  * - Providing API for features to check if they are enabled,
@@ -54,13 +63,13 @@ export default class ConfigFeature {
      *   platform: import('./utils.js').Platform,
      *   desktopModeEnabled?: boolean,
      *   forcedZoomEnabled?: boolean,
-     *   isDdgWebView?: boolean,
      *   featureSettings?: Record<string, unknown>,
      *   assets?: import('./content-feature.js').AssetConfig | undefined,
      *   site: import('./content-feature.js').Site,
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
      *   messagingContextName: string,
      *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
+     *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
      * } | null}
      */
     #args;
@@ -117,7 +126,7 @@ export default class ConfigFeature {
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
-     * @return {any[]}
+     * @return {ConditionalSettingEntry[]}
      * @protected
      */
     matchConditionalFeatureSetting(featureKeyName) {

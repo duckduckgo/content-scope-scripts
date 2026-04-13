@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useMemo } from 'preact/hooks';
+import { useEffect } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useTypedTranslationWith } from '../../types';
@@ -62,7 +62,6 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat
     const inputSuffix = getInputSuffix(term, selectedSuggestion);
     const inputSuffixText = useSuffixText(inputSuffix);
     const inputFont = platformName === 'windows' ? '400 14px / 16px system-ui' : '500 13px / 16px system-ui';
-    const inputSuffixWidth = useMemo(() => measureText(inputSuffixText, inputFont), [inputSuffixText, inputFont]);
 
     useEffect(() => {
         if (autoFocus && inputRef.current) {
@@ -116,7 +115,7 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat
     return (
         <form
             class={styles.form}
-            style={{ '--input-font': inputFont, '--suffix-text-width': `${inputSuffixWidth}px` }}
+            style={{ '--input-font': inputFont }}
             onSubmit={(event) => {
                 event.preventDefault();
                 onSubmit({
@@ -136,7 +135,6 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat
                 aria-haspopup="listbox"
                 aria-controls={suggestionsListId}
                 aria-activedescendant={selectedSuggestion?.id}
-                spellcheck={false}
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
@@ -185,18 +183,4 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat
             )}
         </form>
     );
-}
-
-/**
- * @param {string} text
- * @param {string} font
- * @returns {number}
- */
-function measureText(text, font) {
-    if (!text) return 0;
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) throw new Error('Failed to get canvas context');
-    context.font = font;
-    return context.measureText(text).width;
 }

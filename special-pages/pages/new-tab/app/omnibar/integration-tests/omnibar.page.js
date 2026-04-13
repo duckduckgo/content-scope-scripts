@@ -23,6 +23,10 @@ export class OmnibarPage {
         await this.ntp.mocks.waitForCallCount({ method: 'omnibar_getConfig', count: 1 });
     }
 
+    async focusChatInput() {
+        await this.chatInput().click();
+    }
+
     searchInput() {
         return this.context().getByRole('combobox');
     }
@@ -55,8 +59,20 @@ export class OmnibarPage {
         return this.suggestionsList().getByRole('option');
     }
 
+    aiChatsList() {
+        return this.context().getByRole('listbox');
+    }
+
+    aiChats() {
+        return this.aiChatsList().getByRole('option');
+    }
+
     selectedSuggestion() {
         return this.suggestionsList().getByRole('option', { selected: true });
+    }
+
+    selectedAiChat() {
+        return this.aiChatsList().getByRole('option', { selected: true });
     }
 
     customizeButton() {
@@ -107,6 +123,17 @@ export class OmnibarPage {
 
     async expectNoSelection() {
         await expect(this.selectedSuggestion()).toHaveCount(0);
+    }
+
+    /**
+     * @param {string} text
+     */
+    async expectSelectedAiChatToHaveText(text) {
+        await expect(this.selectedAiChat()).toHaveText(text);
+    }
+
+    async expectNoAiChatSelection() {
+        await expect(this.selectedAiChat()).toHaveCount(0);
     }
 
     async waitForSuggestions() {
@@ -268,6 +295,29 @@ export class OmnibarPage {
     async clearsInput() {
         await this.searchInput().hover();
         await this.closeButton().click();
+    }
+
+    fileInput() {
+        return this.context().locator('input[type="file"]');
+    }
+
+    imagePreviews() {
+        return this.context().locator('img[alt=""]');
+    }
+
+    modelSelectorButton() {
+        return this.context().getByRole('button', { name: 'Model' });
+    }
+
+    modelDropdown() {
+        return this.page.getByRole('listbox', { name: 'Model' });
+    }
+
+    /**
+     * @param {string} modelName
+     */
+    modelOption(modelName) {
+        return this.modelDropdown().getByRole('option', { name: modelName });
     }
 }
 

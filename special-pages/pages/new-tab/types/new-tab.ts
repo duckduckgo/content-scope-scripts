@@ -73,6 +73,23 @@ export type ShowDuckAiSetting = boolean;
  * Controls a popover that onboards users and points them towards how to disable the feature via the customizer
  */
 export type ShowCustomizePopover = boolean;
+export type EnableRecentAIChats = boolean;
+/**
+ * Feature flag to enable AI chat tools (model selector, image attachments)
+ */
+export type EnableAIChatTools = boolean;
+/**
+ * The user's currently selected AI model, persisted across tabs
+ */
+export type SelectedModelID = string;
+/**
+ * Sections of AI models for the model selector.
+ */
+export type AIModelSections = AIModelSection[];
+/**
+ * When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list
+ */
+export type ShowViewAllAIChats = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -146,10 +163,12 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarOpenAiChatNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
+    | OmnibarViewAllAIChatsNotification
     | OpenNotification
     | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
@@ -175,6 +194,7 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
     | OmnibarGetSuggestionsRequest
     | ProtectionsGetConfigRequest
@@ -498,6 +518,28 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_openAiChat.notify.json"
+ */
+export interface OmnibarOpenAiChatNotification {
+  method: "omnibar_openAiChat";
+  params: OpenAIChatAction;
+}
+export interface OpenAIChatAction {
+  /**
+   * The ID of the chat to open
+   */
+  chatId: string;
+  target: OpenTarget;
+  /**
+   * Whether the chat was opened via mouse click or keyboard
+   */
+  trigger: "mouse" | "keyboard";
+  /**
+   * Whether the chat is pinned
+   */
+  isPinned: boolean;
+}
+/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -553,6 +595,49 @@ export interface OmnibarConfig {
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
+  enableRecentAiChats?: EnableRecentAIChats;
+  enableAiChatTools?: EnableAIChatTools;
+  selectedModelId?: SelectedModelID;
+  aiModelSections?: AIModelSections;
+  showViewAllAiChats?: ShowViewAllAIChats;
+}
+/**
+ * A section of AI models with an optional header and a list of model items.
+ */
+export interface AIModelSection {
+  /**
+   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
+   */
+  header?: string;
+  /**
+   * List of AI models in this section
+   */
+  items: AIModelItem[];
+}
+/**
+ * An individual AI model available for selection.
+ */
+export interface AIModelItem {
+  /**
+   * Model identifier
+   */
+  id: string;
+  /**
+   * Full display name
+   */
+  name: string;
+  /**
+   * Short display name for the model selector button
+   */
+  shortName: string;
+  /**
+   * Whether the model is enabled and selectable
+   */
+  isEnabled: boolean;
+  /**
+   * Whether this model supports image attachments
+   */
+  supportsImageUpload: boolean;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -567,6 +652,23 @@ export interface SubmitChatAction {
    */
   chat: string;
   target: OpenTarget;
+  /**
+   * The selected AI model identifier. Optional - if not provided, the backend will use the default model.
+   */
+  modelId?: string;
+  /**
+   * Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.
+   */
+  images?: {
+    /**
+     * Base64-encoded image data (without data URL prefix)
+     */
+    data: string;
+    /**
+     * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+     */
+    format: "jpeg" | "png";
+  }[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitSearch.notify.json"
@@ -580,6 +682,16 @@ export interface SubmitSearchAction {
    * The search term to submit
    */
   term: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/omnibar_viewAllAIChats.notify.json"
+ */
+export interface OmnibarViewAllAIChatsNotification {
+  method: "omnibar_viewAllAIChats";
+  params: ViewAllAIChatsAction;
+}
+export interface ViewAllAIChatsAction {
   target: OpenTarget;
 }
 /**
@@ -972,6 +1084,44 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_getAiChats.request.json"
+ */
+export interface OmnibarGetAiChatsRequest {
+  method: "omnibar_getAiChats";
+  params: GetAIChatsRequest;
+  result: AiChatsData;
+}
+export interface GetAIChatsRequest {
+  /**
+   * Search query to filter chats.
+   */
+  query: string;
+}
+export interface AiChatsData {
+  /**
+   * List of AI chats
+   */
+  chats: AiChat[];
+}
+export interface AiChat {
+  /**
+   * Unique identifier for the chat
+   */
+  chatId: string;
+  /**
+   * Display title of the chat
+   */
+  title: string;
+  /**
+   * Whether the chat is pinned
+   */
+  pinned?: boolean;
+  /**
+   * ISO timestamp of last edit
+   */
+  lastEdit?: string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"
