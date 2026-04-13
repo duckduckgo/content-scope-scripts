@@ -80,7 +80,8 @@ test.describe('Test integration pages', () => {
     test('Test infra fallback', async ({ page }, testInfo) => {
         await page.addInitScript(() => {
             // This ensures that our fallback code applies and so we simulate other platforms than Chromium.
-            delete globalThis.navigation;
+            // TS 6 disallows deleting non-optional properties, so shadow with `undefined` via `as any`.
+            globalThis.navigation = /** @type {any} */ (undefined);
         });
         await testPage(
             page,
