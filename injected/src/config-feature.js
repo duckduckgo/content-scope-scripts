@@ -9,7 +9,9 @@ import {
     isMaxSupportedVersion,
     isStateEnabled,
 } from './utils.js';
-import { URLPattern } from 'urlpattern-polyfill';
+import { URLPattern as URLPatternPolyfill } from 'urlpattern-polyfill';
+
+const URLPatternCtor = globalThis.URLPattern ?? URLPatternPolyfill;
 
 /**
  * Used to match conditional changes for a settings feature.
@@ -273,9 +275,9 @@ export default class ConfigFeature {
         if (!url) return false;
         if (typeof conditionBlock.urlPattern === 'string') {
             // Use the current URL as the base for matching
-            return new URLPattern(conditionBlock.urlPattern, url).test(url);
+            return new URLPatternCtor(conditionBlock.urlPattern, url).test(url);
         }
-        const pattern = new URLPattern(conditionBlock.urlPattern);
+        const pattern = new URLPatternCtor(conditionBlock.urlPattern);
         return pattern.test(url);
     }
 
