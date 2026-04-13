@@ -9,7 +9,7 @@ import {
     isMaxSupportedVersion,
     isStateEnabled,
 } from './utils.js';
-import { URLPattern } from 'urlpattern-polyfill';
+import 'urlpattern-polyfill';
 
 /**
  * Used to match conditional changes for a settings feature.
