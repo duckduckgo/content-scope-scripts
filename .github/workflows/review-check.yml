@@ -33,7 +33,7 @@ jobs:
 
             - name: Validate approved review from authorized reviewer
               if: ${{ github.event_name != 'merge_group' }}
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               env:
                   ORG_TOKEN: ${{ secrets.DAX_PAT }}
               with:

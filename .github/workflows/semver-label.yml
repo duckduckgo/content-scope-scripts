@@ -75,7 +75,7 @@ jobs:
 
             - name: Label PR
               if: steps.analyse.outputs.severity != ''
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               env:
                   SEVERITY: ${{ steps.analyse.outputs.severity }}
               with:
