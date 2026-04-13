@@ -28,6 +28,7 @@ export function getAiChatElementId(chatId) {
  *   | { type: 'showChats' }
  *   | { type: 'setSelectedChat', payload: AiChat }
  *   | { type: 'clearSelectedChat' }
+ *   | { type: 'selectViewAllChats' }
  *   | { type: 'previousChat', itemCount: number }
  *   | { type: 'nextChat', itemCount: number }
  * )} Action
@@ -66,6 +67,11 @@ function reducer(state, action) {
             return {
                 ...state,
                 selectedIndex: null,
+            };
+        case 'selectViewAllChats':
+            return {
+                ...state,
+                selectedIndex: state.chats.length,
             };
         case 'previousChat': {
             const nextIndex = state.selectedIndex === null ? action.itemCount - 1 : state.selectedIndex - 1;
@@ -152,6 +158,11 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         dispatch({ type: 'clearSelectedChat' });
     };
 
+    const selectViewAllChats = () => {
+        if (!showViewAllAiChats || itemCount === 0) return;
+        dispatch({ type: 'selectViewAllChats' });
+    };
+
     const hideChats = () => {
         dispatch({ type: 'hideChats' });
     };
@@ -168,6 +179,7 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         selectNextChat,
         setSelectedChat,
         clearSelectedChat,
+        selectViewAllChats,
         hideChats,
         showChats,
     };
