@@ -52,9 +52,9 @@
     "stylelint-config-standard": "^40.0.0",
     "stylelint-csstree-validator": "^4.0.0",
     "ts-json-schema-generator": "^2.5.0",
-    "typedoc": "^0.28.17",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.57.2"
+    "typedoc": "^0.28.19",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.1"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.2",

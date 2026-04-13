@@ -80,7 +80,7 @@ test.describe('Test integration pages', () => {
     test('Test infra fallback', async ({ page }, testInfo) => {
         await page.addInitScript(() => {
             // This ensures that our fallback code applies and so we simulate other platforms than Chromium.
-            delete globalThis.navigation;
+            delete (/** @type {{ navigation?: unknown }} */ (globalThis).navigation);
         });
         await testPage(
             page,
