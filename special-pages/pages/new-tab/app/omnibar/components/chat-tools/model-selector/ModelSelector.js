@@ -13,9 +13,10 @@ import styles from './ModelSelector.module.css';
  */
 export function ModelSelector({ selector, selectedModel, aiModelSections, ariaLabel }) {
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
-    const handleDropdownEscape = () => {
+    /** @param {{ restoreFocus: boolean }} options */
+    const handleClose = ({ restoreFocus }) => {
         closeDropdown();
-        modelButtonRef.current?.focus();
+        if (restoreFocus) modelButtonRef.current?.focus();
     };
 
     return (
@@ -42,8 +43,7 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, ariaLa
                     sections={aiModelSections}
                     selectedModelId={selectedModel?.id}
                     dropdownPos={dropdownPos}
-                    onClose={closeDropdown}
-                    onEscape={handleDropdownEscape}
+                    onClose={handleClose}
                     onSelect={selectModel}
                     ariaLabel={ariaLabel}
                 />

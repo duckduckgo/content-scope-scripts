@@ -3,7 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { CloseSmallIcon, CreateImageIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
-import { useToolsMenu } from './useToolsMenu';
+import { useDropdown } from '../useDropdown';
 import styles from './ToolsMenu.module.css';
 
 /**
@@ -32,7 +32,7 @@ import styles from './ToolsMenu.module.css';
  */
 export function ToolsMenu({ tools, activeTool, onToggle }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { menuOpen, buttonRef, dropdownRef, dropdownPos, toggleMenu, closeMenu } = useToolsMenu();
+    const { isOpen: menuOpen, buttonRef, dropdownRef, dropdownPos, toggle: toggleMenu, close: closeMenu } = useDropdown({ align: 'left' });
     const [activeIndex, setActiveIndex] = useState(-1);
     const clearActiveIndex = () => setActiveIndex(-1);
 
@@ -134,6 +134,7 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                 e.preventDefault();
                 if (activeIndex >= 0 && activeIndex < resolvedTools.length) {
                     handleSelect(resolvedTools[activeIndex].id);
+                    buttonRef.current?.focus();
                 }
                 break;
             case 'Escape':

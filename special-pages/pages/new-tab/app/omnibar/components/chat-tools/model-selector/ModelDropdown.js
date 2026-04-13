@@ -9,13 +9,12 @@ import { getModelIcon } from './Icons';
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.sections
  * @param {string} [props.selectedModelId]
  * @param {import('../useDropdown.js').DropdownPosition} props.dropdownPos
- * @param {() => void} props.onClose
- * @param {() => void} props.onEscape
+ * @param {(options: {restoreFocus: boolean}) => void} props.onClose
  * @param {(id: string) => void} props.onSelect
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
-export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onEscape, onSelect, ariaLabel, dropdownRef }) {
+export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, ariaLabel, dropdownRef }) {
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
     const enabledModelIndices = allModels.reduce(
@@ -93,14 +92,15 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                 e.preventDefault();
                 if (activeIndex >= 0 && activeIndex < allModels.length) {
                     onSelect(allModels[activeIndex].id);
+                    onClose({ restoreFocus: true });
                 }
                 break;
             case 'Escape':
                 e.preventDefault();
-                onEscape();
+                onClose({ restoreFocus: true });
                 break;
             case 'Tab':
-                window.setTimeout(() => onClose(), 0);
+                window.setTimeout(() => onClose({ restoreFocus: false }), 0);
                 break;
         }
     };
