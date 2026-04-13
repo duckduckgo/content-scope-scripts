@@ -1,8 +1,13 @@
 {
   "compilerOptions": {
+    "strict": false,
+    "types": [
+      "*"
+    ],
     "target": "es2021",
     "module": "ESNext",
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "alwaysStrict": true,
     "allowJs": true,
     "checkJs": true,
