@@ -28,7 +28,7 @@ export function getAiChatElementId(chatId) {
  *   | { type: 'showChats' }
  *   | { type: 'setSelectedChat', payload: AiChat }
  *   | { type: 'clearSelectedChat' }
- *   | { type: 'selectViewAllChats' }
+ *   | { type: 'selectViewAllChats', targetIndex: number }
  *   | { type: 'previousChat', itemCount: number }
  *   | { type: 'nextChat', itemCount: number }
  * )} Action
@@ -71,7 +71,7 @@ function reducer(state, action) {
         case 'selectViewAllChats':
             return {
                 ...state,
-                selectedIndex: state.chats.length,
+                selectedIndex: action.targetIndex,
             };
         case 'previousChat': {
             const nextIndex = state.selectedIndex === null ? action.itemCount - 1 : state.selectedIndex - 1;
@@ -160,7 +160,7 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
 
     const selectViewAllChats = () => {
         if (!showViewAllAiChats || itemCount === 0) return;
-        dispatch({ type: 'selectViewAllChats' });
+        dispatch({ type: 'selectViewAllChats', targetIndex: itemCount - 1 });
     };
 
     const hideChats = () => {
