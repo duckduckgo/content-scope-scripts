@@ -144,15 +144,6 @@
     }
 }
 
-.menuItem:hover {
-    background: var(--ds-color-theme-accent-primary);
-    color: var(--ds-color-theme-accent-content-primary);
-}
-
-.menuItemSelected {
-    /* No background change — only the checkmark indicates selection */
-}
-
 .checkmark {
     flex-shrink: 0;
     height: 12px;
@@ -183,14 +174,6 @@
     color: var(--ds-color-theme-accent-content-primary);
 }
 
-.menuItem:hover .checkmark::before {
-    color: transparent;
-}
-
-.menuItemSelected:hover .checkmark::before {
-    color: var(--ds-color-theme-accent-content-primary);
-}
-
 .menuItemLabel {
     display: flex;
     flex: 1;
@@ -216,8 +199,4 @@
     text-box-edge: cap alphabetic;
     text-box-trim: trim-both;
     text-overflow: ellipsis;
-
-    .menuItem:hover & {
-        color: var(--ds-color-theme-accent-content-secondary);
-    }
 }

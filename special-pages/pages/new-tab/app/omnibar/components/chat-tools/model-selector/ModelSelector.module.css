@@ -120,14 +120,6 @@
         width: var(--sp-4);
     }
 
-    &:hover {
-        background: var(--ds-color-theme-accent-primary);
-        color: var(--ds-color-theme-accent-content-primary);
-
-        &::before {
-            color: transparent;
-        }
-    }
 }
 
 .modelOptionActive {
@@ -142,10 +134,6 @@
 .modelOptionSelected {
     &::before {
         color: var(--ds-color-theme-text-primary);
-    }
-
-    &:hover::before {
-        color: var(--ds-color-theme-accent-content-primary);
     }
 }
 
