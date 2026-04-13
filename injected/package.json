@@ -55,7 +55,7 @@
     "c8": "^11.0.0",
     "fast-check": "^4.6.0",
     "jasmine": "^6.2.0",
-    "jsdom": "^29.0.0",
+    "jsdom": "^29.0.2",
     "monocart-coverage-reports": "^2.12.9",
     "web-ext": "^10.0.0"
   }
