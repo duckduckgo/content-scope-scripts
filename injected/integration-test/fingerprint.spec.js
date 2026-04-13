@@ -93,6 +93,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
             return {
                 canvas: fingerprint.components.canvas.value,
                 plugin: fingerprint.components.plugins.value,
+                userAgentData: fingerprint.components.userAgentData?.value,
             };
         }
 
@@ -121,6 +122,22 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
             // Ensure that the number of test pages match the number in the set
             expect(canvas.size).toEqual(tests.length);
             expect(plugin.size).toEqual(1);
+        });
+
+        test('FingerprintJS should expose stable userAgentData signal', async ({ page }) => {
+            const result = await runTest(page, tests[0]);
+            expect(result.userAgentData).toBeDefined();
+            expect(Array.isArray(result.userAgentData?.brands)).toEqual(true);
+            expect(result.userAgentData?.brands.length).toBeGreaterThan(0);
+            expect(typeof result.userAgentData?.mobile).toEqual('boolean');
+            expect(typeof result.userAgentData?.platform).toEqual('string');
+
+            const result2 = await runTest(page, tests[0]);
+            expect(result.userAgentData).toEqual(result2.userAgentData);
+
+            if (result.userAgentData?.highEntropyStatus !== undefined) {
+                expect(result.userAgentData.highEntropyStatus).toEqual('not_allowed');
+            }
         });
     });
 
