@@ -71,7 +71,7 @@ jobs:
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
             - name: Comment on associated PR
-              uses: actions/github-script@v9
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               env:
                   BUILD_BRANCH: ${{ env.BUILD_BRANCH }}
                   COMMIT_HASH: ${{ env.COMMIT_HASH }}

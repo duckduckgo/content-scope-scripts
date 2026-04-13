@@ -11,7 +11,7 @@ jobs:
             is_member: ${{ steps.membership.outputs.is_member }}
         steps:
             - name: Verify author is in duckduckgo/core
-              uses: actions/github-script@v9
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               id: membership
               with:
                   github-token: ${{ secrets.DAX_PAT }}
@@ -48,7 +48,7 @@ jobs:
         steps:
             - name: Dismiss stale Dax approval on new push
               if: github.event.action == 'synchronize'
-              uses: actions/github-script@v9
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
@@ -94,7 +94,7 @@ jobs:
 
             - name: Check Cursor Bugbot risk assessment
               if: steps.wait-for-cursor.outputs.conclusion == 'success'
-              uses: actions/github-script@v9
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               id: risk_check
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -110,7 +110,7 @@ jobs:
                       core.setOutput('is_low_risk', riskLevel?.toLowerCase() === 'low');
 
             - name: Check for existing Dax approval
-              uses: actions/github-script@v9
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               id: check_reviews
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -152,7 +152,7 @@ jobs:
                   (steps.wait-for-cursor.outputs.conclusion != 'success' ||
                   steps.risk_check.outputs.is_low_risk != 'true') &&
                   steps.find_comment.outputs.comment-id == ''
-              uses: actions/github-script@v9
+              uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
               env:
                   CURSOR_CONCLUSION: ${{ steps.wait-for-cursor.outputs.conclusion }}
                   RISK_LEVEL: ${{ steps.risk_check.outputs.risk_level }}
