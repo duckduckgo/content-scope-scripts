@@ -24,7 +24,7 @@ import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 
 /**
- * @typedef {import('../strings.json')} Strings
+ * @typedef {typeof import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
@@ -167,7 +167,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showChats, hideChats } = useAiChatsContext();
     const { selectedModel } = useSelectedModel();
-    const { activeTool, availableTools, imageGenerationActive, webSearchActive, toggleTool, clearTool } = useActiveTools();
+    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
@@ -179,6 +179,23 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
         : t('omnibar_imageGenerationPlaceholder');
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
+
+    const clearTool = () => {
+        setActiveTool(null);
+    };
+
+    /**
+     * @param {import('./chat-tools/tools-menu/ToolsMenu').ToolId} tool
+     */
+    const handleToggleTool = (tool) => {
+        const nextTool = activeTool === tool ? null : tool;
+
+        if (nextTool === 'image-generation') {
+            hideChats();
+        }
+
+        setActiveTool(nextTool);
+    };
 
     /** @type {(query: string) => void} */
     const handleChange = (value) => {
@@ -241,7 +258,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                         <Fragment>
                             {canAttachImages && <ImageUploadButton state={imageState} />}
                             {availableTools.length > 0 && (
-                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={toggleTool} />
+                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
                             )}
                         </Fragment>
                     }

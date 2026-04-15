@@ -23,19 +23,11 @@ export function useActiveTools() {
     const imageGenerationActive = validActiveTool === 'image-generation';
     const webSearchActive = validActiveTool === 'web-search';
 
-    /** @param {ToolId} tool */
-    const toggleTool = (tool) => {
-        setActiveTool((prev) => (prev === tool ? null : tool));
-    };
-
-    const clearTool = () => setActiveTool(null);
-
     return {
         activeTool: validActiveTool,
         availableTools,
         imageGenerationActive,
         webSearchActive,
-        toggleTool,
-        clearTool,
+        setActiveTool,
     };
 }

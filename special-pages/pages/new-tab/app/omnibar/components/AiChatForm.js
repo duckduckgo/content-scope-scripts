@@ -91,7 +91,6 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 if (event.shiftKey) {
                     break;
                 }
-
                 event.preventDefault();
 
                 if (viewAllChatsSelected) {
