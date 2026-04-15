@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useTypedTranslationWith } from '../../../../types';
-import { useAiChatToolsModel } from '../../useAiChatToolsModel';
+import { useAiToolsModelConfig } from '../../useAiToolsModelConfig';
 import { useModelSelector } from './useModelSelector';
 import { ModelSelector } from './ModelSelector';
 
@@ -10,7 +10,7 @@ import { ModelSelector } from './ModelSelector';
 
 export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useAiChatToolsModel();
+    const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useAiToolsModelConfig();
 
     const selector = useModelSelector({
         allModels,
