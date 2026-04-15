@@ -1,0 +1,41 @@
+import { useContext, useState } from 'preact/hooks';
+import { OmnibarContext } from '../OmnibarProvider';
+import { useSelectedModel } from '../useSelectedModel';
+
+/** @typedef {import('./tools-menu/ToolsMenu').ToolId} ToolId */
+
+export function useActiveTools() {
+    const { state } = useContext(OmnibarContext);
+    const { selectedModel } = useSelectedModel();
+    const [activeTool, setActiveTool] = useState(/** @type {ToolId|null} */ (null));
+
+    const modelSupportedTools = selectedModel?.supportedTools ?? [];
+
+    /** @type {ToolId[]} */
+    const availableTools = [
+        ...(state.config?.enableImageGeneration === true ? [/** @type {const} */ ('image-generation')] : []),
+        ...(state.config?.enableWebSearch === true && modelSupportedTools.includes('WebSearch')
+            ? [/** @type {const} */ ('web-search')]
+            : []),
+    ];
+
+    const validActiveTool = activeTool !== null && availableTools.includes(activeTool) ? activeTool : null;
+    const imageGenerationActive = validActiveTool === 'image-generation';
+    const webSearchActive = validActiveTool === 'web-search';
+
+    /** @param {ToolId} tool */
+    const toggleTool = (tool) => {
+        setActiveTool((prev) => (prev === tool ? null : tool));
+    };
+
+    const clearTool = () => setActiveTool(null);
+
+    return {
+        activeTool: validActiveTool,
+        availableTools,
+        imageGenerationActive,
+        webSearchActive,
+        toggleTool,
+        clearTool,
+    };
+}
