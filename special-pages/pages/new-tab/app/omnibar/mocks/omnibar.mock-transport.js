@@ -49,7 +49,7 @@ export function omnibarMockTransport() {
                         shortName: 'GPT-OSS',
                         isEnabled: true,
                         supportsImageUpload: false,
-                        supportedTools: ['WebSearch'],
+                        supportedTools: [],
                     },
                     {
                         id: 'meta-llama_Llama-4-Scout-17B-16E-Instruct',
