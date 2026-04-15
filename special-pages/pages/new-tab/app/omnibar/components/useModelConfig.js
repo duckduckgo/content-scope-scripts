@@ -6,10 +6,15 @@ import { OmnibarContext } from './OmnibarProvider';
  * @typedef {AIModelSections[number]['items'][number]} AIModelItem
  */
 
-export function useSelectedModel() {
+/**
+ * Provides the resolved model configuration regardless of feature flags.
+ * Use this when you need model info (e.g. supportedTools) without requiring
+ * the model selector UI to be enabled.
+ */
+export function useModelConfig() {
     const { state, setSelectedModelId } = useContext(OmnibarContext);
 
-    const aiModelSections = state.config?.enableAiChatTools === true ? (state.config?.aiModelSections ?? []) : [];
+    const aiModelSections = state.config?.aiModelSections ?? [];
     const allModels = aiModelSections.flatMap((s) => s.items);
 
     const persistedId = state.config?.selectedModelId;

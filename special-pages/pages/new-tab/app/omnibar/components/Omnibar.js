@@ -21,7 +21,7 @@ import { useImageAttachments } from './chat-tools/image-attachment/useImageAttac
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
 import { useActiveTools } from './chat-tools/useActiveTools';
-import { useSelectedModel } from './useSelectedModel';
+import { useAiChatToolsModel } from './useAiChatToolsModel';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -166,7 +166,7 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
 function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showChats, hideChats } = useAiChatsContext();
-    const { selectedModel } = useSelectedModel();
+    const { selectedModel } = useAiChatToolsModel();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
