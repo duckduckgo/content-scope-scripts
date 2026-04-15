@@ -56,84 +56,84 @@
   });
 
   // ../node_modules/preact/dist/preact.module.js
-  function w(n3, l5) {
+  function m(n3, l5) {
     for (var u4 in l5) n3[u4] = l5[u4];
     return n3;
   }
-  function g(n3) {
+  function b(n3) {
     n3 && n3.parentNode && n3.parentNode.removeChild(n3);
   }
-  function _(l5, u4, t4) {
+  function k(l5, u4, t4) {
     var i5, r4, o4, e4 = {};
     for (o4 in u4) "key" == o4 ? i5 = u4[o4] : "ref" == o4 ? r4 = u4[o4] : e4[o4] = u4[o4];
     if (arguments.length > 2 && (e4.children = arguments.length > 3 ? n.call(arguments, 2) : t4), "function" == typeof l5 && null != l5.defaultProps) for (o4 in l5.defaultProps) void 0 === e4[o4] && (e4[o4] = l5.defaultProps[o4]);
-    return m(l5, e4, i5, r4, null);
+    return x(l5, e4, i5, r4, null);
   }
-  function m(n3, t4, i5, r4, o4) {
+  function x(n3, t4, i5, r4, o4) {
     var e4 = { type: n3, props: t4, key: i5, ref: r4, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: null == o4 ? ++u : o4, __i: -1, __u: 0 };
     return null == o4 && null != l.vnode && l.vnode(e4), e4;
   }
-  function k(n3) {
+  function S(n3) {
     return n3.children;
   }
-  function x(n3, l5) {
+  function C(n3, l5) {
     this.props = n3, this.context = l5;
   }
-  function S(n3, l5) {
-    if (null == l5) return n3.__ ? S(n3.__, n3.__i + 1) : null;
+  function $(n3, l5) {
+    if (null == l5) return n3.__ ? $(n3.__, n3.__i + 1) : null;
     for (var u4; l5 < n3.__k.length; l5++) if (null != (u4 = n3.__k[l5]) && null != u4.__e) return u4.__e;
-    return "function" == typeof n3.type ? S(n3) : null;
+    return "function" == typeof n3.type ? $(n3) : null;
   }
-  function C(n3) {
+  function I(n3) {
     if (n3.__P && n3.__d) {
-      var u4 = n3.__v, t4 = u4.__e, i5 = [], r4 = [], o4 = w({}, u4);
-      o4.__v = u4.__v + 1, l.vnode && l.vnode(o4), z(n3.__P, o4, u4, n3.__n, n3.__P.namespaceURI, 32 & u4.__u ? [t4] : null, i5, null == t4 ? S(u4) : t4, !!(32 & u4.__u), r4), o4.__v = u4.__v, o4.__.__k[o4.__i] = o4, V(i5, o4, r4), u4.__e = u4.__ = null, o4.__e != t4 && M(o4);
+      var u4 = n3.__v, t4 = u4.__e, i5 = [], r4 = [], o4 = m({}, u4);
+      o4.__v = u4.__v + 1, l.vnode && l.vnode(o4), q(n3.__P, o4, u4, n3.__n, n3.__P.namespaceURI, 32 & u4.__u ? [t4] : null, i5, null == t4 ? $(u4) : t4, !!(32 & u4.__u), r4), o4.__v = u4.__v, o4.__.__k[o4.__i] = o4, D(i5, o4, r4), u4.__e = u4.__ = null, o4.__e != t4 && P(o4);
     }
   }
-  function M(n3) {
+  function P(n3) {
     if (null != (n3 = n3.__) && null != n3.__c) return n3.__e = n3.__c.base = null, n3.__k.some(function(l5) {
       if (null != l5 && null != l5.__e) return n3.__e = n3.__c.base = l5.__e;
-    }), M(n3);
+    }), P(n3);
   }
-  function $(n3) {
-    (!n3.__d && (n3.__d = true) && i.push(n3) && !I.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)(I);
+  function A(n3) {
+    (!n3.__d && (n3.__d = true) && i.push(n3) && !H.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)(H);
   }
-  function I() {
+  function H() {
     try {
-      for (var n3, l5 = 1; i.length; ) i.length > l5 && i.sort(e), n3 = i.shift(), l5 = i.length, C(n3);
+      for (var n3, l5 = 1; i.length; ) i.length > l5 && i.sort(e), n3 = i.shift(), l5 = i.length, I(n3);
     } finally {
-      i.length = I.__r = 0;
+      i.length = H.__r = 0;
     }
   }
-  function P(n3, l5, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
-    var a4, h5, y5, d5, w5, g6, _5, m5 = t4 && t4.__k || v, b4 = l5.length;
-    for (f4 = A(u4, l5, m5, f4, b4), a4 = 0; a4 < b4; a4++) null != (y5 = u4.__k[a4]) && (h5 = -1 != y5.__i && m5[y5.__i] || p, y5.__i = a4, g6 = z(n3, y5, h5, i5, r4, o4, e4, f4, c4, s4), d5 = y5.__e, y5.ref && h5.ref != y5.ref && (h5.ref && D(h5.ref, null, y5), s4.push(y5.ref, y5.__c || d5, y5)), null == w5 && null != d5 && (w5 = d5), (_5 = !!(4 & y5.__u)) || h5.__k === y5.__k ? f4 = H(y5, f4, n3, _5) : "function" == typeof y5.type && void 0 !== g6 ? f4 = g6 : d5 && (f4 = d5.nextSibling), y5.__u &= -7);
-    return u4.__e = w5, f4;
+  function L(n3, l5, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
+    var a4, h5, p5, v4, y5, _5, g6, m5 = t4 && t4.__k || w, b4 = l5.length;
+    for (f4 = T(u4, l5, m5, f4, b4), a4 = 0; a4 < b4; a4++) null != (p5 = u4.__k[a4]) && (h5 = -1 != p5.__i && m5[p5.__i] || d, p5.__i = a4, _5 = q(n3, p5, h5, i5, r4, o4, e4, f4, c4, s4), v4 = p5.__e, p5.ref && h5.ref != p5.ref && (h5.ref && J(h5.ref, null, p5), s4.push(p5.ref, p5.__c || v4, p5)), null == y5 && null != v4 && (y5 = v4), (g6 = !!(4 & p5.__u)) || h5.__k === p5.__k ? (f4 = j(p5, f4, n3, g6), g6 && h5.__e && (h5.__e = null)) : "function" == typeof p5.type && void 0 !== _5 ? f4 = _5 : v4 && (f4 = v4.nextSibling), p5.__u &= -7);
+    return u4.__e = y5, f4;
   }
-  function A(n3, l5, u4, t4, i5) {
+  function T(n3, l5, u4, t4, i5) {
     var r4, o4, e4, f4, c4, s4 = u4.length, a4 = s4, h5 = 0;
-    for (n3.__k = new Array(i5), r4 = 0; r4 < i5; r4++) null != (o4 = l5[r4]) && "boolean" != typeof o4 && "function" != typeof o4 ? ("string" == typeof o4 || "number" == typeof o4 || "bigint" == typeof o4 || o4.constructor == String ? o4 = n3.__k[r4] = m(null, o4, null, null, null) : d(o4) ? o4 = n3.__k[r4] = m(k, { children: o4 }, null, null, null) : void 0 === o4.constructor && o4.__b > 0 ? o4 = n3.__k[r4] = m(o4.type, o4.props, o4.key, o4.ref ? o4.ref : null, o4.__v) : n3.__k[r4] = o4, f4 = r4 + h5, o4.__ = n3, o4.__b = n3.__b + 1, e4 = null, -1 != (c4 = o4.__i = T(o4, u4, f4, a4)) && (a4--, (e4 = u4[c4]) && (e4.__u |= 2)), null == e4 || null == e4.__v ? (-1 == c4 && (i5 > s4 ? h5-- : i5 < s4 && h5++), "function" != typeof o4.type && (o4.__u |= 4)) : c4 != f4 && (c4 == f4 - 1 ? h5-- : c4 == f4 + 1 ? h5++ : (c4 > f4 ? h5-- : h5++, o4.__u |= 4))) : n3.__k[r4] = null;
-    if (a4) for (r4 = 0; r4 < s4; r4++) null != (e4 = u4[r4]) && 0 == (2 & e4.__u) && (e4.__e == t4 && (t4 = S(e4)), E(e4, e4));
+    for (n3.__k = new Array(i5), r4 = 0; r4 < i5; r4++) null != (o4 = l5[r4]) && "boolean" != typeof o4 && "function" != typeof o4 ? ("string" == typeof o4 || "number" == typeof o4 || "bigint" == typeof o4 || o4.constructor == String ? o4 = n3.__k[r4] = x(null, o4, null, null, null) : g(o4) ? o4 = n3.__k[r4] = x(S, { children: o4 }, null, null, null) : void 0 === o4.constructor && o4.__b > 0 ? o4 = n3.__k[r4] = x(o4.type, o4.props, o4.key, o4.ref ? o4.ref : null, o4.__v) : n3.__k[r4] = o4, f4 = r4 + h5, o4.__ = n3, o4.__b = n3.__b + 1, e4 = null, -1 != (c4 = o4.__i = O(o4, u4, f4, a4)) && (a4--, (e4 = u4[c4]) && (e4.__u |= 2)), null == e4 || null == e4.__v ? (-1 == c4 && (i5 > s4 ? h5-- : i5 < s4 && h5++), "function" != typeof o4.type && (o4.__u |= 4)) : c4 != f4 && (c4 == f4 - 1 ? h5-- : c4 == f4 + 1 ? h5++ : (c4 > f4 ? h5-- : h5++, o4.__u |= 4))) : n3.__k[r4] = null;
+    if (a4) for (r4 = 0; r4 < s4; r4++) null != (e4 = u4[r4]) && 0 == (2 & e4.__u) && (e4.__e == t4 && (t4 = $(e4)), K(e4, e4));
     return t4;
   }
-  function H(n3, l5, u4, t4) {
+  function j(n3, l5, u4, t4) {
     var i5, r4;
     if ("function" == typeof n3.type) {
-      for (i5 = n3.__k, r4 = 0; i5 && r4 < i5.length; r4++) i5[r4] && (i5[r4].__ = n3, l5 = H(i5[r4], l5, u4, t4));
+      for (i5 = n3.__k, r4 = 0; i5 && r4 < i5.length; r4++) i5[r4] && (i5[r4].__ = n3, l5 = j(i5[r4], l5, u4, t4));
       return l5;
     }
-    n3.__e != l5 && (t4 && (l5 && n3.type && !l5.parentNode && (l5 = S(n3)), u4.insertBefore(n3.__e, l5 || null)), l5 = n3.__e);
+    n3.__e != l5 && (t4 && (l5 && n3.type && !l5.parentNode && (l5 = $(n3)), u4.insertBefore(n3.__e, l5 || null)), l5 = n3.__e);
     do {
       l5 = l5 && l5.nextSibling;
     } while (null != l5 && 8 == l5.nodeType);
     return l5;
   }
-  function L(n3, l5) {
-    return l5 = l5 || [], null == n3 || "boolean" == typeof n3 || (d(n3) ? n3.some(function(n4) {
-      L(n4, l5);
+  function F(n3, l5) {
+    return l5 = l5 || [], null == n3 || "boolean" == typeof n3 || (g(n3) ? n3.some(function(n4) {
+      F(n4, l5);
     }) : l5.push(n3)), l5;
   }
-  function T(n3, l5, u4, t4) {
+  function O(n3, l5, u4, t4) {
     var i5, r4, o4, e4 = n3.key, f4 = n3.type, c4 = l5[u4], s4 = null != c4 && 0 == (2 & c4.__u);
     if (null === c4 && null == e4 || s4 && e4 == c4.key && f4 == c4.type) return u4;
     if (t4 > (s4 ? 1 : 0)) {
@@ -141,17 +141,17 @@
     }
     return -1;
   }
-  function j(n3, l5, u4) {
-    "-" == l5[0] ? n3.setProperty(l5, null == u4 ? "" : u4) : n3[l5] = null == u4 ? "" : "number" != typeof u4 || y.test(l5) ? u4 : u4 + "px";
+  function z(n3, l5, u4) {
+    "-" == l5[0] ? n3.setProperty(l5, null == u4 ? "" : u4) : n3[l5] = null == u4 ? "" : "number" != typeof u4 || _.test(l5) ? u4 : u4 + "px";
   }
-  function F(n3, l5, u4, t4, i5) {
+  function N(n3, l5, u4, t4, i5) {
     var r4, o4;
     n: if ("style" == l5) if ("string" == typeof u4) n3.style.cssText = u4;
     else {
-      if ("string" == typeof t4 && (n3.style.cssText = t4 = ""), t4) for (l5 in t4) u4 && l5 in u4 || j(n3.style, l5, "");
-      if (u4) for (l5 in u4) t4 && u4[l5] == t4[l5] || j(n3.style, l5, u4[l5]);
+      if ("string" == typeof t4 && (n3.style.cssText = t4 = ""), t4) for (l5 in t4) u4 && l5 in u4 || z(n3.style, l5, "");
+      if (u4) for (l5 in u4) t4 && u4[l5] == t4[l5] || z(n3.style, l5, u4[l5]);
     }
-    else if ("o" == l5[0] && "n" == l5[1]) r4 = l5 != (l5 = l5.replace(f, "$1")), o4 = l5.toLowerCase(), l5 = o4 in n3 || "onFocusOut" == l5 || "onFocusIn" == l5 ? o4.slice(2) : l5.slice(2), n3.l || (n3.l = {}), n3.l[l5 + r4] = u4, u4 ? t4 ? u4.u = t4.u : (u4.u = c, n3.addEventListener(l5, r4 ? a : s, r4)) : n3.removeEventListener(l5, r4 ? a : s, r4);
+    else if ("o" == l5[0] && "n" == l5[1]) r4 = l5 != (l5 = l5.replace(a, "$1")), o4 = l5.toLowerCase(), l5 = o4 in n3 || "onFocusOut" == l5 || "onFocusIn" == l5 ? o4.slice(2) : l5.slice(2), n3.l || (n3.l = {}), n3.l[l5 + r4] = u4, u4 ? t4 ? u4[s] = t4[s] : (u4[s] = h, n3.addEventListener(l5, r4 ? v : p, r4)) : n3.removeEventListener(l5, r4 ? v : p, r4);
     else {
       if ("http://www.w3.org/2000/svg" == i5) l5 = l5.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
       else if ("width" != l5 && "height" != l5 && "href" != l5 && "list" != l5 && "form" != l5 && "tabIndex" != l5 && "download" != l5 && "rowSpan" != l5 && "colSpan" != l5 && "role" != l5 && "popover" != l5 && l5 in n3) try {
@@ -162,57 +162,57 @@
       "function" == typeof u4 || (null == u4 || false === u4 && "-" != l5[4] ? n3.removeAttribute(l5) : n3.setAttribute(l5, "popover" == l5 && 1 == u4 ? "" : u4));
     }
   }
-  function O(n3) {
+  function V(n3) {
     return function(u4) {
       if (this.l) {
         var t4 = this.l[u4.type + n3];
-        if (null == u4.t) u4.t = c++;
-        else if (u4.t < t4.u) return;
+        if (null == u4[c]) u4[c] = h++;
+        else if (u4[c] < t4[s]) return;
         return t4(l.event ? l.event(u4) : u4);
       }
     };
   }
-  function z(n3, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
-    var a4, h5, p5, y5, _5, m5, b4, S3, C4, M3, $3, I2, A5, H3, L2, T5 = u4.type;
+  function q(n3, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
+    var a4, h5, p5, v4, y5, d5, _5, k5, x5, M3, $3, I2, P4, A5, H3, T5 = u4.type;
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (a4 = l.__b) && a4(u4);
     n: if ("function" == typeof T5) try {
-      if (S3 = u4.props, C4 = T5.prototype && T5.prototype.render, M3 = (a4 = T5.contextType) && i5[a4.__c], $3 = a4 ? M3 ? M3.props.value : a4.__ : i5, t4.__c ? b4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (C4 ? u4.__c = h5 = new T5(S3, $3) : (u4.__c = h5 = new x(S3, $3), h5.constructor = T5, h5.render = G), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), C4 && null == h5.__s && (h5.__s = h5.state), C4 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, T5.getDerivedStateFromProps(S3, h5.__s))), y5 = h5.props, _5 = h5.state, h5.__v = u4, p5) C4 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), C4 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
+      if (k5 = u4.props, x5 = T5.prototype && T5.prototype.render, M3 = (a4 = T5.contextType) && i5[a4.__c], $3 = a4 ? M3 ? M3.props.value : a4.__ : i5, t4.__c ? _5 = (h5 = u4.__c = t4.__c).__ = h5.__E : (x5 ? u4.__c = h5 = new T5(k5, $3) : (u4.__c = h5 = new C(k5, $3), h5.constructor = T5, h5.render = Q), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), x5 && null == h5.__s && (h5.__s = h5.state), x5 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = m({}, h5.__s)), m(h5.__s, T5.getDerivedStateFromProps(k5, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) x5 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), x5 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
       else {
-        if (C4 && null == T5.getDerivedStateFromProps && S3 !== y5 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(S3, $3), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(S3, h5.__s, $3)) {
-          u4.__v != t4.__v && (h5.props = S3, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
+        if (x5 && null == T5.getDerivedStateFromProps && k5 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(k5, $3), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(k5, h5.__s, $3)) {
+          u4.__v != t4.__v && (h5.props = k5, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
             n4 && (n4.__ = u4);
-          }), v.push.apply(h5.__h, h5._sb), h5._sb = [], h5.__h.length && e4.push(h5);
+          }), w.push.apply(h5.__h, h5._sb), h5._sb = [], h5.__h.length && e4.push(h5);
           break n;
         }
-        null != h5.componentWillUpdate && h5.componentWillUpdate(S3, h5.__s, $3), C4 && null != h5.componentDidUpdate && h5.__h.push(function() {
-          h5.componentDidUpdate(y5, _5, m5);
+        null != h5.componentWillUpdate && h5.componentWillUpdate(k5, h5.__s, $3), x5 && null != h5.componentDidUpdate && h5.__h.push(function() {
+          h5.componentDidUpdate(v4, y5, d5);
         });
       }
-      if (h5.context = $3, h5.props = S3, h5.__P = n3, h5.__e = false, I2 = l.__r, A5 = 0, C4) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), a4 = h5.render(h5.props, h5.state, h5.context), v.push.apply(h5.__h, h5._sb), h5._sb = [];
+      if (h5.context = $3, h5.props = k5, h5.__P = n3, h5.__e = false, I2 = l.__r, P4 = 0, x5) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), a4 = h5.render(h5.props, h5.state, h5.context), w.push.apply(h5.__h, h5._sb), h5._sb = [];
       else do {
         h5.__d = false, I2 && I2(u4), a4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
-      } while (h5.__d && ++A5 < 25);
-      h5.state = h5.__s, null != h5.getChildContext && (i5 = w(w({}, i5), h5.getChildContext())), C4 && !p5 && null != h5.getSnapshotBeforeUpdate && (m5 = h5.getSnapshotBeforeUpdate(y5, _5)), H3 = null != a4 && a4.type === k && null == a4.key ? q(a4.props.children) : a4, f4 = P(n3, d(H3) ? H3 : [H3], u4, t4, i5, r4, o4, e4, f4, c4, s4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), b4 && (h5.__E = h5.__ = null);
+      } while (h5.__d && ++P4 < 25);
+      h5.state = h5.__s, null != h5.getChildContext && (i5 = m(m({}, i5), h5.getChildContext())), x5 && !p5 && null != h5.getSnapshotBeforeUpdate && (d5 = h5.getSnapshotBeforeUpdate(v4, y5)), A5 = null != a4 && a4.type === S && null == a4.key ? E(a4.props.children) : a4, f4 = L(n3, g(A5) ? A5 : [A5], u4, t4, i5, r4, o4, e4, f4, c4, s4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), _5 && (h5.__E = h5.__ = null);
     } catch (n4) {
       if (u4.__v = null, c4 || null != o4) if (n4.then) {
         for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
         o4[o4.indexOf(f4)] = null, u4.__e = f4;
       } else {
-        for (L2 = o4.length; L2--; ) g(o4[L2]);
-        N(u4);
+        for (H3 = o4.length; H3--; ) b(o4[H3]);
+        B(u4);
       }
-      else u4.__e = t4.__e, u4.__k = t4.__k, n4.then || N(u4);
+      else u4.__e = t4.__e, u4.__k = t4.__k, n4.then || B(u4);
       l.__e(n4, u4, t4);
     }
-    else null == o4 && u4.__v == t4.__v ? (u4.__k = t4.__k, u4.__e = t4.__e) : f4 = u4.__e = B(t4.__e, u4, t4, i5, r4, o4, e4, c4, s4);
+    else null == o4 && u4.__v == t4.__v ? (u4.__k = t4.__k, u4.__e = t4.__e) : f4 = u4.__e = G(t4.__e, u4, t4, i5, r4, o4, e4, c4, s4);
     return (a4 = l.diffed) && a4(u4), 128 & u4.__u ? void 0 : f4;
   }
-  function N(n3) {
-    n3 && (n3.__c && (n3.__c.__e = true), n3.__k && n3.__k.some(N));
+  function B(n3) {
+    n3 && (n3.__c && (n3.__c.__e = true), n3.__k && n3.__k.some(B));
   }
-  function V(n3, u4, t4) {
-    for (var i5 = 0; i5 < t4.length; i5++) D(t4[i5], t4[++i5], t4[++i5]);
+  function D(n3, u4, t4) {
+    for (var i5 = 0; i5 < t4.length; i5++) J(t4[i5], t4[++i5], t4[++i5]);
     l.__c && l.__c(u4, n3), n3.some(function(u5) {
       try {
         n3 = u5.__h, u5.__h = [], n3.some(function(n4) {
@@ -223,14 +223,14 @@
       }
     });
   }
-  function q(n3) {
-    return "object" != typeof n3 || null == n3 || n3.__b > 0 ? n3 : d(n3) ? n3.map(q) : w({}, n3);
+  function E(n3) {
+    return "object" != typeof n3 || null == n3 || n3.__b > 0 ? n3 : g(n3) ? n3.map(E) : m({}, n3);
   }
-  function B(u4, t4, i5, r4, o4, e4, f4, c4, s4) {
-    var a4, h5, v4, y5, w5, _5, m5, b4 = i5.props || p, k5 = t4.props, x5 = t4.type;
+  function G(u4, t4, i5, r4, o4, e4, f4, c4, s4) {
+    var a4, h5, p5, v4, y5, w5, _5, m5 = i5.props || d, k5 = t4.props, x5 = t4.type;
     if ("svg" == x5 ? o4 = "http://www.w3.org/2000/svg" : "math" == x5 ? o4 = "http://www.w3.org/1998/Math/MathML" : o4 || (o4 = "http://www.w3.org/1999/xhtml"), null != e4) {
-      for (a4 = 0; a4 < e4.length; a4++) if ((w5 = e4[a4]) && "setAttribute" in w5 == !!x5 && (x5 ? w5.localName == x5 : 3 == w5.nodeType)) {
-        u4 = w5, e4[a4] = null;
+      for (a4 = 0; a4 < e4.length; a4++) if ((y5 = e4[a4]) && "setAttribute" in y5 == !!x5 && (x5 ? y5.localName == x5 : 3 == y5.nodeType)) {
+        u4 = y5, e4[a4] = null;
         break;
       }
     }
@@ -238,18 +238,18 @@
       if (null == x5) return document.createTextNode(k5);
       u4 = document.createElementNS(o4, x5, k5.is && k5), c4 && (l.__m && l.__m(t4, e4), c4 = false), e4 = null;
     }
-    if (null == x5) b4 === k5 || c4 && u4.data == k5 || (u4.data = k5);
+    if (null == x5) m5 === k5 || c4 && u4.data == k5 || (u4.data = k5);
     else {
-      if (e4 = e4 && n.call(u4.childNodes), !c4 && null != e4) for (b4 = {}, a4 = 0; a4 < u4.attributes.length; a4++) b4[(w5 = u4.attributes[a4]).name] = w5.value;
-      for (a4 in b4) w5 = b4[a4], "dangerouslySetInnerHTML" == a4 ? v4 = w5 : "children" == a4 || a4 in k5 || "value" == a4 && "defaultValue" in k5 || "checked" == a4 && "defaultChecked" in k5 || F(u4, a4, null, w5, o4);
-      for (a4 in k5) w5 = k5[a4], "children" == a4 ? y5 = w5 : "dangerouslySetInnerHTML" == a4 ? h5 = w5 : "value" == a4 ? _5 = w5 : "checked" == a4 ? m5 = w5 : c4 && "function" != typeof w5 || b4[a4] === w5 || F(u4, a4, w5, b4[a4], o4);
-      if (h5) c4 || v4 && (h5.__html == v4.__html || h5.__html == u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
-      else if (v4 && (u4.innerHTML = ""), P("template" == t4.type ? u4.content : u4, d(y5) ? y5 : [y5], t4, i5, r4, "foreignObject" == x5 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && S(i5, 0), c4, s4), null != e4) for (a4 = e4.length; a4--; ) g(e4[a4]);
-      c4 || (a4 = "value", "progress" == x5 && null == _5 ? u4.removeAttribute("value") : null != _5 && (_5 !== u4[a4] || "progress" == x5 && !_5 || "option" == x5 && _5 != b4[a4]) && F(u4, a4, _5, b4[a4], o4), a4 = "checked", null != m5 && m5 != u4[a4] && F(u4, a4, m5, b4[a4], o4));
+      if (e4 = e4 && n.call(u4.childNodes), !c4 && null != e4) for (m5 = {}, a4 = 0; a4 < u4.attributes.length; a4++) m5[(y5 = u4.attributes[a4]).name] = y5.value;
+      for (a4 in m5) y5 = m5[a4], "dangerouslySetInnerHTML" == a4 ? p5 = y5 : "children" == a4 || a4 in k5 || "value" == a4 && "defaultValue" in k5 || "checked" == a4 && "defaultChecked" in k5 || N(u4, a4, null, y5, o4);
+      for (a4 in k5) y5 = k5[a4], "children" == a4 ? v4 = y5 : "dangerouslySetInnerHTML" == a4 ? h5 = y5 : "value" == a4 ? w5 = y5 : "checked" == a4 ? _5 = y5 : c4 && "function" != typeof y5 || m5[a4] === y5 || N(u4, a4, y5, m5[a4], o4);
+      if (h5) c4 || p5 && (h5.__html == p5.__html || h5.__html == u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
+      else if (p5 && (u4.innerHTML = ""), L("template" == t4.type ? u4.content : u4, g(v4) ? v4 : [v4], t4, i5, r4, "foreignObject" == x5 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && $(i5, 0), c4, s4), null != e4) for (a4 = e4.length; a4--; ) b(e4[a4]);
+      c4 || (a4 = "value", "progress" == x5 && null == w5 ? u4.removeAttribute("value") : null != w5 && (w5 !== u4[a4] || "progress" == x5 && !w5 || "option" == x5 && w5 != m5[a4]) && N(u4, a4, w5, m5[a4], o4), a4 = "checked", null != _5 && _5 != u4[a4] && N(u4, a4, _5, m5[a4], o4));
     }
     return u4;
   }
-  function D(n3, u4, t4) {
+  function J(n3, u4, t4) {
     try {
       if ("function" == typeof n3) {
         var i5 = "function" == typeof n3.__u;
@@ -259,9 +259,9 @@
       l.__e(n4, t4);
     }
   }
-  function E(n3, u4, t4) {
+  function K(n3, u4, t4) {
     var i5, r4;
-    if (l.unmount && l.unmount(n3), (i5 = n3.ref) && (i5.current && i5.current != n3.__e || D(i5, null, u4)), null != (i5 = n3.__c)) {
+    if (l.unmount && l.unmount(n3), (i5 = n3.ref) && (i5.current && i5.current != n3.__e || J(i5, null, u4)), null != (i5 = n3.__c)) {
       if (i5.componentWillUnmount) try {
         i5.componentWillUnmount();
       } catch (n4) {
@@ -269,17 +269,17 @@
       }
       i5.base = i5.__P = null;
     }
-    if (i5 = n3.__k) for (r4 = 0; r4 < i5.length; r4++) i5[r4] && E(i5[r4], u4, t4 || "function" != typeof n3.type);
-    t4 || g(n3.__e), n3.__c = n3.__ = n3.__e = void 0;
+    if (i5 = n3.__k) for (r4 = 0; r4 < i5.length; r4++) i5[r4] && K(i5[r4], u4, t4 || "function" != typeof n3.type);
+    t4 || b(n3.__e), n3.__c = n3.__ = n3.__e = void 0;
   }
-  function G(n3, l5, u4) {
+  function Q(n3, l5, u4) {
     return this.constructor(n3, u4);
   }
-  function J(u4, t4, i5) {
+  function R(u4, t4, i5) {
     var r4, o4, e4, f4;
-    t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), o4 = (r4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], z(t4, u4 = (!r4 && i5 || t4).__k = _(k, null, [u4]), o4 || p, p, t4.namespaceURI, !r4 && i5 ? [i5] : o4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !r4 && i5 ? i5 : o4 ? o4.__e : t4.firstChild, r4, f4), V(e4, u4, f4);
+    t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), o4 = (r4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], q(t4, u4 = (!r4 && i5 || t4).__k = k(S, null, [u4]), o4 || d, d, t4.namespaceURI, !r4 && i5 ? [i5] : o4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !r4 && i5 ? i5 : o4 ? o4.__e : t4.firstChild, r4, f4), D(e4, u4, f4);
   }
-  function R(n3) {
+  function X(n3) {
     function l5(n4) {
       var u4, t4;
       return this.getChildContext || (u4 = /* @__PURE__ */ new Set(), (t4 = {})[l5.__c] = this, this.getChildContext = function() {
@@ -288,7 +288,7 @@
         u4 = null;
       }, this.shouldComponentUpdate = function(n5) {
         this.props.value != n5.value && u4.forEach(function(n6) {
-          n6.__e = true, $(n6);
+          n6.__e = true, A(n6);
         });
       }, this.sub = function(n5) {
         u4.add(n5);
@@ -298,18 +298,18 @@
         };
       }), n4.children;
     }
-    return l5.__c = "__cC" + h++, l5.__ = n3, l5.Provider = l5.__l = (l5.Consumer = function(n4, l6) {
+    return l5.__c = "__cC" + y++, l5.__ = n3, l5.Provider = l5.__l = (l5.Consumer = function(n4, l6) {
       return n4.children(l6);
     }).contextType = l5, l5;
   }
-  var n, l, u, t, i, r, o, e, f, c, s, a, h, p, v, y, d;
+  var n, l, u, t, i, r, o, e, f, c, s, a, h, p, v, y, d, w, _, g;
   var init_preact_module = __esm({
     "../node_modules/preact/dist/preact.module.js"() {
-      p = {};
-      v = [];
-      y = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
-      d = Array.isArray;
-      n = v.slice, l = { __e: function(n3, l5, u4, t4) {
+      d = {};
+      w = [];
+      _ = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
+      g = Array.isArray;
+      n = w.slice, l = { __e: function(n3, l5, u4, t4) {
         for (var i5, r4, o4; l5 = l5.__; ) if ((i5 = l5.__c) && !i5.__) try {
           if ((r4 = i5.constructor) && null != r4.getDerivedStateFromError && (i5.setState(r4.getDerivedStateFromError(n3)), o4 = i5.__d), null != i5.componentDidCatch && (i5.componentDidCatch(n3, t4 || {}), o4 = i5.__d), o4) return i5.__E = i5;
         } catch (l6) {
@@ -318,14 +318,14 @@
         throw n3;
       } }, u = 0, t = function(n3) {
         return null != n3 && void 0 === n3.constructor;
-      }, x.prototype.setState = function(n3, l5) {
+      }, C.prototype.setState = function(n3, l5) {
         var u4;
-        u4 = null != this.__s && this.__s != this.state ? this.__s : this.__s = w({}, this.state), "function" == typeof n3 && (n3 = n3(w({}, u4), this.props)), n3 && w(u4, n3), null != n3 && this.__v && (l5 && this._sb.push(l5), $(this));
-      }, x.prototype.forceUpdate = function(n3) {
-        this.__v && (this.__e = true, n3 && this.__h.push(n3), $(this));
-      }, x.prototype.render = k, i = [], o = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e = function(n3, l5) {
+        u4 = null != this.__s && this.__s != this.state ? this.__s : this.__s = m({}, this.state), "function" == typeof n3 && (n3 = n3(m({}, u4), this.props)), n3 && m(u4, n3), null != n3 && this.__v && (l5 && this._sb.push(l5), A(this));
+      }, C.prototype.forceUpdate = function(n3) {
+        this.__v && (this.__e = true, n3 && this.__h.push(n3), A(this));
+      }, C.prototype.render = S, i = [], o = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e = function(n3, l5) {
         return n3.__v.__b - l5.__v.__b;
-      }, I.__r = 0, f = /(PointerCapture)$|Capture$/i, c = 0, s = O(false), a = O(true), h = 0;
+      }, H.__r = 0, f = Math.random().toString(8), c = "__d" + f, s = "__a" + f, a = /(PointerCapture)$|Capture$/i, h = 0, p = V(false), v = V(true), y = 0;
     }
   });
 
@@ -557,7 +557,7 @@
 
   // pages/new-tab/app/settings.provider.js
   function SettingsProvider({ settings, children }) {
-    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
+    return /* @__PURE__ */ k(SettingsContext.Provider, { value: { settings } }, children);
   }
   function usePlatformName() {
     return x2(SettingsContext).settings.platform.name;
@@ -579,7 +579,7 @@
       "use strict";
       init_preact_module();
       init_hooks_module();
-      SettingsContext = R(
+      SettingsContext = X(
         /** @type {{settings: import("./settings.js").Settings}} */
         {}
       );
@@ -694,7 +694,7 @@
       }
     }
   }
-  function b(i5) {
+  function b2(i5) {
     var t4 = i5.s, n3 = void 0;
     while (void 0 !== t4) {
       var r4 = t4.p;
@@ -750,7 +750,7 @@
   }
   function x3(i5) {
     if (r3 !== this) throw new Error("Out-of-order effect");
-    b(this);
+    b2(this);
     r3 = i5;
     this.f &= -2;
     if (8 & this.f) m3(this);
@@ -911,7 +911,7 @@
           this.i++;
         }
         r3 = i5;
-        b(this);
+        b2(this);
         this.f &= -2;
         return true;
       };
@@ -989,7 +989,7 @@
     l[i5] = r4.bind(null, l[i5] || function() {
     });
   }
-  function b2(i5) {
+  function b3(i5) {
     if (h4) {
       var n3 = h4;
       h4 = void 0;
@@ -1121,8 +1121,8 @@
       });
       g4("__r", function(i5, n3) {
         i5(n3);
-        if (n3.type !== k) {
-          b2();
+        if (n3.type !== S) {
+          b3();
           var r4, o4 = n3.__c;
           if (o4) {
             o4.__$f &= -2;
@@ -1141,16 +1141,16 @@
             }, "function" == typeof n3.type ? n3.type.displayName || n3.type.name : "");
           }
           d4 = o4;
-          b2(r4);
+          b3(r4);
         }
       });
       g4("__e", function(i5, n3, r4, t4) {
-        b2();
+        b3();
         d4 = void 0;
         i5(n3, r4, t4);
       });
       g4("diffed", function(i5, n3) {
-        b2();
+        b3();
         d4 = void 0;
         var r4;
         if ("string" == typeof n3.type && (r4 = n3.__e)) {
@@ -1210,7 +1210,7 @@
         if (t4 < 3 || 9 === t4) n3.__$f |= 2;
         i5(n3, r4, t4);
       });
-      x.prototype.shouldComponentUpdate = function(i5, n3) {
+      C.prototype.shouldComponentUpdate = function(i5, n3) {
         if (this.__R) return true;
         var r4 = this.__$u, t4 = r4 && void 0 !== r4.s;
         for (var o4 in n3) return true;
@@ -1253,7 +1253,7 @@
     function toggle(id) {
       props.api.toggleVisibility(id);
     }
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       WidgetConfigContext.Provider,
       {
         value: {
@@ -1278,7 +1278,7 @@
       if (!matchingConfig) throw new Error("unreachable. Must find widget config via id: " + props.id);
       return matchingConfig.visibility;
     });
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       WidgetVisibilityContext.Provider,
       {
         value: {
@@ -1298,7 +1298,7 @@
       init_preact_module();
       init_hooks_module();
       init_signals_module();
-      WidgetConfigContext = R({
+      WidgetConfigContext = X({
         /** @type {Widgets} */
         widgets: [],
         /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
@@ -1319,7 +1319,7 @@
         toggle: (_id) => {
         }
       });
-      WidgetVisibilityContext = R({
+      WidgetVisibilityContext = X({
         id: (
           /** @type {WidgetConfigItem['id']} */
           ""
@@ -1367,7 +1367,7 @@
       const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
       return apply(subject, replacements, textLength);
     }
-    return /* @__PURE__ */ _(TranslationContext.Provider, { value: { t: t4 } }, children);
+    return /* @__PURE__ */ k(TranslationContext.Provider, { value: { t: t4 } }, children);
   }
   function Trans({ str, values: values2 }) {
     const ref = A2(null);
@@ -1392,7 +1392,7 @@
         cleanupsCurr.forEach((fn) => fn());
       };
     }, [values2, str]);
-    return /* @__PURE__ */ _("span", { ref, dangerouslySetInnerHTML: { __html: str } });
+    return /* @__PURE__ */ k("span", { ref, dangerouslySetInnerHTML: { __html: str } });
   }
   var TranslationContext;
   var init_TranslationsProvider = __esm({
@@ -1401,7 +1401,7 @@
       init_preact_module();
       init_hooks_module();
       init_translations();
-      TranslationContext = R({
+      TranslationContext = X({
         /** @type {LocalTranslationFn} */
         t: () => {
           throw new Error("must implement");
@@ -1429,7 +1429,7 @@
       init_hooks_module();
       init_TranslationsProvider();
       init_preact_module();
-      MessagingContext = R(
+      MessagingContext = X(
         /** @type {import("../src/index.js").NewTabPage} */
         {}
       );
@@ -1438,7 +1438,7 @@
         if (!ctx) console.warn("missing MessagingContext");
         return ctx;
       };
-      TelemetryContext = R(
+      TelemetryContext = X(
         /** @type {import("./telemetry/telemetry.js").Telemetry} */
         {
           measureFromPageLoad: () => {
@@ -1446,7 +1446,7 @@
         }
       );
       useTelemetry = () => x2(TelemetryContext);
-      InitialSetupContext = R(
+      InitialSetupContext = X(
         /** @type {InitialSetupResponse} */
         {}
       );
@@ -1456,10 +1456,10 @@
 
   // pages/new-tab/app/components/Layout.js
   function Centered({ children, ...rest }) {
-    return /* @__PURE__ */ _("div", { ...rest, class: "layout-centered" }, children);
+    return /* @__PURE__ */ k("div", { ...rest, class: "layout-centered" }, children);
   }
   function VerticalSpace({ children, ...rest }) {
-    return /* @__PURE__ */ _("div", { ...rest, class: "vertical-space" }, children);
+    return /* @__PURE__ */ k("div", { ...rest, class: "vertical-space" }, children);
   }
   var init_Layout = __esm({
     "pages/new-tab/app/components/Layout.js"() {
@@ -1495,7 +1495,7 @@
 
   // pages/new-tab/app/components/Icons.js
   function Chevron() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1506,7 +1506,7 @@
     ));
   }
   function ChevronSmall() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1517,7 +1517,7 @@
     ));
   }
   function CustomizeIcon() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: Icons_default.customize }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: Icons_default.customize }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1525,7 +1525,7 @@
         d: "M4.5 1C2.567 1 1 2.567 1 4.5C1 6.433 2.567 8 4.5 8C6.17556 8 7.57612 6.82259 7.91946 5.25H14.375C14.7202 5.25 15 4.97018 15 4.625C15 4.27982 14.7202 4 14.375 4H7.96456C7.72194 2.30385 6.26324 1 4.5 1ZM2.25 4.5C2.25 3.25736 3.25736 2.25 4.5 2.25C5.74264 2.25 6.75 3.25736 6.75 4.5C6.75 5.74264 5.74264 6.75 4.5 6.75C3.25736 6.75 2.25 5.74264 2.25 4.5Z",
         fill: "currentColor"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1536,7 +1536,7 @@
     ));
   }
   function Shield() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#Shield-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k("g", { "clip-path": "url(#Shield-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1544,10 +1544,10 @@
         d: "M10.061.88a3 3 0 0 0-4.2-.02l-.99.962a1 1 0 0 1-.988.239l-.275-.084a2.75 2.75 0 0 0-3.55 2.564L.009 6.553a9.13 9.13 0 0 0 5.264 8.49l1.406.655a3.12 3.12 0 0 0 2.643 0l1.405-.656a9.13 9.13 0 0 0 5.264-8.489l-.05-2.038a2.75 2.75 0 0 0-3.525-2.572l-.42.124a1 1 0 0 1-.987-.248zm-1.436.517c.202.085.392.208.557.372l.948.938a2.25 2.25 0 0 0 2.218.56l.42-.125a1.5 1.5 0 0 1 1.924 1.403l.05 2.038a7.88 7.88 0 0 1-4.543 7.326l-1.406.656a2 2 0 0 1-.168.07zm-1.25-.037a1.74 1.74 0 0 0-.643.397l-.991.962a2.25 2.25 0 0 1-2.222.537l-.275-.083a1.5 1.5 0 0 0-1.937 1.399L1.26 6.583A7.88 7.88 0 0 0 5.8 13.91l1.406.656q.083.04.168.07z",
         "clip-rule": "evenodd"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Shield-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Shield-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function Cross() {
-    return /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ k(
       "path",
       {
         d: "M11.4419 5.44194C11.686 5.19786 11.686 4.80214 11.4419 4.55806C11.1979 4.31398 10.8021 4.31398 10.5581 4.55806L8 7.11612L5.44194 4.55806C5.19786 4.31398 4.80214 4.31398 4.55806 4.55806C4.31398 4.80214 4.31398 5.19786 4.55806 5.44194L7.11612 8L4.55806 10.5581C4.31398 10.8021 4.31398 11.1979 4.55806 11.4419C4.80214 11.686 5.19786 11.686 5.44194 11.4419L8 8.88388L10.5581 11.4419C10.8021 11.686 11.1979 11.686 11.4419 11.4419C11.686 11.1979 11.686 10.8021 11.4419 10.5581L8.88388 8L11.4419 5.44194Z",
@@ -1556,7 +1556,7 @@
     ));
   }
   function CheckColor() {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("path", { fill: "#4CBA3C", d: "M15.5 8a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0" }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k("path", { fill: "#4CBA3C", d: "M15.5 8a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0" }), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
@@ -1564,7 +1564,7 @@
         d: "M11.844 5.137a.5.5 0 0 1 .019.707l-4.5 4.75a.5.5 0 0 1-.733-.008l-2.5-2.75a.5.5 0 0 1 .74-.672l2.138 2.351 4.129-4.359a.5.5 0 0 1 .707-.019",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#288419",
@@ -1575,7 +1575,7 @@
     ));
   }
   function CircleCheck() {
-    return /* @__PURE__ */ _("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_1635_18497)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k("g", { "clip-path": "url(#clip0_1635_18497)" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1584,10 +1584,10 @@
         fill: "currentColor",
         "fill-opacity": "0.6"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_1635_18497" }, /* @__PURE__ */ _("rect", { width: "24", height: "24", fill: "white" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "clip0_1635_18497" }, /* @__PURE__ */ k("rect", { width: "24", height: "24", fill: "white" }))));
   }
   function Picker() {
-    return /* @__PURE__ */ _("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1599,7 +1599,7 @@
     ));
   }
   function PlusIcon() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1610,7 +1610,7 @@
     ));
   }
   function BackChevron() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1622,7 +1622,7 @@
     ));
   }
   function SearchIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Find-Search-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Find-Search-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1630,19 +1630,19 @@
         d: "M7 0a7 7 0 1 0 4.488 12.372l3.445 3.445a.625.625 0 1 0 .884-.884l-3.445-3.445A7 7 0 0 0 7 0M1.25 7a5.75 5.75 0 1 1 11.5 0 5.75 5.75 0 0 1-11.5 0",
         "clip-rule": "evenodd"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Find-Search-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Find-Search-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function SearchColorIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Search-Find-Color-16_svg__a)" }, /* @__PURE__ */ _("path", { fill: "#CCDAFF", d: "M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z" }), /* @__PURE__ */ _("path", { fill: "#fff", d: "M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z", opacity: ".5" }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Search-Find-Color-16_svg__a)" }, /* @__PURE__ */ k("path", { fill: "#CCDAFF", d: "M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z" }), /* @__PURE__ */ k("path", { fill: "#fff", d: "M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z", opacity: ".5" }), /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#Search-Find-Color-16_svg__b)",
         d: "M7 0a7 7 0 0 1 5.372 11.488l3.445 3.445.043.047a.625.625 0 0 1-.88.88l-.047-.043-3.445-3.445A7 7 0 1 1 7 0Zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 7 1Z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Search-Find-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "16", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#557FF3" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#2B55CA" })), /* @__PURE__ */ _("clipPath", { id: "Search-Find-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("linearGradient", { id: "Search-Find-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "16", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#557FF3" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#2B55CA" })), /* @__PURE__ */ k("clipPath", { id: "Search-Find-Color-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function SearchOnDarkColorIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Search-Find-OnDark-Color-16_svg__a)" }, /* @__PURE__ */ _("path", { fill: "#000", d: "M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z", opacity: ".2" }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Search-Find-OnDark-Color-16_svg__a)" }, /* @__PURE__ */ k("path", { fill: "#000", d: "M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z", opacity: ".2" }), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
@@ -1650,29 +1650,29 @@
         d: "M7 2c1.315 0 2.512.508 3.404 1.339a5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z",
         opacity: ".5"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#Search-Find-OnDark-Color-16_svg__b)",
         d: "M7 0a7 7 0 0 1 5.371 11.486l3.446 3.447.08.098a.626.626 0 0 1-.866.867l-.098-.08-3.447-3.447A7 7 0 1 1 7 0Zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 7 1Z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Search-Find-OnDark-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "16", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#8FABF9" })), /* @__PURE__ */ _("clipPath", { id: "Search-Find-OnDark-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("linearGradient", { id: "Search-Find-OnDark-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "16", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#8FABF9" })), /* @__PURE__ */ k("clipPath", { id: "Search-Find-OnDark-Color-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function AiChatIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#Ai-Chat-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { fill: "currentColor", "clip-path": "url(#Ai-Chat-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
         d: "m10.54 12.57-.047.02c-.81.372-2.323.786-4.064 1.174a93 93 0 0 1-3.324.67l.297-.343c.781-.901.554-2.169-.215-2.85-1.22-1.08-1.937-2.539-1.937-4.116C1.25 4.013 4.132 1.25 8 1.25s6.75 2.763 6.75 5.875c0 2.372-1.644 4.514-4.161 5.427l-.049.017Zm.475 1.157c-1.891.868-6.545 1.75-9.2 2.206-.665.114-1.092-.66-.65-1.17l1.293-1.491c.28-.322.22-.813-.1-1.096C.902 10.886 0 9.1 0 7.125 0 3.19 3.582 0 8 0s8 3.19 8 7.125c0 2.985-2.061 5.541-4.985 6.602",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _("path", { d: "M7.62 3.271c.099-.396.661-.396.76 0l.22.878a3.27 3.27 0 0 0 2.376 2.376l.878.22c.396.099.396.661 0 .76l-.878.22A3.27 3.27 0 0 0 8.6 10.102l-.219.877c-.099.396-.661.396-.76 0l-.22-.877a3.27 3.27 0 0 0-2.377-2.377l-.877-.22c-.396-.099-.396-.661 0-.76l.877-.22A3.27 3.27 0 0 0 7.4 4.15l.22-.878Z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    ), /* @__PURE__ */ k("path", { d: "M7.62 3.271c.099-.396.661-.396.76 0l.22.878a3.27 3.27 0 0 0 2.376 2.376l.878.22c.396.099.396.661 0 .76l-.878.22A3.27 3.27 0 0 0 8.6 10.102l-.219.877c-.099.396-.661.396-.76 0l-.22-.877a3.27 3.27 0 0 0-2.377-2.377l-.877-.22c-.396-.099-.396-.661 0-.76l.877-.22A3.27 3.27 0 0 0 7.4 4.15l.22-.878Z" })), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Ai-Chat-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function ChatBubbleIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#Chat-Bubble-16_svg__a)" }, /* @__PURE__ */ _("path", { d: "M14.75 7.12503C14.75 9.49689 13.1054 11.6393 10.5881 12.5518L10.5397 12.5694L10.4929 12.5909C9.68293 12.9625 8.16901 13.3763 6.42883 13.7642C5.30911 14.0138 4.14548 14.2419 3.1051 14.4334L3.40222 14.0907C4.18337 13.19 3.95633 11.9225 3.18689 11.2408C1.96753 10.1604 1.25 8.70239 1.25 7.12503C1.25001 4.01256 4.13202 1.25003 8 1.25003V3.24249e-05L7.89661 0.000642776C3.56038 0.0495577 0.0555134 3.17104 0.000610352 7.03299L0 7.12503C0 9.06839 0.873547 10.8301 2.29004 12.1155L2.35791 12.1763C2.66711 12.4503 2.73332 12.9192 2.48315 13.2411L2.45789 13.2718L1.16431 14.7635C0.722686 15.2727 1.15027 16.0468 1.81458 15.9326C4.46985 15.4766 9.12259 14.5948 11.0142 13.727C13.9385 12.6669 16 10.1104 16 7.12503L15.9994 7.03299C15.9441 3.14039 12.3838 3.24249e-05 8 3.24249e-05V1.25003C11.868 1.25003 14.75 4.01256 14.75 7.12503Z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Chat-Bubble-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { fill: "currentColor", "clip-path": "url(#Chat-Bubble-16_svg__a)" }, /* @__PURE__ */ k("path", { d: "M14.75 7.12503C14.75 9.49689 13.1054 11.6393 10.5881 12.5518L10.5397 12.5694L10.4929 12.5909C9.68293 12.9625 8.16901 13.3763 6.42883 13.7642C5.30911 14.0138 4.14548 14.2419 3.1051 14.4334L3.40222 14.0907C4.18337 13.19 3.95633 11.9225 3.18689 11.2408C1.96753 10.1604 1.25 8.70239 1.25 7.12503C1.25001 4.01256 4.13202 1.25003 8 1.25003V3.24249e-05L7.89661 0.000642776C3.56038 0.0495577 0.0555134 3.17104 0.000610352 7.03299L0 7.12503C0 9.06839 0.873547 10.8301 2.29004 12.1155L2.35791 12.1763C2.66711 12.4503 2.73332 12.9192 2.48315 13.2411L2.45789 13.2718L1.16431 14.7635C0.722686 15.2727 1.15027 16.0468 1.81458 15.9326C4.46985 15.4766 9.12259 14.5948 11.0142 13.727C13.9385 12.6669 16 10.1104 16 7.12503L15.9994 7.03299C15.9441 3.14039 12.3838 3.24249e-05 8 3.24249e-05V1.25003C11.868 1.25003 14.75 4.01256 14.75 7.12503Z" })), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Chat-Bubble-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function PinIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1683,73 +1683,73 @@
     ));
   }
   function AiChatColorIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Ai-Chat-Color-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Ai-Chat-Color-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#Ai-Chat-Color-16_svg__b)",
         d: "M1.164 14.763c-.441.51-.014 1.284.65 1.17 2.655-.457 7.306-1.338 9.199-2.206C13.938 12.667 16 10.111 16 7.125 16 3.19 12.418 0 8 0S0 3.19 0 7.125c0 1.974.902 3.76 2.358 5.051.32.283.38.773.1 1.095l-1.294 1.492Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#Ai-Chat-Color-16_svg__c)",
         d: "M15 7.125c0 2.495-1.729 4.72-4.328 5.662l-.039.014-.037.017c-.838.384-2.376.803-4.114 1.19a98.74 98.74 0 0 1-4.03.797l.762-.878c.68-.785.487-1.898-.193-2.5-1.227-1.087-1.973-2.55-2.019-4.147L1 7.125C1 3.848 4.022 1 8 1V0l-.207.003C3.54.099.11 3.153.003 6.94L0 7.125c0 1.913.846 3.649 2.223 4.929l.135.122c.32.283.38.773.1 1.096l-1.293 1.491c-.442.51-.015 1.284.65 1.17 2.654-.456 7.305-1.338 9.198-2.206C13.938 12.667 16 10.111 16 7.125l-.002-.184C15.888 3.091 12.349.001 8 .001v1c3.916 0 6.905 2.759 6.998 5.97l.002.154Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
         d: "M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#Ai-Chat-Color-16_svg__d)",
         d: "M6.662 2.544C7 1.195 8.867 1.154 9.3 2.418l.038.126.438 1.753c.114.457.47.813.927.927l1.753.438c1.392.348 1.392 2.328 0 2.676l-1.753.438c-.457.114-.813.47-.927.927l-.438 1.753c-.348 1.392-2.328 1.392-2.676 0l-.438-1.753a1.274 1.274 0 0 0-.927-.927l-1.753-.438c-1.392-.348-1.392-2.328 0-2.676l1.753-.438c.457-.114.813-.47.927-.927l.438-1.753ZM8 5.271A3.273 3.273 0 0 1 6.27 7 3.273 3.273 0 0 1 8 8.729 3.274 3.274 0 0 1 9.729 7 3.273 3.273 0 0 1 8 5.27Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
         d: "M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#A7B7FD" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#3969EF" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Color-16_svg__c", x1: "8", x2: "8", y1: "15.944", y2: "0", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#2B55CA" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#557FF3" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Color-16_svg__d", x1: "8", x2: "8", y1: "2.5", y2: "11.5", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#839DF9" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#3969EF" })), /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("linearGradient", { id: "Ai-Chat-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#A7B7FD" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#3969EF" })), /* @__PURE__ */ k("linearGradient", { id: "Ai-Chat-Color-16_svg__c", x1: "8", x2: "8", y1: "15.944", y2: "0", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#2B55CA" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#557FF3" })), /* @__PURE__ */ k("linearGradient", { id: "Ai-Chat-Color-16_svg__d", x1: "8", x2: "8", y1: "2.5", y2: "11.5", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#839DF9" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#3969EF" })), /* @__PURE__ */ k("clipPath", { id: "Ai-Chat-Color-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function AiChatOnDarkColorIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Ai-Chat-OnDark-Color-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Ai-Chat-OnDark-Color-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#Ai-Chat-OnDark-Color-16_svg__b)",
         d: "M1.164 14.763c-.441.51-.014 1.284.65 1.17 2.655-.457 7.306-1.338 9.199-2.206C13.938 12.667 16 10.111 16 7.125 16 3.19 12.418 0 8 0S0 3.19 0 7.125c0 1.974.902 3.76 2.358 5.051.32.283.38.773.1 1.095l-1.294 1.492Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#Ai-Chat-OnDark-Color-16_svg__c)",
         d: "M15 7.125c0 2.495-1.729 4.72-4.328 5.662l-.039.014-.037.017c-.838.384-2.376.803-4.114 1.19a98.74 98.74 0 0 1-4.03.797l.762-.878c.68-.785.487-1.898-.193-2.5-1.227-1.087-1.973-2.55-2.019-4.147L1 7.125C1 3.848 4.022 1 8 1V0l-.207.003C3.54.099.11 3.153.003 6.94L0 7.125c0 1.913.846 3.649 2.223 4.929l.135.122c.32.283.38.773.1 1.096l-1.293 1.491c-.442.51-.015 1.284.65 1.17 2.654-.456 7.305-1.338 9.198-2.206C13.938 12.667 16 10.111 16 7.125l-.002-.184C15.888 3.091 12.349.001 8 .001v1c3.916 0 6.905 2.759 6.998 5.97l.002.154Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
         d: "M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#Ai-Chat-OnDark-Color-16_svg__d)",
         d: "M6.662 2.544C7 1.195 8.867 1.154 9.3 2.418l.038.126.438 1.753c.114.457.47.813.927.927l1.753.438c1.392.348 1.392 2.328 0 2.676l-1.753.438c-.457.114-.813.47-.927.927l-.438 1.753c-.348 1.392-2.328 1.392-2.676 0l-.438-1.753a1.274 1.274 0 0 0-.927-.927l-1.753-.438c-1.392-.348-1.392-2.328 0-2.676l1.753-.438c.457-.114.813-.47.927-.927l.438-1.753ZM8 5.271A3.273 3.273 0 0 1 6.27 7 3.273 3.273 0 0 1 8 8.729 3.274 3.274 0 0 1 9.729 7 3.273 3.273 0 0 1 8 5.27Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#2B55CA",
         d: "M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#8FABF9" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__c", x1: "8", x2: "8", y1: "15.944", y2: "0", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#557FF3" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#ADC2FC" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__d", x1: "8", x2: "8", y1: "2.5", y2: "11.5", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#ADC2FC" })), /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-OnDark-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#8FABF9" })), /* @__PURE__ */ k("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__c", x1: "8", x2: "8", y1: "15.944", y2: "0", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#557FF3" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#ADC2FC" })), /* @__PURE__ */ k("linearGradient", { id: "Ai-Chat-OnDark-Color-16_svg__d", x1: "8", x2: "8", y1: "2.5", y2: "11.5", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#CCDAFF" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#ADC2FC" })), /* @__PURE__ */ k("clipPath", { id: "Ai-Chat-OnDark-Color-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function ArrowRightIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1758,7 +1758,7 @@
     ));
   }
   function GlobeIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Globe-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Globe-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1766,24 +1766,22 @@
         d: "M.017 7.482a8 8 0 0 1 15.967 0q.025.115.01.225a8 8 0 1 1-15.99 0 .6.6 0 0 1 .013-.225m1.247.951a6.75 6.75 0 0 0 4.197 5.823 7 7 0 0 1-.416-.781c-.555-1.213-.92-2.787-1.018-4.518a29 29 0 0 1-2.763-.524m2.739-.742a28 28 0 0 1-2.7-.535A6.76 6.76 0 0 1 5.46 1.744q-.229.372-.416.781c-.623 1.363-1.006 3.18-1.042 5.166Zm1.286 1.413c.109 1.516.436 2.852.893 3.85.59 1.292 1.28 1.796 1.818 1.796s1.228-.504 1.818-1.795c.457-1 .784-2.335.893-3.85-1.803.17-3.619.17-5.422 0Zm5.46-1.26a27.5 27.5 0 0 1-5.498 0c.018-1.904.38-3.596.93-4.799C6.774 1.755 7.462 1.25 8 1.25s1.228.504 1.818 1.795c.55 1.203.913 2.895.931 4.8Zm1.224 1.113c-.099 1.731-.463 3.305-1.018 4.518a7 7 0 0 1-.416.781 6.75 6.75 0 0 0 4.197-5.823q-1.372.33-2.763.524m2.725-1.801q-1.341.336-2.7.535c-.037-1.985-.42-3.803-1.043-5.166a7 7 0 0 0-.416-.781 6.76 6.76 0 0 1 4.159 5.412",
         "clip-rule": "evenodd"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Globe-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Globe-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
-  function ImageIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("path", { fill: "currentColor", d: "M4.5 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" }), /* @__PURE__ */ _(
+  function PaperclipIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
-        "fill-rule": "evenodd",
-        d: "M4 1a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4H4ZM1.25 5A2.75 2.75 0 0 1 4 2.25h8A2.75 2.75 0 0 1 14.75 5v3.866l-2.808-2.808a.625.625 0 0 0-.884 0L8 9.116 6.942 8.058a.625.625 0 0 0-.884 0l-4.394 4.394A2.737 2.737 0 0 1 1.25 11V5Zm7.634 5 1.058 1.058a.625.625 0 1 1-.884.884L6.5 9.384l-3.952 3.952A2.74 2.74 0 0 0 4 13.75h8A2.75 2.75 0 0 0 14.75 11v-.366l-3.25-3.25L8.884 10Z",
-        "clip-rule": "evenodd"
+        d: "M13.7085 14.3752C11.6235 16.4602 8.24293 16.4602 6.15791 14.3752L1.22473 9.44184L1.20263 9.41854C0.980951 9.17319 0.988274 8.79441 1.22473 8.55796C1.46119 8.32152 1.83997 8.31418 2.08531 8.53586L2.10861 8.55796L7.04179 13.4913C8.63866 15.0882 11.2278 15.0882 12.8247 13.4913C14.4215 11.8944 14.4215 9.30531 12.8247 7.70843L7.22478 2.10855C6.1802 1.06395 4.48662 1.06396 3.44204 2.10855C2.39745 3.15313 2.39745 4.84671 3.44204 5.89129L7.43954 9.88879C7.95563 10.4049 8.78454 10.4293 9.33005 9.94438C9.92284 9.41745 9.94983 8.50016 9.389 7.93933L7.89149 6.44182L7.86922 6.41851C7.64759 6.17317 7.65505 5.79437 7.89149 5.55794C8.12793 5.32153 8.50665 5.31413 8.75198 5.53575L8.77537 5.55794L10.2729 7.05544C11.3423 8.12483 11.2909 9.87392 10.1606 10.8787C9.12041 11.8033 7.53974 11.7568 6.55565 10.7727L2.55815 6.77517C1.02541 5.24244 1.02542 2.7574 2.55815 1.22466C4.0909 -0.308076 6.57593 -0.30809 8.10866 1.22466L13.7085 6.82455C15.7936 8.90959 15.7936 12.2902 13.7085 14.3752Z"
       }
     ));
   }
   function HistoryIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#History-16_svg__a)" }, /* @__PURE__ */ _("path", { d: "m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" }), /* @__PURE__ */ _("path", { d: "M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "History-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { fill: "currentColor", "clip-path": "url(#History-16_svg__a)" }, /* @__PURE__ */ k("path", { d: "m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" }), /* @__PURE__ */ k("path", { d: "M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" })), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "History-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function FavoriteIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Favorite-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Favorite-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1791,10 +1789,10 @@
         d: "M6.042 1.35c.73-1.732 3.186-1.732 3.916 0l1.033 2.452a.63.63 0 0 0 .489.376l2.686.38c1.774.252 2.46 2.45 1.144 3.666l-2.046 1.889a.63.63 0 0 0-.194.552l.434 2.88c.272 1.812-1.72 3.096-3.258 2.1L8.34 14.409a.63.63 0 0 0-.68 0l-1.906 1.236c-1.537.996-3.53-.288-3.258-2.1l.434-2.88a.63.63 0 0 0-.194-.552L.69 8.223C-.626 7.009.06 4.81 1.834 4.56l2.686-.381a.63.63 0 0 0 .489-.376zm2.764.486c-.3-.714-1.312-.714-1.612 0L6.16 4.287a1.88 1.88 0 0 1-1.465 1.128l-2.687.381a.875.875 0 0 0-.47 1.51l2.045 1.889c.457.421.675 1.042.582 1.656l-.433 2.88a.875.875 0 0 0 1.34.865L6.98 13.36a1.88 1.88 0 0 1 2.04 0l1.906 1.236a.875.875 0 0 0 1.341-.864l-.433-2.881a1.88 1.88 0 0 1 .582-1.656l2.046-1.89a.875.875 0 0 0-.471-1.509l-2.687-.38a1.88 1.88 0 0 1-1.464-1.13z",
         "clip-rule": "evenodd"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Favorite-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Favorite-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function BookmarkIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Bookmark-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Bookmark-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1802,10 +1800,10 @@
         d: "M2 4a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v9.684c0 1.857-2.079 2.957-3.614 1.912l-1.788-1.218a1.06 1.06 0 0 0-1.196 0l-1.788 1.218C4.08 16.64 2 15.54 2 13.684zm4-2.75A2.75 2.75 0 0 0 3.25 4v9.684c0 .854.955 1.359 1.66.878l1.788-1.217a2.31 2.31 0 0 1 2.604 0l1.787 1.217a1.063 1.063 0 0 0 1.661-.878V4A2.75 2.75 0 0 0 10 1.25z",
         "clip-rule": "evenodd"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Bookmark-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Bookmark-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function BrowserIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1813,7 +1811,7 @@
         d: "M0 5a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1.792c0 .478-.681.721-1.053.422a.52.52 0 0 1-.197-.4v-.819H1.25V11A2.75 2.75 0 0 0 4 13.75h2.135a.57.57 0 0 1 .497.312c.21.398-.055.938-.506.938H4a4 4 0 0 1-4-4zm1.262-.255h13.476A2.75 2.75 0 0 0 12 2.25H4a2.75 2.75 0 0 0-2.738 2.495",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1824,7 +1822,7 @@
     ));
   }
   function TabDesktopIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1833,7 +1831,7 @@
     ));
   }
   function LogoStacked(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 206 165", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { fill: "none", viewBox: "0 0 206 165", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "#DE5833",
@@ -1841,7 +1839,7 @@
         d: "M103 120c33.137 0 60-26.863 60-60S136.137 0 103 0 43 26.863 43 60s26.863 60 60 60Z",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#DDD",
@@ -1849,7 +1847,7 @@
         d: "M111.438 104.766c0-.469.115-.576-1.375-3.546-3.96-7.93-7.94-19.11-6.13-26.32.33-1.31-3.73-48.51-6.6-50.03-3.19-1.7-7.115-4.397-10.705-4.997-1.822-.291-4.21-.153-6.077.098-.332.045-.346.641-.029.749 1.226.415 2.715 1.136 3.592 2.226.166.206-.057.531-.322.54-.827.031-2.326.378-4.305 2.059-.23.194-.04.555.255.497 4.253-.841 8.597-.427 11.156 1.9.167.15.08.422-.137.48-22.213 6.037-17.816 25.36-11.902 49.073 5.248 21.047 7.235 27.881 7.867 29.981a.716.716 0 0 0 .424.468c7.656 3.037 24.288 3.168 24.288-2.007v-1.171Z",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
@@ -1857,19 +1855,19 @@
         d: "M158.078 60c0 30.419-24.659 55.078-55.078 55.078-30.419 0-55.078-24.66-55.078-55.078 0-30.419 24.66-55.078 55.078-55.078 30.419 0 55.078 24.66 55.078 55.078Zm-67.932 48.736c-1.522-4.701-5.775-18.329-9.977-35.55l-.419-1.713-.003-.014c-5.085-20.772-9.239-37.737 13.525-43.067.209-.049.31-.297.172-.46-2.611-3.1-7.504-4.115-13.691-1.98-.254.087-.474-.169-.317-.386 1.213-1.672 3.584-2.958 4.755-3.522.242-.116.227-.47-.03-.55a26.04 26.04 0 0 0-3.535-.844c-.347-.056-.378-.65-.03-.697 8.771-1.18 17.93 1.453 22.527 7.243a.305.305 0 0 0 .174.107c16.83 3.614 18.035 30.22 16.097 31.432-.383.239-1.608.102-3.224-.079-6.548-.733-19.516-2.184-8.814 17.763.106.197-.034.458-.255.492-6.015.936 1.646 19.72 7.324 32.179 22.327-5.176 38.966-25.19 38.966-49.09 0-27.83-22.561-50.39-50.391-50.39S52.61 32.17 52.61 60c0 23.388 15.932 43.054 37.536 48.736Z",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#3CA82B",
         d: "M122.013 85.03c-1.281-.594-6.208 2.939-9.478 5.65-.683-.966-1.972-1.669-4.878-1.163-2.544.442-3.949 1.055-4.575 2.113-4.015-1.523-10.77-3.872-12.402-1.603-1.784 2.48.446 14.213 2.815 15.736 1.237.796 7.154-3.007 10.243-5.63.499.702 1.301 1.104 2.951 1.066 2.495-.058 6.543-.638 7.171-1.8.038-.071.071-.154.099-.25 3.175 1.187 8.765 2.444 10.013 2.256 3.254-.489-.453-15.678-1.959-16.376Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#4CBA3C",
         d: "M112.835 91.028c.134.24.243.494.335.751.452 1.267 1.19 5.294.632 6.29-.558.994-4.18 1.475-6.415 1.513-2.235.039-2.738-.778-3.191-2.045-.362-1.013-.541-3.394-.536-4.758-.092-2.022.647-2.733 4.063-3.286 2.528-.409 3.864.067 4.635.88 3.589-2.678 9.577-6.457 10.161-5.767 2.912 3.445 3.28 11.645 2.649 14.944-.206 1.078-9.848-1.069-9.848-2.232 0-4.83-1.253-6.154-2.485-6.29ZM91.713 89.52c.79-1.25 7.194.304 10.709 1.869 0 0-.722 3.273.428 7.129.336 1.127-8.088 6.147-9.187 5.284-1.271-.999-3.61-11.655-1.95-14.282Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#FC3",
@@ -1877,14 +1875,14 @@
         d: "M94.815 64.131c.518-2.253 2.931-6.499 11.551-6.395 4.357-.019 9.77-.002 13.358-.41a48.043 48.043 0 0 0 11.931-2.902c3.731-1.423 5.055-1.106 5.52-.254.51.936-.091 2.552-1.395 4.04-2.49 2.841-6.967 5.043-14.873 5.696-7.907.654-13.145-1.467-15.4 1.986-.972 1.489-.22 4.999 7.426 6.104 10.332 1.491 18.818-1.796 19.866.19 1.048 1.985-4.991 6.025-15.34 6.11-10.349.084-16.813-3.624-19.105-5.467-2.909-2.338-4.21-5.749-3.54-8.698Z",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _("g", { fill: "#14307E", opacity: ".8" }, /* @__PURE__ */ _("path", { d: "M107.994 39.494c.577-.945 1.857-1.675 3.952-1.675 2.095 0 3.08.834 3.763 1.763.138.19-.072.412-.287.319l-.158-.069c-.766-.334-1.707-.745-3.318-.768-1.724-.024-2.81.407-3.495.78-.23.125-.594-.126-.457-.35ZM84.41 40.703c2.034-.85 3.633-.74 4.763-.472.238.056.403-.2.213-.354-.877-.707-2.84-1.586-5.401-.63-2.284.85-3.36 2.62-3.367 3.784-.002.274.563.297.708.065.395-.627 1.05-1.542 3.084-2.393Z" }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k("g", { fill: "#14307E", opacity: ".8" }, /* @__PURE__ */ k("path", { d: "M107.994 39.494c.577-.945 1.857-1.675 3.952-1.675 2.095 0 3.08.834 3.763 1.763.138.19-.072.412-.287.319l-.158-.069c-.766-.334-1.707-.745-3.318-.768-1.724-.024-2.81.407-3.495.78-.23.125-.594-.126-.457-.35ZM84.41 40.703c2.034-.85 3.633-.74 4.763-.472.238.056.403-.2.213-.354-.877-.707-2.84-1.586-5.401-.63-2.284.85-3.36 2.62-3.367 3.784-.002.274.563.297.708.065.395-.627 1.05-1.542 3.084-2.393Z" }), /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
         d: "M113.725 52.425a3.253 3.253 0 0 1-3.257-3.245 3.253 3.253 0 0 1 3.257-3.245 3.252 3.252 0 0 1 3.257 3.245 3.252 3.252 0 0 1-3.257 3.245Zm2.294-4.32a.842.842 0 0 0-1.686 0c0 .464.379.84.843.84a.84.84 0 0 0 .843-.84Zm-23.872 3.321a3.79 3.79 0 0 1-3.797 3.784 3.792 3.792 0 0 1-3.796-3.784 3.792 3.792 0 0 1 3.796-3.785 3.792 3.792 0 0 1 3.797 3.785Zm-1.12-1.255a.981.981 0 0 0-1.965 0 .982.982 0 0 0 1.966-.001Z",
         "clip-rule": "evenodd"
       }
-    )), /* @__PURE__ */ _(
+    )), /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1893,7 +1891,7 @@
     ));
   }
   function ListIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1902,7 +1900,7 @@
     ));
   }
   function ArrowIndentCenteredIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1911,7 +1909,7 @@
     ));
   }
   function CloseSmallIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1920,19 +1918,19 @@
     ));
   }
   function InfoIcon(props) {
-    return /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: "info-icon", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: "info-icon", ...props }, /* @__PURE__ */ k(
       "path",
       {
         d: "M8.48319 3.64453C7.73951 3.64453 7.28748 4.24239 7.28748 4.7965C7.28748 5.46726 7.79784 5.68599 8.24988 5.68599C9.08104 5.68599 9.43101 5.05897 9.43101 4.54861C9.43101 3.907 8.92064 3.64453 8.48319 3.64453Z",
         class: "info-icon-fill"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         d: "M8.91304 6.54504L7.08645 6.84036C7.03054 7.28244 6.95011 7.72956 6.86842 8.18373C6.71074 9.06033 6.54834 9.96319 6.54834 10.9066C6.54834 11.8434 7.10858 12.3547 7.99455 12.3547C9.00639 12.3547 9.17956 11.7196 9.21882 11.1442C8.37999 11.2659 8.19573 10.8873 8.33282 9.99619C8.46991 9.10509 8.91304 6.54504 8.91304 6.54504Z",
         class: "info-icon-fill"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1943,7 +1941,7 @@
     ));
   }
   function Check(props) {
-    return /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", ...props }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1954,7 +1952,7 @@
     ));
   }
   function FireIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", class: Icons_default.fireIcon, ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", class: Icons_default.fireIcon, ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1963,13 +1961,13 @@
     ));
   }
   function LightThemeIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 17", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 17", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
         d: "M6.63.463a.625.625 0 1 0-1.207.324l.259.966a.625.625 0 1 0 1.207-.324zm3.688 13.765a.625.625 0 1 0-1.207.323l.259.966a.625.625 0 1 0 1.207-.323zm1.925-11.364a.625.625 0 1 0 .883.884l.708-.707a.625.625 0 1 0-.884-.884zM2.166 12.94a.625.625 0 0 0 .884.884l.707-.707a.625.625 0 0 0-.884-.884z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1977,7 +1975,7 @@
         d: "M2.99 8.116a5.01 5.01 0 1 1 10.02 0 5.01 5.01 0 0 1-10.02 0M8 4.376a3.74 3.74 0 1 0 0 7.479 3.74 3.74 0 0 0 0-7.479",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1986,7 +1984,7 @@
     ));
   }
   function DarkThemeIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -1994,7 +1992,7 @@
         d: "M7.72 1.141C7.965.635 7.575-.014 6.95.068A8.001 8.001 0 1 0 15.6 10.5c.198-.601-.37-1.102-.91-.956A6 6 0 0 1 7.72 1.14M1.25 8a6.75 6.75 0 0 1 4.987-6.518 7.25 7.25 0 0 0 7.842 9.455A6.75 6.75 0 0 1 1.25 8",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -2003,7 +2001,7 @@
     ));
   }
   function SystemThemeIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("path", { fill: "currentColor", d: "m8 13-.257-.007A5 5 0 0 1 8 3z" }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("path", { fill: "currentColor", d: "m8 13-.257-.007A5 5 0 0 1 8 3z" }), /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -2013,33 +2011,53 @@
       }
     ));
   }
+  function ToolsIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M5.5 1C7.2632 1 8.72121 2.3039 8.96387 4H15.375C15.7202 4 16 4.27982 16 4.625 16 4.97018 15.7202 5.25 15.375 5.25H8.91797C8.57452 6.82244 7.17545 8 5.5 8 3.567 8 2 6.433 2 4.5 2 2.567 3.567 1 5.5 1Zm0 1.25C4.25736 2.25 3.25 3.25736 3.25 4.5 3.25 5.74264 4.25736 6.75 5.5 6.75 6.74264 6.75 7.75 5.74264 7.75 4.5 7.75 3.25736 6.74264 2.25 5.5 2.25ZM12.5 8C14.433 8 16 9.567 16 11.5 16 13.433 14.433 15 12.5 15 10.7368 15 9.27879 13.6961 9.03613 12H2.625C2.27982 12 2 11.7202 2 11.375 2 11.0298 2.27982 10.75 2.625 10.75H9.08203C9.42548 9.17756 10.8245 8 12.5 8Zm0 1.25C11.2574 9.25 10.25 10.2574 10.25 11.5 10.25 12.7426 11.2574 13.75 12.5 13.75 13.7426 13.75 14.75 12.7426 14.75 11.5 14.75 10.2574 13.7426 9.25 12.5 9.25Z"
+      }
+    ));
+  }
+  function CreateImageIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 15.9833 15.9833", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M14.25 4.63088C15.5784 5.4069 16.2805 7.00087 15.8632 8.55859L14.569 13.3882C14.0687 15.2553 12.1495 16.3635 10.2823 15.8632L5.45276 14.569C5.00372 14.4486 4.5986 14.2463 4.2492 13.9823C3.78313 13.6301 4.11012 13 4.69428 13H4.77682C4.93701 13 5.09097 13.0548 5.2296 13.1351C5.39721 13.2322 5.58022 13.309 5.77624 13.3616L10.606 14.6558C11.8062 14.9774 13.04 14.265 13.3616 13.0647L14.6558 8.23511C14.8973 7.33386 14.5558 6.4137 13.8625 5.875C13.7333 5.77454 13.5951 5.69206 13.45 5.62415C13.194 5.50437 13 5.26558 13 4.98297C13 4.57176 13.3948 4.26001 13.7787 4.40752C13.9399 4.46946 14.0974 4.54176 14.25 4.63088ZM8.5 0C10.433 5.99939e-07 12 1.56702 12 3.5V8.5C12 10.433 10.433 12 8.5 12H3.5C1.56702 12 3.38567e-05 10.433 0 8.5V3.5C2.52121e-05 1.56702 1.56702 -6.97269e-08 3.5 0H8.5ZM5.4375 6.88794C4.85739 6.55303 4.14261 6.55302 3.5625 6.88794L1.25 8.22302V8.5C1.25003 9.74261 2.25738 10.75 3.5 10.75H8.5C9.28434 10.75 9.97472 10.3485 10.3774 9.73999L5.4375 6.88794ZM3.5 1.25C2.25737 1.25 1.25002 2.25738 1.25 3.5V6.77966L2.9375 5.80542C3.90437 5.24721 5.09563 5.24721 6.0625 5.80542L10.7498 8.5116C10.7498 8.50777 10.75 8.50383 10.75 8.5V3.5C10.75 2.25738 9.74262 1.25 8.5 1.25H3.5ZM7.9375 3C8.52429 3 8.99997 3.47572 9 4.0625C8.99997 4.64927 8.52428 5.125 7.9375 5.125C7.35072 5.125 6.87503 4.64927 6.875 4.0625C6.87502 3.47572 7.35071 3 7.9375 3Z"
+      }
+    ));
+  }
   function NewTabOptionsIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", width: "96", height: "96", viewBox: "0 0 96 96", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { fill: "none", width: "96", height: "96", viewBox: "0 0 96 96", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#NewTab-Options-96_svg__a)",
         d: "M46 78a5 5 0 0 0 5-5v-2c0-11.046 8.954-20 20-20h5a4 4 0 0 0 4-4V26a8 8 0 0 0-8-8H29a8 8 0 0 0-8 8v44a8 8 0 0 0 8 8z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "url(#NewTab-Options-96_svg__b)",
         d: "M47 78a4 4 0 0 0 4-4v-3c0-11.046 8.954-20 20-20h4V26a8 8 0 0 0-8-8H24a8 8 0 0 0-8 8v44a8 8 0 0 0 8 8z"
       }
-    ), /* @__PURE__ */ _("path", { fill: "url(#NewTab-Options-96_svg__c)", d: "M37 32.5a8.5 8.5 0 1 1 17 0 8.5 8.5 0 0 1-17 0" }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k("path", { fill: "url(#NewTab-Options-96_svg__c)", d: "M37 32.5a8.5 8.5 0 1 1 17 0 8.5 8.5 0 0 1-17 0" }), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
         d: "M43.803 38.342c.666.246 2.106.306 2.889.03a39 39 0 0 1-.439-1.023c-.32.076-.742.084-.84-.08-.368.319-1.073.78-1.22.683-.282-.184-.548-1.606-.336-1.907.322-.293 1.001.026 1.477.194.066-.112.237-.193.427-.237-.23-.766-.3-1.384-.002-1.568-.894-.257-1.587-.775-1.41-1.529.145-1.031 2.095-.709 2.967-.825q.011 0 .023-.003c.107-.701-.213-3.252-1.98-3.638-1.843-2.28-3.598.321-2.708.143.71-.177 1.238-.014 1.216-.007-3.904.493-.71 8.01-.48 9.587.085.116.267.115.413.17zm3-8.375c-.325-.174-.608-.085-.762-.036-.087.027-.133.041-.122-.014.128-.265.788-.267.918.01.017.024-.008.051-.034.04m-4.06.388c-.017.028-.084.024-.084-.01.017-.443.77-.657 1.044-.381.033.041-.016.038-.104.031-.123-.009-.323-.023-.488.069-.242.103-.32.215-.367.29Zm3.858 1.13c-.506-.003-.506-.783 0-.787.507.003.507.785 0 .787m-2.57-.12c-.01.602-.893.602-.904 0 .003-.6.901-.6.905 0Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
         d: "M47.964 37.2c-.02.127-.064.212-.142.224-.15.023-.815-.13-1.193-.273-.043.198-1.056.385-1.217.12-.368.317-1.072.778-1.22.682-.282-.185-.547-1.607-.335-1.908.323-.293 1.001.026 1.477.194.161-.272.942-.376 1.104-.152.428-.325 1.14-.783 1.21-.7.347.418.39 1.412.316 1.813",
         opacity: ".5"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
@@ -2048,7 +2066,7 @@
         "clip-rule": "evenodd",
         opacity: ".7"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
@@ -2056,33 +2074,33 @@
         d: "M45.5 26.89a5.61 5.61 0 1 0 0 11.22 5.61 5.61 0 0 0 0-11.22M39 32.5a6.5 6.5 0 1 1 13 0 6.5 6.5 0 0 1-13 0",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ _("path", { fill: "#000", "fill-opacity": ".1", d: "M62.273 53a19.9 19.9 0 0 1 6.083-1.825A4 4 0 0 0 65 45H26a4 4 0 0 0 0 8z" }), /* @__PURE__ */ _("path", { fill: "#fff", d: "M65 51a4 4 0 0 0 0-8H26a4 4 0 0 0 0 8z" }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k("path", { fill: "#000", "fill-opacity": ".1", d: "M62.273 53a19.9 19.9 0 0 1 6.083-1.825A4 4 0 0 0 65 45H26a4 4 0 0 0 0 8z" }), /* @__PURE__ */ k("path", { fill: "#fff", d: "M65 51a4 4 0 0 0 0-8H26a4 4 0 0 0 0 8z" }), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
         "fill-opacity": ".6",
         d: "M31 64a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2zm11 0a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2zm10.26 0A20 20 0 0 1 55 58.999V58a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#000",
         "fill-opacity": ".1",
         d: "M32 68a1 1 0 1 0 0-2h-6a1 1 0 1 0 0 2zm11 0a1 1 0 1 0 0-2h-6a1 1 0 1 0 0 2zm8.224 0q.153-1.018.407-2H48a1 1 0 1 0 0 2z"
       }
-    ), /* @__PURE__ */ _("path", { fill: "#ccc", d: "M24 47a2 2 0 1 1 4 0 2 2 0 0 1-4 0" }), /* @__PURE__ */ _("path", { fill: "#557ff3", d: "M71 87c8.837 0 16-7.163 16-16s-7.163-16-16-16-16 7.163-16 16 7.163 16 16 16" }), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k("path", { fill: "#ccc", d: "M24 47a2 2 0 1 1 4 0 2 2 0 0 1-4 0" }), /* @__PURE__ */ k("path", { fill: "#557ff3", d: "M71 87c8.837 0 16-7.163 16-16s-7.163-16-16-16-16 7.163-16 16 7.163 16 16 16" }), /* @__PURE__ */ k(
       "path",
       {
         fill: "#ccc",
         d: "M92.501 59c.298 0 .595.12.823.354.454.468.454 1.23 0 1.698l-2.333 2.4a1.145 1.145 0 0 1-1.65 0 1.227 1.227 0 0 1 0-1.698l2.333-2.4c.227-.234.524-.354.822-.354zm-1.166 10.798h3.499c.641 0 1.166.54 1.166 1.2s-.525 1.2-1.166 1.2h-3.499c-.641 0-1.166-.54-1.166-1.2s.525-1.2 1.166-1.2m-1.982 8.754c.227-.234.525-.354.822-.354h.006c.297 0 .595.12.822.354l2.332 2.4c.455.467.455 1.23 0 1.697a1.145 1.145 0 0 1-1.65 0l-2.332-2.4a1.227 1.227 0 0 1 0-1.697"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "#fff",
         d: "M75.5 72a4.5 4.5 0 1 1-4.242 6H62.5a1.5 1.5 0 0 1 0-3h8.758a4.5 4.5 0 0 1 4.242-3m-9-11a4.5 4.5 0 0 1 4.242 3H79.5a1.5 1.5 0 0 1 0 3h-8.758a4.5 4.5 0 1 1-4.242-6"
       }
-    ), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "NewTab-Options-96_svg__a", x1: "50.5", x2: "50.5", y1: "78", y2: "18", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#e46f4f" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#876ecb" })), /* @__PURE__ */ _("linearGradient", { id: "NewTab-Options-96_svg__b", x1: "27", x2: "67.5", y1: "75.5", y2: "19", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#f8bbaa" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#a591dc" })), /* @__PURE__ */ _("linearGradient", { id: "NewTab-Options-96_svg__c", x1: "42.667", x2: "49.467", y1: "41", y2: "24.567", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#eb876c" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#6b4eba" }))));
+    ), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("linearGradient", { id: "NewTab-Options-96_svg__a", x1: "50.5", x2: "50.5", y1: "78", y2: "18", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#e46f4f" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#876ecb" })), /* @__PURE__ */ k("linearGradient", { id: "NewTab-Options-96_svg__b", x1: "27", x2: "67.5", y1: "75.5", y2: "19", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#f8bbaa" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#a591dc" })), /* @__PURE__ */ k("linearGradient", { id: "NewTab-Options-96_svg__c", x1: "42.667", x2: "49.467", y1: "41", y2: "24.567", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ k("stop", { "stop-color": "#eb876c" }), /* @__PURE__ */ k("stop", { offset: "1", "stop-color": "#6b4eba" }))));
   }
   var init_Icons2 = __esm({
     "pages/new-tab/app/components/Icons.js"() {
@@ -2214,7 +2232,7 @@
       return t4 != n4.ref && t4 && ("function" == typeof t4 ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || t4 != n4.ref : E3(this.props, n4);
     }
     function u4(e5) {
-      return this.shouldComponentUpdate = r4, _(n3, e5);
+      return this.shouldComponentUpdate = r4, k(n3, e5);
     }
     return u4.displayName = "Memo(" + (n3.displayName || n3.name) + ")", u4.__f = u4.prototype.isReactComponent = true, u4.type = n3, u4;
   }
@@ -2225,9 +2243,9 @@
       return V2(n4, t4, e4);
     })), n3;
   }
-  function W(n3, t4, e4) {
+  function W2(n3, t4, e4) {
     return n3 && e4 && (n3.__v = null, n3.__k = n3.__k && n3.__k.map(function(n4) {
-      return W(n4, t4, e4);
+      return W2(n4, t4, e4);
     }), n3.__c && n3.__c.__P === t4 && (n3.__e && e4.appendChild(n3.__e), n3.__c.__e = true, n3.__c.__P = e4)), n3;
   }
   function P3() {
@@ -2246,7 +2264,7 @@
         r4 = n4, u4 = true;
       }), r4) throw r4;
       if (!u4) throw e4;
-      return o4 ? _(o4, i6) : null;
+      return o4 ? k(o4, i6) : null;
     }
     return i5.displayName = "Lazy", i5.__f = true, i5;
   }
@@ -2261,7 +2279,7 @@
   function Y(n3) {
     var e4 = this, r4 = n3.h;
     if (e4.componentWillUnmount = function() {
-      J(null, e4.v), e4.v = null, e4.h = null;
+      R(null, e4.v), e4.v = null, e4.h = null;
     }, e4.h && e4.h !== r4 && e4.componentWillUnmount(), !e4.v) {
       for (var u4 = e4.__v; null !== u4 && !u4.__m && null !== u4.__; ) u4 = u4.__;
       e4.h = r4, e4.v = { nodeType: 1, parentNode: r4, childNodes: [], __k: { __m: u4.__m }, contains: function() {
@@ -2272,20 +2290,20 @@
         this.childNodes.splice(this.childNodes.indexOf(n4) >>> 1, 1), e4.h.removeChild(n4);
       } };
     }
-    J(_(Z, { context: e4.context }, n3.__v), e4.v);
+    R(k(Z, { context: e4.context }, n3.__v), e4.v);
   }
   function $2(n3, e4) {
-    var r4 = _(Y, { __v: n3, h: e4 });
+    var r4 = k(Y, { __v: n3, h: e4 });
     return r4.containerInfo = e4, r4;
   }
-  var T4, A4, O3, U, H2, q4, G2, J2, K2, Q2, X, en, rn, un, on, ln, cn;
+  var T4, A4, O3, U2, H2, q4, G2, J2, K2, Q2, X2, en, rn, un, on, ln, cn;
   var init_compat_module = __esm({
     "../node_modules/preact/compat/dist/compat.module.js"() {
       init_preact_module();
       init_preact_module();
       init_hooks_module();
       init_hooks_module();
-      (M2.prototype = new x()).isPureReactComponent = true, M2.prototype.shouldComponentUpdate = function(n3, t4) {
+      (M2.prototype = new C()).isPureReactComponent = true, M2.prototype.shouldComponentUpdate = function(n3, t4) {
         return E3(this.props, n3) || E3(this.state, t4);
       };
       T4 = l.__b;
@@ -2300,11 +2318,11 @@
         }
         O3(n3, t4, e4, r4);
       };
-      U = l.unmount;
+      U2 = l.unmount;
       l.unmount = function(n3) {
         var t4 = n3.__c;
-        t4 && (t4.__z = true), t4 && t4.__R && t4.__R(), t4 && 32 & n3.__u && (n3.type = null), U && U(n3);
-      }, (P3.prototype = new x()).__c = function(n3, t4) {
+        t4 && (t4.__z = true), t4 && t4.__R && t4.__R(), t4 && 32 & n3.__u && (n3.type = null), U2 && U2(n3);
+      }, (P3.prototype = new C()).__c = function(n3, t4) {
         var e4 = t4.__c, r4 = this;
         null == r4.o && (r4.o = []), r4.o.push(e4);
         var u4 = j3(r4.__v), o4 = false, i5 = function() {
@@ -2317,7 +2335,7 @@
           if (!--r4.__u) {
             if (r4.state.__a) {
               var n4 = r4.state.__a;
-              r4.__v.__k[0] = W(n4, n4.__c.__P, n4.__c.__O);
+              r4.__v.__k[0] = W2(n4, n4.__c.__P, n4.__c.__O);
             }
             var t5;
             for (r4.setState({ __a: r4.__b = null }); t5 = r4.o.pop(); ) t5.__P = l5, t5.forceUpdate();
@@ -2334,8 +2352,8 @@
           }
           this.__b = null;
         }
-        var i5 = e4.__a && _(k, null, n3.fallback);
-        return i5 && (i5.__u &= -33), [_(k, null, e4.__a ? null : n3.children), i5];
+        var i5 = e4.__a && k(S, null, n3.fallback);
+        return i5 && (i5.__u &= -33), [k(S, null, e4.__a ? null : n3.children), i5];
       };
       H2 = function(n3, t4, e4) {
         if (++e4[1] === e4[0] && n3.l.delete(t4), n3.props.revealOrder && ("t" !== n3.props.revealOrder[0] || !n3.l.size)) for (e4 = n3.i; e4; ) {
@@ -2344,7 +2362,7 @@
           n3.i = e4 = e4[2];
         }
       };
-      (B3.prototype = new x()).__a = function(n3) {
+      (B3.prototype = new C()).__a = function(n3) {
         var t4 = this, e4 = j3(t4.__v), r4 = t4.l.get(n3);
         return r4[0]++, function(u4) {
           var o4 = function() {
@@ -2354,7 +2372,7 @@
         };
       }, B3.prototype.render = function(n3) {
         this.i = null, this.l = /* @__PURE__ */ new Map();
-        var t4 = L(n3.children);
+        var t4 = F(n3.children);
         n3.revealOrder && "b" === n3.revealOrder[0] && t4.reverse();
         for (var e4 = t4.length; e4--; ) this.l.set(t4[e4], this.i = [1, 0, this.i]);
         return n3.children;
@@ -2369,11 +2387,11 @@
       J2 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
       K2 = /[A-Z0-9]/g;
       Q2 = "undefined" != typeof document;
-      X = function(n3) {
+      X2 = function(n3) {
         return ("undefined" != typeof Symbol && "symbol" == typeof /* @__PURE__ */ Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n3);
       };
-      x.prototype.isReactComponent = true, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t4) {
-        Object.defineProperty(x.prototype, t4, { configurable: true, get: function() {
+      C.prototype.isReactComponent = true, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t4) {
+        Object.defineProperty(C.prototype, t4, { configurable: true, get: function() {
           return this["UNSAFE_" + t4];
         }, set: function(n3) {
           Object.defineProperty(this, t4, { configurable: true, writable: true, value: n3 });
@@ -2399,12 +2417,12 @@
             var l5 = t4[i5];
             if (!("value" === i5 && "defaultValue" in t4 && null == l5 || Q2 && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
               var c4 = i5.toLowerCase();
-              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l5 ? l5 = "" : "translate" === c4 && "no" === l5 ? l5 = false : "o" === c4[0] && "n" === c4[1] ? "ondoubleclick" === c4 ? i5 = "ondblclick" : "onchange" !== c4 || "input" !== e4 && "textarea" !== e4 || X(t4.type) ? "onfocus" === c4 ? i5 = "onfocusin" : "onblur" === c4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = c4) : c4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l5 && (l5 = void 0), "oninput" === c4 && u4[i5 = c4] && (i5 = "oninputCapture"), u4[i5] = l5;
+              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l5 ? l5 = "" : "translate" === c4 && "no" === l5 ? l5 = false : "o" === c4[0] && "n" === c4[1] ? "ondoubleclick" === c4 ? i5 = "ondblclick" : "onchange" !== c4 || "input" !== e4 && "textarea" !== e4 || X2(t4.type) ? "onfocus" === c4 ? i5 = "onfocusin" : "onblur" === c4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = c4) : c4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l5 && (l5 = void 0), "oninput" === c4 && u4[i5 = c4] && (i5 = "oninputCapture"), u4[i5] = l5;
             }
           }
-          "select" == e4 && (u4.multiple && Array.isArray(u4.value) && (u4.value = L(t4.children).forEach(function(n5) {
+          "select" == e4 && (u4.multiple && Array.isArray(u4.value) && (u4.value = F(t4.children).forEach(function(n5) {
             n5.props.selected = -1 != u4.value.indexOf(n5.props.value);
-          })), null != u4.defaultValue && (u4.value = L(t4.children).forEach(function(n5) {
+          })), null != u4.defaultValue && (u4.value = F(t4.children).forEach(function(n5) {
             n5.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n5.props.value) : u4.defaultValue == n5.props.value;
           }))), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", un)) : t4.className && (u4.class = u4.className = t4.className), n4.props = u4;
         })(n3), n3.$$typeof = q4, on && on(n3);
@@ -2494,11 +2512,11 @@
       }
       case "userImage": {
         const img = background.value;
-        return /* @__PURE__ */ _(ImageCrossFade, { src: img.src });
+        return /* @__PURE__ */ k(ImageCrossFade, { src: img.src });
       }
       case "gradient": {
         const gradient = values.gradients[background.value];
-        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ImageCrossFade, { src: gradient.path }), /* @__PURE__ */ _(
+        return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ImageCrossFade, { src: gradient.path }), /* @__PURE__ */ k(
           "div",
           {
             className: BackgroundReceiver_default.root,
@@ -2554,10 +2572,10 @@
     switch (state.value) {
       case states.settled:
       case states.loadingFirst:
-        return /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" });
+        return /* @__PURE__ */ k("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" });
       case states.loading:
       case states.fading:
-        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" }), /* @__PURE__ */ _(
+        return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" }), /* @__PURE__ */ k(
           "img",
           {
             class: BackgroundReceiver_default.root,
@@ -2683,7 +2701,7 @@
       });
       return () => mediaQueryList2.removeEventListener("change", listener);
     }, []);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       EnvironmentContext.Provider,
       {
         value: {
@@ -2723,7 +2741,7 @@
       init_preact_module();
       init_hooks_module();
       init_useMediaQuery();
-      EnvironmentContext = R({
+      EnvironmentContext = X({
         isReducedMotion: false,
         isDarkMode: false,
         debugState: false,
@@ -2994,7 +3012,7 @@
       },
       [service, ntp]
     );
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       CustomizerContext.Provider,
       {
         value: {
@@ -3008,7 +3026,7 @@
           showThemeNewBadge
         }
       },
-      /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser, variant } }, children)
+      /* @__PURE__ */ k(CustomizerThemesContext.Provider, { value: { main, browser, variant } }, children)
     );
   }
   var CustomizerThemesContext, CustomizerContext;
@@ -3022,7 +3040,7 @@
       init_utils();
       init_Drawer();
       init_types();
-      CustomizerThemesContext = R({
+      CustomizerThemesContext = X({
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
         main: y3("light"),
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
@@ -3030,7 +3048,7 @@
         /** @type {import("@preact/signals").Signal<ThemeVariant>} */
         variant: y3("default")
       });
-      CustomizerContext = R({
+      CustomizerContext = X({
         /** @type {import("@preact/signals").Signal<CustomizerData>} */
         data: y3({
           background: { kind: "default" },
@@ -3080,7 +3098,7 @@
   // pages/new-tab/app/components/DismissButton.jsx
   function DismissButton({ className, onClick, buttonProps = {} }) {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ _("button", { class: (0, import_classnames.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ _(Cross, null));
+    return /* @__PURE__ */ k("button", { class: (0, import_classnames.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ k(Cross, null));
   }
   var import_classnames;
   var init_DismissButton2 = __esm({
@@ -3110,7 +3128,7 @@
       /** @type {Strings} */
       {}
     );
-    return /* @__PURE__ */ _("span", { class: NewBadge_default.badge }, t4("newBadge"));
+    return /* @__PURE__ */ k("span", { class: NewBadge_default.badge }, t4("newBadge"));
   }
   var init_NewBadge2 = __esm({
     "pages/new-tab/app/components/NewBadge.js"() {
@@ -3161,7 +3179,7 @@
       document.addEventListener("keydown", handleEscapeKey);
       return () => document.removeEventListener("keydown", handleEscapeKey);
     }, [onClose]);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "div",
       {
         ref: popoverRef,
@@ -3172,21 +3190,21 @@
         "aria-describedby": descriptionId,
         tabIndex: -1
       },
-      /* @__PURE__ */ _("svg", { class: Popover_default.arrow, xmlns: "http://www.w3.org/2000/svg", width: "12", height: "30", viewBox: "0 0 12 30", fill: "none" }, /* @__PURE__ */ _(
+      /* @__PURE__ */ k("svg", { class: Popover_default.arrow, xmlns: "http://www.w3.org/2000/svg", width: "12", height: "30", viewBox: "0 0 12 30", fill: "none" }, /* @__PURE__ */ k(
         "path",
         {
           d: "M9.20362 6.3927L0.510957 13.8636C-0.183621 14.4619 -0.16344 15.5367 0.531137 16.1351L9.20362 23.606C10.9677 25.1256 11.9819 27.3368 11.9819 29.6632L11.9819 30.0003L11.9819 -0.000488281V0.335449C11.9819 2.66185 10.9677 4.87302 9.20362 6.3927Z",
           fill: "currentColor"
         }
       )),
-      /* @__PURE__ */ _("div", { class: Popover_default.content }, /* @__PURE__ */ _(
+      /* @__PURE__ */ k("div", { class: Popover_default.content }, /* @__PURE__ */ k(
         DismissButton,
         {
           className: Popover_default.closeButton,
           onClick: onClose,
           buttonProps: { "aria-label": t4("ntp_popover_close_button") }
         }
-      ), image && /* @__PURE__ */ _("div", { class: Popover_default.imageContainer }, image), /* @__PURE__ */ _("div", { class: Popover_default.textContainer }, /* @__PURE__ */ _("h3", { id: titleId, class: Popover_default.heading }, showNewBadge && /* @__PURE__ */ _(NewBadge, null), /* @__PURE__ */ _("span", { class: Popover_default.title }, title)), /* @__PURE__ */ _("p", { id: descriptionId, class: Popover_default.description }, children)))
+      ), image && /* @__PURE__ */ k("div", { class: Popover_default.imageContainer }, image), /* @__PURE__ */ k("div", { class: Popover_default.textContainer }, /* @__PURE__ */ k("h3", { id: titleId, class: Popover_default.heading }, showNewBadge && /* @__PURE__ */ k(NewBadge, null), /* @__PURE__ */ k("span", { class: Popover_default.title }, title)), /* @__PURE__ */ k("p", { id: descriptionId, class: Popover_default.description }, children)))
     );
   }
   var import_classnames2;
@@ -3243,7 +3261,7 @@
   function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef, kind }) {
     const { t: t4 } = useTypedTranslation();
     const { data: data2, dismissThemeVariantPopover } = x2(CustomizerContext);
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
         ref: buttonRef,
@@ -3256,13 +3274,13 @@
         id: buttonId,
         "data-testid": "customizer-button"
       },
-      /* @__PURE__ */ _(CustomizeIcon, null),
-      /* @__PURE__ */ _("span", null, t4("ntp_customizer_button"))
-    ), data2.value.showThemeVariantPopover && /* @__PURE__ */ _(
+      /* @__PURE__ */ k(CustomizeIcon, null),
+      /* @__PURE__ */ k("span", null, t4("ntp_customizer_button"))
+    ), data2.value.showThemeVariantPopover && /* @__PURE__ */ k(
       Popover,
       {
         className: Customizer_default.popover,
-        image: /* @__PURE__ */ _(NewTabOptionsIcon, { width: "72", height: "72" }),
+        image: /* @__PURE__ */ k(NewTabOptionsIcon, { width: "72", height: "72" }),
         title: t4("customizer_themeVariantPopoverTitle"),
         position: "bottomRight",
         onClose: dismissThemeVariantPopover
@@ -3271,7 +3289,7 @@
     ));
   }
   function CustomizerMenuPositionedFixed({ children }) {
-    return /* @__PURE__ */ _("div", { class: Customizer_default.lowerRightFixed }, children);
+    return /* @__PURE__ */ k("div", { class: Customizer_default.lowerRightFixed }, children);
   }
   function useCustomizer({ title, id, icon, toggle, visibility, index: index2, enabled }) {
     y2(() => {
@@ -3819,7 +3837,7 @@
         faviconsRefreshedCount.value = faviconsRefreshedCount.value += 1;
       });
     }, []);
-    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2, onConfigChanged } }, /* @__PURE__ */ _(FaviconsRefreshedCount.Provider, { value: faviconsRefreshedCount }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children)));
+    return /* @__PURE__ */ k(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2, onConfigChanged } }, /* @__PURE__ */ k(FaviconsRefreshedCount.Provider, { value: faviconsRefreshedCount }, /* @__PURE__ */ k(FavoritesDispatchContext.Provider, { value: dispatch }, children)));
   }
   function useService() {
     const service = A2(
@@ -3849,7 +3867,7 @@
       init_types();
       init_service_hooks();
       init_signals_module();
-      FavoritesContext = R({
+      FavoritesContext = X({
         /** @type {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -3876,11 +3894,11 @@
         onConfigChanged: (_cb) => {
         }
       });
-      FavoritesDispatchContext = R(
+      FavoritesDispatchContext = X(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
-      FaviconsRefreshedCount = R(y3(0));
+      FaviconsRefreshedCount = X(y3(0));
     }
   });
 
@@ -6326,7 +6344,7 @@
   function PragmaticDND({ children, items, itemsDidReOrder }) {
     const [instanceId] = d2(getInstanceId);
     useGridState(items, itemsDidReOrder, instanceId);
-    return /* @__PURE__ */ _(InstanceIdContext.Provider, { value: instanceId }, children);
+    return /* @__PURE__ */ k(InstanceIdContext.Provider, { value: instanceId }, children);
   }
   function useGridState(favorites2, itemsDidReOrder, instanceId) {
     y2(() => {
@@ -6551,7 +6569,7 @@
       init_constants();
       init_set_custom_native_drag_preview2();
       init_center_under_pointer2();
-      InstanceIdContext = R(getInstanceId());
+      InstanceIdContext = X(getInstanceId());
     }
   });
 
@@ -6586,11 +6604,11 @@
 
   // pages/new-tab/app/components/ShowHideButton.jsx
   function ShowHideButtonCircle({ label, onClick, buttonAttrs = {} }) {
-    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: (0, import_classnames3.default)(ShowHide_default.button, ShowHide_default.round), "aria-label": label, "data-toggle": "true", onClick }, /* @__PURE__ */ _("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ _(Chevron, null)));
+    return /* @__PURE__ */ k("button", { ...buttonAttrs, class: (0, import_classnames3.default)(ShowHide_default.button, ShowHide_default.round), "aria-label": label, "data-toggle": "true", onClick }, /* @__PURE__ */ k("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ k(Chevron, null)));
   }
   function ShowHideButtonPill({ label, onClick, text: text2, fill = true, buttonAttrs = {} }) {
-    const btnText = label ? /* @__PURE__ */ _("span", { "aria-hidden": "true" }, text2) : text2;
-    return /* @__PURE__ */ _(
+    const btnText = label ? /* @__PURE__ */ k("span", { "aria-hidden": "true" }, text2) : text2;
+    return /* @__PURE__ */ k(
       "button",
       {
         ...buttonAttrs,
@@ -6599,12 +6617,12 @@
         "data-toggle": "true",
         onClick
       },
-      /* @__PURE__ */ _(Chevron, null),
+      /* @__PURE__ */ k(Chevron, null),
       btnText
     );
   }
   function ShowHideBar({ children }) {
-    return /* @__PURE__ */ _("div", { class: ShowHide_default.bar, "data-show-hide": true }, children);
+    return /* @__PURE__ */ k("div", { class: ShowHide_default.bar, "data-show-hide": true }, children);
   }
   var import_classnames3;
   var init_ShowHideButton = __esm({
@@ -6803,7 +6821,7 @@
           console.warn("unreachable - must have imgsrc here");
           return null;
         }
-        return /* @__PURE__ */ _(
+        return /* @__PURE__ */ k(
           "img",
           {
             src: imgsrc,
@@ -6837,7 +6855,7 @@
           style = { background: fallbackColor };
         }
         const chars = etldPlusOne.slice(0, 2);
-        return /* @__PURE__ */ _("div", { class: (0, import_classnames4.default)(FaviconWithState_default.favicon, sizeClass, FaviconWithState_default.faviconText), style, "data-state": state }, /* @__PURE__ */ _("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ _("span", { "aria-hidden": true }, chars[1]));
+        return /* @__PURE__ */ k("div", { class: (0, import_classnames4.default)(FaviconWithState_default.favicon, sizeClass, FaviconWithState_default.faviconText), style, "data-state": state }, /* @__PURE__ */ k("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ k("span", { "aria-hidden": true }, chars[1]));
       }
       /**
        * If we get here, we couldn't load the favicon source OR the fallback text
@@ -6845,7 +6863,7 @@
        */
       case states2.loading_fallback_img:
       case states2.did_load_fallback_img: {
-        return /* @__PURE__ */ _(
+        return /* @__PURE__ */ k(
           "img",
           {
             src: theme === "light" ? fallback : fallbackDark,
@@ -6886,7 +6904,7 @@
   function Placeholder() {
     const id = g2();
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.placeholder) }, "\xA0"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    return /* @__PURE__ */ k("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ k("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.placeholder) }, "\xA0"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ k("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
   function PlusIconWrapper({ onClick }) {
     const id = g2();
@@ -6895,7 +6913,7 @@
       {}
     );
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ _(PlusIcon, null)), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    return /* @__PURE__ */ k("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ k("button", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ k(PlusIcon, null)), /* @__PURE__ */ k("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ k("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
   var import_classnames5, Tile, PlusIconMemo;
   var init_Tile2 = __esm({
@@ -6932,7 +6950,7 @@
             theme
           });
           const tileId = g2();
-          return /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(
             "a",
             {
               class: Tile_default.item,
@@ -6945,7 +6963,7 @@
               style: animateItems ? { viewTransitionName: `Tile-${id}` } : void 0,
               ref
             },
-            /* @__PURE__ */ _("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ _(
+            /* @__PURE__ */ k("div", { class: (0, import_classnames5.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ k(
               FaviconWithState,
               {
                 faviconSrc,
@@ -6957,8 +6975,8 @@
                 fallbackDark: DDG_FALLBACK_ICON_DARK
               }
             )),
-            /* @__PURE__ */ _("div", { class: Tile_default.text, id: tileId }, title),
-            state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
+            /* @__PURE__ */ k("div", { class: Tile_default.text, id: tileId }, title),
+            state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ k("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
           );
         }
       );
@@ -6991,8 +7009,8 @@
           const fillers = ROW_CAPACITY - items.length;
           const { theme, animateItems } = x2(FavoritesThemeContext);
           const count = useFaviconRefreshedCount();
-          return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { transform: `translateY(${topOffset}px)` } }, items.map((item, index2) => {
-            return /* @__PURE__ */ _(
+          return /* @__PURE__ */ k("ul", { className: Favorites_default.gridRow, style: { transform: `translateY(${topOffset}px)` } }, items.map((item, index2) => {
+            return /* @__PURE__ */ k(
               Tile,
               {
                 url: item.url,
@@ -7010,9 +7028,9 @@
             );
           }), fillers > 0 && Array.from({ length: fillers }).map((_5, fillerIndex) => {
             if (fillerIndex === 0) {
-              return /* @__PURE__ */ _(PlusIconMemo, { key: `placeholder-plus-${items.length}`, onClick: add2 });
+              return /* @__PURE__ */ k(PlusIconMemo, { key: `placeholder-plus-${items.length}`, onClick: add2 });
             }
-            return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${items.length}` });
+            return /* @__PURE__ */ k(Placeholder, { key: `placeholder-${items.length}` });
           }));
         }
       );
@@ -7073,7 +7091,7 @@
         document.removeEventListener("visibilitychange", handleVisibilityChange);
       };
     }, []);
-    return /* @__PURE__ */ _(DocumentVisibilityContext.Provider, { value: documentVisibility }, children);
+    return /* @__PURE__ */ k(DocumentVisibilityContext.Provider, { value: documentVisibility }, children);
   }
   function useDocumentVisibility() {
     return x2(DocumentVisibilityContext);
@@ -7084,7 +7102,7 @@
       "use strict";
       init_hooks_module();
       init_preact_module();
-      DocumentVisibilityContext = R(
+      DocumentVisibilityContext = X(
         /** @type {DocumentVisibilityState} */
         "hidden"
       );
@@ -7108,7 +7126,7 @@
     const animateItems = useComputed(() => {
       return canAnimateItems && kind.value !== "userImage";
     });
-    return /* @__PURE__ */ _(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ _("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured", "data-background-kind": kind }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ k("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured", "data-background-kind": kind }, /* @__PURE__ */ k(
       VirtualizedGridRows,
       {
         WIDGET_ID,
@@ -7119,7 +7137,7 @@
         openFavorite,
         openContextMenu
       }
-    ), canToggleExpansion && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
+    ), canToggleExpansion && /* @__PURE__ */ k(ShowHideBar, null, /* @__PURE__ */ k(
       ShowHideButtonPill,
       {
         buttonAttrs: {
@@ -7160,7 +7178,7 @@
     const containerHeight = expansion === "collapsed" || rows.length === 0 ? rowHeight : rows.length * rowHeight;
     const clickHandler = getOnClickHandler(openFavorite, platformName);
     useOnMiddleClick(safeAreaRef, clickHandler);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "div",
       {
         className: Favorites_default.grid,
@@ -7170,8 +7188,8 @@
         onContextMenu: getContextMenuHandler(openContextMenu),
         onClick: clickHandler
       },
-      rows.length === 0 && /* @__PURE__ */ _(TileRow, { key: "empty-rows", items: [], topOffset: 0, add: add2, visibility: "visible" }),
-      rows.length > 0 && /* @__PURE__ */ _(Inner, { rows, safeAreaRef, rowHeight, add: add2, visibility })
+      rows.length === 0 && /* @__PURE__ */ k(TileRow, { key: "empty-rows", items: [], topOffset: 0, add: add2, visibility: "visible" }),
+      rows.length > 0 && /* @__PURE__ */ k(Inner, { rows, safeAreaRef, rowHeight, add: add2, visibility })
     );
   }
   function Inner({ rows, safeAreaRef, rowHeight, add: add2, visibility }) {
@@ -7190,10 +7208,10 @@
       });
     }, [onConfigChanged]);
     const subsetOfRowsToRender = expansion === "collapsed" ? [rows[0]] : rows.slice(start2, end + 1);
-    return /* @__PURE__ */ _(k, null, subsetOfRowsToRender.map((items, rowIndex) => {
+    return /* @__PURE__ */ k(S, null, subsetOfRowsToRender.map((items, rowIndex) => {
       const topOffset = expansion === "expanded" ? (start2 + rowIndex) * rowHeight : 0;
       const keyed = `-${start2 + rowIndex}-`;
-      return /* @__PURE__ */ _(TileRow, { key: keyed, items, topOffset, add: add2, visibility });
+      return /* @__PURE__ */ k(TileRow, { key: keyed, items, topOffset, add: add2, visibility });
     }));
   }
   function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
@@ -7346,7 +7364,7 @@
       ROW_CAPACITY = 6;
       ITEM_HEIGHT = 96;
       ROW_GAP = 8;
-      FavoritesThemeContext = R({
+      FavoritesThemeContext = X({
         theme: (
           /** @type {"light"|"dark"} */
           "light"
@@ -7374,7 +7392,7 @@
     }
     if (state.status === "ready") {
       telemetry2.measureFromPageLoad("favorites-will-render", "time to favorites");
-      return /* @__PURE__ */ _(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: didReorder }, /* @__PURE__ */ _(
+      return /* @__PURE__ */ k(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: didReorder }, /* @__PURE__ */ k(
         FavoritesMemo,
         {
           favorites: state.data.favorites,
@@ -7396,11 +7414,11 @@
     );
     const { id, visibility, toggle, index: index2 } = useVisibility();
     const title = t4("favorites_menu_title");
-    useCustomizer({ title, id, icon: /* @__PURE__ */ _(FavoriteIcon, null), toggle, visibility: visibility.value, index: index2, enabled: true });
+    useCustomizer({ title, id, icon: /* @__PURE__ */ k(FavoriteIcon, null), toggle, visibility: visibility.value, index: index2, enabled: true });
     if (visibility.value === "hidden") {
       return null;
     }
-    return /* @__PURE__ */ _(FavoritesProvider, null, /* @__PURE__ */ _(FavoritesConsumer, null));
+    return /* @__PURE__ */ k(FavoritesProvider, null, /* @__PURE__ */ k(FavoritesConsumer, null));
   }
   var init_FavoritesCustomized = __esm({
     "pages/new-tab/app/favorites/components/FavoritesCustomized.js"() {
@@ -7425,7 +7443,7 @@
     factory: () => factory2
   });
   function factory2() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "favorites" }, /* @__PURE__ */ _(FavoritesCustomized, null));
+    return /* @__PURE__ */ k(Centered, { "data-entry-point": "favorites" }, /* @__PURE__ */ k(FavoritesCustomized, null));
   }
   var init_favorites = __esm({
     "pages/new-tab/app/entry-points/favorites.js"() {
@@ -7455,7 +7473,7 @@
 
   // shared/components/Button/Button.js
   function Button({ variant, size = "md", className, children, onClick, type = "button" }) {
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "button",
       {
         className: (0, import_classnames6.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant, [Button_default[size]]: size }, className),
@@ -7588,7 +7606,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(FreemiumPIRBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ _(FreemiumPIRBannerDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ k(FreemiumPIRBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ k(FreemiumPIRBannerDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService2() {
     const service = A2(
@@ -7614,7 +7632,7 @@
       init_types();
       init_freemiumPIRBanner_service();
       init_service_hooks();
-      FreemiumPIRBannerContext = R({
+      FreemiumPIRBannerContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {(id: string) => void} */
@@ -7626,7 +7644,7 @@
           throw new Error("must implement action" + id);
         }
       });
-      FreemiumPIRBannerDispatchContext = R(
+      FreemiumPIRBannerDispatchContext = X(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -7676,12 +7694,12 @@
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
   function FreemiumPIRBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames7.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/PIR-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames7.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ k("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ k("img", { src: `./icons/PIR-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
     if (state.status === "ready" && state.data.content) {
-      return /* @__PURE__ */ _(FreemiumPIRBanner, { message: state.data.content, action, dismiss });
+      return /* @__PURE__ */ k(FreemiumPIRBanner, { message: state.data.content, action, dismiss });
     }
     return null;
   }
@@ -7706,7 +7724,7 @@
     factory: () => factory3
   });
   function factory3() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "freemiumPIRBanner" }, /* @__PURE__ */ _(FreemiumPIRBannerProvider, null, /* @__PURE__ */ _(FreemiumPIRBannerConsumer, null)));
+    return /* @__PURE__ */ k(Centered, { "data-entry-point": "freemiumPIRBanner" }, /* @__PURE__ */ k(FreemiumPIRBannerProvider, null, /* @__PURE__ */ k(FreemiumPIRBannerConsumer, null)));
   }
   var init_freemiumPIRBanner = __esm({
     "pages/new-tab/app/entry-points/freemiumPIRBanner.js"() {
@@ -7843,7 +7861,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(NextStepsContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ _(NextStepsDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ k(NextStepsContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ k(NextStepsDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService3() {
     const service = A2(
@@ -7869,7 +7887,7 @@
       init_types();
       init_next_steps_service();
       init_service_hooks();
-      NextStepsContext = R({
+      NextStepsContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -7885,7 +7903,7 @@
           throw new Error("must implement");
         }
       });
-      NextStepsDispatchContext = R(
+      NextStepsDispatchContext = X(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -8017,14 +8035,14 @@
       action(message.id);
       setShowConfirmation(true);
     };
-    return /* @__PURE__ */ _("div", { class: NextSteps_default.card }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ _("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ _("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ _("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ _(CheckColor, null), /* @__PURE__ */ _("p", null, message.confirmationText)) : /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: NextSteps_default.card }, /* @__PURE__ */ k("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ k("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ k("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ k("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ k(CheckColor, null), /* @__PURE__ */ k("p", null, message.confirmationText)) : /* @__PURE__ */ k(
       "button",
       {
         class: (0, import_classnames8.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
         onClick: handleClick
       },
       message.actionText
-    ), /* @__PURE__ */ _(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    ), /* @__PURE__ */ k(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   var import_classnames8;
   var init_NextStepsCard = __esm({
@@ -8050,7 +8068,7 @@
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
-    return /* @__PURE__ */ _("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, types.length > 0 && /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, types.length > 0 && /* @__PURE__ */ k(NextStepsBubbleHeader, null), /* @__PURE__ */ k("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ k(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ k(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ k(ShowHideBar, null, /* @__PURE__ */ k(
       ShowHideButtonPill,
       {
         buttonAttrs: {
@@ -8071,7 +8089,7 @@
       {}
     );
     const text2 = otherText.nextSteps_sectionTitle(t4);
-    return /* @__PURE__ */ _("div", { class: NextSteps_default.bubble }, /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: NextSteps_default.bubble }, /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -8079,7 +8097,7 @@
         d: "M12 0C5.37258 0 0 5.37258 0 12V25.3388C2.56367 22.0873 6.53807 20 11 20H12V0Z",
         fill: "#3969EF"
       }
-    )), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("h2", null, text2)), /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ _(
+    )), /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("h2", null, text2)), /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ k(
       "path",
       {
         d: "M3.8147e-06 0C1.31322 1.566e-08 2.61358 0.258658 3.82684 0.761205C5.04009 1.26375 6.14249 2.00035 7.07107 2.92893C7.99966 3.85752 8.73625 4.95991 9.2388 6.17317C9.74135 7.38642 10 8.68678 10 10C10 11.3132 9.74135 12.6136 9.2388 13.8268C8.73625 15.0401 7.99966 16.1425 7.07107 17.0711C6.14248 17.9997 5.04009 18.7362 3.82684 19.2388C2.61358 19.7413 1.31322 20 0 20L3.8147e-06 10V0Z",
@@ -8102,14 +8120,14 @@
 
   // pages/new-tab/app/next-steps/NextSteps.js
   function NextStepsCustomized() {
-    return /* @__PURE__ */ _(NextStepsProvider, null, /* @__PURE__ */ _(NextStepsConsumer, null));
+    return /* @__PURE__ */ k(NextStepsProvider, null, /* @__PURE__ */ k(NextStepsConsumer, null));
   }
   function NextStepsConsumer() {
     const { state, toggle } = x2(NextStepsContext);
     if (state.status === "ready" && state.data.content) {
       const ids = state.data.content.filter((x5) => x5.id in variants).map((x5) => x5.id);
       const { action, dismiss } = x2(NextStepsContext);
-      return /* @__PURE__ */ _(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
+      return /* @__PURE__ */ k(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
     }
     return null;
   }
@@ -8130,7 +8148,7 @@
     factory: () => factory4
   });
   function factory4() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "nextSteps" }, /* @__PURE__ */ _(NextStepsCustomized, null));
+    return /* @__PURE__ */ k(Centered, { "data-entry-point": "nextSteps" }, /* @__PURE__ */ k(NextStepsCustomized, null));
   }
   var init_nextSteps = __esm({
     "pages/new-tab/app/entry-points/nextSteps.js"() {
@@ -8268,7 +8286,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(NextStepsListContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ _(NextStepsListDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ k(NextStepsListContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ k(NextStepsListDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService4() {
     const service = A2(
@@ -8294,7 +8312,7 @@
       init_types();
       init_next_steps_list_service();
       init_service_hooks();
-      NextStepsListContext = R({
+      NextStepsListContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -8310,7 +8328,7 @@
           throw new Error("must implement");
         }
       });
-      NextStepsListDispatchContext = R(
+      NextStepsListDispatchContext = X(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -8349,16 +8367,16 @@
   // pages/new-tab/app/next-steps-list/components/NextStepsListCard.js
   function CardBody({ title, description, primaryButtonText, secondaryButtonText, imageSrc, onPrimaryClick, onSecondaryClick }) {
     const platformName = usePlatformName();
-    const primaryButton = /* @__PURE__ */ _(Button, { variant: "accentBrand", size: "lg", onClick: onPrimaryClick }, primaryButtonText);
-    const secondaryButton = /* @__PURE__ */ _(Button, { variant: "standard", size: "lg", onClick: onSecondaryClick }, secondaryButtonText);
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: NextStepsListCard_default.imageContainer }, imageSrc && /* @__PURE__ */ _("img", { src: imageSrc, alt: "", class: NextStepsListCard_default.image })), /* @__PURE__ */ _("div", { class: NextStepsListCard_default.content }, /* @__PURE__ */ _("h3", { class: NextStepsListCard_default.title }, title), /* @__PURE__ */ _("p", { class: NextStepsListCard_default.description }, description), /* @__PURE__ */ _("div", { class: NextStepsListCard_default.buttonRow }, platformName === "windows" ? /* @__PURE__ */ _(k, null, primaryButton, secondaryButton) : /* @__PURE__ */ _(k, null, secondaryButton, primaryButton))));
+    const primaryButton = /* @__PURE__ */ k(Button, { variant: "accentBrand", size: "lg", onClick: onPrimaryClick }, primaryButtonText);
+    const secondaryButton = /* @__PURE__ */ k(Button, { variant: "standard", size: "lg", onClick: onSecondaryClick }, secondaryButtonText);
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: NextStepsListCard_default.imageContainer }, imageSrc && /* @__PURE__ */ k("img", { src: imageSrc, alt: "", class: NextStepsListCard_default.image })), /* @__PURE__ */ k("div", { class: NextStepsListCard_default.content }, /* @__PURE__ */ k("h3", { class: NextStepsListCard_default.title }, title), /* @__PURE__ */ k("p", { class: NextStepsListCard_default.description }, description), /* @__PURE__ */ k("div", { class: NextStepsListCard_default.buttonRow }, platformName === "windows" ? /* @__PURE__ */ k(S, null, primaryButton, secondaryButton) : /* @__PURE__ */ k(S, null, secondaryButton, primaryButton))));
   }
   function NextStepsListBubbleHeader() {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: NextStepsListCard_default.bubble }, /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: NextStepsListCard_default.bubble }, /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -8366,7 +8384,7 @@
         d: "M12 0C5.37258 0 0 5.37258 0 12V25.3388C2.56367 22.0873 6.53807 20 11 20H12V0Z",
         fill: "#3969EF"
       }
-    )), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("h2", null, t4("nextStepsList_sectionTitle"))), /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ _(
+    )), /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("h2", null, t4("nextStepsList_sectionTitle"))), /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ k(
       "path",
       {
         d: "M3.8147e-06 0C1.31322 1.566e-08 2.61358 0.258658 3.82684 0.761205C5.04009 1.26375 6.14249 2.00035 7.07107 2.92893C7.99966 3.85752 8.73625 4.95991 9.2388 6.17317C9.74135 7.38642 10 8.68678 10 10C10 11.3132 9.74135 12.6136 9.2388 13.8268C8.73625 15.0401 7.99966 16.1425 7.07107 17.0711C6.14248 17.9997 5.04009 18.7362 3.82684 19.2388C2.61358 19.7413 1.31322 20 0 20L3.8147e-06 10V0Z",
@@ -8416,7 +8434,7 @@
       onSecondaryAction?.();
     };
     const isTransitioning = !!dismissingCard;
-    return /* @__PURE__ */ _("div", { class: NextStepsListCard_default.wrapper }, /* @__PURE__ */ _(NextStepsListBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextStepsListCard_default.cardContainer }, nextCard && /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.backCard), "aria-hidden": "true" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: NextStepsListCard_default.wrapper }, /* @__PURE__ */ k(NextStepsListBubbleHeader, null), /* @__PURE__ */ k("div", { class: NextStepsListCard_default.cardContainer }, nextCard && /* @__PURE__ */ k("div", { class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.backCard), "aria-hidden": "true" }, /* @__PURE__ */ k(
       CardBody,
       {
         title: nextCard.title,
@@ -8425,7 +8443,7 @@
         secondaryButtonText: nextCard.secondaryButtonText,
         imageSrc: nextCard.imageSrc
       }
-    )), promotingCard && /* @__PURE__ */ _("div", { key: `promoting-${promotingCard.itemId}`, class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.promoting) }, /* @__PURE__ */ _(
+    )), promotingCard && /* @__PURE__ */ k("div", { key: `promoting-${promotingCard.itemId}`, class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.promoting) }, /* @__PURE__ */ k(
       CardBody,
       {
         title: promotingCard.title,
@@ -8434,7 +8452,7 @@
         secondaryButtonText: promotingCard.secondaryButtonText,
         imageSrc: promotingCard.imageSrc
       }
-    )), dismissingCard && /* @__PURE__ */ _("div", { key: `dismissing-${dismissingCard.itemId}`, class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.dismissing) }, /* @__PURE__ */ _(
+    )), dismissingCard && /* @__PURE__ */ k("div", { key: `dismissing-${dismissingCard.itemId}`, class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.dismissing) }, /* @__PURE__ */ k(
       CardBody,
       {
         title: dismissingCard.title,
@@ -8443,7 +8461,7 @@
         secondaryButtonText: dismissingCard.secondaryButtonText,
         imageSrc: dismissingCard.imageSrc
       }
-    )), /* @__PURE__ */ _(
+    )), /* @__PURE__ */ k(
       "div",
       {
         key: itemId,
@@ -8452,7 +8470,7 @@
         }),
         "aria-hidden": isTransitioning ? "true" : void 0
       },
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k(
         CardBody,
         {
           title,
@@ -8464,7 +8482,7 @@
           onSecondaryClick: isTransitioning ? void 0 : handleSecondaryAction
         }
       ),
-      !isTransitioning && /* @__PURE__ */ _(DismissButton, { className: NextStepsListCard_default.dismissBtn, onClick: handleSecondaryAction })
+      !isTransitioning && /* @__PURE__ */ k(DismissButton, { className: NextStepsListCard_default.dismissBtn, onClick: handleSecondaryAction })
     )));
   }
   var import_classnames9;
@@ -8569,7 +8587,7 @@
 
   // pages/new-tab/app/next-steps-list/NextStepsList.js
   function NextStepsListCustomized() {
-    return /* @__PURE__ */ _(NextStepsListProvider, null, /* @__PURE__ */ _(NextStepsListConsumer, null));
+    return /* @__PURE__ */ k(NextStepsListProvider, null, /* @__PURE__ */ k(NextStepsListConsumer, null));
   }
   function NextStepsListConsumer() {
     const { t: t4 } = useTypedTranslationWith(
@@ -8598,7 +8616,7 @@
           imageSrc: getIconPath(nextVariant.icon, theme)
         };
       }
-      return /* @__PURE__ */ _(
+      return /* @__PURE__ */ k(
         NextStepsListCard,
         {
           itemId: displayedItemId,
@@ -8634,7 +8652,7 @@
     factory: () => factory5
   });
   function factory5() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "nextStepsList" }, /* @__PURE__ */ _(NextStepsListCustomized, null));
+    return /* @__PURE__ */ k(Centered, { "data-entry-point": "nextStepsList" }, /* @__PURE__ */ k(NextStepsListCustomized, null));
   }
   var init_nextStepsList = __esm({
     "pages/new-tab/app/entry-points/nextStepsList.js"() {
@@ -8996,7 +9014,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       OmnibarContext.Provider,
       {
         value: {
@@ -9016,7 +9034,7 @@
           viewAllAiChats
         }
       },
-      /* @__PURE__ */ _(OmnibarServiceContext.Provider, { value: service.current }, props.children)
+      /* @__PURE__ */ k(OmnibarServiceContext.Provider, { value: service.current }, props.children)
     );
   }
   function useService5() {
@@ -9046,7 +9064,7 @@
       init_types();
       init_service_hooks();
       init_omnibar_service();
-      OmnibarContext = R({
+      OmnibarContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {(mode: OmnibarConfig['mode']) => void} */
@@ -9102,7 +9120,7 @@
           throw new Error("must implement");
         }
       });
-      OmnibarServiceContext = R(
+      OmnibarServiceContext = X(
         /** @type {OmnibarService|null} */
         null
       );
@@ -9159,6 +9177,11 @@
         return {
           ...state,
           selectedIndex: null
+        };
+      case "selectViewAllChats":
+        return {
+          ...state,
+          selectedIndex: action.targetIndex
         };
       case "previousChat": {
         const nextIndex = state.selectedIndex === null ? action.itemCount - 1 : state.selectedIndex - 1;
@@ -9221,6 +9244,10 @@
     const clearSelectedChat = () => {
       dispatch({ type: "clearSelectedChat" });
     };
+    const selectViewAllChats = () => {
+      if (!showViewAllAiChats || itemCount === 0) return;
+      dispatch({ type: "selectViewAllChats", targetIndex: itemCount - 1 });
+    };
     const hideChats = () => {
       dispatch({ type: "hideChats" });
     };
@@ -9235,6 +9262,7 @@
       selectNextChat,
       setSelectedChat,
       clearSelectedChat,
+      selectViewAllChats,
       hideChats,
       showChats
     };
@@ -9253,7 +9281,7 @@
   function AiChatsProvider({ query, autoFocus, enableRecentAiChats, showViewAllAiChats = false, children }) {
     const aiChatsState = useAiChats({ query, initiallyVisible: autoFocus, enableRecentAiChats, showViewAllAiChats });
     const aiChatsListId = g2();
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       AiChatsContext.Provider,
       {
         value: {
@@ -9280,7 +9308,7 @@
       init_hooks_module();
       init_useAiChats();
       VIEW_ALL_CHATS_ELEMENT_ID = "ai-chats-view-all";
-      AiChatsContext = R(null);
+      AiChatsContext = X(null);
     }
   });
 
@@ -9301,7 +9329,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/AiChatForm.js
-  function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, toolbarLeft, toolbarRight }) {
+  function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, placeholder, toolbarLeft, toolbarRight }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -9398,7 +9426,8 @@
       }
       return void 0;
     };
-    return /* @__PURE__ */ _(
+    const placeholderText = placeholder || t4("omnibar_aiChatFormPlaceholder");
+    return /* @__PURE__ */ k(
       "form",
       {
         ref: formRef,
@@ -9410,14 +9439,14 @@
           }
         }
       },
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k(
         "textarea",
         {
           ref: textAreaRef,
           class: AiChatForm_default.textarea,
           value: query,
-          placeholder: t4("omnibar_aiChatFormPlaceholder"),
-          "aria-label": t4("omnibar_aiChatFormPlaceholder"),
+          placeholder: placeholderText,
+          "aria-label": placeholderText,
           "aria-expanded": chats.length > 0,
           "aria-haspopup": "listbox",
           "aria-controls": aiChatsListId,
@@ -9432,7 +9461,7 @@
         }
       ),
       children,
-      /* @__PURE__ */ _("div", { tabIndex: -1, class: AiChatForm_default.buttons }, toolbarLeft, /* @__PURE__ */ _("div", { class: AiChatForm_default.rightButtons }, toolbarRight, /* @__PURE__ */ _(
+      /* @__PURE__ */ k("div", { tabIndex: -1, class: AiChatForm_default.buttons }, toolbarLeft, /* @__PURE__ */ k("div", { class: AiChatForm_default.rightButtons }, toolbarRight, /* @__PURE__ */ k(
         "button",
         {
           tabIndex: 0,
@@ -9443,7 +9472,7 @@
           onClick: handleClickSubmit,
           onAuxClick: handleClickSubmit
         },
-        /* @__PURE__ */ _(ArrowRightIcon, null)
+        /* @__PURE__ */ k(ArrowRightIcon, null)
       )))
     );
   }
@@ -9498,7 +9527,7 @@
       resizeObserver.observe(content2);
       return () => resizeObserver.disconnect();
     }, []);
-    return /* @__PURE__ */ _("div", { ...props, style: { height: currentHeight ?? "auto" } }, /* @__PURE__ */ _("div", { ref: contentRef }, children));
+    return /* @__PURE__ */ k("div", { ...props, style: { height: currentHeight ?? "auto" } }, /* @__PURE__ */ k("div", { ref: contentRef }, children));
   }
   var init_ResizingContainer = __esm({
     "pages/new-tab/app/omnibar/components/ResizingContainer.js"() {
@@ -9843,7 +9872,7 @@
   function SearchFormProvider({ term, setTerm, enableAi, children }) {
     const suggestions2 = useSuggestions({ term, setTerm, enableAi });
     const suggestionsListId = g2();
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       SearchFormContext.Provider,
       {
         value: {
@@ -9870,7 +9899,7 @@
       init_preact_module();
       init_hooks_module();
       init_useSuggestions();
-      SearchFormContext = R(null);
+      SearchFormContext = X(null);
     }
   });
 
@@ -10010,7 +10039,7 @@
           break;
       }
     };
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "form",
       {
         class: SearchForm_default.form,
@@ -10023,7 +10052,7 @@
           });
         }
       },
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k(
         "input",
         {
           ref: inputRef,
@@ -10055,8 +10084,8 @@
           }
         }
       ),
-      inputSuffix && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("span", { class: SearchForm_default.suffixSpacer, inert: true }, inputBase + inputCompletion || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ _("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText)),
-      term.length > 0 && /* @__PURE__ */ _(
+      inputSuffix && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("span", { class: SearchForm_default.suffixSpacer, inert: true }, inputBase + inputCompletion || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ k("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText)),
+      term.length > 0 && /* @__PURE__ */ k(
         "button",
         {
           class: SearchForm_default.closeButton,
@@ -10069,7 +10098,7 @@
             inputRef.current?.focus();
           }
         },
-        /* @__PURE__ */ _(CloseSmallIcon, null)
+        /* @__PURE__ */ k(CloseSmallIcon, null)
       )
     );
   }
@@ -10112,7 +10141,7 @@
     if (suggestions2.length === 0) return null;
     const mainSuggestions = suggestions2.filter((suggestion) => suggestion.kind !== "aiChat");
     const footerSuggestions = suggestions2.filter((suggestion) => suggestion.kind === "aiChat");
-    return /* @__PURE__ */ _("div", { role: "listbox", id: suggestionsListId, "data-omnibar-list": true, class: SuggestionsList_default.list }, mainSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.main }, mainSuggestions.map((suggestion) => /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { role: "listbox", id: suggestionsListId, "data-omnibar-list": true, class: SuggestionsList_default.list }, mainSuggestions.length > 0 && /* @__PURE__ */ k("div", { class: SuggestionsList_default.main }, mainSuggestions.map((suggestion) => /* @__PURE__ */ k(
       SuggestionsListItem,
       {
         key: suggestion.id,
@@ -10120,7 +10149,7 @@
         onOpenSuggestion,
         onSubmitChat
       }
-    ))), footerSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.footer }, footerSuggestions.map((suggestion) => /* @__PURE__ */ _(
+    ))), footerSuggestions.length > 0 && /* @__PURE__ */ k("div", { class: SuggestionsList_default.footer }, footerSuggestions.map((suggestion) => /* @__PURE__ */ k(
       SuggestionsListItem,
       {
         key: suggestion.id,
@@ -10139,7 +10168,7 @@
     const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
     const title = getSuggestionTitle(suggestion, term);
     const suffix = getSuggestionSuffix(suggestion);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "button",
       {
         role: "option",
@@ -10158,28 +10187,28 @@
           }
         }
       },
-      /* @__PURE__ */ _(SuggestionIcon, { suggestion }),
-      /* @__PURE__ */ _("span", { class: SuggestionsList_default.title }, suggestion.kind === "aiChat" ? /* @__PURE__ */ _("b", null, title) : startsWithIgnoreCase(title, term) ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("b", null, title.slice(0, term.length)), title.slice(term.length)) : title),
-      suffix && /* @__PURE__ */ _("span", { class: SuggestionsList_default.suffix }, /* @__PURE__ */ _(SuffixText, { suffix })),
-      suggestion.kind === "openTab" && /* @__PURE__ */ _("span", { class: SuggestionsList_default.badge }, t4("omnibar_switchToTab"), " ", /* @__PURE__ */ _(ArrowRightIcon, null))
+      /* @__PURE__ */ k(SuggestionIcon, { suggestion }),
+      /* @__PURE__ */ k("span", { class: SuggestionsList_default.title }, suggestion.kind === "aiChat" ? /* @__PURE__ */ k("b", null, title) : startsWithIgnoreCase(title, term) ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("b", null, title.slice(0, term.length)), title.slice(term.length)) : title),
+      suffix && /* @__PURE__ */ k("span", { class: SuggestionsList_default.suffix }, /* @__PURE__ */ k(SuffixText, { suffix })),
+      suggestion.kind === "openTab" && /* @__PURE__ */ k("span", { class: SuggestionsList_default.badge }, t4("omnibar_switchToTab"), " ", /* @__PURE__ */ k(ArrowRightIcon, null))
     );
   }
   function SuggestionIcon({ suggestion }) {
     switch (suggestion.kind) {
       case "phrase":
-        return /* @__PURE__ */ _(SearchIcon, null);
+        return /* @__PURE__ */ k(SearchIcon, null);
       case "website":
-        return /* @__PURE__ */ _(GlobeIcon, null);
+        return /* @__PURE__ */ k(GlobeIcon, null);
       case "historyEntry":
-        return /* @__PURE__ */ _(HistoryIcon, null);
+        return /* @__PURE__ */ k(HistoryIcon, null);
       case "bookmark":
-        return suggestion.isFavorite ? /* @__PURE__ */ _(FavoriteIcon, null) : /* @__PURE__ */ _(BookmarkIcon, null);
+        return suggestion.isFavorite ? /* @__PURE__ */ k(FavoriteIcon, null) : /* @__PURE__ */ k(BookmarkIcon, null);
       case "openTab":
-        return /* @__PURE__ */ _(TabDesktopIcon, null);
+        return /* @__PURE__ */ k(TabDesktopIcon, null);
       case "internalPage":
-        return /* @__PURE__ */ _(BrowserIcon, null);
+        return /* @__PURE__ */ k(BrowserIcon, null);
       case "aiChat":
-        return /* @__PURE__ */ _(AiChatIcon, null);
+        return /* @__PURE__ */ k(AiChatIcon, null);
       default:
         throw new Error("Unknown suggestion kind");
     }
@@ -10224,8 +10253,8 @@
       /** @type {Strings} */
       {}
     );
-    const { viewAllChatsSelected } = useAiChatsContext();
-    return /* @__PURE__ */ _("div", { class: AiChatsListFooter_default.footer }, /* @__PURE__ */ _(
+    const { viewAllChatsSelected, selectViewAllChats, clearSelectedChat } = useAiChatsContext();
+    return /* @__PURE__ */ k("div", { class: AiChatsListFooter_default.footer }, /* @__PURE__ */ k(
       "button",
       {
         role: "option",
@@ -10233,6 +10262,8 @@
         class: AiChatsListFooter_default.item,
         tabIndex: viewAllChatsSelected ? 0 : -1,
         "aria-selected": viewAllChatsSelected,
+        onMouseOver: () => selectViewAllChats(),
+        onMouseLeave: () => clearSelectedChat(),
         onClick: (event) => {
           event.preventDefault();
           viewAllAiChats({
@@ -10240,9 +10271,9 @@
           });
         }
       },
-      /* @__PURE__ */ _(ListIcon, null),
-      /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.title }, t4("omnibar_viewAllChats")),
-      /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.footerRight, "aria-hidden": "true" }, /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.shortcutHints }, /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.keyCharm }, "\u23CE")), /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.openDuckAi }, /* @__PURE__ */ _("span", null, t4("omnibar_openDuckAi")), /* @__PURE__ */ _("span", { class: AiChatsListFooter_default.footerArrow }, "\u2192")))
+      /* @__PURE__ */ k(ListIcon, null),
+      /* @__PURE__ */ k("span", { class: AiChatsListFooter_default.title }, t4("omnibar_viewAllChats")),
+      /* @__PURE__ */ k("span", { class: AiChatsListFooter_default.footerRight, "aria-hidden": "true" }, /* @__PURE__ */ k("span", { class: AiChatsListFooter_default.shortcutHints }, /* @__PURE__ */ k("span", { class: AiChatsListFooter_default.keyCharm }, "\u23CE")), /* @__PURE__ */ k("span", { class: AiChatsListFooter_default.openDuckAi }, /* @__PURE__ */ k("span", null, t4("omnibar_openDuckAi")), /* @__PURE__ */ k("span", { class: AiChatsListFooter_default.footerArrow }, "\u2192")))
     ));
   }
   var init_AiChatsListFooter2 = __esm({
@@ -10280,8 +10311,8 @@
     if (chats.length === 0) {
       return null;
     }
-    return /* @__PURE__ */ _("div", { role: "listbox", id: aiChatsListId, "data-omnibar-list": true, class: (0, import_classnames10.default)(AiChatsList_default.list, className) }, chats.map((chat) => {
-      return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { role: "listbox", id: aiChatsListId, "data-omnibar-list": true, class: (0, import_classnames10.default)(AiChatsList_default.list, className) }, chats.map((chat) => {
+      return /* @__PURE__ */ k(
         "button",
         {
           key: chat.chatId,
@@ -10302,10 +10333,10 @@
             });
           }
         },
-        chat.pinned ? /* @__PURE__ */ _(PinIcon, null) : /* @__PURE__ */ _(ChatBubbleIcon, null),
-        /* @__PURE__ */ _("span", { class: AiChatsList_default.title }, chat.title)
+        chat.pinned ? /* @__PURE__ */ k(PinIcon, null) : /* @__PURE__ */ k(ChatBubbleIcon, null),
+        /* @__PURE__ */ k("span", { class: AiChatsList_default.title }, chat.title)
       );
-    }), showViewAllAiChats && /* @__PURE__ */ _(AiChatsListFooter, null));
+    }), showViewAllAiChats && /* @__PURE__ */ k(AiChatsListFooter, null));
   }
   var import_classnames10;
   var init_AiChatsList2 = __esm({
@@ -10344,7 +10375,7 @@
       /** @type {Strings} */
       {}
     );
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "div",
       {
         class: TabSwitcher_default.tabSwitcher,
@@ -10352,19 +10383,19 @@
         role: "tablist",
         "aria-label": t4("omnibar_tabSwitcherLabel")
       },
-      /* @__PURE__ */ _("div", { class: TabSwitcher_default.blob }),
-      /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, /* @__PURE__ */ _(TabIcon, { mode: "search", selected: mode === "search" }), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))),
-      /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, /* @__PURE__ */ _(TabIcon, { mode: "ai", selected: mode === "ai" }), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel")))
+      /* @__PURE__ */ k("div", { class: TabSwitcher_default.blob }),
+      /* @__PURE__ */ k("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, /* @__PURE__ */ k(TabIcon, { mode: "search", selected: mode === "search" }), /* @__PURE__ */ k("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))),
+      /* @__PURE__ */ k("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, /* @__PURE__ */ k(TabIcon, { mode: "ai", selected: mode === "ai" }), /* @__PURE__ */ k("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel")))
     );
   }
   function TabIcon({ mode, selected }) {
     const { main } = x2(CustomizerThemesContext);
     if (mode === "search") {
-      if (selected) return main.value === "light" ? /* @__PURE__ */ _(SearchColorIcon, null) : /* @__PURE__ */ _(SearchOnDarkColorIcon, null);
-      return /* @__PURE__ */ _(SearchIcon, null);
+      if (selected) return main.value === "light" ? /* @__PURE__ */ k(SearchColorIcon, null) : /* @__PURE__ */ k(SearchOnDarkColorIcon, null);
+      return /* @__PURE__ */ k(SearchIcon, null);
     } else {
-      if (selected) return main.value === "light" ? /* @__PURE__ */ _(AiChatColorIcon, null) : /* @__PURE__ */ _(AiChatOnDarkColorIcon, null);
-      return /* @__PURE__ */ _(AiChatIcon, null);
+      if (selected) return main.value === "light" ? /* @__PURE__ */ k(AiChatColorIcon, null) : /* @__PURE__ */ k(AiChatOnDarkColorIcon, null);
+      return /* @__PURE__ */ k(AiChatIcon, null);
     }
   }
   var init_TabSwitcher2 = __esm({
@@ -10440,7 +10471,7 @@
         tabs.value = data2;
       });
     }, [service, tabs]);
-    return /* @__PURE__ */ _(TabsStateContext.Provider, { value: tabs }, children);
+    return /* @__PURE__ */ k(TabsStateContext.Provider, { value: tabs }, children);
   }
   function useTabState() {
     const tabs = x2(TabsStateContext);
@@ -10451,7 +10482,7 @@
   function TabsDebug() {
     const theme = x2(CustomizerThemesContext);
     const state = useTabState();
-    return /* @__PURE__ */ _("pre", { style: "width: 200px; position: fixed; top: 0; left: 0;", "data-theme": theme.main }, /* @__PURE__ */ _("code", { style: "color: var(--ntp-text-normal)" }, JSON.stringify(state, null, 2)));
+    return /* @__PURE__ */ k("pre", { style: "width: 200px; position: fixed; top: 0; left: 0;", "data-theme": theme.main }, /* @__PURE__ */ k("code", { style: "color: var(--ntp-text-normal)" }, JSON.stringify(state, null, 2)));
   }
   var TabsStateContext;
   var init_TabsProvider = __esm({
@@ -10462,7 +10493,7 @@
       init_CustomizerProvider();
       init_signals_module();
       init_tabs_service();
-      TabsStateContext = R(y3(
+      TabsStateContext = X(y3(
         /** @type {Tabs} */
         TabsService.DEFAULT
       ));
@@ -10563,7 +10594,7 @@
         value2?.prune({ preserve: tabIds });
       });
     }, [all2, value2]);
-    return /* @__PURE__ */ _(TextInputContext.Provider, { value: value2 }, children);
+    return /* @__PURE__ */ k(TextInputContext.Provider, { value: value2 }, children);
   }
   function PersistentModeProvider({ children }) {
     const [value2] = d2(() => (
@@ -10576,7 +10607,7 @@
         value2?.prune({ preserve: tabIds });
       });
     }, [all2, value2]);
-    return /* @__PURE__ */ _(ModeContext.Provider, { value: value2 }, children);
+    return /* @__PURE__ */ k(ModeContext.Provider, { value: value2 }, children);
   }
   function useQueryWithLocalPersistence(tabId) {
     const terms = x2(TextInputContext);
@@ -10644,11 +10675,11 @@
       init_OmnibarProvider();
       init_TabsProvider();
       init_PersistentValue();
-      TextInputContext = R(
+      TextInputContext = X(
         /** @type {PersistentValue<string>|null} */
         null
       );
-      ModeContext = R(
+      ModeContext = X(
         /** @type {PersistentValue<Mode>|null} */
         null
       );
@@ -10875,7 +10906,7 @@
   // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImagePreviewArea.js
   function ImagePreviewArea({ images, onRemove, removeLabel }) {
     if (images.length === 0) return null;
-    return /* @__PURE__ */ _("div", { class: ImageAttachment_default.imagePreviewArea }, images.map((img, index2) => /* @__PURE__ */ _("div", { key: `${img.fileName}-${index2}`, class: ImageAttachment_default.thumbnailWrapper }, /* @__PURE__ */ _("img", { src: img.dataUrl, alt: "", class: ImageAttachment_default.thumbnail }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: ImageAttachment_default.imagePreviewArea }, images.map((img, index2) => /* @__PURE__ */ k("div", { key: `${img.fileName}-${index2}`, class: ImageAttachment_default.thumbnailWrapper }, /* @__PURE__ */ k("img", { src: img.dataUrl, alt: "", class: ImageAttachment_default.thumbnail }), /* @__PURE__ */ k(
       "button",
       {
         type: "button",
@@ -10886,7 +10917,7 @@
           onRemove(index2);
         }
       },
-      /* @__PURE__ */ _(CloseSmallIcon, { width: "10", height: "10", style: "stroke: currentColor; stroke-width: 1px;" })
+      /* @__PURE__ */ k(CloseSmallIcon, { width: "10", height: "10", style: "stroke: currentColor; stroke-width: 1px;" })
     ))));
   }
   var init_ImagePreviewArea = __esm({
@@ -10904,7 +10935,7 @@
       /** @type {HTMLInputElement|null} */
       null
     );
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "label",
       {
         class: (0, import_classnames11.default)(ImageAttachment_default.toolButton, disabled && ImageAttachment_default.toolButtonDisabled),
@@ -10924,14 +10955,15 @@
           }
         }
       },
-      /* @__PURE__ */ _(ImageIcon, null),
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k(PaperclipIcon, null),
+      /* @__PURE__ */ k(
         "input",
         {
           ref: fileInputRef,
           type: "file",
           accept: "image/jpeg,image/png,image/webp",
           multiple: true,
+          "aria-hidden": "true",
           disabled,
           class: ImageAttachment_default.hiddenFileInput,
           onChange
@@ -11030,7 +11062,7 @@
       }
     }
     const tooltipClass = position2 === "above" ? (0, import_classnames12.default)(Tooltip_default.tooltip, Tooltip_default.tooltipAbove) : (0, import_classnames12.default)(Tooltip_default.tooltip, Tooltip_default.tooltipRight);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "div",
       {
         ref: containerRef,
@@ -11046,7 +11078,7 @@
       },
       children,
       isVisible && $2(
-        /* @__PURE__ */ _("div", { ref: tooltipRef, id: tooltipId, class: tooltipClass, role: "tooltip", style: tooltipStyle }, content2),
+        /* @__PURE__ */ k("div", { ref: tooltipRef, id: tooltipId, class: tooltipClass, role: "tooltip", style: tooltipStyle }, content2),
         document.body
       )
     );
@@ -11093,7 +11125,7 @@
       imageTooLarge: t4("omnibar_imageTooLargeError"),
       processingFailed: t4("omnibar_imageProcessingError")
     });
-    return /* @__PURE__ */ _(k, null, imageLimitExceeded && /* @__PURE__ */ _("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageLimitWarning), imageErrorMessage && /* @__PURE__ */ _("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageErrorMessage, /* @__PURE__ */ _("button", { class: ImageAttachment_default.dismissError, type: "button", onClick: clearImageError, "aria-label": "Dismiss" }, "\xD7")), /* @__PURE__ */ _(ImagePreviewArea, { images: attachedImages, onRemove: handleRemoveImage, removeLabel: t4("omnibar_removeImageLabel") }));
+    return /* @__PURE__ */ k(S, null, imageLimitExceeded && /* @__PURE__ */ k("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageLimitWarning), imageErrorMessage && /* @__PURE__ */ k("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageErrorMessage, /* @__PURE__ */ k("button", { class: ImageAttachment_default.dismissError, type: "button", onClick: clearImageError, "aria-label": "Dismiss" }, "\xD7")), /* @__PURE__ */ k(ImagePreviewArea, { images: attachedImages, onRemove: handleRemoveImage, removeLabel: t4("omnibar_removeImageLabel") }));
   }
   function ImageUploadButton2({ state }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -11102,9 +11134,9 @@
     );
     const { imageUploadDisabled, handleFileChange } = state;
     const imageLimitWarning = t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) });
-    const uploadButton = /* @__PURE__ */ _(ImageUploadButton, { disabled: imageUploadDisabled, onChange: handleFileChange, ariaLabel: t4("omnibar_attachImageLabel") });
+    const uploadButton = /* @__PURE__ */ k(ImageUploadButton, { disabled: imageUploadDisabled, onChange: handleFileChange, ariaLabel: t4("omnibar_attachImageLabel") });
     if (imageUploadDisabled) {
-      return /* @__PURE__ */ _(Tooltip, { content: imageLimitWarning, position: "above" }, uploadButton);
+      return /* @__PURE__ */ k(Tooltip, { content: imageLimitWarning, position: "above" }, uploadButton);
     }
     return uploadButton;
   }
@@ -11122,7 +11154,25 @@
     }
   });
 
-  // pages/new-tab/app/omnibar/components/chat-tools/model-selector/useModelSelector.js
+  // pages/new-tab/app/omnibar/components/useSelectedModel.js
+  function useSelectedModel() {
+    const { state, setSelectedModelId } = x2(OmnibarContext);
+    const aiModelSections = state.config?.enableAiChatTools === true ? state.config?.aiModelSections ?? [] : [];
+    const allModels = aiModelSections.flatMap((s4) => s4.items);
+    const persistedId = state.config?.selectedModelId;
+    const match = persistedId ? allModels.find((m5) => m5.id === persistedId && m5.isEnabled) : null;
+    const selectedModel = match ?? allModels.find((m5) => m5.isEnabled) ?? null;
+    return { selectedModel, aiModelSections, allModels, setSelectedModelId };
+  }
+  var init_useSelectedModel = __esm({
+    "pages/new-tab/app/omnibar/components/useSelectedModel.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/useDropdown.js
   function findContainingBlock(el) {
     let parent2 = el.parentElement;
     while (parent2 && parent2 !== document.body) {
@@ -11135,31 +11185,29 @@
     }
     return null;
   }
-  function useModelSelector({ aiModelSections, persistedModelId, onModelChange }) {
-    const [modelDropdownOpen, setModelDropdownOpen] = d2(false);
+  function computePosition(buttonRect, cbRect, align) {
+    const topOffset = cbRect?.top ?? 0;
+    const top2 = buttonRect.bottom - topOffset + 4;
+    if (align === "right") {
+      const rightEdge = cbRect?.right ?? window.innerWidth;
+      return { right: rightEdge - buttonRect.right, top: top2 };
+    }
+    const leftOffset = cbRect?.left ?? 0;
+    return { left: buttonRect.left - leftOffset, top: top2 };
+  }
+  function useDropdown({ align = "left" } = {}) {
+    const [isOpen, setIsOpen] = d2(false);
     const [dropdownPos, setDropdownPos] = d2(
-      /** @type {{right: number, top: number}|null} */
+      /** @type {DropdownPosition|null} */
       null
     );
-    const modelButtonRef = A2(
+    const buttonRef = A2(
       /** @type {HTMLButtonElement|null} */
       null
     );
     const dropdownRef = A2(
       /** @type {HTMLUListElement|null} */
       null
-    );
-    const allModels = T2(() => aiModelSections.flatMap((s4) => s4.items), [aiModelSections]);
-    const firstEnabled = T2(() => allModels.find((m5) => m5.isEnabled) ?? null, [allModels]);
-    const selectedModelId = T2(() => {
-      if (persistedModelId && allModels.some((m5) => m5.id === persistedModelId && m5.isEnabled)) {
-        return persistedModelId;
-      }
-      return firstEnabled?.id ?? null;
-    }, [persistedModelId, allModels, firstEnabled]);
-    const selectedModel = T2(
-      () => allModels.find((m5) => m5.id === selectedModelId && m5.isEnabled) ?? firstEnabled,
-      [allModels, selectedModelId, firstEnabled]
     );
     const cleanupRef = A2(
       /** @type {(() => void) | null} */
@@ -11168,30 +11216,28 @@
     y2(() => {
       return () => cleanupRef.current?.();
     }, []);
-    const closeDropdown = () => {
+    const close = () => {
       cleanupRef.current?.();
       cleanupRef.current = null;
-      setModelDropdownOpen(false);
+      setIsOpen(false);
     };
-    const openDropdown = () => {
-      if (!modelButtonRef.current) return;
-      const rect = modelButtonRef.current.getBoundingClientRect();
-      const cb = findContainingBlock(modelButtonRef.current);
-      const cbRect = cb?.getBoundingClientRect();
-      const rightEdge = cbRect?.right ?? window.innerWidth;
-      const topOffset = cbRect?.top ?? 0;
-      setDropdownPos({ right: rightEdge - rect.right, top: rect.bottom - topOffset + 4 });
-      setModelDropdownOpen(true);
+    const open = () => {
+      if (!buttonRef.current) return;
+      const rect = buttonRef.current.getBoundingClientRect();
+      const cb = findContainingBlock(buttonRef.current);
+      const cbRect = cb?.getBoundingClientRect() ?? null;
+      setDropdownPos(computePosition(rect, cbRect, align));
+      setIsOpen(true);
       const handleClickOutside = (e4) => {
         const target = (
           /** @type {Node} */
           e4.target
         );
-        if (modelButtonRef.current?.parentElement?.contains(target)) return;
+        if (buttonRef.current?.parentElement?.contains(target)) return;
         if (dropdownRef.current?.contains(target)) return;
-        closeDropdown();
+        close();
       };
-      const handleResize = () => closeDropdown();
+      const handleResize = () => close();
       document.addEventListener("click", handleClickOutside, true);
       window.addEventListener("resize", handleResize);
       cleanupRef.current = () => {
@@ -11199,33 +11245,51 @@
         window.removeEventListener("resize", handleResize);
       };
     };
-    const toggleDropdown = () => {
-      if (modelDropdownOpen) {
-        closeDropdown();
+    const toggle = () => {
+      if (isOpen) {
+        close();
       } else {
-        openDropdown();
+        open();
       }
     };
+    return {
+      isOpen,
+      dropdownPos,
+      buttonRef,
+      dropdownRef,
+      toggle,
+      close
+    };
+  }
+  var init_useDropdown = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/useDropdown.js"() {
+      "use strict";
+      init_hooks_module();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/model-selector/useModelSelector.js
+  function useModelSelector({ allModels, onModelChange }) {
+    const dropdown = useDropdown({ align: "right" });
     const selectModel = (id) => {
       if (!allModels.some((m5) => m5.id === id && m5.isEnabled)) return;
-      closeDropdown();
+      dropdown.close();
       onModelChange?.(id);
     };
     return {
-      selectedModelId,
-      selectedModel,
-      modelDropdownOpen,
-      dropdownPos,
-      modelButtonRef,
-      dropdownRef,
-      toggleDropdown,
+      modelDropdownOpen: dropdown.isOpen,
+      dropdownPos: dropdown.dropdownPos,
+      modelButtonRef: dropdown.buttonRef,
+      dropdownRef: dropdown.dropdownRef,
+      toggleDropdown: dropdown.toggle,
+      closeDropdown: dropdown.close,
       selectModel
     };
   }
   var init_useModelSelector = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/model-selector/useModelSelector.js"() {
       "use strict";
-      init_hooks_module();
+      init_useDropdown();
     }
   });
 
@@ -11240,6 +11304,7 @@
         modelButtonLabel: "ModelSelector_modelButtonLabel",
         modelDropdown: "ModelSelector_modelDropdown",
         modelOption: "ModelSelector_modelOption",
+        modelOptionActive: "ModelSelector_modelOptionActive",
         modelOptionSelected: "ModelSelector_modelOptionSelected",
         modelOptionDisabled: "ModelSelector_modelOptionDisabled",
         modelSectionDivider: "ModelSelector_modelSectionDivider",
@@ -11250,28 +11315,28 @@
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/Icons.js
   function OpenAIIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#aiModelOpenAI_a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#aiModelOpenAI_a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
         d: "M14.838 6.545a4 4 0 0 0-.34-3.273 4.03 4.03 0 0 0-4.33-1.934 4 4 0 0 0-3.003-1.34 4.04 4.04 0 0 0-3.837 2.791 4 4 0 0 0-2.66 1.936 4.04 4.04 0 0 0 .496 4.725 3.98 3.98 0 0 0 .34 3.268 4.03 4.03 0 0 0 4.336 1.94 3.98 3.98 0 0 0 2.996 1.344 4.04 4.04 0 0 0 3.839-2.791 3.97 3.97 0 0 0 2.654-1.936 4.03 4.03 0 0 0-.492-4.725zm-1.244-2.749c.347.607.476 1.317.357 2.005-.02-.016-.065-.038-.091-.054l-3.18-1.842a.53.53 0 0 0-.524 0L6.432 6.062V4.479l3.076-1.783a2.99 2.99 0 0 1 4.088 1.1M6.43 7.086 8 6.176l1.568.91v1.816L8 9.812l-1.569-.91zm.73-6.042a3 3 0 0 1 1.919.694c-.021.01-.065.038-.097.054L5.804 3.629a.52.52 0 0 0-.26.455v4.313l-1.367-.79V4.04a2.997 2.997 0 0 1 2.99-3.002l-.006.005zM1.576 5.25a3 3 0 0 1 1.557-1.316V7.72c0 .19.097.358.259.455l3.72 2.151-1.374.797-3.07-1.777a3.005 3.005 0 0 1-1.093-4.098m.838 6.953a2.98 2.98 0 0 1-.357-2.005c.021.016.064.039.092.054l3.178 1.842a.53.53 0 0 0 .525 0l3.72-2.156v1.582l-3.077 1.778a2.995 2.995 0 0 1-4.087-1.095zm6.43 2.754a2.98 2.98 0 0 1-1.914-.694c.022-.01.07-.038.096-.054l3.179-1.837a.51.51 0 0 0 .259-.455V7.608l1.368.79v3.562a2.997 2.997 0 0 1-2.99 3.002v-.005zm5.59-4.207a3 3 0 0 1-1.557 1.312V8.273a.52.52 0 0 0-.259-.455L8.892 5.66l1.368-.792 3.076 1.778a3 3 0 0 1 1.093 4.097z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "aiModelOpenAI_a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "aiModelOpenAI_a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function ClaudeIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#aiModelClaude_a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#aiModelClaude_a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
         d: "m3.139 10.64 3.148-1.765.053-.154-.053-.085h-.153l-.527-.032-1.799-.049-1.56-.065-1.511-.08-.38-.082L0 7.858l.037-.234.32-.215.458.04 1.012.07 1.52.104 1.101.065 1.633.17h.259l.037-.105-.089-.065-.07-.065-1.57-1.063-1.703-1.127-.891-.647-.482-.329-.243-.307-.105-.672.438-.482.587.04.15.04.596.458 1.272.984 1.66 1.222.243.202.098-.07.011-.048-.109-.182-.903-1.632-.964-1.66-.429-.687-.113-.413c-.04-.17-.07-.312-.07-.486L4.19.09 4.465 0l.665.089.28.242.412.944.67 1.486 1.036 2.02.304.6.162.554.06.17h.105v-.097l.086-1.138.157-1.397.154-1.798.053-.507.25-.607.499-.328.389.186.32.458-.045.296-.19 1.235-.373 1.935-.243 1.296h.142l.162-.162.655-.87 1.102-1.377.487-.547.567-.603.364-.288h.688l.507.753-.227.777-.709.899-.588.761-.842 1.134-.526.907.048.072.126-.012 1.903-.405 1.029-.185 1.227-.21.556.258.06.264-.218.539-1.313.323-1.54.308-2.292.542-.028.02.032.04 1.033.098.442.024h1.081l2.014.15.527.347.315.426-.053.324-.81.412-1.094-.259-2.552-.607-.875-.218h-.12v.072l.729.713 1.336 1.206 1.674 1.555.085.384-.215.304-.227-.032-1.47-1.106-.568-.498-1.284-1.08h-.086v.113l.296.433 1.564 2.348.08.72-.113.235-.405.141-.445-.081-.915-1.284-.944-1.446-.762-1.295-.093.053-.45 4.838-.21.247-.486.186-.405-.308-.215-.498.215-.983.259-1.284.21-1.02.19-1.268.114-.421-.007-.028-.093.012-.956 1.312-1.455 1.964-1.15 1.23-.276.11-.477-.248.044-.441.267-.393 1.592-2.025.96-1.255.62-.724-.003-.105h-.037l-4.23 2.745-.753.097-.324-.303.04-.498.153-.162 1.272-.875-.004.005z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "aiModelClaude_a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "aiModelClaude_a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function LlamaIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("path", { fill: "currentColor", d: "M14 7H7L6 2V0h-.5L5 1H1v2l3 1v12h2v-3h5v3h2v-6h1v1h1V8z" }));
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("path", { fill: "currentColor", d: "M14 7H7L6 2V0h-.5L5 1H1v2l3 1v12h2v-3h5v3h2v-6h1v1h1V8z" }));
   }
   function MistralIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -11282,13 +11347,13 @@
     ));
   }
   function OSSIcon(props) {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#aiModelOSS_a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#aiModelOSS_a)" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
         d: "M6.22064 14.6407C6.05983 15.2409 5.43846 15.6043 4.86677 15.3609C3.44275 14.7548 2.21703 13.7448 1.34826 12.4446C0.269975 10.8308-0.184873 8.88005 0.0684605 6.95579C0.321794 5.03153 1.26603 3.26498 2.72525 1.98528C4.18447 0.70558 6.05915 9.254e-08 8.00002 0C9.94088-9.254e-08 11.8156 0.70558 13.2748 1.98528C14.734 3.26498 15.6782 5.03153 15.9316 6.95579C16.1849 8.88005 15.7301 10.8308 14.6518 12.4446C13.783 13.7448 12.5573 14.7548 11.1333 15.3609C10.5616 15.6043 9.94021 15.2409 9.7794 14.6407L8.82516 11.0795C8.66435 10.4793 9.06047 9.87561 9.49018 9.42685C9.57281 9.34055 9.64826 9.24674 9.71544 9.1462C9.99352 8.73003 10.1108 8.22696 10.0455 7.73071C9.98015 7.23446 9.73664 6.77889 9.36033 6.44887C8.98401 6.11885 8.50055 5.93688 8.00002 5.93688C7.49949 5.93688 7.01603 6.11885 6.63971 6.44887C6.2634 6.77889 6.01989 7.23446 5.95455 7.73071C5.88922 8.22696 6.00652 8.73003 6.2846 9.14621C6.35178 9.24674 6.42723 9.34055 6.50986 9.42685C6.93957 9.87561 7.33568 10.4793 7.17487 11.0795L6.22064 14.6407Z"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "aiModelOSS_a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "aiModelOSS_a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function getModelIcon(modelId) {
     if (modelId.startsWith("meta-llama/") || modelId.startsWith("meta-llama_")) return LlamaIcon;
@@ -11306,37 +11371,118 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelDropdown.js
-  function ModelDropdown({ sections, selectedModelId, dropdownPos, onSelect, ariaLabel, dropdownRef }) {
-    return /* @__PURE__ */ _(
+  function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, ariaLabel, dropdownRef }) {
+    const allModels = sections.flatMap((section) => section.items);
+    const optionIndexById = new Map(allModels.map((model, index2) => [model.id, index2]));
+    const enabledModelIndices = allModels.reduce(
+      /**
+       * @param {number[]} indices
+       * @param {import('../../../../../types/new-tab.js').AIModelItem} model
+       * @param {number} index
+       */
+      (indices, model, index2) => {
+        if (model.isEnabled) indices.push(index2);
+        return indices;
+      },
+      []
+    );
+    const getInitialActiveIndex = () => {
+      if (enabledModelIndices.length === 0) return -1;
+      const selectedIndex = selectedModelId ? allModels.findIndex((model) => model.id === selectedModelId && model.isEnabled) : -1;
+      return selectedIndex >= 0 ? selectedIndex : enabledModelIndices[0];
+    };
+    const [activeIndex, setActiveIndex] = d2(getInitialActiveIndex);
+    const clearActiveIndex = () => setActiveIndex(-1);
+    const focusEnabledIndex = (nextEnabledPosition) => {
+      if (enabledModelIndices.length === 0) return;
+      if (nextEnabledPosition < 0) {
+        setActiveIndex(enabledModelIndices[enabledModelIndices.length - 1]);
+      } else if (nextEnabledPosition >= enabledModelIndices.length) {
+        setActiveIndex(enabledModelIndices[0]);
+      } else {
+        setActiveIndex(enabledModelIndices[nextEnabledPosition]);
+      }
+    };
+    y2(() => {
+      const frameId = window.requestAnimationFrame(() => {
+        dropdownRef?.current?.focus();
+      });
+      return () => window.cancelAnimationFrame(frameId);
+    }, [dropdownRef]);
+    const getOptionId = (index2) => `model-option-${allModels[index2]?.id ?? index2}`;
+    const handleKeyDown = (e4) => {
+      switch (e4.key) {
+        case "ArrowDown":
+          e4.preventDefault();
+          focusEnabledIndex(enabledModelIndices.indexOf(activeIndex) + 1);
+          break;
+        case "ArrowUp":
+          e4.preventDefault();
+          focusEnabledIndex(enabledModelIndices.indexOf(activeIndex) - 1);
+          break;
+        case "Home":
+          e4.preventDefault();
+          focusEnabledIndex(0);
+          break;
+        case "End":
+          e4.preventDefault();
+          focusEnabledIndex(enabledModelIndices.length - 1);
+          break;
+        case "Enter":
+        case " ":
+          e4.preventDefault();
+          if (activeIndex >= 0 && activeIndex < allModels.length) {
+            onSelect(allModels[activeIndex].id);
+            onClose({ restoreFocus: true });
+          }
+          break;
+        case "Escape":
+          e4.preventDefault();
+          onClose({ restoreFocus: true });
+          break;
+        case "Tab":
+          window.setTimeout(() => onClose({ restoreFocus: false }), 0);
+          break;
+      }
+    };
+    return /* @__PURE__ */ k(
       "ul",
       {
         ref: dropdownRef,
         class: ModelSelector_default.modelDropdown,
+        tabIndex: -1,
         role: "listbox",
         "aria-label": ariaLabel,
-        style: { right: `${dropdownPos.right}px`, top: `${dropdownPos.top}px` }
+        "aria-activedescendant": activeIndex >= 0 ? getOptionId(activeIndex) : void 0,
+        style: { right: dropdownPos.right, left: dropdownPos.left, top: dropdownPos.top },
+        onKeyDown: handleKeyDown,
+        onMouseLeave: clearActiveIndex
       },
-      sections.map((section, sectionIndex) => /* @__PURE__ */ _(k, { key: sectionIndex }, section.header && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("li", { role: "separator", class: ModelSelector_default.modelSectionDivider }), /* @__PURE__ */ _("li", { role: "presentation", class: ModelSelector_default.modelSectionHeader }, section.header)), section.items.map((model) => {
+      sections.map((section, sectionIndex) => /* @__PURE__ */ k(S, { key: sectionIndex }, section.header && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("li", { role: "separator", class: ModelSelector_default.modelSectionDivider }), /* @__PURE__ */ k("li", { role: "presentation", class: ModelSelector_default.modelSectionHeader }, section.header)), section.items.map((model) => {
         const Icon = getModelIcon(model.id);
-        return /* @__PURE__ */ _(
+        const optionIndex = optionIndexById.get(model.id) ?? -1;
+        return /* @__PURE__ */ k(
           "li",
           {
             key: model.id,
+            id: getOptionId(optionIndex),
             role: "option",
             "aria-selected": model.isEnabled ? model.id === selectedModelId : void 0,
             "aria-disabled": !model.isEnabled || void 0,
             class: (0, import_classnames13.default)(
               ModelSelector_default.modelOption,
+              model.isEnabled && activeIndex === optionIndex && ModelSelector_default.modelOptionActive,
               !model.isEnabled && ModelSelector_default.modelOptionDisabled,
               model.isEnabled && model.id === selectedModelId && ModelSelector_default.modelOptionSelected
             ),
+            onMouseOver: model.isEnabled ? () => setActiveIndex(optionIndex) : void 0,
             onClick: model.isEnabled ? (e4) => {
               e4.stopPropagation();
               onSelect(model.id);
             } : void 0
           },
-          Icon && /* @__PURE__ */ _(Icon, null),
-          /* @__PURE__ */ _("span", null, model.name)
+          Icon && /* @__PURE__ */ k(Icon, null),
+          /* @__PURE__ */ k("span", null, model.name)
         );
       })))
     );
@@ -11346,6 +11492,7 @@
     "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelDropdown.js"() {
       "use strict";
       init_preact_module();
+      init_hooks_module();
       import_classnames13 = __toESM(require_classnames(), 1);
       init_ModelSelector();
       init_Icons3();
@@ -11353,13 +11500,18 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.js
-  function ModelSelector({ selector, aiModelSections, ariaLabel }) {
-    const { selectedModel, modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, selectModel } = selector;
-    return /* @__PURE__ */ _("div", { class: ModelSelector_default.modelSelector }, /* @__PURE__ */ _(
+  function ModelSelector({ selector, selectedModel, aiModelSections, ariaLabel }) {
+    const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
+    const handleClose = ({ restoreFocus }) => {
+      closeDropdown();
+      if (restoreFocus) modelButtonRef.current?.focus();
+    };
+    return /* @__PURE__ */ k("div", { class: ModelSelector_default.modelSelector }, /* @__PURE__ */ k(
       "button",
       {
         ref: modelButtonRef,
         type: "button",
+        tabIndex: 0,
         class: (0, import_classnames14.default)(ModelSelector_default.modelButton, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
         "aria-label": ariaLabel,
         "aria-haspopup": "listbox",
@@ -11369,15 +11521,16 @@
           toggleDropdown();
         }
       },
-      /* @__PURE__ */ _("span", { class: ModelSelector_default.modelButtonLabel }, selectedModel?.shortName ?? ariaLabel),
-      /* @__PURE__ */ _(ChevronSmall, null)
-    ), modelDropdownOpen && dropdownPos && /* @__PURE__ */ _(
+      /* @__PURE__ */ k("span", { class: ModelSelector_default.modelButtonLabel }, selectedModel?.shortName ?? ariaLabel),
+      /* @__PURE__ */ k(ChevronSmall, null)
+    ), modelDropdownOpen && dropdownPos && /* @__PURE__ */ k(
       ModelDropdown,
       {
         dropdownRef,
         sections: aiModelSections,
         selectedModelId: selectedModel?.id,
         dropdownPos,
+        onClose: handleClose,
         onSelect: selectModel,
         ariaLabel
       }
@@ -11396,35 +11549,239 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelectorTool.js
-  function ModelSelectorTool({ onSelectedModelChange }) {
+  function ModelSelectorTool() {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
-    const { setSelectedModelId: persistModelId, state } = x2(OmnibarContext);
-    const enableAiChatTools = state.config?.enableAiChatTools === true;
-    const aiModelSections = enableAiChatTools ? state.config?.aiModelSections ?? [] : [];
+    const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
     const selector = useModelSelector({
-      aiModelSections,
-      persistedModelId: state.config?.selectedModelId,
-      onModelChange: persistModelId
+      allModels,
+      onModelChange: setSelectedModelId
     });
-    const { selectedModel } = selector;
-    y2(() => {
-      onSelectedModelChange?.(selectedModel ?? null);
-    }, [selectedModel]);
     if (aiModelSections.length === 0) return null;
-    return /* @__PURE__ */ _(ModelSelector, { selector, aiModelSections, ariaLabel: t4("omnibar_modelSelectorLabel") });
+    return /* @__PURE__ */ k(
+      ModelSelector,
+      {
+        selector,
+        selectedModel,
+        aiModelSections,
+        ariaLabel: t4("omnibar_modelSelectorLabel")
+      }
+    );
   }
   var init_ModelSelectorTool = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelectorTool.js"() {
       "use strict";
       init_preact_module();
-      init_hooks_module();
       init_types();
-      init_OmnibarProvider();
+      init_useSelectedModel();
       init_useModelSelector();
       init_ModelSelector2();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tools-menu/ToolsMenu.module.css
+  var ToolsMenu_default;
+  var init_ToolsMenu = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tools-menu/ToolsMenu.module.css"() {
+      ToolsMenu_default = {
+        toolsMenu: "ToolsMenu_toolsMenu",
+        toolsButton: "ToolsMenu_toolsButton",
+        toolsButtonActive: "ToolsMenu_toolsButtonActive",
+        toolsLabel: "ToolsMenu_toolsLabel",
+        activeToolChip: "ToolsMenu_activeToolChip",
+        chipLabel: "ToolsMenu_chipLabel",
+        dropdown: "ToolsMenu_dropdown",
+        menuItem: "ToolsMenu_menuItem",
+        menuItemActive: "ToolsMenu_menuItemActive",
+        menuItemDescription: "ToolsMenu_menuItemDescription",
+        checkmark: "ToolsMenu_checkmark",
+        menuItemSelected: "ToolsMenu_menuItemSelected",
+        menuItemLabel: "ToolsMenu_menuItemLabel",
+        menuItemName: "ToolsMenu_menuItemName"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tools-menu/ToolsMenu.js
+  function ToolsMenu({ tools, activeTool, onToggle }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { isOpen: menuOpen, buttonRef, dropdownRef, dropdownPos, toggle: toggleMenu, close: closeMenu } = useDropdown({ align: "left" });
+    const [activeIndex, setActiveIndex] = d2(-1);
+    const clearActiveIndex = () => setActiveIndex(-1);
+    const getToolConfig = (id) => {
+      switch (id) {
+        case "image-generation":
+          return {
+            id,
+            icon: /* @__PURE__ */ k(CreateImageIcon, null),
+            label: t4("omnibar_createImageLabel"),
+            description: t4("omnibar_createImageDescription")
+          };
+        case "web-search":
+          return { id, icon: /* @__PURE__ */ k(GlobeIcon, null), label: t4("omnibar_webSearchLabel"), description: t4("omnibar_webSearchDescription") };
+        default: {
+          const _exhaustiveCheck = id;
+          console.error(`Unknown tool id: ${_exhaustiveCheck}`);
+          return null;
+        }
+      }
+    };
+    const resolvedTools = (
+      /** @type {ToolConfig[]} */
+      tools.map(getToolConfig).filter(Boolean)
+    );
+    const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
+    const handleSelect = (toolId) => {
+      onToggle(toolId);
+      closeMenu();
+    };
+    const getInitialActiveIndex = () => {
+      if (resolvedTools.length === 0) return -1;
+      const initialIndex = activeTool ? resolvedTools.findIndex((tool) => tool.id === activeTool) : -1;
+      return initialIndex >= 0 ? initialIndex : 0;
+    };
+    y2(() => {
+      if (!menuOpen) {
+        clearActiveIndex();
+        return;
+      }
+      const frameId = window.requestAnimationFrame(() => {
+        dropdownRef.current?.focus();
+      });
+      return () => window.cancelAnimationFrame(frameId);
+    }, [dropdownRef, menuOpen]);
+    const getMenuItemId = (index2) => `tools-menu-item-${resolvedTools[index2]?.id ?? index2}`;
+    const focusIndex = (nextIndex) => {
+      if (resolvedTools.length === 0) return;
+      if (nextIndex < 0) {
+        setActiveIndex(resolvedTools.length - 1);
+      } else if (nextIndex >= resolvedTools.length) {
+        setActiveIndex(0);
+      } else {
+        setActiveIndex(nextIndex);
+      }
+    };
+    const handleMenuKeyDown = (e4) => {
+      switch (e4.key) {
+        case "ArrowDown":
+          e4.preventDefault();
+          focusIndex(activeIndex + 1);
+          break;
+        case "ArrowUp":
+          e4.preventDefault();
+          focusIndex(activeIndex - 1);
+          break;
+        case "Home":
+          e4.preventDefault();
+          setActiveIndex(0);
+          break;
+        case "End":
+          e4.preventDefault();
+          setActiveIndex(resolvedTools.length - 1);
+          break;
+        case "Enter":
+        case " ":
+          e4.preventDefault();
+          if (activeIndex >= 0 && activeIndex < resolvedTools.length) {
+            handleSelect(resolvedTools[activeIndex].id);
+            buttonRef.current?.focus();
+          }
+          break;
+        case "Escape":
+          e4.preventDefault();
+          closeMenu();
+          buttonRef.current?.focus();
+          break;
+        case "Tab":
+          window.setTimeout(() => closeMenu(), 0);
+          break;
+      }
+    };
+    return /* @__PURE__ */ k("div", { class: ToolsMenu_default.toolsMenu }, /* @__PURE__ */ k(
+      "button",
+      {
+        ref: buttonRef,
+        type: "button",
+        tabIndex: 0,
+        class: (0, import_classnames15.default)(ToolsMenu_default.toolsButton, (menuOpen || activeToolConfig) && ToolsMenu_default.toolsButtonActive),
+        "aria-label": t4("omnibar_toolsMenuLabel"),
+        "aria-haspopup": "menu",
+        "aria-expanded": menuOpen,
+        onClick: (e4) => {
+          e4.stopPropagation();
+          if (!menuOpen) {
+            setActiveIndex(getInitialActiveIndex());
+          }
+          toggleMenu();
+        }
+      },
+      /* @__PURE__ */ k(ToolsIcon, null),
+      !activeToolConfig && /* @__PURE__ */ k("span", { class: ToolsMenu_default.toolsLabel }, t4("omnibar_toolsMenuLabel"))
+    ), activeToolConfig && /* @__PURE__ */ k(
+      "button",
+      {
+        type: "button",
+        tabIndex: 0,
+        class: ToolsMenu_default.activeToolChip,
+        "aria-label": activeToolConfig.label,
+        onClick: (e4) => {
+          e4.stopPropagation();
+          onToggle(activeToolConfig.id);
+        }
+      },
+      activeToolConfig.icon,
+      /* @__PURE__ */ k("span", { class: ToolsMenu_default.chipLabel }, activeToolConfig.label),
+      /* @__PURE__ */ k(CloseSmallIcon, { width: "12", height: "12" })
+    ), menuOpen && dropdownPos && /* @__PURE__ */ k(
+      "ul",
+      {
+        ref: dropdownRef,
+        class: ToolsMenu_default.dropdown,
+        tabIndex: -1,
+        role: "menu",
+        "aria-label": t4("omnibar_toolsMenuLabel"),
+        "aria-activedescendant": activeIndex >= 0 ? getMenuItemId(activeIndex) : void 0,
+        style: { left: `${dropdownPos.left}px`, top: `${dropdownPos.top}px` },
+        onKeyDown: handleMenuKeyDown,
+        onMouseLeave: clearActiveIndex
+      },
+      resolvedTools.map((tool, index2) => /* @__PURE__ */ k(
+        "li",
+        {
+          key: tool.id,
+          id: getMenuItemId(index2),
+          role: "menuitemcheckbox",
+          "aria-checked": activeTool === tool.id,
+          class: (0, import_classnames15.default)(
+            ToolsMenu_default.menuItem,
+            activeIndex === index2 && ToolsMenu_default.menuItemActive,
+            activeTool === tool.id && ToolsMenu_default.menuItemSelected
+          ),
+          onMouseOver: () => setActiveIndex(index2),
+          onClick: () => handleSelect(tool.id)
+        },
+        /* @__PURE__ */ k("span", { class: ToolsMenu_default.checkmark, "aria-hidden": "true" }),
+        tool.icon,
+        /* @__PURE__ */ k("div", { class: ToolsMenu_default.menuItemLabel }, /* @__PURE__ */ k("span", { class: ToolsMenu_default.menuItemName }, tool.label), /* @__PURE__ */ k("span", { class: ToolsMenu_default.menuItemDescription }, tool.description))
+      ))
+    ));
+  }
+  var import_classnames15;
+  var init_ToolsMenu2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tools-menu/ToolsMenu.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      import_classnames15 = __toESM(require_classnames(), 1);
+      init_Icons2();
+      init_types();
+      init_useDropdown();
+      init_ToolsMenu();
     }
   });
 
@@ -11469,7 +11826,7 @@
       setAutoFocus(true);
       setMode(nextMode);
     };
-    return /* @__PURE__ */ _("div", { key: resetKey, class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _("div", { class: Omnibar_default.tabSwitcherContainer }, /* @__PURE__ */ _(TabSwitcher, { mode, onChange: handleChangeMode }), showCustomizePopover && /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { key: resetKey, class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ k(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ k("div", { class: Omnibar_default.tabSwitcherContainer }, /* @__PURE__ */ k(TabSwitcher, { mode, onChange: handleChangeMode }), showCustomizePopover && /* @__PURE__ */ k(
       Popover,
       {
         className: Omnibar_default.popover,
@@ -11477,7 +11834,7 @@
         showNewBadge: true,
         onClose: handleCloseCustomizePopover
       },
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k(
         Trans,
         {
           str: t4("omnibar_customizePopoverDescription"),
@@ -11488,7 +11845,7 @@
           }
         }
       )
-    )), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery, enableAi }, /* @__PURE__ */ _(
+    )), /* @__PURE__ */ k(SearchFormProvider, { term: query, setTerm: setQuery, enableAi }, /* @__PURE__ */ k(
       AiChatsProvider,
       {
         query,
@@ -11496,7 +11853,7 @@
         enableRecentAiChats,
         showViewAllAiChats
       },
-      /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, mode === "search" ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ _(
+      /* @__PURE__ */ k("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ k("div", { class: Omnibar_default.popup }, mode === "search" ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ k(
         SearchForm,
         {
           autoFocus,
@@ -11504,7 +11861,7 @@
           onSubmit: handleSubmitSearch,
           onSubmitChat: handleSubmitChat
         }
-      )), /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ _(
+      )), /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ k(
         AiChatContent,
         {
           query,
@@ -11517,49 +11874,77 @@
     )));
   }
   function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
     const { showChats, hideChats } = useAiChatsContext();
     const { state } = x2(OmnibarContext);
+    const { selectedModel } = useSelectedModel();
     const containerRef = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
     const hasVisibleImagesRef = A2(false);
-    const selectedModelIdRef = A2(
-      /** @type {string|null} */
+    const [imageWarning, setImageWarning] = d2(false);
+    const [activeTool, setActiveTool] = d2(
+      /** @type {ToolId|null} */
       null
     );
-    const [imageWarning, setImageWarning] = d2(false);
-    const [supportsImageUpload, setSupportsImageUpload] = d2(false);
     const imageState = useImageAttachments();
-    const enableAiChatTools = state.config?.enableAiChatTools === true;
+    const imageGenerationActive = activeTool === "image-generation";
+    const webSearchActive = activeTool === "web-search";
+    const hasAttachedImages = imageState.attachedImages.length > 0;
+    const imageGenerationPlaceholder = hasAttachedImages ? t4("omnibar_imageGenerationWithAttachmentPlaceholder") : t4("omnibar_imageGenerationPlaceholder");
+    const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
+    const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
+    const availableTools = [
+      ...state.config?.enableImageGeneration === true ? [
+        /** @type {const} */
+        "image-generation"
+      ] : [],
+      ...state.config?.enableWebSearch === true ? [
+        /** @type {const} */
+        "web-search"
+      ] : []
+    ];
+    const handleToggleTool = (tool) => {
+      setActiveTool((prev) => prev === tool ? null : tool);
+    };
     const handleChange = (value2) => {
       onChange(value2);
-      if (!hasVisibleImagesRef.current) showChats();
+      if (!hasVisibleImagesRef.current && !imageGenerationActive) showChats();
     };
     const handleSubmit = (chat, target) => {
-      const action = { chat, target };
-      if (enableAiChatTools) {
-        if (supportsImageUpload) {
-          const images = imageState.getImagesForSubmission();
-          if (images) {
-            action.images = /** @type {SubmitChatAction['images']} */
-            images;
-          }
-        }
-        if (selectedModelIdRef.current) {
-          action.modelId = selectedModelIdRef.current;
-        }
-      }
+      const images = canAttachImages ? imageState.getImagesForSubmission() : null;
+      const modelId = imageGenerationActive ? null : selectedModel?.id ?? null;
+      const toolChoice = webSearchActive ? (
+        /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */
+        ["WebSearch"]
+      ) : null;
+      const action = {
+        chat,
+        target,
+        ...imageGenerationActive && { mode: (
+          /** @type {const} */
+          "image-generation"
+        ) },
+        ...modelId && { modelId },
+        ...toolChoice && { toolChoice },
+        ...images && { images }
+      };
       onSubmit(action);
       imageState.clearAttachedImages();
+      setActiveTool(null);
     };
-    return /* @__PURE__ */ _(
+    const showRecentChats = enableRecentAiChats && !imageGenerationActive;
+    return /* @__PURE__ */ k(
       "div",
       {
         ref: containerRef,
         "data-image-warning": imageWarning || void 0,
         onFocusCapture: (event) => {
-          if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current) showChats();
+          if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationActive) showChats();
         },
         onBlurCapture: (event) => {
           if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
@@ -11568,30 +11953,23 @@
           hideChats();
         }
       },
-      /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ _(
+      /* @__PURE__ */ k(ResizingContainer, { className: Omnibar_default.field }, /* @__PURE__ */ k(
         AiChatForm,
         {
           query,
           autoFocus,
           disabled: query.length === 0 || imageWarning,
+          placeholder: imageGenerationActive ? imageGenerationPlaceholder : void 0,
           onChange: handleChange,
           onSubmit: handleSubmit,
-          toolbarLeft: supportsImageUpload && /* @__PURE__ */ _(ImageUploadButton2, { state: imageState }),
-          toolbarRight: /* @__PURE__ */ _(
-            ModelSelectorTool,
-            {
-              onSelectedModelChange: (model) => {
-                selectedModelIdRef.current = model?.id ?? null;
-                setSupportsImageUpload(model?.supportsImageUpload ?? false);
-              }
-            }
-          )
+          toolbarLeft: /* @__PURE__ */ k(S, null, canAttachImages && /* @__PURE__ */ k(ImageUploadButton2, { state: imageState }), availableTools.length > 0 && /* @__PURE__ */ k(ToolsMenu, { tools: availableTools, activeTool, onToggle: handleToggleTool })),
+          toolbarRight: !imageGenerationActive && /* @__PURE__ */ k(ModelSelectorTool, null)
         },
-        /* @__PURE__ */ _(
+        /* @__PURE__ */ k(
           ImageAttachmentContent,
           {
             state: imageState,
-            supportsImageUpload,
+            supportsImageUpload: canAttachImages,
             onVisibleImagesChange: (hasImages) => {
               hasVisibleImagesRef.current = hasImages;
               if (hasImages) {
@@ -11604,7 +11982,7 @@
           }
         )
       )),
-      enableRecentAiChats && /* @__PURE__ */ _(AiChatsList, { className: Omnibar_default.aiChatsList })
+      showRecentChats && /* @__PURE__ */ k(AiChatsList, { className: Omnibar_default.aiChatsList })
     );
   }
   var init_Omnibar2 = __esm({
@@ -11631,6 +12009,8 @@
       init_ImageAttachmentTool();
       init_useImageAttachments();
       init_ModelSelectorTool();
+      init_ToolsMenu2();
+      init_useSelectedModel();
     }
   });
 
@@ -11641,7 +12021,7 @@
     const { visibility } = useVisibility();
     if (state.status !== "ready") return null;
     const visible = visibility.value === "visible";
-    return /* @__PURE__ */ _(k, null, state.config.showAiSetting && /* @__PURE__ */ _(AiSetting, { enableAi: state.config?.enableAi === true, setEnableAi, omnibarVisible: visible }), visible && /* @__PURE__ */ _(OmnibarReadyState, { config: state.config, key: current.value, tabId: current.value }));
+    return /* @__PURE__ */ k(S, null, state.config.showAiSetting && /* @__PURE__ */ k(AiSetting, { enableAi: state.config?.enableAi === true, setEnableAi, omnibarVisible: visible }), visible && /* @__PURE__ */ k(OmnibarReadyState, { config: state.config, key: current.value, tabId: current.value }));
   }
   function OmnibarReadyState({ config, tabId }) {
     const {
@@ -11654,7 +12034,7 @@
     } = config;
     const { setMode } = x2(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       Omnibar,
       {
         mode: modeForCurrentTab,
@@ -11676,7 +12056,7 @@
     useCustomizer({
       title: t4("omnibar_toggleDuckAi"),
       id: `_${id}-toggleAi`,
-      icon: /* @__PURE__ */ _(ArrowIndentCenteredIcon, { style: { color: "var(--ds-color-theme-icons-tertiary)" } }),
+      icon: /* @__PURE__ */ k(ArrowIndentCenteredIcon, { style: { color: "var(--ds-color-theme-icons-tertiary)" } }),
       toggle: () => setEnableAi(!enableAi),
       /**
        * Duck.ai is only ever shown as 'visible' (eg: switch is checked) if the omnibar is also visible.
@@ -11711,8 +12091,8 @@
     );
     const sectionTitle = t4("omnibar_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
-    useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ _(SearchIcon, null), toggle, visibility: visibility.value, index: index2, enabled: true });
-    return /* @__PURE__ */ _(PersistentTextInputProvider, null, /* @__PURE__ */ _(PersistentModeProvider, null, /* @__PURE__ */ _(OmnibarProvider, null, /* @__PURE__ */ _(OmnibarConsumer, null))));
+    useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ k(SearchIcon, null), toggle, visibility: visibility.value, index: index2, enabled: true });
+    return /* @__PURE__ */ k(PersistentTextInputProvider, null, /* @__PURE__ */ k(PersistentModeProvider, null, /* @__PURE__ */ k(OmnibarProvider, null, /* @__PURE__ */ k(OmnibarConsumer, null))));
   }
   var init_OmnibarCustomized = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarCustomized.js"() {
@@ -11734,7 +12114,7 @@
     factory: () => factory6
   });
   function factory6() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "omnibar" }, /* @__PURE__ */ _(OmnibarCustomized, null));
+    return /* @__PURE__ */ k(Centered, { "data-entry-point": "omnibar" }, /* @__PURE__ */ k(OmnibarCustomized, null));
   }
   var init_omnibar = __esm({
     "pages/new-tab/app/entry-points/omnibar.js"() {
@@ -11872,7 +12252,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(ProtectionsContext.Provider, { value: { state, toggle, setFeed } }, /* @__PURE__ */ _(ProtectionsServiceContext.Provider, { value: service.current }, props.children));
+    return /* @__PURE__ */ k(ProtectionsContext.Provider, { value: { state, toggle, setFeed } }, /* @__PURE__ */ k(ProtectionsServiceContext.Provider, { value: service.current }, props.children));
   }
   function useService6() {
     const service = A2(
@@ -11919,7 +12299,7 @@
       init_service_hooks();
       init_protections_service();
       init_signals_module();
-      ProtectionsContext = R({
+      ProtectionsContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -11931,7 +12311,7 @@
           throw new Error("must implement");
         }
       });
-      ProtectionsServiceContext = R(
+      ProtectionsServiceContext = X(
         /** @type {ProtectionsService|null} */
         {}
       );
@@ -12017,10 +12397,10 @@
         hideTooltip();
       }
     };
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames15.default)(Tooltip_default2.tooltipContainer, className),
+        class: (0, import_classnames16.default)(Tooltip_default2.tooltipContainer, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -12031,17 +12411,17 @@
         onKeyDown: handleKeyDown
       },
       children,
-      isVisible && /* @__PURE__ */ _("div", { id: tooltipId, class: Tooltip_default2.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
+      isVisible && /* @__PURE__ */ k("div", { id: tooltipId, class: Tooltip_default2.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
     );
   }
-  var import_classnames15;
+  var import_classnames16;
   var init_Tooltip4 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_Tooltip3();
-      import_classnames15 = __toESM(require_classnames(), 1);
+      import_classnames16 = __toESM(require_classnames(), 1);
     }
   });
 
@@ -12318,7 +12698,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ _(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ _(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames17.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -12329,16 +12709,16 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ _(NewBadge, null))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames17.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
   }
-  var import_classnames16;
+  var import_classnames17;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
       init_types();
       init_PrivacyStats();
       init_ShowHideButton();
-      import_classnames16 = __toESM(require_classnames(), 1);
+      import_classnames17 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
       init_NewBadge2();
@@ -12397,7 +12777,7 @@
     } else {
       alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersPluralLegacy", { count: alltime }) : t4("stats_countBlockedPluralLegacy", { count: alltime });
     }
-    return /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.heading, "data-testid": "ProtectionsHeading" }, /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.control }, /* @__PURE__ */ _("span", { class: PrivacyStatsLegacy_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStatsLegacy_default.caption }, t4("protections_menuTitle")), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStatsLegacy_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.heading, "data-testid": "ProtectionsHeading" }, /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.control }, /* @__PURE__ */ k("span", { class: PrivacyStatsLegacy_default.headingIcon }, /* @__PURE__ */ k("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStatsLegacy_default.caption }, t4("protections_menuTitle")), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStatsLegacy_default.widgetExpander }, /* @__PURE__ */ k(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -12408,9 +12788,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames17.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames18.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames17;
+  var import_classnames18;
   var init_ProtectionsHeadingLegacy = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeadingLegacy.js"() {
       "use strict";
@@ -12418,7 +12798,7 @@
       init_hooks_module();
       init_PrivacyStatsLegacy();
       init_ShowHideButton();
-      import_classnames17 = __toESM(require_classnames(), 1);
+      import_classnames18 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -12448,7 +12828,7 @@
       };
     }, [WIDGET_ID, TOGGLE_ID]);
     const ProtectionsBodyComponent = totalCookiePopUpsBlocked === void 0 ? ProtectionsBodyLegacy : ProtectionsBody;
-    return /* @__PURE__ */ _("div", { class: Protections_default.root }, totalCookiePopUpsBlocked === void 0 ? /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: Protections_default.root }, totalCookiePopUpsBlocked === void 0 ? /* @__PURE__ */ k(
       ProtectionsHeadingLegacy,
       {
         blockedCountSignal,
@@ -12457,7 +12837,7 @@
         canExpand: true,
         buttonAttrs: attrs
       }
-    ) : /* @__PURE__ */ _(
+    ) : /* @__PURE__ */ k(
       ProtectionsHeading,
       {
         blockedCountSignal,
@@ -12468,7 +12848,7 @@
         totalCookiePopUpsBlockedSignal,
         showProtectionsReportNewLabel
       }
-    ), /* @__PURE__ */ _(ProtectionsBodyComponent, { feed, setFeed, id: WIDGET_ID, expansion }, children));
+    ), /* @__PURE__ */ k(ProtectionsBodyComponent, { feed, setFeed, id: WIDGET_ID, expansion }, children));
   }
   function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === "collapsed";
@@ -12477,14 +12857,14 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames19.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames18.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames19.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames18.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ k("button", { class: (0, import_classnames19.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === "collapsed";
@@ -12493,28 +12873,28 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames19.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames18.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames19.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames18.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ k("button", { class: (0, import_classnames19.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames19.default)(Protections_default.block, Protections_default.empty) }, children);
   }
   function ProtectionsEmptyLegacy({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames19.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
   }
-  var import_classnames18;
+  var import_classnames19;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames18 = __toESM(require_classnames(), 1);
+      import_classnames19 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -12748,7 +13128,7 @@
     const batched = useBatchedActivityApi();
     const service = useService7(batched);
     useInitialData({ dispatch, service });
-    return /* @__PURE__ */ _(ActivityContext.Provider, { value: { state } }, /* @__PURE__ */ _(ActivityServiceContext.Provider, { value: service.current }, props.children));
+    return /* @__PURE__ */ k(ActivityContext.Provider, { value: { state } }, /* @__PURE__ */ k(ActivityServiceContext.Provider, { value: service.current }, props.children));
   }
   function useService7(useBatched) {
     const service = A2(
@@ -12775,11 +13155,11 @@
       init_service_hooks();
       init_settings_provider();
       init_batched_activity_service();
-      ActivityContext = R({
+      ActivityContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null }
       });
-      ActivityServiceContext = R(
+      ActivityServiceContext = X(
         /** @type {BatchedActivityService|null} */
         {}
       );
@@ -12874,7 +13254,7 @@
 
   // pages/new-tab/app/components/CompanyIcon.js
   function Other() {
-    return /* @__PURE__ */ _("svg", { width: "32", height: "32", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "32", height: "32", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -12907,10 +13287,10 @@
           const id = cleaned in mappings ? mappings[cleaned] : cleaned;
           const firstChar = id[0];
           if (icon === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
-            return /* @__PURE__ */ _("span", { className: CompanyIcon_default.icon }, /* @__PURE__ */ _(Other, null));
+            return /* @__PURE__ */ k("span", { className: CompanyIcon_default.icon }, /* @__PURE__ */ k(Other, null));
           }
           const src = names.has(id) ? `./company-icons/${id}.svg` : `./company-icons/${firstChar}.svg`;
-          return /* @__PURE__ */ _("span", { className: CompanyIcon_default.icon, title: displayName }, /* @__PURE__ */ _("img", { src, alt: "", class: CompanyIcon_default.companyImgIcon, "data-loaded": "true" }));
+          return /* @__PURE__ */ k("span", { className: CompanyIcon_default.icon, title: displayName }, /* @__PURE__ */ k("img", { src, alt: "", class: CompanyIcon_default.companyImgIcon, "data-loaded": "true" }));
         }
       );
       names = /* @__PURE__ */ new Set([
@@ -13061,7 +13441,7 @@
 
   // pages/new-tab/app/components/icons/Star.js
   function Star() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_22408_13762)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k("g", { "clip-path": "url(#clip0_22408_13762)" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -13069,10 +13449,10 @@
         d: "M6.45094 1.23706C7.08238 -0.0497198 8.9167 -0.0497265 9.54814 1.23706L10.9707 4.13602C11.0397 4.27659 11.1735 4.37414 11.3284 4.39678L14.5197 4.86316C15.9315 5.06949 16.4967 6.80298 15.4779 7.80183L13.1606 10.0735C13.0494 10.1825 12.9987 10.3391 13.0249 10.4926L13.5708 13.6939C13.8114 15.1044 12.329 16.1776 11.0641 15.5088L8.22157 14.0058C8.08266 13.9324 7.91642 13.9324 7.77751 14.0058L4.93501 15.5088C3.67009 16.1776 2.1877 15.1044 2.42824 13.6939L2.97417 10.4926C3.00034 10.3391 2.94964 10.1825 2.83846 10.0735L0.521231 7.80183C-0.497628 6.80298 0.0675747 5.06949 1.47939 4.86316L4.67065 4.39678C4.82559 4.37414 4.95941 4.27659 5.02839 4.13602L6.45094 1.23706ZM8.42597 1.78772C8.25209 1.43339 7.74699 1.43339 7.57311 1.78772L6.15056 4.68669C5.90006 5.19717 5.41407 5.55141 4.85141 5.63364L1.66014 6.10003C1.27139 6.15684 1.11575 6.63418 1.39631 6.90922L3.71353 9.18094C4.11729 9.57677 4.30143 10.1453 4.20638 10.7027L3.66045 13.904C3.59422 14.2924 4.00241 14.5879 4.35072 14.4038L7.19322 12.9008C7.69768 12.6341 8.3014 12.6341 8.80586 12.9008L11.6484 14.4038C11.9967 14.5879 12.4049 14.2924 12.3386 13.904L11.7927 10.7027C11.6977 10.1453 11.8818 9.57677 12.2856 9.18094L14.6028 6.90922C14.8833 6.63418 14.7277 6.15684 14.3389 6.10003L11.1477 5.63364C10.585 5.55141 10.099 5.19717 9.84852 4.68669L8.42597 1.78772Z",
         fill: "currentColor"
       }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_22408_13762" }, /* @__PURE__ */ _("rect", { width: "16", height: "16", fill: "white" }))));
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "clip0_22408_13762" }, /* @__PURE__ */ k("rect", { width: "16", height: "16", fill: "white" }))));
   }
   function StarFilled() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k(
       "path",
       {
         "fill-rule": "evenodd",
@@ -13091,7 +13471,7 @@
 
   // pages/new-tab/app/components/icons/Fire.js
   function Fire() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ k(
       "path",
       {
         d: "M6.51 15.53C5.52169 15.1832 4.62813 14.6102 3.90063 13.8566C3.17314 13.1031 2.63187 12.1899 2.32 11.19C2.00656 10.2021 1.95796 9.14927 2.17908 8.1367C2.4002 7.12413 2.88327 6.18736 3.58 5.42005C3.55086 5.89155 3.62952 6.36349 3.81 6.80005C4.02338 7.25295 4.32218 7.6604 4.69 8.00005C4.69 8.00005 4.12 6.49005 5.5 4.00005C6.05366 3.11404 6.78294 2.35083 7.64287 1.75747C8.50281 1.16412 9.47517 0.7532 10.5 0.550049C9.98683 1.37608 9.80801 2.36673 10 3.32005C10.3 4.32005 10.79 4.86005 11.34 6.32005C11.6531 7.02128 11.81 7.78217 11.8 8.55005C11.8924 8.00549 12.0785 7.48106 12.35 7.00005C12.8052 6.23481 13.5122 5.65154 14.35 5.35005C13.9622 6.24354 13.8041 7.21983 13.89 8.19005C14.13 9.57207 14.0024 10.9929 13.52 12.31C13.1426 13.1433 12.5797 13.8792 11.8743 14.4616C11.1689 15.0439 10.3396 15.4573 9.45 15.67C10.0363 15.44 10.5353 15.0313 10.8763 14.5018C11.2173 13.9723 11.383 13.349 11.35 12.72C11.2519 11.9769 10.8983 11.2911 10.35 10.78C10 12.67 9 12.89 9 12.89C9.38734 12.0753 9.6277 11.1985 9.71 10.3C9.76437 9.73167 9.71007 9.15813 9.55 8.61005C9.35788 7.62829 8.80485 6.75416 8 6.16005C8.05802 6.68407 8.01002 7.21441 7.85883 7.7195C7.70765 8.22458 7.45639 8.69408 7.12 9.10005C6.31 10.36 4.94 11.29 5 13.17C5.02619 13.6604 5.17907 14.1356 5.44372 14.5492C5.70838 14.9628 6.07576 15.3008 6.51 15.53Z",
@@ -13112,7 +13492,7 @@
     "pages/new-tab/app/burning/ActivityInteractionsContext.js"() {
       "use strict";
       init_preact_module();
-      ActivityInteractionsContext = R({
+      ActivityInteractionsContext = X({
         /**
          * @type {(evt: MouseEvent) => void} _event
          */
@@ -13199,7 +13579,7 @@
       },
       [burning, exiting]
     );
-    return /* @__PURE__ */ _(ActivityBurningSignalContext.Provider, { value: { burning, exiting, animation, showBurnAnimation, doneBurning } }, /* @__PURE__ */ _(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
+    return /* @__PURE__ */ k(ActivityBurningSignalContext.Provider, { value: { burning, exiting, animation, showBurnAnimation, doneBurning } }, /* @__PURE__ */ k(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
   }
   function toPromise(fn) {
     return new Promise((resolve) => {
@@ -13314,7 +13694,7 @@
       init_EnvironmentProvider();
       init_ActivityInteractionsContext();
       ACTION_BURN = "burn";
-      ActivityBurningSignalContext = R({
+      ActivityBurningSignalContext = X({
         /** @type {import("@preact/signals").Signal<string[]>} */
         burning: y3([]),
         /** @type {import("@preact/signals").Signal<string[]>} */
@@ -13526,7 +13906,7 @@
         document.removeEventListener("visibilitychange", handler);
       };
     }, [batched]);
-    return /* @__PURE__ */ _(NormalizedDataContext.Provider, { value: { activity, keys } }, /* @__PURE__ */ _(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
+    return /* @__PURE__ */ k(NormalizedDataContext.Provider, { value: { activity, keys } }, /* @__PURE__ */ k(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
   }
   var NormalizedDataContext;
   var init_NormalizeDataProvider = __esm({
@@ -13542,7 +13922,7 @@
       init_ActivityProvider();
       init_ActivityInteractionsContext();
       init_BurnProvider();
-      NormalizedDataContext = R({
+      NormalizedDataContext = X({
         activity: y3(
           /** @type {NormalizedActivity} */
           {}
@@ -13565,36 +13945,36 @@
     const favorite = useComputed(() => activity.value.favorites[url8]);
     const favoriteTitle = favorite.value ? t4("activity_favoriteRemove", { domain: title }) : t4("activity_favoriteAdd", { domain: title });
     const secondaryTitle = canBurn ? t4("activity_burn", { domain: title }) : t4("activity_itemRemove", { domain: title });
-    return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { className: Activity_default.controls }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames19.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames20.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
         value: url8,
         type: "button"
       },
-      favorite.value ? /* @__PURE__ */ _(StarFilled, null) : /* @__PURE__ */ _(Star, null)
-    ), /* @__PURE__ */ _(
+      favorite.value ? /* @__PURE__ */ k(StarFilled, null) : /* @__PURE__ */ k(Star, null)
+    ), /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames19.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames20.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url8,
         type: "button"
       },
-      canBurn ? shouldDisplayLegacyActivity ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(FireIcon, null) : /* @__PURE__ */ _(Cross, null)
+      canBurn ? shouldDisplayLegacyActivity ? /* @__PURE__ */ k(Fire, null) : /* @__PURE__ */ k(FireIcon, null) : /* @__PURE__ */ k(Cross, null)
     ));
   }
-  var import_classnames19, ActivityItem, ActivityItemLegacy;
+  var import_classnames20, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames19 = __toESM(require_classnames(), 1);
+      import_classnames20 = __toESM(require_classnames(), 1);
       init_Activity();
       init_ActivityLegacy();
       init_FaviconWithState2();
@@ -13621,7 +14001,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames19.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames20.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -13633,7 +14013,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url8, title, shouldDisplayLegacyActivity: false })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
+          )), title), /* @__PURE__ */ k(Controls, { canBurn, url: url8, title, shouldDisplayLegacyActivity: false })), /* @__PURE__ */ k("div", { class: Activity_default.body }, children));
         }
       );
       ActivityItemLegacy = N2(
@@ -13649,7 +14029,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames19.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ _("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames20.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -13661,7 +14041,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url8, title })), /* @__PURE__ */ _("div", { class: ActivityLegacy_default.body }, children));
+          )), title), /* @__PURE__ */ k(Controls, { canBurn, url: url8, title })), /* @__PURE__ */ k("div", { class: ActivityLegacy_default.body }, children));
         }
       );
     }
@@ -30018,7 +30398,7 @@
         }
       };
     }, [url8, json, doneBurning]);
-    return /* @__PURE__ */ _("div", { ref, "data-lottie-player": true });
+    return /* @__PURE__ */ k("div", { ref, "data-lottie-player": true });
   }
   var import_lottie_web;
   var init_BurnAnimationLottieWeb = __esm({
@@ -30079,20 +30459,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url8]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames21.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
     y2(() => doneBurning(url8), [url8]);
     return null;
   }
-  var import_classnames20, BurnAnimationLazy;
+  var import_classnames21, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames20 = __toESM(require_classnames(), 1);
+      import_classnames21 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -30119,9 +30499,9 @@
         setExpansion("expanded");
       }
     }
-    return /* @__PURE__ */ _("ul", { class: Activity_default.history, onClick }, history.value.slice(0, current).map((item, index2) => {
+    return /* @__PURE__ */ k("ul", { class: Activity_default.history, onClick }, history.value.slice(0, current).map((item, index2) => {
       const isLast = index2 === current - 1;
-      return /* @__PURE__ */ _(HistoryItem, { key: item.url + item.title, item, isLast, current, min, max });
+      return /* @__PURE__ */ k(HistoryItem, { key: item.url + item.title, item, isLast, current, min, max });
     }));
   }
   function HistoryItemsLegacy({ id }) {
@@ -30142,9 +30522,9 @@
         setExpansion("expanded");
       }
     }
-    return /* @__PURE__ */ _("ul", { class: ActivityLegacy_default.history, onClick }, history.value.slice(0, current).map((item, index2) => {
+    return /* @__PURE__ */ k("ul", { class: ActivityLegacy_default.history, onClick }, history.value.slice(0, current).map((item, index2) => {
       const isLast = index2 === current - 1;
-      return /* @__PURE__ */ _(HistoryItemLegacy, { key: item.url + item.title, item, isLast, current, min, max });
+      return /* @__PURE__ */ k(HistoryItemLegacy, { key: item.url + item.title, item, isLast, current, min, max });
     }));
   }
   function HistoryItem({ item, isLast, current, min, max }) {
@@ -30157,7 +30537,7 @@
     const hiddenCount = max - current;
     const showButton = hasMore || hasLess;
     const buttonLabel = hasMore && isLast ? t4("activity_show_more_history", { count: String(hiddenCount) }) : t4("activity_show_less_history");
-    return /* @__PURE__ */ _("li", { class: Activity_default.historyItem }, /* @__PURE__ */ _("a", { href: item.url, class: Activity_default.historyLink, title: item.url, "data-url": item.url }, item.title), /* @__PURE__ */ _("small", { class: Activity_default.time }, item.relativeTime), isLast && showButton && /* @__PURE__ */ _("button", { "data-action": hasMore && isLast ? "show" : "hide", class: Activity_default.historyBtn, "aria-label": buttonLabel }, /* @__PURE__ */ _(ChevronSmall, null)));
+    return /* @__PURE__ */ k("li", { class: Activity_default.historyItem }, /* @__PURE__ */ k("a", { href: item.url, class: Activity_default.historyLink, title: item.url, "data-url": item.url }, item.title), /* @__PURE__ */ k("small", { class: Activity_default.time }, item.relativeTime), isLast && showButton && /* @__PURE__ */ k("button", { "data-action": hasMore && isLast ? "show" : "hide", class: Activity_default.historyBtn, "aria-label": buttonLabel }, /* @__PURE__ */ k(ChevronSmall, null)));
   }
   function HistoryItemLegacy({ item, isLast, current, min, max }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -30169,7 +30549,7 @@
     const hiddenCount = max - current;
     const showButton = hasMore || hasLess;
     const buttonLabel = hasMore && isLast ? t4("activity_show_more_history", { count: String(hiddenCount) }) : t4("activity_show_less_history");
-    return /* @__PURE__ */ _("li", { class: ActivityLegacy_default.historyItem }, /* @__PURE__ */ _("a", { href: item.url, class: ActivityLegacy_default.historyLink, title: item.url, "data-url": item.url }, item.title), /* @__PURE__ */ _("small", { class: ActivityLegacy_default.time }, item.relativeTime), isLast && showButton && /* @__PURE__ */ _("button", { "data-action": hasMore && isLast ? "show" : "hide", class: ActivityLegacy_default.historyBtn, "aria-label": buttonLabel }, /* @__PURE__ */ _(ChevronSmall, null)));
+    return /* @__PURE__ */ k("li", { class: ActivityLegacy_default.historyItem }, /* @__PURE__ */ k("a", { href: item.url, class: ActivityLegacy_default.historyLink, title: item.url, "data-url": item.url }, item.title), /* @__PURE__ */ k("small", { class: ActivityLegacy_default.time }, item.relativeTime), isLast && showButton && /* @__PURE__ */ k("button", { "data-action": hasMore && isLast ? "show" : "hide", class: ActivityLegacy_default.historyBtn, "aria-label": buttonLabel }, /* @__PURE__ */ k(ChevronSmall, null)));
   }
   var MIN_SHOW_AMOUNT, MAX_SHOW_AMOUNT;
   var init_HistoryItems = __esm({
@@ -30202,22 +30582,22 @@
 
   // pages/new-tab/app/components/TickPill/TickPill.js
   function TickPill({ text: text2, className, displayTick = true }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ _("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ _(Check, null)), /* @__PURE__ */ _("span", { class: TickPill_default.text }, text2));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames22.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
   }
-  var import_classnames21;
+  var import_classnames22;
   var init_TickPill2 = __esm({
     "pages/new-tab/app/components/TickPill/TickPill.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
-      import_classnames21 = __toESM(require_classnames(), 1);
+      import_classnames22 = __toESM(require_classnames(), 1);
       init_TickPill();
     }
   });
 
   // pages/new-tab/app/activity/components/Activity.js
   function Activity({ itemCount, batched, shouldDisplayLegacyActivity, children }) {
-    return /* @__PURE__ */ _("div", { class: Activity_default.root, "data-testid": "Activity" }, itemCount === 0 && /* @__PURE__ */ _(ActivityEmptyState, { shouldDisplayLegacyActivity }), itemCount > 0 && children, batched && itemCount > 0 && /* @__PURE__ */ _(Loader, null));
+    return /* @__PURE__ */ k("div", { class: Activity_default.root, "data-testid": "Activity" }, itemCount === 0 && /* @__PURE__ */ k(ActivityEmptyState, { shouldDisplayLegacyActivity }), itemCount > 0 && children, batched && itemCount > 0 && /* @__PURE__ */ k(Loader, null));
   }
   function ActivityEmptyState({ shouldDisplayLegacyActivity }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -30225,7 +30605,7 @@
       {}
     );
     const ProtectionsEmptyComponent = shouldDisplayLegacyActivity ? ProtectionsEmptyLegacy : ProtectionsEmpty;
-    return /* @__PURE__ */ _(ProtectionsEmptyComponent, null, /* @__PURE__ */ _("p", null, t4("activity_empty")));
+    return /* @__PURE__ */ k(ProtectionsEmptyComponent, null, /* @__PURE__ */ k("p", null, t4("activity_empty")));
   }
   function ActivityBody({ canBurn, visibility, shouldDisplayLegacyActivity }) {
     const { isReducedMotion } = useEnv();
@@ -30235,9 +30615,9 @@
     const { didClick } = x2(ActivityInteractionsContext);
     const ref = A2(null);
     useOnMiddleClick(ref, didClick);
-    return /* @__PURE__ */ _("ul", { class: Activity_default.activity, "data-busy": busy, ref, onClick: didClick }, keys.value.map((id, _index) => {
+    return /* @__PURE__ */ k("ul", { class: Activity_default.activity, "data-busy": busy, ref, onClick: didClick }, keys.value.map((id, _index) => {
       if (canBurn && !isReducedMotion) {
-        return /* @__PURE__ */ _(
+        return /* @__PURE__ */ k(
           BurnableItem,
           {
             id,
@@ -30247,7 +30627,7 @@
           }
         );
       }
-      return /* @__PURE__ */ _(
+      return /* @__PURE__ */ k(
         RemovableItem,
         {
           id,
@@ -30279,7 +30659,7 @@
         }
       };
     }, []);
-    return /* @__PURE__ */ _("div", { class: Activity_default.loader, ref: loaderRef }, "Loading...");
+    return /* @__PURE__ */ k("div", { class: Activity_default.loader, ref: loaderRef }, "Loading...");
   }
   function TrackerStatus({ id, trackersFound }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -30293,7 +30673,7 @@
     const totalTrackersPillText = totalTrackersBlocked === 0 ? trackersFound ? t4("activity_no_trackers_blocked") : t4("activity_no_trackers") : t4(totalTrackersBlocked === 1 ? "activity_countBlockedSingular" : "activity_countBlockedPlural", {
       count: String(totalTrackersBlocked)
     });
-    return /* @__PURE__ */ _("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ _("div", { class: Activity_default.companiesText }, /* @__PURE__ */ _(TickPill, { text: totalTrackersPillText, displayTick: totalTrackersBlocked > 0 }), cookiePopUpBlocked && /* @__PURE__ */ _(TickPill, { text: t4("activity_cookiePopUpBlocked") })));
+    return /* @__PURE__ */ k("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ k("div", { class: Activity_default.companiesText }, /* @__PURE__ */ k(TickPill, { text: totalTrackersPillText, displayTick: totalTrackersBlocked > 0 }), cookiePopUpBlocked && /* @__PURE__ */ k(TickPill, { text: t4("activity_cookiePopUpBlocked") })));
   }
   function TrackerStatusLegacy({ id, trackersFound }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -30306,12 +30686,12 @@
     const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
     const adBlocking = useAdBlocking();
     const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, _index) => {
-      return /* @__PURE__ */ _(CompanyIcon, { displayName: item.displayName, key: item });
+      return /* @__PURE__ */ k(CompanyIcon, { displayName: item.displayName, key: item });
     });
     let otherIcon = null;
     if (other.length > 0) {
       const title = other.map((item) => item.displayName).join("\n");
-      otherIcon = /* @__PURE__ */ _("span", { title, class: ActivityLegacy_default.otherIcon }, "+", other.length);
+      otherIcon = /* @__PURE__ */ k("span", { title, class: ActivityLegacy_default.otherIcon }, "+", other.length);
     }
     if (status.value.totalCount === 0) {
       let text2;
@@ -30320,9 +30700,9 @@
       } else {
         text2 = adBlocking ? t4("activity_no_adsAndTrackers") : t4("activity_no_trackers");
       }
-      return /* @__PURE__ */ _("p", { class: ActivityLegacy_default.companiesIconRow, "data-testid": "TrackerStatus" }, text2);
+      return /* @__PURE__ */ k("p", { class: ActivityLegacy_default.companiesIconRow, "data-testid": "TrackerStatus" }, text2);
     }
-    return /* @__PURE__ */ _("div", { class: ActivityLegacy_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ _("div", { class: ActivityLegacy_default.companiesIcons }, icons, otherIcon), /* @__PURE__ */ _("div", { class: ActivityLegacy_default.companiesText }, adBlocking ? /* @__PURE__ */ _(Trans, { str: t4("activity_countBlockedAdsAndTrackersPlural", { count: String(status.value.totalCount) }), values: {} }) : /* @__PURE__ */ _(Trans, { str: t4("activity_countBlockedPluralLegacy", { count: String(status.value.totalCount) }), values: {} })));
+    return /* @__PURE__ */ k("div", { class: ActivityLegacy_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.companiesIcons }, icons, otherIcon), /* @__PURE__ */ k("div", { class: ActivityLegacy_default.companiesText }, adBlocking ? /* @__PURE__ */ k(Trans, { str: t4("activity_countBlockedAdsAndTrackersPlural", { count: String(status.value.totalCount) }), values: {} }) : /* @__PURE__ */ k(Trans, { str: t4("activity_countBlockedPluralLegacy", { count: String(status.value.totalCount) }), values: {} })));
   }
   function ActivityConfigured({ shouldDisplayLegacyActivity, children }) {
     const batched = useBatchedActivityApi();
@@ -30330,7 +30710,7 @@
     const itemCount = useComputed(() => {
       return Object.keys(activity.value.items).length;
     });
-    return /* @__PURE__ */ _(Activity, { batched, itemCount: itemCount.value, shouldDisplayLegacyActivity }, children);
+    return /* @__PURE__ */ k(Activity, { batched, itemCount: itemCount.value, shouldDisplayLegacyActivity }, children);
   }
   function ActivityConsumer({ showBurnAnimation, shouldDisplayLegacyActivity }) {
     const { state } = x2(ActivityContext);
@@ -30339,9 +30719,9 @@
     const visibility = useDocumentVisibility();
     if (service && state.status === "ready") {
       if (platformName === "windows") {
-        return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(ActivityConfigured, { shouldDisplayLegacyActivity }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility, shouldDisplayLegacyActivity })));
+        return /* @__PURE__ */ k(SignalStateProvider, null, /* @__PURE__ */ k(ActivityConfigured, { shouldDisplayLegacyActivity }, /* @__PURE__ */ k(ActivityBody, { canBurn: false, visibility, shouldDisplayLegacyActivity })));
       }
-      return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(BurnProvider, { service, showBurnAnimation }, /* @__PURE__ */ _(ActivityConfigured, { shouldDisplayLegacyActivity }, /* @__PURE__ */ _(ActivityBody, { canBurn: true, visibility, shouldDisplayLegacyActivity }))));
+      return /* @__PURE__ */ k(SignalStateProvider, null, /* @__PURE__ */ k(BurnProvider, { service, showBurnAnimation }, /* @__PURE__ */ k(ActivityConfigured, { shouldDisplayLegacyActivity }, /* @__PURE__ */ k(ActivityBody, { canBurn: true, visibility, shouldDisplayLegacyActivity }))));
     }
     return null;
   }
@@ -30386,7 +30766,7 @@
           }
           const ActivityItemComponent = shouldDisplayLegacyActivity ? ActivityItemLegacy : ActivityItem;
           const HistoryItemsComponent = shouldDisplayLegacyActivity ? HistoryItemsLegacy : HistoryItems;
-          return /* @__PURE__ */ _(ActivityItemAnimationWrapper, { url: id }, /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(ActivityItemAnimationWrapper, { url: id }, /* @__PURE__ */ k(
             ActivityItemComponent,
             {
               title: item.value.title,
@@ -30401,9 +30781,9 @@
               // @todo legacyProtections: `TrackerStatusLegacy` and
               // supporting prop can be removed once all platforms are
               // ready for the new protections report
-              /* @__PURE__ */ _(TrackerStatusLegacy, { id, trackersFound: item.value.trackersFound })
-            ) : /* @__PURE__ */ _(TrackerStatus, { id, trackersFound: item.value.trackersFound }),
-            /* @__PURE__ */ _(HistoryItemsComponent, { id })
+              /* @__PURE__ */ k(TrackerStatusLegacy, { id, trackersFound: item.value.trackersFound })
+            ) : /* @__PURE__ */ k(TrackerStatus, { id, trackersFound: item.value.trackersFound }),
+            /* @__PURE__ */ k(HistoryItemsComponent, { id })
           ));
         }
       );
@@ -30419,11 +30799,11 @@
           const { activity } = x2(NormalizedDataContext);
           const item = useComputed(() => activity.value.items[id]);
           if (!item.value) {
-            return /* @__PURE__ */ _("p", { "data-testid": "ActivityItem", "data-state": "loading", "data-id": id, hidden: true }, "Loading: ", id);
+            return /* @__PURE__ */ k("p", { "data-testid": "ActivityItem", "data-state": "loading", "data-id": id, hidden: true }, "Loading: ", id);
           }
           const ActivityItemComponent = shouldDisplayLegacyActivity ? ActivityItemLegacy : ActivityItem;
           const HistoryItemsComponent = shouldDisplayLegacyActivity ? HistoryItemsLegacy : HistoryItems;
-          return /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(
             ActivityItemComponent,
             {
               title: item.value.title,
@@ -30438,9 +30818,9 @@
               // @todo legacyProtections: `TrackerStatusLegacy` and
               // supporting prop can be removed once all platforms are
               // ready for the new protections report
-              /* @__PURE__ */ _(TrackerStatusLegacy, { id, trackersFound: item.value.trackersFound })
-            ) : /* @__PURE__ */ _(TrackerStatus, { id, trackersFound: item.value.trackersFound }),
-            /* @__PURE__ */ _(HistoryItemsComponent, { id })
+              /* @__PURE__ */ k(TrackerStatusLegacy, { id, trackersFound: item.value.trackersFound })
+            ) : /* @__PURE__ */ k(TrackerStatus, { id, trackersFound: item.value.trackersFound }),
+            /* @__PURE__ */ k(HistoryItemsComponent, { id })
           );
         }
       );
@@ -30506,7 +30886,7 @@
     const service = useService8();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
-    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ k(PrivacyStatsContext.Provider, { value: { state } }, /* @__PURE__ */ k(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService8() {
     const service = A2(
@@ -30532,11 +30912,11 @@
       init_types();
       init_privacy_stats_service();
       init_service_hooks();
-      PrivacyStatsContext = R({
+      PrivacyStatsContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null }
       });
-      PrivacyStatsDispatchContext = R(
+      PrivacyStatsDispatchContext = X(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -30568,7 +30948,7 @@
         }
       };
     }, [messaging2]);
-    return /* @__PURE__ */ _(BodyExpansionApiContext.Provider, { value: bodyExpansionApi }, /* @__PURE__ */ _(BodyExpansionContext.Provider, { value: bodyExpansion }, props.children));
+    return /* @__PURE__ */ k(BodyExpansionApiContext.Provider, { value: bodyExpansionApi }, /* @__PURE__ */ k(BodyExpansionContext.Provider, { value: bodyExpansion }, props.children));
   }
   var BodyExpansionApiContext, BodyExpansionContext;
   var init_BodyExpansionProvider = __esm({
@@ -30577,13 +30957,13 @@
       init_preact_module();
       init_hooks_module();
       init_types();
-      BodyExpansionApiContext = R({
+      BodyExpansionApiContext = X({
         showMore() {
         },
         showLess() {
         }
       });
-      BodyExpansionContext = R(
+      BodyExpansionContext = X(
         /** @type {import('../../../types/new-tab').Expansion} */
         "collapsed"
       );
@@ -30617,17 +30997,17 @@
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
     const visibleRows = expansion === "expanded" ? sorted : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.body }, sorted.length === 0 && /* @__PURE__ */ _(PrivacyStatsEmptyState, null), sorted.length > 0 && /* @__PURE__ */ _(CompanyList, { rows: visibleRows, largestTrackerCount, formatter }), sorted.length > 0 && /* @__PURE__ */ _(ListFooter, { all: sorted }));
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.body }, sorted.length === 0 && /* @__PURE__ */ k(PrivacyStatsEmptyState, null), sorted.length > 0 && /* @__PURE__ */ k(CompanyList, { rows: visibleRows, largestTrackerCount, formatter }), sorted.length > 0 && /* @__PURE__ */ k(ListFooter, { all: sorted }));
   }
   function PrivacyStatsEmptyState() {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {import("../strings.json")} */
       {}
     );
-    return /* @__PURE__ */ _(ProtectionsEmpty, null, t4("stats_noActivity"));
+    return /* @__PURE__ */ k(ProtectionsEmpty, null, t4("stats_noActivity"));
   }
   function CompanyList({ rows, formatter, largestTrackerCount }) {
-    return /* @__PURE__ */ _("ul", { class: PrivacyStats_default.list, "data-testid": "CompanyList" }, rows.map((company) => {
+    return /* @__PURE__ */ k("ul", { class: PrivacyStats_default.list, "data-testid": "CompanyList" }, rows.map((company) => {
       const percentage = Math.min(company.count * 100 / largestTrackerCount, 100);
       const valueOrMin = Math.max(percentage, 10);
       const inlineStyles = {
@@ -30638,7 +31018,7 @@
       if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
         return null;
       }
-      return /* @__PURE__ */ _("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { className: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { displayName }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
+      return /* @__PURE__ */ k("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ k("div", { className: PrivacyStats_default.company }, /* @__PURE__ */ k(CompanyIcon, { displayName }), /* @__PURE__ */ k("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ k("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ k("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ k("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
     }));
   }
   function ListFooter({ all: all2 }) {
@@ -30666,22 +31046,22 @@
       switch (state) {
         case "few_other":
         case "few_top+other": {
-          return /* @__PURE__ */ _(OtherText, { count: lastElement.count });
+          return /* @__PURE__ */ k(OtherText, { count: lastElement.count });
         }
         case "many_top_collapsed":
         case "many_top_expanded":
         case "many_top+other_collapsed": {
-          return /* @__PURE__ */ _(PillShowMoreLess, { expansion });
+          return /* @__PURE__ */ k(PillShowMoreLess, { expansion });
         }
         case "many_top+other_expanded":
-          return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(OtherText, { count: lastElement.count }), /* @__PURE__ */ _(PillShowMoreLess, { expansion }));
+          return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(OtherText, { count: lastElement.count }), /* @__PURE__ */ k(PillShowMoreLess, { expansion }));
         case "few_top":
         default:
           return null;
       }
     })();
     if (contents === null) return null;
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.listFooter, "data-testid": "ListFooter" }, contents);
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.listFooter, "data-testid": "ListFooter" }, contents);
   }
   function PillShowMoreLess({ expansion }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -30696,7 +31076,7 @@
         showLess();
       }
     };
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.listExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.listExpander }, /* @__PURE__ */ k(
       ShowHideButtonPill,
       {
         onClick: toggleListExpansion,
@@ -30719,7 +31099,7 @@
     const [formatter] = d2(() => getLocalizedNumberFormatter(locale));
     const formattedCount = formatter.format(count);
     const otherText2 = t4("stats_otherCount", { count: String(formattedCount) });
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.otherTrackersRow }, otherText2);
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.otherTrackersRow }, otherText2);
   }
   var init_PrivacyStats2 = __esm({
     "pages/new-tab/app/privacy-stats/components/PrivacyStats.js"() {
@@ -30744,7 +31124,7 @@
     const { state } = x2(PrivacyStatsContext);
     const secondaryExpansion = useBodyExpansion();
     if (state.status === "ready") {
-      return /* @__PURE__ */ _(PrivacyStats, { expansion: secondaryExpansion, trackerCompanies: state.data.trackerCompanies });
+      return /* @__PURE__ */ k(PrivacyStats, { expansion: secondaryExpansion, trackerCompanies: state.data.trackerCompanies });
     }
     return null;
   }
@@ -30763,7 +31143,7 @@
   function ProtectionsConsumer() {
     const { state } = x2(ProtectionsContext);
     if (state.status === "ready") {
-      return /* @__PURE__ */ _(ProtectionsReadyState, { data: state.data, config: state.config });
+      return /* @__PURE__ */ k(ProtectionsReadyState, { data: state.data, config: state.config });
     }
     return null;
   }
@@ -30771,7 +31151,7 @@
     const { toggle, setFeed } = x2(ProtectionsContext);
     const blockedCountSignal = useBlockedCount(data2.totalCount);
     const totalCookiePopUpsBlockedSignal = useCookiePopUpsBlockedCount(data2.totalCookiePopUpsBlocked);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       Protections,
       {
         blockedCountSignal,
@@ -30782,14 +31162,14 @@
         totalCookiePopUpsBlockedSignal,
         showProtectionsReportNewLabel: config.showProtectionsReportNewLabel
       },
-      config.feed === "activity" && /* @__PURE__ */ _(ActivityProvider, null, /* @__PURE__ */ _(
+      config.feed === "activity" && /* @__PURE__ */ k(ActivityProvider, null, /* @__PURE__ */ k(
         ActivityConsumer,
         {
           showBurnAnimation: config.showBurnAnimation ?? true,
           shouldDisplayLegacyActivity: totalCookiePopUpsBlockedSignal.value === void 0
         }
       )),
-      config.feed === "privacy-stats" && /* @__PURE__ */ _(PrivacyStatsProvider, null, /* @__PURE__ */ _(BodyExpanderProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null)))
+      config.feed === "privacy-stats" && /* @__PURE__ */ k(PrivacyStatsProvider, null, /* @__PURE__ */ k(BodyExpanderProvider, null, /* @__PURE__ */ k(PrivacyStatsConsumer, null)))
     );
   }
   var init_ProtectionsConsumer = __esm({
@@ -30815,11 +31195,11 @@
     );
     const sectionTitle = t4("protections_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
-    useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ _(Shield, null), toggle, visibility: visibility.value, index: index2, enabled: true });
+    useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ k(Shield, null), toggle, visibility: visibility.value, index: index2, enabled: true });
     if (visibility.value === "hidden") {
       return null;
     }
-    return /* @__PURE__ */ _(ProtectionsProvider, null, /* @__PURE__ */ _(ProtectionsConsumer, null));
+    return /* @__PURE__ */ k(ProtectionsProvider, null, /* @__PURE__ */ k(ProtectionsConsumer, null));
   }
   var init_ProtectionsCustomized = __esm({
     "pages/new-tab/app/protections/components/ProtectionsCustomized.js"() {
@@ -30840,7 +31220,7 @@
     factory: () => factory8
   });
   function factory8() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "protections" }, /* @__PURE__ */ _(ProtectionsCustomized, null));
+    return /* @__PURE__ */ k(Centered, { "data-entry-point": "protections" }, /* @__PURE__ */ k(ProtectionsCustomized, null));
   }
   var init_protections = __esm({
     "pages/new-tab/app/entry-points/protections.js"() {
@@ -30968,7 +31348,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ _(RMFDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ k(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ k(RMFDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService9() {
     const service = A2(
@@ -30994,7 +31374,7 @@
       init_types();
       init_rmf_service();
       init_service_hooks();
-      RMFContext = R({
+      RMFContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {(id: string) => void} */
@@ -31010,7 +31390,7 @@
           throw new Error("must implement secondaryAction" + id);
         }
       });
-      RMFDispatchContext = R(
+      RMFDispatchContext = X(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -31021,12 +31401,12 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames22.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames23.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ k(S, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ k(S, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ k(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
     if (state.status === "ready" && state.data.content) {
-      return /* @__PURE__ */ _(
+      return /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: state.data.content,
@@ -31038,12 +31418,12 @@
     }
     return null;
   }
-  var import_classnames22;
+  var import_classnames23;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames22 = __toESM(require_classnames(), 1);
+      import_classnames23 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -31059,7 +31439,7 @@
     factory: () => factory9
   });
   function factory9() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "rmf" }, /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null)));
+    return /* @__PURE__ */ k(Centered, { "data-entry-point": "rmf" }, /* @__PURE__ */ k(RMFProvider, null, /* @__PURE__ */ k(RMFConsumer, null)));
   }
   var init_rmf = __esm({
     "pages/new-tab/app/entry-points/rmf.js"() {
@@ -31174,7 +31554,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(SubscriptionWinBackBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ _(SubscriptionWinBackBannerDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ k(SubscriptionWinBackBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ k(SubscriptionWinBackBannerDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService10() {
     const service = A2(
@@ -31200,7 +31580,7 @@
       init_types();
       init_subscriptionWinBackBanner_service();
       init_service_hooks();
-      SubscriptionWinBackBannerContext = R({
+      SubscriptionWinBackBannerContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {(id: string) => void} */
@@ -31212,7 +31592,7 @@
           throw new Error("must implement action" + id);
         }
       });
-      SubscriptionWinBackBannerDispatchContext = R(
+      SubscriptionWinBackBannerDispatchContext = X(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -31222,20 +31602,20 @@
   // pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js
   function SubscriptionWinBackBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames23.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ _("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ _("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames24.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
     if (state.status === "ready" && state.data.content) {
-      return /* @__PURE__ */ _(SubscriptionWinBackBanner, { message: state.data.content, action, dismiss });
+      return /* @__PURE__ */ k(SubscriptionWinBackBanner, { message: state.data.content, action, dismiss });
     }
     return null;
   }
-  var import_classnames23;
+  var import_classnames24;
   var init_SubscriptionWinBackBanner2 = __esm({
     "pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js"() {
       "use strict";
-      import_classnames23 = __toESM(require_classnames(), 1);
+      import_classnames24 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -31252,7 +31632,7 @@
     factory: () => factory10
   });
   function factory10() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "subscriptionWinBackBanner" }, /* @__PURE__ */ _(SubscriptionWinBackBannerProvider, null, /* @__PURE__ */ _(SubscriptionWinBackBannerConsumer, null)));
+    return /* @__PURE__ */ k(Centered, { "data-entry-point": "subscriptionWinBackBanner" }, /* @__PURE__ */ k(SubscriptionWinBackBannerProvider, null, /* @__PURE__ */ k(SubscriptionWinBackBannerConsumer, null)));
   }
   var init_subscriptionWinBackBanner = __esm({
     "pages/new-tab/app/entry-points/subscriptionWinBackBanner.js"() {
@@ -31336,7 +31716,7 @@
     if (updateNotification === null) {
       return null;
     }
-    return /* @__PURE__ */ _(UpdateNotificationWithInitial, { updateNotification }, props.children);
+    return /* @__PURE__ */ k(UpdateNotificationWithInitial, { updateNotification }, props.children);
   }
   function UpdateNotificationWithInitial({ updateNotification, children }) {
     const initial = (
@@ -31353,7 +31733,7 @@
     const dismiss = q2(() => {
       service.current?.dismiss();
     }, [service]);
-    return /* @__PURE__ */ _(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ _(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
+    return /* @__PURE__ */ k(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ k(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
   }
   function useService11(initial) {
     const service = A2(
@@ -31379,7 +31759,7 @@
       init_types();
       init_update_notification_service();
       init_service_hooks();
-      UpdateNotificationContext = R({
+      UpdateNotificationContext = X({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -31387,7 +31767,7 @@
           throw new Error("must implement dismiss");
         }
       });
-      UpdateNotificationDispatchContext = R(
+      UpdateNotificationDispatchContext = X(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -31396,7 +31776,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -31408,7 +31788,7 @@
       /** @type {import("../strings.json")} */
       {}
     );
-    const inlineLink = /* @__PURE__ */ _(
+    const inlineLink = /* @__PURE__ */ k(
       Trans,
       {
         str: t4("updateNotification_whats_new"),
@@ -31438,9 +31818,9 @@
         index2 += 1;
       }
     }
-    return /* @__PURE__ */ _("details", { ref }, /* @__PURE__ */ _("summary", { tabIndex: -1, className: UpdateNotification_default.summary }, t4("updateNotification_updated_version", { version }), " ", inlineLink), /* @__PURE__ */ _("div", { id, class: UpdateNotification_default.detailsContent }, chunks.map((chunk, index3) => {
-      return /* @__PURE__ */ _(k, { key: chunk.title + index3 }, chunk.title && /* @__PURE__ */ _("p", { class: UpdateNotification_default.title }, chunk.title), /* @__PURE__ */ _("ul", { class: UpdateNotification_default.list }, chunk.notes.map((note, index4) => {
-        return /* @__PURE__ */ _("li", { key: note + index4 }, note);
+    return /* @__PURE__ */ k("details", { ref }, /* @__PURE__ */ k("summary", { tabIndex: -1, className: UpdateNotification_default.summary }, t4("updateNotification_updated_version", { version }), " ", inlineLink), /* @__PURE__ */ k("div", { id, class: UpdateNotification_default.detailsContent }, chunks.map((chunk, index3) => {
+      return /* @__PURE__ */ k(S, { key: chunk.title + index3 }, chunk.title && /* @__PURE__ */ k("p", { class: UpdateNotification_default.title }, chunk.title), /* @__PURE__ */ k("ul", { class: UpdateNotification_default.list }, chunk.notes.map((note, index4) => {
+        return /* @__PURE__ */ k("li", { key: note + index4 }, note);
       })));
     })));
   }
@@ -31449,21 +31829,21 @@
       /** @type {import("../strings.json")} */
       {}
     );
-    return /* @__PURE__ */ _("p", null, t4("updateNotification_updated_version", { version }));
+    return /* @__PURE__ */ k("p", null, t4("updateNotification_updated_version", { version }));
   }
   function UpdateNotificationConsumer() {
     const { state, dismiss } = x2(UpdateNotificationContext);
     if (state.status === "ready" && state.data.content) {
-      return /* @__PURE__ */ _(UpdateNotification, { notes: state.data.content.notes, version: state.data.content.version, dismiss });
+      return /* @__PURE__ */ k(UpdateNotification, { notes: state.data.content.notes, version: state.data.content.version, dismiss });
     }
     return null;
   }
-  var import_classnames24;
+  var import_classnames25;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames24 = __toESM(require_classnames(), 1);
+      import_classnames25 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -31479,7 +31859,7 @@
     factory: () => factory11
   });
   function factory11() {
-    return /* @__PURE__ */ _("div", { "data-entry-point": "updateNotification" }, /* @__PURE__ */ _(UpdateNotificationProvider, null, /* @__PURE__ */ _(UpdateNotificationConsumer, null)));
+    return /* @__PURE__ */ k("div", { "data-entry-point": "updateNotification" }, /* @__PURE__ */ k(UpdateNotificationProvider, null, /* @__PURE__ */ k(UpdateNotificationConsumer, null)));
   }
   var init_updateNotification = __esm({
     "pages/new-tab/app/entry-points/updateNotification.js"() {
@@ -31493,7 +31873,7 @@
   // ../node_modules/preact/devtools/dist/devtools.module.js
   init_preact_module();
   var i2;
-  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.0", l, { Fragment: k, Component: x });
+  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.1", l, { Fragment: S, Component: C });
 
   // pages/new-tab/src/index.js
   init_preact_module();
@@ -31503,7 +31883,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames35 = __toESM(require_classnames(), 1);
+  var import_classnames36 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -31533,7 +31913,7 @@
 
   // shared/components/ErrorBoundary.js
   init_preact_module();
-  var ErrorBoundary = class extends x {
+  var ErrorBoundary = class extends C {
     constructor(props) {
       super(props);
       this.state = { hasError: false };
@@ -31570,8 +31950,8 @@
       const formatted = format?.(message) || message;
       messaging2.reportPageException({ message: formatted });
     };
-    const fallbackElement = fallback?.(INLINE_ERROR) || /* @__PURE__ */ _("p", null, INLINE_ERROR);
-    return /* @__PURE__ */ _(ErrorBoundary, { context, didCatch: ({ message }) => didCatch(message), fallback: fallbackElement }, children);
+    const fallbackElement = fallback?.(INLINE_ERROR) || /* @__PURE__ */ k("p", null, INLINE_ERROR);
+    return /* @__PURE__ */ k(ErrorBoundary, { context, didCatch: ({ message }) => didCatch(message), fallback: fallbackElement }, children);
   }
 
   // pages/new-tab/app/telemetry/Debug.js
@@ -31742,18 +32122,18 @@
     useCustomizer({
       title: "\u{1F41E} Debug",
       id: "_debug",
-      icon: /* @__PURE__ */ _(Shield, null),
+      icon: /* @__PURE__ */ k(Shield, null),
       visibility: isOpen ? "visible" : "hidden",
       toggle: (_id) => setOpen((prev) => !prev),
       index: index2,
       enabled: true
     });
-    return /* @__PURE__ */ _("div", null, isOpen && /* @__PURE__ */ _(Debug, { telemetry: telemetry2, isOpen: true }));
+    return /* @__PURE__ */ k("div", null, isOpen && /* @__PURE__ */ k(Debug, { telemetry: telemetry2, isOpen: true }));
   }
   function Debug({ telemetry: telemetry2, isOpen }) {
     const textRef = A2(null);
     useEvents(textRef, telemetry2);
-    return /* @__PURE__ */ _("div", { hidden: !isOpen }, /* @__PURE__ */ _("textarea", { style: { width: "100%" }, rows: 20, ref: textRef }));
+    return /* @__PURE__ */ k("div", { hidden: !isOpen }, /* @__PURE__ */ k("textarea", { style: { width: "100%" }, rows: 20, ref: textRef }));
   }
   function useEvents(ref, telemetry2) {
     y2(() => {
@@ -31825,22 +32205,22 @@
       const composed = `Widget '${id}' threw an exception: ` + message;
       messaging2.reportPageException({ message: composed });
     };
-    return /* @__PURE__ */ _(k, null, widgets.map((widget, index2) => {
+    return /* @__PURE__ */ k(S, null, widgets.map((widget, index2) => {
       const isUserConfigurable = widgetConfigItems.find((item) => item.id === widget.id);
       const matchingEntryPoint = entryPoints[widget.id];
       if (!isUserConfigurable) {
-        return /* @__PURE__ */ _(ErrorBoundary, { key: widget.id, didCatch: ({ message }) => didCatch(message, widget.id), fallback: null }, /* @__PURE__ */ _(WidgetLoader, { fn: matchingEntryPoint.factory }));
+        return /* @__PURE__ */ k(ErrorBoundary, { key: widget.id, didCatch: ({ message }) => didCatch(message, widget.id), fallback: null }, /* @__PURE__ */ k(WidgetLoader, { fn: matchingEntryPoint.factory }));
       }
-      return /* @__PURE__ */ _(WidgetVisibilityProvider, { key: widget.id, id: widget.id, index: index2 }, /* @__PURE__ */ _(
+      return /* @__PURE__ */ k(WidgetVisibilityProvider, { key: widget.id, id: widget.id, index: index2 }, /* @__PURE__ */ k(
         ErrorBoundary,
         {
           key: widget.id,
           didCatch: ({ message }) => didCatch(message, widget.id),
-          fallback: /* @__PURE__ */ _(Centered, { "data-entry-point": widget.id }, /* @__PURE__ */ _(VerticalSpace, null, /* @__PURE__ */ _("p", null, INLINE_ERROR), /* @__PURE__ */ _("p", null, "Widget ID: ", widget.id)))
+          fallback: /* @__PURE__ */ k(Centered, { "data-entry-point": widget.id }, /* @__PURE__ */ k(VerticalSpace, null, /* @__PURE__ */ k("p", null, INLINE_ERROR), /* @__PURE__ */ k("p", null, "Widget ID: ", widget.id)))
         },
-        /* @__PURE__ */ _(WidgetLoader, { fn: matchingEntryPoint.factory })
+        /* @__PURE__ */ k(WidgetLoader, { fn: matchingEntryPoint.factory })
       ));
-    }), env === "development" && /* @__PURE__ */ _(Centered, { "data-entry-point": "debug" }, /* @__PURE__ */ _(DebugCustomized, { index: widgets.length, isOpenInitially: window.location.search.includes("debugWidget") })));
+    }), env === "development" && /* @__PURE__ */ k(Centered, { "data-entry-point": "debug" }, /* @__PURE__ */ k(DebugCustomized, { index: widgets.length, isOpenInitially: window.location.search.includes("debugWidget") })));
   }
   function WidgetLoader({ fn }) {
     const result = fn?.();
@@ -31867,7 +32247,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames34 = __toESM(require_classnames(), 1);
+  var import_classnames35 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -31903,7 +32283,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames25 = __toESM(require_classnames(), 1);
+  var import_classnames26 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -31928,20 +32308,20 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ _("ul", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("ul", { class: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
         onClick: () => select({ background: { kind: "default" } })
       }
-    )), /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    )), /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       ColorPanel,
       {
         checked: data2.value.background.kind === "color" || data2.value.background.kind === "hex",
         color: displayColor,
         onClick: () => onNav("color")
       }
-    )), /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(GradientPanel, { checked: data2.value.background.kind === "gradient", gradient, onClick: () => onNav("gradient") })), /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    )), /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(GradientPanel, { checked: data2.value.background.kind === "gradient", gradient, onClick: () => onNav("gradient") })), /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       BackgroundImagePanel,
       {
         checked: data2.value.background.kind === "userImage",
@@ -31959,10 +32339,10 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -31970,8 +32350,8 @@
         onClick,
         tabindex: checked ? -1 : 0
       },
-      checked && /* @__PURE__ */ _(CircleCheck, null)
-    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_default")));
+      checked && /* @__PURE__ */ k(CircleCheck, null)
+    ), /* @__PURE__ */ k("span", { id }, t4("customizer_background_selection_default")));
   }
   function ColorPanel(props) {
     const id = g2();
@@ -31979,10 +32359,10 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -31991,8 +32371,8 @@
         role: "radio",
         style: { background: props.color.hex }
       },
-      props.checked && /* @__PURE__ */ _(CircleCheck, null)
-    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_color")));
+      props.checked && /* @__PURE__ */ k(CircleCheck, null)
+    ), /* @__PURE__ */ k("span", { id }, t4("customizer_background_selection_color")));
   }
   function GradientPanel(props) {
     const id = g2();
@@ -32000,11 +32380,11 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -32016,8 +32396,8 @@
           backgroundPosition: "center center"
         }
       },
-      props.checked && /* @__PURE__ */ _(CircleCheck, null)
-    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_gradient")));
+      props.checked && /* @__PURE__ */ k(CircleCheck, null)
+    ), /* @__PURE__ */ k("span", { id }, t4("customizer_background_selection_gradient")));
   }
   function BackgroundImagePanel(props) {
     const id = g2();
@@ -32039,27 +32419,27 @@
     const firstImage = useComputed(() => {
       return props.data.value.userImages[0] ?? null;
     });
-    const label = empty.value === true ? /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_image_add")) : /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_image_existing"));
+    const label = empty.value === true ? /* @__PURE__ */ k("span", { id }, t4("customizer_background_selection_image_add")) : /* @__PURE__ */ k("span", { id }, t4("customizer_background_selection_image_existing"));
     if (empty.value === true) {
-      return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
+      return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
         "button",
         {
-          class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
           role: "radio",
           onClick: props.upload
         },
-        /* @__PURE__ */ _(PlusIcon, null)
+        /* @__PURE__ */ k(PlusIcon, null)
       ), label);
     }
     const image = selectedImage.value !== null ? selectedImage.value?.thumb : firstImage.value?.thumb;
     const scheme = selectedImage.value !== null ? selectedImage.value?.colorScheme : firstImage.value?.colorScheme;
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames26.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -32070,7 +32450,7 @@
           backgroundRepeat: "no-repeat"
         }
       },
-      props.checked && /* @__PURE__ */ _(CircleCheck, null)
+      props.checked && /* @__PURE__ */ k(CircleCheck, null)
     ), label);
   }
 
@@ -32085,7 +32465,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames26 = __toESM(require_classnames(), 1);
+  var import_classnames27 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -32095,46 +32475,46 @@
       /** @type {strings} */
       {}
     );
-    return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames26.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames27.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
         tabindex: current.value === "light" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "light" })
       },
-      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "light" }))
-    ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
+      /* @__PURE__ */ k("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "light" }))
+    ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames26.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames27.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
         tabindex: current.value === "dark" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "dark" })
       },
-      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "dark" }))
-    ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
+      /* @__PURE__ */ k("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "dark" }))
+    ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames26.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames27.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
         tabindex: current.value === "system" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "system" })
       },
-      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "system" }))
-    ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_system"))));
+      /* @__PURE__ */ k("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "system" }))
+    ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_system"))));
   }
 
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_preact_module();
   init_signals_module();
-  var import_classnames27 = __toESM(require_classnames(), 1);
+  var import_classnames28 = __toESM(require_classnames(), 1);
   init_types();
 
   // pages/new-tab/app/customizer/components/ThemeSection.module.css
@@ -32174,16 +32554,16 @@
       {}
     );
     const locale = useLocale();
-    return /* @__PURE__ */ _("div", { class: ThemeSection_default.root }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: ThemeSection_default.root }, /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames27.default)(ThemeSection_default.segmentedControl, {
+        class: (0, import_classnames28.default)(ThemeSection_default.segmentedControl, {
           [ThemeSection_default.vertical]: ["pl", "ru"].includes(locale)
         }),
         role: "radiogroup",
         "aria-label": t4("customizer_section_title_theme_variant")
       },
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k(
         "button",
         {
           class: ThemeSection_default.segment,
@@ -32193,11 +32573,11 @@
           tabIndex: currentTheme.value === "light" ? -1 : 0,
           onClick: () => setTheme({ theme: "light", themeVariant: currentVariant.value })
         },
-        /* @__PURE__ */ _(LightThemeIcon, { "aria-hidden": "true" }),
-        /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))
+        /* @__PURE__ */ k(LightThemeIcon, { "aria-hidden": "true" }),
+        /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_light"))
       ),
-      /* @__PURE__ */ _("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }),
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }),
+      /* @__PURE__ */ k(
         "button",
         {
           class: ThemeSection_default.segment,
@@ -32207,11 +32587,11 @@
           tabIndex: currentTheme.value === "dark" ? -1 : 0,
           onClick: () => setTheme({ theme: "dark", themeVariant: currentVariant.value })
         },
-        /* @__PURE__ */ _(DarkThemeIcon, { "aria-hidden": "true" }),
-        /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))
+        /* @__PURE__ */ k(DarkThemeIcon, { "aria-hidden": "true" }),
+        /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_dark"))
       ),
-      /* @__PURE__ */ _("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }),
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }),
+      /* @__PURE__ */ k(
         "button",
         {
           class: ThemeSection_default.segment,
@@ -32221,10 +32601,10 @@
           tabIndex: currentTheme.value === "system" ? -1 : 0,
           onClick: () => setTheme({ theme: "system", themeVariant: currentVariant.value })
         },
-        /* @__PURE__ */ _(SystemThemeIcon, { "aria-hidden": "true" }),
-        /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_system"))
+        /* @__PURE__ */ k(SystemThemeIcon, { "aria-hidden": "true" }),
+        /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_system"))
       )
-    ), /* @__PURE__ */ _("div", { class: ThemeSection_default.variantGrid, role: "radiogroup", "aria-label": t4("customizer_theme_variant_grid_label") }, THEME_VARIANTS.map((variant) => /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k("div", { class: ThemeSection_default.variantGrid, role: "radiogroup", "aria-label": t4("customizer_theme_variant_grid_label") }, THEME_VARIANTS.map((variant) => /* @__PURE__ */ k(
       "button",
       {
         key: variant.value,
@@ -32236,11 +32616,11 @@
         tabIndex: currentVariant.value === variant.value ? -1 : 0,
         onClick: () => setTheme({ theme: currentTheme.value, themeVariant: variant.value })
       },
-      /* @__PURE__ */ _(ThemeSwatch, { variant: variant.value })
+      /* @__PURE__ */ k(ThemeSwatch, { variant: variant.value })
     ))));
   }
   function ThemeSwatch({ variant }) {
-    return /* @__PURE__ */ _("div", { class: ThemeSection_default.swatch, "data-variant": variant }, /* @__PURE__ */ _("div", { class: ThemeSection_default.swatchBackdrop }, /* @__PURE__ */ _("div", { class: ThemeSection_default.swatchPrimary }, /* @__PURE__ */ _("div", { class: ThemeSection_default.swatchSecondary }, /* @__PURE__ */ _("div", { class: ThemeSection_default.swatchAccent })))));
+    return /* @__PURE__ */ k("div", { class: ThemeSection_default.swatch, "data-variant": variant }, /* @__PURE__ */ k("div", { class: ThemeSection_default.swatchBackdrop }, /* @__PURE__ */ k("div", { class: ThemeSection_default.swatchPrimary }, /* @__PURE__ */ k("div", { class: ThemeSection_default.swatchSecondary }, /* @__PURE__ */ k("div", { class: ThemeSection_default.swatchAccent })))));
   }
 
   // pages/new-tab/app/customizer/components/VisibilityMenuSection.js
@@ -32248,7 +32628,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames28 = __toESM(require_classnames(), 1);
+  var import_classnames29 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
 
@@ -32272,7 +32652,7 @@
         onUnchecked();
       }
     }
-    return /* @__PURE__ */ _("label", { class: Switch_default.label, "data-platform-name": platformName, "data-theme": theme, "data-size": size }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("label", { class: Switch_default.label, "data-platform-name": platformName, "data-theme": theme, "data-size": size }, /* @__PURE__ */ k(
       "input",
       {
         disabled: pending,
@@ -32284,7 +32664,7 @@
         onChange: change,
         ...inputProps
       }
-    ), /* @__PURE__ */ _("span", { class: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
+    ), /* @__PURE__ */ k("span", { class: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
   }
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
@@ -32305,8 +32685,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames28.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames28.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames29.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames29.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
         Switch,
         {
           theme: browser.value,
@@ -32344,12 +32724,12 @@
         window.removeEventListener(UPDATE_EVENT, handler);
       };
     }, []);
-    return /* @__PURE__ */ _(EmbeddedVisibilityMenu, { rows: rowData });
+    return /* @__PURE__ */ k(EmbeddedVisibilityMenu, { rows: rowData });
   }
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames29 = __toESM(require_classnames(), 1);
+  var import_classnames30 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -32378,14 +32758,14 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames29.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames30.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames30.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "color" && data2.value.background.value);
-    return /* @__PURE__ */ _(k, null, entries.map((key2) => {
+    return /* @__PURE__ */ k(S, null, entries.map((key2) => {
       const entry = values.colors[key2];
-      return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
+      return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ k(
         "button",
         {
           class: CustomizerDrawerInner_default.bgPanel,
@@ -32396,7 +32776,7 @@
           "aria-checked": key2 === selected.value,
           "data-value": key2
         },
-        /* @__PURE__ */ _("span", { class: "sr-only" }, "Select ", key2)
+        /* @__PURE__ */ k("span", { class: "sr-only" }, "Select ", key2)
       ));
     }));
   }
@@ -32412,17 +32792,17 @@
     });
     const hexSelected = useComputed(() => data2.value.background.kind === "hex");
     const modeSelected = useComputed(() => detectThemeFromHex(hex.value));
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       "button",
       {
-        className: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames30.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
         role: "radio",
         "aria-checked": hexSelected
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "input",
       {
         type: "color",
@@ -32440,12 +32820,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames29.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ k("span", { class: (0, import_classnames30.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames30 = __toESM(require_classnames(), 1);
+  var import_classnames31 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -32473,14 +32853,14 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames30.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames31.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames30.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames31.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
-      return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
+      return /* @__PURE__ */ k("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ k(
         "button",
         {
           className: CustomizerDrawerInner_default.bgPanel,
@@ -32496,7 +32876,7 @@
             backgroundRepeat: "no-repeat"
           }
         },
-        /* @__PURE__ */ _("span", { className: "sr-only" }, "Select ", key2)
+        /* @__PURE__ */ k("span", { className: "sr-only" }, "Select ", key2)
       ));
     }));
   }
@@ -32506,7 +32886,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames31 = __toESM(require_classnames(), 1);
+  var import_classnames32 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -32550,7 +32930,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames31.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames32.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -32565,11 +32945,11 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames31.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
-      return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ _(
+      return /* @__PURE__ */ k("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ k(
         "button",
         {
           className: CustomizerDrawerInner_default.bgPanel,
@@ -32584,8 +32964,8 @@
             backgroundRepeat: "no-repeat"
           }
         },
-        /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_image_select", { number: String(index2 + 1) }))
-      ), /* @__PURE__ */ _(
+        /* @__PURE__ */ k("span", { class: "sr-only" }, t4("customizer_image_select", { number: String(index2 + 1) }))
+      ), /* @__PURE__ */ k(
         DismissButton,
         {
           className: CustomizerDrawerInner_default.deleteBtn,
@@ -32597,46 +32977,46 @@
         }
       ));
     }), placeholders.map((_5, index2) => {
-      return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: `placeholder-${diff}-${index2}` }, /* @__PURE__ */ _(
+      return /* @__PURE__ */ k("li", { className: CustomizerDrawerInner_default.bgListItem, key: `placeholder-${diff}-${index2}` }, /* @__PURE__ */ k(
         "button",
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames31.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
-        /* @__PURE__ */ _(PlusIcon, null),
-        /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_background_selection_image_add"))
+        /* @__PURE__ */ k(PlusIcon, null),
+        /* @__PURE__ */ k("span", { class: "sr-only" }, t4("customizer_background_selection_image_add"))
       ));
     }));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames32 = __toESM(require_classnames(), 1);
+  var import_classnames33 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
-    return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ _("span", null, title), showNewBadge && /* @__PURE__ */ _(NewBadge, null)), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
+    return /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ k("span", null, title), showNewBadge && /* @__PURE__ */ k(NewBadge, null)), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames32.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames33.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames33 = __toESM(require_classnames(), 1);
+  var import_classnames34 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames33.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames34.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
         }
       },
-      /* @__PURE__ */ _("span", null, title),
+      /* @__PURE__ */ k("span", null, title),
       icon
     );
   }
@@ -32648,13 +33028,13 @@
   // pages/new-tab/app/components/icons/Open.js
   init_preact_module();
   function Open() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ k(
       "path",
       {
         d: "M4.125 2.25C3.08947 2.25 2.25 3.08947 2.25 4.125V11.875C2.25 12.9105 3.08947 13.75 4.125 13.75H11.875C12.9105 13.75 13.75 12.9105 13.75 11.875V8.765C13.75 8.41982 14.0298 8.14 14.375 8.14C14.7202 8.14 15 8.41982 15 8.765V11.875C15 13.6009 13.6009 15 11.875 15H4.125C2.39911 15 1 13.6009 1 11.875V4.125C1 2.39911 2.39911 1 4.125 1H7.235C7.58018 1 7.86 1.27982 7.86 1.625C7.86 1.97018 7.58018 2.25 7.235 2.25H4.125Z",
         fill: "currentColor"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         d: "M10.25 1.625C10.25 1.27982 10.5298 1 10.875 1H14.375C14.7202 1 15 1.27982 15 1.625V5.125C15 5.47018 14.7202 5.75 14.375 5.75C14.0298 5.75 13.75 5.47018 13.75 5.125V3.13388L9.06694 7.81694C8.82286 8.06102 8.42714 8.06102 8.18306 7.81694C7.93898 7.57286 7.93898 7.17714 8.18306 6.93306L12.8661 2.25H10.875C10.5298 2.25 10.25 1.97018 10.25 1.625Z",
@@ -32675,7 +33055,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames34.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames35.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
       DismissButton,
       {
         onClick: close,
@@ -32684,31 +33064,31 @@
           "aria-label": "Close"
         }
       }
-    )), /* @__PURE__ */ _(
+    )), /* @__PURE__ */ k(
       InlineErrorBoundary,
       {
         format: (message) => `CustomizerDrawerInner threw an exception: ${message}`,
-        fallback: (message) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.internal }, /* @__PURE__ */ _("p", null, message))
+        fallback: (message) => /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.internal }, /* @__PURE__ */ k("p", null, message))
       },
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k(
         TwoCol,
         {
-          left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, hasThemeVariants && /* @__PURE__ */ _(
+          left: ({ push }) => /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sections }, hasThemeVariants && /* @__PURE__ */ k(
             CustomizerSection,
             {
               title: t4("customizer_section_title_theme_variant"),
               showNewBadge: showThemeNewBadge.value
             },
-            /* @__PURE__ */ _(ThemeSection, { data: data2, setTheme })
-          ), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ _(BackgroundSection, { data: data2, onNav: push, onUpload, select })), !hasThemeVariants && /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ _(BrowserThemeSection, { data: data2, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, /* @__PURE__ */ _(
+            /* @__PURE__ */ k(ThemeSection, { data: data2, setTheme })
+          ), /* @__PURE__ */ k(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ k(BackgroundSection, { data: data2, onNav: push, onUpload, select })), !hasThemeVariants && /* @__PURE__ */ k(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ k(BrowserThemeSection, { data: data2, setTheme })), /* @__PURE__ */ k(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ k(VisibilityMenuSection, null)), /* @__PURE__ */ k(BorderedSection, null, /* @__PURE__ */ k(
             SettingsLink,
             {
               title: t4("customizer_settings_link"),
-              icon: /* @__PURE__ */ _(Open, null),
+              icon: /* @__PURE__ */ k(Open, null),
               onClick: () => messaging2.open({ target: "settings" })
             }
           ))),
-          right: ({ id, pop }) => /* @__PURE__ */ _(k, null, id === "color" && /* @__PURE__ */ _(ColorSelection, { data: data2, select, back: pop }), id === "gradient" && /* @__PURE__ */ _(GradientSelection, { data: data2, select, back: pop }), id === "image" && /* @__PURE__ */ _(
+          right: ({ id, pop }) => /* @__PURE__ */ k(S, null, id === "color" && /* @__PURE__ */ k(ColorSelection, { data: data2, select, back: pop }), id === "gradient" && /* @__PURE__ */ k(GradientSelection, { data: data2, select, back: pop }), id === "image" && /* @__PURE__ */ k(
             ImageSelection,
             {
               data: data2,
@@ -32745,16 +33125,16 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames34.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames34.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames35.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames35.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
   function CustomizerDrawer({ displayChildren }) {
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawer_default.root }, displayChildren.value === true && /* @__PURE__ */ _(CustomizerConsumer, null));
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawer_default.root }, displayChildren.value === true && /* @__PURE__ */ k(CustomizerConsumer, null));
   }
   function CustomizerConsumer() {
     const { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } = x2(CustomizerContext);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       CustomizerDrawerInner,
       {
         data: data2,
@@ -32794,7 +33174,7 @@
     const { main, browser, variant } = x2(CustomizerThemesContext);
     const { customizer } = useInitialSetupData();
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ k(
       "div",
       {
         class: App_default.layout,
@@ -32802,8 +33182,8 @@
         "data-drawer-visibility": visibility,
         "data-has-theme-variants": hasThemeVariants
       },
-      /* @__PURE__ */ _("main", { class: (0, import_classnames35.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))),
-      /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
+      /* @__PURE__ */ k("main", { class: (0, import_classnames36.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
+      /* @__PURE__ */ k("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ k(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ k(
         CustomizerButton,
         {
           buttonId,
@@ -32814,29 +33194,29 @@
           kind: "drawer"
         }
       ))),
-      /* @__PURE__ */ _(
+      /* @__PURE__ */ k(
         "aside",
         {
-          class: (0, import_classnames35.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+          class: (0, import_classnames36.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
           tabindex: tabIndex,
           "aria-hidden": hidden,
           "data-theme": browser,
           "data-browser-panel": true,
           ref: asideRef
         },
-        /* @__PURE__ */ _("div", { class: App_default.asideContent }, /* @__PURE__ */ _(
+        /* @__PURE__ */ k("div", { class: App_default.asideContent }, /* @__PURE__ */ k(
           InlineErrorBoundary,
           {
             context: "Customizer Drawer",
-            fallback: (message) => /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, message))
+            fallback: (message) => /* @__PURE__ */ k("div", { class: App_default.paddedError }, /* @__PURE__ */ k("p", null, message))
           },
-          /* @__PURE__ */ _(CustomizerDrawer, { displayChildren })
+          /* @__PURE__ */ k(CustomizerDrawer, { displayChildren })
         ))
       )
     ));
   }
   function AppLevelErrorBoundaryFallback({ children }) {
-    return /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, children), /* @__PURE__ */ _("div", { class: App_default.paddedErrorRecovery }, "You can try to ", /* @__PURE__ */ _("button", { onClick: () => location.reload() }, "Reload this page")));
+    return /* @__PURE__ */ k("div", { class: App_default.paddedError }, /* @__PURE__ */ k("p", null, children), /* @__PURE__ */ k("div", { class: App_default.paddedErrorRecovery }, "You can try to ", /* @__PURE__ */ k("button", { onClick: () => location.reload() }, "Reload this page")));
   }
 
   // pages/new-tab/app/index.js
@@ -33065,7 +33445,7 @@
       description: "Title of the omnibar widget in the customizer panel."
     },
     omnibar_aiChatFormPlaceholder: {
-      title: "Ask privately",
+      title: "Ask anything privately",
       description: "Placeholder text for the AI chat input field."
     },
     omnibar_aiChatFormSubmitButtonLabel: {
@@ -33163,6 +33543,34 @@
     omnibar_openDuckAi: {
       title: "Open Duck.ai",
       description: "Link text to open the Duck.ai chat interface."
+    },
+    omnibar_createImageLabel: {
+      title: "Create Image",
+      description: "Label for the toggle button to enable image generation mode in the AI chat toolbar."
+    },
+    omnibar_imageGenerationPlaceholder: {
+      title: "Describe the image you want to create",
+      description: "Placeholder text for the AI chat input when image generation mode is active."
+    },
+    omnibar_toolsMenuLabel: {
+      title: "Tools",
+      description: "Accessible label for the tools menu button in the AI chat toolbar."
+    },
+    omnibar_createImageDescription: {
+      title: "Turn text into images",
+      description: "Description for the Create Image tool shown in the tools menu dropdown."
+    },
+    omnibar_webSearchLabel: {
+      title: "Web Search",
+      description: "Label for the Web Search tool shown in the tools menu dropdown."
+    },
+    omnibar_webSearchDescription: {
+      title: "Source answers from the web",
+      description: "Description for the Web Search tool shown in the tools menu dropdown."
+    },
+    omnibar_imageGenerationWithAttachmentPlaceholder: {
+      title: "Describe changes based on the image",
+      description: "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
     },
     nextStepsList_sectionTitle: {
       title: "Next Steps",
@@ -33681,7 +34089,7 @@
     {
       id: "omnibar",
       title: "Search",
-      icon: /* @__PURE__ */ _(SearchIcon, null),
+      icon: /* @__PURE__ */ k(SearchIcon, null),
       toggle: noop("toggle search"),
       visibility: "visible",
       index: 1,
@@ -33690,7 +34098,7 @@
     {
       id: "omnibar-toggleAi",
       title: "Duck.ai",
-      icon: /* @__PURE__ */ _(ArrowIndentCenteredIcon, { style: { color: "var(--ntp-icons-tertiary)" } }),
+      icon: /* @__PURE__ */ k(ArrowIndentCenteredIcon, { style: { color: "var(--ntp-icons-tertiary)" } }),
       toggle: noop("toggle Duck.ai"),
       visibility: "visible",
       index: 1.1,
@@ -33699,7 +34107,7 @@
     {
       id: "favorites",
       title: "Favorites",
-      icon: /* @__PURE__ */ _(FavoriteIcon, null),
+      icon: /* @__PURE__ */ k(FavoriteIcon, null),
       toggle: noop("toggle favorites"),
       visibility: "hidden",
       index: 0,
@@ -33708,7 +34116,7 @@
     {
       id: "privacyStats",
       title: "Privacy Stats",
-      icon: /* @__PURE__ */ _(Shield, null),
+      icon: /* @__PURE__ */ k(Shield, null),
       toggle: noop("toggle favorites"),
       visibility: "visible",
       index: 1,
@@ -33718,29 +34126,29 @@
   var customizerExamples = {
     "customizer.backgroundSection": {
       factory: () => {
-        return /* @__PURE__ */ _(Provider, null, ({ data: data2, select }) => {
-          return /* @__PURE__ */ _(BackgroundSection, { data: data2, onNav: noop("onNav"), onUpload: noop("onUpload"), select });
+        return /* @__PURE__ */ k(Provider, null, ({ data: data2, select }) => {
+          return /* @__PURE__ */ k(BackgroundSection, { data: data2, onNav: noop("onNav"), onUpload: noop("onUpload"), select });
         });
       }
     },
     "customizer.colorSelection": {
       factory: () => {
-        return /* @__PURE__ */ _(Provider, null, ({ data: data2, select }) => {
-          return /* @__PURE__ */ _(ColorSelection, { data: data2, select, back: noop("back") });
+        return /* @__PURE__ */ k(Provider, null, ({ data: data2, select }) => {
+          return /* @__PURE__ */ k(ColorSelection, { data: data2, select, back: noop("back") });
         });
       }
     },
     "customizer.gradientSelection": {
       factory: () => {
-        return /* @__PURE__ */ _(Provider, null, ({ data: data2, select }) => {
-          return /* @__PURE__ */ _(GradientSelection, { data: data2, select, back: noop("back") });
+        return /* @__PURE__ */ k(Provider, null, ({ data: data2, select }) => {
+          return /* @__PURE__ */ k(GradientSelection, { data: data2, select, back: noop("back") });
         });
       }
     },
     "customizer.imageSelection": {
       factory: () => {
-        return /* @__PURE__ */ _(Provider, null, ({ data: data2, select }) => {
-          return /* @__PURE__ */ _(
+        return /* @__PURE__ */ k(Provider, null, ({ data: data2, select }) => {
+          return /* @__PURE__ */ k(
             ImageSelection,
             {
               data: data2,
@@ -33755,10 +34163,10 @@
       }
     },
     "customizer-menu": {
-      factory: () => /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("div", { style: "width: 206px; border: 1px dotted black" }, /* @__PURE__ */ _(EmbeddedVisibilityMenu, { rows: ROWS })))
+      factory: () => /* @__PURE__ */ k(MaxContent, null, /* @__PURE__ */ k(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k("div", { style: "width: 206px; border: 1px dotted black" }, /* @__PURE__ */ k(EmbeddedVisibilityMenu, { rows: ROWS })))
     },
     "customizer-menu-disabled-item": {
-      factory: () => /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("div", { style: "width: 206px; border: 1px dotted black" }, /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(MaxContent, null, /* @__PURE__ */ k(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k("div", { style: "width: 206px; border: 1px dotted black" }, /* @__PURE__ */ k(
         EmbeddedVisibilityMenu,
         {
           rows: ROWS.map((row) => {
@@ -33775,7 +34183,7 @@
     }
   };
   function MaxContent({ children }) {
-    return /* @__PURE__ */ _("div", { style: { display: "grid", gridTemplateColumns: "max-content" } }, children);
+    return /* @__PURE__ */ k("div", { style: { display: "grid", gridTemplateColumns: "max-content" } }, children);
   }
   function Provider({ children }) {
     const data2 = {
@@ -34110,42 +34518,42 @@
       },
       [et]
     );
-    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2, onConfigChanged } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
+    return /* @__PURE__ */ k(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2, onConfigChanged } }, /* @__PURE__ */ k(FavoritesDispatchContext.Provider, { value: dispatch }, children));
   }
 
   // pages/new-tab/app/favorites/components/Favorites.examples.js
   init_FavoritesCustomized();
   var favoritesExamples = {
     "favorites.dnd": {
-      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ _(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ k(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ k(FavoritesConsumer, null))
     },
     "favorites.few.7": {
-      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 7) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ k(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 7) } }, /* @__PURE__ */ k(FavoritesConsumer, null))
     },
     "favorites.few.7.no-animation": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         MockFavoritesProvider,
         {
           data: { favorites: favorites.many.favorites.slice(0, 7) },
           config: { expansion: "expanded", animation: { kind: "none" } }
         },
-        /* @__PURE__ */ _(FavoritesConsumer, null)
+        /* @__PURE__ */ k(FavoritesConsumer, null)
       )
     },
     "favorites.few.6": {
-      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 6) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ k(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 6) } }, /* @__PURE__ */ k(FavoritesConsumer, null))
     },
     "favorites.few.12": {
-      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 12) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ k(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 12) } }, /* @__PURE__ */ k(FavoritesConsumer, null))
     },
     "favorites.multi": {
-      factory: () => /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ _(FavoritesConsumer, null)))
+      factory: () => /* @__PURE__ */ k("div", null, /* @__PURE__ */ k(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ k(FavoritesConsumer, null)), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ k(FavoritesConsumer, null)), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ k(FavoritesConsumer, null)))
     },
     "favorites.single": {
-      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ k(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ k(FavoritesConsumer, null))
     },
     "favorites.none": {
-      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ _(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ k(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ k(FavoritesConsumer, null))
     }
   };
 
@@ -34179,7 +34587,7 @@
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.examples.js
   var freemiumPIRBannerExamples = {
     "freemiumPIR.onboarding": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         FreemiumPIRBanner,
         {
           message: freemiumPIRDataExamples.onboarding.content,
@@ -34189,7 +34597,7 @@
       )
     },
     "freemiumPIR.scan_results": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         FreemiumPIRBanner,
         {
           message: freemiumPIRDataExamples.scan_results.content,
@@ -34207,7 +34615,7 @@
   init_NextStepsGroup();
   var nextStepsExamples = {
     "next-steps.cardGroup.all": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         NextStepsCardGroup,
         {
           types: [
@@ -34227,7 +34635,7 @@
       )
     },
     "next-steps.cardGroup.all-expanded": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         NextStepsCardGroup,
         {
           types: [
@@ -34247,7 +34655,7 @@
       )
     },
     "next-steps.cardGroup.two": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         NextStepsCardGroup,
         {
           types: ["bringStuff", "defaultApp"],
@@ -34259,7 +34667,7 @@
       )
     },
     "next-steps.cardGroup.one": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         NextStepsCardGroup,
         {
           types: ["bringStuff"],
@@ -34273,28 +34681,28 @@
   };
   var otherNextStepsExamples = {
     "next-steps.bringStuff": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "bringStuff", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "bringStuff", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.duckplayer": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "duckplayer", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "duckplayer", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.defaultApp": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "defaultApp", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "defaultApp", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.emailProtection": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "emailProtection", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "emailProtection", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.blockCookies": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "blockCookies", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "blockCookies", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.addAppToDockMac": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "addAppToDockMac", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "addAppToDockMac", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.pinToTaskbarWindows": {
-      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "pinAppToTaskbarWindows", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "pinAppToTaskbarWindows", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.bubble": {
-      factory: () => /* @__PURE__ */ _(NextStepsBubbleHeader, null)
+      factory: () => /* @__PURE__ */ k(NextStepsBubbleHeader, null)
     }
   };
 
@@ -34538,7 +34946,7 @@
       return () => {
       };
     }, [ticker]);
-    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: send }, /* @__PURE__ */ _(BodyExpansionMockProvider, null, children)));
+    return /* @__PURE__ */ k(PrivacyStatsContext.Provider, { value: { state } }, /* @__PURE__ */ k(PrivacyStatsDispatchContext.Provider, { value: send }, /* @__PURE__ */ k(BodyExpansionMockProvider, null, children)));
   }
   function BodyExpansionMockProvider({ children, bodyExpansion = "collapsed" }) {
     const [bodyExpansionState, setBodyExpansion] = d2(bodyExpansion);
@@ -34548,7 +34956,7 @@
     const showLess = q2(() => {
       setBodyExpansion("collapsed");
     }, []);
-    return /* @__PURE__ */ _(BodyExpansionContext.Provider, { value: bodyExpansionState }, /* @__PURE__ */ _(BodyExpansionApiContext.Provider, { value: { showMore, showLess } }, children));
+    return /* @__PURE__ */ k(BodyExpansionContext.Provider, { value: bodyExpansionState }, /* @__PURE__ */ k(BodyExpansionApiContext.Provider, { value: { showMore, showLess } }, children));
   }
 
   // pages/new-tab/app/privacy-stats/components/PrivacyStats.examples.js
@@ -34556,27 +34964,27 @@
   init_PrivacyStatsConsumer();
   var privacyStatsExamples = {
     "stats.few": {
-      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { ticker: true }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ k(PrivacyStatsMockProvider, { ticker: true }, /* @__PURE__ */ k(PrivacyStatsConsumer, null))
     },
     "stats.few.collapsed": {
-      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ k(PrivacyStatsMockProvider, null, /* @__PURE__ */ k(PrivacyStatsConsumer, null))
     },
     "stats.single": {
-      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.single }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ k(PrivacyStatsMockProvider, { data: privacyStatsMocks.single }, /* @__PURE__ */ k(PrivacyStatsConsumer, null))
     },
     "stats.none": {
-      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.none }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ k(PrivacyStatsMockProvider, { data: privacyStatsMocks.none }, /* @__PURE__ */ k(PrivacyStatsConsumer, null))
     },
     "stats.norecent": {
-      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.norecent }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ k(PrivacyStatsMockProvider, { data: privacyStatsMocks.norecent }, /* @__PURE__ */ k(PrivacyStatsConsumer, null))
     },
     "stats.list": {
-      factory: () => /* @__PURE__ */ _(PrivacyStats, { trackerCompanies: privacyStatsMocks.few.trackerCompanies, expansion: "expanded" })
+      factory: () => /* @__PURE__ */ k(PrivacyStats, { trackerCompanies: privacyStatsMocks.few.trackerCompanies, expansion: "expanded" })
     },
     "stats.footer": {
       factory: () => {
         const data2 = privacyStatsMocks.manyTopAndOther.trackerCompanies;
-        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, "Collapsed"), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(BodyExpansionMockProvider, { bodyExpansion: "collapsed" }, /* @__PURE__ */ _(ListFooter, { all: data2 })), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("h2", null, "Expanded"), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(BodyExpansionMockProvider, { bodyExpansion: "expanded" }, /* @__PURE__ */ _(ListFooter, { all: data2 })));
+        return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("h2", null, "Collapsed"), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(BodyExpansionMockProvider, { bodyExpansion: "collapsed" }, /* @__PURE__ */ k(ListFooter, { all: data2 })), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k("h2", null, "Expanded"), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(BodyExpansionMockProvider, { bodyExpansion: "expanded" }, /* @__PURE__ */ k(ListFooter, { all: data2 })));
       }
     }
   };
@@ -34584,13 +34992,13 @@
     "stats.all": {
       factory: () => {
         const names2 = Object.keys(privacyStatsMocks);
-        return /* @__PURE__ */ _(k, null, names2.map((key2) => {
-          return /* @__PURE__ */ _(k, { key: key2 }, /* @__PURE__ */ _("h2", null, key2), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks[key2] }, /* @__PURE__ */ _(PrivacyStatsConsumer, null)));
+        return /* @__PURE__ */ k(S, null, names2.map((key2) => {
+          return /* @__PURE__ */ k(S, { key: key2 }, /* @__PURE__ */ k("h2", null, key2), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(PrivacyStatsMockProvider, { data: privacyStatsMocks[key2] }, /* @__PURE__ */ k(PrivacyStatsConsumer, null)));
         }));
       }
     },
     "stats.manyTopAndOther": {
-      factory: () => /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, "manyOnlyTop"), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther }, /* @__PURE__ */ _(PrivacyStatsConsumer, null)), /* @__PURE__ */ _("h2", null, "manyOnlyTop + body expanded"), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther, bodyExpansion: "expanded" }, /* @__PURE__ */ _(PrivacyStatsConsumer, null)))
+      factory: () => /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("h2", null, "manyOnlyTop"), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther }, /* @__PURE__ */ k(PrivacyStatsConsumer, null)), /* @__PURE__ */ k("h2", null, "manyOnlyTop + body expanded"), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther, bodyExpansion: "expanded" }, /* @__PURE__ */ k(PrivacyStatsConsumer, null)))
     }
   };
 
@@ -34735,13 +35143,13 @@
   // pages/new-tab/app/remote-messaging-framework/components/RMF.examples.js
   var RMFExamples = {
     "rmf.small": {
-      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.small.content, dismiss: noop("rmf_dismiss") })
+      factory: () => /* @__PURE__ */ k(RemoteMessagingFramework, { message: rmfDataExamples.small.content, dismiss: noop("rmf_dismiss") })
     },
     "rmf.medium": {
-      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.medium.content, dismiss: noop("rmf_dismiss") })
+      factory: () => /* @__PURE__ */ k(RemoteMessagingFramework, { message: rmfDataExamples.medium.content, dismiss: noop("rmf_dismiss") })
     },
     "rmf.big-single-action": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action.content,
@@ -34751,7 +35159,7 @@
       )
     },
     "rmf.big-two-action": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_two_action.content,
@@ -34764,7 +35172,7 @@
   };
   var otherRMFExamples = {
     "rmf.big-two-action-overflow": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_two_action_overflow.content,
@@ -34775,7 +35183,7 @@
       )
     },
     "rmf.big-single-action-announce": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_announce.content,
@@ -34785,7 +35193,7 @@
       )
     },
     "rmf.big-single-action-app-update": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_app_update.content,
@@ -34795,7 +35203,7 @@
       )
     },
     "rmf.big-single-action-critical-update": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_critical_update.content,
@@ -34805,7 +35213,7 @@
       )
     },
     "rmf.big-single-action-pir": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_pir.content,
@@ -34815,7 +35223,7 @@
       )
     },
     "rmf.big-single-action-radar": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_radar.content,
@@ -34825,7 +35233,7 @@
       )
     },
     "rmf.big-single-action-radar-check-purple": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_radar_check_purple.content,
@@ -34835,7 +35243,7 @@
       )
     },
     "rmf.big-single-action-subscription": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_subscription.content,
@@ -34853,12 +35261,12 @@
   var updateNotificationExamples = {
     "updateNotification.empty": {
       factory: () => {
-        return /* @__PURE__ */ _(UpdateNotification, { notes: [], version: "1.2.3", dismiss: noop("dismiss!") });
+        return /* @__PURE__ */ k(UpdateNotification, { notes: [], version: "1.2.3", dismiss: noop("dismiss!") });
       }
     },
     "updateNotification.populated": {
       factory: () => {
-        return /* @__PURE__ */ _(UpdateNotification, { notes: ["Bug Fixed and Updates"], version: "1.2.3", dismiss: noop("dismiss!") });
+        return /* @__PURE__ */ k(UpdateNotification, { notes: ["Bug Fixed and Updates"], version: "1.2.3", dismiss: noop("dismiss!") });
       }
     }
   };
@@ -36584,17 +36992,17 @@
   var activityExamples = {
     "activity.empty": {
       factory: () => {
-        return /* @__PURE__ */ _(Activity, { itemCount: 0, batched: false, shouldDisplayLegacyActivity: true });
+        return /* @__PURE__ */ k(Activity, { itemCount: 0, batched: false, shouldDisplayLegacyActivity: true });
       }
     },
     "activity.few": {
-      factory: () => /* @__PURE__ */ _(Activity, { itemCount: 10, batched: false, shouldDisplayLegacyActivity: true }, /* @__PURE__ */ _(Mock, { size: 3 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible", shouldDisplayLegacyActivity: true })))
+      factory: () => /* @__PURE__ */ k(Activity, { itemCount: 10, batched: false, shouldDisplayLegacyActivity: true }, /* @__PURE__ */ k(Mock, { size: 3 }, /* @__PURE__ */ k(ActivityBody, { canBurn: false, visibility: "visible", shouldDisplayLegacyActivity: true })))
     },
     "activity.noTrackers": {
-      factory: () => /* @__PURE__ */ _(Activity, { itemCount: 20, batched: false, shouldDisplayLegacyActivity: true }, /* @__PURE__ */ _(Mock, { size: 1 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible", shouldDisplayLegacyActivity: true })))
+      factory: () => /* @__PURE__ */ k(Activity, { itemCount: 20, batched: false, shouldDisplayLegacyActivity: true }, /* @__PURE__ */ k(Mock, { size: 1 }, /* @__PURE__ */ k(ActivityBody, { canBurn: false, visibility: "visible", shouldDisplayLegacyActivity: true })))
     },
     "activity.noActivity.someTrackers": {
-      factory: () => /* @__PURE__ */ _(Activity, { itemCount: 0, batched: false, shouldDisplayLegacyActivity: true }, /* @__PURE__ */ _(Mock, { size: 0 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible", shouldDisplayLegacyActivity: true })))
+      factory: () => /* @__PURE__ */ k(Activity, { itemCount: 0, batched: false, shouldDisplayLegacyActivity: true }, /* @__PURE__ */ k(Mock, { size: 0 }, /* @__PURE__ */ k(ActivityBody, { canBurn: false, visibility: "visible", shouldDisplayLegacyActivity: true })))
     }
   };
   function Mock({ children, size }) {
@@ -36611,7 +37019,7 @@
       },
       { activity: mocks, urls: mocks.map((x5) => x5.url), totalTrackers: 0 }
     );
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       NormalizedDataContext.Provider,
       {
         value: {
@@ -36634,7 +37042,7 @@
   var protectionsHeadingExamples = {
     protectionsHeading: {
       factory: () => {
-        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, 'AdBlocking = "enabled"'), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(TubeGrid, null, /* @__PURE__ */ _(MockWithState, { initial: 0 }, ({
+        return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("h2", null, 'AdBlocking = "enabled"'), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(TubeGrid, null, /* @__PURE__ */ k(MockWithState, { initial: 0 }, ({
           expansion,
           feed,
           setFeed,
@@ -36642,7 +37050,7 @@
           toggle,
           totalCookiePopUpsBlockedSignal
         }) => {
-          return /* @__PURE__ */ _(SettingsProvider, { settings: new Settings({ adBlocking: { state: "enabled" } }) }, /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(SettingsProvider, { settings: new Settings({ adBlocking: { state: "enabled" } }) }, /* @__PURE__ */ k(
             Protections,
             {
               blockedCountSignal,
@@ -36652,9 +37060,9 @@
               toggle,
               totalCookiePopUpsBlockedSignal
             },
-            /* @__PURE__ */ _(PrivacyStatsEmptyState, null)
+            /* @__PURE__ */ k(PrivacyStatsEmptyState, null)
           ));
-        }), /* @__PURE__ */ _(MockWithState, { initial: 120 }, ({
+        }), /* @__PURE__ */ k(MockWithState, { initial: 120 }, ({
           expansion,
           feed,
           setFeed,
@@ -36662,7 +37070,7 @@
           toggle,
           totalCookiePopUpsBlockedSignal
         }) => {
-          return /* @__PURE__ */ _(SettingsProvider, { settings: new Settings({ adBlocking: { state: "enabled" } }) }, /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(SettingsProvider, { settings: new Settings({ adBlocking: { state: "enabled" } }) }, /* @__PURE__ */ k(
             Protections,
             {
               blockedCountSignal,
@@ -36672,9 +37080,9 @@
               toggle,
               totalCookiePopUpsBlockedSignal
             },
-            /* @__PURE__ */ _(PrintState, { feed, blockedCountSignal })
+            /* @__PURE__ */ k(PrintState, { feed, blockedCountSignal })
           ));
-        })), /* @__PURE__ */ _("h2", null, 'AdBlocking = "disabled"'), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(TubeGrid, null, /* @__PURE__ */ _(MockWithState, { initial: 0 }, ({
+        })), /* @__PURE__ */ k("h2", null, 'AdBlocking = "disabled"'), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k(TubeGrid, null, /* @__PURE__ */ k(MockWithState, { initial: 0 }, ({
           expansion,
           feed,
           setFeed,
@@ -36682,7 +37090,7 @@
           toggle,
           totalCookiePopUpsBlockedSignal
         }) => {
-          return /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(
             Protections,
             {
               blockedCountSignal,
@@ -36692,9 +37100,9 @@
               toggle,
               totalCookiePopUpsBlockedSignal
             },
-            /* @__PURE__ */ _(PrivacyStatsEmptyState, null)
+            /* @__PURE__ */ k(PrivacyStatsEmptyState, null)
           );
-        }), /* @__PURE__ */ _(MockWithState, { initial: 0, feedType: "activity" }, ({
+        }), /* @__PURE__ */ k(MockWithState, { initial: 0, feedType: "activity" }, ({
           expansion,
           feed,
           setFeed,
@@ -36702,7 +37110,7 @@
           toggle,
           totalCookiePopUpsBlockedSignal
         }) => {
-          return /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(
             Protections,
             {
               blockedCountSignal,
@@ -36712,9 +37120,9 @@
               toggle,
               totalCookiePopUpsBlockedSignal
             },
-            /* @__PURE__ */ _(ActivityEmptyState, { shouldDisplayLegacyActivity: false })
+            /* @__PURE__ */ k(ActivityEmptyState, { shouldDisplayLegacyActivity: false })
           );
-        }), /* @__PURE__ */ _(MockWithState, { initial: 1 }, ({
+        }), /* @__PURE__ */ k(MockWithState, { initial: 1 }, ({
           expansion,
           feed,
           setFeed,
@@ -36722,7 +37130,7 @@
           toggle,
           totalCookiePopUpsBlockedSignal
         }) => {
-          return /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(
             Protections,
             {
               blockedCountSignal,
@@ -36732,9 +37140,9 @@
               toggle,
               totalCookiePopUpsBlockedSignal
             },
-            /* @__PURE__ */ _(PrintState, { feed, blockedCountSignal })
+            /* @__PURE__ */ k(PrintState, { feed, blockedCountSignal })
           );
-        }), /* @__PURE__ */ _(MockWithState, { initial: 0, interval: 1e3 }, ({
+        }), /* @__PURE__ */ k(MockWithState, { initial: 0, interval: 1e3 }, ({
           expansion,
           feed,
           setFeed,
@@ -36742,7 +37150,7 @@
           toggle,
           totalCookiePopUpsBlockedSignal
         }) => {
-          return /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(
             Protections,
             {
               blockedCountSignal,
@@ -36752,9 +37160,9 @@
               toggle,
               totalCookiePopUpsBlockedSignal
             },
-            /* @__PURE__ */ _(PrintState, { feed, blockedCountSignal })
+            /* @__PURE__ */ k(PrintState, { feed, blockedCountSignal })
           );
-        }), /* @__PURE__ */ _(MockWithState, { initial: 100, feedType: "activity" }, ({
+        }), /* @__PURE__ */ k(MockWithState, { initial: 100, feedType: "activity" }, ({
           expansion,
           feed,
           setFeed,
@@ -36762,7 +37170,7 @@
           toggle,
           totalCookiePopUpsBlockedSignal
         }) => {
-          return /* @__PURE__ */ _(
+          return /* @__PURE__ */ k(
             Protections,
             {
               blockedCountSignal,
@@ -36772,14 +37180,14 @@
               toggle,
               totalCookiePopUpsBlockedSignal
             },
-            /* @__PURE__ */ _(PrintState, { feed, blockedCountSignal })
+            /* @__PURE__ */ k(PrintState, { feed, blockedCountSignal })
           );
         })));
       }
     }
   };
   function PrintState(props) {
-    return /* @__PURE__ */ _("pre", { style: { marginTop: "24px" } }, /* @__PURE__ */ _("code", null, JSON.stringify(
+    return /* @__PURE__ */ k("pre", { style: { marginTop: "24px" } }, /* @__PURE__ */ k("code", null, JSON.stringify(
       {
         feed: props.feed,
         blockedCount: props.blockedCountSignal.value
@@ -36831,7 +37239,7 @@
   // pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.examples.js
   var subscriptionWinBackBannerExamples = {
     "subscriptionWinBackBanner.winback_last_day": {
-      factory: () => /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(
         SubscriptionWinBackBanner,
         {
           message: subscriptionWinBackBannerDataExamples.winback_last_day.content,
@@ -36945,7 +37353,7 @@
   init_SearchFormProvider();
   function MockSearchFormProvider({ term, suggestions: suggestions2, selectedSuggestion: initialSelected = null, children }) {
     const [selectedSuggestion, setSelectedSuggestion] = d2(initialSelected);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       SearchFormContext.Provider,
       {
         value: {
@@ -36971,11 +37379,11 @@
   init_SuggestionsList2();
   init_Omnibar();
   function OmnibarShell({ children }) {
-    return /* @__PURE__ */ _("div", { style: "width: 600px;" }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _("div", { class: Omnibar_default.field }, children)));
+    return /* @__PURE__ */ k("div", { style: "width: 600px;" }, /* @__PURE__ */ k("div", { class: Omnibar_default.popup }, /* @__PURE__ */ k("div", { class: Omnibar_default.field }, children)));
   }
   var omnibarExamples = {
     "omnibar.input-no-completion": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [] }, /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(MockSearchFormProvider, { term: "pizza", suggestions: [] }, /* @__PURE__ */ k(
         SearchForm,
         {
           onOpenSuggestion: noop("onOpenSuggestion"),
@@ -36985,14 +37393,14 @@
       )))
     },
     "omnibar.input-short-completion-short-suffix": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(
         MockSearchFormProvider,
         {
           term: "pizza",
           suggestions: [suggestions.shortCompletionShortSuffix],
           selectedSuggestion: suggestions.shortCompletionShortSuffix
         },
-        /* @__PURE__ */ _(
+        /* @__PURE__ */ k(
           SearchForm,
           {
             onOpenSuggestion: noop("onOpenSuggestion"),
@@ -37003,14 +37411,14 @@
       ))
     },
     "omnibar.input-short-completion-long-suffix": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(
         MockSearchFormProvider,
         {
           term: "pizza",
           suggestions: [suggestions.shortCompletionLongSuffix],
           selectedSuggestion: suggestions.shortCompletionLongSuffix
         },
-        /* @__PURE__ */ _(
+        /* @__PURE__ */ k(
           SearchForm,
           {
             onOpenSuggestion: noop("onOpenSuggestion"),
@@ -37021,14 +37429,14 @@
       ))
     },
     "omnibar.input-long-completion-short-suffix": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(
         MockSearchFormProvider,
         {
           term: "pizza",
           suggestions: [suggestions.longCompletionShortSuffix],
           selectedSuggestion: suggestions.longCompletionShortSuffix
         },
-        /* @__PURE__ */ _(
+        /* @__PURE__ */ k(
           SearchForm,
           {
             onOpenSuggestion: noop("onOpenSuggestion"),
@@ -37039,14 +37447,14 @@
       ))
     },
     "omnibar.input-long-completion-long-suffix": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(
         MockSearchFormProvider,
         {
           term: "pizza",
           suggestions: [suggestions.longCompletionLongSuffix],
           selectedSuggestion: suggestions.longCompletionLongSuffix
         },
-        /* @__PURE__ */ _(
+        /* @__PURE__ */ k(
           SearchForm,
           {
             onOpenSuggestion: noop("onOpenSuggestion"),
@@ -37057,19 +37465,19 @@
       ))
     },
     "omnibar.suggestions-all-types": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: suggestions.allTypes }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(MockSearchFormProvider, { term: "pizza", suggestions: suggestions.allTypes }, /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
     },
     "omnibar.suggestion-short-title-short-suffix": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.shortTitleShortSuffix] }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.shortTitleShortSuffix] }, /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
     },
     "omnibar.suggestion-short-title-long-suffix": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.shortTitleLongSuffix] }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.shortTitleLongSuffix] }, /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
     },
     "omnibar.suggestion-long-title-short-suffix": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.longTitleShortSuffix] }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.longTitleShortSuffix] }, /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
     },
     "omnibar.suggestion-long-title-long-suffix": {
-      factory: () => /* @__PURE__ */ _(OmnibarShell, null, /* @__PURE__ */ _(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.longTitleLongSuffix] }, /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
+      factory: () => /* @__PURE__ */ k(OmnibarShell, null, /* @__PURE__ */ k(MockSearchFormProvider, { term: "pizza", suggestions: [suggestions.longTitleLongSuffix] }, /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: noop("onOpenSuggestion"), onSubmitChat: noop("onSubmitChat") })))
     }
   };
 
@@ -37295,13 +37703,13 @@
     )) : entries3;
     const dataSignal = useSignal(customizerData());
     const { main, browser, variant } = useThemes(dataSignal);
-    return /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser, variant } }, /* @__PURE__ */ _("div", { class: Components_default.main, "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ _("div", { "data-content-tube": true, class: Components_default.contentTube }, isolated && /* @__PURE__ */ _(Isolated, { entries: filtered, e2e }), !isolated && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(DebugBar, { id: ids[0], ids, entries: entries3 }), /* @__PURE__ */ _(Stage, { entries: (
+    return /* @__PURE__ */ k(CustomizerThemesContext.Provider, { value: { main, browser, variant } }, /* @__PURE__ */ k("div", { class: Components_default.main, "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ k("div", { "data-content-tube": true, class: Components_default.contentTube }, isolated && /* @__PURE__ */ k(Isolated, { entries: filtered, e2e }), !isolated && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(DebugBar, { id: ids[0], ids, entries: entries3 }), /* @__PURE__ */ k(Stage, { entries: (
       /** @type {any} */
       filtered
     ) })))));
   }
   function Stage({ entries: entries4 }) {
-    return /* @__PURE__ */ _("div", { class: Components_default.componentList, "data-testid": "stage" }, entries4.map(([id, item]) => {
+    return /* @__PURE__ */ k("div", { class: Components_default.componentList, "data-testid": "stage" }, entries4.map(([id, item]) => {
       const next = new URL(url3);
       next.searchParams.set("isolate", "true");
       next.searchParams.set("id", id);
@@ -37320,21 +37728,21 @@
       for (let string2 of [...others, ...matchingMinus1]) {
         without.searchParams.append("id", string2);
       }
-      return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Components_default.itemInfo }, /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("code", null, id), /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank", title: "open in new tab" }, "Open \u{1F517}"), " ", /* @__PURE__ */ _("a", { href: without.toString(), hidden: current.length === 0 }, "Remove")), /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("a", { href: selected.toString(), class: Components_default.itemLink, title: "show this component only" }, "select"), " ", /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "isolate"), " ", /* @__PURE__ */ _("a", { href: e2e.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "edge-to-edge"))), /* @__PURE__ */ _("div", { className: Components_default.item, key: id }, item.factory()));
+      return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: Components_default.itemInfo }, /* @__PURE__ */ k("div", { class: Components_default.itemLinks }, /* @__PURE__ */ k("code", null, id), /* @__PURE__ */ k("a", { href: next.toString(), target: "_blank", title: "open in new tab" }, "Open \u{1F517}"), " ", /* @__PURE__ */ k("a", { href: without.toString(), hidden: current.length === 0 }, "Remove")), /* @__PURE__ */ k("div", { class: Components_default.itemLinks }, /* @__PURE__ */ k("a", { href: selected.toString(), class: Components_default.itemLink, title: "show this component only" }, "select"), " ", /* @__PURE__ */ k("a", { href: next.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "isolate"), " ", /* @__PURE__ */ k("a", { href: e2e.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "edge-to-edge"))), /* @__PURE__ */ k("div", { className: Components_default.item, key: id }, item.factory()));
     }));
   }
   function Isolated({ entries: entries4, e2e }) {
     if (e2e) {
-      return /* @__PURE__ */ _("div", { "data-isolated": true }, entries4.map(([id, item]) => {
-        return /* @__PURE__ */ _(k, { key: id }, item.factory());
+      return /* @__PURE__ */ k("div", { "data-isolated": true }, entries4.map(([id, item]) => {
+        return /* @__PURE__ */ k(S, { key: id }, item.factory());
       }));
     }
-    return /* @__PURE__ */ _("div", { class: Components_default.componentList, "data-testid": "stage", "data-isolated": true }, entries4.map(([id, item], index2) => {
-      return /* @__PURE__ */ _("div", { key: id + index2 }, item.factory());
+    return /* @__PURE__ */ k("div", { class: Components_default.componentList, "data-testid": "stage", "data-isolated": true }, entries4.map(([id, item], index2) => {
+      return /* @__PURE__ */ k("div", { key: id + index2 }, item.factory());
     }));
   }
   function DebugBar({ entries: entries4, id, ids }) {
-    return /* @__PURE__ */ _("div", { class: Components_default.debugBar, "data-testid": "selector" }, /* @__PURE__ */ _(ExampleSelector, { entries: entries4, id }), ids.length > 0 && /* @__PURE__ */ _(Append, { entries: entries4 }), /* @__PURE__ */ _(TextLength, null));
+    return /* @__PURE__ */ k("div", { class: Components_default.debugBar, "data-testid": "selector" }, /* @__PURE__ */ k(ExampleSelector, { entries: entries4, id }), ids.length > 0 && /* @__PURE__ */ k(Append, { entries: entries4 }), /* @__PURE__ */ k(TextLength, null));
   }
   function TextLength() {
     function onClick() {
@@ -37345,7 +37753,7 @@
       url3.searchParams.delete("textLength");
       window.location.href = url3.toString();
     }
-    return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("button", { onClick: onReset, type: "button" }, "Text Length 1x"), /* @__PURE__ */ _("button", { onClick, type: "button" }, "Text Length 1.5x"));
+    return /* @__PURE__ */ k("div", { class: Components_default.buttonRow }, /* @__PURE__ */ k("button", { onClick: onReset, type: "button" }, "Text Length 1x"), /* @__PURE__ */ k("button", { onClick, type: "button" }, "Text Length 1.5x"));
   }
   function ExampleSelector({ entries: entries4, id }) {
     function onReset() {
@@ -37364,10 +37772,10 @@
         window.location.href = url8.toString();
       }
     }
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("label", null, "Single:", " ", /* @__PURE__ */ _("select", { value: id || "none", onChange }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries4.map(([id2]) => /* @__PURE__ */ _("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ _("button", { onClick: onReset }, "RESET \u{1F501}")));
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: Components_default.buttonRow }, /* @__PURE__ */ k("label", null, "Single:", " ", /* @__PURE__ */ k("select", { value: id || "none", onChange }, /* @__PURE__ */ k("option", { value: "none" }, "Select an example"), entries4.map(([id2]) => /* @__PURE__ */ k("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ k("button", { onClick: onReset }, "RESET \u{1F501}")));
   }
   function TubeGrid({ children }) {
-    return /* @__PURE__ */ _("div", { class: Components_default.tubeGrid }, children);
+    return /* @__PURE__ */ k("div", { class: Components_default.tubeGrid }, children);
   }
   function Append({ entries: entries4 }) {
     function onReset() {
@@ -37386,7 +37794,7 @@
       url8.searchParams.append("id", value2);
       window.location.href = url8.toString();
     }
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("form", { class: Components_default.buttonRow, onSubmit }, /* @__PURE__ */ _("label", null, "Append:", " ", /* @__PURE__ */ _("select", { value: "none", name: "add-id" }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries4.map(([id]) => /* @__PURE__ */ _("option", { key: id, value: id }, id)))), /* @__PURE__ */ _("button", null, "Confirm")));
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("form", { class: Components_default.buttonRow, onSubmit }, /* @__PURE__ */ k("label", null, "Append:", " ", /* @__PURE__ */ k("select", { value: "none", name: "add-id" }, /* @__PURE__ */ k("option", { value: "none" }, "Select an example"), entries4.map(([id]) => /* @__PURE__ */ k("option", { key: id, value: id }, id)))), /* @__PURE__ */ k("button", null, "Confirm")));
   }
 
   // shared/call-with-retry.js
@@ -37601,8 +38009,8 @@
       userImages: []
     };
     const customizerApi = new CustomizerService(messaging2, customizerData2);
-    J(
-      /* @__PURE__ */ _(
+    R(
+      /* @__PURE__ */ k(
         EnvironmentProvider,
         {
           debugState: environment.debugState,
@@ -37611,14 +38019,14 @@
           env: environment.env,
           locale: environment.locale
         },
-        /* @__PURE__ */ _(
+        /* @__PURE__ */ k(
           InlineErrorBoundary,
           {
             context: "App entry point",
-            fallback: (message) => /* @__PURE__ */ _(AppLevelErrorBoundaryFallback, null, message)
+            fallback: (message) => /* @__PURE__ */ k(AppLevelErrorBoundaryFallback, null, message)
           },
-          /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }),
-          /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ _(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ _(CustomizerProvider, { service: customizerApi, initialData: customizerData2 }, /* @__PURE__ */ _(DocumentVisibilityProvider, null, /* @__PURE__ */ _(
+          /* @__PURE__ */ k(UpdateEnvironment, { search: window.location.search }),
+          /* @__PURE__ */ k(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ k(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ k(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ k(SettingsProvider, { settings }, /* @__PURE__ */ k(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ k(CustomizerProvider, { service: customizerApi, initialData: customizerData2 }, /* @__PURE__ */ k(DocumentVisibilityProvider, null, /* @__PURE__ */ k(
             WidgetConfigProvider,
             {
               api: widgetConfigAPI,
@@ -37626,7 +38034,7 @@
               widgets: init2.widgets,
               entryPoints
             },
-            /* @__PURE__ */ _(TabsProvider, { service: tabs }, environment.urlParams.has("tabs.debug") && /* @__PURE__ */ _(TabsDebug, null), /* @__PURE__ */ _(App, null))
+            /* @__PURE__ */ k(TabsProvider, { service: tabs }, environment.urlParams.has("tabs.debug") && /* @__PURE__ */ k(TabsDebug, null), /* @__PURE__ */ k(App, null))
           ))))))))
         )
       ),
@@ -37659,8 +38067,8 @@
     }
   }
   function renderComponents(root2, environment, settings, strings) {
-    $INTEGRATION: J(
-      /* @__PURE__ */ _(
+    $INTEGRATION: R(
+      /* @__PURE__ */ k(
         EnvironmentProvider,
         {
           debugState: environment.debugState,
@@ -37668,7 +38076,7 @@
           willThrow: environment.willThrow,
           locale: environment.locale
         },
-        /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ _(Components, null)))
+        /* @__PURE__ */ k(SettingsProvider, { settings }, /* @__PURE__ */ k(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ k(Components, null)))
       ),
       root2
     );
@@ -38323,6 +38731,8 @@
             config.showCustomizePopover = parseBooleanQueryParam("omnibar.showCustomizePopover") ?? config.showCustomizePopover;
             config.enableRecentAiChats = parseBooleanQueryParam("omnibar.enableRecentAiChats") ?? config.enableRecentAiChats;
             config.enableAiChatTools = parseBooleanQueryParam("omnibar.enableAiChatTools") ?? config.enableAiChatTools;
+            config.enableImageGeneration = parseBooleanQueryParam("omnibar.enableImageGeneration") ?? config.enableImageGeneration;
+            config.enableWebSearch = parseBooleanQueryParam("omnibar.enableWebSearch") ?? config.enableWebSearch;
             config.selectedModelId = url5.searchParams.get("omnibar.selectedModelId") ?? config.selectedModelId;
             config.showViewAllAiChats = parseBooleanQueryParam("omnibar.showViewAllAiChats") ?? config.showViewAllAiChats;
             return config;
@@ -39022,7 +39432,7 @@
   var root = document.querySelector("#app");
   if (!root) {
     document.documentElement.dataset.fatalError = "true";
-    J("Fatal: #app missing", document.body);
+    R("Fatal: #app missing", document.body);
     throw new Error("Missing #app");
   }
   init(root, newTabMessaging, telemetry, baseEnvironment).catch((e4) => {
@@ -39030,8 +39440,8 @@
     const msg = typeof e4?.message === "string" ? e4.message : "unknown init error";
     newTabMessaging.reportInitException(msg);
     document.documentElement.dataset.fatalError = "true";
-    const element = /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { style: "padding: 1rem;" }, /* @__PURE__ */ _("p", null, /* @__PURE__ */ _("strong", null, "A fatal error occurred:")), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("pre", { style: { whiteSpace: "prewrap", overflow: "auto" } }, /* @__PURE__ */ _("code", null, JSON.stringify({ message: e4.message }, null, 2))), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("p", null, /* @__PURE__ */ _("strong", null, "Telemetry")), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("pre", { style: { whiteSpace: "prewrap", overflow: "auto", fontSize: ".8em" } }, /* @__PURE__ */ _("code", null, JSON.stringify(telemetry.eventStore, null, 2)))));
-    J(element, document.body);
+    const element = /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { style: "padding: 1rem;" }, /* @__PURE__ */ k("p", null, /* @__PURE__ */ k("strong", null, "A fatal error occurred:")), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k("pre", { style: { whiteSpace: "prewrap", overflow: "auto" } }, /* @__PURE__ */ k("code", null, JSON.stringify({ message: e4.message }, null, 2))), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k("p", null, /* @__PURE__ */ k("strong", null, "Telemetry")), /* @__PURE__ */ k("br", null), /* @__PURE__ */ k("pre", { style: { whiteSpace: "prewrap", overflow: "auto", fontSize: ".8em" } }, /* @__PURE__ */ k("code", null, JSON.stringify(telemetry.eventStore, null, 2)))));
+    R(element, document.body);
   });
 })();
 /*! Bundled license information:

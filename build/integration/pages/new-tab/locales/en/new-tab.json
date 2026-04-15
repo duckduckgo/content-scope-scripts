@@ -166,7 +166,7 @@
     "description": "Title of the omnibar widget in the customizer panel."
   },
   "omnibar_aiChatFormPlaceholder": {
-    "title": "Ask privately",
+    "title": "Ask anything privately",
     "description": "Placeholder text for the AI chat input field."
   },
   "omnibar_aiChatFormSubmitButtonLabel": {
@@ -264,6 +264,34 @@
   "omnibar_openDuckAi": {
     "title": "Open Duck.ai",
     "description": "Link text to open the Duck.ai chat interface."
+  },
+  "omnibar_createImageLabel": {
+    "title": "Create Image",
+    "description": "Label for the toggle button to enable image generation mode in the AI chat toolbar."
+  },
+  "omnibar_imageGenerationPlaceholder": {
+    "title": "Describe the image you want to create",
+    "description": "Placeholder text for the AI chat input when image generation mode is active."
+  },
+  "omnibar_toolsMenuLabel": {
+    "title": "Tools",
+    "description": "Accessible label for the tools menu button in the AI chat toolbar."
+  },
+  "omnibar_createImageDescription": {
+    "title": "Turn text into images",
+    "description": "Description for the Create Image tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchLabel": {
+    "title": "Web Search",
+    "description": "Label for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchDescription": {
+    "title": "Source answers from the web",
+    "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_imageGenerationWithAttachmentPlaceholder": {
+    "title": "Describe changes based on the image",
+    "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
   },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",

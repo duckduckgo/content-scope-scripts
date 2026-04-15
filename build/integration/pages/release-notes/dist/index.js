@@ -100,83 +100,86 @@
   var s;
   var a;
   var h;
-  var p = {};
-  var v = [];
-  var y = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
-  var d = Array.isArray;
-  function w(n2, l3) {
+  var p;
+  var v;
+  var y;
+  var d = {};
+  var w = [];
+  var _ = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
+  var g = Array.isArray;
+  function m(n2, l3) {
     for (var u3 in l3) n2[u3] = l3[u3];
     return n2;
   }
-  function g(n2) {
+  function b(n2) {
     n2 && n2.parentNode && n2.parentNode.removeChild(n2);
   }
-  function _(l3, u3, t3) {
+  function k(l3, u3, t3) {
     var i3, r3, o3, e3 = {};
     for (o3 in u3) "key" == o3 ? i3 = u3[o3] : "ref" == o3 ? r3 = u3[o3] : e3[o3] = u3[o3];
     if (arguments.length > 2 && (e3.children = arguments.length > 3 ? n.call(arguments, 2) : t3), "function" == typeof l3 && null != l3.defaultProps) for (o3 in l3.defaultProps) void 0 === e3[o3] && (e3[o3] = l3.defaultProps[o3]);
-    return m(l3, e3, i3, r3, null);
+    return x(l3, e3, i3, r3, null);
   }
-  function m(n2, t3, i3, r3, o3) {
+  function x(n2, t3, i3, r3, o3) {
     var e3 = { type: n2, props: t3, key: i3, ref: r3, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: null == o3 ? ++u : o3, __i: -1, __u: 0 };
     return null == o3 && null != l.vnode && l.vnode(e3), e3;
   }
-  function k(n2) {
+  function S(n2) {
     return n2.children;
   }
-  function x(n2, l3) {
+  function C(n2, l3) {
     this.props = n2, this.context = l3;
   }
-  function S(n2, l3) {
-    if (null == l3) return n2.__ ? S(n2.__, n2.__i + 1) : null;
+  function $(n2, l3) {
+    if (null == l3) return n2.__ ? $(n2.__, n2.__i + 1) : null;
     for (var u3; l3 < n2.__k.length; l3++) if (null != (u3 = n2.__k[l3]) && null != u3.__e) return u3.__e;
-    return "function" == typeof n2.type ? S(n2) : null;
+    return "function" == typeof n2.type ? $(n2) : null;
   }
-  function C(n2) {
+  function I(n2) {
     if (n2.__P && n2.__d) {
-      var u3 = n2.__v, t3 = u3.__e, i3 = [], r3 = [], o3 = w({}, u3);
-      o3.__v = u3.__v + 1, l.vnode && l.vnode(o3), z(n2.__P, o3, u3, n2.__n, n2.__P.namespaceURI, 32 & u3.__u ? [t3] : null, i3, null == t3 ? S(u3) : t3, !!(32 & u3.__u), r3), o3.__v = u3.__v, o3.__.__k[o3.__i] = o3, V(i3, o3, r3), u3.__e = u3.__ = null, o3.__e != t3 && M(o3);
+      var u3 = n2.__v, t3 = u3.__e, i3 = [], r3 = [], o3 = m({}, u3);
+      o3.__v = u3.__v + 1, l.vnode && l.vnode(o3), q(n2.__P, o3, u3, n2.__n, n2.__P.namespaceURI, 32 & u3.__u ? [t3] : null, i3, null == t3 ? $(u3) : t3, !!(32 & u3.__u), r3), o3.__v = u3.__v, o3.__.__k[o3.__i] = o3, D(i3, o3, r3), u3.__e = u3.__ = null, o3.__e != t3 && P(o3);
     }
   }
-  function M(n2) {
+  function P(n2) {
     if (null != (n2 = n2.__) && null != n2.__c) return n2.__e = n2.__c.base = null, n2.__k.some(function(l3) {
       if (null != l3 && null != l3.__e) return n2.__e = n2.__c.base = l3.__e;
-    }), M(n2);
+    }), P(n2);
   }
-  function $(n2) {
-    (!n2.__d && (n2.__d = true) && i.push(n2) && !I.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)(I);
+  function A(n2) {
+    (!n2.__d && (n2.__d = true) && i.push(n2) && !H.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)(H);
   }
-  function I() {
+  function H() {
     try {
-      for (var n2, l3 = 1; i.length; ) i.length > l3 && i.sort(e), n2 = i.shift(), l3 = i.length, C(n2);
+      for (var n2, l3 = 1; i.length; ) i.length > l3 && i.sort(e), n2 = i.shift(), l3 = i.length, I(n2);
     } finally {
-      i.length = I.__r = 0;
+      i.length = H.__r = 0;
     }
   }
-  function P(n2, l3, u3, t3, i3, r3, o3, e3, f3, c3, s3) {
-    var a3, h3, y3, d3, w3, g2, _2, m3 = t3 && t3.__k || v, b = l3.length;
-    for (f3 = A(u3, l3, m3, f3, b), a3 = 0; a3 < b; a3++) null != (y3 = u3.__k[a3]) && (h3 = -1 != y3.__i && m3[y3.__i] || p, y3.__i = a3, g2 = z(n2, y3, h3, i3, r3, o3, e3, f3, c3, s3), d3 = y3.__e, y3.ref && h3.ref != y3.ref && (h3.ref && D(h3.ref, null, y3), s3.push(y3.ref, y3.__c || d3, y3)), null == w3 && null != d3 && (w3 = d3), (_2 = !!(4 & y3.__u)) || h3.__k === y3.__k ? f3 = H(y3, f3, n2, _2) : "function" == typeof y3.type && void 0 !== g2 ? f3 = g2 : d3 && (f3 = d3.nextSibling), y3.__u &= -7);
-    return u3.__e = w3, f3;
+  function L(n2, l3, u3, t3, i3, r3, o3, e3, f3, c3, s3) {
+    var a3, h3, p3, v3, y3, _2, g2, m3 = t3 && t3.__k || w, b2 = l3.length;
+    for (f3 = T(u3, l3, m3, f3, b2), a3 = 0; a3 < b2; a3++) null != (p3 = u3.__k[a3]) && (h3 = -1 != p3.__i && m3[p3.__i] || d, p3.__i = a3, _2 = q(n2, p3, h3, i3, r3, o3, e3, f3, c3, s3), v3 = p3.__e, p3.ref && h3.ref != p3.ref && (h3.ref && J(h3.ref, null, p3), s3.push(p3.ref, p3.__c || v3, p3)), null == y3 && null != v3 && (y3 = v3), (g2 = !!(4 & p3.__u)) || h3.__k === p3.__k ? (f3 = j(p3, f3, n2, g2), g2 && h3.__e && (h3.__e = null)) : "function" == typeof p3.type && void 0 !== _2 ? f3 = _2 : v3 && (f3 = v3.nextSibling), p3.__u &= -7);
+    return u3.__e = y3, f3;
   }
-  function A(n2, l3, u3, t3, i3) {
+  function T(n2, l3, u3, t3, i3) {
     var r3, o3, e3, f3, c3, s3 = u3.length, a3 = s3, h3 = 0;
-    for (n2.__k = new Array(i3), r3 = 0; r3 < i3; r3++) null != (o3 = l3[r3]) && "boolean" != typeof o3 && "function" != typeof o3 ? ("string" == typeof o3 || "number" == typeof o3 || "bigint" == typeof o3 || o3.constructor == String ? o3 = n2.__k[r3] = m(null, o3, null, null, null) : d(o3) ? o3 = n2.__k[r3] = m(k, { children: o3 }, null, null, null) : void 0 === o3.constructor && o3.__b > 0 ? o3 = n2.__k[r3] = m(o3.type, o3.props, o3.key, o3.ref ? o3.ref : null, o3.__v) : n2.__k[r3] = o3, f3 = r3 + h3, o3.__ = n2, o3.__b = n2.__b + 1, e3 = null, -1 != (c3 = o3.__i = T(o3, u3, f3, a3)) && (a3--, (e3 = u3[c3]) && (e3.__u |= 2)), null == e3 || null == e3.__v ? (-1 == c3 && (i3 > s3 ? h3-- : i3 < s3 && h3++), "function" != typeof o3.type && (o3.__u |= 4)) : c3 != f3 && (c3 == f3 - 1 ? h3-- : c3 == f3 + 1 ? h3++ : (c3 > f3 ? h3-- : h3++, o3.__u |= 4))) : n2.__k[r3] = null;
-    if (a3) for (r3 = 0; r3 < s3; r3++) null != (e3 = u3[r3]) && 0 == (2 & e3.__u) && (e3.__e == t3 && (t3 = S(e3)), E(e3, e3));
+    for (n2.__k = new Array(i3), r3 = 0; r3 < i3; r3++) null != (o3 = l3[r3]) && "boolean" != typeof o3 && "function" != typeof o3 ? ("string" == typeof o3 || "number" == typeof o3 || "bigint" == typeof o3 || o3.constructor == String ? o3 = n2.__k[r3] = x(null, o3, null, null, null) : g(o3) ? o3 = n2.__k[r3] = x(S, { children: o3 }, null, null, null) : void 0 === o3.constructor && o3.__b > 0 ? o3 = n2.__k[r3] = x(o3.type, o3.props, o3.key, o3.ref ? o3.ref : null, o3.__v) : n2.__k[r3] = o3, f3 = r3 + h3, o3.__ = n2, o3.__b = n2.__b + 1, e3 = null, -1 != (c3 = o3.__i = O(o3, u3, f3, a3)) && (a3--, (e3 = u3[c3]) && (e3.__u |= 2)), null == e3 || null == e3.__v ? (-1 == c3 && (i3 > s3 ? h3-- : i3 < s3 && h3++), "function" != typeof o3.type && (o3.__u |= 4)) : c3 != f3 && (c3 == f3 - 1 ? h3-- : c3 == f3 + 1 ? h3++ : (c3 > f3 ? h3-- : h3++, o3.__u |= 4))) : n2.__k[r3] = null;
+    if (a3) for (r3 = 0; r3 < s3; r3++) null != (e3 = u3[r3]) && 0 == (2 & e3.__u) && (e3.__e == t3 && (t3 = $(e3)), K(e3, e3));
     return t3;
   }
-  function H(n2, l3, u3, t3) {
+  function j(n2, l3, u3, t3) {
     var i3, r3;
     if ("function" == typeof n2.type) {
-      for (i3 = n2.__k, r3 = 0; i3 && r3 < i3.length; r3++) i3[r3] && (i3[r3].__ = n2, l3 = H(i3[r3], l3, u3, t3));
+      for (i3 = n2.__k, r3 = 0; i3 && r3 < i3.length; r3++) i3[r3] && (i3[r3].__ = n2, l3 = j(i3[r3], l3, u3, t3));
       return l3;
     }
-    n2.__e != l3 && (t3 && (l3 && n2.type && !l3.parentNode && (l3 = S(n2)), u3.insertBefore(n2.__e, l3 || null)), l3 = n2.__e);
+    n2.__e != l3 && (t3 && (l3 && n2.type && !l3.parentNode && (l3 = $(n2)), u3.insertBefore(n2.__e, l3 || null)), l3 = n2.__e);
     do {
       l3 = l3 && l3.nextSibling;
     } while (null != l3 && 8 == l3.nodeType);
     return l3;
   }
-  function T(n2, l3, u3, t3) {
+  function O(n2, l3, u3, t3) {
     var i3, r3, o3, e3 = n2.key, f3 = n2.type, c3 = l3[u3], s3 = null != c3 && 0 == (2 & c3.__u);
     if (null === c3 && null == e3 || s3 && e3 == c3.key && f3 == c3.type) return u3;
     if (t3 > (s3 ? 1 : 0)) {
@@ -184,17 +187,17 @@
     }
     return -1;
   }
-  function j(n2, l3, u3) {
-    "-" == l3[0] ? n2.setProperty(l3, null == u3 ? "" : u3) : n2[l3] = null == u3 ? "" : "number" != typeof u3 || y.test(l3) ? u3 : u3 + "px";
+  function z(n2, l3, u3) {
+    "-" == l3[0] ? n2.setProperty(l3, null == u3 ? "" : u3) : n2[l3] = null == u3 ? "" : "number" != typeof u3 || _.test(l3) ? u3 : u3 + "px";
   }
-  function F(n2, l3, u3, t3, i3) {
+  function N(n2, l3, u3, t3, i3) {
     var r3, o3;
     n: if ("style" == l3) if ("string" == typeof u3) n2.style.cssText = u3;
     else {
-      if ("string" == typeof t3 && (n2.style.cssText = t3 = ""), t3) for (l3 in t3) u3 && l3 in u3 || j(n2.style, l3, "");
-      if (u3) for (l3 in u3) t3 && u3[l3] == t3[l3] || j(n2.style, l3, u3[l3]);
+      if ("string" == typeof t3 && (n2.style.cssText = t3 = ""), t3) for (l3 in t3) u3 && l3 in u3 || z(n2.style, l3, "");
+      if (u3) for (l3 in u3) t3 && u3[l3] == t3[l3] || z(n2.style, l3, u3[l3]);
     }
-    else if ("o" == l3[0] && "n" == l3[1]) r3 = l3 != (l3 = l3.replace(f, "$1")), o3 = l3.toLowerCase(), l3 = o3 in n2 || "onFocusOut" == l3 || "onFocusIn" == l3 ? o3.slice(2) : l3.slice(2), n2.l || (n2.l = {}), n2.l[l3 + r3] = u3, u3 ? t3 ? u3.u = t3.u : (u3.u = c, n2.addEventListener(l3, r3 ? a : s, r3)) : n2.removeEventListener(l3, r3 ? a : s, r3);
+    else if ("o" == l3[0] && "n" == l3[1]) r3 = l3 != (l3 = l3.replace(a, "$1")), o3 = l3.toLowerCase(), l3 = o3 in n2 || "onFocusOut" == l3 || "onFocusIn" == l3 ? o3.slice(2) : l3.slice(2), n2.l || (n2.l = {}), n2.l[l3 + r3] = u3, u3 ? t3 ? u3[s] = t3[s] : (u3[s] = h, n2.addEventListener(l3, r3 ? v : p, r3)) : n2.removeEventListener(l3, r3 ? v : p, r3);
     else {
       if ("http://www.w3.org/2000/svg" == i3) l3 = l3.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
       else if ("width" != l3 && "height" != l3 && "href" != l3 && "list" != l3 && "form" != l3 && "tabIndex" != l3 && "download" != l3 && "rowSpan" != l3 && "colSpan" != l3 && "role" != l3 && "popover" != l3 && l3 in n2) try {
@@ -205,57 +208,57 @@
       "function" == typeof u3 || (null == u3 || false === u3 && "-" != l3[4] ? n2.removeAttribute(l3) : n2.setAttribute(l3, "popover" == l3 && 1 == u3 ? "" : u3));
     }
   }
-  function O(n2) {
+  function V(n2) {
     return function(u3) {
       if (this.l) {
         var t3 = this.l[u3.type + n2];
-        if (null == u3.t) u3.t = c++;
-        else if (u3.t < t3.u) return;
+        if (null == u3[c]) u3[c] = h++;
+        else if (u3[c] < t3[s]) return;
         return t3(l.event ? l.event(u3) : u3);
       }
     };
   }
-  function z(n2, u3, t3, i3, r3, o3, e3, f3, c3, s3) {
-    var a3, h3, p3, y3, _2, m3, b, S2, C3, M2, $2, I2, A3, H2, L, T2 = u3.type;
+  function q(n2, u3, t3, i3, r3, o3, e3, f3, c3, s3) {
+    var a3, h3, p3, v3, y3, d3, _2, k3, x3, M, $2, I2, P2, A3, H2, T2 = u3.type;
     if (void 0 !== u3.constructor) return null;
     128 & t3.__u && (c3 = !!(32 & t3.__u), o3 = [f3 = u3.__e = t3.__e]), (a3 = l.__b) && a3(u3);
     n: if ("function" == typeof T2) try {
-      if (S2 = u3.props, C3 = T2.prototype && T2.prototype.render, M2 = (a3 = T2.contextType) && i3[a3.__c], $2 = a3 ? M2 ? M2.props.value : a3.__ : i3, t3.__c ? b = (h3 = u3.__c = t3.__c).__ = h3.__E : (C3 ? u3.__c = h3 = new T2(S2, $2) : (u3.__c = h3 = new x(S2, $2), h3.constructor = T2, h3.render = G), M2 && M2.sub(h3), h3.state || (h3.state = {}), h3.__n = i3, p3 = h3.__d = true, h3.__h = [], h3._sb = []), C3 && null == h3.__s && (h3.__s = h3.state), C3 && null != T2.getDerivedStateFromProps && (h3.__s == h3.state && (h3.__s = w({}, h3.__s)), w(h3.__s, T2.getDerivedStateFromProps(S2, h3.__s))), y3 = h3.props, _2 = h3.state, h3.__v = u3, p3) C3 && null == T2.getDerivedStateFromProps && null != h3.componentWillMount && h3.componentWillMount(), C3 && null != h3.componentDidMount && h3.__h.push(h3.componentDidMount);
+      if (k3 = u3.props, x3 = T2.prototype && T2.prototype.render, M = (a3 = T2.contextType) && i3[a3.__c], $2 = a3 ? M ? M.props.value : a3.__ : i3, t3.__c ? _2 = (h3 = u3.__c = t3.__c).__ = h3.__E : (x3 ? u3.__c = h3 = new T2(k3, $2) : (u3.__c = h3 = new C(k3, $2), h3.constructor = T2, h3.render = Q), M && M.sub(h3), h3.state || (h3.state = {}), h3.__n = i3, p3 = h3.__d = true, h3.__h = [], h3._sb = []), x3 && null == h3.__s && (h3.__s = h3.state), x3 && null != T2.getDerivedStateFromProps && (h3.__s == h3.state && (h3.__s = m({}, h3.__s)), m(h3.__s, T2.getDerivedStateFromProps(k3, h3.__s))), v3 = h3.props, y3 = h3.state, h3.__v = u3, p3) x3 && null == T2.getDerivedStateFromProps && null != h3.componentWillMount && h3.componentWillMount(), x3 && null != h3.componentDidMount && h3.__h.push(h3.componentDidMount);
       else {
-        if (C3 && null == T2.getDerivedStateFromProps && S2 !== y3 && null != h3.componentWillReceiveProps && h3.componentWillReceiveProps(S2, $2), u3.__v == t3.__v || !h3.__e && null != h3.shouldComponentUpdate && false === h3.shouldComponentUpdate(S2, h3.__s, $2)) {
-          u3.__v != t3.__v && (h3.props = S2, h3.state = h3.__s, h3.__d = false), u3.__e = t3.__e, u3.__k = t3.__k, u3.__k.some(function(n3) {
+        if (x3 && null == T2.getDerivedStateFromProps && k3 !== v3 && null != h3.componentWillReceiveProps && h3.componentWillReceiveProps(k3, $2), u3.__v == t3.__v || !h3.__e && null != h3.shouldComponentUpdate && false === h3.shouldComponentUpdate(k3, h3.__s, $2)) {
+          u3.__v != t3.__v && (h3.props = k3, h3.state = h3.__s, h3.__d = false), u3.__e = t3.__e, u3.__k = t3.__k, u3.__k.some(function(n3) {
             n3 && (n3.__ = u3);
-          }), v.push.apply(h3.__h, h3._sb), h3._sb = [], h3.__h.length && e3.push(h3);
+          }), w.push.apply(h3.__h, h3._sb), h3._sb = [], h3.__h.length && e3.push(h3);
           break n;
         }
-        null != h3.componentWillUpdate && h3.componentWillUpdate(S2, h3.__s, $2), C3 && null != h3.componentDidUpdate && h3.__h.push(function() {
-          h3.componentDidUpdate(y3, _2, m3);
+        null != h3.componentWillUpdate && h3.componentWillUpdate(k3, h3.__s, $2), x3 && null != h3.componentDidUpdate && h3.__h.push(function() {
+          h3.componentDidUpdate(v3, y3, d3);
         });
       }
-      if (h3.context = $2, h3.props = S2, h3.__P = n2, h3.__e = false, I2 = l.__r, A3 = 0, C3) h3.state = h3.__s, h3.__d = false, I2 && I2(u3), a3 = h3.render(h3.props, h3.state, h3.context), v.push.apply(h3.__h, h3._sb), h3._sb = [];
+      if (h3.context = $2, h3.props = k3, h3.__P = n2, h3.__e = false, I2 = l.__r, P2 = 0, x3) h3.state = h3.__s, h3.__d = false, I2 && I2(u3), a3 = h3.render(h3.props, h3.state, h3.context), w.push.apply(h3.__h, h3._sb), h3._sb = [];
       else do {
         h3.__d = false, I2 && I2(u3), a3 = h3.render(h3.props, h3.state, h3.context), h3.state = h3.__s;
-      } while (h3.__d && ++A3 < 25);
-      h3.state = h3.__s, null != h3.getChildContext && (i3 = w(w({}, i3), h3.getChildContext())), C3 && !p3 && null != h3.getSnapshotBeforeUpdate && (m3 = h3.getSnapshotBeforeUpdate(y3, _2)), H2 = null != a3 && a3.type === k && null == a3.key ? q(a3.props.children) : a3, f3 = P(n2, d(H2) ? H2 : [H2], u3, t3, i3, r3, o3, e3, f3, c3, s3), h3.base = u3.__e, u3.__u &= -161, h3.__h.length && e3.push(h3), b && (h3.__E = h3.__ = null);
+      } while (h3.__d && ++P2 < 25);
+      h3.state = h3.__s, null != h3.getChildContext && (i3 = m(m({}, i3), h3.getChildContext())), x3 && !p3 && null != h3.getSnapshotBeforeUpdate && (d3 = h3.getSnapshotBeforeUpdate(v3, y3)), A3 = null != a3 && a3.type === S && null == a3.key ? E(a3.props.children) : a3, f3 = L(n2, g(A3) ? A3 : [A3], u3, t3, i3, r3, o3, e3, f3, c3, s3), h3.base = u3.__e, u3.__u &= -161, h3.__h.length && e3.push(h3), _2 && (h3.__E = h3.__ = null);
     } catch (n3) {
       if (u3.__v = null, c3 || null != o3) if (n3.then) {
         for (u3.__u |= c3 ? 160 : 128; f3 && 8 == f3.nodeType && f3.nextSibling; ) f3 = f3.nextSibling;
         o3[o3.indexOf(f3)] = null, u3.__e = f3;
       } else {
-        for (L = o3.length; L--; ) g(o3[L]);
-        N(u3);
+        for (H2 = o3.length; H2--; ) b(o3[H2]);
+        B(u3);
       }
-      else u3.__e = t3.__e, u3.__k = t3.__k, n3.then || N(u3);
+      else u3.__e = t3.__e, u3.__k = t3.__k, n3.then || B(u3);
       l.__e(n3, u3, t3);
     }
-    else null == o3 && u3.__v == t3.__v ? (u3.__k = t3.__k, u3.__e = t3.__e) : f3 = u3.__e = B(t3.__e, u3, t3, i3, r3, o3, e3, c3, s3);
+    else null == o3 && u3.__v == t3.__v ? (u3.__k = t3.__k, u3.__e = t3.__e) : f3 = u3.__e = G(t3.__e, u3, t3, i3, r3, o3, e3, c3, s3);
     return (a3 = l.diffed) && a3(u3), 128 & u3.__u ? void 0 : f3;
   }
-  function N(n2) {
-    n2 && (n2.__c && (n2.__c.__e = true), n2.__k && n2.__k.some(N));
+  function B(n2) {
+    n2 && (n2.__c && (n2.__c.__e = true), n2.__k && n2.__k.some(B));
   }
-  function V(n2, u3, t3) {
-    for (var i3 = 0; i3 < t3.length; i3++) D(t3[i3], t3[++i3], t3[++i3]);
+  function D(n2, u3, t3) {
+    for (var i3 = 0; i3 < t3.length; i3++) J(t3[i3], t3[++i3], t3[++i3]);
     l.__c && l.__c(u3, n2), n2.some(function(u4) {
       try {
         n2 = u4.__h, u4.__h = [], n2.some(function(n3) {
@@ -266,14 +269,14 @@
       }
     });
   }
-  function q(n2) {
-    return "object" != typeof n2 || null == n2 || n2.__b > 0 ? n2 : d(n2) ? n2.map(q) : w({}, n2);
+  function E(n2) {
+    return "object" != typeof n2 || null == n2 || n2.__b > 0 ? n2 : g(n2) ? n2.map(E) : m({}, n2);
   }
-  function B(u3, t3, i3, r3, o3, e3, f3, c3, s3) {
-    var a3, h3, v3, y3, w3, _2, m3, b = i3.props || p, k3 = t3.props, x3 = t3.type;
+  function G(u3, t3, i3, r3, o3, e3, f3, c3, s3) {
+    var a3, h3, p3, v3, y3, w3, _2, m3 = i3.props || d, k3 = t3.props, x3 = t3.type;
     if ("svg" == x3 ? o3 = "http://www.w3.org/2000/svg" : "math" == x3 ? o3 = "http://www.w3.org/1998/Math/MathML" : o3 || (o3 = "http://www.w3.org/1999/xhtml"), null != e3) {
-      for (a3 = 0; a3 < e3.length; a3++) if ((w3 = e3[a3]) && "setAttribute" in w3 == !!x3 && (x3 ? w3.localName == x3 : 3 == w3.nodeType)) {
-        u3 = w3, e3[a3] = null;
+      for (a3 = 0; a3 < e3.length; a3++) if ((y3 = e3[a3]) && "setAttribute" in y3 == !!x3 && (x3 ? y3.localName == x3 : 3 == y3.nodeType)) {
+        u3 = y3, e3[a3] = null;
         break;
       }
     }
@@ -281,18 +284,18 @@
       if (null == x3) return document.createTextNode(k3);
       u3 = document.createElementNS(o3, x3, k3.is && k3), c3 && (l.__m && l.__m(t3, e3), c3 = false), e3 = null;
     }
-    if (null == x3) b === k3 || c3 && u3.data == k3 || (u3.data = k3);
+    if (null == x3) m3 === k3 || c3 && u3.data == k3 || (u3.data = k3);
     else {
-      if (e3 = e3 && n.call(u3.childNodes), !c3 && null != e3) for (b = {}, a3 = 0; a3 < u3.attributes.length; a3++) b[(w3 = u3.attributes[a3]).name] = w3.value;
-      for (a3 in b) w3 = b[a3], "dangerouslySetInnerHTML" == a3 ? v3 = w3 : "children" == a3 || a3 in k3 || "value" == a3 && "defaultValue" in k3 || "checked" == a3 && "defaultChecked" in k3 || F(u3, a3, null, w3, o3);
-      for (a3 in k3) w3 = k3[a3], "children" == a3 ? y3 = w3 : "dangerouslySetInnerHTML" == a3 ? h3 = w3 : "value" == a3 ? _2 = w3 : "checked" == a3 ? m3 = w3 : c3 && "function" != typeof w3 || b[a3] === w3 || F(u3, a3, w3, b[a3], o3);
-      if (h3) c3 || v3 && (h3.__html == v3.__html || h3.__html == u3.innerHTML) || (u3.innerHTML = h3.__html), t3.__k = [];
-      else if (v3 && (u3.innerHTML = ""), P("template" == t3.type ? u3.content : u3, d(y3) ? y3 : [y3], t3, i3, r3, "foreignObject" == x3 ? "http://www.w3.org/1999/xhtml" : o3, e3, f3, e3 ? e3[0] : i3.__k && S(i3, 0), c3, s3), null != e3) for (a3 = e3.length; a3--; ) g(e3[a3]);
-      c3 || (a3 = "value", "progress" == x3 && null == _2 ? u3.removeAttribute("value") : null != _2 && (_2 !== u3[a3] || "progress" == x3 && !_2 || "option" == x3 && _2 != b[a3]) && F(u3, a3, _2, b[a3], o3), a3 = "checked", null != m3 && m3 != u3[a3] && F(u3, a3, m3, b[a3], o3));
+      if (e3 = e3 && n.call(u3.childNodes), !c3 && null != e3) for (m3 = {}, a3 = 0; a3 < u3.attributes.length; a3++) m3[(y3 = u3.attributes[a3]).name] = y3.value;
+      for (a3 in m3) y3 = m3[a3], "dangerouslySetInnerHTML" == a3 ? p3 = y3 : "children" == a3 || a3 in k3 || "value" == a3 && "defaultValue" in k3 || "checked" == a3 && "defaultChecked" in k3 || N(u3, a3, null, y3, o3);
+      for (a3 in k3) y3 = k3[a3], "children" == a3 ? v3 = y3 : "dangerouslySetInnerHTML" == a3 ? h3 = y3 : "value" == a3 ? w3 = y3 : "checked" == a3 ? _2 = y3 : c3 && "function" != typeof y3 || m3[a3] === y3 || N(u3, a3, y3, m3[a3], o3);
+      if (h3) c3 || p3 && (h3.__html == p3.__html || h3.__html == u3.innerHTML) || (u3.innerHTML = h3.__html), t3.__k = [];
+      else if (p3 && (u3.innerHTML = ""), L("template" == t3.type ? u3.content : u3, g(v3) ? v3 : [v3], t3, i3, r3, "foreignObject" == x3 ? "http://www.w3.org/1999/xhtml" : o3, e3, f3, e3 ? e3[0] : i3.__k && $(i3, 0), c3, s3), null != e3) for (a3 = e3.length; a3--; ) b(e3[a3]);
+      c3 || (a3 = "value", "progress" == x3 && null == w3 ? u3.removeAttribute("value") : null != w3 && (w3 !== u3[a3] || "progress" == x3 && !w3 || "option" == x3 && w3 != m3[a3]) && N(u3, a3, w3, m3[a3], o3), a3 = "checked", null != _2 && _2 != u3[a3] && N(u3, a3, _2, m3[a3], o3));
     }
     return u3;
   }
-  function D(n2, u3, t3) {
+  function J(n2, u3, t3) {
     try {
       if ("function" == typeof n2) {
         var i3 = "function" == typeof n2.__u;
@@ -302,9 +305,9 @@
       l.__e(n3, t3);
     }
   }
-  function E(n2, u3, t3) {
+  function K(n2, u3, t3) {
     var i3, r3;
-    if (l.unmount && l.unmount(n2), (i3 = n2.ref) && (i3.current && i3.current != n2.__e || D(i3, null, u3)), null != (i3 = n2.__c)) {
+    if (l.unmount && l.unmount(n2), (i3 = n2.ref) && (i3.current && i3.current != n2.__e || J(i3, null, u3)), null != (i3 = n2.__c)) {
       if (i3.componentWillUnmount) try {
         i3.componentWillUnmount();
       } catch (n3) {
@@ -312,17 +315,17 @@
       }
       i3.base = i3.__P = null;
     }
-    if (i3 = n2.__k) for (r3 = 0; r3 < i3.length; r3++) i3[r3] && E(i3[r3], u3, t3 || "function" != typeof n2.type);
-    t3 || g(n2.__e), n2.__c = n2.__ = n2.__e = void 0;
+    if (i3 = n2.__k) for (r3 = 0; r3 < i3.length; r3++) i3[r3] && K(i3[r3], u3, t3 || "function" != typeof n2.type);
+    t3 || b(n2.__e), n2.__c = n2.__ = n2.__e = void 0;
   }
-  function G(n2, l3, u3) {
+  function Q(n2, l3, u3) {
     return this.constructor(n2, u3);
   }
-  function J(u3, t3, i3) {
+  function R(u3, t3, i3) {
     var r3, o3, e3, f3;
-    t3 == document && (t3 = document.documentElement), l.__ && l.__(u3, t3), o3 = (r3 = "function" == typeof i3) ? null : i3 && i3.__k || t3.__k, e3 = [], f3 = [], z(t3, u3 = (!r3 && i3 || t3).__k = _(k, null, [u3]), o3 || p, p, t3.namespaceURI, !r3 && i3 ? [i3] : o3 ? null : t3.firstChild ? n.call(t3.childNodes) : null, e3, !r3 && i3 ? i3 : o3 ? o3.__e : t3.firstChild, r3, f3), V(e3, u3, f3);
+    t3 == document && (t3 = document.documentElement), l.__ && l.__(u3, t3), o3 = (r3 = "function" == typeof i3) ? null : i3 && i3.__k || t3.__k, e3 = [], f3 = [], q(t3, u3 = (!r3 && i3 || t3).__k = k(S, null, [u3]), o3 || d, d, t3.namespaceURI, !r3 && i3 ? [i3] : o3 ? null : t3.firstChild ? n.call(t3.childNodes) : null, e3, !r3 && i3 ? i3 : o3 ? o3.__e : t3.firstChild, r3, f3), D(e3, u3, f3);
   }
-  function R(n2) {
+  function X(n2) {
     function l3(n3) {
       var u3, t3;
       return this.getChildContext || (u3 = /* @__PURE__ */ new Set(), (t3 = {})[l3.__c] = this, this.getChildContext = function() {
@@ -331,7 +334,7 @@
         u3 = null;
       }, this.shouldComponentUpdate = function(n4) {
         this.props.value != n4.value && u3.forEach(function(n5) {
-          n5.__e = true, $(n5);
+          n5.__e = true, A(n5);
         });
       }, this.sub = function(n4) {
         u3.add(n4);
@@ -341,11 +344,11 @@
         };
       }), n3.children;
     }
-    return l3.__c = "__cC" + h++, l3.__ = n2, l3.Provider = l3.__l = (l3.Consumer = function(n3, l4) {
+    return l3.__c = "__cC" + y++, l3.__ = n2, l3.Provider = l3.__l = (l3.Consumer = function(n3, l4) {
       return n3.children(l4);
     }).contextType = l3, l3;
   }
-  n = v.slice, l = { __e: function(n2, l3, u3, t3) {
+  n = w.slice, l = { __e: function(n2, l3, u3, t3) {
     for (var i3, r3, o3; l3 = l3.__; ) if ((i3 = l3.__c) && !i3.__) try {
       if ((r3 = i3.constructor) && null != r3.getDerivedStateFromError && (i3.setState(r3.getDerivedStateFromError(n2)), o3 = i3.__d), null != i3.componentDidCatch && (i3.componentDidCatch(n2, t3 || {}), o3 = i3.__d), o3) return i3.__E = i3;
     } catch (l4) {
@@ -354,14 +357,14 @@
     throw n2;
   } }, u = 0, t = function(n2) {
     return null != n2 && void 0 === n2.constructor;
-  }, x.prototype.setState = function(n2, l3) {
+  }, C.prototype.setState = function(n2, l3) {
     var u3;
-    u3 = null != this.__s && this.__s != this.state ? this.__s : this.__s = w({}, this.state), "function" == typeof n2 && (n2 = n2(w({}, u3), this.props)), n2 && w(u3, n2), null != n2 && this.__v && (l3 && this._sb.push(l3), $(this));
-  }, x.prototype.forceUpdate = function(n2) {
-    this.__v && (this.__e = true, n2 && this.__h.push(n2), $(this));
-  }, x.prototype.render = k, i = [], o = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e = function(n2, l3) {
+    u3 = null != this.__s && this.__s != this.state ? this.__s : this.__s = m({}, this.state), "function" == typeof n2 && (n2 = n2(m({}, u3), this.props)), n2 && m(u3, n2), null != n2 && this.__v && (l3 && this._sb.push(l3), A(this));
+  }, C.prototype.forceUpdate = function(n2) {
+    this.__v && (this.__e = true, n2 && this.__h.push(n2), A(this));
+  }, C.prototype.render = S, i = [], o = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e = function(n2, l3) {
     return n2.__v.__b - l3.__v.__b;
-  }, I.__r = 0, f = /(PointerCapture)$|Capture$/i, c = 0, s = O(false), a = O(true), h = 0;
+  }, H.__r = 0, f = Math.random().toString(8), c = "__d" + f, s = "__a" + f, a = /(PointerCapture)$|Capture$/i, h = 0, p = V(false), v = V(true), y = 0;
 
   // ../node_modules/preact/hooks/dist/hooks.module.js
   var t2;
@@ -510,7 +513,7 @@
 
   // shared/components/DuckDuckGoLogo/DuckDuckGoLogo.js
   function DuckDuckGoLogo() {
-    return /* @__PURE__ */ _("span", { className: DuckDuckGoLogo_default.logo }, /* @__PURE__ */ _("span", { className: (0, import_classnames.default)(DuckDuckGoLogo_default.logo, "offscreen") }, "DuckDuckGo"));
+    return /* @__PURE__ */ k("span", { className: DuckDuckGoLogo_default.logo }, /* @__PURE__ */ k("span", { className: (0, import_classnames.default)(DuckDuckGoLogo_default.logo, "offscreen") }, "DuckDuckGo"));
   }
 
   // shared/hooks/useMediaQuery.js
@@ -527,7 +530,7 @@
   }
 
   // shared/components/EnvironmentProvider.js
-  var EnvironmentContext = R({
+  var EnvironmentContext = X({
     isReducedMotion: false,
     isDarkMode: false,
     debugState: false,
@@ -567,7 +570,7 @@
       });
       return () => mediaQueryList.removeEventListener("change", listener);
     }, []);
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       EnvironmentContext.Provider,
       {
         value: {
@@ -588,7 +591,7 @@
   }
 
   // shared/components/ErrorBoundary.js
-  var ErrorBoundary = class extends x {
+  var ErrorBoundary = class extends C {
     constructor(props) {
       super(props);
       this.state = { hasError: false };
@@ -639,7 +642,7 @@
   }
 
   // shared/components/TranslationsProvider.js
-  var TranslationContext = R({
+  var TranslationContext = X({
     /** @type {LocalTranslationFn} */
     t: () => {
       throw new Error("must implement");
@@ -650,7 +653,7 @@
       const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
       return apply(subject, replacements, textLength);
     }
-    return /* @__PURE__ */ _(TranslationContext.Provider, { value: { t: t3 } }, children);
+    return /* @__PURE__ */ k(TranslationContext.Provider, { value: { t: t3 } }, children);
   }
 
   // pages/release-notes/app/types.js
@@ -663,7 +666,7 @@
   // pages/release-notes/app/components/ErrorFallback.js
   function ErrorFallback() {
     const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _("h1", null, t3("somethingWentWrong"));
+    return /* @__PURE__ */ k("h1", null, t3("somethingWentWrong"));
   }
 
   // pages/release-notes/app/components/ReleaseNotes.js
@@ -686,7 +689,7 @@
 
   // shared/components/Button/Button.js
   function Button({ variant, size = "md", className, children, onClick, type = "button" }) {
-    return /* @__PURE__ */ _(
+    return /* @__PURE__ */ k(
       "button",
       {
         className: (0, import_classnames2.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant, [Button_default[size]]: size }, className),
@@ -716,7 +719,7 @@
 
   // shared/components/Card/Card.js
   function Card({ className, children }) {
-    return /* @__PURE__ */ _("section", { className: (0, import_classnames3.default)(Card_default.card, className) }, children);
+    return /* @__PURE__ */ k("section", { className: (0, import_classnames3.default)(Card_default.card, className) }, children);
   }
 
   // shared/components/Text/Text.js
@@ -742,16 +745,16 @@
 
   // shared/components/Text/Text.js
   function Text({ as: Comp = "p", variant, strictSpacing = true, className, children }) {
-    return /* @__PURE__ */ _(Comp, { className: (0, import_classnames4.default)(Text_default.root, className, { [Text_default[`${variant}`]]: !!variant, [Text_default.strictSpacing]: strictSpacing }) }, children);
+    return /* @__PURE__ */ k(Comp, { className: (0, import_classnames4.default)(Text_default.root, className, { [Text_default[`${variant}`]]: !!variant, [Text_default.strictSpacing]: strictSpacing }) }, children);
   }
 
   // pages/release-notes/app/settings.provider.js
-  var SettingsContext = R(
+  var SettingsContext = X(
     /** @type {{settings: import("./settings.js").Settings}} */
     {}
   );
   function SettingsProvider({ settings, children }) {
-    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
+    return /* @__PURE__ */ k(SettingsContext.Provider, { value: { settings } }, children);
   }
   function usePlatformName() {
     return x2(SettingsContext).settings.platform.name;
@@ -764,18 +767,18 @@
 
   // pages/release-notes/app/components/ContentPlaceholder.js
   function ContentPlaceholder() {
-    return /* @__PURE__ */ _("div", { className: ContentPlaceholder_default.contentPlaceholder, "aria-hidden": "true", "data-testid": "placeholder" }, /* @__PURE__ */ _("h2", null), /* @__PURE__ */ _("p", null), /* @__PURE__ */ _("ul", null, /* @__PURE__ */ _("li", null, /* @__PURE__ */ _("p", null), /* @__PURE__ */ _("p", null)), /* @__PURE__ */ _("li", null, /* @__PURE__ */ _("p", null), /* @__PURE__ */ _("p", null))));
+    return /* @__PURE__ */ k("div", { className: ContentPlaceholder_default.contentPlaceholder, "aria-hidden": "true", "data-testid": "placeholder" }, /* @__PURE__ */ k("h2", null), /* @__PURE__ */ k("p", null), /* @__PURE__ */ k("ul", null, /* @__PURE__ */ k("li", null, /* @__PURE__ */ k("p", null), /* @__PURE__ */ k("p", null)), /* @__PURE__ */ k("li", null, /* @__PURE__ */ k("p", null), /* @__PURE__ */ k("p", null))));
   }
 
   // pages/release-notes/app/components/OpenIn16.js
   function OpenIn16({ className }) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", className }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", className }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
         d: "M7.361 1.013a.626.626 0 0 1 0 1.224l-.126.013H5A2.75 2.75 0 0 0 2.25 5v6A2.75 2.75 0 0 0 5 13.75h6A2.75 2.75 0 0 0 13.75 11V8.765a.625.625 0 0 1 1.25 0V11a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4V5a4 4 0 0 1 4-4h2.235l.126.013Z"
       }
-    ), /* @__PURE__ */ _(
+    ), /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
@@ -818,7 +821,7 @@
 
   // pages/release-notes/app/components/ReleaseNotes.js
   function PageTitle({ title }) {
-    return /* @__PURE__ */ _("h1", { className: ReleaseNotes_default.title }, title);
+    return /* @__PURE__ */ k("h1", { className: ReleaseNotes_default.title }, title);
   }
   function StatusText({ status, version, progress = 0 }) {
     const { t: t3 } = useTypedTranslation();
@@ -833,7 +836,7 @@
       updateDownloading: t3("updateDownloading", { progress: progressPercentage }),
       updatePreparing: t3("updatePreparing")
     };
-    return /* @__PURE__ */ _(Text, { variant: "title-2", className: ReleaseNotes_default.statusText }, t3("versionNumber", { version: `${version}` }), " \u2014 ", statusTexts[status]);
+    return /* @__PURE__ */ k(Text, { variant: "title-2", className: ReleaseNotes_default.statusText }, t3("versionNumber", { version: `${version}` }), " \u2014 ", statusTexts[status]);
   }
   function StatusIcon({ status, className }) {
     const iconClasses = {
@@ -846,7 +849,7 @@
       updatePreparing: ReleaseNotes_default.spinnerIcon,
       updateDownloading: ReleaseNotes_default.spinnerIcon
     };
-    return /* @__PURE__ */ _("div", { className: (0, import_classnames5.default)(ReleaseNotes_default.statusIcon, iconClasses[status], className) });
+    return /* @__PURE__ */ k("div", { className: (0, import_classnames5.default)(ReleaseNotes_default.statusIcon, iconClasses[status], className) });
   }
   function StatusTimestamp({ timestamp }) {
     const { t: t3 } = useTypedTranslation();
@@ -861,33 +864,33 @@
     if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
       dateString = t3("todayAt", { time: timeString });
     }
-    return /* @__PURE__ */ _(Text, { variant: "body", className: ReleaseNotes_default.statusTimestamp }, t3("lastChecked", { date: dateString }));
+    return /* @__PURE__ */ k(Text, { variant: "body", className: ReleaseNotes_default.statusTimestamp }, t3("lastChecked", { date: dateString }));
   }
   function UpdateStatus({ status, timestamp, version, progress }) {
-    return /* @__PURE__ */ _("div", { className: ReleaseNotes_default.statusContainer }, /* @__PURE__ */ _(StatusIcon, { status, className: ReleaseNotes_default.gridIcon }), /* @__PURE__ */ _(StatusText, { status, version, progress }), /* @__PURE__ */ _(StatusTimestamp, { timestamp }));
+    return /* @__PURE__ */ k("div", { className: ReleaseNotes_default.statusContainer }, /* @__PURE__ */ k(StatusIcon, { status, className: ReleaseNotes_default.gridIcon }), /* @__PURE__ */ k(StatusText, { status, version, progress }), /* @__PURE__ */ k(StatusTimestamp, { timestamp }));
   }
   function ReleaseNotesHeading({ title, version, showNewTag = false }) {
     const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _("header", { className: ReleaseNotes_default.notesHeading }, /* @__PURE__ */ _("h2", { className: ReleaseNotes_default.releaseTitle }, title, showNewTag && /* @__PURE__ */ _("span", { className: ReleaseNotes_default.newTag }, t3("new"))), /* @__PURE__ */ _(Text, { variant: "title-2", className: ReleaseNotes_default.releaseVersion }, t3("versionNumber", { version: `${version}` })));
+    return /* @__PURE__ */ k("header", { className: ReleaseNotes_default.notesHeading }, /* @__PURE__ */ k("h2", { className: ReleaseNotes_default.releaseTitle }, title, showNewTag && /* @__PURE__ */ k("span", { className: ReleaseNotes_default.newTag }, t3("new"))), /* @__PURE__ */ k(Text, { variant: "title-2", className: ReleaseNotes_default.releaseVersion }, t3("versionNumber", { version: `${version}` })));
   }
   function ReleaseNotesSubheading({ icon, title }) {
-    return /* @__PURE__ */ _("div", { className: ReleaseNotes_default.notesSubheading }, icon && /* @__PURE__ */ _("span", { className: (0, import_classnames5.default)(ReleaseNotes_default.notesIcon, ReleaseNotes_default[`notesIcon${icon}`]) }), /* @__PURE__ */ _(Text, { as: "h3", variant: "headline" }, title));
+    return /* @__PURE__ */ k("div", { className: ReleaseNotes_default.notesSubheading }, icon && /* @__PURE__ */ k("span", { className: (0, import_classnames5.default)(ReleaseNotes_default.notesIcon, ReleaseNotes_default[`notesIcon${icon}`]) }), /* @__PURE__ */ k(Text, { as: "h3", variant: "headline" }, title));
   }
   function ReleaseNotesList({ notes }) {
-    return /* @__PURE__ */ _("ul", { className: ReleaseNotes_default.list }, notes.map((note) => /* @__PURE__ */ _(Text, { as: "li", variant: "body", className: ReleaseNotes_default.listItem }, note)));
+    return /* @__PURE__ */ k("ul", { className: ReleaseNotes_default.list }, notes.map((note) => /* @__PURE__ */ k(Text, { as: "li", variant: "body", className: ReleaseNotes_default.listItem }, note)));
   }
   function ReleaseNotesContent({ title: releaseTitle, currentVersion, latestVersion, notes: releaseNotes }) {
     if (!releaseTitle || !releaseNotes.length) return null;
     const version = latestVersion || currentVersion;
     const showNewTag = !!latestVersion && currentVersion !== latestVersion;
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ReleaseNotesHeading, { title: releaseTitle, version, showNewTag }), /* @__PURE__ */ _("div", { className: ReleaseNotes_default.listGrid }, releaseNotes.map(({ icon, title, notes }) => /* @__PURE__ */ _("div", { class: ReleaseNotes_default.listContainer }, title && /* @__PURE__ */ _(ReleaseNotesSubheading, { title, icon }), /* @__PURE__ */ _(ReleaseNotesList, { notes })))));
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ReleaseNotesHeading, { title: releaseTitle, version, showNewTag }), /* @__PURE__ */ k("div", { className: ReleaseNotes_default.listGrid }, releaseNotes.map(({ icon, title, notes }) => /* @__PURE__ */ k("div", { class: ReleaseNotes_default.listContainer }, title && /* @__PURE__ */ k(ReleaseNotesSubheading, { title, icon }), /* @__PURE__ */ k(ReleaseNotesList, { notes })))));
   }
   function CardContents({ releaseData }) {
     const { t: t3 } = useTypedTranslation();
     const { status } = releaseData;
     const isLoading = status === "loading" || status === "updateDownloading" || status === "updatePreparing";
     if (isLoading || status === "loadingError") {
-      return /* @__PURE__ */ _(ContentPlaceholder, null);
+      return /* @__PURE__ */ k(ContentPlaceholder, null);
     }
     const notes = [];
     const { currentVersion, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData;
@@ -901,11 +904,11 @@
         notes: [
           ...releaseNotesPrivacyPro,
           /* The following should only get translated when the contents of the Release Notes update message are localized */
-          /* @__PURE__ */ _("span", null, "Not subscribed? Find out more at", " ", /* @__PURE__ */ _("a", { href: "https://duckduckgo.com/pro", target: "_blank" }, "duckduckgo.com/pro"))
+          /* @__PURE__ */ k("span", null, "Not subscribed? Find out more at", " ", /* @__PURE__ */ k("a", { href: "https://duckduckgo.com/pro", target: "_blank" }, "duckduckgo.com/pro"))
         ]
       });
     }
-    return /* @__PURE__ */ _(ReleaseNotesContent, { title: releaseTitle, currentVersion, latestVersion, notes });
+    return /* @__PURE__ */ k(ReleaseNotesContent, { title: releaseTitle, currentVersion, latestVersion, notes });
   }
   function UpdateButton({ releaseData }) {
     const { t: t3 } = useTypedTranslation();
@@ -914,18 +917,18 @@
     const { status } = releaseData;
     let button;
     if (status === "loadingError") {
-      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.retryFetchReleaseNotes(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryGettingReleaseNotes"));
+      button = /* @__PURE__ */ k(Button, { onClick: () => messages?.retryFetchReleaseNotes(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryGettingReleaseNotes"));
     }
     if (status === "updateError") {
-      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.retryUpdate(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryUpdate"));
+      button = /* @__PURE__ */ k(Button, { onClick: () => messages?.retryUpdate(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryUpdate"));
     }
     if (status === "updateReady" || status === "criticalUpdateReady") {
       const { automaticUpdate } = releaseData;
       const buttonText = automaticUpdate ? t3("restartToUpdate") : t3("updateBrowser");
-      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.browserRestart(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, buttonText);
+      button = /* @__PURE__ */ k(Button, { onClick: () => messages?.browserRestart(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, buttonText);
     }
     if (!button) return null;
-    return /* @__PURE__ */ _("div", { className: ReleaseNotes_default.buttonContainer }, button);
+    return /* @__PURE__ */ k("div", { className: ReleaseNotes_default.buttonContainer }, button);
   }
   function ReleaseNotes({ releaseData }) {
     const { t: t3 } = useTypedTranslation();
@@ -941,7 +944,7 @@
       }
     }
     const shouldShowButton = status === "updateReady" || status === "criticalUpdateReady" || status === "updateError" || status === "loadingError";
-    return /* @__PURE__ */ _("article", { className: ReleaseNotes_default.article }, /* @__PURE__ */ _("header", { className: ReleaseNotes_default.heading }, /* @__PURE__ */ _("p", null, t3("thankyou")), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _(UpdateStatus, { status, timestamp: timestampInMilliseconds, version: currentVersion, progress }), shouldShowButton && /* @__PURE__ */ _(UpdateButton, { releaseData })), status !== "loadingError" && /* @__PURE__ */ _(Card, { className: ReleaseNotes_default.card }, /* @__PURE__ */ _(CardContents, { releaseData })), /* @__PURE__ */ _("a", { href: "https://duckduckgo.com/updates", target: "_blank", className: ReleaseNotes_default.updatesLink }, t3("whatsNewAtDuckDuckGoLink"), /* @__PURE__ */ _(OpenIn16, { className: ReleaseNotes_default.linkIcon })));
+    return /* @__PURE__ */ k("article", { className: ReleaseNotes_default.article }, /* @__PURE__ */ k("header", { className: ReleaseNotes_default.heading }, /* @__PURE__ */ k("p", null, t3("thankyou")), /* @__PURE__ */ k(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ k(UpdateStatus, { status, timestamp: timestampInMilliseconds, version: currentVersion, progress }), shouldShowButton && /* @__PURE__ */ k(UpdateButton, { releaseData })), status !== "loadingError" && /* @__PURE__ */ k(Card, { className: ReleaseNotes_default.card }, /* @__PURE__ */ k(CardContents, { releaseData })), /* @__PURE__ */ k("a", { href: "https://duckduckgo.com/updates", target: "_blank", className: ReleaseNotes_default.updatesLink }, t3("whatsNewAtDuckDuckGoLink"), /* @__PURE__ */ k(OpenIn16, { className: ReleaseNotes_default.linkIcon })));
   }
 
   // pages/release-notes/app/components/App.js
@@ -960,7 +963,7 @@
       console.error("ErrorBoundary", message);
       messages?.reportPageException({ message });
     }
-    return /* @__PURE__ */ _("main", { className: App_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _(ErrorBoundary, { didCatch: ({ error }) => didCatch(error), fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _("header", { className: App_default.header }, /* @__PURE__ */ _(DuckDuckGoLogo, null)), /* @__PURE__ */ _("div", { class: App_default.core }, releaseData && /* @__PURE__ */ _(ReleaseNotes, { releaseData })), /* @__PURE__ */ _(WillThrow, null), children));
+    return /* @__PURE__ */ k("main", { className: App_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ k(ErrorBoundary, { didCatch: ({ error }) => didCatch(error), fallback: /* @__PURE__ */ k(ErrorFallback, null) }, /* @__PURE__ */ k("header", { className: App_default.header }, /* @__PURE__ */ k(DuckDuckGoLogo, null)), /* @__PURE__ */ k("div", { class: App_default.core }, releaseData && /* @__PURE__ */ k(ReleaseNotes, { releaseData })), /* @__PURE__ */ k(WillThrow, null), children));
   }
   function WillThrow() {
     const env = useEnv();
@@ -1095,7 +1098,7 @@
         ]
       }
     ];
-    return /* @__PURE__ */ _("main", { className: Components_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loadingError", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ _(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Buttons"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryGettingReleaseNotes"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("restartToUpdate"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("updateBrowser"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loadingError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ k("main", { className: Components_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ k("h1", null, "Release Notes Components"), /* @__PURE__ */ k("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ k(DuckDuckGoLogo, null), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Page Title"), /* @__PURE__ */ k(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Update Status"), /* @__PURE__ */ k(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ k(UpdateStatus, { status: "loadingError", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ k(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ k(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ k(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ k(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ k(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ k(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Update Buttons"), /* @__PURE__ */ k("div", null, /* @__PURE__ */ k(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryGettingReleaseNotes"))), /* @__PURE__ */ k("div", null, /* @__PURE__ */ k(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("restartToUpdate"))), /* @__PURE__ */ k("div", null, /* @__PURE__ */ k(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("updateBrowser"))), /* @__PURE__ */ k("div", null, /* @__PURE__ */ k(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryUpdate"))), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Content Placeholder"), /* @__PURE__ */ k(ContentPlaceholder, null), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Release Notes Heading"), /* @__PURE__ */ k(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ k(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Release Notes Subheading"), /* @__PURE__ */ k(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ k(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Release Notes List"), /* @__PURE__ */ k(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ k(Card, { className: Components_default.card }, /* @__PURE__ */ k(ContentPlaceholder, null)), /* @__PURE__ */ k("hr", null), /* @__PURE__ */ k("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ k(Card, { className: Components_default.card }, /* @__PURE__ */ k(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ k(LoadingThen, null, /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ k(LoadingThen, null, /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.loadingError })), /* @__PURE__ */ k(LoadingThen, null, /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ k(LoadingThen, null, /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ k(LoadingThen, null, /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ k(LoadingThen, null, /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ k(LoadingThen, null, /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ k(LoadingThen, null, /* @__PURE__ */ k(
       ReleaseNotes,
       {
         releaseData: (
@@ -1114,7 +1117,7 @@
       setTimeout(() => setReady(true), 1e3);
     }, []);
     if (ready) return children;
-    return /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading });
+    return /* @__PURE__ */ k(ReleaseNotes, { releaseData: sampleData.loading });
   }
 
   // shared/call-with-retry.js
@@ -1262,7 +1265,7 @@
   };
 
   // pages/release-notes/app/index.js
-  var MessagingContext = R({
+  var MessagingContext = X({
     messages: (
       /** @type {import('../src/index.js').ReleaseNotesPage | null} */
       null
@@ -1289,8 +1292,8 @@
     const root = document.querySelector("#app");
     if (!root) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
-      J(
-        /* @__PURE__ */ _(
+      R(
+        /* @__PURE__ */ k(
           EnvironmentProvider,
           {
             debugState: environment.debugState,
@@ -1298,14 +1301,14 @@
             willThrow: environment.willThrow,
             env: environment.env
           },
-          /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(App, null))))
+          /* @__PURE__ */ k(SettingsProvider, { settings }, /* @__PURE__ */ k(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ k(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ k(App, null))))
         ),
         root
       );
     }
     if (environment.display === "components") {
-      J(
-        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(Components, null))))),
+      R(
+        /* @__PURE__ */ k(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ k(SettingsProvider, { settings }, /* @__PURE__ */ k(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ k(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ k(Components, null))))),
         root
       );
     }

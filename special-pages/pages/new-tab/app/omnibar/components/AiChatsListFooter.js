@@ -16,7 +16,7 @@ export function AiChatsListFooter() {
     const { viewAllAiChats } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { viewAllChatsSelected } = useAiChatsContext();
+    const { viewAllChatsSelected, selectViewAllChats, clearSelectedChat } = useAiChatsContext();
 
     return (
         <div class={styles.footer}>
@@ -26,6 +26,8 @@ export function AiChatsListFooter() {
                 class={styles.item}
                 tabIndex={viewAllChatsSelected ? 0 : -1}
                 aria-selected={viewAllChatsSelected}
+                onMouseOver={() => selectViewAllChats()}
+                onMouseLeave={() => clearSelectedChat()}
                 onClick={(event) => {
                     event.preventDefault();
                     viewAllAiChats({
