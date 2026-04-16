@@ -7,7 +7,7 @@ import { useModelConfig } from './useModelConfig';
  * Returns empty data when the flag is off, hiding the model selector UI.
  * For ungated model access, use {@link useModelConfig} instead.
  */
-export function useAiToolsModelConfig() {
+export function useAiChatToolsModel() {
     const { state } = useContext(OmnibarContext);
     const modelConfig = useModelConfig();
 
