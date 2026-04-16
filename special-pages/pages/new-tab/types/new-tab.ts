@@ -83,6 +83,10 @@ export type EnableAIChatTools = boolean;
  */
 export type SelectedModelID = string;
 /**
+ * Identifier for an AI chat tool.
+ */
+export type ToolId = "WebSearch";
+/**
  * Sections of AI models for the model selector.
  */
 export type AIModelSections = AIModelSection[];
@@ -648,6 +652,10 @@ export interface AIModelItem {
    * Whether this model supports image attachments
    */
   supportsImageUpload: boolean;
+  /**
+   * Tools this model supports.
+   */
+  supportedTools?: ToolId[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -673,7 +681,7 @@ export interface SubmitChatAction {
   /**
    * Tools to enable for this chat session.
    */
-  toolChoice?: "WebSearch"[];
+  toolChoice?: ToolId[];
   /**
    * Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.
    */

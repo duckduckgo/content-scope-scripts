@@ -9158,7 +9158,8 @@
       case "hideChats":
         return {
           ...state,
-          chatsVisible: false
+          chatsVisible: false,
+          selectedIndex: null
         };
       case "showChats":
         return {
@@ -9224,28 +9225,30 @@
       if (!enableRecentAiChats) return;
       getAiChats(query);
     }, [getAiChats, query, enableRecentAiChats]);
+    const chatsVisible = state.chatsVisible;
     const extraItems = showViewAllAiChats && state.chats.length > 0 ? 1 : 0;
     const itemCount = state.chats.length + extraItems;
-    const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
-    const viewAllChatsSelected = showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
+    const selectedChat = chatsVisible && state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
+    const viewAllChatsSelected = chatsVisible && showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
     const selectPreviousChat = () => {
-      if (itemCount === 0) return false;
+      if (!chatsVisible || itemCount === 0) return false;
       dispatch({ type: "previousChat", itemCount });
       return true;
     };
     const selectNextChat = () => {
-      if (itemCount === 0) return false;
+      if (!chatsVisible || itemCount === 0) return false;
       dispatch({ type: "nextChat", itemCount });
       return true;
     };
     const setSelectedChat = (chat) => {
+      if (!chatsVisible) return;
       dispatch({ type: "setSelectedChat", payload: chat });
     };
     const clearSelectedChat = () => {
       dispatch({ type: "clearSelectedChat" });
     };
     const selectViewAllChats = () => {
-      if (!showViewAllAiChats || itemCount === 0) return;
+      if (!chatsVisible || !showViewAllAiChats || itemCount === 0) return;
       dispatch({ type: "selectViewAllChats", targetIndex: itemCount - 1 });
     };
     const hideChats = () => {
@@ -9255,7 +9258,7 @@
       dispatch({ type: "showChats" });
     };
     return {
-      chats: state.chatsVisible ? state.chats : EMPTY_ARRAY,
+      chats: chatsVisible ? state.chats : EMPTY_ARRAY,
       selectedChat,
       viewAllChatsSelected,
       selectPreviousChat,
@@ -11785,6 +11788,45 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/chat-tools/useActiveTools.js
+  function useActiveTools() {
+    const { state } = x2(OmnibarContext);
+    const { selectedModel } = useSelectedModel();
+    const [activeTool, setActiveTool] = d2(
+      /** @type {ToolId|null} */
+      null
+    );
+    const modelSupportedTools = selectedModel?.supportedTools ?? [];
+    const availableTools = [
+      ...state.config?.enableImageGeneration === true ? [
+        /** @type {const} */
+        "image-generation"
+      ] : [],
+      ...state.config?.enableWebSearch === true && modelSupportedTools.includes("WebSearch") ? [
+        /** @type {const} */
+        "web-search"
+      ] : []
+    ];
+    const validActiveTool = activeTool !== null && availableTools.includes(activeTool) ? activeTool : null;
+    const imageGenerationActive = validActiveTool === "image-generation";
+    const webSearchActive = validActiveTool === "web-search";
+    return {
+      activeTool: validActiveTool,
+      availableTools,
+      imageGenerationActive,
+      webSearchActive,
+      setActiveTool
+    };
+  }
+  var init_useActiveTools = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/useActiveTools.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+      init_useSelectedModel();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/Omnibar.js
   function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -11879,37 +11921,28 @@
       {}
     );
     const { showChats, hideChats } = useAiChatsContext();
-    const { state } = x2(OmnibarContext);
     const { selectedModel } = useSelectedModel();
+    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
     const hasVisibleImagesRef = A2(false);
     const [imageWarning, setImageWarning] = d2(false);
-    const [activeTool, setActiveTool] = d2(
-      /** @type {ToolId|null} */
-      null
-    );
     const imageState = useImageAttachments();
-    const imageGenerationActive = activeTool === "image-generation";
-    const webSearchActive = activeTool === "web-search";
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages ? t4("omnibar_imageGenerationWithAttachmentPlaceholder") : t4("omnibar_imageGenerationPlaceholder");
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
-    const availableTools = [
-      ...state.config?.enableImageGeneration === true ? [
-        /** @type {const} */
-        "image-generation"
-      ] : [],
-      ...state.config?.enableWebSearch === true ? [
-        /** @type {const} */
-        "web-search"
-      ] : []
-    ];
+    const clearTool = () => {
+      setActiveTool(null);
+    };
     const handleToggleTool = (tool) => {
-      setActiveTool((prev) => prev === tool ? null : tool);
+      const nextTool = activeTool === tool ? null : tool;
+      if (nextTool === "image-generation") {
+        hideChats();
+      }
+      setActiveTool(nextTool);
     };
     const handleChange = (value2) => {
       onChange(value2);
@@ -11935,7 +11968,7 @@
       };
       onSubmit(action);
       imageState.clearAttachedImages();
-      setActiveTool(null);
+      clearTool();
     };
     const showRecentChats = enableRecentAiChats && !imageGenerationActive;
     return /* @__PURE__ */ k(
@@ -12010,6 +12043,7 @@
       init_useImageAttachments();
       init_ModelSelectorTool();
       init_ToolsMenu2();
+      init_useActiveTools();
       init_useSelectedModel();
     }
   });
@@ -38611,65 +38645,114 @@
       aiModelSections: [
         {
           items: [
-            { id: "gpt-4o-mini", name: "GPT-4o mini", shortName: "4o-mini", isEnabled: true, supportsImageUpload: true },
-            { id: "gpt-5-mini", name: "GPT-5 mini", shortName: "GPT-5", isEnabled: true, supportsImageUpload: true },
-            { id: "openai_gpt-oss-120b", name: "GPT-OSS 120B", shortName: "GPT-OSS", isEnabled: true, supportsImageUpload: false },
+            {
+              id: "gpt-4o-mini",
+              name: "GPT-4o mini",
+              shortName: "4o-mini",
+              isEnabled: true,
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
+            },
+            {
+              id: "gpt-5-mini",
+              name: "GPT-5 mini",
+              shortName: "GPT-5",
+              isEnabled: true,
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
+            },
+            {
+              id: "openai_gpt-oss-120b",
+              name: "GPT-OSS 120B",
+              shortName: "GPT-OSS",
+              isEnabled: true,
+              supportsImageUpload: false,
+              supportedTools: []
+            },
             {
               id: "meta-llama_Llama-4-Scout-17B-16E-Instruct",
               name: "Llama 4 Scout",
               shortName: "Scout",
               isEnabled: true,
-              supportsImageUpload: false
+              supportsImageUpload: false,
+              supportedTools: []
             },
             {
               id: "claude-haiku-4-5",
               name: "Claude Haiku 4.5",
               shortName: "Haiku 4.5",
               isEnabled: true,
-              supportsImageUpload: true
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
             },
             {
               id: "mistralai_Mistral-Small-24B-Instruct-2501",
               name: "Mistral Small 3",
               shortName: "Mistral",
               isEnabled: true,
-              supportsImageUpload: false
+              supportsImageUpload: false,
+              supportedTools: []
             },
             {
               id: "claude-3-5-haiku-latest",
               name: "Claude 3.5 Haiku",
               shortName: "Claude 3.5 Haiku",
               isEnabled: true,
-              supportsImageUpload: true
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
             }
           ]
         },
         {
           header: "Advanced Models - DuckDuckGo subscription",
           items: [
-            { id: "gpt-4o", name: "GPT-4o", shortName: "GPT-4o", isEnabled: false, supportsImageUpload: true },
-            { id: "gpt-5_2", name: "GPT-5.2", shortName: "GPT-5.2", isEnabled: false, supportsImageUpload: true },
+            {
+              id: "gpt-4o",
+              name: "GPT-4o",
+              shortName: "GPT-4o",
+              isEnabled: false,
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
+            },
+            {
+              id: "gpt-5_2",
+              name: "GPT-5.2",
+              shortName: "GPT-5.2",
+              isEnabled: false,
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
+            },
             {
               id: "claude-sonnet-4-5",
               name: "Claude Sonnet 4.5",
               shortName: "Sonnet 4.5",
               isEnabled: false,
-              supportsImageUpload: true
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
             },
             {
               id: "meta-llama_Llama-4-Maverick-17B-128E-Instruct-FP8",
               name: "Llama 4 Maverick",
               shortName: "Maverick",
               isEnabled: false,
-              supportsImageUpload: false
+              supportsImageUpload: false,
+              supportedTools: []
             },
-            { id: "claude-opus-4-6", name: "Claude Opus 4.6", shortName: "Opus 4.6", isEnabled: false, supportsImageUpload: true },
+            {
+              id: "claude-opus-4-6",
+              name: "Claude Opus 4.6",
+              shortName: "Opus 4.6",
+              isEnabled: false,
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
+            },
             {
               id: "claude-sonnet-4",
               name: "Claude 4 Sonnet",
               shortName: "Claude 4 Sonnet",
               isEnabled: false,
-              supportsImageUpload: true
+              supportsImageUpload: true,
+              supportedTools: ["WebSearch"]
             }
           ]
         }

@@ -1471,7 +1471,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableWebSearch': 'true' } });
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableWebSearch': 'true', 'omnibar.enableAiChatTools': 'true' } });
             await omnibar.ready();
 
             await omnibar.aiTab().click();

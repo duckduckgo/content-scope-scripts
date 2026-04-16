@@ -9153,7 +9153,8 @@
       case "hideChats":
         return {
           ...state,
-          chatsVisible: false
+          chatsVisible: false,
+          selectedIndex: null
         };
       case "showChats":
         return {
@@ -9219,28 +9220,30 @@
       if (!enableRecentAiChats) return;
       getAiChats(query);
     }, [getAiChats, query, enableRecentAiChats]);
+    const chatsVisible = state.chatsVisible;
     const extraItems = showViewAllAiChats && state.chats.length > 0 ? 1 : 0;
     const itemCount = state.chats.length + extraItems;
-    const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
-    const viewAllChatsSelected = showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
+    const selectedChat = chatsVisible && state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
+    const viewAllChatsSelected = chatsVisible && showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
     const selectPreviousChat = () => {
-      if (itemCount === 0) return false;
+      if (!chatsVisible || itemCount === 0) return false;
       dispatch({ type: "previousChat", itemCount });
       return true;
     };
     const selectNextChat = () => {
-      if (itemCount === 0) return false;
+      if (!chatsVisible || itemCount === 0) return false;
       dispatch({ type: "nextChat", itemCount });
       return true;
     };
     const setSelectedChat = (chat) => {
+      if (!chatsVisible) return;
       dispatch({ type: "setSelectedChat", payload: chat });
     };
     const clearSelectedChat = () => {
       dispatch({ type: "clearSelectedChat" });
     };
     const selectViewAllChats = () => {
-      if (!showViewAllAiChats || itemCount === 0) return;
+      if (!chatsVisible || !showViewAllAiChats || itemCount === 0) return;
       dispatch({ type: "selectViewAllChats", targetIndex: itemCount - 1 });
     };
     const hideChats = () => {
@@ -9250,7 +9253,7 @@
       dispatch({ type: "showChats" });
     };
     return {
-      chats: state.chatsVisible ? state.chats : EMPTY_ARRAY,
+      chats: chatsVisible ? state.chats : EMPTY_ARRAY,
       selectedChat,
       viewAllChatsSelected,
       selectPreviousChat,
@@ -11780,6 +11783,45 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/chat-tools/useActiveTools.js
+  function useActiveTools() {
+    const { state } = x2(OmnibarContext);
+    const { selectedModel } = useSelectedModel();
+    const [activeTool, setActiveTool] = d2(
+      /** @type {ToolId|null} */
+      null
+    );
+    const modelSupportedTools = selectedModel?.supportedTools ?? [];
+    const availableTools = [
+      ...state.config?.enableImageGeneration === true ? [
+        /** @type {const} */
+        "image-generation"
+      ] : [],
+      ...state.config?.enableWebSearch === true && modelSupportedTools.includes("WebSearch") ? [
+        /** @type {const} */
+        "web-search"
+      ] : []
+    ];
+    const validActiveTool = activeTool !== null && availableTools.includes(activeTool) ? activeTool : null;
+    const imageGenerationActive = validActiveTool === "image-generation";
+    const webSearchActive = validActiveTool === "web-search";
+    return {
+      activeTool: validActiveTool,
+      availableTools,
+      imageGenerationActive,
+      webSearchActive,
+      setActiveTool
+    };
+  }
+  var init_useActiveTools = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/useActiveTools.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+      init_useSelectedModel();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/Omnibar.js
   function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -11874,37 +11916,28 @@
       {}
     );
     const { showChats, hideChats } = useAiChatsContext();
-    const { state } = x2(OmnibarContext);
     const { selectedModel } = useSelectedModel();
+    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
     const hasVisibleImagesRef = A2(false);
     const [imageWarning, setImageWarning] = d2(false);
-    const [activeTool, setActiveTool] = d2(
-      /** @type {ToolId|null} */
-      null
-    );
     const imageState = useImageAttachments();
-    const imageGenerationActive = activeTool === "image-generation";
-    const webSearchActive = activeTool === "web-search";
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages ? t4("omnibar_imageGenerationWithAttachmentPlaceholder") : t4("omnibar_imageGenerationPlaceholder");
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
-    const availableTools = [
-      ...state.config?.enableImageGeneration === true ? [
-        /** @type {const} */
-        "image-generation"
-      ] : [],
-      ...state.config?.enableWebSearch === true ? [
-        /** @type {const} */
-        "web-search"
-      ] : []
-    ];
+    const clearTool = () => {
+      setActiveTool(null);
+    };
     const handleToggleTool = (tool) => {
-      setActiveTool((prev) => prev === tool ? null : tool);
+      const nextTool = activeTool === tool ? null : tool;
+      if (nextTool === "image-generation") {
+        hideChats();
+      }
+      setActiveTool(nextTool);
     };
     const handleChange = (value2) => {
       onChange(value2);
@@ -11930,7 +11963,7 @@
       };
       onSubmit(action);
       imageState.clearAttachedImages();
-      setActiveTool(null);
+      clearTool();
     };
     const showRecentChats = enableRecentAiChats && !imageGenerationActive;
     return /* @__PURE__ */ k(
@@ -12005,6 +12038,7 @@
       init_useImageAttachments();
       init_ModelSelectorTool();
       init_ToolsMenu2();
+      init_useActiveTools();
       init_useSelectedModel();
     }
   });
