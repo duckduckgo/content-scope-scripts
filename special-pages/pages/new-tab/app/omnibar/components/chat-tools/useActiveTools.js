@@ -1,12 +1,12 @@
 import { useContext, useState } from 'preact/hooks';
 import { OmnibarContext } from '../OmnibarProvider';
-import { useModelConfig } from '../useModelConfig';
+import { useSelectedModel } from '../useSelectedModel';
 
 /** @typedef {import('./tools-menu/ToolsMenu').ToolId} ToolId */
 
 export function useActiveTools() {
     const { state } = useContext(OmnibarContext);
-    const { selectedModel } = useModelConfig();
+    const { selectedModel } = useSelectedModel();
     const [activeTool, setActiveTool] = useState(/** @type {ToolId|null} */ (null));
 
     const modelSupportedTools = selectedModel?.supportedTools ?? [];
