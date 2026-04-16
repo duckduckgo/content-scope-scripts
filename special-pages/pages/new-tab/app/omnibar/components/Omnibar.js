@@ -20,11 +20,11 @@ import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-at
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
-/** @typedef {import('./chat-tools/tools-menu/ToolsMenu').ToolId} ToolId */
+import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 
 /**
- * @typedef {import('../strings.json')} Strings
+ * @typedef {typeof import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
@@ -166,16 +166,12 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
 function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showChats, hideChats } = useAiChatsContext();
-    const { state } = useContext(OmnibarContext);
     const { selectedModel } = useSelectedModel();
+    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const [activeTool, setActiveTool] = useState(/** @type {ToolId|null} */ (null));
     const imageState = useImageAttachments();
-
-    const imageGenerationActive = activeTool === 'image-generation';
-    const webSearchActive = activeTool === 'web-search';
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages
@@ -184,15 +180,21 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
-    /** @type {ToolId[]} */
-    const availableTools = [
-        ...(state.config?.enableImageGeneration === true ? [/** @type {const} */ ('image-generation')] : []),
-        ...(state.config?.enableWebSearch === true ? [/** @type {const} */ ('web-search')] : []),
-    ];
+    const clearTool = () => {
+        setActiveTool(null);
+    };
 
-    /** @param {ToolId} tool */
+    /**
+     * @param {import('./chat-tools/tools-menu/ToolsMenu').ToolId} tool
+     */
     const handleToggleTool = (tool) => {
-        setActiveTool((prev) => (prev === tool ? null : tool));
+        const nextTool = activeTool === tool ? null : tool;
+
+        if (nextTool === 'image-generation') {
+            hideChats();
+        }
+
+        setActiveTool(nextTool);
     };
 
     /** @type {(query: string) => void} */
@@ -224,7 +226,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
 
         onSubmit(action);
         imageState.clearAttachedImages();
-        setActiveTool(null);
+        clearTool();
     };
 
     const showRecentChats = enableRecentAiChats && !imageGenerationActive;
