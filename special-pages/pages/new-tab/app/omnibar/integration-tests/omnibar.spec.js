@@ -1915,7 +1915,7 @@ test.describe('omnibar widget', () => {
             await omnibar.ready();
             await omnibar.focusChatInput();
 
-            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length + 1);
 
             for (let i = 0; i < mockChats.length; i++) {
                 await omnibar.chatInput().press('ArrowDown');
