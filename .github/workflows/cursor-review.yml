@@ -6,6 +6,7 @@ on:
 
 jobs:
     check_membership:
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         runs-on: ubuntu-latest
         outputs:
             is_member: ${{ steps.membership.outputs.is_member }}
