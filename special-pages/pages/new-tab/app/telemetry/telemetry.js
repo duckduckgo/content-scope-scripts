@@ -10,7 +10,7 @@ export class Telemetry {
     static EVENT_BROADCAST = 'TELEMETRY_*';
 
     eventTarget = new EventTarget();
-    /** @type {any[]} */
+    /** @type {Record<string, unknown>[]} */
     eventStore = [];
     storeEnabled = false;
 

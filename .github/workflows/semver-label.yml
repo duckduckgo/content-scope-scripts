@@ -1,0 +1,135 @@
+name: Semver Label
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: read
+    issues: write
+    pull-requests: read
+
+jobs:
+    semver_label:
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout base branch
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.sha }}
+                  path: base
+
+            - name: Checkout PR merge result
+              uses: actions/checkout@v6
+              with:
+                  ref: refs/pull/${{ github.event.pull_request.number }}/merge
+                  path: pr
+
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: 'base/.nvmrc'
+
+            - name: Build base branch
+              run: |
+                  echo "Base SHA: $(git -C base rev-parse HEAD)"
+                  cd base
+                  npm install
+                  npm run build
+
+            - name: Build PR branch
+              run: |
+                  echo "PR merge SHA: $(git -C pr rev-parse HEAD)"
+                  cd pr
+                  npm install
+                  npm run build
+
+            - name: Create build diff
+              run: |
+                  cp -r base/Sources/ContentScopeScripts/dist base/build/apple 2>/dev/null || true
+                  cp -r pr/Sources/ContentScopeScripts/dist pr/build/apple 2>/dev/null || true
+                  node base/.github/scripts/diff-directories.js base pr > /tmp/build_diff.txt
+                  echo "Build diff size: $(wc -c < /tmp/build_diff.txt) bytes"
+
+            - name: Get PR source files
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+              run: |
+                  gh pr view "$PR_NUMBER" --json files --jq '.files[].path' > /tmp/pr_files.txt 2>/dev/null || true
+
+            - name: Run semver analysis
+              id: analyse
+              env:
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  PR_TITLE: ${{ github.event.pull_request.title }}
+                  PR_BODY: ${{ github.event.pull_request.body }}
+              run: |
+                  export BUILD_DIFF="$(cat /tmp/build_diff.txt 2>/dev/null || echo '')"
+                  export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
+
+                  RESULT=$(node base/.github/scripts/semver-analysis.mjs)
+                  echo "Raw result: $RESULT"
+
+                  SEVERITY=$(echo "$RESULT" | jq -r '.severity')
+                  echo "severity=$SEVERITY" >> "$GITHUB_OUTPUT"
+
+            - name: Label PR
+              if: steps.analyse.outputs.severity != ''
+              uses: actions/github-script@v9
+              env:
+                  SEVERITY: ${{ steps.analyse.outputs.severity }}
+              with:
+                  script: |
+                      const prNumber = context.payload.pull_request.number;
+                      const severity = process.env.SEVERITY;
+                      const label = `semver-${severity}`;
+                      const semverLabels = ['semver-major', 'semver-minor', 'semver-patch'];
+
+                      const labelColors = { 'semver-major': 'B60205', 'semver-minor': 'FBCA04', 'semver-patch': '0E8A16' };
+                      const labelDescriptions = {
+                          'semver-major': 'Breaking change — triggers major version bump',
+                          'semver-minor': 'New feature — triggers minor version bump',
+                          'semver-patch': 'Bug fix / internal — no release needed'
+                      };
+
+                      try {
+                          await github.rest.issues.getLabel({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              name: label
+                          });
+                      } catch {
+                          await github.rest.issues.createLabel({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              name: label,
+                              color: labelColors[label],
+                              description: labelDescriptions[label]
+                          });
+                      }
+
+                      const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: prNumber
+                      });
+                      for (const l of currentLabels) {
+                          if (semverLabels.includes(l.name) && l.name !== label) {
+                              await github.rest.issues.removeLabel({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  issue_number: prNumber,
+                                  name: l.name
+                              });
+                          }
+                      }
+
+                      await github.rest.issues.addLabels({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: prNumber,
+                          labels: [label]
+                      });
+                      console.log(`Applied label: ${label}`);

@@ -27,13 +27,21 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v5
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
               with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
-            - run: npm ci
+                  path: |
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
+            - name: Install dependencies
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: npm ci
             - name: Build (injected only)
               if: ${{ matrix.workspace == 'injected' }}
               run: npm run build -w injected
@@ -49,13 +57,21 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v5
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
               with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
-            - run: npm ci
+                  path: |
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
+            - name: Install dependencies
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: npm ci
             - run: npm run build
             - run: npm run lint
             - run: npm run stylelint
@@ -63,74 +79,118 @@ jobs:
             - name: 'Clean tree'
               run: 'npm run test-clean-tree'
 
+    get-playwright-version:
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.pw.outputs.version }}
+        steps:
+            - uses: actions/checkout@v6
+            - id: pw
+              run: |
+                  VERSION=$(node -e "const l=require('./package-lock.json'); console.log((l.packages['node_modules/@playwright/test']||l.packages['node_modules/playwright']).version)")
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+
     integration-tests-special-pages:
-        name: Integration tests (special-pages, ubuntu-latest)
+        name: Integration tests (special-pages/${{ matrix.group }}, ubuntu-latest)
+        needs: get-playwright-version
         runs-on: ubuntu-latest
         timeout-minutes: 15
+        container:
+            image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
+        env:
+            HOME: /root
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - group: chromium
+                      # windows=Desktop Edge, integration=Desktop Chrome
+                      projects: --project windows --project integration
+                    - group: webkit
+                      # macos=Desktop Safari, ios=iPhone 14, android/android-landscape=Galaxy S III (webkit)
+                      projects: --project macos --project ios --project android --project android-landscape
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v5
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
               with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
+                  path: |
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
             - name: Install dependencies
-              run: |
-                  npm install
-                  npm run build
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
-            - run: npm run test-int-x -w special-pages
-            - uses: actions/upload-artifact@v6
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: npm ci
+            - name: Build
+              run: npm run build
+            - name: Run integration tests
+              run: npx playwright test ${{ matrix.projects }} --grep-invert '@screenshots'
+              working-directory: special-pages
+            - uses: actions/upload-artifact@v7
               if: always()
               with:
-                  name: tests-playwright-report-pages
+                  name: tests-playwright-report-pages-${{ matrix.group }}
                   path: special-pages/playwright-report
                   retention-days: 5
 
     integration-tests:
         name: Integration tests (injected/${{ matrix.project }}, ubuntu-latest)
+        needs: get-playwright-version
         runs-on: ubuntu-latest
         timeout-minutes: 15
+        container:
+            image: mcr.microsoft.com/playwright:v${{ needs.get-playwright-version.outputs.version }}-noble
+        env:
+            HOME: /root
         strategy:
             fail-fast: false
             matrix:
-                project:
-                    - windows
-                    - apple-isolated
-                    - apple
-                    - ios
-                    - android
-                    - android-autofill-import
-                    - chrome-mv3
-                    - firefox
+                include:
+                    - project: windows
+                    - project: apple-isolated
+                    # apple runs in Chromium (Playwright default) - no device preset is set in playwright.config.js
+                    - project: apple
+                    - project: ios
+                    - project: android
+                    - project: android-autofill-import
+                    - project: chrome-mv3
+                    - project: firefox
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v5
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
               with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
+                  path: |
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
             - name: Install dependencies
-              run: |
-                  npm install
-                  npm run build
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: npm ci
+            - name: Build
+              run: npm run build
             - name: Run integration tests
               run: xvfb-run --server-args='-screen 0 1024x768x24' npx playwright test --project ${{ matrix.project }} --grep-invert '@screenshots' --reporter list
               working-directory: injected
-            - uses: actions/upload-artifact@v6
+            - uses: actions/upload-artifact@v7
               if: always()
               with:
                   name: tests-playwright-report-injected-${{ matrix.project }}
@@ -145,16 +205,23 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v5
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
               with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
+                  path: |
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
             - name: Install dependencies
-              run: |
-                  npm install
-                  npm run build
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: npm ci
+            - name: Build
+              run: npm run build
             - name: Cache docs output
               id: docs-output
               uses: actions/cache@v5
@@ -187,14 +254,14 @@ jobs:
                   path: docs
                   key: docs-output-${{ github.run_id }}
             - name: Setup Github Pages
-              uses: actions/configure-pages@v5
+              uses: actions/configure-pages@v6
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v4
               with:
                   path: docs
             - name: Deploy to GitHub Pages
               id: deployment
-              uses: actions/deploy-pages@v4
+              uses: actions/deploy-pages@v5
 
     # This job ensures all runtime dependencies for the injected/ subproject are correctly listed in 'dependencies' (not 'devDependencies')
     # by running the build with only production dependencies installed in injected/. It will fail if any required dependency is missing.
@@ -206,7 +273,20 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
+                  cache: 'npm'
+            - name: Cache node_modules (production)
+              id: cache-node-modules
+              uses: actions/cache@v5
+              with:
+                  path: |
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-prod-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
             - name: Install production dependencies only (injected/)
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci --production
             - name: Build with production dependencies (injected/)
               run: cd injected && npm run build

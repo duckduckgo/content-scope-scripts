@@ -1,0 +1,37 @@
+name: Assign Reviewer
+
+on:
+    pull_request:
+        types: [assigned]
+
+permissions:
+    pull-requests: write
+
+jobs:
+    request-review:
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        runs-on: ubuntu-latest
+        steps:
+            - name: Request review from assignee
+              uses: actions/github-script@v9
+              with:
+                  script: |
+                      const assignee = context.payload.assignee.login;
+                      const prAuthor = context.payload.pull_request.user.login;
+
+                      if (assignee === prAuthor) {
+                          console.log(`Skipping: ${assignee} is the PR author`);
+                          return;
+                      }
+
+                      try {
+                          await github.rest.pulls.requestReviewers({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              pull_number: context.payload.pull_request.number,
+                              reviewers: [assignee]
+                          });
+                          console.log(`Requested review from ${assignee}`);
+                      } catch (error) {
+                          console.log(`Could not request review from ${assignee}: ${error.message}`);
+                      }

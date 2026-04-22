@@ -284,6 +284,22 @@
     "title" : "Brak ukierunkowanych reklam. Brak ukierunkowanych rekomendacji. Tylko wybrany film.",
     "note" : "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
+  "duckPlayer_v4_title" : {
+    "title" : "Toniesz w reklamach na YouTube?{newline}Nie z Duck Playerem!",
+    "note" : "Title for the Duck Player step in v4 onboarding, with a line break after the question."
+  },
+  "duckPlayer_v4_subtitle" : {
+    "title" : "Brak ukierunkowanych reklam. Brak ukierunkowanych rekomendacji.{newline}Po prostu Twój film.",
+    "note" : "Subtitle for the Duck Player step in v4 onboarding, with a line break before the last sentence."
+  },
+  "duckPlayer_adFree_title" : {
+    "title" : "Oglądaj YouTube bez reklam!",
+    "note" : "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
+  "duckPlayer_adFree_subtitle" : {
+    "title" : "Nie ma potrzeby korzystania z subskrypcji premium ani wtyczek innych firm.{newline}Po prostu Twój film, bez reklam.",
+    "note" : "Subtitle for the Duck Player step variant that emphasizes ad-free YouTube viewing."
+  },
   "addressBarMode_title" : {
     "title" : "Chcesz łatwego dostępu do prywatnego czatu AI?",
     "note" : "Title for the Address Bar Mode feature step in onboarding"
@@ -443,5 +459,29 @@
   "browser_Safari" : {
     "title" : "Safari",
     "note" : "Brand name of the Apple Safari browser"
+  },
+  "welcome_title_v4" : {
+    "title" : "Witamy w DuckDuckGo!",
+    "note" : "Page title for the first step in the v4 onboarding process"
+  },
+  "getStarted_title_v4" : {
+    "title" : "Cześć!{paragraph}Chcesz skorzystać z szybszej przeglądarki,{newline}która zapewni Ci ochronę?",
+    "note" : "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+  },
+  "getStartedButton_v4" : {
+    "title" : "Zróbmy to!",
+    "note" : "Button label prompting user to start the v4 onboarding process."
+  },
+  "makeDefaultAccept_title_v4" : {
+    "title" : "Doskonale! Przejdźmy dalej.",
+    "note" : "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
+  },
+  "row_dock-instructions_accept" : {
+    "title" : "Pokaż, jak to zrobić",
+    "note" : "Button text that opens the dock instructions overlay."
+  },
+  "dockInstructions_body" : {
+    "title" : "Przytrzymaj klawisz Ctrl i kliknij ikonę aplikacji DuckDuckGo, a następnie wybierz <strong>Opcje</strong> &gt; <strong>Zatrzymaj w Docku</strong>.",
+    "note" : "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
   }
 }

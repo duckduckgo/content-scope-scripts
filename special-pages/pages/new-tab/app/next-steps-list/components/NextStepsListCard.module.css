@@ -30,6 +30,10 @@
         padding: 0 1px;
         margin: -0.25px -1px 0;
 
+        :root:has(body[data-platform-name="windows"]) & {
+            margin: 0 -1px;
+        }
+
         h2 {
             color: var(--ds-color-theme-accent-content-primary);
             letter-spacing: 0.06px;
@@ -45,6 +49,8 @@
     min-height: calc(200 * var(--px-in-rem));
     /* Add padding at bottom to accommodate the back card peek */
     padding-bottom: calc(12 * var(--px-in-rem));
+    /* Contain child z-indices so they don't compete with the omnibar's stacking context */
+    isolation: isolate;
 }
 
 .card {
@@ -230,4 +236,5 @@
     gap: var(--sp-2);
     margin-top: var(--sp-1);
 }
+
 

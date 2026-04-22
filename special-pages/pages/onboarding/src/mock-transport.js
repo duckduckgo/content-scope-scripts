@@ -7,6 +7,13 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 const url = new URL(window.location.href);
 
 export function mockTransport() {
+    if (typeof window !== 'undefined' && window.__playwright_01) {
+        window.__playwright_01.publishSubscriptionEvent = (/** @type {{ subscriptionName: string; params?: unknown }} */ evt) => {
+            window.__playwright_01?.subscriptions
+                ?.get(evt.subscriptionName)
+                ?.forEach((/** @type {(data: unknown) => void} */ cb) => cb(evt.params));
+        };
+    }
     return new TestTransportConfig({
         notify(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
@@ -33,6 +40,31 @@ export function mockTransport() {
                         };
                     }
 
+                    const dockVariant = url.searchParams.get('dock');
+                    if (dockVariant === 'instructions') {
+                        const existing = stepDefinitions.systemSettings;
+                        const rows = existing ? [...existing.rows] : ['dock', 'import'];
+                        // replace 'dock' with 'dock-instructions'
+                        const dockIndex = rows.indexOf('dock');
+                        if (dockIndex !== -1) {
+                            rows[dockIndex] = 'dock-instructions';
+                        }
+                        stepDefinitions.systemSettings = {
+                            id: 'systemSettings',
+                            kind: 'settings',
+                            rows,
+                        };
+                    }
+
+                    const duckPlayerVariant = url.searchParams.get('duckPlayer');
+                    if (duckPlayerVariant === 'ad-free') {
+                        stepDefinitions.duckPlayerSingle = {
+                            id: 'duckPlayerSingle',
+                            kind: 'info',
+                            variant: 'ad-free',
+                        };
+                    }
+
                     return Promise.resolve({
                         stepDefinitions,
                         exclude: [],
@@ -54,11 +86,20 @@ export function mockTransport() {
         },
         subscribe(_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
-
-            callback(null);
-
+            if (!window.__playwright_01) {
+                return () => {};
+            }
+            const msg = /** @type {{ method?: string; subscriptionName?: string }} */ (_msg);
+            const name = typeof _msg === 'string' ? _msg : (msg.subscriptionName ?? msg.method ?? 'onConfigUpdate');
+            if (!window.__playwright_01.subscriptions) {
+                window.__playwright_01.subscriptions = new Map();
+            }
+            if (!window.__playwright_01.subscriptions.has(name)) {
+                window.__playwright_01.subscriptions.set(name, new Set());
+            }
+            window.__playwright_01.subscriptions.get(name)?.add(callback);
             return () => {
-                // any cleanup
+                window.__playwright_01?.subscriptions?.get(name)?.delete(callback);
             };
         },
     });

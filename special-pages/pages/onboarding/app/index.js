@@ -37,6 +37,26 @@ const messaging = createSpecialPageMessaging({
 
 const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
 
+window.addEventListener('error', (event) => {
+    let message = 'unknown error';
+    if (typeof event.error?.message === 'string') {
+        message = event.error.message;
+    } else if (event.error) {
+        message = String(event.error);
+    }
+    onboarding.reportInitException({ message: `[uncaught] ${message}` });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    let message = 'unknown rejection';
+    if (typeof event.reason?.message === 'string') {
+        message = event.reason.message;
+    } else if (event.reason) {
+        message = String(event.reason);
+    }
+    onboarding.reportInitException({ message: `[unhandledrejection] ${message}` });
+});
+
 async function init() {
     const result = await callWithRetry(() => onboarding.init());
     if ('error' in result) {
@@ -75,7 +95,8 @@ async function init() {
         .withNamedOrder(environment.urlParams.get('order'))
         .withExcludedScreens(init.exclude)
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
-        .withFirst(environment.urlParams.get('page'));
+        .withFirst(environment.urlParams.get('page'))
+        .withTypingEffect(environment.urlParams.get('typingEffect'));
 
     const root = document.querySelector('#app');
     if (!root) throw new Error('could not render, root element missing');
@@ -87,7 +108,7 @@ async function init() {
             <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
                 <UpdateEnvironment search={window.location.search} />
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <SettingsProvider platform={settings.platform}>
+                    <SettingsProvider platform={settings.platform} typingEffect={settings.typingEffect}>
                         <GlobalProvider
                             messaging={onboarding}
                             order={settings.order}

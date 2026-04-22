@@ -33,6 +33,7 @@ export class OnboardingPage {
             stepCompleted: {},
             setAdBlocking: {},
             reportPageException: {},
+            reportInitException: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {
@@ -48,10 +49,16 @@ export class OnboardingPage {
     }
 
     withInitData(data) {
-        this.mocks.defaultResponses({
-            ...this.defaultResponses,
-            init: data,
-        });
+        this.defaultResponses = { ...this.defaultResponses, init: data };
+        this.mocks.defaultResponses(this.defaultResponses);
+    }
+
+    /**
+     * Push an onConfigUpdate subscription event (e.g. stepDefinitions.customize.rows for integration tests).
+     * @param {{ stepDefinitions?: Record<string, any>; exclude?: string[] }} payload
+     */
+    async pushConfigUpdate(payload) {
+        await this.mocks.simulateSubscriptionMessage('onConfigUpdate', payload);
     }
 
     /**
@@ -286,6 +293,57 @@ export class OnboardingPage {
                 },
             },
         ]);
+    }
+
+    /**
+     * Asserts that a stepCompleted notification was fired with the expected id and next fields.
+     * @param {{ id: string, next: string | null }} expectedStep
+     */
+    async didFireStepCompleted({ id, next }) {
+        const calls = await this.mocks.outgoing({ names: ['stepCompleted'] });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'stepCompleted',
+                    params: { id, next },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Asserts that telemetryEvent notifications were fired matching the expected attributes list.
+     * @param {{name: string, value?: string}[]} expectedAttributes
+     */
+    async didFireTelemetryEvents(expectedAttributes) {
+        const calls = await this.mocks.waitForCallCount({ method: 'telemetryEvent', count: expectedAttributes.length });
+        expect(calls).toMatchObject(
+            expectedAttributes.map((attributes) => ({
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'telemetryEvent',
+                    params: { attributes },
+                },
+            })),
+        );
+    }
+
+    /**
+     * Asserts that no telemetryEvent with the given attributes was fired.
+     * @param {{name: string, value?: string}} attributes
+     */
+    async didNotFireTelemetryEvent(attributes) {
+        const calls = await this.mocks.outgoing({ names: ['telemetryEvent'] });
+        const matching = calls.filter((c) => {
+            const attrs = c.payload.params?.attributes;
+            if (attrs?.name !== attributes.name) return false;
+            if (attributes.value !== undefined && attrs?.value !== attributes.value) return false;
+            return true;
+        });
+        expect(matching).toHaveLength(0);
     }
 
     async keepInTaskbar() {

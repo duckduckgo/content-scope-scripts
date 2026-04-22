@@ -1,13 +1,11 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
 import styles from './App.module.css';
-import { GlobalContext, GlobalDispatch } from '../global';
+import { useGlobalDispatch, useGlobalState } from '../global';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 import { usePlatformName } from '../shared/components/SettingsProvider';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
 import { Fallback } from '../shared/components/Fallback';
 import { Background } from './components/Background.js';
-import { BeforeAfterProvider } from './context/BeforeAfterProvider';
 import { SingleStep } from './components/SingleStep';
 
 /**
@@ -15,52 +13,25 @@ import { SingleStep } from './components/SingleStep';
  * @param {import("preact").ComponentChild} props.children
  */
 export function App({ children }) {
-    const { debugState } = useEnv();
+    const { debugState, isDarkMode } = useEnv();
     const platformName = usePlatformName();
-    const globalState = useContext(GlobalContext);
-    const dispatch = useContext(GlobalDispatch);
+    const globalState = useGlobalState();
+    const dispatch = useGlobalDispatch();
 
     const { activeStep, exiting } = globalState;
-
-    const advance = () => dispatch({ kind: 'advance' });
 
     const didCatch = ({ error }) => {
         const message = error?.message || 'unknown';
         dispatch({ kind: 'error-boundary', error: { message, id: activeStep } });
     };
 
-    // For screens that animate out, trigger 'advance' when the animation finishes.
-    const didAnimationEnd = (e) => {
-        if (e.target?.dataset?.exiting === 'true') {
-            advance();
-        }
-    };
-
-    // For non-animating steps, just advance immediately when 'exiting' is set
-    const didRender = (e) => {
-        /** @type {import('../types').Step['id'][]} */
-        const ignoredSteps = ['welcome'];
-        const shouldSkipAnimation = ignoredSteps.includes(e?.dataset?.current);
-        if (shouldSkipAnimation && exiting === true) {
-            advance();
-        }
-    };
-
     return (
-        <main data-platform-name={platformName || 'macos'} data-app-version="v4">
+        <main class={isDarkMode ? 'theme-dark' : 'theme-light'} data-platform-name={platformName || 'macos'} data-app-version="v4">
             <Background />
             {debugState && <Debug state={globalState} />}
-            <div
-                class={styles.container}
-                data-current={activeStep}
-                data-exiting={String(exiting)}
-                ref={didRender}
-                onAnimationEnd={didAnimationEnd}
-            >
+            <div class={styles.container} data-current={activeStep} data-exiting={String(exiting)}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
-                    <BeforeAfterProvider>
-                        <SingleStep />
-                    </BeforeAfterProvider>
+                    <SingleStep />
                 </ErrorBoundary>
             </div>
             {children}
@@ -68,6 +39,10 @@ export function App({ children }) {
     );
 }
 
+/**
+ * @param {object} props
+ * @param {import('../types').GlobalState} props.state
+ */
 function Debug(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state;
     const debugData = { order, step, exiting, activeStep, nextStep };

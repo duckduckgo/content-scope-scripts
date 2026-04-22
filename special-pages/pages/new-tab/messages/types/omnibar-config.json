@@ -5,6 +5,56 @@
   "required": [
     "mode"
   ],
+  "$defs": {
+    "AIModelSection": {
+      "type": "object",
+      "description": "A section of AI models with an optional header and a list of model items.",
+      "required": ["items"],
+      "properties": {
+        "header": {
+          "description": "Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')",
+          "type": "string"
+        },
+        "items": {
+          "description": "List of AI models in this section",
+          "type": "array",
+          "items": { "$ref": "#/$defs/AIModelItem" }
+        }
+      }
+    },
+    "AIModelItem": {
+      "type": "object",
+      "description": "An individual AI model available for selection.",
+      "required": ["id", "name", "shortName", "isEnabled", "supportsImageUpload"],
+      "properties": {
+        "id": {
+          "description": "Model identifier",
+          "type": "string"
+        },
+        "name": {
+          "description": "Full display name",
+          "type": "string"
+        },
+        "shortName": {
+          "description": "Short display name for the model selector button",
+          "type": "string"
+        },
+        "isEnabled": {
+          "description": "Whether the model is enabled and selectable",
+          "type": "boolean"
+        },
+        "supportsImageUpload": {
+          "description": "Whether this model supports image attachments",
+          "type": "boolean"
+        },
+        "supportedTools": {
+          "description": "Tools this model supports.",
+          "type": "array",
+          "items": { "$ref": "./tool-id.json" }
+        }
+      }
+    }
+  },
   "properties": {
     "mode": {
       "title": "Omnibar Mode",
@@ -24,6 +74,46 @@
     "showCustomizePopover": {
       "title": "Show Customize Popover",
       "description": "Controls a popover that onboards users and points them towards how to disable the feature via the customizer",
+      "type": "boolean",
+      "default": false
+    },
+    "enableRecentAiChats": {
+      "title": "Enable Recent AI Chats",
+      "type": "boolean",
+      "default": false
+    },
+    "enableAiChatTools": {
+      "title": "Enable AI Chat Tools",
+      "description": "Feature flag to enable AI chat tools (model selector, image attachments)",
+      "type": "boolean",
+      "default": false
+    },
+    "selectedModelId": {
+      "title": "Selected Model ID",
+      "description": "The user's currently selected AI model, persisted across tabs",
+      "type": "string"
+    },
+    "aiModelSections": {
+      "title": "AI Model Sections",
+      "description": "Sections of AI models for the model selector.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/AIModelSection" }
+    },
+    "showViewAllAiChats": {
+      "title": "Show View All AI Chats",
+      "description": "When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list",
+      "type": "boolean",
+      "default": false
+    },
+    "enableImageGeneration": {
+      "title": "Enable Image Generation",
+      "description": "Show 'Create Image' toggle in the AI chat toolbar.",
+      "type": "boolean",
+      "default": false
+    },
+    "enableWebSearch": {
+      "title": "Enable Web Search",
+      "description": "Allow AI chat submissions to include web search tool.",
       "type": "boolean",
       "default": false
     }

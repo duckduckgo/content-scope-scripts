@@ -14,7 +14,12 @@ import { useContext } from 'preact/hooks';
  *   | 'aggressive-ad-blocking'
  *   | 'youtube-ad-blocking'
  *   | 'address-bar-mode'
+ *   | 'dock-instructions'
  * } SystemValueId - Each setting that can be updated should have a unique ID listed here.
+ */
+
+/**
+ * @typedef {'dock-instructions'} OverlayId
  */
 
 /**
@@ -32,7 +37,7 @@ import { useContext } from 'preact/hooks';
  * @typedef {{ kind: 'settings'; id: 'systemSettings'; rows: SystemValueId[]; }} SystemSettingsStep
  * @typedef {{ kind: 'settings'; id: 'customize'; rows: SystemValueId[]; }} CustomizeStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
- * @typedef {{ kind: 'info'; id: 'duckPlayerSingle' }} DuckPlayerSingleStep
+ * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
  */
 
@@ -79,6 +84,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @property {Status} status
  * @property {Partial<Record<SystemValueId, SystemValue>>} values
  * @property {Record<SystemValueId, UIValue>} UIValues
+ * @property {OverlayId|null} overlay
  */
 
 /**
@@ -90,7 +96,11 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | ExecErrorEvent
  *   | DismissEvent
  *   | DismisstoSettingsEvent
- *   | ErrorBoundaryEvent} GlobalEvents
+ *   | ErrorBoundaryEvent
+ *   | ShowOverlayEvent
+ *   | DismissOverlayEvent
+ *   | ConfigUpdateEvent
+ *   | TelemetryEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -101,7 +111,10 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
- *
+ * @typedef {{ kind: "show-overlay"; overlay: OverlayId }} ShowOverlayEvent
+ * @typedef {{ kind: "dismiss-overlay" }} DismissOverlayEvent
+ * @typedef {{ kind: "config-update"; stepDefinitions?: Record<string, any>; exclude?: Step['id'][] }} ConfigUpdateEvent
+ * @typedef {{ kind: "telemetry"; attributes: import('../types/onboarding.ts').TelemetryEvent['attributes'] }} TelemetryEvent
  */
 
 /** @type {ImportMeta['injectName'][]} */

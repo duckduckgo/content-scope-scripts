@@ -1,79 +1,129 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import { MakeDefaultContent } from '../components/MakeDefaultContent';
 import { SettingsContent } from '../components/SettingsContent';
+import { StepHeader } from '../components/StepHeader';
 import { DuckPlayerContent } from '../components/DuckPlayerContent';
 import { AddressBarContent } from '../components/AddressBarContent';
 import { WelcomeContent } from '../components/WelcomeContent';
 import { GetStartedContent } from '../components/GetStartedContent';
-import { DaxIllustration } from '../components/DaxIllustration';
+import { GetStartedAnimation } from '../components/GetStartedAnimation';
+import { SystemSettingsBackground, SystemSettingsForeground } from '../components/SystemSettingsAnimation';
+import { FadeTransition } from '../components/FadeTransition';
+import { DockInstructionsContent } from '../components/DockInstructionsContent';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
  *
  * See `./data-types.js` for documentation on parameters {StepConfigParams}
- * and return values {V4StepConfig}
+ * and return values {StepConfig}
  */
 
-/** @type {Record<import('./data-types').StepsV4, (params: import('./data-types').StepConfigParams) => import('./data-types').V4StepConfig>} */
+/** @type {Record<import('./data-types').StepsV4, (params: import('./data-types').StepConfigParams) => import('./data-types').StepConfig>} */
 export const stepsConfig = {
     welcome: ({ advance }) => {
         return {
             content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: () => {
+    getStarted: ({ enqueueNext, onTitleComplete, isShortViewport }) => {
         return {
-            content: <DaxIllustration />,
-            topBubble: <GetStartedContent />,
-            topBubbleTail: 'bottom-left',
+            bottomBubble: {
+                content: <GetStartedContent advance={enqueueNext} onTitleComplete={onTitleComplete} />,
+                tail: isShortViewport ? undefined : 'bottom-left',
+            },
+            illustration: isShortViewport
+                ? undefined
+                : {
+                      foreground: <GetStartedAnimation />,
+                  },
+            bubbleWidth: 'narrow',
         };
     },
-    makeDefaultSingle: () => {
+    makeDefaultSingle: ({ enqueueNext, onTitleComplete, updateSystemValue }) => {
         return {
-            topBubble: <MakeDefaultContent />,
+            bottomBubble: {
+                content: (
+                    <MakeDefaultContent advance={enqueueNext} onTitleComplete={onTitleComplete} updateSystemValue={updateSystemValue} />
+                ),
+            },
             showProgress: true,
         };
     },
-    systemSettings: ({ t }) => {
+    systemSettings: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
+        const { overlay, activeStep, activeRow } = globalState;
+
         return {
-            topBubble: (
-                <Fragment>
-                    <h2>{t('systemSettings_title_v3')}</h2>
-                    <p>{t('systemSettings_subtitle_v3')}</p>
-                </Fragment>
-            ),
-            bottomBubble: <SettingsContent />,
+            topBubble: {
+                content: (
+                    <StepHeader
+                        title={t('systemSettings_title_v3')}
+                        subtitle={t('systemSettings_subtitle_v3')}
+                        onTitleComplete={onTitleComplete}
+                    />
+                ),
+                tail: 'right',
+            },
+            bottomBubble: {
+                content: (
+                    <FadeTransition transitionKey={overlay ?? 'none'}>
+                        {overlay === 'dock-instructions' ? (
+                            <DockInstructionsContent updateSystemValue={updateSystemValue} />
+                        ) : (
+                            <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} />
+                        )}
+                    </FadeTransition>
+                ),
+            },
+            illustration: overlay
+                ? undefined
+                : {
+                      background: <SystemSettingsBackground />,
+                      foreground: <SystemSettingsForeground />,
+                  },
+            showProgress: true,
+            bounceKey: `${activeStep}-${activeRow}-${overlay ?? 'none'}`,
+        };
+    },
+    duckPlayerSingle: ({ t, globalState, enqueueNext, onTitleComplete }) => {
+        const duckPlayerStep = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
+        const isAdFree = duckPlayerStep.variant === 'ad-free';
+
+        return {
+            topBubble: {
+                content: (
+                    <StepHeader
+                        title={isAdFree ? t('duckPlayer_adFree_title') : t('duckPlayer_v4_title', { newline: '\n' })}
+                        subtitle={
+                            isAdFree ? t('duckPlayer_adFree_subtitle', { newline: ' ' }) : t('duckPlayer_v4_subtitle', { newline: '\n' })
+                        }
+                        onTitleComplete={onTitleComplete}
+                    />
+                ),
+            },
+            bottomBubble: { content: <DuckPlayerContent isAdFree={isAdFree} advance={enqueueNext} /> },
             showProgress: true,
         };
     },
-    duckPlayerSingle: ({ t }) => {
+    customize: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
+        const { activeStep, activeRow } = globalState;
+
         return {
-            topBubble: (
-                <Fragment>
-                    <h2>{t('duckPlayer_title')}</h2>
-                    <p>{t('duckPlayer_subtitle')}</p>
-                </Fragment>
-            ),
-            bottomBubble: <DuckPlayerContent />,
+            topBubble: {
+                content: (
+                    <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} onTitleComplete={onTitleComplete} />
+                ),
+            },
+            bottomBubble: { content: <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
+            bounceKey: `${activeStep}-${activeRow}`,
         };
     },
-    customize: ({ t }) => {
+    addressBarMode: ({ t, dismiss, onTitleComplete, updateSystemValue }) => {
         return {
-            topBubble: (
-                <Fragment>
-                    <h2>{t('customize_title_v3')}</h2>
-                    <p>{t('customize_subtitle_v3')}</p>
-                </Fragment>
-            ),
-            bottomBubble: <SettingsContent />,
-            showProgress: true,
-        };
-    },
-    addressBarMode: ({ t }) => {
-        return {
-            topBubble: <h2>{t('addressBarMode_title')}</h2>,
-            bottomBubble: <AddressBarContent />,
+            topBubble: {
+                content: <StepHeader title={t('addressBarMode_title')} onTitleComplete={onTitleComplete} />,
+            },
+            bottomBubble: { content: <AddressBarContent dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
             showProgress: true,
         };
     },
@@ -87,9 +137,7 @@ export const stepsConfig = {
  * @property {string} title
  * @property {string} [secondaryText]
  * @property {string} acceptText
- * @property {'primary'|'secondary'} [accepButtonVariant]
- * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined,
- * @property acceptText is shown.
+ * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined, acceptText is shown.
  */
 
 /** @type {Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['platform']) => RowData>} */
@@ -100,17 +148,15 @@ export const settingsRowItems = {
         title: t('row_default-browser_title_v3'),
         kind: 'one-time',
         acceptText: t('row_default-browser_accept'),
-        accepButtonVariant: 'primary',
     }),
     import: (t) => ({
         id: 'import',
-        icon: 'v3/Import-Color-24.svg',
+        icon: 'v4/import.svg',
         title: t('row_import_title_v3'),
         secondaryText: t('row_import_summary_v3'),
         kind: 'one-time',
         acceptText: t('row_import_accept_v3'),
         acceptTextRecall: t('row_import_accept'),
-        accepButtonVariant: 'primary',
     }),
     dock: (t, platform) => {
         const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3');
@@ -119,37 +165,33 @@ export const settingsRowItems = {
 
         return {
             id: 'dock',
-            icon: 'v3/Add-To-Dock-Color-24.svg',
+            icon: 'v4/dock.svg',
             title,
             secondaryText,
             kind: 'one-time',
             acceptText,
-            accepButtonVariant: 'primary',
         };
     },
     bookmarks: (t) => ({
         id: 'bookmarks',
-        icon: 'v3/Bookmark-Favorite-Color-24.svg',
+        icon: 'v4/bookmark.svg',
         title: t('row_bookmarks_title_v3'),
         kind: 'toggle',
         acceptText: t('row_bookmarks_accept'),
-        accepButtonVariant: 'secondary',
     }),
     'session-restore': (t) => ({
         id: 'session-restore',
-        icon: 'v3/Session-Restore-Color-24.svg',
+        icon: 'v4/session-restore.svg',
         title: t('row_session-restore_title_v3'),
         kind: 'toggle',
         acceptText: t('row_session-restore_accept'),
-        accepButtonVariant: 'secondary',
     }),
     'home-shortcut': (t) => ({
         id: 'home-shortcut',
-        icon: 'v3/Home-Color-24.svg',
+        icon: 'v4/home.svg',
         title: t('row_home-shortcut_title_v3'),
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept'),
-        accepButtonVariant: 'secondary',
     }),
     'placebo-ad-blocking': (t) => ({
         id: 'placebo-ad-blocking',
@@ -158,7 +200,6 @@ export const settingsRowItems = {
         secondaryText: t('row_ad-blocking_desc_v3'),
         kind: 'one-time',
         acceptText: t('row_ad-blocking_accept_v3'),
-        accepButtonVariant: 'primary',
     }),
     'aggressive-ad-blocking': (t) => ({
         id: 'aggressive-ad-blocking',
@@ -167,7 +208,6 @@ export const settingsRowItems = {
         secondaryText: t('row_ad-blocking_desc_v3'),
         kind: 'one-time',
         acceptText: t('row_ad-blocking_accept_v3'),
-        accepButtonVariant: 'primary',
     }),
     'youtube-ad-blocking': (t) => ({
         id: 'youtube-ad-blocking',
@@ -176,7 +216,6 @@ export const settingsRowItems = {
         secondaryText: t('row_youtube-ad-blocking_desc_v3'),
         kind: 'one-time',
         acceptText: t('row_youtube-ad-blocking_accept_v3'),
-        accepButtonVariant: 'primary',
     }),
     'address-bar-mode': (t) => ({
         id: 'address-bar-mode',
@@ -184,7 +223,14 @@ export const settingsRowItems = {
         title: t('addressBarMode_title'),
         kind: 'toggle',
         acceptText: t('startBrowsing'),
-        accepButtonVariant: 'primary',
+    }),
+    'dock-instructions': (t) => ({
+        id: 'dock-instructions',
+        icon: 'v4/dock.svg',
+        title: t('row_dock_title_v3'),
+        secondaryText: t('row_dock_summary_v3'),
+        kind: 'one-time',
+        acceptText: t('row_dock-instructions_accept'),
     }),
 };
 

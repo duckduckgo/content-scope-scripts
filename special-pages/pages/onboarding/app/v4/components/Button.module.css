@@ -1,74 +1,52 @@
 .button {
-    display: flex;
-    justify-content: center;
     align-items: center;
-    gap: var(--sp-2); /* 8px */
-    height: var(--sp-9); /* 36px */
-    min-width: var(--sp-32);
-    padding: 0 var(--sp-6); /* 0 24px */
-    border: none;
     border-radius: var(--sp-16); /* 64px */
+    border: none;
     cursor: pointer;
-
+    display: inline-flex;
     font-family: var(--font-product);
     font-size: calc(15 * var(--px-in-rem));
     font-weight: 400;
+    gap: var(--sp-2); /* 8px */
+    height: var(--sp-9); /* 36px */
+    justify-content: center;
     line-height: calc(15 * var(--px-in-rem));
+    min-width: var(--sp-32); /* 128px */
+    padding: var(--sp-4) var(--sp-6); /* 16px 24px */
     text-align: center;
 }
 
-/* --- Primary (accent) --- */
+.button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
 
 .primary {
-    background: #F05F2B;
-    color: white;
-
-    @media (prefers-color-scheme: dark) {
-        background: #FFD885;
-        color: #240F04;
-    }
+    background: var(--ds-accent-button-primary);
+    color: var(--ds-accent-button-primary-content-color);
 }
 
-.primary:hover {
-    background: #d9531f;
-
-    @media (prefers-color-scheme: dark) {
-        background: #f0c96e;
-    }
+.primary:hover:not(:disabled),
+.primary:active:not(:disabled) {
+    background: var(--ds-accent-button-secondary);
 }
-
-.primary:active {
-    background: #c24a1b;
-
-    @media (prefers-color-scheme: dark) {
-        background: #e0ba5a;
-    }
-}
-
-/* --- Secondary (standard) --- */
 
 .secondary {
-    background: var(--color-black-at-6);
-    color: var(--color-black-at-96);
-
-    @media (prefers-color-scheme: dark) {
-        background: var(--color-white-at-12);
-        color: white;
-    }
+    background: var(--ds-control-primary-background-color);
+    color: var(--ds-text-primary);
 }
 
-.secondary:hover {
-    background: var(--color-black-at-9);
-
-    @media (prefers-color-scheme: dark) {
-        background: var(--color-white-at-18);
-    }
+.secondary:hover:not(:disabled),
+.secondary:active:not(:disabled) {
+    background: var(--ds-control-secondary-background-color);
 }
 
-.secondary:active {
-    background: var(--color-black-at-12);
+.wide {
+    padding-left: var(--sp-24); /* 96px */
+    padding-right: var(--sp-24); /* 96px */
+}
 
-    @media (prefers-color-scheme: dark) {
-        background: var(--color-white-at-24);
-    }
+.stretch {
+    align-self: stretch;
+    width: 100%;
 }

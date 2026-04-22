@@ -11,11 +11,11 @@ import styles from './ComparisonTable.module.css';
  * @param {string} props.title
  */
 export function ComparisonTableColumnHeading({ title }) {
-    const className = `browserIcon${title}`;
+    const iconClass = `browserIcon${title}`;
 
     return (
         <th>
-            <span className={cn(styles.browserIcon, styles[className])} aria-label={title}></span>
+            <span class={cn(styles.browserIcon, styles[iconClass])} aria-label={title}></span>
         </th>
     );
 }
@@ -27,9 +27,9 @@ export function ComparisonTableRowHeading({ icon, title }) {
     const path = tableIconPrefix + icon;
 
     return (
-        <th scope="row" className={styles.rowHeading}>
-            <div className={styles.rowHeadingContents}>
-                <img className={styles.rowIcon} src={path} aria-hidden="true" />
+        <th scope="row" class={styles.rowHeading}>
+            <div class={styles.rowHeadingContents}>
+                <img class={styles.rowIcon} src={path} aria-hidden="true" />
                 {title}
             </div>
         </th>
@@ -44,23 +44,23 @@ export function ComparisonTableCell({ status }) {
     const { t } = useTypedTranslation();
     // eslint-disable-next-line
     // @ts-ignore TODO: Fix type
-    const arialLabel = t(`comparison_${status}`);
+    const ariaLabel = t(`comparison_${status}`);
 
     return (
-        <td className={styles.rowCell}>
-            <span className={cn(styles.status, styles[status])} aria-label={arialLabel}></span>
+        <td class={styles.rowCell}>
+            <span class={cn(styles.status, styles[status])} aria-label={ariaLabel}></span>
         </td>
     );
 }
 
 /**
- * @param {import('../data/data-comparison-table').FeatureSupportData} props
+ * @param {import('../data/data-comparison-table').FeatureSupportData & { index: number }} props
  */
-export function ComparisonTableRow({ icon, title, statuses }) {
+export function ComparisonTableRow({ icon, title, statuses, index }) {
     const { chrome, ddg } = statuses;
 
     return (
-        <tr className={styles.row}>
+        <tr class={styles.row} style={{ '--row-index': index }}>
             <ComparisonTableRowHeading icon={icon} title={title} />
             <ComparisonTableCell status={chrome} />
             <ComparisonTableCell status={ddg} />
@@ -78,8 +78,7 @@ export function ComparisonTable() {
     const tableData = comparisonTableData(t, adBlockingEnabled);
 
     return (
-        <table className={styles.table}>
-            <caption></caption>
+        <table class={styles.table}>
             <thead>
                 <tr>
                     <th></th>
@@ -88,8 +87,8 @@ export function ComparisonTable() {
                 </tr>
             </thead>
             <tbody>
-                {tableData.map((data) => (
-                    <ComparisonTableRow {...data} />
+                {tableData.map((data, index) => (
+                    <ComparisonTableRow key={index} {...data} index={index} />
                 ))}
             </tbody>
         </table>

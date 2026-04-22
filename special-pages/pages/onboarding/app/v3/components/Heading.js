@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import { useState, useRef, useLayoutEffect, useEffect } from 'preact/hooks';
-import { Typed } from '../../shared/components/Typed';
+import { Typed } from './Typed';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 
 import styles from './Heading.module.css';

@@ -1,0 +1,30 @@
+{
+    "readme": "Test unprotected domain behavior - reports but doesn't block. TrackerData is passed via withUserPreferences().",
+    "version": 1,
+    "features": {
+        "contentBlocking": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "clickToLoad": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "trackerAllowlist": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "allowlistedTrackers": {}
+            }
+        },
+        "trackerProtection": {
+            "state": "enabled",
+            "exceptions": [
+                {
+                    "domain": "localhost"
+                }
+            ]
+        }
+    },
+    "unprotectedTemporary": []
+}

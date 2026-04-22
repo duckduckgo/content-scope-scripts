@@ -1,0 +1,202 @@
+.toolsMenu {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-1);
+    position: relative;
+}
+
+.toolsButton {
+    align-items: center;
+    background: transparent;
+    border-radius: 16px;
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: var(--sp-1);
+    height: var(--sp-7);
+    padding: 0 6px;
+    white-space: nowrap;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.06);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.06);
+        }
+    }
+
+    &:active {
+        background: rgba(0, 0, 0, 0.10);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.10);
+        }
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.toolsButtonActive {
+    &:hover {
+        background: rgba(0, 0, 0, 0.06);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.06);
+        }
+    }
+}
+
+.toolsLabel {
+    font-weight: 400;
+}
+
+.activeToolChip {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: var(--sp-1);
+    height: var(--sp-7);
+    padding: 0 12px;
+    white-space: nowrap;
+
+    [data-theme="dark"] & {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.09);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.09);
+        }
+    }
+
+    &:active {
+        background: rgba(0, 0, 0, 0.12);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.12);
+        }
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.chipLabel {
+    font-weight: 400;
+}
+
+.dropdown {
+    background: rgb(249, 249, 249);
+    border-radius: 6px;
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32), 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    margin: 0;
+    min-width: 245px;
+    overflow: hidden;
+    padding: 5px;
+    position: fixed;
+    z-index: 100;
+
+    &:focus-visible {
+        outline: none;
+    }
+
+    [data-theme="dark"] & {
+        backdrop-filter: blur(76px);
+        background: rgba(30, 30, 30, 0.88);
+        border: 0.5px solid var(--color-white-at-15);
+        box-shadow: 0 10px 24px var(--color-black-at-40);
+    }
+}
+
+.menuItem {
+    align-items: center;
+    border-radius: 3px;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: 6px;
+    padding: 8px 9px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.menuItemActive {
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-content-primary);
+
+    .menuItemDescription {
+        color: var(--ds-color-theme-accent-content-secondary);
+    }
+}
+
+.checkmark {
+    flex-shrink: 0;
+    height: 12px;
+    position: relative;
+    width: 4px;
+
+    &::before {
+        color: transparent;
+        content: '\2713';
+        font-size: 13px;
+        font-weight: 700;
+        left: -5px;
+        line-height: 12px;
+        position: absolute;
+        top: 0;
+    }
+}
+
+.menuItemSelected .checkmark::before {
+    color: var(--ds-color-theme-text-primary);
+}
+
+.menuItemActive .checkmark::before {
+    color: transparent;
+}
+
+.menuItemActive.menuItemSelected .checkmark::before {
+    color: var(--ds-color-theme-accent-content-primary);
+}
+
+.menuItemLabel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.menuItemName {
+    letter-spacing: -0.08px;
+    line-height: 13px;
+    overflow: hidden;
+    text-box-edge: cap alphabetic;
+    text-box-trim: trim-both;
+    text-overflow: ellipsis;
+}
+
+.menuItemDescription {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 12px;
+    line-height: 15px;
+    overflow: hidden;
+    text-box-edge: cap alphabetic;
+    text-box-trim: trim-both;
+    text-overflow: ellipsis;
+}

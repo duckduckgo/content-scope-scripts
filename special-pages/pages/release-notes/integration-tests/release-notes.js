@@ -97,7 +97,10 @@ export class ReleaseNotesPage {
     async sendSubscriptionMessage(messageType, dataOverrides) {
         // Wait for the subscription handler to appear before trying to simulate push events.
         // This prevents a race condition where playwright is sending data before `.subscribe` was called
-        await this.page.waitForFunction(() => 'onUpdate' in window && typeof window.onUpdate === 'function');
+        await this.page.waitForFunction(() => {
+            const fn = navigator.duckduckgo?.messageHandlers?.onUpdate || window.onUpdate;
+            return typeof fn === 'function';
+        });
 
         const data = dataOverrides
             ? { ...sampleData[messageType], .../** @type {object} */ (dataOverrides) }

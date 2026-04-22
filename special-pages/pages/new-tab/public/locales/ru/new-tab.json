@@ -652,5 +652,41 @@
   "activity_show_less_history": {
     "title": "Свернуть",
     "note": "Button label that hides the expanded browsing history items."
+  },
+  "omnibar_attachImageLabel": {
+    "title": "Прикрепить изображение",
+    "description": "Accessible label for the attach image button in the AI chat toolbar."
+  },
+  "omnibar_removeImageLabel": {
+    "title": "Удалить изображение",
+    "description": "Accessible label for the button to remove an attached image thumbnail."
+  },
+  "omnibar_modelSelectorLabel": {
+    "title": "Выбрать модель",
+    "description": "Accessible label for the AI model selector dropdown."
+  },
+  "omnibar_imageAttachmentLimitWarning": {
+    "title": "Число изображений, прикрепляемых за один раз, ограничено: максимум {limit}.",
+    "description": "Warning shown when user attaches more images than the allowed maximum."
+  },
+  "omnibar_imageTooLargeError": {
+    "title": "Слишком большой файл. Выберите изображение размером до 10 000 × 10 000 пикселей.",
+    "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+  },
+  "omnibar_imageProcessingError": {
+    "title": "Не удалось обработать изображение. Пожалуйста, попробуйте другой файл.",
+    "description": "Error shown when an attached image cannot be processed."
+  },
+  "omnibar_advancedModelsSectionHeader": {
+    "title": "Расширенные модели — подписка на DuckDuckGo",
+    "description": "Section header in the model picker for premium models that require a subscription."
+  },
+  "omnibar_viewAllChats": {
+    "title": "Просмотреть все чаты",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Открыть Duck.ai",
+    "description": "Link text to open the Duck.ai chat interface."
   }
 }

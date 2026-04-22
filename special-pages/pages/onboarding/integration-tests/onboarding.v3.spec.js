@@ -1,7 +1,21 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { OnboardingV3Page } from './onboarding.v3.page.js';
 
 test.describe('onboarding v3', () => {
+    test('stepCompleted includes the next step id', async ({ page }, workerInfo) => {
+        const onboarding = OnboardingV3Page.create(page, workerInfo);
+        onboarding.withInitData({
+            stepDefinitions: null,
+            order: 'v3',
+        });
+        await onboarding.reducedMotion();
+        await onboarding.openPage({ env: 'app', page: 'getStarted' });
+        await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+        await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 });
+
+        await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'makeDefaultSingle' });
+    });
+
     test.describe('Given I am on the make default step', () => {
         test('Then "Play YouTube without targeted ads" appears when ad blocking is enabled (placebo variant)', async ({
             page,
@@ -476,6 +490,66 @@ test.describe('onboarding v3', () => {
         await onboarding.startBrowsing();
     });
 
+    test.describe('Given I am on the duck player step', () => {
+        test('When I click the toggle button, it sends a telemetryEvent', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 3000 });
+            await page.getByLabel('See Without Duck Player').click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'duck_player_toggled' }]);
+        });
+
+        test('When I click the toggle button twice, it sends two telemetryEvents', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 3000 });
+            await page.getByLabel('See Without Duck Player').click();
+            await page.getByLabel('See With Duck Player').click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'duck_player_toggled' }, { name: 'duck_player_toggled' }]);
+        });
+    });
+
+    test.describe('Given I am on the duck player step with ad-free variant', () => {
+        test('Then it shows ad-free copy and hides the toggle button', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    duckPlayerSingle: {
+                        variant: 'ad-free',
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            // Ad-free title and subtitle are shown
+            await expect(page.getByRole('heading', { name: 'Watch YouTube ad-free!', level: 1 })).toBeVisible();
+            await expect(page.getByRole('heading', { name: /No need for a premium subscription/, level: 2 })).toBeVisible();
+
+            // Toggle button is hidden
+            await expect(page.getByLabel('See Without Duck Player')).not.toBeVisible();
+            await expect(page.getByLabel('See With Duck Player')).not.toBeVisible();
+
+            // Can advance past the step
+            await page.getByRole('button', { name: 'Next' }).click();
+        });
+    });
+
     test.describe('Given I am on the settings step', () => {
         test('When I have choosen to add to dock/taskbar', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV3Page.create(page, workerInfo);
@@ -555,6 +629,219 @@ test.describe('onboarding v3', () => {
 
             // ▶️ Then I can still see the import button
             await onboarding.importUserDataFailedGracefully();
+        });
+    });
+
+    test.describe('Given I am on the settings step with dock-instructions variant', () => {
+        test('When I advance to the settings step, it sends row_shown for the first row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+                exclude: ['makeDefaultSingle'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+            await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'row_shown', value: 'dock-instructions' }]);
+        });
+
+        test('When I click Show Me How, it shows dock instructions overlay', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Click "Show Me How" to open the dock instructions overlay
+            await onboarding.showDockInstructions();
+
+            // Verify instruction content is visible
+            await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
+            await expect(page.getByText('Options')).toBeVisible();
+            await expect(page.getByText('Keep in Dock')).toBeVisible();
+        });
+
+        test('When I click Show Me How, it sends telemetryEvents', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'dock_instructions_shown' }]);
+        });
+
+        test('When I click Show Me How then Next, it sends row_shown for import', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+            await onboarding.dismissDockInstructions();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'dock_instructions_shown' }, { name: 'row_shown', value: 'import' }]);
+        });
+
+        test('When I skip dock-instructions, it sends row_shown for import', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+
+            await onboarding.didFireTelemetryEvents([
+                { name: 'row_skipped', value: 'dock-instructions' },
+                { name: 'row_shown', value: 'import' },
+            ]);
+        });
+
+        test('When I skip dock-instructions, it does not send dock_instructions_shown', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            await onboarding.didNotFireTelemetryEvent({ name: 'dock_instructions_shown' });
+        });
+
+        test('When I click Show Me How then Next, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Open and dismiss the dock instructions overlay
+            await onboarding.showDockInstructions();
+            await onboarding.dismissDockInstructions();
+
+            // The import row should now be the current row
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+
+        test('When I skip dock-instructions, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip the dock-instructions row
+            await onboarding.skippedCurrent();
+
+            // The import row should now be the current row
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+    });
+
+    test.describe('Given I am on the import row', () => {
+        test('When I skip import, it sends row_skipped', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip dock-instructions to get to import
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            // Skip import
+            await onboarding.skippedCurrent();
+
+            await onboarding.didFireTelemetryEvents([
+                { name: 'row_skipped', value: 'dock-instructions' },
+                { name: 'row_shown', value: 'import' },
+                { name: 'row_skipped', value: 'import' },
+            ]);
+        });
+
+        test('When I accept import, it does not send row_skipped', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip dock-instructions to get to import
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            // Accept import
+            await onboarding.importUserData();
+
+            await onboarding.didNotFireTelemetryEvent({ name: 'row_skipped', value: 'import' });
         });
     });
 
@@ -672,6 +959,29 @@ test.describe('onboarding v3', () => {
 
             // ▶️ Then I can toggle it afterward
             await onboarding.startBrowsing();
+        });
+
+        test.describe('Given onConfigUpdate behavior', () => {
+            test('When config update has reduced customize rows (no bookmarks), only those rows are shown', async ({
+                page,
+            }, workerInfo) => {
+                const onboarding = OnboardingV3Page.create(page, workerInfo);
+                onboarding.withInitData({
+                    order: 'v3',
+                    stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
+                });
+                await onboarding.reducedMotion();
+                await onboarding.openPage({ env: 'app', page: 'customize' });
+                // before push — default rows include bookmarks
+                await page.getByRole('button', { name: 'Show Bookmarks Bar' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).toBeVisible();
+                // push config update removing bookmarks
+                await onboarding.pushConfigUpdate({ stepDefinitions: { customize: { rows: ['session-restore', 'home-shortcut'] } } });
+                // after push — bookmarks gone
+                await page.getByRole('button', { name: 'Enable Session Restore' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
+                await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
+            });
         });
     });
 });

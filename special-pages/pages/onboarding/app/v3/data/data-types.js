@@ -40,6 +40,8 @@
  * @property {() => void} dismiss - Function that dismisses onboarding completely
  * @property {(id: import('../../types').SystemValueId) => void} enableSystemValue - Function that switches a system setting to ON
  * @property {BeforeAfterFunctions} beforeAfter - Functions that control a step's before/after state
+ * @property {() => void} dismissOverlay - Function that dismisses the current overlay
+ * @property {(attributes: import('../../../types/onboarding.ts').TelemetryEvent['attributes']) => void} telemetry - Fires a telemetry event with the given attributes
  */
 
 /**

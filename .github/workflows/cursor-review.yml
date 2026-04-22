@@ -1,0 +1,185 @@
+name: Cursor Auto Review
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    checks: read
+    contents: read
+    issues: write
+    pull-requests: write
+
+jobs:
+    check_membership:
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        runs-on: ubuntu-latest
+        outputs:
+            is_member: ${{ steps.membership.outputs.is_member }}
+        steps:
+            - name: Verify author is in duckduckgo/core
+              uses: actions/github-script@v9
+              id: membership
+              with:
+                  github-token: ${{ secrets.DAX_PAT }}
+                  script: |
+                      const author = context.payload.pull_request.user.login;
+                      try {
+                          const { data } = await github.rest.teams.getMembershipForUserInOrg({
+                              org: 'duckduckgo',
+                              team_slug: 'core',
+                              username: author
+                          });
+                          if (data.state === 'active') {
+                              console.log(`✅ ${author} is an active member of duckduckgo/core`);
+                              core.setOutput('is_member', 'true');
+                          } else {
+                              console.log(`⏭️ ${author} is not an active member — skipping auto-review`);
+                              core.setOutput('is_member', 'false');
+                          }
+                      } catch (error) {
+                          if (error.status === 404) {
+                              console.log(`⏭️ ${author} is not a member of duckduckgo/core — skipping auto-review`);
+                          } else {
+                              console.log(`⚠️ Could not verify ${author}: ${error.message} (status: ${error.status})`);
+                          }
+                          core.setOutput('is_member', 'false');
+                      }
+
+    cursor_auto_review:
+        needs: check_membership
+        if: needs.check_membership.outputs.is_member == 'true'
+        runs-on: ubuntu-latest
+        concurrency: cursor-review-${{ github.event.pull_request.number }}
+
+        steps:
+            - name: Dismiss stale Dax approval on new push
+              if: github.event.action == 'synchronize'
+              uses: actions/github-script@v9
+              with:
+                  github-token: ${{ secrets.DAX_PAT }}
+                  script: |
+                      const reviews = await github.paginate(github.rest.pulls.listReviews, {
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: context.payload.pull_request.number
+                      });
+
+                      for (const review of reviews) {
+                          if (review.state === 'APPROVED' && review.user.login === 'daxtheduck') {
+                              await github.rest.pulls.dismissReview({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  pull_number: context.payload.pull_request.number,
+                                  review_id: review.id,
+                                  message: 'Dismissing stale approval — new commits pushed, awaiting Cursor re-review.'
+                              });
+                              console.log(`Dismissed stale approval (review ${review.id})`);
+                          }
+                      }
+
+            - name: Checkout base branch
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.ref }}
+                  sparse-checkout: |
+                      .github/REQUIRED_TEAMS
+                      .github/scripts
+                  sparse-checkout-cone-mode: false
+
+            - name: Debounce delay
+              run: sleep 5
+
+            - name: Wait for Cursor Bugbot
+              uses: fountainhead/action-wait-for-check@v1.2.0
+              id: wait-for-cursor
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  checkName: Cursor Bugbot
+                  ref: ${{ github.event.pull_request.head.sha }}
+                  timeoutSeconds: 600
+
+            - name: Check Cursor Bugbot risk assessment
+              if: steps.wait-for-cursor.outputs.conclusion == 'success'
+              uses: actions/github-script@v9
+              id: risk_check
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const { findRiskLevel } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
+                      const riskLevel = await findRiskLevel(github, {
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          prNumber: context.payload.pull_request.number
+                      });
+                      console.log(`Cursor Bugbot risk level: ${riskLevel ?? 'not found'}`);
+                      core.setOutput('risk_level', riskLevel ?? 'unknown');
+                      core.setOutput('is_low_risk', riskLevel?.toLowerCase() === 'low');
+
+            - name: Check for existing Dax approval
+              uses: actions/github-script@v9
+              id: check_reviews
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const { DAX_USERNAME } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
+                      const reviews = await github.paginate(github.rest.pulls.listReviews, {
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: context.payload.pull_request.number
+                      });
+                      const has = reviews.some(r => r.state === 'APPROVED' && r.user.login === DAX_USERNAME);
+                      console.log(`Found approved review from ${DAX_USERNAME}: ${has}`);
+                      core.setOutput('has_approved_review', has);
+
+            - name: Auto approve
+              if: |
+                  steps.wait-for-cursor.outputs.conclusion == 'success' &&
+                  steps.risk_check.outputs.is_low_risk == 'true' &&
+                  steps.check_reviews.outputs.has_approved_review == 'false'
+              run: gh pr review --approve "$PR_URL"
+              env:
+                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GITHUB_TOKEN: ${{ secrets.DAX_PAT }}
+
+            - name: Find previous review comment
+              if: |
+                  steps.wait-for-cursor.outputs.conclusion != 'success' ||
+                  steps.risk_check.outputs.is_low_risk != 'true'
+              uses: peter-evans/find-comment@v4
+              id: find_comment
+              with:
+                  issue-number: ${{ github.event.pull_request.number }}
+                  comment-author: 'github-actions[bot]'
+                  body-includes: 'requires a manual review'
+                  direction: last
+
+            - name: Post manual review required comment
+              if: |
+                  (steps.wait-for-cursor.outputs.conclusion != 'success' ||
+                  steps.risk_check.outputs.is_low_risk != 'true') &&
+                  steps.find_comment.outputs.comment-id == ''
+              uses: actions/github-script@v9
+              env:
+                  CURSOR_CONCLUSION: ${{ steps.wait-for-cursor.outputs.conclusion }}
+                  RISK_LEVEL: ${{ steps.risk_check.outputs.risk_level }}
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const { loadRequiredTeams, formatTeamList } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
+                      const teams = loadRequiredTeams();
+                      const teamList = formatTeamList(teams);
+
+                      const cursorPassed = process.env.CURSOR_CONCLUSION === 'success';
+                      const riskLevel = process.env.RISK_LEVEL;
+
+                      const reason = cursorPassed
+                          ? `Cursor assessed this PR as **${riskLevel} Risk** (only Low Risk is auto-approved).`
+                          : 'Cursor review was not successful.';
+
+                      await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.payload.pull_request.number,
+                          body: `⚠️ ${reason}\n\nThis PR requires a manual review and approval from a member of one of the following teams:\n\n${teamList}`
+                      });

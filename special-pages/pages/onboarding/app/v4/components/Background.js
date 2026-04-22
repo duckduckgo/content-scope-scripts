@@ -2,72 +2,81 @@ import { h } from 'preact';
 import { useContext, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { GlobalContext } from '../../global';
-import { ORDER_V4 } from '../../types';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import styles from './Background.module.css';
+import { DaxBobbingAnimation } from './DaxBobbingAnimation';
 
 /**
- * @typedef {object} BgMotion
- * @property {string} dx - Horizontal translate offset the background slides in from / out to
- * @property {string} dy - Vertical translate offset the background slides in from / out to
- * @property {string} introDelay - Delay before the intro slide begins
- * @property {string} fadeDuration - Duration of the outro opacity fade
+ * Maps each step to its background image filename (without extension/variant suffix).
+ * Multiple steps can share the same background.
+ * @type {Record<import('../../types').Step['id'], string>}
  */
+const backgroundForStep = {
+    welcome: 'background-01',
+    getStarted: 'background-01',
+    makeDefaultSingle: 'background-01',
+    systemSettings: 'background-02',
+    duckPlayerSingle: 'background-02',
+    customize: 'background-03',
+    addressBarMode: 'background-04',
+};
 
 /**
- * Per-step motion parameters for background transitions.
+ * @param {object} props
+ * @param {string} props.filename - background filename stem, e.g. 'background-02'
+ * @param {string} props.class
+ * @param {boolean} [props.rightAligned]
+ * @param {(() => void)} [props.onAnimationEnd]
  */
-const BG_MOTION = /** @type {Partial<Record<import('../../types').Step['id'], BgMotion>>} */ ({
-    welcome: { dx: '325px', dy: '204px', introDelay: '0.133s', fadeDuration: '0.4s' },
-    getStarted: { dx: '-74px', dy: '132px', introDelay: '0.2s', fadeDuration: '0.333s' },
-});
-
-/**
- * Returns CSS custom property values for a step's background.
- * @param {import('../../types').Step['id']} step
- */
-function bgVars(step) {
-    const idx = ORDER_V4.indexOf(step);
-    const num = String(idx + 1).padStart(2, '0');
-    const motion = BG_MOTION[step] ?? /** @type {BgMotion} */ (BG_MOTION.welcome);
-    return {
-        '--bg-light': `url("../assets/img/v4/background-${num}-light.svg")`,
-        '--bg-dark': `url("../assets/img/v4/background-${num}-dark.svg")`,
-        '--bg-dx': motion.dx,
-        '--bg-dy': motion.dy,
-        '--bg-intro-delay': motion.introDelay,
-        '--bg-fade-duration': motion.fadeDuration,
-    };
+function Illustration({ filename, class: className, rightAligned, onAnimationEnd }) {
+    return (
+        <picture class={cn(className, rightAligned && styles.rightAligned)} onAnimationEnd={onAnimationEnd}>
+            <source srcset={`assets/img/v4/${filename}-dark.svg`} media="(prefers-color-scheme: dark)" />
+            <img src={`assets/img/v4/${filename}-light.svg`} alt="" />
+        </picture>
+    );
 }
 
 /**
  * Step-specific background for v4 onboarding.
- * Each step's background illustration crossfades on transition:
- * the previous step's background slides out + fades while the
- * new step's background slides in.
+ * The background illustration slides in from the bottom on transition;
+ * when consecutive steps share the same background, no animation plays.
  */
 export function Background() {
     const { activeStep } = useContext(GlobalContext);
-    const [prevStep, setPrevStep] = useState(activeStep);
-    const [exitingStep, setExitingStep] = useState(/** @type {import('../../types').Step['id'] | null} */ (null));
+    const { isReducedMotion } = useEnv();
+    const filename = backgroundForStep[activeStep];
 
-    // Detect step change during render — no useEffect needed.
-    // See: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
-    if (prevStep !== activeStep) {
-        setPrevStep(activeStep);
-        setExitingStep(prevStep);
+    const [prevFilename, setPrevFilename] = useState(filename);
+    const [exitingFilename, setExitingFilename] = useState(/** @type {string | null} */ (null));
+
+    if (prevFilename !== filename) {
+        // When reduced motion is on, no animation plays so animationend never
+        // fires. Skip the exit state entirely to avoid stale backgrounds.
+        setExitingFilename(isReducedMotion ? null : prevFilename);
+        setPrevFilename(filename);
     }
 
     return (
         <div class={styles.background}>
-            {exitingStep && (
-                <div
-                    key={'exit-' + exitingStep}
-                    class={cn(styles.illustration, styles.outro)}
-                    style={bgVars(exitingStep)}
-                    onAnimationEnd={() => setExitingStep(null)}
+            {exitingFilename && (
+                <Illustration
+                    key={exitingFilename}
+                    filename={exitingFilename}
+                    rightAligned={exitingFilename === 'background-04'}
+                    class={cn(styles.illustration, styles.slideOut)}
+                    onAnimationEnd={() => setExitingFilename(null)}
                 />
             )}
-            <div key={activeStep} class={cn(styles.illustration, styles.intro)} style={bgVars(activeStep)} />
+            <Illustration
+                key={filename}
+                filename={filename}
+                rightAligned={filename === 'background-04'}
+                class={cn(styles.illustration, styles.slideIn)}
+            />
+            {(filename === 'background-03' || exitingFilename === 'background-03') && (
+                <DaxBobbingAnimation exiting={exitingFilename === 'background-03'} />
+            )}
         </div>
     );
 }
