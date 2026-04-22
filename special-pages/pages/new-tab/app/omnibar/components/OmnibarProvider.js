@@ -53,6 +53,10 @@ export const OmnibarContext = createContext({
     setSelectedModelId: () => {
         throw new Error('must implement');
     },
+    /** @type {(effort: string) => void} */
+    setSelectedReasoningEffort: () => {
+        throw new Error('must implement');
+    },
     /** @type {(params: SubmitChatAction) => void} */
     submitChat: () => {
         throw new Error('must implement');
@@ -129,6 +133,14 @@ export function OmnibarProvider(props) {
     const setSelectedModelId = useCallback(
         (id) => {
             service.current?.setSelectedModelId(id);
+        },
+        [service],
+    );
+
+    /** @type {(effort: string) => void} */
+    const setSelectedReasoningEffort = useCallback(
+        (effort) => {
+            service.current?.setSelectedReasoningEffort(effort);
         },
         [service],
     );
@@ -217,6 +229,7 @@ export function OmnibarProvider(props) {
                 setEnableAi,
                 setShowCustomizePopover,
                 setSelectedModelId,
+                setSelectedReasoningEffort,
                 getSuggestions,
                 onSuggestions,
                 openSuggestion,

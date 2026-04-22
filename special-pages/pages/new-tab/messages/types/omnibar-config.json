@@ -51,6 +51,11 @@
           "description": "Tools this model supports.",
           "type": "array",
           "items": { "$ref": "./tool-id.json" }
+        },
+        "supportedReasoningEffort": {
+          "description": "Reasoning-effort keys this model supports (e.g. 'fast', 'reasoning', 'auto'). Empty or omitted means the reasoning picker is hidden for this model.",
+          "type": "array",
+          "items": { "type": "string" }
         }
       }
     }
@@ -91,6 +96,11 @@
     "selectedModelId": {
       "title": "Selected Model ID",
       "description": "The user's currently selected AI model, persisted across tabs",
+      "type": "string"
+    },
+    "selectedReasoningEffort": {
+      "title": "Selected Reasoning Effort",
+      "description": "The user's currently selected reasoning-effort key for the active model, persisted by native. Must be a value present in the active model's supportedReasoningEffort.",
       "type": "string"
     },
     "aiModelSections": {

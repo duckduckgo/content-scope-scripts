@@ -110,6 +110,18 @@ export class OmnibarService {
     }
 
     /**
+     * @param {string} selectedReasoningEffort
+     */
+    setSelectedReasoningEffort(selectedReasoningEffort) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                selectedReasoningEffort,
+            };
+        });
+    }
+
+    /**
      * Get suggestions for the given search term
      * @param {string} term
      * @returns {Promise<SuggestionsData>}

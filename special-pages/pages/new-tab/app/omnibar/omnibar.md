@@ -34,8 +34,9 @@ title: Omnibar Widget
   - `enableAiChatTools` — enables AI chat tools: model selector, image attachments (default `false`)
   - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
-  - `aiModelSections` — array of model sections for the model selector
+  - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["fast", "reasoning", "auto"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
+  - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
 ```json
 {
    "mode": "search",
@@ -119,6 +120,7 @@ title: Omnibar Widget
 - requires `chat` (the chat message) and `target` (where to open the chat)
 - optional fields:
   - `modelId` — the selected AI model identifier. Omitted when in image-generation mode.
+  - `reasoningEffort` — stable server key (e.g. `"fast"`, `"reasoning"`, `"auto"`) for the reasoning-effort selection. Omitted when the active model doesn't expose a reasoning picker, or in image-generation mode.
   - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
   - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
