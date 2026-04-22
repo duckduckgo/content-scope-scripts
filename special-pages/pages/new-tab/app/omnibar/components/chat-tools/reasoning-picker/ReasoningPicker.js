@@ -24,7 +24,8 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, 
 
     /** @param {import('../../../../../types/new-tab.js').ReasoningEffort} effort */
     const handleSelect = (effort) => {
-        if (!options.some((option) => option.id === effort)) return;
+        const isSupported = options.some((option) => option.id === effort);
+        if (!isSupported) return;
         close();
         onSelect(effort);
     };

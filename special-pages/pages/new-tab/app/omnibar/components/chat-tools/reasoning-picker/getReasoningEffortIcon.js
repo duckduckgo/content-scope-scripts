@@ -17,7 +17,15 @@ export function getReasoningEffortIcon(key) {
             return ReasoningEffortIcon;
         case 'medium':
             return ExtendedReasoningIcon;
-        default:
+        default: {
+            /**
+             * Exhaustiveness check — `never` means all ReasoningEffort cases are handled;
+             * adding a new one without a case will cause a type error here.
+             * @type {never}
+             */
+            const _exhaustiveCheck = key;
+            console.error(`Unknown reasoning effort: ${_exhaustiveCheck}`);
             return null;
+        }
     }
 }

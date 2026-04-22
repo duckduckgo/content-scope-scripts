@@ -7,14 +7,12 @@ export function useSelectedReasoningEffort() {
     const { selectedModel } = useSelectedModel();
 
     const supportedEfforts = selectedModel?.supportedReasoningEffort ?? [];
-    console.log('supportedEfforts', supportedEfforts);
-    console.log('selectedModel', selectedModel);
-
-    // OmnibarService.setSelectedModelId reconciles selectedReasoningEffort on model change, so the
-    // persisted value should stay valid. This guard is a safety net for the rare case where native
-    // delivers a stale value on read (e.g. capabilities changed between sessions).
     const persisted = state.config?.selectedReasoningEffort;
-    const selectedEffort = persisted && supportedEfforts.includes(persisted) ? persisted : (supportedEfforts[0] ?? null);
+    const isPersistedSupported = persisted && supportedEfforts.includes(persisted);
+
+    /** @type {import('../../../types/new-tab.js').ReasoningEffort | null} */
+    const fallbackEffort = supportedEfforts[0] ?? null;
+    const selectedEffort = isPersistedSupported ? persisted : fallbackEffort;
 
     return { selectedEffort, supportedEfforts, setSelectedReasoningEffort };
 }
