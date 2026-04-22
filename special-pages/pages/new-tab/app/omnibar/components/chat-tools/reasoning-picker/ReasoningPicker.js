@@ -1,23 +1,32 @@
 import { h } from 'preact';
 import cn from 'classnames';
+import { useDropdown } from '../useDropdown';
 import { ReasoningDropdown } from './ReasoningDropdown';
 import { getReasoningEffortIcon } from './getReasoningEffortIcon';
 import styles from './ReasoningPicker.module.css';
 
 /**
  * @param {object} props
- * @param {import('./useReasoningPicker').ReasoningPickerState} props.picker
  * @param {import('./ReasoningDropdown').ReasoningEffortOption[]} props.options
  * @param {import('../../../../../types/new-tab.js').ReasoningEffort|null} props.selectedEffort
+ * @param {(effort: import('../../../../../types/new-tab.js').ReasoningEffort) => void} props.onSelect
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
  */
-export function ReasoningPicker({ picker, options, selectedEffort, ariaLabel, buttonLabel }) {
-    const { buttonRef, dropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectEffort } = picker;
+export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, buttonLabel }) {
+    const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
+
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
-        closeDropdown();
+        close();
         if (restoreFocus) buttonRef.current?.focus();
+    };
+
+    /** @param {import('../../../../../types/new-tab.js').ReasoningEffort} effort */
+    const handleSelect = (effort) => {
+        if (!options.some((option) => option.id === effort)) return;
+        close();
+        onSelect(effort);
     };
 
     const Icon = selectedEffort ? getReasoningEffortIcon(selectedEffort) : null;
@@ -28,26 +37,26 @@ export function ReasoningPicker({ picker, options, selectedEffort, ariaLabel, bu
                 ref={buttonRef}
                 type="button"
                 tabIndex={0}
-                class={cn(styles.reasoningButton, dropdownOpen && styles.reasoningButtonOpen)}
+                class={cn(styles.reasoningButton, isOpen && styles.reasoningButtonOpen)}
                 aria-label={ariaLabel}
                 aria-haspopup="listbox"
-                aria-expanded={dropdownOpen}
+                aria-expanded={isOpen}
                 onClick={(e) => {
                     e.stopPropagation();
-                    toggleDropdown();
+                    toggle();
                 }}
             >
                 {Icon && <Icon class={styles.buttonIcon} />}
                 <span class={styles.buttonLabel}>{buttonLabel}</span>
             </button>
-            {dropdownOpen && dropdownPos && (
+            {isOpen && dropdownPos && (
                 <ReasoningDropdown
                     dropdownRef={dropdownRef}
                     options={options}
                     selectedEffort={selectedEffort}
                     dropdownPos={dropdownPos}
                     onClose={handleClose}
-                    onSelect={selectEffort}
+                    onSelect={handleSelect}
                     ariaLabel={ariaLabel}
                 />
             )}
