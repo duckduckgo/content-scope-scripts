@@ -53,9 +53,9 @@
           "items": { "$ref": "./tool-id.json" }
         },
         "supportedReasoningEffort": {
-          "description": "Reasoning-effort keys this model supports (e.g. 'fast', 'reasoning', 'auto'). Empty or omitted means the reasoning picker is hidden for this model.",
+          "description": "Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.",
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "$ref": "./reasoning-effort.json" }
         }
       }
     }
@@ -99,9 +99,7 @@
       "type": "string"
     },
     "selectedReasoningEffort": {
-      "title": "Selected Reasoning Effort",
-      "description": "The user's currently selected reasoning-effort key for the active model, persisted by native. Must be a value present in the active model's supportedReasoningEffort.",
-      "type": "string"
+      "$ref": "./reasoning-effort.json"
     },
     "aiModelSections": {
       "title": "AI Model Sections",

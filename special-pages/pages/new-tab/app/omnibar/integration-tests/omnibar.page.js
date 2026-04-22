@@ -351,6 +351,21 @@ export class OmnibarPage {
     webSearchChip() {
         return this.context().getByRole('button', { name: 'Web Search' });
     }
+
+    reasoningPickerButton() {
+        return this.context().getByRole('button', { name: 'Reasoning' });
+    }
+
+    reasoningDropdown() {
+        return this.page.getByRole('listbox', { name: 'Reasoning' });
+    }
+
+    /**
+     * @param {string} optionName
+     */
+    reasoningOption(optionName) {
+        return this.reasoningDropdown().getByRole('option', { name: optionName });
+    }
 }
 
 /**

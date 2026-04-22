@@ -110,7 +110,7 @@ export class OmnibarService {
     }
 
     /**
-     * @param {string} selectedReasoningEffort
+     * @param {import('../../types/new-tab.js').ReasoningEffort} selectedReasoningEffort
      */
     setSelectedReasoningEffort(selectedReasoningEffort) {
         this.configService.update((old) => {

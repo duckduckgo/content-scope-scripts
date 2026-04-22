@@ -1,0 +1,184 @@
+.reasoningPicker {
+    display: flex;
+    position: relative;
+}
+
+.reasoningButton {
+    align-items: center;
+    background: none;
+    border-radius: 100px;
+    border: 1px solid transparent;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: var(--sp-1);
+    height: var(--sp-7);
+    padding: 0 var(--sp-2);
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: transparent;
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.10);
+        }
+    }
+
+    &:active {
+        background: var(--color-black-at-18);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.14);
+        }
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.reasoningButtonOpen {
+    background: var(--color-black-at-18);
+    border-color: transparent;
+    color: var(--ds-color-theme-text-primary);
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.20);
+    }
+
+    &:active {
+        background: rgba(0, 0, 0, 0.22);
+    }
+
+    [data-theme="dark"] & {
+        background: var(--color-white-at-18);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.20);
+        }
+
+        &:active {
+            background: rgba(255, 255, 255, 0.22);
+        }
+    }
+}
+
+.buttonIcon {
+    flex-shrink: 0;
+}
+
+.buttonLabel {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.reasoningDropdown {
+    background: rgb(249, 249, 249);
+    border-radius: 6px;
+    border: 0.5px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32), 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    margin: 0;
+    min-width: 220px;
+    overflow: hidden;
+    padding: 5px;
+    position: fixed;
+    z-index: 100;
+
+    &:focus-visible {
+        outline: none;
+    }
+
+    [data-theme="dark"] & {
+        backdrop-filter: blur(76px);
+        background: rgba(30, 30, 30, 0.88);
+        border: 0.5px solid var(--color-white-at-15);
+        box-shadow: 0 10px 24px var(--color-black-at-40);
+    }
+}
+
+.reasoningOption {
+    align-items: center;
+    border-radius: 3px;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: 6px;
+    padding: 8px 9px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.reasoningOptionActive {
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-content-primary);
+
+    .optionDescription {
+        color: var(--ds-color-theme-accent-content-secondary);
+    }
+}
+
+.checkmark {
+    flex-shrink: 0;
+    height: 12px;
+    position: relative;
+    width: 4px;
+
+    &::before {
+        color: transparent;
+        content: '\2713';
+        font-size: 13px;
+        font-weight: 700;
+        left: -5px;
+        line-height: 12px;
+        position: absolute;
+        top: 0;
+    }
+}
+
+.reasoningOptionSelected .checkmark::before {
+    color: var(--ds-color-theme-text-primary);
+}
+
+.reasoningOptionActive .checkmark::before {
+    color: transparent;
+}
+
+.reasoningOptionActive.reasoningOptionSelected .checkmark::before {
+    color: var(--ds-color-theme-accent-content-primary);
+}
+
+.optionIcon {
+    flex-shrink: 0;
+}
+
+.optionLabel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.optionName {
+    letter-spacing: -0.08px;
+    line-height: 13px;
+    overflow: hidden;
+    text-box-edge: cap alphabetic;
+    text-box-trim: trim-both;
+    text-overflow: ellipsis;
+}
+
+.optionDescription {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 12px;
+    line-height: 15px;
+    overflow: hidden;
+    text-box-edge: cap alphabetic;
+    text-box-trim: trim-both;
+    text-overflow: ellipsis;
+}

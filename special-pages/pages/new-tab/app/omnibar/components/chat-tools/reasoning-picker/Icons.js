@@ -57,21 +57,3 @@ export function AutoReasoningIcon(props) {
         </svg>
     );
 }
-
-/**
- * Returns the icon component for a given reasoning-effort key. Unknown keys
- * fall back to the "reasoning" icon so the UI still renders something sensible.
- * @param {string} key
- */
-export function getReasoningEffortIcon(key) {
-    switch (key) {
-        case 'fast':
-            return FastReasoningIcon;
-        case 'auto':
-            return AutoReasoningIcon;
-        case 'reasoning':
-            return ReasoningEffortIcon;
-        default:
-            return ReasoningEffortIcon;
-    }
-}

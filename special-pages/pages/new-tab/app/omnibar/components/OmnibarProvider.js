@@ -53,7 +53,7 @@ export const OmnibarContext = createContext({
     setSelectedModelId: () => {
         throw new Error('must implement');
     },
-    /** @type {(effort: string) => void} */
+    /** @type {(effort: import('../../../types/new-tab.js').ReasoningEffort) => void} */
     setSelectedReasoningEffort: () => {
         throw new Error('must implement');
     },
@@ -137,7 +137,7 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {(effort: string) => void} */
+    /** @type {(effort: import('../../../types/new-tab.js').ReasoningEffort) => void} */
     const setSelectedReasoningEffort = useCallback(
         (effort) => {
             service.current?.setSelectedReasoningEffort(effort);

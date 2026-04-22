@@ -293,6 +293,34 @@
     "title": "Describe changes based on the image",
     "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
   },
+  "omnibar_reasoningPickerLabel": {
+    "title": "Reasoning",
+    "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
+  },
+  "omnibar_reasoningEffortFastLabel": {
+    "title": "Fast",
+    "description": "Label for the 'fast' reasoning-effort option (answers right away, no deliberate reasoning)."
+  },
+  "omnibar_reasoningEffortFastDescription": {
+    "title": "Answers right away",
+    "description": "Subtitle for the 'fast' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortReasoningLabel": {
+    "title": "Reasoning",
+    "description": "Label for the 'reasoning' reasoning-effort option (model spends time reasoning)."
+  },
+  "omnibar_reasoningEffortReasoningDescription": {
+    "title": "For complex tasks",
+    "description": "Subtitle for the 'reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortAutoLabel": {
+    "title": "Auto",
+    "description": "Label for the 'auto' reasoning-effort option (model chooses how much to reason)."
+  },
+  "omnibar_reasoningEffortAutoDescription": {
+    "title": "Let the model decide",
+    "description": "Subtitle for the 'auto' reasoning-effort option in the reasoning picker dropdown."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"
