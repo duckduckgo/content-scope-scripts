@@ -1,4 +1,4 @@
-import { AutoReasoningIcon, FastReasoningIcon, ReasoningEffortIcon } from './Icons';
+import { ExtendedReasoningIcon, FastReasoningIcon, ReasoningEffortIcon } from './Icons';
 
 /**
  * Returns the icon component for a given reasoning-effort key, or null for unknown keys.
@@ -11,12 +11,12 @@ import { AutoReasoningIcon, FastReasoningIcon, ReasoningEffortIcon } from './Ico
  */
 export function getReasoningEffortIcon(key) {
     switch (key) {
-        case 'fast':
+        case 'none':
             return FastReasoningIcon;
-        case 'auto':
-            return AutoReasoningIcon;
-        case 'reasoning':
+        case 'low':
             return ReasoningEffortIcon;
+        case 'medium':
+            return ExtendedReasoningIcon;
         default:
             return null;
     }

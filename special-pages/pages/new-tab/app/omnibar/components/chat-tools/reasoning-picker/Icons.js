@@ -41,19 +41,24 @@ export function ReasoningEffortIcon(props) {
 }
 
 /**
- * Circular arrow icon used for the "auto" reasoning-effort option.
+ * Clock-face icon used for the "extended reasoning" option.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function AutoReasoningIcon(props) {
+export function ExtendedReasoningIcon(props) {
     return (
         <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
-            <path
-                fill="currentColor"
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M8 2.75a5.25 5.25 0 0 0-5.123 4.098.625.625 0 1 1-1.22-.276A6.5 6.5 0 0 1 13.3 4.5V3.125a.625.625 0 1 1 1.25 0V6.25a.625.625 0 0 1-.625.625h-3.125a.625.625 0 1 1 0-1.25h1.517A5.24 5.24 0 0 0 8 2.75m-6.175 6.34a.625.625 0 0 1 .748.469A5.25 5.25 0 0 0 12 11.5v1.375a.625.625 0 1 1-1.25 0V12c-1.148.952-2.61 1.5-4.1 1.5a6.5 6.5 0 0 1-5.294-2.722.625.625 0 0 1 .469-.688"
-            />
-            <path fill="currentColor" d="m6.9 10 2.85-3.35L7 5.4l-.1-.05a.35.35 0 0 0-.49.08l-.03.04-1.82 3.15-.01.03a.35.35 0 0 0 .3.5z" />
+            <g fill="currentColor">
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8 2.25a5.75 5.75 0 1 0 0 11.5 5.75 5.75 0 0 0 0-11.5M1 8a7 7 0 1 1 14 0 7 7 0 0 1-14 0"
+                />
+                <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M8 3.875a.625.625 0 0 1 .625.625V7.74l2.067 2.067a.625.625 0 1 1-.884.884L7.558 8.442A.625.625 0 0 1 7.375 8V4.5A.625.625 0 0 1 8 3.875"
+                />
+            </g>
         </svg>
     );
 }

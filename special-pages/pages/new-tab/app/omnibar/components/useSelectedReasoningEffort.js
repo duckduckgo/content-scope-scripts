@@ -7,6 +7,8 @@ export function useSelectedReasoningEffort() {
     const { selectedModel } = useSelectedModel();
 
     const supportedEfforts = selectedModel?.supportedReasoningEffort ?? [];
+    console.log('supportedEfforts', supportedEfforts);
+    console.log('selectedModel', selectedModel);
 
     // OmnibarService.setSelectedModelId reconciles selectedReasoningEffort on model change, so the
     // persisted value should stay valid. This guard is a safety net for the rare case where native

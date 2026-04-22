@@ -297,29 +297,29 @@
     "title": "Reasoning",
     "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
   },
-  "omnibar_reasoningEffortFastLabel": {
+  "omnibar_reasoningEffortNoneLabel": {
     "title": "Fast",
-    "description": "Label for the 'fast' reasoning-effort option (answers right away, no deliberate reasoning)."
+    "description": "Label for the 'none' reasoning-effort option (answers right away, no deliberate reasoning)."
   },
-  "omnibar_reasoningEffortFastDescription": {
+  "omnibar_reasoningEffortNoneDescription": {
     "title": "Answers right away",
-    "description": "Subtitle for the 'fast' reasoning-effort option in the reasoning picker dropdown."
+    "description": "Subtitle for the 'none' reasoning-effort option in the reasoning picker dropdown."
   },
-  "omnibar_reasoningEffortReasoningLabel": {
+  "omnibar_reasoningEffortLowLabel": {
     "title": "Reasoning",
-    "description": "Label for the 'reasoning' reasoning-effort option (model spends time reasoning)."
+    "description": "Label for the 'low' reasoning-effort option (model spends a moment reasoning)."
   },
-  "omnibar_reasoningEffortReasoningDescription": {
-    "title": "For complex tasks",
-    "description": "Subtitle for the 'reasoning' reasoning-effort option in the reasoning picker dropdown."
+  "omnibar_reasoningEffortLowDescription": {
+    "title": "Takes a moment to respond",
+    "description": "Subtitle for the 'low' reasoning-effort option in the reasoning picker dropdown."
   },
-  "omnibar_reasoningEffortAutoLabel": {
-    "title": "Auto",
-    "description": "Label for the 'auto' reasoning-effort option (model chooses how much to reason)."
+  "omnibar_reasoningEffortMediumLabel": {
+    "title": "Extended Reasoning",
+    "description": "Label for the 'medium' reasoning-effort option (model researches before responding)."
   },
-  "omnibar_reasoningEffortAutoDescription": {
-    "title": "Let the model decide",
-    "description": "Subtitle for the 'auto' reasoning-effort option in the reasoning picker dropdown."
+  "omnibar_reasoningEffortMediumDescription": {
+    "title": "Researches before responding",
+    "description": "Subtitle for the 'medium' reasoning-effort option in the reasoning picker dropdown."
   },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",

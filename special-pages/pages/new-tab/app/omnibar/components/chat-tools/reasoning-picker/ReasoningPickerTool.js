@@ -22,16 +22,16 @@ import { ReasoningPicker } from './ReasoningPicker';
  */
 function getEffortOption(key, t) {
     switch (key) {
-        case 'fast':
-            return { id: key, label: t('omnibar_reasoningEffortFastLabel'), description: t('omnibar_reasoningEffortFastDescription') };
-        case 'reasoning':
+        case 'none':
+            return { id: key, label: t('omnibar_reasoningEffortNoneLabel'), description: t('omnibar_reasoningEffortNoneDescription') };
+        case 'low':
+            return { id: key, label: t('omnibar_reasoningEffortLowLabel'), description: t('omnibar_reasoningEffortLowDescription') };
+        case 'medium':
             return {
                 id: key,
-                label: t('omnibar_reasoningEffortReasoningLabel'),
-                description: t('omnibar_reasoningEffortReasoningDescription'),
+                label: t('omnibar_reasoningEffortMediumLabel'),
+                description: t('omnibar_reasoningEffortMediumDescription'),
             };
-        case 'auto':
-            return { id: key, label: t('omnibar_reasoningEffortAutoLabel'), description: t('omnibar_reasoningEffortAutoDescription') };
         default:
             return null;
     }

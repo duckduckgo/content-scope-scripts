@@ -205,7 +205,7 @@ test.describe('omnibar widget', () => {
             chat: 'hello',
             target: 'same-tab',
             modelId: 'claude-haiku-4-5',
-            reasoningEffort: 'fast',
+            reasoningEffort: 'none',
         });
     });
 
@@ -1707,11 +1707,11 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.reasoningPickerButton().click();
-            await omnibar.reasoningOption('Reasoning For complex tasks').click();
+            await omnibar.reasoningOption('Reasoning Takes a moment to respond').click();
 
             const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
             const last = calls[calls.length - 1];
-            expect(last?.payload?.params?.selectedReasoningEffort).toBe('reasoning');
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('low');
         });
 
         test('submit includes reasoningEffort for models that support it', async ({ page }, workerInfo) => {
@@ -1724,7 +1724,7 @@ test.describe('omnibar widget', () => {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-5-mini',
-                    'omnibar.selectedReasoningEffort': 'reasoning',
+                    'omnibar.selectedReasoningEffort': 'low',
                 },
             });
             await omnibar.ready();
@@ -1739,7 +1739,7 @@ test.describe('omnibar widget', () => {
                 chat: 'hello',
                 target: 'same-tab',
                 modelId: 'gpt-5-mini',
-                reasoningEffort: 'reasoning',
+                reasoningEffort: 'low',
             });
         });
 
@@ -1753,7 +1753,7 @@ test.describe('omnibar widget', () => {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-4o-mini',
-                    'omnibar.selectedReasoningEffort': 'reasoning',
+                    'omnibar.selectedReasoningEffort': 'low',
                 },
             });
             await omnibar.ready();
@@ -1776,13 +1776,13 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // gpt-5-mini supports ['fast', 'reasoning', 'auto']; claude-haiku-4-5 only ['fast', 'reasoning']
+            // gpt-5-mini supports ['none', 'low', 'medium']; claude-haiku-4-5 only ['none', 'low']
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-5-mini',
-                    'omnibar.selectedReasoningEffort': 'auto',
+                    'omnibar.selectedReasoningEffort': 'medium',
                 },
             });
             await omnibar.ready();
@@ -1796,13 +1796,69 @@ test.describe('omnibar widget', () => {
             await omnibar.chatInput().fill('hello');
             await omnibar.chatInput().press('Enter');
 
-            // 'auto' isn't in claude-haiku-4-5's list; effective value falls back to the first supported one
+            // 'medium' isn't in claude-haiku-4-5's list; effective value falls back to the first supported one
             await omnibar.expectMethodCalledWith('omnibar_submitChat', {
                 chat: 'hello',
                 target: 'same-tab',
                 modelId: 'claude-haiku-4-5',
-                reasoningEffort: 'fast',
+                reasoningEffort: 'none',
             });
+        });
+
+        test('rewrites the persisted effort when switching to a model that does not support it', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // gpt-5-mini supports 'medium'; claude-haiku-4-5 does not
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedReasoningEffort': 'medium',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Haiku 4.5').click();
+
+            // Model change should carry a reconciled selectedReasoningEffort in the same config write
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
+            const last = calls[calls.length - 1];
+            expect(last?.payload?.params?.selectedModelId).toBe('claude-haiku-4-5');
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('none');
+        });
+
+        test('keeps the persisted effort when switching to a model that still supports it', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Both models support 'none'
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedReasoningEffort': 'none',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Haiku 4.5').click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
+            const last = calls[calls.length - 1];
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('none');
         });
     });
 

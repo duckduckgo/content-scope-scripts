@@ -130,5 +130,33 @@
   "omnibar_imageGenerationWithAttachmentPlaceholder": {
     "title": "Describe changes based on the image",
     "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
+  },
+  "omnibar_reasoningPickerLabel": {
+    "title": "Reasoning",
+    "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
+  },
+  "omnibar_reasoningEffortNoneLabel": {
+    "title": "Fast",
+    "description": "Label for the 'none' reasoning-effort option (answers right away, no deliberate reasoning)."
+  },
+  "omnibar_reasoningEffortNoneDescription": {
+    "title": "Answers right away",
+    "description": "Subtitle for the 'none' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortLowLabel": {
+    "title": "Reasoning",
+    "description": "Label for the 'low' reasoning-effort option (model spends a moment reasoning)."
+  },
+  "omnibar_reasoningEffortLowDescription": {
+    "title": "Takes a moment to respond",
+    "description": "Subtitle for the 'low' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortMediumLabel": {
+    "title": "Extended Reasoning",
+    "description": "Label for the 'medium' reasoning-effort option (model researches before responding)."
+  },
+  "omnibar_reasoningEffortMediumDescription": {
+    "title": "Researches before responding",
+    "description": "Subtitle for the 'medium' reasoning-effort option in the reasoning picker dropdown."
   }
 }

@@ -16,7 +16,7 @@ function parseBooleanQueryParam(param) {
 }
 
 /** @type {ReadonlyArray<import('../../../types/new-tab.ts').ReasoningEffort>} */
-const REASONING_EFFORTS = ['fast', 'reasoning', 'auto'];
+const REASONING_EFFORTS = ['none', 'low', 'medium'];
 
 /**
  * Reads a URL query param as a ReasoningEffort. Returns null if absent or invalid.
@@ -25,7 +25,7 @@ const REASONING_EFFORTS = ['fast', 'reasoning', 'auto'];
  */
 function parseReasoningEffortQueryParam(param) {
     const value = url.searchParams.get(param);
-    return REASONING_EFFORTS.includes((effort) => effort === value) ?? null;
+    return REASONING_EFFORTS.find((effort) => effort === value) ?? null;
 }
 
 export function omnibarMockTransport() {
@@ -55,7 +55,7 @@ export function omnibarMockTransport() {
                         isEnabled: true,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
-                        supportedReasoningEffort: ['fast', 'reasoning', 'auto'],
+                        supportedReasoningEffort: ['none', 'low', 'medium'],
                     },
                     {
                         id: 'openai_gpt-oss-120b',
@@ -80,7 +80,7 @@ export function omnibarMockTransport() {
                         isEnabled: true,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
-                        supportedReasoningEffort: ['fast', 'reasoning'],
+                        supportedReasoningEffort: ['none', 'low'],
                     },
                     {
                         id: 'mistralai_Mistral-Small-24B-Instruct-2501',
