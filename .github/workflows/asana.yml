@@ -1,7 +1,7 @@
 name: 'asana sync'
 on:
     pull_request_review:
-    pull_request_target:
+    pull_request:
         types:
             - opened
             - edited
@@ -10,8 +10,13 @@ on:
             - synchronize
             - review_requested
 
+permissions:
+    contents: read
+    pull-requests: read
+
 jobs:
     sync:
+        if: github.event.pull_request.head.repo.full_name == github.repository
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
