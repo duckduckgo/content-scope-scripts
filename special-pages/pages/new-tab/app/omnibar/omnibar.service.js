@@ -102,9 +102,17 @@ export class OmnibarService {
      */
     setSelectedModelId(selectedModelId) {
         this.configService.update((old) => {
+            const nextModel = (old.aiModelSections ?? []).flatMap((section) => section.items).find((model) => model.id === selectedModelId);
+            const supportedEfforts = nextModel?.supportedReasoningEffort ?? [];
+
+            const currentEffort = old.selectedReasoningEffort;
+            const nextEffort =
+                currentEffort && supportedEfforts.includes(currentEffort) ? currentEffort : (supportedEfforts[0] ?? undefined);
+
             return {
                 ...old,
                 selectedModelId,
+                selectedReasoningEffort: nextEffort,
             };
         });
     }
