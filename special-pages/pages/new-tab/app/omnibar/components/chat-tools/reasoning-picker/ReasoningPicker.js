@@ -1,15 +1,25 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
-import { ReasoningDropdown } from './ReasoningDropdown';
+import { Dropdown } from '../dropdown/Dropdown';
+import { DropdownItem } from '../dropdown/DropdownItem';
 import { getReasoningEffortIcon } from './getReasoningEffortIcon';
 import styles from './ReasoningPicker.module.css';
 
 /**
+ * @typedef {import('../../../../../types/new-tab.js').ReasoningEffort} ReasoningEffort
+ *
+ * @typedef {object} ReasoningEffortOption
+ * @property {ReasoningEffort} id - Stable server key
+ * @property {string} label - Localized label
+ * @property {string} description - Localized description
+ */
+
+/**
  * @param {object} props
- * @param {import('./ReasoningDropdown').ReasoningEffortOption[]} props.options
- * @param {import('../../../../../types/new-tab.js').ReasoningEffort|null} props.selectedEffort
- * @param {(effort: import('../../../../../types/new-tab.js').ReasoningEffort) => void} props.onSelect
+ * @param {ReasoningEffortOption[]} props.options
+ * @param {ReasoningEffort|null} props.selectedEffort
+ * @param {(effort: ReasoningEffort) => void} props.onSelect
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
  */
@@ -22,11 +32,10 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, 
         if (restoreFocus) buttonRef.current?.focus();
     };
 
-    /** @param {import('../../../../../types/new-tab.js').ReasoningEffort} effort */
+    /** @param {ReasoningEffort} effort */
     const handleSelect = (effort) => {
         const isSupported = options.some((option) => option.id === effort);
         if (!isSupported) return;
-        close();
         onSelect(effort);
     };
 
@@ -51,15 +60,30 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, 
                 <span class={styles.buttonLabel}>{buttonLabel}</span>
             </button>
             {isOpen && dropdownPos && (
-                <ReasoningDropdown
+                <Dropdown
                     dropdownRef={dropdownRef}
-                    options={options}
-                    selectedEffort={selectedEffort}
-                    dropdownPos={dropdownPos}
-                    onClose={handleClose}
-                    onSelect={handleSelect}
+                    role="listbox"
                     ariaLabel={ariaLabel}
-                />
+                    position={dropdownPos}
+                    onClose={handleClose}
+                    idPrefix="reasoning-option"
+                >
+                    {options.map((option) => {
+                        const OptionIcon = getReasoningEffortIcon(option.id);
+                        return (
+                            <DropdownItem
+                                key={option.id}
+                                role="option"
+                                icon={OptionIcon ? <OptionIcon /> : null}
+                                name={option.label}
+                                description={option.description}
+                                isSelected={option.id === selectedEffort}
+                                ariaSelected={option.id === selectedEffort}
+                                onSelect={() => handleSelect(option.id)}
+                            />
+                        );
+                    })}
+                </Dropdown>
             )}
         </div>
     );

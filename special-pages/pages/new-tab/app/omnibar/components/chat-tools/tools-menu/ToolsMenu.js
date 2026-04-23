@@ -1,9 +1,9 @@
 import { h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
-import cn from 'classnames';
 import { CloseSmallIcon, CreateImageIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
 import { useDropdown } from '../useDropdown';
+import { Dropdown } from '../dropdown/Dropdown';
+import { DropdownItem } from '../dropdown/DropdownItem';
 import styles from './ToolsMenu.module.css';
 
 /**
@@ -33,8 +33,6 @@ import styles from './ToolsMenu.module.css';
 export function ToolsMenu({ tools, activeTool, onToggle }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { isOpen: menuOpen, buttonRef, dropdownRef, dropdownPos, toggle: toggleMenu, close: closeMenu } = useDropdown({ align: 'left' });
-    const [activeIndex, setActiveIndex] = useState(-1);
-    const clearActiveIndex = () => setActiveIndex(-1);
 
     /** @param {ToolId} id @returns {ToolConfig|null} */
     const getToolConfig = (id) => {
@@ -64,88 +62,10 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
     const resolvedTools = /** @type {ToolConfig[]} */ (tools.map(getToolConfig).filter(Boolean));
     const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
 
-    /** @param {ToolId} toolId */
-    const handleSelect = (toolId) => {
-        onToggle(toolId);
+    /** @param {{ restoreFocus: boolean }} opts */
+    const handleClose = ({ restoreFocus }) => {
         closeMenu();
-    };
-
-    const getInitialActiveIndex = () => {
-        if (resolvedTools.length === 0) return -1;
-
-        const initialIndex = activeTool ? resolvedTools.findIndex((tool) => tool.id === activeTool) : -1;
-        return initialIndex >= 0 ? initialIndex : 0;
-    };
-
-    useEffect(() => {
-        if (!menuOpen) {
-            clearActiveIndex();
-            return;
-        }
-
-        const frameId = window.requestAnimationFrame(() => {
-            dropdownRef.current?.focus();
-        });
-
-        return () => window.cancelAnimationFrame(frameId);
-    }, [dropdownRef, menuOpen]);
-
-    /**
-     * @param {number} index
-     */
-    const getMenuItemId = (index) => `tools-menu-item-${resolvedTools[index]?.id ?? index}`;
-
-    /**
-     * @param {number} nextIndex
-     */
-    const focusIndex = (nextIndex) => {
-        if (resolvedTools.length === 0) return;
-
-        if (nextIndex < 0) {
-            setActiveIndex(resolvedTools.length - 1);
-        } else if (nextIndex >= resolvedTools.length) {
-            setActiveIndex(0);
-        } else {
-            setActiveIndex(nextIndex);
-        }
-    };
-
-    /** @type {(e: KeyboardEvent) => void} */
-    const handleMenuKeyDown = (e) => {
-        switch (e.key) {
-            case 'ArrowDown':
-                e.preventDefault();
-                focusIndex(activeIndex + 1);
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                focusIndex(activeIndex - 1);
-                break;
-            case 'Home':
-                e.preventDefault();
-                setActiveIndex(0);
-                break;
-            case 'End':
-                e.preventDefault();
-                setActiveIndex(resolvedTools.length - 1);
-                break;
-            case 'Enter':
-            case ' ':
-                e.preventDefault();
-                if (activeIndex >= 0 && activeIndex < resolvedTools.length) {
-                    handleSelect(resolvedTools[activeIndex].id);
-                    buttonRef.current?.focus();
-                }
-                break;
-            case 'Escape':
-                e.preventDefault();
-                closeMenu();
-                buttonRef.current?.focus();
-                break;
-            case 'Tab':
-                window.setTimeout(() => closeMenu(), 0);
-                break;
-        }
+        if (restoreFocus) buttonRef.current?.focus();
     };
 
     return (
@@ -154,15 +74,12 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                 ref={buttonRef}
                 type="button"
                 tabIndex={0}
-                class={cn(styles.toolsButton, (menuOpen || activeToolConfig) && styles.toolsButtonActive)}
+                class={styles.toolsButton}
                 aria-label={t('omnibar_toolsMenuLabel')}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 onClick={(e) => {
                     e.stopPropagation();
-                    if (!menuOpen) {
-                        setActiveIndex(getInitialActiveIndex());
-                    }
                     toggleMenu();
                 }}
             >
@@ -186,40 +103,27 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                 </button>
             )}
             {menuOpen && dropdownPos && (
-                <ul
-                    ref={dropdownRef}
-                    class={styles.dropdown}
-                    tabIndex={-1}
+                <Dropdown
+                    dropdownRef={dropdownRef}
                     role="menu"
-                    aria-label={t('omnibar_toolsMenuLabel')}
-                    aria-activedescendant={activeIndex >= 0 ? getMenuItemId(activeIndex) : undefined}
-                    style={{ left: `${dropdownPos.left}px`, top: `${dropdownPos.top}px` }}
-                    onKeyDown={handleMenuKeyDown}
-                    onMouseLeave={clearActiveIndex}
+                    ariaLabel={t('omnibar_toolsMenuLabel')}
+                    position={dropdownPos}
+                    onClose={handleClose}
+                    idPrefix="tools-menu-item"
                 >
-                    {resolvedTools.map((tool, index) => (
-                        <li
+                    {resolvedTools.map((tool) => (
+                        <DropdownItem
                             key={tool.id}
-                            id={getMenuItemId(index)}
                             role="menuitemcheckbox"
-                            aria-checked={activeTool === tool.id}
-                            class={cn(
-                                styles.menuItem,
-                                activeIndex === index && styles.menuItemActive,
-                                activeTool === tool.id && styles.menuItemSelected,
-                            )}
-                            onMouseOver={() => setActiveIndex(index)}
-                            onClick={() => handleSelect(tool.id)}
-                        >
-                            <span class={styles.checkmark} aria-hidden="true" />
-                            {tool.icon}
-                            <div class={styles.menuItemLabel}>
-                                <span class={styles.menuItemName}>{tool.label}</span>
-                                <span class={styles.menuItemDescription}>{tool.description}</span>
-                            </div>
-                        </li>
+                            icon={tool.icon}
+                            name={tool.label}
+                            description={tool.description}
+                            isSelected={activeTool === tool.id}
+                            ariaChecked={activeTool === tool.id}
+                            onSelect={() => onToggle(tool.id)}
+                        />
                     ))}
-                </ul>
+                </Dropdown>
             )}
         </div>
     );

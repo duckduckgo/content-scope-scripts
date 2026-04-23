@@ -6,7 +6,7 @@ import { ReasoningPicker } from './ReasoningPicker';
 /**
  * @typedef {import('../../../strings.json')} Strings
  * @typedef {import('../../../../../types/new-tab.js').ReasoningEffort} ReasoningEffort
- * @typedef {import('./ReasoningDropdown').ReasoningEffortOption} ReasoningEffortOption
+ * @typedef {import('./ReasoningPicker').ReasoningEffortOption} ReasoningEffortOption
  */
 
 /**
