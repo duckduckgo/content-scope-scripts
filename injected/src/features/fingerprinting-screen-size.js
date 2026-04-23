@@ -1,6 +1,11 @@
 import ContentFeature from '../content-feature';
 
+/**
+ * @typedef {{ availTop?: number, availLeft?: number, availWidth?: number, availHeight?: number, colorDepth?: number, pixelDepth?: number }} ScreenPropertyValues
+ */
+
 export default class FingerprintingScreenSize extends ContentFeature {
+    /** @type {ScreenPropertyValues} */
     origPropertyValues = {};
 
     init() {
@@ -49,6 +54,9 @@ export default class FingerprintingScreenSize extends ContentFeature {
      *  X/Y values are set in the browser based on distance to the main monitor top or left, which
      * can mean second or more monitors have very large or negative values. This function maps a given
      * given coordinate value to the proper place on the main screen.
+     * @param {number} value
+     * @param {number} targetDimension
+     * @returns {number}
      */
     normalizeWindowDimension(value, targetDimension) {
         if (value > targetDimension) {
@@ -60,6 +68,10 @@ export default class FingerprintingScreenSize extends ContentFeature {
         return value;
     }
 
+    /**
+     * @param {string} property
+     * @param {number} value
+     */
     setWindowPropertyValue(property, value) {
         // Here we don't update the prototype getter because the values are updated dynamically
         try {
@@ -86,7 +98,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
 
             const normalizedY = this.normalizeWindowDimension(window.screenY, window.screen.height);
             const normalizedX = this.normalizeWindowDimension(window.screenX, window.screen.width);
-            if (normalizedY <= this.origPropertyValues.availTop) {
+            if (this.origPropertyValues.availTop !== undefined && normalizedY <= this.origPropertyValues.availTop) {
                 this.setWindowPropertyValue('screenY', 0);
                 this.setWindowPropertyValue('screenTop', 0);
             } else {
@@ -95,7 +107,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
             }
 
             // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-            if (top.window.outerHeight >= this.origPropertyValues.availHeight - 1) {
+            if (top.window.outerHeight >= (this.origPropertyValues.availHeight ?? 0) - 1) {
                 // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
                 this.setWindowPropertyValue('outerHeight', top.window.screen.height);
             } else {
@@ -107,7 +119,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
                 }
             }
 
-            if (normalizedX <= this.origPropertyValues.availLeft) {
+            if (this.origPropertyValues.availLeft !== undefined && normalizedX <= this.origPropertyValues.availLeft) {
                 this.setWindowPropertyValue('screenX', 0);
                 this.setWindowPropertyValue('screenLeft', 0);
             } else {
@@ -116,7 +128,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
             }
 
             // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-            if (top.window.outerWidth >= this.origPropertyValues.availWidth - 1) {
+            if (top.window.outerWidth >= (this.origPropertyValues.availWidth ?? 0) - 1) {
                 // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
                 this.setWindowPropertyValue('outerWidth', top.window.screen.width);
             } else {
