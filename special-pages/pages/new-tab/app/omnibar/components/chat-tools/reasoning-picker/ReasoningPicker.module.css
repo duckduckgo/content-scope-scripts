@@ -160,13 +160,14 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 2px;
+    gap: 8px;
+    justify-content: center;
     min-width: 0;
 }
 
 .optionName {
     letter-spacing: -0.08px;
-    line-height: 1.2;
+    line-height: 13px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -174,7 +175,7 @@
 .optionDescription {
     color: var(--ds-color-theme-text-secondary);
     font-size: 12px;
-    line-height: 1.3;
+    line-height: 15px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
