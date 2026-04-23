@@ -49,11 +49,12 @@ export function ReasoningPickerTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { supportedEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
 
-    if (supportedEfforts.length === 0) return null;
-
     const options = /** @type {ReasoningEffortOption[]} */ (supportedEfforts.map((key) => getEffortOption(key, t)).filter(Boolean));
+    const hasMultipleOptions = options.length >= 2;
 
-    if (options.length === 0) return null;
+    if (!hasMultipleOptions) {
+        return null;
+    }
 
     const selectedOption = options.find((option) => option.id === selectedEffort);
 
