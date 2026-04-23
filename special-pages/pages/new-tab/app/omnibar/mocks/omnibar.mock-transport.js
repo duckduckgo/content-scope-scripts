@@ -55,7 +55,7 @@ export function omnibarMockTransport() {
                         isEnabled: true,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
-                        supportedReasoningEffort: ['none', 'low', 'medium'],
+                        supportedReasoningEffort: ['none', 'low'],
                     },
                     {
                         id: 'openai_gpt-oss-120b',
@@ -118,6 +118,7 @@ export function omnibarMockTransport() {
                         isEnabled: false,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low', 'medium'],
                     },
                     {
                         id: 'claude-sonnet-4-5',
@@ -126,6 +127,7 @@ export function omnibarMockTransport() {
                         isEnabled: false,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low'],
                     },
                     {
                         id: 'meta-llama_Llama-4-Maverick-17B-128E-Instruct-FP8',
@@ -139,9 +141,10 @@ export function omnibarMockTransport() {
                         id: 'claude-opus-4-6',
                         name: 'Claude Opus 4.6',
                         shortName: 'Opus 4.6',
-                        isEnabled: false,
+                        isEnabled: true,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low', 'medium'],
                     },
                     {
                         id: 'claude-sonnet-4',

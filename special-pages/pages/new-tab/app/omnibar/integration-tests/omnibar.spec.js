@@ -1623,7 +1623,7 @@ test.describe('omnibar widget', () => {
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
-                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
                 },
             });
             await omnibar.ready();
@@ -1634,10 +1634,12 @@ test.describe('omnibar widget', () => {
             await omnibar.reasoningPickerButton().focus();
             await page.keyboard.press('Enter');
             await expect(omnibar.reasoningDropdown()).toBeFocused();
+            await expect(omnibar.reasoningDropdown().getByRole('option')).toHaveCount(3);
 
             await page.keyboard.press('ArrowDown');
             await page.keyboard.press('Enter');
             await expect(omnibar.reasoningDropdown()).toHaveCount(0);
+            await expect(omnibar.reasoningPickerButton()).toContainText('Reasoning');
 
             await omnibar.reasoningPickerButton().focus();
             await page.keyboard.press('Enter');
@@ -1776,12 +1778,12 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // gpt-5-mini supports ['none', 'low', 'medium']; claude-haiku-4-5 only ['none', 'low']
+            // claude-opus-4-6 supports ['none', 'low', 'medium']; claude-haiku-4-5 only ['none', 'low']
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
-                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
                     'omnibar.selectedReasoningEffort': 'medium',
                 },
             });
@@ -1810,12 +1812,12 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // gpt-5-mini supports 'medium'; claude-haiku-4-5 does not
+            // claude-opus-4-6 supports 'medium'; claude-haiku-4-5 does not
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
-                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
                     'omnibar.selectedReasoningEffort': 'medium',
                 },
             });

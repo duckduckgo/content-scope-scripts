@@ -258,7 +258,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 additional: {
                     'omnibar.mode': 'ai',
                     'omnibar.enableAiChatTools': 'true',
-                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
                 },
             });
             await omnibar.ready();
@@ -273,7 +273,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 additional: {
                     'omnibar.mode': 'ai',
                     'omnibar.enableAiChatTools': 'true',
-                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
                 },
             });
             await omnibar.ready();
@@ -289,7 +289,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 additional: {
                     'omnibar.mode': 'ai',
                     'omnibar.enableAiChatTools': 'true',
-                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
                     'omnibar.selectedReasoningEffort': 'medium',
                 },
             });

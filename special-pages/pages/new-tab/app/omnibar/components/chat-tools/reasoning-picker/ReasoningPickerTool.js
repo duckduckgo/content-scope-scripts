@@ -32,8 +32,16 @@ function getEffortOption(key, t) {
                 label: t('omnibar_reasoningEffortMediumLabel'),
                 description: t('omnibar_reasoningEffortMediumDescription'),
             };
-        default:
+        default: {
+            /**
+             * Exhaustiveness check — `never` means all ReasoningEffort cases are handled;
+             * adding a new one without a case will cause a type error here.
+             * @type {never}
+             */
+            const _exhaustiveCheck = key;
+            console.error(`Unknown reasoning effort: ${_exhaustiveCheck}`);
             return null;
+        }
     }
 }
 
