@@ -3,5 +3,5 @@
   "title": "ReasoningEffort",
   "description": "Stable server key for a reasoning-effort option on a reasoning-capable model.",
   "type": "string",
-  "enum": ["none", "low", "medium"]
+  "enum": ["none", "minimal", "low", "medium", "high"]
 }

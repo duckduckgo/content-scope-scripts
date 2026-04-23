@@ -297,29 +297,29 @@
     "title": "Reasoning",
     "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
   },
-  "omnibar_reasoningEffortNoneLabel": {
+  "omnibar_reasoningEffortFastLabel": {
     "title": "Fast",
-    "description": "Label for the 'none' reasoning-effort option (answers right away, no deliberate reasoning)."
+    "description": "Label for the 'fast' reasoning-effort option (answers right away, no deliberate reasoning)."
   },
-  "omnibar_reasoningEffortNoneDescription": {
+  "omnibar_reasoningEffortFastDescription": {
     "title": "Answers right away",
-    "description": "Subtitle for the 'none' reasoning-effort option in the reasoning picker dropdown."
+    "description": "Subtitle for the 'fast' reasoning-effort option in the reasoning picker dropdown."
   },
-  "omnibar_reasoningEffortLowLabel": {
+  "omnibar_reasoningEffortReasoningLabel": {
     "title": "Reasoning",
-    "description": "Label for the 'low' reasoning-effort option (model spends a moment reasoning)."
+    "description": "Label for the 'reasoning' reasoning-effort option (model spends a moment reasoning)."
   },
-  "omnibar_reasoningEffortLowDescription": {
+  "omnibar_reasoningEffortReasoningDescription": {
     "title": "Takes a moment to respond",
-    "description": "Subtitle for the 'low' reasoning-effort option in the reasoning picker dropdown."
+    "description": "Subtitle for the 'reasoning' reasoning-effort option in the reasoning picker dropdown."
   },
-  "omnibar_reasoningEffortMediumLabel": {
+  "omnibar_reasoningEffortExtendedReasoningLabel": {
     "title": "Extended Reasoning",
-    "description": "Label for the 'medium' reasoning-effort option (model researches before responding)."
+    "description": "Label for the 'extended reasoning' reasoning-effort option (model researches before responding)."
   },
-  "omnibar_reasoningEffortMediumDescription": {
+  "omnibar_reasoningEffortExtendedReasoningDescription": {
     "title": "Researches before responding",
-    "description": "Subtitle for the 'medium' reasoning-effort option in the reasoning picker dropdown."
+    "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
   },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",

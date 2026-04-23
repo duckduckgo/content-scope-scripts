@@ -85,7 +85,7 @@ export type SelectedModelID = string;
 /**
  * Stable server key for a reasoning-effort option on a reasoning-capable model.
  */
-export type ReasoningEffort = "none" | "low" | "medium";
+export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high";
 /**
  * Identifier for an AI chat tool.
  */

@@ -9,8 +9,11 @@ import styles from './ReasoningPicker.module.css';
 /**
  * @typedef {import('../../../../../types/new-tab.js').ReasoningEffort} ReasoningEffort
  *
+ * @typedef {'fast' | 'reasoning' | 'extendedReasoning'} ReasoningMode
+ *
  * @typedef {object} ReasoningEffortOption
- * @property {ReasoningEffort} id - Stable server key
+ * @property {ReasoningEffort} id - Server key; round-tripped on submit
+ * @property {ReasoningMode} reasoningMode - Stable UX identity; used for deduping
  * @property {string} label - Localized label
  * @property {string} description - Localized description
  */

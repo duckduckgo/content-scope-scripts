@@ -23,14 +23,27 @@ import { ReasoningPicker } from './ReasoningPicker';
 function getEffortOption(key, t) {
     switch (key) {
         case 'none':
-            return { id: key, label: t('omnibar_reasoningEffortNoneLabel'), description: t('omnibar_reasoningEffortNoneDescription') };
-        case 'low':
-            return { id: key, label: t('omnibar_reasoningEffortLowLabel'), description: t('omnibar_reasoningEffortLowDescription') };
-        case 'medium':
+        case 'minimal':
             return {
                 id: key,
-                label: t('omnibar_reasoningEffortMediumLabel'),
-                description: t('omnibar_reasoningEffortMediumDescription'),
+                reasoningMode: 'fast',
+                label: t('omnibar_reasoningEffortFastLabel'),
+                description: t('omnibar_reasoningEffortFastDescription'),
+            };
+        case 'low':
+            return {
+                id: key,
+                reasoningMode: 'reasoning',
+                label: t('omnibar_reasoningEffortReasoningLabel'),
+                description: t('omnibar_reasoningEffortReasoningDescription'),
+            };
+        case 'medium':
+        case 'high':
+            return {
+                id: key,
+                reasoningMode: 'extendedReasoning',
+                label: t('omnibar_reasoningEffortExtendedReasoningLabel'),
+                description: t('omnibar_reasoningEffortExtendedReasoningDescription'),
             };
         default: {
             /**
@@ -49,7 +62,20 @@ export function ReasoningPickerTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { supportedEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
 
-    const options = /** @type {ReasoningEffortOption[]} */ (supportedEfforts.map((key) => getEffortOption(key, t)).filter(Boolean));
+    const getOptions = () => {
+        const mapped = /** @type {ReasoningEffortOption[]} */ (supportedEfforts.map((key) => getEffortOption(key, t)).filter(Boolean));
+        const usedModes = new Set();
+
+        return mapped.filter((option) => {
+            if (usedModes.has(option.reasoningMode)) {
+                return false;
+            }
+            usedModes.add(option.reasoningMode);
+            return true;
+        });
+    };
+
+    const options = getOptions();
     const hasMultipleOptions = options.length >= 2;
 
     if (!hasMultipleOptions) {

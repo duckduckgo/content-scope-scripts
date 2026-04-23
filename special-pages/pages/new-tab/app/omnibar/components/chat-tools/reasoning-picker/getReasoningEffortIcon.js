@@ -12,10 +12,12 @@ import { ExtendedReasoningIcon, FastReasoningIcon, ReasoningEffortIcon } from '.
 export function getReasoningEffortIcon(key) {
     switch (key) {
         case 'none':
+        case 'minimal':
             return FastReasoningIcon;
         case 'low':
             return ReasoningEffortIcon;
         case 'medium':
+        case 'high':
             return ExtendedReasoningIcon;
         default: {
             /**

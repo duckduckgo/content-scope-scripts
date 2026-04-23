@@ -9,7 +9,7 @@ import { useSelectedModel } from './useSelectedModel';
  *
  * @type {ReadonlySet<import('../../../types/new-tab.js').ReasoningEffort>}
  */
-const KNOWN_REASONING_EFFORTS = new Set(['none', 'low', 'medium']);
+const KNOWN_REASONING_EFFORTS = new Set(['none', 'minimal', 'low', 'medium', 'high']);
 
 export function useSelectedReasoningEffort() {
     const { state, setSelectedReasoningEffort } = useContext(OmnibarContext);
