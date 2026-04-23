@@ -1623,6 +1623,7 @@ test.describe('omnibar widget', () => {
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
                 },
             });
@@ -1783,6 +1784,7 @@ test.describe('omnibar widget', () => {
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
                     'omnibar.selectedReasoningEffort': 'medium',
                 },
@@ -1817,6 +1819,7 @@ test.describe('omnibar widget', () => {
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
                     'omnibar.selectedReasoningEffort': 'medium',
                 },

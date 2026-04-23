@@ -141,7 +141,7 @@ export function omnibarMockTransport() {
                         id: 'claude-opus-4-6',
                         name: 'Claude Opus 4.6',
                         shortName: 'Opus 4.6',
-                        isEnabled: true,
+                        isEnabled: false,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                         supportedReasoningEffort: ['none', 'low', 'medium'],
@@ -212,6 +212,12 @@ export function omnibarMockTransport() {
                     config.enableImageGeneration = parseBooleanQueryParam('omnibar.enableImageGeneration') ?? config.enableImageGeneration;
                     config.enableWebSearch = parseBooleanQueryParam('omnibar.enableWebSearch') ?? config.enableWebSearch;
                     config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
+                    if (parseBooleanQueryParam('omnibar.subscription') === true) {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            ...section,
+                            items: section.items.map((item) => ({ ...item, isEnabled: true })),
+                        }));
+                    }
                     config.selectedReasoningEffort =
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;

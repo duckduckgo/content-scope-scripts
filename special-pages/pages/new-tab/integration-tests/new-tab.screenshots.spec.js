@@ -258,6 +258,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 additional: {
                     'omnibar.mode': 'ai',
                     'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
                 },
             });
@@ -273,6 +274,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 additional: {
                     'omnibar.mode': 'ai',
                     'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
                 },
             });
@@ -289,6 +291,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 additional: {
                     'omnibar.mode': 'ai',
                     'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
                     'omnibar.selectedReasoningEffort': 'medium',
                 },
