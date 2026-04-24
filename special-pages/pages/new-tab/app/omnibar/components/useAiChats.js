@@ -28,6 +28,7 @@ export function getAiChatElementId(chatId) {
  *   | { type: 'showChats' }
  *   | { type: 'setSelectedChat', payload: AiChat }
  *   | { type: 'clearSelectedChat' }
+ *   | { type: 'selectViewAllChats', targetIndex: number }
  *   | { type: 'previousChat', itemCount: number }
  *   | { type: 'nextChat', itemCount: number }
  * )} Action
@@ -48,6 +49,7 @@ function reducer(state, action) {
             return {
                 ...state,
                 chatsVisible: false,
+                selectedIndex: null,
             };
         case 'showChats':
             return {
@@ -66,6 +68,11 @@ function reducer(state, action) {
             return {
                 ...state,
                 selectedIndex: null,
+            };
+        case 'selectViewAllChats':
+            return {
+                ...state,
+                selectedIndex: action.targetIndex,
             };
         case 'previousChat': {
             const nextIndex = state.selectedIndex === null ? action.itemCount - 1 : state.selectedIndex - 1;
@@ -126,30 +133,39 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         getAiChats(query);
     }, [getAiChats, query, enableRecentAiChats]);
 
+    const chatsVisible = state.chatsVisible;
     const extraItems = showViewAllAiChats && state.chats.length > 0 ? 1 : 0;
     const itemCount = state.chats.length + extraItems;
-    const selectedChat = state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
-    const viewAllChatsSelected = showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
+    const selectedChat =
+        chatsVisible && state.selectedIndex !== null && state.selectedIndex < state.chats.length ? state.chats[state.selectedIndex] : null;
+    const viewAllChatsSelected =
+        chatsVisible && showViewAllAiChats && Boolean(state.chats.length) && state.selectedIndex === state.chats.length;
 
     const selectPreviousChat = () => {
-        if (itemCount === 0) return false;
+        if (!chatsVisible || itemCount === 0) return false;
         dispatch({ type: 'previousChat', itemCount });
         return true;
     };
 
     const selectNextChat = () => {
-        if (itemCount === 0) return false;
+        if (!chatsVisible || itemCount === 0) return false;
         dispatch({ type: 'nextChat', itemCount });
         return true;
     };
 
     /** @type {(chat: AiChat) => void} */
     const setSelectedChat = (chat) => {
+        if (!chatsVisible) return;
         dispatch({ type: 'setSelectedChat', payload: chat });
     };
 
     const clearSelectedChat = () => {
         dispatch({ type: 'clearSelectedChat' });
+    };
+
+    const selectViewAllChats = () => {
+        if (!chatsVisible || !showViewAllAiChats || itemCount === 0) return;
+        dispatch({ type: 'selectViewAllChats', targetIndex: itemCount - 1 });
     };
 
     const hideChats = () => {
@@ -161,13 +177,14 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
     };
 
     return {
-        chats: state.chatsVisible ? state.chats : EMPTY_ARRAY,
+        chats: chatsVisible ? state.chats : EMPTY_ARRAY,
         selectedChat,
         viewAllChatsSelected,
         selectPreviousChat,
         selectNextChat,
         setSelectedChat,
         clearSelectedChat,
+        selectViewAllChats,
         hideChats,
         showChats,
     };

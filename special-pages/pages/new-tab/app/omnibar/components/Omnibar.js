@@ -19,9 +19,12 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
 import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
+import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
+import { useActiveTools } from './chat-tools/useActiveTools';
+import { useSelectedModel } from './useSelectedModel';
 
 /**
- * @typedef {import('../strings.json')} Strings
+ * @typedef {typeof import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
@@ -161,20 +164,43 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
 function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showChats, hideChats } = useAiChatsContext();
-    const { state } = useContext(OmnibarContext);
+    const { selectedModel } = useSelectedModel();
+    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
-    const selectedModelIdRef = useRef(/** @type {string|null} */ (null));
     const [imageWarning, setImageWarning] = useState(false);
-    const [supportsImageUpload, setSupportsImageUpload] = useState(false);
     const imageState = useImageAttachments();
-    const enableAiChatTools = state.config?.enableAiChatTools === true;
+
+    const hasAttachedImages = imageState.attachedImages.length > 0;
+    const imageGenerationPlaceholder = hasAttachedImages
+        ? t('omnibar_imageGenerationWithAttachmentPlaceholder')
+        : t('omnibar_imageGenerationPlaceholder');
+    const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
+    const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
+
+    const clearTool = () => {
+        setActiveTool(null);
+    };
+
+    /**
+     * @param {import('./chat-tools/tools-menu/ToolsMenu').ToolId} tool
+     */
+    const handleToggleTool = (tool) => {
+        const nextTool = activeTool === tool ? null : tool;
+
+        if (nextTool === 'image-generation') {
+            hideChats();
+        }
+
+        setActiveTool(nextTool);
+    };
 
     /** @type {(query: string) => void} */
     const handleChange = (value) => {
         onChange(value);
-        if (!hasVisibleImagesRef.current) showChats();
+        if (!hasVisibleImagesRef.current && !imageGenerationActive) showChats();
     };
 
     /**
@@ -182,31 +208,35 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
     const handleSubmit = (chat, target) => {
-        /** @type {SubmitChatAction} */
-        const action = { chat, target };
+        const images = canAttachImages ? imageState.getImagesForSubmission() : null;
+        const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
+        const toolChoice = webSearchActive
+            ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
+            : null;
 
-        if (enableAiChatTools) {
-            if (supportsImageUpload) {
-                const images = imageState.getImagesForSubmission();
-                if (images) {
-                    action.images = /** @type {SubmitChatAction['images']} */ (images);
-                }
-            }
-            if (selectedModelIdRef.current) {
-                action.modelId = selectedModelIdRef.current;
-            }
-        }
+        /** @type {SubmitChatAction} */
+        const action = {
+            chat,
+            target,
+            ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
+            ...(modelId && { modelId }),
+            ...(toolChoice && { toolChoice }),
+            ...(images && { images }),
+        };
 
         onSubmit(action);
         imageState.clearAttachedImages();
+        clearTool();
     };
+
+    const showRecentChats = enableRecentAiChats && !imageGenerationActive;
 
     return (
         <div
             ref={containerRef}
             data-image-warning={imageWarning || undefined}
             onFocusCapture={(event) => {
-                if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current) showChats();
+                if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationActive) showChats();
             }}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
@@ -221,21 +251,22 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     query={query}
                     autoFocus={autoFocus}
                     disabled={query.length === 0 || imageWarning}
+                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
-                    toolbarLeft={supportsImageUpload && <ImageUploadButton state={imageState} />}
-                    toolbarRight={
-                        <ModelSelectorTool
-                            onSelectedModelChange={(model) => {
-                                selectedModelIdRef.current = model?.id ?? null;
-                                setSupportsImageUpload(model?.supportsImageUpload ?? false);
-                            }}
-                        />
+                    toolbarLeft={
+                        <Fragment>
+                            {canAttachImages && <ImageUploadButton state={imageState} />}
+                            {availableTools.length > 0 && (
+                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
+                            )}
+                        </Fragment>
                     }
+                    toolbarRight={!imageGenerationActive && <ModelSelectorTool />}
                 >
                     <ImageAttachmentContent
                         state={imageState}
-                        supportsImageUpload={supportsImageUpload}
+                        supportsImageUpload={canAttachImages}
                         onVisibleImagesChange={(hasImages) => {
                             hasVisibleImagesRef.current = hasImages;
                             if (hasImages) {
@@ -248,7 +279,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     />
                 </AiChatForm>
             </ResizingContainer>
-            {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
+            {showRecentChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
     );
 }

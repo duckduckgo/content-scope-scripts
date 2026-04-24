@@ -46,6 +46,11 @@
         "supportsImageUpload": {
           "description": "Whether this model supports image attachments",
           "type": "boolean"
+        },
+        "supportedTools": {
+          "description": "Tools this model supports.",
+          "type": "array",
+          "items": { "$ref": "./tool-id.json" }
         }
       }
     }
@@ -97,6 +102,18 @@
     "showViewAllAiChats": {
       "title": "Show View All AI Chats",
       "description": "When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list",
+      "type": "boolean",
+      "default": false
+    },
+    "enableImageGeneration": {
+      "title": "Enable Image Generation",
+      "description": "Show 'Create Image' toggle in the AI chat toolbar.",
+      "type": "boolean",
+      "default": false
+    },
+    "enableWebSearch": {
+      "title": "Enable Web Search",
+      "description": "Allow AI chat submissions to include web search tool.",
       "type": "boolean",
       "default": false
     }

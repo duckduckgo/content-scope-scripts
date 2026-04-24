@@ -25,11 +25,12 @@ import styles from './AiChatForm.module.css';
  * @param {boolean} [props.disabled]
  * @param {(query: string) => void} props.onChange
  * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
+ * @param {string} [props.placeholder]
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
  * @param {import('preact').ComponentChildren} [props.toolbarRight]
  */
-export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, toolbarLeft, toolbarRight }) {
+export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, placeholder, toolbarLeft, toolbarRight }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat, viewAllAiChats } = useContext(OmnibarContext);
@@ -139,6 +140,8 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         return undefined;
     };
 
+    const placeholderText = placeholder || t('omnibar_aiChatFormPlaceholder');
+
     return (
         <form
             ref={formRef}
@@ -154,8 +157,8 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 ref={textAreaRef}
                 class={styles.textarea}
                 value={query}
-                placeholder={t('omnibar_aiChatFormPlaceholder')}
-                aria-label={t('omnibar_aiChatFormPlaceholder')}
+                placeholder={placeholderText}
+                aria-label={placeholderText}
                 aria-expanded={chats.length > 0}
                 aria-haspopup="listbox"
                 aria-controls={aiChatsListId}

@@ -28,9 +28,21 @@ title: Omnibar Widget
 - {@link "NewTab Messages".OmnibarGetConfigRequest}
 - Used to fetch the initial config data (during the first render)
 - returns {@link "NewTab Messages".OmnibarConfig}
+- key fields:
+  - `mode` — `"search"` or `"ai"` (required)
+  - `enableAi` — enables the Duck.ai tab (default `true`)
+  - `enableAiChatTools` — enables AI chat tools: model selector, image attachments (default `false`)
+  - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
+  - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
+  - `aiModelSections` — array of model sections for the model selector
+  - `selectedModelId` — the user's persisted model choice
 ```json
 {
-   "mode": "search"
+   "mode": "search",
+   "enableAi": true,
+   "enableAiChatTools": false,
+   "enableImageGeneration": false,
+   "enableWebSearch": false
 }
 ```
 
@@ -105,11 +117,50 @@ title: Omnibar Widget
 - {@link "NewTab Messages".OmnibarSubmitChatNotification}
 - Sent when the user submits a chat message to Duck.ai
 - requires `chat` (the chat message) and `target` (where to open the chat)
-- example payload:
+- optional fields:
+  - `modelId` — the selected AI model identifier. Omitted when in image-generation mode.
+  - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
+  - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
+  - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
+- example payloads:
+
+**Normal chat:**
 ```json
 {
    "chat": "How do I enable privacy protection?",
-   "target": "new-tab"
+   "target": "new-tab",
+   "modelId": "gpt-4o-mini"
+}
+```
+
+**Image generation:**
+```json
+{
+   "chat": "a neon duck flying over mountains",
+   "target": "same-tab",
+   "mode": "image-generation"
+}
+```
+
+**Web search:**
+```json
+{
+   "chat": "what happened today",
+   "target": "same-tab",
+   "modelId": "gpt-4o-mini",
+   "toolChoice": ["WebSearch"]
+}
+```
+
+**Chat with image attachment:**
+```json
+{
+   "chat": "describe this image",
+   "target": "same-tab",
+   "modelId": "gpt-4o-mini",
+   "images": [
+      { "data": "<base64>", "format": "png" }
+   ]
 }
 ```
 

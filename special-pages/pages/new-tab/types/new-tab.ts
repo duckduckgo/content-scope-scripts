@@ -83,6 +83,10 @@ export type EnableAIChatTools = boolean;
  */
 export type SelectedModelID = string;
 /**
+ * Identifier for an AI chat tool.
+ */
+export type ToolId = "WebSearch";
+/**
  * Sections of AI models for the model selector.
  */
 export type AIModelSections = AIModelSection[];
@@ -90,6 +94,14 @@ export type AIModelSections = AIModelSection[];
  * When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list
  */
 export type ShowViewAllAIChats = boolean;
+/**
+ * Show 'Create Image' toggle in the AI chat toolbar.
+ */
+export type EnableImageGeneration = boolean;
+/**
+ * Allow AI chat submissions to include web search tool.
+ */
+export type EnableWebSearch = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -600,6 +612,8 @@ export interface OmnibarConfig {
   selectedModelId?: SelectedModelID;
   aiModelSections?: AIModelSections;
   showViewAllAiChats?: ShowViewAllAIChats;
+  enableImageGeneration?: EnableImageGeneration;
+  enableWebSearch?: EnableWebSearch;
 }
 /**
  * A section of AI models with an optional header and a list of model items.
@@ -638,6 +652,10 @@ export interface AIModelItem {
    * Whether this model supports image attachments
    */
   supportsImageUpload: boolean;
+  /**
+   * Tools this model supports.
+   */
+  supportedTools?: ToolId[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -656,6 +674,14 @@ export interface SubmitChatAction {
    * The selected AI model identifier. Optional - if not provided, the backend will use the default model.
    */
   modelId?: string;
+  /**
+   * Duck.ai mode. If omitted, defaults to 'chat'.
+   */
+  mode?: "chat" | "image-generation";
+  /**
+   * Tools to enable for this chat session.
+   */
+  toolChoice?: ToolId[];
   /**
    * Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.
    */
