@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useTypedTranslationWith } from '../../../../types';
 import { useSelectedReasoningEffort } from '../../useSelectedReasoningEffort';
+import { ExtendedReasoningIcon, FastReasoningIcon, ReasoningEffortIcon } from './Icons';
 import { ReasoningPicker } from './ReasoningPicker';
 
 /**
@@ -10,7 +11,7 @@ import { ReasoningPicker } from './ReasoningPicker';
  */
 
 /**
- * Builds the localized label + description pair for a given effort key.
+ * Builds the full display option (icon, label, description) for a given effort key.
  *
  * Returns null for unknown keys: the type narrows to the schema's current values, but at runtime
  * native may introduce a new key before the web app has strings for it. Dropping it is safer than
@@ -27,6 +28,7 @@ function getEffortOption(key, t) {
             return {
                 id: key,
                 reasoningMode: 'fast',
+                icon: FastReasoningIcon,
                 label: t('omnibar_reasoningEffortFastLabel'),
                 description: t('omnibar_reasoningEffortFastDescription'),
             };
@@ -34,6 +36,7 @@ function getEffortOption(key, t) {
             return {
                 id: key,
                 reasoningMode: 'reasoning',
+                icon: ReasoningEffortIcon,
                 label: t('omnibar_reasoningEffortReasoningLabel'),
                 description: t('omnibar_reasoningEffortReasoningDescription'),
             };
@@ -42,6 +45,7 @@ function getEffortOption(key, t) {
             return {
                 id: key,
                 reasoningMode: 'extendedReasoning',
+                icon: ExtendedReasoningIcon,
                 label: t('omnibar_reasoningEffortExtendedReasoningLabel'),
                 description: t('omnibar_reasoningEffortExtendedReasoningDescription'),
             };

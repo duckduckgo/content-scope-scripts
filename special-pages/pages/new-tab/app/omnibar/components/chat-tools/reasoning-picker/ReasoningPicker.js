@@ -3,7 +3,6 @@ import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
-import { getReasoningEffortIcon } from './getReasoningEffortIcon';
 import styles from './ReasoningPicker.module.css';
 
 /**
@@ -11,9 +10,12 @@ import styles from './ReasoningPicker.module.css';
  *
  * @typedef {'fast' | 'reasoning' | 'extendedReasoning'} ReasoningMode
  *
+ * @typedef {import('preact').ComponentType<import('preact').JSX.SVGAttributes<SVGSVGElement>>} ReasoningEffortIconComponent
+ *
  * @typedef {object} ReasoningEffortOption
  * @property {ReasoningEffort} id - Server key; round-tripped on submit
  * @property {ReasoningMode} reasoningMode - Stable UX identity; used for deduping
+ * @property {ReasoningEffortIconComponent} icon - Icon component rendered in the button and dropdown
  * @property {string} label - Localized label
  * @property {string} description - Localized description
  */
@@ -42,7 +44,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, 
         onSelect(effort);
     };
 
-    const Icon = selectedEffort ? getReasoningEffortIcon(selectedEffort) : null;
+    const SelectedOptionIcon = options.find((option) => option.id === selectedEffort)?.icon ?? null;
 
     return (
         <div class={styles.reasoningPicker}>
@@ -59,7 +61,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, 
                     toggle();
                 }}
             >
-                {Icon && <Icon class={styles.buttonIcon} />}
+                {SelectedOptionIcon && <SelectedOptionIcon class={styles.buttonIcon} />}
                 <span class={styles.buttonLabel}>{buttonLabel}</span>
             </button>
             {isOpen && dropdownPos && (
@@ -72,12 +74,12 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, 
                     idPrefix="reasoning-option"
                 >
                     {options.map((option) => {
-                        const OptionIcon = getReasoningEffortIcon(option.id);
+                        const OptionIcon = option.icon;
                         return (
                             <DropdownItem
                                 key={option.id}
                                 role="option"
-                                icon={OptionIcon ? <OptionIcon /> : null}
+                                icon={<OptionIcon />}
                                 name={option.label}
                                 description={option.description}
                                 isSelected={option.id === selectedEffort}
