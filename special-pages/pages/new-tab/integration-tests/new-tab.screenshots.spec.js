@@ -249,6 +249,58 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('omnibar reasoning picker @screenshots', () => {
+        test('reasoning picker rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-rest.png', { maxDiffPixels });
+        });
+
+        test('reasoning picker dropdown open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.reasoningPickerButton().click();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-dropdown-open.png', { maxDiffPixels });
+        });
+
+        test('reasoning picker with selected effort', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                    'omnibar.selectedReasoningEffort': 'medium',
+                },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-selected-medium.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('customizer drawer', () => {
         test('sidebar ai enabled', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

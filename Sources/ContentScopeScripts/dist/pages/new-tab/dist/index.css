@@ -4492,6 +4492,166 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   width: var(--sp-4);
 }
 
+/* pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.module.css */
+.Dropdown_dropdown {
+  background: rgb(249, 249, 249);
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.2),
+    0 10px 24px rgba(0, 0, 0, 0.32),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  list-style: none;
+  margin: 0;
+  min-width: 245px;
+  overflow: hidden;
+  padding: 5px;
+  position: fixed;
+  z-index: 100;
+}
+.Dropdown_dropdown:focus-visible {
+  outline: none;
+}
+[data-theme=dark] .Dropdown_dropdown {
+  -webkit-backdrop-filter: blur(76px);
+  backdrop-filter: blur(76px);
+  background: rgba(30, 30, 30, 0.88);
+  box-shadow:
+    0 0 0 0.5px var(--color-white-at-15),
+    0 10px 24px var(--color-black-at-40),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+.Dropdown_item {
+  align-items: center;
+  border-radius: 3px;
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: 6px;
+  padding: 6px 9px;
+  text-align: left;
+  white-space: nowrap;
+}
+.Dropdown_item > svg {
+  flex-shrink: 0;
+}
+.Dropdown_itemActive {
+  background: var(--ds-color-theme-accent-primary);
+  color: var(--ds-color-theme-accent-content-primary);
+}
+.Dropdown_itemActive .Dropdown_itemDescription {
+  color: var(--ds-color-theme-accent-content-secondary);
+}
+.Dropdown_checkmark {
+  flex-shrink: 0;
+  height: 12px;
+  position: relative;
+  width: 4px;
+}
+.Dropdown_checkmark::before {
+  color: transparent;
+  content: "\2713";
+  font-size: 13px;
+  font-weight: 700;
+  left: -5px;
+  line-height: 12px;
+  position: absolute;
+  top: 0;
+}
+.Dropdown_itemSelected .Dropdown_checkmark::before {
+  color: var(--ds-color-theme-text-primary);
+}
+.Dropdown_itemActive .Dropdown_checkmark::before {
+  color: transparent;
+}
+.Dropdown_itemActive.Dropdown_itemSelected .Dropdown_checkmark::before {
+  color: var(--ds-color-theme-accent-content-primary);
+}
+.Dropdown_itemLabel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.Dropdown_itemName {
+  letter-spacing: -0.08px;
+  line-height: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.Dropdown_itemDescription {
+  color: var(--ds-color-theme-text-secondary);
+  font-size: 12px;
+  line-height: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* pages/new-tab/app/omnibar/components/chat-tools/reasoning-picker/ReasoningPicker.module.css */
+.ReasoningPicker_reasoningPicker {
+  display: flex;
+  position: relative;
+}
+.ReasoningPicker_reasoningButton {
+  align-items: center;
+  background: none;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: var(--sp-1);
+  height: var(--sp-7);
+  padding: 0 var(--sp-3);
+}
+.ReasoningPicker_reasoningButton:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: transparent;
+}
+[data-theme=dark] .ReasoningPicker_reasoningButton:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+.ReasoningPicker_reasoningButton:active {
+  background: var(--color-black-at-18);
+}
+[data-theme=dark] .ReasoningPicker_reasoningButton:active {
+  background: rgba(255, 255, 255, 0.14);
+}
+.ReasoningPicker_reasoningButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+.ReasoningPicker_reasoningButtonOpen {
+  background: var(--color-black-at-18);
+  border-color: transparent;
+  color: var(--ds-color-theme-text-primary);
+}
+.ReasoningPicker_reasoningButtonOpen:hover {
+  background: rgba(0, 0, 0, 0.20);
+}
+.ReasoningPicker_reasoningButtonOpen:active {
+  background: rgba(0, 0, 0, 0.22);
+}
+[data-theme=dark] .ReasoningPicker_reasoningButtonOpen {
+  background: var(--color-white-at-18);
+}
+[data-theme=dark] .ReasoningPicker_reasoningButtonOpen:hover {
+  background: rgba(255, 255, 255, 0.20);
+}
+[data-theme=dark] .ReasoningPicker_reasoningButtonOpen:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+.ReasoningPicker_buttonIcon {
+  flex-shrink: 0;
+}
+.ReasoningPicker_buttonLabel {
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* pages/new-tab/app/omnibar/components/chat-tools/tools-menu/ToolsMenu.module.css */
 .ToolsMenu_toolsMenu {
   align-items: center;
@@ -4527,12 +4687,6 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 .ToolsMenu_toolsButton:focus-visible {
   box-shadow: var(--focus-ring);
-}
-.ToolsMenu_toolsButtonActive:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
-[data-theme=dark] .ToolsMenu_toolsButtonActive:hover {
-  background: rgba(255, 255, 255, 0.06);
 }
 .ToolsMenu_toolsLabel {
   font-weight: 400;
@@ -4571,97 +4725,6 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 .ToolsMenu_chipLabel {
   font-weight: 400;
-}
-.ToolsMenu_dropdown {
-  background: rgb(249, 249, 249);
-  border-radius: 6px;
-  border: 0.5px solid rgba(0, 0, 0, 0.2);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32), 0 0 0 0.5px rgba(0, 0, 0, 0.2);
-  list-style: none;
-  margin: 0;
-  min-width: 245px;
-  overflow: hidden;
-  padding: 5px;
-  position: fixed;
-  z-index: 100;
-}
-.ToolsMenu_dropdown:focus-visible {
-  outline: none;
-}
-[data-theme=dark] .ToolsMenu_dropdown {
-  -webkit-backdrop-filter: blur(76px);
-  backdrop-filter: blur(76px);
-  background: rgba(30, 30, 30, 0.88);
-  border: 0.5px solid var(--color-white-at-15);
-  box-shadow: 0 10px 24px var(--color-black-at-40);
-}
-.ToolsMenu_menuItem {
-  align-items: center;
-  border-radius: 3px;
-  color: var(--ds-color-theme-text-primary);
-  cursor: pointer;
-  display: flex;
-  font-size: 13px;
-  gap: 6px;
-  padding: 8px 9px;
-  text-align: left;
-  white-space: nowrap;
-}
-.ToolsMenu_menuItemActive {
-  background: var(--ds-color-theme-accent-primary);
-  color: var(--ds-color-theme-accent-content-primary);
-}
-.ToolsMenu_menuItemActive .ToolsMenu_menuItemDescription {
-  color: var(--ds-color-theme-accent-content-secondary);
-}
-.ToolsMenu_checkmark {
-  flex-shrink: 0;
-  height: 12px;
-  position: relative;
-  width: 4px;
-}
-.ToolsMenu_checkmark::before {
-  color: transparent;
-  content: "\2713";
-  font-size: 13px;
-  font-weight: 700;
-  left: -5px;
-  line-height: 12px;
-  position: absolute;
-  top: 0;
-}
-.ToolsMenu_menuItemSelected .ToolsMenu_checkmark::before {
-  color: var(--ds-color-theme-text-primary);
-}
-.ToolsMenu_menuItemActive .ToolsMenu_checkmark::before {
-  color: transparent;
-}
-.ToolsMenu_menuItemActive.ToolsMenu_menuItemSelected .ToolsMenu_checkmark::before {
-  color: var(--ds-color-theme-accent-content-primary);
-}
-.ToolsMenu_menuItemLabel {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-.ToolsMenu_menuItemName {
-  letter-spacing: -0.08px;
-  line-height: 13px;
-  overflow: hidden;
-  text-box-edge: cap alphabetic;
-  text-box-trim: trim-both;
-  text-overflow: ellipsis;
-}
-.ToolsMenu_menuItemDescription {
-  color: var(--ds-color-theme-text-secondary);
-  font-size: 12px;
-  line-height: 15px;
-  overflow: hidden;
-  text-box-edge: cap alphabetic;
-  text-box-trim: trim-both;
-  text-overflow: ellipsis;
 }
 
 /* pages/new-tab/app/protections/components/Protections.module.css */

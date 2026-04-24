@@ -1,0 +1,76 @@
+.reasoningPicker {
+    display: flex;
+    position: relative;
+}
+
+.reasoningButton {
+    align-items: center;
+    background: none;
+    border-radius: 100px;
+    border: 1px solid transparent;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: var(--sp-1);
+    height: var(--sp-7);
+    padding: 0 var(--sp-3);
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: transparent;
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.10);
+        }
+    }
+
+    &:active {
+        background: var(--color-black-at-18);
+
+        [data-theme="dark"] & {
+            background: rgba(255, 255, 255, 0.14);
+        }
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
+
+.reasoningButtonOpen {
+    background: var(--color-black-at-18);
+    border-color: transparent;
+    color: var(--ds-color-theme-text-primary);
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.20);
+    }
+
+    &:active {
+        background: rgba(0, 0, 0, 0.22);
+    }
+
+    [data-theme="dark"] & {
+        background: var(--color-white-at-18);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.20);
+        }
+
+        &:active {
+            background: rgba(255, 255, 255, 0.22);
+        }
+    }
+}
+
+.buttonIcon {
+    flex-shrink: 0;
+}
+
+.buttonLabel {
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

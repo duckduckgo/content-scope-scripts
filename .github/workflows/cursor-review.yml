@@ -1,11 +1,12 @@
 name: Cursor Auto Review
 
 on:
-    pull_request_target:
+    pull_request:
         types: [opened, synchronize, reopened]
 
 jobs:
     check_membership:
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         runs-on: ubuntu-latest
         outputs:
             is_member: ${{ steps.membership.outputs.is_member }}

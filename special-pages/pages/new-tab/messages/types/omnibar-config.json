@@ -51,6 +51,11 @@
           "description": "Tools this model supports.",
           "type": "array",
           "items": { "$ref": "./tool-id.json" }
+        },
+        "supportedReasoningEffort": {
+          "description": "Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.",
+          "type": "array",
+          "items": { "$ref": "./reasoning-effort.json" }
         }
       }
     }
@@ -92,6 +97,9 @@
       "title": "Selected Model ID",
       "description": "The user's currently selected AI model, persisted across tabs",
       "type": "string"
+    },
+    "selectedReasoningEffort": {
+      "$ref": "./reasoning-effort.json"
     },
     "aiModelSections": {
       "title": "AI Model Sections",
