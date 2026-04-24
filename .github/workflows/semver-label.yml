@@ -1,7 +1,7 @@
 name: Semver Label
 
 on:
-    pull_request_target:
+    pull_request:
         types: [opened, synchronize, reopened]
 
 permissions:
@@ -34,14 +34,14 @@ jobs:
               run: |
                   echo "Base SHA: $(git -C base rev-parse HEAD)"
                   cd base
-                  npm install
+                  npm ci
                   npm run build
 
             - name: Build PR branch
               run: |
                   echo "PR merge SHA: $(git -C pr rev-parse HEAD)"
                   cd pr
-                  npm install
+                  npm ci
                   npm run build
 
             - name: Create build diff
