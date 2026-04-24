@@ -1866,6 +1866,73 @@ test.describe('omnibar widget', () => {
             await omnibar.expectNoAiChatSelection();
         });
 
+        test('hovering view all chats keeps a single selected option', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAi': true,
+                    'omnibar.enableRecentAiChats': true,
+                    'omnibar.showViewAllAiChats': true,
+                    'omnibar.mode': 'ai',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            const firstChat = omnibar.aiChats().first();
+            const viewAllChats = omnibar.aiChatsList().getByRole('option', { name: /View all chats/i });
+
+            await firstChat.hover();
+            await expect(omnibar.selectedAiChat()).toHaveCount(1);
+            await expect(firstChat).toHaveAttribute('aria-selected', 'true');
+
+            await viewAllChats.hover();
+            await expect(omnibar.selectedAiChat()).toHaveCount(1);
+            await expect(viewAllChats).toHaveAttribute('aria-selected', 'true');
+            await expect(firstChat).toHaveAttribute('aria-selected', 'false');
+        });
+
+        test('keyboard navigation includes view all chats option', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAi': true,
+                    'omnibar.enableRecentAiChats': true,
+                    'omnibar.showViewAllAiChats': true,
+                    'omnibar.mode': 'ai',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length + 1);
+
+            for (let i = 0; i < mockChats.length; i++) {
+                await omnibar.chatInput().press('ArrowDown');
+            }
+
+            const viewAllChats = omnibar.aiChatsList().getByRole('option', { name: /View all chats/i });
+            await omnibar.chatInput().press('ArrowDown');
+
+            await expect(omnibar.selectedAiChat()).toHaveCount(1);
+            await expect(viewAllChats).toHaveAttribute('aria-selected', 'true');
+
+            await omnibar.chatInput().press('Enter');
+            await omnibar.expectMethodCalledWith('omnibar_viewAllAIChats', {
+                target: 'same-tab',
+            });
+        });
+
         test('arrow up navigates through chat list in reverse', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
