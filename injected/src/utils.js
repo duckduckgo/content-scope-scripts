@@ -578,7 +578,7 @@ const DEBUG_MAX_TIMES = 5000;
 
 /**
  * @param {string} feature
- * @param {Record<string, any>} message
+ * @param {Record<string, unknown>} message
  * @param {boolean} [allowNonDebug]
  */
 export function postDebugMessage(feature, message, allowNonDebug = false) {
