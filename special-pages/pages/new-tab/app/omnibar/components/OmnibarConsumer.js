@@ -2,7 +2,7 @@ import { Fragment, h } from 'preact';
 import { useContext } from 'preact/hooks';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useTypedTranslationWith } from '../../types.js';
-import { useVisibility } from '../../widget-list/widget-config.provider.js';
+import { useVisibility, useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
@@ -31,6 +31,8 @@ export function OmnibarConsumer() {
     const { state, setEnableAi } = useContext(OmnibarContext);
     const { current } = useTabState();
     const { visibility } = useVisibility();
+    useWidgetDidRender(state.status);
+
     if (state.status !== 'ready') return null;
 
     const visible = visibility.value === 'visible';
