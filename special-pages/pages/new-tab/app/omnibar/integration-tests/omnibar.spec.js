@@ -14,6 +14,18 @@ test.describe('omnibar widget', () => {
         await ntp.mocks.waitForCallCount({ method: 'omnibar_getConfig', count: 1 });
     });
 
+    test('search input keeps native spellcheck enabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        const spellcheck = await omnibar.searchInput().evaluate((el) => el.spellcheck);
+        expect(spellcheck).toBe(true);
+    });
+
     test('search form submission', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
