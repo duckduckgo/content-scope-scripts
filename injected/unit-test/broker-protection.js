@@ -630,7 +630,7 @@ describe('Actions', () => {
                     ),
                     fc.oneof(fc.anything(), fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer(), fc.boolean()))),
                     (action, userData) => {
-                        const result = replaceTemplatedUrl(action, userData);
+                        const result = replaceTemplatedUrl(/** @type {any} */ (action), /** @type {any} */ (userData));
                         expect('url' in result || 'error' in result);
                         if ('error' in result) {
                             expect(typeof result.error).toEqual('string');
