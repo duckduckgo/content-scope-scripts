@@ -491,6 +491,39 @@ test.describe('onboarding v3', () => {
     });
 
     test.describe('Given I am on the duck player step', () => {
+        test('Then Rive runtime loads without WASM errors', async ({ page }, workerInfo) => {
+            /** @type {string[]} */
+            const riveRuntimeIssues = [];
+            const riveIssuePattern = /Rive WASM|Could not load Rive WASM|Failed to load WASM from/i;
+
+            page.on('console', (message) => {
+                if (!['warning', 'error'].includes(message.type())) return;
+                const text = message.text();
+                if (riveIssuePattern.test(text)) {
+                    riveRuntimeIssues.push(text);
+                }
+            });
+
+            page.on('pageerror', (error) => {
+                const message = String(error);
+                if (riveIssuePattern.test(message)) {
+                    riveRuntimeIssues.push(message);
+                }
+            });
+
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 3000 });
+            await page.waitForTimeout(500);
+            expect(riveRuntimeIssues).toHaveLength(0);
+        });
+
         test('When I click the toggle button, it sends a telemetryEvent', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV3Page.create(page, workerInfo);
             onboarding.withInitData({
