@@ -6,8 +6,9 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { hasOwnProperty } from '../captured-globals.js';
+import { hasOwnProperty, getOwnPropertyDescriptor } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
+import { toStringGetTrap } from '../wrapper-utils.js';
 
 /**
  * @internal
@@ -112,8 +113,21 @@ export default class ApiManipulation extends ContentFeature {
     wrapApiDescriptor(api, key, change) {
         const getterValue = change.getterValue;
         if (getterValue) {
+            // If we are overriding an existing getter, we should preserve its `toString()` output
+            // to avoid exposing that the API was modified. If we are defining a new property,
+            // provide a generic "native code" getter string.
+            const origDescriptor = getOwnPropertyDescriptor(api, key);
+            const origGetter = origDescriptor?.get;
+
+            const getter = () => processAttr(getterValue, undefined);
+            const getterProxy = new Proxy(getter, {
+                get: toStringGetTrap(
+                    typeof origGetter === 'function' ? origGetter : getter,
+                    typeof origGetter === 'function' ? undefined : `function get ${key}() { [native code] }`,
+                ),
+            });
             const descriptor = {
-                get: () => processAttr(getterValue, undefined),
+                get: getterProxy,
             };
             if ('enumerable' in change) {
                 descriptor.enumerable = change.enumerable;
