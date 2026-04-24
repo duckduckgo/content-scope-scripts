@@ -15,6 +15,19 @@ function parseBooleanQueryParam(param) {
     return null;
 }
 
+/** @type {ReadonlyArray<import('../../../types/new-tab.ts').ReasoningEffort>} */
+const REASONING_EFFORTS = ['none', 'low', 'medium'];
+
+/**
+ * Reads a URL query param as a ReasoningEffort. Returns null if absent or invalid.
+ * @param {string} param
+ * @return {import('../../../types/new-tab.ts').ReasoningEffort | null}
+ */
+function parseReasoningEffortQueryParam(param) {
+    const value = url.searchParams.get(param);
+    return REASONING_EFFORTS.find((effort) => effort === value) ?? null;
+}
+
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
     const config = {
@@ -42,6 +55,7 @@ export function omnibarMockTransport() {
                         isEnabled: true,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low'],
                     },
                     {
                         id: 'openai_gpt-oss-120b',
@@ -66,6 +80,7 @@ export function omnibarMockTransport() {
                         isEnabled: true,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low'],
                     },
                     {
                         id: 'mistralai_Mistral-Small-24B-Instruct-2501',
@@ -103,6 +118,7 @@ export function omnibarMockTransport() {
                         isEnabled: false,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low', 'medium'],
                     },
                     {
                         id: 'claude-sonnet-4-5',
@@ -111,6 +127,7 @@ export function omnibarMockTransport() {
                         isEnabled: false,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low'],
                     },
                     {
                         id: 'meta-llama_Llama-4-Maverick-17B-128E-Instruct-FP8',
@@ -127,6 +144,7 @@ export function omnibarMockTransport() {
                         isEnabled: false,
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low', 'medium'],
                     },
                     {
                         id: 'claude-sonnet-4',
@@ -194,6 +212,14 @@ export function omnibarMockTransport() {
                     config.enableImageGeneration = parseBooleanQueryParam('omnibar.enableImageGeneration') ?? config.enableImageGeneration;
                     config.enableWebSearch = parseBooleanQueryParam('omnibar.enableWebSearch') ?? config.enableWebSearch;
                     config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
+                    if (parseBooleanQueryParam('omnibar.subscription') === true) {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            ...section,
+                            items: section.items.map((item) => ({ ...item, isEnabled: true })),
+                        }));
+                    }
+                    config.selectedReasoningEffort =
+                        parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
                     return config;
                 }

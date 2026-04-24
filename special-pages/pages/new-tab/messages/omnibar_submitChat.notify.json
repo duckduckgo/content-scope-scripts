@@ -18,6 +18,9 @@
       "description": "The selected AI model identifier. Optional - if not provided, the backend will use the default model.",
       "type": "string"
     },
+    "reasoningEffort": {
+      "$ref": "./types/reasoning-effort.json"
+    },
     "mode": {
       "description": "Duck.ai mode. If omitted, defaults to 'chat'.",
       "type": "string",

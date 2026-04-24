@@ -19,9 +19,11 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
 import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
+import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
 import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
+import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -167,6 +169,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showChats, hideChats } = useAiChatsContext();
     const { selectedModel } = useSelectedModel();
+    const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
@@ -210,6 +213,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const handleSubmit = (chat, target) => {
         const images = canAttachImages ? imageState.getImagesForSubmission() : null;
         const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
+        const reasoningEffort = imageGenerationActive ? null : selectedEffort;
         const toolChoice = webSearchActive
             ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
             : null;
@@ -220,6 +224,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
             target,
             ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
             ...(modelId && { modelId }),
+            ...(reasoningEffort && { reasoningEffort }),
             ...(toolChoice && { toolChoice }),
             ...(images && { images }),
         };
@@ -262,7 +267,14 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                             )}
                         </Fragment>
                     }
-                    toolbarRight={!imageGenerationActive && <ModelSelectorTool />}
+                    toolbarRight={
+                        !imageGenerationActive && (
+                            <Fragment>
+                                <ReasoningPickerTool />
+                                <ModelSelectorTool />
+                            </Fragment>
+                        )
+                    }
                 >
                     <ImageAttachmentContent
                         state={imageState}

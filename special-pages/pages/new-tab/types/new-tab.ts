@@ -83,6 +83,10 @@ export type EnableAIChatTools = boolean;
  */
 export type SelectedModelID = string;
 /**
+ * Stable server key for a reasoning-effort option on a reasoning-capable model.
+ */
+export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high";
+/**
  * Identifier for an AI chat tool.
  */
 export type ToolId = "WebSearch";
@@ -610,6 +614,7 @@ export interface OmnibarConfig {
   enableRecentAiChats?: EnableRecentAIChats;
   enableAiChatTools?: EnableAIChatTools;
   selectedModelId?: SelectedModelID;
+  selectedReasoningEffort?: ReasoningEffort;
   aiModelSections?: AIModelSections;
   showViewAllAiChats?: ShowViewAllAIChats;
   enableImageGeneration?: EnableImageGeneration;
@@ -656,6 +661,10 @@ export interface AIModelItem {
    * Tools this model supports.
    */
   supportedTools?: ToolId[];
+  /**
+   * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
+   */
+  supportedReasoningEffort?: ReasoningEffort[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -674,6 +683,7 @@ export interface SubmitChatAction {
    * The selected AI model identifier. Optional - if not provided, the backend will use the default model.
    */
   modelId?: string;
+  reasoningEffort?: ReasoningEffort;
   /**
    * Duck.ai mode. If omitted, defaults to 'chat'.
    */
