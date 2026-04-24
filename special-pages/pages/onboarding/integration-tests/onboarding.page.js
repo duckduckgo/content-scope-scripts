@@ -313,6 +313,39 @@ export class OnboardingPage {
         ]);
     }
 
+    /**
+     * Asserts that telemetryEvent notifications were fired matching the expected attributes list.
+     * @param {{name: string, value?: string}[]} expectedAttributes
+     */
+    async didFireTelemetryEvents(expectedAttributes) {
+        const calls = await this.mocks.waitForCallCount({ method: 'telemetryEvent', count: expectedAttributes.length });
+        expect(calls).toMatchObject(
+            expectedAttributes.map((attributes) => ({
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'telemetryEvent',
+                    params: { attributes },
+                },
+            })),
+        );
+    }
+
+    /**
+     * Asserts that no telemetryEvent with the given attributes was fired.
+     * @param {{name: string, value?: string}} attributes
+     */
+    async didNotFireTelemetryEvent(attributes) {
+        const calls = await this.mocks.outgoing({ names: ['telemetryEvent'] });
+        const matching = calls.filter((c) => {
+            const attrs = c.payload.params?.attributes;
+            if (attrs?.name !== attributes.name) return false;
+            if (attributes.value !== undefined && attrs?.value !== attributes.value) return false;
+            return true;
+        });
+        expect(matching).toHaveLength(0);
+    }
+
     async keepInTaskbar() {
         const { page } = this;
         const locator = this.build.switch({

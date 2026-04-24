@@ -6,10 +6,11 @@ on:
 
 jobs:
     request-review:
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         runs-on: ubuntu-latest
         steps:
             - name: Request review from assignee
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               with:
                   script: |
                       const assignee = context.payload.assignee.login;

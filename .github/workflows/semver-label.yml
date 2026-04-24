@@ -10,6 +10,7 @@ permissions:
 
 jobs:
     semver_label:
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout base branch
@@ -75,7 +76,7 @@ jobs:
 
             - name: Label PR
               if: steps.analyse.outputs.severity != ''
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               env:
                   SEVERITY: ${{ steps.analyse.outputs.severity }}
               with:

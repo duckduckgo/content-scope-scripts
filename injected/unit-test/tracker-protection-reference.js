@@ -18,7 +18,6 @@ describe('TrackerResolver reference tests: domain matching', () => {
         trackerData,
         surrogates: {},
         allowlist: {},
-        unprotectedDomains: [],
     });
 
     for (const test of testData.domainTests.tests) {
