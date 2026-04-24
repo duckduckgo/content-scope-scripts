@@ -26,25 +26,31 @@ const configWithAllEvents = {
 
 describe('YouTubeAdDetector', () => {
     describe('onEvent callback', () => {
-        it('calls onEvent with youtube_ prefix when a new detection occurs', () => {
+        it('calls onEvent with youtube_ prefix and loginState when a new detection occurs', () => {
             const events = [];
-            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, (type) => events.push(type));
+            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, (type, data) => events.push({ type, data }));
 
             detector.reportDetection('adBlocker');
 
-            expect(events).toEqual(['youtube_adBlocker']);
+            expect(events).toEqual([{ type: 'youtube_adBlocker', data: { loginState: 'unknown' } }]);
         });
 
-        it('fires for each detection type', () => {
+        it('fires for each detection type with loginState', () => {
             const events = [];
-            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, (type) => events.push(type));
+            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, (type, data) => events.push({ type, data }));
 
             detector.reportDetection('videoAd');
             detector.reportDetection('playabilityError', { message: 'error' });
             detector.reportDetection('adBlocker');
             detector.reportDetection('staticAd');
 
-            expect(events).toEqual(['youtube_videoAd', 'youtube_playabilityError', 'youtube_adBlocker', 'youtube_staticAd']);
+            expect(events.map((e) => e.type)).toEqual([
+                'youtube_videoAd',
+                'youtube_playabilityError',
+                'youtube_adBlocker',
+                'youtube_staticAd',
+            ]);
+            events.forEach((e) => expect(e.data).toEqual({ loginState: 'unknown' }));
         });
 
         it('does not fire for duplicate detections', () => {
