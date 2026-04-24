@@ -88,7 +88,7 @@ export class Thumbnails {
 
             // create the icon & append it to the page
             const icon = new IconOverlay();
-            icon.appendHoverOverlay((href) => {
+            icon.appendHoverOverlay((/** @type {string} */ href) => {
                 if (this.environment.opensVideoOverlayLinksViaMessage) {
                     this.messages.sendPixel(new Pixel({ name: 'play.use.thumbnail' }));
                 }
@@ -102,9 +102,10 @@ export class Thumbnails {
 
             // detect all click, if it's anywhere on the page
             // but in the icon overlay itself, then just hide the overlay
-            const clickHandler = (e) => {
-                const overlay = icon.getHoverOverlay();
-                if (overlay?.contains(e.target)) {
+            const clickHandler = (/** @type {MouseEvent} */ e) => {
+                const overlay = /** @type {HTMLElement | null} */ (icon.getHoverOverlay());
+                const target = e.target;
+                if (overlay && target instanceof Node && overlay.contains(target)) {
                     // do nothing here, the click will have been handled by the overlay
                 } else if (overlay) {
                     clicked = true;
@@ -119,21 +120,21 @@ export class Thumbnails {
             parentNode.addEventListener('click', clickHandler, true);
 
             const removeOverlay = () => {
-                const overlay = icon.getHoverOverlay();
+                const overlay = /** @type {HTMLElement | null} */ (icon.getHoverOverlay());
                 if (overlay) {
                     icon.hideOverlay(overlay);
                     icon.hoverOverlayVisible = false;
                 }
             };
 
-            const appendOverlay = (element) => {
+            const appendOverlay = (/** @type {HTMLElement} */ element) => {
                 if (element && element.isConnected) {
                     icon.moveHoverOverlayToVideoElement(element);
                 }
             };
 
             // detect hovers and decide to show hover icon, or not
-            const mouseOverHandler = (e) => {
+            const mouseOverHandler = (/** @type {MouseEvent} */ e) => {
                 if (clicked) return;
                 const hoverElement = findElementFromEvent(selectors.thumbLink, selectors.hoverExcluded, e);
                 const validLink = isValidLink(hoverElement, selectors.excludedRegions);
@@ -154,13 +155,14 @@ export class Thumbnails {
                 }
 
                 // if the hover target is the match, or contains the match, all good
-                if (e.target === hoverElement || hoverElement?.contains(e.target)) {
+                const target = e.target;
+                if (target === hoverElement || (target instanceof Node && hoverElement?.contains(target))) {
                     return appendOverlay(hoverElement);
                 }
 
                 // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
                 // that we know to be a thumbnail overlay, like a preview
-                const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css));
+                const matched = target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
                 if (matched) {
                     appendOverlay(hoverElement);
                 }
@@ -200,11 +202,11 @@ export class ClickInterception {
             const { selectors } = this.settings;
             const parentNode = document.documentElement || document.body;
 
-            const clickHandler = (e) => {
+            const clickHandler = (/** @type {MouseEvent} */ e) => {
                 const elementInStack = findElementFromEvent(selectors.thumbLink, selectors.clickExcluded, e);
                 const validLink = isValidLink(elementInStack, selectors.excludedRegions);
 
-                const block = (href) => {
+                const block = (/** @type {string} */ href) => {
                     e.preventDefault();
                     e.stopImmediatePropagation();
                     this.messages.openDuckPlayer({ href });
@@ -216,13 +218,14 @@ export class ClickInterception {
                 }
 
                 // if the hover target is the match, or contains the match, all good
-                if (e.target === elementInStack || elementInStack?.contains(e.target)) {
+                const target = e.target;
+                if (target === elementInStack || (target instanceof Node && elementInStack?.contains(target))) {
                     return block(validLink);
                 }
 
                 // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
                 // that we know to be a thumbnail overlay, like a preview
-                const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css));
+                const matched = target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
                 if (matched) {
                     block(validLink);
                 }
@@ -301,11 +304,14 @@ function isValidLink(element, excludedRegions) {
      */
     if (!('href' in element)) return null;
 
+    const href = element.href;
+    if (typeof href !== 'string') return null;
+
     /**
      * If we get here, we're trying to convert the `element.href`
      * into a valid Duck Player URL
      */
-    return VideoParams.fromHref(element.href)?.toPrivatePlayerUrl();
+    return VideoParams.fromHref(href)?.toPrivatePlayerUrl();
 }
 
 export { SideEffects, VideoParams, Environment };
