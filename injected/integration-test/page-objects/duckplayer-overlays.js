@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { expect } from '@playwright/test';
 import { perPlatform } from '../type-helpers.mjs';
 import { ResultsCollector } from './results-collector.js';
+import { forwardConsole, withExpectedFailure } from '../shared.mjs';
 
 // Every possible combination of UserValues
 const userValues = {
@@ -86,9 +87,7 @@ export class DuckplayerOverlays {
             javascriptInterface: 'javascriptInterface',
             messageCallback: 'messageCallback',
         });
-        page.on('console', (msg) => {
-            console.log(msg.type(), msg.text());
-        });
+        forwardConsole(page, { filterResourceErrors: true });
     }
 
     async reducedMotion() {
@@ -403,16 +402,8 @@ export class DuckplayerOverlays {
                 await this.duckPlayerLoadsFor('123');
             },
             windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        if (f.url().startsWith('duck')) resolve(f.url());
-                    });
-                });
-
-                await action();
-
-                // assert the page tried to navigate to duck player
-                expect(await failure).toEqual('duck://player/123');
+                const url = await withExpectedFailure(this.page, action);
+                expect(url).toEqual('duck://player/123');
             },
         });
     }
