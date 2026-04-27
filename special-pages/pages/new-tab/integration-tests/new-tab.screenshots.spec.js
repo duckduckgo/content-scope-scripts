@@ -249,6 +249,31 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('omnibar voice chat access @screenshots', () => {
+        test('voice chat rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-voice-chat-rest.png', { maxDiffPixels });
+        });
+
+        test('voice chat replaced by submit when typing', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.chatInput().fill('hello');
+            await expect(page).toHaveScreenshot('omnibar-voice-chat-typing.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('omnibar reasoning picker @screenshots', () => {
         test('reasoning picker rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
