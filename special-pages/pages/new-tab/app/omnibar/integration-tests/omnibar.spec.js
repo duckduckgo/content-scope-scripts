@@ -2454,10 +2454,10 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.voiceChatButton().click();
 
-            // Parameterless notify — params should be undefined, not {}.
-            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_openNewVoiceChat', count: 1 });
-            const last = calls[calls.length - 1];
-            expect(last?.payload?.params).toBeUndefined();
+            // Parameterless notify — only assert the call happened. The messaging library
+            // normalizes the wire payload to `params: {}`, so don't assert on params shape
+            // (matches the convention used by `stats_showMore`, `stats_showLess`, etc.).
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_openNewVoiceChat', count: 1 });
         });
 
         test('image-generation mode hides the voice button', async ({ page }, workerInfo) => {
