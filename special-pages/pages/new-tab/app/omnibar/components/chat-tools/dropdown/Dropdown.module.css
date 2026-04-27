@@ -87,21 +87,21 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 3px;
+    gap: 1px;
     min-width: 0;
 }
 
 .itemName {
     letter-spacing: -0.08px;
-    line-height: 13px;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 16px;
 }
 
 .itemDescription {
+    line-height: 16px;
     color: var(--ds-color-theme-text-secondary);
     font-size: 12px;
-    line-height: 15px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
