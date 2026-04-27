@@ -107,7 +107,7 @@ export type EnableImageGeneration = boolean;
  */
 export type EnableWebSearch = boolean;
 /**
- * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty. Click sends `omnibar_openNewVoiceChat` to native, which opens a new voice-chat tab. Driven by the native `aiChatOmnibarVoiceChatAccess` feature flag and pushed reactively over `omnibar_onConfigUpdate`.
+ * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.
  */
 export type EnableVoiceChatAccess = boolean;
 export type FeedType = "privacy-stats" | "activity";
