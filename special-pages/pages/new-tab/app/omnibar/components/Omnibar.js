@@ -41,16 +41,26 @@ import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} props.showViewAllAiChats
  * @param {boolean} props.showCustomizePopover
+ * @param {boolean} [props.enableVoiceChatAccess]
  * @param {string|null|undefined} props.tabId
  */
-export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
+export function Omnibar({
+    mode,
+    setMode,
+    enableAi,
+    enableRecentAiChats,
+    showViewAllAiChats = false,
+    showCustomizePopover,
+    enableVoiceChatAccess = false,
+    tabId,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
 
-    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
+    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover, openNewVoiceChat } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -145,6 +155,8 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
                                     query={query}
                                     autoFocus={autoFocus}
                                     enableRecentAiChats={enableRecentAiChats}
+                                    enableVoiceChatAccess={enableVoiceChatAccess}
+                                    onVoiceChat={openNewVoiceChat}
                                     onChange={setQuery}
                                     onSubmit={handleSubmitChat}
                                 />
@@ -162,10 +174,12 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
+ * @param {boolean} [props.enableVoiceChatAccess]
+ * @param {() => void} [props.onVoiceChat]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
-function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
+function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatAccess = false, onVoiceChat, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showChats, hideChats } = useAiChatsContext();
     const { selectedModel } = useSelectedModel();
@@ -256,6 +270,8 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     query={query}
                     autoFocus={autoFocus}
                     disabled={query.length === 0 || imageWarning}
+                    voiceChatEnabled={enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages}
+                    onVoiceChat={onVoiceChat}
                     placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}

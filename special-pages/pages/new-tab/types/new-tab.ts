@@ -106,6 +106,10 @@ export type EnableImageGeneration = boolean;
  * Allow AI chat submissions to include web search tool.
  */
 export type EnableWebSearch = boolean;
+/**
+ * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty. Click sends `omnibar_openNewVoiceChat` to native, which opens a new voice-chat tab. Driven by the native `aiChatOmnibarVoiceChatAccess` feature flag and pushed reactively over `omnibar_onConfigUpdate`.
+ */
+export type EnableVoiceChatAccess = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -180,6 +184,7 @@ export interface NewTabMessages {
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
     | OmnibarOpenAiChatNotification
+    | OmnibarOpenNewVoiceChatNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSubmitChatNotification
@@ -556,6 +561,12 @@ export interface OpenAIChatAction {
   isPinned: boolean;
 }
 /**
+ * Generated from @see "../messages/omnibar_openNewVoiceChat.notify.json"
+ */
+export interface OmnibarOpenNewVoiceChatNotification {
+  method: "omnibar_openNewVoiceChat";
+}
+/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -619,6 +630,7 @@ export interface OmnibarConfig {
   showViewAllAiChats?: ShowViewAllAIChats;
   enableImageGeneration?: EnableImageGeneration;
   enableWebSearch?: EnableWebSearch;
+  enableVoiceChatAccess?: EnableVoiceChatAccess;
 }
 /**
  * A section of AI models with an optional header and a list of model items.

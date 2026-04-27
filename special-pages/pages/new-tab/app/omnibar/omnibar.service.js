@@ -208,4 +208,13 @@ export class OmnibarService {
     viewAllAiChats(params) {
         this.ntp.messaging.notify('omnibar_viewAllAIChats', params);
     }
+
+    /**
+     * Notify native to open a new voice-chat tab. The omnibar surfaces this entry point as a
+     * 1-click button when the input is empty and `enableVoiceChatAccess` is on; native owns the
+     * actual voice-mode URL/payload and tab management.
+     */
+    openNewVoiceChat() {
+        this.ntp.messaging.notify('omnibar_openNewVoiceChat');
+    }
 }

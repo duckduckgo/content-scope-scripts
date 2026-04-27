@@ -158,6 +158,7 @@ export function omnibarMockTransport() {
             },
         ],
         showViewAllAiChats: false,
+        enableVoiceChatAccess: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -179,6 +180,9 @@ export function omnibarMockTransport() {
                 case 'omnibar_submitSearch':
                 case 'omnibar_submitChat':
                     console.warn('notification (no-op in mock)', msg.method, msg.params);
+                    break;
+                case 'omnibar_openNewVoiceChat':
+                    console.warn('notification (no-op in mock)', msg.method);
                     break;
                 default: {
                     console.warn('unhandled notification', msg);
@@ -221,6 +225,7 @@ export function omnibarMockTransport() {
                     config.selectedReasoningEffort =
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
+                    config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
