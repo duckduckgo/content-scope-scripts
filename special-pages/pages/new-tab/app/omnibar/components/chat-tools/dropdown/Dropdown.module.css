@@ -95,9 +95,11 @@
     letter-spacing: -0.08px;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 16px;
 }
 
 .itemDescription {
+    line-height: 16px;
     color: var(--ds-color-theme-text-secondary);
     font-size: 12px;
     overflow: hidden;
