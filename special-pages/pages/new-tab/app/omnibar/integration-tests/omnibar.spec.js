@@ -1772,6 +1772,39 @@ test.describe('omnibar widget', () => {
             expect(last?.payload?.params?.reasoningEffort).toBeUndefined();
         });
 
+        test('filters unknown native reasoning efforts from picker and submit payload', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.unknownReasoningEffort': 'native-preview',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.reasoningPickerButton().click();
+            await expect(omnibar.reasoningDropdown().getByRole('option')).toHaveCount(2);
+            await expect(omnibar.reasoningDropdown().getByRole('option', { name: /native-preview/ })).toHaveCount(0);
+
+            await omnibar.chatInput().fill('hello');
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'hello',
+                target: 'same-tab',
+                modelId: 'gpt-5-mini',
+                reasoningEffort: 'none',
+            });
+        });
+
         test('switching to a model with a different supportedReasoningEffort falls back to a valid default', async ({
             page,
         }, workerInfo) => {

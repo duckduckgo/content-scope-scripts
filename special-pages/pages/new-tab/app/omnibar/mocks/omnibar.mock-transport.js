@@ -28,6 +28,31 @@ function parseReasoningEffortQueryParam(param) {
     return REASONING_EFFORTS.find((effort) => effort === value) ?? null;
 }
 
+/**
+ * Simulates native advertising a reasoning-effort key before web has strings/icons for it.
+ * @param {import('../../../types/new-tab.ts').OmnibarConfig} config
+ */
+function injectUnknownReasoningEffort(config) {
+    const unknownReasoningEffort = url.searchParams.get('omnibar.unknownReasoningEffort');
+    if (!unknownReasoningEffort || !config.selectedModelId) return;
+
+    config.aiModelSections = config.aiModelSections?.map((section) => ({
+        ...section,
+        items: section.items.map((item) => {
+            if (item.id !== config.selectedModelId) return item;
+
+            return {
+                ...item,
+                supportedReasoningEffort: [
+                    /** @type {import('../../../types/new-tab.ts').ReasoningEffort} */ (unknownReasoningEffort),
+                    ...(item.supportedReasoningEffort ?? []),
+                ],
+            };
+        }),
+    }));
+    config.selectedReasoningEffort = /** @type {import('../../../types/new-tab.ts').ReasoningEffort} */ (unknownReasoningEffort);
+}
+
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
     const config = {
@@ -212,6 +237,7 @@ export function omnibarMockTransport() {
                     config.enableImageGeneration = parseBooleanQueryParam('omnibar.enableImageGeneration') ?? config.enableImageGeneration;
                     config.enableWebSearch = parseBooleanQueryParam('omnibar.enableWebSearch') ?? config.enableWebSearch;
                     config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
+                    injectUnknownReasoningEffort(config);
                     if (parseBooleanQueryParam('omnibar.subscription') === true) {
                         config.aiModelSections = config.aiModelSections?.map((section) => ({
                             ...section,
