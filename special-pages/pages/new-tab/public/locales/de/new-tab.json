@@ -166,7 +166,7 @@
     "description": "Title of the omnibar widget in the customizer panel."
   },
   "omnibar_aiChatFormPlaceholder": {
-    "title": "Privat fragen",
+    "title": "Alles privat fragen",
     "description": "Placeholder text for the AI chat input field."
   },
   "omnibar_aiChatFormSubmitButtonLabel": {
@@ -228,6 +228,98 @@
   "omnibar_customizePopoverDescription": {
     "title": "Deine Daten bleiben auf jeden Fall privat.<br />Du möchtest das nicht? <button>Anpassen</button>",
     "description": "Description message in the popover including privacy statement and customize option."
+  },
+  "omnibar_attachImageLabel": {
+    "title": "Bild anhängen",
+    "description": "Accessible label for the attach image button in the AI chat toolbar."
+  },
+  "omnibar_removeImageLabel": {
+    "title": "Bild entfernen",
+    "description": "Accessible label for the button to remove an attached image thumbnail."
+  },
+  "omnibar_modelSelectorLabel": {
+    "title": "Modell auswählen",
+    "description": "Accessible label for the AI model selector dropdown."
+  },
+  "omnibar_imageAttachmentLimitWarning": {
+    "title": "Du kannst jeweils nur {limit} Bilder anhängen",
+    "description": "Warning shown when user attaches more images than the allowed maximum."
+  },
+  "omnibar_imageTooLargeError": {
+    "title": "Das Bild ist zu groß. Bitte verwende ein Bild, das kleiner als 10000×10000 Pixel ist.",
+    "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+  },
+  "omnibar_imageProcessingError": {
+    "title": "Bild wurde nicht verarbeitet. Bitte versuche es mit einer anderen Datei.",
+    "description": "Error shown when an attached image cannot be processed."
+  },
+  "omnibar_advancedModelsSectionHeader": {
+    "title": "Erweiterte Modelle – DuckDuckGo-Abo",
+    "description": "Section header in the model picker for premium models that require a subscription."
+  },
+  "omnibar_viewAllChats": {
+    "title": "Alle Chats anzeigen",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Duck.ai öffnen",
+    "description": "Link text to open the Duck.ai chat interface."
+  },
+  "omnibar_createImageLabel": {
+    "title": "Bild erstellen",
+    "description": "Label for the toggle button to enable image generation mode in the AI chat toolbar."
+  },
+  "omnibar_imageGenerationPlaceholder": {
+    "title": "Beschreibe das Bild, das du erstellen möchtest",
+    "description": "Placeholder text for the AI chat input when image generation mode is active."
+  },
+  "omnibar_toolsMenuLabel": {
+    "title": "Werkzeuge",
+    "description": "Accessible label for the tools menu button in the AI chat toolbar."
+  },
+  "omnibar_createImageDescription": {
+    "title": "Text in Bilder umwandeln",
+    "description": "Description for the Create Image tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchLabel": {
+    "title": "Websuche",
+    "description": "Label for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchDescription": {
+    "title": "Antworten aus dem Web beziehen",
+    "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_imageGenerationWithAttachmentPlaceholder": {
+    "title": "Beschreibe die Änderungen basierend auf dem Bild",
+    "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
+  },
+  "omnibar_reasoningPickerLabel": {
+    "title": "Begründung",
+    "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
+  },
+  "omnibar_reasoningEffortFastLabel": {
+    "title": "Schnell",
+    "description": "Label for the 'fast' reasoning-effort option (answers right away, no deliberate reasoning)."
+  },
+  "omnibar_reasoningEffortFastDescription": {
+    "title": "Sofortige Antworten",
+    "description": "Subtitle for the 'fast' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortReasoningLabel": {
+    "title": "Begründung",
+    "description": "Label for the 'reasoning' reasoning-effort option (model spends a moment reasoning)."
+  },
+  "omnibar_reasoningEffortReasoningDescription": {
+    "title": "Nimmt sich einen Moment Zeit zum Antworten",
+    "description": "Subtitle for the 'reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortExtendedReasoningLabel": {
+    "title": "Erweiterte Begründung",
+    "description": "Label for the 'extended reasoning' reasoning-effort option (model researches before responding)."
+  },
+  "omnibar_reasoningEffortExtendedReasoningDescription": {
+    "title": "Recherchiert, bevor du antwortest",
+    "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
   },
   "nextStepsList_sectionTitle": {
     "title": "Nächste Schritte",
@@ -652,41 +744,5 @@
   "activity_show_less_history": {
     "title": "Zusätzliches ausblenden",
     "note": "Button label that hides the expanded browsing history items."
-  },
-  "omnibar_attachImageLabel": {
-    "title": "Bild anhängen",
-    "description": "Accessible label for the attach image button in the AI chat toolbar."
-  },
-  "omnibar_removeImageLabel": {
-    "title": "Bild entfernen",
-    "description": "Accessible label for the button to remove an attached image thumbnail."
-  },
-  "omnibar_modelSelectorLabel": {
-    "title": "Modell auswählen",
-    "description": "Accessible label for the AI model selector dropdown."
-  },
-  "omnibar_imageAttachmentLimitWarning": {
-    "title": "Du kannst jeweils nur {limit} Bilder gleichzeitig anhängen",
-    "description": "Warning shown when user attaches more images than the allowed maximum."
-  },
-  "omnibar_imageTooLargeError": {
-    "title": "Das Bild ist zu groß. Bitte verwende ein Bild, das kleiner als 10000×10000 Pixel ist.",
-    "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
-  },
-  "omnibar_imageProcessingError": {
-    "title": "Bild wurde nicht verarbeitet. Bitte versuche es mit einer anderen Datei.",
-    "description": "Error shown when an attached image cannot be processed."
-  },
-  "omnibar_advancedModelsSectionHeader": {
-    "title": "Erweiterte Modelle – DuckDuckGo-Abo",
-    "description": "Section header in the model picker for premium models that require a subscription."
-  },
-  "omnibar_viewAllChats": {
-    "title": "Alle Chats anzeigen",
-    "description": "Link text to view all AI chat history."
-  },
-  "omnibar_openDuckAi": {
-    "title": "Duck.ai öffnen",
-    "description": "Link text to open the Duck.ai chat interface."
   }
 }
