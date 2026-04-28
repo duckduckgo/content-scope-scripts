@@ -2488,7 +2488,7 @@ test.describe('omnibar widget', () => {
             });
         });
 
-        test('pressing Enter on empty input with voice access fires omnibar_submitChat voice-mode', async ({ page }, workerInfo) => {
+        test('pressing Enter on empty input with voice access does NOT submit', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -2502,11 +2502,10 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.chatInput().press('Enter');
 
-            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
-                chat: '',
-                target: 'same-tab',
-                mode: 'voice-mode',
-            });
+            // Voice handoff requires an explicit click on the voice button — Enter on an empty
+            // input must not implicitly start a voice session, mirroring the legacy disabled
+            // submit behavior. No `omnibar_submitChat` should be sent at all.
+            await omnibar.expectMethodNotCalled('omnibar_submitChat');
         });
 
         test('image-generation mode hides the voice button', async ({ page }, workerInfo) => {

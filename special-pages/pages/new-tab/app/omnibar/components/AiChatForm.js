@@ -21,7 +21,9 @@ import styles from './AiChatForm.module.css';
  *
  * When the input is empty AND `voiceChatEnabled` is true, the submit button is
  * repurposed as a 1-click voice-chat entry point: it shows a voice icon and
- * invokes `onVoiceChat` instead of `onSubmit`.
+ * invokes `onVoiceChat` on click. The Enter key is intentionally not routed to
+ * `onVoiceChat` — voice handoff requires an explicit click on the voice button,
+ * so Enter on an empty input remains a no-op (matches the legacy disabled state).
  *
  * @param {object} props
  * @param {string} props.query
@@ -126,13 +128,6 @@ export function AiChatForm({
                         trigger: 'keyboard',
                         isPinned: Boolean(selectedChat.pinned),
                     });
-                    break;
-                }
-
-                // Voice-chat mode: Enter on an empty input fires the voice handoff instead
-                // of being a no-op. Mirrors the click path on the voice button.
-                if (isVoiceChatMode) {
-                    onVoiceChat?.(eventToTarget(event, platformName));
                     break;
                 }
 
