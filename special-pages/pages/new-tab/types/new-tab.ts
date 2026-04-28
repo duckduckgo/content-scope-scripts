@@ -184,7 +184,6 @@ export interface NewTabMessages {
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
     | OmnibarOpenAiChatNotification
-    | OmnibarOpenNewVoiceChatNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSubmitChatNotification
@@ -561,12 +560,6 @@ export interface OpenAIChatAction {
   isPinned: boolean;
 }
 /**
- * Generated from @see "../messages/omnibar_openNewVoiceChat.notify.json"
- */
-export interface OmnibarOpenNewVoiceChatNotification {
-  method: "omnibar_openNewVoiceChat";
-}
-/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -697,9 +690,9 @@ export interface SubmitChatAction {
   modelId?: string;
   reasoningEffort?: ReasoningEffort;
   /**
-   * Duck.ai mode. If omitted, defaults to 'chat'.
+   * Duck.ai mode. If omitted, defaults to 'chat'. Use 'voice-mode' for 1-click voice-chat handoff (no chat content needed — Duck.ai routes to the voice flow on mode alone).
    */
-  mode?: "chat" | "image-generation";
+  mode?: "chat" | "image-generation" | "voice-mode";
   /**
    * Tools to enable for this chat session.
    */

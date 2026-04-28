@@ -77,10 +77,6 @@ export const OmnibarContext = createContext({
     viewAllAiChats: () => {
         throw new Error('must implement');
     },
-    /** @type {() => void} */
-    openNewVoiceChat: () => {
-        throw new Error('must implement');
-    },
 });
 
 export const OmnibarServiceContext = createContext(/** @type {OmnibarService|null} */ (null));
@@ -225,11 +221,6 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {() => void} */
-    const openNewVoiceChat = useCallback(() => {
-        service.current?.openNewVoiceChat();
-    }, [service]);
-
     return (
         <OmnibarContext.Provider
             value={{
@@ -248,7 +239,6 @@ export function OmnibarProvider(props) {
                 onAiChats,
                 openAiChat,
                 viewAllAiChats,
-                openNewVoiceChat,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

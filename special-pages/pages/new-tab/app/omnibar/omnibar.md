@@ -34,7 +34,7 @@ title: Omnibar Widget
   - `enableAiChatTools` — enables AI chat tools: model selector, image attachments (default `false`)
   - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
-  - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button that fires `omnibar_openNewVoiceChat` (default `false`)
+  - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -185,11 +185,6 @@ title: Omnibar Widget
    "target": "same-tab"
 }
 ```
-
-### `omnibar_openNewVoiceChat`
-- {@link "NewTab Messages".OmnibarOpenNewVoiceChatNotification}
-- Sent when the user clicks the 1-click voice-chat button (shown when `enableVoiceChatAccess` is true and the input is empty)
-- no parameters — native owns the voice-mode URL/payload and tab management
 
 ## Suggestion Types
 

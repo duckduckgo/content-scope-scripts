@@ -181,9 +181,6 @@ export function omnibarMockTransport() {
                 case 'omnibar_submitChat':
                     console.warn('notification (no-op in mock)', msg.method, msg.params);
                     break;
-                case 'omnibar_openNewVoiceChat':
-                    console.warn('notification (no-op in mock)', msg.method);
-                    break;
                 default: {
                     console.warn('unhandled notification', msg);
                 }

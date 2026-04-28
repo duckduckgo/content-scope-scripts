@@ -2440,7 +2440,7 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.chatSubmitButton()).toBeVisible();
         });
 
-        test('clicking voice button fires omnibar_openNewVoiceChat with no params', async ({ page }, workerInfo) => {
+        test('clicking voice button fires omnibar_submitChat with mode voice-mode and empty chat', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -2454,10 +2454,35 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
             await omnibar.voiceChatButton().click();
 
-            // Parameterless notify — only assert the call happened. The messaging library
-            // normalizes the wire payload to `params: {}`, so don't assert on params shape
-            // (matches the convention used by `stats_showMore`, `stats_showLess`, etc.).
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_openNewVoiceChat', count: 1 });
+            // Voice handoff reuses `omnibar_submitChat` with `mode: 'voice-mode'` — same mechanism
+            // image-generation uses. Native routes Duck.ai to the voice flow on mode alone; no
+            // dedicated `omnibar_openNewVoiceChat` notify and no `?mode=voice` URL parameter.
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: '',
+                target: 'same-tab',
+                mode: 'voice-mode',
+            });
+        });
+
+        test('pressing Enter on empty input with voice access fires omnibar_submitChat voice-mode', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: '',
+                target: 'same-tab',
+                mode: 'voice-mode',
+            });
         });
 
         test('image-generation mode hides the voice button', async ({ page }, workerInfo) => {

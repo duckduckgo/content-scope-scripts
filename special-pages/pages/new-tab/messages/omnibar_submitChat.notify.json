@@ -22,9 +22,9 @@
       "$ref": "./types/reasoning-effort.json"
     },
     "mode": {
-      "description": "Duck.ai mode. If omitted, defaults to 'chat'.",
+      "description": "Duck.ai mode. If omitted, defaults to 'chat'. Use 'voice-mode' for 1-click voice-chat handoff (no chat content needed — Duck.ai routes to the voice flow on mode alone).",
       "type": "string",
-      "enum": ["chat", "image-generation"]
+      "enum": ["chat", "image-generation", "voice-mode"]
     },
     "toolChoice": {
       "description": "Tools to enable for this chat session.",

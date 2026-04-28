@@ -60,7 +60,7 @@ export function Omnibar({
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
 
-    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover, openNewVoiceChat } = useContext(OmnibarContext);
+    const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();
     useDrawerEventListeners(
@@ -156,7 +156,6 @@ export function Omnibar({
                                     autoFocus={autoFocus}
                                     enableRecentAiChats={enableRecentAiChats}
                                     enableVoiceChatAccess={enableVoiceChatAccess}
-                                    onVoiceChat={openNewVoiceChat}
                                     onChange={setQuery}
                                     onSubmit={handleSubmitChat}
                                 />
@@ -175,11 +174,10 @@ export function Omnibar({
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} [props.enableVoiceChatAccess]
- * @param {() => void} [props.onVoiceChat]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
-function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatAccess = false, onVoiceChat, onChange, onSubmit }) {
+function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatAccess = false, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { showChats, hideChats } = useAiChatsContext();
     const { selectedModel } = useSelectedModel();
@@ -248,6 +246,20 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
         clearTool();
     };
 
+    /**
+     * Voice handoff: reuses `omnibar_submitChat` with `mode: 'voice-mode'` and an empty chat
+     * payload. Native receives the mode in the prompt handoff and routes to the Duck.ai voice
+     * flow — same mechanism image-generation uses (no dedicated notify, no `?mode=voice` URL).
+     * @param {import('../../../types/new-tab.js').OpenTarget} target
+     */
+    const handleVoiceSubmit = (target) => {
+        onSubmit({
+            chat: '',
+            target,
+            mode: /** @type {const} */ ('voice-mode'),
+        });
+    };
+
     const showRecentChats = enableRecentAiChats && !imageGenerationActive;
 
     return (
@@ -271,7 +283,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
                     autoFocus={autoFocus}
                     disabled={query.length === 0 || imageWarning}
                     voiceChatEnabled={enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages}
-                    onVoiceChat={onVoiceChat}
+                    onVoiceChat={handleVoiceSubmit}
                     placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}

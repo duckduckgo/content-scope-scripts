@@ -30,7 +30,7 @@ import styles from './AiChatForm.module.css';
  * @param {(query: string) => void} props.onChange
  * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
  * @param {boolean} [props.voiceChatEnabled]
- * @param {() => void} [props.onVoiceChat]
+ * @param {(target: import('../../../types/new-tab.js').OpenTarget) => void} [props.onVoiceChat]
  * @param {string} [props.placeholder]
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
@@ -129,6 +129,13 @@ export function AiChatForm({
                     break;
                 }
 
+                // Voice-chat mode: Enter on an empty input fires the voice handoff instead
+                // of being a no-op. Mirrors the click path on the voice button.
+                if (isVoiceChatMode) {
+                    onVoiceChat?.(eventToTarget(event, platformName));
+                    break;
+                }
+
                 if (disabled) {
                     break;
                 }
@@ -154,7 +161,7 @@ export function AiChatForm({
     const handleClickVoiceChat = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        onVoiceChat?.();
+        onVoiceChat?.(eventToTarget(event, platformName));
     };
 
     const getActiveDescendant = () => {
