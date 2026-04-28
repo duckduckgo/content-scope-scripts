@@ -281,8 +281,8 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
                 <AiChatForm
                     query={query}
                     autoFocus={autoFocus}
-                    disabled={query.length === 0 || imageWarning}
-                    voiceChatEnabled={enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages}
+                    disabled={!query || imageWarning}
+                    voiceChatEnabled={enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && !query}
                     onVoiceChat={handleVoiceSubmit}
                     placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
