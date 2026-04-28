@@ -33,17 +33,7 @@ import styles from './AiChatForm.module.css';
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
  * @param {import('preact').ComponentChildren} [props.toolbarRight]
  */
-export function AiChatForm({
-    query,
-    autoFocus,
-    disabled,
-    onChange,
-    onSubmit,
-    children,
-    placeholder,
-    toolbarLeft,
-    toolbarRight,
-}) {
+export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, placeholder, toolbarLeft, toolbarRight }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat, viewAllAiChats } = useContext(OmnibarContext);
