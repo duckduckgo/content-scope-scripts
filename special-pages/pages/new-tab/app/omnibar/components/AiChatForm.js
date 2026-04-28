@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import { useContext, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ArrowRightIcon, VoiceIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
@@ -15,15 +14,13 @@ import styles from './AiChatForm.module.css';
  */
 
 /**
- * A simple form shell for the AI chat input. Renders a textarea, submit button,
- * and tool-provided UI via slots. The parent owns all tool state and assembles
- * the submit payload; this component just provides (chat, target) on submit.
+ * A simple form shell for the AI chat input. Renders a textarea plus two toolbar slots
+ * (`toolbarLeft`, `toolbarRight`). The parent owns all submission UI (submit button,
+ * voice button, etc.) and renders it via the right slot — this component only forwards
+ * Enter-key submissions through `onSubmit(query, target)`.
  *
- * When the input is empty AND `voiceChatEnabled` is true, the submit button is
- * repurposed as a 1-click voice-chat entry point: it shows a voice icon and
- * invokes `onVoiceChat` on click. The Enter key is intentionally not routed to
- * `onVoiceChat` — voice handoff requires an explicit click on the voice button,
- * so Enter on an empty input remains a no-op (matches the legacy disabled state).
+ * Anything passed in `toolbarRight` is rendered inside the underlying `<form>`, so a
+ * `type="submit"` button placed there works as expected.
  *
  * @param {object} props
  * @param {string} props.query
@@ -31,8 +28,6 @@ import styles from './AiChatForm.module.css';
  * @param {boolean} [props.disabled]
  * @param {(query: string) => void} props.onChange
  * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
- * @param {boolean} [props.voiceChatEnabled]
- * @param {(target: import('../../../types/new-tab.js').OpenTarget) => void} [props.onVoiceChat]
  * @param {string} [props.placeholder]
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
@@ -44,8 +39,6 @@ export function AiChatForm({
     disabled,
     onChange,
     onSubmit,
-    voiceChatEnabled,
-    onVoiceChat,
     children,
     placeholder,
     toolbarLeft,
@@ -140,25 +133,6 @@ export function AiChatForm({
         }
     };
 
-    /** @type {(event: MouseEvent) => void} */
-    const handleClickSubmit = (event) => {
-        event.preventDefault();
-        if (disabled) return;
-        event.stopPropagation();
-        onSubmit(query, eventToTarget(event, platformName));
-    };
-
-    // Voice-chat mode is gated on the feature flag AND an empty input — the same button can't
-    // be both "submit text" and "start voice chat" simultaneously.
-    const isVoiceChatMode = Boolean(voiceChatEnabled) && query.length === 0;
-
-    /** @type {(event: MouseEvent) => void} */
-    const handleClickVoiceChat = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onVoiceChat?.(eventToTarget(event, platformName));
-    };
-
     const getActiveDescendant = () => {
         if (selectedChat) {
             return getAiChatElementId(selectedChat.chatId);
@@ -205,33 +179,7 @@ export function AiChatForm({
             {children}
             <div tabIndex={-1} class={styles.buttons}>
                 {toolbarLeft}
-                <div class={styles.rightButtons}>
-                    {toolbarRight}
-                    {isVoiceChatMode ? (
-                        <button
-                            tabIndex={0}
-                            type="button"
-                            class={styles.submitButton}
-                            aria-label={t('omnibar_aiChatFormVoiceButtonLabel')}
-                            onClick={handleClickVoiceChat}
-                            onAuxClick={handleClickVoiceChat}
-                        >
-                            <VoiceIcon class={styles.voiceIcon} />
-                        </button>
-                    ) : (
-                        <button
-                            tabIndex={0}
-                            type="submit"
-                            class={styles.submitButton}
-                            aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
-                            disabled={disabled}
-                            onClick={handleClickSubmit}
-                            onAuxClick={handleClickSubmit}
-                        >
-                            <ArrowRightIcon />
-                        </button>
-                    )}
-                </div>
+                <div class={styles.rightButtons}>{toolbarRight}</div>
             </div>
         </form>
     );

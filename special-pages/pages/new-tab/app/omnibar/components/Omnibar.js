@@ -1,8 +1,11 @@
 import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
-import { LogoStacked } from '../../components/Icons';
+import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
+import { eventToTarget } from '../../../../../shared/handlers';
+import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
+import aiChatFormStyles from './AiChatForm.module.css';
 import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider';
 import { ResizingContainer } from './ResizingContainer';
@@ -179,6 +182,7 @@ export function Omnibar({
  */
 function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatAccess = false, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const platformName = usePlatformName();
     const { showChats, hideChats } = useAiChatsContext();
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
@@ -260,6 +264,26 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
         });
     };
 
+    const disabled = !query || imageWarning;
+    // Voice-chat mode: feature flag on AND nothing in the input/attachments. The same button can't
+    // be both "submit text" and "start voice chat", so the submit button is replaced when active.
+    const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && !query;
+
+    /** @type {(event: MouseEvent) => void} */
+    const handleClickSubmit = (event) => {
+        event.preventDefault();
+        if (disabled) return;
+        event.stopPropagation();
+        handleSubmit(query, eventToTarget(event, platformName));
+    };
+
+    /** @type {(event: MouseEvent) => void} */
+    const handleClickVoiceChat = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        handleVoiceSubmit(eventToTarget(event, platformName));
+    };
+
     const showRecentChats = enableRecentAiChats && !imageGenerationActive;
 
     return (
@@ -281,9 +305,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
                 <AiChatForm
                     query={query}
                     autoFocus={autoFocus}
-                    disabled={!query || imageWarning}
-                    voiceChatEnabled={enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && !query}
-                    onVoiceChat={handleVoiceSubmit}
+                    disabled={disabled}
                     placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
@@ -296,12 +318,38 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
                         </Fragment>
                     }
                     toolbarRight={
-                        !imageGenerationActive && (
-                            <Fragment>
-                                <ReasoningPickerTool />
-                                <ModelSelectorTool />
-                            </Fragment>
-                        )
+                        <Fragment>
+                            {!imageGenerationActive && (
+                                <Fragment>
+                                    <ReasoningPickerTool />
+                                    <ModelSelectorTool />
+                                </Fragment>
+                            )}
+                            {isVoiceChatMode ? (
+                                <button
+                                    tabIndex={0}
+                                    type="button"
+                                    class={aiChatFormStyles.submitButton}
+                                    aria-label={t('omnibar_aiChatFormVoiceButtonLabel')}
+                                    onClick={handleClickVoiceChat}
+                                    onAuxClick={handleClickVoiceChat}
+                                >
+                                    <VoiceIcon class={aiChatFormStyles.voiceIcon} />
+                                </button>
+                            ) : (
+                                <button
+                                    tabIndex={0}
+                                    type="submit"
+                                    class={aiChatFormStyles.submitButton}
+                                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    disabled={disabled}
+                                    onClick={handleClickSubmit}
+                                    onAuxClick={handleClickSubmit}
+                                >
+                                    <ArrowRightIcon />
+                                </button>
+                            )}
+                        </Fragment>
                     }
                 >
                     <ImageAttachmentContent
