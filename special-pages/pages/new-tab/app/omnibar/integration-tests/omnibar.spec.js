@@ -2464,6 +2464,30 @@ test.describe('omnibar widget', () => {
             });
         });
 
+        test('middle-clicking voice button fires omnibar_submitChat voice-mode with target new-tab', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            // Middle-click (auxclick) — mirrors the AI chat submit button, which routes a middle-click
+            // to `target: 'new-tab'` via eventToTarget(). The voice button must wire onAuxClick too,
+            // otherwise middle-click would silently drop the handoff.
+            await omnibar.voiceChatButton().click({ button: 'middle' });
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: '',
+                target: 'new-tab',
+                mode: 'voice-mode',
+            });
+        });
+
         test('pressing Enter on empty input with voice access fires omnibar_submitChat voice-mode', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

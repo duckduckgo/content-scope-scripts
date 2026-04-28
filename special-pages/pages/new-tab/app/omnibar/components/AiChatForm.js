@@ -219,6 +219,7 @@ export function AiChatForm({
                             class={styles.submitButton}
                             aria-label={t('omnibar_aiChatFormVoiceButtonLabel')}
                             onClick={handleClickVoiceChat}
+                            onAuxClick={handleClickVoiceChat}
                         >
                             <VoiceIcon class={styles.voiceIcon} />
                         </button>
