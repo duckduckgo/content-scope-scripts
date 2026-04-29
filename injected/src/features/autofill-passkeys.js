@@ -7,23 +7,53 @@ const MEDIATION_CONDITIONAL = 'conditional';
 const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
 
 export default class AutofillPasskeys extends ContentFeature {
+    /** @type {(() => void) | null} */
+    #cancelPending = null;
+
     init() {
         if (!navigator.credentials || typeof navigator.credentials.get !== 'function') return;
 
-        /** @type {{ resolve: (value: Credential | null) => void, reject: (reason?: unknown) => void, options: CredentialRequestOptions } | null} */
-        let pending = null;
-
         const savedOriginalGet = navigator.credentials.get.bind(navigator.credentials);
+        const feature = this;
 
-        // @ts-expect-error windowsInteropAddEventListener is a Windows-specific global
-        windowsInteropAddEventListener('message', async function (/** @type {MessageEvent} */ event) {
-            if (!pending) return;
+        this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
+            if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
+                return originalGet.call(this, options);
+            }
 
-            if (event.data?.type === MSG_INBOUND_PASSKEY_SELECTED) {
+            const rpId = options?.publicKey?.rpId || location.hostname;
+            return feature.registerPasskeyRequest(rpId, options, savedOriginalGet);
+        });
+    }
+
+    /**
+     * @param {string} rpId
+     * @param {CredentialRequestOptions} options
+     * @param {typeof navigator.credentials.get} originalGet
+     * @returns {Promise<Credential | null>}
+     */
+    registerPasskeyRequest(rpId, options, originalGet) {
+        if (this.#cancelPending) {
+            this.#cancelPending();
+        }
+
+        return new Promise((resolve, reject) => {
+            const cleanup = () => {
+                // @ts-expect-error windowsInteropRemoveEventListener is a Windows-specific global
+                windowsInteropRemoveEventListener('message', handler);
+                if (options.signal) {
+                    options.signal.removeEventListener('abort', onAbort);
+                }
+                if (this.#cancelPending === cleanup) {
+                    this.#cancelPending = null;
+                }
+            };
+
+            const handler = async (/** @type {MessageEvent} */ event) => {
+                if (event.data?.type !== MSG_INBOUND_PASSKEY_SELECTED) return;
                 if (typeof event.data.credentialId !== 'string') return;
 
-                const { resolve, reject, options } = pending;
-                pending = null;
+                cleanup();
 
                 try {
                     const raw = atob(event.data.credentialId);
@@ -39,44 +69,40 @@ export default class AutofillPasskeys extends ContentFeature {
                             : options.publicKey,
                     };
 
-                    const credential = await savedOriginalGet(narrowed);
+                    const credential = await originalGet(narrowed);
                     resolve(credential);
                 } catch (e) {
                     reject(e);
                 }
-            }
-        });
+            };
 
-        this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
-            if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
-                return originalGet.call(this, options);
+            const onAbort = () => {
+                cleanup();
+                reject(options.signal?.reason ?? new DOMException('The operation was aborted.', 'AbortError'));
+            };
+
+            this.#cancelPending = () => {
+                cleanup();
+                reject(new DOMException('A new passkey request superseded this one.', 'AbortError'));
+            };
+
+            if (options.signal?.aborted) {
+                onAbort();
+                return;
             }
 
-            if (pending) {
-                pending.reject(new DOMException('A new passkey request superseded this one.', 'AbortError'));
-                pending = null;
+            if (options.signal) {
+                options.signal.addEventListener('abort', onAbort);
             }
 
-            const rpId = options?.publicKey?.rpId || location.hostname;
+            // @ts-expect-error windowsInteropAddEventListener is a Windows-specific global
+            windowsInteropAddEventListener('message', handler);
 
             // @ts-expect-error windowsInteropPostMessage is a Windows-specific global
             windowsInteropPostMessage({
                 Feature: MSG_OUTBOUND_FEATURE,
                 Name: MSG_OUTBOUND_NAME,
                 Data: { rpId },
-            });
-
-            return new Promise(function (resolve, reject) {
-                pending = { resolve, reject, options };
-
-                if (options.signal) {
-                    options.signal.addEventListener('abort', function () {
-                        if (pending?.reject === reject) {
-                            pending = null;
-                            reject(options.signal?.reason ?? new DOMException('The operation was aborted.', 'AbortError'));
-                        }
-                    });
-                }
             });
         });
     }
