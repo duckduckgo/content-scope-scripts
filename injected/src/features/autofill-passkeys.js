@@ -61,10 +61,9 @@ export default class AutofillPasskeys extends ContentFeature {
                     return originalGet.call(this, options);
                 }
 
+                // RP ID validation (registrable domain, public suffix, Related Origin
+                // Requests via .well-known/webauthn) is the native side's responsibility.
                 const rpId = options?.publicKey?.rpId;
-                if (typeof rpId === 'string' && rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
-                    return originalGet.call(this, options);
-                }
                 return feature.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, originalGet, this);
             },
         );
