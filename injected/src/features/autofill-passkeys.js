@@ -62,6 +62,15 @@ export default class AutofillPasskeys extends ContentFeature {
 
             return new Promise(function (resolve, reject) {
                 pending = { resolve, reject, options };
+
+                if (options.signal) {
+                    options.signal.addEventListener('abort', function () {
+                        if (pending?.reject === reject) {
+                            pending = null;
+                            reject(options.signal?.reason ?? new DOMException('The operation was aborted.', 'AbortError'));
+                        }
+                    });
+                }
             });
         });
     }
