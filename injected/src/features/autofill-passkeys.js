@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature';
 // eslint-disable-next-line no-redeclare
-import { Uint8Array, atob, Promise as CapturedPromise, DOMException as CapturedDOMException, charCodeAt } from '../captured-globals';
+import { Uint8Array, atob, Promise as CapturedPromise, DOMException as CapturedDOMException, charCodeAt, randomUUID } from '../captured-globals';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_FEATURE = 'Autofill';
@@ -71,6 +71,7 @@ export default class AutofillPasskeys extends ContentFeature {
         }
 
         const optionsSnapshot = { ...options, publicKey: options.publicKey ? { ...options.publicKey } : undefined };
+        const requestId = randomUUID?.();
 
         return new CapturedPromise((resolve, reject) => {
             const cleanup = () => {
@@ -81,16 +82,13 @@ export default class AutofillPasskeys extends ContentFeature {
                 this.#cancelPending = null;
             };
 
-            // Messages arrive via the WebView2 native interop channel (windowsInterop*),
-            // which is a trusted browser-process-only channel — not a web postMessage listener.
-            // Only the browser process can post to this channel; web content cannot.
-            // No request correlation ID is needed: the native side processes one
-            // registerPasskeyRequest at a time per tab, and passkeySelected is the
-            // direct reply delivered on the same trusted channel. Shape validation
-            // (type + string credentialId) plus atob decode validation below is sufficient.
+            // Mirror WindowsMessagingTransport._subscribe() origin validation:
+            // in production, only browser-process messages (origin null/undefined) are accepted.
             const handler = async (/** @type {MessageEvent} */ event) => {
+                if (event.origin !== null && event.origin !== undefined) return;
                 if (event.data?.type !== MSG_INBOUND_PASSKEY_SELECTED) return;
                 if (typeof event.data.credentialId !== 'string' || event.data.credentialId.length === 0) return;
+                if (event.data.requestId !== requestId) return;
 
                 cleanup();
 
@@ -139,7 +137,7 @@ export default class AutofillPasskeys extends ContentFeature {
             this.#postMessage?.({
                 Feature: MSG_OUTBOUND_FEATURE,
                 Name: MSG_OUTBOUND_NAME,
-                Data: { rpId },
+                Data: { rpId, requestId },
             });
         });
     }
