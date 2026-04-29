@@ -47,9 +47,7 @@ export default class AutofillPasskeys extends ContentFeature {
                 if (options.signal) {
                     options.signal.removeEventListener('abort', onAbort);
                 }
-                if (this.#cancelPending === cleanup) {
-                    this.#cancelPending = null;
-                }
+                this.#cancelPending = null;
             };
 
             const handler = async (/** @type {MessageEvent} */ event) => {
