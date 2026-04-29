@@ -38,11 +38,11 @@ export default class AutofillPasskeys extends ContentFeature {
                 return originalGet.call(navigator.credentials, options);
             }
 
-            const rpId = options?.publicKey?.rpId || location.hostname;
-            if (rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
+            const rpId = options?.publicKey?.rpId;
+            if (typeof rpId === 'string' && rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
                 return originalGet.call(navigator.credentials, options);
             }
-            return this.registerPasskeyRequest(rpId, options, savedOriginalGet);
+            return this.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, savedOriginalGet);
         });
     }
 
