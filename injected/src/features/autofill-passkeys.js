@@ -1,6 +1,13 @@
 import ContentFeature from '../content-feature';
 // eslint-disable-next-line no-redeclare
-import { Uint8Array, atob, Promise as CapturedPromise, DOMException as CapturedDOMException, charCodeAt, randomUUID } from '../captured-globals';
+import {
+    Uint8Array,
+    atob,
+    Promise as CapturedPromise,
+    DOMException as CapturedDOMException,
+    charCodeAt,
+    randomUUID,
+} from '../captured-globals';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_FEATURE = 'Autofill';
@@ -40,22 +47,26 @@ export default class AutofillPasskeys extends ContentFeature {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
 
-        this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
-            // Pass through for any receiver that isn't the known singleton.
-            if (this !== credentialsSingleton) {
-                return originalGet.call(this, options);
-            }
+        this.wrapMethod(
+            CredentialsContainer.prototype,
+            'get',
+            /** @this {CredentialsContainer} */ function (originalGet, options) {
+                // Pass through for any receiver that isn't the known singleton.
+                if (this !== credentialsSingleton) {
+                    return originalGet.call(this, options);
+                }
 
-            if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
-                return originalGet.call(this, options);
-            }
+                if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
+                    return originalGet.call(this, options);
+                }
 
-            const rpId = options?.publicKey?.rpId;
-            if (typeof rpId === 'string' && rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
-                return originalGet.call(this, options);
-            }
-            return feature.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, originalGet, this);
-        });
+                const rpId = options?.publicKey?.rpId;
+                if (typeof rpId === 'string' && rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
+                    return originalGet.call(this, options);
+                }
+                return feature.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, originalGet, this);
+            },
+        );
     }
 
     /**
