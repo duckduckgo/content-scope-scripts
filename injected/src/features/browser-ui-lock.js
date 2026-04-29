@@ -130,11 +130,18 @@ export default class BrowserUiLock extends ContentFeature {
 
     /**
      * Determine if UI should be locked based on scrollbar visibility or content type.
-     * Lock if the page is a direct image display or has no visible vertical scrollbar.
+     * Lock if the site's domain is in the `lockedDomains` list; otherwise lock if
+     * the page is a direct image display, or if there is no visible vertical
+     * scrollbar AND `overflow-y: hidden` is explicitly set on html or body.
      * @returns {boolean}
      */
     _detectShouldLock() {
         try {
+            // Sites configured in lockedDomains bypass all other checks
+            if (this._isLockedDomain()) {
+                return true;
+            }
+
             // Image display pages (navigating directly to an image URL) should lock
             if (this.getFeatureSettingEnabled('lockImagePages', 'enabled') && this._isImageDisplayPage()) {
                 return true;
@@ -151,8 +158,9 @@ export default class BrowserUiLock extends ContentFeature {
                 return false;
             }
 
-            // No visible scrollbar - lock the UI
-            return true;
+            // No visible scrollbar — additionally require overflow-y: hidden
+            // to be explicitly set on html or body before locking.
+            return Boolean((html && this._hasOverflowYHidden(html)) || (body && this._hasOverflowYHidden(body)));
         } catch (e) {
             // Fail open - return false (unlocked) on error
             this.log.warn('Failed to detect scroll state:', e);
@@ -171,6 +179,41 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     /**
+     * Check whether the current site's URL matches any entry in the `lockedDomains`
+     * list. Each entry is matched against `host + pathname` of the site's URL:
+     *
+     * - exact host match: an entry `"example.com"` matches host `example.com` (any
+     *   path) but does NOT match `www.example.com` or `evil.example.com.attacker`.
+     * - path prefix match: an entry `"example.com/foo"` matches any URL on host
+     *   `example.com` whose path begins with `/foo` followed by `/` or end-of-path.
+     *
+     * @returns {boolean}
+     */
+    _isLockedDomain() {
+        const patterns = this.getFeatureSetting('lockedDomains');
+        if (!Array.isArray(patterns) || patterns.length === 0) {
+            return false;
+        }
+        const siteUrl = this.args?.site?.url;
+        if (typeof siteUrl !== 'string' || siteUrl.length === 0) {
+            return false;
+        }
+        let hostPath;
+        try {
+            const url = new URL(siteUrl);
+            hostPath = url.host + url.pathname;
+        } catch {
+            return false;
+        }
+        return patterns.some((p) => {
+            if (typeof p !== 'string' || p.length === 0) return false;
+            if (hostPath === p) return true;
+            if (p.endsWith('/')) return hostPath.startsWith(p);
+            return hostPath.startsWith(p + '/');
+        });
+    }
+
+    /**
      * Check if an element has a visible vertical scrollbar.
      * A scrollbar is visible when content overflows AND overflow isn't hidden/clip.
      * @param {Element} el
@@ -179,8 +222,17 @@ export default class BrowserUiLock extends ContentFeature {
     _hasExplicitlyVisibleScrollbar(el) {
         const style = getComputedStyle(el);
         const overflowY = style.overflowY;
-        const overflowTypes = this.getFeatureSetting('overflowTypes') ?? ['hidden', 'clip', 'auto'];
+        const overflowTypes = this.getFeatureSetting('overflowTypes') ?? ['hidden', 'clip'];
         return el.scrollHeight > el.clientHeight && !overflowTypes.includes(overflowY);
+    }
+
+    /**
+     * Check if the element's computed `overflow-y` is `hidden`.
+     * @param {Element} el
+     * @returns {boolean}
+     */
+    _hasOverflowYHidden(el) {
+        return getComputedStyle(el).overflowY === 'hidden';
     }
 
     /**
