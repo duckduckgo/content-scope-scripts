@@ -92,6 +92,9 @@ export default class AutofillPasskeys extends ContentFeature {
               }
             : undefined;
         const requestId = randomUUID?.();
+        if (!requestId) {
+            return originalGet.call(receiver, options);
+        }
 
         return new CapturedPromise((resolve, reject) => {
             const cleanup = () => {
