@@ -36,13 +36,16 @@ export default class AutofillPasskeys extends ContentFeature {
         this.#addEventListener = /** @type {any} */ (windowsInteropAddEventListener);
         this.#removeEventListener = /** @type {any} */ (windowsInteropRemoveEventListener);
 
-        // navigator.credentials is a singleton (CredentialsContainer can't be independently
-        // constructed), so binding to it is equivalent to preserving the original receiver.
-        const savedOriginalGet = navigator.credentials.get.bind(navigator.credentials);
+        const credentialsSingleton = navigator.credentials;
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
 
         this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
+            // Pass through for any receiver that isn't the known singleton.
+            if (this !== credentialsSingleton) {
+                return originalGet.call(this, options);
+            }
+
             if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
                 return originalGet.call(this, options);
             }
@@ -51,17 +54,18 @@ export default class AutofillPasskeys extends ContentFeature {
             if (typeof rpId === 'string' && rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
                 return originalGet.call(this, options);
             }
-            return feature.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, savedOriginalGet);
+            return feature.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, originalGet, this);
         });
     }
 
     /**
      * @param {string} rpId
      * @param {CredentialRequestOptions} options
-     * @param {typeof navigator.credentials.get} originalGet
+     * @param {CredentialsContainer['get']} originalGet - unbound original method
+     * @param {CredentialsContainer} receiver - the receiver from the intercepted call
      * @returns {Promise<Credential | null>}
      */
-    registerPasskeyRequest(rpId, options, originalGet) {
+    registerPasskeyRequest(rpId, options, originalGet, receiver) {
         if (this.#cancelPending) {
             this.#cancelPending();
         }
@@ -104,7 +108,7 @@ export default class AutofillPasskeys extends ContentFeature {
                                 : undefined,
                         };
 
-                    const credential = await originalGet(narrowed);
+                    const credential = await originalGet.call(receiver, narrowed);
                     resolve(credential);
                 } catch (e) {
                     reject(e);
