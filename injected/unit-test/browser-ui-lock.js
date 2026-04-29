@@ -73,10 +73,10 @@ describe('BrowserUiLock', () => {
             expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(true);
         });
 
-        it('should return false when content overflows and overflow is auto (default config)', () => {
+        it('should return true when content overflows and overflow is auto (default config)', () => {
             const feature = createFeature();
             const el = createMockElement(1000, 500, 'auto');
-            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(true);
         });
 
         it('should return true when content overflows and overflow is scroll', () => {
@@ -107,6 +107,180 @@ describe('BrowserUiLock', () => {
             const feature = createFeature();
             const el = createMockElement(300, 500, 'auto');
             expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
+        });
+    });
+
+    describe('_hasOverflowYHidden', () => {
+        /** @type {typeof globalThis.getComputedStyle | undefined} */
+        let originalGetComputedStyle;
+
+        beforeEach(() => {
+            originalGetComputedStyle = globalThis.getComputedStyle;
+        });
+
+        afterEach(() => {
+            if (originalGetComputedStyle !== undefined) {
+                globalThis.getComputedStyle = originalGetComputedStyle;
+            } else {
+                // @ts-expect-error - restoring undefined
+                delete globalThis.getComputedStyle;
+            }
+        });
+
+        /**
+         * Create a mock element whose computed overflow-y is the given value.
+         * @param {string} overflowY
+         */
+        function createMockElement(overflowY) {
+            const el = /** @type {Element} */ ({});
+            globalThis.getComputedStyle = jasmine.createSpy('getComputedStyle').and.returnValue(
+                /** @type {CSSStyleDeclaration} */ ({
+                    overflowY,
+                }),
+            );
+            return el;
+        }
+
+        it('should return true when overflow-y is hidden', () => {
+            const feature = createFeature();
+            expect(feature._hasOverflowYHidden(createMockElement('hidden'))).toBe(true);
+        });
+
+        it('should return false when overflow-y is visible', () => {
+            const feature = createFeature();
+            expect(feature._hasOverflowYHidden(createMockElement('visible'))).toBe(false);
+        });
+
+        it('should return false when overflow-y is auto', () => {
+            const feature = createFeature();
+            expect(feature._hasOverflowYHidden(createMockElement('auto'))).toBe(false);
+        });
+
+        it('should return false when overflow-y is scroll', () => {
+            const feature = createFeature();
+            expect(feature._hasOverflowYHidden(createMockElement('scroll'))).toBe(false);
+        });
+
+        it('should return false when overflow-y is clip', () => {
+            const feature = createFeature();
+            expect(feature._hasOverflowYHidden(createMockElement('clip'))).toBe(false);
+        });
+    });
+
+    describe('_isLockedDomain', () => {
+        /**
+         * @param {string} siteDomain
+         * @param {object} [settings]
+         */
+        function createFeatureForDomain(siteDomain, settings = {}) {
+            return createFeature({
+                site: { domain: siteDomain, url: 'https://' + siteDomain },
+                featureSettings: {
+                    browserUiLock: settings,
+                },
+            });
+        }
+
+        it('should return false when setting is missing', () => {
+            const feature = createFeatureForDomain('example.com');
+            expect(feature._isLockedDomain()).toBe(false);
+        });
+
+        it('should return false when domain list is empty', () => {
+            const feature = createFeatureForDomain('example.com', { lockedDomains: [] });
+            expect(feature._isLockedDomain()).toBe(false);
+        });
+
+        it('should return true on exact domain match', () => {
+            const feature = createFeatureForDomain('maps.google.com', {
+                lockedDomains: ['maps.google.com'],
+            });
+            expect(feature._isLockedDomain()).toBe(true);
+        });
+
+        it('should return false on subdomain (exact-match only)', () => {
+            const feature = createFeatureForDomain('maps.google.com', {
+                lockedDomains: ['google.com'],
+            });
+            expect(feature._isLockedDomain()).toBe(false);
+        });
+
+        it('should return false on unrelated domain', () => {
+            const feature = createFeatureForDomain('example.com', {
+                lockedDomains: ['google.com'],
+            });
+            expect(feature._isLockedDomain()).toBe(false);
+        });
+
+        it('should not match domain suffix', () => {
+            const feature = createFeatureForDomain('notgoogle.com', {
+                lockedDomains: ['google.com'],
+            });
+            expect(feature._isLockedDomain()).toBe(false);
+        });
+
+        it('should ignore non-string entries in the list', () => {
+            const feature = createFeatureForDomain('google.com', {
+                // @ts-expect-error - intentionally malformed
+                lockedDomains: [null, 42, 'google.com'],
+            });
+            expect(feature._isLockedDomain()).toBe(true);
+        });
+
+        /**
+         * Build a feature with a custom site URL so we can exercise path-based matching.
+         * @param {string} url
+         * @param {object} [settings]
+         */
+        function createFeatureForUrl(url, settings = {}) {
+            return createFeature({
+                site: { domain: new URL(url).host, url },
+                featureSettings: {
+                    browserUiLock: settings,
+                },
+            });
+        }
+
+        it('should match exact host + full path', () => {
+            const feature = createFeatureForUrl('https://www.nytimes.com/games/wordle/index.html', {
+                lockedDomains: ['www.nytimes.com/games/wordle/index.html'],
+            });
+            expect(feature._isLockedDomain()).toBe(true);
+        });
+
+        it('should match a shorter path prefix at a path boundary', () => {
+            const feature = createFeatureForUrl('https://www.nytimes.com/games/wordle/index.html', {
+                lockedDomains: ['www.nytimes.com/games'],
+            });
+            expect(feature._isLockedDomain()).toBe(true);
+        });
+
+        it('should not match when prefix breaks mid-segment', () => {
+            const feature = createFeatureForUrl('https://www.nytimes.com/games/wordle/index.html', {
+                lockedDomains: ['www.nytimes.com/games/wor'],
+            });
+            expect(feature._isLockedDomain()).toBe(false);
+        });
+
+        it('should match when pattern ends with a slash', () => {
+            const feature = createFeatureForUrl('https://www.nytimes.com/games/wordle/index.html', {
+                lockedDomains: ['www.nytimes.com/games/wordle/'],
+            });
+            expect(feature._isLockedDomain()).toBe(true);
+        });
+
+        it('should not match a different host even with the same path', () => {
+            const feature = createFeatureForUrl('https://nytimes.com/games/wordle/index.html', {
+                lockedDomains: ['www.nytimes.com/games/wordle/index.html'],
+            });
+            expect(feature._isLockedDomain()).toBe(false);
+        });
+
+        it('should ignore query strings when matching the path', () => {
+            const feature = createFeatureForUrl('https://www.nytimes.com/games/wordle/index.html?ref=foo', {
+                lockedDomains: ['www.nytimes.com/games/wordle/index.html'],
+            });
+            expect(feature._isLockedDomain()).toBe(true);
         });
     });
 
