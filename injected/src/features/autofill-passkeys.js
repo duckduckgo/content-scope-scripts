@@ -11,12 +11,12 @@ const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
 export default class AutofillPasskeys extends ContentFeature {
     /** @type {(() => void) | null} */
     #cancelPending = null;
-    /** @type {(msg: object) => void} */
-    #postMessage;
-    /** @type {(type: string, handler: Function) => void} */
-    #addEventListener;
-    /** @type {(type: string, handler: Function) => void} */
-    #removeEventListener;
+    /** @type {((msg: object) => void) | null} */
+    #postMessage = null;
+    /** @type {((type: string, handler: Function) => void) | null} */
+    #addEventListener = null;
+    /** @type {((type: string, handler: Function) => void) | null} */
+    #removeEventListener = null;
 
     init() {
         // Bail if the Credentials API is absent. Note: web-compat's navigatorCredentialsFix()
@@ -61,7 +61,7 @@ export default class AutofillPasskeys extends ContentFeature {
 
         return new CapturedPromise((resolve, reject) => {
             const cleanup = () => {
-                this.#removeEventListener('message', handler);
+                this.#removeEventListener?.('message', handler);
                 if (options.signal) {
                     options.signal.removeEventListener('abort', onAbort);
                 }
@@ -117,9 +117,9 @@ export default class AutofillPasskeys extends ContentFeature {
                 options.signal.addEventListener('abort', onAbort);
             }
 
-            this.#addEventListener('message', handler);
+            this.#addEventListener?.('message', handler);
 
-            this.#postMessage({
+            this.#postMessage?.({
                 Feature: MSG_OUTBOUND_FEATURE,
                 Name: MSG_OUTBOUND_NAME,
                 Data: { rpId },
