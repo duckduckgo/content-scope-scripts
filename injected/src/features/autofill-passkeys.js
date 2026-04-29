@@ -33,6 +33,7 @@ export default class AutofillPasskeys extends ContentFeature {
                     const /** @type {CredentialRequestOptions} */ narrowed = {
                         ...options,
                         mediation: undefined,
+                        signal: undefined,
                         publicKey: options.publicKey
                             ? { ...options.publicKey, allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }] }
                             : options.publicKey,
