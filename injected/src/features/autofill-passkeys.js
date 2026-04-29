@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature';
 // eslint-disable-next-line no-redeclare
-import { Uint8Array, atob } from '../captured-globals';
+import { Uint8Array, atob, Promise as CapturedPromise } from '../captured-globals';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_FEATURE = 'Autofill';
@@ -48,7 +48,7 @@ export default class AutofillPasskeys extends ContentFeature {
 
         const optionsSnapshot = { ...options, publicKey: options.publicKey ? { ...options.publicKey } : undefined };
 
-        return new Promise((resolve, reject) => {
+        return new CapturedPromise((resolve, reject) => {
             const cleanup = () => {
                 // @ts-expect-error windowsInteropRemoveEventListener is a Windows-specific global
                 windowsInteropRemoveEventListener('message', handler);
