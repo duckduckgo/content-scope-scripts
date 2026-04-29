@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature';
+// eslint-disable-next-line no-redeclare
 import { Uint8Array, atob } from '../captured-globals';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
@@ -18,18 +19,17 @@ export default class AutofillPasskeys extends ContentFeature {
         if (!navigator.credentials || typeof navigator.credentials.get !== 'function') return;
 
         const savedOriginalGet = navigator.credentials.get.bind(navigator.credentials);
-        const feature = this;
 
-        this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
+        this.wrapMethod(CredentialsContainer.prototype, 'get', (originalGet, options) => {
             if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
-                return originalGet.call(this, options);
+                return originalGet.call(navigator.credentials, options);
             }
 
             const rpId = options?.publicKey?.rpId || location.hostname;
             if (rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
-                return originalGet.call(this, options);
+                return originalGet.call(navigator.credentials, options);
             }
-            return feature.registerPasskeyRequest(rpId, options, savedOriginalGet);
+            return this.registerPasskeyRequest(rpId, options, savedOriginalGet);
         });
     }
 
