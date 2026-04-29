@@ -1417,6 +1417,9 @@ body [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-default-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-default-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-default-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-default-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-default-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-default-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-default-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-default-light-highlight-primary);
@@ -1465,6 +1468,9 @@ body [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-default-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-default-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-default-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-default-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-default-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-default-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-default-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-default-dark-highlight-primary);
@@ -1517,6 +1523,9 @@ body[data-theme-variant=coolGray] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-cool-gray-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-cool-gray-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-cool-gray-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-cool-gray-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-cool-gray-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-cool-gray-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-cool-gray-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-cool-gray-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-cool-gray-light-highlight-primary);
@@ -1560,6 +1569,9 @@ body[data-theme-variant=coolGray] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-cool-gray-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-cool-gray-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-cool-gray-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-cool-gray-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-cool-gray-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-cool-gray-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-cool-gray-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-cool-gray-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-cool-gray-dark-highlight-primary);
@@ -1607,6 +1619,9 @@ body[data-theme-variant=slateBlue] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-slate-blue-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-slate-blue-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-slate-blue-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-slate-blue-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-slate-blue-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-slate-blue-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-slate-blue-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-slate-blue-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-slate-blue-light-highlight-primary);
@@ -1650,6 +1665,9 @@ body[data-theme-variant=slateBlue] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-slate-blue-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-slate-blue-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-slate-blue-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-slate-blue-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-slate-blue-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-slate-blue-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-slate-blue-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-slate-blue-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-slate-blue-dark-highlight-primary);
@@ -1697,6 +1715,9 @@ body[data-theme-variant=green] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-green-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-green-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-green-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-green-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-green-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-green-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-green-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-green-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-green-light-highlight-primary);
@@ -1740,6 +1761,9 @@ body[data-theme-variant=green] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-green-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-green-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-green-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-green-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-green-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-green-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-green-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-green-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-green-dark-highlight-primary);
@@ -1787,6 +1811,9 @@ body[data-theme-variant=violet] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-violet-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-violet-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-violet-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-violet-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-violet-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-violet-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-violet-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-violet-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-violet-light-highlight-primary);
@@ -1830,6 +1857,9 @@ body[data-theme-variant=violet] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-violet-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-violet-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-violet-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-violet-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-violet-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-violet-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-violet-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-violet-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-violet-dark-highlight-primary);
@@ -1877,6 +1907,9 @@ body[data-theme-variant=rose] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-rose-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-rose-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-rose-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-rose-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-rose-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-rose-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-rose-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-rose-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-rose-light-highlight-primary);
@@ -1920,6 +1953,9 @@ body[data-theme-variant=rose] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-rose-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-rose-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-rose-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-rose-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-rose-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-rose-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-rose-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-rose-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-rose-dark-highlight-primary);
@@ -1967,6 +2003,9 @@ body[data-theme-variant=orange] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-orange-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-orange-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-orange-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-orange-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-orange-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-orange-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-orange-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-orange-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-orange-light-highlight-primary);
@@ -2010,6 +2049,9 @@ body[data-theme-variant=orange] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-orange-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-orange-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-orange-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-orange-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-orange-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-orange-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-orange-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-orange-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-orange-dark-highlight-primary);
@@ -2057,6 +2099,9 @@ body[data-theme-variant=desert] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-desert-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-desert-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-desert-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-desert-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-desert-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-desert-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-desert-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-desert-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-light-highlight-primary);
@@ -2100,6 +2145,9 @@ body[data-theme-variant=desert] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-desert-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-desert-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-desert-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-desert-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-desert-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-desert-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-desert-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-desert-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-dark-highlight-primary);
@@ -3724,6 +3772,16 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .AiChatForm_submitButton:focus-visible {
   box-shadow: var(--focus-ring);
 }
+.AiChatForm_submitButton:has(.AiChatForm_voiceIcon) {
+  background: var(--ds-color-theme-accent-alt-primary);
+  color: var(--ds-color-theme-icons-primary);
+}
+.AiChatForm_submitButton:has(.AiChatForm_voiceIcon):hover {
+  background: var(--ds-color-theme-accent-alt-secondary);
+}
+.AiChatForm_submitButton:has(.AiChatForm_voiceIcon):active {
+  background: var(--ds-color-theme-accent-alt-tertiary);
+}
 @keyframes AiChatForm_fadeIn {
   from {
     opacity: 0;
@@ -4571,19 +4629,19 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 3px;
+  gap: 1px;
   min-width: 0;
 }
 .Dropdown_itemName {
   letter-spacing: -0.08px;
-  line-height: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 16px;
 }
 .Dropdown_itemDescription {
+  line-height: 16px;
   color: var(--ds-color-theme-text-secondary);
   font-size: 12px;
-  line-height: 15px;
   overflow: hidden;
   text-overflow: ellipsis;
 }

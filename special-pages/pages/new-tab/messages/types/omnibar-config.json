@@ -124,6 +124,12 @@
       "description": "Allow AI chat submissions to include web search tool.",
       "type": "boolean",
       "default": false
+    },
+    "enableVoiceChatAccess": {
+      "title": "Enable Voice Chat Access",
+      "description": "Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.",
+      "type": "boolean",
+      "default": false
     }
   }
 }

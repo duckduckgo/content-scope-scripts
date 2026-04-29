@@ -2259,6 +2259,9 @@ body [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-default-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-default-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-default-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-default-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-default-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-default-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-default-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-default-light-highlight-primary);
@@ -2307,6 +2310,9 @@ body [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-default-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-default-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-default-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-default-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-default-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-default-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-default-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-default-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-default-dark-highlight-primary);
@@ -2359,6 +2365,9 @@ body[data-theme-variant=coolGray] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-cool-gray-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-cool-gray-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-cool-gray-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-cool-gray-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-cool-gray-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-cool-gray-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-cool-gray-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-cool-gray-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-cool-gray-light-highlight-primary);
@@ -2402,6 +2411,9 @@ body[data-theme-variant=coolGray] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-cool-gray-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-cool-gray-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-cool-gray-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-cool-gray-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-cool-gray-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-cool-gray-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-cool-gray-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-cool-gray-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-cool-gray-dark-highlight-primary);
@@ -2449,6 +2461,9 @@ body[data-theme-variant=slateBlue] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-slate-blue-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-slate-blue-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-slate-blue-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-slate-blue-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-slate-blue-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-slate-blue-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-slate-blue-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-slate-blue-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-slate-blue-light-highlight-primary);
@@ -2492,6 +2507,9 @@ body[data-theme-variant=slateBlue] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-slate-blue-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-slate-blue-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-slate-blue-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-slate-blue-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-slate-blue-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-slate-blue-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-slate-blue-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-slate-blue-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-slate-blue-dark-highlight-primary);
@@ -2539,6 +2557,9 @@ body[data-theme-variant=green] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-green-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-green-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-green-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-green-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-green-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-green-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-green-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-green-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-green-light-highlight-primary);
@@ -2582,6 +2603,9 @@ body[data-theme-variant=green] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-green-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-green-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-green-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-green-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-green-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-green-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-green-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-green-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-green-dark-highlight-primary);
@@ -2629,6 +2653,9 @@ body[data-theme-variant=violet] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-violet-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-violet-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-violet-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-violet-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-violet-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-violet-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-violet-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-violet-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-violet-light-highlight-primary);
@@ -2672,6 +2699,9 @@ body[data-theme-variant=violet] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-violet-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-violet-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-violet-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-violet-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-violet-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-violet-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-violet-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-violet-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-violet-dark-highlight-primary);
@@ -2719,6 +2749,9 @@ body[data-theme-variant=rose] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-rose-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-rose-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-rose-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-rose-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-rose-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-rose-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-rose-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-rose-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-rose-light-highlight-primary);
@@ -2762,6 +2795,9 @@ body[data-theme-variant=rose] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-rose-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-rose-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-rose-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-rose-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-rose-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-rose-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-rose-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-rose-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-rose-dark-highlight-primary);
@@ -2809,6 +2845,9 @@ body[data-theme-variant=orange] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-orange-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-orange-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-orange-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-orange-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-orange-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-orange-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-orange-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-orange-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-orange-light-highlight-primary);
@@ -2852,6 +2891,9 @@ body[data-theme-variant=orange] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-orange-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-orange-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-orange-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-orange-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-orange-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-orange-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-orange-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-orange-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-orange-dark-highlight-primary);
@@ -2899,6 +2941,9 @@ body[data-theme-variant=desert] [data-theme=light] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-desert-light-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-desert-light-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-desert-light-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-desert-light-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-desert-light-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-desert-light-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-desert-light-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-desert-light-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-light-highlight-primary);
@@ -2942,6 +2987,9 @@ body[data-theme-variant=desert] [data-theme=dark] {
   --ds-color-theme-accent-content-primary: var(--ds-color-theme-desert-dark-accent-content-primary);
   --ds-color-theme-accent-content-secondary: var(--ds-color-theme-desert-dark-accent-content-secondary);
   --ds-color-theme-accent-content-tertiary: var(--ds-color-theme-desert-dark-accent-content-tertiary);
+  --ds-color-theme-accent-alt-primary: var(--ds-color-theme-desert-dark-accent-alt-primary);
+  --ds-color-theme-accent-alt-secondary: var(--ds-color-theme-desert-dark-accent-alt-secondary);
+  --ds-color-theme-accent-alt-tertiary: var(--ds-color-theme-desert-dark-accent-alt-tertiary);
   --ds-color-theme-accent-glow-primary: var(--ds-color-theme-desert-dark-accent-glow-primary);
   --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-desert-dark-accent-glow-secondary);
   --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-dark-highlight-primary);

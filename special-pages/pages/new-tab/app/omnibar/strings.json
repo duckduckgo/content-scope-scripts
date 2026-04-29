@@ -11,6 +11,10 @@
     "title": "Send",
     "description": "Accesible label for the AI chat submit button."
   },
+  "omnibar_aiChatFormVoiceButtonLabel": {
+    "title": "Start voice chat",
+    "description": "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
+  },
   "omnibar_logoAlt": {
     "title": "DuckDuckGo",
     "description": "Alt text for the DuckDuckGo logo."

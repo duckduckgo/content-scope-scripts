@@ -47,6 +47,10 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Send' });
     }
 
+    voiceChatButton() {
+        return this.context().getByRole('button', { name: 'Start voice chat' });
+    }
+
     tabList() {
         return this.context().getByRole('tablist');
     }

@@ -418,6 +418,21 @@ export function ArrowRightIcon(props) {
 }
 
 /**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Voice-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function VoiceIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M5.625 0c.345 0 .625.28.625.625v14.75a.625.625 0 1 1-1.25 0V.625C5 .28 5.28 0 5.625 0m-4 3c.345 0 .625.28.625.625v8.75a.625.625 0 1 1-1.25 0v-8.75C1 3.28 1.28 3 1.625 3m12 0c.345 0 .625.28.625.625v8.75a.625.625 0 1 1-1.25 0v-8.75c0-.345.28-.625.625-.625m-4 2c.345 0 .625.28.625.625v4.75a.625.625 0 1 1-1.25 0v-4.75C9 5.28 9.28 5 9.625 5"
+            />
+        </svg>
+    );
+}
+
+/**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Globe-16.svg
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */

@@ -106,6 +106,10 @@ export type EnableImageGeneration = boolean;
  * Allow AI chat submissions to include web search tool.
  */
 export type EnableWebSearch = boolean;
+/**
+ * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.
+ */
+export type EnableVoiceChatAccess = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -619,6 +623,7 @@ export interface OmnibarConfig {
   showViewAllAiChats?: ShowViewAllAIChats;
   enableImageGeneration?: EnableImageGeneration;
   enableWebSearch?: EnableWebSearch;
+  enableVoiceChatAccess?: EnableVoiceChatAccess;
 }
 /**
  * A section of AI models with an optional header and a list of model items.
@@ -685,9 +690,9 @@ export interface SubmitChatAction {
   modelId?: string;
   reasoningEffort?: ReasoningEffort;
   /**
-   * Duck.ai mode. If omitted, defaults to 'chat'.
+   * Duck.ai mode. If omitted, defaults to 'chat'. Use 'voice-mode' for 1-click voice-chat handoff (no chat content needed — Duck.ai routes to the voice flow on mode alone).
    */
-  mode?: "chat" | "image-generation";
+  mode?: "chat" | "image-generation" | "voice-mode";
   /**
    * Tools to enable for this chat session.
    */

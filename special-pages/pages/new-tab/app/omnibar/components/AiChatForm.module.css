@@ -91,6 +91,22 @@
     }
 }
 
+/* When the input is empty AND voice-chat access is enabled, the submit button is repurposed
+   as a 1-click voice-chat entry point. Use the accent-alt palette to distinguish it from the
+   standard submit action; mirror the submit button's hover/active progression. */
+.submitButton:has(.voiceIcon) {
+    background: var(--ds-color-theme-accent-alt-primary);
+    color: var(--ds-color-theme-icons-primary);
+
+    &:hover {
+        background: var(--ds-color-theme-accent-alt-secondary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-accent-alt-tertiary);
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

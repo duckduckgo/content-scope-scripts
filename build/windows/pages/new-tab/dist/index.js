@@ -1762,6 +1762,15 @@
       }
     ));
   }
+  function VoiceIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M5.625 0c.345 0 .625.28.625.625v14.75a.625.625 0 1 1-1.25 0V.625C5 .28 5.28 0 5.625 0m-4 3c.345 0 .625.28.625.625v8.75a.625.625 0 1 1-1.25 0v-8.75C1 3.28 1.28 3 1.625 3m12 0c.345 0 .625.28.625.625v8.75a.625.625 0 1 1-1.25 0v-8.75c0-.345.28-.625.625-.625m-4 2c.345 0 .625.28.625.625v4.75a.625.625 0 1 1-1.25 0v-4.75C9 5.28 9.28 5 9.625 5"
+      }
+    ));
+  }
   function GlobeIcon(props) {
     return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Globe-16_svg__a)" }, /* @__PURE__ */ k(
       "path",
@@ -9353,7 +9362,8 @@
         buttons: "AiChatForm_buttons",
         rightButtons: "AiChatForm_rightButtons",
         submitButton: "AiChatForm_submitButton",
-        fadeIn: "AiChatForm_fadeIn"
+        fadeIn: "AiChatForm_fadeIn",
+        voiceIcon: "AiChatForm_voiceIcon"
       };
     }
   });
@@ -9441,12 +9451,6 @@
           break;
       }
     };
-    const handleClickSubmit = (event) => {
-      event.preventDefault();
-      if (disabled) return;
-      event.stopPropagation();
-      onSubmit(query, eventToTarget2(event, platformName));
-    };
     const getActiveDescendant = () => {
       if (selectedChat) {
         return getAiChatElementId(selectedChat.chatId);
@@ -9491,19 +9495,7 @@
         }
       ),
       children,
-      /* @__PURE__ */ k("div", { tabIndex: -1, class: AiChatForm_default.buttons }, toolbarLeft, /* @__PURE__ */ k("div", { class: AiChatForm_default.rightButtons }, toolbarRight, /* @__PURE__ */ k(
-        "button",
-        {
-          tabIndex: 0,
-          type: "submit",
-          class: AiChatForm_default.submitButton,
-          "aria-label": t4("omnibar_aiChatFormSubmitButtonLabel"),
-          disabled,
-          onClick: handleClickSubmit,
-          onAuxClick: handleClickSubmit
-        },
-        /* @__PURE__ */ k(ArrowRightIcon, null)
-      )))
+      /* @__PURE__ */ k("div", { tabIndex: -1, class: AiChatForm_default.buttons }, toolbarLeft, /* @__PURE__ */ k("div", { class: AiChatForm_default.rightButtons }, toolbarRight))
     );
   }
   var init_AiChatForm2 = __esm({
@@ -9512,7 +9504,6 @@
       init_preact_module();
       init_hooks_module();
       init_handlers();
-      init_Icons2();
       init_settings_provider();
       init_types();
       init_OmnibarProvider();
@@ -12156,7 +12147,16 @@
   });
 
   // pages/new-tab/app/omnibar/components/Omnibar.js
-  function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
+  function Omnibar({
+    mode,
+    setMode,
+    enableAi,
+    enableRecentAiChats,
+    showViewAllAiChats = false,
+    showCustomizePopover,
+    enableVoiceChatAccess = false,
+    tabId
+  }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -12237,17 +12237,19 @@
           query,
           autoFocus,
           enableRecentAiChats,
+          enableVoiceChatAccess,
           onChange: setQuery,
           onSubmit: handleSubmitChat
         }
       )))
     )));
   }
-  function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
+  function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatAccess = false, onChange, onSubmit }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
+    const platformName = usePlatformName();
     const { showChats, hideChats } = useAiChatsContext();
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
@@ -12301,6 +12303,29 @@
       imageState.clearAttachedImages();
       clearTool();
     };
+    const handleVoiceSubmit = (target) => {
+      onSubmit({
+        chat: "",
+        target,
+        mode: (
+          /** @type {const} */
+          "voice-mode"
+        )
+      });
+    };
+    const disabled = !query || imageWarning;
+    const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && !query;
+    const handleClickSubmit = (event) => {
+      event.preventDefault();
+      if (disabled) return;
+      event.stopPropagation();
+      handleSubmit(query, eventToTarget2(event, platformName));
+    };
+    const handleClickVoiceChat = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      handleVoiceSubmit(eventToTarget2(event, platformName));
+    };
     const showRecentChats = enableRecentAiChats && !imageGenerationActive;
     return /* @__PURE__ */ k(
       "div",
@@ -12322,12 +12347,35 @@
         {
           query,
           autoFocus,
-          disabled: query.length === 0 || imageWarning,
+          disabled,
           placeholder: imageGenerationActive ? imageGenerationPlaceholder : void 0,
           onChange: handleChange,
           onSubmit: handleSubmit,
           toolbarLeft: /* @__PURE__ */ k(S, null, canAttachImages && /* @__PURE__ */ k(ImageUploadButton2, { state: imageState }), availableTools.length > 0 && /* @__PURE__ */ k(ToolsMenu, { tools: availableTools, activeTool, onToggle: handleToggleTool })),
-          toolbarRight: !imageGenerationActive && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ReasoningPickerTool, null), /* @__PURE__ */ k(ModelSelectorTool, null))
+          toolbarRight: /* @__PURE__ */ k(S, null, !imageGenerationActive && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ReasoningPickerTool, null), /* @__PURE__ */ k(ModelSelectorTool, null)), isVoiceChatMode ? /* @__PURE__ */ k(
+            "button",
+            {
+              tabIndex: 0,
+              type: "button",
+              class: AiChatForm_default.submitButton,
+              "aria-label": t4("omnibar_aiChatFormVoiceButtonLabel"),
+              onClick: handleClickVoiceChat,
+              onAuxClick: handleClickVoiceChat
+            },
+            /* @__PURE__ */ k(VoiceIcon, { class: AiChatForm_default.voiceIcon })
+          ) : /* @__PURE__ */ k(
+            "button",
+            {
+              tabIndex: 0,
+              type: "submit",
+              class: AiChatForm_default.submitButton,
+              "aria-label": t4("omnibar_aiChatFormSubmitButtonLabel"),
+              disabled,
+              onClick: handleClickSubmit,
+              onAuxClick: handleClickSubmit
+            },
+            /* @__PURE__ */ k(ArrowRightIcon, null)
+          ))
         },
         /* @__PURE__ */ k(
           ImageAttachmentContent,
@@ -12355,8 +12403,11 @@
       init_preact_module();
       init_hooks_module();
       init_Icons2();
+      init_handlers();
+      init_settings_provider();
       init_types();
       init_AiChatForm2();
+      init_AiChatForm();
       init_Omnibar();
       init_OmnibarProvider();
       init_ResizingContainer();
@@ -12397,6 +12448,7 @@
       showCustomizePopover = false,
       enableRecentAiChats = false,
       showViewAllAiChats = false,
+      enableVoiceChatAccess = false,
       mode: defaultMode
     } = config;
     const { setMode } = x2(OmnibarContext);
@@ -12410,6 +12462,7 @@
         enableRecentAiChats,
         showViewAllAiChats,
         showCustomizePopover,
+        enableVoiceChatAccess,
         tabId
       }
     );
@@ -33810,6 +33863,10 @@
     omnibar_aiChatFormSubmitButtonLabel: {
       title: "Send",
       description: "Accesible label for the AI chat submit button."
+    },
+    omnibar_aiChatFormVoiceButtonLabel: {
+      title: "Start voice chat",
+      description: "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
     },
     omnibar_logoAlt: {
       title: "DuckDuckGo",

@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import { useContext, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
@@ -15,9 +14,13 @@ import styles from './AiChatForm.module.css';
  */
 
 /**
- * A simple form shell for the AI chat input. Renders a textarea, submit button,
- * and tool-provided UI via slots. The parent owns all tool state and assembles
- * the submit payload; this component just provides (chat, target) on submit.
+ * A simple form shell for the AI chat input. Renders a textarea plus two toolbar slots
+ * (`toolbarLeft`, `toolbarRight`). The parent owns all submission UI (submit button,
+ * voice button, etc.) and renders it via the right slot — this component only forwards
+ * Enter-key submissions through `onSubmit(query, target)`.
+ *
+ * Anything passed in `toolbarRight` is rendered inside the underlying `<form>`, so a
+ * `type="submit"` button placed there works as expected.
  *
  * @param {object} props
  * @param {string} props.query
@@ -120,14 +123,6 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         }
     };
 
-    /** @type {(event: MouseEvent) => void} */
-    const handleClickSubmit = (event) => {
-        event.preventDefault();
-        if (disabled) return;
-        event.stopPropagation();
-        onSubmit(query, eventToTarget(event, platformName));
-    };
-
     const getActiveDescendant = () => {
         if (selectedChat) {
             return getAiChatElementId(selectedChat.chatId);
@@ -174,20 +169,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
             {children}
             <div tabIndex={-1} class={styles.buttons}>
                 {toolbarLeft}
-                <div class={styles.rightButtons}>
-                    {toolbarRight}
-                    <button
-                        tabIndex={0}
-                        type="submit"
-                        class={styles.submitButton}
-                        aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
-                        disabled={disabled}
-                        onClick={handleClickSubmit}
-                        onAuxClick={handleClickSubmit}
-                    >
-                        <ArrowRightIcon />
-                    </button>
-                </div>
+                <div class={styles.rightButtons}>{toolbarRight}</div>
             </div>
         </form>
     );
