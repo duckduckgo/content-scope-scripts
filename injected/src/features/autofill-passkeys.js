@@ -41,6 +41,8 @@ export default class AutofillPasskeys extends ContentFeature {
             this.#cancelPending();
         }
 
+        const optionsSnapshot = { ...options, publicKey: options.publicKey ? { ...options.publicKey } : undefined };
+
         return new Promise((resolve, reject) => {
             const cleanup = () => {
                 // @ts-expect-error windowsInteropRemoveEventListener is a Windows-specific global
@@ -63,12 +65,12 @@ export default class AutofillPasskeys extends ContentFeature {
                     for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
 
                     const /** @type {CredentialRequestOptions} */ narrowed = {
-                        ...options,
+                        ...optionsSnapshot,
                         mediation: undefined,
                         signal: undefined,
-                        publicKey: options.publicKey
-                            ? { ...options.publicKey, allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }] }
-                            : options.publicKey,
+                        publicKey: optionsSnapshot.publicKey
+                            ? { ...optionsSnapshot.publicKey, allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }] }
+                            : undefined,
                     };
 
                     const credential = await originalGet(narrowed);
