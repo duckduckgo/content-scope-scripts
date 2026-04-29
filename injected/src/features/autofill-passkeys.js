@@ -11,6 +11,9 @@ export default class AutofillPasskeys extends ContentFeature {
     #cancelPending = null;
 
     init() {
+        // Bail if the Credentials API is absent. Note: web-compat's navigatorCredentialsFix()
+        // polyfills a rejecting stub when the API is missing entirely — that and this feature
+        // are complementary (web-compat handles missing API, we wrap an existing one).
         if (!navigator.credentials || typeof navigator.credentials.get !== 'function') return;
 
         const savedOriginalGet = navigator.credentials.get.bind(navigator.credentials);
