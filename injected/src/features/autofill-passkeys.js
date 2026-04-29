@@ -18,6 +18,8 @@ export default class AutofillPasskeys extends ContentFeature {
         // are complementary (web-compat handles missing API, we wrap an existing one).
         if (!navigator.credentials || typeof navigator.credentials.get !== 'function') return;
 
+        // navigator.credentials is a singleton (CredentialsContainer can't be independently
+        // constructed), so binding to it is equivalent to preserving the original receiver.
         const savedOriginalGet = navigator.credentials.get.bind(navigator.credentials);
 
         this.wrapMethod(CredentialsContainer.prototype, 'get', (originalGet, options) => {
