@@ -26,6 +26,9 @@ export default class AutofillPasskeys extends ContentFeature {
             }
 
             const rpId = options?.publicKey?.rpId || location.hostname;
+            if (rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
+                return originalGet.call(this, options);
+            }
             return feature.registerPasskeyRequest(rpId, options, savedOriginalGet);
         });
     }
@@ -67,7 +70,7 @@ export default class AutofillPasskeys extends ContentFeature {
                     const /** @type {CredentialRequestOptions} */ narrowed = {
                         ...optionsSnapshot,
                         mediation: undefined,
-                        signal: undefined,
+                        signal: options.signal,
                         publicKey: optionsSnapshot.publicKey
                             ? { ...optionsSnapshot.publicKey, allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }] }
                             : undefined,
