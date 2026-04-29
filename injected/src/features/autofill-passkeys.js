@@ -10,33 +10,27 @@ export default class AutofillPasskeys extends ContentFeature {
     init() {
         if (!navigator.credentials || typeof navigator.credentials.get !== 'function') return;
 
-        /** @type {((value: Credential | null) => void) | null} */
-        let pendingResolve = null;
-        /** @type {((reason?: unknown) => void) | null} */
-        let pendingReject = null;
-        /** @type {CredentialRequestOptions | null} */
-        let pendingOptions = null;
+        /** @type {{ resolve: (value: Credential | null) => void, reject: (reason?: unknown) => void, options: CredentialRequestOptions } | null} */
+        let pending = null;
 
         const savedOriginalGet = navigator.credentials.get.bind(navigator.credentials);
 
         // @ts-expect-error windowsInteropAddEventListener is a Windows-specific global
         windowsInteropAddEventListener('message', async function (/** @type {MessageEvent} */ event) {
-            if (!pendingResolve) return;
+            if (!pending) return;
 
             if (event.data?.type === MSG_INBOUND_PASSKEY_SELECTED) {
                 const raw = atob(event.data.credentialId);
                 const arr = new Uint8Array(raw.length);
                 for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
 
-                const options = /** @type {CredentialRequestOptions} */ (pendingOptions);
+                const { resolve, reject, options } = pending;
+                pending = null;
+
                 if (options.publicKey) {
                     options.publicKey.allowCredentials = [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }];
                 }
                 delete options.mediation;
-
-                const resolve = pendingResolve;
-                const reject = /** @type {(reason?: unknown) => void} */ (pendingReject);
-                pendingResolve = pendingReject = pendingOptions = null;
 
                 try {
                     const credential = await savedOriginalGet(options);
@@ -52,6 +46,11 @@ export default class AutofillPasskeys extends ContentFeature {
                 return originalGet.call(this, options);
             }
 
+            if (pending) {
+                pending.reject(new DOMException('A new passkey request superseded this one.', 'AbortError'));
+                pending = null;
+            }
+
             const rpId = options?.publicKey?.rpId || location.hostname;
 
             // @ts-expect-error windowsInteropPostMessage is a Windows-specific global
@@ -62,9 +61,7 @@ export default class AutofillPasskeys extends ContentFeature {
             });
 
             return new Promise(function (resolve, reject) {
-                pendingResolve = resolve;
-                pendingReject = reject;
-                pendingOptions = options;
+                pending = { resolve, reject, options };
             });
         });
     }
