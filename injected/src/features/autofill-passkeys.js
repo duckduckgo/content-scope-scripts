@@ -70,7 +70,16 @@ export default class AutofillPasskeys extends ContentFeature {
             this.#cancelPending();
         }
 
-        const optionsSnapshot = { ...options, publicKey: options.publicKey ? { ...options.publicKey } : undefined };
+        const pk = options.publicKey;
+        const publicKeySnapshot = pk
+            ? {
+                  challenge: pk.challenge,
+                  timeout: pk.timeout,
+                  rpId: pk.rpId,
+                  userVerification: pk.userVerification,
+                  extensions: pk.extensions,
+              }
+            : undefined;
         const requestId = randomUUID?.();
 
         return new CapturedPromise((resolve, reject) => {
@@ -98,11 +107,12 @@ export default class AutofillPasskeys extends ContentFeature {
                     for (let i = 0; i < raw.length; i++) arr[i] = charCodeAt.call(raw, i);
 
                     const /** @type {CredentialRequestOptions} */ narrowed = {
-                            ...optionsSnapshot,
-                            mediation: undefined,
                             signal: options.signal,
-                            publicKey: optionsSnapshot.publicKey
-                                ? { ...optionsSnapshot.publicKey, allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }] }
+                            publicKey: publicKeySnapshot
+                                ? {
+                                      ...publicKeySnapshot,
+                                      allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }],
+                                  }
                                 : undefined,
                         };
 
