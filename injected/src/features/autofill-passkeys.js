@@ -20,19 +20,21 @@ export default class AutofillPasskeys extends ContentFeature {
             if (!pending) return;
 
             if (event.data?.type === MSG_INBOUND_PASSKEY_SELECTED) {
-                const raw = atob(event.data.credentialId);
-                const arr = new Uint8Array(raw.length);
-                for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+                if (typeof event.data.credentialId !== 'string') return;
 
                 const { resolve, reject, options } = pending;
                 pending = null;
 
-                if (options.publicKey) {
-                    options.publicKey.allowCredentials = [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }];
-                }
-                delete options.mediation;
-
                 try {
+                    const raw = atob(event.data.credentialId);
+                    const arr = new Uint8Array(raw.length);
+                    for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+
+                    if (options.publicKey) {
+                        options.publicKey.allowCredentials = [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }];
+                    }
+                    delete options.mediation;
+
                     const credential = await savedOriginalGet(options);
                     resolve(credential);
                 } catch (e) {
