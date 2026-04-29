@@ -130,15 +130,18 @@ export default class BrowserUiLock extends ContentFeature {
 
     /**
      * Determine if UI should be locked based on scrollbar visibility or content type.
-     * Lock if the site's domain is in the `lockedDomains` list; otherwise lock if
-     * the page is a direct image display, or if there is no visible vertical
-     * scrollbar AND `overflow-y: hidden` is explicitly set on html or body.
+     * Lock if the `isLockedPage` feature setting is enabled for the current page
+     * (configured via privacy-config `conditionalChanges` / `patchSettings`);
+     * otherwise lock if the page is a direct image display, or if there is no
+     * visible vertical scrollbar AND a locking `overflow-y` value is explicitly
+     * set on html or body. The set of locking overflow values is controlled by
+     * the `overflowTypes` setting (default: `['hidden', 'clip']`).
      * @returns {boolean}
      */
     _detectShouldLock() {
         try {
-            // Sites configured in lockedDomains bypass all other checks
-            if (this._isLockedDomain()) {
+            // Pages configured via privacy-config bypass all other checks
+            if (this.getFeatureSettingEnabled('isLockedPage')) {
                 return true;
             }
 
@@ -158,14 +161,23 @@ export default class BrowserUiLock extends ContentFeature {
                 return false;
             }
 
-            // No visible scrollbar — additionally require overflow-y: hidden
-            // to be explicitly set on html or body before locking.
-            return Boolean((html && this._hasOverflowYHidden(html)) || (body && this._hasOverflowYHidden(body)));
+            // No visible scrollbar — additionally require a locking overflow-y
+            // value to be explicitly set on html or body before locking.
+            return Boolean((html && this._hasLockingOverflowY(html)) || (body && this._hasLockingOverflowY(body)));
         } catch (e) {
             // Fail open - return false (unlocked) on error
             this.log.warn('Failed to detect scroll state:', e);
             return false;
         }
+    }
+
+    /**
+     * Get the list of `overflow-y` values that indicate the page is in lock mode
+     * (no usable scrollbar). Configurable via the `overflowTypes` feature setting.
+     * @returns {string[]}
+     */
+    _getOverflowTypes() {
+        return this.getFeatureSetting('overflowTypes') ?? ['hidden', 'clip'];
     }
 
     /**
@@ -179,60 +191,25 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     /**
-     * Check whether the current site's URL matches any entry in the `lockedDomains`
-     * list. Each entry is matched against `host + pathname` of the site's URL:
-     *
-     * - exact host match: an entry `"example.com"` matches host `example.com` (any
-     *   path) but does NOT match `www.example.com` or `evil.example.com.attacker`.
-     * - path prefix match: an entry `"example.com/foo"` matches any URL on host
-     *   `example.com` whose path begins with `/foo` followed by `/` or end-of-path.
-     *
-     * @returns {boolean}
-     */
-    _isLockedDomain() {
-        const patterns = this.getFeatureSetting('lockedDomains');
-        if (!Array.isArray(patterns) || patterns.length === 0) {
-            return false;
-        }
-        const siteUrl = this.args?.site?.url;
-        if (typeof siteUrl !== 'string' || siteUrl.length === 0) {
-            return false;
-        }
-        let hostPath;
-        try {
-            const url = new URL(siteUrl);
-            hostPath = url.host + url.pathname;
-        } catch {
-            return false;
-        }
-        return patterns.some((p) => {
-            if (typeof p !== 'string' || p.length === 0) return false;
-            if (hostPath === p) return true;
-            if (p.endsWith('/')) return hostPath.startsWith(p);
-            return hostPath.startsWith(p + '/');
-        });
-    }
-
-    /**
      * Check if an element has a visible vertical scrollbar.
-     * A scrollbar is visible when content overflows AND overflow isn't hidden/clip.
+     * A scrollbar is visible when content overflows AND `overflow-y` is not in
+     * the configured `overflowTypes` list.
      * @param {Element} el
      * @returns {boolean}
      */
     _hasExplicitlyVisibleScrollbar(el) {
-        const style = getComputedStyle(el);
-        const overflowY = style.overflowY;
-        const overflowTypes = this.getFeatureSetting('overflowTypes') ?? ['hidden', 'clip'];
-        return el.scrollHeight > el.clientHeight && !overflowTypes.includes(overflowY);
+        const overflowY = getComputedStyle(el).overflowY;
+        return el.scrollHeight > el.clientHeight && !this._getOverflowTypes().includes(overflowY);
     }
 
     /**
-     * Check if the element's computed `overflow-y` is `hidden`.
+     * Check if the element's computed `overflow-y` matches a configured locking
+     * value (default: `hidden`, `clip`).
      * @param {Element} el
      * @returns {boolean}
      */
-    _hasOverflowYHidden(el) {
-        return getComputedStyle(el).overflowY === 'hidden';
+    _hasLockingOverflowY(el) {
+        return this._getOverflowTypes().includes(getComputedStyle(el).overflowY);
     }
 
     /**
