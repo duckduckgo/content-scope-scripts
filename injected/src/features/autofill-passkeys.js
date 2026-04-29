@@ -30,12 +30,15 @@ export default class AutofillPasskeys extends ContentFeature {
                     const arr = new Uint8Array(raw.length);
                     for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
 
-                    if (options.publicKey) {
-                        options.publicKey.allowCredentials = [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }];
-                    }
-                    delete options.mediation;
+                    const /** @type {CredentialRequestOptions} */ narrowed = {
+                        ...options,
+                        mediation: undefined,
+                        publicKey: options.publicKey
+                            ? { ...options.publicKey, allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }] }
+                            : options.publicKey,
+                    };
 
-                    const credential = await savedOriginalGet(options);
+                    const credential = await savedOriginalGet(narrowed);
                     resolve(credential);
                 } catch (e) {
                     reject(e);
