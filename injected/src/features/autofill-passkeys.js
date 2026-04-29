@@ -83,13 +83,13 @@ export default class AutofillPasskeys extends ContentFeature {
                     for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
 
                     const /** @type {CredentialRequestOptions} */ narrowed = {
-                        ...optionsSnapshot,
-                        mediation: undefined,
-                        signal: options.signal,
-                        publicKey: optionsSnapshot.publicKey
-                            ? { ...optionsSnapshot.publicKey, allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }] }
-                            : undefined,
-                    };
+                            ...optionsSnapshot,
+                            mediation: undefined,
+                            signal: options.signal,
+                            publicKey: optionsSnapshot.publicKey
+                                ? { ...optionsSnapshot.publicKey, allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }] }
+                                : undefined,
+                        };
 
                     const credential = await originalGet(narrowed);
                     resolve(credential);
