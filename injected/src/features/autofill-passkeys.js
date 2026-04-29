@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature';
 // eslint-disable-next-line no-redeclare
-import { Uint8Array, atob, Promise as CapturedPromise } from '../captured-globals';
+import { Uint8Array, atob, Promise as CapturedPromise, DOMException as CapturedDOMException, charCodeAt } from '../captured-globals';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_FEATURE = 'Autofill';
@@ -89,7 +89,7 @@ export default class AutofillPasskeys extends ContentFeature {
                 try {
                     const raw = atob(event.data.credentialId);
                     const arr = new Uint8Array(raw.length);
-                    for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+                    for (let i = 0; i < raw.length; i++) arr[i] = charCodeAt.call(raw, i);
 
                     const /** @type {CredentialRequestOptions} */ narrowed = {
                             ...optionsSnapshot,
@@ -109,12 +109,12 @@ export default class AutofillPasskeys extends ContentFeature {
 
             const onAbort = () => {
                 cleanup();
-                reject(options.signal?.reason ?? new DOMException('The operation was aborted.', 'AbortError'));
+                reject(options.signal?.reason ?? new CapturedDOMException('The operation was aborted.', 'AbortError'));
             };
 
             this.#cancelPending = () => {
                 cleanup();
-                reject(new DOMException('A new passkey request superseded this one.', 'AbortError'));
+                reject(new CapturedDOMException('A new passkey request superseded this one.', 'AbortError'));
             };
 
             if (options.signal?.aborted) {
