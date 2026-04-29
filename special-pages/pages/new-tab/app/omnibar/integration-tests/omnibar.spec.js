@@ -2384,4 +2384,155 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.aiChatsList()).not.toBeVisible();
         });
     });
+
+    test.describe('AI chat voice-chat access', () => {
+        test('voice button is hidden when feature flag is off', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.voiceChatButton()).toHaveCount(0);
+            // Submit button is still present and disabled when input is empty (legacy behavior).
+            await expect(omnibar.chatSubmitButton()).toBeDisabled();
+        });
+
+        test('voice button is shown when flag is on and input is empty', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.voiceChatButton()).toBeVisible();
+            // The submit button is replaced by the voice button — no "Send" button visible.
+            await expect(omnibar.chatSubmitButton()).toHaveCount(0);
+        });
+
+        test('typing replaces the voice button with the submit button', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await expect(omnibar.voiceChatButton()).toBeVisible();
+
+            await omnibar.chatInput().fill('hello');
+
+            await expect(omnibar.voiceChatButton()).toHaveCount(0);
+            await expect(omnibar.chatSubmitButton()).toBeVisible();
+        });
+
+        test('clicking voice button fires omnibar_submitChat with mode voice-mode and empty chat', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.voiceChatButton().click();
+
+            // Voice handoff reuses `omnibar_submitChat` with `mode: 'voice-mode'` — same mechanism
+            // image-generation uses. Native routes Duck.ai to the voice flow on mode alone; no
+            // dedicated `omnibar_openNewVoiceChat` notify and no `?mode=voice` URL parameter.
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: '',
+                target: 'same-tab',
+                mode: 'voice-mode',
+            });
+        });
+
+        test('middle-clicking voice button fires omnibar_submitChat voice-mode with target new-tab', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            // Middle-click (auxclick) — mirrors the AI chat submit button, which routes a middle-click
+            // to `target: 'new-tab'` via eventToTarget(). The voice button must wire onAuxClick too,
+            // otherwise middle-click would silently drop the handoff.
+            await omnibar.voiceChatButton().click({ button: 'middle' });
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: '',
+                target: 'new-tab',
+                mode: 'voice-mode',
+            });
+        });
+
+        test('pressing Enter on empty input with voice access does NOT submit', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.chatInput().press('Enter');
+
+            // Voice handoff requires an explicit click on the voice button — Enter on an empty
+            // input must not implicitly start a voice session, mirroring the legacy disabled
+            // submit behavior. No `omnibar_submitChat` should be sent at all.
+            await omnibar.expectMethodNotCalled('omnibar_submitChat');
+        });
+
+        test('image-generation mode hides the voice button', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableVoiceChatAccess': 'true',
+                    'omnibar.selectedModelId': 'gpt-4o-mini',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await expect(omnibar.voiceChatButton()).toBeVisible();
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+
+            // Voice button is suppressed while image-generation mode is active.
+            await expect(omnibar.voiceChatButton()).toHaveCount(0);
+        });
+    });
 });
