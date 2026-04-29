@@ -58,6 +58,9 @@ export default class AutofillPasskeys extends ContentFeature {
                 this.#cancelPending = null;
             };
 
+            // Messages arrive via the WebView native interop channel (windowsInterop*),
+            // which is a trusted browser-process channel — not a web postMessage listener.
+            // Origin validation is unnecessary here; shape validation below is sufficient.
             const handler = async (/** @type {MessageEvent} */ event) => {
                 if (event.data?.type !== MSG_INBOUND_PASSKEY_SELECTED) return;
                 if (typeof event.data.credentialId !== 'string') return;
