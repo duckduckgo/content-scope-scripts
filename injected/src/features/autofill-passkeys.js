@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature';
-// eslint-disable-next-line no-redeclare
+/* eslint-disable no-redeclare */
 import {
     Uint8Array,
     atob,
@@ -8,6 +8,7 @@ import {
     charCodeAt,
     randomUUID,
 } from '../captured-globals';
+/* eslint-enable no-redeclare */
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_FEATURE = 'Autofill';
