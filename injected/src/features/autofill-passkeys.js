@@ -22,7 +22,14 @@ export default class AutofillPasskeys extends ContentFeature {
         // Bail if the Credentials API is absent. Note: web-compat's navigatorCredentialsFix()
         // polyfills a rejecting stub when the API is missing entirely — that and this feature
         // are complementary (web-compat handles missing API, we wrap an existing one).
-        if (!navigator.credentials || typeof navigator.credentials.get !== 'function') return;
+        if (
+            typeof CredentialsContainer === 'undefined' ||
+            !navigator.credentials ||
+            !(navigator.credentials instanceof CredentialsContainer) ||
+            typeof navigator.credentials.get !== 'function'
+        ) {
+            return;
+        }
 
         // Capture interop globals early so page code can't replace them later.
         this.#postMessage = /** @type {any} */ (windowsInteropPostMessage);
@@ -32,17 +39,19 @@ export default class AutofillPasskeys extends ContentFeature {
         // navigator.credentials is a singleton (CredentialsContainer can't be independently
         // constructed), so binding to it is equivalent to preserving the original receiver.
         const savedOriginalGet = navigator.credentials.get.bind(navigator.credentials);
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const feature = this;
 
-        this.wrapMethod(CredentialsContainer.prototype, 'get', (originalGet, options) => {
+        this.wrapMethod(CredentialsContainer.prototype, 'get', /** @this {CredentialsContainer} */ function (originalGet, options) {
             if (options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
-                return originalGet.call(navigator.credentials, options);
+                return originalGet.call(this, options);
             }
 
             const rpId = options?.publicKey?.rpId;
             if (typeof rpId === 'string' && rpId !== location.hostname && !location.hostname.endsWith('.' + rpId)) {
-                return originalGet.call(navigator.credentials, options);
+                return originalGet.call(this, options);
             }
-            return this.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, savedOriginalGet);
+            return feature.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, savedOriginalGet);
         });
     }
 
