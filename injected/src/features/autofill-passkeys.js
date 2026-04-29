@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature';
+import { Uint8Array, atob } from '../captured-globals';
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
 const MSG_OUTBOUND_FEATURE = 'Autofill';
