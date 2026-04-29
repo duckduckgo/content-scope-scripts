@@ -1,0 +1,107 @@
+.dropdown {
+    background: rgb(249, 249, 249);
+    border-radius: 6px;
+    box-shadow:
+        0 0 0 0.5px rgba(0, 0, 0, 0.2),
+        0 10px 24px rgba(0, 0, 0, 0.32),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    list-style: none;
+    margin: 0;
+    min-width: 245px;
+    overflow: hidden;
+    padding: 5px;
+    position: fixed;
+    z-index: 100;
+
+    &:focus-visible {
+        outline: none;
+    }
+
+    [data-theme="dark"] & {
+        backdrop-filter: blur(76px);
+        background: rgba(30, 30, 30, 0.88);
+        box-shadow:
+            0 0 0 0.5px var(--color-white-at-15),
+            0 10px 24px var(--color-black-at-40),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+}
+
+.item {
+    align-items: center;
+    border-radius: 3px;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: 6px;
+    padding: 6px 9px;
+    text-align: left;
+    white-space: nowrap;
+
+    & > svg {
+        flex-shrink: 0;
+    }
+}
+
+.itemActive {
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-content-primary);
+
+    .itemDescription {
+        color: var(--ds-color-theme-accent-content-secondary);
+    }
+}
+
+.checkmark {
+    flex-shrink: 0;
+    height: 12px;
+    position: relative;
+    width: 4px;
+
+    &::before {
+        color: transparent;
+        content: '\2713';
+        font-size: 13px;
+        font-weight: 700;
+        left: -5px;
+        line-height: 12px;
+        position: absolute;
+        top: 0;
+    }
+}
+
+.itemSelected .checkmark::before {
+    color: var(--ds-color-theme-text-primary);
+}
+
+.itemActive .checkmark::before {
+    color: transparent;
+}
+
+.itemActive.itemSelected .checkmark::before {
+    color: var(--ds-color-theme-accent-content-primary);
+}
+
+.itemLabel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.itemName {
+    letter-spacing: -0.08px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 16px;
+}
+
+.itemDescription {
+    line-height: 16px;
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

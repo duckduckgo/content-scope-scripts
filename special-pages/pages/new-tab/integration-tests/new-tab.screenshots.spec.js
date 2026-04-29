@@ -154,6 +154,176 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.ready();
             await expect(page).toHaveScreenshot('omnibar-customize-popover.png', { maxDiffPixels });
         });
+
+        test('ai chat tools rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-rest.png', { maxDiffPixels });
+        });
+
+        test('ai chat tools focused', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-focused.png', { maxDiffPixels });
+        });
+
+        test('image generation rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-rest.png', { maxDiffPixels });
+        });
+
+        test('image generation tools menu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-tools-menu-open.png', { maxDiffPixels });
+        });
+
+        test('image generation active', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-active.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar web search @screenshots', () => {
+        test('web search rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-web-search-rest.png', { maxDiffPixels });
+        });
+
+        test('web search tools menu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await expect(page).toHaveScreenshot('omnibar-web-search-tools-menu-open.png', { maxDiffPixels });
+        });
+
+        test('web search active', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+            await expect(page).toHaveScreenshot('omnibar-web-search-active.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar voice chat access @screenshots', () => {
+        test('voice chat rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-voice-chat-rest.png', { maxDiffPixels });
+        });
+
+        test('voice chat replaced by submit when typing', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.chatInput().fill('hello');
+            await expect(page).toHaveScreenshot('omnibar-voice-chat-typing.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar reasoning picker @screenshots', () => {
+        test('reasoning picker rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-rest.png', { maxDiffPixels });
+        });
+
+        test('reasoning picker dropdown open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.reasoningPickerButton().click();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-dropdown-open.png', { maxDiffPixels });
+        });
+
+        test('reasoning picker with selected effort', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                    'omnibar.selectedReasoningEffort': 'medium',
+                },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-selected-medium.png', { maxDiffPixels });
+        });
     });
 
     test.describe('customizer drawer', () => {

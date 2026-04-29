@@ -166,7 +166,7 @@
     "description": "Title of the omnibar widget in the customizer panel."
   },
   "omnibar_aiChatFormPlaceholder": {
-    "title": "Perguntar em privado",
+    "title": "Pergunta o que quiseres em privado",
     "description": "Placeholder text for the AI chat input field."
   },
   "omnibar_aiChatFormSubmitButtonLabel": {
@@ -228,6 +228,98 @@
   "omnibar_customizePopoverDescription": {
     "title": "De qualquer forma, as tuas informações permanecem privadas.<br />Não queres isto? <button>Personalizar</button>",
     "description": "Description message in the popover including privacy statement and customize option."
+  },
+  "omnibar_attachImageLabel": {
+    "title": "Anexar imagem",
+    "description": "Accessible label for the attach image button in the AI chat toolbar."
+  },
+  "omnibar_removeImageLabel": {
+    "title": "Remover imagem",
+    "description": "Accessible label for the button to remove an attached image thumbnail."
+  },
+  "omnibar_modelSelectorLabel": {
+    "title": "Selecionar modelo",
+    "description": "Accessible label for the AI model selector dropdown."
+  },
+  "omnibar_imageAttachmentLimitWarning": {
+    "title": "Só podes anexar {limit} imagens de cada vez.",
+    "description": "Warning shown when user attaches more images than the allowed maximum."
+  },
+  "omnibar_imageTooLargeError": {
+    "title": "A imagem é demasiado grande. Usa uma imagem menor que 10 000 × 10 000 píxeis.",
+    "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+  },
+  "omnibar_imageProcessingError": {
+    "title": "Falha ao processar a imagem. Experimenta com um ficheiro diferente.",
+    "description": "Error shown when an attached image cannot be processed."
+  },
+  "omnibar_advancedModelsSectionHeader": {
+    "title": "Modelos Avançados - subscrição da DuckDuckGo",
+    "description": "Section header in the model picker for premium models that require a subscription."
+  },
+  "omnibar_viewAllChats": {
+    "title": "Ver todos os chats",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Abrir Duck.ai",
+    "description": "Link text to open the Duck.ai chat interface."
+  },
+  "omnibar_createImageLabel": {
+    "title": "Criar imagem",
+    "description": "Label for the toggle button to enable image generation mode in the AI chat toolbar."
+  },
+  "omnibar_imageGenerationPlaceholder": {
+    "title": "Descreve a imagem que queres criar",
+    "description": "Placeholder text for the AI chat input when image generation mode is active."
+  },
+  "omnibar_toolsMenuLabel": {
+    "title": "Ferramentas",
+    "description": "Accessible label for the tools menu button in the AI chat toolbar."
+  },
+  "omnibar_createImageDescription": {
+    "title": "Transformar texto em imagens",
+    "description": "Description for the Create Image tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchLabel": {
+    "title": "Pesquisa na Web",
+    "description": "Label for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchDescription": {
+    "title": "Respostas da web",
+    "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_imageGenerationWithAttachmentPlaceholder": {
+    "title": "Descreve as alterações com base na imagem",
+    "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
+  },
+  "omnibar_reasoningPickerLabel": {
+    "title": "Raciocínio",
+    "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
+  },
+  "omnibar_reasoningEffortFastLabel": {
+    "title": "Rápido",
+    "description": "Label for the 'fast' reasoning-effort option (answers right away, no deliberate reasoning)."
+  },
+  "omnibar_reasoningEffortFastDescription": {
+    "title": "Responder de imediato",
+    "description": "Subtitle for the 'fast' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortReasoningLabel": {
+    "title": "Raciocínio",
+    "description": "Label for the 'reasoning' reasoning-effort option (model spends a moment reasoning)."
+  },
+  "omnibar_reasoningEffortReasoningDescription": {
+    "title": "Demora um momento a responder",
+    "description": "Subtitle for the 'reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortExtendedReasoningLabel": {
+    "title": "Raciocínio Estendido",
+    "description": "Label for the 'extended reasoning' reasoning-effort option (model researches before responding)."
+  },
+  "omnibar_reasoningEffortExtendedReasoningDescription": {
+    "title": "Pesquisa antes de responder",
+    "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
   },
   "nextStepsList_sectionTitle": {
     "title": "Passos seguintes",

@@ -72,6 +72,7 @@ const optionalTransforms = new Map([
             return ageRange || value;
         },
     ],
+    ['replaceWhitespace', (value, argument) => value.split(' ').join(argument ?? ' ')],
 ]);
 
 /**

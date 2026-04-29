@@ -74,6 +74,42 @@ export type ShowDuckAiSetting = boolean;
  */
 export type ShowCustomizePopover = boolean;
 export type EnableRecentAIChats = boolean;
+/**
+ * Feature flag to enable AI chat tools (model selector, image attachments)
+ */
+export type EnableAIChatTools = boolean;
+/**
+ * The user's currently selected AI model, persisted across tabs
+ */
+export type SelectedModelID = string;
+/**
+ * Stable server key for a reasoning-effort option on a reasoning-capable model.
+ */
+export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high";
+/**
+ * Identifier for an AI chat tool.
+ */
+export type ToolId = "WebSearch";
+/**
+ * Sections of AI models for the model selector.
+ */
+export type AIModelSections = AIModelSection[];
+/**
+ * When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list
+ */
+export type ShowViewAllAIChats = boolean;
+/**
+ * Show 'Create Image' toggle in the AI chat toolbar.
+ */
+export type EnableImageGeneration = boolean;
+/**
+ * Allow AI chat submissions to include web search tool.
+ */
+export type EnableWebSearch = boolean;
+/**
+ * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.
+ */
+export type EnableVoiceChatAccess = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -152,6 +188,7 @@ export interface NewTabMessages {
     | OmnibarSetConfigNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
+    | OmnibarViewAllAIChatsNotification
     | OpenNotification
     | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
@@ -579,6 +616,60 @@ export interface OmnibarConfig {
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
   enableRecentAiChats?: EnableRecentAIChats;
+  enableAiChatTools?: EnableAIChatTools;
+  selectedModelId?: SelectedModelID;
+  selectedReasoningEffort?: ReasoningEffort;
+  aiModelSections?: AIModelSections;
+  showViewAllAiChats?: ShowViewAllAIChats;
+  enableImageGeneration?: EnableImageGeneration;
+  enableWebSearch?: EnableWebSearch;
+  enableVoiceChatAccess?: EnableVoiceChatAccess;
+}
+/**
+ * A section of AI models with an optional header and a list of model items.
+ */
+export interface AIModelSection {
+  /**
+   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
+   */
+  header?: string;
+  /**
+   * List of AI models in this section
+   */
+  items: AIModelItem[];
+}
+/**
+ * An individual AI model available for selection.
+ */
+export interface AIModelItem {
+  /**
+   * Model identifier
+   */
+  id: string;
+  /**
+   * Full display name
+   */
+  name: string;
+  /**
+   * Short display name for the model selector button
+   */
+  shortName: string;
+  /**
+   * Whether the model is enabled and selectable
+   */
+  isEnabled: boolean;
+  /**
+   * Whether this model supports image attachments
+   */
+  supportsImageUpload: boolean;
+  /**
+   * Tools this model supports.
+   */
+  supportedTools?: ToolId[];
+  /**
+   * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
+   */
+  supportedReasoningEffort?: ReasoningEffort[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -593,6 +684,32 @@ export interface SubmitChatAction {
    */
   chat: string;
   target: OpenTarget;
+  /**
+   * The selected AI model identifier. Optional - if not provided, the backend will use the default model.
+   */
+  modelId?: string;
+  reasoningEffort?: ReasoningEffort;
+  /**
+   * Duck.ai mode. If omitted, defaults to 'chat'. Use 'voice-mode' for 1-click voice-chat handoff (no chat content needed — Duck.ai routes to the voice flow on mode alone).
+   */
+  mode?: "chat" | "image-generation" | "voice-mode";
+  /**
+   * Tools to enable for this chat session.
+   */
+  toolChoice?: ToolId[];
+  /**
+   * Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.
+   */
+  images?: {
+    /**
+     * Base64-encoded image data (without data URL prefix)
+     */
+    data: string;
+    /**
+     * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+     */
+    format: "jpeg" | "png";
+  }[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitSearch.notify.json"
@@ -606,6 +723,16 @@ export interface SubmitSearchAction {
    * The search term to submit
    */
   term: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/omnibar_viewAllAIChats.notify.json"
+ */
+export interface OmnibarViewAllAIChatsNotification {
+  method: "omnibar_viewAllAIChats";
+  params: ViewAllAIChatsAction;
+}
+export interface ViewAllAIChatsAction {
   target: OpenTarget;
 }
 /**

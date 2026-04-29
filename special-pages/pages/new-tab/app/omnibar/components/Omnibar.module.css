@@ -76,7 +76,7 @@
 }
 
 /* Focused */
-.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .popup {
+.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .popup {
     border-radius: 15px;
     border: 2px solid var(--ds-color-theme-accent-primary);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
@@ -94,8 +94,20 @@
     }
 }
 
-/* Suggestions */
-.root:has([role="listbox"]) .popup {
+/* Image limit exceeded */
+.root:has([data-image-warning]) .popup {
+    border: 2px solid var(--color-red-50);
+    border-radius: 15px;
+    margin: 0;
+    outline: none;
+
+    .field {
+        margin: 1px;
+    }
+}
+
+/* Suggestions / AI chats list visible */
+.root:has([data-omnibar-list]) .popup {
     border-radius: 15px;
     margin: 0;
 

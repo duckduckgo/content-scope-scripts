@@ -32,11 +32,23 @@ export class OmnibarPage {
     }
 
     chatInput() {
-        return this.context().getByRole('textbox', { name: 'Ask privately' });
+        return this.context().getByRole('textbox', { name: 'Ask anything privately' });
+    }
+
+    imageGenerationInput() {
+        return this.context().getByRole('textbox', { name: 'Describe the image you want to create' });
+    }
+
+    imageGenerationWithAttachmentInput() {
+        return this.context().getByRole('textbox', { name: 'Describe changes based on the image' });
     }
 
     chatSubmitButton() {
         return this.context().getByRole('button', { name: 'Send' });
+    }
+
+    voiceChatButton() {
+        return this.context().getByRole('button', { name: 'Start voice chat' });
     }
 
     tabList() {
@@ -295,6 +307,68 @@ export class OmnibarPage {
     async clearsInput() {
         await this.searchInput().hover();
         await this.closeButton().click();
+    }
+
+    fileInput() {
+        return this.context().locator('input[type="file"]');
+    }
+
+    imagePreviews() {
+        return this.context().locator('img[alt=""]');
+    }
+
+    modelSelectorButton() {
+        return this.context().getByRole('button', { name: 'Model' });
+    }
+
+    modelDropdown() {
+        return this.page.getByRole('listbox', { name: 'Model' });
+    }
+
+    /**
+     * @param {string} modelName
+     */
+    modelOption(modelName) {
+        return this.modelDropdown().getByRole('option', { name: modelName });
+    }
+
+    toolsMenuButton() {
+        return this.context().getByRole('button', { name: 'Tools' });
+    }
+
+    toolsMenu() {
+        return this.context().getByRole('menu', { name: 'Tools' });
+    }
+
+    createImageMenuItem() {
+        return this.toolsMenu().getByRole('menuitemcheckbox', { name: /Create Image/ });
+    }
+
+    createImageChip() {
+        return this.context().getByRole('button', { name: 'Create Image' });
+    }
+
+    webSearchMenuItem() {
+        return this.toolsMenu().getByRole('menuitemcheckbox', { name: /Web Search/ });
+    }
+
+    webSearchChip() {
+        return this.context().getByRole('button', { name: 'Web Search' });
+    }
+
+    reasoningPickerButton() {
+        return this.context().getByRole('button', { name: 'Reasoning' });
+    }
+
+    reasoningDropdown() {
+        return this.page.getByRole('listbox', { name: 'Reasoning' });
+    }
+
+    /**
+     * @param {string} optionName
+     */
+    reasoningOption(optionName) {
+        return this.reasoningDropdown().getByRole('option', { name: optionName });
     }
 }
 
