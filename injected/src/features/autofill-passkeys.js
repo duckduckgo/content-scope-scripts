@@ -11,12 +11,23 @@ const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
 export default class AutofillPasskeys extends ContentFeature {
     /** @type {(() => void) | null} */
     #cancelPending = null;
+    /** @type {(msg: object) => void} */
+    #postMessage;
+    /** @type {(type: string, handler: Function) => void} */
+    #addEventListener;
+    /** @type {(type: string, handler: Function) => void} */
+    #removeEventListener;
 
     init() {
         // Bail if the Credentials API is absent. Note: web-compat's navigatorCredentialsFix()
         // polyfills a rejecting stub when the API is missing entirely — that and this feature
         // are complementary (web-compat handles missing API, we wrap an existing one).
         if (!navigator.credentials || typeof navigator.credentials.get !== 'function') return;
+
+        // Capture interop globals early so page code can't replace them later.
+        this.#postMessage = /** @type {any} */ (windowsInteropPostMessage);
+        this.#addEventListener = /** @type {any} */ (windowsInteropAddEventListener);
+        this.#removeEventListener = /** @type {any} */ (windowsInteropRemoveEventListener);
 
         // navigator.credentials is a singleton (CredentialsContainer can't be independently
         // constructed), so binding to it is equivalent to preserving the original receiver.
@@ -50,8 +61,7 @@ export default class AutofillPasskeys extends ContentFeature {
 
         return new CapturedPromise((resolve, reject) => {
             const cleanup = () => {
-                // @ts-expect-error windowsInteropRemoveEventListener is a Windows-specific global
-                windowsInteropRemoveEventListener('message', handler);
+                this.#removeEventListener('message', handler);
                 if (options.signal) {
                     options.signal.removeEventListener('abort', onAbort);
                 }
@@ -107,11 +117,9 @@ export default class AutofillPasskeys extends ContentFeature {
                 options.signal.addEventListener('abort', onAbort);
             }
 
-            // @ts-expect-error windowsInteropAddEventListener is a Windows-specific global
-            windowsInteropAddEventListener('message', handler);
+            this.#addEventListener('message', handler);
 
-            // @ts-expect-error windowsInteropPostMessage is a Windows-specific global
-            windowsInteropPostMessage({
+            this.#postMessage({
                 Feature: MSG_OUTBOUND_FEATURE,
                 Name: MSG_OUTBOUND_NAME,
                 Data: { rpId },
