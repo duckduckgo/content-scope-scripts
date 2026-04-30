@@ -29,12 +29,12 @@ export class YouTubeAdDetector {
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
-     * @param {(type: string) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
+     * @param {(type: string, data?: Record<string, unknown>) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
      */
     constructor(config, logger, onEvent) {
         // Logger for debug output (only logs when debug mode is enabled)
         this.log = logger || noopLogger;
-        /** @type {(type: string) => void} */
+        /** @type {(type: string, data?: Record<string, unknown>) => void} */
         this.onEvent = onEvent || (() => {});
 
         // All config comes from privacy-config
@@ -134,7 +134,11 @@ export class YouTubeAdDetector {
 
         if (this.config.fireDetectionEvents?.[type]) {
             try {
-                const result = /** @type {any} */ (this.onEvent(`youtube_${type}`));
+                const result = /** @type {any} */ (
+                    this.onEvent(`youtube_${type}`, {
+                        loginState: this.state.loginState?.state || 'unknown',
+                    })
+                );
                 if (result && typeof result.catch === 'function') {
                     // eslint-disable-next-line promise/prefer-await-to-then
                     result.catch(() => {});
