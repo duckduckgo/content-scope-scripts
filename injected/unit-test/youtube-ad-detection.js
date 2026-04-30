@@ -21,6 +21,7 @@ const configWithAllEvents = {
         playabilityError: true,
         videoAd: true,
         staticAd: true,
+        buffering: true,
     },
 };
 
@@ -51,6 +52,15 @@ describe('YouTubeAdDetector', () => {
                 'youtube_staticAd',
             ]);
             events.forEach((e) => expect(e.data).toEqual({ loginState: 'unknown' }));
+        });
+
+        it('fires buffering events with loginState', () => {
+            const events = [];
+            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, (type, data) => events.push({ type, data }));
+
+            detector.fireDetectionEvent('buffering');
+
+            expect(events).toEqual([{ type: 'youtube_buffering', data: { loginState: 'unknown' } }]);
         });
 
         it('does not fire for duplicate detections', () => {
@@ -178,6 +188,19 @@ describe('YouTubeAdDetector', () => {
             expect(events).toEqual(['youtube_adBlocker']);
         });
 
+        it('does not fire buffering events when buffering is not enabled', () => {
+            const events = [];
+            const config = {
+                ...minimalConfig,
+                fireDetectionEvents: { adBlocker: true },
+            };
+            const detector = new YouTubeAdDetector(config, undefined, (type) => events.push(type));
+
+            detector.fireDetectionEvent('buffering');
+
+            expect(events).toEqual([]);
+        });
+
         it('still tracks detection state even when events are gated off', () => {
             const detector = new YouTubeAdDetector(minimalConfig);
 
@@ -186,6 +209,77 @@ describe('YouTubeAdDetector', () => {
             expect(result).toBe(true);
             expect(detector.state.detections.adBlocker.count).toBe(1);
             expect(detector.state.detections.adBlocker.showing).toBe(true);
+        });
+    });
+
+    describe('buffering events', () => {
+        let savedWindow;
+        let savedDocument;
+        let savedPerformance;
+
+        beforeEach(() => {
+            savedWindow = globalThis.window;
+            savedDocument = globalThis.document;
+            savedPerformance = globalThis.performance;
+        });
+
+        afterEach(() => {
+            globalThis.window = savedWindow;
+            globalThis.document = savedDocument;
+            globalThis.performance = savedPerformance;
+        });
+
+        function setupBufferedVideoTest() {
+            const listeners = {};
+            const videoElement = {
+                currentTime: 10,
+                seeking: false,
+                addEventListener: (eventName, listener) => {
+                    listeners[eventName] = listener;
+                },
+            };
+            const root = /** @type {Element} */ (/** @type {unknown} */ ({ querySelector: () => videoElement }));
+            globalThis.window = /** @type {any} */ ({ location: { search: '' } });
+            globalThis.document = /** @type {any} */ ({ hidden: false });
+
+            let now = 0;
+            globalThis.performance = /** @type {any} */ ({ now: () => now });
+
+            return {
+                root,
+                listeners,
+                setNow: (value) => {
+                    now = value;
+                },
+            };
+        }
+
+        it('fires buffering event when waiting exceeds slowLoadThresholdMs', () => {
+            const events = [];
+            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, (type, data) => events.push({ type, data }));
+            const { root, listeners, setNow } = setupBufferedVideoTest();
+
+            detector.attachVideoListeners(root);
+            setNow(100);
+            listeners.waiting();
+            setNow(minimalConfig.slowLoadThresholdMs + 101);
+            listeners.playing();
+
+            expect(events).toEqual([{ type: 'youtube_buffering', data: { loginState: 'unknown' } }]);
+        });
+
+        it('does not fire buffering event when waiting is below slowLoadThresholdMs', () => {
+            const events = [];
+            const detector = new YouTubeAdDetector(configWithAllEvents, undefined, (type) => events.push(type));
+            const { root, listeners, setNow } = setupBufferedVideoTest();
+
+            detector.attachVideoListeners(root);
+            setNow(100);
+            listeners.waiting();
+            setNow(minimalConfig.slowLoadThresholdMs + 99);
+            listeners.playing();
+
+            expect(events).toEqual([]);
         });
     });
 
