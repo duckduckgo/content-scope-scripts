@@ -25,15 +25,16 @@ describe('Features definition', () => {
 
 describe('test-pages/*/config/*.json schema validation', () => {
     let Ajv, schemaGenerator;
+    const baseSchemaPath = path.resolve(__dirname, '../../node_modules/@duckduckgo/privacy-configuration/schema/config.ts');
     beforeAll(async () => {
         Ajv = (await import('ajv')).default;
         schemaGenerator = await import('ts-json-schema-generator');
     });
 
     // TODO make the config export all of this so it can be imported
-    function createGenerator() {
+    function createGenerator(schemaPath = baseSchemaPath) {
         return schemaGenerator.createGenerator({
-            path: path.resolve(__dirname, '../../node_modules/@duckduckgo/privacy-configuration/schema/config.ts'),
+            path: schemaPath,
         });
     }
 
@@ -45,6 +46,12 @@ describe('test-pages/*/config/*.json schema validation', () => {
         const ajv = new Ajv({ allowUnionTypes: true });
         return ajv.compile(getSchema(schemaName));
     }
+
+    it('supports wildcard schema paths for generator input', () => {
+        const wildcardSchemaPath = path.resolve(__dirname, '../../node_modules/@duckduckgo/privacy-configuration/schema/config*.ts');
+        const schema = createGenerator(wildcardSchemaPath).createSchema('CurrentGenericConfig');
+        expect(schema.$schema).toContain('json-schema.org');
+    });
 
     // Utility to ensure 'hash' exists on all features in the config
     // Ideally we would not have these required in the config, it's pretty unnecessary for tests.
