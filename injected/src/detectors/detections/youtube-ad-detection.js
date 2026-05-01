@@ -110,6 +110,28 @@ export class YouTubeAdDetector {
     }
 
     /**
+     * Fire an event notification for native telemetry/action handling.
+     * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'|'buffering'} type
+     */
+    fireDetectionEvent(type) {
+        if (this.config.fireDetectionEvents?.[type]) {
+            try {
+                const result = /** @type {any} */ (
+                    this.onEvent(`youtube_${type}`, {
+                        loginState: this.state.loginState?.state || 'unknown',
+                    })
+                );
+                if (result && typeof result.catch === 'function') {
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    result.catch(() => {});
+                }
+            } catch {
+                // onEvent callback failure should never break detection
+            }
+        }
+    }
+
+    /**
      * Report a detection event
      * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type
      * @param {Object} [details]
@@ -132,21 +154,7 @@ export class YouTubeAdDetector {
             typeState.lastMessage = details.message;
         }
 
-        if (this.config.fireDetectionEvents?.[type]) {
-            try {
-                const result = /** @type {any} */ (
-                    this.onEvent(`youtube_${type}`, {
-                        loginState: this.state.loginState?.state || 'unknown',
-                    })
-                );
-                if (result && typeof result.catch === 'function') {
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    result.catch(() => {});
-                }
-            } catch {
-                // onEvent callback failure should never break detection
-            }
-        }
+        this.fireDetectionEvent(type);
 
         return true;
     }
@@ -546,12 +554,17 @@ export class YouTubeAdDetector {
         };
 
         const onPlaying = () => {
+            let firedBufferingEvent = false;
             if (this.bufferingStartTime) {
                 const bufferingDuration = performance.now() - this.bufferingStartTime;
                 this.state.buffering.durations.push(Math.round(bufferingDuration));
                 // Cap durations array to prevent memory growth
                 if (this.state.buffering.durations.length > 50) {
                     this.state.buffering.durations.shift();
+                }
+                if (bufferingDuration > this.config.slowLoadThresholdMs) {
+                    this.fireDetectionEvent('buffering');
+                    firedBufferingEvent = true;
                 }
                 this.bufferingStartTime = null;
             }
@@ -567,6 +580,9 @@ export class YouTubeAdDetector {
             if (isSlow && !duringAd && !tabWasHidden && !tooLong) {
                 this.state.buffering.count++;
                 this.state.buffering.durations.push(Math.round(loadTime));
+                if (!firedBufferingEvent) {
+                    this.fireDetectionEvent('buffering');
+                }
                 // Cap durations array to prevent memory growth
                 if (this.state.buffering.durations.length > 50) {
                     this.state.buffering.durations.shift();
