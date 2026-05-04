@@ -257,11 +257,13 @@ describe('BrowserUiLock', () => {
          * @returns {Element}
          */
         function createNonScrollableElement(overflowY) {
-            return /** @type {Element} */ ({
-                scrollHeight: 500,
-                clientHeight: 500,
-                overflowY,
-            });
+            return /** @type {Element} */ (
+                /** @type {unknown} */ ({
+                    scrollHeight: 500,
+                    clientHeight: 500,
+                    overflowY,
+                })
+            );
         }
 
         /**
