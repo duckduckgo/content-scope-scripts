@@ -53,7 +53,7 @@
     "@types/node": "^25.5.0",
     "@types/seedrandom": "^3.0.8",
     "c8": "^11.0.0",
-    "fast-check": "^4.6.0",
+    "fast-check": "^4.7.0",
     "jasmine": "^6.2.0",
     "jsdom": "^29.0.0",
     "monocart-coverage-reports": "^2.12.9",
