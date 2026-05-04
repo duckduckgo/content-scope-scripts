@@ -90,6 +90,34 @@ jobs:
                   VERSION=$(node -e "const l=require('./package-lock.json'); console.log((l.packages['node_modules/@playwright/test']||l.packages['node_modules/playwright']).version)")
                   echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+    playwright-cli-smoke:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
+              with:
+                  path: |
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
+            - name: Install dependencies
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: npm ci
+            - name: Smoke test playwright-cli
+              run: |
+                  npx playwright-cli --version
+                  npx playwright-cli list
+
     integration-tests-special-pages:
         name: Integration tests (special-pages/${{ matrix.group }}, ubuntu-latest)
         needs: get-playwright-version
@@ -302,6 +330,7 @@ jobs:
         needs:
             - unit
             - unit-tests
+            - playwright-cli-smoke
             - integration
             - integration-tests
             - integration-tests-special-pages
@@ -311,6 +340,7 @@ jobs:
               run: |
                   echo "unit: ${{ needs.unit.result }}"
                   echo "unit-tests: ${{ needs.unit-tests.result }}"
+                  echo "playwright-cli-smoke: ${{ needs.playwright-cli-smoke.result }}"
                   echo "integration: ${{ needs.integration.result }}"
                   echo "integration-tests: ${{ needs.integration-tests.result }}"
                   echo "integration-tests-special-pages: ${{ needs.integration-tests-special-pages.result }}"
@@ -318,6 +348,7 @@ jobs:
 
                   test "${{ needs.unit.result }}" = "success"
                   test "${{ needs.unit-tests.result }}" = "success"
+                  test "${{ needs.playwright-cli-smoke.result }}" = "success"
                   test "${{ needs.integration.result }}" = "success"
                   test "${{ needs.integration-tests.result }}" = "success"
                   test "${{ needs.integration-tests-special-pages.result }}" = "success"
