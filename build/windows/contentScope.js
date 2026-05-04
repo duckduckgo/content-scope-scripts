@@ -9345,7 +9345,7 @@
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
-     * @param {(type: string) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
+     * @param {(type: string, data?: Record<string, unknown>) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
      */
     constructor(config, logger, onEvent) {
       this.log = logger || noopLogger;
@@ -9422,6 +9422,27 @@
       };
     }
     /**
+     * Fire an event notification for native telemetry/action handling.
+     * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'|'buffering'} type
+     */
+    fireDetectionEvent(type) {
+      if (this.config.fireDetectionEvents?.[type]) {
+        try {
+          const result = (
+            /** @type {any} */
+            this.onEvent(`youtube_${type}`, {
+              loginState: this.state.loginState?.state || "unknown"
+            })
+          );
+          if (result && typeof result.catch === "function") {
+            result.catch(() => {
+            });
+          }
+        } catch {
+        }
+      }
+    }
+    /**
      * Report a detection event
      * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type
      * @param {Object} [details]
@@ -9440,19 +9461,7 @@
       if (details.message && "lastMessage" in typeState) {
         typeState.lastMessage = details.message;
       }
-      if (this.config.fireDetectionEvents?.[type]) {
-        try {
-          const result = (
-            /** @type {any} */
-            this.onEvent(`youtube_${type}`)
-          );
-          if (result && typeof result.catch === "function") {
-            result.catch(() => {
-            });
-          }
-        } catch {
-        }
-      }
+      this.fireDetectionEvent(type);
       return true;
     }
     /**
@@ -9788,11 +9797,16 @@
         }
       };
       const onPlaying = () => {
+        let firedBufferingEvent = false;
         if (this.bufferingStartTime) {
           const bufferingDuration = performance.now() - this.bufferingStartTime;
           this.state.buffering.durations.push(Math.round(bufferingDuration));
           if (this.state.buffering.durations.length > 50) {
             this.state.buffering.durations.shift();
+          }
+          if (bufferingDuration > this.config.slowLoadThresholdMs) {
+            this.fireDetectionEvent("buffering");
+            firedBufferingEvent = true;
           }
           this.bufferingStartTime = null;
         }
@@ -9805,6 +9819,9 @@
         if (isSlow && !duringAd && !tabWasHidden && !tooLong) {
           this.state.buffering.count++;
           this.state.buffering.durations.push(Math.round(loadTime));
+          if (!firedBufferingEvent) {
+            this.fireDetectionEvent("buffering");
+          }
           if (this.state.buffering.durations.length > 50) {
             this.state.buffering.durations.shift();
           }
@@ -9963,9 +9980,9 @@
   var WebInterferenceDetection = class extends ContentFeature {
     init() {
       const settings = this.getFeatureSetting("interferenceTypes");
-      const fireEvent = async (type) => {
+      const fireEvent = async (type, data2) => {
         try {
-          const result = await this.callFeatureMethod("webEvents", "fireEvent", { type });
+          const result = await this.callFeatureMethod("webEvents", "fireEvent", { type, data: data2 });
           if (result instanceof CallFeatureMethodError && this.isDebug) {
             this.log.warn("webEvents.fireEvent failed:", result.message);
           }
