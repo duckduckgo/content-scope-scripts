@@ -274,10 +274,11 @@ describe('BrowserUiLock', () => {
         }
 
         beforeEach(() => {
-            globalThis.getComputedStyle = jasmine.createSpy('getComputedStyle').and.callFake((element) =>
-                /** @type {CSSStyleDeclaration} */ ({
-                    overflowY: /** @type {{ overflowY: string }} */ (element).overflowY,
-                }),
+            globalThis.getComputedStyle = jasmine.createSpy('getComputedStyle').and.callFake(
+                (element) =>
+                    /** @type {CSSStyleDeclaration} */ ({
+                        overflowY: /** @type {{ overflowY: string }} */ (element).overflowY,
+                    }),
             );
             Object.defineProperty(document, 'contentType', { value: 'text/html', configurable: true });
         });
