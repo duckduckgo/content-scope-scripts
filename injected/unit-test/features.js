@@ -21,6 +21,10 @@ describe('Features definition', () => {
         expect(fpScreenSizeIdx).not.toBe(-1);
         expect(webCompatIdx).toBeLessThan(fpScreenSizeIdx);
     });
+
+    it('includes `webTelemetry` for apple isolated bundle', () => {
+        expect(platformSupport['apple-isolated']).toContain('webTelemetry');
+    });
 });
 
 describe('test-pages/*/config/*.json schema validation', () => {
