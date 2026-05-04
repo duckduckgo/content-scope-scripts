@@ -4,11 +4,11 @@ import styles from './Player.module.css';
 import { useEffect, useRef } from 'preact/hooks';
 import { useSettings, useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
-import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
 
 /**
  * @import {EmbedSettings} from '../embed-settings.js';
+ * @import {Settings} from '../settings';
  */
 
 /**
@@ -56,7 +56,7 @@ export function Player({ src, layout, embed }) {
 export function PlayerError({ kind, layout }) {
     const { t } = useTypedTranslation();
     const errors = {
-        ['invalid-id']: <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
+        'invalid-id': <span dangerouslySetInnerHTML={{ __html: t('invalidIdError') }} />,
     };
     const text = errors[kind] || errors['invalid-id'];
     return (
@@ -118,7 +118,7 @@ function useIframeEffects(src, embed) {
          */
         const cleanups = [];
         const loadHandler = () => {
-            for (let feature of iframeFeatures) {
+            for (const feature of iframeFeatures) {
                 try {
                     cleanups.push(feature.iframeDidLoad(iframe));
                 } catch (e) {
@@ -134,7 +134,7 @@ function useIframeEffects(src, embed) {
         }
 
         return () => {
-            for (let cleanup of cleanups) {
+            for (const cleanup of cleanups) {
                 cleanup?.();
             }
             iframe.removeEventListener('load', loadHandler);

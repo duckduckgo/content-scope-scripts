@@ -1,7 +1,6 @@
-import { useContext, useState } from 'preact/hooks';
+import { useContext, useState, useEffect } from 'preact/hooks';
 import { h, createContext } from 'preact';
 import { useMessaging } from '../types.js';
-import { useEffect } from 'preact/hooks';
 
 /**
  * @typedef {import("../../types/duckplayer.js").UserValues} UserValues
@@ -46,22 +45,20 @@ export function UserValuesProvider({ initial, children }) {
     }, [messaging]);
 
     // API for consumers
-    function setEnabled() {
+    async function setEnabled() {
         const values = {
             privatePlayerMode: { enabled: {} },
             overlayInteracted: false,
         };
-        messaging
-            .setUserValues(values)
-            .then((next) => {
-                console.log('response after setUserValues...', next);
-                console.log('will set', values);
-                setValue(values);
-            })
-            .catch((err) => {
-                console.error('could not set the enabled flag', err);
-                messaging.reportPageException({ message: 'could not set the enabled flag: ' + err.toString() });
-            });
+        try {
+            const next = await messaging.setUserValues(values);
+            console.log('response after setUserValues...', next);
+            console.log('will set', values);
+            setValue(values);
+        } catch (err) {
+            console.error('could not set the enabled flag', err);
+            messaging.reportPageException({ message: 'could not set the enabled flag: ' + err.toString() });
+        }
     }
 
     return <UserValuesContext.Provider value={{ value, setEnabled }}>{children}</UserValuesContext.Provider>;

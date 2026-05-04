@@ -5,6 +5,7 @@ import { useMessaging } from '../providers/MessagingProvider';
 import { useErrorData } from '../providers/SpecialErrorProvider';
 import { usePlatformName, useIsMobile } from '../providers/SettingsProvider';
 import { useWarningHeading, useWarningContent } from '../hooks/ErrorStrings';
+// eslint-disable-next-line no-redeclare -- shadows DOM global `Text` intentionally
 import { Text } from '../../../../shared/components/Text/Text';
 import { Button } from '../../../../shared/components/Button/Button';
 
@@ -54,11 +55,10 @@ export function LeaveSiteButton() {
 
 export function WarningHeading() {
     const heading = useWarningHeading();
-    if (!heading) return null;
-
     const { kind } = useErrorData();
     const platformName = usePlatformName();
     const isMobile = useIsMobile();
+    if (!heading) return null;
 
     /** @type {'title-2'|'title-2-emphasis'|'custom-title-1'} */
     let textVariant;

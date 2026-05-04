@@ -1,14 +1,13 @@
-import { h } from 'preact';
-import { createContext } from 'preact';
-import { Settings } from '../settings';
+import { h, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import { useMessaging } from '../types.js';
 
-const SettingsContext = createContext(/** @type {{settings: Settings}} */ ({}));
-
 /**
+ * @import {Settings} from '../settings';
  * @import {EmbedSettings} from '../embed-settings.js';
  */
+
+const SettingsContext = createContext(/** @type {{settings: Settings}} */ ({}));
 
 /**
  * @param {object} params

@@ -1,6 +1,5 @@
 import { createContext, h } from 'preact';
 import { useEffect, useReducer } from 'preact/hooks';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { useSetEnabled, useUserValues } from './UserValuesProvider.jsx';
 
 /**

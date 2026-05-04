@@ -1,6 +1,5 @@
-import { useContext, useState } from 'preact/hooks';
+import { useContext, useState, useEffect } from 'preact/hooks';
 import { h, createContext } from 'preact';
-import { useEffect } from 'preact/hooks';
 import { useMessaging } from '../types';
 import { useSetFocusMode } from '../components/FocusMode';
 import { YOUTUBE_ERROR_IDS, YOUTUBE_ERROR_EVENT } from '../../../../../injected/src/features/duckplayer-native/youtube-errors.js';
