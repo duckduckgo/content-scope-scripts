@@ -1,0 +1,16 @@
+{
+    "readme": "Config with cookie feature enabled but without explicit policy settings, to verify defaults are applied and no unhandled promise rejection occurs.",
+    "version": 1,
+    "features": {
+        "cookie": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "trackerCookie": "enabled",
+                "nonTrackerCookie": "enabled",
+                "excludedCookieDomains": []
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

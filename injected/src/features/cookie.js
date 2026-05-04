@@ -10,6 +10,7 @@ import {
 import { Cookie } from '../cookie.js';
 import ContentFeature from '../content-feature.js';
 import { isTrackerOrigin } from '../trackers.js';
+import { consoleWarn } from '../captured-globals.js';
 
 /**
  * @typedef ExtensionCookiePolicy
@@ -24,6 +25,16 @@ function initialShouldBlockTrackerCookie() {
     return injectName === 'firefox' || injectName === 'chrome-mv3' || injectName === 'windows';
 }
 
+const DEFAULT_COOKIE_POLICY = {
+    threshold: 604800, // 7 days
+    maxAge: 604800, // 7 days
+};
+
+const DEFAULT_TRACKER_COOKIE_POLICY = {
+    threshold: 86400, // 1 day
+    maxAge: 86400, // 1 day
+};
+
 // Initial cookie policy pre init
 let cookiePolicy = {
     debug: false,
@@ -33,14 +44,8 @@ let cookiePolicy = {
     shouldBlockTrackerCookie: initialShouldBlockTrackerCookie(),
     shouldBlockNonTrackerCookie: false,
     isThirdPartyFrame: isThirdPartyFrame(),
-    policy: {
-        threshold: 604800, // 7 days
-        maxAge: 604800, // 7 days
-    },
-    trackerPolicy: {
-        threshold: 86400, // 1 day
-        maxAge: 86400, // 1 day
-    },
+    policy: { ...DEFAULT_COOKIE_POLICY },
+    trackerPolicy: { ...DEFAULT_TRACKER_COOKIE_POLICY },
     allowlist: /** @type {{ host: string }[]} */ ([]),
 };
 let trackerLookup = {};
@@ -133,8 +138,8 @@ export default class CookieFeature extends ContentFeature {
                 },
             );
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
-            cookiePolicy.policy = settings.firstPartyCookiePolicy;
-            cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
+            cookiePolicy.policy = settings.firstPartyCookiePolicy ?? DEFAULT_COOKIE_POLICY;
+            cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy ?? DEFAULT_TRACKER_COOKIE_POLICY;
             // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
             // This only applies when the resources that would set these cookies are unblocked.
             cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || [];
@@ -207,41 +212,50 @@ export default class CookieFeature extends ContentFeature {
             try {
                 // wait for config before doing same-site tests
                 loadPolicyThen(() => {
-                    const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
-                    const stack = getStack();
-                    const scriptOrigins = getStackTraceOrigins(stack);
-                    const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
-                    if (!shouldBlock) {
-                        debugHelper('ignore', 'disabled', setCookieContext);
-                        return;
-                    }
-                    // extract cookie expiry from cookie string
-                    const cookie = new Cookie(value);
-                    // apply cookie policy
-                    if (cookie.getExpiry() > chosenPolicy.threshold) {
-                        // check if the cookie still exists
-                        const firstPart = cookie.parts[0];
-                        if (
-                            firstPart !== undefined &&
-                            document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(firstPart.trim())) !== -1
-                        ) {
-                            cookie.maxAge = chosenPolicy.maxAge;
-
-                            debugHelper('restrict', 'expiry', setCookieContext);
-
-                            // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-                            cookieSetter.apply(document, [cookie.toString()]);
-                        } else {
-                            debugHelper('ignore', 'dissappeared', setCookieContext);
+                    try {
+                        const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
+                        const stack = getStack();
+                        const scriptOrigins = getStackTraceOrigins(stack);
+                        const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
+                        if (!shouldBlock) {
+                            debugHelper('ignore', 'disabled', setCookieContext);
+                            return;
                         }
-                    } else {
-                        debugHelper('ignore', 'expiry', setCookieContext);
+                        if (!chosenPolicy) {
+                            debugHelper('ignore', 'no-policy', setCookieContext);
+                            return;
+                        }
+                        // extract cookie expiry from cookie string
+                        const cookie = new Cookie(value);
+                        // apply cookie policy
+                        if (cookie.getExpiry() > chosenPolicy.threshold) {
+                            // check if the cookie still exists
+                            const firstPart = cookie.parts[0];
+                            if (
+                                firstPart !== undefined &&
+                                document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(firstPart.trim())) !== -1
+                            ) {
+                                cookie.maxAge = chosenPolicy.maxAge;
+
+                                debugHelper('restrict', 'expiry', setCookieContext);
+
+                                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+                                cookieSetter.apply(document, [cookie.toString()]);
+                            } else {
+                                debugHelper('ignore', 'dissappeared', setCookieContext);
+                            }
+                        } else {
+                            debugHelper('ignore', 'expiry', setCookieContext);
+                        }
+                    } catch (e) {
+                        debugHelper('ignore', 'error', setCookieContext);
+                        consoleWarn('Error in cookie override', e);
                     }
                 });
             } catch (e) {
                 debugHelper('ignore', 'error', setCookieContext);
                 // suppress error in cookie override to avoid breakage
-                console.warn('Error in cookie override', e);
+                consoleWarn('Error in cookie override', e);
             }
         }
 
@@ -260,8 +274,9 @@ export default class CookieFeature extends ContentFeature {
             shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
             shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
             allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
-            policy: this.getFeatureSetting('firstPartyCookiePolicy'),
-            trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy'),
+            policy: this.getFeatureSetting('firstPartyCookiePolicy') ?? cookiePolicy.policy ?? DEFAULT_COOKIE_POLICY,
+            trackerPolicy:
+                this.getFeatureSetting('firstPartyTrackerCookiePolicy') ?? cookiePolicy.trackerPolicy ?? DEFAULT_TRACKER_COOKIE_POLICY,
         };
         // The extension provides some additional info about the cookie policy, let's use that over our guesses
         if (args.cookie) {
