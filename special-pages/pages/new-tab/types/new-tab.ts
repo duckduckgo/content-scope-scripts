@@ -1163,6 +1163,10 @@ export interface AiChat {
    * ISO timestamp of last edit
    */
   lastEdit?: string;
+  /**
+   * The AI model the chat was conducted with (e.g. 'gpt-4o-mini', 'voice-mode', 'image-generation'). Drives the list-row icon: 'voice-mode' → voice icon, 'image-generation' → image icon, anything else (or omitted) → default chat-bubble icon. Omitted when the data source doesn't carry a model.
+   */
+  model?: "voice-mode" | "image-generation" | (string & {});
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"
