@@ -2,7 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ChatBubbleIcon, PinIcon } from '../../components/Icons';
+import { ChatBubbleIcon, ImageIcon, PinIcon, VoiceIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
@@ -51,7 +51,7 @@ export function AiChatsList({ className }) {
                             });
                         }}
                     >
-                        {chat.pinned ? <PinIcon /> : <ChatBubbleIcon />}
+                        <ChatIcon chat={chat} />
                         <span class={styles.title}>{chat.title}</span>
                     </button>
                 );
@@ -59,4 +59,23 @@ export function AiChatsList({ className }) {
             {showViewAllAiChats && <AiChatsListFooter />}
         </div>
     );
+}
+
+/**
+ * @param {object} props
+ * @param {AiChat} props.chat
+ */
+function ChatIcon({ chat }) {
+    if (chat.pinned) {
+        return <PinIcon />;
+    }
+
+    switch (chat.model) {
+        case 'voice-mode':
+            return <VoiceIcon />;
+        case 'image-generation':
+            return <ImageIcon />;
+        default:
+            return <ChatBubbleIcon />;
+    }
 }
