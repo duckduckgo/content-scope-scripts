@@ -37,6 +37,9 @@ export const Uint32Array = globalThis.Uint32Array;
 export const JSONstringify = JSON.stringify;
 export const JSONparse = JSON.parse;
 export const Arrayfrom = Array.from;
+export const atob = globalThis.atob?.bind(globalThis);
+export const DOMException = globalThis.DOMException;
+export const charCodeAt = globalThis.String.prototype.charCodeAt;
 export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
 export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
 
