@@ -19,12 +19,10 @@ import { useRangesData } from '../global/Providers/HistoryServiceProvider.js';
 import { usePlatformName } from '../types.js';
 import { useLayoutMode } from '../global/hooks/useLayoutMode.js';
 import { useClickAnywhereElse } from '../global/hooks/useClickAnywhereElse.jsx';
-import { useTheme } from '../global/Providers/ThemeProvider.js';
 
 export function App() {
     const platformName = usePlatformName();
     const mainRef = useRef(/** @type {HTMLElement|null} */ (null));
-    const { theme, themeVariant } = useTheme();
     const ranges = useRangesData();
     const query = useQueryContext();
     const mode = useLayoutMode();

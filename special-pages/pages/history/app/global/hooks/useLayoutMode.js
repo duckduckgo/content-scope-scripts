@@ -27,6 +27,7 @@ export function useLayoutMode() {
         return () => {
             mediaQuery.removeEventListener('change', handleChange);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, []);
 
     return mode;

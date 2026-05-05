@@ -31,10 +31,9 @@ export function NextStepsCustomized() {
  * ```
  */
 export function NextStepsConsumer() {
-    const { state, toggle } = useContext(NextStepsContext);
+    const { state, toggle, action, dismiss } = useContext(NextStepsContext);
     if (state.status === 'ready' && state.data.content) {
         const ids = state.data.content.filter((x) => x.id in nextSteps).map((x) => x.id);
-        const { action, dismiss } = useContext(NextStepsContext);
         return <NextStepsCardGroup types={ids} toggle={toggle} expansion={state.config.expansion} action={action} dismiss={dismiss} />;
     }
     return null;

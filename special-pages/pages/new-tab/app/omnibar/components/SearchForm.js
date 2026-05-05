@@ -67,7 +67,7 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat
         if (autoFocus && inputRef.current) {
             inputRef.current.focus();
         }
-    }, [autoFocus]);
+    }, [autoFocus, inputRef]);
 
     const acceptSuggestion = () => {
         if (selectedSuggestion) {

@@ -142,6 +142,7 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                 },
             }),
         );
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [instanceId, favorites]);
 }
 

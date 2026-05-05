@@ -300,6 +300,7 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
         return () => {
             controller.abort();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [rows.length, expansion]);
 
     useEffect(() => {
@@ -314,6 +315,7 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
         return () => {
             return window.removeEventListener('resize', handler);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [rows.length]);
 
     useEffect(() => {
@@ -338,6 +340,7 @@ function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
             resizer.disconnect();
             clearTimeout(debounceTimer);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [rows.length]);
 
     return { start, end };

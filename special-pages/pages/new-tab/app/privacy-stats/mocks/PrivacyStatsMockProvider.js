@@ -50,7 +50,7 @@ export function PrivacyStatsMockProvider({ data = privacyStatsMocks.few, ticker 
             return () => clearTimeout(time);
         }
         return () => {};
-    }, [ticker]);
+    }, [ticker, state]);
 
     return (
         <PrivacyStatsContext.Provider value={{ state }}>
