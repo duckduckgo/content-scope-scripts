@@ -154,7 +154,8 @@ function createMessagingInterface(featureName, send, appendToken, context) {
                     const response = ProxyResponse.create(e.detail);
                     if (response && response.id === id) {
                         if ('error' in response && response.error) {
-                            reject(new Error(response.error.message));
+                            const message = 'message' in response.error ? String(response.error.message) : 'Unknown error';
+                            reject(new Error(message));
                         } else if ('result' in response) {
                             resolve(response.result);
                         }

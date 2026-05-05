@@ -95,7 +95,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
             }
 
             // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-            if (top.window.outerHeight >= this.origPropertyValues.availHeight - 1) {
+            if (this.origPropertyValues.availHeight !== undefined && top.window.outerHeight >= this.origPropertyValues.availHeight - 1) {
                 // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
                 this.setWindowPropertyValue('outerHeight', top.window.screen.height);
             } else {
@@ -116,7 +116,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
             }
 
             // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-            if (top.window.outerWidth >= this.origPropertyValues.availWidth - 1) {
+            if (this.origPropertyValues.availWidth !== undefined && top.window.outerWidth >= this.origPropertyValues.availWidth - 1) {
                 // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
                 this.setWindowPropertyValue('outerWidth', top.window.screen.width);
             } else {
