@@ -33,7 +33,7 @@ export function DuckPlayerStep({ defaultState = 'before' }) {
         return () => {
             if (timer.current) clearTimeout(timer.current);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [canPlay, isReducedMotion]);
 
     const animationDidEnd = () => {

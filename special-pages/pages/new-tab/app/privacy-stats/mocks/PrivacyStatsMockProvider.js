@@ -50,7 +50,7 @@ export function PrivacyStatsMockProvider({ data = privacyStatsMocks.few, ticker 
             return () => clearTimeout(time);
         }
         return () => {};
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [ticker]);
 
     return (

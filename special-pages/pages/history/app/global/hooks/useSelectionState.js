@@ -57,7 +57,7 @@ export function useSelectionStateApi() {
         next.lastAction = evt.kind;
         state.value = next;
     }
-    const dispatch = useCallback(dispatcher, [state]);
+    const dispatch = useCallback(dispatcher, [state, selected]);
     return { selected, dispatch, state };
 }
 

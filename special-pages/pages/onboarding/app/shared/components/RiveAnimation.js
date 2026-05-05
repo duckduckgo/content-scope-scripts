@@ -32,7 +32,7 @@ export function RiveAnimation({ animation, state, stateMachine, artboard, inputN
         return () => {
             rive.current?.cleanup();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [stateMachine, inputName, artboard, autoplay]);
 
     // handle a before/after value
@@ -46,7 +46,7 @@ export function RiveAnimation({ animation, state, stateMachine, artboard, inputN
         if (!toggle) return console.warn('could not find input');
         if (state === 'after') toggle.value = true;
         if (state === 'before') toggle.value = false;
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [state]);
 
     // handle light/dark mode
@@ -64,7 +64,7 @@ export function RiveAnimation({ animation, state, stateMachine, artboard, inputN
         return () => {
             rive.current?.off(/** @type {any} */ ('load'), handle);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [isDarkMode]);
 
     return <canvas width="432" height="208" ref={ref} style="border-radius: 12px; overflow: hidden"></canvas>;

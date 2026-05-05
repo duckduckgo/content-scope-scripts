@@ -118,7 +118,7 @@ function DuckPlayerDefault({ advance }) {
             isReducedMotion ? 0 : 917,
         );
         return () => clearTimeout(id);
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, []); // exclude isReducedMotion from deps — must not re-fire if reduced motion changes after mount
 
     const toggle = async () => {

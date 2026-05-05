@@ -78,7 +78,7 @@ export function ActivityItemAnimationWrapper({ children, url }) {
 }
 
 function NullBurner({ url, doneBurning }) {
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     useEffect(() => doneBurning(url), [url]);
     return null;
 }
