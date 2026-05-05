@@ -119,7 +119,9 @@ export function useAnimatedCount(targetValue, elementRef) {
                 observerRef.current = null;
             }
         };
-    }, []); // Empty array: run once on mount. elementRef is stable, setupIntersectionObserver is memoized
+        // Empty array: run once on mount. elementRef is stable, setupIntersectionObserver is memoized.
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
+    }, []);
 
     // Animate count when it changes, page is visible, and element is in viewport
     useEffect(() => {

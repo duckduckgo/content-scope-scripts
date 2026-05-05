@@ -142,6 +142,7 @@ function useGridState(favorites, itemsDidReOrder, instanceId) {
                 },
             }),
         );
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [instanceId, favorites]);
 }
 

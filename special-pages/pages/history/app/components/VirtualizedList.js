@@ -123,6 +123,7 @@ function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
         return () => {
             controller.abort();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [rows, heights, scrollerSelector]);
 
     useEffect(() => {
@@ -137,6 +138,7 @@ function useVisibleRows(rows, heights, scrollerSelector, overscan = 5) {
         return () => {
             return window.removeEventListener('resize', handler);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [heights, rows]);
 
     return { start, end };

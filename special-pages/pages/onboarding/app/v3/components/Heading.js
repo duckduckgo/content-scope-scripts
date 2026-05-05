@@ -107,6 +107,7 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
                 setDimensions({ width, height });
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [bubbleContents, title, subtitle, children]);
 
     useEffect(() => {
@@ -129,6 +130,7 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
             clearTimeout(debounce);
             window.removeEventListener('resize', handleResize);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, []);
 
     const onTransitionEnd = () => {

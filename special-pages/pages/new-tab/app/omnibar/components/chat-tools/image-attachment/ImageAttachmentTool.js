@@ -38,6 +38,7 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
             prevVisibleRef.current = hasVisibleImages;
             onVisibleImagesChange(hasVisibleImages);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [hasVisibleImages]);
 
     useLayoutEffect(() => {
@@ -45,6 +46,7 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
             prevWarningRef.current = showImageWarning;
             onImageWarningChange(showImageWarning);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [showImageWarning]);
 
     if (!supportsImageUpload) return null;

@@ -139,6 +139,7 @@ function useIframeEffects(src, embed) {
             }
             iframe.removeEventListener('load', loadHandler);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [src, settings, embed]);
 
     return { ref, didLoad: () => (didLoad.current = true) };

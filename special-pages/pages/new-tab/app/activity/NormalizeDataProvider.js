@@ -177,6 +177,7 @@ export function SignalStateProvider({ children }) {
         }
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     const didClick = useCallback(didClick_, [service, batched]);
     const firstUrls = state.data.activity.map((x) => x.url);
     const keys = useSignal(normalizeKeys([], firstUrls));
@@ -246,6 +247,7 @@ export function SignalStateProvider({ children }) {
         return () => {
             unsub();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [service, batched, activity, keys]);
 
     useEffect(() => {
@@ -253,6 +255,7 @@ export function SignalStateProvider({ children }) {
         return () => {
             window.removeEventListener('activity.next', showNextChunk);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, []);
 
     useEffect(() => {
@@ -279,6 +282,7 @@ export function SignalStateProvider({ children }) {
         return () => {
             document.removeEventListener('visibilitychange', handler);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [batched]);
 
     return (

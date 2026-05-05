@@ -17,6 +17,7 @@ export function OrientationProvider({ onChange }) {
         };
         screen.orientation.addEventListener('change', handleOrientationChange);
         return () => screen.orientation.removeEventListener('change', handleOrientationChange);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, []);
 
     useEffect(() => {
@@ -27,6 +28,7 @@ export function OrientationProvider({ onChange }) {
         };
         window.addEventListener('resize', listener);
         return () => window.removeEventListener('resize', listener);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, []);
 
     return null;

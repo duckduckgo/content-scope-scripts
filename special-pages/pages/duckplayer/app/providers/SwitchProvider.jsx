@@ -64,6 +64,7 @@ export function SwitchProvider({ children }) {
     useEffect(() => {
         const evt = 'enabled' in userValues.privatePlayerMode ? 'enabled' : 'ask';
         dispatch(evt);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [initialState]);
 
     function onDone() {

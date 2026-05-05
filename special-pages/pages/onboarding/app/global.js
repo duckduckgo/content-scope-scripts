@@ -271,6 +271,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         if (state.status.kind !== 'fatal') return;
         const { error } = state.status.action;
         messaging.reportPageException(error);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [state.status.kind, messaging]);
 
     // handle 'update-system-value' messages from the UI
@@ -305,6 +306,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                 const message = e?.message || 'unknown error';
                 dispatch({ kind: 'exec-error', id: action.id, message });
             });
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [state.status.kind, messaging]);
 
     return (

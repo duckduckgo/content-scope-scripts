@@ -188,7 +188,9 @@ export function useRowInteractions(mainRef) {
         if (handled) event.preventDefault();
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     const onClick = useCallback(clickHandler, [selected, focusedIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     const onKeyDown = useCallback(keyHandler, [selected, focusedIndex]);
 
     return { onClick, onKeyDown };

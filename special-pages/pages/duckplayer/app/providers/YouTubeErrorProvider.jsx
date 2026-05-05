@@ -52,6 +52,7 @@ export function YouTubeErrorProvider({ initial = null, locale, children }) {
         window.addEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
 
         return () => window.removeEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, []);
 
     return <YouTubeErrorContext.Provider value={{ error, locale }}>{children}</YouTubeErrorContext.Provider>;

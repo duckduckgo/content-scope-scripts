@@ -28,6 +28,7 @@ export function SlideIn({ children, onAnimationEnd }) {
     useEffect(() => {
         setAnimationState(activeStepVisible ? 'animating' : 'idle');
         if (isReducedMotion) animationEnd();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [activeStep, activeStepVisible, isReducedMotion]);
 
     const animationDidEnd = (e) => {

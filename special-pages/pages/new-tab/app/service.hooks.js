@@ -117,6 +117,7 @@ export function useInitialDataAndConfig({ dispatch, service }) {
         return () => {
             currentService.destroy();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [messaging]);
 }
 
@@ -156,6 +157,7 @@ export function useInitialData({ dispatch, service }) {
         return () => {
             currentService.destroy();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, []);
 }
 
@@ -199,5 +201,6 @@ export function useConfigSubscription({ dispatch, service }) {
         return () => {
             unsub2();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [service]);
 }

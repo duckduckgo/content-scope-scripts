@@ -25,6 +25,7 @@ export function Typed({ text, onComplete = null, delay = 20, startDelay = 0, ...
             }
         }
         pre.current = text;
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [activeStep, text]);
     return <TypedInner key={text} text={text} onComplete={onComplete} delay={delay} startDelay={startDelay} {...rest} />;
 }
@@ -89,6 +90,7 @@ function TypedInner({ text, onComplete, delay, startDelay, ...rest }) {
             onComplete?.();
             return () => controller.abort();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- disabled during eslint-plugin-react-hooks rollout; please remove and address deps
     }, [currentIndex, delay, text, waiting]);
 
     const currentText = text.slice(0, currentIndex);
