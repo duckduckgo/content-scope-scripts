@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import { FavoritesContext, FavoritesDispatchContext } from '../components/FavoritesProvider.js';
 import { useCallback, useReducer, useState } from 'preact/hooks';
-import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { favorites } from './favorites.data.js';
 import { reducer } from '../../service.hooks.js';
 
@@ -25,8 +24,6 @@ const DEFAULT_CONFIG = {
  * @param {FavoritesConfig} [props.config]
  */
 export function MockFavoritesProvider({ data = favorites.many, config = DEFAULT_CONFIG, children }) {
-    const { isReducedMotion } = useEnv();
-
     const initial = /** @type {State} */ ({
         status: 'ready',
         data,
@@ -47,8 +44,7 @@ export function MockFavoritesProvider({ data = favorites.many, config = DEFAULT_
 
         dispatch({ kind: 'config', config: next });
         et.dispatchEvent(new CustomEvent('state-update', { detail: next }));
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
-    }, [state.status, state.config?.expansion, isReducedMotion]);
+    }, [state.status, state.config, et]);
 
     /** @type {import('../components/FavoritesProvider.js').ReorderFn<Favorite>} */
     const favoritesDidReOrder = useCallback(({ list }) => {
