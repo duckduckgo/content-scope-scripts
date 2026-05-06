@@ -1168,7 +1168,7 @@ export interface AiChat {
    */
   lastEdit?: string;
   /**
-   * The AI model the chat was conducted with. Either a `CustomModel` literal we know how to render an icon for, or any other model identifier (e.g. 'gpt-4o-mini') which renders the default chat-bubble icon.
+   * The AI model the chat was conducted with.
    */
   model?: CustomModel | string;
 }
