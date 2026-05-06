@@ -12,8 +12,17 @@ import styles from './AiChatsList.module.css';
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
+ * @typedef {import('../../../types/new-tab.js').KnownModel} KnownModel
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
+
+/**
+ * @type {Record<KnownModel, import('preact').JSX.Element>}
+ */
+const ICON_BY_MODEL = {
+    'voice-mode': <VoiceIcon />,
+    'image-generation': <ImageIcon />,
+};
 
 /**
  * @param {object} props
@@ -70,12 +79,9 @@ function ChatIcon({ chat }) {
         return <PinIcon />;
     }
 
-    switch (chat.model) {
-        case 'voice-mode':
-            return <VoiceIcon />;
-        case 'image-generation':
-            return <ImageIcon />;
-        default:
-            return <ChatBubbleIcon />;
+    if (chat.model && chat.model in ICON_BY_MODEL) {
+        return ICON_BY_MODEL[/** @type {KnownModel} */ (chat.model)];
     }
+
+    return <ChatBubbleIcon />;
 }

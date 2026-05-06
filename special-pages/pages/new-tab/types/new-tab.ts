@@ -143,6 +143,10 @@ export type NextStepsCardTypes =
 export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];
+/**
+ * Canonical AI chat model identifiers Duck.ai treats specially.
+ */
+export type KnownModel = "voice-mode" | "image-generation";
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon =
   | "Announce"
@@ -1164,9 +1168,9 @@ export interface AiChat {
    */
   lastEdit?: string;
   /**
-   * The AI model the chat was conducted with (e.g. 'gpt-4o-mini', 'voice-mode', 'image-generation'). Drives the list-row icon: 'voice-mode' → voice icon, 'image-generation' → image icon, anything else (or omitted) → default chat-bubble icon. Omitted when the data source doesn't carry a model.
+   * The AI model the chat was conducted with. Either a `KnownModel` literal we know how to render an icon for, or any other model identifier (e.g. 'gpt-4o-mini') which renders the default chat-bubble icon.
    */
-  model?: "voice-mode" | "image-generation" | (string & {});
+  model?: KnownModel | string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"

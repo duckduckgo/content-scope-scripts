@@ -21,9 +21,8 @@
       "type": "string"
     },
     "model": {
-      "description": "The AI model the chat was conducted with (e.g. 'gpt-4o-mini', 'voice-mode', 'image-generation'). Drives the list-row icon: 'voice-mode' → voice icon, 'image-generation' → image icon, anything else (or omitted) → default chat-bubble icon. Omitted when the data source doesn't carry a model.",
-      "type": "string",
-      "tsType": "'voice-mode' | 'image-generation' | (string & {})"
+      "description": "The AI model the chat was conducted with. Either a `KnownModel` literal we know how to render an icon for, or any other model identifier (e.g. 'gpt-4o-mini') which renders the default chat-bubble icon.",
+      "anyOf": [{ "$ref": "known-model.json" }, { "type": "string" }]
     }
   }
 }
