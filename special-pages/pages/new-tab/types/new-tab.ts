@@ -139,7 +139,8 @@ export type NextStepsCardTypes =
   | "duckplayer"
   | "addAppToDockMac"
   | "pinAppToTaskbarWindows"
-  | "subscription";
+  | "subscription"
+  | "youtubeAdBlocking";
 export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];
