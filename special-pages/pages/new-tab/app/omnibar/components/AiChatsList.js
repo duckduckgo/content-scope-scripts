@@ -12,12 +12,12 @@ import styles from './AiChatsList.module.css';
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
- * @typedef {import('../../../types/new-tab.js').KnownModel} KnownModel
+ * @typedef {import('../../../types/new-tab.js').CustomModel} CustomModel
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
- * @type {ReadonlyMap<KnownModel, import('preact').JSX.Element>}
+ * @type {ReadonlyMap<CustomModel, import('preact').JSX.Element>}
  */
 const ICON_BY_MODEL = new Map([
     ['voice-mode', <VoiceIcon />],
@@ -79,7 +79,7 @@ function ChatIcon({ chat }) {
         return <PinIcon />;
     }
 
-    const customIcon = chat.model && ICON_BY_MODEL.get(/** @type {KnownModel} */ (chat.model));
+    const customIcon = chat.model && ICON_BY_MODEL.get(/** @type {CustomModel} */ (chat.model));
 
     return customIcon || <ChatBubbleIcon />;
 }

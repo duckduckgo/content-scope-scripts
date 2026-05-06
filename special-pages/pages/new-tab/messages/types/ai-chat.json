@@ -21,8 +21,8 @@
       "type": "string"
     },
     "model": {
-      "description": "The AI model the chat was conducted with. Either a `KnownModel` literal we know how to render an icon for, or any other model identifier (e.g. 'gpt-4o-mini') which renders the default chat-bubble icon.",
-      "anyOf": [{ "$ref": "known-model.json" }, { "type": "string" }]
+      "description": "The AI model the chat was conducted with. Either a `CustomModel` literal we know how to render an icon for, or any other model identifier (e.g. 'gpt-4o-mini') which renders the default chat-bubble icon.",
+      "anyOf": [{ "$ref": "custom-model.json" }, { "type": "string" }]
     }
   }
 }
