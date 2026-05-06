@@ -17,11 +17,11 @@ import styles from './AiChatsList.module.css';
  */
 
 /**
- * @type {ReadonlyMap<CustomModel, import('preact').JSX.Element>}
+ * @type {ReadonlyMap<CustomModel, import('preact').FunctionComponent>}
  */
 const ICON_BY_MODEL = new Map([
-    ['voice-mode', <VoiceIcon />],
-    ['image-generation', <ImageIcon />],
+    ['voice-mode', VoiceIcon],
+    ['image-generation', ImageIcon],
 ]);
 
 /**
@@ -79,7 +79,7 @@ function ChatIcon({ chat }) {
         return <PinIcon />;
     }
 
-    const customIcon = chat.model && ICON_BY_MODEL.get(/** @type {CustomModel} */ (chat.model));
+    const Icon = chat.model && ICON_BY_MODEL.get(/** @type {CustomModel} */ (chat.model));
 
-    return customIcon || <ChatBubbleIcon />;
+    return Icon ? <Icon /> : <ChatBubbleIcon />;
 }
