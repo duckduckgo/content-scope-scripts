@@ -2036,6 +2036,23 @@
       }
     ));
   }
+  function ImageIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M4.5 7C5.32843 7 6 6.32843 6 5.5C6 4.67157 5.32843 4 4.5 4C3.67157 4 3 4.67157 3 5.5C3 6.32843 3.67157 7 4.5 7Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M4 1C1.79086 1 0 2.79086 0 5V11C0 13.2091 1.79086 15 4 15H12C14.2091 15 16 13.2091 16 11V5C16 2.79086 14.2091 1 12 1H4ZM1.25 5C1.25 3.48122 2.48122 2.25 4 2.25H12C13.5188 2.25 14.75 3.48122 14.75 5V8.86607L11.942 6.05806C11.6979 5.81398 11.3022 5.81398 11.0581 6.05806L8.00005 9.11612L6.94199 8.05806C6.82478 7.94085 6.66581 7.875 6.50005 7.875C6.33429 7.875 6.17532 7.94085 6.05811 8.05806L1.66415 12.452C1.40165 12.0306 1.25 11.533 1.25 11V5ZM8.88393 10L9.94199 11.0581C10.1861 11.3021 10.1861 11.6979 9.94199 11.9419C9.69791 12.186 9.30218 12.186 9.05811 11.9419L6.50005 9.38388L2.54804 13.3359C2.96942 13.5984 3.467 13.75 4 13.75H12C13.5188 13.75 14.75 12.5188 14.75 11V10.6338L11.5 7.38388L8.88393 10Z"
+      }
+    ));
+  }
   function CreateImageIcon(props) {
     return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 15.9833 15.9833", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
@@ -10370,12 +10387,22 @@
             });
           }
         },
-        chat.pinned ? /* @__PURE__ */ k(PinIcon, null) : /* @__PURE__ */ k(ChatBubbleIcon, null),
+        /* @__PURE__ */ k(ChatIcon, { chat }),
         /* @__PURE__ */ k("span", { class: AiChatsList_default.title }, chat.title)
       );
     }), showViewAllAiChats && /* @__PURE__ */ k(AiChatsListFooter, null));
   }
-  var import_classnames10;
+  function ChatIcon({ chat }) {
+    if (chat.pinned) {
+      return /* @__PURE__ */ k(PinIcon, null);
+    }
+    const Icon = chat.model && ICON_BY_MODEL.get(
+      /** @type {CustomModel} */
+      chat.model
+    );
+    return Icon ? /* @__PURE__ */ k(Icon, null) : /* @__PURE__ */ k(ChatBubbleIcon, null);
+  }
+  var import_classnames10, ICON_BY_MODEL;
   var init_AiChatsList2 = __esm({
     "pages/new-tab/app/omnibar/components/AiChatsList.js"() {
       "use strict";
@@ -10390,6 +10417,10 @@
       init_useAiChats();
       init_AiChatsListFooter2();
       init_AiChatsList();
+      ICON_BY_MODEL = /* @__PURE__ */ new Map([
+        ["voice-mode", VoiceIcon],
+        ["image-generation", ImageIcon]
+      ]);
     }
   });
 
@@ -37897,19 +37928,22 @@
       chatId: "chat-002",
       title: "Progression plan summary Progression plan summary Progression plan summary Progression plan summary Progression plan summary",
       pinned: false,
-      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 2).toISOString()
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 2).toISOString(),
+      model: "voice-mode"
     },
     {
       chatId: "chat-003",
       title: mockAiChatTitleWithSearchTerm,
       pinned: false,
-      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 24).toISOString()
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 24).toISOString(),
+      model: "gpt-4o-mini"
     },
     {
       chatId: "chat-004",
-      title: "Share knowledge effectively.",
+      title: "Tomato ideas",
       pinned: false,
-      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 48).toISOString()
+      lastEdit: new Date(Date.now() - 1e3 * 60 * 60 * 48).toISOString(),
+      model: "image-generation"
     },
     {
       chatId: "chat-005",

@@ -111,18 +111,21 @@ const allMockChats = [
         title: 'Progression plan summary Progression plan summary Progression plan summary Progression plan summary Progression plan summary',
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+        model: 'voice-mode',
     },
     {
         chatId: 'chat-003',
         title: mockAiChatTitleWithSearchTerm,
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+        model: 'gpt-4o-mini',
     },
     {
         chatId: 'chat-004',
-        title: 'Share knowledge effectively.',
+        title: 'Tomato ideas',
         pinned: false,
         lastEdit: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+        model: 'image-generation',
     },
     {
         chatId: 'chat-005',

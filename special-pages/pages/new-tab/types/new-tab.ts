@@ -144,6 +144,10 @@ export type NextStepsCardTypes =
 export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];
+/**
+ * Canonical AI chat model identifiers Duck.ai treats specially.
+ */
+export type CustomModel = "voice-mode" | "image-generation";
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon =
   | "Announce"
@@ -1164,6 +1168,10 @@ export interface AiChat {
    * ISO timestamp of last edit
    */
   lastEdit?: string;
+  /**
+   * The AI model the chat was conducted with.
+   */
+  model?: CustomModel | string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"
