@@ -274,6 +274,21 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
         });
     });
 
+    test.describe('omnibar recent ai chats @screenshots', () => {
+        test('recent ai chats list', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableRecentAiChats': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-recent-ai-chats.png', { maxDiffPixels });
+        });
+    });
+
     test.describe('omnibar reasoning picker @screenshots', () => {
         test('reasoning picker rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);

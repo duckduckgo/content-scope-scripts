@@ -809,6 +809,27 @@ export function ToolsIcon(props) {
 }
 
 /**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Image-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ImageIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M4.5 7C5.32843 7 6 6.32843 6 5.5C6 4.67157 5.32843 4 4.5 4C3.67157 4 3 4.67157 3 5.5C3 6.32843 3.67157 7 4.5 7Z"
+            />
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M4 1C1.79086 1 0 2.79086 0 5V11C0 13.2091 1.79086 15 4 15H12C14.2091 15 16 13.2091 16 11V5C16 2.79086 14.2091 1 12 1H4ZM1.25 5C1.25 3.48122 2.48122 2.25 4 2.25H12C13.5188 2.25 14.75 3.48122 14.75 5V8.86607L11.942 6.05806C11.6979 5.81398 11.3022 5.81398 11.0581 6.05806L8.00005 9.11612L6.94199 8.05806C6.82478 7.94085 6.66581 7.875 6.50005 7.875C6.33429 7.875 6.17532 7.94085 6.05811 8.05806L1.66415 12.452C1.40165 12.0306 1.25 11.533 1.25 11V5ZM8.88393 10L9.94199 11.0581C10.1861 11.3021 10.1861 11.6979 9.94199 11.9419C9.69791 12.186 9.30218 12.186 9.05811 11.9419L6.50005 9.38388L2.54804 13.3359C2.96942 13.5984 3.467 13.75 4 13.75H12C13.5188 13.75 14.75 12.5188 14.75 11V10.6338L11.5 7.38388L8.88393 10Z"
+            />
+        </svg>
+    );
+}
+
+/**
  * Image generation icon from Figma — used in the "Create Image" toggle button.
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
