@@ -3759,7 +3759,7 @@
       next.lastAction = evt.kind;
       state.value = next;
     }
-    const dispatch = q2(dispatcher, [state, selected]);
+    const dispatch = q2(dispatcher, [state]);
     return { selected, dispatch, state };
   }
   function reducer(prev, evt) {
@@ -5188,59 +5188,6 @@
     );
   }
 
-  // pages/history/app/global/Providers/ThemeProvider.js
-  var ThemeContext = X({
-    /** @type {'light' | 'dark'} */
-    theme: "light",
-    /** @type {ThemeVariant} */
-    themeVariant: "default"
-  });
-  var darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-  function useSystemTheme() {
-    const [systemTheme, setSystemTheme] = d2(
-      /** @type {'light' | 'dark'} */
-      darkModeMediaQuery.matches ? "dark" : "light"
-    );
-    y2(() => {
-      const listener = (e4) => setSystemTheme(e4.matches ? "dark" : "light");
-      darkModeMediaQuery.addEventListener("change", listener);
-      return () => darkModeMediaQuery.removeEventListener("change", listener);
-    }, []);
-    return systemTheme;
-  }
-  function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
-    const history = useMessaging();
-    const systemTheme = useSystemTheme();
-    const [explicitTheme, setExplicitTheme] = d2(
-      /** @type {BrowserTheme | undefined} */
-      void 0
-    );
-    const [explicitThemeVariant, setExplicitThemeVariant] = d2(
-      /** @type {ThemeVariant | undefined} */
-      void 0
-    );
-    y2(() => {
-      const unsubscribe = history.onThemeUpdate((data) => {
-        setExplicitTheme(data.theme);
-        setExplicitThemeVariant(data.themeVariant);
-      });
-      return unsubscribe;
-    }, [history]);
-    const browserTheme = explicitTheme ?? initialTheme ?? "system";
-    const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? "default";
-    const theme = browserTheme === "system" ? systemTheme : browserTheme;
-    _2(() => {
-      document.body.dataset.theme = theme;
-    }, [theme]);
-    _2(() => {
-      document.body.dataset.themeVariant = themeVariant;
-    }, [themeVariant]);
-    return /* @__PURE__ */ k(ThemeContext.Provider, { value: { theme, themeVariant } }, children);
-  }
-  function useTheme() {
-    return x2(ThemeContext);
-  }
-
   // pages/history/app/components/App.jsx
   function App() {
     const platformName = usePlatformName();
@@ -5248,7 +5195,6 @@
       /** @type {HTMLElement|null} */
       null
     );
-    const { theme, themeVariant } = useTheme();
     const ranges = useRangesData();
     const query = useQueryContext();
     const mode = useLayoutMode();
@@ -5351,6 +5297,56 @@
     };
     const fallbackElement = fallback?.(INLINE_ERROR) || /* @__PURE__ */ k("p", null, INLINE_ERROR);
     return /* @__PURE__ */ k(ErrorBoundary, { context, didCatch: ({ message }) => didCatch(message), fallback: fallbackElement }, children);
+  }
+
+  // pages/history/app/global/Providers/ThemeProvider.js
+  var ThemeContext = X({
+    /** @type {'light' | 'dark'} */
+    theme: "light",
+    /** @type {ThemeVariant} */
+    themeVariant: "default"
+  });
+  var darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  function useSystemTheme() {
+    const [systemTheme, setSystemTheme] = d2(
+      /** @type {'light' | 'dark'} */
+      darkModeMediaQuery.matches ? "dark" : "light"
+    );
+    y2(() => {
+      const listener = (e4) => setSystemTheme(e4.matches ? "dark" : "light");
+      darkModeMediaQuery.addEventListener("change", listener);
+      return () => darkModeMediaQuery.removeEventListener("change", listener);
+    }, []);
+    return systemTheme;
+  }
+  function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
+    const history = useMessaging();
+    const systemTheme = useSystemTheme();
+    const [explicitTheme, setExplicitTheme] = d2(
+      /** @type {BrowserTheme | undefined} */
+      void 0
+    );
+    const [explicitThemeVariant, setExplicitThemeVariant] = d2(
+      /** @type {ThemeVariant | undefined} */
+      void 0
+    );
+    y2(() => {
+      const unsubscribe = history.onThemeUpdate((data) => {
+        setExplicitTheme(data.theme);
+        setExplicitThemeVariant(data.themeVariant);
+      });
+      return unsubscribe;
+    }, [history]);
+    const browserTheme = explicitTheme ?? initialTheme ?? "system";
+    const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? "default";
+    const theme = browserTheme === "system" ? systemTheme : browserTheme;
+    _2(() => {
+      document.body.dataset.theme = theme;
+    }, [theme]);
+    _2(() => {
+      document.body.dataset.themeVariant = themeVariant;
+    }, [themeVariant]);
+    return /* @__PURE__ */ k(ThemeContext.Provider, { value: { theme, themeVariant } }, children);
   }
 
   // pages/history/app/index.js

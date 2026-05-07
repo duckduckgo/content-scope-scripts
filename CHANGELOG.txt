@@ -1,3 +1,5 @@
-- Send YouTube buffering events (#2678)
-- send yt detection events (#2677)
-- make overflow-y required to lock, and add a setting for locked sites (#2676)
+- feat(ntp): add YouTube ad blocking next steps card (#2685)
+- build(deps): bump @rive-app/canvas-single from 2.37.1 to 2.37.5 (#2684)
+- build(deps-dev): bump typescript-eslint from 8.58.2 to 8.59.1 (#2683)
+- chore(eslint): enhance configuration for pReact hooks (#2681)
+- Prevent button wrapping on older Safari (#2680)

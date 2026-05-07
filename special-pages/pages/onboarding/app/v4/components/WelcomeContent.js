@@ -28,6 +28,7 @@ export function WelcomeContent({ onComplete }) {
         if (!isReducedMotion) return;
         const timer = setTimeout(complete, WELCOME_ANIMATION_MS);
         return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [isReducedMotion]);
 
     return (

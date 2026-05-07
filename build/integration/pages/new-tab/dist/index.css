@@ -3691,6 +3691,9 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   gap: var(--sp-2);
   margin-top: var(--sp-1);
 }
+.NextStepsListCard_buttonRow button {
+  white-space: nowrap;
+}
 
 /* pages/new-tab/app/omnibar/components/AiChatForm.module.css */
 .AiChatForm_form {

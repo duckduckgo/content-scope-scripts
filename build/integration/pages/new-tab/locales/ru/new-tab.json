@@ -377,6 +377,18 @@
     "title": "Попробовать Duck Player",
     "note": "Button text of the Next Steps List card for Duck Player"
   },
+  "nextStepsList_youtubeAdBlocking_title": {
+    "title": "Смотри YouTube без рекламы",
+    "note": "Title of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_summary": {
+    "title": "Пользуйтесь «чистым» просмотром без персонализированной рекламы.",
+    "note": "Summary of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_actionText": {
+    "title": "Открыть YouTube",
+    "note": "Button text of the Next Steps List card for YouTube ad blocking"
+  },
   "nextStepsList_emailProtection_title": {
     "title": "Остановить спам и трекеры",
     "note": "Title of the Next Steps List card for email protection"
@@ -500,6 +512,18 @@
   "nextSteps_duckPlayer_actionText": {
     "title": "Попробовать Duck Player",
     "note": "Button text of the Next Steps card for adopting DuckPlayer"
+  },
+  "nextSteps_youtubeAdBlocking_title": {
+    "title": "Смотрите YouTube без рекламы",
+    "note": "Title of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_summary": {
+    "title": "Пользуйтесь «чистым» просмотром без персонализированной рекламы.",
+    "note": "Summary of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_actionText": {
+    "title": "Открыть YouTube",
+    "note": "Button text of the Next Steps card for YouTube ad blocking"
   },
   "nextSteps_addAppDockMac_title": {
     "title": "DuckDuckGo на док-панели",

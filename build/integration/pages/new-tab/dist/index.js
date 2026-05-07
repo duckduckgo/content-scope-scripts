@@ -6710,11 +6710,12 @@
   function useDropzoneSafeArea() {
     const ref = A2(null);
     y2(() => {
-      if (!ref.current) return;
-      const evt = new CustomEvent(REGISTER_EVENT, { detail: { dropzone: ref.current } });
+      const node = ref.current;
+      if (!node) return;
+      const evt = new CustomEvent(REGISTER_EVENT, { detail: { dropzone: node } });
       window.dispatchEvent(evt);
       return () => {
-        window.dispatchEvent(new CustomEvent(CLEAR_EVENT, { detail: { dropzone: ref.current } }));
+        window.dispatchEvent(new CustomEvent(CLEAR_EVENT, { detail: { dropzone: node } }));
       };
     }, []);
     return ref;
@@ -7971,6 +7972,14 @@
           actionText: t4("nextSteps_duckPlayer_actionText")
         }),
         /** @param {(translationId: keyof enStrings) => string} t */
+        youtubeAdBlocking: (t4) => ({
+          id: "youtubeAdBlocking",
+          icon: "Tube-Clean",
+          title: t4("nextSteps_youtubeAdBlocking_title"),
+          summary: t4("nextSteps_youtubeAdBlocking_summary"),
+          actionText: t4("nextSteps_youtubeAdBlocking_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
         addAppToDockMac: (t4) => ({
           id: "addAppToDockMac",
           icon: "Dock-Add-Mac",
@@ -8137,10 +8146,9 @@
     return /* @__PURE__ */ k(NextStepsProvider, null, /* @__PURE__ */ k(NextStepsConsumer, null));
   }
   function NextStepsConsumer() {
-    const { state, toggle } = x2(NextStepsContext);
+    const { state, toggle, action, dismiss } = x2(NextStepsContext);
     if (state.status === "ready" && state.data.content) {
       const ids = state.data.content.filter((x5) => x5.id in variants).map((x5) => x5.id);
-      const { action, dismiss } = x2(NextStepsContext);
       return /* @__PURE__ */ k(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
     }
     return null;
@@ -8554,6 +8562,14 @@
           title: t4("nextStepsList_duckplayer_title"),
           summary: t4("nextStepsList_duckplayer_summary"),
           actionText: t4("nextStepsList_duckplayer_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        youtubeAdBlocking: (t4) => ({
+          id: "youtubeAdBlocking",
+          icon: "duck-player",
+          title: t4("nextStepsList_youtubeAdBlocking_title"),
+          summary: t4("nextStepsList_youtubeAdBlocking_summary"),
+          actionText: t4("nextStepsList_youtubeAdBlocking_actionText")
         }),
         /** @param {(translationId: keyof enStrings) => string} t */
         emailProtection: (t4) => ({
@@ -10024,7 +10040,7 @@
       if (autoFocus && inputRef.current) {
         inputRef.current.focus();
       }
-    }, [autoFocus]);
+    }, [autoFocus, inputRef]);
     const acceptSuggestion = () => {
       if (selectedSuggestion) {
         setTerm(inputBase + inputCompletion);
@@ -31075,12 +31091,13 @@
           window.dispatchEvent(new Event("activity.next"));
         }
       });
-      if (loaderRef.current) {
-        observer.observe(loaderRef.current);
+      const node = loaderRef.current;
+      if (node) {
+        observer.observe(node);
       }
       return () => {
-        if (loaderRef.current) {
-          observer.unobserve(loaderRef.current);
+        if (node) {
+          observer.unobserve(node);
         }
       };
     }, []);
@@ -34085,6 +34102,18 @@
       title: "Try Duck Player",
       note: "Button text of the Next Steps List card for Duck Player"
     },
+    nextStepsList_youtubeAdBlocking_title: {
+      title: "Watch YouTube Without Ads",
+      note: "Title of the Next Steps List card for YouTube ad blocking"
+    },
+    nextStepsList_youtubeAdBlocking_summary: {
+      title: "Enjoy a clean viewing experience without creepy, personalized ads.",
+      note: "Summary of the Next Steps List card for YouTube ad blocking"
+    },
+    nextStepsList_youtubeAdBlocking_actionText: {
+      title: "Open YouTube",
+      note: "Button text of the Next Steps List card for YouTube ad blocking"
+    },
     nextStepsList_emailProtection_title: {
       title: "Protect Your Email Address and Block Trackers",
       note: "Title of the Next Steps List card for email protection"
@@ -34208,6 +34237,18 @@
     nextSteps_duckPlayer_actionText: {
       title: "Try Duck Player",
       note: "Button text of the Next Steps card for adopting DuckPlayer"
+    },
+    nextSteps_youtubeAdBlocking_title: {
+      title: "Watch YouTube Without Ads",
+      note: "Title of the Next Steps card for YouTube ad blocking"
+    },
+    nextSteps_youtubeAdBlocking_summary: {
+      title: "Enjoy a clean viewing experience without creepy, personalized ads.",
+      note: "Summary of the Next Steps card for YouTube ad blocking"
+    },
+    nextSteps_youtubeAdBlocking_actionText: {
+      title: "Open YouTube",
+      note: "Button text of the Next Steps card for YouTube ad blocking"
     },
     nextSteps_addAppDockMac_title: {
       title: "Add App to the Dock",
@@ -34926,13 +34967,11 @@
   init_preact_module();
   init_FavoritesProvider();
   init_hooks_module();
-  init_EnvironmentProvider();
   init_service_hooks();
   var DEFAULT_CONFIG = {
     expansion: "expanded"
   };
   function MockFavoritesProvider({ data: data2 = favorites.many, config = DEFAULT_CONFIG, children }) {
-    const { isReducedMotion } = useEnv();
     const initial = (
       /** @type {State} */
       {
@@ -34954,7 +34993,7 @@
       );
       dispatch({ kind: "config", config: next });
       et.dispatchEvent(new CustomEvent("state-update", { detail: next }));
-    }, [state.status, state.config?.expansion, isReducedMotion]);
+    }, [state.status, state.config, et]);
     const favoritesDidReOrder = q2(({ list: list2 }) => {
       dispatch({ kind: "data", data: { favorites: list2 } });
     }, []);
@@ -35081,6 +35120,7 @@
             "blockCookies",
             "emailProtection",
             "duckplayer",
+            "youtubeAdBlocking",
             "addAppToDockMac",
             "pinAppToTaskbarWindows"
           ],
@@ -35101,6 +35141,7 @@
             "blockCookies",
             "emailProtection",
             "duckplayer",
+            "youtubeAdBlocking",
             "addAppToDockMac",
             "pinAppToTaskbarWindows"
           ],
@@ -35142,6 +35183,9 @@
     },
     "next-steps.duckplayer": {
       factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "duckplayer", dismiss: noop("dismiss"), action: noop("action") })
+    },
+    "next-steps.youtubeAdBlocking": {
+      factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "youtubeAdBlocking", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.defaultApp": {
       factory: () => /* @__PURE__ */ k(NextStepsCard, { type: "defaultApp", dismiss: noop("dismiss"), action: noop("action") })
@@ -37668,7 +37712,7 @@
       if (interval === 0) return;
       const int = setInterval(() => signal.value += 1, interval);
       return () => clearInterval(int);
-    }, [interval]);
+    }, [interval, signal]);
     const toggle = () => {
       setExpansion((old) => old === "expanded" ? "collapsed" : "expanded");
     };
@@ -38182,7 +38226,7 @@
       const matching = current.filter((x5) => x5 === id);
       const matchingMinus1 = matching.length === 1 ? [] : matching.slice(0, -1);
       without.searchParams.delete("id");
-      for (let string2 of [...others, ...matchingMinus1]) {
+      for (const string2 of [...others, ...matchingMinus1]) {
         without.searchParams.append("id", string2);
       }
       return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: Components_default.itemInfo }, /* @__PURE__ */ k("div", { class: Components_default.itemLinks }, /* @__PURE__ */ k("code", null, id), /* @__PURE__ */ k("a", { href: next.toString(), target: "_blank", title: "open in new tab" }, "Open \u{1F517}"), " ", /* @__PURE__ */ k("a", { href: without.toString(), hidden: current.length === 0 }, "Remove")), /* @__PURE__ */ k("div", { class: Components_default.itemLinks }, /* @__PURE__ */ k("a", { href: selected.toString(), class: Components_default.itemLink, title: "show this component only" }, "select"), " ", /* @__PURE__ */ k("a", { href: next.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "isolate"), " ", /* @__PURE__ */ k("a", { href: e2e.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "edge-to-edge"))), /* @__PURE__ */ k("div", { className: Components_default.item, key: id }, item.factory()));
@@ -38235,11 +38279,6 @@
     return /* @__PURE__ */ k("div", { class: Components_default.tubeGrid }, children);
   }
   function Append({ entries: entries4 }) {
-    function onReset() {
-      const url8 = new URL(window.location.href);
-      url8.searchParams.delete("id");
-      window.location.href = url8.toString();
-    }
     function onSubmit(event) {
       if (!event.target) return;
       event.preventDefault();

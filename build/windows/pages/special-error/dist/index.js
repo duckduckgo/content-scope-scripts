@@ -2323,12 +2323,13 @@
         return t3("sslPageHeading");
       case "malware":
       case "phishing":
-      case "scam":
+      case "scam": {
         const translationKey = (
           /** @type {const} */
           `${kind}PageHeading`
         );
         return t3(translationKey).replace("{newline}", "\n");
+      }
       default:
     }
     throw new Error(`Unhandled error kind ${kind}`);
@@ -2367,7 +2368,7 @@
         return t3("sslAdvancedInfoHeading");
       case "malware":
       case "phishing":
-      case "scam":
+      case "scam": {
         const { url } = (
           /** @type {MaliciousSite} */
           errorData
@@ -2378,6 +2379,7 @@
           `${kind}AdvancedInfoHeading`
         );
         return /* @__PURE__ */ k(Trans, { str: t3(translationKey), values: { a: anchorTagParams } });
+      }
       default:
     }
     throw new Error(`Unhandled error kind ${kind}`);
@@ -2401,12 +2403,13 @@
           return [/* @__PURE__ */ k(Trans, { str: t3("sslInvalidAdvancedInfoText", { domain }), values: "" })];
         case "selfSigned":
           return [/* @__PURE__ */ k(Trans, { str: t3("sslSelfSignedAdvancedInfoText", { domain }), values: "" })];
-        case "wrongHost":
+        case "wrongHost": {
           const { eTldPlus1 } = (
             /** @type {SSLWrongHost} */
             errorData
           );
           return [/* @__PURE__ */ k(Trans, { str: t3("sslWrongHostAdvancedInfoText", { domain, eTldPlus1 }), values: "" })];
+        }
         default:
           throw new Error(`Unhandled SSL error type ${errorType}`);
       }
@@ -2468,30 +2471,6 @@
 
   // pages/special-error/app/components/Warning.jsx
   var import_classnames3 = __toESM(require_classnames(), 1);
-
-  // pages/special-error/app/settings.js
-  var Settings = class _Settings {
-    /**
-     * @param {object} params
-     * @param {{name: ImportMeta['platform']}} [params.platform]
-     */
-    constructor({ platform = { name: "macos" } }) {
-      this.platform = platform;
-    }
-    withPlatformName(name) {
-      const valid = ["windows", "macos", "ios", "android"];
-      if (valid.includes(
-        /** @type {any} */
-        name
-      )) {
-        return new _Settings({
-          ...this,
-          platform: { name }
-        });
-      }
-      return this;
-    }
-  };
 
   // pages/special-error/app/providers/SettingsProvider.jsx
   var SettingsContext = X(
@@ -2589,10 +2568,10 @@
   }
   function WarningHeading() {
     const heading = useWarningHeading();
-    if (!heading) return null;
     const { kind } = useErrorData();
     const platformName = usePlatformName();
     const isMobile = useIsMobile();
+    if (!heading) return null;
     let textVariant;
     switch (platformName) {
       case "ios":
@@ -2777,6 +2756,30 @@
     }
     return { error: "Unreachable: value not retrieved" };
   }
+
+  // pages/special-error/app/settings.js
+  var Settings = class _Settings {
+    /**
+     * @param {object} params
+     * @param {{name: ImportMeta['platform']}} [params.platform]
+     */
+    constructor({ platform = { name: "macos" } }) {
+      this.platform = platform;
+    }
+    withPlatformName(name) {
+      const valid = ["windows", "macos", "ios", "android"];
+      if (valid.includes(
+        /** @type {any} */
+        name
+      )) {
+        return new _Settings({
+          ...this,
+          platform: { name }
+        });
+      }
+      return this;
+    }
+  };
 
   // pages/special-error/app/specialError.js
   var SpecialError = class _SpecialError {
