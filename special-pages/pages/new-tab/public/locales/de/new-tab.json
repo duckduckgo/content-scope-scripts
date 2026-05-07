@@ -377,6 +377,18 @@
     "title": "Duck Player testen",
     "note": "Button text of the Next Steps List card for Duck Player"
   },
+  "nextStepsList_youtubeAdBlocking_title": {
+    "title": "YouTube ohne Werbung ansehen",
+    "note": "Title of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_summary": {
+    "title": "Genieße ein sauberes Seherlebnis ohne aufdringliche, personalisierte Werbung.",
+    "note": "Summary of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_actionText": {
+    "title": "YouTube öffnen",
+    "note": "Button text of the Next Steps List card for YouTube ad blocking"
+  },
   "nextStepsList_emailProtection_title": {
     "title": "Schütze deine E-Mail-Adresse und blockiere Tracker",
     "note": "Title of the Next Steps List card for email protection"
@@ -500,6 +512,18 @@
   "nextSteps_duckPlayer_actionText": {
     "title": "Duck Player testen",
     "note": "Button text of the Next Steps card for adopting DuckPlayer"
+  },
+  "nextSteps_youtubeAdBlocking_title": {
+    "title": "YouTube ohne Werbung ansehen",
+    "note": "Title of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_summary": {
+    "title": "Genieße ein sauberes Seherlebnis ohne aufdringliche, personalisierte Werbung.",
+    "note": "Summary of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_actionText": {
+    "title": "YouTube öffnen",
+    "note": "Button text of the Next Steps card for YouTube ad blocking"
   },
   "nextSteps_addAppDockMac_title": {
     "title": "App zum Dock hinzufügen",
