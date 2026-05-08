@@ -256,8 +256,11 @@ describe('WebDetection', () => {
             const result = oneDetectorConfigParsed({
                 match: { text: { pattern: ['adblocker', 'disable'] }, element: { selector: '.overlay', visibility: 'visible' } },
             });
-            expect(asSingle(result.match).text).toEqual({ pattern: ['adblocker', 'disable'] });
-            expect(asSingle(result.match).element).toEqual({ selector: '.overlay', visibility: 'visible' });
+            const leaf = /** @type {import('../src/features/web-detection/parse.js').MatchConditionSingle} */ (
+                asSingle(result.match)
+            );
+            expect(leaf.text).toEqual({ pattern: ['adblocker', 'disable'] });
+            expect(leaf.element).toEqual({ selector: '.overlay', visibility: 'visible' });
         });
 
         it('should handle array of match conditions (OR)', () => {
@@ -476,6 +479,16 @@ describe('WebDetection', () => {
 
         it('should return error for detector with invalid selector', () => {
             const results = runDetector({ match: { element: { selector: '!!!invalid' } } });
+            expect(results.length).toBe(1);
+            expect(results[0].detected).toBe('error');
+        });
+
+        it('should return error when condition mixes operator keys with leaf fields', () => {
+            const results = runDetector({
+                match: /** @type {any} - intentionally invalid: mixes operator + leaf keys */ ({
+                    text: { all: [{ pattern: 'foo' }], pattern: 'bar' },
+                }),
+            });
             expect(results.length).toBe(1);
             expect(results[0].detected).toBe('error');
         });
@@ -998,6 +1011,188 @@ describe('WebDetection', () => {
                         ],
                     }),
                 ).toBe(true);
+            });
+        });
+
+        describe('all operator', () => {
+            it('should require every condition to match', () => {
+                expect(matchInDOM('<p>foo bar</p>', { text: { all: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(true);
+                expect(matchInDOM('<p>foo</p>', { text: { all: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(false);
+                expect(matchInDOM('<p>bar</p>', { text: { all: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(false);
+            });
+
+            it('should accept singleton form (object instead of array)', () => {
+                expect(matchInDOM('<p>foo</p>', { text: { all: { pattern: 'foo' } } })).toBe(true);
+                expect(matchInDOM('<p>baz</p>', { text: { all: { pattern: 'foo' } } })).toBe(false);
+            });
+
+            it('should be vacuously true on empty array', () => {
+                expect(matchInDOM('<p>x</p>', { text: { all: [] } })).toBe(true);
+            });
+        });
+
+        describe('any operator', () => {
+            it('should match if at least one condition matches', () => {
+                expect(matchInDOM('<p>foo</p>', { text: { any: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(true);
+                expect(matchInDOM('<p>bar</p>', { text: { any: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(true);
+                expect(matchInDOM('<p>baz</p>', { text: { any: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(false);
+            });
+
+            it('should be equivalent to bare-array OR form', () => {
+                const html = '<p>foo</p>';
+                const opForm = { text: { any: [{ pattern: 'foo' }, { pattern: 'bar' }] } };
+                const arrayForm = { text: [{ pattern: 'foo' }, { pattern: 'bar' }] };
+                expect(matchInDOM(html, opForm)).toBe(matchInDOM(html, arrayForm));
+            });
+
+            it('should be vacuously false on empty array', () => {
+                expect(matchInDOM('<p>x</p>', { text: { any: [] } })).toBe(false);
+            });
+        });
+
+        describe('none operator', () => {
+            it('should match when no nested condition matches', () => {
+                expect(matchInDOM('<p>welcome</p>', { text: { none: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(true);
+            });
+
+            it('should fail when any nested condition matches', () => {
+                expect(matchInDOM('<p>foo</p>', { text: { none: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(false);
+                expect(matchInDOM('<p>bar</p>', { text: { none: [{ pattern: 'foo' }, { pattern: 'bar' }] } })).toBe(false);
+            });
+
+            it('should accept singleton form', () => {
+                expect(matchInDOM('<p>welcome</p>', { text: { none: { pattern: 'foo' } } })).toBe(true);
+                expect(matchInDOM('<p>foo</p>', { text: { none: { pattern: 'foo' } } })).toBe(false);
+            });
+
+            it('should be vacuously true on empty array', () => {
+                expect(matchInDOM('<p>x</p>', { text: { none: [] } })).toBe(true);
+            });
+        });
+
+        describe('sibling operators (AND)', () => {
+            it('should AND-combine all + none', () => {
+                // text contains foo (all) and does not contain bad (none)
+                expect(matchInDOM('<p>foo good</p>', { text: { all: [{ pattern: 'foo' }], none: [{ pattern: 'bad' }] } })).toBe(true);
+                // contains foo but also contains bad -> none fails
+                expect(matchInDOM('<p>foo bad</p>', { text: { all: [{ pattern: 'foo' }], none: [{ pattern: 'bad' }] } })).toBe(false);
+                // missing foo -> all fails
+                expect(matchInDOM('<p>good</p>', { text: { all: [{ pattern: 'foo' }], none: [{ pattern: 'bad' }] } })).toBe(false);
+            });
+
+            it('should AND-combine any + none', () => {
+                expect(
+                    matchInDOM('<p>foo good</p>', { text: { any: [{ pattern: 'foo' }, { pattern: 'baz' }], none: [{ pattern: 'bad' }] } }),
+                ).toBe(true);
+                expect(
+                    matchInDOM('<p>foo bad</p>', { text: { any: [{ pattern: 'foo' }, { pattern: 'baz' }], none: [{ pattern: 'bad' }] } }),
+                ).toBe(false);
+            });
+        });
+
+        describe('operators at top-level match', () => {
+            it('should support all at the match level', () => {
+                expect(
+                    matchInDOM('<div class="overlay">disable adblocker</div>', {
+                        all: [{ text: { pattern: 'adblocker' } }, { element: { selector: '.overlay', visibility: 'any' } }],
+                    }),
+                ).toBe(true);
+            });
+
+            it('should support any at the match level', () => {
+                expect(
+                    matchInDOM('<p>welcome</p>', {
+                        any: [{ text: { pattern: 'adblocker' } }, { text: { pattern: 'welcome' } }],
+                    }),
+                ).toBe(true);
+            });
+
+            it('should support none at the match level', () => {
+                expect(matchInDOM('<p>welcome</p>', { none: [{ text: { pattern: 'adblocker' } }] })).toBe(true);
+                expect(matchInDOM('<p>adblocker</p>', { none: [{ text: { pattern: 'adblocker' } }] })).toBe(false);
+            });
+        });
+
+        describe('nested operators', () => {
+            it('should evaluate deeply nested operator trees', () => {
+                // (any[a, b]) AND (none[c])
+                const condition = {
+                    text: {
+                        all: [{ any: [{ pattern: 'a' }, { pattern: 'b' }] }, { none: [{ pattern: 'c' }] }],
+                    },
+                };
+                expect(matchInDOM('<p>a</p>', condition)).toBe(true);
+                expect(matchInDOM('<p>b</p>', condition)).toBe(true);
+                expect(matchInDOM('<p>a c</p>', condition)).toBe(false);
+                expect(matchInDOM('<p>x</p>', condition)).toBe(false);
+            });
+        });
+
+        describe('operator children of mixed shape (operator-block and leaf siblings)', () => {
+            // Each child of any/all/none is its own ConditionNode and may independently be
+            // either an operator block or a leaf — they just can't be mixed *within the same object*.
+
+            it('should allow all to mix an operator-block child and a leaf child at match level', () => {
+                // all[ any[ text=foo, text=bar ], element=.overlay ]
+                const condition = {
+                    all: [
+                        { any: [{ text: { pattern: 'foo' } }, { text: { pattern: 'bar' } }] },
+                        { element: { selector: '.overlay', visibility: 'any' } },
+                    ],
+                };
+                expect(matchInDOM('<div class="overlay">foo</div>', condition)).toBe(true);
+                expect(matchInDOM('<div class="overlay">bar</div>', condition)).toBe(true);
+                // text matches but element doesn't
+                expect(matchInDOM('<p>foo</p>', condition)).toBe(false);
+                // element matches but text doesn't
+                expect(matchInDOM('<div class="overlay">welcome</div>', condition)).toBe(false);
+            });
+
+            it('should allow any to mix an operator-block child and a leaf child at per-type level', () => {
+                // text: any[ none[pattern=bad], pattern=foo ]
+                const condition = {
+                    text: {
+                        any: [{ none: [{ pattern: 'bad' }] }, { pattern: 'foo' }],
+                    },
+                };
+                // none[bad] satisfied (welcome doesn't contain bad) -> any matches
+                expect(matchInDOM('<p>welcome</p>', condition)).toBe(true);
+                // pattern=foo matches -> any matches
+                expect(matchInDOM('<p>foo</p>', condition)).toBe(true);
+                // pattern=bad present (none fails) and pattern=foo missing -> any fails
+                expect(matchInDOM('<p>bad</p>', condition)).toBe(false);
+                // both children satisfied
+                expect(matchInDOM('<p>foo good</p>', condition)).toBe(true);
+            });
+
+            it('should allow none to mix an operator-block child and a leaf child', () => {
+                // text: none[ all[pattern=foo, pattern=bar], pattern=danger ]
+                const condition = {
+                    text: {
+                        none: [{ all: [{ pattern: 'foo' }, { pattern: 'bar' }] }, { pattern: 'danger' }],
+                    },
+                };
+                // neither child matches -> none satisfied
+                expect(matchInDOM('<p>welcome</p>', condition)).toBe(true);
+                // only foo present -> all[foo,bar] fails, danger absent -> none satisfied
+                expect(matchInDOM('<p>foo</p>', condition)).toBe(true);
+                // foo+bar -> all matches -> none fails
+                expect(matchInDOM('<p>foo bar</p>', condition)).toBe(false);
+                // danger leaf matches -> none fails
+                expect(matchInDOM('<p>danger</p>', condition)).toBe(false);
+            });
+
+            it('should allow leaf and operator-block siblings inside a bare-array OR', () => {
+                // text: [ all[pattern=foo, pattern=bar], pattern=quick ]
+                const condition = {
+                    text: [{ all: [{ pattern: 'foo' }, { pattern: 'bar' }] }, { pattern: 'quick' }],
+                };
+                // operator-block child satisfied
+                expect(matchInDOM('<p>foo bar</p>', condition)).toBe(true);
+                // leaf child satisfied
+                expect(matchInDOM('<p>quick</p>', condition)).toBe(true);
+                // neither
+                expect(matchInDOM('<p>welcome</p>', condition)).toBe(false);
             });
         });
     });
