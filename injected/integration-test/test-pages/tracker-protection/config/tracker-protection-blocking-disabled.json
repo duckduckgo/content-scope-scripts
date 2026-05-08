@@ -1,0 +1,26 @@
+{
+    "readme": "Config for the legacy `contentBlocking` kill-switch path. trackerProtection stays enabled so observation continues for the privacy dashboard, but contentBlocking is disabled so emitted observations carry potentiallyBlocked=false and surrogate injection is skipped.",
+    "version": 1,
+    "features": {
+        "contentBlocking": {
+            "state": "disabled",
+            "exceptions": []
+        },
+        "clickToLoad": {
+            "state": "enabled",
+            "exceptions": []
+        },
+        "trackerAllowlist": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "allowlistedTrackers": {}
+            }
+        },
+        "trackerProtection": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

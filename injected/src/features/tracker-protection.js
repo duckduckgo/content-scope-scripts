@@ -66,12 +66,19 @@ export class TrackerProtection extends ContentFeature {
             return;
         }
 
+        // `contentBlocking.state` is the legacy "blocking" kill-switch: when disabled,
+        // WKContentRuleLists are removed natively (no network blocking) but we keep
+        // observing and emitting `resourceObserved` so the native EventMapper can
+        // populate the privacy dashboard with detected-but-not-blocked entries
+        // (parity with the pre-migration `ContentBlockerRulesUserScript` contract).
+        // The "hard" emergency kill-switch is `trackerProtection.state = disabled`,
+        // which gates the feature out of `enabledFeatures` upstream of `init()` —
+        // no observation, no hooks, zero JS overhead.
         this._blockingEnabled = this._isStateEnabled(
             /** @type {import('../utils.js').FeatureState | undefined} */ (this.bundledConfig?.features?.contentBlocking?.state),
         );
         if (!this._blockingEnabled) {
-            this.log.info('Tracker blocking disabled via config');
-            return;
+            this.log.info('Tracker blocking disabled via config; observing for dashboard only');
         }
 
         const surrogates = bundledSurrogates;
@@ -320,12 +327,14 @@ export class TrackerProtection extends ContentFeature {
         if (!url || !this._seenUrls || this._seenUrls.has(url)) return;
         if (!url.startsWith('http://') && !url.startsWith('https://')) return;
         this._seenUrls.add(url);
-        if (!this._blockingEnabled) return;
 
         this.notify('resourceObserved', {
             url,
             resourceType,
-            potentiallyBlocked,
+            // Force false under the `contentBlocking` kill-switch. The native side
+            // recomputes authoritatively from `contentBlockingEnabled` so this hint
+            // is non-load-bearing, but a stale `true` would mislead the mapper.
+            potentiallyBlocked: this._blockingEnabled ? potentiallyBlocked : false,
             pageUrl: this._topLevelUrl?.href || '',
         });
     }
@@ -338,7 +347,7 @@ export class TrackerProtection extends ContentFeature {
      * @param {HTMLElement | null} element
      */
     _checkAndBlock(url, resourceType, element = null) {
-        if (!url || !this._resolver || !this._seenUrls) {
+        if (!url || !this._seenUrls) {
             return false;
         }
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -347,7 +356,17 @@ export class TrackerProtection extends ContentFeature {
 
         this._seenUrls.add(url);
 
-        if (!this._blockingEnabled) {
+        // Under the `contentBlocking` kill-switch we still report the observation so
+        // the dashboard stays populated, but skip the resolver / surrogate path —
+        // injecting a surrogate for a script that won't actually be blocked at the
+        // network layer would be incorrect.
+        if (!this._blockingEnabled || !this._resolver) {
+            this.notify('resourceObserved', {
+                url,
+                resourceType,
+                potentiallyBlocked: false,
+                pageUrl: this._topLevelUrl?.href || '',
+            });
             return false;
         }
 

@@ -10,6 +10,7 @@ import {
 const HTML = '/tracker-protection/pages/tracker-protection.html';
 const CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection.json';
 const DISABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-disabled.json';
+const BLOCKING_DISABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-blocking-disabled.json';
 const CTL_DISABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-ctl-disabled.json';
 const CTL_ENABLED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-ctl-enabled.json';
 const UNPROTECTED_CONFIG = './integration-test/test-pages/tracker-protection/config/tracker-protection-unprotected.json';
@@ -74,7 +75,10 @@ test('tracker-protection: reports non-tracker third-party URL as resourceObserve
     expect(observation.resourceType).toBe('script');
 });
 
-test('tracker-protection: does not send messages when disabled', async ({ page }, testInfo) => {
+test('tracker-protection: does not send messages when feature state is disabled (hard kill-switch)', async ({ page }, testInfo) => {
+    // `trackerProtection.state = disabled` is the emergency hard kill-switch:
+    // C-S-S `computeEnabledFeatures` filters the feature out before `init()` is
+    // called, so no observation hooks are attached and zero messages are emitted.
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, DISABLED_CONFIG);
 
@@ -87,6 +91,29 @@ test('tracker-protection: does not send messages when disabled', async ({ page }
     const allMessages = await collector.outgoingMessages();
     const resourceObservations = trackerMessages(allMessages).filter((m) => m.payload.method === 'resourceObserved');
     expect(resourceObservations).toHaveLength(0);
+});
+
+test('tracker-protection: keeps observing under contentBlocking kill-switch with potentiallyBlocked=false', async ({ page }, testInfo) => {
+    // `contentBlocking.state = disabled` is the legacy "blocking" kill-switch:
+    // native removes WKContentRuleLists (no network blocking) but C-S-S keeps
+    // observing so the privacy dashboard can show detected-but-not-blocked
+    // entries via the native EventMapper. Surrogate injection is suppressed.
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({ trackerData: makeTrackerDataBasic() });
+    await collector.load(HTML, BLOCKING_DISABLED_CONFIG);
+
+    await page.evaluate(() => {
+        /** @type {any} */ (window).addTrackerScript('https://tracker.example/scripts/analytics.js');
+    });
+
+    const observed = await collector.waitForMessage('resourceObserved', 1);
+    expect(observed[0].payload.params.url).toBe('https://tracker.example/scripts/analytics.js');
+    expect(observed[0].payload.params.potentiallyBlocked).toBe(false);
+
+    await page.waitForTimeout(200);
+    const allMessages = await collector.outgoingMessages();
+    const injected = trackerMessages(allMessages).filter((m) => m.payload.method === 'surrogateInjected');
+    expect(injected).toHaveLength(0);
 });
 
 test('tracker-protection: reports allowed tracker with potentiallyBlocked=false', async ({ page }, testInfo) => {
