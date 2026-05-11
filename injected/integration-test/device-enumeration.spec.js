@@ -44,7 +44,7 @@ test.describe('Device Enumeration Feature', () => {
             expect(results).toBeDefined();
         });
 
-        test('should prove native getCapabilities throws on old synthetic InputDeviceInfo objects', async ({ page }) => {
+        test('should prove deleting a synthetic input device getCapabilities shim re-exposes Illegal invocation', async ({ page }) => {
             await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat'],
@@ -83,30 +83,52 @@ test.describe('Device Enumeration Feature', () => {
                         configurable: false,
                         enumerable: true,
                     },
+                    getCapabilities: {
+                        value: function () {
+                            return {};
+                        },
+                        writable: false,
+                        configurable: true,
+                        enumerable: false,
+                    },
                 });
+
+                const shimmedCapabilities = syntheticInputDevice.getCapabilities();
+                const shimDeleteResult = delete syntheticInputDevice.getCapabilities;
 
                 try {
                     syntheticInputDevice.getCapabilities();
                     return {
-                        threw: false,
+                        threwAfterDelete: false,
+                        shimmedCapabilities,
+                        shimDeleteResult,
+                        isInputDeviceInfo: syntheticInputDevice instanceof InputDeviceInfo,
+                        hadOwnGetCapabilitiesBeforeDelete: true,
+                        hasOwnGetCapabilitiesAfterDelete: Object.prototype.hasOwnProperty.call(syntheticInputDevice, 'getCapabilities'),
                     };
                 } catch (error) {
                     return {
-                        threw: true,
+                        threwAfterDelete: true,
+                        shimmedCapabilities,
+                        shimDeleteResult,
                         errorName: error instanceof Error ? error.name : String(error),
                         errorMessage: error instanceof Error ? error.message : String(error),
                         isInputDeviceInfo: syntheticInputDevice instanceof InputDeviceInfo,
-                        hasOwnGetCapabilities: Object.prototype.hasOwnProperty.call(syntheticInputDevice, 'getCapabilities'),
+                        hadOwnGetCapabilitiesBeforeDelete: true,
+                        hasOwnGetCapabilitiesAfterDelete: Object.prototype.hasOwnProperty.call(syntheticInputDevice, 'getCapabilities'),
                     };
                 }
             });
 
             expect(result).toMatchObject({
-                threw: true,
+                threwAfterDelete: true,
+                shimmedCapabilities: {},
+                shimDeleteResult: true,
                 errorName: 'TypeError',
                 errorMessage: 'Illegal invocation',
                 isInputDeviceInfo: true,
-                hasOwnGetCapabilities: false,
+                hadOwnGetCapabilitiesBeforeDelete: true,
+                hasOwnGetCapabilitiesAfterDelete: false,
             });
         });
 
