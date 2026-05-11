@@ -44,6 +44,51 @@ test.describe('Device Enumeration Feature', () => {
             expect(results).toBeDefined();
         });
 
+        test('should prove native getCapabilities throws on old synthetic InputDeviceInfo objects', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        enumerateDevices: 'enabled',
+                    },
+                },
+            });
+
+            const result = await page.evaluate(() => {
+                const syntheticInputDevice = Object.assign(Object.create(InputDeviceInfo.prototype), {
+                    deviceId: 'communications',
+                    groupId: '',
+                    kind: 'audioinput',
+                    label: 'Fake microphone',
+                });
+
+                try {
+                    syntheticInputDevice.getCapabilities();
+                    return {
+                        threw: false,
+                    };
+                } catch (error) {
+                    return {
+                        threw: true,
+                        errorName: error instanceof Error ? error.name : String(error),
+                        errorMessage: error instanceof Error ? error.message : String(error),
+                        isInputDeviceInfo: syntheticInputDevice instanceof InputDeviceInfo,
+                        hasOwnGetCapabilities: Object.hasOwn(syntheticInputDevice, 'getCapabilities'),
+                    };
+                }
+            });
+
+            expect(result).toMatchObject({
+                threw: true,
+                errorName: 'TypeError',
+                errorMessage: 'Illegal invocation',
+                isInputDeviceInfo: true,
+                hasOwnGetCapabilities: false,
+            });
+        });
+
         test('should expose a safe getCapabilities shim for synthetic input devices', async ({ page }) => {
             await gotoAndWait(page, '/blank.html', {
                 site: {
