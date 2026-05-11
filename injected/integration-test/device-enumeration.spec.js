@@ -57,11 +57,32 @@ test.describe('Device Enumeration Feature', () => {
             });
 
             const result = await page.evaluate(() => {
-                const syntheticInputDevice = Object.assign(Object.create(InputDeviceInfo.prototype), {
-                    deviceId: 'communications',
-                    groupId: '',
-                    kind: 'audioinput',
-                    label: 'Fake microphone',
+                const syntheticInputDevice = Object.create(InputDeviceInfo.prototype);
+                Object.defineProperties(syntheticInputDevice, {
+                    deviceId: {
+                        value: 'communications',
+                        writable: false,
+                        configurable: false,
+                        enumerable: true,
+                    },
+                    groupId: {
+                        value: '',
+                        writable: false,
+                        configurable: false,
+                        enumerable: true,
+                    },
+                    kind: {
+                        value: 'audioinput',
+                        writable: false,
+                        configurable: false,
+                        enumerable: true,
+                    },
+                    label: {
+                        value: 'Fake microphone',
+                        writable: false,
+                        configurable: false,
+                        enumerable: true,
+                    },
                 });
 
                 try {
@@ -75,7 +96,7 @@ test.describe('Device Enumeration Feature', () => {
                         errorName: error instanceof Error ? error.name : String(error),
                         errorMessage: error instanceof Error ? error.message : String(error),
                         isInputDeviceInfo: syntheticInputDevice instanceof InputDeviceInfo,
-                        hasOwnGetCapabilities: Object.hasOwn(syntheticInputDevice, 'getCapabilities'),
+                        hasOwnGetCapabilities: Object.prototype.hasOwnProperty.call(syntheticInputDevice, 'getCapabilities'),
                     };
                 }
             });
@@ -127,7 +148,7 @@ test.describe('Device Enumeration Feature', () => {
                     inputDevicesAreInputDeviceInfo: [audioInput, videoInput].every((device) => device instanceof InputDeviceInfo),
                     audioCapabilities: audioInput?.getCapabilities(),
                     videoCapabilities: videoInput?.getCapabilities(),
-                    outputHasGetCapabilities: typeof (/** @type {any} */ (audioOutput))?.getCapabilities,
+                    outputHasGetCapabilities: typeof (/** @type {any} */ (audioOutput)?.getCapabilities),
                 };
             });
 
