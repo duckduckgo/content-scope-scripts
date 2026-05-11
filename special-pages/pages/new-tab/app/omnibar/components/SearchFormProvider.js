@@ -16,7 +16,7 @@ import { useSuggestions } from './useSuggestions';
  */
 
 /** @type {import('preact').Context<SearchFormContext|null>} */
-const SearchFormContext = createContext(null);
+export const SearchFormContext = createContext(null);
 
 /**
  * @param {object} props

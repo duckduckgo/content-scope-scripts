@@ -29,6 +29,7 @@ export function AddressBarMode() {
 
     useEffect(() => {
         dispatchPreference(selectedOption);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, []);
 
     const handleSelection = (option) => {

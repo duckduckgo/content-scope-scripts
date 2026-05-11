@@ -15,6 +15,19 @@ function parseBooleanQueryParam(param) {
     return null;
 }
 
+/** @type {ReadonlyArray<import('../../../types/new-tab.ts').ReasoningEffort>} */
+const REASONING_EFFORTS = ['none', 'low', 'medium'];
+
+/**
+ * Reads a URL query param as a ReasoningEffort. Returns null if absent or invalid.
+ * @param {string} param
+ * @return {import('../../../types/new-tab.ts').ReasoningEffort | null}
+ */
+function parseReasoningEffortQueryParam(param) {
+    const value = url.searchParams.get(param);
+    return REASONING_EFFORTS.find((effort) => effort === value) ?? null;
+}
+
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
     const config = {
@@ -23,6 +36,129 @@ export function omnibarMockTransport() {
         showAiSetting: true,
         showCustomizePopover: false,
         enableRecentAiChats: false,
+        enableAiChatTools: false,
+        aiModelSections: [
+            {
+                items: [
+                    {
+                        id: 'gpt-4o-mini',
+                        name: 'GPT-4o mini',
+                        shortName: '4o-mini',
+                        isEnabled: true,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                    },
+                    {
+                        id: 'gpt-5-mini',
+                        name: 'GPT-5 mini',
+                        shortName: 'GPT-5',
+                        isEnabled: true,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low'],
+                    },
+                    {
+                        id: 'openai_gpt-oss-120b',
+                        name: 'GPT-OSS 120B',
+                        shortName: 'GPT-OSS',
+                        isEnabled: true,
+                        supportsImageUpload: false,
+                        supportedTools: [],
+                    },
+                    {
+                        id: 'meta-llama_Llama-4-Scout-17B-16E-Instruct',
+                        name: 'Llama 4 Scout',
+                        shortName: 'Scout',
+                        isEnabled: true,
+                        supportsImageUpload: false,
+                        supportedTools: [],
+                    },
+                    {
+                        id: 'claude-haiku-4-5',
+                        name: 'Claude Haiku 4.5',
+                        shortName: 'Haiku 4.5',
+                        isEnabled: true,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low'],
+                    },
+                    {
+                        id: 'mistralai_Mistral-Small-24B-Instruct-2501',
+                        name: 'Mistral Small 3',
+                        shortName: 'Mistral',
+                        isEnabled: true,
+                        supportsImageUpload: false,
+                        supportedTools: [],
+                    },
+                    {
+                        id: 'claude-3-5-haiku-latest',
+                        name: 'Claude 3.5 Haiku',
+                        shortName: 'Claude 3.5 Haiku',
+                        isEnabled: true,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                    },
+                ],
+            },
+            {
+                header: 'Advanced Models - DuckDuckGo subscription',
+                items: [
+                    {
+                        id: 'gpt-4o',
+                        name: 'GPT-4o',
+                        shortName: 'GPT-4o',
+                        isEnabled: false,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                    },
+                    {
+                        id: 'gpt-5_2',
+                        name: 'GPT-5.2',
+                        shortName: 'GPT-5.2',
+                        isEnabled: false,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low', 'medium'],
+                    },
+                    {
+                        id: 'claude-sonnet-4-5',
+                        name: 'Claude Sonnet 4.5',
+                        shortName: 'Sonnet 4.5',
+                        isEnabled: false,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low'],
+                    },
+                    {
+                        id: 'meta-llama_Llama-4-Maverick-17B-128E-Instruct-FP8',
+                        name: 'Llama 4 Maverick',
+                        shortName: 'Maverick',
+                        isEnabled: false,
+                        supportsImageUpload: false,
+                        supportedTools: [],
+                    },
+                    {
+                        id: 'claude-opus-4-6',
+                        name: 'Claude Opus 4.6',
+                        shortName: 'Opus 4.6',
+                        isEnabled: false,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                        supportedReasoningEffort: ['none', 'low', 'medium'],
+                    },
+                    {
+                        id: 'claude-sonnet-4',
+                        name: 'Claude 4 Sonnet',
+                        shortName: 'Claude 4 Sonnet',
+                        isEnabled: false,
+                        supportsImageUpload: true,
+                        supportedTools: ['WebSearch'],
+                    },
+                ],
+            },
+        ],
+        showViewAllAiChats: false,
+        enableVoiceChatAccess: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -38,6 +174,13 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_viewAllAIChats':
+                case 'omnibar_openAiChat':
+                case 'omnibar_openSuggestion':
+                case 'omnibar_submitSearch':
+                case 'omnibar_submitChat':
+                    console.warn('notification (no-op in mock)', msg.method, msg.params);
+                    break;
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -66,6 +209,20 @@ export function omnibarMockTransport() {
                     config.showAiSetting = parseBooleanQueryParam('omnibar.showAiSetting') ?? config.showAiSetting;
                     config.showCustomizePopover = parseBooleanQueryParam('omnibar.showCustomizePopover') ?? config.showCustomizePopover;
                     config.enableRecentAiChats = parseBooleanQueryParam('omnibar.enableRecentAiChats') ?? config.enableRecentAiChats;
+                    config.enableAiChatTools = parseBooleanQueryParam('omnibar.enableAiChatTools') ?? config.enableAiChatTools;
+                    config.enableImageGeneration = parseBooleanQueryParam('omnibar.enableImageGeneration') ?? config.enableImageGeneration;
+                    config.enableWebSearch = parseBooleanQueryParam('omnibar.enableWebSearch') ?? config.enableWebSearch;
+                    config.selectedModelId = url.searchParams.get('omnibar.selectedModelId') ?? config.selectedModelId;
+                    if (parseBooleanQueryParam('omnibar.subscription') === true) {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            ...section,
+                            items: section.items.map((item) => ({ ...item, isEnabled: true })),
+                        }));
+                    }
+                    config.selectedReasoningEffort =
+                        parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
+                    config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
+                    config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {

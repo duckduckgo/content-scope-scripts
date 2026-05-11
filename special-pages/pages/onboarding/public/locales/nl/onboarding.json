@@ -284,6 +284,14 @@
     "title" : "Geen gerichte advertenties. Geen gerichte aanbevelingen. Alleen je video.",
     "note" : "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
+  "duckPlayer_v4_title" : {
+    "title" : "Verdrinken in advertenties op YouTube?{newline}Niet met Duck Player!",
+    "note" : "Title for the Duck Player step in v4 onboarding, with a line break after the question."
+  },
+  "duckPlayer_v4_subtitle" : {
+    "title" : "Geen gerichte advertenties. Geen gerichte aanbevelingen.{newline}Gewoon jouw video.",
+    "note" : "Subtitle for the Duck Player step in v4 onboarding, with a line break before the last sentence."
+  },
   "duckPlayer_adFree_title" : {
     "title" : "Bekijk YouTube zonder advertenties!",
     "note" : "Title for the Duck Player step variant that emphasizes ad-free YouTube viewing."
@@ -451,5 +459,29 @@
   "browser_Safari" : {
     "title" : "Safari",
     "note" : "Brand name of the Apple Safari browser"
+  },
+  "welcome_title_v4" : {
+    "title" : "Welkom bij DuckDuckGo!",
+    "note" : "Page title for the first step in the v4 onboarding process"
+  },
+  "getStarted_title_v4" : {
+    "title" : "Hallo!{paragraph}Klaar voor een snellere browser{newline}die je beschermt?",
+    "note" : "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+  },
+  "getStartedButton_v4" : {
+    "title" : "Laten we het doen!",
+    "note" : "Button label prompting user to start the v4 onboarding process."
+  },
+  "makeDefaultAccept_title_v4" : {
+    "title" : "Uitstekend! Laten we verder gaan.",
+    "note" : "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."
+  },
+  "row_dock-instructions_accept" : {
+    "title" : "Tonen",
+    "note" : "Button text that opens the dock instructions overlay."
+  },
+  "dockInstructions_body" : {
+    "title" : "Houd de Control-toets ingedrukt en klik op het pictogram van de DuckDuckGo-app, kies dan <strong>Opties</strong> &gt; <strong>In Dock houden</strong>.",
+    "note" : "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
   }
 }
