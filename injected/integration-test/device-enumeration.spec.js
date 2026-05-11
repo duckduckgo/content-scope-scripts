@@ -226,6 +226,8 @@ test.describe('Device Enumeration Feature', () => {
                     audioCapabilities: audioInput?.getCapabilities(),
                     videoCapabilities: videoInput?.getCapabilities(),
                     outputHasGetCapabilities: typeof (/** @type {any} */ (audioOutput)?.getCapabilities),
+                    audioGetCapabilitiesToString: audioInput?.getCapabilities.toString(),
+                    audioGetCapabilitiesToStringToString: audioInput?.getCapabilities.toString.toString(),
                 };
             });
 
@@ -239,6 +241,9 @@ test.describe('Device Enumeration Feature', () => {
             expect(result.audioCapabilities).toEqual({});
             expect(result.videoCapabilities).toEqual({});
             expect(result.outputHasGetCapabilities).toEqual('undefined');
+            // The shim should be masked so toString() looks like a native method (not the JS source).
+            expect(result.audioGetCapabilitiesToString).toEqual('function getCapabilities() { [native code] }');
+            expect(result.audioGetCapabilitiesToStringToString).toEqual('function toString() { [native code] }');
         });
     });
 });

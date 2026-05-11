@@ -1221,14 +1221,16 @@ export class WebCompat extends ContentFeature {
         });
 
         if (isInputDevice && typeof deviceInfo.getCapabilities === 'function') {
-            Object.defineProperty(deviceInfo, 'getCapabilities', {
-                // Match the native no-permission behavior for synthetic input devices.
-                value: function () {
-                    return {};
-                },
-                writable: false,
+            // Match the native no-permission behavior for synthetic input devices,
+            // masked so toString() looks like a native method.
+            const getCapabilities = function getCapabilities() {
+                return {};
+            };
+            this.defineProperty(deviceInfo, 'getCapabilities', {
+                value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
+                writable: true,
                 configurable: true,
-                enumerable: false,
+                enumerable: true,
             });
         }
 
