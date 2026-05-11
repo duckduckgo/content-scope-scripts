@@ -19,16 +19,22 @@ export default defineConfig({
                 'integration-test/duck-ai-data-clearing.spec.js',
                 'integration-test/duck-ai-chat-history.spec.js',
                 'integration-test/web-detection.spec.js',
+                'integration-test/web-events.spec.js',
+                'integration-test/web-interference-detection-events.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
         {
             name: 'apple-isolated',
             testMatch: [
+                'integration-test/context-menu.spec.js',
                 'integration-test/duckplayer.spec.js',
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/favicon.spec.js',
+                'integration-test/page-observer.spec.js',
+                'integration-test/hover.spec.js',
+                'integration-test/tab-suspension.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
@@ -38,7 +44,8 @@ export default defineConfig({
             testMatch: [
                 'integration-test/navigator-interface-insecure.js',
                 'integration-test/webcompat.spec.js',
-                'integration-test/message-bridge-apple.spec.js'
+                'integration-test/message-bridge-apple.spec.js',
+                'integration-test/tracker-protection.spec.js',
             ],
             use: { injectName: 'apple', platform: 'macos' },
         },
@@ -48,12 +55,14 @@ export default defineConfig({
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/duckplayer-native.spec.js',
+                'integration-test/favicon.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] },
         },
         {
             name: 'android',
             testMatch: [
+                'integration-test/browser-ui-lock.spec.js',
                 'integration-test/duckplayer-mobile.spec.js',
                 'integration-test/duckplayer-mobile-drawer.spec.js',
                 'integration-test/web-compat-android.spec.js',

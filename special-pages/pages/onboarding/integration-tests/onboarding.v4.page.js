@@ -189,4 +189,15 @@ export class OnboardingV4Page extends OnboardingPage {
         const { page } = this;
         await expect(page.getByText('Set things up just the way you want.')).toBeVisible();
     }
+
+    async showDockInstructions() {
+        const { page } = this;
+        await page.getByRole('button', { name: 'Show Me How' }).click();
+        await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
+    }
+
+    async dismissDockInstructions() {
+        const { page } = this;
+        await page.getByRole('button', { name: 'Next' }).click();
+    }
 }

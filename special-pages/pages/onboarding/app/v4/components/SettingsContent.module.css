@@ -1,0 +1,113 @@
+.rows {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    border-radius: var(--sp-3); /* 12px */
+    gap: var(--sp-5); /* 20px */
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4); /* 16px */
+    border-radius: var(--sp-2); /* 8px */
+}
+
+.rowContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4); /* 16px */
+    position: relative;
+}
+
+.rowMain {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4); /* 16px */
+}
+
+.rowIcon {
+    width: var(--sp-6); /* 24px */
+    height: var(--sp-6); /* 24px */
+    flex-shrink: 0;
+}
+
+.rowText {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3); /* 12px */
+}
+
+.rowTitle {
+    font-family: var(--font-product);
+    font-size: calc(15 * var(--px-in-rem));
+    font-weight: 700;
+    line-height: calc(18 * var(--px-in-rem));
+    color: var(--ds-text-primary);
+    margin: 0;
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+}
+
+.rowSubtitle {
+    font-family: var(--font-product);
+    font-size: calc(14 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(17 * var(--px-in-rem));
+    color: var(--ds-text-secondary);
+    margin: 0;
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+}
+
+.rowInline {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.divider {
+    height: 1px;
+    align-self: stretch;
+    background: var(--ds-surface-decoration-secondary);
+}
+
+.rowButtons {
+    display: flex;
+    padding-left: var(--sp-10); /* 40px = icon 24 + gap 16 */
+    gap: var(--sp-2); /* 8px */
+
+    [data-platform-name="windows"] & > *:last-child {
+        order: -1;
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-self: stretch;
+}
+
+.fadeIn {
+    animation: fadeIn 250ms ease-out both;
+}
+
+.fadeInDelayed {
+    animation: fadeIn 250ms ease-out both;
+    animation-delay: 200ms;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fadeIn,
+    .fadeInDelayed {
+        animation-duration: 0s;
+        animation-delay: 0s;
+    }
+}

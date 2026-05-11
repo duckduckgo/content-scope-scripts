@@ -1,7 +1,21 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { OnboardingV4Page } from './onboarding.v4.page.js';
 
 test.describe('onboarding v4', () => {
+    test('stepCompleted includes the next step id', async ({ page }, workerInfo) => {
+        const onboarding = OnboardingV4Page.create(page, workerInfo);
+        onboarding.withInitData({
+            stepDefinitions: null,
+            order: 'v4',
+        });
+        await onboarding.reducedMotion();
+        await onboarding.openPage({ env: 'app', page: 'getStarted' });
+        await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+        await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
+
+        await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'makeDefaultSingle' });
+    });
+
     test.describe('Given I am on the make default step', () => {
         test('Then "Play YouTube without targeted ads" appears when ad blocking is enabled (placebo variant)', async ({
             page,
@@ -155,6 +169,160 @@ test.describe('onboarding v4', () => {
         });
     });
 
+    test.describe('Given I am on the duck player step with ad-free variant', () => {
+        test('Then it shows ad-free copy and hides the toggle button', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    duckPlayerSingle: {
+                        variant: 'ad-free',
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            // Ad-free title and subtitle are shown
+            await expect(page.getByRole('heading', { name: 'Watch YouTube ad-free!', level: 2 })).toBeVisible();
+            await expect(page.getByText(/No need for a premium subscription/)).toBeVisible();
+
+            // Toggle button is hidden
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).not.toBeVisible();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).not.toBeVisible();
+
+            // Can advance past the step
+            await page.getByRole('button', { name: 'Next' }).click();
+        });
+    });
+
+    test.describe('Given I am on the duck player step without ad-free variant', () => {
+        test('Then it shows default copy and the toggle button', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            // Default title and subtitle are shown
+            await expect(page.getByRole('heading', { name: /Drowning in ads/, level: 2 })).toBeVisible();
+            await expect(page.getByText(/No targeted ads/)).toBeVisible();
+
+            // Toggle button is visible
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Can toggle
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Can advance past the step
+            await page.getByRole('button', { name: 'Next' }).click();
+        });
+
+        test('When I click the toggle button, it sends a telemetryEvent', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'duck_player_toggled' }]);
+        });
+
+        test('When I click the toggle button twice, it sends two telemetryEvents', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await page.getByRole('button', { name: 'See With Duck Player' }).click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'duck_player_toggled' }, { name: 'duck_player_toggled' }]);
+        });
+
+        test('Mid-playback toggle queues reverse video', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+            // Disable reduced motion so that playVideo() calls video.play()
+            // instead of seeking to duration (which fires 'ended' immediately in WebKit).
+            await page.emulateMedia({ reducedMotion: 'no-preference' });
+
+            const enabledVideo = page.locator('video[src*="enabled"]');
+            const disabledVideo = page.locator('video[src*="disabled"]');
+
+            // End the autoPlay video to reach withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+
+            // Toggle → toWithoutDuckPlayer (disabled video "plays")
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Toggle mid-playback → toWithoutDuckPlayerThenReverse
+            // Button changes instantly; disabled video stays visible (current clip finishes)
+            await page.getByRole('button', { name: 'See With Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+            await expect(disabledVideo).toBeVisible();
+
+            // Simulate disabled video ending → reducer plays enabled video (toWithDuckPlayer)
+            await disabledVideo.dispatchEvent('ended');
+            await expect(enabledVideo).toBeVisible();
+            await expect(disabledVideo).toHaveCSS('opacity', '0');
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Simulate enabled video ending → withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+        });
+
+        test('Double toggle during playback cancels the reverse', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+            await page.emulateMedia({ reducedMotion: 'no-preference' });
+
+            const enabledVideo = page.locator('video[src*="enabled"]');
+            const disabledVideo = page.locator('video[src*="disabled"]');
+
+            // End the autoPlay video to reach withDuckPlayer
+            await enabledVideo.dispatchEvent('ended');
+
+            // Toggle → toWithoutDuckPlayer
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Toggle mid-playback → toWithoutDuckPlayerThenReverse
+            await page.getByRole('button', { name: 'See With Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See Without Duck Player' })).toBeVisible();
+
+            // Toggle again → back to toWithoutDuckPlayer (reverse cancelled)
+            await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+
+            // Video ends normally → withoutDuckPlayer (no reverse plays)
+            await disabledVideo.dispatchEvent('ended');
+            await expect(page.getByRole('button', { name: 'See With Duck Player' })).toBeVisible();
+        });
+    });
+
     test('shows v4 flow', async ({ page }, workerInfo) => {
         const onboarding = OnboardingV4Page.create(page, workerInfo);
         onboarding.withInitData({
@@ -169,17 +337,17 @@ test.describe('onboarding v4', () => {
         await page.getByText('Welcome to DuckDuckGo').waitFor({ timeout: 1000 });
 
         // Get started (welcome auto-advances after ~3.7s animation)
-        await page.getByText('Hi there').waitFor({ timeout: 5000 });
+        await page.getByRole('heading', { name: 'Hi there' }).waitFor({ timeout: 5000 });
         await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
 
         // Make default
-        await page.getByText('Protections activated').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click();
         await page.getByText('Excellent!').waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Next' }).click();
 
         // System settings
-        await page.getByText('Let\u2019s get you set up!').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Let\u2019s get you set up!' }).waitFor({ timeout: 1000 });
         const dockButton = onboarding.build.switch({
             windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
             apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
@@ -189,21 +357,230 @@ test.describe('onboarding v4', () => {
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Duckplayer
-        await page.getByText('Drowning in ads').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Drowning in ads' }).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'See Without Duck Player' }).click();
+        await page.getByRole('button', { name: 'See With Duck Player' }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Customize
-        await page.getByText('Let\u2019s customize a few things').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Let\u2019s customize a few things' }).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
         await page.getByRole('button', { name: 'Enable Session Restore' }).click();
         await page.getByRole('button', { name: 'Show Home Button' }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         // Address bar mode
-        await page.getByText('Want easy access to private AI Chat?').waitFor({ timeout: 1000 });
+        await page.getByRole('heading', { name: 'Want easy access to private AI Chat?' }).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
         await page.getByRole('button', { name: 'Search Only' }).click();
         await onboarding.startBrowsing();
+    });
+
+    test.describe('Given I am on the settings step with dock-instructions variant', () => {
+        test('When I advance to the settings step, it sends row_shown for the first row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+                exclude: ['makeDefaultSingle'],
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+            await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'row_shown', value: 'dock-instructions' }]);
+        });
+
+        test('When I click Show Me How, it shows dock instructions overlay', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+
+            await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
+            await expect(page.getByText('Options')).toBeVisible();
+            await expect(page.getByText('Keep in Dock')).toBeVisible();
+        });
+
+        test('When I click Show Me How, it sends telemetryEvents', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'dock_instructions_shown' }]);
+        });
+
+        test('When I click Show Me How then Next, it sends row_shown for import', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+            await onboarding.dismissDockInstructions();
+
+            await onboarding.didFireTelemetryEvents([{ name: 'dock_instructions_shown' }, { name: 'row_shown', value: 'import' }]);
+        });
+
+        test('When I skip dock-instructions, it sends row_shown for import', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+
+            await onboarding.didFireTelemetryEvents([
+                { name: 'row_skipped', value: 'dock-instructions' },
+                { name: 'row_shown', value: 'import' },
+            ]);
+        });
+
+        test('When I skip dock-instructions, it does not send dock_instructions_shown', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            await onboarding.didNotFireTelemetryEvent({ name: 'dock_instructions_shown' });
+        });
+
+        test('When I click Show Me How then Next, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.showDockInstructions();
+            await onboarding.dismissDockInstructions();
+
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+
+        test('When I skip dock-instructions, it advances to the next row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            await onboarding.skippedCurrent();
+
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+        });
+    });
+
+    test.describe('Given I am on the import row', () => {
+        test('When I skip import, it sends row_skipped', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip dock-instructions to get to import
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            // Skip import
+            await onboarding.skippedCurrent();
+
+            await onboarding.didFireTelemetryEvents([
+                { name: 'row_skipped', value: 'dock-instructions' },
+                { name: 'row_shown', value: 'import' },
+                { name: 'row_skipped', value: 'import' },
+            ]);
+        });
+
+        test('When I accept import, it does not send row_skipped', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock-instructions', 'import'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+
+            // Skip dock-instructions to get to import
+            await onboarding.skippedCurrent();
+            await expect(page.getByRole('button', { name: 'Import' })).toBeVisible();
+
+            // Accept import
+            await onboarding.importUserData();
+
+            await onboarding.didNotFireTelemetryEvent({ name: 'row_skipped', value: 'import' });
+        });
     });
 
     test.describe('Given I am on the settings step', () => {
@@ -402,6 +779,87 @@ test.describe('onboarding v4', () => {
 
             // ▶️ Then I can toggle it afterward
             await onboarding.startBrowsing();
+        });
+
+        test.describe('Given onConfigUpdate behavior', () => {
+            test('When config update has reduced customize rows (no bookmarks), only those rows are shown', async ({
+                page,
+            }, workerInfo) => {
+                const onboarding = OnboardingV4Page.create(page, workerInfo);
+                onboarding.withInitData({
+                    order: 'v4',
+                    stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
+                });
+                await onboarding.reducedMotion();
+                await onboarding.openPage({ env: 'app', page: 'customize' });
+                // before push - default rows include bookmarks
+                await page.getByRole('button', { name: 'Show Bookmarks Bar' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).toBeVisible();
+                // push config update removing bookmarks
+                await onboarding.pushConfigUpdate({ stepDefinitions: { customize: { rows: ['session-restore', 'home-shortcut'] } } });
+                // after push - bookmarks gone
+                await page.getByRole('button', { name: 'Enable Session Restore' }).waitFor({ timeout: 10000 });
+                await expect(page.getByRole('button', { name: 'Show Bookmarks Bar' })).not.toBeVisible();
+                await expect(page.getByRole('button', { name: 'Enable Session Restore' })).toBeVisible();
+            });
+        });
+    });
+
+    test.describe('global error listeners', () => {
+        test('reports uncaught errors via reportInitException', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                setTimeout(() => {
+                    throw new Error('test uncaught error');
+                }, 0);
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'onboarding',
+                        method: 'reportInitException',
+                        params: { message: '[uncaught] test uncaught error' },
+                    },
+                },
+            ]);
+        });
+
+        test('reports unhandled rejections via reportInitException', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                Promise.reject(new Error('test unhandled rejection'));
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'onboarding',
+                        method: 'reportInitException',
+                        params: { message: '[unhandledrejection] test unhandled rejection' },
+                    },
+                },
+            ]);
+        });
+
+        test('does not fire reportInitException during normal page load', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.waitForTimeout(200);
+            const calls = await onboarding.mocks.outgoing({ names: ['reportInitException'] });
+            expect(calls).toHaveLength(0);
         });
     });
 });

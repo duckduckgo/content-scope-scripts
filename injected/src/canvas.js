@@ -73,7 +73,11 @@ export function modifyPixelData(imageData, domainKey, sessionKey, width) {
     for (let i = 0; i < length; i += 4) {
         if (!shouldIgnorePixel(d, i) && !adjacentSame(d, i, width)) {
             mappingArray.push(i);
-            checkSum += d[i] + d[i + 1] + d[i + 2] + d[i + 3];
+            checkSum +=
+                /** @type {number} */ (d[i]) +
+                /** @type {number} */ (d[i + 1]) +
+                /** @type {number} */ (d[i + 2]) +
+                /** @type {number} */ (d[i + 3]);
         }
     }
 
@@ -84,9 +88,9 @@ export function modifyPixelData(imageData, domainKey, sessionKey, width) {
         const rand = rng();
         const byte = Math.floor(rand * 10);
         const channel = byte % 3;
-        const pixelCanvasIndex = mappingArray[i] + channel;
+        const pixelCanvasIndex = /** @type {number} */ (mappingArray[i]) + channel;
 
-        d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ (byte & 0x1);
+        d[pixelCanvasIndex] = /** @type {number} */ (d[pixelCanvasIndex]) ^ (byte & 0x1);
     }
 
     return imageData;

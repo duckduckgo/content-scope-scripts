@@ -26,14 +26,14 @@ const tableIcons = /** @type {const} */ ([
     'vpn.svg',
 ]);
 
-export const tableIconPrefix = 'assets/img/v4/steps/';
+export const tableIconPrefix = 'assets/img/steps/v4/';
 
 /** @typedef {{ icon: tableIcons[number], title: string, statuses: Record<'chrome'|'safari'|'ddg', SupportStatus> }} FeatureSupportData */
 
 /**
  * Comparison table matrix
  *
- * Safari was removed from the latest comparison table layout. Keeping it the data just in case it comes back.
+ * Safari was removed from the latest comparison table layout. Keeping the data just in case it comes back.
  *
  * @type {(t: ReturnType<typeof import('../../types')['useTypedTranslation']>['t'], adBlockingEnabled?: boolean) => FeatureSupportData[]}
  */
@@ -51,7 +51,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         icon: 'duck-ai.svg',
         title: t('comparison_aiChat'),
         statuses: {
-            chrome: SupportStatus.PARTIAL_SUPPORT,
+            chrome: SupportStatus.NOT_SUPPORTED,
             safari: SupportStatus.NOT_SUPPORTED,
             ddg: SupportStatus.FULL_SUPPORT,
         },
@@ -61,7 +61,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         title: t('comparison_blockTrackers'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
-            safari: SupportStatus.PARTIAL_SUPPORT,
+            safari: SupportStatus.NOT_SUPPORTED,
             ddg: SupportStatus.FULL_SUPPORT,
         },
     },
