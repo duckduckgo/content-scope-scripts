@@ -71,6 +71,7 @@ export default defineConfig({
             testMatch: [
                 'integration-test/remote-pages.spec.js',
                 'integration-test/cookie.spec.js',
+                'integration-test/device-enumeration.spec.js',
                 'integration-test/fingerprint.spec.js',
                 'integration-test/navigator-interface.spec.js',
                 'integration-test/pages.spec.js',

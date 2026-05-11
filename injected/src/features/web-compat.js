@@ -1033,9 +1033,11 @@ export class WebCompat extends ContentFeature {
      * @returns {MediaDeviceInfo | InputDeviceInfo}
      */
     createMediaDeviceInfo(kind) {
+        const isInputDevice = kind === 'videoinput' || kind === 'audioinput';
+
         // Create an empty object with the correct prototype
         let deviceInfo;
-        if (kind === 'videoinput' || kind === 'audioinput') {
+        if (isInputDevice) {
             // Input devices should inherit from InputDeviceInfo.prototype if available
             if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
                 deviceInfo = Object.create(InputDeviceInfo.prototype);
@@ -1087,6 +1089,18 @@ export class WebCompat extends ContentFeature {
                 enumerable: true,
             },
         });
+
+        if (isInputDevice && typeof deviceInfo.getCapabilities === 'function') {
+            Object.defineProperty(deviceInfo, 'getCapabilities', {
+                // Match the native no-permission behavior for synthetic input devices.
+                value: function () {
+                    return {};
+                },
+                writable: false,
+                configurable: true,
+                enumerable: false,
+            });
+        }
 
         return deviceInfo;
     }
