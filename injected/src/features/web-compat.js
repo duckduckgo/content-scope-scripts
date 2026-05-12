@@ -1158,56 +1158,30 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * Walks the given prototype chain and, for every function-valued property on each
-     * prototype, installs a masked no-op shim on `shimTarget` to avoid the native
-     * brand check that would otherwise throw `TypeError: Illegal invocation` when a
-     * method is called on a synthetic device. Properties that already exist as own on
-     * `instance` (e.g. `toJSON`) are left untouched so the explicit semantics win.
-     *
-     * Only function-valued properties are shimmed; data getters (deviceId, kind, label,
-     * groupId) are expected to be shadowed as own data properties on the instance.
-     *
-     * @param {object} shimTarget - where the shim is installed (instance or intermediate prototype)
-     * @param {object} instance - the device instance, used for own-property exclusion checks
-     * @param {object[]} prototypes - native prototypes to scan (MediaDeviceInfo.prototype, ...)
+     * Defines a no-op `getCapabilities` shim on the given target (either an InputDeviceInfo
+     * instance or a synthetic intermediate prototype). The shim is `wrapToString`-masked so
+     * `Function.prototype.toString` looks native, and the descriptor matches native methods.
+     * No-ops when `getCapabilities` is not exposed on InputDeviceInfo.prototype in this browser.
+     * @param {object} target
      */
-    defineSyntheticMethodShims(shimTarget, instance, prototypes) {
-        const seen = new Set(['constructor']);
-        for (const proto of prototypes) {
-            if (!proto) continue;
-            for (const name of Object.getOwnPropertyNames(proto)) {
-                if (seen.has(name)) continue;
-                seen.add(name);
-                if (Object.prototype.hasOwnProperty.call(instance, name)) continue;
-                if (shimTarget !== instance && Object.prototype.hasOwnProperty.call(shimTarget, name)) continue;
-                const descriptor = Object.getOwnPropertyDescriptor(proto, name);
-                if (!descriptor || typeof descriptor.value !== 'function') continue;
-                // Build a named function so .name matches the native method.
-                const shim = {
-                    [name]: function () {
-                        return {};
-                    },
-                }[name];
-                this.defineProperty(shimTarget, name, {
-                    value: wrapToString(shim, shim, `function ${name}() { [native code] }`),
-                    writable: true,
-                    configurable: true,
-                    enumerable: true,
-                });
-            }
-        }
+    defineSyntheticGetCapabilities(target) {
+        if (typeof (/** @type {any} */ (target).getCapabilities) !== 'function') return;
+        const getCapabilities = function getCapabilities() {
+            return {};
+        };
+        this.defineProperty(target, 'getCapabilities', {
+            value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        });
     }
 
     /**
-     * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks.
-     * Installs masked no-op shims for every function on the relevant native prototype(s)
-     * (`MediaDeviceInfo.prototype`, plus `InputDeviceInfo.prototype` for input devices) so
-     * arbitrary brand-checked methods don't throw `TypeError: Illegal invocation` when called
-     * on a synthetic device.
-     *
+     * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
-     * @param {'syntheticPrototype' | 'instanceOwn'} [shimMode] - Where method shims live for
-     *   input devices:
+     * @param {'syntheticPrototype' | 'instanceOwn'} [shimMode] - Where the synthetic shim
+     *   for brand-checked InputDeviceInfo methods lives:
      *   - 'syntheticPrototype' (default): intermediate prototype between the instance and
      *     `InputDeviceInfo.prototype`. Hides shims from `hasOwnProperty` on the instance, at
      *     the cost of a one-level prototype-chain depth difference.
@@ -1219,26 +1193,26 @@ export class WebCompat extends ContentFeature {
         const isInputDevice = kind === 'videoinput' || kind === 'audioinput';
 
         let deviceInfo;
-        let shimTarget;
-        const prototypesToShim = [MediaDeviceInfo.prototype];
-
         if (isInputDevice && typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
-            prototypesToShim.unshift(InputDeviceInfo.prototype);
             if (shimMode === 'instanceOwn') {
+                // Preserve InputDeviceInfo.prototype as the direct prototype so sites doing
+                // `Object.getPrototypeOf(d) === InputDeviceInfo.prototype` checks keep working,
+                // and place an own masked getCapabilities on the instance.
                 deviceInfo = Object.create(InputDeviceInfo.prototype);
-                shimTarget = deviceInfo;
+                this.defineSyntheticGetCapabilities(deviceInfo);
             } else {
+                // Intermediate synthetic prototype so deleting properties on the instance
+                // can never expose the native brand-checked getCapabilities method again,
+                // at the cost of a one-level prototype-chain depth difference.
                 const syntheticInputDeviceInfoPrototype = Object.create(InputDeviceInfo.prototype);
+                this.defineSyntheticGetCapabilities(syntheticInputDeviceInfoPrototype);
                 deviceInfo = Object.create(syntheticInputDeviceInfoPrototype);
-                shimTarget = syntheticInputDeviceInfoPrototype;
             }
         } else {
+            // Output devices, and input devices when InputDeviceInfo is unavailable, inherit from MediaDeviceInfo.prototype.
             deviceInfo = Object.create(MediaDeviceInfo.prototype);
-            shimTarget = deviceInfo;
         }
 
-        // Define instance-level data (overrides the native getters and toJSON before the
-        // generic method-shim pass, so the explicit semantics here win).
         Object.defineProperties(deviceInfo, {
             deviceId: {
                 value: 'default',
@@ -1278,8 +1252,6 @@ export class WebCompat extends ContentFeature {
                 enumerable: true,
             },
         });
-
-        this.defineSyntheticMethodShims(shimTarget, deviceInfo, prototypesToShim);
 
         return deviceInfo;
     }
