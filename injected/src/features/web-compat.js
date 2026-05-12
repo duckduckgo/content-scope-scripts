@@ -1160,31 +1160,57 @@ export class WebCompat extends ContentFeature {
     /**
      * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
+     * @param {'syntheticPrototype' | 'instanceOwn' | 'disabled'} [getCapabilitiesShim] - How to shim
+     *   InputDeviceInfo.getCapabilities for synthetic input devices:
+     *   - 'syntheticPrototype' (default): intermediate prototype with own getCapabilities. Hides the
+     *     shim from `hasOwnProperty` on the instance, but changes prototype-chain depth.
+     *   - 'instanceOwn': preserve InputDeviceInfo.prototype as the direct prototype; place an own
+     *     masked getCapabilities on the instance.
+     *   - 'disabled': no shim. device.getCapabilities() hits the native brand check and throws
+     *     TypeError("Illegal invocation"). Use only when a site needs unaltered semantics.
      * @returns {MediaDeviceInfo | InputDeviceInfo}
      */
-    createMediaDeviceInfo(kind) {
+    createMediaDeviceInfo(kind, getCapabilitiesShim = 'syntheticPrototype') {
         const isInputDevice = kind === 'videoinput' || kind === 'audioinput';
 
         // Create an empty object with the correct prototype
         let deviceInfo;
         if (isInputDevice) {
-            // Input devices should inherit from InputDeviceInfo.prototype if available.
-            // Use an intermediate synthetic prototype so deleting properties on the instance
-            // can never expose the native brand-checked getCapabilities method again.
             if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
-                const syntheticInputDeviceInfoPrototype = Object.create(InputDeviceInfo.prototype);
-                if (typeof syntheticInputDeviceInfoPrototype.getCapabilities === 'function') {
-                    const getCapabilities = function getCapabilities() {
-                        return {};
-                    };
-                    this.defineProperty(syntheticInputDeviceInfoPrototype, 'getCapabilities', {
-                        value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
-                        writable: true,
-                        configurable: true,
-                        enumerable: true,
-                    });
+                if (getCapabilitiesShim === 'syntheticPrototype') {
+                    // Intermediate synthetic prototype so deleting properties on the instance
+                    // can never expose the native brand-checked getCapabilities method again,
+                    // at the cost of a one-level prototype-chain depth difference.
+                    const syntheticInputDeviceInfoPrototype = Object.create(InputDeviceInfo.prototype);
+                    if (typeof syntheticInputDeviceInfoPrototype.getCapabilities === 'function') {
+                        const getCapabilities = function getCapabilities() {
+                            return {};
+                        };
+                        this.defineProperty(syntheticInputDeviceInfoPrototype, 'getCapabilities', {
+                            value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
+                            writable: true,
+                            configurable: true,
+                            enumerable: true,
+                        });
+                    }
+                    deviceInfo = Object.create(syntheticInputDeviceInfoPrototype);
+                } else {
+                    // 'instanceOwn' and 'disabled' both keep the prototype identity equal to
+                    // InputDeviceInfo.prototype so sites doing `Object.getPrototypeOf(d) === ...`
+                    // checks keep working.
+                    deviceInfo = Object.create(InputDeviceInfo.prototype);
+                    if (getCapabilitiesShim === 'instanceOwn' && typeof deviceInfo.getCapabilities === 'function') {
+                        const getCapabilities = function getCapabilities() {
+                            return {};
+                        };
+                        this.defineProperty(deviceInfo, 'getCapabilities', {
+                            value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
+                            writable: true,
+                            configurable: true,
+                            enumerable: true,
+                        });
+                    }
                 }
-                deviceInfo = Object.create(syntheticInputDeviceInfoPrototype);
             } else {
                 deviceInfo = Object.create(MediaDeviceInfo.prototype);
             }
@@ -1267,6 +1293,11 @@ export class WebCompat extends ContentFeature {
                 const settings = this.getFeatureSetting('enumerateDevices') || {};
                 const timeoutEnabled = settings.timeoutEnabled !== false;
                 const timeoutMs = settings.timeoutMs ?? 2000;
+                /** @type {'syntheticPrototype' | 'instanceOwn' | 'disabled'} */
+                const getCapabilitiesShim =
+                    settings.getCapabilitiesShim === 'instanceOwn' || settings.getCapabilitiesShim === 'disabled'
+                        ? settings.getCapabilitiesShim
+                        : 'syntheticPrototype';
 
                 try {
                     const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
@@ -1280,15 +1311,15 @@ export class WebCompat extends ContentFeature {
                         const devices = [];
 
                         if (response.videoInput) {
-                            devices.push(this.createMediaDeviceInfo('videoinput'));
+                            devices.push(this.createMediaDeviceInfo('videoinput', getCapabilitiesShim));
                         }
 
                         if (response.audioInput) {
-                            devices.push(this.createMediaDeviceInfo('audioinput'));
+                            devices.push(this.createMediaDeviceInfo('audioinput', getCapabilitiesShim));
                         }
 
                         if (response.audioOutput) {
-                            devices.push(this.createMediaDeviceInfo('audiooutput'));
+                            devices.push(this.createMediaDeviceInfo('audiooutput', getCapabilitiesShim));
                         }
 
                         return Promise.resolve(devices);

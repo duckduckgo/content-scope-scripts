@@ -10,13 +10,14 @@ test.describe('Device Enumeration Feature', () => {
                 site: { enabledFeatures: [] },
             });
 
-            // Should use native implementation
-            const results = await page.evaluate(() => {
-                // @ts-expect-error - results is set by renderResults()
-                return window.results;
-            });
+            const results = await page.evaluate(
+                () =>
+                    /** @type {any} */ (window).results ??
+                    new Promise((resolve) =>
+                        window.addEventListener('results-ready', (event) => resolve(/** @type {any} */ (event).detail)),
+                    ),
+            );
 
-            // The test should pass with native behavior
             expect(results).toBeDefined();
         });
     });
@@ -34,13 +35,14 @@ test.describe('Device Enumeration Feature', () => {
                 },
             });
 
-            // Should use our implementation
-            const results = await page.evaluate(() => {
-                // @ts-expect-error - results is set by renderResults()
-                return window.results;
-            });
+            const results = await page.evaluate(
+                () =>
+                    /** @type {any} */ (window).results ??
+                    new Promise((resolve) =>
+                        window.addEventListener('results-ready', (event) => resolve(/** @type {any} */ (event).detail)),
+                    ),
+            );
 
-            // The test should pass with our implementation
             expect(results).toBeDefined();
         });
 
@@ -251,6 +253,113 @@ test.describe('Device Enumeration Feature', () => {
             expect(result.audioGetCapabilitiesToStringToString).toEqual('function toString() { [native code] }');
             expect(result.audioDeleteGetCapabilities).toEqual(true);
             expect(result.audioCapabilitiesAfterDelete).toEqual({});
+        });
+
+        test('getCapabilitiesShim=instanceOwn preserves the prototype identity and exposes an own shim', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        enumerateDevices: {
+                            state: 'enabled',
+                            getCapabilitiesShim: 'instanceOwn',
+                        },
+                    },
+                },
+            });
+
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () =>
+                    Promise.resolve({
+                        videoInput: true,
+                        audioInput: true,
+                        audioOutput: true,
+                        willPrompt: true,
+                    });
+            });
+
+            const result = await page.evaluate(async () => {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                /** @type {InputDeviceInfo | undefined} */
+                const audioInput = /** @type {InputDeviceInfo | undefined} */ (devices.find((device) => device.kind === 'audioinput'));
+                const audioInputAny = /** @type {any} */ (audioInput);
+
+                return {
+                    prototypeIsInputDeviceInfo: Object.getPrototypeOf(audioInputAny) === InputDeviceInfo.prototype,
+                    isInputDeviceInfo: audioInput instanceof InputDeviceInfo,
+                    hasOwnGetCapabilities: Object.prototype.hasOwnProperty.call(audioInputAny, 'getCapabilities'),
+                    capabilities: audioInput?.getCapabilities(),
+                    getCapabilitiesToString: audioInput?.getCapabilities.toString(),
+                };
+            });
+
+            expect(result).toEqual({
+                prototypeIsInputDeviceInfo: true,
+                isInputDeviceInfo: true,
+                hasOwnGetCapabilities: true,
+                capabilities: {},
+                getCapabilitiesToString: 'function getCapabilities() { [native code] }',
+            });
+        });
+
+        test('getCapabilitiesShim=disabled documents the native illegal-invocation trade-off', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        enumerateDevices: {
+                            state: 'enabled',
+                            getCapabilitiesShim: 'disabled',
+                        },
+                    },
+                },
+            });
+
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () =>
+                    Promise.resolve({
+                        videoInput: true,
+                        audioInput: true,
+                        audioOutput: true,
+                        willPrompt: true,
+                    });
+            });
+
+            const result = await page.evaluate(async () => {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                /** @type {InputDeviceInfo | undefined} */
+                const audioInput = /** @type {InputDeviceInfo | undefined} */ (devices.find((device) => device.kind === 'audioinput'));
+                const audioInputAny = /** @type {any} */ (audioInput);
+
+                try {
+                    audioInput?.getCapabilities();
+                    return {
+                        threw: false,
+                        prototypeIsInputDeviceInfo: Object.getPrototypeOf(audioInputAny) === InputDeviceInfo.prototype,
+                        hasOwnGetCapabilities: Object.prototype.hasOwnProperty.call(audioInputAny, 'getCapabilities'),
+                    };
+                } catch (error) {
+                    return {
+                        threw: true,
+                        errorName: error instanceof Error ? error.name : String(error),
+                        errorMessage: error instanceof Error ? error.message : String(error),
+                        prototypeIsInputDeviceInfo: Object.getPrototypeOf(audioInputAny) === InputDeviceInfo.prototype,
+                        hasOwnGetCapabilities: Object.prototype.hasOwnProperty.call(audioInputAny, 'getCapabilities'),
+                    };
+                }
+            });
+
+            expect(result).toEqual({
+                threw: true,
+                errorName: 'TypeError',
+                errorMessage: 'Illegal invocation',
+                prototypeIsInputDeviceInfo: true,
+                hasOwnGetCapabilities: false,
+            });
         });
     });
 });
