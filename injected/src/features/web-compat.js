@@ -1168,9 +1168,23 @@ export class WebCompat extends ContentFeature {
         // Create an empty object with the correct prototype
         let deviceInfo;
         if (isInputDevice) {
-            // Input devices should inherit from InputDeviceInfo.prototype if available
+            // Input devices should inherit from InputDeviceInfo.prototype if available.
+            // Use an intermediate synthetic prototype so deleting properties on the instance
+            // can never expose the native brand-checked getCapabilities method again.
             if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
-                deviceInfo = Object.create(InputDeviceInfo.prototype);
+                const syntheticInputDeviceInfoPrototype = Object.create(InputDeviceInfo.prototype);
+                if (typeof syntheticInputDeviceInfoPrototype.getCapabilities === 'function') {
+                    const getCapabilities = function getCapabilities() {
+                        return {};
+                    };
+                    this.defineProperty(syntheticInputDeviceInfoPrototype, 'getCapabilities', {
+                        value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
+                        writable: true,
+                        configurable: true,
+                        enumerable: true,
+                    });
+                }
+                deviceInfo = Object.create(syntheticInputDeviceInfoPrototype);
             } else {
                 deviceInfo = Object.create(MediaDeviceInfo.prototype);
             }
@@ -1219,20 +1233,6 @@ export class WebCompat extends ContentFeature {
                 enumerable: true,
             },
         });
-
-        if (isInputDevice && typeof deviceInfo.getCapabilities === 'function') {
-            // Match the native no-permission behavior for synthetic input devices,
-            // masked so toString() looks like a native method.
-            const getCapabilities = function getCapabilities() {
-                return {};
-            };
-            this.defineProperty(deviceInfo, 'getCapabilities', {
-                value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
-                writable: true,
-                configurable: true,
-                enumerable: true,
-            });
-        }
 
         return deviceInfo;
     }

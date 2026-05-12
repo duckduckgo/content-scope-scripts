@@ -218,16 +218,20 @@ test.describe('Device Enumeration Feature', () => {
                 /** @type {InputDeviceInfo | undefined} */
                 const videoInput = /** @type {InputDeviceInfo | undefined} */ (devices.find((device) => device.kind === 'videoinput'));
                 const audioOutput = devices.find((device) => device.kind === 'audiooutput');
+                const audioInputAny = /** @type {any} */ (audioInput);
 
                 return {
                     message: globalThis.deviceEnumerationRequest,
                     devices,
                     inputDevicesAreInputDeviceInfo: [audioInput, videoInput].every((device) => device instanceof InputDeviceInfo),
+                    audioHasOwnGetCapabilities: Object.prototype.hasOwnProperty.call(audioInputAny, 'getCapabilities'),
                     audioCapabilities: audioInput?.getCapabilities(),
                     videoCapabilities: videoInput?.getCapabilities(),
                     outputHasGetCapabilities: typeof (/** @type {any} */ (audioOutput)?.getCapabilities),
                     audioGetCapabilitiesToString: audioInput?.getCapabilities.toString(),
                     audioGetCapabilitiesToStringToString: audioInput?.getCapabilities.toString.toString(),
+                    audioDeleteGetCapabilities: delete audioInputAny.getCapabilities,
+                    audioCapabilitiesAfterDelete: audioInputAny?.getCapabilities(),
                 };
             });
 
@@ -238,12 +242,15 @@ test.describe('Device Enumeration Feature', () => {
             });
             expect(result.devices).toHaveLength(3);
             expect(result.inputDevicesAreInputDeviceInfo).toEqual(true);
+            expect(result.audioHasOwnGetCapabilities).toEqual(false);
             expect(result.audioCapabilities).toEqual({});
             expect(result.videoCapabilities).toEqual({});
             expect(result.outputHasGetCapabilities).toEqual('undefined');
             // The shim should be masked so toString() looks like a native method (not the JS source).
             expect(result.audioGetCapabilitiesToString).toEqual('function getCapabilities() { [native code] }');
             expect(result.audioGetCapabilitiesToStringToString).toEqual('function toString() { [native code] }');
+            expect(result.audioDeleteGetCapabilities).toEqual(true);
+            expect(result.audioCapabilitiesAfterDelete).toEqual({});
         });
     });
 });
