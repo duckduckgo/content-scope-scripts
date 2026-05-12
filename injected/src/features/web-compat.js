@@ -1158,6 +1158,26 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * Defines a no-op `getCapabilities` shim on the given target (either an InputDeviceInfo
+     * instance or a synthetic intermediate prototype). The shim is `wrapToString`-masked so
+     * `Function.prototype.toString` looks native, and the descriptor matches native methods.
+     * No-ops when `getCapabilities` is not exposed on InputDeviceInfo.prototype in this browser.
+     * @param {object} target
+     */
+    defineSyntheticGetCapabilities(target) {
+        if (typeof (/** @type {any} */ (target).getCapabilities) !== 'function') return;
+        const getCapabilities = function getCapabilities() {
+            return {};
+        };
+        this.defineProperty(target, 'getCapabilities', {
+            value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        });
+    }
+
+    /**
      * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
      * @param {'syntheticPrototype' | 'instanceOwn'} [getCapabilitiesShim] - How to shim
@@ -1173,41 +1193,23 @@ export class WebCompat extends ContentFeature {
 
         // Create an empty object with the correct prototype
         let deviceInfo;
-        if (isInputDevice) {
-            if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
-                const getCapabilities = function getCapabilities() {
-                    return {};
-                };
-                /** @type {import('../wrapper-utils').StrictPropertyDescriptor} */
-                const getCapabilitiesDescriptor = {
-                    value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
-                    writable: true,
-                    configurable: true,
-                    enumerable: true,
-                };
-                if (getCapabilitiesShim === 'instanceOwn') {
-                    // Preserve InputDeviceInfo.prototype as the direct prototype so sites doing
-                    // `Object.getPrototypeOf(d) === InputDeviceInfo.prototype` checks keep working,
-                    // and place an own masked getCapabilities on the instance.
-                    deviceInfo = Object.create(InputDeviceInfo.prototype);
-                    if (typeof deviceInfo.getCapabilities === 'function') {
-                        this.defineProperty(deviceInfo, 'getCapabilities', getCapabilitiesDescriptor);
-                    }
-                } else {
-                    // Intermediate synthetic prototype so deleting properties on the instance
-                    // can never expose the native brand-checked getCapabilities method again,
-                    // at the cost of a one-level prototype-chain depth difference.
-                    const syntheticInputDeviceInfoPrototype = Object.create(InputDeviceInfo.prototype);
-                    if (typeof syntheticInputDeviceInfoPrototype.getCapabilities === 'function') {
-                        this.defineProperty(syntheticInputDeviceInfoPrototype, 'getCapabilities', getCapabilitiesDescriptor);
-                    }
-                    deviceInfo = Object.create(syntheticInputDeviceInfoPrototype);
-                }
+        if (isInputDevice && typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
+            if (getCapabilitiesShim === 'instanceOwn') {
+                // Preserve InputDeviceInfo.prototype as the direct prototype so sites doing
+                // `Object.getPrototypeOf(d) === InputDeviceInfo.prototype` checks keep working,
+                // and place an own masked getCapabilities on the instance.
+                deviceInfo = Object.create(InputDeviceInfo.prototype);
+                this.defineSyntheticGetCapabilities(deviceInfo);
             } else {
-                deviceInfo = Object.create(MediaDeviceInfo.prototype);
+                // Intermediate synthetic prototype so deleting properties on the instance
+                // can never expose the native brand-checked getCapabilities method again,
+                // at the cost of a one-level prototype-chain depth difference.
+                const syntheticInputDeviceInfoPrototype = Object.create(InputDeviceInfo.prototype);
+                this.defineSyntheticGetCapabilities(syntheticInputDeviceInfoPrototype);
+                deviceInfo = Object.create(syntheticInputDeviceInfoPrototype);
             }
         } else {
-            // Output devices inherit from MediaDeviceInfo.prototype
+            // Output devices, and input devices when InputDeviceInfo is unavailable, inherit from MediaDeviceInfo.prototype.
             deviceInfo = Object.create(MediaDeviceInfo.prototype);
         }
 
