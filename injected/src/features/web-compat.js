@@ -1160,14 +1160,12 @@ export class WebCompat extends ContentFeature {
     /**
      * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
-     * @param {'syntheticPrototype' | 'instanceOwn' | 'disabled'} [getCapabilitiesShim] - How to shim
+     * @param {'syntheticPrototype' | 'instanceOwn'} [getCapabilitiesShim] - How to shim
      *   InputDeviceInfo.getCapabilities for synthetic input devices:
      *   - 'syntheticPrototype' (default): intermediate prototype with own getCapabilities. Hides the
      *     shim from `hasOwnProperty` on the instance, but changes prototype-chain depth.
      *   - 'instanceOwn': preserve InputDeviceInfo.prototype as the direct prototype; place an own
      *     masked getCapabilities on the instance.
-     *   - 'disabled': no shim. device.getCapabilities() hits the native brand check and throws
-     *     TypeError("Illegal invocation"). Use only when a site needs unaltered semantics.
      * @returns {MediaDeviceInfo | InputDeviceInfo}
      */
     createMediaDeviceInfo(kind, getCapabilitiesShim = 'syntheticPrototype') {
@@ -1177,39 +1175,33 @@ export class WebCompat extends ContentFeature {
         let deviceInfo;
         if (isInputDevice) {
             if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
-                if (getCapabilitiesShim === 'syntheticPrototype') {
+                const getCapabilities = function getCapabilities() {
+                    return {};
+                };
+                /** @type {import('../wrapper-utils').StrictPropertyDescriptor} */
+                const getCapabilitiesDescriptor = {
+                    value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
+                    writable: true,
+                    configurable: true,
+                    enumerable: true,
+                };
+                if (getCapabilitiesShim === 'instanceOwn') {
+                    // Preserve InputDeviceInfo.prototype as the direct prototype so sites doing
+                    // `Object.getPrototypeOf(d) === InputDeviceInfo.prototype` checks keep working,
+                    // and place an own masked getCapabilities on the instance.
+                    deviceInfo = Object.create(InputDeviceInfo.prototype);
+                    if (typeof deviceInfo.getCapabilities === 'function') {
+                        this.defineProperty(deviceInfo, 'getCapabilities', getCapabilitiesDescriptor);
+                    }
+                } else {
                     // Intermediate synthetic prototype so deleting properties on the instance
                     // can never expose the native brand-checked getCapabilities method again,
                     // at the cost of a one-level prototype-chain depth difference.
                     const syntheticInputDeviceInfoPrototype = Object.create(InputDeviceInfo.prototype);
                     if (typeof syntheticInputDeviceInfoPrototype.getCapabilities === 'function') {
-                        const getCapabilities = function getCapabilities() {
-                            return {};
-                        };
-                        this.defineProperty(syntheticInputDeviceInfoPrototype, 'getCapabilities', {
-                            value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
-                            writable: true,
-                            configurable: true,
-                            enumerable: true,
-                        });
+                        this.defineProperty(syntheticInputDeviceInfoPrototype, 'getCapabilities', getCapabilitiesDescriptor);
                     }
                     deviceInfo = Object.create(syntheticInputDeviceInfoPrototype);
-                } else {
-                    // 'instanceOwn' and 'disabled' both keep the prototype identity equal to
-                    // InputDeviceInfo.prototype so sites doing `Object.getPrototypeOf(d) === ...`
-                    // checks keep working.
-                    deviceInfo = Object.create(InputDeviceInfo.prototype);
-                    if (getCapabilitiesShim === 'instanceOwn' && typeof deviceInfo.getCapabilities === 'function') {
-                        const getCapabilities = function getCapabilities() {
-                            return {};
-                        };
-                        this.defineProperty(deviceInfo, 'getCapabilities', {
-                            value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
-                            writable: true,
-                            configurable: true,
-                            enumerable: true,
-                        });
-                    }
                 }
             } else {
                 deviceInfo = Object.create(MediaDeviceInfo.prototype);
@@ -1293,11 +1285,8 @@ export class WebCompat extends ContentFeature {
                 const settings = this.getFeatureSetting('enumerateDevices') || {};
                 const timeoutEnabled = settings.timeoutEnabled !== false;
                 const timeoutMs = settings.timeoutMs ?? 2000;
-                /** @type {'syntheticPrototype' | 'instanceOwn' | 'disabled'} */
-                const getCapabilitiesShim =
-                    settings.getCapabilitiesShim === 'instanceOwn' || settings.getCapabilitiesShim === 'disabled'
-                        ? settings.getCapabilitiesShim
-                        : 'syntheticPrototype';
+                /** @type {'syntheticPrototype' | 'instanceOwn'} */
+                const getCapabilitiesShim = settings.getCapabilitiesShim === 'instanceOwn' ? 'instanceOwn' : 'syntheticPrototype';
 
                 try {
                     const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
