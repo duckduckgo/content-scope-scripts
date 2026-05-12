@@ -55,7 +55,7 @@ export function fillMany(root, elements, data) {
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()));
         } else if (element.type === '$generated_zip_code$') {
-            results.push(setValueForInput(inputElem, generateZipCode()));
+            results.push(setValueForInput(inputElem, generateZipCode(element.useState ? data : null)));
         } else if (element.type === '$generated_random_number$') {
             if (!element.min || !element.max) {
                 results.push({
