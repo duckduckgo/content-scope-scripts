@@ -1,4 +1,4 @@
-import { getElement, generateRandomInt } from '../utils/utils.js';
+import { getElement, generateRandomInt, hasOwn } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
 import { states } from '../comparisons/constants.js';
@@ -81,7 +81,7 @@ export function fillMany(root, elements, data) {
 
             // This is a composite of existing (but separate) city and state fields
         } else if (element.type === 'cityState') {
-            if (!Object.prototype.hasOwnProperty.call(data, 'city') || !Object.prototype.hasOwnProperty.call(data, 'state')) {
+            if (!hasOwn(data, 'city') || !hasOwn(data, 'state')) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'`,
@@ -90,7 +90,7 @@ export function fillMany(root, elements, data) {
             }
             results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
         } else if (element.type === 'fullState') {
-            if (!Object.prototype.hasOwnProperty.call(data, 'state')) {
+            if (!hasOwn(data, 'state')) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data didn't contain the key 'state'`,
@@ -100,7 +100,7 @@ export function fillMany(root, elements, data) {
 
             const state = data.state;
 
-            if (!Object.prototype.hasOwnProperty.call(states, state)) {
+            if (!hasOwn(states, state)) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`,
@@ -115,7 +115,7 @@ export function fillMany(root, elements, data) {
             if (isElementTypeOptional(element.type)) {
                 continue;
             }
-            if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
+            if (!hasOwn(data, element.type)) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`,

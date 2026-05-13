@@ -6,13 +6,21 @@ import { addressMatch } from '../src/features/broker-protection/comparisons/addr
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js';
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js';
 import { names, states } from '../src/features/broker-protection/comparisons/constants.js';
-import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils/utils.js';
+import {
+    generateRandomInt,
+    getOwn,
+    hasOwn,
+    hashObject,
+    sortAddressesByStateAndCity,
+} from '../src/features/broker-protection/utils/utils.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js';
-import { ANY_FIVE_DIGIT_ZIP, STATE_CITY_ZIPS } from './test-helpers/zip-prefixes.js';
+import STATE_CITY_ZIPS from '../src/features/broker-protection/actions/state-city-zips.json' with { type: 'json' };
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js';
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
 import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
 import { isElementType } from '../src/features/broker-protection/captcha-services/utils/element.js';
+
+const ANY_FIVE_DIGIT_ZIP = /^\d{5}$/;
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -763,6 +771,15 @@ describe('generators', () => {
             expect(defaultZips).toContain(generateZipCode({ state: 'IL', city: 'Nonexistentville' }));
         });
 
+        it('returns a random ZIP when the state is not a string', () => {
+            expect(generateZipCode({ state: 5, city: 'Chicago' })).toMatch(ANY_FIVE_DIGIT_ZIP);
+        });
+
+        it('uses the default city ZIPs when the city is not a string', () => {
+            const defaultZips = STATE_CITY_ZIPS.IL[STATE_CITY_ZIPS.IL._default];
+            expect(defaultZips).toContain(generateZipCode({ state: 'IL', city: [] }));
+        });
+
         it('includes ZIP data for every US state and DC', () => {
             expect(Object.keys(STATE_CITY_ZIPS).sort()).toEqual(Object.keys(states).sort());
         });
@@ -825,6 +842,23 @@ describe('captcha-services', () => {
 });
 
 describe('utils', () => {
+    describe('hasOwn', () => {
+        it('uses the captured hasOwnProperty when Object.prototype is changed', () => {
+            const originalHasOwnProperty = Object.prototype.hasOwnProperty;
+            // eslint-disable-next-line no-extend-native
+            Object.defineProperty(Object.prototype, 'hasOwnProperty', { value: () => true, configurable: true });
+            try {
+                const target = Object.create({ inherited: 'value' });
+
+                expect(hasOwn(target, 'inherited')).toBe(false);
+                expect(getOwn(target, 'inherited')).toBeUndefined();
+            } finally {
+                // eslint-disable-next-line no-extend-native
+                Object.defineProperty(Object.prototype, 'hasOwnProperty', { value: originalHasOwnProperty, configurable: true });
+            }
+        });
+    });
+
     describe('generateRandomInt', () => {
         it('generates an integers between the min and max values', () => {
             fc.assert(

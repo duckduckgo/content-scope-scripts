@@ -1,4 +1,4 @@
-import { generateRandomInt } from '../utils/utils.js';
+import { generateRandomInt, getOwn, hasOwn } from '../utils/utils.js';
 import STATE_CITY_ZIPS from './state-city-zips.json' with { type: 'json' };
 
 export function generatePhoneNumber() {
@@ -26,18 +26,19 @@ const generateRandomZipCode = () => generateRandomInt(10000, 99999).toString();
  * back to the default (largest) city in the state. If the state is unknown,
  * returns a random 5-digit number.
  *
- * @param {{state?: string; city?: string} | null} [params]
+ * @param {{state?: unknown; city?: unknown} | null} [params]
  * @return {string}
  */
 export function generateZipCode(params) {
     const { state, city } = params ?? {};
-    const stateUpperCase = state?.toUpperCase();
-    if (!stateUpperCase || !(stateUpperCase in STATE_CITY_ZIPS)) {
+    const stateUpperCase = typeof state === 'string' ? state.toUpperCase() : null;
+    if (!stateUpperCase || !hasOwn(STATE_CITY_ZIPS, stateUpperCase)) {
         return generateRandomZipCode();
     }
 
     const stateCities = STATE_CITY_ZIPS[stateUpperCase];
-    const zips = stateCities[city?.toUpperCase()] || stateCities[stateCities._default];
+    const cityUpperCase = typeof city === 'string' ? city.toUpperCase() : null;
+    const zips = getOwn(stateCities, cityUpperCase) || getOwn(stateCities, stateCities._default);
     return zips?.[generateRandomInt(0, zips.length - 1)] ?? generateRandomZipCode();
 }
 

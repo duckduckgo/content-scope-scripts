@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-redeclare
 import { navigate, extract, click, scroll, expectation, fillForm, getCaptchaInfo, solveCaptcha, condition } from './actions/actions';
 import { ErrorResponse } from './types';
+import { hasOwn } from './utils/utils.js';
 
 /**
  * @param {import('./types.js').PirAction} action
@@ -53,7 +54,7 @@ export async function execute(action, inputData, root = document) {
 function data(action, data, defaultSource) {
     if (!data) return null;
     const source = action.dataSource || defaultSource;
-    if (Object.prototype.hasOwnProperty.call(data, source)) {
+    if (hasOwn(data, source)) {
         return data[source];
     }
     return null;
