@@ -156,6 +156,7 @@ export type RMFIcon =
   | "DDGAnnounce"
   | "DuckAi"
   | "PIR"
+  | "Preview"
   | "Radar"
   | "RadarCheckGreen"
   | "RadarCheckPurple"
