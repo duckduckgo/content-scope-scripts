@@ -133,4 +133,14 @@ export const rmfDataExamples = {
             primaryActionText: 'Update macOS',
         },
     },
+    big_single_action_preview: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Try out our Preview!',
+            descriptionText: 'Check out our preview release to try features before everyone else.',
+            icon: 'Preview',
+            primaryActionText: 'Try preview',
+        },
+    },
 };
