@@ -4,11 +4,11 @@ node_modules/
 .env
 .build/
 build/
-!build/
-build/*
-!build/locales/
-build/locales/*
-!build/locales/*.d.ts
+!/build/
+/build/*
+!/build/locales/
+/build/locales/*
+!/build/locales/*.d.ts
 /docs
 /screens
 test-results/
