@@ -4,8 +4,8 @@ import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './g
 import { states } from '../comparisons/constants.js';
 
 /**
- * @param {Record<string, any>} action
- * @param {Record<string, any>} userData
+ * @param {import('../types.js').FillFormAction} action
+ * @param {import('../types.js').BrokerProtectionProfile} userData
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
@@ -36,8 +36,8 @@ export function fillForm(action, userData, root = document) {
 /**
  * Try to fill form elements. Collecting results + warnings for reporting.
  * @param {HTMLElement} root
- * @param {{selector: string; type: string; min?: string; max?: string;}[]} elements
- * @param {Record<string, any>} data
+ * @param {import('../types.js').FillFormElement[]} elements
+ * @param {import('../types.js').BrokerProtectionProfile} data
  * @return {({result: true} | {result: false; error: string})[]}
  */
 export function fillMany(root, elements, data) {
@@ -129,7 +129,7 @@ export function fillMany(root, elements, data) {
                 });
                 continue;
             }
-            results.push(setValueForInput(inputElem, data[element.type]));
+            results.push(setValueForInput(inputElem, /** @type {string} */ (data[element.type])));
         }
     }
 

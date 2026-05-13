@@ -2,17 +2,54 @@
  * @typedef {SuccessResponse | ErrorResponse} ActionResponse
  * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
  * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string; failSilently?: boolean}} Expectation
+ * @typedef {{ addressLine1?: string; city: string; state: string | null; zip?: string }} BrokerProtectionAddress
+ * @typedef {string | number | null | undefined | string[] | BrokerProtectionAddress[]} BrokerProtectionProfileValue
+ * @typedef {Record<string, BrokerProtectionProfileValue> & {
+ *   firstName?: string;
+ *   middleName?: string | null;
+ *   lastName?: string;
+ *   suffix?: string | null;
+ *   city?: string;
+ *   state?: string;
+ *   age?: string | number;
+ *   birthYear?: string | number;
+ *   phone?: string;
+ *   name?: string;
+ *   alternativeNames?: string[];
+ *   addresses?: BrokerProtectionAddress[];
+ *   phoneNumbers?: string[];
+ *   relatives?: string[];
+ *   profileUrl?: string;
+ * }} BrokerProtectionProfile
+ * @typedef {{ selector: string; type: string; min?: string; max?: string; useState?: boolean }} FillFormElement
  */
 
 /**
- * @typedef {object} PirAction
+ * @typedef {object} BaseAction
  * @property {string} id
- * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll"} actionType
- * @property {string} [selector]
- * @property {string} [captchaType]
- * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]
- * @property {string} [url]
+ *
+ * @typedef {BaseAction & { actionType: "fillForm"; selector: string; elements: FillFormElement[] }} FillFormAction
+ * @typedef {BaseAction & { actionType: "navigate"; url: string }} NavigateAction
+ * @typedef {BaseAction & { actionType: "extract"; selector: string; profile?: Record<string, any> }} ExtractAction
+ * @typedef {BaseAction & { actionType: "click"; selector?: string; elements?: Record<string, any>[]; choices?: Record<string, any>[]; default?: Record<string, any> }} ClickAction
+ * @typedef {BaseAction & { actionType: "expectation"; expectations: Expectation[]; actions?: PirAction[] }} ExpectationAction
+ * @typedef {BaseAction & { actionType: "getCaptchaInfo"; selector?: string; captchaType?: string }} GetCaptchaInfoAction
+ * @typedef {BaseAction & { actionType: "solveCaptcha"; selector?: string; injectCaptchaHandler?: string }} SolveCaptchaAction
+ * @typedef {BaseAction & { actionType: "condition"; expectations: Expectation[]; actions?: PirAction[] }} ConditionAction
+ * @typedef {BaseAction & { actionType: "scroll"; selector: string }} ScrollAction
+ *
+ * @typedef {
+ *   | FillFormAction
+ *   | NavigateAction
+ *   | ExtractAction
+ *   | ClickAction
+ *   | ExpectationAction
+ *   | GetCaptchaInfoAction
+ *   | SolveCaptchaAction
+ *   | ConditionAction
+ *   | ScrollAction
+ * } PirAction
  */
 
 /**

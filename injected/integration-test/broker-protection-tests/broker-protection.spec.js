@@ -379,6 +379,46 @@ test.describe('Broker Protection communications', () => {
             await dbp.doesInputValueEqual('#full-state', 'District Of Columbia');
         });
 
+        test('fillForm with state-aware generated ZIP and default city', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesInlineAction({
+                state: {
+                    action: {
+                        actionType: 'fillForm',
+                        id: '3',
+                        selector: '.ahm',
+                        elements: [{ type: '$generated_zip_code$', selector: '#user_zip_code', useState: true }],
+                    },
+                    data: { extractedProfile: { state: 'AK' } },
+                },
+            });
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#user_zip_code', '99501');
+        });
+
+        test('fillForm with state-aware generated ZIP and matching city', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesInlineAction({
+                state: {
+                    action: {
+                        actionType: 'fillForm',
+                        id: '3',
+                        selector: '.ahm',
+                        elements: [{ type: '$generated_zip_code$', selector: '#user_zip_code', useState: true }],
+                    },
+                    data: { extractedProfile: { city: 'Juneau', state: 'AK' } },
+                },
+            });
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#user_zip_code', '99801');
+        });
+
         test('fillForm with select containing numbers', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();

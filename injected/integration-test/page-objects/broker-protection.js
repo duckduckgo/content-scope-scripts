@@ -175,7 +175,7 @@ export class BrokerProtectionPage {
     }
 
     /**
-     * @param {{state: {action: Record<string, any>}}} action
+     * @param {{state: {action: Record<string, any>; data?: Record<string, any>}}} action
      * @return {Promise<void>}
      */
     async receivesInlineAction(action) {
