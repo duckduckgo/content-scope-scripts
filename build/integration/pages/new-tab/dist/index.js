@@ -35679,6 +35679,16 @@
         icon: "Preview",
         primaryActionText: "Try preview"
       }
+    },
+    big_single_action_youtube_new: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "What YouTube without ads!",
+        descriptionText: "Our browser now blocks ads on YouTube so you can watch without interruptions.",
+        icon: "YoutubeNew",
+        primaryActionText: "Got it"
+      }
     }
   };
 
@@ -35789,6 +35799,26 @@
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_subscription.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-preview": {
+      factory: () => /* @__PURE__ */ k(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_preview.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-youtube-new": {
+      factory: () => /* @__PURE__ */ k(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_youtube_new.content,
           primaryAction: noop("rmf_primaryAction"),
           dismiss: noop("rmf_dismiss")
         }

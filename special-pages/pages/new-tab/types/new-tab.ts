@@ -161,7 +161,8 @@ export type RMFIcon =
   | "RadarCheckGreen"
   | "RadarCheckPurple"
   | "Subscription"
-  | "VeryCriticalUpdate";
+  | "VeryCriticalUpdate"
+  | "YoutubeNew";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature

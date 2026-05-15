@@ -1,3 +1,1 @@
-- Added Preview icon for RMF messages (#2690)
-- Fix TypeScript 6 checker config (#2695)
-- Fix design tokens lockfile specifier (#2694)
+- rmf: YoutubeNew pictogram (#2698)

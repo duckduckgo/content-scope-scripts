@@ -146,7 +146,8 @@
                 "RadarCheckGreen",
                 "RadarCheckPurple",
                 "Subscription",
-                "VeryCriticalUpdate"
+                "VeryCriticalUpdate",
+                "YoutubeNew"
             ]
         }
     }
