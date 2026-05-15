@@ -51,14 +51,14 @@ const checks = {
     },
     'apple-isolated': {
         file: join(APPLE_BUILD, 'contentScopeIsolated.js'),
+        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+    },
+    'apple-broker-protection': {
+        file: join(APPLE_BUILD, 'brokerProtection.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: 'Copyright (c) 2014-2015, hassansin', includes: true },
         ],
-    },
-    'apple-broker-protection': {
-        file: join(APPLE_BUILD, 'brokerProtection.js'),
-        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
     },
 };
 
