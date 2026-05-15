@@ -21,7 +21,7 @@ This document provides platform-specific build instructions, troubleshooting ste
     - **Android**: `android/node_modules/@duckduckgo/content-scope-scripts/build/android/contentScope.js` (referenced by build.gradle files)
     - **Windows**:
         - Main: `windows-browser/WindowsBrowser/Application/ContentScripts/contentScope.js` (embedded resource from `submodules/content-scope-scripts/build/windows/contentScope.js`)
-        - Data Broker Protection: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts`
+        - Data Broker Protection: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts` (embedded from `submodules/content-scope-scripts/build/windows/brokerProtection.js`)
     - **Extension**: `extension/node_modules/@duckduckgo/content-scope-scripts/build/[platform]/inject.js` (where `[platform]` is `chrome-mv3` or `firefox`)
 
 3. **Check in the web inspector:**

@@ -42,6 +42,10 @@ const checks = {
         file: join(BUILD, 'windows/contentScope.js'),
         tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
     },
+    'windows-broker-protection': {
+        file: join(BUILD, 'windows/brokerProtection.js'),
+        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+    },
     apple: {
         file: join(APPLE_BUILD, 'contentScope.js'),
         tests: [

@@ -63,6 +63,10 @@ const builds = {
         input: 'entry-points/windows.js',
         output: ['../build/windows/contentScope.js'],
     },
+    'windows-broker-protection': {
+        input: 'entry-points/windows.js',
+        output: ['../build/windows/brokerProtection.js'],
+    },
     integration: {
         input: 'entry-points/integration.js',
         output: [

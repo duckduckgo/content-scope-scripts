@@ -20,6 +20,7 @@ interface ImportMeta {
         | 'apple-ai-history'
         | 'android'
         | 'windows'
+        | 'windows-broker-protection'
         | 'integration'
         | 'chrome-mv3'
         | 'android-broker-protection'
