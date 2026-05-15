@@ -11,6 +11,7 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  * @typedef {Object} ElementHidingRuleHide
  * @property {string} selector
  * @property {'hide-empty' | 'hide' | 'closest-empty' | 'override'} type
+ * @property {string | string[]} [hasText] - only match elements whose innerText includes at least one of the given strings (case-insensitive). Accepts a single string or an array for localized variants.
  */
 
 /**
@@ -271,7 +272,7 @@ function extractTimeoutRules(rules) {
     const timeoutRules = [];
 
     rules.forEach((rule) => {
-        if (rule.type === 'hide') {
+        if (rule.type === 'hide' && !(/** @type {ElementHidingRuleHide} */ (rule).hasText)) {
             strictHideRules.push(rule);
         } else {
             timeoutRules.push(rule);
@@ -310,6 +311,19 @@ function injectStyleTag(rules) {
 }
 
 /**
+ * @param {Element[]} elements
+ * @param {string | string[]} hasText
+ * @returns {Element[]}
+ */
+function filterByText(elements, hasText) {
+    const needles = (Array.isArray(hasText) ? hasText : [hasText]).map((s) => s.toLowerCase());
+    return elements.filter((el) => {
+        const text = /** @type {HTMLElement} */ (el).innerText?.toLowerCase();
+        return text && needles.some((needle) => text.includes(needle));
+    });
+}
+
+/**
  * Apply list of active element hiding rules to page
  * @param {ElementHidingRule[]} rules
  */
@@ -318,7 +332,10 @@ function hideAdNodes(rules) {
 
     rules.forEach((rule) => {
         const selector = forgivingSelector(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
-        const matchingElementArray = [...document.querySelectorAll(selector)];
+        let matchingElementArray = [...document.querySelectorAll(selector)];
+        if (/** @type {ElementHidingRuleHide} */ (rule).hasText) {
+            matchingElementArray = filterByText(matchingElementArray, /** @type {ElementHidingRuleHide} */ (rule).hasText);
+        }
         matchingElementArray.forEach((element) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             collapseDomNode(element, rule);
@@ -334,7 +351,10 @@ function unhideLoadedAds() {
 
     appliedRules.forEach((rule) => {
         const selector = forgivingSelector(rule.selector);
-        const matchingElementArray = [...document.querySelectorAll(selector)];
+        let matchingElementArray = [...document.querySelectorAll(selector)];
+        if (/** @type {ElementHidingRuleHide} */ (rule).hasText) {
+            matchingElementArray = filterByText(matchingElementArray, /** @type {ElementHidingRuleHide} */ (rule).hasText);
+        }
         matchingElementArray.forEach((element) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             expandNonEmptyDomNode(element, rule);

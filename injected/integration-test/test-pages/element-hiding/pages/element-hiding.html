@@ -126,6 +126,22 @@
         </div>
     </div>
 
+    <!-- hasText rule test elements -->
+    <div id="has-text">
+        <div class="container has-text-test" id="has-text-match">
+            Please accept our cookie preferences to continue.
+        </div>
+        <div class="container has-text-test" id="has-text-array-match">
+            Bitte akzeptieren Sie unsere Cookie-Einstellungen.
+        </div>
+        <div class="container has-text-test" id="has-text-no-match">
+            This is unrelated content that should not be hidden.
+        </div>
+        <div class="container has-text-case-test" id="has-text-case-insensitive">
+            You should dismiss this notice regardless of case.
+        </div>
+    </div>
+
     <script>
         // Helper function to check if an element is hidden
         function isElementHidden(elementId) {
@@ -375,6 +391,33 @@
                     name: "Element with override rule is NOT hidden",
                     result: isElementHidden('override-basic'),
                     expected: false
+                }
+            ];
+        });
+
+        test('hasText rule tests', async () => {
+            await new Promise(resolve => setTimeout(resolve, 4000));
+            
+            return [
+                {
+                    name: "Element with matching text is hidden",
+                    result: isElementHidden('has-text-match'),
+                    expected: true
+                },
+                {
+                    name: "Element matching second entry in hasText array is hidden",
+                    result: isElementHidden('has-text-array-match'),
+                    expected: true
+                },
+                {
+                    name: "Element with same selector but non-matching text is NOT hidden",
+                    result: isElementHidden('has-text-no-match'),
+                    expected: false
+                },
+                {
+                    name: "hasText matching is case-insensitive",
+                    result: isElementHidden('has-text-case-insensitive'),
+                    expected: true
                 }
             ];
         });

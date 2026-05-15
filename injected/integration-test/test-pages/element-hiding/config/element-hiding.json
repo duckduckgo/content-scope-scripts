@@ -27,6 +27,16 @@
                     {
                         "selector": ".ad-container",
                         "type": "override"
+                    },
+                    {
+                        "selector": ".has-text-test",
+                        "type": "hide",
+                        "hasText": ["cookie preferences", "cookie-einstellungen"]
+                    },
+                    {
+                        "selector": ".has-text-case-test",
+                        "type": "hide",
+                        "hasText": "DISMISS THIS"
                     }
                 ]
             }
