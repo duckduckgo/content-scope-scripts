@@ -61,6 +61,7 @@ export class Build {
             android: () => '../build/android/contentScope.js',
             apple: () => '../Sources/ContentScopeScripts/dist/contentScope.js',
             'apple-isolated': () => '../Sources/ContentScopeScripts/dist/contentScopeIsolated.js',
+            'apple-broker-protection': () => '../Sources/ContentScopeScripts/dist/brokerProtection.js',
             'android-autofill-import': () => '../build/android/autofillImport.js',
             'android-broker-protection': () => '../build/android/brokerProtection.js',
         });
@@ -73,7 +74,7 @@ export class Build {
      */
     static supported(name) {
         /** @type {ImportMeta['injectName'][]} */
-        const items = ['apple', 'apple-isolated', 'windows', 'integration', 'android', 'android-autofill-import', 'chrome-mv3', 'firefox'];
+        const items = ['apple', 'apple-isolated', 'apple-broker-protection', 'windows', 'integration', 'android', 'android-autofill-import', 'chrome-mv3', 'firefox'];
         if (items.includes(name)) {
             return name;
         }

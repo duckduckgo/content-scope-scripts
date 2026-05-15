@@ -12,12 +12,12 @@ This document provides platform-specific build instructions, troubleshooting ste
 
 1. **Check the build directory in the content-scope-scripts repo:**
     - Location: `build/[platform]/contentScope.js` (or `build/[platform]/inject.js` for extensions)
-    - **Note:** Apple builds output to `Sources/ContentScopeScripts/dist/contentScope.js` instead of `build/apple/`
+    - **Note:** Apple builds output to `Sources/ContentScopeScripts/dist/` (`contentScope.js`, `contentScopeIsolated.js`, `brokerProtection.js`, etc.) instead of `build/apple/`
     - Verify the file contains your expected changes
     - Check file hash/timestamp to ensure it's been rebuilt
 
 2. **Check where it lives in the native application:**
-    - **iOS/macOS**: `apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js`
+    - **iOS/macOS**: `apple-browsers` consumes the Swift package resources from `content-scope-scripts/Sources/ContentScopeScripts/dist/` (for example `contentScope.js`, `contentScopeIsolated.js`, and `brokerProtection.js`)
     - **Android**: `android/node_modules/@duckduckgo/content-scope-scripts/build/android/contentScope.js` (referenced by build.gradle files)
     - **Windows**:
         - Main: `windows-browser/WindowsBrowser/Application/ContentScripts/contentScope.js` (embedded resource from `submodules/content-scope-scripts/build/windows/contentScope.js`)

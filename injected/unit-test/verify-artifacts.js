@@ -56,6 +56,10 @@ const checks = {
             { kind: 'containsString', text: 'Copyright (c) 2014-2015, hassansin', includes: true },
         ],
     },
+    'apple-broker-protection': {
+        file: join(APPLE_BUILD, 'brokerProtection.js'),
+        tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
+    },
 };
 
 describe('checks', () => {
