@@ -3,6 +3,40 @@ import { test as base, expect } from '@playwright/test';
 
 const test = testContextForExtension(base);
 
+/**
+ * @param {import('@playwright/test').Page} page
+ * @param {string} path
+ * @param {Record<string, any>} [args]
+ */
+async function attachIframe(page, path = '/blank.html', args = {}) {
+    const [basePath, search = ''] = path.split('?');
+    const searchParams = new URLSearchParams(search);
+    searchParams.append('wait-for-init-args', 'true');
+
+    const framePromise = page.waitForEvent('frameattached');
+    await page.evaluate((framePath) => {
+        const iframe = document.createElement('iframe');
+        iframe.src = framePath;
+        iframe.dataset.testid = 'media-frame';
+        document.body.appendChild(iframe);
+    }, `${basePath}?${searchParams.toString()}`);
+    const frame = await framePromise;
+    await frame.waitForLoadState('domcontentloaded');
+    await frame.waitForFunction(() => {
+        // @ts-expect-error
+        return window.__content_scope_status === 'loaded';
+    });
+    await frame.evaluate((detail) => {
+        document.dispatchEvent(new CustomEvent('content-scope-init-args', { detail }));
+    }, args);
+    await frame.waitForFunction(() => {
+        window.dispatchEvent(new Event('content-scope-init-complete'));
+        // @ts-expect-error
+        return window.__content_scope_status === 'initialized';
+    });
+    return frame;
+}
+
 test.describe('Device Enumeration Feature', () => {
     test.describe('disabled feature', () => {
         test('should not intercept enumerateDevices when disabled', async ({ page }) => {
@@ -301,6 +335,52 @@ test.describe('Device Enumeration Feature', () => {
                 hasOwnGetCapabilities: true,
                 capabilities: {},
                 getCapabilitiesToString: 'function getCapabilities() { [native code] }',
+            });
+        });
+
+        test('should block iframe media APIs before native permission flows run', async ({ page }) => {
+            const initArgs = {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        iframeMediaApiOverrides: 'enabled',
+                    },
+                },
+            };
+
+            await gotoAndWait(page, '/blank.html', initArgs);
+
+            const frame = await attachIframe(page, '/blank.html', initArgs);
+            const result = await frame.evaluate(async () => {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+
+                try {
+                    await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                    return {
+                        devices,
+                        getUserMedia: {
+                            state: 'resolved',
+                        },
+                    };
+                } catch (error) {
+                    return {
+                        devices,
+                        getUserMedia: {
+                            state: 'rejected',
+                            name: error instanceof Error ? error.name : String(error),
+                            message: error instanceof Error ? error.message : String(error),
+                        },
+                    };
+                }
+            });
+
+            expect(result.devices).toEqual([]);
+            expect(result.getUserMedia).toEqual({
+                state: 'rejected',
+                name: 'NotAllowedError',
+                message: 'getUserMedia blocked in iframe by DuckDuckGo',
             });
         });
     });

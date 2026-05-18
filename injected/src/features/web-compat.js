@@ -174,8 +174,11 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('modifyCookies')) {
             this.modifyCookies();
         }
-        if (this.getFeatureSettingEnabled('enumerateDevices')) {
+        if (this.getFeatureSettingEnabled('enumerateDevices') || this.getFeatureSettingEnabled('iframeMediaApiOverrides')) {
             this.deviceEnumerationFix();
+        }
+        if (this.getFeatureSettingEnabled('iframeMediaApiOverrides')) {
+            this.iframeMediaApiOverridesFix();
         }
         // Used by Android in the non adsjs version
         // This has to be enabled in the config for the injectName='android' now.
@@ -1268,6 +1271,50 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * @returns {{ enumerateDevices: 'empty', getUserMedia: 'reject' } | null}
+     */
+    getIframeMediaApiOverrides() {
+        const settings = this.getFeatureSetting('iframeMediaApiOverrides');
+        if (settings === 'enabled') {
+            return {
+                enumerateDevices: 'empty',
+                getUserMedia: 'reject',
+            };
+        }
+
+        if (!settings || settings.state !== 'enabled') {
+            return null;
+        }
+
+        return {
+            enumerateDevices: 'empty',
+            getUserMedia: 'reject',
+        };
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isIframeContext() {
+        return window.top !== window;
+    }
+
+    /**
+     * @param {'enumerateDevices' | 'getUserMedia'} methodName
+     * @returns {Error}
+     */
+    createIframeMediaApiBlockedError(methodName) {
+        const message = `${methodName} blocked in iframe by DuckDuckGo`;
+        try {
+            return new DOMException(message, 'NotAllowedError');
+        } catch {
+            const error = new Error(message);
+            error.name = 'NotAllowedError';
+            return error;
+        }
+    }
+
+    /**
      * Fixes device enumeration to handle permission prompts gracefully
      */
     deviceEnumerationFix() {
@@ -1283,6 +1330,15 @@ export class WebCompat extends ContentFeature {
              * @returns {Promise<MediaDeviceInfo[]>}
              */
             apply: async (target, thisArg, args) => {
+                const iframeOverrides = this.getIframeMediaApiOverrides();
+                if (iframeOverrides?.enumerateDevices === 'empty' && this.isIframeContext()) {
+                    return Promise.resolve([]);
+                }
+
+                if (!this.getFeatureSettingEnabled('enumerateDevices')) {
+                    return DDGReflect.apply(target, thisArg, args);
+                }
+
                 const settings = this.getFeatureSetting('enumerateDevices') || {};
                 const timeoutEnabled = settings.timeoutEnabled !== false;
                 const timeoutMs = settings.timeoutMs ?? 2000;
@@ -1325,6 +1381,34 @@ export class WebCompat extends ContentFeature {
         });
 
         enumerateDevicesProxy.overload();
+    }
+
+    /**
+     * Blocks media capture APIs inside iframes before native permission flows can run.
+     */
+    iframeMediaApiOverridesFix() {
+        if (!window.MediaDevices || typeof MediaDevices.prototype.getUserMedia !== 'function') {
+            return;
+        }
+
+        const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
+            /**
+             * @param {MediaDevices['getUserMedia']} target
+             * @param {MediaDevices} thisArg
+             * @param {Parameters<MediaDevices['getUserMedia']>} args
+             * @returns {Promise<MediaStream>}
+             */
+            apply: (target, thisArg, args) => {
+                const iframeOverrides = this.getIframeMediaApiOverrides();
+                if (iframeOverrides?.getUserMedia === 'reject' && this.isIframeContext()) {
+                    return Promise.reject(this.createIframeMediaApiBlockedError('getUserMedia'));
+                }
+
+                return DDGReflect.apply(target, thisArg, args);
+            },
+        });
+
+        getUserMediaProxy.overload();
     }
 }
 
