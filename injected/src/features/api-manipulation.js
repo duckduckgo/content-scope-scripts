@@ -114,37 +114,62 @@ export default class ApiManipulation extends ContentFeature {
      * @param {APIChange} change
      */
     wrapApiDescriptor(api, key, change) {
-        const hasGetterValue = typeof change.getterValue !== 'undefined';
-        const hasValue = typeof change.value !== 'undefined';
+        const getterValue = change.getterValue;
+        const value = change.value;
+        const hasGetterValue = typeof getterValue !== 'undefined';
+        const hasValue = typeof value !== 'undefined';
         if (!hasGetterValue && !hasValue) {
             return;
         }
-        const descriptor = hasGetterValue
-            ? {
-                  get: () => processAttr(change.getterValue, undefined),
-              }
-            : {
-                  value: processAttr(change.value, undefined),
-              };
-        if ('enumerable' in change) {
-            descriptor.enumerable = change.enumerable;
-        }
-        if ('configurable' in change) {
-            descriptor.configurable = change.configurable;
-        }
-        // If 'define' is true and property does not exist, define it directly
-        if (change.define === true && !(key in api)) {
-            // Ensure descriptor has required boolean fields
-            const defineDescriptor = {
-                ...descriptor,
-                enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
-                configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
-                ...(hasValue ? { writable: true } : {}),
+        if (hasGetterValue && getterValue !== undefined) {
+            const descriptor = {
+                get: () => processAttr(getterValue, undefined),
             };
-            this.defineProperty(api, key, defineDescriptor);
+            if ('enumerable' in change) {
+                descriptor.enumerable = change.enumerable;
+            }
+            if ('configurable' in change) {
+                descriptor.configurable = change.configurable;
+            }
+            // If 'define' is true and property does not exist, define it directly
+            if (change.define === true && !(key in api)) {
+                // Ensure descriptor has required boolean fields
+                const defineDescriptor = {
+                    ...descriptor,
+                    enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
+                    configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
+                };
+                this.defineProperty(api, key, defineDescriptor);
+                return;
+            }
+            this.wrapProperty(api, key, descriptor);
             return;
         }
-        this.wrapProperty(api, key, descriptor);
+
+        if (hasValue && value !== undefined) {
+            const descriptor = {
+                value: processAttr(value, undefined),
+            };
+            if ('enumerable' in change) {
+                descriptor.enumerable = change.enumerable;
+            }
+            if ('configurable' in change) {
+                descriptor.configurable = change.configurable;
+            }
+            // If 'define' is true and property does not exist, define it directly
+            if (change.define === true && !(key in api)) {
+                // Ensure descriptor has required boolean fields
+                const defineDescriptor = {
+                    ...descriptor,
+                    writable: true,
+                    enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
+                    configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
+                };
+                this.defineProperty(api, key, defineDescriptor);
+                return;
+            }
+            this.wrapProperty(api, key, descriptor);
+        }
     }
 
     /**
