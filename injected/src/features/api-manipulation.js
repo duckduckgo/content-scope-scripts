@@ -7,8 +7,9 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { hasOwnProperty } from '../captured-globals.js';
+import { getOwnPropertyDescriptor, hasOwnProperty } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
+import { wrapToString } from '../wrapper-utils.js';
 
 /**
  * @internal
@@ -127,7 +128,42 @@ export default class ApiManipulation extends ContentFeature {
             this.defineProperty(api, key, this.createDefineDescriptor(descriptor, descriptorKind));
             return;
         }
+        // When replacing an existing method-valued descriptor, mask the replacement
+        // against the original method so `toString()`, `toString.toString()`, `.name`
+        // and `.length` continue to resemble the native method. Without this, sites can
+        // trivially detect the override via `fn.toString()` / `fn.name`.
+        if (descriptorKind === 'value') {
+            const valueDescriptor = /** @type {{ value: any, enumerable?: boolean, configurable?: boolean }} */ (descriptor);
+            if (typeof valueDescriptor.value === 'function') {
+                const origDescriptor = getOwnPropertyDescriptor(api, key);
+                if (origDescriptor && typeof origDescriptor.value === 'function') {
+                    valueDescriptor.value = this.maskMethodReplacement(valueDescriptor.value, origDescriptor.value);
+                }
+            }
+        }
         this.wrapProperty(api, key, descriptor);
+    }
+
+    /**
+     * Wraps a config-supplied function so its observable identity (`toString`,
+     * `toString.toString`, `name`, `length`) mirrors the original DOM method it is
+     * replacing. The call itself still executes the configured replacement.
+     *
+     * Note: `processAttr` may return a shared function (e.g. `functionMap.noop`),
+     * so we always create a fresh wrapper before redefining `name`/`length` to
+     * avoid mutating module-level singletons.
+     *
+     * @param {Function} replacementFn - configured replacement to invoke
+     * @param {Function} origFn - original DOM method we are masking against
+     * @returns {Function}
+     */
+    maskMethodReplacement(replacementFn, origFn) {
+        const wrapper = function () {
+            return Reflect.apply(replacementFn, this, arguments);
+        };
+        Object.defineProperty(wrapper, 'name', { value: origFn.name, configurable: true });
+        Object.defineProperty(wrapper, 'length', { value: origFn.length, configurable: true });
+        return wrapToString(wrapper, origFn);
     }
 
     /**

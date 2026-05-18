@@ -199,6 +199,64 @@ describe('ApiManipulation', () => {
         expect(descriptor.enumerable).toBeFalse();
     });
 
+    it('masks the replacement method so toString() and metadata resemble the original', () => {
+        function originalGetUserMedia(constraints, opts) {
+            return constraints || opts;
+        }
+        Object.defineProperty(dummyTarget, 'getUserMedia', {
+            value: originalGetUserMedia,
+            writable: true,
+            configurable: true,
+            enumerable: false,
+        });
+        const change = {
+            type: 'descriptor',
+            value: {
+                type: 'function',
+                functionValue: { type: 'string', value: 'replacement' },
+            },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'getUserMedia', change);
+
+        // Function still executes the configured replacement.
+        expect(dummyTarget.getUserMedia()).toBe('replacement');
+        // .name / .length resemble the original method.
+        expect(dummyTarget.getUserMedia.name).toBe('originalGetUserMedia');
+        expect(dummyTarget.getUserMedia.length).toBe(originalGetUserMedia.length);
+        // toString() returns the original method's source rather than the replacement's body.
+        const toStringResult = dummyTarget.getUserMedia.toString();
+        expect(toStringResult).toBe(Function.prototype.toString.call(originalGetUserMedia));
+        expect(toStringResult).toContain('originalGetUserMedia');
+        // toString.toString() should still look like Function.prototype.toString itself,
+        // mirroring native methods rather than the configured replacement.
+        expect(dummyTarget.getUserMedia.toString.toString()).toBe(Function.prototype.toString.toString());
+    });
+
+    it('preserves [native code] in toString() when overriding a real native method', () => {
+        // Install an actual native function as the existing descriptor so we can
+        // assert the override masks against the genuine "[native code]" output
+        // rather than against a user-land source string.
+        const nativeFn = Object.prototype.hasOwnProperty;
+        Object.defineProperty(dummyTarget, 'nativeMethod', {
+            value: nativeFn,
+            writable: true,
+            configurable: true,
+            enumerable: false,
+        });
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'nativeMethod', change);
+
+        expect(dummyTarget.nativeMethod.toString()).toContain('[native code]');
+        expect(dummyTarget.nativeMethod.toString()).toBe(Function.prototype.toString.call(nativeFn));
+        expect(dummyTarget.nativeMethod.name).toBe('hasOwnProperty');
+        expect(dummyTarget.nativeMethod.length).toBe(nativeFn.length);
+        // Call still resolves to the configured noop replacement (returns undefined).
+        expect(dummyTarget.nativeMethod('foo')).toBeUndefined();
+    });
+
     it('overrides an existing method value descriptor even when define: true is set', () => {
         const originalFn = function originalFn() {
             return 'original';
