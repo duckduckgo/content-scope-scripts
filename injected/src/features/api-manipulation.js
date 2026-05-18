@@ -116,60 +116,65 @@ export default class ApiManipulation extends ContentFeature {
     wrapApiDescriptor(api, key, change) {
         const getterValue = change.getterValue;
         const value = change.value;
-        const hasGetterValue = typeof getterValue !== 'undefined';
-        const hasValue = typeof value !== 'undefined';
-        if (!hasGetterValue && !hasValue) {
+        const descriptorKind = getterValue !== undefined ? 'getter' : value !== undefined ? 'value' : undefined;
+        const configSetting = descriptorKind === 'getter' ? getterValue : value;
+        if (!descriptorKind || configSetting === undefined) {
             return;
         }
-        if (hasGetterValue && getterValue !== undefined) {
-            const descriptor = {
-                get: () => processAttr(getterValue, undefined),
-            };
-            if ('enumerable' in change) {
-                descriptor.enumerable = change.enumerable;
-            }
-            if ('configurable' in change) {
-                descriptor.configurable = change.configurable;
-            }
-            // If 'define' is true and property does not exist, define it directly
-            if (change.define === true && !(key in api)) {
-                // Ensure descriptor has required boolean fields
-                const defineDescriptor = {
-                    ...descriptor,
-                    enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
-                    configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
-                };
-                this.defineProperty(api, key, defineDescriptor);
-                return;
-            }
-            this.wrapProperty(api, key, descriptor);
+        const descriptor = this.createApiDescriptor(descriptorKind, configSetting, change);
+        // If 'define' is true and property does not exist, define it directly
+        if (change.define === true && !(key in api)) {
+            this.defineProperty(api, key, this.createDefineDescriptor(descriptor, descriptorKind));
             return;
         }
+        this.wrapProperty(api, key, descriptor);
+    }
 
-        if (hasValue && value !== undefined) {
-            const descriptor = {
-                value: processAttr(value, undefined),
-            };
-            if ('enumerable' in change) {
-                descriptor.enumerable = change.enumerable;
-            }
-            if ('configurable' in change) {
-                descriptor.configurable = change.configurable;
-            }
-            // If 'define' is true and property does not exist, define it directly
-            if (change.define === true && !(key in api)) {
-                // Ensure descriptor has required boolean fields
-                const defineDescriptor = {
-                    ...descriptor,
-                    writable: true,
-                    enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
-                    configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
-                };
-                this.defineProperty(api, key, defineDescriptor);
-                return;
-            }
-            this.wrapProperty(api, key, descriptor);
+    /**
+     * @param {'getter' | 'value'} descriptorKind
+     * @param {import('../utils.js').ConfigSetting | import('../utils.js').ConfigSetting[]} configSetting
+     * @param {APIChange} change
+     * @returns {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>}
+     */
+    createApiDescriptor(descriptorKind, configSetting, change) {
+        const descriptor =
+            descriptorKind === 'getter'
+                ? {
+                      get: () => processAttr(configSetting, undefined),
+                  }
+                : {
+                      value: processAttr(configSetting, undefined),
+                  };
+        if ('enumerable' in change) {
+            descriptor.enumerable = change.enumerable;
         }
+        if ('configurable' in change) {
+            descriptor.configurable = change.configurable;
+        }
+        return descriptor;
+    }
+
+    /**
+     * @param {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>} descriptor
+     * @param {'getter' | 'value'} descriptorKind
+     * @returns {import('../wrapper-utils.js').StrictPropertyDescriptor}
+     */
+    createDefineDescriptor(descriptor, descriptorKind) {
+        if (descriptorKind === 'value') {
+            const valueDescriptor = /** @type {{ value: any, enumerable?: boolean, configurable?: boolean }} */ (descriptor);
+            return {
+                value: valueDescriptor.value,
+                writable: true,
+                enumerable: typeof valueDescriptor.enumerable !== 'boolean' ? true : valueDescriptor.enumerable,
+                configurable: typeof valueDescriptor.configurable !== 'boolean' ? true : valueDescriptor.configurable,
+            };
+        }
+        const getterDescriptor = /** @type {{ get: () => any, enumerable?: boolean, configurable?: boolean }} */ (descriptor);
+        return {
+            get: getterDescriptor.get,
+            enumerable: typeof getterDescriptor.enumerable !== 'boolean' ? true : getterDescriptor.enumerable,
+            configurable: typeof getterDescriptor.configurable !== 'boolean' ? true : getterDescriptor.configurable,
+        };
     }
 
     /**
