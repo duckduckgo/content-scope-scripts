@@ -1,6 +1,7 @@
 /**
  * This feature allows remote configuration of APIs that exist within the DOM.
- * We support removal of APIs and returning different values from getters.
+ * We support removal of APIs, returning different values from getters, and
+ * replacing value-based properties such as methods.
  *
  * @module API manipulation
  */
@@ -45,16 +46,18 @@ export default class ApiManipulation extends ContentFeature {
             return true;
         }
         if (change.type === 'descriptor') {
-            if (change.enumerable && typeof change.enumerable !== 'boolean') {
+            if ('enumerable' in change && typeof change.enumerable !== 'boolean') {
                 return false;
             }
-            if (change.configurable && typeof change.configurable !== 'boolean') {
+            if ('configurable' in change && typeof change.configurable !== 'boolean') {
                 return false;
             }
             if ('define' in change && typeof change.define !== 'boolean') {
                 return false;
             }
-            return typeof change.getterValue !== 'undefined';
+            const hasGetterValue = typeof change.getterValue !== 'undefined';
+            const hasValue = typeof change.value !== 'undefined';
+            return hasGetterValue !== hasValue;
         }
         return false;
     }
@@ -66,6 +69,7 @@ export default class ApiManipulation extends ContentFeature {
      * @typedef {Object} APIChange
      * @property {"remove"|"descriptor"} type
      * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
+     * @property {import('../utils.js').ConfigSetting} [value] - The value assigned to a value descriptor, including methods.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
      * @property {boolean} [define] - Whether to define the property if it does not exist.
@@ -110,30 +114,37 @@ export default class ApiManipulation extends ContentFeature {
      * @param {APIChange} change
      */
     wrapApiDescriptor(api, key, change) {
-        const getterValue = change.getterValue;
-        if (getterValue) {
-            const descriptor = {
-                get: () => processAttr(getterValue, undefined),
-            };
-            if ('enumerable' in change) {
-                descriptor.enumerable = change.enumerable;
-            }
-            if ('configurable' in change) {
-                descriptor.configurable = change.configurable;
-            }
-            // If 'define' is true and property does not exist, define it directly
-            if (change.define === true && !(key in api)) {
-                // Ensure descriptor has required boolean fields
-                const defineDescriptor = {
-                    ...descriptor,
-                    enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
-                    configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
-                };
-                this.defineProperty(api, key, defineDescriptor);
-                return;
-            }
-            this.wrapProperty(api, key, descriptor);
+        const hasGetterValue = typeof change.getterValue !== 'undefined';
+        const hasValue = typeof change.value !== 'undefined';
+        if (!hasGetterValue && !hasValue) {
+            return;
         }
+        const descriptor = hasGetterValue
+            ? {
+                  get: () => processAttr(change.getterValue, undefined),
+              }
+            : {
+                  value: processAttr(change.value, undefined),
+              };
+        if ('enumerable' in change) {
+            descriptor.enumerable = change.enumerable;
+        }
+        if ('configurable' in change) {
+            descriptor.configurable = change.configurable;
+        }
+        // If 'define' is true and property does not exist, define it directly
+        if (change.define === true && !(key in api)) {
+            // Ensure descriptor has required boolean fields
+            const defineDescriptor = {
+                ...descriptor,
+                enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
+                configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
+                ...(hasValue ? { writable: true } : {}),
+            };
+            this.defineProperty(api, key, defineDescriptor);
+            return;
+        }
+        this.wrapProperty(api, key, descriptor);
     }
 
     /**

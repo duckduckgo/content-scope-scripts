@@ -158,4 +158,49 @@ describe('ApiManipulation', () => {
         // The getter should now return 222
         expect(dummyTarget.hardwareConcurrency).toBe(222);
     });
+
+    it('replaces an existing method value descriptor if present', () => {
+        dummyTarget.getUserMedia = () => 'original';
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'getUserMedia', change);
+        expect(typeof dummyTarget.getUserMedia).toBe('function');
+        expect(dummyTarget.getUserMedia()).toBeUndefined();
+    });
+
+    it('defines a new method if define: true is set and property does not exist', () => {
+        const change = {
+            type: 'descriptor',
+            value: {
+                type: 'function',
+                functionValue: {
+                    type: 'string',
+                    value: 'defined by config',
+                },
+            },
+            define: true,
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'definedMethodByConfig', change);
+        expect(typeof dummyTarget.definedMethodByConfig).toBe('function');
+        expect(dummyTarget.definedMethodByConfig()).toBe('defined by config');
+    });
+
+    it('treats value descriptors as valid api changes', () => {
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        expect(apiManipulation.checkIsValidAPIChange(change)).toBeTrue();
+    });
+
+    it('rejects descriptor changes that define both getterValue and value', () => {
+        const change = {
+            type: 'descriptor',
+            getterValue: { type: 'string', value: 'getter' },
+            value: { type: 'function', functionName: 'noop' },
+        };
+        expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
+    });
 });
