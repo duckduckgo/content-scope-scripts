@@ -170,6 +170,58 @@ describe('ApiManipulation', () => {
         expect(dummyTarget.getUserMedia()).toBeUndefined();
     });
 
+    it('replaces a DOM-style method value descriptor without define: true', () => {
+        const originalFn = function originalFn() {
+            return 'original';
+        };
+        Object.defineProperty(dummyTarget, 'getUserMedia', {
+            value: originalFn,
+            writable: true,
+            configurable: true,
+            enumerable: false,
+        });
+        const change = {
+            type: 'descriptor',
+            value: {
+                type: 'function',
+                functionValue: { type: 'string', value: 'overridden' },
+            },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'getUserMedia', change);
+        const descriptor = /** @type {PropertyDescriptor} */ (Object.getOwnPropertyDescriptor(dummyTarget, 'getUserMedia'));
+        expect(descriptor).toBeDefined();
+        expect(typeof descriptor.value).toBe('function');
+        expect(descriptor.value).not.toBe(originalFn);
+        expect(descriptor.value()).toBe('overridden');
+        // Original descriptor attributes are preserved through the merge in wrapProperty.
+        expect(descriptor.writable).toBeTrue();
+        expect(descriptor.configurable).toBeTrue();
+        expect(descriptor.enumerable).toBeFalse();
+    });
+
+    it('overrides an existing method value descriptor even when define: true is set', () => {
+        const originalFn = function originalFn() {
+            return 'original';
+        };
+        Object.defineProperty(dummyTarget, 'getUserMedia', {
+            value: originalFn,
+            writable: true,
+            configurable: true,
+            enumerable: false,
+        });
+        const change = {
+            type: 'descriptor',
+            value: {
+                type: 'function',
+                functionValue: { type: 'string', value: 'overridden' },
+            },
+            define: true,
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'getUserMedia', change);
+        expect(dummyTarget.getUserMedia).not.toBe(originalFn);
+        expect(dummyTarget.getUserMedia()).toBe('overridden');
+    });
+
     it('defines a new method if define: true is set and property does not exist', () => {
         const change = {
             type: 'descriptor',
