@@ -10,6 +10,10 @@
     width: 100%;
     height: 100%;
     background-color: #bfbfbf;
+    background-image: url('../../public/landscape.svg');
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    background-size: 100% auto;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -50,4 +54,15 @@
     height: 190px;
     z-index: 1;
     pointer-events: none;
+}
+
+@media (max-width: 1200px) {
+    .instructionsWrapper {
+        padding-right: var(--sp-24);
+    }
+
+    .arrow {
+        left: auto;
+        right: 0;
+    }
 }
