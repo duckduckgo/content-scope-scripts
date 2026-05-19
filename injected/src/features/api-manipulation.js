@@ -7,7 +7,7 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { getOwnPropertyDescriptor, hasOwnProperty } from '../captured-globals.js';
+import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
 import { wrapToString } from '../wrapper-utils.js';
 
@@ -158,11 +158,15 @@ export default class ApiManipulation extends ContentFeature {
      * @returns {Function}
      */
     maskMethodReplacement(replacementFn, origFn) {
+        // Use captured `ReflectApply` and `objectDefineProperty` so a hostile page
+        // cannot intercept the call into the configured replacement, nor tamper with
+        // the `name`/`length` masking, by reassigning `globalThis.Reflect.apply` or
+        // `globalThis.Object.defineProperty` after content scope has initialised.
         const wrapper = function () {
-            return Reflect.apply(replacementFn, this, arguments);
+            return ReflectApply(replacementFn, this, arguments);
         };
-        Object.defineProperty(wrapper, 'name', { value: origFn.name, configurable: true });
-        Object.defineProperty(wrapper, 'length', { value: origFn.length, configurable: true });
+        objectDefineProperty(wrapper, 'name', { value: origFn.name, configurable: true });
+        objectDefineProperty(wrapper, 'length', { value: origFn.length, configurable: true });
         return wrapToString(wrapper, origFn);
     }
 

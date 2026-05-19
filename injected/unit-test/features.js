@@ -257,6 +257,65 @@ describe('ApiManipulation', () => {
         expect(dummyTarget.nativeMethod('foo')).toBeUndefined();
     });
 
+    it('uses captured globals so page tampering with Reflect.apply / Object.defineProperty cannot subvert the masking helper', () => {
+        function originalNativeLike(a, b, c) {
+            return [a, b, c];
+        }
+
+        const realReflectApply = Reflect.apply;
+        const realObjectDefineProperty = Object.defineProperty;
+        // Use the real defineProperty before tampering to set up the target.
+        realObjectDefineProperty.call(Object, dummyTarget, 'protectedMethod', {
+            value: originalNativeLike,
+            writable: true,
+            configurable: true,
+            enumerable: false,
+        });
+
+        // Replace page-visible globals AFTER constructing the feature. The
+        // helper imports captured primitives (`ReflectApply`,
+        // `objectDefineProperty`) which were bound at module load, so masking
+        // must continue to work and `Object.defineProperty` must never be
+        // routed through the page-tampered version.
+        const defineSpy = jasmine
+            .createSpy('Object.defineProperty')
+            .and.callFake((...args) => realObjectDefineProperty.apply(Object, args));
+        const applySpy = jasmine.createSpy('Reflect.apply').and.callFake((...args) => realReflectApply.apply(Reflect, args));
+        Object.defineProperty = defineSpy;
+        Reflect.apply = applySpy;
+
+        const change = {
+            type: 'descriptor',
+            value: {
+                type: 'function',
+                functionValue: { type: 'string', value: 'still-routed' },
+            },
+        };
+
+        try {
+            apiManipulation.wrapApiDescriptor(dummyTarget, 'protectedMethod', change);
+            // Helper does not route name/length masking through the tampered
+            // `Object.defineProperty`. If the helper regresses to using
+            // `Object.defineProperty` directly, defineSpy would be hit during
+            // wrapping.
+            expect(defineSpy).not.toHaveBeenCalled();
+            // Masked identity is intact regardless of tampering.
+            expect(dummyTarget.protectedMethod.name).toBe('originalNativeLike');
+            expect(dummyTarget.protectedMethod.length).toBe(originalNativeLike.length);
+            expect(dummyTarget.protectedMethod.toString()).toBe(Function.prototype.toString.call(originalNativeLike));
+            // End-to-end invocation still routes to the configured replacement.
+            // Note: the outer call goes through `ContentFeature.defineProperty`'s
+            // debug-wrapper which still reads `Reflect.apply` from the page —
+            // that is outside the scope of this PR's helper. The captured
+            // `ReflectApply` inside the helper is what guarantees the inner
+            // step (helper -> replacement) cannot be intercepted.
+            expect(dummyTarget.protectedMethod(1, 2, 3)).toBe('still-routed');
+        } finally {
+            Object.defineProperty = realObjectDefineProperty;
+            Reflect.apply = realReflectApply;
+        }
+    });
+
     it('overrides an existing method value descriptor even when define: true is set', () => {
         const originalFn = function originalFn() {
             return 'original';
