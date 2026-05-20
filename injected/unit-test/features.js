@@ -335,8 +335,8 @@ describe('ApiManipulation', () => {
             define: true,
         };
         apiManipulation.wrapApiDescriptor(dummyTarget, 'getUserMedia', change);
-        expect(dummyTarget.getUserMedia).not.toBe(originalFn);
-        expect(dummyTarget.getUserMedia()).toBe('overridden');
+        expect(dummyTarget.getUserMedia).toBe(originalFn);
+        expect(dummyTarget.getUserMedia()).toBe('original');
     });
 
     it('defines a new method if define: true is set and property does not exist', () => {
@@ -356,6 +356,25 @@ describe('ApiManipulation', () => {
         expect(dummyTarget.definedMethodByConfig()).toBe('defined by config');
     });
 
+    it('defines a new method if target: missing is set and property does not exist', () => {
+        const change = {
+            type: 'descriptor',
+            value: {
+                type: 'function',
+                functionValue: {
+                    type: 'string',
+                    value: 'defined by target',
+                },
+            },
+            target: 'missing',
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'definedMethodByTarget', change);
+        expect(typeof dummyTarget.definedMethodByTarget).toBe('function');
+        expect(dummyTarget.definedMethodByTarget()).toBe('defined by target');
+        expect(dummyTarget.definedMethodByTarget.toString()).toBe('function definedMethodByTarget() { [native code] }');
+        expect(dummyTarget.definedMethodByTarget.toString.toString()).toBe(Function.prototype.toString.toString());
+    });
+
     it('treats value descriptors as valid api changes', () => {
         const change = {
             type: 'descriptor',
@@ -373,12 +392,59 @@ describe('ApiManipulation', () => {
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
 
-    // --- inherited methods (implicit shadow-define on the target object) ---
+    it('accepts explicit descriptor targets', () => {
+        for (const target of ['own', 'existing', 'missing']) {
+            expect(
+                apiManipulation.checkIsValidAPIChange({
+                    type: 'descriptor',
+                    target,
+                    value: { type: 'function', functionName: 'noop' },
+                }),
+            ).toBeTrue();
+        }
+    });
+
+    it('rejects unknown descriptor targets', () => {
+        expect(
+            apiManipulation.checkIsValidAPIChange({
+                type: 'descriptor',
+                target: 'prototype',
+                value: { type: 'function', functionName: 'noop' },
+            }),
+        ).toBeFalse();
+    });
+
+    it('rejects descriptor changes that supply both target and define', () => {
+        expect(
+            apiManipulation.checkIsValidAPIChange({
+                type: 'descriptor',
+                target: 'missing',
+                define: true,
+                value: { type: 'function', functionName: 'noop' },
+            }),
+        ).toBeFalse();
+    });
+
+    // --- inherited methods (explicit shadow-define on the target object) ---
     //
     // `MediaDevices.prototype.addEventListener` lives on `EventTarget.prototype`. Remote config
-    // overrides it via value descriptors without `define: true`.
+    // should opt into this with `target: "existing"` so raw descriptors are own-only by default.
 
-    it('shadow-defines an own property when the key is only inherited', () => {
+    it('does not shadow-define an inherited property by default', () => {
+        const proto = { inheritedMethod: () => 'inherited' };
+        const target = Object.create(proto);
+
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeFalse();
+        expect(target.inheritedMethod()).toBe('inherited');
+    });
+
+    it('shadow-defines an own property when the key is only inherited and target is existing', () => {
         const proto = { inheritedMethod: () => 'inherited' };
         const target = Object.create(proto);
         expect('inheritedMethod' in target).toBeTrue();
@@ -387,6 +453,7 @@ describe('ApiManipulation', () => {
         const change = {
             type: 'descriptor',
             value: { type: 'function', functionName: 'noop' },
+            target: 'existing',
         };
         apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
 
@@ -404,7 +471,7 @@ describe('ApiManipulation', () => {
         expect(dummyTarget.missingMethod).toBeUndefined();
     });
 
-    it('does not define a property when it is missing from the prototype chain and define is true', () => {
+    it('defines a property when it is missing from the prototype chain and define is true', () => {
         const change = {
             type: 'descriptor',
             value: { type: 'function', functionName: 'noop' },
@@ -427,6 +494,7 @@ describe('ApiManipulation', () => {
         const change = {
             type: 'descriptor',
             value: { type: 'function', functionName: 'noop' },
+            target: 'existing',
         };
         apiManipulation.wrapApiDescriptor(target, 'handler', change);
 
@@ -441,6 +509,7 @@ describe('ApiManipulation', () => {
         const change = {
             type: 'descriptor',
             getterValue: { type: 'string', value: 'new' },
+            target: 'existing',
         };
         apiManipulation.wrapApiDescriptor(target, 'dataProp', change);
 
@@ -448,7 +517,7 @@ describe('ApiManipulation', () => {
         expect(target.dataProp).toBe('orig');
     });
 
-    it('applies MediaDevices-style apiChanges without define: true', () => {
+    it('applies MediaDevices-style apiChanges with target: existing on inherited keys', () => {
         const eventTargetProto = {
             addEventListener: () => 'et-add',
             removeEventListener: () => 'et-remove',
@@ -462,12 +531,13 @@ describe('ApiManipulation', () => {
             configurable: true,
             enumerable: true,
         });
-        const target = Object.create(mediaDevicesProto);
+        const target = mediaDevicesProto;
 
         const apiChanges = {
             addEventListener: {
                 type: 'descriptor',
                 value: { type: 'function', functionName: 'noop' },
+                target: 'existing',
             },
             ondevicechange: {
                 type: 'descriptor',
@@ -477,6 +547,7 @@ describe('ApiManipulation', () => {
             removeEventListener: {
                 type: 'descriptor',
                 value: { type: 'function', functionName: 'noop' },
+                target: 'existing',
             },
         };
 
@@ -497,6 +568,31 @@ describe('ApiManipulation', () => {
             target.ondevicechange = () => {};
         }).not.toThrow();
         expect(target.ondevicechange).toBeUndefined();
+    });
+
+    it('expands the MediaDevices service area into reviewed apiChanges', () => {
+        const apiChanges = apiManipulation.getServiceAreaApiChanges({ mediaDevicesDeviceChangeEvents: 'enabled' });
+        expect(Object.keys(apiChanges)).toEqual([
+            'MediaDevices.prototype.addEventListener',
+            'MediaDevices.prototype.removeEventListener',
+            'MediaDevices.prototype.ondevicechange',
+        ]);
+        expect(apiChanges['MediaDevices.prototype.addEventListener'].target).toBe('existing');
+        expect(apiChanges['MediaDevices.prototype.removeEventListener'].target).toBe('existing');
+        expect(apiChanges['MediaDevices.prototype.ondevicechange'].getterValue).toEqual({ type: 'undefined' });
+        expect(apiChanges['MediaDevices.prototype.ondevicechange'].setterValue).toEqual({
+            type: 'function',
+            functionName: 'noop',
+        });
+    });
+
+    it('ignores unknown or disabled service areas', () => {
+        expect(
+            apiManipulation.getServiceAreaApiChanges({
+                mediaDevicesDeviceChangeEvents: 'disabled',
+                unknownServiceArea: 'enabled',
+            }),
+        ).toEqual({});
     });
 
     it('validates privacy-configuration #5215 MediaDevices apiChanges against schema', async () => {
@@ -541,6 +637,57 @@ describe('ApiManipulation', () => {
         if (!valid) {
             throw new Error('Schema validation failed: ' + formatErrors(validate.errors));
         }
+    });
+
+    it('masks a getterValue replacement against the original getter', () => {
+        function originalGetter() {
+            return 'original';
+        }
+        Object.defineProperty(dummyTarget, 'maskedGetter', {
+            get: originalGetter,
+            configurable: true,
+            enumerable: true,
+        });
+
+        const change = {
+            type: 'descriptor',
+            getterValue: { type: 'string', value: 'replacement' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'maskedGetter', change);
+
+        const wrapped = /** @type {PropertyDescriptor} */ (Object.getOwnPropertyDescriptor(dummyTarget, 'maskedGetter'));
+        const wrappedGetter = /** @type {() => any} */ (wrapped.get);
+        expect(dummyTarget.maskedGetter).toBe('replacement');
+        expect(wrappedGetter.toString()).toBe(Function.prototype.toString.call(originalGetter));
+        expect(wrappedGetter.toString.toString()).toBe(Function.prototype.toString.toString());
+        expect(wrappedGetter.name).toBe('originalGetter');
+        expect(wrappedGetter.length).toBe(originalGetter.length);
+    });
+
+    it('masks synthetic getters and setters for target: missing definitions', () => {
+        const change = {
+            type: 'descriptor',
+            target: 'missing',
+            getterValue: { type: 'string', value: 'synthetic' },
+            setterValue: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'syntheticAccessor', change);
+
+        const wrapped = /** @type {PropertyDescriptor} */ (Object.getOwnPropertyDescriptor(dummyTarget, 'syntheticAccessor'));
+        const wrappedGetter = /** @type {() => any} */ (wrapped.get);
+        const wrappedSetter = /** @type {(v: any) => void} */ (wrapped.set);
+        expect(dummyTarget.syntheticAccessor).toBe('synthetic');
+        expect(() => {
+            dummyTarget.syntheticAccessor = 'attempt';
+        }).not.toThrow();
+        expect(wrappedGetter.toString()).toBe('function get syntheticAccessor() { [native code] }');
+        expect(wrappedGetter.toString.toString()).toBe(Function.prototype.toString.toString());
+        expect(wrappedGetter.name).toBe('get syntheticAccessor');
+        expect(wrappedGetter.length).toBe(0);
+        expect(wrappedSetter.toString()).toBe('function set syntheticAccessor() { [native code] }');
+        expect(wrappedSetter.toString.toString()).toBe(Function.prototype.toString.toString());
+        expect(wrappedSetter.name).toBe('set syntheticAccessor');
+        expect(wrappedSetter.length).toBe(1);
     });
 
     // --- setterValue: override the setter half of an accessor (for event-handler IDL

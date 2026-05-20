@@ -91,14 +91,75 @@
                         },
                         "define": true
                     },
+                    "window.definedByTarget": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "string",
+                            "value": "defined by target"
+                        }
+                    },
+                    "window.syntheticMethodByTarget": {
+                        "type": "descriptor",
+                        "value": {
+                            "type": "function",
+                            "functionName": "noop"
+                        }
+                    },
                     "window.notDefinedByConfig": {
                         "type": "descriptor",
                         "getterValue": {
                             "type": "string",
                             "value": "should not exist"
                         }
+                    },
+                    "MediaDevices.prototype.dispatchEvent": {
+                        "type": "descriptor",
+                        "value": {
+                            "type": "function",
+                            "functionName": "noop"
+                        }
+                    },
+                    "MediaDevices.prototype.addEventListener": {
+                        "type": "descriptor",
+                        "value": {
+                            "type": "function",
+                            "functionName": "noop"
+                        }
                     }
-                }
+                },
+                "conditionalChanges": [
+                    {
+                        "condition": {
+                            "context": {
+                                "top": true
+                            }
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "add",
+                                "path": "/serviceAreas",
+                                "value": {
+                                    "mediaDevicesDeviceChangeEvents": "enabled"
+                                }
+                            },
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/window.definedByTarget/target",
+                                "value": "missing"
+                            },
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/window.syntheticMethodByTarget/target",
+                                "value": "missing"
+                            },
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/MediaDevices.prototype.addEventListener/target",
+                                "value": "existing"
+                            }
+                        ]
+                    }
+                ]
             }
         }
     }

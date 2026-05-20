@@ -29,6 +29,7 @@
         });
 
         test('Existing API modified', async () => {
+            const hardwareConcurrencyGetter = Object.getOwnPropertyDescriptor(Navigator.prototype, 'hardwareConcurrency').get;
             return [
                 {
                     name: "New API definition doesn't work",
@@ -54,6 +55,16 @@
                     name: "Defaults to enumerable",
                     result: Object.getOwnPropertyDescriptor(window, 'name').enumerable,
                     expected: true
+                },
+                {
+                    name: "Getter toString is masked against original DOM getter",
+                    result: hardwareConcurrencyGetter.toString(),
+                    expected: "function get hardwareConcurrency() { [native code] }"
+                },
+                {
+                    name: "Getter toString.toString is native-like",
+                    result: hardwareConcurrencyGetter.toString.toString(),
+                    expected: Function.prototype.toString.toString()
                 }
             ]
         });
@@ -99,6 +110,70 @@
                 {
                     name: "Property not defined by config (define not set)",
                     result: window.notDefinedByConfig,
+                    expected: undefined
+                }
+            ];
+        });
+
+        test('Descriptor target semantics', async () => {
+            const syntheticMethodDescriptor = Object.getOwnPropertyDescriptor(window, 'syntheticMethodByTarget');
+            return [
+                {
+                    name: "Property defined by target: missing",
+                    result: window.definedByTarget,
+                    expected: "defined by target"
+                },
+                {
+                    name: "Synthetic value descriptor returns configured function value",
+                    result: window.syntheticMethodByTarget(),
+                    expected: undefined
+                },
+                {
+                    name: "Synthetic value descriptor toString is native-like",
+                    result: syntheticMethodDescriptor.value.toString(),
+                    expected: "function syntheticMethodByTarget() { [native code] }"
+                },
+                {
+                    name: "Raw inherited descriptor skipped by default",
+                    result: Object.prototype.hasOwnProperty.call(MediaDevices.prototype, 'dispatchEvent'),
+                    expected: false
+                },
+                {
+                    name: "Explicit target: existing shadows inherited descriptor",
+                    result: Object.prototype.hasOwnProperty.call(MediaDevices.prototype, 'addEventListener'),
+                    expected: true
+                },
+                {
+                    name: "Explicit target: existing applies configured method",
+                    result: navigator.mediaDevices.addEventListener('devicechange', () => {}),
+                    expected: undefined
+                }
+            ];
+        });
+
+        test('MediaDevices service area', async () => {
+            return [
+                {
+                    name: "Service area shadows inherited removeEventListener",
+                    result: Object.prototype.hasOwnProperty.call(MediaDevices.prototype, 'removeEventListener'),
+                    expected: true
+                },
+                {
+                    name: "Service area noops removeEventListener",
+                    result: navigator.mediaDevices.removeEventListener('devicechange', () => {}),
+                    expected: undefined
+                },
+                {
+                    name: "Service area overrides ondevicechange getter",
+                    result: navigator.mediaDevices.ondevicechange,
+                    expected: undefined
+                },
+                {
+                    name: "Service area overrides ondevicechange setter",
+                    result: (() => {
+                        navigator.mediaDevices.ondevicechange = () => {};
+                        return navigator.mediaDevices.ondevicechange;
+                    })(),
                     expected: undefined
                 }
             ];

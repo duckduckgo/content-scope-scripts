@@ -11,6 +11,42 @@ import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefinePro
 import { processAttr } from '../utils.js';
 import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';
 
+const DescriptorTarget = /** @type {const} */ ({
+    OWN: 'own',
+    EXISTING: 'existing',
+    MISSING: 'missing',
+});
+
+const ServiceAreaState = /** @type {const} */ ({
+    ENABLED: 'enabled',
+});
+
+/**
+ * Reviewed, higher-level API manipulation bundles. Prefer these over raw
+ * descriptor definitions when a service area exists for the mitigation.
+ *
+ * @type {Record<string, Record<string, APIChange>>}
+ */
+const serviceAreaApiChanges = {
+    mediaDevicesDeviceChangeEvents: {
+        'MediaDevices.prototype.addEventListener': {
+            type: 'descriptor',
+            target: DescriptorTarget.EXISTING,
+            value: { type: 'function', functionName: 'noop' },
+        },
+        'MediaDevices.prototype.removeEventListener': {
+            type: 'descriptor',
+            target: DescriptorTarget.EXISTING,
+            value: { type: 'function', functionName: 'noop' },
+        },
+        'MediaDevices.prototype.ondevicechange': {
+            type: 'descriptor',
+            getterValue: { type: 'undefined' },
+            setterValue: { type: 'function', functionName: 'noop' },
+        },
+    },
+};
+
 /**
  * @internal
  */
@@ -18,15 +54,10 @@ export default class ApiManipulation extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
+        this.applyApiChanges(this.getServiceAreaApiChanges(this.getFeatureSetting('serviceAreas')));
         const apiChanges = this.getFeatureSetting('apiChanges');
         if (apiChanges) {
-            for (const scope in apiChanges) {
-                const change = apiChanges[scope];
-                if (!this.checkIsValidAPIChange(change)) {
-                    continue;
-                }
-                this.applyApiChange(scope, change);
-            }
+            this.applyApiChanges(apiChanges);
         }
     }
 
@@ -56,6 +87,12 @@ export default class ApiManipulation extends ContentFeature {
             if ('define' in change && typeof change.define !== 'boolean') {
                 return false;
             }
+            if ('target' in change && !this.isValidDescriptorTarget(change.target)) {
+                return false;
+            }
+            if ('target' in change && 'define' in change) {
+                return false;
+            }
             const hasGetterValue = typeof change.getterValue !== 'undefined';
             const hasSetterValue = typeof change.setterValue !== 'undefined';
             const hasValue = typeof change.value !== 'undefined';
@@ -79,8 +116,66 @@ export default class ApiManipulation extends ContentFeature {
      * @property {import('../utils.js').ConfigSetting} [value] - The value assigned to a value descriptor, including methods.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
-     * @property {boolean} [define] - When true, define a new own property if the key is absent from `api` and its entire prototype chain. When false (default), skip changes for properties that do not exist at all; override own properties via `wrapProperty`; override inherited properties by shadow-defining an own property on `api`.
+     * @property {'own'|'existing'|'missing'} [target] - Where to apply the descriptor change. Defaults to `own`: only mutate own descriptors. `existing` also permits shadow-defining compatible inherited descriptors. `missing` only defines absent properties.
+     * @property {boolean} [define] - Deprecated compatibility alias for `target: "missing"`. Do not use in new config.
      */
+
+    /**
+     * @param {Record<string, APIChange> | undefined} apiChanges
+     * @returns {void}
+     */
+    applyApiChanges(apiChanges) {
+        if (!apiChanges) {
+            return;
+        }
+        for (const scope in apiChanges) {
+            const change = apiChanges[scope];
+            if (!this.checkIsValidAPIChange(change)) {
+                continue;
+            }
+            this.applyApiChange(scope, change);
+        }
+    }
+
+    /**
+     * @param {Record<string, import('../utils.js').FeatureState | { state?: import('../utils.js').FeatureState }> | undefined} serviceAreas
+     * @returns {Record<string, APIChange>}
+     */
+    getServiceAreaApiChanges(serviceAreas) {
+        /** @type {Record<string, APIChange>} */
+        const apiChanges = {};
+        if (!serviceAreas || typeof serviceAreas !== 'object') {
+            return apiChanges;
+        }
+        for (const serviceAreaName in serviceAreas) {
+            const serviceAreaConfig = serviceAreas[serviceAreaName];
+            const state = typeof serviceAreaConfig === 'object' ? serviceAreaConfig?.state : serviceAreaConfig;
+            if (state !== ServiceAreaState.ENABLED || !serviceAreaApiChanges[serviceAreaName]) {
+                continue;
+            }
+            Object.assign(apiChanges, serviceAreaApiChanges[serviceAreaName]);
+        }
+        return apiChanges;
+    }
+
+    /**
+     * @param {any} target
+     * @returns {target is 'own'|'existing'|'missing'}
+     */
+    isValidDescriptorTarget(target) {
+        return target === DescriptorTarget.OWN || target === DescriptorTarget.EXISTING || target === DescriptorTarget.MISSING;
+    }
+
+    /**
+     * @param {APIChange} change
+     * @returns {'own'|'existing'|'missing'}
+     */
+    getDescriptorTarget(change) {
+        if (change.type === 'descriptor' && this.isValidDescriptorTarget(change.target)) {
+            return change.target;
+        }
+        return change.define === true ? DescriptorTarget.MISSING : DescriptorTarget.OWN;
+    }
 
     /**
      * Applies a change to DOM APIs.
@@ -134,42 +229,31 @@ export default class ApiManipulation extends ContentFeature {
             return;
         }
         const descriptor = this.createApiDescriptor(descriptorKind, configSetting, change);
-        const origDescriptor = this.findPropertyDescriptor(api, key);
-        if (!origDescriptor) {
-            if (change.define === true) {
-                this.defineProperty(api, key, this.createDefineDescriptor(descriptor, descriptorKind));
+        const target = this.getDescriptorTarget(change);
+        const ownDescriptor = getOwnPropertyDescriptor(api, key);
+        const existingDescriptor = ownDescriptor || this.findPropertyDescriptor(api, key);
+
+        if (target === DescriptorTarget.MISSING) {
+            if (existingDescriptor) {
+                return;
             }
+            this.maskDescriptorFunctions(descriptor, descriptorKind, undefined, key);
+            this.defineProperty(api, key, this.createDefineDescriptor(descriptor, descriptorKind));
             return;
         }
-        // When replacing an existing method-valued descriptor, mask the replacement
-        // against the original method so `toString()`, `toString.toString()`, `.name`
-        // and `.length` continue to resemble the native method. Without this, sites can
-        // trivially detect the override via `fn.toString()` / `fn.name`.
-        if (descriptorKind === 'value') {
-            const valueDescriptor = /** @type {{ value?: any }} */ (descriptor);
-            if (typeof valueDescriptor.value === 'function' && typeof origDescriptor.value === 'function') {
-                valueDescriptor.value = this.maskMethodReplacement(valueDescriptor.value, origDescriptor.value);
-            }
-        } else if (descriptorKind === 'getter') {
-            // Mask the new setter against the original native setter (if any) so that
-            // descriptor inspection (`getOwnPropertyDescriptor(...).set.toString()` /
-            // `.set.name`) still resembles the original accessor. Event-handler IDL
-            // attributes such as `Element.prototype.onclick` and
-            // `MediaDevices.prototype.ondevicechange` expose a native setter; without
-            // masking, descriptor probes would see our JS `setter(v) {...}` shape.
-            const accessorDescriptor = /** @type {{ get?: () => any, set?: (v: any) => void }} */ (descriptor);
-            if (typeof accessorDescriptor.set === 'function' && typeof origDescriptor.set === 'function') {
-                accessorDescriptor.set = /** @type {(v: any) => void} */ (
-                    this.maskMethodReplacement(accessorDescriptor.set, origDescriptor.set)
-                );
-            }
-        }
-        if (hasOwnProperty.call(api, key)) {
+
+        if (ownDescriptor) {
+            this.maskDescriptorFunctions(descriptor, descriptorKind, ownDescriptor, key);
             this.wrapProperty(api, key, descriptor);
-        } else {
+            return;
+        }
+
+        if (target === DescriptorTarget.EXISTING && existingDescriptor) {
             // API exists via the prototype chain (e.g. MediaDevices.prototype.addEventListener
-            // on EventTarget.prototype). Shadow-define an own property without requiring `define`.
-            const merged = mergePropertyDescriptors(origDescriptor, descriptor);
+            // on EventTarget.prototype). Shadow-defining an own property requires explicit
+            // `target: "existing"` so raw config does not change inherited APIs by default.
+            this.maskDescriptorFunctions(descriptor, descriptorKind, existingDescriptor, key);
+            const merged = mergePropertyDescriptors(existingDescriptor, descriptor);
             if (merged) {
                 this.defineProperty(api, key, merged);
             }
@@ -208,6 +292,22 @@ export default class ApiManipulation extends ContentFeature {
      * @returns {Function}
      */
     maskMethodReplacement(replacementFn, origFn) {
+        return this.maskFunctionReplacement(replacementFn, {
+            originalFn: origFn,
+            name: origFn.name,
+            length: origFn.length,
+        });
+    }
+
+    /**
+     * Wraps a config-supplied function so descriptor inspection sees either an original
+     * function's identity or a synthetic native-like DOM signature.
+     *
+     * @param {Function} replacementFn
+     * @param {{ originalFn?: Function, name: string, length: number, mockValue?: string }} mask
+     * @returns {Function}
+     */
+    maskFunctionReplacement(replacementFn, mask) {
         // Use captured `ReflectApply` and `objectDefineProperty` so a hostile page
         // cannot intercept the call into the configured replacement, nor tamper with
         // the `name`/`length` masking, by reassigning `globalThis.Reflect.apply` or
@@ -215,9 +315,68 @@ export default class ApiManipulation extends ContentFeature {
         const wrapper = function () {
             return ReflectApply(replacementFn, this, arguments);
         };
-        objectDefineProperty(wrapper, 'name', { value: origFn.name, configurable: true });
-        objectDefineProperty(wrapper, 'length', { value: origFn.length, configurable: true });
-        return wrapToString(wrapper, origFn);
+        objectDefineProperty(wrapper, 'name', { value: mask.name, configurable: true });
+        objectDefineProperty(wrapper, 'length', { value: mask.length, configurable: true });
+        return wrapToString(wrapper, mask.originalFn || wrapper, mask.mockValue);
+    }
+
+    /**
+     * Mask function-valued descriptor members before defining them in the page.
+     *
+     * @param {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>} descriptor
+     * @param {'getter' | 'value'} descriptorKind
+     * @param {PropertyDescriptor | undefined} origDescriptor
+     * @param {string} key
+     */
+    maskDescriptorFunctions(descriptor, descriptorKind, origDescriptor, key) {
+        if (descriptorKind === 'value') {
+            const valueDescriptor = /** @type {{ value?: any }} */ (descriptor);
+            if (typeof valueDescriptor.value === 'function') {
+                valueDescriptor.value =
+                    typeof origDescriptor?.value === 'function'
+                        ? this.maskMethodReplacement(valueDescriptor.value, origDescriptor.value)
+                        : this.maskFunctionReplacement(valueDescriptor.value, {
+                              name: key,
+                              length: valueDescriptor.value.length,
+                              mockValue: this.createNativeFunctionString(key),
+                          });
+            }
+            return;
+        }
+
+        const accessorDescriptor = /** @type {{ get?: () => any, set?: (v: any) => void }} */ (descriptor);
+        if (typeof accessorDescriptor.get === 'function') {
+            accessorDescriptor.get =
+                typeof origDescriptor?.get === 'function'
+                    ? /** @type {() => any} */ (this.maskMethodReplacement(accessorDescriptor.get, origDescriptor.get))
+                    : /** @type {() => any} */ (
+                          this.maskFunctionReplacement(accessorDescriptor.get, {
+                              name: `get ${key}`,
+                              length: 0,
+                              mockValue: this.createNativeFunctionString(`get ${key}`),
+                          })
+                      );
+        }
+        if (typeof accessorDescriptor.set === 'function') {
+            accessorDescriptor.set =
+                typeof origDescriptor?.set === 'function'
+                    ? /** @type {(v: any) => void} */ (this.maskMethodReplacement(accessorDescriptor.set, origDescriptor.set))
+                    : /** @type {(v: any) => void} */ (
+                          this.maskFunctionReplacement(accessorDescriptor.set, {
+                              name: `set ${key}`,
+                              length: 1,
+                              mockValue: this.createNativeFunctionString(`set ${key}`),
+                          })
+                      );
+        }
+    }
+
+    /**
+     * @param {string} name
+     * @returns {string}
+     */
+    createNativeFunctionString(name) {
+        return `function ${name}() { [native code] }`;
     }
 
     /**
