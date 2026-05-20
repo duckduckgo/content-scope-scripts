@@ -1,2 +1,1 @@
-- Change the copy for the line about YouTube adblock in the onboarding comparison table (#2702)
-- Device enumeration getCapabilities fix (#2688)
+- Api manipulation method values (#2703)
