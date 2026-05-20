@@ -111,7 +111,7 @@ export type EnableWebSearch = boolean;
  */
 export type EnableVoiceChatAccess = boolean;
 /**
- * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for back-compat with older native clients. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
+ * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
  */
 export type EnableAskDuckAiSuggestion = boolean;
 export type FeedType = "privacy-stats" | "activity";
