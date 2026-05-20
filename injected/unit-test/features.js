@@ -373,12 +373,12 @@ describe('ApiManipulation', () => {
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
 
-    // --- inherited methods (shadow-define on the target object) ---
+    // --- inherited methods (shadow-define on the target object via define: true) ---
     //
-    // `MediaDevices.prototype.addEventListener` lives on `EventTarget.prototype`. Remote config
-    // (privacy-configuration #5215) overrides it via value descriptors without `define: true`.
+    // `MediaDevices.prototype.addEventListener` lives on `EventTarget.prototype`. Inherited
+    // overrides require `define: true` so we shadow-define an own property on `api`.
 
-    it('shadow-defines an own property when the key is only inherited', () => {
+    it('shadow-defines an own property when the key is only inherited and define is true', () => {
         const proto = { inheritedMethod: () => 'inherited' };
         const target = Object.create(proto);
         expect('inheritedMethod' in target).toBeTrue();
@@ -387,6 +387,7 @@ describe('ApiManipulation', () => {
         const change = {
             type: 'descriptor',
             value: { type: 'function', functionName: 'noop' },
+            define: true,
         };
         apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
 
@@ -404,7 +405,21 @@ describe('ApiManipulation', () => {
         expect(dummyTarget.missingMethod).toBeUndefined();
     });
 
-    it('does not shadow-define an inherited accessor when config supplies a value descriptor', () => {
+    it('does not shadow-define an inherited property when define is omitted', () => {
+        const proto = { inheritedMethod: () => 'inherited' };
+        const target = Object.create(proto);
+
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeFalse();
+        expect(target.inheritedMethod()).toBe('inherited');
+    });
+
+    it('does not shadow-define an inherited accessor when define is true but config supplies a value descriptor', () => {
         const proto = {};
         Object.defineProperty(proto, 'handler', {
             get: () => 'orig',
@@ -416,6 +431,7 @@ describe('ApiManipulation', () => {
         const change = {
             type: 'descriptor',
             value: { type: 'function', functionName: 'noop' },
+            define: true,
         };
         apiManipulation.wrapApiDescriptor(target, 'handler', change);
 
@@ -423,13 +439,14 @@ describe('ApiManipulation', () => {
         expect(target.handler).toBe('orig');
     });
 
-    it('does not shadow-define an inherited value property when config supplies only a getter', () => {
+    it('does not shadow-define an inherited value property when define is true but config supplies only a getter', () => {
         const proto = { dataProp: 'orig' };
         const target = Object.create(proto);
 
         const change = {
             type: 'descriptor',
             getterValue: { type: 'string', value: 'new' },
+            define: true,
         };
         apiManipulation.wrapApiDescriptor(target, 'dataProp', change);
 
@@ -437,7 +454,7 @@ describe('ApiManipulation', () => {
         expect(target.dataProp).toBe('orig');
     });
 
-    it('applies MediaDevices-style apiChanges without define: true', () => {
+    it('applies MediaDevices-style apiChanges with define: true on inherited keys', () => {
         const eventTargetProto = {
             addEventListener: () => 'et-add',
             removeEventListener: () => 'et-remove',
@@ -457,15 +474,18 @@ describe('ApiManipulation', () => {
             addEventListener: {
                 type: 'descriptor',
                 value: { type: 'function', functionName: 'noop' },
+                define: true,
             },
             ondevicechange: {
                 type: 'descriptor',
                 getterValue: { type: 'undefined' },
                 setterValue: { type: 'function', functionName: 'noop' },
+                define: true,
             },
             removeEventListener: {
                 type: 'descriptor',
                 value: { type: 'function', functionName: 'noop' },
+                define: true,
             },
         };
 
