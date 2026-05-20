@@ -373,50 +373,6 @@ describe('ApiManipulation', () => {
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
 
-    // --- define: true + inherited methods (shadow-define on the target object) ---
-    //
-    // The native API surface for MediaDevices and related interfaces relies on inheritance:
-    // `MediaDevices.prototype.addEventListener` lives on `EventTarget.prototype`, not as an own
-    // property of `MediaDevices.prototype`. Configurations targeting `MediaDevices.prototype.addEventListener`
-    // need a way to shadow-define an own property on `MediaDevices.prototype` while leaving
-    // `EventTarget.prototype` (and therefore other EventTarget consumers like `window`, `document`,
-    // and DOM elements) untouched.
-
-    it('shadow-defines an own property when define: true is set and the key is only inherited', () => {
-        // Construct a target with a method only reachable via the prototype chain.
-        const proto = { inheritedMethod: () => 'inherited' };
-        const target = Object.create(proto);
-        expect('inheritedMethod' in target).toBeTrue();
-        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeFalse();
-
-        const change = {
-            type: 'descriptor',
-            value: { type: 'function', functionName: 'noop' },
-            define: true,
-        };
-        apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
-
-        // After wrapping, the property is now own on the target (shadowing the inherited one)
-        // and calls the configured replacement, while the prototype's original is left intact.
-        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeTrue();
-        expect(target.inheritedMethod()).toBeUndefined();
-        expect(proto.inheritedMethod()).toBe('inherited');
-    });
-
-    it('does not shadow-define when define: true is omitted, even if the key is only inherited', () => {
-        // Without `define: true`, the feature must remain backwards-compatible: it should
-        // continue to bail out via wrapProperty rather than silently shadowing the prototype.
-        const proto = { inheritedMethod: () => 'inherited' };
-        const target = Object.create(proto);
-        const change = {
-            type: 'descriptor',
-            value: { type: 'function', functionName: 'noop' },
-        };
-        apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
-        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeFalse();
-        expect(target.inheritedMethod()).toBe('inherited');
-    });
-
     // --- setterValue: override the setter half of an accessor (for event-handler IDL
     // attributes such as `MediaDevices.prototype.ondevicechange`). Without this, the original
     // setter survives the spread-merge in wrapProperty and assigning to the property still

@@ -79,7 +79,7 @@ export default class ApiManipulation extends ContentFeature {
      * @property {import('../utils.js').ConfigSetting} [value] - The value assigned to a value descriptor, including methods.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
-     * @property {boolean} [define] - Whether to define the property if it is not already an own property of `api`. When true and the property is missing or only inherited via the prototype chain, a new own property is defined (shadowing any inherited one). When false (default), the change is merged with any existing own descriptor; properties that exist only via the prototype chain are skipped.
+     * @property {boolean} [define] - Whether to define the property if it does not exist.
      */
 
     /**
@@ -134,11 +134,8 @@ export default class ApiManipulation extends ContentFeature {
             return;
         }
         const descriptor = this.createApiDescriptor(descriptorKind, configSetting, change);
-        // If `define` is true and the property is not already an OWN property of `api`, define it
-        // directly. This covers both the "property does not exist at all" case and the
-        // "property is inherited via the prototype chain" case (e.g. shadow-defining
-        // MediaDevices.prototype.addEventListener which is inherited from EventTarget.prototype).
-        if (change.define === true && !hasOwnProperty.call(api, key)) {
+        // If 'define' is true and property does not exist, define it directly
+        if (change.define === true && !(key in api)) {
             this.defineProperty(api, key, this.createDefineDescriptor(descriptor, descriptorKind));
             return;
         }
