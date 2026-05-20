@@ -372,4 +372,127 @@ describe('ApiManipulation', () => {
         };
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
+
+    // --- define: true + inherited methods (shadow-define on the target object) ---
+    //
+    // The native API surface for MediaDevices and related interfaces relies on inheritance:
+    // `MediaDevices.prototype.addEventListener` lives on `EventTarget.prototype`, not as an own
+    // property of `MediaDevices.prototype`. Configurations targeting `MediaDevices.prototype.addEventListener`
+    // need a way to shadow-define an own property on `MediaDevices.prototype` while leaving
+    // `EventTarget.prototype` (and therefore other EventTarget consumers like `window`, `document`,
+    // and DOM elements) untouched.
+
+    it('shadow-defines an own property when define: true is set and the key is only inherited', () => {
+        // Construct a target with a method only reachable via the prototype chain.
+        const proto = { inheritedMethod: () => 'inherited' };
+        const target = Object.create(proto);
+        expect('inheritedMethod' in target).toBeTrue();
+        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeFalse();
+
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+            define: true,
+        };
+        apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
+
+        // After wrapping, the property is now own on the target (shadowing the inherited one)
+        // and calls the configured replacement, while the prototype's original is left intact.
+        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeTrue();
+        expect(target.inheritedMethod()).toBeUndefined();
+        expect(proto.inheritedMethod()).toBe('inherited');
+    });
+
+    it('does not shadow-define when define: true is omitted, even if the key is only inherited', () => {
+        // Without `define: true`, the feature must remain backwards-compatible: it should
+        // continue to bail out via wrapProperty rather than silently shadowing the prototype.
+        const proto = { inheritedMethod: () => 'inherited' };
+        const target = Object.create(proto);
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
+        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeFalse();
+        expect(target.inheritedMethod()).toBe('inherited');
+    });
+
+    // --- setterValue: override the setter half of an accessor (for event-handler IDL
+    // attributes such as `MediaDevices.prototype.ondevicechange`). Without this, the original
+    // setter survives the spread-merge in wrapProperty and assigning to the property still
+    // registers a real listener.
+
+    it('overrides the setter when setterValue is supplied alongside getterValue', () => {
+        let originalGet = 'original-value';
+        let originalSetCalls = 0;
+        Object.defineProperty(dummyTarget, 'ondevicechange', {
+            get: () => originalGet,
+            set: (v) => {
+                originalSetCalls++;
+                originalGet = v;
+            },
+            configurable: true,
+            enumerable: true,
+        });
+        const change = {
+            type: 'descriptor',
+            getterValue: { type: 'string', value: 'overridden-getter' },
+            setterValue: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'ondevicechange', change);
+
+        expect(dummyTarget.ondevicechange).toBe('overridden-getter');
+        // Assigning must not invoke the original setter - the override swallows it.
+        dummyTarget.ondevicechange = 'attempt-to-set';
+        expect(originalSetCalls).toBe(0);
+        // Getter is unaffected by the assignment because the override returns a constant.
+        expect(dummyTarget.ondevicechange).toBe('overridden-getter');
+    });
+
+    it('overrides only the setter when setterValue is supplied without getterValue', () => {
+        // When only `setterValue` is set the original getter must continue to work so reads
+        // remain accurate. Only assignments are intercepted.
+        let originalGet = 'original-value';
+        let originalSetCalls = 0;
+        Object.defineProperty(dummyTarget, 'ondevicechange', {
+            get: () => originalGet,
+            set: (v) => {
+                originalSetCalls++;
+                originalGet = v;
+            },
+            configurable: true,
+            enumerable: true,
+        });
+        const change = {
+            type: 'descriptor',
+            setterValue: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'ondevicechange', change);
+
+        // Original getter still active.
+        expect(dummyTarget.ondevicechange).toBe('original-value');
+        // Setter swallowed.
+        dummyTarget.ondevicechange = 'attempt-to-set';
+        expect(originalSetCalls).toBe(0);
+        expect(dummyTarget.ondevicechange).toBe('original-value');
+    });
+
+    it('accepts descriptor changes that provide only setterValue', () => {
+        // Validation must allow accessor-shape changes where only the setter is being overridden.
+        const change = {
+            type: 'descriptor',
+            setterValue: { type: 'function', functionName: 'noop' },
+        };
+        expect(apiManipulation.checkIsValidAPIChange(change)).toBeTrue();
+    });
+
+    it('rejects descriptor changes that supply both setterValue and value', () => {
+        // Mixing accessor and value-descriptor shapes is invalid for a single change.
+        const change = {
+            type: 'descriptor',
+            setterValue: { type: 'function', functionName: 'noop' },
+            value: { type: 'function', functionName: 'noop' },
+        };
+        expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
+    });
 });
