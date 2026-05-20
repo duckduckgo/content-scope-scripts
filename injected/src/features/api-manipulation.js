@@ -6,8 +6,9 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { hasOwnProperty } from '../captured-globals.js';
+import { hasOwnProperty, Proxy } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
+import { toStringGetTrap } from '../wrapper-utils.js';
 
 /**
  * @internal
@@ -112,8 +113,16 @@ export default class ApiManipulation extends ContentFeature {
     wrapApiDescriptor(api, key, change) {
         const getterValue = change.getterValue;
         if (getterValue) {
+            // The bare arrow function leaks its source via .toString() and Function.prototype.toString.call(),
+            // which lets anti-bot / fingerprinting scripts detect that the getter has been spoofed (and which
+            // build of C-S-S did it). Wrap with the same toStringGetTrap pattern shimProperty/shimInterface use
+            // so both toString paths return native-function syntax on V8 / JSC / SpiderMonkey.
+            const innerGetter = () => processAttr(getterValue, undefined);
+            const proxiedGetter = new Proxy(innerGetter, {
+                get: toStringGetTrap(innerGetter, `function get ${key}() { [native code] }`),
+            });
             const descriptor = {
-                get: () => processAttr(getterValue, undefined),
+                get: proxiedGetter,
             };
             if ('enumerable' in change) {
                 descriptor.enumerable = change.enumerable;

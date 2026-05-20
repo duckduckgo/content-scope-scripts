@@ -89,6 +89,45 @@
             return result;
         });
 
+        test('Spoofed getter looks native', async () => {
+            // Both .toString() paths on a wrapped descriptor's getter should report native syntax
+            // (containing "[native code]") so the spoof cannot be trivially detected via stringification.
+            const desc = Object.getOwnPropertyDescriptor(Navigator.prototype, 'hardwareConcurrency');
+            const getter = desc && desc.get;
+            return [
+                {
+                    name: "Wrapped descriptor still exposes a getter",
+                    result: typeof getter === 'function',
+                    expected: true,
+                },
+                {
+                    name: "Wrapped getter still returns the spoofed value",
+                    result: navigator.hardwareConcurrency,
+                    expected: 222,
+                },
+                {
+                    name: "getter.toString() reports [native code]",
+                    result: typeof getter === 'function' && getter.toString().includes('[native code]'),
+                    expected: true,
+                },
+                {
+                    name: "Function.prototype.toString.call(getter) reports [native code]",
+                    result: typeof getter === 'function' && Function.prototype.toString.call(getter).includes('[native code]'),
+                    expected: true,
+                },
+                {
+                    name: "getter.toString() does NOT leak the C-S-S arrow source",
+                    result: typeof getter === 'function' && !getter.toString().includes('processAttr'),
+                    expected: true,
+                },
+                {
+                    name: "Function.prototype.toString.call(getter) does NOT leak the C-S-S arrow source",
+                    result: typeof getter === 'function' && !Function.prototype.toString.call(getter).includes('processAttr'),
+                    expected: true,
+                },
+            ];
+        });
+
         test('Define property with define: true', async () => {
             return [
                 {
