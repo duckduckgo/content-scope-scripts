@@ -373,6 +373,132 @@ describe('ApiManipulation', () => {
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
 
+    // --- inherited methods (shadow-define on the target object) ---
+    //
+    // `MediaDevices.prototype.addEventListener` lives on `EventTarget.prototype`. Remote config
+    // (privacy-configuration #5215) overrides it via value descriptors without `define: true`.
+
+    it('shadow-defines an own property when the key is only inherited', () => {
+        const proto = { inheritedMethod: () => 'inherited' };
+        const target = Object.create(proto);
+        expect('inheritedMethod' in target).toBeTrue();
+        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeFalse();
+
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeTrue();
+        expect(target.inheritedMethod()).toBeUndefined();
+        expect(proto.inheritedMethod()).toBe('inherited');
+    });
+
+    it('does not define a property when it is missing from the prototype chain and define is omitted', () => {
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'missingMethod', change);
+        expect(dummyTarget.missingMethod).toBeUndefined();
+    });
+
+    it('applies MediaDevices-style apiChanges without define: true', () => {
+        const eventTargetProto = {
+            addEventListener: () => 'et-add',
+            removeEventListener: () => 'et-remove',
+        };
+        const mediaDevicesProto = Object.create(eventTargetProto);
+        Object.defineProperty(mediaDevicesProto, 'ondevicechange', {
+            get: () => 'original-handler',
+            set: () => {
+                throw new Error('original setter must not run');
+            },
+            configurable: true,
+            enumerable: true,
+        });
+        const target = Object.create(mediaDevicesProto);
+
+        const apiChanges = {
+            addEventListener: {
+                type: 'descriptor',
+                value: { type: 'function', functionName: 'noop' },
+            },
+            ondevicechange: {
+                type: 'descriptor',
+                getterValue: { type: 'undefined' },
+                setterValue: { type: 'function', functionName: 'noop' },
+            },
+            removeEventListener: {
+                type: 'descriptor',
+                value: { type: 'function', functionName: 'noop' },
+            },
+        };
+
+        for (const [key, change] of Object.entries(apiChanges)) {
+            apiManipulation.wrapApiDescriptor(target, key, change);
+        }
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'addEventListener')).toBeTrue();
+        expect(target.addEventListener()).toBeUndefined();
+        expect(eventTargetProto.addEventListener()).toBe('et-add');
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'removeEventListener')).toBeTrue();
+        expect(target.removeEventListener()).toBeUndefined();
+        expect(eventTargetProto.removeEventListener()).toBe('et-remove');
+
+        expect(target.ondevicechange).toBeUndefined();
+        expect(() => {
+            target.ondevicechange = () => {};
+        }).not.toThrow();
+        expect(target.ondevicechange).toBeUndefined();
+    });
+
+    it('validates privacy-configuration #5215 MediaDevices apiChanges against schema', async () => {
+        const Ajv = (await import('ajv')).default;
+        const schemaGenerator = await import('ts-json-schema-generator');
+        const schema = schemaGenerator
+            .createGenerator({
+                path: path.resolve(__dirname, '../../node_modules/@duckduckgo/privacy-configuration/schema/config.ts'),
+            })
+            .createSchema('CurrentGenericConfig');
+        const validate = new Ajv({ allowUnionTypes: true }).compile(schema);
+        const config = {
+            readme: 'MediaDevices apiManipulation overrides from privacy-configuration #5215',
+            version: 1,
+            unprotectedTemporary: [],
+            features: {
+                apiManipulation: {
+                    state: 'enabled',
+                    exceptions: [],
+                    hash: '',
+                    settings: {
+                        apiChanges: {
+                            'MediaDevices.prototype.addEventListener': {
+                                type: 'descriptor',
+                                value: { type: 'function', functionName: 'noop' },
+                            },
+                            'MediaDevices.prototype.removeEventListener': {
+                                type: 'descriptor',
+                                value: { type: 'function', functionName: 'noop' },
+                            },
+                            'MediaDevices.prototype.ondevicechange': {
+                                type: 'descriptor',
+                                getterValue: { type: 'undefined' },
+                                setterValue: { type: 'function', functionName: 'noop' },
+                            },
+                        },
+                    },
+                },
+            },
+        };
+        const valid = validate(config);
+        if (!valid) {
+            throw new Error('Schema validation failed: ' + formatErrors(validate.errors));
+        }
+    });
+
     // --- setterValue: override the setter half of an accessor (for event-handler IDL
     // attributes such as `MediaDevices.prototype.ondevicechange`). Without this, the original
     // setter survives the spread-merge in wrapProperty and assigning to the property still
