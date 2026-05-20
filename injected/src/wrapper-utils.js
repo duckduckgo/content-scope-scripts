@@ -118,7 +118,7 @@ export function wrapFunction(functionValue, realTarget) {
  *
  * @param {PropertyDescriptor} origDescriptor
  * @param {Partial<PropertyDescriptor>} partialDescriptor
- * @returns {PropertyDescriptor | undefined} merged descriptor, or undefined when kinds disagree
+ * @returns {import('./wrapper-utils').StrictPropertyDescriptor | undefined} merged descriptor, or undefined when kinds disagree
  */
 export function mergePropertyDescriptors(origDescriptor, partialDescriptor) {
     if (
@@ -126,10 +126,26 @@ export function mergePropertyDescriptors(origDescriptor, partialDescriptor) {
         ('get' in origDescriptor && 'get' in partialDescriptor) ||
         ('set' in origDescriptor && 'set' in partialDescriptor)
     ) {
-        return {
+        const merged = {
             ...origDescriptor,
             ...partialDescriptor,
         };
+        // DOM descriptors always include configurable/enumerable at runtime; default when absent
+        // so the result satisfies StrictPropertyDescriptor for defineProperty().
+        if ('value' in merged) {
+            return /** @type {import('./wrapper-utils').StrictPropertyDescriptor} */ ({
+                value: merged.value,
+                writable: typeof merged.writable === 'boolean' ? merged.writable : true,
+                configurable: typeof merged.configurable === 'boolean' ? merged.configurable : true,
+                enumerable: typeof merged.enumerable === 'boolean' ? merged.enumerable : true,
+            });
+        }
+        return /** @type {import('./wrapper-utils').StrictPropertyDescriptor} */ ({
+            get: merged.get,
+            set: merged.set,
+            configurable: typeof merged.configurable === 'boolean' ? merged.configurable : true,
+            enumerable: typeof merged.enumerable === 'boolean' ? merged.enumerable : true,
+        });
     }
     return undefined;
 }
