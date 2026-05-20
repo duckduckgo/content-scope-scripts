@@ -57,8 +57,13 @@ export default class ApiManipulation extends ContentFeature {
                 return false;
             }
             const hasGetterValue = typeof change.getterValue !== 'undefined';
+            const hasSetterValue = typeof change.setterValue !== 'undefined';
             const hasValue = typeof change.value !== 'undefined';
-            return hasGetterValue !== hasValue;
+            // Either a value descriptor (with `value`) or an accessor descriptor (with `getterValue`
+            // and/or `setterValue`) - the two shapes are mutually exclusive.
+            const isAccessorShape = hasGetterValue || hasSetterValue;
+            const isValueShape = hasValue;
+            return isAccessorShape !== isValueShape;
         }
         return false;
     }
@@ -70,10 +75,11 @@ export default class ApiManipulation extends ContentFeature {
      * @typedef {Object} APIChange
      * @property {"remove"|"descriptor"} type
      * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
+     * @property {import('../utils.js').ConfigSetting} [setterValue] - The function invoked when the property is assigned. Used alongside (or instead of) getterValue to override accessor-style properties such as event handlers (e.g., `MediaDevices.prototype.ondevicechange`).
      * @property {import('../utils.js').ConfigSetting} [value] - The value assigned to a value descriptor, including methods.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
-     * @property {boolean} [define] - Whether to define the property if it does not exist.
+     * @property {boolean} [define] - Whether to define the property if it is not already an own property of `api`. When true and the property is missing or only inherited via the prototype chain, a new own property is defined (shadowing any inherited one). When false (default), the change is merged with any existing own descriptor; properties that exist only via the prototype chain are skipped.
      */
 
     /**
@@ -116,15 +122,23 @@ export default class ApiManipulation extends ContentFeature {
      */
     wrapApiDescriptor(api, key, change) {
         const getterValue = change.getterValue;
+        const setterValue = change.setterValue;
         const value = change.value;
-        const descriptorKind = getterValue !== undefined ? 'getter' : value !== undefined ? 'value' : undefined;
+        const descriptorKind =
+            getterValue !== undefined || setterValue !== undefined ? 'getter' : value !== undefined ? 'value' : undefined;
         const configSetting = descriptorKind === 'getter' ? getterValue : value;
-        if (!descriptorKind || configSetting === undefined) {
+        // `setterValue` may be supplied on its own (override only the setter, keep the original
+        // getter); in that case configSetting (getterValue) is undefined and createApiDescriptor
+        // skips the `get` half.
+        if (!descriptorKind || (descriptorKind === 'value' && configSetting === undefined)) {
             return;
         }
         const descriptor = this.createApiDescriptor(descriptorKind, configSetting, change);
-        // If 'define' is true and property does not exist, define it directly
-        if (change.define === true && !(key in api)) {
+        // If `define` is true and the property is not already an OWN property of `api`, define it
+        // directly. This covers both the "property does not exist at all" case and the
+        // "property is inherited via the prototype chain" case (e.g. shadow-defining
+        // MediaDevices.prototype.addEventListener which is inherited from EventTarget.prototype).
+        if (change.define === true && !hasOwnProperty.call(api, key)) {
             this.defineProperty(api, key, this.createDefineDescriptor(descriptor, descriptorKind));
             return;
         }
@@ -172,26 +186,44 @@ export default class ApiManipulation extends ContentFeature {
 
     /**
      * @param {'getter' | 'value'} descriptorKind
-     * @param {import('../utils.js').ConfigSetting | import('../utils.js').ConfigSetting[]} configSetting
+     * @param {import('../utils.js').ConfigSetting | import('../utils.js').ConfigSetting[] | undefined} configSetting
      * @param {APIChange} change
      * @returns {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>}
      */
     createApiDescriptor(descriptorKind, configSetting, change) {
-        const descriptor =
-            descriptorKind === 'getter'
-                ? {
-                      get: () => processAttr(configSetting, undefined),
-                  }
-                : {
-                      value: processAttr(configSetting, undefined),
-                  };
+        /** @type {{ value?: any, get?: () => any, set?: (v: any) => void, enumerable?: boolean, configurable?: boolean }} */
+        const descriptor = {};
+        if (descriptorKind === 'value') {
+            // The caller (wrapApiDescriptor) guarantees configSetting is defined when
+            // descriptorKind === 'value'; narrow for the type checker.
+            const valueSetting = /** @type {import('../utils.js').ConfigSetting | import('../utils.js').ConfigSetting[]} */ (configSetting);
+            descriptor.value = processAttr(valueSetting, undefined);
+        } else {
+            // `configSetting` is the getterValue (may be undefined if only setterValue is set).
+            if (configSetting !== undefined) {
+                descriptor.get = () => processAttr(configSetting, undefined);
+            }
+            // `setterValue` is intentionally invoked through processAttr on every assignment so
+            // configurations using `functionMap.debug` log per-assignment. When omitted, we leave
+            // `set` unset on the new descriptor so wrapProperty's spread merge preserves the
+            // original setter (existing behaviour).
+            if (change.setterValue !== undefined) {
+                const setterSetting = change.setterValue;
+                descriptor.set = function setter(v) {
+                    const fn = processAttr(setterSetting, undefined);
+                    if (typeof fn === 'function') {
+                        ReflectApply(fn, this, [v]);
+                    }
+                };
+            }
+        }
         if ('enumerable' in change) {
             descriptor.enumerable = change.enumerable;
         }
         if ('configurable' in change) {
             descriptor.configurable = change.configurable;
         }
-        return descriptor;
+        return /** @type {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>} */ (descriptor);
     }
 
     /**
@@ -209,12 +241,21 @@ export default class ApiManipulation extends ContentFeature {
                 configurable: typeof valueDescriptor.configurable !== 'boolean' ? true : valueDescriptor.configurable,
             };
         }
-        const getterDescriptor = /** @type {{ get: () => any, enumerable?: boolean, configurable?: boolean }} */ (descriptor);
-        return {
-            get: getterDescriptor.get,
+        const getterDescriptor = /** @type {{ get?: () => any, set?: (v: any) => void, enumerable?: boolean, configurable?: boolean }} */ (
+            descriptor
+        );
+        /** @type {any} */
+        const result = {
             enumerable: typeof getterDescriptor.enumerable !== 'boolean' ? true : getterDescriptor.enumerable,
             configurable: typeof getterDescriptor.configurable !== 'boolean' ? true : getterDescriptor.configurable,
         };
+        if (typeof getterDescriptor.get === 'function') {
+            result.get = getterDescriptor.get;
+        }
+        if (typeof getterDescriptor.set === 'function') {
+            result.set = getterDescriptor.set;
+        }
+        return result;
     }
 
     /**
