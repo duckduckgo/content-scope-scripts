@@ -404,6 +404,39 @@ describe('ApiManipulation', () => {
         expect(dummyTarget.missingMethod).toBeUndefined();
     });
 
+    it('does not shadow-define an inherited accessor when config supplies a value descriptor', () => {
+        const proto = {};
+        Object.defineProperty(proto, 'handler', {
+            get: () => 'orig',
+            configurable: true,
+            enumerable: true,
+        });
+        const target = Object.create(proto);
+
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(target, 'handler', change);
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'handler')).toBeFalse();
+        expect(target.handler).toBe('orig');
+    });
+
+    it('does not shadow-define an inherited value property when config supplies only a getter', () => {
+        const proto = { dataProp: 'orig' };
+        const target = Object.create(proto);
+
+        const change = {
+            type: 'descriptor',
+            getterValue: { type: 'string', value: 'new' },
+        };
+        apiManipulation.wrapApiDescriptor(target, 'dataProp', change);
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'dataProp')).toBeFalse();
+        expect(target.dataProp).toBe('orig');
+    });
+
     it('applies MediaDevices-style apiChanges without define: true', () => {
         const eventTargetProto = {
             addEventListener: () => 'et-add',

@@ -9,7 +9,7 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
-import { wrapToString } from '../wrapper-utils.js';
+import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';
 
 /**
  * @internal
@@ -79,7 +79,7 @@ export default class ApiManipulation extends ContentFeature {
      * @property {import('../utils.js').ConfigSetting} [value] - The value assigned to a value descriptor, including methods.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
-     * @property {boolean} [define] - When true, define the property only if it does not exist on `api` or anywhere on its prototype chain. When false (default), skip changes for properties that do not exist at all; existing own or inherited APIs are overridden (inherited properties are shadow-defined as own properties on `api`).
+     * @property {boolean} [define] - When true, define a new own property only when the key is absent from `api` and its entire prototype chain. When false (default), skip changes for properties that do not exist at all; override own properties via `wrapProperty`; override inherited properties by shadow-defining an own property on `api` (without requiring `define`).
      */
 
     /**
@@ -169,7 +169,12 @@ export default class ApiManipulation extends ContentFeature {
         } else {
             // API exists via the prototype chain (e.g. MediaDevices.prototype.addEventListener
             // on EventTarget.prototype). Shadow-define an own property without requiring `define`.
-            this.defineProperty(api, key, { ...origDescriptor, ...descriptor });
+            // `define: true` is only for keys missing from the chain; inherited overrides rely on
+            // this path so deployed remote config (privacy-configuration #5215) need not set `define`.
+            const merged = mergePropertyDescriptors(origDescriptor, descriptor);
+            if (merged) {
+                this.defineProperty(api, key, merged);
+            }
         }
     }
 
