@@ -477,6 +477,47 @@ describe('ApiManipulation', () => {
         expect(dummyTarget.ondevicechange).toBe('original-value');
     });
 
+    it('masks a setterValue replacement against the original setter', () => {
+        // Mirror an event-handler IDL accessor shape: when the original accessor
+        // exposes a native setter (e.g. `Element.prototype.onclick`), the
+        // replacement setter's observable identity (`toString()`, `.name`,
+        // `.length`) must mirror that original rather than expose our internal
+        // `setter(v) {...}` shape.
+        let originalCalls = 0;
+        function originalOndevicechange(handler) {
+            originalCalls++;
+            return handler;
+        }
+        Object.defineProperty(dummyTarget, 'ondevicechange', {
+            get: () => null,
+            set: originalOndevicechange,
+            configurable: true,
+            enumerable: true,
+        });
+
+        const change = {
+            type: 'descriptor',
+            setterValue: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'ondevicechange', change);
+
+        const wrapped = /** @type {PropertyDescriptor} */ (Object.getOwnPropertyDescriptor(dummyTarget, 'ondevicechange'));
+        expect(wrapped).toBeDefined();
+        const wrappedSetter = /** @type {(v:any) => void} */ (wrapped.set);
+        expect(typeof wrappedSetter).toBe('function');
+        // Descriptor inspection of `.set` must mirror the original setter rather
+        // than expose our JS `setter(v) {...}` shape.
+        expect(wrappedSetter.toString()).toBe(Function.prototype.toString.call(originalOndevicechange));
+        expect(wrappedSetter.toString()).toContain('originalOndevicechange');
+        expect(wrappedSetter.toString.toString()).toBe(Function.prototype.toString.toString());
+        expect(wrappedSetter.name).toBe('originalOndevicechange');
+        expect(wrappedSetter.length).toBe(originalOndevicechange.length);
+        // The configured override still swallows the assignment - the original
+        // setter is NOT invoked.
+        dummyTarget.ondevicechange = 'attempt';
+        expect(originalCalls).toBe(0);
+    });
+
     it('accepts descriptor changes that provide only setterValue', () => {
         // Validation must allow accessor-shape changes where only the setter is being overridden.
         const change = {

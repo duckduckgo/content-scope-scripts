@@ -124,7 +124,8 @@ export default class ApiManipulation extends ContentFeature {
         const getterValue = change.getterValue;
         const setterValue = change.setterValue;
         const value = change.value;
-        const descriptorKind = getterValue !== undefined || setterValue !== undefined ? 'getter' : value !== undefined ? 'value' : undefined;
+        const descriptorKind =
+            getterValue !== undefined || setterValue !== undefined ? 'getter' : value !== undefined ? 'value' : undefined;
         const configSetting = descriptorKind === 'getter' ? getterValue : value;
         // `setterValue` may be supplied on its own (override only the setter, keep the original
         // getter); in that case configSetting (getterValue) is undefined and createApiDescriptor
@@ -145,13 +146,24 @@ export default class ApiManipulation extends ContentFeature {
         // against the original method so `toString()`, `toString.toString()`, `.name`
         // and `.length` continue to resemble the native method. Without this, sites can
         // trivially detect the override via `fn.toString()` / `fn.name`.
+        const origDescriptor = getOwnPropertyDescriptor(api, key);
         if (descriptorKind === 'value') {
-            const valueDescriptor = /** @type {{ value: any, enumerable?: boolean, configurable?: boolean }} */ (descriptor);
-            if (typeof valueDescriptor.value === 'function') {
-                const origDescriptor = getOwnPropertyDescriptor(api, key);
-                if (origDescriptor && typeof origDescriptor.value === 'function') {
-                    valueDescriptor.value = this.maskMethodReplacement(valueDescriptor.value, origDescriptor.value);
-                }
+            const valueDescriptor = /** @type {{ value?: any }} */ (descriptor);
+            if (typeof valueDescriptor.value === 'function' && origDescriptor && typeof origDescriptor.value === 'function') {
+                valueDescriptor.value = this.maskMethodReplacement(valueDescriptor.value, origDescriptor.value);
+            }
+        } else if (descriptorKind === 'getter') {
+            // Mask the new setter against the original native setter (if any) so that
+            // descriptor inspection (`getOwnPropertyDescriptor(...).set.toString()` /
+            // `.set.name`) still resembles the original accessor. Event-handler IDL
+            // attributes such as `Element.prototype.onclick` and
+            // `MediaDevices.prototype.ondevicechange` expose a native setter; without
+            // masking, descriptor probes would see our JS `setter(v) {...}` shape.
+            const accessorDescriptor = /** @type {{ get?: () => any, set?: (v: any) => void }} */ (descriptor);
+            if (typeof accessorDescriptor.set === 'function' && origDescriptor && typeof origDescriptor.set === 'function') {
+                accessorDescriptor.set = /** @type {(v: any) => void} */ (
+                    this.maskMethodReplacement(accessorDescriptor.set, origDescriptor.set)
+                );
             }
         }
         this.wrapProperty(api, key, descriptor);
@@ -185,27 +197,33 @@ export default class ApiManipulation extends ContentFeature {
 
     /**
      * @param {'getter' | 'value'} descriptorKind
-     * @param {import('../utils.js').ConfigSetting | import('../utils.js').ConfigSetting[]} configSetting
+     * @param {import('../utils.js').ConfigSetting | import('../utils.js').ConfigSetting[] | undefined} configSetting
      * @param {APIChange} change
      * @returns {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>}
      */
     createApiDescriptor(descriptorKind, configSetting, change) {
-        /** @type {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>} */
+        // `Partial<StrictPropertyDescriptor>` is a union (data | accessor | get-only | set-only),
+        // so direct property access narrows poorly. Build with a permissive intermediate shape
+        // then return as the public type.
+        /** @type {{ value?: any, get?: () => any, set?: (v: any) => void, enumerable?: boolean, configurable?: boolean }} */
         let descriptor;
         if (descriptorKind === 'value') {
-            descriptor = { value: processAttr(configSetting, undefined) };
+            // `wrapApiDescriptor` guarantees `configSetting` is defined for the value kind.
+            const valueSetting = /** @type {import('../utils.js').ConfigSetting | import('../utils.js').ConfigSetting[]} */ (configSetting);
+            descriptor = { value: processAttr(valueSetting, undefined) };
         } else {
             descriptor = {};
             // `configSetting` is the getterValue (may be undefined if only setterValue is set).
             if (configSetting !== undefined) {
-                descriptor.get = () => processAttr(configSetting, undefined);
+                const getterSetting = configSetting;
+                descriptor.get = () => processAttr(getterSetting, undefined);
             }
             // `setterValue` is intentionally invoked through processAttr on every assignment so
             // configurations using `functionMap.debug` log per-assignment. When omitted, we leave
             // `set` unset on the new descriptor so wrapProperty's spread merge preserves the
             // original setter (existing behaviour).
             if (change.setterValue !== undefined) {
-                const setterSetting = change.setterValue;
+                const setterSetting = /** @type {import('../utils.js').ConfigSetting} */ (change.setterValue);
                 descriptor.set = function setter(v) {
                     const fn = processAttr(setterSetting, undefined);
                     if (typeof fn === 'function') {
@@ -220,7 +238,7 @@ export default class ApiManipulation extends ContentFeature {
         if ('configurable' in change) {
             descriptor.configurable = change.configurable;
         }
-        return descriptor;
+        return /** @type {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>} */ (descriptor);
     }
 
     /**
@@ -238,8 +256,9 @@ export default class ApiManipulation extends ContentFeature {
                 configurable: typeof valueDescriptor.configurable !== 'boolean' ? true : valueDescriptor.configurable,
             };
         }
-        const getterDescriptor =
-            /** @type {{ get?: () => any, set?: (v: any) => void, enumerable?: boolean, configurable?: boolean }} */ (descriptor);
+        const getterDescriptor = /** @type {{ get?: () => any, set?: (v: any) => void, enumerable?: boolean, configurable?: boolean }} */ (
+            descriptor
+        );
         /** @type {any} */
         const result = {
             enumerable: typeof getterDescriptor.enumerable !== 'boolean' ? true : getterDescriptor.enumerable,
