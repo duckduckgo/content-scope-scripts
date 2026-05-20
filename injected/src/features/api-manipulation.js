@@ -79,7 +79,7 @@ export default class ApiManipulation extends ContentFeature {
      * @property {import('../utils.js').ConfigSetting} [value] - The value assigned to a value descriptor, including methods.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
-     * @property {boolean} [define] - When true, define an own property on `api` if the key is not already own (including shadow-defining inherited APIs), or if the key is absent from the entire prototype chain. When false (default), skip changes for properties that do not exist at all; only override properties that are already own on `api` via `wrapProperty`.
+     * @property {boolean} [define] - When true, define a new own property if the key is absent from `api` and its entire prototype chain. When false (default), skip changes for properties that do not exist at all; override own properties via `wrapProperty`; override inherited properties by shadow-defining an own property on `api`.
      */
 
     /**
@@ -164,15 +164,15 @@ export default class ApiManipulation extends ContentFeature {
                 );
             }
         }
-        if (change.define === true && !hasOwnProperty.call(api, key)) {
+        if (hasOwnProperty.call(api, key)) {
+            this.wrapProperty(api, key, descriptor);
+        } else {
+            // API exists via the prototype chain (e.g. MediaDevices.prototype.addEventListener
+            // on EventTarget.prototype). Shadow-define an own property without requiring `define`.
             const merged = mergePropertyDescriptors(origDescriptor, descriptor);
             if (merged) {
                 this.defineProperty(api, key, merged);
             }
-            return;
-        }
-        if (hasOwnProperty.call(api, key)) {
-            this.wrapProperty(api, key, descriptor);
         }
     }
 
