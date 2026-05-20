@@ -373,17 +373,16 @@ describe('ApiManipulation', () => {
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
 
-    // --- define: true + inherited methods (shadow-define on the target object) ---
+    // --- inherited methods (shadow-define on the target object) ---
     //
     // The native API surface for MediaDevices and related interfaces relies on inheritance:
     // `MediaDevices.prototype.addEventListener` lives on `EventTarget.prototype`, not as an own
     // property of `MediaDevices.prototype`. Configurations targeting `MediaDevices.prototype.addEventListener`
-    // need a way to shadow-define an own property on `MediaDevices.prototype` while leaving
+    // shadow-define an own property on `MediaDevices.prototype` while leaving
     // `EventTarget.prototype` (and therefore other EventTarget consumers like `window`, `document`,
     // and DOM elements) untouched.
 
-    it('shadow-defines an own property when define: true is set and the key is only inherited', () => {
-        // Construct a target with a method only reachable via the prototype chain.
+    it('shadow-defines an own property when the key is only inherited', () => {
         const proto = { inheritedMethod: () => 'inherited' };
         const target = Object.create(proto);
         expect('inheritedMethod' in target).toBeTrue();
@@ -392,29 +391,73 @@ describe('ApiManipulation', () => {
         const change = {
             type: 'descriptor',
             value: { type: 'function', functionName: 'noop' },
-            define: true,
         };
         apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
 
-        // After wrapping, the property is now own on the target (shadowing the inherited one)
-        // and calls the configured replacement, while the prototype's original is left intact.
         expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeTrue();
         expect(target.inheritedMethod()).toBeUndefined();
         expect(proto.inheritedMethod()).toBe('inherited');
     });
 
-    it('does not shadow-define when define: true is omitted, even if the key is only inherited', () => {
-        // Without `define: true`, the feature must remain backwards-compatible: it should
-        // continue to bail out via wrapProperty rather than silently shadowing the prototype.
-        const proto = { inheritedMethod: () => 'inherited' };
-        const target = Object.create(proto);
+    it('does not define a property when it is missing from the prototype chain and define is omitted', () => {
         const change = {
             type: 'descriptor',
             value: { type: 'function', functionName: 'noop' },
         };
-        apiManipulation.wrapApiDescriptor(target, 'inheritedMethod', change);
-        expect(Object.prototype.hasOwnProperty.call(target, 'inheritedMethod')).toBeFalse();
-        expect(target.inheritedMethod()).toBe('inherited');
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'missingMethod', change);
+        expect(dummyTarget.missingMethod).toBeUndefined();
+    });
+
+    it('applies MediaDevices-style apiChanges without define: true', () => {
+        const eventTargetProto = {
+            addEventListener: () => 'et-add',
+            removeEventListener: () => 'et-remove',
+        };
+        const mediaDevicesProto = Object.create(eventTargetProto);
+        Object.defineProperty(mediaDevicesProto, 'ondevicechange', {
+            get: () => 'original-handler',
+            set: () => {
+                throw new Error('original setter must not run');
+            },
+            configurable: true,
+            enumerable: true,
+        });
+        const target = Object.create(mediaDevicesProto);
+
+        const apiChanges = {
+            'MediaDevices.prototype.addEventListener': {
+                type: 'descriptor',
+                value: { type: 'function', functionName: 'noop' },
+            },
+            'MediaDevices.prototype.ondevicechange': {
+                type: 'descriptor',
+                getterValue: { type: 'undefined' },
+                setterValue: { type: 'function', functionName: 'noop' },
+            },
+            'MediaDevices.prototype.removeEventListener': {
+                type: 'descriptor',
+                value: { type: 'function', functionName: 'noop' },
+            },
+        };
+
+        for (const [scope, change] of Object.entries(apiChanges)) {
+            const key = scope.split('.').pop();
+            apiManipulation.wrapApiDescriptor(target, /** @type {string} */ (key), /** @type {any} */ (change));
+        }
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'addEventListener')).toBeTrue();
+        expect(target.addEventListener()).toBeUndefined();
+        expect(eventTargetProto.addEventListener()).toBe('et-add');
+
+        expect(Object.prototype.hasOwnProperty.call(target, 'removeEventListener')).toBeTrue();
+        expect(target.removeEventListener()).toBeUndefined();
+        expect(eventTargetProto.removeEventListener()).toBe('et-remove');
+
+        expect(target.ondevicechange).toBeUndefined();
+        expect(() => {
+            target.ondevicechange = () => {};
+        }).not.toThrow();
+        expect(target.ondevicechange).toBeUndefined();
     });
 
     // --- setterValue: override the setter half of an accessor (for event-handler IDL
