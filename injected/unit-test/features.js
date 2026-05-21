@@ -663,6 +663,23 @@ describe('ApiManipulation', () => {
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
 
+    it('warns on invalid changes when shouldLog is true and stays silent otherwise', () => {
+        const warnSpy = spyOn(console, 'warn');
+        const shouldLogSpy = spyOnProperty(apiManipulation, 'shouldLog', 'get').and.returnValue(false);
+        spyOn(apiManipulation, 'getFeatureSetting').and.returnValue({
+            // `define` is non-boolean - rejected by checkIsValidAPIChange.
+            'window.bogus': { type: 'descriptor', getterValue: { type: 'string', value: 'x' }, define: 'nope' },
+        });
+        apiManipulation.init();
+        expect(warnSpy).not.toHaveBeenCalled();
+
+        warnSpy.calls.reset();
+        shouldLogSpy.and.returnValue(true);
+        apiManipulation.init();
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy.calls.mostRecent().args[0]).toContain('window.bogus');
+    });
+
     it('checkIsValidAPIChange is resilient to Object.prototype pollution', () => {
         // If a page (or upstream test leakage) sets Object.prototype.value, an `in`-style validator
         // would misclassify accessor-shape changes as also having `value` and reject them.

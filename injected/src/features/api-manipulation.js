@@ -23,6 +23,12 @@ export default class ApiManipulation extends ContentFeature {
             for (const scope in apiChanges) {
                 const change = apiChanges[scope];
                 if (!this.checkIsValidAPIChange(change)) {
+                    // Visible only in debug builds (`args.debug`) so internal investigations get
+                    // immediate feedback on malformed configs, without adding noise to end-user
+                    // consoles. See `ContentFeature#shouldLog`.
+                    if (this.shouldLog) {
+                        console.warn(`apiManipulation: skipping invalid change for scope "${scope}"`, change);
+                    }
                     continue;
                 }
                 this.applyApiChange(scope, change);
