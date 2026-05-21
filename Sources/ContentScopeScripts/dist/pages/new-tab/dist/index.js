@@ -9830,7 +9830,7 @@
         throw new Error("Unknown action type");
     }
   }
-  function useSuggestions({ term, setTerm, enableAi }) {
+  function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
     const { onSuggestions, getSuggestions } = x2(OmnibarContext);
     const [state, dispatch] = h2(reducer3, initialState);
     y2(() => {
@@ -9843,7 +9843,7 @@
           ...suggestion,
           id: `suggestion-${index2}`
         }));
-        if (term2.trim().length > 0 && enableAi) {
+        if (term2.trim().length > 0 && enableAi && enableAskAiSuggestion) {
           suggestions2.push({
             kind: "aiChat",
             chat: term2,
@@ -9856,7 +9856,7 @@
           suggestions: suggestions2
         });
       });
-    }, [onSuggestions, enableAi]);
+    }, [onSuggestions, enableAi, enableAskAiSuggestion]);
     const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
     const updateSuggestions = (term2) => {
       clearSelectedSuggestion();
@@ -9923,8 +9923,8 @@
   });
 
   // pages/new-tab/app/omnibar/components/SearchFormProvider.js
-  function SearchFormProvider({ term, setTerm, enableAi, children }) {
-    const suggestions2 = useSuggestions({ term, setTerm, enableAi });
+  function SearchFormProvider({ term, setTerm, enableAi, enableAskAiSuggestion = true, children }) {
+    const suggestions2 = useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion });
     const suggestionsListId = g2();
     return /* @__PURE__ */ k(
       SearchFormContext.Provider,
@@ -12202,6 +12202,7 @@
     showViewAllAiChats = false,
     showCustomizePopover,
     enableVoiceChatAccess = false,
+    enableAskAiSuggestion = true,
     tabId
   }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -12262,7 +12263,7 @@
           }
         }
       )
-    )), /* @__PURE__ */ k(SearchFormProvider, { term: query, setTerm: setQuery, enableAi }, /* @__PURE__ */ k(
+    )), /* @__PURE__ */ k(SearchFormProvider, { term: query, setTerm: setQuery, enableAi, enableAskAiSuggestion }, /* @__PURE__ */ k(
       AiChatsProvider,
       {
         query,
@@ -12496,6 +12497,7 @@
       enableRecentAiChats = false,
       showViewAllAiChats = false,
       enableVoiceChatAccess = false,
+      enableAskAiSuggestion = true,
       mode: defaultMode
     } = config;
     const { setMode } = x2(OmnibarContext);
@@ -12510,6 +12512,7 @@
         showViewAllAiChats,
         showCustomizePopover,
         enableVoiceChatAccess,
+        enableAskAiSuggestion,
         tabId
       }
     );

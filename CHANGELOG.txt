@@ -1,1 +1,1 @@
-- Api manipulation method values (#2703)
+- Gate inline Ask Duck.ai suggestion on enableAskAiSuggestion (#2704)

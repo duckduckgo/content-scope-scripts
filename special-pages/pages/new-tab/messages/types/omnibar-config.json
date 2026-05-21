@@ -130,6 +130,12 @@
       "description": "Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.",
       "type": "boolean",
       "default": false
+    },
+    "enableAskAiSuggestion": {
+      "title": "Enable Ask Duck.ai Suggestion",
+      "description": "Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.",
+      "type": "boolean",
+      "default": true
     }
   }
 }
