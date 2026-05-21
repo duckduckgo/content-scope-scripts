@@ -7,7 +7,7 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { ReflectApply, getOwnPropertyDescriptor, hasOwnProperty, objectDefineProperty } from '../captured-globals.js';
+import { ReflectApply, getOwnPropertyDescriptor, getPrototypeOf, hasOwnProperty, objectDefineProperty } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
 import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';
 
@@ -189,7 +189,7 @@ export default class ApiManipulation extends ContentFeature {
             if (descriptor) {
                 return descriptor;
             }
-            current = Object.getPrototypeOf(current);
+            current = getPrototypeOf(current);
         }
         return undefined;
     }

@@ -662,4 +662,28 @@ describe('ApiManipulation', () => {
         };
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
+
+    it('walks the prototype chain via captured Object.getPrototypeOf', () => {
+        // A hostile page that reassigns globalThis.Object.getPrototypeOf must not be able to defeat
+        // the inherited-shadow-define path (e.g. for MediaDevices.prototype.addEventListener which
+        // lives on EventTarget.prototype).
+        const eventTargetProto = {
+            addEventListener: () => 'et-add',
+        };
+        const mediaDevicesProto = Object.create(eventTargetProto);
+        const target = Object.create(mediaDevicesProto);
+
+        const realGetPrototypeOf = Object.getPrototypeOf;
+        Object.getPrototypeOf = () => null;
+        try {
+            apiManipulation.wrapApiDescriptor(target, 'addEventListener', {
+                type: 'descriptor',
+                value: { type: 'function', functionName: 'noop' },
+            });
+        } finally {
+            Object.getPrototypeOf = realGetPrototypeOf;
+        }
+        expect(Object.prototype.hasOwnProperty.call(target, 'addEventListener')).toBeTrue();
+        expect(target.addEventListener()).toBeUndefined();
+    });
 });

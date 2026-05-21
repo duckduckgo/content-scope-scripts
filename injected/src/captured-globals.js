@@ -5,6 +5,7 @@ export const customElementsGet = globalThis.customElements?.get.bind(globalThis.
 export const customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
 export const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 export const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
+export const getPrototypeOf = Object.getPrototypeOf;
 export const toString = Object.prototype.toString;
 export const objectKeys = Object.keys;
 export const objectEntries = Object.entries;
