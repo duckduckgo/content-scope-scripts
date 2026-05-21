@@ -663,6 +663,27 @@ describe('ApiManipulation', () => {
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
 
+    it('preserves non-constructability and absence of `prototype` from the original native method', () => {
+        // Object.prototype.hasOwnProperty is a real native, non-constructable method with no own `prototype`.
+        // The replacement returned by maskMethodReplacement must mirror that shape so sites cannot detect the
+        // override via `new fn()` or `Object.prototype.hasOwnProperty.call(fn, 'prototype')`.
+        const nativeFn = Object.prototype.hasOwnProperty;
+        Object.defineProperty(dummyTarget, 'nativeMethod', {
+            value: nativeFn,
+            writable: true,
+            configurable: true,
+            enumerable: false,
+        });
+        const change = {
+            type: 'descriptor',
+            value: { type: 'function', functionName: 'noop' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'nativeMethod', change);
+        expect(Object.prototype.hasOwnProperty.call(dummyTarget.nativeMethod, 'prototype')).toBeFalse();
+        // eslint-disable-next-line new-cap
+        expect(() => new dummyTarget.nativeMethod()).toThrowError(TypeError);
+    });
+
     it('walks the prototype chain via captured Object.getPrototypeOf', () => {
         // A hostile page that reassigns globalThis.Object.getPrototypeOf must not be able to defeat
         // the inherited-shadow-define path (e.g. for MediaDevices.prototype.addEventListener which

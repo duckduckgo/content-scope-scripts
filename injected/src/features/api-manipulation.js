@@ -7,7 +7,7 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { ReflectApply, getOwnPropertyDescriptor, getPrototypeOf, hasOwnProperty, objectDefineProperty } from '../captured-globals.js';
+import { Proxy, ReflectApply, getOwnPropertyDescriptor, getPrototypeOf, hasOwnProperty } from '../captured-globals.js';
 import { processAttr } from '../utils.js';
 import { mergePropertyDescriptors, wrapToString } from '../wrapper-utils.js';
 
@@ -195,29 +195,37 @@ export default class ApiManipulation extends ContentFeature {
     }
 
     /**
-     * Wraps a config-supplied function so its observable identity (`toString`,
-     * `toString.toString`, `name`, `length`) mirrors the original DOM method it is
-     * replacing. The call itself still executes the configured replacement.
+     * Wraps a config-supplied function so its observable identity mirrors the
+     * original DOM method it is replacing while the call itself executes the
+     * configured replacement. Two layers:
+     *  - inner: a Proxy whose target is `origFn` with an `apply` trap routing to
+     *    `replacementFn`. Inheriting `origFn` as the target preserves `.name`,
+     *    `.length`, and crucially the absence/presence of own `prototype`, so
+     *    non-constructable DOM methods stay non-constructable and
+     *    `Object.prototype.hasOwnProperty.call(fn, 'prototype')` / `new fn()` do
+     *    not leak the override;
+     *  - outer: `wrapToString(innerProxy, origFn)` masks `toString()` /
+     *    `toString.toString()` even against `Function.prototype.toString.call(fn)`
+     *    probes, which bypass any `.toString` get-trap because they read
+     *    `[[SourceText]]` from `this`. Proxies don't expose `[[SourceText]]`, so
+     *    without this layer such probes would print `function () { [native code] }`
+     *    instead of the original method's source.
      *
-     * Note: `processAttr` may return a shared function (e.g. `functionMap.noop`),
-     * so we always create a fresh wrapper before redefining `name`/`length` to
-     * avoid mutating module-level singletons.
+     * Uses captured `Proxy` and `ReflectApply` so a hostile page cannot intercept
+     * the call into the configured replacement by reassigning `globalThis.Proxy`
+     * or `globalThis.Reflect.apply` after content scope has initialised.
      *
      * @param {Function} replacementFn - configured replacement to invoke
      * @param {Function} origFn - original DOM method we are masking against
      * @returns {Function}
      */
     maskMethodReplacement(replacementFn, origFn) {
-        // Use captured `ReflectApply` and `objectDefineProperty` so a hostile page
-        // cannot intercept the call into the configured replacement, nor tamper with
-        // the `name`/`length` masking, by reassigning `globalThis.Reflect.apply` or
-        // `globalThis.Object.defineProperty` after content scope has initialised.
-        const wrapper = function () {
-            return ReflectApply(replacementFn, this, arguments);
-        };
-        objectDefineProperty(wrapper, 'name', { value: origFn.name, configurable: true });
-        objectDefineProperty(wrapper, 'length', { value: origFn.length, configurable: true });
-        return wrapToString(wrapper, origFn);
+        const callProxy = new Proxy(origFn, {
+            apply(_target, thisArg, args) {
+                return ReflectApply(replacementFn, thisArg, args);
+            },
+        });
+        return wrapToString(callProxy, origFn);
     }
 
     /**
