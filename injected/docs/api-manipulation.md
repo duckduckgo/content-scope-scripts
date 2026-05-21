@@ -1,20 +1,6 @@
 # API manipulation
 
-`apiManipulation` changes page-visible DOM APIs from remote config. Prefer a named `serviceAreas` entry when one exists; use raw `apiChanges` only for one-off API fixes.
-
-## Service areas
-
-Service areas are reviewed bundles for common high-risk API mitigations.
-
-```json
-{
-    "serviceAreas": {
-        "mediaDevicesDeviceChangeEvents": "enabled"
-    }
-}
-```
-
-`mediaDevicesDeviceChangeEvents` suppresses JavaScript-side `MediaDevices` `devicechange` subscriptions without touching `EventTarget.prototype`.
+`apiManipulation` changes page-visible DOM APIs from remote config. Use raw `apiChanges` narrowly and prefer platform/domain scoping for high-risk API surfaces.
 
 ## Raw descriptor targets
 

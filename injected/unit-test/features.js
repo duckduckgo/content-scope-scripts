@@ -570,31 +570,6 @@ describe('ApiManipulation', () => {
         expect(target.ondevicechange).toBeUndefined();
     });
 
-    it('expands the MediaDevices service area into reviewed apiChanges', () => {
-        const apiChanges = apiManipulation.getServiceAreaApiChanges({ mediaDevicesDeviceChangeEvents: 'enabled' });
-        expect(Object.keys(apiChanges)).toEqual([
-            'MediaDevices.prototype.addEventListener',
-            'MediaDevices.prototype.removeEventListener',
-            'MediaDevices.prototype.ondevicechange',
-        ]);
-        expect(apiChanges['MediaDevices.prototype.addEventListener'].target).toBe('existing');
-        expect(apiChanges['MediaDevices.prototype.removeEventListener'].target).toBe('existing');
-        expect(apiChanges['MediaDevices.prototype.ondevicechange'].getterValue).toEqual({ type: 'undefined' });
-        expect(apiChanges['MediaDevices.prototype.ondevicechange'].setterValue).toEqual({
-            type: 'function',
-            functionName: 'noop',
-        });
-    });
-
-    it('ignores unknown or disabled service areas', () => {
-        expect(
-            apiManipulation.getServiceAreaApiChanges({
-                mediaDevicesDeviceChangeEvents: 'disabled',
-                unknownServiceArea: 'enabled',
-            }),
-        ).toEqual({});
-    });
-
     it('validates privacy-configuration #5215 MediaDevices apiChanges against schema', async () => {
         const Ajv = (await import('ajv')).default;
         const schemaGenerator = await import('ts-json-schema-generator');

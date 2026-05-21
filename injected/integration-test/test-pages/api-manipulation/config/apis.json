@@ -125,6 +125,23 @@
                             "type": "function",
                             "functionName": "noop"
                         }
+                    },
+                    "MediaDevices.prototype.removeEventListener": {
+                        "type": "descriptor",
+                        "value": {
+                            "type": "function",
+                            "functionName": "noop"
+                        }
+                    },
+                    "MediaDevices.prototype.ondevicechange": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "undefined"
+                        },
+                        "setterValue": {
+                            "type": "function",
+                            "functionName": "noop"
+                        }
                     }
                 },
                 "conditionalChanges": [
@@ -135,13 +152,6 @@
                             }
                         },
                         "patchSettings": [
-                            {
-                                "op": "add",
-                                "path": "/serviceAreas",
-                                "value": {
-                                    "mediaDevicesDeviceChangeEvents": "enabled"
-                                }
-                            },
                             {
                                 "op": "add",
                                 "path": "/apiChanges/window.definedByTarget/target",
@@ -155,6 +165,11 @@
                             {
                                 "op": "add",
                                 "path": "/apiChanges/MediaDevices.prototype.addEventListener/target",
+                                "value": "existing"
+                            },
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/MediaDevices.prototype.removeEventListener/target",
                                 "value": "existing"
                             }
                         ]

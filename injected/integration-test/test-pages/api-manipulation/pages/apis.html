@@ -151,25 +151,25 @@
             ];
         });
 
-        test('MediaDevices service area', async () => {
+        test('MediaDevices raw descriptor bundle', async () => {
             return [
                 {
-                    name: "Service area shadows inherited removeEventListener",
+                    name: "Raw target: existing shadows inherited removeEventListener",
                     result: Object.prototype.hasOwnProperty.call(MediaDevices.prototype, 'removeEventListener'),
                     expected: true
                 },
                 {
-                    name: "Service area noops removeEventListener",
+                    name: "Raw target: existing noops removeEventListener",
                     result: navigator.mediaDevices.removeEventListener('devicechange', () => {}),
                     expected: undefined
                 },
                 {
-                    name: "Service area overrides ondevicechange getter",
+                    name: "Raw accessor descriptor overrides ondevicechange getter",
                     result: navigator.mediaDevices.ondevicechange,
                     expected: undefined
                 },
                 {
-                    name: "Service area overrides ondevicechange setter",
+                    name: "Raw accessor descriptor overrides ondevicechange setter",
                     result: (() => {
                         navigator.mediaDevices.ondevicechange = () => {};
                         return navigator.mediaDevices.ondevicechange;

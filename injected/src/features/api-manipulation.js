@@ -17,36 +17,6 @@ const DescriptorTarget = /** @type {const} */ ({
     MISSING: 'missing',
 });
 
-const ServiceAreaState = /** @type {const} */ ({
-    ENABLED: 'enabled',
-});
-
-/**
- * Reviewed, higher-level API manipulation bundles. Prefer these over raw
- * descriptor definitions when a service area exists for the mitigation.
- *
- * @type {Record<string, Record<string, APIChange>>}
- */
-const serviceAreaApiChanges = {
-    mediaDevicesDeviceChangeEvents: {
-        'MediaDevices.prototype.addEventListener': {
-            type: 'descriptor',
-            target: DescriptorTarget.EXISTING,
-            value: { type: 'function', functionName: 'noop' },
-        },
-        'MediaDevices.prototype.removeEventListener': {
-            type: 'descriptor',
-            target: DescriptorTarget.EXISTING,
-            value: { type: 'function', functionName: 'noop' },
-        },
-        'MediaDevices.prototype.ondevicechange': {
-            type: 'descriptor',
-            getterValue: { type: 'undefined' },
-            setterValue: { type: 'function', functionName: 'noop' },
-        },
-    },
-};
-
 /**
  * @internal
  */
@@ -54,7 +24,6 @@ export default class ApiManipulation extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
-        this.applyApiChanges(this.getServiceAreaApiChanges(this.getFeatureSetting('serviceAreas')));
         const apiChanges = this.getFeatureSetting('apiChanges');
         if (apiChanges) {
             this.applyApiChanges(apiChanges);
@@ -135,27 +104,6 @@ export default class ApiManipulation extends ContentFeature {
             }
             this.applyApiChange(scope, change);
         }
-    }
-
-    /**
-     * @param {Record<string, import('../utils.js').FeatureState | { state?: import('../utils.js').FeatureState }> | undefined} serviceAreas
-     * @returns {Record<string, APIChange>}
-     */
-    getServiceAreaApiChanges(serviceAreas) {
-        /** @type {Record<string, APIChange>} */
-        const apiChanges = {};
-        if (!serviceAreas || typeof serviceAreas !== 'object') {
-            return apiChanges;
-        }
-        for (const serviceAreaName in serviceAreas) {
-            const serviceAreaConfig = serviceAreas[serviceAreaName];
-            const state = typeof serviceAreaConfig === 'object' ? serviceAreaConfig?.state : serviceAreaConfig;
-            if (state !== ServiceAreaState.ENABLED || !serviceAreaApiChanges[serviceAreaName]) {
-                continue;
-            }
-            Object.assign(apiChanges, serviceAreaApiChanges[serviceAreaName]);
-        }
-        return apiChanges;
     }
 
     /**
