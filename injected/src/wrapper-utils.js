@@ -2,6 +2,8 @@ import {
     functionToString,
     getOwnPropertyDescriptor,
     getOwnPropertyDescriptors,
+    // eslint-disable-next-line no-redeclare
+    hasOwnProperty,
     objectDefineProperty,
     objectEntries,
     objectKeys,
@@ -121,30 +123,40 @@ export function wrapFunction(functionValue, realTarget) {
  * @returns {import('./wrapper-utils').StrictPropertyDescriptor | undefined} merged descriptor, or undefined when kinds disagree
  */
 export function mergePropertyDescriptors(origDescriptor, partialDescriptor) {
-    if (
-        ('value' in origDescriptor && 'value' in partialDescriptor) ||
-        ('get' in origDescriptor && 'get' in partialDescriptor) ||
-        ('set' in origDescriptor && 'set' in partialDescriptor)
-    ) {
+    // Read descriptor shape via own-property checks. `getOwnPropertyDescriptor` returns objects
+    // that inherit from `Object.prototype`, so `'value' in descriptor` would see a polluted
+    // `Object.prototype.value` and let an accessor descriptor masquerade as a data descriptor.
+    const origHasValue = hasOwnProperty.call(origDescriptor, 'value');
+    const partialHasValue = hasOwnProperty.call(partialDescriptor, 'value');
+    const origHasGet = hasOwnProperty.call(origDescriptor, 'get');
+    const partialHasGet = hasOwnProperty.call(partialDescriptor, 'get');
+    const origHasSet = hasOwnProperty.call(origDescriptor, 'set');
+    const partialHasSet = hasOwnProperty.call(partialDescriptor, 'set');
+    if ((origHasValue && partialHasValue) || (origHasGet && partialHasGet) || (origHasSet && partialHasSet)) {
+        // Spread copies own enumerable properties only, so `merged` itself doesn't pick up
+        // prototype-polluted keys from either input. Below we still read individual fields
+        // with own-property guards before forwarding them to `defineProperty`.
         const merged = {
             ...origDescriptor,
             ...partialDescriptor,
         };
         // DOM descriptors always include configurable/enumerable at runtime; default when absent
         // so the result satisfies StrictPropertyDescriptor for defineProperty().
-        if ('value' in merged) {
+        if (origHasValue || partialHasValue) {
             return /** @type {import('./wrapper-utils').StrictPropertyDescriptor} */ ({
                 value: merged.value,
-                writable: typeof merged.writable === 'boolean' ? merged.writable : true,
-                configurable: typeof merged.configurable === 'boolean' ? merged.configurable : true,
-                enumerable: typeof merged.enumerable === 'boolean' ? merged.enumerable : true,
+                writable: hasOwnProperty.call(merged, 'writable') && typeof merged.writable === 'boolean' ? merged.writable : true,
+                configurable:
+                    hasOwnProperty.call(merged, 'configurable') && typeof merged.configurable === 'boolean' ? merged.configurable : true,
+                enumerable: hasOwnProperty.call(merged, 'enumerable') && typeof merged.enumerable === 'boolean' ? merged.enumerable : true,
             });
         }
         return /** @type {import('./wrapper-utils').StrictPropertyDescriptor} */ ({
-            get: merged.get,
-            set: merged.set,
-            configurable: typeof merged.configurable === 'boolean' ? merged.configurable : true,
-            enumerable: typeof merged.enumerable === 'boolean' ? merged.enumerable : true,
+            get: hasOwnProperty.call(merged, 'get') ? merged.get : undefined,
+            set: hasOwnProperty.call(merged, 'set') ? merged.set : undefined,
+            configurable:
+                hasOwnProperty.call(merged, 'configurable') && typeof merged.configurable === 'boolean' ? merged.configurable : true,
+            enumerable: hasOwnProperty.call(merged, 'enumerable') && typeof merged.enumerable === 'boolean' ? merged.enumerable : true,
         });
     }
     return undefined;

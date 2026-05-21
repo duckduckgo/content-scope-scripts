@@ -47,18 +47,21 @@ export default class ApiManipulation extends ContentFeature {
             return true;
         }
         if (change.type === 'descriptor') {
-            if ('enumerable' in change && typeof change.enumerable !== 'boolean') {
+            // Read all optional fields via `hasOwnProperty` so a hostile page that pollutes
+            // `Object.prototype` (e.g. `Object.prototype.value = ...`) cannot make a valid
+            // config look invalid or vice versa.
+            if (hasOwnProperty.call(change, 'enumerable') && typeof change.enumerable !== 'boolean') {
                 return false;
             }
-            if ('configurable' in change && typeof change.configurable !== 'boolean') {
+            if (hasOwnProperty.call(change, 'configurable') && typeof change.configurable !== 'boolean') {
                 return false;
             }
-            if ('define' in change && typeof change.define !== 'boolean') {
+            if (hasOwnProperty.call(change, 'define') && typeof change.define !== 'boolean') {
                 return false;
             }
-            const hasGetterValue = typeof change.getterValue !== 'undefined';
-            const hasSetterValue = typeof change.setterValue !== 'undefined';
-            const hasValue = typeof change.value !== 'undefined';
+            const hasGetterValue = hasOwnProperty.call(change, 'getterValue') && typeof change.getterValue !== 'undefined';
+            const hasSetterValue = hasOwnProperty.call(change, 'setterValue') && typeof change.setterValue !== 'undefined';
+            const hasValue = hasOwnProperty.call(change, 'value') && typeof change.value !== 'undefined';
             // Either a value descriptor (with `value`) or an accessor descriptor (with `getterValue`
             // and/or `setterValue`) - the two shapes are mutually exclusive.
             const isAccessorShape = hasGetterValue || hasSetterValue;
@@ -121,9 +124,12 @@ export default class ApiManipulation extends ContentFeature {
      * @param {APIChange} change
      */
     wrapApiDescriptor(api, key, change) {
-        const getterValue = change.getterValue;
-        const setterValue = change.setterValue;
-        const value = change.value;
+        // Read config fields via `hasOwnProperty` so prototype pollution on the page can't
+        // smuggle synthetic getter/setter/value entries onto an otherwise plain change object.
+        const getterValue = hasOwnProperty.call(change, 'getterValue') ? change.getterValue : undefined;
+        const setterValue = hasOwnProperty.call(change, 'setterValue') ? change.setterValue : undefined;
+        const value = hasOwnProperty.call(change, 'value') ? change.value : undefined;
+        const define = hasOwnProperty.call(change, 'define') && change.define === true;
         const descriptorKind =
             getterValue !== undefined || setterValue !== undefined ? 'getter' : value !== undefined ? 'value' : undefined;
         const configSetting = descriptorKind === 'getter' ? getterValue : value;
@@ -136,7 +142,7 @@ export default class ApiManipulation extends ContentFeature {
         const descriptor = this.createApiDescriptor(descriptorKind, configSetting, change);
         const origDescriptor = this.findPropertyDescriptor(api, key);
         if (!origDescriptor) {
-            if (change.define === true) {
+            if (define) {
                 this.defineProperty(api, key, this.createDefineDescriptor(descriptor, descriptorKind));
             }
             return;
@@ -255,7 +261,7 @@ export default class ApiManipulation extends ContentFeature {
             // configurations using `functionMap.debug` log per-assignment. When omitted, we leave
             // `set` unset on the new descriptor so wrapProperty's spread merge preserves the
             // original setter (existing behaviour).
-            if (change.setterValue !== undefined) {
+            if (hasOwnProperty.call(change, 'setterValue') && change.setterValue !== undefined) {
                 const setterSetting = /** @type {import('../utils.js').ConfigSetting} */ (change.setterValue);
                 descriptor.set = function setter(v) {
                     const fn = processAttr(setterSetting, undefined);
@@ -265,10 +271,10 @@ export default class ApiManipulation extends ContentFeature {
                 };
             }
         }
-        if ('enumerable' in change) {
+        if (hasOwnProperty.call(change, 'enumerable')) {
             descriptor.enumerable = change.enumerable;
         }
-        if ('configurable' in change) {
+        if (hasOwnProperty.call(change, 'configurable')) {
             descriptor.configurable = change.configurable;
         }
         return /** @type {Partial<import('../wrapper-utils.js').StrictPropertyDescriptor>} */ (descriptor);

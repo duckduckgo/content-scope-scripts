@@ -663,6 +663,22 @@ describe('ApiManipulation', () => {
         expect(apiManipulation.checkIsValidAPIChange(change)).toBeFalse();
     });
 
+    it('checkIsValidAPIChange is resilient to Object.prototype pollution', () => {
+        // If a page (or upstream test leakage) sets Object.prototype.value, an `in`-style validator
+        // would misclassify accessor-shape changes as also having `value` and reject them.
+        const proto = /** @type {Record<string, unknown>} */ (Object.prototype);
+        proto.value = { type: 'string', value: 'polluted' };
+        try {
+            const change = {
+                type: 'descriptor',
+                getterValue: { type: 'string', value: 'real-getter' },
+            };
+            expect(apiManipulation.checkIsValidAPIChange(change)).toBeTrue();
+        } finally {
+            delete proto.value;
+        }
+    });
+
     it('preserves non-constructability and absence of `prototype` from the original native method', () => {
         // Object.prototype.hasOwnProperty is a real native, non-constructable method with no own `prototype`.
         // The replacement returned by maskMethodReplacement must mirror that shape so sites cannot detect the
