@@ -44,6 +44,14 @@ export const variants = {
         actionText: t('nextSteps_duckPlayer_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
+    youtubeAdBlocking: (t) => ({
+        id: 'youtubeAdBlocking',
+        icon: 'Tube-Clean',
+        title: t('nextSteps_youtubeAdBlocking_title'),
+        summary: t('nextSteps_youtubeAdBlocking_summary'),
+        actionText: t('nextSteps_youtubeAdBlocking_actionText'),
+    }),
+    /** @param {(translationId: keyof enStrings) => string} t */
     addAppToDockMac: (t) => ({
         id: 'addAppToDockMac',
         icon: 'Dock-Add-Mac',
