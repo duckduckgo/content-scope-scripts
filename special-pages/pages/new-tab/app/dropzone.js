@@ -87,11 +87,12 @@ export function useGlobalDropzone() {
 export function useDropzoneSafeArea() {
     const ref = useRef(null);
     useEffect(() => {
-        if (!ref.current) return;
-        const evt = new CustomEvent(REGISTER_EVENT, { detail: { dropzone: ref.current } });
+        const node = ref.current;
+        if (!node) return;
+        const evt = new CustomEvent(REGISTER_EVENT, { detail: { dropzone: node } });
         window.dispatchEvent(evt);
         return () => {
-            window.dispatchEvent(new CustomEvent(CLEAR_EVENT, { detail: { dropzone: ref.current } }));
+            window.dispatchEvent(new CustomEvent(CLEAR_EVENT, { detail: { dropzone: node } }));
         };
     }, []);
     return ref;
