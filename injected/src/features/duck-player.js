@@ -103,7 +103,7 @@ export default class DuckPlayerFeature extends ContentFeature {
         const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
         if (overlaysEnabled) {
-            initOverlays(overlaySettings.youtube, env, comms);
+            void initOverlays(overlaySettings.youtube, env, comms);
         } else if (serpProxyEnabled) {
             comms.serpProxy();
         }
