@@ -1,5 +1,6 @@
 import tseslint from 'typescript-eslint';
 import ddgConfig from '@duckduckgo/eslint-config';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
 // @ts-check
@@ -14,6 +15,7 @@ export default tseslint.config(
             'injected/playwright-report/',
             'injected/integration-test/extension/contentScope.js',
             'injected/integration-test/test-pages/duckplayer/scripts/dist',
+            'Sources/ContentScopeScripts/dist',
             'special-pages/pages/**/public',
             'special-pages/pages/**/types',
             'special-pages/pages/**/messages',
@@ -72,6 +74,21 @@ export default tseslint.config(
         },
         rules: {
             '@typescript-eslint/await-thenable': 'error',
+        },
+    },
+    {
+        files: ['messaging/**/*.js', 'injected/src/**/*.js'],
+        rules: {
+            '@typescript-eslint/no-floating-promises': 'error',
+            'no-void': ['error', { allowAsStatement: true }],
+        },
+    },
+    {
+        files: ['special-pages/**/*.{js,jsx,ts,tsx}'],
+        plugins: { 'react-hooks': reactHooks },
+        rules: {
+            'react-hooks/rules-of-hooks': 'error',
+            'react-hooks/exhaustive-deps': 'error',
         },
     },
     {

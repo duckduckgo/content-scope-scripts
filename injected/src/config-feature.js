@@ -9,7 +9,7 @@ import {
     isMaxSupportedVersion,
     isStateEnabled,
 } from './utils.js';
-import { URLPattern } from 'urlpattern-polyfill';
+import { URLPattern as URLPatternPolyfill } from 'urlpattern-polyfill';
 
 /**
  * Used to match conditional changes for a settings feature.
@@ -17,8 +17,8 @@ import { URLPattern } from 'urlpattern-polyfill';
  * @typedef {object} ConditionBlock
  * @property {string[] | string} [domain]
  * @property {object} [urlPattern]
- * @property {object} [minSupportedVersion]
- * @property {object} [maxSupportedVersion]
+ * @property {string | number} [minSupportedVersion]
+ * @property {string | number} [maxSupportedVersion]
  * @property {object} [experiment]
  * @property {string} [experiment.experimentName]
  * @property {string} [experiment.cohort]
@@ -32,6 +32,15 @@ import { URLPattern } from 'urlpattern-polyfill';
 
 /**
  * @typedef {ConditionBlock|ConditionBlock[]} ConditionBlockOrArray
+ */
+
+/**
+ * An entry from a conditional feature setting list.
+ * Each entry has optional condition/domain fields for matching,
+ * plus optional patchSettings for config patching.
+ * Features may add additional properties specific to their config.
+ *
+ * @typedef {{condition?: ConditionBlockOrArray, domain?: string | string[], patchSettings?: import('immutable-json-patch').JSONPatchDocument} & Record<string, unknown>} ConditionalSettingEntry
  */
 
 /**
@@ -54,13 +63,13 @@ export default class ConfigFeature {
      *   platform: import('./utils.js').Platform,
      *   desktopModeEnabled?: boolean,
      *   forcedZoomEnabled?: boolean,
-     *   isDdgWebView?: boolean,
      *   featureSettings?: Record<string, unknown>,
      *   assets?: import('./content-feature.js').AssetConfig | undefined,
      *   site: import('./content-feature.js').Site,
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
      *   messagingContextName: string,
      *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
+     *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
      * } | null}
      */
     #args;
@@ -78,8 +87,8 @@ export default class ConfigFeature {
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform);
-            this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+            const enabledFeatures = computeEnabledFeatures(this.#bundledConfig, site.domain, platform);
+            this.#args.featureSettings = parseFeatureSettings(this.#bundledConfig, enabledFeatures);
         }
     }
 
@@ -117,12 +126,12 @@ export default class ConfigFeature {
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
-     * @return {any[]}
+     * @return {ConditionalSettingEntry[]}
      * @protected
      */
     matchConditionalFeatureSetting(featureKeyName) {
         const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
-        return conditionalChanges.filter((rule) => {
+        return conditionalChanges.filter((/** @type {any} */ rule) => {
             let condition = rule.condition;
             // Support shorthand for domain matching for backwards compatibility
             if (condition === undefined && 'domain' in rule) {
@@ -264,9 +273,9 @@ export default class ConfigFeature {
         if (!url) return false;
         if (typeof conditionBlock.urlPattern === 'string') {
             // Use the current URL as the base for matching
-            return new URLPattern(conditionBlock.urlPattern, url).test(url);
+            return new URLPatternPolyfill(conditionBlock.urlPattern, url).test(url);
         }
-        const pattern = new URLPattern(conditionBlock.urlPattern);
+        const pattern = new URLPatternPolyfill(conditionBlock.urlPattern);
         return pattern.test(url);
     }
 

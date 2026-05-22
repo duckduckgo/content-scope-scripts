@@ -1,0 +1,11 @@
+{
+  "readme": "Config for hover integration tests: hover feature enabled.",
+  "version": 1,
+  "features": {
+    "hover": {
+      "state": "enabled",
+      "exceptions": []
+    }
+  },
+  "unprotectedTemporary": []
+}

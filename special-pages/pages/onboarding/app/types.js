@@ -14,71 +14,49 @@ import { useContext } from 'preact/hooks';
  *   | 'aggressive-ad-blocking'
  *   | 'youtube-ad-blocking'
  *   | 'address-bar-mode'
+ *   | 'dock-instructions'
  * } SystemValueId - Each setting that can be updated should have a unique ID listed here.
+ */
+
+/**
+ * @typedef {'dock-instructions'} OverlayId
  */
 
 /**
  * @typedef {WelcomeStep
  *   | GetStartedStep
- *   | PrivateByDefaultStep
- *   | CleanerBrowsingStep
  *   | SystemSettingsStep
  *   | CustomizeStep
- *   | SummaryStep
- *   | DockSingleStep
- *   | ImportSingleStep
  *   | MakeDefaultSingleStep
  *   | DuckPlayerSingleStep
  *   | AddressBarModeStep
  * } Step
+ * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
  * @typedef {{ kind: 'info'; id: 'getStarted' }} GetStartedStep
- * @typedef {{ kind: 'info'; id: 'privateByDefault' }} PrivateByDefaultStep
- * @typedef {{ kind: 'info'; id: 'cleanerBrowsing' }} CleanerBrowsingStep
  * @typedef {{ kind: 'settings'; id: 'systemSettings'; rows: SystemValueId[]; }} SystemSettingsStep
  * @typedef {{ kind: 'settings'; id: 'customize'; rows: SystemValueId[]; }} CustomizeStep
- * @typedef {{ kind: 'settings'; id: 'dockSingle'; rows: SystemValueId[]; }} DockSingleStep
- * @typedef {{ kind: 'settings'; id: 'importSingle'; rows: SystemValueId[]; }} ImportSingleStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
- * @typedef {{ kind: 'info'; id: 'duckPlayerSingle' }} DuckPlayerSingleStep
+ * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
- * @typedef {{ kind: 'info'; id: 'summary' }} SummaryStep
  */
 
 /** @type {Step['id'][]} */
 export const EVERY_PAGE_ID = [
     'welcome',
     'getStarted',
-    'privateByDefault',
-    'cleanerBrowsing',
     'systemSettings',
-    'customize',
-    'summary',
-    'dockSingle',
-    'importSingle',
     'makeDefaultSingle',
     'duckPlayerSingle',
+    'customize',
     'addressBarMode',
 ];
 
 /** @type {Step['id'][]} */
-export const DEFAULT_ORDER = ['welcome', 'getStarted', 'privateByDefault', 'cleanerBrowsing', 'systemSettings', 'customize', 'summary'];
-
-/** @type {Step['id'][]} */
-export const ALT_ORDER = [
-    'welcome',
-    'getStarted',
-    'privateByDefault',
-    'cleanerBrowsing',
-    'dockSingle',
-    'importSingle',
-    'makeDefaultSingle',
-    'customize',
-    'summary',
-];
-
-/** @type {Step['id'][]} */
 export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
+
+/** @type {Step['id'][]} */
+export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
@@ -95,7 +73,7 @@ export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
 
 /**
  * @typedef {Object} GlobalState
- * @property {import("./v1/data/data").StepDefinitions} stepDefinitions
+ * @property {StepDefinitions} stepDefinitions
  * @property {Step} step
  * @property {Step['id'][]} order
  * @property {Step['id']} activeStep
@@ -106,6 +84,7 @@ export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @property {Status} status
  * @property {Partial<Record<SystemValueId, SystemValue>>} values
  * @property {Record<SystemValueId, UIValue>} UIValues
+ * @property {OverlayId|null} overlay
  */
 
 /**
@@ -117,7 +96,11 @@ export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | ExecErrorEvent
  *   | DismissEvent
  *   | DismisstoSettingsEvent
- *   | ErrorBoundaryEvent} GlobalEvents
+ *   | ErrorBoundaryEvent
+ *   | ShowOverlayEvent
+ *   | DismissOverlayEvent
+ *   | ConfigUpdateEvent
+ *   | TelemetryEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -128,7 +111,10 @@ export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
- *
+ * @typedef {{ kind: "show-overlay"; overlay: OverlayId }} ShowOverlayEvent
+ * @typedef {{ kind: "dismiss-overlay" }} DismissOverlayEvent
+ * @typedef {{ kind: "config-update"; stepDefinitions?: Record<string, any>; exclude?: Step['id'][] }} ConfigUpdateEvent
+ * @typedef {{ kind: "telemetry"; attributes: import('../types/onboarding.ts').TelemetryEvent['attributes'] }} TelemetryEvent
  */
 
 /** @type {ImportMeta['injectName'][]} */

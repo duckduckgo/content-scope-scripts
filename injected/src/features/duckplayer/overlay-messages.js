@@ -121,7 +121,7 @@ export class DuckPlayerOverlayMessages {
             try {
                 assertCustomEvent(evt);
                 if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
-                    return this.setUserValues(evt.detail.data)
+                    return this.setUserValues(/** @type {import("../duck-player.js").UserValues} */ (evt.detail.data))
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch(console.error);
                 }
@@ -142,12 +142,13 @@ export class DuckPlayerOverlayMessages {
 }
 
 /**
- * @param {any} event
- * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
+ * @param {Event} event
+ * @returns {asserts event is CustomEvent<{kind: string, data: unknown}>}
  */
 function assertCustomEvent(event) {
     if (!('detail' in event)) throw new Error('none-custom event');
-    if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string');
+    const detail = /** @type {{kind: unknown}} */ (event.detail);
+    if (typeof detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string');
 }
 
 export class Pixel {
