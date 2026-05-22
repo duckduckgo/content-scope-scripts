@@ -38,6 +38,7 @@ export const JSONstringify = JSON.stringify;
 export const JSONparse = JSON.parse;
 export const Arrayfrom = Array.from;
 export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
+export const ReflectApply = Reflect.apply.bind(Reflect);
 export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
 
 // Secure context only - crypto.subtle is unavailable on HTTP

@@ -45,6 +45,7 @@ import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
  * @param {boolean} props.showViewAllAiChats
  * @param {boolean} props.showCustomizePopover
  * @param {boolean} [props.enableVoiceChatAccess]
+ * @param {boolean} [props.enableAskAiSuggestion]
  * @param {string|null|undefined} props.tabId
  */
 export function Omnibar({
@@ -55,6 +56,7 @@ export function Omnibar({
     showViewAllAiChats = false,
     showCustomizePopover,
     enableVoiceChatAccess = false,
+    enableAskAiSuggestion = true,
     tabId,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
@@ -132,7 +134,7 @@ export function Omnibar({
                     )}
                 </div>
             )}
-            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi}>
+            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi} enableAskAiSuggestion={enableAskAiSuggestion}>
                 <AiChatsProvider
                     query={query}
                     autoFocus={autoFocus}

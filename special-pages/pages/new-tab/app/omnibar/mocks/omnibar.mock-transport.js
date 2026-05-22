@@ -159,6 +159,7 @@ export function omnibarMockTransport() {
         ],
         showViewAllAiChats: false,
         enableVoiceChatAccess: false,
+        enableAskAiSuggestion: true,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -223,6 +224,7 @@ export function omnibarMockTransport() {
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
+                    config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
