@@ -25,14 +25,6 @@ const MSG_SCREEN_LOCK = 'screenLock';
 const MSG_SCREEN_UNLOCK = 'screenUnlock';
 const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 
-/** Error used when the deviceEnumeration messaging request exceeds timeoutMs. */
-class DeviceEnumerationRequestTimeout extends Error {
-    constructor() {
-        super('Request timeout');
-        this.name = 'DeviceEnumerationRequestTimeout';
-    }
-}
-
 function canShare(data) {
     if (typeof data !== 'object') return false;
     // Make an in-place shallow copy of the data
@@ -1278,10 +1270,10 @@ export class WebCompat extends ContentFeature {
      * Helper to wrap a promise with timeout
      * @param {Promise} promise - Promise to wrap
      * @param {number} timeoutMs - Timeout in milliseconds
-     * @returns {Promise} Promise that rejects with {@link DeviceEnumerationRequestTimeout} on timeout
+     * @returns {Promise} Promise that rejects on timeout
      */
     withTimeout(promise, timeoutMs) {
-        const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new DeviceEnumerationRequestTimeout()), timeoutMs));
+        const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new Error('Request timeout')), timeoutMs));
         return Promise.race([promise, timeout]);
     }
 
