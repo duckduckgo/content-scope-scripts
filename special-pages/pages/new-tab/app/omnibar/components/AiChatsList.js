@@ -2,17 +2,27 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ChatBubbleIcon, PinIcon } from '../../components/Icons';
+import { ChatBubbleIcon, ImageIcon, PinIcon, VoiceIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
+import { AiChatsListFooter } from './AiChatsListFooter';
 import styles from './AiChatsList.module.css';
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
+ * @typedef {import('../../../types/new-tab.js').CustomModel} CustomModel
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
+
+/**
+ * @type {ReadonlyMap<CustomModel, import('preact').FunctionComponent>}
+ */
+const ICON_BY_MODEL = new Map([
+    ['voice-mode', VoiceIcon],
+    ['image-generation', ImageIcon],
+]);
 
 /**
  * @param {object} props
@@ -21,14 +31,14 @@ import styles from './AiChatsList.module.css';
 export function AiChatsList({ className }) {
     const { openAiChat } = useContext(OmnibarContext);
     const platformName = usePlatformName();
-    const { chats, selectedChat, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    const { chats, selectedChat, showViewAllAiChats, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
 
     if (chats.length === 0) {
         return null;
     }
 
     return (
-        <div role="listbox" id={aiChatsListId} class={cn(styles.list, className)}>
+        <div role="listbox" id={aiChatsListId} data-omnibar-list class={cn(styles.list, className)}>
             {chats.map((chat) => {
                 return (
                     <button
@@ -50,11 +60,26 @@ export function AiChatsList({ className }) {
                             });
                         }}
                     >
-                        {chat.pinned ? <PinIcon /> : <ChatBubbleIcon />}
+                        <ChatIcon chat={chat} />
                         <span class={styles.title}>{chat.title}</span>
                     </button>
                 );
             })}
+            {showViewAllAiChats && <AiChatsListFooter />}
         </div>
     );
+}
+
+/**
+ * @param {object} props
+ * @param {AiChat} props.chat
+ */
+function ChatIcon({ chat }) {
+    if (chat.pinned) {
+        return <PinIcon />;
+    }
+
+    const Icon = chat.model && ICON_BY_MODEL.get(/** @type {CustomModel} */ (chat.model));
+
+    return Icon ? <Icon /> : <ChatBubbleIcon />;
 }

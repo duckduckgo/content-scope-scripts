@@ -3,13 +3,19 @@ import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import { Bubble } from './Bubble';
 import { useStepConfig } from '../hooks/useStepConfig';
+import { useTypingEffect } from '../../shared/components/SettingsProvider';
+import { useGlobalState } from '../../global';
 import styles from './SingleStep.module.css';
 
 /** @type {string|null} */
 const bubbleWidthOverride = new URLSearchParams(window.location.search).get('bubbleWidth');
 
-/** @type {string|null} */
-const bubbleFadeInDelayOverride = new URLSearchParams(window.location.search).get('bubbleFadeInDelay');
+/** Bottom bubble fade-in delay when staggered after the top bubble (overridable via ?bubbleFadeInDelay). */
+const staggeredBottomDelay = (() => {
+    const override = new URLSearchParams(window.location.search).get('bubbleFadeInDelay');
+    const offset = override ? Number.parseInt(override, 10) : 250;
+    return 400 + (Number.isNaN(offset) ? 250 : offset);
+})();
 
 /**
  * Main layout component for v4 steps.
@@ -19,6 +25,8 @@ const bubbleFadeInDelayOverride = new URLSearchParams(window.location.search).ge
 export function SingleStep() {
     const { content, topBubble, bottomBubble, showProgress, progress, bubbleWidth, globalState, bounceKey, illustration, advance } =
         useStepConfig();
+    const hasTypingEffect = !!useTypingEffect();
+    const { activeStepVisible } = useGlobalState();
 
     const [topHeight, setTopHeight] = useState(0);
     const [bottomHeight, setBottomHeight] = useState(0);
@@ -35,6 +43,20 @@ export function SingleStep() {
     // No bubbles — render content directly (e.g., welcome step has its own full-page layout)
     if (!topBubble && !bottomBubble) {
         return content || null;
+    }
+
+    let topFadeInMode = /** @type {'normal'|'skip'|'deferred'} */ ('normal');
+    let bottomFadeInMode = /** @type {'normal'|'skip'|'deferred'} */ ('normal');
+    let bottomFadeInDelay = /** @type {number|undefined} */ (topBubble ? staggeredBottomDelay : undefined);
+
+    if (hasTypingEffect) {
+        if (topBubble) {
+            topFadeInMode = 'skip';
+            bottomFadeInMode = activeStepVisible ? 'normal' : 'deferred';
+            bottomFadeInDelay = 0;
+        } else {
+            bottomFadeInMode = 'skip';
+        }
     }
 
     return (
@@ -55,6 +77,7 @@ export function SingleStep() {
                 exiting={globalState.exiting}
                 onExitComplete={topBubble ? advance : undefined}
                 progress={showProgress && topBubble ? progress : undefined}
+                fadeInMode={topFadeInMode}
             >
                 {topBubble?.content}
             </Bubble>
@@ -70,16 +93,8 @@ export function SingleStep() {
                 exiting={globalState.exiting}
                 onExitComplete={topBubble ? undefined : advance}
                 progress={showProgress && !topBubble ? progress : undefined}
-                fadeInDelay={
-                    topBubble
-                        ? (() => {
-                              const defaultTopDelay = 400; // Default fade-in delay from CSS
-                              const defaultOffset = 250; // Default 250ms offset between top and bottom
-                              const offset = bubbleFadeInDelayOverride ? Number.parseInt(bubbleFadeInDelayOverride, 10) : defaultOffset;
-                              return defaultTopDelay + (Number.isNaN(offset) ? defaultOffset : offset);
-                          })()
-                        : undefined
-                }
+                fadeInMode={bottomFadeInMode}
+                fadeInDelay={bottomFadeInDelay}
             >
                 {bottomBubble?.content}
             </Bubble>
