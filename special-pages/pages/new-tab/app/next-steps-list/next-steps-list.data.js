@@ -36,6 +36,14 @@ export const variants = {
         actionText: t('nextStepsList_duckplayer_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
+    youtubeAdBlocking: (t) => ({
+        id: 'youtubeAdBlocking',
+        icon: 'duck-player',
+        title: t('nextStepsList_youtubeAdBlocking_title'),
+        summary: t('nextStepsList_youtubeAdBlocking_summary'),
+        actionText: t('nextStepsList_youtubeAdBlocking_actionText'),
+    }),
+    /** @param {(translationId: keyof enStrings) => string} t */
     emailProtection: (t) => ({
         id: 'emailProtection',
         icon: 'email-protection',
