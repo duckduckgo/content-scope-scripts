@@ -1,8 +1,25 @@
 import { checkSelectors, checkWindowProperties, matchesSelectors, matchesTextPatterns } from '../utils/detection-utils.js';
 
 /**
+ * @typedef {object} BotChallengeConfig
+ * @property {string} [state]
+ * @property {string[]} [selectors]
+ * @property {string[]} [windowProperties]
+ * @property {string} [vendor]
+ * @property {BotStatusConfig[]} [statusSelectors]
+ */
+
+/**
+ * @typedef {object} BotStatusConfig
+ * @property {string[]} [selectors]
+ * @property {string[]} [textPatterns]
+ * @property {string[]} [textSources]
+ * @property {string} [status]
+ */
+
+/**
  * Run bot detection.
- * @param {Record<string, any>} config
+ * @param {Record<string, BotChallengeConfig>} config
  */
 export function runBotDetection(config = {}) {
     const results = Object.entries(config)
@@ -30,6 +47,10 @@ export function runBotDetection(config = {}) {
     };
 }
 
+/**
+ * @param {BotStatusConfig[] | undefined} statusSelectors
+ * @returns {string | null}
+ */
 function findStatus(statusSelectors) {
     if (!Array.isArray(statusSelectors)) {
         return null;
