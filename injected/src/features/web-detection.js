@@ -134,7 +134,7 @@ export default class WebDetection extends ContentFeature {
                 }
             }
 
-            this._executeFireEvent(detectorConfig, detected);
+            void this._executeFireEvent(detectorConfig, detected);
         } catch (e) {
             // Silently fail - don't break the page
             if (this.isDebug) {
@@ -213,7 +213,7 @@ export default class WebDetection extends ContentFeature {
                     }
                 }
 
-                this._executeFireEvent(detectorConfig, detected);
+                void this._executeFireEvent(detectorConfig, detected);
             }
         }
         return results;
