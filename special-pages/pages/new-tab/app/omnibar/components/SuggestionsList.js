@@ -39,7 +39,7 @@ export function SuggestionsList({ onOpenSuggestion, onSubmitChat }) {
     const footerSuggestions = suggestions.filter((suggestion) => suggestion.kind === 'aiChat');
 
     return (
-        <div role="listbox" id={suggestionsListId} class={styles.list}>
+        <div role="listbox" id={suggestionsListId} data-omnibar-list class={styles.list}>
             {mainSuggestions.length > 0 && (
                 <div class={styles.main}>
                     {mainSuggestions.map((suggestion) => (

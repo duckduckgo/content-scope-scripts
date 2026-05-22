@@ -62,7 +62,11 @@ Features are bundled per-platform in `entry-points/`:
 - `windows.js` - Windows
 - `extension-mv3.js` - Browser extension
 
-Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`, `breakageReporting`, `webInterferenceDetection`, `webDetection` (see `utils.js` `platformSpecificFeatures`).
+Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `messageBridge`, `favicon`, `breakageReporting`, `webInterferenceDetection`, `webDetection`, `webEvents` (see `utils.js` `platformSpecificFeatures`).
+
+## Messaging Constraints
+
+- **Never include `nativeData` as a field in any message sent to the client.** The `nativeData` field is reserved for native platform use — native implementations inject a `nativeData` field into incoming messages, and `nativeData` is reserved for that layer. When constructing `notify()` or `request()` params, only pass explicitly defined fields (destructure rather than spread).
 
 ## Notes
 
