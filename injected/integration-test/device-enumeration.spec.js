@@ -287,9 +287,9 @@ test.describe('Device Enumeration Feature', () => {
             });
 
             expect(result).toEqual({
-                count: 2,
-                kinds: ['audioinput', 'videoinput'],
-                labels: ['', ''],
+                count: 3,
+                kinds: ['audioinput', 'audiooutput', 'videoinput'],
+                labels: ['', '', ''],
                 inputDevicesAreInputDeviceInfo: true,
             });
         });
@@ -319,8 +319,8 @@ test.describe('Device Enumeration Feature', () => {
             });
 
             expect(result).toEqual({
-                count: 2,
-                kinds: ['audioinput', 'videoinput'],
+                count: 3,
+                kinds: ['audioinput', 'audiooutput', 'videoinput'],
             });
         });
 

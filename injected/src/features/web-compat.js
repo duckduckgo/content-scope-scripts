@@ -1258,12 +1258,17 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Fallback device list when the deviceEnumeration messaging request fails.
-     * Mimics pre-permission enumerateDevices (unlabeled input devices) without calling native.
+     * Mimics pre-permission enumerateDevices (unlabeled devices) without calling native.
+     * Includes audiooutput so sites can still detect speaker/output capability.
      * @param {'syntheticPrototype' | 'instanceOwn'} shimMode
      * @returns {MediaDeviceInfo[]}
      */
     createEnumerateDevicesFallback(shimMode) {
-        return [this.createMediaDeviceInfo('audioinput', shimMode), this.createMediaDeviceInfo('videoinput', shimMode)];
+        return [
+            this.createMediaDeviceInfo('videoinput', shimMode),
+            this.createMediaDeviceInfo('audioinput', shimMode),
+            this.createMediaDeviceInfo('audiooutput', shimMode),
+        ];
     }
 
     /**
