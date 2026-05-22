@@ -44,15 +44,16 @@ export async function findRiskLevel(github, { owner, repo, prNumber }) {
 
 export async function isTeamMember(github, orgToken, org, teamSlug, username) {
     try {
-        const { data } = await github.request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
+        const Ctor = /** @type {new (opts: {auth: string}) => typeof github} */ (github.constructor);
+        const orgClient = new Ctor({ auth: orgToken });
+        const { data } = await orgClient.request('GET /orgs/{org}/teams/{team_slug}/memberships/{username}', {
             org,
             team_slug: teamSlug,
             username,
-            headers: { authorization: `token ${orgToken}` },
         });
         return data.state === 'active';
     } catch (error) {
-        if (error.status === 401) throw error;
+        if (/** @type {any} */ (error).status === 401) throw error;
         return false;
     }
 }
@@ -75,17 +76,20 @@ export async function findTeamForUser(github, orgToken, org, teams, username) {
  *                        If not provided, team membership checks are skipped.
  */
 export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgToken }) {
-    const { data: reviews } = await github.rest.pulls.listReviews({
+    const reviews = await github.paginate(github.rest.pulls.listReviews, {
         owner,
         repo,
         pull_number: prNumber,
     });
 
-    const latestByUser = new Map();
+    const DECISION_STATES = new Set(['APPROVED', 'CHANGES_REQUESTED', 'DISMISSED']);
+    const latestDecisionByUser = new Map();
     for (const r of reviews) {
-        if (r.user?.login) latestByUser.set(r.user.login, r);
+        if (r.user?.login && DECISION_STATES.has(r.state)) {
+            latestDecisionByUser.set(r.user.login, r);
+        }
     }
-    const approved = [...latestByUser.values()].filter((r) => r.state === 'APPROVED');
+    const approved = [...latestDecisionByUser.values()].filter((r) => r.state === 'APPROVED');
     if (approved.length === 0) return null;
 
     if (approved.some((r) => r.user.login === DAX_USERNAME)) {
