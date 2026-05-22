@@ -1,12 +1,3 @@
-.root {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    align-self: stretch;
-    gap: var(--sp-8); /* 32px */
-    padding: var(--sp-12); /* 48px */
-}
-
 .video {
     width: 100%;
     height: auto;

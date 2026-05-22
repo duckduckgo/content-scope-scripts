@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Tracker Protection Test</title>
+</head>
+<body>
+    <h1>Tracker Protection Test</h1>
+    <div id="results"></div>
+    <script>
+        // Helpers for test automation
+        window.addTrackerScript = function(src) {
+            const script = document.createElement('script');
+            script.src = src;
+            document.body.appendChild(script);
+        };
+
+        window.addTrackerImage = function(src) {
+            const img = document.createElement('img');
+            img.src = src;
+            document.body.appendChild(img);
+        };
+    </script>
+</body>
+</html>
