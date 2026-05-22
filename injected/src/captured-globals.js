@@ -8,6 +8,7 @@ export const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
 export const toString = Object.prototype.toString;
 export const objectKeys = Object.keys;
 export const objectEntries = Object.entries;
+export const objectFromEntries = Object.fromEntries;
 export const objectDefineProperty = Object.defineProperty;
 export const URL = globalThis.URL;
 export const Proxy = globalThis.Proxy;
@@ -37,6 +38,7 @@ export const JSONstringify = JSON.stringify;
 export const JSONparse = JSON.parse;
 export const Arrayfrom = Array.from;
 export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
+export const ReflectApply = Reflect.apply.bind(Reflect);
 export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
 
 // Secure context only - crypto.subtle is unavailable on HTTP
