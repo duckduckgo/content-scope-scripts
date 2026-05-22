@@ -62,7 +62,7 @@ jobs:
                   direction: last
 
             - name: Create Comment Body
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               id: create_body
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}

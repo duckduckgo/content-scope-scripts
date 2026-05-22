@@ -5,17 +5,30 @@ import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
 import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
+/**
+ * @typedef {{
+ *   jsPerformance: number[];
+ *   referrer: string;
+ *   opener?: boolean;
+ *   pageReloaded?: boolean;
+ *   detectorData?: object;
+ *   expandedPerformanceMetrics?: unknown;
+ *   breakageData?: string;
+ * }} BreakageReportResult
+ */
+
 export default class BreakageReporting extends ContentFeature {
     init() {
         const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled('expandedPerformanceMetrics', 'enabled');
 
         this.messaging.subscribe('getBreakageReportValues', async () => {
             // Payload that will be URL-encoded and passed directly through to breakage reports.
-            const breakageDataPayload = {};
+            const breakageDataPayload = /** @type {Record<string, unknown>} */ ({});
 
             const jsPerformance = getJsPerformanceMetrics();
             const referrer = document.referrer;
 
+            /** @type {BreakageReportResult} */
             const result = {
                 jsPerformance,
                 referrer,
@@ -39,8 +52,10 @@ export default class BreakageReporting extends ContentFeature {
                 breakageDataPayload.webDetection = webDetectionResults;
             }
 
-            // Only run detectors if explicitly configured
-            // Fetch interferenceTypes from webInterferenceDetection feature settings
+            // Runs detector functions directly using webInterferenceDetection's config.
+            // This means detectors execute in breakageReporting's world (apple-isolated),
+            // not in webInterferenceDetection's world — so DOM checks work but window
+            // property checks won't see page-script globals on Apple platforms.
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {
                 result.detectorData = {

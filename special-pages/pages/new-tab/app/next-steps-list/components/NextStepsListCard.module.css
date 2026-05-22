@@ -30,6 +30,10 @@
         padding: 0 1px;
         margin: -0.25px -1px 0;
 
+        :root:has(body[data-platform-name="windows"]) & {
+            margin: 0 -1px;
+        }
+
         h2 {
             color: var(--ds-color-theme-accent-content-primary);
             letter-spacing: 0.06px;
@@ -233,3 +237,6 @@
     margin-top: var(--sp-1);
 }
 
+.buttonRow button {
+    white-space: nowrap;
+}
