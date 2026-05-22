@@ -13,6 +13,7 @@ export class Settings {
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./types.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
+     * @param {'title'|null} [params.typingEffect] - typing effect variant for titles
      */
     constructor({
         platform = { name: 'macos' },
@@ -21,6 +22,7 @@ export class Settings {
         stepDefinitions = defaultStepDefinitions,
         first = 'welcome',
         exclude = [],
+        typingEffect = 'title',
     } = {}) {
         this.platform = platform;
         this.order = order;
@@ -28,6 +30,7 @@ export class Settings {
         this.stepDefinitions = stepDefinitions;
         this.first = first;
         this.exclude = exclude;
+        this.typingEffect = typingEffect;
     }
 
     withPlatformName(name) {
@@ -114,6 +117,16 @@ export class Settings {
                 first,
             });
         }
+        return this;
+    }
+
+    /**
+     * @param {string|null|undefined} typingEffect
+     * @return {Settings}
+     */
+    withTypingEffect(typingEffect) {
+        if (typingEffect === 'none') return new Settings({ ...this, typingEffect: null });
+        if (typingEffect === 'title') return new Settings({ ...this, typingEffect: 'title' });
         return this;
     }
 
