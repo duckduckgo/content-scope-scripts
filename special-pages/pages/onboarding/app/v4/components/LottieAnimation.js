@@ -77,7 +77,7 @@ export function LottieAnimation({
             if (animationRef) animationRef.current = null;
             animation.destroy();
         };
-    }, [resolvedSrc, loop, onComplete, isReducedMotion]);
+    }, [resolvedSrc, loop, onComplete, isReducedMotion, autoplay, animationRef]);
 
     return (
         <div

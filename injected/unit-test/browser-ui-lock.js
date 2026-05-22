@@ -73,10 +73,10 @@ describe('BrowserUiLock', () => {
             expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(true);
         });
 
-        it('should return false when content overflows and overflow is auto (default config)', () => {
+        it('should return true when content overflows and overflow is auto (default config)', () => {
             const feature = createFeature();
             const el = createMockElement(1000, 500, 'auto');
-            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(true);
         });
 
         it('should return true when content overflows and overflow is scroll', () => {
@@ -91,10 +91,18 @@ describe('BrowserUiLock', () => {
             expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
         });
 
-        it('should return false when content overflows but overflow is clip', () => {
+        it('should return false when content overflows but overflow is clip (default config)', () => {
             const feature = createFeature();
             const el = createMockElement(1000, 500, 'clip');
             expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
+        });
+
+        it('should return true when content overflows and overflow is clip with overflowTypes excluding clip', () => {
+            const feature = createFeature({
+                featureSettings: { browserUiLock: { overflowTypes: ['hidden'] } },
+            });
+            const el = createMockElement(1000, 500, 'clip');
+            expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(true);
         });
 
         it('should return false when content fits (no overflow)', () => {
@@ -107,6 +115,111 @@ describe('BrowserUiLock', () => {
             const feature = createFeature();
             const el = createMockElement(300, 500, 'auto');
             expect(feature._hasExplicitlyVisibleScrollbar(el)).toBe(false);
+        });
+    });
+
+    describe('_hasLockingOverflowY', () => {
+        /** @type {typeof globalThis.getComputedStyle | undefined} */
+        let originalGetComputedStyle;
+
+        beforeEach(() => {
+            originalGetComputedStyle = globalThis.getComputedStyle;
+        });
+
+        afterEach(() => {
+            if (originalGetComputedStyle !== undefined) {
+                globalThis.getComputedStyle = originalGetComputedStyle;
+            } else {
+                // @ts-expect-error - restoring undefined
+                delete globalThis.getComputedStyle;
+            }
+        });
+
+        /**
+         * Create a mock element whose computed overflow-y is the given value.
+         * @param {string} overflowY
+         */
+        function createMockElement(overflowY) {
+            const el = /** @type {Element} */ ({});
+            globalThis.getComputedStyle = jasmine.createSpy('getComputedStyle').and.returnValue(
+                /** @type {CSSStyleDeclaration} */ ({
+                    overflowY,
+                }),
+            );
+            return el;
+        }
+
+        it('should return true when overflow-y is hidden (default config)', () => {
+            const feature = createFeature();
+            expect(feature._hasLockingOverflowY(createMockElement('hidden'))).toBe(true);
+        });
+
+        it('should return false when overflow-y is visible', () => {
+            const feature = createFeature();
+            expect(feature._hasLockingOverflowY(createMockElement('visible'))).toBe(false);
+        });
+
+        it('should return false when overflow-y is auto', () => {
+            const feature = createFeature();
+            expect(feature._hasLockingOverflowY(createMockElement('auto'))).toBe(false);
+        });
+
+        it('should return false when overflow-y is scroll', () => {
+            const feature = createFeature();
+            expect(feature._hasLockingOverflowY(createMockElement('scroll'))).toBe(false);
+        });
+
+        it('should return true when overflow-y is clip (default config)', () => {
+            const feature = createFeature();
+            expect(feature._hasLockingOverflowY(createMockElement('clip'))).toBe(true);
+        });
+
+        it('should return false when overflow-y is clip and overflowTypes excludes clip', () => {
+            const feature = createFeature({
+                featureSettings: { browserUiLock: { overflowTypes: ['hidden'] } },
+            });
+            expect(feature._hasLockingOverflowY(createMockElement('clip'))).toBe(false);
+        });
+
+        it('should respect a custom overflowTypes list (e.g. only "clip")', () => {
+            const feature = createFeature({
+                featureSettings: { browserUiLock: { overflowTypes: ['clip'] } },
+            });
+            expect(feature._hasLockingOverflowY(createMockElement('hidden'))).toBe(false);
+            expect(feature._hasLockingOverflowY(createMockElement('clip'))).toBe(true);
+        });
+    });
+
+    describe('isLockedPage setting', () => {
+        /**
+         * @param {object} [settings]
+         */
+        function createFeatureWithSettings(settings = {}) {
+            return createFeature({
+                featureSettings: {
+                    browserUiLock: settings,
+                },
+            });
+        }
+
+        it('returns false when setting is missing', () => {
+            const feature = createFeatureWithSettings();
+            expect(feature.getFeatureSettingEnabled('isLockedPage')).toBeFalsy();
+        });
+
+        it('returns true when setting is "enabled"', () => {
+            const feature = createFeatureWithSettings({ isLockedPage: 'enabled' });
+            expect(feature.getFeatureSettingEnabled('isLockedPage')).toBe(true);
+        });
+
+        it('returns false when setting is "disabled"', () => {
+            const feature = createFeatureWithSettings({ isLockedPage: 'disabled' });
+            expect(feature.getFeatureSettingEnabled('isLockedPage')).toBe(false);
+        });
+
+        it('causes _detectShouldLock to return true regardless of scrollbar state', () => {
+            const feature = createFeatureWithSettings({ isLockedPage: 'enabled' });
+            expect(feature._detectShouldLock()).toBe(true);
         });
     });
 
