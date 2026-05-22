@@ -77,7 +77,7 @@ export class MessageBridge extends ContentFeature {
 
         /**
          * @template T
-         * @param {{ create: (params: any) => T | null, NAME: string }} ClassType - A class with a `create` static method.
+         * @param {{ create: (params: unknown) => T | null, NAME: string }} ClassType - A class with a `create` static method.
          * @param {(instance: T) => void} callback - A callback that receives an instance of the class.
          */
         const accept = (ClassType, callback) => {
