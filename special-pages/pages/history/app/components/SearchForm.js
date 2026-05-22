@@ -97,7 +97,7 @@ function useSearchShortcut(platformName) {
 }
 
 /**
- * @param {any} condition
+ * @param {unknown} condition
  * @param {string} [message]
  * @return {asserts condition}
  */
