@@ -1320,7 +1320,7 @@ export class WebCompat extends ContentFeature {
                 } catch (err) {
                     // On timeout, reject rather than calling the native API (which can trigger permission prompts)
                     if (err instanceof Error && err.message === 'Request timeout') {
-                        throw err;
+                        return Promise.reject(err);
                     }
                     // If the native request fails for other reasons, fall back to the original implementation
                     return DDGReflect.apply(target, thisArg, args);
