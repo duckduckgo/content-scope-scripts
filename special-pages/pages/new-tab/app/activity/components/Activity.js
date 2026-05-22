@@ -131,13 +131,14 @@ function Loader() {
             }
         });
 
-        if (loaderRef.current) {
-            observer.observe(loaderRef.current);
+        const node = loaderRef.current;
+        if (node) {
+            observer.observe(node);
         }
 
         return () => {
-            if (loaderRef.current) {
-                observer.unobserve(loaderRef.current);
+            if (node) {
+                observer.unobserve(node);
             }
         };
     }, []);
