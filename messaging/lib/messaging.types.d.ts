@@ -38,6 +38,8 @@ interface Window {
         mockResponses: Record<string, import('../index.js').MessageResponse>;
         subscriptionEvents: import('../index.js').SubscriptionEvent[];
         publishSubscriptionEvent?: (evt: import('../index.js').SubscriptionEvent) => void;
+        /** Optional map of subscription name -> Set of callbacks (used by onboarding mock transport in tests). */
+        subscriptions?: Map<string, Set<(data: unknown) => void>>;
         mocks: {
             outgoing: UnstableMockCall[];
         };
