@@ -176,15 +176,19 @@ export class DuckplayerOverlays {
      * @param {object} [params]
      * @param {"default" | "incremental-dom"} [params.variant]
      * @param {string} [params.videoID]
+     * @param {'1' | 'true'} [params.allowFirstVideo]
      * @param {'playerPage' | 'videoAltSelectors'} [params.pageType]
      *  - we are replicating different strategies in the HTML to capture regressions/bugs
      */
     async gotoPlayerPage(params = {}) {
-        const { variant = 'default', videoID = '123', pageType = 'playerPage' } = params;
+        const { variant = 'default', videoID = '123', allowFirstVideo, pageType = 'playerPage' } = params;
         const urlParams = new URLSearchParams([
             ['v', videoID],
             ['variant', variant],
         ]);
+        if (allowFirstVideo) {
+            urlParams.set('dp_allowFirstVideo', allowFirstVideo);
+        }
 
         const page = this[pageType];
 

@@ -358,6 +358,38 @@ test.describe('Video Player overlays', () => {
             // Then our player loads for the correct video
             await overlays.duckPlayerLoadsFor('1');
         });
+
+        test('allows first video when dp_allowFirstVideo=true', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig();
+
+            // And my setting is 'always ask'
+            await overlays.initialSetupIs('always ask');
+
+            // When the player page is opened with an allow-first-video query override
+            await overlays.gotoPlayerPage({ allowFirstVideo: 'true' });
+
+            // Then the blocking overlay does not show on first load
+            await overlays.videoOverlayDoesntShow();
+        });
+
+        test('allows first video when dp_allowFirstVideo=1', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig();
+
+            // And my setting is 'always ask'
+            await overlays.initialSetupIs('always ask');
+
+            // When the player page is opened with an allow-first-video query override
+            await overlays.gotoPlayerPage({ allowFirstVideo: '1' });
+
+            // Then the blocking overlay does not show on first load
+            await overlays.videoOverlayDoesntShow();
+        });
     });
 });
 

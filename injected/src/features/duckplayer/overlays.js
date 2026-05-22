@@ -36,6 +36,7 @@ export async function initOverlays(settings, environment, messages) {
     }
 
     let { userValues, ui } = initialSetup;
+    ui = withAllowFirstVideoQueryFallback(ui);
 
     /**
      * Create the instance - this might fail if settings or user preferences prevent it
@@ -92,9 +93,27 @@ export async function initOverlays(settings, environment, messages) {
      * Continue to listen for updated UI settings and try to re-initiate
      */
     messages.onUIValuesChanged((_ui) => {
-        ui = _ui;
+        ui = withAllowFirstVideoQueryFallback(_ui);
         update();
     });
+}
+
+/**
+ * Ensures query-string overrides can opt into allowing first video playback.
+ * Supports both dp_allowFirstVideo=1 and dp_allowFirstVideo=true.
+ * @param {import("../duck-player.js").UISettings | undefined} ui
+ * @returns {import("../duck-player.js").UISettings}
+ */
+function withAllowFirstVideoQueryFallback(ui) {
+    const queryValue = new URL(globalThis.location.href).searchParams.get('dp_allowFirstVideo');
+    const normalized = queryValue?.trim().toLowerCase();
+    const allowsFirstVideo = normalized === '1' || normalized === 'true';
+    if (!allowsFirstVideo) return ui || {};
+    if (ui?.allowFirstVideo === true) return ui;
+    return {
+        ...(ui || {}),
+        allowFirstVideo: true,
+    };
 }
 
 /**
