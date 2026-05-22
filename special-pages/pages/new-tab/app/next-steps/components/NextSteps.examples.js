@@ -16,6 +16,7 @@ export const nextStepsExamples = {
                     'blockCookies',
                     'emailProtection',
                     'duckplayer',
+                    'youtubeAdBlocking',
                     'addAppToDockMac',
                     'pinAppToTaskbarWindows',
                 ]}
@@ -35,6 +36,7 @@ export const nextStepsExamples = {
                     'blockCookies',
                     'emailProtection',
                     'duckplayer',
+                    'youtubeAdBlocking',
                     'addAppToDockMac',
                     'pinAppToTaskbarWindows',
                 ]}
@@ -75,6 +77,9 @@ export const otherNextStepsExamples = {
     },
     'next-steps.duckplayer': {
         factory: () => <NextStepsCard type="duckplayer" dismiss={noop('dismiss')} action={noop('action')} />,
+    },
+    'next-steps.youtubeAdBlocking': {
+        factory: () => <NextStepsCard type="youtubeAdBlocking" dismiss={noop('dismiss')} action={noop('action')} />,
     },
     'next-steps.defaultApp': {
         factory: () => <NextStepsCard type="defaultApp" dismiss={noop('dismiss')} action={noop('action')} />,

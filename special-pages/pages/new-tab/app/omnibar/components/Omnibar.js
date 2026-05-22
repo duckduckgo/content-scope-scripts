@@ -1,8 +1,11 @@
 import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
-import { LogoStacked } from '../../components/Icons';
+import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
+import { eventToTarget } from '../../../../../shared/handlers';
+import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
+import aiChatFormStyles from './AiChatForm.module.css';
 import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider';
 import { ResizingContainer } from './ResizingContainer';
@@ -19,9 +22,11 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
 import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
+import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
 import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
+import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -39,9 +44,21 @@ import { useSelectedModel } from './useSelectedModel';
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} props.showViewAllAiChats
  * @param {boolean} props.showCustomizePopover
+ * @param {boolean} [props.enableVoiceChatAccess]
+ * @param {boolean} [props.enableAskAiSuggestion]
  * @param {string|null|undefined} props.tabId
  */
-export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showViewAllAiChats = false, showCustomizePopover, tabId }) {
+export function Omnibar({
+    mode,
+    setMode,
+    enableAi,
+    enableRecentAiChats,
+    showViewAllAiChats = false,
+    showCustomizePopover,
+    enableVoiceChatAccess = false,
+    enableAskAiSuggestion = true,
+    tabId,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -117,7 +134,7 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
                     )}
                 </div>
             )}
-            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi}>
+            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi} enableAskAiSuggestion={enableAskAiSuggestion}>
                 <AiChatsProvider
                     query={query}
                     autoFocus={autoFocus}
@@ -143,6 +160,7 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
                                     query={query}
                                     autoFocus={autoFocus}
                                     enableRecentAiChats={enableRecentAiChats}
+                                    enableVoiceChatAccess={enableVoiceChatAccess}
                                     onChange={setQuery}
                                     onSubmit={handleSubmitChat}
                                 />
@@ -160,13 +178,16 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showView
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
+ * @param {boolean} [props.enableVoiceChatAccess]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
-function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
+function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatAccess = false, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const platformName = usePlatformName();
     const { showChats, hideChats } = useAiChatsContext();
     const { selectedModel } = useSelectedModel();
+    const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
@@ -210,6 +231,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
     const handleSubmit = (chat, target) => {
         const images = canAttachImages ? imageState.getImagesForSubmission() : null;
         const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
+        const reasoningEffort = imageGenerationActive ? null : selectedEffort;
         const toolChoice = webSearchActive
             ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
             : null;
@@ -220,6 +242,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
             target,
             ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
             ...(modelId && { modelId }),
+            ...(reasoningEffort && { reasoningEffort }),
             ...(toolChoice && { toolChoice }),
             ...(images && { images }),
         };
@@ -227,6 +250,40 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
         onSubmit(action);
         imageState.clearAttachedImages();
         clearTool();
+    };
+
+    /**
+     * Voice handoff: reuses `omnibar_submitChat` with `mode: 'voice-mode'` and an empty chat
+     * payload. Native receives the mode in the prompt handoff and routes to the Duck.ai voice
+     * flow — same mechanism image-generation uses (no dedicated notify, no `?mode=voice` URL).
+     * @param {import('../../../types/new-tab.js').OpenTarget} target
+     */
+    const handleVoiceSubmit = (target) => {
+        onSubmit({
+            chat: '',
+            target,
+            mode: /** @type {const} */ ('voice-mode'),
+        });
+    };
+
+    const disabled = !query || imageWarning;
+    // Voice-chat mode: feature flag on AND nothing in the input/attachments. The same button can't
+    // be both "submit text" and "start voice chat", so the submit button is replaced when active.
+    const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && !query;
+
+    /** @type {(event: MouseEvent) => void} */
+    const handleClickSubmit = (event) => {
+        event.preventDefault();
+        if (disabled) return;
+        event.stopPropagation();
+        handleSubmit(query, eventToTarget(event, platformName));
+    };
+
+    /** @type {(event: MouseEvent) => void} */
+    const handleClickVoiceChat = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        handleVoiceSubmit(eventToTarget(event, platformName));
     };
 
     const showRecentChats = enableRecentAiChats && !imageGenerationActive;
@@ -250,7 +307,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                 <AiChatForm
                     query={query}
                     autoFocus={autoFocus}
-                    disabled={query.length === 0 || imageWarning}
+                    disabled={disabled}
                     placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
@@ -262,7 +319,40 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                             )}
                         </Fragment>
                     }
-                    toolbarRight={!imageGenerationActive && <ModelSelectorTool />}
+                    toolbarRight={
+                        <Fragment>
+                            {!imageGenerationActive && (
+                                <Fragment>
+                                    <ReasoningPickerTool />
+                                    <ModelSelectorTool />
+                                </Fragment>
+                            )}
+                            {isVoiceChatMode ? (
+                                <button
+                                    tabIndex={0}
+                                    type="button"
+                                    class={aiChatFormStyles.submitButton}
+                                    aria-label={t('omnibar_aiChatFormVoiceButtonLabel')}
+                                    onClick={handleClickVoiceChat}
+                                    onAuxClick={handleClickVoiceChat}
+                                >
+                                    <VoiceIcon class={aiChatFormStyles.voiceIcon} />
+                                </button>
+                            ) : (
+                                <button
+                                    tabIndex={0}
+                                    type="submit"
+                                    class={aiChatFormStyles.submitButton}
+                                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    disabled={disabled}
+                                    onClick={handleClickSubmit}
+                                    onAuxClick={handleClickSubmit}
+                                >
+                                    <ArrowRightIcon />
+                                </button>
+                            )}
+                        </Fragment>
+                    }
                 >
                     <ImageAttachmentContent
                         state={imageState}
