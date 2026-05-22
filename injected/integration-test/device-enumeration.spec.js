@@ -91,9 +91,7 @@ test.describe('Device Enumeration Feature', () => {
 
         test('should not forward devicechange addEventListener to native when willPrompt is true', async ({ page }, testInfo) => {
             const collector = ResultsCollector.create(page, testInfo.project.use);
-            await collector
-                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
-                .load(BLANK_HTML, CONFIG_ENABLED);
+            await collector.withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) }).load(BLANK_HTML, CONFIG_ENABLED);
 
             const result = await countDeviceChangeRegistration(page);
             expect(result.deviceEnumerationCalls).toBeGreaterThan(0);
@@ -102,24 +100,22 @@ test.describe('Device Enumeration Feature', () => {
 
         test('should forward devicechange to native when deviceChangeListeners is disabled', async ({ page }, testInfo) => {
             const collector = ResultsCollector.create(page, testInfo.project.use);
-            await collector
-                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
-                .setup({
-                    config: {
-                        version: 1,
-                        unprotectedTemporary: [],
-                        features: {
-                            webCompat: {
-                                state: 'enabled',
-                                exceptions: [],
-                                settings: {
-                                    enumerateDevices: 'enabled',
-                                    deviceChangeListeners: 'disabled',
-                                },
+            await collector.withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) }).setup({
+                config: {
+                    version: 1,
+                    unprotectedTemporary: [],
+                    features: {
+                        webCompat: {
+                            state: 'enabled',
+                            exceptions: [],
+                            settings: {
+                                enumerateDevices: 'enabled',
+                                deviceChangeListeners: 'disabled',
                             },
                         },
                     },
-                });
+                },
+            });
             await page.goto(BLANK_HTML);
 
             const result = await countDeviceChangeRegistration(page);
@@ -129,9 +125,7 @@ test.describe('Device Enumeration Feature', () => {
 
         test('should fire devicechange (addEventListener) when OS permission is granted', async ({ page }, testInfo) => {
             const collector = ResultsCollector.create(page, testInfo.project.use);
-            await collector
-                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
-                .load(BLANK_HTML, CONFIG_ENABLED);
+            await collector.withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) }).load(BLANK_HTML, CONFIG_ENABLED);
 
             const fired = await page.evaluate(async () => {
                 const firedPromise = new Promise((resolve) => {
@@ -158,9 +152,7 @@ test.describe('Device Enumeration Feature', () => {
 
         test('should fire devicechange (ondevicechange) when OS permission is granted', async ({ page }, testInfo) => {
             const collector = ResultsCollector.create(page, testInfo.project.use);
-            await collector
-                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
-                .load(BLANK_HTML, CONFIG_ENABLED);
+            await collector.withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) }).load(BLANK_HTML, CONFIG_ENABLED);
 
             const fired = await page.evaluate(async () => {
                 const firedPromise = new Promise((resolve) => {
