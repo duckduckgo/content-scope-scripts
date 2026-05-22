@@ -4,7 +4,7 @@
  */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { URL } from '../captured-globals.js';
+import { URL, getOwnPropertyDescriptor } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
 import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
@@ -121,14 +121,17 @@ export class WebCompat extends ContentFeature {
     /** @type {ReturnType<typeof setTimeout> | undefined} */
     #permissionPollingTimer;
 
+    /** @type {boolean | null} */
+    #deviceEnumerationWillPrompt = null;
+
     /** @type {Set<EventListenerOrEventListenerObject>} */
     #deviceChangeListeners = new Set();
 
     /** @type {((this: MediaDevices, ev: Event) => any) | null} */
-    #onDeviceChange = null;
+    #onDeviceChangeShim = null;
 
-    /** @type {boolean | null} */
-    #lastDeviceEnumerationWillPrompt = null;
+    /** @type {PropertyDescriptor | undefined} */
+    #nativeOnDeviceChangeDescriptor;
 
     /** @type {ReturnType<typeof setTimeout> | undefined} */
     #deviceChangePollingTimer;
@@ -1245,47 +1248,65 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * @param {EventListenerOrEventListenerObject} listener
-     * @param {MediaDevices} mediaDevices
-     * @param {Event} event
+     * @param {boolean} willPrompt
      */
-    invokeDeviceChangeListener(listener, mediaDevices, event) {
-        if (typeof listener === 'function') {
-            listener.call(mediaDevices, event);
-        } else if (listener && typeof listener.handleEvent === 'function') {
-            listener.handleEvent(event);
+    cacheDeviceEnumerationWillPrompt(willPrompt) {
+        this.#deviceEnumerationWillPrompt = willPrompt;
+    }
+
+    /**
+     * @param {boolean} [force]
+     * @returns {Promise<boolean>}
+     */
+    async fetchDeviceEnumerationWillPrompt(force = false) {
+        if (!force && this.#deviceEnumerationWillPrompt !== null) {
+            return this.#deviceEnumerationWillPrompt;
         }
+
+        const settings = this.getFeatureSetting('enumerateDevices') || {};
+        const timeoutEnabled = settings.timeoutEnabled !== false;
+        const timeoutMs = settings.timeoutMs ?? 2000;
+
+        try {
+            let promise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+            if (timeoutEnabled) {
+                promise = this.withTimeout(promise, timeoutMs);
+            }
+            const response = await promise;
+            this.cacheDeviceEnumerationWillPrompt(Boolean(response?.willPrompt));
+        } catch {
+            this.cacheDeviceEnumerationWillPrompt(true);
+        }
+
+        return this.#deviceEnumerationWillPrompt;
     }
 
     /**
-     * @returns {boolean}
-     */
-    hasDeviceChangeListener() {
-        return this.#deviceChangeListeners.size > 0 || typeof this.#onDeviceChange === 'function';
-    }
-
-    /**
-     * Dispatches a synthetic devicechange event to listeners registered on MediaDevices.
+     * Dispatches devicechange to shim listeners after OS permission is granted.
      */
     dispatchDeviceChangeEvent() {
-        if (!navigator.mediaDevices) {
+        const mediaDevices = navigator.mediaDevices;
+        if (!mediaDevices) {
             return;
         }
 
         const event = new Event('devicechange');
-        const mediaDevices = navigator.mediaDevices;
 
         for (const listener of this.#deviceChangeListeners) {
             try {
-                this.invokeDeviceChangeListener(listener, mediaDevices, event);
+                if (typeof listener === 'function') {
+                    listener.call(mediaDevices, event);
+                } else if (listener && typeof listener.handleEvent === 'function') {
+                    listener.handleEvent(event);
+                }
             } catch {
                 /* Ignore errors in handler */
             }
         }
 
-        if (typeof this.#onDeviceChange === 'function') {
+        if (typeof this.#onDeviceChangeShim === 'function') {
             try {
-                this.#onDeviceChange.call(mediaDevices, event);
+                this.#onDeviceChangeShim.call(mediaDevices, event);
             } catch {
                 /* Ignore errors in handler */
             }
@@ -1293,53 +1314,30 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * Starts or stops polling native device enumeration while devicechange listeners exist.
-     */
-    updateDeviceChangePolling() {
-        if (!this.hasDeviceChangeListener()) {
-            if (this.#deviceChangePollingTimer) {
-                clearTimeout(this.#deviceChangePollingTimer);
-                this.#deviceChangePollingTimer = undefined;
-            }
-            return;
-        }
-
-        if (!this.#deviceChangePollingTimer) {
-            this.pollForDeviceAccessChange();
-        }
-    }
-
-    /**
-     * Polls native messaging to detect when OS media permissions are granted so a
-     * devicechange event can be dispatched for first-time users.
-     *
-     * Uses the same chained setTimeout pattern as pollForPermissionChange.
+     * Polls deviceEnumeration while shim listeners exist and willPrompt is true.
      */
     pollForDeviceAccessChange() {
-        if (!this.hasDeviceChangeListener()) {
-            this.#deviceChangePollingTimer = undefined;
+        if (this.#deviceChangePollingTimer) {
             return;
         }
 
         let remaining = 30;
         const tick = async () => {
-            let shouldDispatch = false;
-            try {
-                const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
-                const willPrompt = Boolean(response?.willPrompt);
-                if (this.#lastDeviceEnumerationWillPrompt === true && !willPrompt) {
-                    shouldDispatch = true;
-                }
-                this.#lastDeviceEnumerationWillPrompt = willPrompt;
-            } catch {
-                /* Ignore */
+            const hadShimListeners = this.#deviceChangeListeners.size > 0 || typeof this.#onDeviceChangeShim === 'function';
+            if (!hadShimListeners || !this.#deviceEnumerationWillPrompt) {
+                this.#deviceChangePollingTimer = undefined;
+                return;
             }
 
-            if (shouldDispatch) {
+            const wasPrompt = this.#deviceEnumerationWillPrompt;
+            await this.fetchDeviceEnumerationWillPrompt(true);
+
+            if (wasPrompt && !this.#deviceEnumerationWillPrompt) {
                 this.dispatchDeviceChangeEvent();
             }
 
-            if (this.hasDeviceChangeListener() && remaining-- > 0) {
+            const stillShimListeners = this.#deviceChangeListeners.size > 0 || typeof this.#onDeviceChangeShim === 'function';
+            if (stillShimListeners && this.#deviceEnumerationWillPrompt && remaining-- > 0) {
                 this.#deviceChangePollingTimer = setTimeout(tick, 1000);
             } else {
                 this.#deviceChangePollingTimer = undefined;
@@ -1350,61 +1348,85 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * Intercepts MediaDevices devicechange subscriptions so they do not reach the
-     * native implementation (which can trigger OS permission prompts on Windows),
-     * while still delivering events after the user grants OS access.
+     * @param {EventListenerOrEventListenerObject} listener
+     * @param {boolean | AddEventListenerOptions | undefined} options
+     */
+    addShimmedDeviceChangeListener(listener, options) {
+        /** @type {EventListenerOrEventListenerObject} */
+        let tracked = listener;
+        if (options === true || (typeof options === 'object' && options?.once)) {
+            tracked = (event) => {
+                this.#deviceChangeListeners.delete(tracked);
+                if (this.#deviceChangeListeners.size === 0 && !this.#onDeviceChangeShim) {
+                    this.#deviceChangePollingTimer = undefined;
+                }
+                if (typeof listener === 'function') {
+                    listener.call(navigator.mediaDevices, event);
+                } else if (listener && typeof listener.handleEvent === 'function') {
+                    listener.handleEvent(event);
+                }
+            };
+        }
+
+        this.#deviceChangeListeners.add(tracked);
+        this.pollForDeviceAccessChange();
+    }
+
+    /**
+     * Only intercepts devicechange when native reports willPrompt; otherwise delegates.
      */
     deviceChangeListenerFix() {
         if (!window.MediaDevices) {
             return;
         }
 
+        this.#nativeOnDeviceChangeDescriptor = getOwnPropertyDescriptor(MediaDevices.prototype, 'ondevicechange');
+
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
 
         this.wrapMethod(MediaDevices.prototype, 'addEventListener', function (nativeImpl, type, listener, options) {
-            if (type !== 'devicechange') {
+            if (type !== 'devicechange' || !listener) {
                 return DDGReflect.apply(nativeImpl, this, [type, listener, options]);
             }
 
-            if (!listener) {
-                return;
-            }
-
-            /** @type {EventListenerOrEventListenerObject} */
-            let trackedListener = listener;
-            if (options?.once) {
-                trackedListener = function deviceChangeOnceListener(event) {
-                    feature.#deviceChangeListeners.delete(deviceChangeOnceListener);
-                    feature.updateDeviceChangePolling();
-                    if (navigator.mediaDevices) {
-                        feature.invokeDeviceChangeListener(listener, navigator.mediaDevices, event);
-                    }
-                };
-            }
-
-            feature.#deviceChangeListeners.add(trackedListener);
-            feature.updateDeviceChangePolling();
+            void feature.fetchDeviceEnumerationWillPrompt().then((willPrompt) => {
+                if (!willPrompt) {
+                    DDGReflect.apply(nativeImpl, this, [type, listener, options]);
+                    return;
+                }
+                feature.addShimmedDeviceChangeListener(listener, options);
+            });
         });
 
         this.wrapMethod(MediaDevices.prototype, 'removeEventListener', function (nativeImpl, type, listener, options) {
-            if (type !== 'devicechange') {
+            if (type !== 'devicechange' || !listener) {
                 return DDGReflect.apply(nativeImpl, this, [type, listener, options]);
             }
 
-            if (!listener) {
-                return;
+            if (!feature.#deviceChangeListeners.delete(listener)) {
+                DDGReflect.apply(nativeImpl, this, [type, listener, options]);
             }
-
-            feature.#deviceChangeListeners.delete(listener);
-            feature.updateDeviceChangePolling();
         });
 
         this.wrapProperty(MediaDevices.prototype, 'ondevicechange', {
-            get: () => feature.#onDeviceChange,
+            get: () => {
+                if (feature.#onDeviceChangeShim) {
+                    return feature.#onDeviceChangeShim;
+                }
+                const get = feature.#nativeOnDeviceChangeDescriptor?.get;
+                return get ? get.call(this) : null;
+            },
             set: (handler) => {
-                feature.#onDeviceChange = typeof handler === 'function' ? handler : null;
-                feature.updateDeviceChangePolling();
+                void feature.fetchDeviceEnumerationWillPrompt().then((willPrompt) => {
+                    if (!willPrompt) {
+                        feature.#onDeviceChangeShim = null;
+                        feature.#nativeOnDeviceChangeDescriptor?.set?.call(this, handler);
+                        return;
+                    }
+                    feature.#onDeviceChangeShim = typeof handler === 'function' ? handler : null;
+                    feature.pollForDeviceAccessChange();
+                });
             },
         });
     }
@@ -1435,7 +1457,7 @@ export class WebCompat extends ContentFeature {
                     const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
                     const response = timeoutEnabled ? await this.withTimeout(messagingPromise, timeoutMs) : await messagingPromise;
 
-                    this.#lastDeviceEnumerationWillPrompt = Boolean(response?.willPrompt);
+                    this.cacheDeviceEnumerationWillPrompt(Boolean(response?.willPrompt));
 
                     // Check if native indicates that prompts would be required
                     if (response.willPrompt) {

@@ -44,7 +44,7 @@ test.describe('Device Enumeration Feature', () => {
             expect(results).toBeDefined();
         });
 
-        test('should not forward devicechange addEventListener to native', async ({ page }) => {
+        test('should forward devicechange addEventListener to native when willPrompt is false', async ({ page }) => {
             await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat'],
@@ -56,7 +56,15 @@ test.describe('Device Enumeration Feature', () => {
                 },
             });
 
-            const result = await page.evaluate(() => {
+            const result = await page.evaluate(async () => {
+                globalThis.cssMessaging.impl.request = () =>
+                    Promise.resolve({
+                        videoInput: true,
+                        audioInput: true,
+                        audioOutput: true,
+                        willPrompt: false,
+                    });
+
                 const nativeAdd = MediaDevices.prototype.addEventListener;
                 let nativeDeviceChangeCalls = 0;
                 MediaDevices.prototype.addEventListener = function (type, ...rest) {
@@ -67,6 +75,46 @@ test.describe('Device Enumeration Feature', () => {
                 };
 
                 navigator.mediaDevices.addEventListener('devicechange', () => {});
+                await new Promise((resolve) => setTimeout(resolve, 50));
+
+                return { nativeDeviceChangeCalls };
+            });
+
+            expect(result.nativeDeviceChangeCalls).toBe(1);
+        });
+
+        test('should not forward devicechange addEventListener to native when willPrompt is true', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        enumerateDevices: 'enabled',
+                    },
+                },
+            });
+
+            const result = await page.evaluate(async () => {
+                globalThis.cssMessaging.impl.request = () =>
+                    Promise.resolve({
+                        videoInput: true,
+                        audioInput: true,
+                        audioOutput: true,
+                        willPrompt: true,
+                    });
+
+                const nativeAdd = MediaDevices.prototype.addEventListener;
+                let nativeDeviceChangeCalls = 0;
+                MediaDevices.prototype.addEventListener = function (type, ...rest) {
+                    if (type === 'devicechange') {
+                        nativeDeviceChangeCalls += 1;
+                    }
+                    return nativeAdd.apply(this, [type, ...rest]);
+                };
+
+                navigator.mediaDevices.addEventListener('devicechange', () => {});
+                await new Promise((resolve) => setTimeout(resolve, 50));
 
                 return { nativeDeviceChangeCalls };
             });
@@ -100,11 +148,10 @@ test.describe('Device Enumeration Feature', () => {
                     return Promise.reject(new Error('unexpected request'));
                 };
 
-                await navigator.mediaDevices.enumerateDevices();
-
                 const fired = new Promise((resolve) => {
                     navigator.mediaDevices.addEventListener('devicechange', () => resolve(true), { once: true });
                 });
+                await new Promise((resolve) => setTimeout(resolve, 50));
 
                 willPrompt = false;
 
@@ -140,11 +187,10 @@ test.describe('Device Enumeration Feature', () => {
                     return Promise.reject(new Error('unexpected request'));
                 };
 
-                await navigator.mediaDevices.enumerateDevices();
-
                 const fired = new Promise((resolve) => {
                     navigator.mediaDevices.ondevicechange = () => resolve(true);
                 });
+                await new Promise((resolve) => setTimeout(resolve, 50));
 
                 willPrompt = false;
 
