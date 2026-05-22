@@ -7,7 +7,7 @@ if [[ -z "$payload" ]]; then
     exit 0
 fi
 
-file_path="$(jq -r '.file_path // empty' <<< "$payload" 2>/dev/null || true)"
+file_path="$(jq -r '.file_path // .tool_input.file_path // empty' <<< "$payload" 2>/dev/null || true)"
 
 if [[ -z "$file_path" ]]; then
     exit 0
