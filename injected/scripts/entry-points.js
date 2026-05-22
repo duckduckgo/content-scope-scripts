@@ -51,6 +51,10 @@ const builds = {
         input: 'entry-points/android.js',
         output: ['../build/android/duckAiChatHistory.js'],
     },
+    'android-ai-clear': {
+        input: 'entry-points/android.js',
+        output: ['../build/android/duckAiDataClearing.js'],
+    },
     windows: {
         input: 'entry-points/windows.js',
         output: ['../build/windows/contentScope.js'],
