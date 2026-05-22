@@ -1,7 +1,7 @@
-import { h } from 'preact';
-import { createContext } from 'preact';
-import { Settings } from '../settings';
+import { h, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
+
+/** @import {Settings} from '../settings' */
 
 const SettingsContext = createContext(/** @type {{settings: Settings}} */ ({}));
 
