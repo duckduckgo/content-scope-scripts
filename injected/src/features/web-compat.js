@@ -192,6 +192,9 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
         }
+        if (this.getFeatureSettingEnabled('deviceChangeListeners')) {
+            this.deviceChangeListenerFix();
+        }
         // Used by Android in the non adsjs version
         // This has to be enabled in the config for the injectName='android' now.
         if (this.getFeatureSettingEnabled('viewportWidthLegacy', 'disabled')) {
@@ -1324,7 +1327,7 @@ export class WebCompat extends ContentFeature {
         let remaining = 30;
         const tick = async () => {
             const hadShimListeners = this.#deviceChangeListeners.size > 0 || typeof this.#onDeviceChangeShim === 'function';
-            if (!hadShimListeners || !this.#deviceEnumerationWillPrompt) {
+            if (!hadShimListeners) {
                 this.#deviceChangePollingTimer = undefined;
                 return;
             }
@@ -1337,8 +1340,19 @@ export class WebCompat extends ContentFeature {
             }
 
             const stillShimListeners = this.#deviceChangeListeners.size > 0 || typeof this.#onDeviceChangeShim === 'function';
+            const enumerateSettings = this.getFeatureSetting('enumerateDevices') || {};
+            const listenerSettings = this.getFeatureSetting('deviceChangeListeners') || {};
+            const pollIntervalMs =
+                (typeof enumerateSettings === 'object' && typeof enumerateSettings.deviceChangePollIntervalMs === 'number'
+                    ? enumerateSettings.deviceChangePollIntervalMs
+                    : undefined) ??
+                (typeof listenerSettings === 'object' && typeof listenerSettings.pollIntervalMs === 'number'
+                    ? listenerSettings.pollIntervalMs
+                    : undefined) ??
+                1000;
+
             if (stillShimListeners && this.#deviceEnumerationWillPrompt && remaining-- > 0) {
-                this.#deviceChangePollingTimer = setTimeout(tick, 1000);
+                this.#deviceChangePollingTimer = setTimeout(tick, pollIntervalMs);
             } else {
                 this.#deviceChangePollingTimer = undefined;
             }
@@ -1380,33 +1394,50 @@ export class WebCompat extends ContentFeature {
             return;
         }
 
+        const nativeAddEventListener = EventTarget.prototype.addEventListener;
+        const nativeRemoveEventListener = EventTarget.prototype.removeEventListener;
         this.#nativeOnDeviceChangeDescriptor = getOwnPropertyDescriptor(MediaDevices.prototype, 'ondevicechange');
 
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
 
-        this.wrapMethod(MediaDevices.prototype, 'addEventListener', function (nativeImpl, type, listener, options) {
+        // addEventListener is inherited from EventTarget — shadow-define on MediaDevices.prototype.
+        const addEventListener = function addEventListener(type, listener, options) {
             if (type !== 'devicechange' || !listener) {
-                return DDGReflect.apply(nativeImpl, this, [type, listener, options]);
+                return EventTarget.prototype.addEventListener.call(this, type, listener, options);
             }
 
             void feature.fetchDeviceEnumerationWillPrompt().then((willPrompt) => {
                 if (!willPrompt) {
-                    DDGReflect.apply(nativeImpl, this, [type, listener, options]);
+                    EventTarget.prototype.addEventListener.call(this, type, listener, options);
                     return;
                 }
                 feature.addShimmedDeviceChangeListener(listener, options);
             });
+        };
+
+        this.defineProperty(MediaDevices.prototype, 'addEventListener', {
+            value: wrapToString(addEventListener, nativeAddEventListener),
+            writable: true,
+            configurable: true,
+            enumerable: true,
         });
 
-        this.wrapMethod(MediaDevices.prototype, 'removeEventListener', function (nativeImpl, type, listener, options) {
+        const removeEventListener = function removeEventListener(type, listener, options) {
             if (type !== 'devicechange' || !listener) {
-                return DDGReflect.apply(nativeImpl, this, [type, listener, options]);
+                return EventTarget.prototype.removeEventListener.call(this, type, listener, options);
             }
 
             if (!feature.#deviceChangeListeners.delete(listener)) {
-                DDGReflect.apply(nativeImpl, this, [type, listener, options]);
+                EventTarget.prototype.removeEventListener.call(this, type, listener, options);
             }
+        };
+
+        this.defineProperty(MediaDevices.prototype, 'removeEventListener', {
+            value: wrapToString(removeEventListener, nativeRemoveEventListener),
+            writable: true,
+            configurable: true,
+            enumerable: true,
         });
 
         this.wrapProperty(MediaDevices.prototype, 'ondevicechange', {
@@ -1438,8 +1469,6 @@ export class WebCompat extends ContentFeature {
         if (!window.MediaDevices) {
             return;
         }
-
-        this.deviceChangeListenerFix();
 
         const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
             /**

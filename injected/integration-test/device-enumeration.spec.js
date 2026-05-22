@@ -1,203 +1,188 @@
-import { gotoAndWait, testContextForExtension } from './helpers/harness.js';
-import { test as base, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { ResultsCollector } from './page-objects/results-collector.js';
 
-const test = testContextForExtension(base);
+const DEVICE_ENUMERATION_HTML = '/webcompat/pages/device-enumeration.html';
+const BLANK_HTML = '/blank.html';
+const CONFIG_ENABLED = './integration-test/test-pages/webcompat/config/device-enumeration.json';
+const CONFIG_DISABLED = './integration-test/test-pages/webcompat/config/device-enumeration-disabled.json';
+
+/** @param {boolean} willPrompt */
+const deviceEnumerationResponse = (willPrompt) => ({
+    videoInput: true,
+    audioInput: true,
+    audioOutput: true,
+    willPrompt,
+});
+
+/**
+ * @param {import('@playwright/test').Page} page
+ */
+async function countDeviceChangeRegistration(page) {
+    return page.evaluate(() => {
+        const eventTargetAdd = EventTarget.prototype.addEventListener;
+        let eventTargetDeviceChangeCalls = 0;
+        EventTarget.prototype.addEventListener = function (type, ...rest) {
+            if (type === 'devicechange' && this === navigator.mediaDevices) {
+                eventTargetDeviceChangeCalls += 1;
+            }
+            return eventTargetAdd.apply(this, [type, ...rest]);
+        };
+
+        const before = window.__playwright_01.mocks.outgoing.length;
+        navigator.mediaDevices.addEventListener('devicechange', () => {});
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const deviceEnumerationCalls = window.__playwright_01.mocks.outgoing
+                    .slice(before)
+                    .filter((entry) => entry.payload?.method === 'deviceEnumeration').length;
+                resolve({ eventTargetDeviceChangeCalls, deviceEnumerationCalls });
+            }, 300);
+        });
+    });
+}
 
 test.describe('Device Enumeration Feature', () => {
     test.describe('disabled feature', () => {
-        test('should not intercept enumerateDevices when disabled', async ({ page }) => {
-            await gotoAndWait(page, '/webcompat/pages/device-enumeration.html', {
-                site: { enabledFeatures: [] },
-            });
-
-            // Should use native implementation
-            const results = await page.evaluate(() => {
-                // @ts-expect-error - results is set by renderResults()
-                return window.results;
-            });
-
-            // The test should pass with native behavior
+        test('should not intercept enumerateDevices when disabled', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            await collector
+                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(false) })
+                .load(DEVICE_ENUMERATION_HTML, CONFIG_DISABLED);
+            const results = await collector.results();
             expect(results).toBeDefined();
         });
     });
 
     test.describe('enabled feature', () => {
-        test('should intercept enumerateDevices when enabled', async ({ page }) => {
-            await gotoAndWait(page, '/webcompat/pages/device-enumeration.html', {
-                site: {
-                    enabledFeatures: ['webCompat'],
-                },
-                featureSettings: {
-                    webCompat: {
-                        enumerateDevices: 'enabled',
-                    },
-                },
-            });
-
-            // Should use our implementation
-            const results = await page.evaluate(() => {
-                // @ts-expect-error - results is set by renderResults()
-                return window.results;
-            });
-
-            // The test should pass with our implementation
+        test('should intercept enumerateDevices when enabled', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            await collector
+                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
+                .load(DEVICE_ENUMERATION_HTML, CONFIG_ENABLED);
+            const results = await collector.results();
             expect(results).toBeDefined();
         });
 
-        test('should forward devicechange addEventListener to native when willPrompt is false', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat'],
-                },
-                featureSettings: {
-                    webCompat: {
-                        enumerateDevices: 'enabled',
+        test('should forward devicechange addEventListener to native when willPrompt is false', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            await collector.withMockResponse({ deviceEnumeration: deviceEnumerationResponse(false) }).setup({
+                config: {
+                    version: 1,
+                    unprotectedTemporary: [],
+                    features: {
+                        webCompat: {
+                            state: 'enabled',
+                            exceptions: [],
+                            settings: {
+                                enumerateDevices: 'enabled',
+                                deviceChangeListeners: 'enabled',
+                            },
+                        },
                     },
                 },
             });
+            await page.goto(BLANK_HTML);
 
-            const result = await page.evaluate(async () => {
-                globalThis.cssMessaging.impl.request = () =>
-                    Promise.resolve({
-                        videoInput: true,
-                        audioInput: true,
-                        audioOutput: true,
-                        willPrompt: false,
-                    });
-
-                const nativeAdd = MediaDevices.prototype.addEventListener;
-                let nativeDeviceChangeCalls = 0;
-                MediaDevices.prototype.addEventListener = function (type, ...rest) {
-                    if (type === 'devicechange') {
-                        nativeDeviceChangeCalls += 1;
-                    }
-                    return nativeAdd.apply(this, [type, ...rest]);
-                };
-
-                navigator.mediaDevices.addEventListener('devicechange', () => {});
-                await new Promise((resolve) => setTimeout(resolve, 50));
-
-                return { nativeDeviceChangeCalls };
-            });
-
-            expect(result.nativeDeviceChangeCalls).toBe(1);
+            const result = await countDeviceChangeRegistration(page);
+            expect(result.deviceEnumerationCalls).toBeGreaterThan(0);
+            expect(result.eventTargetDeviceChangeCalls).toBe(1);
         });
 
-        test('should not forward devicechange addEventListener to native when willPrompt is true', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat'],
-                },
-                featureSettings: {
-                    webCompat: {
-                        enumerateDevices: 'enabled',
-                    },
-                },
-            });
+        test('should not forward devicechange addEventListener to native when willPrompt is true', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            await collector
+                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
+                .load(BLANK_HTML, CONFIG_ENABLED);
 
-            const result = await page.evaluate(async () => {
-                globalThis.cssMessaging.impl.request = () =>
-                    Promise.resolve({
-                        videoInput: true,
-                        audioInput: true,
-                        audioOutput: true,
-                        willPrompt: true,
-                    });
-
-                const nativeAdd = MediaDevices.prototype.addEventListener;
-                let nativeDeviceChangeCalls = 0;
-                MediaDevices.prototype.addEventListener = function (type, ...rest) {
-                    if (type === 'devicechange') {
-                        nativeDeviceChangeCalls += 1;
-                    }
-                    return nativeAdd.apply(this, [type, ...rest]);
-                };
-
-                navigator.mediaDevices.addEventListener('devicechange', () => {});
-                await new Promise((resolve) => setTimeout(resolve, 50));
-
-                return { nativeDeviceChangeCalls };
-            });
-
-            expect(result.nativeDeviceChangeCalls).toBe(0);
+            const result = await countDeviceChangeRegistration(page);
+            expect(result.deviceEnumerationCalls).toBeGreaterThan(0);
+            expect(result.eventTargetDeviceChangeCalls).toBe(0);
         });
 
-        test('should fire devicechange (addEventListener) when OS permission is granted', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat'],
-                },
-                featureSettings: {
-                    webCompat: {
-                        enumerateDevices: 'enabled',
+        test('should forward devicechange to native when deviceChangeListeners is disabled', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            await collector
+                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
+                .setup({
+                    config: {
+                        version: 1,
+                        unprotectedTemporary: [],
+                        features: {
+                            webCompat: {
+                                state: 'enabled',
+                                exceptions: [],
+                                settings: {
+                                    enumerateDevices: 'enabled',
+                                    deviceChangeListeners: 'disabled',
+                                },
+                            },
+                        },
                     },
-                },
-            });
+                });
+            await page.goto(BLANK_HTML);
 
-            const result = await page.evaluate(async () => {
-                let willPrompt = true;
-                globalThis.cssMessaging.impl.request = (message) => {
-                    if (message.method === 'deviceEnumeration') {
-                        return Promise.resolve({
-                            videoInput: true,
-                            audioInput: true,
-                            audioOutput: true,
-                            willPrompt,
-                        });
-                    }
-                    return Promise.reject(new Error('unexpected request'));
-                };
+            const result = await countDeviceChangeRegistration(page);
+            expect(result.deviceEnumerationCalls).toBe(0);
+            expect(result.eventTargetDeviceChangeCalls).toBe(1);
+        });
 
-                const fired = new Promise((resolve) => {
+        test('should fire devicechange (addEventListener) when OS permission is granted', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            await collector
+                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
+                .load(BLANK_HTML, CONFIG_ENABLED);
+
+            const fired = await page.evaluate(async () => {
+                const firedPromise = new Promise((resolve) => {
                     navigator.mediaDevices.addEventListener('devicechange', () => resolve(true), { once: true });
                 });
+
                 await new Promise((resolve) => setTimeout(resolve, 50));
 
-                willPrompt = false;
-
-                return { fired: await fired };
-            });
-
-            expect(result.fired).toBe(true);
-        });
-
-        test('should fire devicechange (ondevicechange) when OS permission is granted', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat'],
-                },
-                featureSettings: {
-                    webCompat: {
-                        enumerateDevices: 'enabled',
-                    },
-                },
-            });
-
-            const result = await page.evaluate(async () => {
-                let willPrompt = true;
-                globalThis.cssMessaging.impl.request = (message) => {
-                    if (message.method === 'deviceEnumeration') {
-                        return Promise.resolve({
-                            videoInput: true,
-                            audioInput: true,
-                            audioOutput: true,
-                            willPrompt,
-                        });
-                    }
-                    return Promise.reject(new Error('unexpected request'));
+                window.__playwright_01.mockResponses.deviceEnumeration = {
+                    videoInput: true,
+                    audioInput: true,
+                    audioOutput: true,
+                    willPrompt: false,
                 };
 
-                const fired = new Promise((resolve) => {
-                    navigator.mediaDevices.ondevicechange = () => resolve(true);
-                });
-                await new Promise((resolve) => setTimeout(resolve, 50));
-
-                willPrompt = false;
-
-                return { fired: await fired };
+                return Promise.race([
+                    firedPromise,
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('devicechange timeout')), 3000)),
+                ]);
             });
 
-            expect(result.fired).toBe(true);
+            expect(fired).toBe(true);
+        });
+
+        test('should fire devicechange (ondevicechange) when OS permission is granted', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+            await collector
+                .withMockResponse({ deviceEnumeration: deviceEnumerationResponse(true) })
+                .load(BLANK_HTML, CONFIG_ENABLED);
+
+            const fired = await page.evaluate(async () => {
+                const firedPromise = new Promise((resolve) => {
+                    navigator.mediaDevices.ondevicechange = () => resolve(true);
+                });
+
+                await new Promise((resolve) => setTimeout(resolve, 50));
+
+                window.__playwright_01.mockResponses.deviceEnumeration = {
+                    videoInput: true,
+                    audioInput: true,
+                    audioOutput: true,
+                    willPrompt: false,
+                };
+
+                return Promise.race([
+                    firedPromise,
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('devicechange timeout')), 3000)),
+                ]);
+            });
+
+            expect(fired).toBe(true);
         });
     });
 });

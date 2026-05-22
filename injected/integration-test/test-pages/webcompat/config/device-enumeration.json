@@ -1,0 +1,18 @@
+{
+    "readme": "Config for device enumeration and devicechange listener tests.",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "webCompat": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "enumerateDevices": {
+                    "state": "enabled",
+                    "deviceChangePollIntervalMs": 100
+                },
+                "deviceChangeListeners": "enabled"
+            }
+        }
+    }
+}
