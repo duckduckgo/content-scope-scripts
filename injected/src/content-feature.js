@@ -104,7 +104,7 @@ export default class ContentFeature extends ConfigFeature {
      *
      * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
      *
-     * @type {ExposeMethods<any> | undefined}
+     * @type {ExposeMethods<string> | undefined}
      */
     _exposedMethods;
 
@@ -309,7 +309,7 @@ export default class ContentFeature extends ConfigFeature {
      * If the value is not an object, return the value.
      * If the value is an object, check its type property.
      * @param {string} attrName
-     * @param {any} defaultValue - The default value to use if the config setting is not set
+     * @param {unknown} defaultValue - The default value to use if the config setting is not set
      * @returns The value of the config setting or the default value
      */
     getFeatureAttr(attrName, defaultValue) {
@@ -318,7 +318,7 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * @param {any} [_args]
+     * @param {unknown} [_args]
      */
     init(_args) {}
 
@@ -363,7 +363,7 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * @param {any} [_args]
+     * @param {unknown} [_args]
      */
     load(_args) {}
 
@@ -452,7 +452,7 @@ export default class ContentFeature extends ConfigFeature {
     /**
      * Define a property descriptor with debug flags.
      * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
+     * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
      * @param {string | symbol} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
@@ -491,7 +491,7 @@ export default class ContentFeature extends ConfigFeature {
 
     /**
      * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
+     * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
      * @param {string} propertyName
      * @param {Partial<PropertyDescriptor>} descriptor
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
@@ -502,7 +502,7 @@ export default class ContentFeature extends ConfigFeature {
 
     /**
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
+     * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
      * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
