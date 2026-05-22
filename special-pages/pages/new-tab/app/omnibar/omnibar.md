@@ -35,6 +35,7 @@ title: Omnibar Widget
   - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
+  - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -45,7 +46,8 @@ title: Omnibar Widget
    "enableAiChatTools": false,
    "enableImageGeneration": false,
    "enableWebSearch": false,
-   "enableVoiceChatAccess": false
+   "enableVoiceChatAccess": false,
+   "enableAskAiSuggestion": true
 }
 ```
 
