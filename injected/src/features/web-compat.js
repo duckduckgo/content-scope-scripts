@@ -1257,6 +1257,16 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * Fallback device list when the deviceEnumeration messaging request times out.
+     * Mimics pre-permission enumerateDevices (unlabeled input devices) without calling native.
+     * @param {'syntheticPrototype' | 'instanceOwn'} shimMode
+     * @returns {MediaDeviceInfo[]}
+     */
+    createEnumerateDevicesTimeoutFallback(shimMode) {
+        return [this.createMediaDeviceInfo('audioinput', shimMode), this.createMediaDeviceInfo('videoinput', shimMode)];
+    }
+
+    /**
      * Helper to wrap a promise with timeout
      * @param {Promise} promise - Promise to wrap
      * @param {number} timeoutMs - Timeout in milliseconds
@@ -1318,9 +1328,9 @@ export class WebCompat extends ContentFeature {
                         return DDGReflect.apply(target, thisArg, args);
                     }
                 } catch (err) {
-                    // On timeout, reject rather than calling the native API (which can trigger permission prompts)
+                    // Messaging timed out — return a shimmed response instead of calling native enumerateDevices
                     if (err instanceof Error && err.message === 'Request timeout') {
-                        return Promise.reject(err);
+                        return Promise.resolve(this.createEnumerateDevicesTimeoutFallback(shimMode));
                     }
                     // If the native request fails for other reasons, fall back to the original implementation
                     return DDGReflect.apply(target, thisArg, args);

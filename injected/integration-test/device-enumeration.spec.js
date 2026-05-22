@@ -255,7 +255,7 @@ test.describe('Device Enumeration Feature', () => {
             expect(result.audioCapabilitiesAfterDelete).toEqual({});
         });
 
-        test('should reject instead of calling native enumerateDevices when messaging times out', async ({ page }) => {
+        test('should return synthetic devices instead of calling native enumerateDevices when messaging times out', async ({ page }) => {
             await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat'],
@@ -275,20 +275,22 @@ test.describe('Device Enumeration Feature', () => {
             });
 
             const result = await page.evaluate(async () => {
-                try {
-                    await navigator.mediaDevices.enumerateDevices();
-                    return { rejected: false };
-                } catch (error) {
-                    return {
-                        rejected: true,
-                        errorMessage: error instanceof Error ? error.message : String(error),
-                    };
-                }
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                return {
+                    count: devices.length,
+                    kinds: devices.map((device) => device.kind).sort(),
+                    labels: devices.map((device) => device.label),
+                    inputDevicesAreInputDeviceInfo: devices
+                        .filter((device) => device.kind === 'audioinput' || device.kind === 'videoinput')
+                        .every((device) => device instanceof InputDeviceInfo),
+                };
             });
 
             expect(result).toEqual({
-                rejected: true,
-                errorMessage: 'Request timeout',
+                count: 2,
+                kinds: ['audioinput', 'videoinput'],
+                labels: ['', ''],
+                inputDevicesAreInputDeviceInfo: true,
             });
         });
 
