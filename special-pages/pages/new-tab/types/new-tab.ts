@@ -110,6 +110,10 @@ export type EnableWebSearch = boolean;
  * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.
  */
 export type EnableVoiceChatAccess = boolean;
+/**
+ * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
+ */
+export type EnableAskDuckAiSuggestion = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -156,11 +160,13 @@ export type RMFIcon =
   | "DDGAnnounce"
   | "DuckAi"
   | "PIR"
+  | "Preview"
   | "Radar"
   | "RadarCheckGreen"
   | "RadarCheckPurple"
   | "Subscription"
-  | "VeryCriticalUpdate";
+  | "VeryCriticalUpdate"
+  | "YoutubeNew";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -629,6 +635,7 @@ export interface OmnibarConfig {
   enableImageGeneration?: EnableImageGeneration;
   enableWebSearch?: EnableWebSearch;
   enableVoiceChatAccess?: EnableVoiceChatAccess;
+  enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
 }
 /**
  * A section of AI models with an optional header and a list of model items.
