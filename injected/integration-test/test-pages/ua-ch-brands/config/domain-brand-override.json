@@ -1,0 +1,27 @@
+{
+  "readme": "This config tests domain-specific brand overrides using conditionalChanges with condition block",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "uaChBrands": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "conditionalChanges": [
+          {
+            "condition": {
+              "domain": "localhost"
+            },
+            "patchSettings": [
+              {
+                "op": "add",
+                "path": "/brandName",
+                "value": "Netscape Navigator"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

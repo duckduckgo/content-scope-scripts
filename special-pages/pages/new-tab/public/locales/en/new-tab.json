@@ -9,6 +9,10 @@
       }
     ]
   },
+  "newBadge": {
+    "title": "New",
+    "note": "Badge text indicating a new feature."
+  },
   "ntp_show_less": {
     "title": "Show Less",
     "note": "Button that reduces the number of items or content displayed."
@@ -28,6 +32,18 @@
   "widgets_visibility_menu_title": {
     "title": "Customize New Tab Page",
     "note": "Heading text describing that there's a list of toggles for customizing the page layout."
+  },
+  "ntp_popover_close_button": {
+    "title": "Close",
+    "note": "Button that closes the current popover."
+  },
+  "customizer_themeVariantPopoverTitle": {
+    "title": "Pick a color theme that suits you",
+    "note": "Title for the popover that introduces the theme variant customization feature."
+  },
+  "customizer_themeVariantPopoverDescription": {
+    "title": "You can now choose a color for the look that you want. Give it a try!",
+    "note": "Description message in the theme variant popover."
   },
   "updateNotification_updated_version": {
     "title": "Browser Updated to version {version}.",
@@ -74,10 +90,18 @@
     "note": "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedSingular": {
+    "title": "Tracking attempt blocked",
+    "note": "The sub headline indicating that a single tracker was blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedSingularLegacy": {
     "title": "1 tracking attempt blocked",
     "note": "The main headline indicating that a single tracker was blocked"
   },
   "stats_countBlockedPlural": {
+    "title": "Tracking attempts blocked",
+    "note": "The sub headline indicating that more than 1 tracker has been blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedPluralLegacy": {
     "title": "{count} tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
@@ -89,13 +113,25 @@
     "title": "Protections active",
     "note": "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
   },
-  "stats_countBlockedAdsAndTrackersSingular": {
+  "stats_countBlockedAdsAndTrackersSingularLegacy": {
     "title": "<b>1</b> advertising & tracking attempt blocked",
     "note": "The main headline indicating that a single ad or tracking attempt was blocked"
   },
-  "stats_countBlockedAdsAndTrackersPlural": {
+  "stats_countBlockedAdsAndTrackersPluralLegacy": {
     "title": "<b>{count}</b> advertising & tracking attempts blocked",
     "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
+  },
+  "stats_totalCookiePopUpsBlockedSingular": {
+    "title": "Cookie pop-up blocked",
+    "note": "The heading indicating that a single cookie pop-up was handled by the CPM"
+  },
+  "stats_totalCookiePopUpsBlockedPlural": {
+    "title": "Cookie pop-ups blocked",
+    "note": "The heading indicating multiple cookie pop-ups were handled by the CPM"
+  },
+  "stats_protectionsReportInfo": {
+    "title": "Displays tracking attempts blocked in the last 7 days, and the number of cookie pop-ups blocked since you started using the browser.",
+    "note": "Text explaining how to reset the protections stats"
   },
   "stats_feedCountBlockedSingular": {
     "title": "1 attempt blocked by DuckDuckGo in the last 7 days",
@@ -130,12 +166,16 @@
     "description": "Title of the omnibar widget in the customizer panel."
   },
   "omnibar_aiChatFormPlaceholder": {
-    "title": "Ask privately",
+    "title": "Ask anything privately",
     "description": "Placeholder text for the AI chat input field."
   },
   "omnibar_aiChatFormSubmitButtonLabel": {
     "title": "Send",
     "description": "Accesible label for the AI chat submit button."
+  },
+  "omnibar_aiChatFormVoiceButtonLabel": {
+    "title": "Start voice chat",
+    "description": "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
   },
   "omnibar_logoAlt": {
     "title": "DuckDuckGo",
@@ -176,6 +216,242 @@
   "omnibar_visitSuffix": {
     "title": "Visit {url}",
     "description": "Text placed after suggestions that will open a webpage."
+  },
+  "omnibar_askDuckAiSuffix": {
+    "title": "Ask Duck.ai",
+    "description": "Text placed after aiChat suggestions that will submit a chat query."
+  },
+  "omnibar_switchToTab": {
+    "title": "Switch to Tab",
+    "description": "Badge text shown next to open tab suggestions."
+  },
+  "omnibar_customizePopoverTitle": {
+    "title": "Toggle between search and AI chat",
+    "description": "Title for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverDescription": {
+    "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
+    "description": "Description message in the popover including privacy statement and customize option."
+  },
+  "omnibar_attachImageLabel": {
+    "title": "Attach image",
+    "description": "Accessible label for the attach image button in the AI chat toolbar."
+  },
+  "omnibar_removeImageLabel": {
+    "title": "Remove image",
+    "description": "Accessible label for the button to remove an attached image thumbnail."
+  },
+  "omnibar_modelSelectorLabel": {
+    "title": "Select model",
+    "description": "Accessible label for the AI model selector dropdown."
+  },
+  "omnibar_imageAttachmentLimitWarning": {
+    "title": "You can only attach {limit} images at a time.",
+    "description": "Warning shown when user attaches more images than the allowed maximum."
+  },
+  "omnibar_imageTooLargeError": {
+    "title": "Image is too large. Please use an image smaller than 10000×10000 pixels.",
+    "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+  },
+  "omnibar_imageProcessingError": {
+    "title": "Failed to process image. Please try a different file.",
+    "description": "Error shown when an attached image cannot be processed."
+  },
+  "omnibar_advancedModelsSectionHeader": {
+    "title": "Advanced Models - DuckDuckGo subscription",
+    "description": "Section header in the model picker for premium models that require a subscription."
+  },
+  "omnibar_viewAllChats": {
+    "title": "View all chats",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Open Duck.ai",
+    "description": "Link text to open the Duck.ai chat interface."
+  },
+  "omnibar_createImageLabel": {
+    "title": "Create Image",
+    "description": "Label for the toggle button to enable image generation mode in the AI chat toolbar."
+  },
+  "omnibar_imageGenerationPlaceholder": {
+    "title": "Describe the image you want to create",
+    "description": "Placeholder text for the AI chat input when image generation mode is active."
+  },
+  "omnibar_toolsMenuLabel": {
+    "title": "Tools",
+    "description": "Accessible label for the tools menu button in the AI chat toolbar."
+  },
+  "omnibar_createImageDescription": {
+    "title": "Turn text into images",
+    "description": "Description for the Create Image tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchLabel": {
+    "title": "Web Search",
+    "description": "Label for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchDescription": {
+    "title": "Source answers from the web",
+    "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_imageGenerationWithAttachmentPlaceholder": {
+    "title": "Describe changes based on the image",
+    "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
+  },
+  "omnibar_reasoningPickerLabel": {
+    "title": "Reasoning",
+    "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
+  },
+  "omnibar_reasoningEffortFastLabel": {
+    "title": "Fast",
+    "description": "Label for the 'fast' reasoning-effort option (answers right away, no deliberate reasoning)."
+  },
+  "omnibar_reasoningEffortFastDescription": {
+    "title": "Answers right away",
+    "description": "Subtitle for the 'fast' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortReasoningLabel": {
+    "title": "Reasoning",
+    "description": "Label for the 'reasoning' reasoning-effort option (model spends a moment reasoning)."
+  },
+  "omnibar_reasoningEffortReasoningDescription": {
+    "title": "Takes a moment to respond",
+    "description": "Subtitle for the 'reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortExtendedReasoningLabel": {
+    "title": "Extended Reasoning",
+    "description": "Label for the 'extended reasoning' reasoning-effort option (model researches before responding)."
+  },
+  "omnibar_reasoningEffortExtendedReasoningDescription": {
+    "title": "Researches before responding",
+    "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "nextStepsList_sectionTitle": {
+    "title": "Next Steps",
+    "note": "Text that goes in the Next Steps bubble label above the card"
+  },
+  "nextStepsList_maybeLater": {
+    "title": "No Thanks",
+    "note": "Secondary button text for dismissing a Next Steps List item"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_title": {
+    "title": "Pin to Taskbar",
+    "note": "Title of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_summary": {
+    "title": "Access DuckDuckGo more easily by pinning it your taskbar.",
+    "note": "Summary of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_actionText": {
+    "title": "Pin to Taskbar",
+    "note": "Button text of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_addAppToDockMac_title": {
+    "title": "Add to Dock",
+    "note": "Title of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_addAppToDockMac_summary": {
+    "title": "Access DuckDuckGo more easily by adding it to your Dock.",
+    "note": "Summary of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_addAppToDockMac_actionText": {
+    "title": "Add to Dock",
+    "note": "Button text of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_personalizeBrowser_title": {
+    "title": "Personalize Your Browser",
+    "note": "Title of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_personalizeBrowser_summary": {
+    "title": "Browse your way by changing background color, updating your theme, and more.",
+    "note": "Summary of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_personalizeBrowser_actionText": {
+    "title": "Personalize Now",
+    "note": "Button text of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_duckplayer_title": {
+    "title": "YouTube with Fewer Ads",
+    "note": "Title of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_duckplayer_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_duckplayer_actionText": {
+    "title": "Try Duck Player",
+    "note": "Button text of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_youtubeAdBlocking_title": {
+    "title": "Watch YouTube Without Ads",
+    "note": "Title of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_actionText": {
+    "title": "Open YouTube",
+    "note": "Button text of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_emailProtection_title": {
+    "title": "Protect Your Email Address and Block Trackers",
+    "note": "Title of the Next Steps List card for email protection"
+  },
+  "nextStepsList_emailProtection_summary": {
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
+    "note": "Summary of the Next Steps List card for email protection"
+  },
+  "nextStepsList_emailProtection_actionText": {
+    "title": "Get Email Protection",
+    "note": "Button text of the Next Steps List card for email protection"
+  },
+  "nextStepsList_bringStuff_title": {
+    "title": "Import Your Bookmarks and Passwords to DuckDuckGo",
+    "note": "Title of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_bringStuff_summary": {
+    "title": "Securely bring over your bookmarks, passwords, and credit card details.",
+    "note": "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_bringStuff_actionText": {
+    "title": "Import Now",
+    "note": "Button text of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_defaultApp_title": {
+    "title": "Open Links in DuckDuckGo",
+    "note": "Title of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_defaultApp_summary": {
+    "title": "Set DuckDuckGo as your default browser and search privately every time.",
+    "note": "Summary of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_defaultApp_actionText": {
+    "title": "Open Links in DuckDuckGo",
+    "note": "Button text of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_subscription_title": {
+    "title": "Get a Secure VPN + Private, Advanced AI",
+    "note": "Title of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_subscription_summary": {
+    "title": "Subscribe to DuckDuckGo and protect more of what you do online.",
+    "note": "Summary of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_subscription_actionText": {
+    "title": "Try for Free",
+    "note": "Button text of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_sync_title": {
+    "title": "Sync and Back Up Your Bookmarks and Passwords",
+    "note": "Title of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_summary": {
+    "title": "Securely sync your bookmarks, passwords, and identity data on mobile and desktop.",
+    "note": "Summary of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_actionText": {
+    "title": "Sync Now",
+    "note": "Button text of the Next Steps List card for syncing data across devices"
   },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",
@@ -218,11 +494,11 @@
     "note": "Button text of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_emailProtection_title": {
-    "title": "Protect Your Inbox",
+    "title": "Protect Your Email Address and Block Trackers",
     "note": "Title of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_summary": {
-    "title": "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
     "note": "Summary of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_actionText": {
@@ -238,8 +514,20 @@
     "note": "Summary of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_actionText": {
-    "title": "Try DuckPlayer",
+    "title": "Try Duck Player",
     "note": "Button text of the Next Steps card for adopting DuckPlayer"
+  },
+  "nextSteps_youtubeAdBlocking_title": {
+    "title": "Watch YouTube Without Ads",
+    "note": "Title of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_actionText": {
+    "title": "Open YouTube",
+    "note": "Button text of the Next Steps card for YouTube ad blocking"
   },
   "nextSteps_addAppDockMac_title": {
     "title": "Add App to the Dock",
@@ -272,6 +560,18 @@
   "nextSteps_pinAppToTaskbarWindows_confirmationText": {
     "title": "Pinned to Taskbar!",
     "note": "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_subscription_title": {
+    "title": "Unlock Premium Features",
+    "note": "Title of the Next Steps card for unlocking your free trial of DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_summary": {
+    "title": "Get a free trial of our subscription featuring VPN + more advanced features.",
+    "note": "Summary of the Next Steps card about the DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_actionText": {
+    "title": "Try for Free",
+    "note": "Button text of the Next Steps card for trying the DuckDuckGo subscription"
   },
   "favorites_show_less": {
     "title": "Show less",
@@ -357,6 +657,46 @@
     "title": "Delete image {number}",
     "note": "Label text on a button that deletes an image. {number} will be replaced with a numeric reference of 1-8, eg: 'Delete image 1'"
   },
+  "customizer_section_title_theme_variant": {
+    "title": "Theme",
+    "note": "Section title for theme selection including theme variants"
+  },
+  "customizer_theme_variant_grid_label": {
+    "title": "Theme variant",
+    "note": "Accessibility label for the grid of theme variant options (Default, Cool Grey, Slate, etc.)"
+  },
+  "customizer_theme_variant_default": {
+    "title": "Default",
+    "note": "Label for the default theme variant"
+  },
+  "customizer_theme_variant_coolGray": {
+    "title": "Cool Grey",
+    "note": "Label for the cool grey theme variant"
+  },
+  "customizer_theme_variant_slateBlue": {
+    "title": "Slate",
+    "note": "Label for the slate blue theme variant"
+  },
+  "customizer_theme_variant_green": {
+    "title": "Green",
+    "note": "Label for the green theme variant"
+  },
+  "customizer_theme_variant_violet": {
+    "title": "Violet",
+    "note": "Label for the violet theme variant"
+  },
+  "customizer_theme_variant_rose": {
+    "title": "Rose",
+    "note": "Label for the rose theme variant"
+  },
+  "customizer_theme_variant_orange": {
+    "title": "Orange",
+    "note": "Label for the orange theme variant"
+  },
+  "customizer_theme_variant_desert": {
+    "title": "Desert",
+    "note": "Label for the desert theme variant"
+  },
   "activity_noRecent_title": {
     "title": "No recent browsing activity",
     "note": "Placeholder to indicate that no browsing activity was seen in the last 7 days"
@@ -374,8 +714,20 @@
     "note": "Placeholder message indicating that no trackers are blocked"
   },
   "activity_countBlockedPlural": {
+    "title": "{count} Tracking attempts blocked",
+    "note": "New pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'. Uppercase T is by design"
+  },
+  "activity_countBlockedPluralLegacy": {
     "title": "<b>{count}</b> tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_countBlockedSingular": {
+    "title": "{count} Tracking attempt blocked",
+    "note": "Pill text indicating that 1 attempt has been blocked. Eg: '1 Tracking attempt blocked'"
+  },
+  "activity_cookiePopUpBlocked": {
+    "title": "Cookie pop-up blocked",
+    "note": "Pill text indicating that we have blocked cookie pop-ups"
   },
   "activity_noRecentAdsAndTrackers_subtitle": {
     "title": "Recently visited sites will appear here. Keep browsing to see how many ads and trackers we block.",

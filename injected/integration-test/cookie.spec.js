@@ -10,13 +10,13 @@ test.describe('Cookie protection tests', () => {
             document.cookie = 'test=1; expires=Wed, 21 Aug 2040 20:00:00 UTC;';
             // wait for a tick, as cookie modification happens in a promise
             await new Promise((resolve) => setTimeout(resolve, 1));
-            // @ts-expect-error - cookieStore API types are missing here
             // eslint-disable-next-line no-undef
             return cookieStore.get('test');
         });
-        expect(result.name).toEqual('test');
-        expect(result.value).toEqual('1');
-        expect(result.expires).toBeLessThan(Date.now() + 605_000_000);
+        expect(result?.name).toEqual('test');
+        expect(result?.value).toEqual('1');
+        // @ts-expect-error - expires exists at runtime but not in CookieListItem type
+        expect(result?.expires).toBeLessThan(Date.now() + 605_000_000);
     });
 
     test('non-string cookie values do not bypass protection', async ({ page }) => {
@@ -32,13 +32,13 @@ test.describe('Cookie protection tests', () => {
             };
             // wait for a tick, as cookie modification happens in a promise
             await new Promise((resolve) => setTimeout(resolve, 1));
-            // @ts-expect-error - cookieStore API types are missing here
             // eslint-disable-next-line no-undef
             return cookieStore.get('a');
         });
-        expect(result.name).toEqual('a');
-        expect(result.value).toEqual('b');
-        expect(result.expires).toBeLessThan(Date.now() + 605_000_000);
+        expect(result?.name).toEqual('a');
+        expect(result?.value).toEqual('b');
+        // @ts-expect-error - expires exists at runtime but not in CookieListItem type
+        expect(result?.expires).toBeLessThan(Date.now() + 605_000_000);
     });
 
     test('Erroneous values do not throw', async ({ page }) => {
@@ -54,12 +54,12 @@ test.describe('Cookie protection tests', () => {
 
             // wait for a tick, as cookie modification happens in a promise
             await new Promise((resolve) => setTimeout(resolve, 1));
-            // @ts-expect-error - cookieStore API types are missing here
             // eslint-disable-next-line no-undef
             return cookieStore.get('a');
         });
-        expect(result.name).toEqual('a');
-        expect(result.value).toEqual('b');
-        expect(result.expires).toBeLessThan(Date.now() + 605_000_000);
+        expect(result?.name).toEqual('a');
+        expect(result?.value).toEqual('b');
+        // @ts-expect-error - expires exists at runtime but not in CookieListItem type
+        expect(result?.expires).toBeLessThan(Date.now() + 605_000_000);
     });
 });

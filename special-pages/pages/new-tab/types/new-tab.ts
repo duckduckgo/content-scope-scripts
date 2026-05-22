@@ -48,6 +48,10 @@ export type PredefinedGradient =
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
 /**
+ * Valid theme variant values for browser UI customization
+ */
+export type ThemeVariant = "default" | "coolGray" | "slateBlue" | "green" | "violet" | "rose" | "orange" | "desert";
+/**
  * Represents the expansion state of a widget
  */
 export type Expansion = "expanded" | "collapsed";
@@ -65,6 +69,51 @@ export type Suggestion =
 export type OmnibarMode = "search" | "ai";
 export type EnableDuckAi = boolean;
 export type ShowDuckAiSetting = boolean;
+/**
+ * Controls a popover that onboards users and points them towards how to disable the feature via the customizer
+ */
+export type ShowCustomizePopover = boolean;
+export type EnableRecentAIChats = boolean;
+/**
+ * Feature flag to enable AI chat tools (model selector, image attachments)
+ */
+export type EnableAIChatTools = boolean;
+/**
+ * The user's currently selected AI model, persisted across tabs
+ */
+export type SelectedModelID = string;
+/**
+ * Stable server key for a reasoning-effort option on a reasoning-capable model.
+ */
+export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high";
+/**
+ * Identifier for an AI chat tool.
+ */
+export type ToolId = "WebSearch";
+/**
+ * Sections of AI models for the model selector.
+ */
+export type AIModelSections = AIModelSection[];
+/**
+ * When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list
+ */
+export type ShowViewAllAIChats = boolean;
+/**
+ * Show 'Create Image' toggle in the AI chat toolbar.
+ */
+export type EnableImageGeneration = boolean;
+/**
+ * Allow AI chat submissions to include web search tool.
+ */
+export type EnableWebSearch = boolean;
+/**
+ * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.
+ */
+export type EnableVoiceChatAccess = boolean;
+/**
+ * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
+ */
+export type EnableAskDuckAiSuggestion = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -82,6 +131,10 @@ export type Favicon = null | {
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
+/**
+ * Controls a popover that onboards users to the theme variant feature
+ */
+export type ShowThemeVariantPopover = boolean;
 export type NextStepsCardTypes =
   | "bringStuff"
   | "defaultApp"
@@ -89,12 +142,31 @@ export type NextStepsCardTypes =
   | "emailProtection"
   | "duckplayer"
   | "addAppToDockMac"
-  | "pinAppToTaskbarWindows";
+  | "pinAppToTaskbarWindows"
+  | "subscription"
+  | "youtubeAdBlocking";
 export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];
+/**
+ * Canonical AI chat model identifiers Duck.ai treats specially.
+ */
+export type CustomModel = "voice-mode" | "image-generation";
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
-export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
+export type RMFIcon =
+  | "Announce"
+  | "AppUpdate"
+  | "CriticalUpdate"
+  | "DDGAnnounce"
+  | "DuckAi"
+  | "PIR"
+  | "Preview"
+  | "Radar"
+  | "RadarCheckGreen"
+  | "RadarCheckPurple"
+  | "Subscription"
+  | "VeryCriticalUpdate"
+  | "YoutubeNew";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -108,6 +180,7 @@ export interface NewTabMessages {
     | ContextMenuNotification
     | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
+    | CustomizerDismissThemeVariantPopoverNotification
     | CustomizerSetBackgroundNotification
     | CustomizerSetThemeNotification
     | CustomizerUploadNotification
@@ -121,10 +194,12 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarOpenAiChatNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
+    | OmnibarViewAllAIChatsNotification
     | OpenNotification
     | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
@@ -136,7 +211,9 @@ export interface NewTabMessages {
     | StatsShowMoreNotification
     | TelemetryEventNotification
     | UpdateNotificationDismissNotification
-    | WidgetsSetConfigNotification;
+    | WidgetsSetConfigNotification
+    | WinBackOfferActionNotification
+    | WinBackOfferDismissNotification;
   requests:
     | ActivityConfirmBurnRequest
     | ActivityGetDataRequest
@@ -148,12 +225,14 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
     | OmnibarGetSuggestionsRequest
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
-    | StatsGetDataRequest;
+    | StatsGetDataRequest
+    | WinBackOfferGetDataRequest;
   subscriptions:
     | ActivityOnBurnCompleteSubscription
     | ActivityOnDataPatchSubscription
@@ -162,6 +241,7 @@ export interface NewTabMessages {
     | CustomizerOnBackgroundUpdateSubscription
     | CustomizerOnColorUpdateSubscription
     | CustomizerOnImagesUpdateSubscription
+    | CustomizerOnShowThemeVariantPopoverUpdateSubscription
     | CustomizerOnThemeUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
@@ -172,10 +252,13 @@ export interface NewTabMessages {
     | OmnibarOnConfigUpdateSubscription
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
+    | ProtectionsScrollSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnDataUpdateSubscription
+    | TabsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
-    | WidgetsOnConfigUpdatedSubscription;
+    | WidgetsOnConfigUpdatedSubscription
+    | WinBackOfferOnDataUpdateSubscription;
 }
 /**
  * Generated from @see "../messages/activity_addFavorite.notify.json"
@@ -238,6 +321,10 @@ export interface ContextMenuNotification {
   params: ContextMenuNotify;
 }
 export interface ContextMenuNotify {
+  /**
+   * @deprecated
+   * DEPRECATED: This property is deprecated and will be removed in a future version. Native apps should populate the context menu themselves instead of relying on frontend to tell it what widgets exist in the New Tab Page.
+   */
   visibilityMenuItems: VisibilityMenuItem[];
 }
 export interface VisibilityMenuItem {
@@ -267,6 +354,12 @@ export interface CustomizerDeleteImageNotification {
 }
 export interface CustomizerDeleteImageNotify {
   id: string;
+}
+/**
+ * Generated from @see "../messages/customizer_dismissThemeVariantPopover.notify.json"
+ */
+export interface CustomizerDismissThemeVariantPopoverNotification {
+  method: "customizer_dismissThemeVariantPopover";
 }
 /**
  * Generated from @see "../messages/customizer_setBackground.notify.json"
@@ -312,6 +405,7 @@ export interface CustomizerSetThemeNotification {
 }
 export interface CustomizerSetThemeNotify {
   theme: BrowserTheme;
+  themeVariant?: ThemeVariant;
 }
 /**
  * Generated from @see "../messages/customizer_upload.notify.json"
@@ -455,6 +549,28 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_openAiChat.notify.json"
+ */
+export interface OmnibarOpenAiChatNotification {
+  method: "omnibar_openAiChat";
+  params: OpenAIChatAction;
+}
+export interface OpenAIChatAction {
+  /**
+   * The ID of the chat to open
+   */
+  chatId: string;
+  target: OpenTarget;
+  /**
+   * Whether the chat was opened via mouse click or keyboard
+   */
+  trigger: "mouse" | "keyboard";
+  /**
+   * Whether the chat is pinned
+   */
+  isPinned: boolean;
+}
+/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -509,6 +625,63 @@ export interface OmnibarConfig {
   mode: OmnibarMode;
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
+  showCustomizePopover?: ShowCustomizePopover;
+  enableRecentAiChats?: EnableRecentAIChats;
+  enableAiChatTools?: EnableAIChatTools;
+  selectedModelId?: SelectedModelID;
+  selectedReasoningEffort?: ReasoningEffort;
+  aiModelSections?: AIModelSections;
+  showViewAllAiChats?: ShowViewAllAIChats;
+  enableImageGeneration?: EnableImageGeneration;
+  enableWebSearch?: EnableWebSearch;
+  enableVoiceChatAccess?: EnableVoiceChatAccess;
+  enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
+}
+/**
+ * A section of AI models with an optional header and a list of model items.
+ */
+export interface AIModelSection {
+  /**
+   * Optional section header text (e.g. 'Advanced Models - DuckDuckGo subscription')
+   */
+  header?: string;
+  /**
+   * List of AI models in this section
+   */
+  items: AIModelItem[];
+}
+/**
+ * An individual AI model available for selection.
+ */
+export interface AIModelItem {
+  /**
+   * Model identifier
+   */
+  id: string;
+  /**
+   * Full display name
+   */
+  name: string;
+  /**
+   * Short display name for the model selector button
+   */
+  shortName: string;
+  /**
+   * Whether the model is enabled and selectable
+   */
+  isEnabled: boolean;
+  /**
+   * Whether this model supports image attachments
+   */
+  supportsImageUpload: boolean;
+  /**
+   * Tools this model supports.
+   */
+  supportedTools?: ToolId[];
+  /**
+   * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
+   */
+  supportedReasoningEffort?: ReasoningEffort[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -523,6 +696,32 @@ export interface SubmitChatAction {
    */
   chat: string;
   target: OpenTarget;
+  /**
+   * The selected AI model identifier. Optional - if not provided, the backend will use the default model.
+   */
+  modelId?: string;
+  reasoningEffort?: ReasoningEffort;
+  /**
+   * Duck.ai mode. If omitted, defaults to 'chat'. Use 'voice-mode' for 1-click voice-chat handoff (no chat content needed — Duck.ai routes to the voice flow on mode alone).
+   */
+  mode?: "chat" | "image-generation" | "voice-mode";
+  /**
+   * Tools to enable for this chat session.
+   */
+  toolChoice?: ToolId[];
+  /**
+   * Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.
+   */
+  images?: {
+    /**
+     * Base64-encoded image data (without data URL prefix)
+     */
+    data: string;
+    /**
+     * Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.
+     */
+    format: "jpeg" | "png";
+  }[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitSearch.notify.json"
@@ -536,6 +735,16 @@ export interface SubmitSearchAction {
    * The search term to submit
    */
   term: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/omnibar_viewAllAIChats.notify.json"
+ */
+export interface OmnibarViewAllAIChatsNotification {
+  method: "omnibar_viewAllAIChats";
+  params: ViewAllAIChatsAction;
+}
+export interface ViewAllAIChatsAction {
   target: OpenTarget;
 }
 /**
@@ -562,6 +771,10 @@ export interface ProtectionsConfig {
    * Boolean flag to explicitly enable or disable the burn animations
    */
   showBurnAnimation?: boolean;
+  /**
+   * Display or hide the 'New' badge (label) on the protections report
+   */
+  showProtectionsReportNewLabel?: boolean;
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
@@ -633,7 +846,7 @@ export interface TelemetryEventNotification {
   params: NTPTelemetryEvent;
 }
 export interface NTPTelemetryEvent {
-  attributes: StatsShowMore | ExampleTelemetryEvent;
+  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -641,6 +854,16 @@ export interface StatsShowMore {
 }
 export interface ExampleTelemetryEvent {
   name: "ntp_example";
+}
+export interface CustomizerDrawerState {
+  name: "customizer_drawer";
+  value: {
+    state: "opened" | "closed";
+    /**
+     * True if the theme variant popover was visible when the drawer was opened
+     */
+    themeVariantPopoverWasOpen?: boolean;
+  };
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"
@@ -661,6 +884,26 @@ export interface WidgetConfigItem {
    */
   id: string;
   visibility: WidgetVisibility;
+}
+/**
+ * Generated from @see "../messages/winBackOffer_action.notify.json"
+ */
+export interface WinBackOfferActionNotification {
+  method: "winBackOffer_action";
+  params: SubscriptionWinBackBannerAction;
+}
+export interface SubscriptionWinBackBannerAction {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/winBackOffer_dismiss.notify.json"
+ */
+export interface WinBackOfferDismissNotification {
+  method: "winBackOffer_dismiss";
+  params: SubscriptionWinBackBannerDismissAction;
+}
+export interface SubscriptionWinBackBannerDismissAction {
+  id: string;
 }
 /**
  * Generated from @see "../messages/activity_confirmBurn.request.json"
@@ -710,6 +953,10 @@ export interface DomainActivity {
   trackersFound: boolean;
   history: HistoryEntry[];
   favorite: boolean;
+  /**
+   * A cookie pop-up has been blocked for the specific domain
+   */
+  cookiePopUpBlocked?: null | boolean;
 }
 export interface TrackingStatus {
   trackerCompanies: {
@@ -821,6 +1068,7 @@ export interface InitialSetupResponse {
   };
   customizer?: CustomizerData;
   updateNotification: null | UpdateNotificationData;
+  tabs?: null | Tabs;
 }
 export interface WidgetListItem {
   /**
@@ -843,9 +1091,14 @@ export interface NewTabPageSettings {
 export interface CustomizerData {
   background: BackgroundVariant;
   theme: BrowserTheme;
+  themeVariant?: ThemeVariant;
   userImages: UserImage[];
   userColor: null | HexValueBackground;
+  /**
+   * @deprecated
+   */
   defaultStyles?: null | DefaultStyles;
+  showThemeVariantPopover?: ShowThemeVariantPopover;
 }
 export interface DefaultStyles {
   /**
@@ -864,6 +1117,10 @@ export interface UpdateNotification {
   version: string;
   notes: string[];
 }
+export interface Tabs {
+  tabId: string;
+  tabIds: string[];
+}
 /**
  * Generated from @see "../messages/nextSteps_getConfig.request.json"
  */
@@ -880,6 +1137,48 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_getAiChats.request.json"
+ */
+export interface OmnibarGetAiChatsRequest {
+  method: "omnibar_getAiChats";
+  params: GetAIChatsRequest;
+  result: AiChatsData;
+}
+export interface GetAIChatsRequest {
+  /**
+   * Search query to filter chats.
+   */
+  query: string;
+}
+export interface AiChatsData {
+  /**
+   * List of AI chats
+   */
+  chats: AiChat[];
+}
+export interface AiChat {
+  /**
+   * Unique identifier for the chat
+   */
+  chatId: string;
+  /**
+   * Display title of the chat
+   */
+  title: string;
+  /**
+   * Whether the chat is pinned
+   */
+  pinned?: boolean;
+  /**
+   * ISO timestamp of last edit
+   */
+  lastEdit?: string;
+  /**
+   * The AI model the chat was conducted with.
+   */
+  model?: CustomModel | string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"
@@ -928,6 +1227,10 @@ export interface ProtectionsData {
    * Total number of trackers or ads blocked since install
    */
   totalCount: number;
+  /**
+   * Total number of cookie pop-ups blocked since install
+   */
+  totalCookiePopUpsBlocked?: null | number;
 }
 /**
  * Generated from @see "../messages/rmf_getData.request.json"
@@ -985,6 +1288,23 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/winBackOffer_getData.request.json"
+ */
+export interface WinBackOfferGetDataRequest {
+  method: "winBackOffer_getData";
+  result: SubscriptionWinBackBannerData;
+}
+export interface SubscriptionWinBackBannerData {
+  content: null | SubscriptionWinBackBannerMessage;
+}
+export interface SubscriptionWinBackBannerMessage {
+  messageType: "big_single_action";
+  id: "winback_last_day";
+  titleText: string | null;
+  descriptionText: string;
+  actionText: string;
 }
 /**
  * Generated from @see "../messages/activity_onBurnComplete.subscribe.json"
@@ -1046,6 +1366,19 @@ export interface UserImageData {
   userImages: UserImage[];
 }
 /**
+ * Generated from @see "../messages/customizer_onShowThemeVariantPopoverUpdate.subscribe.json"
+ */
+export interface CustomizerOnShowThemeVariantPopoverUpdateSubscription {
+  subscriptionEvent: "customizer_onShowThemeVariantPopoverUpdate";
+  params: ShowThemeVariantPopoverData;
+}
+export interface ShowThemeVariantPopoverData {
+  /**
+   * Controls a popover that onboards users to the theme variant feature
+   */
+  showThemeVariantPopover: boolean;
+}
+/**
  * Generated from @see "../messages/customizer_onThemeUpdate.subscribe.json"
  */
 export interface CustomizerOnThemeUpdateSubscription {
@@ -1054,6 +1387,10 @@ export interface CustomizerOnThemeUpdateSubscription {
 }
 export interface ThemeData {
   theme: BrowserTheme;
+  themeVariant?: ThemeVariant;
+  /**
+   * @deprecated
+   */
   defaultStyles?: null | DefaultStyles;
 }
 /**
@@ -1125,6 +1462,12 @@ export interface ProtectionsOnDataUpdateSubscription {
   params: ProtectionsData;
 }
 /**
+ * Generated from @see "../messages/protections_scroll.subscribe.json"
+ */
+export interface ProtectionsScrollSubscription {
+  subscriptionEvent: "protections_scroll";
+}
+/**
  * Generated from @see "../messages/rmf_onDataUpdate.subscribe.json"
  */
 export interface RmfOnDataUpdateSubscription {
@@ -1139,6 +1482,13 @@ export interface StatsOnDataUpdateSubscription {
   params: PrivacyStatsData;
 }
 /**
+ * Generated from @see "../messages/tabs_onDataUpdate.subscribe.json"
+ */
+export interface TabsOnDataUpdateSubscription {
+  subscriptionEvent: "tabs_onDataUpdate";
+  params: Tabs;
+}
+/**
  * Generated from @see "../messages/updateNotification_onDataUpdate.subscribe.json"
  */
 export interface UpdateNotificationOnDataUpdateSubscription {
@@ -1151,6 +1501,13 @@ export interface UpdateNotificationOnDataUpdateSubscription {
 export interface WidgetsOnConfigUpdatedSubscription {
   subscriptionEvent: "widgets_onConfigUpdated";
   params: WidgetConfigs;
+}
+/**
+ * Generated from @see "../messages/winBackOffer_onDataUpdate.subscribe.json"
+ */
+export interface WinBackOfferOnDataUpdateSubscription {
+  subscriptionEvent: "winBackOffer_onDataUpdate";
+  params: SubscriptionWinBackBannerData;
 }
 
 declare module "../src/index.js" {

@@ -6,6 +6,11 @@
     "alwaysStrict": true,
     "allowJs": true,
     "checkJs": true,
+    "strict": false,
+    "ignoreDeprecations": "6.0",
+    "types": [
+      "*"
+    ],
     "noEmit": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
@@ -31,14 +36,13 @@
     "injected",
     "injected/src/globals.d.ts",
     "typedoc.js",
-    ".github/scripts"
+    ".github/scripts",
+    "scripts"
   ],
   "exclude": [
     "injected/integration-test/test-pages",
     "injected/playwright-report",
     "injected/integration-test/extension",
-    "injected/src/features/scriptlets.js",
-    "injected/src/features/Scriptlets/**/*",
     "special-pages/pages/**/public",
     "special-pages/playwright-report",
     "special-pages/test-results",

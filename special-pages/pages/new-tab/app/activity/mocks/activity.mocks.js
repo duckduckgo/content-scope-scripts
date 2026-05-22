@@ -27,9 +27,9 @@ export const activityMocks = {
         activity: [
             {
                 favicon: { src: 'selco-icon.png' },
-                url: 'https://deploy-preview-1468--content-scope-scripts.netlify.app',
-                title: 'deploy-preview-1468--content-scope-scripts.netlify.app',
-                etldPlusOne: 'deploy-preview-1468--content-scope-scripts.netlify.app',
+                url: 'https://really-long-subdomain-for-testing-long-titles.example.com',
+                title: 'really-long-subdomain-for-testing-long-titles.example.com',
+                etldPlusOne: 'really-long-subdomain-for-testing-long-titles.example.com',
                 favorite: false,
                 trackersFound: false,
                 trackingStatus: {
@@ -77,6 +77,7 @@ export const activityMocks = {
                     totalCount: 56,
                 },
                 history: [],
+                cookiePopUpBlocked: true,
             },
         ],
     },
@@ -115,6 +116,7 @@ export const activityMocks = {
                         relativeTime: '1 day ago',
                     },
                 ],
+                cookiePopUpBlocked: true,
             },
             {
                 favicon: { src: 'youtube-icon.png' },
@@ -139,6 +141,7 @@ export const activityMocks = {
                         relativeTime: '3 days ago',
                     },
                 ],
+                cookiePopUpBlocked: false,
             },
             {
                 favicon: { src: 'amazon-icon.png' },
@@ -158,6 +161,7 @@ export const activityMocks = {
                         relativeTime: '1 day ago',
                     },
                 ],
+                cookiePopUpBlocked: true,
             },
             {
                 favicon: { src: 'twitter-icon.png' },
@@ -177,6 +181,7 @@ export const activityMocks = {
                         relativeTime: '2 days ago',
                     },
                 ],
+                cookiePopUpBlocked: true,
             },
             {
                 favicon: { src: 'linkedin-icon.png' },
@@ -196,6 +201,7 @@ export const activityMocks = {
                         relativeTime: '2 hrs ago',
                     },
                 ],
+                cookiePopUpBlocked: false,
             },
         ],
     },

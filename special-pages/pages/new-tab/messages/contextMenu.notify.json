@@ -5,6 +5,8 @@
   "properties": {
     "visibilityMenuItems": {
       "type": "array",
+      "deprecated": true,
+      "description": "DEPRECATED: This property is deprecated and will be removed in a future version. Native apps should populate the context menu themselves instead of relying on frontend to tell it what widgets exist in the New Tab Page.",
       "items": {
         "type": "object",
         "title": "Visibility Menu Item",

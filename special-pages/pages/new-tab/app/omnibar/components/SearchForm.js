@@ -1,5 +1,5 @@
 import { Fragment, h } from 'preact';
-import { useEffect, useMemo } from 'preact/hooks';
+import { useEffect } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useTypedTranslationWith } from '../../types';
@@ -21,13 +21,14 @@ import { CloseSmallIcon } from '../../components/Icons.js';
  * @param {boolean} [props.autoFocus]
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmit
+ * @param {(params: {chat: string, target: OpenTarget}) => void} props.onSubmitChat
  */
-export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
+export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
     const {
-        term,
+        term: _term,
         setTerm,
         suggestionsListId,
         suggestions,
@@ -38,6 +39,9 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
         clearSelectedSuggestion,
         hideSuggestions,
     } = useSearchFormContext();
+
+    // When switching from Duck.ai to Search, there may be newlines in the term. Remove these.
+    const term = _term.replace(/\n/g, ' ');
 
     let inputBase, inputCompletion;
     if (selectedSuggestion) {
@@ -57,14 +61,13 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
     const inputRef = useCompletionInput(inputBase, inputCompletion);
     const inputSuffix = getInputSuffix(term, selectedSuggestion);
     const inputSuffixText = useSuffixText(inputSuffix);
-    const inputFont = platformName === 'windows' ? '400 13px / 16px system-ui' : '500 13px / 16px system-ui';
-    const inputSuffixWidth = useMemo(() => measureText(inputSuffixText, inputFont), [inputSuffixText, inputFont]);
+    const inputFont = platformName === 'windows' ? '400 14px / 16px system-ui' : '500 13px / 16px system-ui';
 
     useEffect(() => {
         if (autoFocus && inputRef.current) {
             inputRef.current.focus();
         }
-    }, [autoFocus]);
+    }, [autoFocus, inputRef]);
 
     const acceptSuggestion = () => {
         if (selectedSuggestion) {
@@ -97,7 +100,11 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
             case 'Enter':
                 event.preventDefault();
                 if (selectedSuggestion) {
-                    onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                    if (selectedSuggestion.kind === 'aiChat') {
+                        onSubmitChat({ chat: selectedSuggestion.chat, target: eventToTarget(event, platformName) });
+                    } else {
+                        onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                    }
                 } else {
                     onSubmit({ term, target: eventToTarget(event, platformName) });
                 }
@@ -108,7 +115,7 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
     return (
         <form
             class={styles.form}
-            style={{ '--input-font': inputFont, '--suffix-text-width': `${inputSuffixWidth}px` }}
+            style={{ '--input-font': inputFont }}
             onSubmit={(event) => {
                 event.preventDefault();
                 onSubmit({
@@ -128,7 +135,6 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                 aria-haspopup="listbox"
                 aria-controls={suggestionsListId}
                 aria-activedescendant={selectedSuggestion?.id}
-                spellcheck={false}
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
@@ -153,8 +159,7 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
             {inputSuffix && (
                 <>
                     <span class={styles.suffixSpacer} inert>
-                        {/* Strip newlines to match <input> behaviour which doesn't render them */}
-                        {(inputBase + inputCompletion).replace(/\n/g, '') || t('omnibar_searchFormPlaceholder')}
+                        {inputBase + inputCompletion || t('omnibar_searchFormPlaceholder')}
                     </span>
                     <span class={styles.suffix} inert>
                         {inputSuffixText}
@@ -168,11 +173,9 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                     tabIndex={0} // Needed so that WebKit sets event.relatedTarget when firing blur event
                     onClick={(event) => {
                         event.preventDefault();
-                        if (suggestions.length > 0) {
-                            hideSuggestions();
-                        } else {
-                            setTerm('');
-                        }
+                        hideSuggestions();
+                        setTerm('');
+                        inputRef.current?.focus();
                     }}
                 >
                     <CloseSmallIcon />
@@ -180,18 +183,4 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
             )}
         </form>
     );
-}
-
-/**
- * @param {string} text
- * @param {string} font
- * @returns {number}
- */
-function measureText(text, font) {
-    if (!text) return 0;
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) throw new Error('Failed to get canvas context');
-    context.font = font;
-    return context.measureText(text).width;
 }

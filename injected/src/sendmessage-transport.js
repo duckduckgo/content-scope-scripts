@@ -7,11 +7,29 @@ import { TestTransportConfig } from '../../messaging/index.js';
  */
 
 /**
+ * Singleton transport shared across all features. Without this, each feature would
+ * have its own transport/queue and wouldn't receive messages meant for other features.
+ * @type {SendMessageMessagingTransport | null}
+ */
+let sharedTransport = null;
+
+/**
  * @deprecated - A temporary constructor for the extension to make the messaging config
  */
 export function extensionConstructMessagingConfig() {
-    const messagingTransport = new SendMessageMessagingTransport();
-    return new TestTransportConfig(messagingTransport);
+    return new TestTransportConfig(getSharedMessagingTransport());
+}
+
+/**
+ * Used by entry-points to route incoming extension messages to onResponse().
+ * Ensures a singleton transport exists.
+ * @returns {SendMessageMessagingTransport}
+ */
+export function getSharedMessagingTransport() {
+    if (!sharedTransport) {
+        sharedTransport = new SendMessageMessagingTransport();
+    }
+    return sharedTransport;
 }
 
 /**
@@ -44,7 +62,7 @@ export class SendMessageMessagingTransport {
     /**
      * Callback for update() handler. This connects messages sent from the Platform
      * with callback functions in the _queue.
-     * @param {any} response
+     * @param {unknown} response
      */
     onResponse(response) {
         this._queue.forEach((subscription) => subscription(response));
@@ -75,6 +93,7 @@ export class SendMessageMessagingTransport {
      * @return {Promise<any>}
      */
     request(req) {
+        /** @type {(eventData: any) => boolean} */
         let comparator = (eventData) => {
             return eventData.responseMessageType === req.method;
         };
@@ -110,12 +129,14 @@ export class SendMessageMessagingTransport {
      * @param {(value: unknown | undefined) => void} callback
      */
     subscribe(msg, callback) {
+        /** @type {(eventData: any) => boolean} */
         const comparator = (eventData) => {
             return eventData.messageType === msg.subscriptionName || eventData.responseMessageType === msg.subscriptionName;
         };
 
         // only forward the 'params' ('response' in current format), to match expected
         // callback from a SubscriptionEvent
+        /** @type {(eventData: any) => void} */
         const cb = (eventData) => {
             return callback(eventData.response);
         };

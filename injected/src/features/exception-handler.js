@@ -4,7 +4,7 @@ import ContentFeature from '../content-feature.js';
 export default class ExceptionHandler extends ContentFeature {
     init() {
         // Report to the debugger panel if an uncaught exception occurs
-        const handleUncaughtException = (e) => {
+        const handleUncaughtException = (/** @type {ErrorEvent} */ e) => {
             postDebugMessage(
                 'jsException',
                 {

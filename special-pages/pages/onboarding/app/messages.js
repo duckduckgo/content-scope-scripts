@@ -2,6 +2,7 @@
  * @typedef {Object} StepCompleteParams
  * Sent when a user has transitioned from a step to the next one
  * @property {import('./types').Step['id']} id - a unique identifier for each step
+ * @property {import('./types').Step['id'] | null} next - the step about to display, or null if this is the last step. In practice, always present because stepCompleted is not sent on the last step.
  *
  * @typedef {Object} InitResponse
  * @property {Record<string, any>} stepDefinitions
@@ -40,7 +41,7 @@ export class OnboardingMessages {
      *       "rows": ["dock", "import", "default-browser"]
      *     }
      *   },
-     *   "order": "v2",
+     *   "order": "v3",
      *   "exclude": ["dockSingle"],
      *   "locale": "en"
      * }
@@ -129,6 +130,15 @@ export class OnboardingMessages {
     }
 
     /**
+     * Sent to allow native to fire a pixel for UI interactions.
+     *
+     * @param {import('../types/onboarding.ts').TelemetryEvent} event
+     */
+    telemetryEvent(event) {
+        this.messaging.notify('telemetryEvent', event);
+    }
+
+    /**
      * Sent when onboarding is complete and the user has chosen to go to settings
      */
     dismissToSettings() {
@@ -160,11 +170,29 @@ export class OnboardingMessages {
     }
 
     /**
+     * Subscribe to config updates pushed by native (e.g. customize step rows).
+     * @param {(data: {stepDefinitions?: Record<string, any>, exclude?: string[]}) => void} params
+     * @returns {() => void}
+     */
+    onConfigUpdate(params) {
+        return this.messaging.subscribe('onConfigUpdate', params);
+    }
+
+    /**
      * Sent when the user wants to enable or disable ad blocking.
      *
      * @param {import('./types').BooleanSystemValue} params
      */
     setAdBlocking(params) {
         this.messaging.notify('setAdBlocking', params);
+    }
+
+    /**
+     * Sent when the user selects their Address Bar Mode preference -- Search only or Search & Duck.ai
+     *
+     * @param {import('./types').BooleanSystemValue} params
+     */
+    setDuckAiInAddressBar(params) {
+        this.messaging.notify('setDuckAiInAddressBar', params);
     }
 }

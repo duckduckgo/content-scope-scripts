@@ -4,6 +4,8 @@ updates:
       directory: '/'
       schedule:
           interval: 'weekly'
+      cooldown:
+          default-days: 2
       target-branch: 'main'
       open-pull-requests-limit: 20
       labels:

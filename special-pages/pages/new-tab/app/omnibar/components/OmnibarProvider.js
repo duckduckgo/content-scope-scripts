@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { reducer, useInitialDataAndConfig, useConfigSubscription } from '../../service.hooks.js';
 import { OmnibarService } from '../omnibar.service.js';
@@ -9,6 +9,9 @@ import { OmnibarService } from '../omnibar.service.js';
  * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ * @typedef {import('../../../types/new-tab.js').AiChatsData} AiChatsData
+ * @typedef {import('../../../types/new-tab.js').OpenAIChatAction} OpenAIChatAction
+ * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State
  */
 
@@ -24,6 +27,10 @@ export const OmnibarContext = createContext({
     },
     /** @type {(enableAi: NonNullable<OmnibarConfig['enableAi']>) => void} */
     setEnableAi: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(showCustomizePopover: NonNullable<OmnibarConfig['showCustomizePopover']>) => void} */
+    setShowCustomizePopover: () => {
         throw new Error('must implement');
     },
     /** @type {(term: string) => Promise<SuggestionsData>} */
@@ -42,8 +49,32 @@ export const OmnibarContext = createContext({
     submitSearch: () => {
         throw new Error('must implement');
     },
-    /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+    /** @type {(id: string) => void} */
+    setSelectedModelId: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(effort: import('../../../types/new-tab.js').ReasoningEffort) => void} */
+    setSelectedReasoningEffort: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(params: SubmitChatAction) => void} */
     submitChat: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(query: string) => void} */
+    getAiChats: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(cb: (data: AiChatsData) => void) => (() => void)} */
+    onAiChats: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(params: OpenAIChatAction) => void} */
+    openAiChat: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(params: {target: OpenTarget}) => void} */
+    viewAllAiChats: () => {
         throw new Error('must implement');
     },
 });
@@ -90,6 +121,30 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(showCustomizePopover: NonNullable<OmnibarConfig['showCustomizePopover']>) => void} */
+    const setShowCustomizePopover = useCallback(
+        (showCustomizePopover) => {
+            service.current?.setShowCustomizePopover(showCustomizePopover);
+        },
+        [service],
+    );
+
+    /** @type {(id: string) => void} */
+    const setSelectedModelId = useCallback(
+        (id) => {
+            service.current?.setSelectedModelId(id);
+        },
+        [service],
+    );
+
+    /** @type {(effort: import('../../../types/new-tab.js').ReasoningEffort) => void} */
+    const setSelectedReasoningEffort = useCallback(
+        (effort) => {
+            service.current?.setSelectedReasoningEffort(effort);
+        },
+        [service],
+    );
+
     /** @type {(term: string) => Promise<SuggestionsData>} */
     const getSuggestions = useCallback(
         (term) => {
@@ -124,10 +179,44 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+    /** @type {(params: SubmitChatAction) => void} */
     const submitChat = useCallback(
         (params) => {
             service.current?.submitChat(params);
+        },
+        [service],
+    );
+
+    /** @type {(query: string) => void} */
+    const getAiChats = useCallback(
+        (query) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current?.getAiChats(query);
+        },
+        [service],
+    );
+
+    /** @type {(cb: (data: AiChatsData) => void) => (() => void)} */
+    const onAiChats = useCallback(
+        (cb) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.onAiChats(cb);
+        },
+        [service],
+    );
+
+    /** @type {(params: OpenAIChatAction) => void} */
+    const openAiChat = useCallback(
+        (params) => {
+            service.current?.openAiChat(params);
+        },
+        [service],
+    );
+
+    /** @type {(params: {target: OpenTarget}) => void} */
+    const viewAllAiChats = useCallback(
+        (params) => {
+            service.current?.viewAllAiChats(params);
         },
         [service],
     );
@@ -138,11 +227,18 @@ export function OmnibarProvider(props) {
                 state,
                 setMode,
                 setEnableAi,
+                setShowCustomizePopover,
+                setSelectedModelId,
+                setSelectedReasoningEffort,
                 getSuggestions,
                 onSuggestions,
                 openSuggestion,
                 submitSearch,
                 submitChat,
+                getAiChats,
+                onAiChats,
+                openAiChat,
+                viewAllAiChats,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>
@@ -153,7 +249,7 @@ export function OmnibarProvider(props) {
 /**
  * @return {import("preact").RefObject<OmnibarService>}
  */
-export function useService() {
+function useService() {
     const service = useRef(/** @type {OmnibarService|null} */ (null));
     const ntp = useMessaging();
     useEffect(() => {
@@ -164,4 +260,8 @@ export function useService() {
         };
     }, [ntp]);
     return service;
+}
+
+export function useOmnibarService() {
+    return useContext(OmnibarServiceContext);
 }

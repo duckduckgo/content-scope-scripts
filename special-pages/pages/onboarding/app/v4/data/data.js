@@ -1,0 +1,270 @@
+import { h } from 'preact';
+import { MakeDefaultContent } from '../components/MakeDefaultContent';
+import { SettingsContent } from '../components/SettingsContent';
+import { StepHeader } from '../components/StepHeader';
+import { DuckPlayerContent } from '../components/DuckPlayerContent';
+import { AddressBarContent } from '../components/AddressBarContent';
+import { WelcomeContent } from '../components/WelcomeContent';
+import { GetStartedContent } from '../components/GetStartedContent';
+import { GetStartedAnimation } from '../components/GetStartedAnimation';
+import { SystemSettingsBackground, SystemSettingsForeground } from '../components/SystemSettingsAnimation';
+import { FadeTransition } from '../components/FadeTransition';
+import { DockInstructionsContent } from '../components/DockInstructionsContent';
+
+/**
+ * This sets up individual steps in the v4 (bubbles) version of onboarding
+ *
+ * See `./data-types.js` for documentation on parameters {StepConfigParams}
+ * and return values {StepConfig}
+ */
+
+/** @type {Record<import('./data-types').StepsV4, (params: import('./data-types').StepConfigParams) => import('./data-types').StepConfig>} */
+export const stepsConfig = {
+    welcome: ({ advance }) => {
+        return {
+            content: <WelcomeContent onComplete={advance} />,
+        };
+    },
+    getStarted: ({ enqueueNext, onTitleComplete, isShortViewport }) => {
+        return {
+            bottomBubble: {
+                content: <GetStartedContent advance={enqueueNext} onTitleComplete={onTitleComplete} />,
+                tail: isShortViewport ? undefined : 'bottom-left',
+            },
+            illustration: isShortViewport
+                ? undefined
+                : {
+                      foreground: <GetStartedAnimation />,
+                  },
+            bubbleWidth: 'narrow',
+        };
+    },
+    makeDefaultSingle: ({ enqueueNext, onTitleComplete, updateSystemValue }) => {
+        return {
+            bottomBubble: {
+                content: (
+                    <MakeDefaultContent advance={enqueueNext} onTitleComplete={onTitleComplete} updateSystemValue={updateSystemValue} />
+                ),
+            },
+            showProgress: true,
+        };
+    },
+    systemSettings: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
+        const { overlay, activeStep, activeRow } = globalState;
+
+        return {
+            topBubble: {
+                content: (
+                    <StepHeader
+                        title={t('systemSettings_title_v3')}
+                        subtitle={t('systemSettings_subtitle_v3')}
+                        onTitleComplete={onTitleComplete}
+                    />
+                ),
+                tail: 'right',
+            },
+            bottomBubble: {
+                content: (
+                    <FadeTransition transitionKey={overlay ?? 'none'}>
+                        {overlay === 'dock-instructions' ? (
+                            <DockInstructionsContent updateSystemValue={updateSystemValue} />
+                        ) : (
+                            <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} />
+                        )}
+                    </FadeTransition>
+                ),
+            },
+            illustration: overlay
+                ? undefined
+                : {
+                      background: <SystemSettingsBackground />,
+                      foreground: <SystemSettingsForeground />,
+                  },
+            showProgress: true,
+            bounceKey: `${activeStep}-${activeRow}-${overlay ?? 'none'}`,
+        };
+    },
+    duckPlayerSingle: ({ t, globalState, enqueueNext, onTitleComplete }) => {
+        const duckPlayerStep = /** @type {import('../../types').DuckPlayerSingleStep} */ (globalState.stepDefinitions.duckPlayerSingle);
+        const isAdFree = duckPlayerStep.variant === 'ad-free';
+
+        return {
+            topBubble: {
+                content: (
+                    <StepHeader
+                        title={isAdFree ? t('duckPlayer_adFree_title') : t('duckPlayer_v4_title', { newline: '\n' })}
+                        subtitle={
+                            isAdFree ? t('duckPlayer_adFree_subtitle', { newline: ' ' }) : t('duckPlayer_v4_subtitle', { newline: '\n' })
+                        }
+                        onTitleComplete={onTitleComplete}
+                    />
+                ),
+            },
+            bottomBubble: { content: <DuckPlayerContent isAdFree={isAdFree} advance={enqueueNext} /> },
+            showProgress: true,
+        };
+    },
+    customize: ({ t, globalState, enqueueNext, dismiss, onTitleComplete, updateSystemValue }) => {
+        const { activeStep, activeRow } = globalState;
+
+        return {
+            topBubble: {
+                content: (
+                    <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} onTitleComplete={onTitleComplete} />
+                ),
+            },
+            bottomBubble: { content: <SettingsContent advance={enqueueNext} dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
+            showProgress: true,
+            bounceKey: `${activeStep}-${activeRow}`,
+        };
+    },
+    addressBarMode: ({ t, dismiss, onTitleComplete, updateSystemValue }) => {
+        return {
+            topBubble: {
+                content: <StepHeader title={t('addressBarMode_title')} onTitleComplete={onTitleComplete} />,
+            },
+            bottomBubble: { content: <AddressBarContent dismiss={dismiss} updateSystemValue={updateSystemValue} /> },
+            showProgress: true,
+        };
+    },
+};
+
+/**
+ * @typedef {object} RowData
+ * @property {'one-time' | 'toggle'} kind
+ * @property {import('../../types').SystemValueId} id
+ * @property {typeof import('../../shared/components/ListItem').availableIcons[number]} icon
+ * @property {string} title
+ * @property {string} [secondaryText]
+ * @property {string} acceptText
+ * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined, acceptText is shown.
+ */
+
+/** @type {Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['platform']) => RowData>} */
+export const settingsRowItems = {
+    'default-browser': (t) => ({
+        id: 'default-browser',
+        icon: 'v3/Browser-Default-Color-24.svg',
+        title: t('row_default-browser_title_v3'),
+        kind: 'one-time',
+        acceptText: t('row_default-browser_accept'),
+    }),
+    import: (t) => ({
+        id: 'import',
+        icon: 'v4/import.svg',
+        title: t('row_import_title_v3'),
+        secondaryText: t('row_import_summary_v3'),
+        kind: 'one-time',
+        acceptText: t('row_import_accept_v3'),
+        acceptTextRecall: t('row_import_accept'),
+    }),
+    dock: (t, platform) => {
+        const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3');
+        const acceptText = platform === 'macos' ? t('row_dock_macos_accept') : t('row_dock_accept');
+        const secondaryText = platform === 'macos' ? t('row_dock_summary_v3') : t('row_taskbar_summary_v3');
+
+        return {
+            id: 'dock',
+            icon: 'v4/dock.svg',
+            title,
+            secondaryText,
+            kind: 'one-time',
+            acceptText,
+        };
+    },
+    bookmarks: (t) => ({
+        id: 'bookmarks',
+        icon: 'v4/bookmark.svg',
+        title: t('row_bookmarks_title_v3'),
+        kind: 'toggle',
+        acceptText: t('row_bookmarks_accept'),
+    }),
+    'session-restore': (t) => ({
+        id: 'session-restore',
+        icon: 'v4/session-restore.svg',
+        title: t('row_session-restore_title_v3'),
+        kind: 'toggle',
+        acceptText: t('row_session-restore_accept'),
+    }),
+    'home-shortcut': (t) => ({
+        id: 'home-shortcut',
+        icon: 'v4/home.svg',
+        title: t('row_home-shortcut_title_v3'),
+        kind: 'toggle',
+        acceptText: t('row_home-shortcut_accept'),
+    }),
+    'placebo-ad-blocking': (t) => ({
+        id: 'placebo-ad-blocking',
+        icon: 'v3/Ads-Blocked-Color-24.svg',
+        title: t('row_placebo-ad-blocking_title_v3'),
+        secondaryText: t('row_ad-blocking_desc_v3'),
+        kind: 'one-time',
+        acceptText: t('row_ad-blocking_accept_v3'),
+    }),
+    'aggressive-ad-blocking': (t) => ({
+        id: 'aggressive-ad-blocking',
+        icon: 'v3/Ads-Blocked-Color-24.svg',
+        title: t('row_aggressive-ad-blocking_title_v3'),
+        secondaryText: t('row_ad-blocking_desc_v3'),
+        kind: 'one-time',
+        acceptText: t('row_ad-blocking_accept_v3'),
+    }),
+    'youtube-ad-blocking': (t) => ({
+        id: 'youtube-ad-blocking',
+        icon: 'v3/Ads-Blocked-Color-24.svg',
+        title: t('row_youtube-ad-blocking_title_v3'),
+        secondaryText: t('row_youtube-ad-blocking_desc_v3'),
+        kind: 'one-time',
+        acceptText: t('row_youtube-ad-blocking_accept_v3'),
+    }),
+    'address-bar-mode': (t) => ({
+        id: 'address-bar-mode',
+        icon: 'v3/Ai-Chat-Color-24.svg',
+        title: t('addressBarMode_title'),
+        kind: 'toggle',
+        acceptText: t('startBrowsing'),
+    }),
+    'dock-instructions': (t) => ({
+        id: 'dock-instructions',
+        icon: 'v4/dock.svg',
+        title: t('row_dock_title_v3'),
+        secondaryText: t('row_dock_summary_v3'),
+        kind: 'one-time',
+        acceptText: t('row_dock-instructions_accept'),
+    }),
+};
+
+/** @type {import('../../types').StepDefinitions} */
+export const stepDefinitions = {
+    welcome: {
+        id: 'welcome',
+        kind: 'info',
+    },
+    getStarted: {
+        id: 'getStarted',
+        kind: 'info',
+    },
+    makeDefaultSingle: {
+        id: 'makeDefaultSingle',
+        kind: 'settings',
+        rows: ['default-browser'],
+    },
+    systemSettings: {
+        id: 'systemSettings',
+        kind: 'settings',
+        rows: ['dock', 'import'],
+    },
+    duckPlayerSingle: {
+        id: 'duckPlayerSingle',
+        kind: 'info',
+    },
+    customize: {
+        id: 'customize',
+        kind: 'settings',
+        rows: ['bookmarks', 'session-restore', 'home-shortcut'],
+    },
+    addressBarMode: {
+        id: 'addressBarMode',
+        kind: 'info',
+    },
+};

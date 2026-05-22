@@ -1,8 +1,10 @@
-import { h } from 'preact';
-import { useEffect } from 'preact/hooks';
+import { Fragment, h } from 'preact';
+import { useContext, useEffect } from 'preact/hooks';
 import styles from './Customizer.module.css';
-import { CustomizeIcon } from '../../components/Icons.js';
+import { CustomizeIcon, NewTabOptionsIcon } from '../../components/Icons.js';
 import { useMessaging, useTypedTranslation } from '../../types.js';
+import { CustomizerContext } from '../CustomizerProvider.js';
+import { Popover } from '../../components/Popover.js';
 
 /**
  * @import { WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
@@ -11,6 +13,7 @@ import { useMessaging, useTypedTranslation } from '../../types.js';
 /**
  * @typedef {object} VisibilityRowData
  * @property {string} id - a unique id
+ * @property {boolean} enabled - whether this row can be interacted with
  * @property {string} title - the title as it should appear in the menu
  * @property {import('preact').ComponentChild} icon - icon to display in the menu
  * @property {(id: string) => void} toggle - toggle function for this item
@@ -42,12 +45,16 @@ export function useContextMenu() {
     const messaging = useMessaging();
     useEffect(() => {
         function handler(e) {
+            // Allow native context menu on text inputs and textareas (e.g. for copy/paste)
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+                return;
+            }
             e.preventDefault();
             e.stopImmediatePropagation();
             const items = getItems();
             /** @type {VisibilityMenuItem[]} */
             const simplified = items
-                .filter((x) => x.id !== 'debug')
+                .filter((x) => !x.id.startsWith('_'))
                 .map((item) => {
                     return {
                         id: item.id,
@@ -74,20 +81,36 @@ export function useContextMenu() {
  */
 export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef, kind }) {
     const { t } = useTypedTranslation();
+    const { data, dismissThemeVariantPopover } = useContext(CustomizerContext);
+
     return (
-        <button
-            ref={buttonRef}
-            class={styles.customizeButton}
-            onClick={toggleMenu}
-            aria-haspopup="true"
-            aria-expanded={isOpen}
-            aria-controls={menuId}
-            data-kind={kind}
-            id={buttonId}
-        >
-            <CustomizeIcon />
-            <span>{t('ntp_customizer_button')}</span>
-        </button>
+        <>
+            <button
+                ref={buttonRef}
+                class={styles.customizeButton}
+                onClick={toggleMenu}
+                aria-haspopup="true"
+                aria-expanded={isOpen}
+                aria-controls={menuId}
+                data-kind={kind}
+                id={buttonId}
+                data-testid="customizer-button"
+            >
+                <CustomizeIcon />
+                <span>{t('ntp_customizer_button')}</span>
+            </button>
+            {data.value.showThemeVariantPopover && (
+                <Popover
+                    className={styles.popover}
+                    image={<NewTabOptionsIcon width="72" height="72" />}
+                    title={t('customizer_themeVariantPopoverTitle')}
+                    position="bottomRight"
+                    onClose={dismissThemeVariantPopover}
+                >
+                    {t('customizer_themeVariantPopoverDescription')}
+                </Popover>
+            )}
+        </>
     );
 }
 
@@ -99,16 +122,19 @@ export function CustomizerMenuPositionedFixed({ children }) {
  * Call this to opt-in to the visibility menu
  * @param {VisibilityRowData} row
  */
-export function useCustomizer({ title, id, icon, toggle, visibility, index }) {
+export function useCustomizer({ title, id, icon, toggle, visibility, index, enabled }) {
     useEffect(() => {
-        const handler = (/** @type {CustomEvent<any>} */ e) => {
-            e.detail.register({ title, id, icon, toggle, visibility, index });
+        const handler = (/** @type {CustomEvent<{register: (d: VisibilityRowData) => void}>} */ e) => {
+            e.detail.register({ title, id, icon, toggle, visibility, index, enabled });
         };
         window.addEventListener(OPEN_EVENT, handler);
         return () => window.removeEventListener(OPEN_EVENT, handler);
-    }, [title, id, icon, toggle, visibility, index]);
+    }, [title, id, icon, toggle, visibility, index, enabled]);
 
     useEffect(() => {
         window.dispatchEvent(new Event(UPDATE_EVENT));
+        return () => {
+            window.dispatchEvent(new Event(UPDATE_EVENT));
+        };
     }, [visibility]);
 }

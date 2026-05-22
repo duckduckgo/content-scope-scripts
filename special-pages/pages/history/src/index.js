@@ -54,6 +54,15 @@ export class HistoryPage {
     reportInitException(params) {
         this.messaging.notify('reportInitException', params);
     }
+
+    /**
+     * Subscribe to theme update notifications from the native layer.
+     * @param {(data: import('../types/history.ts').OnThemeUpdateSubscribe) => void} callback
+     * @returns {() => void} Unsubscribe function
+     */
+    onThemeUpdate(callback) {
+        return this.messaging.subscribe('onThemeUpdate', callback);
+    }
 }
 
 const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);
@@ -73,6 +82,26 @@ const messaging = createSpecialPageMessaging({
 });
 
 const historyPage = new HistoryPage(messaging);
+
+window.addEventListener('error', (event) => {
+    let message = 'unknown error';
+    if (typeof event.error?.message === 'string') {
+        message = event.error.message;
+    } else if (event.error) {
+        message = String(event.error);
+    }
+    historyPage.reportInitException({ message: `[uncaught] ${message}` });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    let message = 'unknown rejection';
+    if (typeof event.reason?.message === 'string') {
+        message = event.reason.message;
+    } else if (event.reason) {
+        message = String(event.reason);
+    }
+    historyPage.reportInitException({ message: `[unhandledrejection] ${message}` });
+});
 
 /**
  * Grab the root element from the index.html file - bail early if it's absent

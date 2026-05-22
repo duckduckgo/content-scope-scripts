@@ -20,10 +20,17 @@
         }
       }
     },
+    "theme": {
+      "$ref": "./types/browser-theme.json"
+    },
+    "themeVariant": {
+      "$ref": "./types/theme-variant.json"
+    },
     "customizer": {
       "type": "object",
       "properties": {
         "defaultStyles": {
+          "deprecated": true,
           "oneOf": [
             {
               "type": "null"

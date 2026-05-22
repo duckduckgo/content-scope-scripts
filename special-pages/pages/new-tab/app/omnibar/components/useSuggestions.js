@@ -7,7 +7,13 @@ import { OmnibarContext } from './OmnibarProvider.js';
  */
 
 /**
- * @typedef {Suggestion & {
+ * Internal representation of Suggestion with additional properties for the omnibar component.
+ *
+ * @typedef {(Suggestion & {
+ *   id: string,
+ * }) | {
+ *   kind: 'aiChat',
+ *   chat: string,
  *   id: string,
  * }} SuggestionModel
  */
@@ -117,13 +123,16 @@ function reducer(state, action) {
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
+ * @param {boolean} props.enableAi
+ * @param {boolean} [props.enableAskAiSuggestion]
  */
-export function useSuggestions({ term, setTerm }) {
+export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
     const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
         return onSuggestions((data, term) => {
+            /** @type {SuggestionModel[]} */
             const suggestions = [
                 ...data.suggestions.topHits,
                 ...data.suggestions.duckduckgoSuggestions,
@@ -132,13 +141,22 @@ export function useSuggestions({ term, setTerm }) {
                 ...suggestion,
                 id: `suggestion-${index}`,
             }));
+
+            if (term.trim().length > 0 && enableAi && enableAskAiSuggestion) {
+                suggestions.push({
+                    kind: 'aiChat',
+                    chat: term,
+                    id: 'suggestion-ai-chat',
+                });
+            }
+
             dispatch({
                 type: 'setSuggestions',
                 term,
                 suggestions,
             });
         });
-    }, [onSuggestions]);
+    }, [onSuggestions, enableAi, enableAskAiSuggestion]);
 
     const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
 

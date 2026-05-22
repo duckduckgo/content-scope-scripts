@@ -1,9 +1,7 @@
-/* global process */
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { chromium, firefox } from '@playwright/test';
-import { fork } from 'node:child_process';
 import { polyfillProcessGlobals } from '../../unit-test/helpers/polyfill-process-globals.js';
 
 const DATA_DIR_PREFIX = 'ddg-temp-';
@@ -15,7 +13,7 @@ const DATA_DIR_PREFIX = 'ddg-temp-';
 /**
  * A single place
  * @param {typeof import("@playwright/test").test} test
- * @return {TestType<PlaywrightTestArgs & PlaywrightTestOptions & PlaywrightWorkerArgs & PlaywrightWorkerOptions & { altServerPort: number }, {}>}
+ * @return {TestType<PlaywrightTestArgs & PlaywrightTestOptions & PlaywrightWorkerArgs & PlaywrightWorkerOptions, {}>}
  */
 export function testContextForExtension(test) {
     return test.extend({
@@ -24,6 +22,7 @@ export function testContextForExtension(test) {
             const dataDir = mkdtempSync(tmpDirPrefix);
             const browserTypes = { chromium, firefox };
             const cleanupGlobals = polyfillProcessGlobals();
+            const extensionPath = resolve('integration-test/extension');
 
             const launchOptions = {
                 devtools: true,
@@ -32,7 +31,7 @@ export function testContextForExtension(test) {
                     width: 1920,
                     height: 1080,
                 },
-                args: ['--disable-extensions-except=integration-test/extension', '--load-extension=integration-test/extension'],
+                args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
             };
 
             const context = await browserTypes[browserName].launchPersistentContext(dataDir, launchOptions);
@@ -48,42 +47,6 @@ export function testContextForExtension(test) {
 
             // Clean up temporary data directory
             rmSync(dataDir, { recursive: true, force: true });
-        },
-        altServerPort: async ({ browserName }, use) => {
-            console.log('browserName:', browserName);
-            const serverScript = fork('./scripts/server.mjs', {
-                env: {
-                    ...process.env,
-                    SERVER_DIR: 'integration-test/test-pages',
-                    SERVER_PORT: '8383',
-                },
-            });
-            const opened = new Promise((resolve, reject) => {
-                serverScript.on('message', (/** @type {any} */ resp) => {
-                    if (typeof resp.port === 'number') {
-                        resolve(resp.port);
-                    } else {
-                        reject(resp.port);
-                    }
-                });
-            });
-            const closed = new Promise((resolve, reject) => {
-                serverScript.on('close', (err) => {
-                    if (err) {
-                        reject(new Error('server did not exit, code: ' + err));
-                    } else {
-                        resolve(null);
-                    }
-                });
-                serverScript.on('error', () => {
-                    reject(new Error('server errored'));
-                });
-            });
-
-            const port = await opened;
-            await use(port);
-            serverScript.kill();
-            await closed;
         },
     });
 }

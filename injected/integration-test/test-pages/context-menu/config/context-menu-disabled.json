@@ -1,0 +1,11 @@
+{
+  "readme": "Config for testing the contextMenu feature (disabled).",
+  "version": 1,
+  "features": {
+    "contextMenu": {
+      "state": "disabled",
+      "exceptions": []
+    }
+  },
+  "unprotectedTemporary": []
+}

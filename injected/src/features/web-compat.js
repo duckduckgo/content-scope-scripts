@@ -1,9 +1,15 @@
+/**
+ * @file Web Compatibility Feature
+ * @see injected/docs/coding-guidelines.md for general patterns
+ */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
+import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
- * Fixes incorrect sizing value for outerHeight and outerWidth
+ * Fixes incorrect sizing value for outerHeight and outerWidth.
+ * Note: Avoid hardcoding window geometry values - use calculations or config where possible.
  */
 function windowSizingFix() {
     if (window.outerHeight !== 0 && window.outerWidth !== 0) {
@@ -21,8 +27,20 @@ const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 
 function canShare(data) {
     if (typeof data !== 'object') return false;
-    if (!('url' in data) && !('title' in data) && !('text' in data)) return false; // At least one of these is required
-    if ('files' in data) return false; // File sharing is not supported at the moment
+    // Make an in-place shallow copy of the data
+    data = Object.assign({}, data);
+    // Delete undefined or null values
+    for (const key of ['url', 'title', 'text', 'files']) {
+        if (data[key] === undefined || data[key] === null) {
+            delete data[key];
+        }
+    }
+    // After pruning we should still have at least one of these
+    if (!('url' in data) && !('title' in data) && !('text' in data)) return false;
+    if ('files' in data) {
+        if (!(Array.isArray(data.files) || data.files instanceof FileList)) return false;
+        if (data.files.length > 0) return false; // File sharing is not supported at the moment
+    }
     if ('title' in data && typeof data.title !== 'string') return false;
     if ('text' in data && typeof data.text !== 'string') return false;
     if ('url' in data) {
@@ -34,8 +52,29 @@ function canShare(data) {
             return false;
         }
     }
-    if (window !== window.top) return false; // Not supported in iframes
     return true;
+}
+
+// Shadowned class for PermissionStatus for use in shimming
+// eslint-disable-next-line no-redeclare
+class PermissionStatus extends EventTarget {
+    #hasChangeListener = false;
+
+    constructor(name, state) {
+        super();
+        this.name = name;
+        this.state = state;
+        this.onchange = null; // noop
+    }
+
+    get hasChangeListener() {
+        return this.#hasChangeListener;
+    }
+
+    addEventListener(type, callback, options) {
+        if (type === 'change') this.#hasChangeListener = true;
+        super.addEventListener(type, callback, options);
+    }
 }
 
 /**
@@ -70,11 +109,20 @@ function cleanShareData(data) {
 }
 
 export class WebCompat extends ContentFeature {
-    /** @type {Promise<any> | null} */
+    /** @type {Promise<{failure?: {name: string, message: string}}> | null} */
     #activeShareRequest = null;
 
-    /** @type {Promise<any> | null} */
+    /** @type {Promise<{failure?: {name: string, message: string}}> | null} */
     #activeScreenLockRequest = null;
+
+    /** @type {Map<string, object>} */
+    #webNotifications = new Map();
+
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    #permissionPollingTimer;
+
+    // Opt in to receive configuration updates from initial ping responses
+    listenForConfigUpdates = true;
 
     init() {
         if (this.getFeatureSettingEnabled('windowSizing')) {
@@ -91,6 +139,9 @@ export class WebCompat extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('notification')) {
             this.notificationFix();
+        }
+        if (this.getFeatureSettingEnabled('webNotifications')) {
+            this.webNotificationsFix();
         }
         if (this.getFeatureSettingEnabled('permissions')) {
             const settings = this.getFeatureSetting('permissions');
@@ -112,10 +163,6 @@ export class WebCompat extends ContentFeature {
             this.shimWebShare();
         }
 
-        if (this.getFeatureSettingEnabled('viewportWidth')) {
-            this.viewportWidthFix();
-        }
-
         if (this.getFeatureSettingEnabled('screenLock')) {
             this.screenLockFix();
         }
@@ -127,15 +174,33 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('modifyCookies')) {
             this.modifyCookies();
         }
-        if (this.getFeatureSettingEnabled('disableDeviceEnumeration') || this.getFeatureSettingEnabled('disableDeviceEnumerationFrames')) {
-            this.preventDeviceEnumeration();
-        }
         if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
         }
+        // Used by Android in the non adsjs version
+        // This has to be enabled in the config for the injectName='android' now.
+        if (this.getFeatureSettingEnabled('viewportWidthLegacy', 'disabled')) {
+            this.viewportWidthFix();
+        }
     }
 
-    /** Shim Web Share API in Android WebView */
+    /**
+     * Handle user preference updates when merged during initialization.
+     * Re-applies viewport fixes if viewport configuration has changed.
+     * Used in the injectName='android-adsjs' instead of 'viewportWidthLegacy' from init.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
+        // Re-apply viewport width fix if viewport settings might have changed
+        if (this.getFeatureSettingEnabled('viewportWidth')) {
+            this.viewportWidthFix();
+        }
+    }
+
+    /**
+     * Shim Web Share API in Android WebView
+     * Note: Always verify API existence before shimming
+     */
     shimWebShare() {
         if (typeof navigator.canShare === 'function' || typeof navigator.share === 'function') return;
 
@@ -191,33 +256,246 @@ export class WebCompat extends ContentFeature {
         if (window.Notification) {
             return;
         }
+
         // Expose the API
+        // window.Notification polyfill is intentionally incompatible with DOM lib types
+        const NotificationConstructor = function Notification() {
+            throw new TypeError("Failed to construct 'Notification': Illegal constructor");
+        };
+
+        const wrappedNotification = wrapToString(
+            NotificationConstructor,
+            NotificationConstructor,
+            'function Notification() { [native code] }',
+        );
+
         this.defineProperty(window, 'Notification', {
-            value: () => {
-                // noop
-            },
+            value: wrappedNotification,
             writable: true,
             configurable: true,
             enumerable: false,
         });
 
-        this.defineProperty(window.Notification, 'requestPermission', {
-            value: () => {
-                return Promise.resolve('denied');
-            },
-            writable: true,
+        this.defineProperty(window.Notification, 'permission', {
+            value: 'denied',
+            writable: false,
             configurable: true,
             enumerable: true,
         });
 
-        this.defineProperty(window.Notification, 'permission', {
-            get: () => 'denied',
+        this.defineProperty(window.Notification, 'maxActions', {
+            get: () => 2,
+            configurable: true,
+            enumerable: true,
+        });
+
+        const requestPermissionFunc = function requestPermission() {
+            return Promise.resolve('denied');
+        };
+
+        const wrappedRequestPermission = wrapToString(
+            requestPermissionFunc,
+            requestPermissionFunc,
+            'function requestPermission() { [native code] }',
+        );
+
+        this.defineProperty(window.Notification, 'requestPermission', {
+            value: wrappedRequestPermission,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        });
+    }
+
+    /**
+     * Web Notifications polyfill that communicates with native code for permission
+     * management and notification display.
+     */
+    webNotificationsFix() {
+        // Notification API is not supported in insecure contexts
+        if (!globalThis.isSecureContext) {
+            return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const feature = this;
+
+        // Check nativeEnabled setting - when false, install polyfill but skip native calls and return 'denied'
+        const settings = this.getFeatureSetting('webNotifications') || {};
+        const nativeEnabled = settings.nativeEnabled !== false;
+
+        // Wrap native calls - no-op when nativeEnabled is false
+        const nativeNotify = nativeEnabled ? (name, data) => feature.notify(name, data) : () => {};
+        const nativeRequest = nativeEnabled ? (name, data) => feature.request(name, data) : () => Promise.resolve({ permission: 'denied' });
+        const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {};
+        // Permission is 'default' when enabled (not yet determined), 'denied' when disabled
+        /** @type {NotificationPermission} */
+        let permission = nativeEnabled ? 'default' : 'denied';
+
+        /**
+         * NotificationPolyfill - replaces the native Notification API
+         */
+        class NotificationPolyfill {
+            /** @type {string} */
+            #id;
+            /** @type {string} */
+            title;
+            /** @type {string} */
+            body;
+            /** @type {string} */
+            icon;
+            /** @type {string} */
+            tag;
+            /** @type {any} */
+            data;
+
+            // Event handlers
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onclick = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onclose = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onerror = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onshow = null;
+
+            /**
+             * @returns {'default' | 'denied' | 'granted'}
+             */
+            static get permission() {
+                return permission;
+            }
+
+            /**
+             * @param {NotificationPermissionCallback} [deprecatedCallback]
+             * @returns {Promise<NotificationPermission>}
+             */
+            static async requestPermission(deprecatedCallback) {
+                try {
+                    const result = await nativeRequest('requestPermission', {});
+                    const resultPermission = /** @type {NotificationPermission} */ (result?.permission || 'denied');
+                    // Update cached permission so Notification.permission getter reflects new state
+                    permission = resultPermission;
+                    if (deprecatedCallback) {
+                        deprecatedCallback(resultPermission);
+                    }
+                    return resultPermission;
+                } catch (e) {
+                    // On error, set permission to denied
+                    permission = 'denied';
+                    if (deprecatedCallback) {
+                        deprecatedCallback('denied');
+                    }
+                    return 'denied';
+                }
+            }
+
+            /**
+             * @returns {number}
+             */
+            static get maxActions() {
+                return 2;
+            }
+
+            /**
+             * @param {string} title
+             * @param {NotificationOptions} [options]
+             */
+            constructor(title, options = {}) {
+                this.#id = crypto.randomUUID();
+                this.title = String(title);
+                this.body = options.body ? String(options.body) : '';
+                this.icon = options.icon ? String(options.icon) : '';
+                this.tag = options.tag ? String(options.tag) : '';
+                this.data = options.data;
+
+                feature.#webNotifications.set(this.#id, this);
+
+                nativeNotify('showNotification', {
+                    id: this.#id,
+                    title: this.title,
+                    body: this.body,
+                    icon: this.icon,
+                    tag: this.tag,
+                });
+            }
+
+            close() {
+                // Guard against multiple close() calls - only fire onclose once
+                if (!feature.#webNotifications.has(this.#id)) {
+                    return;
+                }
+                nativeNotify('closeNotification', { id: this.#id });
+                // Remove from map BEFORE firing onclose to prevent duplicate events from native
+                feature.#webNotifications.delete(this.#id);
+                // Fire onclose handler after cleanup
+                if (typeof this.onclose === 'function') {
+                    try {
+                        // @ts-expect-error - NotificationPolyfill doesn't fully implement Notification interface
+                        this.onclose(new Event('close'));
+                    } catch (e) {
+                        // Error in event handler - silently ignore
+                    }
+                }
+            }
+        }
+
+        // Wrap the constructor
+        const wrappedNotification = wrapFunction(NotificationPolyfill, NotificationPolyfill);
+
+        // Wrap static methods
+        const wrappedRequestPermission = wrapToString(
+            NotificationPolyfill.requestPermission.bind(NotificationPolyfill),
+            NotificationPolyfill.requestPermission,
+            'function requestPermission() { [native code] }',
+        );
+
+        // Subscribe to notification events from native
+        nativeSubscribe('notificationEvent', (data) => {
+            const notification = this.#webNotifications.get(data.id);
+            if (!notification) return;
+
+            const eventName = `on${data.event}`;
+            if (typeof notification[eventName] === 'function') {
+                try {
+                    notification[eventName](new Event(data.event));
+                } catch (e) {
+                    // Error in event handler - silently ignore
+                }
+            }
+
+            // Clean up on close event
+            if (data.event === 'close') {
+                this.#webNotifications.delete(data.id);
+            }
+        });
+
+        // Define the Notification property on globalThis
+        this.defineProperty(globalThis, 'Notification', {
+            value: wrappedNotification,
+            writable: true,
             configurable: true,
             enumerable: false,
         });
 
-        this.defineProperty(window.Notification, 'maxActions', {
+        // Define permission getter
+        this.defineProperty(globalThis.Notification, 'permission', {
+            get: () => permission,
+            configurable: true,
+            enumerable: true,
+        });
+
+        // Define maxActions getter
+        this.defineProperty(globalThis.Notification, 'maxActions', {
             get: () => 2,
+            configurable: true,
+            enumerable: true,
+        });
+
+        // Define requestPermission
+        this.defineProperty(globalThis.Notification, 'requestPermission', {
+            value: wrappedRequestPermission,
+            writable: true,
             configurable: true,
             enumerable: true,
         });
@@ -264,24 +542,130 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * Handles permission query with native messaging support.
+     * @param {Object} query - The permission query object
+     * @param {Object} settings - The permission settings
+     * @returns {Promise<PermissionStatus|null>} - Returns PermissionStatus if handled, null to fall through
+     */
+    async handlePermissionQuery(query, settings) {
+        if (!query?.name || !settings?.supportedPermissions?.[query.name]?.native) {
+            return null;
+        }
+
+        try {
+            const permSetting = settings.supportedPermissions[query.name];
+            const returnName = permSetting.name || query.name;
+            const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
+            const returnStatus = response.state || 'prompt';
+            return new PermissionStatus(returnName, returnStatus);
+        } catch (err) {
+            return null; // Fall through to original method
+        }
+    }
+
+    /**
+     * Polls native messaging once per second (up to 30s) to detect when a
+     * permission was granted/denied by the user, so the PermissionStatus change
+     * event can be dispatched.
+     *
+     * Since there is a performance impact with polling:
+     * - Only one polling timer runs at a time.
+     * - Ticks are skipped until a change listener is registered.
+     * - Chained setTimeout used instead of setInterval, in case the permission
+     *   query message response takes longer than one second, since otherwise a
+     *   change event could be dispatched twice accidentally.
+     *
+     * @param {PermissionStatus} status
+     * @param {Object} query
+     */
+    pollForPermissionChange(status, query) {
+        if (this.#permissionPollingTimer) {
+            return;
+        }
+
+        let remaining = 30;
+        const tick = async () => {
+            // Check for a change in status, pass it on to the listener(s)
+            // if found.
+            let statusChanged = false;
+            if (status.hasChangeListener || typeof status.onchange === 'function') {
+                try {
+                    const { state } = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
+                    if (state && state !== 'prompt') {
+                        status.state = state;
+                        status.dispatchEvent(new Event('change'));
+                        if (typeof status.onchange === 'function') {
+                            try {
+                                status.onchange(new Event('change'));
+                            } catch (e) {
+                                /* Ignore errors in handler */
+                            }
+                        }
+                        statusChanged = true;
+                    }
+                } catch {
+                    /* Ignore */
+                }
+            }
+
+            // Try again in a second unless the 30 seconds are up, or the
+            // permission status has already changed.
+            if (!statusChanged && remaining-- > 0) {
+                this.#permissionPollingTimer = setTimeout(tick, 1000);
+            } else {
+                this.#permissionPollingTimer = undefined;
+            }
+        };
+        this.#permissionPollingTimer = setTimeout(tick, 1000);
+    }
+
+    permissionsPresentFix(settings) {
+        const originalQuery = window.navigator.permissions.query;
+        if (typeof originalQuery !== 'function') {
+            return;
+        }
+        window.navigator.permissions.query = new Proxy(originalQuery, {
+            apply: async (target, thisArg, args) => {
+                this.addDebugFlag();
+
+                const query = args[0];
+
+                // Only attempt to handle if query is valid and permission is marked as native
+                if (query?.name && settings?.supportedPermissions?.[query.name]?.native) {
+                    // Try to handle with native messaging
+                    const result = await this.handlePermissionQuery(query, settings);
+                    if (result) {
+                        if (result.state === 'prompt') {
+                            // Ensure the PermissionStatus change event fires
+                            // after the user grants/denies the permission.
+                            this.pollForPermissionChange(result, query);
+                        }
+                        return result;
+                    }
+                }
+
+                // Fall through to original method for all other cases
+                return Reflect.apply(target, thisArg, args);
+            },
+        });
+    }
+
+    /**
      * Adds missing permissions API for Android WebView.
      */
     permissionsFix(settings) {
         if (window.navigator.permissions) {
+            if (this.getFeatureSettingEnabled('permissionsPresent')) {
+                this.permissionsPresentFix(settings);
+            }
             return;
         }
         const permissions = {};
-        class PermissionStatus extends EventTarget {
-            constructor(name, state) {
-                super();
-                this.name = name;
-                this.state = state;
-                this.onchange = null; // noop
-            }
-        }
         permissions.query = new Proxy(
             async (query) => {
                 this.addDebugFlag();
+
+                // Validate required arguments
                 if (!query) {
                     throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.");
                 }
@@ -290,22 +674,24 @@ export class WebCompat extends ContentFeature {
                         "Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.",
                     );
                 }
+                // Don't bypass - all supportedPermissions need handling, including non-native with name overrides
                 if (!settings.supportedPermissions || !(query.name in settings.supportedPermissions)) {
                     throw new TypeError(
                         `Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`,
                     );
                 }
-                const permSetting = settings.supportedPermissions[query.name];
-                const returnName = permSetting.name || query.name;
-                let returnStatus = settings.permissionResponse || 'prompt';
-                if (permSetting.native) {
-                    try {
-                        const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
-                        returnStatus = response.state || 'prompt';
-                    } catch (err) {
-                        // do nothing - keep returnStatus as-is
-                    }
+
+                // Try to handle with native messaging
+                const result = await this.handlePermissionQuery(query, settings);
+                if (result) {
+                    return result;
                 }
+
+                // Fall back to default behavior
+                const permSetting = settings.supportedPermissions[query.name];
+                // Use custom permission name if configured, else original query name
+                const returnName = permSetting.name || query.name;
+                const returnStatus = settings.permissionResponse || 'prompt';
                 return Promise.resolve(new PermissionStatus(returnName, returnStatus));
             },
             {
@@ -321,6 +707,7 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Fixes screen lock/unlock APIs for Android WebView.
+     * Uses wrapProperty to match original property descriptors.
      */
     screenLockFix() {
         const validOrientations = [
@@ -380,7 +767,7 @@ export class WebCompat extends ContentFeature {
 
         this.wrapProperty(globalThis.ScreenOrientation.prototype, 'unlock', {
             value: () => {
-                this.messaging.request(MSG_SCREEN_UNLOCK, {});
+                void this.messaging.request(MSG_SCREEN_UNLOCK, {});
             },
         });
     }
@@ -480,8 +867,8 @@ export class WebCompat extends ContentFeature {
                 playbackState = 'none';
 
                 setActionHandler() {}
-                setCameraActive() {}
-                setMicrophoneActive() {}
+                async setCameraActive() {}
+                async setMicrophoneActive() {}
                 setPositionState() {}
             }
 
@@ -624,19 +1011,22 @@ export class WebCompat extends ContentFeature {
         // This should never occur, but keeps typescript happy
         if (!settings) return;
 
+        // Handler strategies: 'reflect' (pass through), 'undefined' (hide), 'polyfill' (stub)
         const proxy = new Proxy(globalThis.webkit.messageHandlers, {
             get(target, messageName, receiver) {
                 const handlerName = String(messageName);
 
-                // handle known message names, such as DDG webkit messaging
+                // 'reflect': pass through to real handler (e.g., DDG webkit messaging)
                 if (settings.handlerStrategies.reflect.includes(handlerName)) {
                     return Reflect.get(target, messageName, receiver);
                 }
 
+                // 'undefined': hide handler existence
                 if (settings.handlerStrategies.undefined.includes(handlerName)) {
                     return undefined;
                 }
 
+                // 'polyfill': return stub (use '*' for catch-all)
                 if (settings.handlerStrategies.polyfill.includes('*') || settings.handlerStrategies.polyfill.includes(handlerName)) {
                     return {
                         postMessage() {
@@ -656,8 +1046,14 @@ export class WebCompat extends ContentFeature {
     }
 
     viewportWidthFix() {
+        // Note: This guard is intentional for legacy mode. onUserPreferencesMerged() calls
+        // this without the guard for cases where re-application is needed.
+        if (this._viewportWidthFixApplied) {
+            return;
+        }
+        this._viewportWidthFixApplied = true;
+        // Re-entrancy pattern: check readyState to avoid missing DOM elements
         if (document.readyState === 'loading') {
-            // if the document is not ready, we may miss the original viewport tag
             document.addEventListener('DOMContentLoaded', () => this.viewportWidthFixInner());
         } else {
             this.viewportWidthFixInner();
@@ -684,7 +1080,7 @@ export class WebCompat extends ContentFeature {
     viewportWidthFixInner() {
         /** @type {NodeListOf<HTMLMetaElement>} **/
         const viewportTags = document.querySelectorAll('meta[name=viewport i]');
-        // Chrome respects only the last viewport tag
+        // Chrome respects only the last viewport tag - modify existing rather than adding new
         const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
         const viewportContent = viewportTag?.getAttribute('content') || '';
         /** @type {readonly string[]} **/
@@ -762,53 +1158,61 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * Prevents device enumeration by returning an empty array when enabled
+     * Defines a no-op `getCapabilities` shim on the given target (either an InputDeviceInfo
+     * instance or a synthetic intermediate prototype). The shim is `wrapToString`-masked so
+     * `Function.prototype.toString` looks native, and the descriptor matches native methods.
+     * No-ops when `getCapabilities` is not exposed on InputDeviceInfo.prototype in this browser.
+     * @param {object} target
      */
-    preventDeviceEnumeration() {
-        if (!window.MediaDevices) {
-            return;
-        }
-        let disableDeviceEnumeration = false;
-        const isFrame = window.self !== window.top;
-        if (isFrame) {
-            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumerationFrames');
-        } else {
-            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
-        }
-        if (disableDeviceEnumeration) {
-            const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-                /**
-                 * @returns {Promise<MediaDeviceInfo[]>}
-                 */
-                apply() {
-                    return Promise.resolve([]);
-                },
-            });
-            enumerateDevicesProxy.overload();
-        }
+    defineSyntheticGetCapabilities(target) {
+        if (typeof (/** @type {any} */ (target).getCapabilities) !== 'function') return;
+        const getCapabilities = function getCapabilities() {
+            return {};
+        };
+        this.defineProperty(target, 'getCapabilities', {
+            value: wrapToString(getCapabilities, getCapabilities, 'function getCapabilities() { [native code] }'),
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        });
     }
 
     /**
      * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
+     * @param {'syntheticPrototype' | 'instanceOwn'} [shimMode] - Where the synthetic shim
+     *   for brand-checked InputDeviceInfo methods lives:
+     *   - 'syntheticPrototype' (default): intermediate prototype between the instance and
+     *     `InputDeviceInfo.prototype`. Hides shims from `hasOwnProperty` on the instance, at
+     *     the cost of a one-level prototype-chain depth difference.
+     *   - 'instanceOwn': preserve `InputDeviceInfo.prototype` as the direct prototype; place
+     *     own masked shims on the instance.
      * @returns {MediaDeviceInfo | InputDeviceInfo}
      */
-    createMediaDeviceInfo(kind) {
-        // Create an empty object with the correct prototype
+    createMediaDeviceInfo(kind, shimMode = 'syntheticPrototype') {
+        const isInputDevice = kind === 'videoinput' || kind === 'audioinput';
+
         let deviceInfo;
-        if (kind === 'videoinput' || kind === 'audioinput') {
-            // Input devices should inherit from InputDeviceInfo.prototype if available
-            if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
+        if (isInputDevice && typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
+            if (shimMode === 'instanceOwn') {
+                // Preserve InputDeviceInfo.prototype as the direct prototype so sites doing
+                // `Object.getPrototypeOf(d) === InputDeviceInfo.prototype` checks keep working,
+                // and place an own masked getCapabilities on the instance.
                 deviceInfo = Object.create(InputDeviceInfo.prototype);
+                this.defineSyntheticGetCapabilities(deviceInfo);
             } else {
-                deviceInfo = Object.create(MediaDeviceInfo.prototype);
+                // Intermediate synthetic prototype so deleting properties on the instance
+                // can never expose the native brand-checked getCapabilities method again,
+                // at the cost of a one-level prototype-chain depth difference.
+                const syntheticInputDeviceInfoPrototype = Object.create(InputDeviceInfo.prototype);
+                this.defineSyntheticGetCapabilities(syntheticInputDeviceInfoPrototype);
+                deviceInfo = Object.create(syntheticInputDeviceInfoPrototype);
             }
         } else {
-            // Output devices inherit from MediaDeviceInfo.prototype
+            // Output devices, and input devices when InputDeviceInfo is unavailable, inherit from MediaDeviceInfo.prototype.
             deviceInfo = Object.create(MediaDeviceInfo.prototype);
         }
 
-        // Define read-only properties from the start
         Object.defineProperties(deviceInfo, {
             deviceId: {
                 value: 'default',
@@ -853,6 +1257,17 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * Helper to wrap a promise with timeout
+     * @param {Promise} promise - Promise to wrap
+     * @param {number} timeoutMs - Timeout in milliseconds
+     * @returns {Promise} Promise that rejects on timeout
+     */
+    withTimeout(promise, timeoutMs) {
+        const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new Error('Request timeout')), timeoutMs));
+        return Promise.race([promise, timeout]);
+    }
+
+    /**
      * Fixes device enumeration to handle permission prompts gracefully
      */
     deviceEnumerationFix() {
@@ -868,10 +1283,15 @@ export class WebCompat extends ContentFeature {
              * @returns {Promise<MediaDeviceInfo[]>}
              */
             apply: async (target, thisArg, args) => {
+                const settings = this.getFeatureSetting('enumerateDevices') || {};
+                const timeoutEnabled = settings.timeoutEnabled !== false;
+                const timeoutMs = settings.timeoutMs ?? 2000;
+                /** @type {'syntheticPrototype' | 'instanceOwn'} */
+                const shimMode = settings.shimMode === 'instanceOwn' ? 'instanceOwn' : 'syntheticPrototype';
+
                 try {
-                    // Request device enumeration information from native
-                    /** @type {{willPrompt: boolean, videoInput: boolean, audioInput: boolean, audioOutput: boolean}} */
-                    const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+                    const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+                    const response = timeoutEnabled ? await this.withTimeout(messagingPromise, timeoutMs) : await messagingPromise;
 
                     // Check if native indicates that prompts would be required
                     if (response.willPrompt) {
@@ -881,15 +1301,15 @@ export class WebCompat extends ContentFeature {
                         const devices = [];
 
                         if (response.videoInput) {
-                            devices.push(this.createMediaDeviceInfo('videoinput'));
+                            devices.push(this.createMediaDeviceInfo('videoinput', shimMode));
                         }
 
                         if (response.audioInput) {
-                            devices.push(this.createMediaDeviceInfo('audioinput'));
+                            devices.push(this.createMediaDeviceInfo('audioinput', shimMode));
                         }
 
                         if (response.audioOutput) {
-                            devices.push(this.createMediaDeviceInfo('audiooutput'));
+                            devices.push(this.createMediaDeviceInfo('audiooutput', shimMode));
                         }
 
                         return Promise.resolve(devices);
@@ -898,7 +1318,7 @@ export class WebCompat extends ContentFeature {
                         return DDGReflect.apply(target, thisArg, args);
                     }
                 } catch (err) {
-                    // If the native request fails, fall back to the original implementation
+                    // If the native request fails or times out, fall back to the original implementation
                     return DDGReflect.apply(target, thisArg, args);
                 }
             },

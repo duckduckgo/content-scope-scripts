@@ -10,7 +10,8 @@
     background: none;
     border: none;
     box-sizing: content-box;
-    color: var(--ntp-text-primary);
+    color: var(--ds-color-theme-text-primary);
+    line-height: 16px;
     max-height: 10lh;
     padding: var(--sp-3) var(--sp-3) 0;
     resize: none;
@@ -20,7 +21,7 @@
     }
 
     &::placeholder {
-        color: var(--ntp-text-tertiary);
+        color: var(--ds-color-theme-text-tertiary);
     }
 
     [data-platform="windows"] &::selection {
@@ -33,14 +34,16 @@
     }
 
     .hasScroll & {
-        border-bottom: 1px solid var(--ntp-decoration-tertiary);
+        border-bottom: 1px solid var(--ds-color-theme-surface-decoration-tertiary);
         padding-bottom: var(--sp-3);
     }
 }
 
 .buttons {
+    align-items: center;
     align-self: stretch;
     bottom: 0;
+    display: flex;
     justify-content: space-between;
     left: 0;
     padding: var(--sp-3);
@@ -48,37 +51,59 @@
     right: 0;
 }
 
+.rightButtons {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-2);
+    margin-left: auto;
+}
+
 .submitButton {
     align-items: center;
     animation: fadeIn 0.3s ease-in-out;
-    background: var(--ntp-accent-primary);
+    background: var(--ds-color-theme-accent-primary);
     border-radius: 100%;
     border: none;
-    color: var(--ntp-accent-content-primary);
+    color: var(--ds-color-theme-accent-content-primary);
     cursor: pointer;
     display: flex;
     height: var(--sp-7);
     justify-content: center;
-    margin-left: auto;
     padding: 0;
     width: var(--sp-7);
 
     &[disabled] {
         background: none;
-        color: color-mix(in srgb, var(--ntp-icons-primary) 30%, transparent);
+        color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
         cursor: default;
     }
 
     &:hover:not([disabled]) {
-        background: var(--ntp-accent-secondary);
+        background: var(--ds-color-theme-accent-secondary);
     }
 
     &:active:not([disabled]) {
-        background: var(--ntp-accent-tertiary);
+        background: var(--ds-color-theme-accent-tertiary);
     }
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
+    }
+}
+
+/* When the input is empty AND voice-chat access is enabled, the submit button is repurposed
+   as a 1-click voice-chat entry point. Use the accent-alt palette to distinguish it from the
+   standard submit action; mirror the submit button's hover/active progression. */
+.submitButton:has(.voiceIcon) {
+    background: var(--ds-color-theme-accent-alt-primary);
+    color: var(--ds-color-theme-icons-primary);
+
+    &:hover {
+        background: var(--ds-color-theme-accent-alt-secondary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-accent-alt-tertiary);
     }
 }
 

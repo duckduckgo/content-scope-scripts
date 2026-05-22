@@ -2,9 +2,13 @@
     display: flex;
     align-items: center;
     height: 24px;
-    margin-bottom: 16px;
+    margin-bottom: 36px;
     position: relative;
-    gap: 8px;
+    gap: 2px;
+
+  &.noTrackers {
+    margin-bottom: 12px;
+  }
 }
 
 .headingIcon {
@@ -13,7 +17,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
     padding-top: 0.5px;
 
     img {
@@ -26,13 +30,26 @@
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
     line-height: var(--title-3-em-line-height);
-    flex: 1;
+    flex: 0 0 auto;
+    margin-right: 6px;
+}
+
+.infoIcon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 2px;
 }
 
 .widgetExpander {
     position: relative;
+    flex: 1;
 
     & [aria-controls] {
+        background-color: var(--ds-color-theme-control-fill-primary);
+        width: 24px;
+        height: 24px;
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
@@ -46,22 +63,58 @@
     }
 }
 
+.counterContainer {
+  display: flex;
+  gap: 12px;
+}
+
 .counter {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    width: 196px;
+    padding-right: 18px;
+    box-sizing: content-box;
+
+    &:last-child {
+        padding-right: 0;
+    }
+}
+
+.cookiePopUpsCounter {
+    margin-left: 14px;
 }
 
 .title {
+    color: var(--ds-color-theme-text-primary);
+    font-size: 40px;
+    font-weight: 400;
     grid-area: title;
-    font-size: var(--title-2-font-size);
-    font-weight: var(--title-2-font-weight);
-    line-height: var(--title-2-line-height);
+    line-height: 28px;
+
+  & span {
+    color: var(--ds-color-theme-text-secondary);
+    display: block;
+    font-size: var(--title-3-em-font-size);
+    line-height: 20px;
+    padding-bottom: 4px;
+    padding-top: 12px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+.noRecentTitle {
+    color: var(--ds-color-theme-text-secondary);
+    grid-area: title;
+    font-size: var(--title-3-em-font-size);
+    font-weight: 400;
+    line-height: 28px;
 }
 
 .subtitle {
     grid-area: label;
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-theme-text-secondary);
     line-height: var(--body-line-height);
     text-transform: uppercase;
 
@@ -109,7 +162,7 @@
 
 .otherTrackersRow {
     padding-left: var(--sp-1);
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-theme-text-secondary);
     display: flex;
     align-items: center;
 
@@ -139,7 +192,7 @@
 .count {
     grid-area: count;
     text-align: right;
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
     line-height: 1;
 }
 

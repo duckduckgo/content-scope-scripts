@@ -3,8 +3,10 @@
  */
 import { load, init, update } from '../src/content-scope-features.js';
 import { computeLimitedSiteObject } from '../src/utils.js';
+import { getSharedMessagingTransport } from '../src/sendmessage-transport.js';
 
-const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
+const randomValue = /** @type {number} */ (crypto.getRandomValues(new Uint32Array(1))[0]);
+const secret = (randomValue / 2 ** 32).toString().replace('0.', '');
 
 load({
     platform: {
@@ -13,6 +15,7 @@ load({
     site: computeLimitedSiteObject(),
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     bundledConfig: $BUNDLED_CONFIG$,
+    messagingContextName: 'contentScopeScripts',
 });
 
 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -27,7 +30,21 @@ window.addEventListener(secret, ({ detail: encodedMessage }) => {
         case 'register':
             if (message.argumentsObject) {
                 message.argumentsObject.messageSecret = secret;
+                if (!message.argumentsObject?.site?.enabledFeatures) {
+                    // Potentially corrupted site object, don't init
+                    return;
+                }
                 init(message.argumentsObject);
+            }
+            break;
+        default:
+            // Messages with messageType are subscription responses from the extension.
+            // Route them to the shared transport so all subscribed features receive them.
+            if (message.messageType) {
+                const transport = getSharedMessagingTransport();
+                if (transport?.onResponse) {
+                    transport.onResponse(message);
+                }
             }
             break;
     }

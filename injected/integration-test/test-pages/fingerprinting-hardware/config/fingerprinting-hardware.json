@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the fingerprinting hardware feature which spoofs hardware properties.",
+    "version": 1,
+    "features": {
+        "fingerprintingHardware": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

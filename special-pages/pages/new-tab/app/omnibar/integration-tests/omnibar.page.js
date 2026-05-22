@@ -1,4 +1,9 @@
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+
+/**
+ * @typedef {import("../../../types/new-tab.js").OmnibarMode} Mode
+ * @typedef {import("../../../types/new-tab.js").OmnibarConfig} Config
+ */
 
 export class OmnibarPage {
     /**
@@ -7,6 +12,7 @@ export class OmnibarPage {
     constructor(ntp) {
         this.ntp = ntp;
         this.page = this.ntp.page;
+        this.page.on('console', (msg) => console.log(msg.text()));
     }
 
     context() {
@@ -17,16 +23,32 @@ export class OmnibarPage {
         await this.ntp.mocks.waitForCallCount({ method: 'omnibar_getConfig', count: 1 });
     }
 
+    async focusChatInput() {
+        await this.chatInput().click();
+    }
+
     searchInput() {
         return this.context().getByRole('combobox');
     }
 
     chatInput() {
-        return this.context().getByRole('textbox', { name: 'Ask privately' });
+        return this.context().getByRole('textbox', { name: 'Ask anything privately' });
+    }
+
+    imageGenerationInput() {
+        return this.context().getByRole('textbox', { name: 'Describe the image you want to create' });
+    }
+
+    imageGenerationWithAttachmentInput() {
+        return this.context().getByRole('textbox', { name: 'Describe changes based on the image' });
     }
 
     chatSubmitButton() {
         return this.context().getByRole('button', { name: 'Send' });
+    }
+
+    voiceChatButton() {
+        return this.context().getByRole('button', { name: 'Start voice chat' });
     }
 
     tabList() {
@@ -49,12 +71,24 @@ export class OmnibarPage {
         return this.suggestionsList().getByRole('option');
     }
 
+    aiChatsList() {
+        return this.context().getByRole('listbox');
+    }
+
+    aiChats() {
+        return this.aiChatsList().getByRole('option');
+    }
+
     selectedSuggestion() {
         return this.suggestionsList().getByRole('option', { selected: true });
     }
 
+    selectedAiChat() {
+        return this.aiChatsList().getByRole('option', { selected: true });
+    }
+
     customizeButton() {
-        return this.page.getByRole('button', { name: 'Customize' });
+        return this.page.getByTestId('customizer-button');
     }
 
     toggleSearchButton() {
@@ -67,6 +101,22 @@ export class OmnibarPage {
 
     closeButton() {
         return this.context().getByRole('button', { name: 'Close' });
+    }
+
+    popover() {
+        return this.context().getByRole('dialog');
+    }
+
+    popoverCloseButton() {
+        return this.popover().getByRole('button', { name: 'Close' });
+    }
+
+    popoverCustomizeButton() {
+        return this.popover().getByRole('button', { name: 'Customize' });
+    }
+
+    root() {
+        return this.context().locator('[data-mode]');
     }
 
     /**
@@ -87,6 +137,17 @@ export class OmnibarPage {
         await expect(this.selectedSuggestion()).toHaveCount(0);
     }
 
+    /**
+     * @param {string} text
+     */
+    async expectSelectedAiChatToHaveText(text) {
+        await expect(this.selectedAiChat()).toHaveText(text);
+    }
+
+    async expectNoAiChatSelection() {
+        await expect(this.selectedAiChat()).toHaveCount(0);
+    }
+
     async waitForSuggestions() {
         await expect(this.suggestions().first()).toBeVisible();
     }
@@ -96,6 +157,13 @@ export class OmnibarPage {
      */
     async expectInputValue(value) {
         await expect(this.searchInput()).toHaveValue(value);
+    }
+
+    /**
+     * @param {string} value
+     */
+    async expectChatValue(value) {
+        await expect(this.chatInput()).toHaveValue(value);
     }
 
     /**
@@ -133,6 +201,13 @@ export class OmnibarPage {
     }
 
     /**
+     * @param {'search' | 'ai'} mode
+     */
+    async expectDataMode(mode) {
+        await expect(this.root()).toHaveAttribute('data-mode', mode);
+    }
+
+    /**
      * @param {string} method
      * @param {number} count
      */
@@ -156,4 +231,156 @@ export class OmnibarPage {
         const calls = await this.ntp.mocks.outgoing({ names: [method] });
         expect(calls).toHaveLength(0);
     }
+
+    /**
+     * @param {string} tabId
+     * @param {string[]} tabIds
+     * @returns {Promise<void>}
+     */
+    async didSwitchToTab(tabId, tabIds) {
+        await test.step(`simulate tab change event, to: ${tabId} `, async () => {
+            const event = sub('tabs_onDataUpdate').payload({ tabId, tabIds });
+            await this.ntp.mocks.simulateSubscriptionEvent(event);
+        });
+    }
+
+    /**
+     * @param {Config} config
+     * @returns {Promise<void>}
+     */
+    async didReceiveConfig(config) {
+        const event = sub('omnibar_onConfigUpdate').payload(config);
+        await test.step(`simulates global disabled (eg: settings): ${JSON.stringify(event.name)} ${JSON.stringify(event.payload)} `, async () => {
+            await this.ntp.mocks.simulateSubscriptionEvent(event);
+        });
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @returns {Promise<void>}
+     */
+    switchMode({ mode }) {
+        switch (mode) {
+            case 'ai': {
+                return this.aiTab().click();
+            }
+            case 'search': {
+                return this.searchTab().click();
+            }
+        }
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @param {string} props.value
+     */
+    async expectValue({ mode, value }) {
+        switch (mode) {
+            case 'ai': {
+                return await expect(this.chatInput()).toHaveValue(value);
+            }
+            case 'search': {
+                return await expect(this.searchInput()).toHaveValue(value);
+            }
+        }
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @param {string} props.value
+     * @returns {Promise<void>}
+     */
+    types({ mode, value }) {
+        switch (mode) {
+            case 'ai': {
+                return this.chatInput().fill(value);
+            }
+            case 'search': {
+                return this.searchInput().fill(value);
+            }
+        }
+    }
+
+    async clearsInput() {
+        await this.searchInput().hover();
+        await this.closeButton().click();
+    }
+
+    fileInput() {
+        return this.context().locator('input[type="file"]');
+    }
+
+    imagePreviews() {
+        return this.context().locator('img[alt=""]');
+    }
+
+    modelSelectorButton() {
+        return this.context().getByRole('button', { name: 'Model' });
+    }
+
+    modelDropdown() {
+        return this.page.getByRole('listbox', { name: 'Model' });
+    }
+
+    /**
+     * @param {string} modelName
+     */
+    modelOption(modelName) {
+        return this.modelDropdown().getByRole('option', { name: modelName });
+    }
+
+    toolsMenuButton() {
+        return this.context().getByRole('button', { name: 'Tools' });
+    }
+
+    toolsMenu() {
+        return this.context().getByRole('menu', { name: 'Tools' });
+    }
+
+    createImageMenuItem() {
+        return this.toolsMenu().getByRole('menuitemcheckbox', { name: /Create Image/ });
+    }
+
+    createImageChip() {
+        return this.context().getByRole('button', { name: 'Create Image' });
+    }
+
+    webSearchMenuItem() {
+        return this.toolsMenu().getByRole('menuitemcheckbox', { name: /Web Search/ });
+    }
+
+    webSearchChip() {
+        return this.context().getByRole('button', { name: 'Web Search' });
+    }
+
+    reasoningPickerButton() {
+        return this.context().getByRole('button', { name: 'Reasoning' });
+    }
+
+    reasoningDropdown() {
+        return this.page.getByRole('listbox', { name: 'Reasoning' });
+    }
+
+    /**
+     * @param {string} optionName
+     */
+    reasoningOption(optionName) {
+        return this.reasoningDropdown().getByRole('option', { name: optionName });
+    }
+}
+
+/**
+ * @template {import("../../../types/new-tab.js").NewTabMessages["subscriptions"]["subscriptionEvent"]} SubName
+ * @param {SubName} name
+ * @return {{payload: (payload: Extract<import("../../../types/new-tab.js").NewTabMessages["subscriptions"], {subscriptionEvent: SubName}>['params']) => {name: string, payload: any}}}
+ */
+function sub(name) {
+    return {
+        payload: (payload) => {
+            return { name, payload };
+        },
+    };
 }

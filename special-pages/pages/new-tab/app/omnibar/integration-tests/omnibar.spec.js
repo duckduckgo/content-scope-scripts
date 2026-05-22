@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
+import { CustomizerPage } from '../../customizer/integration-tests/customizer.page.js';
+import { getMockAiChats, mockAiChatsSearchTerm, mockAiChatTitleWithSearchTerm } from '../mocks/omnibar.mocks.js';
 
 test.describe('omnibar widget', () => {
     test('fetches config on load', async ({ page }, workerInfo) => {
@@ -183,6 +185,30 @@ test.describe('omnibar widget', () => {
         });
     });
 
+    test('AI chat submit uses persisted selectedModelId from config', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({
+            additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+        });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('hello');
+        await omnibar.chatInput().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'hello',
+            target: 'same-tab',
+            modelId: 'claude-haiku-4-5',
+            reasoningEffort: 'none',
+        });
+    });
+
     test('mode switching preserves query state', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
@@ -204,6 +230,31 @@ test.describe('omnibar widget', () => {
         await omnibar.searchTab().click();
         await omnibar.expectMode('search');
         await expect(omnibar.searchInput()).toHaveValue('pizza');
+    });
+
+    test('mode switching preserves multiline text with proper formatting', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Start in Duck.ai mode, type multiline text
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+        await omnibar.chatInput().fill('hello\nworld');
+        await expect(omnibar.chatInput()).toHaveValue('hello\nworld');
+
+        // Switch to Search mode - newlines should become spaces
+        await omnibar.searchTab().click();
+        await omnibar.expectMode('search');
+        await expect(omnibar.searchInput()).toHaveValue('hello world');
+
+        // Switch back to Duck.ai mode - newlines should be restored
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+        await expect(omnibar.chatInput()).toHaveValue('hello\nworld');
     });
 
     test('omnibar without AI enabled does not show tab list', async ({ page }, workerInfo) => {
@@ -255,7 +306,7 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.tabList()).toHaveCount(0);
     });
 
-    test('hiding Omnibar widget hides Duck.ai toggle', async ({ page }, workerInfo) => {
+    test('forces mode to search when Duck.ai is disabled while in ai mode', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
@@ -263,13 +314,37 @@ test.describe('omnibar widget', () => {
         await ntp.openPage({ additional: { omnibar: true } });
         await omnibar.ready();
 
-        // Open Customize panel - Duck.ai toggle should be visible
+        // Switch to AI mode
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        // Disable Duck.ai via Customize panel
         await omnibar.customizeButton().click();
-        await expect(omnibar.toggleDuckAiButton()).toBeVisible();
+        await omnibar.toggleDuckAiButton().click();
+
+        // Mode should be forced back to search since tab switcher is now hidden
+        await omnibar.expectDataMode('search');
+
+        // Tab selector should be gone
+        await expect(omnibar.tabList()).toHaveCount(0);
+    });
+
+    test('hiding Omnibar widget hides Duck.ai toggle', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Open Customize panel - Duck.ai toggle should be visible
+        await customizer.opensCustomizer();
+        await customizer.switchIsEnabled('Duck.ai');
 
         // Hide the Omnibar widget - Duck.ai toggle should be hidden
         await omnibar.toggleSearchButton().click();
-        await expect(omnibar.toggleDuckAiButton()).toHaveCount(0);
+        await customizer.switchIsDisabled('Duck.ai');
     });
 
     test('Duck.ai toggle is hidden when showAiSetting is false', async ({ page }, workerInfo) => {
@@ -287,6 +362,61 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.toggleDuckAiButton()).toHaveCount(0);
     });
 
+    test('suggestions do not include Duck.ai when AI is disabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': false } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+
+        await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).not.toBeVisible();
+    });
+
+    test('suggestions do not include Ask Duck.ai entry when enableAskAiSuggestion is false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAskAiSuggestion': false } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+
+        // Mode pills are still visible — enableAi defaults to true and is unaffected
+        await expect(omnibar.tabList()).toBeVisible();
+        // Inline Ask Duck.ai entry is gone
+        await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).not.toBeVisible();
+    });
+
+    test('Ask Duck.ai suggestion reacts live to enableAskAiSuggestion config update', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Default (missing → true): Ask Duck.ai entry is visible
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+        await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).toBeVisible();
+
+        // Native pushes a config update disabling the suggestion
+        await omnibar.didReceiveConfig({ mode: 'search', enableAi: true, enableAskAiSuggestion: false });
+
+        // Re-trigger suggestions; entry is gone, mode pills still visible
+        await omnibar.searchInput().fill('');
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+        await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).not.toBeVisible();
+        await expect(omnibar.tabList()).toBeVisible();
+    });
+
     test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
@@ -297,7 +427,7 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Initially no selection
         await omnibar.expectNoSelection();
@@ -309,6 +439,10 @@ test.describe('omnibar widget', () => {
         // Press arrow down again - select second item
         await omnibar.searchInput().press('ArrowDown');
         await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
+
+        // Press arrow down again - select third item (AI chat suggestion)
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
 
         // Press arrow down again - clear selection
         await omnibar.searchInput().press('ArrowDown');
@@ -351,14 +485,18 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Initially no selection
         await omnibar.expectNoSelection();
 
         // Press arrow up - select last item (reverse direction)
         await omnibar.searchInput().press('ArrowUp');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+
+        // Press arrow up again - select second item
+        await omnibar.searchInput().press('ArrowUp');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
 
         // Press arrow up again - select first item
         await omnibar.searchInput().press('ArrowUp');
@@ -370,7 +508,175 @@ test.describe('omnibar widget', () => {
 
         // Press arrow up again - rotate back to last item
         await omnibar.searchInput().press('ArrowUp');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+    });
+
+    test('clicking on AI chat suggestion should send submitChat notification', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Click on the AI chat suggestion (third item)
+        await omnibar.suggestions().nth(2).click();
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'same-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('pressing enter on selected AI chat suggestion should send submitChat notification', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Navigate to AI chat suggestion (third item)
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+
+        // Press enter to submit
+        await omnibar.searchInput().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'same-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('clicking AI chat suggestion with shift should send submitChat to new-window', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Shift+click on the AI chat suggestion (third item)
+        await omnibar
+            .suggestions()
+            .nth(2)
+            .click({ modifiers: ['Shift'] });
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'new-window',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('clicking AI chat suggestion with cmd should send submitChat to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Cmd+click on the AI chat suggestion (third item)
+        await omnibar
+            .suggestions()
+            .nth(2)
+            .click({ modifiers: ['Meta'] });
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'new-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('pressing shift+enter on selected AI chat suggestion should send submitChat to new-window', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Navigate to AI chat suggestion (third item)
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+
+        // Press shift+enter to submit to new window
+        await omnibar.searchInput().press('Shift+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'new-window',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('pressing cmd+enter on selected AI chat suggestion should send submitChat to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Navigate to AI chat suggestion (third item)
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+
+        // Press cmd+enter to submit to new tab
+        await omnibar.searchInput().press('Meta+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'new-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
     });
 
     test('arrow down and enter should open selected suggestion', async ({ page }, workerInfo) => {
@@ -383,7 +689,7 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Press arrow down to select first suggestion
         await omnibar.searchInput().press('ArrowDown');
@@ -414,7 +720,7 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Click on the second suggestion
         await omnibar.suggestions().nth(1).click();
@@ -441,7 +747,7 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Initially no selection
         await omnibar.expectNoSelection();
@@ -696,7 +1002,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectNoSelection();
         await omnibar.expectInputValue('pizza mar');
         await omnibar.expectInputSelection(9, 9);
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
     });
 
     test('clearing input field should hide suggestions', async ({ page }, workerInfo) => {
@@ -712,7 +1018,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions appear
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Clear the input field
         await omnibar.searchInput().fill('');
@@ -836,7 +1142,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(18);
+        await omnibar.expectSuggestionsCount(20);
 
         // Click outside the search field (on the page body)
         await page.click('body', { position: { x: 100, y: 100 } });
@@ -861,7 +1167,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(18);
+        await omnibar.expectSuggestionsCount(20);
 
         // Focus outside the search form (press Shift+Tab to move focus to pill switcher)
         await omnibar.searchInput().press('Shift+Tab');
@@ -909,7 +1215,7 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.chatInput()).toHaveValue(multilineText);
     });
 
-    test('close button hides suggestions then clears input', async ({ page }, workerInfo) => {
+    test('close button clears input and hides suggestions', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
 
@@ -923,17 +1229,1351 @@ test.describe('omnibar widget', () => {
 
         // Wait for suggestions to appear
         await omnibar.waitForSuggestions();
-        await omnibar.expectSuggestionsCount(18);
+        await omnibar.expectSuggestionsCount(20);
 
-        // Click close button - should hide suggestions
+        // Click close button
         await omnibar.closeButton().click();
+
+        // Should clear input, hide suggestions, and focus the search input
         await expect(omnibar.suggestionsList()).not.toBeVisible();
-
-        // Input should still have 'pizza'
-        await omnibar.expectInputValue('pizza');
-
-        // Click close button again - should clear input
-        await omnibar.closeButton().click();
         await omnibar.expectInputValue('');
+        await expect(omnibar.searchInput()).toBeFocused();
+    });
+
+    test('context menu only includes real widgets, not fake ones', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Right-click on the page to trigger context menu
+        await page.click('body', { button: 'right' });
+
+        // Assert that contextMenu notification is sent with real widgets and not e.g. the Duck.ai toggle
+        await omnibar.expectMethodCalledWith('contextMenu', {
+            visibilityMenuItems: [
+                { id: 'omnibar', title: 'Search' },
+                { id: 'favorites', title: 'Favorites' },
+                { id: 'protections', title: 'Protections Report' },
+            ],
+        });
+    });
+
+    test('right-clicking on the search input does not trigger custom context menu', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Right-click on the search input
+        await omnibar.searchInput().click({ button: 'right' });
+
+        // Assert that the custom contextMenu notification was NOT sent
+        await omnibar.expectMethodNotCalled('contextMenu');
+    });
+
+    test('customize popover appears when showCustomizePopover=true', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        await expect(omnibar.popover()).toBeVisible();
+        await expect(omnibar.popover()).toHaveText(/New/);
+        await expect(omnibar.popover()).toHaveText(/Toggle between search and AI chat/);
+        await expect(omnibar.popover()).toHaveText(/Either way, your info stays private/);
+    });
+
+    test('customize popover does not appear when showCustomizePopover=false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': false } });
+        await omnibar.ready();
+
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('clicking close button dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Click close button
+        await omnibar.popoverCloseButton().click();
+
+        // Popover should be dismissed
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('clicking customize button opens customizer and dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Click customize button in popover
+        await omnibar.popoverCustomizeButton().click();
+
+        // Customizer should be open and popover should be dismissed
+        await expect(customizer.context()).toBeVisible();
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('manually opening customizer dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Open customizer manually using the main customize button (not the one in popover)
+        await omnibar.customizeButton().click();
+
+        // Customizer should be open and popover should be dismissed
+        await expect(customizer.context()).toBeVisible();
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('pressing escape dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Press Escape
+        await page.keyboard.press('Escape');
+
+        // Popover should be dismissed
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    // 1x1 red pixel PNG
+    // eslint-disable-next-line no-undef
+    const TINY_PNG = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==',
+        'base64',
+    );
+
+    test.describe('AI chat image generation mode', () => {
+        test('image generation flag shows tools menu', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableImageGeneration': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.toolsMenuButton()).toBeVisible();
+            await expect(omnibar.createImageChip()).toHaveCount(0);
+        });
+
+        test('activating create image updates omnibar UI state', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableImageGeneration': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.chatInput()).toBeVisible();
+            await expect(omnibar.modelSelectorButton()).toBeVisible();
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+
+            await expect(omnibar.imageGenerationInput()).toBeVisible();
+            await expect(omnibar.createImageChip()).toBeVisible();
+            await expect(omnibar.modelSelectorButton()).toHaveCount(0);
+            await expect(omnibar.chatInput()).toHaveCount(0);
+        });
+
+        test('image generation submit sends mode and omits modelId', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableImageGeneration': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+
+            await omnibar.imageGenerationInput().fill('a neon duck flying over mountains');
+            await omnibar.imageGenerationInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'a neon duck flying over mountains',
+                target: 'same-tab',
+                mode: 'image-generation',
+            });
+        });
+
+        test('image generation submit includes attached images', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableImageGeneration': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+
+            await omnibar.fileInput().setInputFiles({ name: 'test.png', mimeType: 'image/png', buffer: TINY_PNG });
+            await expect(omnibar.imagePreviews()).toHaveCount(1);
+
+            await omnibar.imageGenerationWithAttachmentInput().fill('turn this into pixel art');
+            await omnibar.imageGenerationWithAttachmentInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'turn this into pixel art',
+                target: 'same-tab',
+                mode: 'image-generation',
+                images: [{ data: expect.any(String), format: 'png' }],
+            });
+        });
+
+        test('submitting image generation resets omnibar back to chat mode', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableImageGeneration': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+
+            await omnibar.imageGenerationInput().fill('a watercolor otter portrait');
+            await omnibar.imageGenerationInput().press('Enter');
+
+            await expect(omnibar.chatInput()).toBeVisible();
+            await expect(omnibar.modelSelectorButton()).toBeVisible();
+            await expect(omnibar.createImageChip()).toHaveCount(0);
+            await expect(omnibar.imageGenerationInput()).toHaveCount(0);
+        });
+    });
+
+    test.describe('AI chat web search mode', () => {
+        test('web search flag shows tools menu', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableWebSearch': 'true', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.toolsMenuButton()).toBeVisible();
+            await expect(omnibar.webSearchChip()).toHaveCount(0);
+        });
+
+        test('selecting web search shows chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableWebSearch': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+
+            await expect(omnibar.webSearchChip()).toBeVisible();
+            await expect(omnibar.modelSelectorButton()).toBeVisible();
+        });
+
+        test('web search submit sends toolChoice', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableWebSearch': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+
+            await omnibar.chatInput().fill('what happened today');
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'what happened today',
+                target: 'same-tab',
+                toolChoice: ['WebSearch'],
+                modelId: 'gpt-4o-mini',
+            });
+        });
+
+        test('submitting web search resets chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableWebSearch': 'true', 'omnibar.enableAiChatTools': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+
+            await omnibar.chatInput().fill('latest news');
+            await omnibar.chatInput().press('Enter');
+
+            await expect(omnibar.chatInput()).toBeVisible();
+            await expect(omnibar.webSearchChip()).toHaveCount(0);
+        });
+    });
+
+    test.describe('AI chat popup keyboard navigation', () => {
+        test('tools menu supports keyboard navigation', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableWebSearch': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.toolsMenuButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.toolsMenu()).toBeFocused();
+
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('Enter');
+            await expect(omnibar.webSearchChip()).toBeVisible();
+
+            await omnibar.toolsMenuButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.toolsMenu()).toBeFocused();
+            await page.keyboard.press('Escape');
+            await expect(omnibar.toolsMenuButton()).toBeFocused();
+        });
+
+        test('model selector supports keyboard navigation', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.modelDropdown()).toBeFocused();
+
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('Enter');
+            await expect(omnibar.modelDropdown()).toHaveCount(0);
+            await expect(omnibar.modelSelectorButton()).toContainText('GPT-5');
+
+            await omnibar.modelSelectorButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.modelDropdown()).toBeFocused();
+            await page.keyboard.press('Escape');
+            await expect(omnibar.modelSelectorButton()).toBeFocused();
+        });
+
+        test('reasoning picker supports keyboard navigation', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.reasoningPickerButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.reasoningDropdown()).toBeFocused();
+            await expect(omnibar.reasoningDropdown().getByRole('option')).toHaveCount(3);
+
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('Enter');
+            await expect(omnibar.reasoningDropdown()).toHaveCount(0);
+            await expect(omnibar.reasoningPickerButton()).toContainText('Reasoning');
+
+            await omnibar.reasoningPickerButton().focus();
+            await page.keyboard.press('Enter');
+            await expect(omnibar.reasoningDropdown()).toBeFocused();
+            await page.keyboard.press('Escape');
+            await expect(omnibar.reasoningPickerButton()).toBeFocused();
+        });
+    });
+
+    test.describe('AI chat reasoning picker', () => {
+        test('picker is hidden when the selected model has no supportedReasoningEffort', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // gpt-4o-mini in the mock has no supportedReasoningEffort
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-4o-mini',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.reasoningPickerButton()).toHaveCount(0);
+        });
+
+        test('picker is visible when the selected model supports reasoning efforts', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.reasoningPickerButton()).toBeVisible();
+        });
+
+        test('selecting an option persists the choice via omnibar_setConfig', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.reasoningPickerButton().click();
+            await omnibar.reasoningOption('Reasoning Takes a moment to respond').click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
+            const last = calls[calls.length - 1];
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('low');
+        });
+
+        test('submit includes reasoningEffort for models that support it', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedReasoningEffort': 'low',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.chatInput().fill('hello');
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'hello',
+                target: 'same-tab',
+                modelId: 'gpt-5-mini',
+                reasoningEffort: 'low',
+            });
+        });
+
+        test('submit omits reasoningEffort when the model has no supportedReasoningEffort', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-4o-mini',
+                    'omnibar.selectedReasoningEffort': 'low',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.chatInput().fill('hello');
+            await omnibar.chatInput().press('Enter');
+
+            const calls = await ntp.mocks.outgoing({ names: ['omnibar_submitChat'] });
+            const last = calls[calls.length - 1];
+            expect(last?.payload?.params?.reasoningEffort).toBeUndefined();
+        });
+
+        test('switching to a model with a different supportedReasoningEffort falls back to a valid default', async ({
+            page,
+        }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // claude-opus-4-6 supports ['none', 'low', 'medium']; claude-haiku-4-5 only ['none', 'low']
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                    'omnibar.selectedReasoningEffort': 'medium',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Haiku 4.5').click();
+
+            await omnibar.chatInput().fill('hello');
+            await omnibar.chatInput().press('Enter');
+
+            // 'medium' isn't in claude-haiku-4-5's list; effective value falls back to the first supported one
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'hello',
+                target: 'same-tab',
+                modelId: 'claude-haiku-4-5',
+                reasoningEffort: 'none',
+            });
+        });
+
+        test('rewrites the persisted effort when switching to a model that does not support it', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // claude-opus-4-6 supports 'medium'; claude-haiku-4-5 does not
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                    'omnibar.selectedReasoningEffort': 'medium',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Haiku 4.5').click();
+
+            // Model change should carry a reconciled selectedReasoningEffort in the same config write
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
+            const last = calls[calls.length - 1];
+            expect(last?.payload?.params?.selectedModelId).toBe('claude-haiku-4-5');
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('none');
+        });
+
+        test('keeps the persisted effort when switching to a model that still supports it', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Both models support 'none'
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                    'omnibar.selectedReasoningEffort': 'none',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('Claude Haiku 4.5').click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
+            const last = calls[calls.length - 1];
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('none');
+        });
+    });
+
+    test.describe('AI chat image attachments', () => {
+        test('submit includes images with expected format', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.fileInput().setInputFiles({ name: 'test.png', mimeType: 'image/png', buffer: TINY_PNG });
+            await expect(omnibar.imagePreviews()).toHaveCount(1);
+
+            await omnibar.chatInput().fill('describe this image');
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: 'describe this image',
+                target: 'same-tab',
+                modelId: 'gpt-4o-mini',
+                images: [{ data: expect.any(String), format: 'png' }],
+            });
+
+            await expect(omnibar.imagePreviews()).toHaveCount(0);
+        });
+
+        test('switching to non-image model clears attached images', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.fileInput().setInputFiles({ name: 'test.png', mimeType: 'image/png', buffer: TINY_PNG });
+            await expect(omnibar.imagePreviews()).toHaveCount(1);
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('GPT-OSS 120B').click();
+
+            await expect(omnibar.imagePreviews()).toHaveCount(0);
+        });
+
+        test('rejects file with unsupported MIME type', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            // eslint-disable-next-line no-undef
+            const gifBuffer = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+            await omnibar.fileInput().setInputFiles({ name: 'test.gif', mimeType: 'image/gif', buffer: gifBuffer });
+
+            await expect(omnibar.imagePreviews()).toHaveCount(0);
+        });
+
+        test('enforces 3-image cap', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.fileInput().setInputFiles([
+                { name: 'a.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'b.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'c.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'd.png', mimeType: 'image/png', buffer: TINY_PNG },
+            ]);
+
+            await expect(omnibar.imagePreviews()).toHaveCount(4);
+            await expect(page.locator('[role="alert"]')).toBeVisible();
+            await expect(page.locator('button[type="submit"]')).toBeDisabled();
+        });
+
+        test('switching to non-image model clears image warning and reenables submit', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.fileInput().setInputFiles([
+                { name: 'a.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'b.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'c.png', mimeType: 'image/png', buffer: TINY_PNG },
+                { name: 'd.png', mimeType: 'image/png', buffer: TINY_PNG },
+            ]);
+
+            await expect(omnibar.imagePreviews()).toHaveCount(4);
+            await expect(page.locator('[role="alert"]')).toBeVisible();
+            await expect(omnibar.chatSubmitButton()).toBeDisabled();
+
+            await omnibar.modelSelectorButton().click();
+            await omnibar.modelOption('GPT-OSS 120B').click();
+
+            await expect(omnibar.imagePreviews()).toHaveCount(0);
+            await expect(page.locator('[role="alert"]')).toHaveCount(0);
+            await omnibar.chatInput().fill('hello');
+            await expect(omnibar.chatSubmitButton()).toBeEnabled();
+        });
+
+        test('submit payload only contains schema-defined fields', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.chatInput().fill('hello');
+            await omnibar.chatInput().press('Enter');
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_submitChat', count: 1 });
+            const payload = calls[0].payload.params;
+            const allowedKeys = ['chat', 'target', 'modelId', 'images'];
+            const extraKeys = Object.keys(payload).filter((k) => !allowedKeys.includes(k));
+            expect(extraKeys).toEqual([]);
+        });
+    });
+
+    test.describe('AI chats', () => {
+        test('shows recent AI chats when in AI mode', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+            for (const chat of mockChats) {
+                await expect(omnibar.aiChats().filter({ hasText: chat.title })).toHaveCount(1);
+            }
+        });
+
+        test('clicking an AI chat sends openAiChat notification', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await omnibar.aiChats().first().click();
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'same-tab',
+                trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('list is filtered by typed text', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+
+            await omnibar.chatInput().fill(mockAiChatsSearchTerm);
+            await expect(omnibar.aiChats()).toHaveCount(1);
+            const searchChat = /** @type {import("../../../types/new-tab").AiChat} */ (
+                mockChats.find((chat) => chat.title === mockAiChatTitleWithSearchTerm)
+            );
+            await expect(omnibar.aiChats().first()).toHaveText(searchChat.title);
+
+            await omnibar.chatInput().fill('');
+
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+        });
+
+        test('list is hidden when no chats match the filter', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            await omnibar.chatInput().fill('xyznonexistent123');
+            await expect(omnibar.aiChatsList()).not.toBeVisible();
+        });
+
+        test('arrow down navigates through chat list', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+
+            await omnibar.expectNoAiChatSelection();
+
+            for (let i = 0; i < mockChats.length; i++) {
+                await omnibar.chatInput().press('ArrowDown');
+                await omnibar.expectSelectedAiChatToHaveText(mockChats[i].title);
+            }
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('arrow up navigates through chat list in reverse', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+
+            await omnibar.expectNoAiChatSelection();
+
+            for (let i = mockChats.length - 1; i >= 0; i--) {
+                await omnibar.chatInput().press('ArrowUp');
+                await omnibar.expectSelectedAiChatToHaveText(mockChats[i].title);
+            }
+
+            await omnibar.chatInput().press('ArrowUp');
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('pressing enter on selected chat sends openAiChat with keyboard trigger', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'same-tab',
+                trigger: 'keyboard',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('pressing cmd+enter on selected chat opens in new tab', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+            await omnibar.chatInput().press('Meta+Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'new-tab',
+                trigger: 'keyboard',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('shift+clicking a chat opens in new window', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await omnibar
+                .aiChats()
+                .first()
+                .click({ modifiers: ['Shift'] });
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'new-window',
+                trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('cmd+clicking a chat opens in new tab', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await omnibar
+                .aiChats()
+                .first()
+                .click({ modifiers: ['Meta'] });
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: firstChat.chatId,
+                target: 'new-tab',
+                trigger: 'mouse',
+                isPinned: Boolean(firstChat.pinned),
+            });
+        });
+
+        test('escape clears chat selection', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            const firstChat = getMockAiChats().chats[0];
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(firstChat.title);
+
+            await omnibar.chatInput().press('Escape');
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('mouse hover selects chat, mouse leave clears selection', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            // Initially no selection
+            await omnibar.expectNoAiChatSelection();
+
+            // Hover over first chat
+            await omnibar.aiChats().nth(0).hover();
+            await omnibar.expectSelectedAiChatToHaveText(mockChats[0].title);
+
+            // Hover over second chat
+            await omnibar.aiChats().nth(1).hover();
+            await omnibar.expectSelectedAiChatToHaveText(mockChats[1].title);
+
+            // Mouse out to clear selection
+            await omnibar.chatInput().hover();
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('typing clears chat selection', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats()).toHaveCount(getMockAiChats().chats.length);
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(getMockAiChats().chats[0].title);
+
+            await omnibar.chatInput().fill(mockAiChatsSearchTerm);
+            await omnibar.expectNoAiChatSelection();
+        });
+
+        test('enter submits query when no chat is selected', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await omnibar.chatInput().fill(mockAiChatsSearchTerm);
+            await omnibar.expectNoAiChatSelection();
+
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: mockAiChatsSearchTerm,
+                target: 'same-tab',
+            });
+        });
+
+        test('keyboard navigation works on filtered list', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            const mockChats = getMockAiChats().chats;
+            const searchChat = mockChats.find((chat) => chat.title === mockAiChatTitleWithSearchTerm);
+            if (!searchChat) throw new Error('Expected to find a chat matching the search term');
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true, 'omnibar.mode': 'ai' },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+
+            await omnibar.chatInput().fill(mockAiChatsSearchTerm);
+            await expect(omnibar.aiChats()).toHaveCount(1);
+            await expect(omnibar.aiChats().first()).toHaveText(searchChat.title);
+
+            await omnibar.chatInput().press('ArrowDown');
+            await omnibar.expectSelectedAiChatToHaveText(searchChat.title);
+
+            await omnibar.chatInput().press('Enter');
+
+            await omnibar.expectMethodCalledWith('omnibar_openAiChat', {
+                chatId: searchChat.chatId,
+                target: 'same-tab',
+                trigger: 'keyboard',
+                isPinned: Boolean(searchChat.pinned),
+            });
+        });
+
+        test('list is hidden in search mode', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.enableRecentAiChats': true } });
+            await omnibar.ready();
+
+            await expect(omnibar.aiChatsList()).not.toBeVisible();
+        });
+    });
+
+    test.describe('AI chat voice-chat access', () => {
+        test('voice button is hidden when feature flag is off', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.voiceChatButton()).toHaveCount(0);
+            // Submit button is still present and disabled when input is empty (legacy behavior).
+            await expect(omnibar.chatSubmitButton()).toBeDisabled();
+        });
+
+        test('voice button is shown when flag is on and input is empty', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await expect(omnibar.voiceChatButton()).toBeVisible();
+            // The submit button is replaced by the voice button — no "Send" button visible.
+            await expect(omnibar.chatSubmitButton()).toHaveCount(0);
+        });
+
+        test('typing replaces the voice button with the submit button', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await expect(omnibar.voiceChatButton()).toBeVisible();
+
+            await omnibar.chatInput().fill('hello');
+
+            await expect(omnibar.voiceChatButton()).toHaveCount(0);
+            await expect(omnibar.chatSubmitButton()).toBeVisible();
+        });
+
+        test('clicking voice button fires omnibar_submitChat with mode voice-mode and empty chat', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.voiceChatButton().click();
+
+            // Voice handoff reuses `omnibar_submitChat` with `mode: 'voice-mode'` — same mechanism
+            // image-generation uses. Native routes Duck.ai to the voice flow on mode alone; no
+            // dedicated `omnibar_openNewVoiceChat` notify and no `?mode=voice` URL parameter.
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: '',
+                target: 'same-tab',
+                mode: 'voice-mode',
+            });
+        });
+
+        test('middle-clicking voice button fires omnibar_submitChat voice-mode with target new-tab', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            // Middle-click (auxclick) — mirrors the AI chat submit button, which routes a middle-click
+            // to `target: 'new-tab'` via eventToTarget(). The voice button must wire onAuxClick too,
+            // otherwise middle-click would silently drop the handoff.
+            await omnibar.voiceChatButton().click({ button: 'middle' });
+
+            await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+                chat: '',
+                target: 'new-tab',
+                mode: 'voice-mode',
+            });
+        });
+
+        test('pressing Enter on empty input with voice access does NOT submit', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.chatInput().press('Enter');
+
+            // Voice handoff requires an explicit click on the voice button — Enter on an empty
+            // input must not implicitly start a voice session, mirroring the legacy disabled
+            // submit behavior. No `omnibar_submitChat` should be sent at all.
+            await omnibar.expectMethodNotCalled('omnibar_submitChat');
+        });
+
+        test('image-generation mode hides the voice button', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableImageGeneration': 'true',
+                    'omnibar.enableVoiceChatAccess': 'true',
+                    'omnibar.selectedModelId': 'gpt-4o-mini',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await expect(omnibar.voiceChatButton()).toBeVisible();
+
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+
+            // Voice button is suppressed while image-generation mode is active.
+            await expect(omnibar.voiceChatButton()).toHaveCount(0);
+        });
     });
 });

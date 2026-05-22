@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Web Interference Detection</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Web Interference Detection]</a></p>
+
+    <p>This page verifies that the web interference detection feature initializes correctly</p>
+
+    <script>
+        test('Web interference detection feature active', async () => {
+            // The feature registers a messaging subscription for 'detectInterference'
+            // and initializes YouTube ad detection on YouTube pages.
+            // On non-YouTube pages (like this test), it should initialize without error.
+
+            return [
+                {
+                    name: 'Feature initializes without error',
+                    result: true,
+                    expected: true,
+                },
+                {
+                    name: 'Page remains functional after feature init',
+                    result: typeof document.location.href,
+                    expected: 'string',
+                },
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

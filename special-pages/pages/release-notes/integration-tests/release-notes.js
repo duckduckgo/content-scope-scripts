@@ -68,7 +68,7 @@ export class ReleaseNotesPage {
     get basePath() {
         return this.build.switch({
             // windows: () => '../../build/windows/pages/release-notes',
-            apple: () => '../build/apple/pages/release-notes',
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/release-notes',
         });
     }
 
@@ -97,7 +97,10 @@ export class ReleaseNotesPage {
     async sendSubscriptionMessage(messageType, dataOverrides) {
         // Wait for the subscription handler to appear before trying to simulate push events.
         // This prevents a race condition where playwright is sending data before `.subscribe` was called
-        await this.page.waitForFunction(() => 'onUpdate' in window && typeof window.onUpdate === 'function');
+        await this.page.waitForFunction(() => {
+            const fn = navigator.duckduckgo?.messageHandlers?.onUpdate || window.onUpdate;
+            return typeof fn === 'function';
+        });
 
         const data = dataOverrides
             ? { ...sampleData[messageType], .../** @type {object} */ (dataOverrides) }
@@ -197,7 +200,7 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
@@ -209,7 +212,7 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('button', { name: 'Reload Summary' })).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
@@ -221,7 +224,7 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
@@ -233,7 +236,7 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
@@ -326,14 +329,14 @@ export class ReleaseNotesPage {
         ).not.toBeVisible();
         await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible();
 
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).not.toBeVisible();
     }
 
     async didShowReleaseNotesList() {
         const { page } = this;
 
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).toBeVisible();
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).toBeVisible();
 
         await expect(

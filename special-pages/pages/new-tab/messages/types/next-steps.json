@@ -30,7 +30,9 @@
                                     "emailProtection",
                                     "duckplayer",
                                     "addAppToDockMac",
-                                    "pinAppToTaskbarWindows"
+                                    "pinAppToTaskbarWindows",
+                                    "subscription",
+                                    "youtubeAdBlocking"
                                 ]
                             }
                         }

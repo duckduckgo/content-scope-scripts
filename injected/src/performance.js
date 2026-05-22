@@ -3,6 +3,7 @@
  */
 export class PerformanceMonitor {
     constructor() {
+        /** @type {PerformanceMark[]} */
         this.marks = [];
     }
 

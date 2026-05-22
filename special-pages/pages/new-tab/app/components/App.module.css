@@ -1,4 +1,5 @@
 @import url("../../../../shared/styles/variables.css");
+@import url("../../../../shared/styles/theme-mappings.css");
 @import url("../styles/base.css");
 @import url("../styles/ntp-theme.css");
 
@@ -55,11 +56,18 @@ body[data-animate-background="true"] {
     height: 100vh;
     overflow: auto;
     grid-area: main;
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
+}
+
+/* WebKit-only fix for layout shift when scrollbar appears */
+@supports (-webkit-appearance: none) {
+    .main {
+        overflow-y: scroll;
+    }
 }
 
 .themeContext {
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
 }
 
 .mainLayout {
@@ -91,8 +99,8 @@ body[data-animate-background="true"] {
 }
 
 .aside {
-    color: var(--ntp-text-normal);
-    background: var(--ntp-surfaces-panel-background-color);
+    color: var(--ds-color-theme-text-primary);
+    background: var(--ds-color-theme-surface-secondary);
     grid-area: aside;
     height: 100vh;
     z-index: 1;
@@ -146,7 +154,7 @@ body[data-animate-background="true"] {
 
     &::-webkit-scrollbar-thumb {
         background: rgb(108, 108, 108);
-        border: 4px solid var(--ntp-surfaces-panel-background-color);
+        border: 4px solid var(--ds-color-theme-surface-tertiary);
         border-radius: 6px;
     }
 }

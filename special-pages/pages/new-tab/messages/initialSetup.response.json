@@ -41,6 +41,16 @@
           "$ref": "types/update-notification.json"
         }
       ]
+    },
+    "tabs": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "types/tabs.json"
+        }
+      ]
     }
   }
 }

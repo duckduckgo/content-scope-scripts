@@ -1,0 +1,41 @@
+/**
+ * Using CSS Modules 'composes' to import styles from FreemiumPIRBanner.
+ * This avoids code duplication and keeps both components in sync.
+ * See: https://github.com/css-modules/css-modules/blob/master/docs/composition.md
+ */
+
+.root {
+  composes: root from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}
+
+.iconBlock {
+  composes: iconBlock from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}
+
+.content {
+  composes: content from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}
+
+.title {
+  composes: title from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}
+
+.description {
+  composes: description from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}
+
+.btnBlock {
+  composes: btnBlock from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}
+
+.btnRow {
+  composes: btnRow from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}
+
+.dismissBtn {
+  composes: dismissBtn from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}
+
+.icon {
+  composes: icon from '../../freemium-pir-banner/components/FreemiumPIRBanner.module.css';
+}

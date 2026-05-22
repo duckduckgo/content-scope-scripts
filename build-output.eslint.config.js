@@ -3,9 +3,6 @@
 
 export default [
     {
-        ignores: ['injected/src/features/Scriptlets', 'injected/src/features/scriptlets.js'],
-    },
-    {
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'script',

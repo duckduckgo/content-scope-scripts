@@ -136,10 +136,18 @@
             "type": "string",
             "enum": [
                 "Announce",
-                "DDGAnnounce",
-                "CriticalUpdate",
                 "AppUpdate",
-                "PrivacyPro"
+                "CriticalUpdate",
+                "DDGAnnounce",
+                "DuckAi",
+                "PIR",
+                "Preview",
+                "Radar",
+                "RadarCheckGreen",
+                "RadarCheckPurple",
+                "Subscription",
+                "VeryCriticalUpdate",
+                "YoutubeNew"
             ]
         }
     }

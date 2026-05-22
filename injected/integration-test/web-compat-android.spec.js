@@ -76,12 +76,32 @@ test.describe('Web Share API', () => {
         });
 
         test.describe('navigator.canShare()', () => {
-            test('should not let you share files', async ({ page }) => {
+            test('should allow empty files arrays', async ({ page }) => {
                 await navigate(page);
-                const refuseFileShare = await page.evaluate(() => {
+                const allowEmptyFiles = await page.evaluate(() => {
                     return navigator.canShare({ text: 'xxx', files: [] });
                 });
+                expect(allowEmptyFiles).toEqual(true);
+            });
+
+            test('should not let you share non-empty files arrays', async ({ page }) => {
+                await navigate(page);
+                const refuseFileShare = await page.evaluate(() => {
+                    // Create a mock File object
+                    const mockFile = new File([''], 'test.txt', { type: 'text/plain' });
+                    return navigator.canShare({ text: 'xxx', files: [mockFile] });
+                });
                 expect(refuseFileShare).toEqual(false);
+            });
+
+            test('should reject non-array files values', async ({ page }) => {
+                await navigate(page);
+                const rejectNonArrayFiles = await page.evaluate(() => {
+                    // eslint-disable-next-line
+                    // @ts-ignore intentionally testing invalid files type
+                    return navigator.canShare({ text: 'xxx', files: 'not-an-array' });
+                });
+                expect(rejectNonArrayFiles).toEqual(false);
             });
 
             test('should not let you share non-http urls', async ({ page }) => {
@@ -218,10 +238,21 @@ test.describe('Web Share API', () => {
                     expect(result).toBeUndefined();
                 });
 
-                test('should throw when sharing files', async ({ page }) => {
+                test('should allow sharing with empty files array', async ({ page }) => {
                     await navigate(page);
                     await beforeEach(page);
                     const { result, message } = await checkShare(page, { title: 'title', files: [] });
+                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { title: 'title', text: '' } });
+                    expect(result).toBeUndefined();
+                });
+
+                test('should throw when sharing non-empty files arrays', async ({ page }) => {
+                    await navigate(page);
+                    await beforeEach(page);
+                    const { result, message } = await checkShare(page, {
+                        title: 'title',
+                        files: [new File([''], 'test.txt', { type: 'text/plain' })],
+                    });
                     expect(message).toBeNull();
                     expect(result.threw.message).toContain('TypeError: Invalid share data');
                 });

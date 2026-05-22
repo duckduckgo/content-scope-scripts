@@ -1,6 +1,5 @@
-import { useContext, useState } from 'preact/hooks';
+import { useContext, useState, useEffect } from 'preact/hooks';
 import { h, createContext } from 'preact';
-import { useEffect } from 'preact/hooks';
 import { useMessaging } from '../types';
 import { useSetFocusMode } from '../components/FocusMode';
 import { YOUTUBE_ERROR_IDS, YOUTUBE_ERROR_EVENT } from '../../../../../injected/src/features/duckplayer-native/youtube-errors.js';
@@ -53,6 +52,7 @@ export function YouTubeErrorProvider({ initial = null, locale, children }) {
         window.addEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
 
         return () => window.removeEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, []);
 
     return <YouTubeErrorContext.Provider value={{ error, locale }}>{children}</YouTubeErrorContext.Provider>;

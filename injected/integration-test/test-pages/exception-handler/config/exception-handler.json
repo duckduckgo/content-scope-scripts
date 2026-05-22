@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the exception handler feature which reports uncaught errors.",
+    "version": 1,
+    "features": {
+        "exceptionHandler": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

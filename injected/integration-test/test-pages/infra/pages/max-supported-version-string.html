@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Max Supported Version (string)</title>
+        <link rel="stylesheet" href="../../shared/style.css" />
+    </head>
+    <body>
+        <script src="../../shared/utils.js"></script>
+        <p><a href="../index.html">[Infra]</a></p>
+        <p>This page verifies maxSupportedVersion (string) conditional patching. Load with 1.5.0 as the version number.</p>
+        <script>
+            test('maxSupportedVersion (string)', async () => {
+                const results = [];
+                results.push({
+                    name: 'versionStringTestAbove should always be true',
+                    result: window.versionStringTestAbove,
+                    expected: true,
+                });
+                results.push({
+                    name: 'versionStringTestSame should always be true',
+                    result: window.versionStringTestSame,
+                    expected: true,
+                });
+                results.push({
+                    name: 'versionStringTestBelow should always be false/undefined',
+                    result: window.versionStringTestBelow,
+                    expected: undefined,
+                });
+                return results;
+            });
+            renderResults();
+        </script>
+    </body>
+</html>

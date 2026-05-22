@@ -2,7 +2,7 @@
  * @module Apple integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig, platformSpecificFeatures } from './../src/utils';
+import { processConfig, platformSpecificFeatures, getLoadArgs } from './../src/utils';
 import { WebkitMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -15,25 +15,13 @@ function initCode() {
 
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
 
-    const handlerNames = [];
-    if (import.meta.injectName === 'apple-isolated') {
-        handlerNames.push('contentScopeScriptsIsolated');
-    } else {
-        handlerNames.push('contentScopeScripts');
-    }
     processedConfig.messagingConfig = new WebkitMessagingConfig({
-        webkitMessageHandlerNames: handlerNames,
+        webkitMessageHandlerNames: [processedConfig.messagingContextName],
         secret: '',
         hasModernWebkitAPI: true,
     });
 
-    load({
-        platform: processedConfig.platform,
-        site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig,
-        messageSecret: processedConfig.messageSecret,
-    });
+    load(getLoadArgs(processedConfig));
 
     init(processedConfig);
 

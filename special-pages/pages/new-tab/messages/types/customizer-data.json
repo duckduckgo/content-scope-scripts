@@ -11,6 +11,9 @@
   "properties": {
     "background": {"$ref": "./background.json#/definitions/background-variant"},
     "theme": { "$ref": "./browser-theme.json" },
+    "themeVariant": {
+      "$ref": "./theme-variant.json"
+    },
     "userImages": {
       "type": "array",
       "items": {
@@ -21,6 +24,7 @@
       "$ref": "./user-color-data.json#/definitions/userColor"
     },
     "defaultStyles": {
+      "deprecated": true,
       "oneOf": [
         {
           "type": "null"
@@ -29,6 +33,12 @@
           "$ref": "./default-styles.json"
         }
       ]
+    },
+    "showThemeVariantPopover": {
+      "title": "Show Theme Variant Popover",
+      "description": "Controls a popover that onboards users to the theme variant feature",
+      "type": "boolean",
+      "default": false
     }
   }
 }

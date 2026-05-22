@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Fingerprinting Audio</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Fingerprinting Audio]</a></p>
+
+    <p>This page verifies that audio fingerprinting data is modified</p>
+
+    <script>
+        test('Audio fingerprint protection', async () => {
+            const results = [];
+
+            // Create an offline audio context and render a tone
+            const ctx = new OfflineAudioContext(1, 5000, 44100);
+            const oscillator = ctx.createOscillator();
+            oscillator.type = 'triangle';
+            oscillator.frequency.value = 1000;
+            oscillator.connect(ctx.destination);
+            oscillator.start(0);
+
+            const buffer = await ctx.startRendering();
+            const channelData = buffer.getChannelData(0);
+
+            // The buffer should have data (not all zeros)
+            let hasNonZero = false;
+            for (let i = 0; i < channelData.length; i++) {
+                if (channelData[i] !== 0) {
+                    hasNonZero = true;
+                    break;
+                }
+            }
+            results.push({
+                name: 'Audio buffer has non-zero data',
+                result: hasNonZero,
+                expected: true,
+            });
+
+            // Get channel data again - should be consistently modified (same values from cache)
+            const channelData2 = buffer.getChannelData(0);
+            let isConsistent = true;
+            for (let i = 0; i < channelData.length; i++) {
+                if (channelData[i] !== channelData2[i]) {
+                    isConsistent = false;
+                    break;
+                }
+            }
+            results.push({
+                name: 'Repeated getChannelData returns consistent results',
+                result: isConsistent,
+                expected: true,
+            });
+
+            // Test copyFromChannel
+            const dest = new Float32Array(channelData.length);
+            buffer.copyFromChannel(dest, 0);
+
+            let copyHasData = false;
+            for (let i = 0; i < dest.length; i++) {
+                if (dest[i] !== 0) {
+                    copyHasData = true;
+                    break;
+                }
+            }
+            results.push({
+                name: 'copyFromChannel returns data',
+                result: copyHasData,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

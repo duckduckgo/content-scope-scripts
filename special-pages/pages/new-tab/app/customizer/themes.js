@@ -27,5 +27,7 @@ export function useThemes(data) {
         return themeFromBrowser(data.value.theme, mq.value);
     });
 
-    return { main, browser };
+    const variant = useComputed(() => data.value.themeVariant ?? 'default');
+
+    return { main, browser, variant };
 }

@@ -1,14 +1,21 @@
 {
     "extends": ["stylelint-config-standard"],
     "plugins": ["stylelint-csstree-validator"],
-    "ignoreFiles": ["build/**/*.css", "Sources/**/*.css", "docs/**/*.css", "special-pages/pages/**/*/dist/*.css", "injected/src/features/Scriptlets/**/*"],
+    "ignoreFiles": ["build/**/*.css", "Sources/**/*.css", "docs/**/*.css", "special-pages/pages/**/*/dist/*.css"],
     "rules": {
         "csstree/validator": {
-            "ignoreProperties": ["text-wrap", "view-transition-name"]
+            "ignoreProperties": ["text-wrap", "view-transition-name", "composes", "text-box-trim", "text-box-edge"]
         },
+        "property-no-unknown": [
+            true,
+            {
+                "ignoreProperties": ["composes"]
+            }
+        ],
         "alpha-value-notation": null,
         "at-rule-empty-line-before": null,
         "color-function-notation": null,
+        "color-function-alias-notation": null,
         "color-hex-length": null,
         "comment-empty-line-before": null,
         "custom-property-empty-line-before": null,
@@ -20,6 +27,7 @@
         "media-feature-range-notation": null,
         "no-descending-specificity": null,
         "property-no-vendor-prefix": null,
+        "property-no-deprecated": null,
         "rule-empty-line-before": null,
         "selector-attribute-quotes": null,
         "selector-class-pattern": null,

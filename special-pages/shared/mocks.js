@@ -93,6 +93,20 @@ export class Mocks {
     }
 
     /**
+     * @param {object} props
+     * @param {string} props.name
+     * @param {Record<string, any>} props.payload
+     */
+    async simulateSubscriptionEvent(props) {
+        await this.page.evaluate(simulateSubscriptionMessage, {
+            messagingContext: this.messagingContext,
+            name: props.name,
+            payload: props.payload,
+            injectName: this.build.name,
+        });
+    }
+
+    /**
      * @param {{names: string[]}} [opts]
      * @returns {Promise<any[]>}
      */

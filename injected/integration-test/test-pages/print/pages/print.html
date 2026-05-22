@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Print</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Print]</a></p>
+
+    <p>This page verifies that window.print() is overridden to notify the native app</p>
+
+    <script>
+        test('Print override', async () => {
+            const results = [];
+
+            // Store reference to check if print was overridden
+            // The native print function has a specific toString signature
+            const printFn = window.print;
+
+            results.push({
+                name: 'window.print is a function',
+                result: typeof window.print,
+                expected: 'function',
+            });
+
+            // Calling print should not throw (it notifies native instead of opening dialog)
+            let didThrow = false;
+            try {
+                window.print();
+            } catch (e) {
+                didThrow = true;
+            }
+            results.push({
+                name: 'Calling window.print() does not throw',
+                result: didThrow,
+                expected: false,
+            });
+
+            // The print property should be writable (configurable: true, writable: true)
+            const descriptor = Object.getOwnPropertyDescriptor(window, 'print');
+            results.push({
+                name: 'window.print is configurable',
+                result: descriptor?.configurable,
+                expected: true,
+            });
+            results.push({
+                name: 'window.print is writable',
+                result: descriptor?.writable,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

@@ -24,8 +24,8 @@ export function EmbeddedVisibilityMenu({ rows }) {
                 return (
                     <li key={row.id}>
                         <div class={cn(styles.menuItemLabel, styles.menuItemLabelEmbedded)}>
-                            <span className={styles.svg}>{row.icon}</span>
-                            <span>{row.title ?? row.id}</span>
+                            <span class={styles.svg}>{row.icon}</span>
+                            <span class={styles.title}>{row.title ?? row.id}</span>
                             <Switch
                                 theme={browser.value}
                                 platformName={platformName}
@@ -35,6 +35,9 @@ export function EmbeddedVisibilityMenu({ rows }) {
                                 onUnchecked={() => row.toggle?.(row.id)}
                                 ariaLabel={`Toggle ${row.title}`}
                                 pending={false}
+                                inputProps={{
+                                    disabled: row.enabled === false,
+                                }}
                             />
                         </div>
                     </li>

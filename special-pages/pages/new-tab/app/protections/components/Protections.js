@@ -4,6 +4,7 @@ import cn from 'classnames';
 import styles from './Protections.module.css';
 import { ProtectionsHeading } from './ProtectionsHeading.js';
 import { useTypedTranslationWith } from '../../types.js';
+import { ProtectionsHeadingLegacy } from './ProtectionsHeadingLegacy';
 
 /**
  * @import enStrings from "../strings.json"
@@ -22,10 +23,22 @@ import { useTypedTranslationWith } from '../../types.js';
  * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
  * @param {import("preact").ComponentChild} [props.children]
  * @param {()=>void} props.toggle
+ * @param {import("@preact/signals").Signal<undefined | number | null>} props.totalCookiePopUpsBlockedSignal
+ * @param {boolean | undefined} [props.showProtectionsReportNewLabel]
  */
-export function Protections({ expansion = 'expanded', children, blockedCountSignal, feed, toggle, setFeed }) {
+export function Protections({
+    expansion = 'expanded',
+    children,
+    blockedCountSignal,
+    feed,
+    toggle,
+    setFeed,
+    totalCookiePopUpsBlockedSignal,
+    showProtectionsReportNewLabel,
+}) {
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
+    const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedSignal.value;
 
     const attrs = useMemo(() => {
         return {
@@ -34,18 +47,36 @@ export function Protections({ expansion = 'expanded', children, blockedCountSign
         };
     }, [WIDGET_ID, TOGGLE_ID]);
 
+    const ProtectionsBodyComponent = totalCookiePopUpsBlocked === undefined ? ProtectionsBodyLegacy : ProtectionsBody;
+
     return (
         <div class={styles.root}>
-            <ProtectionsHeading
-                blockedCountSignal={blockedCountSignal}
-                onToggle={toggle}
-                expansion={expansion}
-                canExpand={true}
-                buttonAttrs={attrs}
-            />
-            <ProtectionsBody feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
+            {/* If `totalCookiePopUpsBlocked` is `undefined`, it means the
+            native side is not sending this property and we can assume it's not
+            yet been implemented @todo legacyProtections: clean up once all
+            platforms support the new UI */}
+            {totalCookiePopUpsBlocked === undefined ? (
+                <ProtectionsHeadingLegacy
+                    blockedCountSignal={blockedCountSignal}
+                    onToggle={toggle}
+                    expansion={expansion}
+                    canExpand={true}
+                    buttonAttrs={attrs}
+                />
+            ) : (
+                <ProtectionsHeading
+                    blockedCountSignal={blockedCountSignal}
+                    onToggle={toggle}
+                    expansion={expansion}
+                    canExpand={true}
+                    buttonAttrs={attrs}
+                    totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
+                    showProtectionsReportNewLabel={showProtectionsReportNewLabel}
+                />
+            )}
+            <ProtectionsBodyComponent feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
                 {children}
-            </ProtectionsBody>
+            </ProtectionsBodyComponent>
         </div>
     );
 }
@@ -85,10 +116,53 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
 }
 
 /**
+ * @param {object} props
+ * @param {ProtectionsConfig['feed']} props.feed
+ * @param {string} props.id
+ * @param {Expansion} props.expansion
+ * @param {import("preact").ComponentChild} props.children
+ * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
+ */
+function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
+    const hidden = expansion === 'collapsed';
+    const showing = expansion === 'expanded';
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    return (
+        <div class={styles.body} id={id} aria-hidden={hidden} aria-expanded={showing}>
+            {expansion === 'expanded' && (
+                <Fragment>
+                    <div class={cn(styles.switcher, styles.blockLegacy)}>
+                        <button
+                            class={cn(styles.button, feed === 'privacy-stats' && styles.active)}
+                            onClick={() => setFeed('privacy-stats')}
+                        >
+                            {t('protections_statsSwitchTitle')}
+                        </button>
+                        <button class={cn(styles.button, feed === 'activity' && styles.active)} onClick={() => setFeed('activity')}>
+                            {t('protections_activitySwitchTitle')}
+                        </button>
+                    </div>
+                    <div class={styles.feed}>{children}</div>
+                </Fragment>
+            )}
+        </div>
+    );
+}
+
+/**
  * Use this for empty-state text
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */
 export function ProtectionsEmpty({ children }) {
     return <div class={cn(styles.block, styles.empty)}>{children}</div>;
+}
+
+/**
+ * Use this for empty-state text (legacy UI)
+ * @param {object} props
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function ProtectionsEmptyLegacy({ children }) {
+    return <div class={cn(styles.blockLegacy, styles.empty)}>{children}</div>;
 }

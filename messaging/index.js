@@ -30,6 +30,7 @@ import {
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js';
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js';
 import { AndroidMessagingConfig, AndroidMessagingTransport } from './lib/android.js';
+import { AndroidAdsjsMessagingConfig, AndroidAdsjsMessagingTransport } from './lib/android-adsjs.js';
 import { createTypedMessages } from './lib/typed-messages.js';
 
 /**
@@ -51,7 +52,7 @@ export class MessagingContext {
 }
 
 /**
- * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} MessagingConfig
+ * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | AndroidAdsjsMessagingConfig | TestTransportConfig} MessagingConfig
  */
 
 /**
@@ -80,21 +81,19 @@ export class Messaging {
      * @param {Record<string, any>} [data]
      */
     notify(name, data = {}) {
-        const message = new NotificationMessage({
-            context: this.messagingContext.context,
-            featureName: this.messagingContext.featureName,
-            method: name,
-            params: data,
-        });
         try {
-            this.transport.notify(message);
-        } catch (e) {
-            // Silently ignoring any transport errors in production, as per section 4.1 of https://www.jsonrpc.org/specification
-            // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
-            if (this.messagingContext.env === 'development') {
-                console.error('[Messaging] Failed to send notification:', e);
-                console.error('[Messaging] Message details:', { name, data });
+            const message = new NotificationMessage({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                method: name,
+                params: data,
+            });
+            const maybeAsyncResult = this.transport.notify(message);
+            if (isPromiseLike(maybeAsyncResult)) {
+                void handleAsyncNotificationResult(maybeAsyncResult, this.messagingContext.env, name, data);
             }
+        } catch (e) {
+            logNotificationError(this.messagingContext.env, name, data, e);
         }
     }
 
@@ -145,7 +144,7 @@ export class Messaging {
 export class MessagingTransport {
     /**
      * @param {NotificationMessage} _msg
-     * @returns {void}
+     * @returns {void | Promise<void>}
      */
 
     notify(_msg) {
@@ -215,7 +214,7 @@ export class TestTransport {
 }
 
 /**
- * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
+ * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | AndroidAdsjsMessagingConfig | TestTransportConfig} config
  * @param {MessagingContext} messagingContext
  * @returns {MessagingTransport}
  */
@@ -229,10 +228,54 @@ function getTransport(config, messagingContext) {
     if (config instanceof AndroidMessagingConfig) {
         return new AndroidMessagingTransport(config, messagingContext);
     }
+    if (config instanceof AndroidAdsjsMessagingConfig) {
+        return new AndroidAdsjsMessagingTransport(config, messagingContext);
+    }
     if (config instanceof TestTransportConfig) {
         return new TestTransport(config, messagingContext);
     }
     throw new Error('unreachable');
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is Promise<unknown>}
+ */
+function isPromiseLike(value) {
+    return value !== null && value !== undefined && typeof (/** @type {{then?: unknown}} */ (value).then) === 'function';
+}
+
+/**
+ * @param {Promise<unknown>} result
+ * @param {"production" | "development"} env
+ * @param {string} name
+ * @param {Record<string, any>} data
+ */
+async function handleAsyncNotificationResult(result, env, name, data) {
+    try {
+        await result;
+    } catch (error) {
+        logNotificationError(env, name, data, error);
+    }
+}
+
+/**
+ * @param {"production" | "development"} env
+ * @param {string} name
+ * @param {Record<string, any>} data
+ * @param {unknown} error
+ */
+function logNotificationError(env, name, data, error) {
+    // Silently ignoring any transport errors in production, as per section 4.1 of https://www.jsonrpc.org/specification
+    // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
+    if (env === 'development') {
+        try {
+            console.error('[Messaging] Failed to send notification:', error);
+            console.error('[Messaging] Message details:', { name, data });
+        } catch {
+            // Ignore logging failures so notify never throws in development either.
+        }
+    }
 }
 
 /**
@@ -268,5 +311,7 @@ export {
     WindowsRequestMessage,
     AndroidMessagingConfig,
     AndroidMessagingTransport,
+    AndroidAdsjsMessagingConfig,
+    AndroidAdsjsMessagingTransport,
     createTypedMessages,
 };

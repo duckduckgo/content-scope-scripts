@@ -13,7 +13,7 @@ import styles from './Text.module.css';
 // eslint-disable-next-line no-redeclare
 export function Text({ as: Comp = 'p', variant, strictSpacing = true, className, children }) {
     return (
-        <Comp className={classNames({ [styles[`${variant}`]]: variant, [styles.strictSpacing]: strictSpacing }, className)}>
+        <Comp className={classNames(styles.root, className, { [styles[`${variant}`]]: !!variant, [styles.strictSpacing]: strictSpacing })}>
             {children}
         </Comp>
     );
