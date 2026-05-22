@@ -11,14 +11,14 @@
   display: block;
 }
 
-/* Address bar overlay positioning (matches SVG: x=90, y=49, width=252, height=48 in viewBox 432x208) */
+/* Address bar overlay positioning (matches SVG: x=87, y=50, width=258 in viewBox 432x208) */
 .wrapper {
-  --address-bar-left: 20.83%;
-  --address-bar-top: 23.56%;
-  --address-bar-width: 58.33%;
-  --address-bar-height: 23.08%;
-  --address-bar-height-reduced: 13.85%;
-  --address-bar-transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --address-bar-left: 20.14%;
+  --address-bar-top: 24.04%;
+  --address-bar-width: 59.72%;
+  --address-bar-height: 24.04%;
+  --address-bar-height-reduced: 14.42%;
+  --address-bar-transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1), border-radius 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* CSS background overlay */
@@ -30,13 +30,14 @@
   width: var(--address-bar-width);
   height: var(--address-bar-height);
   background-color: #fff; /* Default/fallback - overridden by inline style */
-  border-radius: 8px;
+  border-radius: calc(15 * var(--px-in-rem));
   pointer-events: none;
   transition: var(--address-bar-transition), background-color 300ms ease;
 }
 
 .bgReduced {
   height: var(--address-bar-height-reduced);
+  border-radius: calc(11 * var(--px-in-rem));
 }
 
 /* CSS border overlay */
@@ -48,7 +49,7 @@
   width: var(--address-bar-width);
   height: var(--address-bar-height);
   border: 2px solid;
-  border-radius: 8px;
+  border-radius: calc(15 * var(--px-in-rem));
   pointer-events: none;
   box-sizing: border-box;
   transition: var(--address-bar-transition);
@@ -56,14 +57,15 @@
 
 .borderReduced {
   height: var(--address-bar-height-reduced);
+  border-radius: calc(11 * var(--px-in-rem));
 }
 
 /* Regular search icon - positioned on right side of address bar */
 .regularIcon {
   position: absolute;
   z-index: 3;
-  right: 23%;
-  top: 27%;
+  right: 23.4%;
+  top: 28.4%;
   width: 2.78%; /* 12/432 */
   height: auto;
   pointer-events: none;
@@ -73,8 +75,8 @@
 .extendedIcon {
   position: absolute;
   z-index: 3;
-  right: 21.9%;
-  top: 26.5%;
+  right: 21.3%;
+  top: 26.4%;
   width: 12.96%;
   height: auto;
   pointer-events: none;
