@@ -100,6 +100,8 @@ export class WebkitMessagingTransport {
      * Sends message to the webkit layer (fire and forget)
      * @param {String} handler
      * @param {*} data
+     * @returns {*}
+     * @throws {MissingHandler}
      * @internal
      */
     wkSend(handler, data = {}) {
@@ -175,9 +177,10 @@ export class WebkitMessagingTransport {
 
     /**
      * @param {import('../index.js').NotificationMessage} msg
+     * @returns {Promise<void>}
      */
-    notify(msg) {
-        this.wkSend(msg.context, msg);
+    async notify(msg) {
+        await this.wkSend(msg.context, msg);
     }
 
     /**
