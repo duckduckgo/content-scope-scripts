@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TelemetryEvent",
+  "type": "object",
+  "required": ["attributes"],
+  "properties": {
+    "attributes": {
+      "oneOf": [
+        {
+          "type": "object",
+          "title": "Dock Instructions Shown",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "dock_instructions_shown"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Row Shown",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "row_shown"
+            },
+            "value": {
+              "type": "string",
+              "description": "The row ID that became active"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Row Skipped",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "row_skipped"
+            },
+            "value": {
+              "type": "string",
+              "description": "The row ID that was skipped"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Duck Player Toggled",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "duck_player_toggled"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
