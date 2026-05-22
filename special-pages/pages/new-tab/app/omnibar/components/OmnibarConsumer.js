@@ -50,7 +50,16 @@ export function OmnibarConsumer() {
  * @param {string} props.tabId
  */
 function OmnibarReadyState({ config, tabId }) {
-    const { enableAi = true, showAiSetting = true, showCustomizePopover = false, enableRecentAiChats = false, mode: defaultMode } = config;
+    const {
+        enableAi = true,
+        showAiSetting = true,
+        showCustomizePopover = false,
+        enableRecentAiChats = false,
+        showViewAllAiChats = false,
+        enableVoiceChatAccess = false,
+        enableAskAiSuggestion = true,
+        mode: defaultMode,
+    } = config;
     const { setMode } = useContext(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
 
@@ -60,7 +69,10 @@ function OmnibarReadyState({ config, tabId }) {
             setMode={setMode}
             enableAi={showAiSetting && enableAi}
             enableRecentAiChats={enableRecentAiChats}
+            showViewAllAiChats={showViewAllAiChats}
             showCustomizePopover={showCustomizePopover}
+            enableVoiceChatAccess={enableVoiceChatAccess}
+            enableAskAiSuggestion={enableAskAiSuggestion}
             tabId={tabId}
         />
     );

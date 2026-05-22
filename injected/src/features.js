@@ -52,6 +52,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'hover',
     'browserUiLock',
     'trackerProtection',
+    'tabSuspension',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -70,8 +71,10 @@ export const platformSupport = {
         'webDetection',
         'webEvents',
         'webInterferenceDetection',
+        'webTelemetry',
         'pageObserver',
         'hover',
+        'tabSuspension',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
