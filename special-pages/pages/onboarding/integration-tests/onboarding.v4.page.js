@@ -23,7 +23,7 @@ export class OnboardingV4Page extends OnboardingPage {
      * @param {boolean} adBlockingEnabled
      */
     async checkYouTubeText(adBlockingEnabled) {
-        const expectedText = adBlockingEnabled ? 'Watch YouTube ad-free' : 'Play YouTube without targeted ads';
+        const expectedText = adBlockingEnabled ? 'Watch YouTube ad-free' : 'Play YouTube videos without ads';
         await expect(this.page.getByRole('table')).toContainText(expectedText);
     }
 
@@ -188,5 +188,16 @@ export class OnboardingV4Page extends OnboardingPage {
     async hasAdditionalInformationV4() {
         const { page } = this;
         await expect(page.getByText('Set things up just the way you want.')).toBeVisible();
+    }
+
+    async showDockInstructions() {
+        const { page } = this;
+        await page.getByRole('button', { name: 'Show Me How' }).click();
+        await expect(page.getByText('Hold control and click the DuckDuckGo app icon')).toBeVisible();
+    }
+
+    async dismissDockInstructions() {
+        const { page } = this;
+        await page.getByRole('button', { name: 'Next' }).click();
     }
 }
