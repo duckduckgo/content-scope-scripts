@@ -15,6 +15,7 @@ import { Settings } from './Settings.js';
 import { SelectionProvider } from './global/Providers/SelectionProvider.js';
 import { QueryProvider } from './global/Providers/QueryProvider.js';
 import { InlineErrorBoundary } from '../../../shared/components/InlineErrorBoundary.js';
+import { ThemeProvider } from './global/Providers/ThemeProvider.js';
 
 /**
  * @param {Element} root
@@ -84,15 +85,17 @@ export async function init(root, messaging, baseEnvironment) {
                     <UpdateEnvironment search={window.location.search} />
                     <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                         <MessagingContext.Provider value={messaging}>
-                            <SettingsContext.Provider value={settings}>
-                                <QueryProvider query={query.query}>
-                                    <HistoryServiceProvider service={service} initial={initial}>
-                                        <SelectionProvider>
-                                            <App />
-                                        </SelectionProvider>
-                                    </HistoryServiceProvider>
-                                </QueryProvider>
-                            </SettingsContext.Provider>
+                            <ThemeProvider initialTheme={init.theme} initialThemeVariant={init.themeVariant}>
+                                <SettingsContext.Provider value={settings}>
+                                    <QueryProvider query={query.query}>
+                                        <HistoryServiceProvider service={service} initial={initial}>
+                                            <SelectionProvider>
+                                                <App />
+                                            </SelectionProvider>
+                                        </HistoryServiceProvider>
+                                    </QueryProvider>
+                                </SettingsContext.Provider>
+                            </ThemeProvider>
                         </MessagingContext.Provider>
                     </TranslationProvider>
                 </EnvironmentProvider>
@@ -117,6 +120,9 @@ export async function init(root, messaging, baseEnvironment) {
  * @param {import("../types/history.ts").DefaultStyles | null | undefined} defaultStyles
  */
 function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor || defaultStyles?.darkBackgroundColor) {
+        console.warn('defaultStyles is deprecated. Use themeVariant instead. This will override theme variant colors.', defaultStyles);
+    }
     if (defaultStyles?.lightBackgroundColor) {
         document.body.style.setProperty('--default-light-background-color', defaultStyles.lightBackgroundColor);
     }

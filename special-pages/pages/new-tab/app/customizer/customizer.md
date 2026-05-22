@@ -34,11 +34,8 @@ title: Customizer
     "userImages": [],
     "userColor": null,
     "theme": "dark",
-    "background": { "kind": "default" },
-    "defaultStyles": {
-      "lightBackgroundColor": "#E9EBEC",
-      "darkBackgroundColor": "#27282A"
-    }
+    "themeVariant": "desert",
+    "background": { "kind": "default" }
   }
 }
 ```
@@ -56,11 +53,8 @@ title: Customizer
     "userImages": [],
     "userColor": null,
     "theme": "dark",
-    "background": { "kind": "default" },
-    "defaultStyles": {
-      "lightBackgroundColor": "#E9EBEC",
-      "darkBackgroundColor": "#27282A"
-    }
+    "themeVariant": "coolGray",
+    "background": { "kind": "default" }
   }
 }
 ```
@@ -137,16 +131,14 @@ title: Customizer
   "theme": "system"
 } 
 ```
-- Or, with optional `defaultStyles` example:
+- Or, with optional `themeVariant`:
 ```json
 {
-  "theme": "system",
-  "defaultStyles": {
-    "lightBackgroundColor": "#E9EBEC",
-    "darkBackgroundColor": "#27282A"
-  }
+  "theme": "light",
+  "themeVariant": "violet"
 }
 ```
+- Available theme variants: `default`, `coolGray`, `slateBlue`, `green`, `violet`, `rose`, `orange`, `desert`
   
 ### `customizer_autoOpen`
 - {@link "NewTab Messages".CustomizerAutoOpenSubscription}.

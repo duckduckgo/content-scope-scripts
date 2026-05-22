@@ -29,6 +29,30 @@
               "const": "ntp_example"
             }
           }
+        },
+        {
+          "type": "object",
+          "title": "Customizer Drawer State",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "customizer_drawer"
+            },
+            "value": {
+              "type": "object",
+              "required": ["state"],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "enum": ["opened", "closed"]
+                },
+                "themeVariantPopoverWasOpen": {
+                  "type": "boolean",
+                  "description": "True if the theme variant popover was visible when the drawer was opened"
+                }
+              }
+            }
+          }
         }
       ]
     }

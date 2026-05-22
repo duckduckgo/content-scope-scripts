@@ -77,9 +77,7 @@
     background: var(--color-black-at-12);
     transition: transform .2s;
 
-    border: 0.5px solid rgba(0, 0, 0, 0.09);
     background: rgba(255, 255, 255, 0.30);
-    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.12), 0px 0px 1.5px 0px rgba(0, 0, 0, 0.16);
 
     [data-theme="dark"] & {
         border: 0.5px solid rgba(255, 255, 255, 0.09);
@@ -100,7 +98,7 @@
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
     text-decoration: none;
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
     height: 35px;
     display: flex;
     align-items: center;
@@ -111,7 +109,7 @@
     min-width: 0;
 
     &:hover, &:focus-visible {
-        color: var(--ntp-color-primary);
+        color: var(--ds-color-theme-accent-primary);
         .favicon {
             transform: scale(1.08)
         }
@@ -135,7 +133,7 @@
     background: transparent;
     padding: 0;
     margin: 0;
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
     svg {
         position: absolute;
         top: 50%;
@@ -198,18 +196,14 @@
     padding-left: 1px; /* visual alignment */
 }
 
-.companiesIcons {
-    display: flex;
-    gap: 3px;
-    > * {
-        flex-shrink: 0;
-        min-width: 0;
-    }
+.companiesText {
+  & div:first-of-type:not(:only-child) {
+    margin-bottom: 6px;
+  }
 }
-.companiesText {}
 
 .history {
-    margin-top: 10px;
+    margin-top: 8px;
 }
 .historyItem {
     display: flex;
@@ -224,7 +218,7 @@
     font-size: var(--small-label-font-size);
     font-weight: var(--small-label-font-weight);
     line-height: var(--small-label-line-height);
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
     text-decoration: none;
     min-width: 0;
     white-space: nowrap;
@@ -232,7 +226,7 @@
     text-overflow: ellipsis;
 
     &:hover, &:focus-visible {
-        color: var(--ntp-color-primary)
+        color: var(--ds-color-theme-accent-primary)
     }
 
     &:hover .time {
@@ -244,7 +238,7 @@
 .time {
     flex-shrink: 0;
     margin-left: 8px;
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-theme-text-secondary);
     opacity: 0.6;
     font-size: var(--small-label-font-size);
     font-weight: var(--small-label-font-weight);

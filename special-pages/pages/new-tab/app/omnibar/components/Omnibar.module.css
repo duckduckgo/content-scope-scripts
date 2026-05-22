@@ -15,6 +15,10 @@
     position: relative;
 }
 
+.popover {
+    --popover-offset-x: 7px;
+}
+
 /*
  * There are three containers:
  * 1) .spacer - Pushes other widgets away. Fixed height to accommodate largest tab (Duck.ai). Contents overflow. No animation.
@@ -39,12 +43,12 @@
 
 /* Rest */
 .popup {
-    background: var(--ntp-surface-tertiary);
+    background: var(--ds-color-theme-surface-tertiary);
     border-radius: 12px;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08); /* Elevation 30 */
     display: flow-root; /* Prevent margin collapse on .field */
     margin: 3px;
-    outline: 1px solid var(--ntp-controls-raised-backdrop);
+    outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
 
     [data-background-kind="color"] [data-theme="light"] &,
     [data-background-kind="gradient"] [data-theme="light"] &,
@@ -72,25 +76,43 @@
 }
 
 /* Focused */
-.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .popup {
+.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .popup {
     border-radius: 15px;
-    border: 2px solid var(--ntp-accent-primary);
+    border: 2px solid var(--ds-color-theme-accent-primary);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
     margin: 0;
-    outline: 2px solid var(--ntp-accent-glow);
+    outline: 2px solid var(--ds-color-theme-accent-glow-primary);
 
     .field {
         margin: 1px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
     }
+
+    .aiChatsList {
+        margin-left: -2px;
+        margin-right: -2px;
+        margin-top: 3px;
+    }
 }
 
-/* Suggestions */
-.root:has([role="listbox"]) .popup {
+/* Image limit exceeded */
+.root:has([data-image-warning]) .popup {
+    border: 2px solid var(--color-red-50);
+    border-radius: 15px;
+    margin: 0;
+    outline: none;
+
+    .field {
+        margin: 1px;
+    }
+}
+
+/* Suggestions / AI chats list visible */
+.root:has([data-omnibar-list]) .popup {
     border-radius: 15px;
     margin: 0;
 
     .field {
-        margin: 3px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
+        margin: 3px; 
     }
 }
 

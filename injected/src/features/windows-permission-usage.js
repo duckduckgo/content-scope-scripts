@@ -1,4 +1,4 @@
-/* global Bluetooth, Geolocation, HID, Serial, USB */
+/* global Geolocation */
 import { DDGProxy, DDGReflect } from '../utils';
 import ContentFeature from '../content-feature';
 
@@ -16,13 +16,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
             Active: 'active',
             Paused: 'paused',
         };
-
-        // isDdgWebView is a Windows-specific property injected via userPreferences
-        const isDdgWebView = this.args?.isDdgWebView;
-
-        const isFrameInsideFrameInWebView2 = isDdgWebView
-            ? false // In DDG WebView, we can handle nested frames properly
-            : window.self !== window.top && window.parent !== window.top; // In WebView2, we need to deny permission for nested frames
 
         function windowsPostMessage(name, data) {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -43,11 +36,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
         const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, 'watchPosition', {
             apply(target, thisArg, args) {
-                if (isFrameInsideFrameInWebView2) {
-                    // we can't communicate with iframes inside iframes in WebView2 -> deny permission instead of putting users at risk
-                    throw new DOMException('Permission denied');
-                }
-
                 const successHandler = args[0];
                 args[0] = function (position) {
                     if (pauseWatchedPositions) {
@@ -318,11 +306,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
         if (window.MediaDevices) {
             const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
                 apply(target, thisArg, args) {
-                    if (isFrameInsideFrameInWebView2) {
-                        // we can't communicate with iframes inside iframes in WebView2-> deny permission instead of putting users at risk
-                        return Promise.reject(new DOMException('Permission denied'));
-                    }
-
                     const videoRequested = args[0]?.video;
                     const audioRequested = args[0]?.audio;
 
@@ -383,16 +366,17 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // these permissions cannot be disabled using WebView2 or DevTools protocol
         const permissionsToDisable = [
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            { name: 'Bluetooth', prototype: () => Bluetooth.prototype, method: 'requestDevice', isPromise: true },
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            { name: 'USB', prototype: () => USB.prototype, method: 'requestDevice', isPromise: true },
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            { name: 'Serial', prototype: () => Serial.prototype, method: 'requestPort', isPromise: true },
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            { name: 'HID', prototype: () => HID.prototype, method: 'requestDevice', isPromise: true },
-            { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
-            { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true },
+            { name: 'Bluetooth', prototype: () => globalThis?.Bluetooth?.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'USB', prototype: () => globalThis?.USB?.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'Serial', prototype: () => globalThis?.Serial?.prototype, method: 'requestPort', isPromise: true },
+            { name: 'HID', prototype: () => globalThis?.HID?.prototype, method: 'requestDevice', isPromise: true },
+            {
+                name: 'Protocol handler',
+                prototype: () => globalThis?.Navigator.prototype,
+                method: 'registerProtocolHandler',
+                isPromise: false,
+            },
+            { name: 'MIDI', prototype: () => globalThis?.Navigator.prototype, method: 'requestMIDIAccess', isPromise: true },
         ];
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {

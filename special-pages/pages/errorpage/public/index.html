@@ -5,9 +5,9 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./dist/index.css">
 </head>
-<body>
+<body data-theme-variant="$THEME_VARIANT$">
     <div class="content-container">
         <div class="error-container">
             <div class="header-container">
@@ -21,5 +21,16 @@
             <img src="img/logo-horizontal.svg" alt="DuckDuckGo" class="watermark">
         </div>
     </div>
+    <script>
+        /**
+         * Called by native to update the page theme at runtime
+         * @param {{ themeVariant: string }} payload
+         */
+        window.onChangeTheme = function(payload) {
+            if (payload && payload.themeVariant) {
+                document.body.dataset.themeVariant = payload.themeVariant;
+            }
+        };
+    </script>
 </body>
 </html>

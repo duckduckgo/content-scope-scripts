@@ -45,6 +45,17 @@
         },
         "favorite": {
           "type": "boolean"
+        },
+        "cookiePopUpBlocked": {
+          "description": "A cookie pop-up has been blocked for the specific domain",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
         }
       },
       "required": ["etldPlusOne", "title", "url", "trackingStatus", "trackersFound", "history", "favorite", "favicon"]

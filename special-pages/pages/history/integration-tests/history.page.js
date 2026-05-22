@@ -610,6 +610,23 @@ export class HistoryTestPage {
         });
         expect(borderTopColor).toBe(rgb);
     }
+
+    /**
+     * @param {import('../types/history.ts').BrowserTheme} theme
+     * @param {import('../types/history.ts').ThemeVariant} themeVariant
+     */
+    async acceptsThemeUpdate(theme, themeVariant) {
+        await this.mocks.simulateSubscriptionMessage('onThemeUpdate', { theme, themeVariant });
+    }
+
+    /**
+     * @param {import('../types/history.ts').BrowserTheme} theme
+     * @param {import('../types/history.ts').ThemeVariant} themeVariant
+     */
+    async hasTheme(theme, themeVariant) {
+        await expect(this.page.locator('body')).toHaveAttribute('data-theme', theme);
+        await expect(this.page.locator('body')).toHaveAttribute('data-theme-variant', themeVariant);
+    }
 }
 
 /**

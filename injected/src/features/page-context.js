@@ -1,3 +1,7 @@
+/**
+ * @file Page Context Feature
+ * @see injected/docs/coding-guidelines.md for general patterns
+ */
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
@@ -179,6 +183,7 @@ export function domToMarkdown(node, settings, depth = 0) {
 }
 
 /**
+ * Safely get attribute or empty string to avoid null in markdown output
  * @param {Element} node
  * @param {string} attr
  * @returns {string}
@@ -192,15 +197,17 @@ function collapseAndTrim(str) {
     return collapseWhitespace(str).trim();
 }
 
+/**
+ * Note: The whitespace difference between href/non-href cases is intentional.
+ * With href: collapse AND trim (for clean markdown links)
+ * Without href: collapse only (retain surrounding space context)
+ */
 function getLinkText(node, children, settings) {
     const href = node.getAttribute('href');
     const trimmedContent = collapseAndTrim(children);
     if (settings.trimBlankLinks && trimmedContent.length === 0) {
         return '';
     }
-    // The difference in whitespace handling is intentional here.
-    // Where we don't wrap in a link:
-    // we should retain at least one preceding and following space.
     return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
 }
 
@@ -211,17 +218,35 @@ export default class PageContext extends ContentFeature {
     /** @type {MutationObserver | null} */
     mutationObserver = null;
     lastSentContent = null;
-    listenForUrlChanges = true;
     /** @type {ReturnType<typeof setTimeout> | null} */
     #delayedRecheckTimer = null;
     recheckCount = 0;
     recheckLimit = 0;
+    /** @type {boolean} */
+    #activeCapture = true;
+
+    get shouldListenForUrlChanges() {
+        return this.#activeCapture && this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled');
+    }
+
+    get shouldActivate() {
+        if (isBeingFramed() || isDuckAi()) {
+            return false;
+        }
+        const tabUrl = getTabUrl();
+        if (tabUrl?.protocol === 'duck:') {
+            return false;
+        }
+        return true;
+    }
 
     init() {
         this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
-        if (!this.shouldActivate()) {
+        if (!this.shouldActivate) {
             return;
         }
+        // If gated, disable active capture until first native message
+        this.#activeCapture = !this.getFeatureSettingEnabled('activeCaptureOnFirstMessage', 'disabled');
         this.setupListeners();
     }
 
@@ -229,17 +254,46 @@ export default class PageContext extends ContentFeature {
         this.recheckCount = 0;
     }
 
+    /**
+     * Sets up all listeners. When activeCaptureOnFirstMessage is enabled,
+     * active capture listeners are deferred until the first collect message.
+     */
     setupListeners() {
-        this.observeContentChanges();
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
             this.messaging.subscribe('collect', () => {
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
+
+                // Enable active capture on first message if not already active
+                if (!this.#activeCapture) {
+                    this.#activeCapture = true;
+                    this.log.info('First native message received, activating capture');
+                    this.setupActiveCaptureListeners();
+                }
             });
         }
-        window.addEventListener('load', () => {
-            this.handleContentCollectionRequest();
-        });
+
+        // Set up active capture listeners immediately if active
+        if (this.#activeCapture) {
+            this.setupActiveCaptureListeners();
+        } else {
+            this.log.info('Active capture gated behind first native message');
+        }
+    }
+
+    /**
+     * Sets up listeners that actively capture page content.
+     * These are the listeners that can be gated behind the first native message.
+     */
+    setupActiveCaptureListeners() {
+        this.log.info('Setting up active capture listeners');
+        this.observeContentChanges();
+
+        if (this.getFeatureSettingEnabled('subscribeToLoad', 'enabled')) {
+            window.addEventListener('load', () => {
+                this.handleContentCollectionRequest();
+            });
+        }
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
                 this.handleContentCollectionRequest();
@@ -260,36 +314,26 @@ export default class PageContext extends ContentFeature {
         }
 
         // Set up content collection infrastructure
-        if (document.body) {
-            this.setup();
-        } else {
-            window.addEventListener(
-                'DOMContentLoaded',
-                () => {
-                    this.setup();
-                },
-                { once: true },
-            );
+        if (this.getFeatureSettingEnabled('collectOnInit', 'enabled')) {
+            if (document.body) {
+                this.setup();
+            } else {
+                window.addEventListener(
+                    'DOMContentLoaded',
+                    () => {
+                        this.setup();
+                    },
+                    { once: true },
+                );
+            }
         }
-    }
-
-    shouldActivate() {
-        if (isBeingFramed() || isDuckAi()) {
-            return false;
-        }
-        const tabUrl = getTabUrl();
-        // Ignore duck:// urls for now
-        if (tabUrl?.protocol === 'duck:') {
-            return false;
-        }
-        return true;
     }
 
     /**
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        if (!this.shouldActivate()) {
+        if (!this.shouldListenForUrlChanges || !this.shouldActivate) {
             return;
         }
         this.handleContentCollectionRequest();
@@ -346,7 +390,7 @@ export default class PageContext extends ContentFeature {
 
     observeContentChanges() {
         // Use MutationObserver to detect content changes
-        if (window.MutationObserver) {
+        if (window.MutationObserver && this.getFeatureSettingEnabled('observeMutations', 'enabled')) {
             this.mutationObserver = new MutationObserver((_mutations) => {
                 this.log.info('MutationObserver', _mutations);
                 // Invalidate cache when content changes
@@ -354,6 +398,9 @@ export default class PageContext extends ContentFeature {
 
                 this.scheduleDelayedRecheck();
             });
+            // Start observing immediately if we already have cached content
+            // (e.g., when activeCaptureOnFirstMessage is enabled and content was collected before observer creation)
+            this.startObserving();
         }
     }
 
@@ -375,6 +422,8 @@ export default class PageContext extends ContentFeature {
             this.recheckCount++;
             this.invalidateCache();
 
+            // Note: Pass false to handleContentCollectionRequest to prevent
+            // resetRecheckCount, avoiding unintended recheck loops
             this.handleContentCollectionRequest(false);
         }, delayMs);
     }
@@ -445,6 +494,8 @@ export default class PageContext extends ContentFeature {
         }
 
         // Cache the result - setter handles timestamp and observer
+        // Note: We only cache if content exists. Consider caching empty content too
+        // if mutation observation is needed for initially empty pages.
         if (content.content.length > 0) {
             this.cachedContent = content;
         }

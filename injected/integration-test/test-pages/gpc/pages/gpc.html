@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Global Privacy Control</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[GPC]</a></p>
+
+    <p>This page verifies that Global Privacy Control is set on the Navigator prototype</p>
+
+    <script>
+        test('GPC enabled', async () => {
+            return [
+                {
+                    name: 'navigator.globalPrivacyControl is true',
+                    result: navigator.globalPrivacyControl,
+                    expected: true,
+                },
+                {
+                    name: 'globalPrivacyControl is enumerable',
+                    result: Object.getOwnPropertyDescriptor(Navigator.prototype, 'globalPrivacyControl').enumerable,
+                    expected: true,
+                },
+                {
+                    name: 'globalPrivacyControl is configurable',
+                    result: Object.getOwnPropertyDescriptor(Navigator.prototype, 'globalPrivacyControl').configurable,
+                    expected: true,
+                },
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

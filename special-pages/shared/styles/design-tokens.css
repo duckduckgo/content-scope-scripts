@@ -1,0 +1,12 @@
+/**
+ * Design Tokens
+ *
+ * This file imports CSS custom properties from the @duckduckgo/design-tokens package.
+ * The tokens provide a consistent color palette and semantic tokens for light/dark themes
+ * as well as theme variants (coolGray, slateBlue, green, violet, rose, orange, desert).
+ *
+ * All tokens use the `--ds-*` prefix (Design System).
+ *
+ * @see https://dub.duckduckgo.com/duckduckgo/design-tokens
+ */
+@import url("@duckduckgo/design-tokens/build/desktop-browsers/tokens.css");

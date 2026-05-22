@@ -1,0 +1,25 @@
+{
+    "readme": "This config is used to test the page context feature which collects page content for native apps.",
+    "version": 1,
+    "features": {
+        "pageContext": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "collectOnInit": "enabled",
+                "subscribeToLoad": "enabled",
+                "subscribeToCollect": "enabled",
+                "observeMutations": "enabled",
+                "bodyFallback": "enabled",
+                "trimBlankLinks": "enabled",
+                "includeIframes": "enabled",
+                "maxContentLength": 9500,
+                "maxTitleLength": 100,
+                "maxDepth": 5000,
+                "cacheExpiration": 30000,
+                "recheckLimit": 5
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

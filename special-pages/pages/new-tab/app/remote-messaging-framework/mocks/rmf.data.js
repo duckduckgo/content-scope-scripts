@@ -34,11 +34,11 @@ export const rmfDataExamples = {
         content: {
             messageType: 'big_two_action',
             id: 'id-big-two',
-            titleText: 'Tell Us Your Thoughts on Privacy Pro',
-            descriptionText: 'Take our short anonymous survey and share your feedback.',
-            icon: 'Announce',
-            primaryActionText: 'Take Survey',
-            secondaryActionText: 'Remind me',
+            titleText: 'Personal Information Removal Scan Complete',
+            descriptionText: 'Your free personal information scan found 19 records about you on 3 different sites',
+            icon: 'RadarCheckGreen',
+            primaryActionText: 'View Results',
+            secondaryActionText: 'Remind me later',
         },
     },
     big_two_action_overflow: {
@@ -51,6 +51,106 @@ export const rmfDataExamples = {
                 'Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.',
             primaryActionText: 'How to update Windows',
             secondaryActionText: 'Remind me later, but only if I’m actually going to update soon',
+        },
+    },
+    big_single_action_announce: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Personal Information Removal',
+            descriptionText: 'Your free personal information scan found 19 records about you on 3 different sites',
+            icon: 'Announce',
+            primaryActionText: 'View Results',
+        },
+    },
+    big_single_action_app_update: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Personal Information Removal',
+            descriptionText: 'Your free personal information scan found 19 records about you on 3 different sites',
+            icon: 'AppUpdate',
+            primaryActionText: 'View Results',
+        },
+    },
+    big_single_action_critical_update: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Personal Information Removal',
+            descriptionText: 'Your free personal information scan found 19 records about you on 3 different sites',
+            icon: 'CriticalUpdate',
+            primaryActionText: 'View Results',
+        },
+    },
+    big_single_action_pir: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Personal Information Removal',
+            descriptionText: 'Your free personal information scan found 19 records about you on 3 different sites',
+            icon: 'PIR',
+            primaryActionText: 'View Results',
+        },
+    },
+    big_single_action_radar: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Personal Information Removal',
+            descriptionText: 'Scrub your data from broker websites like PeopleFinder',
+            icon: 'Radar',
+            primaryActionText: 'View Results',
+        },
+    },
+    big_single_action_radar_check_purple: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Personal Information Removal',
+            descriptionText: 'Your free personal information scan found 19 records about you on 3 different sites',
+            icon: 'RadarCheckPurple',
+            primaryActionText: 'View Results',
+        },
+    },
+    big_single_action_subscription: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Something about a subscription',
+            descriptionText: 'Something about a subscription. ',
+            icon: 'Subscription',
+            primaryActionText: 'Learn more',
+        },
+    },
+    big_single_action_very_critical_update: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Updating macOS is recommended',
+            descriptionText: 'Updating to the latest version will fix site loading issues and enhance security.',
+            icon: 'VeryCriticalUpdate',
+            primaryActionText: 'Update macOS',
+        },
+    },
+    big_single_action_preview: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'Try out our Preview!',
+            descriptionText: 'Check out our preview release to try features before everyone else.',
+            icon: 'Preview',
+            primaryActionText: 'Try preview',
+        },
+    },
+    big_single_action_youtube_new: {
+        content: {
+            messageType: 'big_single_action',
+            id: 'id-big-single-alt',
+            titleText: 'What YouTube without ads!',
+            descriptionText: 'Our browser now blocks ads on YouTube so you can watch without interruptions.',
+            icon: 'YoutubeNew',
+            primaryActionText: 'Got it',
         },
     },
 };

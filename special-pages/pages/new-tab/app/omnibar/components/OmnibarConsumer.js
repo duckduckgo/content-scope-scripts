@@ -50,7 +50,16 @@ export function OmnibarConsumer() {
  * @param {string} props.tabId
  */
 function OmnibarReadyState({ config, tabId }) {
-    const { enableAi = true, showAiSetting = true, showCustomizePopover = false, mode: defaultMode } = config;
+    const {
+        enableAi = true,
+        showAiSetting = true,
+        showCustomizePopover = false,
+        enableRecentAiChats = false,
+        showViewAllAiChats = false,
+        enableVoiceChatAccess = false,
+        enableAskAiSuggestion = true,
+        mode: defaultMode,
+    } = config;
     const { setMode } = useContext(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
 
@@ -59,7 +68,11 @@ function OmnibarReadyState({ config, tabId }) {
             mode={modeForCurrentTab}
             setMode={setMode}
             enableAi={showAiSetting && enableAi}
+            enableRecentAiChats={enableRecentAiChats}
+            showViewAllAiChats={showViewAllAiChats}
             showCustomizePopover={showCustomizePopover}
+            enableVoiceChatAccess={enableVoiceChatAccess}
+            enableAskAiSuggestion={enableAskAiSuggestion}
             tabId={tabId}
         />
     );
@@ -77,7 +90,7 @@ export function AiSetting({ enableAi, setEnableAi, omnibarVisible }) {
     useCustomizer({
         title: t('omnibar_toggleDuckAi'),
         id: `_${id}-toggleAi`,
-        icon: <ArrowIndentCenteredIcon style={{ color: 'var(--ntp-icons-tertiary)' }} />,
+        icon: <ArrowIndentCenteredIcon style={{ color: 'var(--ds-color-theme-icons-tertiary)' }} />,
         toggle: () => setEnableAi(!enableAi),
         /**
          * Duck.ai is only ever shown as 'visible' (eg: switch is checked) if the omnibar is also visible.

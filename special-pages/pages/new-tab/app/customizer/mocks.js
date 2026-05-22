@@ -69,7 +69,8 @@ export function customizerMockTransport() {
                 case 'customizer_onColorUpdate':
                 case 'customizer_onThemeUpdate':
                 case 'customizer_onBackgroundUpdate':
-                case 'customizer_onImagesUpdate': {
+                case 'customizer_onImagesUpdate':
+                case 'customizer_onShowThemeVariantPopoverUpdate': {
                     subscriptions.set(sub, cb);
                     return () => {
                         console.log('-- did remove sub', sub);
@@ -174,6 +175,16 @@ export function customizerData() {
         if (value === 'light' || value === 'dark' || value === 'system') {
             customizer.theme = value;
         }
+    }
+    if (url.searchParams.has('themeVariant')) {
+        const value = url.searchParams.get('themeVariant');
+        const validVariants = ['default', 'coolGray', 'slateBlue', 'green', 'violet', 'rose', 'orange', 'desert'];
+        if (value && validVariants.includes(value)) {
+            customizer.themeVariant = /** @type {import('../../types/new-tab').ThemeVariant} */ (value);
+        }
+    }
+    if (url.searchParams.get('customizer.showThemeVariantPopover') === 'true') {
+        customizer.showThemeVariantPopover = true;
     }
 
     return customizer;

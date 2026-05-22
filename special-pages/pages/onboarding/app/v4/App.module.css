@@ -1,0 +1,15 @@
+@import url('./fonts.css');
+@import url('@duckduckgo/design-tokens/build/desktop-browsers/onboarding.css');
+
+:root {
+    --font-display: 'DuckSansDisplay', system-ui, sans-serif;
+    --font-product: 'DuckSansProduct', system-ui, sans-serif;
+}
+
+.container {
+    --bubble-bg: var(--ds-surface-tertiary);
+    --bubble-border: var(--ds-accent-alt-primary);
+
+    display: flow-root;
+    position: relative;
+}

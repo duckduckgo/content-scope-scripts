@@ -4,6 +4,22 @@ import { ResultsCollector } from './page-objects/results-collector.js';
 const HTML = '/duck-ai-data-clearing/index.html';
 const CONFIG = './integration-test/test-pages/duck-ai-data-clearing/config/enabled.json';
 
+test('duck-ai-data-clearing feature is ready', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({
+        messageSecret: 'ABC',
+        javascriptInterface: 'javascriptInterface',
+        messageCallback: 'messageCallback',
+    });
+    await collector.load(HTML, CONFIG);
+
+    // Wait for completion message
+    const messages = await collector.waitForMessage('duckAiClearDataReady', 1);
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0].payload.method).toBe('duckAiClearDataReady');
+});
+
 test('duck-ai-data-clearing feature clears localStorage and IndexedDB', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({
@@ -134,6 +150,84 @@ test('duck-ai-data-clearing feature succeeds when data collections do not exist 
     // Verify that subsequent verification shows no data exists
     await duckAiDataClearing.verifyDataCleared();
     await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
+});
+
+test('duck-ai-data-clearing feature deletes a single chat by chatId', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({
+        messageSecret: 'ABC',
+        javascriptInterface: 'javascriptInterface',
+        messageCallback: 'messageCallback',
+    });
+    await collector.load(HTML, CONFIG);
+
+    // Setup multiple chats in localStorage
+    await page.evaluate(() => {
+        const chatData = {
+            version: '1',
+            chats: [
+                { chatId: 'chat-1', title: 'First Chat', lastEdit: Date.now() },
+                { chatId: 'chat-2', title: 'Second Chat', lastEdit: Date.now() },
+                { chatId: 'chat-3', title: 'Third Chat', lastEdit: Date.now() },
+            ],
+        };
+        localStorage.setItem('savedAIChats', JSON.stringify(chatData));
+    });
+
+    // Trigger deletion of a single chat
+    await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', { chatId: 'chat-2' });
+
+    // Wait for completion message
+    const messages = await collector.waitForMessage('duckAiClearDataCompleted', 1);
+    expect(messages).toHaveLength(1);
+    expect(messages[0].payload.method).toBe('duckAiClearDataCompleted');
+
+    // Verify only the specified chat was removed
+    const remainingChats = await page.evaluate(() => {
+        const data = JSON.parse(localStorage.getItem('savedAIChats') || '{}');
+        return data.chats || [];
+    });
+
+    expect(remainingChats).toHaveLength(2);
+    expect(remainingChats.map((c) => c.chatId)).toEqual(['chat-1', 'chat-3']);
+});
+
+test('duck-ai-data-clearing feature handles deletion of non-existent chatId gracefully', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({
+        messageSecret: 'ABC',
+        javascriptInterface: 'javascriptInterface',
+        messageCallback: 'messageCallback',
+    });
+    await collector.load(HTML, CONFIG);
+
+    // Setup chats in localStorage
+    await page.evaluate(() => {
+        const chatData = {
+            version: '1',
+            chats: [
+                { chatId: 'chat-1', title: 'First Chat', lastEdit: Date.now() },
+                { chatId: 'chat-2', title: 'Second Chat', lastEdit: Date.now() },
+            ],
+        };
+        localStorage.setItem('savedAIChats', JSON.stringify(chatData));
+    });
+
+    // Trigger deletion of a non-existent chat
+    await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', { chatId: 'non-existent-chat' });
+
+    // Should still get completion message
+    const messages = await collector.waitForMessage('duckAiClearDataCompleted', 1);
+    expect(messages).toHaveLength(1);
+    expect(messages[0].payload.method).toBe('duckAiClearDataCompleted');
+
+    // Verify all chats remain unchanged
+    const remainingChats = await page.evaluate(() => {
+        const data = JSON.parse(localStorage.getItem('savedAIChats') || '{}');
+        return data.chats || [];
+    });
+
+    expect(remainingChats).toHaveLength(2);
 });
 
 class DuckAiDataClearingSpec {

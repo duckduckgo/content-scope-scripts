@@ -1,8 +1,10 @@
 import { createContext, h } from 'preact';
 import { useCallback } from 'preact/hooks';
-import { signal, useSignal, useSignalEffect } from '@preact/signals';
+import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals';
 import { useThemes } from './themes.js';
 import { applyDefaultStyles } from './utils.js';
+import { useDrawerEventListeners } from '../components/Drawer.js';
+import { useMessaging } from '../types.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').CustomizerData} CustomizerData
@@ -12,6 +14,7 @@ import { applyDefaultStyles } from './utils.js';
  * @typedef {import('../../types/new-tab.js').UserImageContextMenu} UserImageContextMenu
  * @typedef {import('../service.hooks.js').State<CustomizerData, undefined>} State
  * @typedef {import('../service.hooks.js').Events<CustomizerData, undefined>} Events
+ * @typedef {import('../../types/new-tab.js').ThemeVariant} ThemeVariant
  */
 
 /**
@@ -30,6 +33,8 @@ export const CustomizerThemesContext = createContext({
     main: signal('light'),
     /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
     browser: signal('light'),
+    /** @type {import("@preact/signals").Signal<ThemeVariant>} */
+    variant: signal('default'),
 });
 
 export const CustomizerContext = createContext({
@@ -55,6 +60,10 @@ export const CustomizerContext = createContext({
      * @param {UserImageContextMenu} _params
      */
     customizerContextMenu: (_params) => {},
+    /** @type {() => void} */
+    dismissThemeVariantPopover: () => {},
+    /** @type {import("@preact/signals").Signal<boolean>} */
+    showThemeNewBadge: signal(false),
 });
 
 /**
@@ -69,27 +78,36 @@ export const CustomizerContext = createContext({
 export function CustomizerProvider({ service, initialData, children }) {
     // const [state, dispatch] = useReducer(withLog('RMFProvider', reducer), initial)
     const data = useSignal(initialData);
-    const { main, browser } = useThemes(data);
+    const ntp = useMessaging();
+    const { main, browser, variant } = useThemes(data);
 
     useSignalEffect(() => {
-        const unsub = service.onBackground((evt) => {
-            data.value = { ...data.value, background: evt.data.background };
-        });
-        const unsub1 = service.onTheme((evt) => {
-            data.value = { ...data.value, theme: evt.data.theme };
-        });
-        const unsub2 = service.onImages((evt) => {
-            data.value = { ...data.value, userImages: evt.data.userImages };
-        });
-        const unsub3 = service.onColor((evt) => {
-            data.value = { ...data.value, userColor: evt.data.userColor };
-        });
+        const unsubs = [
+            service.onBackground((evt) => {
+                data.value = { ...data.value, background: evt.data.background };
+            }),
+            service.onTheme((evt) => {
+                // Only update themeVariant if it's explicitly provided in the message
+                // This preserves the existing variant when just the theme changes
+                const updates = { theme: evt.data.theme };
+                if (evt.data.themeVariant !== undefined) {
+                    updates.themeVariant = evt.data.themeVariant;
+                }
+                data.value = { ...data.value, ...updates };
+            }),
+            service.onImages((evt) => {
+                data.value = { ...data.value, userImages: evt.data.userImages };
+            }),
+            service.onColor((evt) => {
+                data.value = { ...data.value, userColor: evt.data.userColor };
+            }),
+            service.onShowThemeVariantPopover((evt) => {
+                data.value = { ...data.value, showThemeVariantPopover: evt.data.showThemeVariantPopover };
+            }),
+        ];
 
         return () => {
-            unsub();
-            unsub1();
-            unsub2();
-            unsub3();
+            unsubs.forEach((unsub) => unsub());
         };
     });
 
@@ -134,9 +152,77 @@ export function CustomizerProvider({ service, initialData, children }) {
     /** @type {(p: UserImageContextMenu) => void} */
     const customizerContextMenu = useCallback((params) => service.contextMenu(params), [service]);
 
+    const dismissThemeVariantPopover = useCallback(() => {
+        service.dismissThemeVariantPopover();
+    }, [service]);
+
+    // Show the "NEW" badge on Theme section only during the first drawer open
+    const drawerOpenCount = useSignal(0);
+    const showThemeNewBadge = useComputed(() => !!initialData.showThemeVariantPopover && drawerOpenCount.value === 1);
+
+    useDrawerEventListeners(
+        {
+            onOpen: () => {
+                drawerOpenCount.value++;
+                ntp.telemetryEvent({
+                    attributes: {
+                        name: 'customizer_drawer',
+                        value: {
+                            state: 'opened',
+                            themeVariantPopoverWasOpen: data.value.showThemeVariantPopover ?? false,
+                        },
+                    },
+                });
+                service.dismissThemeVariantPopover();
+            },
+            onClose: () => {
+                ntp.telemetryEvent({
+                    attributes: {
+                        name: 'customizer_drawer',
+                        value: { state: 'closed' },
+                    },
+                });
+            },
+            onToggle: (state) => {
+                drawerOpenCount.value++;
+                if (state === 'visible') {
+                    ntp.telemetryEvent({
+                        attributes: {
+                            name: 'customizer_drawer',
+                            value: {
+                                state: 'opened',
+                                themeVariantPopoverWasOpen: data.value.showThemeVariantPopover ?? false,
+                            },
+                        },
+                    });
+                } else {
+                    ntp.telemetryEvent({
+                        attributes: {
+                            name: 'customizer_drawer',
+                            value: { state: 'closed' },
+                        },
+                    });
+                }
+                service.dismissThemeVariantPopover();
+            },
+        },
+        [service, ntp],
+    );
+
     return (
-        <CustomizerContext.Provider value={{ data, select, upload, setTheme, deleteImage, customizerContextMenu }}>
-            <CustomizerThemesContext.Provider value={{ main, browser }}>{children}</CustomizerThemesContext.Provider>
+        <CustomizerContext.Provider
+            value={{
+                data,
+                select,
+                upload,
+                setTheme,
+                deleteImage,
+                customizerContextMenu,
+                dismissThemeVariantPopover,
+                showThemeNewBadge,
+            }}
+        >
+            <CustomizerThemesContext.Provider value={{ main, browser, variant }}>{children}</CustomizerThemesContext.Provider>
         </CustomizerContext.Provider>
     );
 }

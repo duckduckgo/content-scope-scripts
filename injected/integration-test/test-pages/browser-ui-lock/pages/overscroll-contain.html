@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Overscroll Behavior: contain - Browser UI Lock</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        body {
+            overscroll-behavior-y: contain;
+            min-height: 200vh;
+        }
+    </style>
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Browser UI Lock]</a></p>
+
+    <h1>Overscroll Behavior: contain (with scrollbar)</h1>
+    <p>This page has <code>overscroll-behavior-y: contain</code> on body, but the page
+       is taller than the viewport (<code>min-height: 200vh</code>) with default overflow.</p>
+    <p>The browser UI should <strong>NOT</strong> be locked because there is a visible
+       vertical scrollbar.</p>
+
+    <div id="results"></div>
+    <div id="test-status"></div>
+
+    <script>
+        test('Page should NOT lock (visible scrollbar despite overscroll-behavior)', async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const html = document.documentElement;
+            const htmlStyle = getComputedStyle(html);
+            const hasVisibleScrollbar = html.scrollHeight > html.clientHeight
+                && htmlStyle.overflowY !== 'hidden'
+                && htmlStyle.overflowY !== 'clip';
+
+            return [
+                {
+                    name: 'Body has overscroll-behavior-y: contain',
+                    result: getComputedStyle(document.body).getPropertyValue('overscroll-behavior-y'),
+                    expected: 'contain'
+                },
+                {
+                    name: 'HTML has a visible scrollbar (content overflows)',
+                    result: hasVisibleScrollbar,
+                    expected: true
+                },
+                {
+                    name: 'Should NOT lock (scrollbar is visible)',
+                    result: !hasVisibleScrollbar,
+                    expected: false
+                }
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

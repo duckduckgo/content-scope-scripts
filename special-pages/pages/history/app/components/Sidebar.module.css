@@ -11,7 +11,7 @@
 }
 
 .pageTitle {
-    color: var(--history-text-normal);
+    color: var(--ds-color-theme-text-primary);
     font-size: var(--title-font-size);
     font-weight: var(--title-font-weight);
     line-height: 24px;
@@ -29,15 +29,11 @@
 
     &:hover,
     &:focus-visible {
-        background: var(--color-black-at-6);
+        background: var(--ds-color-theme-control-fill-primary);
     }
 
-    [data-theme="dark"] & {
-
-        &:hover,
-        &:focus-visible {
-            background: var(--color-white-at-6);
-        }
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
     }
 
     &.item_sites {
@@ -49,11 +45,7 @@
             top: -8px;
             left: 16px;
             right: 16px;
-            border-top: 1px solid var(--color-black-at-6);
-        }
-
-        [data-theme="dark"] &::before {
-            border-top: 1px solid var(--color-white-at-6);
+            border-top: 1px solid var(--ds-color-theme-surface-decoration-primary);
         }
     }
 }
@@ -64,18 +56,10 @@
 }
 
 .active {
-    background: var(--color-black-at-12);
+    background: var(--ds-color-theme-control-fill-secondary);
 
     &:hover {
-        background: var(--color-black-at-18);
-    }
-
-    [data-theme="dark"] & {
-        background: var(--color-white-at-9);
-
-        &:hover {
-            background: var(--color-white-at-12);
-        }
+        background: var(--ds-color-theme-control-fill-tertiary);
     }
 }
 
@@ -84,7 +68,7 @@
     font-size: var(--label-font-size);
     font-weight: var(--label-font-weight);
     line-height: var(--label-line-height);
-    color: var(--history-text-normal);
+    color: var(--ds-color-theme-text-primary);
 
     height: 40px;
     display: flex;
@@ -115,28 +99,18 @@
     border: none;
     cursor: pointer;
     opacity: 0;
-    color: var(--history-text-normal);
+    color: var(--ds-color-theme-text-primary);
 
     &:not([aria-disabled="true"]) {
 
         &:hover,
         &:focus-visible {
-            background: var(--color-black-at-9);
+            background: var(--ds-color-theme-control-fill-primary);
             opacity: 1;
-        }
-    }
-
-    &:active {
-        background: var(--color-black-at-12);
-    }
-
-    [data-theme="dark"] & {
-        &:hover {
-            background: var(--color-white-at-9);
         }
 
         &:active {
-            background: var(--color-white-at-12);
+            background: var(--ds-color-theme-control-fill-secondary);
         }
     }
 
