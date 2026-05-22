@@ -27,7 +27,7 @@ export function FadeTransition({ transitionKey, children }) {
     }
 
     /** @param {import('preact').JSX.TargetedAnimationEvent<HTMLDivElement>} e */
-    const handleAnimationEnd = (e) => {
+    const advance = (e) => {
         if (e.target !== e.currentTarget) return;
         if (phase === 'exiting') {
             setSnapshot({ key: transitionKey, content: children });
@@ -38,7 +38,7 @@ export function FadeTransition({ transitionKey, children }) {
     };
 
     return (
-        <div class={cn(phase === 'exiting' && styles.fadeOut, phase === 'entering' && styles.fadeIn)} onAnimationEnd={handleAnimationEnd}>
+        <div class={cn(phase === 'exiting' && styles.fadeOut, phase === 'entering' && styles.fadeIn)} onAnimationEnd={advance}>
             {phase === 'idle' ? children : snapshot.content}
         </div>
     );

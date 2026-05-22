@@ -9,6 +9,7 @@ import { Switch } from '../../../../../shared/components/Switch/Switch.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { settingsRowItems } from '../data/data';
 import { Button } from './Button';
+import { Container } from './Container';
 import { usePresence } from '../hooks/usePresence';
 import { useFlip } from '../hooks/useFlip';
 import styles from './SettingsContent.module.css';
@@ -17,20 +18,25 @@ import styles from './SettingsContent.module.css';
  * Bottom bubble content for systemSettings and customize steps.
  * Renders settings rows one at a time with Skip/Action buttons.
  * Shows "Next" button when all rows are complete.
+ *
+ * @param {object} props
+ * @param {() => void} props.advance
+ * @param {() => void} props.dismiss
+ * @param {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} props.updateSystemValue
  */
-export function SettingsContent() {
+export function SettingsContent({ advance, dismiss, updateSystemValue }) {
     const platform = usePlatformName();
     const { t } = useTypedTranslation();
     const dispatch = useGlobalDispatch();
-    const appState = useGlobalState();
+    const globalState = useGlobalState();
     const { isReducedMotion } = useEnv();
 
-    if (appState.step.kind !== 'settings') throw new Error('unreachable, for TS benefit');
+    if (globalState.step.kind !== 'settings') throw new Error('unreachable, for TS benefit');
 
-    const { step, status, order, activeStep } = appState;
-    const isDone = appState.activeRow >= step.rows.length;
+    const { step, status, order, activeStep } = globalState;
+    const isDone = globalState.activeRow >= step.rows.length;
     const isLastStep = order[order.length - 1] === activeStep;
-    const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id;
+    const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' ? status.action.id : null;
 
     const [exitingIndex, setExitingIndex] = useState(/** @type {number | null} */ (null));
     const enteringIndex = exitingIndex !== null && exitingIndex + 1 < step.rows.length ? exitingIndex + 1 : null;
@@ -38,23 +44,20 @@ export function SettingsContent() {
 
     const rows = step.rows.map((rowId, index) => {
         return {
-            visible: appState.activeRow >= index || enteringIndex === index,
-            current: appState.activeRow === index,
+            visible: globalState.activeRow >= index || enteringIndex === index,
+            current: globalState.activeRow === index,
             isExiting: exitingIndex === index,
             isEntering: enteringIndex === index,
-            systemValue: appState.values[rowId] || null,
-            uiValue: appState.UIValues[rowId],
+            systemValue: globalState.values[rowId] || null,
+            uiValue: globalState.UIValues[rowId],
             pending: pendingId === rowId,
             id: rowId,
             data: settingsRowItems[rowId](t, platform),
         };
     });
 
-    const advance = () => dispatch({ kind: 'enqueue-next' });
-    const dismiss = () => dispatch({ kind: 'dismiss' });
-
     return (
-        <div class={styles.root}>
+        <Container>
             <div class={styles.rows}>
                 {rows
                     .filter((item) => item.visible)
@@ -63,10 +66,11 @@ export function SettingsContent() {
                             {index > 0 && <div class={cn(styles.divider, item.isEntering && styles.fadeIn)} />}
                             <SettingListItem
                                 dispatch={dispatch}
+                                updateSystemValue={updateSystemValue}
                                 item={item}
                                 onAction={() => {
                                     if (isReducedMotion) return;
-                                    setExitingIndex(appState.activeRow);
+                                    setExitingIndex(globalState.activeRow);
                                 }}
                                 onTransitionEnd={() => setExitingIndex(null)}
                             />
@@ -74,7 +78,7 @@ export function SettingsContent() {
                     ))}
             </div>
 
-            {appState.status.kind === 'idle' && appState.status.error && <p>{appState.status.error}</p>}
+            {globalState.status.kind === 'idle' && globalState.status.error && <p>{globalState.status.error}</p>}
 
             {isDone && (
                 <div class={cn(styles.actions, isAnimating && styles.fadeInDelayed)}>
@@ -84,7 +88,7 @@ export function SettingsContent() {
                     </Button>
                 </div>
             )}
-        </div>
+        </Container>
     );
 }
 
@@ -108,10 +112,11 @@ export function SettingsContent() {
  * @param {Object} props
  * @param {SettingRowItem} props.item
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch
+ * @param {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} props.updateSystemValue
  * @param {() => void} props.onAction
  * @param {() => void} props.onTransitionEnd
  */
-function SettingListItem({ item, dispatch, onAction, onTransitionEnd }) {
+function SettingListItem({ item, dispatch, updateSystemValue, onAction, onTransitionEnd }) {
     const { data, current, isExiting, isEntering, pending } = item;
     const { t } = useTypedTranslation();
 
@@ -122,12 +127,14 @@ function SettingListItem({ item, dispatch, onAction, onTransitionEnd }) {
         keyframes: [{ opacity: 1 }, { opacity: 0 }],
         options: { duration: 200, easing: 'ease-out' },
     });
+
     /** @type {[import('preact').RefObject<HTMLDivElement>, boolean]} */
     const [buttonsRef, buttonsMounted] = usePresence(!isExiting, {
         keyframes: [{ opacity: 1 }, { opacity: 0 }],
         options: { duration: 200, easing: 'ease-out' },
         onComplete: onTransitionEnd,
     });
+
     /** @type {import('preact').RefObject<HTMLImageElement>} */
     const iconRef = useFlip();
 
@@ -139,12 +146,7 @@ function SettingListItem({ item, dispatch, onAction, onTransitionEnd }) {
             return;
         }
         if (current) onAction();
-        dispatch({
-            kind: 'update-system-value',
-            id: data.id,
-            payload: { enabled },
-            current,
-        });
+        updateSystemValue(data.id, { enabled }, current);
     };
 
     const showDetails = current || isExiting || isEntering;

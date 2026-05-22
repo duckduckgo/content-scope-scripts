@@ -6,9 +6,12 @@ import { useAiChats } from './useAiChats.js';
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
  */
 
+export const VIEW_ALL_CHATS_ELEMENT_ID = 'ai-chats-view-all';
+
 /**
  * @typedef {ReturnType<typeof useAiChats> & {
  *   aiChatsListId: string,
+ *   showViewAllAiChats: boolean,
  * }} AiChatsContextValue
  */
 
@@ -20,10 +23,11 @@ const AiChatsContext = createContext(null);
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} [props.enableRecentAiChats]
+ * @param {boolean} [props.showViewAllAiChats]
  * @param {import('preact').ComponentChildren} props.children
  */
-export function AiChatsProvider({ query, autoFocus, enableRecentAiChats, children }) {
-    const aiChatsState = useAiChats({ query, initiallyVisible: autoFocus, enableRecentAiChats });
+export function AiChatsProvider({ query, autoFocus, enableRecentAiChats, showViewAllAiChats = false, children }) {
+    const aiChatsState = useAiChats({ query, initiallyVisible: autoFocus, enableRecentAiChats, showViewAllAiChats });
     const aiChatsListId = useId();
 
     return (
@@ -31,6 +35,7 @@ export function AiChatsProvider({ query, autoFocus, enableRecentAiChats, childre
             value={{
                 ...aiChatsState,
                 aiChatsListId,
+                showViewAllAiChats,
             }}
         >
             {children}
