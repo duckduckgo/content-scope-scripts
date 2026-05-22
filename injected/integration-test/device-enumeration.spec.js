@@ -255,6 +255,43 @@ test.describe('Device Enumeration Feature', () => {
             expect(result.audioCapabilitiesAfterDelete).toEqual({});
         });
 
+        test('should reject instead of calling native enumerateDevices when messaging times out', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        enumerateDevices: {
+                            state: 'enabled',
+                            timeoutMs: 50,
+                        },
+                    },
+                },
+            });
+
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => new Promise(() => {});
+            });
+
+            const result = await page.evaluate(async () => {
+                try {
+                    await navigator.mediaDevices.enumerateDevices();
+                    return { rejected: false };
+                } catch (error) {
+                    return {
+                        rejected: true,
+                        errorMessage: error instanceof Error ? error.message : String(error),
+                    };
+                }
+            });
+
+            expect(result).toEqual({
+                rejected: true,
+                errorMessage: 'Request timeout',
+            });
+        });
+
         test('shimMode=instanceOwn preserves the prototype identity and exposes an own shim', async ({ page }) => {
             await gotoAndWait(page, '/blank.html', {
                 site: {

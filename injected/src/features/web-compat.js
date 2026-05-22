@@ -1318,7 +1318,11 @@ export class WebCompat extends ContentFeature {
                         return DDGReflect.apply(target, thisArg, args);
                     }
                 } catch (err) {
-                    // If the native request fails or times out, fall back to the original implementation
+                    // On timeout, reject rather than calling the native API (which can trigger permission prompts)
+                    if (err instanceof Error && err.message === 'Request timeout') {
+                        throw err;
+                    }
+                    // If the native request fails for other reasons, fall back to the original implementation
                     return DDGReflect.apply(target, thisArg, args);
                 }
             },
