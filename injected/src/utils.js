@@ -613,6 +613,10 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
     }
     const domainParts = topLevelHostname.split('.');
 
+    if (domainParts.length === 1) {
+        return featureList.some((entry) => entry.domain === topLevelHostname);
+    }
+
     // walk up the domain to see if it's unprotected
     while (domainParts.length > 1 && !unprotectedDomain) {
         const partialDomain = domainParts.join('.');
@@ -869,6 +873,9 @@ export function computeEnabledFeatures(data, topLevelHostname, platform, platfor
                     return false;
                 }
             }
+            if (isSelfGatingFeature(featureName)) {
+                return isStateEnabled(feature.state, platform);
+            }
             return isStateEnabled(feature.state, platform) && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
         })
         .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
@@ -919,15 +926,33 @@ export const platformSpecificFeatures = [
     'print',
     'webInterferenceDetection',
     'webDetection',
+    'webEvents',
     'pageObserver',
     'hover',
+    'trackerProtection', // only enabled on apple platforms
 ];
+/**
+ * Features that bypass exception-based disabling in computeEnabledFeatures.
+ * These features handle their own exceptions internally (e.g., to stay active
+ * for reporting on excepted domains while adjusting behavior).
+ * @type {FeatureName[]}
+ */
+export const selfGatingFeatures = ['trackerProtection'];
+
 /**
  * @param {string} featureName
  * @returns {boolean}
  */
 export function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
+}
+
+/**
+ * @param {string} featureName
+ * @returns {boolean}
+ */
+export function isSelfGatingFeature(featureName) {
+    return selfGatingFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
 }
 
 /**
@@ -943,7 +968,7 @@ export function createCustomEvent(eventName, eventDetail) {
 /**
  * @deprecated
  * @param {string} messageType
- * @param {any} options
+ * @param {unknown} options
  */
 export function legacySendMessage(messageType, options) {
     // FF & Chrome
@@ -1009,67 +1034,4 @@ export function isDuckAiSidebar() {
         return false;
     }
     return tabUrl.searchParams.get('placement') === 'sidebar';
-}
-
-/**
- * Deep merge config with defaults. Config values take precedence over defaults.
- *
- * Merge behavior:
- * - If config is undefined, use defaults
- * - Primitives: config replaces default
- * - Arrays: config replaces default (no element-wise merge)
- * - Objects: recursively merge
- *
- * Example:
- *
- * ```
- *   DEFAULTS                   CONFIG                      RESULT
- *   +----------------+         +----------------+          +----------------+
- *   | a: 1           |         | a: 2           |    ==>   | a: 2           |  (config wins)
- *   | b: {           |         | b: {           |          | b: {           |  (gets merged recursively)
- *   |   x: 10,       |         |   y: 20        |          |   x: 10,       |  (from defaults)
- *   |   z: 30        |         | }              |          |   y: 20,       |  (from config)
- *   | }              |         +----------------+          |   z: 30        |  (from defaults)
- *   | c: [1, 2]      |                                     | }              |
- *   +----------------+                                     | c: [1, 2]      |  (from defaults)
- *                                                          +----------------+
- * ```
- *
- * @template {object} D
- * @template {object} C
- * @param {D} defaults - The default values
- * @param {C} config - The config to merge (may be partial or undefined)
- * @returns {any}
- */
-export function withDefaults(defaults, config) {
-    // If config is undefined, use defaults
-    if (config === undefined) {
-        return /** @type {D & C} */ (defaults);
-    }
-    if (
-        // if defaults are undefined
-        defaults === undefined ||
-        // or either config or defaults are a non-object value that we can't merge
-        Array.isArray(defaults) ||
-        defaults === null ||
-        typeof defaults !== 'object' ||
-        Array.isArray(config) ||
-        config === null ||
-        typeof config !== 'object'
-    ) {
-        // then we always favour the config value
-        return /** @type {D & C} */ (/** @type {unknown} */ (config));
-    }
-
-    // at this point, we know that both defaults and config are objects, so we merge keys:
-    /** @type {Record<string, unknown>} */
-    const result = {};
-    /** @type {Record<string, unknown>} */
-    const d = /** @type {any} */ (defaults);
-    /** @type {Record<string, unknown>} */
-    const c = /** @type {any} */ (config);
-    for (const key of new Set([...Object.keys(d), ...Object.keys(c)])) {
-        result[key] = withDefaults(/** @type {any} */ (d[key]), /** @type {any} */ (c[key]));
-    }
-    return /** @type {D & C} */ (/** @type {unknown} */ (result));
 }
