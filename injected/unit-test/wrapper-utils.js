@@ -1,4 +1,12 @@
-import { shimInterface, shimProperty, wrapProperty, wrapMethod, wrapFunction, wrapToString } from '../src/wrapper-utils.js';
+import {
+    mergePropertyDescriptors,
+    shimInterface,
+    shimProperty,
+    wrapProperty,
+    wrapMethod,
+    wrapFunction,
+    wrapToString,
+} from '../src/wrapper-utils.js';
 
 describe('Shim API', () => {
     // MediaSession is just an example, to make it close to reality
@@ -264,6 +272,24 @@ describe('Shim API', () => {
 
             expect(getter.toString()).toBe('function get mediaSession() { [native code] }');
         });
+    });
+});
+
+describe('mergePropertyDescriptors', () => {
+    it('merges compatible value descriptors', () => {
+        const orig = { value: () => 'orig', writable: true, configurable: true, enumerable: false };
+        const merged = mergePropertyDescriptors(orig, { value: () => 'new' });
+        expect(merged).toEqual({ value: jasmine.any(Function), writable: true, configurable: true, enumerable: false });
+    });
+
+    it('returns undefined when value is applied to an accessor descriptor', () => {
+        const orig = { get: () => 'orig', configurable: true, enumerable: true };
+        expect(mergePropertyDescriptors(orig, { value: 'mismatch' })).toBeUndefined();
+    });
+
+    it('returns undefined when accessor fields are applied to a value descriptor', () => {
+        const orig = { value: 'orig', writable: true, configurable: true, enumerable: true };
+        expect(mergePropertyDescriptors(orig, { get: () => 'mismatch' })).toBeUndefined();
     });
 });
 

@@ -1,0 +1,41 @@
+.root {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.slideIn {
+    animation: slide-in 0.7s 0.2s both;
+}
+
+.slideOut {
+    animation: slide-out 0.7s both;
+}
+
+@keyframes slide-in {
+    0% {
+        translate: 0 200px;
+        animation-timing-function: cubic-bezier(0.1, 0.85, 0.64, 0.99);
+    }
+    100% {
+        translate: 0 0;
+    }
+}
+
+@keyframes slide-out {
+    0% {
+        translate: 0 0;
+        animation-timing-function: cubic-bezier(0.1, 0.85, 0.64, 0.99);
+    }
+    100% {
+        translate: 0 200px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .slideIn,
+    .slideOut {
+        animation: none;
+    }
+}

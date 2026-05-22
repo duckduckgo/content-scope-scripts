@@ -23,13 +23,11 @@
     }
 
     &[aria-selected="true"],
-    &:hover,
     &:active {
         color: var(--ds-color-theme-accent-content-primary);
     }
 
-    &[aria-selected="true"],
-    &:hover {
+    &[aria-selected="true"] {
         background: var(--ds-color-theme-accent-primary);
     }
 
