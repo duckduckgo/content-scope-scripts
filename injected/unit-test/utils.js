@@ -10,7 +10,6 @@ import {
     getTabHostname,
     processAttr,
     isStateEnabled,
-    withDefaults,
     withRetry,
     getStackTraceUrls,
     getStackTraceOrigins,
@@ -868,93 +867,6 @@ describe('Helpers checks', () => {
         });
     });
 
-    describe('withDefaults', () => {
-        it('should return defaults when config is undefined', () => {
-            const defaults = { a: 1, b: 2 };
-            expect(withDefaults(defaults, undefined)).toEqual({ a: 1, b: 2 });
-        });
-
-        it('should return config when defaults is undefined', () => {
-            expect(withDefaults(undefined, { a: 10 })).toEqual({ a: 10 });
-        });
-
-        it('should override primitive values with config', () => {
-            const defaults = { a: 1, b: 2 };
-            const config = { a: 10 };
-            expect(withDefaults(defaults, config)).toEqual({ a: 10, b: 2 });
-        });
-
-        it('should deeply merge nested objects', () => {
-            const defaults = {
-                level1: {
-                    a: 1,
-                    level2: {
-                        b: 2,
-                        c: 3,
-                    },
-                },
-            };
-            const config = {
-                level1: {
-                    level2: {
-                        b: 20,
-                    },
-                },
-            };
-            expect(withDefaults(defaults, config)).toEqual({
-                level1: {
-                    a: 1,
-                    level2: {
-                        b: 20,
-                        c: 3,
-                    },
-                },
-            });
-        });
-
-        it('should replace arrays entirely (not merge them)', () => {
-            const defaults = { items: [1, 2, 3] };
-            const config = { items: [4, 5] };
-            expect(withDefaults(defaults, config)).toEqual({ items: [4, 5] });
-        });
-
-        it('should use default array when config value is undefined', () => {
-            const defaults = { items: [1, 2, 3] };
-            const config = {};
-            expect(withDefaults(defaults, config)).toEqual({ items: [1, 2, 3] });
-        });
-
-        it('should handle config replacing object with primitive', () => {
-            const defaults = { nested: { a: 1 } };
-            const config = { nested: 'replaced' };
-            expect(withDefaults(defaults, config)).toEqual({ nested: 'replaced' });
-        });
-
-        it('should handle config replacing primitive with object', () => {
-            const defaults = { value: 'string' };
-            const config = { value: { nested: true } };
-            expect(withDefaults(defaults, config)).toEqual({ value: { nested: true } });
-        });
-
-        it('should allow additional keys from config', () => {
-            const defaults = { a: 1, b: 2 };
-            const config = { a: 10, c: 30 };
-            expect(withDefaults(defaults, config)).toEqual({ a: 10, b: 2, c: 30 });
-        });
-
-        it('should allow additional keys from defaults', () => {
-            const defaults = { a: 1, b: 2 };
-            const config = { c: 30 };
-            expect(withDefaults(defaults, config)).toEqual({ a: 1, b: 2, c: 30 });
-        });
-
-        it('should merge nested objects keeping additional keys from config', () => {
-            const defaults = { outer: { inner: { a: 1 } } };
-            const config = { outer: { inner: { a: 2, b: 3 } } };
-            expect(withDefaults(defaults, config)).toEqual({ outer: { inner: { a: 2, b: 3 } } });
-        });
-    });
-
     describe('withRetry', () => {
         it('resolves when function returns a truthy value', async () => {
             /** @type {any} */
@@ -1059,6 +971,7 @@ describe('Helpers checks', () => {
             expect(isPlatformSpecificFeature('messageBridge')).toBeTrue();
             expect(isPlatformSpecificFeature('favicon')).toBeTrue();
             expect(isPlatformSpecificFeature('webDetection')).toBeTrue();
+            expect(isPlatformSpecificFeature('webEvents')).toBeTrue();
         });
 
         it('returns false for non-platform features', () => {
@@ -1089,8 +1002,9 @@ describe('Helpers checks', () => {
             expect(isGloballyDisabled(args)).toBeFalse();
         });
 
-        it('platformSpecificFeatures includes webDetection so it loads when globally disabled', () => {
+        it('platformSpecificFeatures includes webDetection and webEvents so they load when globally disabled', () => {
             expect(platformSpecificFeatures).toContain('webDetection');
+            expect(platformSpecificFeatures).toContain('webEvents');
         });
     });
 
@@ -1241,7 +1155,7 @@ describe('Helpers checks', () => {
             expect(result).toContain('messageBridge');
         });
 
-        it('includes webDetection as platform-specific feature not in remote config', () => {
+        it('includes webDetection and webEvents as platform-specific features not in remote config', () => {
             const data = {
                 features: {
                     regularFeature: { state: 'enabled', settings: {}, exceptions: [] },
@@ -1250,10 +1164,11 @@ describe('Helpers checks', () => {
             };
             const result = computeEnabledFeatures(data, 'example.com', { name: 'ios' }, platformSpecificFeatures);
             expect(result).toContain('webDetection');
+            expect(result).toContain('webEvents');
             expect(result).toContain('regularFeature');
         });
 
-        it('keeps webDetection even when a regular feature has an exception for the domain', () => {
+        it('keeps webDetection and webEvents even when a regular feature has an exception for the domain', () => {
             const data = {
                 features: {
                     regularFeature: { state: 'enabled', settings: {}, exceptions: [{ domain: 'broken.com' }] },
@@ -1262,6 +1177,7 @@ describe('Helpers checks', () => {
             };
             const result = computeEnabledFeatures(data, 'broken.com', { name: 'ios' }, platformSpecificFeatures);
             expect(result).toContain('webDetection');
+            expect(result).toContain('webEvents');
             expect(result).not.toContain('regularFeature');
         });
 
@@ -1326,6 +1242,28 @@ describe('Helpers checks', () => {
             };
             const result = computeEnabledFeatures(data, 'excepted.com', { name: 'ios' }, platformSpecificFeatures);
             expect(result).not.toContain('webDetection');
+        });
+
+        it('disables webEvents on a domain present in its exceptions array', () => {
+            const data = {
+                features: {
+                    webEvents: { state: 'enabled', settings: {}, exceptions: [{ domain: 'excepted.com' }] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'excepted.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).not.toContain('webEvents');
+        });
+
+        it('does not disable webEvents on a non-matching domain', () => {
+            const data = {
+                features: {
+                    webEvents: { state: 'enabled', settings: {}, exceptions: [{ domain: 'excepted.com' }] },
+                },
+                unprotectedTemporary: [],
+            };
+            const result = computeEnabledFeatures(data, 'allowed.com', { name: 'ios' }, platformSpecificFeatures);
+            expect(result).toContain('webEvents');
         });
     });
 
