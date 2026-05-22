@@ -7,19 +7,35 @@ import { ensureNavigatorDuckDuckGo } from '../navigator-global.js';
  * @import { MessagingInterface } from "./message-bridge/schema.js"
  */
 
+/**
+ * @typedef {object} NavigatorInterfaceArgs
+ * @property {{name: string}} [platform]
+ * @property {string} [messageSecret]
+ */
+
+/** @type {Record<string, MessagingInterface>} */
 const store = {};
 
 export default class NavigatorInterface extends ContentFeature {
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     load(args) {
         if (this.matchConditionalFeatureSetting('privilegedDomains').length) {
             this.injectNavigatorInterface(args);
         }
     }
 
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     init(args) {
         this.injectNavigatorInterface(args);
     }
 
+    /**
+     * @param {NavigatorInterfaceArgs} args
+     */
     injectNavigatorInterface(args) {
         try {
             if (!args.platform || !args.platform.name) {

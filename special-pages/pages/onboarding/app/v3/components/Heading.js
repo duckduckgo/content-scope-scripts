@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import { useState, useRef, useLayoutEffect, useEffect } from 'preact/hooks';
-import { Typed } from '../../shared/components/Typed';
+import { Typed } from './Typed';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 
 import styles from './Heading.module.css';
@@ -107,6 +107,7 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
                 setDimensions({ width, height });
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [bubbleContents, title, subtitle, children]);
 
     useEffect(() => {
@@ -129,6 +130,7 @@ function SpeechBubble({ title, subtitle, onComplete, children }) {
             clearTimeout(debounce);
             window.removeEventListener('resize', handleResize);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, []);
 
     const onTransitionEnd = () => {

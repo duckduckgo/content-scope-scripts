@@ -107,4 +107,22 @@ export const otherRMFExamples = {
             />
         ),
     },
+    'rmf.big-single-action-preview': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_preview.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
+    'rmf.big-single-action-youtube-new': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_youtube_new.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
 };

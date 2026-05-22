@@ -299,7 +299,7 @@ export default class AutofillImport extends ActionExecutorBase {
     /**
      * Observes the removal of an element from the DOM.
      * @param {HTMLElement|Element} element
-     * @param {any} onRemoveCallback
+     * @param {() => void} onRemoveCallback
      */
     observeElementRemoval(element, onRemoveCallback) {
         // Set up the mutation observer
@@ -694,7 +694,7 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     urlChanged() {
-        this.handleLocation(window.location);
+        void this.handleLocation(window.location);
     }
 
     init() {
