@@ -5,7 +5,7 @@ import { ProtectionsProvider } from './ProtectionsProvider.js';
 import { h } from 'preact';
 
 import { ProtectionsConsumer } from './ProtectionsConsumer.js';
-import { DuckFoot } from '../../components/Icons.js';
+import { Shield } from '../../components/Icons.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -28,7 +28,7 @@ export function ProtectionsCustomized() {
 
     const { visibility, id, toggle, index } = useVisibility();
 
-    useCustomizer({ title: sectionTitle, id, icon: <DuckFoot />, toggle, visibility: visibility.value, index, enabled: true });
+    useCustomizer({ title: sectionTitle, id, icon: <Shield />, toggle, visibility: visibility.value, index, enabled: true });
 
     if (visibility.value === 'hidden') {
         return null;
