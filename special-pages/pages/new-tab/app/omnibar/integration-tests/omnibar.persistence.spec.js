@@ -84,6 +84,30 @@ test.describe('omnibar widget persistence', () => {
         await omnibar.didSwitchToTab('01', ['01', '02']);
         await omnibar.expectValue({ value: '', mode: 'search' });
     });
+    test('subscription config update does not change mode of current tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, tabs: true, 'tabs.debug': true } });
+        await omnibar.ready();
+
+        // verify initial mode is search
+        await omnibar.expectMode('search');
+
+        // type a query so we can verify it's not disrupted
+        await omnibar.types({ mode: 'search', value: 'shoes' });
+
+        // simulate another window changing mode to 'ai' (subscription push)
+        await omnibar.didReceiveConfig({ mode: 'ai', enableAi: true, showAiSetting: true });
+
+        // current tab should still be in search mode with the query intact
+        await omnibar.expectMode('search');
+        await omnibar.expectInputValue('shoes');
+
+        // but a new tab should pick up the new default mode
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+        await omnibar.expectMode('ai');
+    });
     test('adjusts mode of other tabs when duck.ai is globally disabled', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
