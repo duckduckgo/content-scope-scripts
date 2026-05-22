@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "CanBeSuspended",
+  "description": "Notification sent when the page's suspension eligibility changes.",
+  "required": ["canBeSuspended"],
+  "properties": {
+    "canBeSuspended": {
+      "type": "boolean",
+      "description": "False when the page has conditions preventing suspension. Currently only ever sent with 'false' value."
+    }
+  },
+  "additionalProperties": false
+}

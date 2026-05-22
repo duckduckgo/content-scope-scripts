@@ -1,7 +1,6 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
 import styles from './App.module.css';
-import { GlobalContext, GlobalDispatch } from '../global';
+import { useGlobalDispatch, useGlobalState } from '../global';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 import { usePlatformName } from '../shared/components/SettingsProvider';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
@@ -14,10 +13,10 @@ import { SingleStep } from './components/SingleStep';
  * @param {import("preact").ComponentChild} props.children
  */
 export function App({ children }) {
-    const { debugState } = useEnv();
+    const { debugState, isDarkMode } = useEnv();
     const platformName = usePlatformName();
-    const globalState = useContext(GlobalContext);
-    const dispatch = useContext(GlobalDispatch);
+    const globalState = useGlobalState();
+    const dispatch = useGlobalDispatch();
 
     const { activeStep, exiting } = globalState;
 
@@ -27,7 +26,7 @@ export function App({ children }) {
     };
 
     return (
-        <main data-platform-name={platformName || 'macos'} data-app-version="v4">
+        <main class={isDarkMode ? 'theme-dark' : 'theme-light'} data-platform-name={platformName || 'macos'} data-app-version="v4">
             <Background />
             {debugState && <Debug state={globalState} />}
             <div class={styles.container} data-current={activeStep} data-exiting={String(exiting)}>
@@ -40,6 +39,10 @@ export function App({ children }) {
     );
 }
 
+/**
+ * @param {object} props
+ * @param {import('../types').GlobalState} props.state
+ */
 function Debug(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state;
     const debugData = { order, step, exiting, activeStep, nextStep };
