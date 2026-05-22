@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import styles from './AddressBarPreview.module.css';
 
 const ICON_TRANSITION = { transition: 'opacity 250ms ease-in-out' };
@@ -13,82 +14,155 @@ export function AddressBarPreview({ isReduced, isDarkMode = false }) {
     const colors = isDarkMode
         ? {
               // Dark mode
-              outerBg: '#051E3D',
+              outerBg: '#123269',
               browserChrome: '#1C1C1C',
               browserBorder: '#3D3D3D',
               topBar: '#050505',
               tabsArea: '#282828',
               addressBarBg: '#3D3D3D',
               addressBarBorder: '#3377AD',
+              addressBarShadow: 'none',
               iconPillOuterBg: 'rgba(67, 151, 224, 0.25)',
               iconPillBg: '#4397E0',
-              iconPillIcons: '#282828',
+              iconPillIcons: '#000',
+              iconPillIconsOpacity: '0.84',
               searchIcon: '#4397E0',
               navArrows: '#fff',
               navArrowsOpacity: '0.24',
+              dotOpacity: '0.16',
+              tabDetailOpacity: '0.09',
+              waveOpacity: '0.12',
           }
         : {
               // Light mode (matches Figma export)
               outerBg: '#4D9DFF',
               browserChrome: '#FAFAFA',
               browserBorder: '#ffffff',
-              topBar: '#e0e0e0',
+              topBar: '#E0E0E0',
               tabsArea: '#F2F2F2',
               addressBarBg: '#fff',
-              addressBarBorder: '#77B6E8',
+              addressBarBorder: '#1074CC',
+              addressBarShadow: '0 2px 12px rgba(0, 0, 0, 0.12)',
               iconPillOuterBg: '#C9E3FF',
               iconPillBg: '#1074CC',
               iconPillIcons: '#fff',
+              iconPillIconsOpacity: '1',
               searchIcon: '#1074CC',
               navArrows: '#000',
               navArrowsOpacity: '0.36',
+              dotOpacity: '0.09',
+              tabDetailOpacity: '0.09',
+              waveOpacity: '0.03',
           };
 
     return (
-        <div className={styles.wrapper}>
-            <svg fill="none" viewBox="0 0 432 208" xmlns="http://www.w3.org/2000/svg" className={styles.image}>
+        <div class={styles.wrapper}>
+            <svg fill="none" viewBox="0 0 432 208" xmlns="http://www.w3.org/2000/svg" class={styles.image}>
                 <defs>
                     <clipPath id="clip-main">
-                        <rect width="432" height="208" fill="#fff" rx="8" />
+                        <rect width="432" height="208" fill="#fff" rx="20" />
                     </clipPath>
                 </defs>
                 <g clipPath="url(#clip-main)">
                     {/* Outer background */}
-                    <rect width="432" height="208" fill={colors.outerBg} rx="8" />
+                    <rect width="432" height="208" fill={colors.outerBg} rx="20" />
 
                     {/* Browser chrome */}
-                    <path fill={colors.browserChrome} d="M32 30a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v178H32z" />
                     <path
-                        fill={colors.browserBorder}
-                        d="M400 30a8 8 0 0 0-8-8v-2c5.523 0 10 4.477 10 10v180H30V30c0-5.523 4.477-10 10-10v2a8 8 0 0 0-8 8v178h368zm-8-10v2H40v-2z"
+                        fill={colors.browserChrome}
+                        stroke={colors.browserBorder}
+                        strokeWidth="2"
+                        d="M392 23C401.389 23 409 30.611 409 40V209H23V40C23 30.611 30.611 23 40 23H392Z"
                     />
-                    <path fill={colors.topBar} d="M32 30a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v50H32z" />
+
+                    {/* Top bar */}
+                    <path fill={colors.topBar} d="M24 40C24 31.163 31.163 24 40 24H392C400.837 24 408 31.163 408 40V83H24V40Z" />
+
+                    {/* Background tab */}
+                    <g opacity="0.6">
+                        <path
+                            fill={colors.tabsArea}
+                            d="M237 47C232.582 47 229 43.418 229 39V34C229 29.582 225.418 26 221 26H147C142.582 26 139 29.582 139 34V39C139 43.418 135.418 47 131 47H128V52H312V47H237Z"
+                        />
+                        <rect
+                            x="172"
+                            y="34"
+                            width="45"
+                            height="4"
+                            rx="2"
+                            fill={colors.navArrows}
+                            style={{ fillOpacity: colors.tabDetailOpacity }}
+                        />
+                        <rect
+                            x="160"
+                            y="33"
+                            width="6"
+                            height="6"
+                            rx="3"
+                            fill={colors.navArrows}
+                            style={{ fillOpacity: colors.tabDetailOpacity }}
+                        />
+                    </g>
+
+                    {/* Active tab */}
                     <path
                         fill={colors.tabsArea}
-                        d="M166 37a8 8 0 0 0 8 8h75a8 8 0 0 1 8 8v3a8 8 0 0 1-8 8H55a8 8 0 0 1-8-8v-3a8 8 0 0 1 8-8h3a8 8 0 0 0 8-8v-5a8 8 0 0 1 8-8h84a8 8 0 0 1 8 8z"
+                        d="M159 47C154.582 47 151 43.418 151 39V34C151 29.582 147.418 26 143 26H79C74.582 26 71 29.582 71 34V39C71 43.418 67.418 47 63 47H60V52H234V47H159Z"
                     />
-                    <path fill={colors.tabsArea} d="M32 53a8 8 0 0 1 8-8h352a8 8 0 0 1 8 8v28H32z" />
+                    <rect
+                        x="91"
+                        y="34"
+                        width="45"
+                        height="4"
+                        rx="2"
+                        fill={colors.navArrows}
+                        style={{ fillOpacity: colors.tabDetailOpacity }}
+                    />
+                    <rect
+                        x="79"
+                        y="33"
+                        width="6"
+                        height="6"
+                        rx="3"
+                        fill={colors.navArrows}
+                        style={{ fillOpacity: colors.tabDetailOpacity }}
+                    />
+
+                    {/* Toolbar */}
+                    <path fill={colors.tabsArea} d="M24 55C24 50.582 27.582 47 32 47H400C404.418 47 408 50.582 408 55V83H24V55Z" />
 
                     {/* Navigation arrows */}
                     <path
                         fill={colors.navArrows}
-                        fillOpacity={colors.navArrowsOpacity}
-                        d="M49.86 58.267a.469.469 0 0 0-.664-.663l-3.983 3.987a1.594 1.594 0 0 0 0 2.253l3.983 3.986a.469.469 0 0 0 .663-.663l-3.979-3.981h9.65a.469.469 0 0 0 0-.938h-9.65zm326.89.702c0-.26.21-.469.469-.469h9.562a.469.469 0 1 1 0 .938h-9.562a.47.47 0 0 1-.469-.47m0 3.751c0-.26.21-.469.469-.469h9.562a.469.469 0 1 1 0 .938h-9.562a.47.47 0 0 1-.469-.47m.469 3.282a.469.469 0 1 0 0 .938h9.562a.469.469 0 1 0 0-.938z"
+                        style={{ fillOpacity: colors.navArrowsOpacity }}
+                        d="M41.859 60.267C42.042 60.084 42.042 59.787 41.859 59.604C41.676 59.421 41.379 59.421 41.196 59.604L37.213 63.591C36.591 64.213 36.591 65.221 37.213 65.844L41.196 69.83C41.379 70.013 41.676 70.013 41.859 69.83C42.042 69.647 42.042 69.351 41.859 69.167L37.881 65.186H47.531C47.79 65.186 48 64.976 48 64.717C48 64.458 47.79 64.248 47.531 64.248H37.881L41.859 60.267ZM384.75 60.969C384.75 60.71 384.96 60.5 385.219 60.5H394.781C395.04 60.5 395.25 60.71 395.25 60.969C395.25 61.228 395.04 61.438 394.781 61.438H385.219C384.96 61.438 384.75 61.228 384.75 60.969ZM384.75 64.719C384.75 64.46 384.96 64.25 385.219 64.25H394.781C395.04 64.25 395.25 64.46 395.25 64.719C395.25 64.978 395.04 65.188 394.781 65.188H385.219C384.96 65.188 384.75 64.978 384.75 64.719ZM385.219 68C384.96 68 384.75 68.21 384.75 68.469C384.75 68.728 384.96 68.938 385.219 68.938H394.781C395.04 68.938 395.25 68.728 395.25 68.469C395.25 68.21 395.04 68 394.781 68H385.219Z"
+                    />
+
+                    {/* Window control dots */}
+                    <circle cx="36" cy="36" r="3" fill={colors.navArrows} style={{ fillOpacity: colors.dotOpacity }} />
+                    <circle cx="46" cy="36" r="3" fill={colors.navArrows} style={{ fillOpacity: colors.dotOpacity }} />
+                    <circle cx="56" cy="36" r="3" fill={colors.navArrows} style={{ fillOpacity: colors.dotOpacity }} />
+
+                    {/* Bottom decorative wave */}
+                    <path
+                        fill={colors.navArrows}
+                        style={{ fillOpacity: colors.waveOpacity, mixBlendMode: 'multiply' }}
+                        d="M81.31 194.544C41.586 186.057 17.379 187.055 0 189.552V224H432V145.302C374.276 141.807 334.399 169.389 262.523 189.552C192.186 209.283 121.828 203.201 81.31 194.544Z"
                     />
                 </g>
             </svg>
 
             {/* CSS Background overlay - animates smoothly with CSS */}
-            <div className={`${styles.bgOverlay} ${isReduced ? styles.bgReduced : ''}`} style={{ backgroundColor: colors.addressBarBg }} />
-            {/* CSS Border overlay - animates smoothly with CSS */}
             <div
-                className={`${styles.borderOverlay} ${isReduced ? styles.borderReduced : ''}`}
-                style={{ borderColor: colors.addressBarBorder }}
+                class={cn(styles.bgOverlay, isReduced && styles.bgReduced)}
+                style={{ backgroundColor: colors.addressBarBg, boxShadow: colors.addressBarShadow }}
             />
+            {/* CSS Border overlay - animates smoothly with CSS */}
+            <div class={cn(styles.borderOverlay, isReduced && styles.borderReduced)} style={{ borderColor: colors.addressBarBorder }} />
 
             {/* Regular search icon - shown when in search-only mode */}
             <svg
-                className={styles.regularIcon}
+                class={styles.regularIcon}
                 style={{ opacity: isReduced ? 1 : 0, ...ICON_TRANSITION }}
                 viewBox="0 0 12 12"
                 fill="none"
@@ -102,7 +176,7 @@ export function AddressBarPreview({ isReduced, isDarkMode = false }) {
 
             {/* Extended icon (AI chat pill) - shown when in search-and-duckai mode */}
             <svg
-                className={styles.extendedIcon}
+                class={styles.extendedIcon}
                 style={{ opacity: isReduced ? 0 : 1, ...ICON_TRANSITION }}
                 viewBox="0 0 56 20"
                 fill="none"
@@ -118,6 +192,7 @@ export function AddressBarPreview({ isReduced, isDarkMode = false }) {
                 {/* Search icon (on inner circle) */}
                 <path
                     fill={colors.iconPillIcons}
+                    style={{ fillOpacity: colors.iconPillIconsOpacity }}
                     d="M14.25 4C17.149 4 19.5 6.351 19.5 9.25C19.5 10.52 19.049 11.684 18.299 12.592L20.854 15.147L20.918 15.225C21.046 15.419 21.024 15.683 20.854 15.854C20.683 16.024 20.419 16.046 20.225 15.918L20.146 15.854L17.592 13.299C16.684 14.049 15.52 14.5 14.25 14.5C11.351 14.5 9 12.149 9 9.25C9 6.351 11.351 4 14.25 4ZM14.25 5C11.903 5 10 6.903 10 9.25C10 11.597 11.903 13.5 14.25 13.5C16.597 13.5 18.5 11.597 18.5 9.25C18.5 6.903 16.597 5 14.25 5Z"
                 />
                 {/* Sparkle icon */}
