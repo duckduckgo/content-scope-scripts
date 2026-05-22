@@ -13,7 +13,7 @@
     font: var(--input-font);
     left: 0;
     padding: var(--sp-3);
-    padding-right: calc(var(--suffix-text-width) + var(--sp-1) + var(--sp-8) + var(--sp-1)); /* Suffix + padding + close button + padding */
+    padding-right: calc(var(--sp-1) + var(--sp-8) + var(--sp-1)); /* padding + close button + padding */
     position: absolute;
     right: 0;
 
@@ -32,7 +32,9 @@
 }
 
 .suffixSpacer {
+    flex: none;
     font: var(--input-font);
+    max-width: calc(100% - var(--sp-1) - var(--sp-8) - var(--sp-1)); /* leave room for close button */
     overflow: hidden;
     visibility: hidden;
     white-space: nowrap;
@@ -40,8 +42,11 @@
 
 .suffix {
     color: var(--ds-color-theme-accent-primary);
-    flex: none;
     font: var(--input-font);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .closeButton {
@@ -84,7 +89,7 @@
 }
 
 [data-platform='windows'] {
-	.input {
-		line-height: normal;
-	}
+    .input {
+        line-height: normal;
+    }
 }

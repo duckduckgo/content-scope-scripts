@@ -72,6 +72,38 @@ describe('Messaging Transports', () => {
         expect(errorLoggingSpy.calls.first().args[0]).toContain('[Messaging] Failed to send notification:');
         expect(errorLoggingSpy.calls.first().args[1].message).toEqual('Test error 1');
     });
+    it('calls transport with a NotificationMessage and handles rejected promises (but does log)', async () => {
+        const { messaging, transport } = createMessaging();
+        const asyncError = new Error('Test error 2');
+        const notifySpy = spyOn(transport, 'notify').and.returnValue(Promise.reject(asyncError));
+        const errorLoggingSpy = spyOn(console, 'error');
+
+        messaging.notify('helloWorld', { foo: 'bar' });
+        await Promise.resolve();
+
+        expect(notifySpy).toHaveBeenCalledWith(
+            new NotificationMessage({
+                context: 'contentScopeScripts',
+                featureName: 'hello-world',
+                method: 'helloWorld',
+                params: { foo: 'bar' },
+            }),
+        );
+
+        expect(errorLoggingSpy.calls.first().args[0]).toContain('[Messaging] Failed to send notification:');
+        expect(errorLoggingSpy.calls.first().args[1]).toEqual(asyncError);
+    });
+    it("doesn't throw when notification logging fails", () => {
+        const { messaging, transport } = createMessaging();
+        spyOn(transport, 'notify').and.throwError('Test error 3');
+        spyOn(console, 'error').and.callFake(() => {
+            throw new Error('Logger unavailable');
+        });
+
+        expect(() => {
+            messaging.notify('helloWorld', { foo: 'bar' });
+        }).not.toThrow();
+    });
     it('calls transport with a Subscription', () => {
         const { messaging, transport } = createMessaging();
 
