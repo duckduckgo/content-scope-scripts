@@ -25,6 +25,14 @@ const MSG_SCREEN_LOCK = 'screenLock';
 const MSG_SCREEN_UNLOCK = 'screenUnlock';
 const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 
+/** Error used when the deviceEnumeration messaging request exceeds timeoutMs. */
+class DeviceEnumerationRequestTimeout extends Error {
+    constructor() {
+        super('Request timeout');
+        this.name = 'DeviceEnumerationRequestTimeout';
+    }
+}
+
 function canShare(data) {
     if (typeof data !== 'object') return false;
     // Make an in-place shallow copy of the data
@@ -1257,12 +1265,12 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * Fallback device list when the deviceEnumeration messaging request times out.
+     * Fallback device list when the deviceEnumeration messaging request fails.
      * Mimics pre-permission enumerateDevices (unlabeled input devices) without calling native.
      * @param {'syntheticPrototype' | 'instanceOwn'} shimMode
      * @returns {MediaDeviceInfo[]}
      */
-    createEnumerateDevicesTimeoutFallback(shimMode) {
+    createEnumerateDevicesFallback(shimMode) {
         return [this.createMediaDeviceInfo('audioinput', shimMode), this.createMediaDeviceInfo('videoinput', shimMode)];
     }
 
@@ -1270,10 +1278,10 @@ export class WebCompat extends ContentFeature {
      * Helper to wrap a promise with timeout
      * @param {Promise} promise - Promise to wrap
      * @param {number} timeoutMs - Timeout in milliseconds
-     * @returns {Promise} Promise that rejects on timeout
+     * @returns {Promise} Promise that rejects with {@link DeviceEnumerationRequestTimeout} on timeout
      */
     withTimeout(promise, timeoutMs) {
-        const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new Error('Request timeout')), timeoutMs));
+        const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new DeviceEnumerationRequestTimeout()), timeoutMs));
         return Promise.race([promise, timeout]);
     }
 
@@ -1327,13 +1335,10 @@ export class WebCompat extends ContentFeature {
                         // If no prompts would be required, proceed with the regular device enumeration
                         return DDGReflect.apply(target, thisArg, args);
                     }
-                } catch (err) {
-                    // Messaging timed out — return a shimmed response instead of calling native enumerateDevices
-                    if (err instanceof Error && err.message === 'Request timeout') {
-                        return Promise.resolve(this.createEnumerateDevicesTimeoutFallback(shimMode));
-                    }
-                    // If the native request fails for other reasons, fall back to the original implementation
-                    return DDGReflect.apply(target, thisArg, args);
+                } catch (_err) {
+                    // Messaging failed or timed out — return a shimmed response instead of calling native
+                    // enumerateDevices (we do not know willPrompt and native may trigger permission UI).
+                    return Promise.resolve(this.createEnumerateDevicesFallback(shimMode));
                 }
             },
         });

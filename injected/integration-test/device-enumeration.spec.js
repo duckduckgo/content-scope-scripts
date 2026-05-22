@@ -255,7 +255,7 @@ test.describe('Device Enumeration Feature', () => {
             expect(result.audioCapabilitiesAfterDelete).toEqual({});
         });
 
-        test('should return synthetic devices instead of calling native enumerateDevices when messaging times out', async ({ page }) => {
+        test('should return synthetic devices when deviceEnumeration messaging times out', async ({ page }) => {
             await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat'],
@@ -291,6 +291,36 @@ test.describe('Device Enumeration Feature', () => {
                 kinds: ['audioinput', 'videoinput'],
                 labels: ['', ''],
                 inputDevicesAreInputDeviceInfo: true,
+            });
+        });
+
+        test('should return synthetic devices when deviceEnumeration messaging rejects', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        enumerateDevices: 'enabled',
+                    },
+                },
+            });
+
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => Promise.reject(new Error('native handler unavailable'));
+            });
+
+            const result = await page.evaluate(async () => {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                return {
+                    count: devices.length,
+                    kinds: devices.map((device) => device.kind).sort(),
+                };
+            });
+
+            expect(result).toEqual({
+                count: 2,
+                kinds: ['audioinput', 'videoinput'],
             });
         });
 
