@@ -20,7 +20,7 @@ export default class PerformanceMetrics extends ContentFeature {
         // If the feature is enabled, we want to collect expanded performance metrics
         if (this.getFeatureSettingEnabled('expandedPerformanceMetricsOnLoad', 'enabled')) {
             this.waitForAfterPageLoad(() => {
-                this.triggerExpandedPerformanceMetrics();
+                void this.triggerExpandedPerformanceMetrics();
             });
         }
     }
@@ -47,10 +47,16 @@ export default class PerformanceMetrics extends ContentFeature {
         }
     }
 
+    /**
+     * @param {() => void} callback
+     */
     waitForNextTask(callback) {
         setTimeout(callback, 0);
     }
 
+    /**
+     * @param {() => void} callback
+     */
     waitForAfterPageLoad(callback) {
         if (document.readyState === 'complete') {
             this.waitForNextTask(callback);
