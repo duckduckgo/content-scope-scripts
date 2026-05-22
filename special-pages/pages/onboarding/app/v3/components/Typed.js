@@ -26,6 +26,7 @@ export function Typed({ text, children = null, onComplete = null, paused = false
             }
         }
         pre.current = text;
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [activeStep, text]);
     return (
         <TypedInner key={text} text={text} onComplete={onComplete} paused={paused} delay={delay} {...rest}>
@@ -56,6 +57,7 @@ function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
             setCurrentText(text);
             setCurrentIndex(text.length);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [isReducedMotion, localOnComplete]);
 
     useEffect(() => {
@@ -115,6 +117,7 @@ function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
             localOnComplete();
             return () => controller.abort();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [currentIndex, delay, text, paused]);
 
     function updatePlacement() {

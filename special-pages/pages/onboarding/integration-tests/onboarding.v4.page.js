@@ -23,7 +23,7 @@ export class OnboardingV4Page extends OnboardingPage {
      * @param {boolean} adBlockingEnabled
      */
     async checkYouTubeText(adBlockingEnabled) {
-        const expectedText = adBlockingEnabled ? 'Watch YouTube ad-free' : 'Play YouTube without targeted ads';
+        const expectedText = adBlockingEnabled ? 'Watch YouTube ad-free' : 'Play YouTube videos without ads';
         await expect(this.page.getByRole('table')).toContainText(expectedText);
     }
 

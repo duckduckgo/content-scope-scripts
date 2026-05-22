@@ -79,7 +79,7 @@ export class NewtabPage {
     async openPage({
         mode = 'debug',
         additional,
-        platformName,
+        platformName = 'macos',
         willThrow = false,
         favorites,
         nextSteps,

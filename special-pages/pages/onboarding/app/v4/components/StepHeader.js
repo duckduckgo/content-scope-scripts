@@ -1,4 +1,8 @@
 import { h } from 'preact';
+import cn from 'classnames';
+import { Typed } from './Typed';
+import { useTypingEffect } from '../../shared/components/SettingsProvider';
+import { useGlobalState } from '../../global';
 import styles from './StepHeader.module.css';
 
 /**
@@ -8,12 +12,26 @@ import styles from './StepHeader.module.css';
  * @param {Object} props
  * @param {string} props.title
  * @param {string} [props.subtitle]
+ * @param {() => void} props.onTitleComplete
  */
-export function StepHeader({ title, subtitle }) {
+export function StepHeader({ title, subtitle, onTitleComplete }) {
+    const hasTypingEffect = !!useTypingEffect();
+    const { activeStepVisible } = useGlobalState();
+
     return (
         <div class={styles.root}>
-            <h2 class={styles.title}>{title}</h2>
-            {subtitle && <p class={styles.subtitle}>{subtitle}</p>}
+            <h2 class={styles.title}>
+                {hasTypingEffect ? (
+                    <Typed
+                        text={title}
+                        startDelay={800} // fade-in delay + duration + pause
+                        onComplete={onTitleComplete}
+                    />
+                ) : (
+                    title
+                )}
+            </h2>
+            {subtitle && <p class={cn(styles.subtitle, { [styles.hidden]: hasTypingEffect && !activeStepVisible })}>{subtitle}</p>}
         </div>
     );
 }
