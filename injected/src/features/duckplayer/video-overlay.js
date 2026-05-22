@@ -363,7 +363,7 @@ export class VideoOverlay {
 
                 const video = /** @type {HTMLVideoElement} */ (document.querySelector(this.settings.selectors.videoElement));
                 if (video?.isConnected) {
-                    video.play();
+                    void video.play();
                 }
             };
         });

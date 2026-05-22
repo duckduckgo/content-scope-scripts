@@ -123,8 +123,10 @@ function reducer(state, action) {
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
+ * @param {boolean} props.enableAi
+ * @param {boolean} [props.enableAskAiSuggestion]
  */
-export function useSuggestions({ term, setTerm }) {
+export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
     const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
     const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -140,8 +142,7 @@ export function useSuggestions({ term, setTerm }) {
                 id: `suggestion-${index}`,
             }));
 
-            // Add persistent aiChat suggestion at the end if there's a term
-            if (term.trim().length > 0) {
+            if (term.trim().length > 0 && enableAi && enableAskAiSuggestion) {
                 suggestions.push({
                     kind: 'aiChat',
                     chat: term,
@@ -155,7 +156,7 @@ export function useSuggestions({ term, setTerm }) {
                 suggestions,
             });
         });
-    }, [onSuggestions]);
+    }, [onSuggestions, enableAi, enableAskAiSuggestion]);
 
     const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
 
