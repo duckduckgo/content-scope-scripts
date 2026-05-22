@@ -9,6 +9,7 @@ import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
  * @typedef {import("../../types/new-tab.js").OpenTarget} OpenTarget
  * @typedef {import("../../types/new-tab.js").AiChatsData} AiChatsData
  * @typedef {import("../../types/new-tab.js").OpenAIChatAction} OpenAIChatAction
+ * @typedef {import("../../types/new-tab.js").SubmitChatAction} SubmitChatAction
  */
 
 export class OmnibarService {
@@ -97,6 +98,38 @@ export class OmnibarService {
     }
 
     /**
+     * @param {string} selectedModelId
+     */
+    setSelectedModelId(selectedModelId) {
+        this.configService.update((old) => {
+            const nextModel = (old.aiModelSections ?? []).flatMap((section) => section.items).find((model) => model.id === selectedModelId);
+            const supportedEfforts = nextModel?.supportedReasoningEffort ?? [];
+
+            const currentEffort = old.selectedReasoningEffort;
+            const nextEffort =
+                currentEffort && supportedEfforts.includes(currentEffort) ? currentEffort : (supportedEfforts[0] ?? undefined);
+
+            return {
+                ...old,
+                selectedModelId,
+                selectedReasoningEffort: nextEffort,
+            };
+        });
+    }
+
+    /**
+     * @param {import('../../types/new-tab.js').ReasoningEffort} selectedReasoningEffort
+     */
+    setSelectedReasoningEffort(selectedReasoningEffort) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                selectedReasoningEffort,
+            };
+        });
+    }
+
+    /**
      * Get suggestions for the given search term
      * @param {string} term
      * @returns {Promise<SuggestionsData>}
@@ -136,9 +169,7 @@ export class OmnibarService {
 
     /**
      * Submit a chat message to Duck.ai
-     * @param {Object} params
-     * @param {string} params.chat
-     * @param {OpenTarget} params.target
+     * @param {SubmitChatAction} params
      */
     submitChat(params) {
         this.ntp.messaging.notify('omnibar_submitChat', params);
@@ -168,5 +199,13 @@ export class OmnibarService {
      */
     openAiChat(params) {
         this.ntp.messaging.notify('omnibar_openAiChat', params);
+    }
+
+    /**
+     * Notify native to open the full AI chats list view
+     * @param {{ target: OpenTarget }} params
+     */
+    viewAllAiChats(params) {
+        this.ntp.messaging.notify('omnibar_viewAllAIChats', params);
     }
 }

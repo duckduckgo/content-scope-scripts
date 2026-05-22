@@ -82,7 +82,6 @@ describe('TrackerResolver', () => {
             trackerData: sampleTrackerData,
             surrogates: sampleSurrogates,
             allowlist: {},
-            unprotectedDomains: [],
         });
     });
 
@@ -161,88 +160,6 @@ describe('TrackerResolver', () => {
         });
     });
 
-    describe('isUnprotectedDomain', () => {
-        it('should return false for protected domain', () => {
-            expect(resolver.isUnprotectedDomain('example.com')).toBe(false);
-        });
-
-        it('should return true for wildcard-unprotected domain (legacy config)', () => {
-            const r = new TrackerResolver({
-                trackerData: sampleTrackerData,
-                surrogates: sampleSurrogates,
-                allowlist: {},
-                unprotectedDomains: ['unprotected.com'],
-            });
-            expect(r.isUnprotectedDomain('unprotected.com')).toBe(true);
-        });
-
-        it('should match subdomain via wildcard (legacy config)', () => {
-            const r = new TrackerResolver({
-                trackerData: sampleTrackerData,
-                surrogates: sampleSurrogates,
-                allowlist: {},
-                unprotectedDomains: ['unprotected.com'],
-            });
-            expect(r.isUnprotectedDomain('sub.unprotected.com')).toBe(true);
-        });
-
-        it('should match user-unprotected domain exactly', () => {
-            const r = new TrackerResolver({
-                trackerData: sampleTrackerData,
-                surrogates: sampleSurrogates,
-                userUnprotectedDomains: ['exact.com'],
-                wildcardUnprotectedDomains: [],
-            });
-            expect(r.isUnprotectedDomain('exact.com')).toBe(true);
-            expect(r.isUserUnprotectedDomain('exact.com')).toBe(true);
-        });
-
-        it('should NOT match subdomain of user-unprotected domain', () => {
-            const r = new TrackerResolver({
-                trackerData: sampleTrackerData,
-                surrogates: sampleSurrogates,
-                userUnprotectedDomains: ['exact.com'],
-                wildcardUnprotectedDomains: [],
-            });
-            expect(r.isUnprotectedDomain('sub.exact.com')).toBe(false);
-            expect(r.isUserUnprotectedDomain('sub.exact.com')).toBe(false);
-        });
-
-        it('should match subdomain of wildcard-unprotected domain', () => {
-            const r = new TrackerResolver({
-                trackerData: sampleTrackerData,
-                surrogates: sampleSurrogates,
-                userUnprotectedDomains: [],
-                wildcardUnprotectedDomains: ['wildcard.com'],
-            });
-            expect(r.isUnprotectedDomain('sub.wildcard.com')).toBe(true);
-            expect(r.isWildcardUnprotectedDomain('sub.wildcard.com')).toBe(true);
-        });
-
-        it('should match wildcard-unprotected domain exactly too', () => {
-            const r = new TrackerResolver({
-                trackerData: sampleTrackerData,
-                surrogates: sampleSurrogates,
-                userUnprotectedDomains: [],
-                wildcardUnprotectedDomains: ['wildcard.com'],
-            });
-            expect(r.isUnprotectedDomain('wildcard.com')).toBe(true);
-        });
-
-        it('should combine user and wildcard lists', () => {
-            const r = new TrackerResolver({
-                trackerData: sampleTrackerData,
-                surrogates: sampleSurrogates,
-                userUnprotectedDomains: ['user.com'],
-                wildcardUnprotectedDomains: ['temp.com'],
-            });
-            expect(r.isUnprotectedDomain('user.com')).toBe(true);
-            expect(r.isUnprotectedDomain('sub.user.com')).toBe(false);
-            expect(r.isUnprotectedDomain('temp.com')).toBe(true);
-            expect(r.isUnprotectedDomain('sub.temp.com')).toBe(true);
-        });
-    });
-
     describe('isAllowlisted', () => {
         it('should return false when no allowlist', () => {
             expect(resolver.isAllowlisted('https://example.com', 'https://tracker.com/pixel.gif')).toBe(false);
@@ -255,7 +172,6 @@ describe('TrackerResolver', () => {
                 allowlist: {
                     'tracker.com': [{ rule: 'tracker\\.com', domains: ['example.com'] }],
                 },
-                unprotectedDomains: [],
             });
             expect(resolverWithAllowlist.isAllowlisted('https://example.com', 'https://tracker.com/pixel.gif')).toBe(true);
         });
@@ -267,7 +183,6 @@ describe('TrackerResolver', () => {
                 allowlist: {
                     'tracker.com': [{ rule: 'tracker\\.com', domains: ['othersite.com'] }],
                 },
-                unprotectedDomains: [],
             });
             expect(resolverWithAllowlist.isAllowlisted('https://example.com', 'https://tracker.com/pixel.gif')).toBe(false);
         });
@@ -279,7 +194,6 @@ describe('TrackerResolver', () => {
                 allowlist: {
                     'tracker.com': [{ rule: 'tracker\\.com', domains: ['<all>'] }],
                 },
-                unprotectedDomains: [],
             });
             expect(resolverWithAllowlist.isAllowlisted('https://anysite.com', 'https://tracker.com/pixel.gif')).toBe(true);
         });
@@ -291,7 +205,6 @@ describe('TrackerResolver', () => {
                 allowlist: {
                     'tracker.com': [{ rule: 'tracker\\.com', domains: ['example.com'] }],
                 },
-                unprotectedDomains: [],
             });
             expect(resolverWithAllowlist.isAllowlisted('https://sub.example.com', 'https://tracker.com/pixel.gif')).toBe(true);
         });
@@ -333,7 +246,6 @@ describe('TrackerResolver', () => {
                 },
                 surrogates: sampleSurrogates,
                 allowlist: {},
-                unprotectedDomains: [],
             });
 
             // Should match script type
@@ -377,7 +289,6 @@ describe('TrackerResolver', () => {
                 },
                 surrogates: sampleSurrogates,
                 allowlist: {},
-                unprotectedDomains: [],
             });
 
             // Should be blocked on normal site
@@ -521,45 +432,6 @@ describe('TrackerResolver', () => {
             expect(result?.tracker.domain).toBe('direct.com');
             expect(result?.action).toBe('ignore');
             expect(result?.reason).toBe('default ignore');
-        });
-    });
-
-    describe('getEntityAffiliation (P0-5)', () => {
-        it('should detect affiliated domains (same entity)', () => {
-            const result = resolver.getEntityAffiliation('facebook.net', 'facebook.com');
-            expect(result.affiliated).toBe(true);
-            expect(result.ownerName).toBe('Facebook, Inc.');
-            expect(result.entityName).toBe('Facebook');
-            expect(result.prevalence).toBe(0.5);
-        });
-
-        it('should detect affiliated subdomains', () => {
-            const result = resolver.getEntityAffiliation('cdn.facebook.net', 'www.facebook.com');
-            expect(result.affiliated).toBe(true);
-            expect(result.ownerName).toBe('Facebook, Inc.');
-        });
-
-        it('should return not affiliated for different entities', () => {
-            const result = resolver.getEntityAffiliation('tracker.com', 'facebook.com');
-            expect(result.affiliated).toBe(false);
-            expect(result.ownerName).toBeNull();
-            expect(result.entityName).toBeNull();
-            expect(result.prevalence).toBeNull();
-        });
-
-        it('should return not affiliated when request domain has no entity', () => {
-            const result = resolver.getEntityAffiliation('unknown-cdn.com', 'facebook.com');
-            expect(result.affiliated).toBe(false);
-        });
-
-        it('should return not affiliated when page domain has no entity', () => {
-            const result = resolver.getEntityAffiliation('tracker.com', 'random-page.com');
-            expect(result.affiliated).toBe(false);
-        });
-
-        it('should return not affiliated when neither domain has entity', () => {
-            const result = resolver.getEntityAffiliation('unknown.com', 'random.com');
-            expect(result.affiliated).toBe(false);
         });
     });
 

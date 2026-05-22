@@ -29,12 +29,12 @@ export class YouTubeAdDetector {
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
-     * @param {(type: string) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
+     * @param {(type: string, data?: Record<string, unknown>) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
      */
     constructor(config, logger, onEvent) {
         // Logger for debug output (only logs when debug mode is enabled)
         this.log = logger || noopLogger;
-        /** @type {(type: string) => void} */
+        /** @type {(type: string, data?: Record<string, unknown>) => void} */
         this.onEvent = onEvent || (() => {});
 
         // All config comes from privacy-config
@@ -110,6 +110,28 @@ export class YouTubeAdDetector {
     }
 
     /**
+     * Fire an event notification for native telemetry/action handling.
+     * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'|'buffering'} type
+     */
+    fireDetectionEvent(type) {
+        if (this.config.fireDetectionEvents?.[type]) {
+            try {
+                const result = /** @type {any} */ (
+                    this.onEvent(`youtube_${type}`, {
+                        loginState: this.state.loginState?.state || 'unknown',
+                    })
+                );
+                if (result && typeof result.catch === 'function') {
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    result.catch(() => {});
+                }
+            } catch {
+                // onEvent callback failure should never break detection
+            }
+        }
+    }
+
+    /**
      * Report a detection event
      * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type
      * @param {Object} [details]
@@ -132,17 +154,7 @@ export class YouTubeAdDetector {
             typeState.lastMessage = details.message;
         }
 
-        if (this.config.fireDetectionEvents?.[type]) {
-            try {
-                const result = /** @type {any} */ (this.onEvent(`youtube_${type}`));
-                if (result && typeof result.catch === 'function') {
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    result.catch(() => {});
-                }
-            } catch {
-                // onEvent callback failure should never break detection
-            }
-        }
+        this.fireDetectionEvent(type);
 
         return true;
     }
@@ -542,12 +554,17 @@ export class YouTubeAdDetector {
         };
 
         const onPlaying = () => {
+            let firedBufferingEvent = false;
             if (this.bufferingStartTime) {
                 const bufferingDuration = performance.now() - this.bufferingStartTime;
                 this.state.buffering.durations.push(Math.round(bufferingDuration));
                 // Cap durations array to prevent memory growth
                 if (this.state.buffering.durations.length > 50) {
                     this.state.buffering.durations.shift();
+                }
+                if (bufferingDuration > this.config.slowLoadThresholdMs) {
+                    this.fireDetectionEvent('buffering');
+                    firedBufferingEvent = true;
                 }
                 this.bufferingStartTime = null;
             }
@@ -563,6 +580,9 @@ export class YouTubeAdDetector {
             if (isSlow && !duringAd && !tabWasHidden && !tooLong) {
                 this.state.buffering.count++;
                 this.state.buffering.durations.push(Math.round(loadTime));
+                if (!firedBufferingEvent) {
+                    this.fireDetectionEvent('buffering');
+                }
                 // Cap durations array to prevent memory growth
                 if (this.state.buffering.durations.length > 50) {
                     this.state.buffering.durations.shift();
