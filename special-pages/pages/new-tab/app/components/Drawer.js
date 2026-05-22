@@ -119,6 +119,7 @@ export function useDrawer(initial) {
         return () => {
             controller.abort();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [isReducedMotion, initial]);
 
     const ntp = useMessaging();
@@ -165,7 +166,7 @@ function _close() {
  * @param {() => void} [callbacks.onOpen] - Called when drawer opens
  * @param {() => void} [callbacks.onClose] - Called when drawer closes
  * @param {(state: DrawerVisibility) => void} [callbacks.onToggle] - Called when drawer toggles, with the new state
- * @param {any[]} [deps] - Dependency array controlling when listeners are re-registered
+ * @param {ReadonlyArray<unknown>} [deps] - Dependency array controlling when listeners are re-registered
  */
 export function useDrawerEventListeners({ onOpen, onClose, onToggle }, deps = []) {
     // useLayoutEffect ensures listeners are registered before drawer auto-open events fire.
@@ -182,6 +183,7 @@ export function useDrawerEventListeners({ onOpen, onClose, onToggle }, deps = []
             );
         }
         return () => controller.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, deps);
 }
 
