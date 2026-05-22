@@ -288,6 +288,14 @@
  - **Example**: `?omnibar.selectedModelId=claude-haiku-4-5`
  - **Options**: Any model ID from the `aiModelSections` config
 
+### Subscription (simulate subscribed user)
+ - **Purpose**: Flips `isEnabled: true` on every AI model in the mock, unlocking the "Advanced Models - DuckDuckGo subscription" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
+ - **Parameter**: `omnibar.subscription`
+ - **Example**: `?omnibar.subscription=true`
+ - **Options**:
+   - `true`
+   - `false`
+
 ### Show View All AI Chats
  - **Purpose**: Shows a "View all chats" link at the bottom of the recent AI chats list
  - **Parameter**: `omnibar.showViewAllAiChats`

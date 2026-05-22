@@ -237,4 +237,6 @@
     margin-top: var(--sp-1);
 }
 
-
+.buttonRow button {
+    white-space: nowrap;
+}

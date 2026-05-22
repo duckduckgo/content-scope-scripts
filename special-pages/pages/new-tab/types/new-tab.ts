@@ -83,6 +83,10 @@ export type EnableAIChatTools = boolean;
  */
 export type SelectedModelID = string;
 /**
+ * Stable server key for a reasoning-effort option on a reasoning-capable model.
+ */
+export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high";
+/**
  * Identifier for an AI chat tool.
  */
 export type ToolId = "WebSearch";
@@ -102,6 +106,14 @@ export type EnableImageGeneration = boolean;
  * Allow AI chat submissions to include web search tool.
  */
 export type EnableWebSearch = boolean;
+/**
+ * Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.
+ */
+export type EnableVoiceChatAccess = boolean;
+/**
+ * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
+ */
+export type EnableAskDuckAiSuggestion = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -131,10 +143,15 @@ export type NextStepsCardTypes =
   | "duckplayer"
   | "addAppToDockMac"
   | "pinAppToTaskbarWindows"
-  | "subscription";
+  | "subscription"
+  | "youtubeAdBlocking";
 export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];
+/**
+ * Canonical AI chat model identifiers Duck.ai treats specially.
+ */
+export type CustomModel = "voice-mode" | "image-generation";
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon =
   | "Announce"
@@ -143,11 +160,13 @@ export type RMFIcon =
   | "DDGAnnounce"
   | "DuckAi"
   | "PIR"
+  | "Preview"
   | "Radar"
   | "RadarCheckGreen"
   | "RadarCheckPurple"
   | "Subscription"
-  | "VeryCriticalUpdate";
+  | "VeryCriticalUpdate"
+  | "YoutubeNew";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -610,10 +629,13 @@ export interface OmnibarConfig {
   enableRecentAiChats?: EnableRecentAIChats;
   enableAiChatTools?: EnableAIChatTools;
   selectedModelId?: SelectedModelID;
+  selectedReasoningEffort?: ReasoningEffort;
   aiModelSections?: AIModelSections;
   showViewAllAiChats?: ShowViewAllAIChats;
   enableImageGeneration?: EnableImageGeneration;
   enableWebSearch?: EnableWebSearch;
+  enableVoiceChatAccess?: EnableVoiceChatAccess;
+  enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
 }
 /**
  * A section of AI models with an optional header and a list of model items.
@@ -656,6 +678,10 @@ export interface AIModelItem {
    * Tools this model supports.
    */
   supportedTools?: ToolId[];
+  /**
+   * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
+   */
+  supportedReasoningEffort?: ReasoningEffort[];
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -674,10 +700,11 @@ export interface SubmitChatAction {
    * The selected AI model identifier. Optional - if not provided, the backend will use the default model.
    */
   modelId?: string;
+  reasoningEffort?: ReasoningEffort;
   /**
-   * Duck.ai mode. If omitted, defaults to 'chat'.
+   * Duck.ai mode. If omitted, defaults to 'chat'. Use 'voice-mode' for 1-click voice-chat handoff (no chat content needed — Duck.ai routes to the voice flow on mode alone).
    */
-  mode?: "chat" | "image-generation";
+  mode?: "chat" | "image-generation" | "voice-mode";
   /**
    * Tools to enable for this chat session.
    */
@@ -1148,6 +1175,10 @@ export interface AiChat {
    * ISO timestamp of last edit
    */
   lastEdit?: string;
+  /**
+   * The AI model the chat was conducted with.
+   */
+  model?: CustomModel | string;
 }
 /**
  * Generated from @see "../messages/omnibar_getConfig.request.json"
