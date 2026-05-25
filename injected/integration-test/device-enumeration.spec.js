@@ -3,6 +3,25 @@ import { test as base, expect } from '@playwright/test';
 
 const test = testContextForExtension(base);
 
+const installNativeEnumerateDevicesSpy = `
+    globalThis.__nativeEnumerateDevicesCalls = 0;
+    Object.defineProperty(MediaDevices.prototype, 'enumerateDevices', {
+        value: function enumerateDevices() {
+            globalThis.__nativeEnumerateDevicesCalls += 1;
+            return Promise.resolve([
+                {
+                    deviceId: 'native-device',
+                    groupId: 'native-group',
+                    kind: 'audioinput',
+                    label: 'Native device',
+                },
+            ]);
+        },
+        configurable: true,
+        writable: true,
+    });
+`;
+
 test.describe('Device Enumeration Feature', () => {
     test.describe('disabled feature', () => {
         test('should not intercept enumerateDevices when disabled', async ({ page }) => {
@@ -256,19 +275,24 @@ test.describe('Device Enumeration Feature', () => {
         });
 
         test('should return synthetic devices when deviceEnumeration messaging times out', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat'],
-                },
-                featureSettings: {
-                    webCompat: {
-                        enumerateDevices: {
-                            state: 'enabled',
-                            timeoutMs: 50,
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: {
+                        enabledFeatures: ['webCompat'],
+                    },
+                    featureSettings: {
+                        webCompat: {
+                            enumerateDevices: {
+                                state: 'enabled',
+                                timeoutMs: 50,
+                            },
                         },
                     },
                 },
-            });
+                installNativeEnumerateDevicesSpy,
+            );
 
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = () => new Promise(() => {});
@@ -283,6 +307,7 @@ test.describe('Device Enumeration Feature', () => {
                     inputDevicesAreInputDeviceInfo: devices
                         .filter((device) => device.kind === 'audioinput' || device.kind === 'videoinput')
                         .every((device) => device instanceof InputDeviceInfo),
+                    nativeEnumerateDevicesCalls: globalThis.__nativeEnumerateDevicesCalls,
                 };
             });
 
@@ -291,20 +316,26 @@ test.describe('Device Enumeration Feature', () => {
                 kinds: ['audioinput', 'audiooutput', 'videoinput'],
                 labels: ['', '', ''],
                 inputDevicesAreInputDeviceInfo: true,
+                nativeEnumerateDevicesCalls: 0,
             });
         });
 
         test('should return synthetic devices when deviceEnumeration messaging rejects', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat'],
-                },
-                featureSettings: {
-                    webCompat: {
-                        enumerateDevices: 'enabled',
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: {
+                        enabledFeatures: ['webCompat'],
+                    },
+                    featureSettings: {
+                        webCompat: {
+                            enumerateDevices: 'enabled',
+                        },
                     },
                 },
-            });
+                installNativeEnumerateDevicesSpy,
+            );
 
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = () => Promise.reject(new Error('native handler unavailable'));
@@ -315,12 +346,14 @@ test.describe('Device Enumeration Feature', () => {
                 return {
                     count: devices.length,
                     kinds: devices.map((device) => device.kind).sort(),
+                    nativeEnumerateDevicesCalls: globalThis.__nativeEnumerateDevicesCalls,
                 };
             });
 
             expect(result).toEqual({
                 count: 3,
                 kinds: ['audioinput', 'audiooutput', 'videoinput'],
+                nativeEnumerateDevicesCalls: 0,
             });
         });
 
