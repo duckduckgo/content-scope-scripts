@@ -852,6 +852,45 @@ test.describe('onboarding v4', () => {
             ]);
         });
 
+        test('falls back to ErrorEvent.message when event.error is null', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                window.dispatchEvent(new ErrorEvent('error', { message: 'Script error.', error: null }));
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] Script error.' },
+                    },
+                },
+            ]);
+        });
+
+        test('reports primitive and nullish rejection reasons distinctly', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                /* eslint-disable prefer-promise-reject-errors -- intentional: testing non-Error rejection reasons */
+                setTimeout(() => Promise.reject(undefined), 0);
+                setTimeout(() => Promise.reject(null), 0);
+                setTimeout(() => Promise.reject(0), 0);
+                /* eslint-enable prefer-promise-reject-errors */
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 3 });
+            const messages = calls.map((c) => c.payload.params.message);
+            expect(messages).toEqual(
+                expect.arrayContaining(['[unhandledrejection] undefined', '[unhandledrejection] null', '[unhandledrejection] 0']),
+            );
+        });
+
         test('does not fire reportInitException during normal page load', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.reducedMotion();
