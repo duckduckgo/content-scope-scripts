@@ -1,1 +1,6 @@
-- Gate inline Ask Duck.ai suggestion on enableAskAiSuggestion (#2704)
+- Change next step card action from "Open YouTube" to "Visit YouTube" (#2709)
+- Return synthetic enumerateDevices list on messaging timeout (#2712)
+- build(deps-dev): bump ts-json-schema-generator from 2.5.0 to 2.9.0 (#2421)
+- Skip Semver Label workflow for Dependabot PRs (#2710)
+- build(deps-dev): bump web-ext from 10.0.0 to 10.1.0 (#2605)
+- build(deps-dev): bump typescript-eslint from 8.59.1 to 8.59.3 (#2706)

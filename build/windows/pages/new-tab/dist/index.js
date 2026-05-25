@@ -34132,7 +34132,7 @@
       note: "Summary of the Next Steps List card for YouTube ad blocking"
     },
     nextStepsList_youtubeAdBlocking_actionText: {
-      title: "Open YouTube",
+      title: "Visit YouTube",
       note: "Button text of the Next Steps List card for YouTube ad blocking"
     },
     nextStepsList_emailProtection_title: {
@@ -34268,7 +34268,7 @@
       note: "Summary of the Next Steps card for YouTube ad blocking"
     },
     nextSteps_youtubeAdBlocking_actionText: {
-      title: "Open YouTube",
+      title: "Visit YouTube",
       note: "Button text of the Next Steps card for YouTube ad blocking"
     },
     nextSteps_addAppDockMac_title: {

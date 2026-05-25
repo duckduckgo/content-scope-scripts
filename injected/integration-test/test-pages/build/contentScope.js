@@ -17067,6 +17067,20 @@ ul.messages {
       return deviceInfo;
     }
     /**
+     * Fallback device list when the deviceEnumeration messaging request fails.
+     * Mimics pre-permission enumerateDevices (unlabeled devices) without calling native.
+     * Includes audiooutput so sites can still detect speaker/output capability.
+     * @param {'syntheticPrototype' | 'instanceOwn'} shimMode
+     * @returns {MediaDeviceInfo[]}
+     */
+    createEnumerateDevicesFallback(shimMode) {
+      return [
+        this.createMediaDeviceInfo("videoinput", shimMode),
+        this.createMediaDeviceInfo("audioinput", shimMode),
+        this.createMediaDeviceInfo("audiooutput", shimMode)
+      ];
+    }
+    /**
      * Helper to wrap a promise with timeout
      * @param {Promise} promise - Promise to wrap
      * @param {number} timeoutMs - Timeout in milliseconds
@@ -17113,8 +17127,8 @@ ul.messages {
             } else {
               return DDGReflect.apply(target, thisArg, args);
             }
-          } catch (err) {
-            return DDGReflect.apply(target, thisArg, args);
+          } catch (_err) {
+            return Promise.resolve(this.createEnumerateDevicesFallback(shimMode));
           }
         }
       });

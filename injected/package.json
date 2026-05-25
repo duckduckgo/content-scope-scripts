@@ -57,6 +57,6 @@
     "jasmine": "^6.2.0",
     "jsdom": "^29.0.0",
     "monocart-coverage-reports": "^2.12.9",
-    "web-ext": "^10.0.0"
+    "web-ext": "^10.1.0"
   }
 }
