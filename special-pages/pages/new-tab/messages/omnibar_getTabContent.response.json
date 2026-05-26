@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Get Tab Content Response",
+  "type": "object",
+  "required": ["pageContext"],
+  "properties": {
+    "pageContext": {
+      "description": "Extracted page context for the requested tab, or null if the tab has issues (closed, restricted page, extraction failure, etc).",
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "types/page-context.json" }
+      ]
+    }
+  }
+}

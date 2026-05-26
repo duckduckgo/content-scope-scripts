@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Get Tab Content Request",
+  "description": "Asks native to extract the page content for a specific open tab. Called when the user picks a tab from the attach-tabs picker.",
+  "type": "object",
+  "required": ["tabId"],
+  "additionalProperties": false,
+  "properties": {
+    "tabId": {
+      "description": "Identifier of the tab to extract content from, as returned by `omnibar_getOpenTabs`.",
+      "type": "string"
+    }
+  }
+}

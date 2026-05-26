@@ -10,6 +10,8 @@ import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
  * @typedef {import("../../types/new-tab.js").AiChatsData} AiChatsData
  * @typedef {import("../../types/new-tab.js").OpenAIChatAction} OpenAIChatAction
  * @typedef {import("../../types/new-tab.js").SubmitChatAction} SubmitChatAction
+ * @typedef {import("../../types/new-tab.js").GetOpenTabsResponse} GetOpenTabsResponse
+ * @typedef {import("../../types/new-tab.js").PageContext} PageContext
  */
 
 export class OmnibarService {
@@ -207,5 +209,24 @@ export class OmnibarService {
      */
     viewAllAiChats(params) {
         this.ntp.messaging.notify('omnibar_viewAllAIChats', params);
+    }
+
+    /**
+     * Requests open-tab metadata, returns the list of open tabs that are valid for attachment.
+     * @returns {Promise<GetOpenTabsResponse>}
+     */
+    getOpenTabs() {
+        return this.ntp.messaging.request('omnibar_getOpenTabs');
+    }
+
+    /**
+     * Request extracted page content for a specific tab. Resolves with `null`
+     * when the tab has any issue (closed, restricted, extraction failed).
+     * @param {string} tabId
+     * @returns {Promise<PageContext | null>}
+     */
+    async getTabContent(tabId) {
+        const response = await this.ntp.messaging.request('omnibar_getTabContent', { tabId });
+        return response?.pageContext ?? null;
     }
 }

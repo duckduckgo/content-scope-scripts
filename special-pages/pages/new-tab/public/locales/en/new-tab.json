@@ -325,6 +325,50 @@
     "title": "Researches before responding",
     "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
   },
+  "omnibar_attachMenuLabel": {
+    "title": "Attach",
+    "description": "Accessible label for the paperclip button that opens a menu offering image attachments and tab content attachments."
+  },
+  "omnibar_attachTabsLabel": {
+    "title": "Attach tab content",
+    "description": "Accessible label for the paperclip button when only tab attachments are available."
+  },
+  "omnibar_attachImageOrFileLabel": {
+    "title": "Attach Image or File",
+    "description": "Menu item in the attach dropdown that opens the file picker for image attachments."
+  },
+  "omnibar_attachPageContentLabel": {
+    "title": "Attach Page Content",
+    "description": "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
+  },
+  "omnibar_attachTabsPickerTitle": {
+    "title": "Recent Tabs",
+    "description": "Header text for the open-tabs picker panel."
+  },
+  "omnibar_attachTabsPickerLabel": {
+    "title": "Pick an open tab to attach",
+    "description": "Accessible label for the open-tabs picker panel (the dialog wrapper around the listbox)."
+  },
+  "omnibar_attachTabsPickerCloseLabel": {
+    "title": "Close tab picker",
+    "description": "Accessible label for the close button on the open-tabs picker panel."
+  },
+  "omnibar_attachTabsLoading": {
+    "title": "Loading open tabs…",
+    "description": "Loading state shown while the open-tabs picker is fetching the tab list from native."
+  },
+  "omnibar_attachTabsError": {
+    "title": "Couldn't load open tabs. Try again.",
+    "description": "Error state shown when the open-tabs picker fails to fetch the tab list."
+  },
+  "omnibar_attachTabsEmpty": {
+    "title": "No matching tabs",
+    "description": "Empty-state message shown in the open-tabs picker when no tabs match the current filter."
+  },
+  "omnibar_removeAttachedTabLabel": {
+    "title": "Remove {title}",
+    "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"

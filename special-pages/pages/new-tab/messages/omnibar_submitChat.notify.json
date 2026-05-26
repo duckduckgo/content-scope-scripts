@@ -50,6 +50,11 @@
           }
         }
       }
+    },
+    "pageContext": {
+      "description": "Page contexts attached from open tabs via the attach-tabs picker. Each entry is the same PageContext shape returned by `omnibar_getTabContent` and is guaranteed by NTP to carry a `tabId` so native can attribute attachments back to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.",
+      "type": "array",
+      "items": { "$ref": "./types/page-context.json" }
     }
   }
 }

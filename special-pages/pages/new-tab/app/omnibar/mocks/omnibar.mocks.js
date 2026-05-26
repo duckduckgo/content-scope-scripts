@@ -163,6 +163,115 @@ export function getMockAiChats(query) {
     return { chats: filtered.slice(0, MAX_RESULTS) };
 }
 
+/** @type {import("../../../types/new-tab").TabMetadata[]} */
+const allMockOpenTabs = [
+    {
+        tabId: 'tab-1',
+        title: 'MacBook Neo - Apple',
+        url: 'https://www.apple.com/macbook-neo',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/apple.com.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-2',
+        title: 'Starbucks Coffee Company',
+        url: 'https://www.starbucks.com',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/starbucks.com.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-3',
+        title: 'MacBook Pro - Apple',
+        url: 'https://www.apple.com/macbook-pro',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/apple.com.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-4',
+        title: 'Duck.ai - Project planning',
+        url: 'https://duck.ai/chat/abc',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/duck.ai.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-5',
+        title: 'Dinosaurus',
+        url: 'https://en.wikipedia.org/wiki/Dinosaur',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/wikipedia.org.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-6',
+        title: 'Amazon.com. Spend less. Smile more.',
+        url: 'https://www.amazon.com',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/amazon.com.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-7',
+        title: 'Daring Fireball',
+        url: 'https://daringfireball.net',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/daringfireball.net.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-8',
+        title: 'Ranking MLB best at every position',
+        url: 'https://www.mlb.com/news/best-players-position',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/mlb.com.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-9',
+        title: 'Asana',
+        url: 'https://app.asana.com',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/asana.com.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-10',
+        title: 'Discord',
+        url: 'https://discord.com/channels/@me',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/discord.com.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-11',
+        title: 'The Verge',
+        url: 'https://www.theverge.com',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/theverge.com.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-12',
+        title: 'BlueSky',
+        url: 'https://bsky.app',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/bsky.app.ico', maxAvailableSize: 64 },
+    },
+    {
+        tabId: 'tab-broken',
+        title: 'Tab That Fails to Extract',
+        url: 'https://example.invalid/restricted',
+        favicon: null,
+    },
+];
+
+/**
+ * @returns {import("../../../types/new-tab").GetOpenTabsResponse}
+ */
+export function getMockOpenTabs() {
+    return { tabs: allMockOpenTabs };
+}
+
+/**
+ * @param {string} tabId
+ * @returns {import("../../../types/new-tab").PageContext | null}
+ */
+export function getMockTabContent(tabId) {
+    if (tabId === 'tab-broken') return null;
+    const tab = allMockOpenTabs.find((t) => t.tabId === tabId);
+    if (!tab) return null;
+    const content = `## ${tab.title}\n\nMock markdown content extracted from ${tab.url}.\n\nThis is placeholder content used by the NTP mock transport so the attach-tabs feature can be exercised without a native backend.`;
+    return {
+        tabId: tab.tabId,
+        title: tab.title,
+        url: tab.url,
+        favicon: tab.favicon,
+        content,
+        truncated: false,
+        fullContentLength: content.length,
+    };
+}
+
 /**
  * @param {string} text
  * @param {string} searchTerm

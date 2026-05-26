@@ -114,6 +114,14 @@ export type EnableVoiceChatAccess = boolean;
  * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
  */
 export type EnableAskDuckAiSuggestion = boolean;
+/**
+ * Show the paperclip entry point and accept `@` mentions for attaching open tabs as context to a Duck.ai submission. When true, the omnibar can call `omnibar_getOpenTabs` and `omnibar_getTabContent`.
+ */
+export type EnableAttachTabs = boolean;
+export type Favicon = null | {
+  src: string;
+  maxAvailableSize?: number;
+};
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -123,10 +131,6 @@ export type WidgetVisibility = "visible" | "hidden";
  * Configuration settings for widgets
  */
 export type WidgetConfigs = WidgetConfigItem[];
-export type Favicon = null | {
-  src: string;
-  maxAvailableSize?: number;
-};
 /**
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
@@ -227,7 +231,9 @@ export interface NewTabMessages {
     | NextStepsGetDataRequest
     | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
+    | OmnibarGetOpenTabsRequest
     | OmnibarGetSuggestionsRequest
+    | OmnibarGetTabContentRequest
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
@@ -636,6 +642,7 @@ export interface OmnibarConfig {
   enableWebSearch?: EnableWebSearch;
   enableVoiceChatAccess?: EnableVoiceChatAccess;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
+  enableAttachTabs?: EnableAttachTabs;
 }
 /**
  * A section of AI models with an optional header and a list of model items.
@@ -722,6 +729,40 @@ export interface SubmitChatAction {
      */
     format: "jpeg" | "png";
   }[];
+  /**
+   * Page contexts attached from open tabs via the attach-tabs picker. Each entry is the same PageContext shape returned by `omnibar_getTabContent` and is guaranteed by NTP to carry a `tabId` so native can attribute attachments back to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
+   */
+  pageContext?: PageContext[];
+}
+/**
+ * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.
+ */
+export interface PageContext {
+  /**
+   * Identifier of the source tab. Optional on responses from native (NTP maps responses back to the requested tab); always populated by NTP when echoed on submit.
+   */
+  tabId?: string;
+  /**
+   * Title of the source tab
+   */
+  title: string;
+  /**
+   * URL of the source tab
+   */
+  url: string;
+  favicon: Favicon;
+  /**
+   * Markdown-formatted extracted page content. Empty string is allowed for pages with no extractable content.
+   */
+  content?: string;
+  /**
+   * True when the returned content was truncated to fit within native-imposed limits.
+   */
+  truncated?: boolean;
+  /**
+   * The unbounded length of the source content, before any truncation. Useful for surfacing truncation indicators in the UI.
+   */
+  fullContentLength?: number;
 }
 /**
  * Generated from @see "../messages/omnibar_submitSearch.notify.json"
@@ -1188,6 +1229,37 @@ export interface OmnibarGetConfigRequest {
   result: OmnibarConfig;
 }
 /**
+ * Generated from @see "../messages/omnibar_getOpenTabs.request.json"
+ */
+export interface OmnibarGetOpenTabsRequest {
+  method: "omnibar_getOpenTabs";
+  result: GetOpenTabsResponse;
+}
+export interface GetOpenTabsResponse {
+  /**
+   * Metadata for the user's open tabs, excluding the requesting NTP tab, in recency order.
+   */
+  tabs: TabMetadata[];
+}
+/**
+ * Lightweight metadata for an open browser tab. Returned by `omnibar_getOpenTabs` to populate the tab attachment picker — no content is extracted at this stage.
+ */
+export interface TabMetadata {
+  /**
+   * Stable identifier for the tab. Used to request content via `omnibar_getTabContent`.
+   */
+  tabId: string;
+  /**
+   * Tab title
+   */
+  title: string;
+  /**
+   * Tab URL
+   */
+  url: string;
+  favicon: Favicon;
+}
+/**
  * Generated from @see "../messages/omnibar_getSuggestions.request.json"
  */
 export interface OmnibarGetSuggestionsRequest {
@@ -1207,6 +1279,29 @@ export interface SuggestionsData {
     duckduckgoSuggestions: Suggestion[];
     localSuggestions: Suggestion[];
   };
+}
+/**
+ * Generated from @see "../messages/omnibar_getTabContent.request.json"
+ */
+export interface OmnibarGetTabContentRequest {
+  method: "omnibar_getTabContent";
+  params: GetTabContentRequest;
+  result: GetTabContentResponse;
+}
+/**
+ * Asks native to extract the page content for a specific open tab. Called when the user picks a tab from the attach-tabs picker.
+ */
+export interface GetTabContentRequest {
+  /**
+   * Identifier of the tab to extract content from, as returned by `omnibar_getOpenTabs`.
+   */
+  tabId: string;
+}
+export interface GetTabContentResponse {
+  /**
+   * Extracted page context for the requested tab, or null if the tab has issues (closed, restricted page, extraction failure, etc).
+   */
+  pageContext: null | PageContext;
 }
 /**
  * Generated from @see "../messages/protections_getConfig.request.json"
