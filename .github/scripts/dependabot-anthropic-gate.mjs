@@ -100,7 +100,7 @@ async function requestAllPages(url, token, selectItems) {
     return items;
 }
 
-async function fetchCheckRuns(apiRoot, headSha, token) {
+function fetchCheckRuns(apiRoot, headSha, token) {
     return requestAllPages(`${apiRoot}/commits/${headSha}/check-runs?per_page=100`, token, (data) => data.check_runs ?? []);
 }
 
