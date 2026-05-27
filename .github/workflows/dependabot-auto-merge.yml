@@ -14,6 +14,14 @@ jobs:
         runs-on: ubuntu-latest
         if: github.event.pull_request.user.login == 'dependabot[bot]'
         steps:
+            - name: Checkout workflow scripts
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.ref }}
+                  sparse-checkout: .github/scripts/dependabot-anthropic-gate.mjs
+                  sparse-checkout-cone-mode: false
+                  persist-credentials: false
+
             - name: Dependabot metadata
               id: metadata
               uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
@@ -50,12 +58,28 @@ jobs:
                   ref: ${{ github.event.pull_request.head.sha }}
                   timeoutSeconds: 1800
 
-            - name: Approve npm update
+            - name: Ask Anthropic to assess Cursor results
               if: |
                   steps.metadata.outputs.package-ecosystem == 'npm' &&
                   steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_web_compat.outputs.conclusion == 'success'
+              id: anthropic_gate
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  ANTHROPIC_MODEL: claude-sonnet-4-5-20250929
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: node .github/scripts/dependabot-anthropic-gate.mjs
+
+            - name: Approve npm update
+              if: |
+                  steps.metadata.outputs.package-ecosystem == 'npm' &&
+                  steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
+                  steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
+                  steps.wait_cursor_web_compat.outputs.conclusion == 'success' &&
+                  steps.anthropic_gate.outputs.safe_to_merge == 'true'
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -69,7 +93,8 @@ jobs:
                   steps.metadata.outputs.package-ecosystem == 'npm' &&
                   steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
-                  steps.wait_cursor_web_compat.outputs.conclusion == 'success'
+                  steps.wait_cursor_web_compat.outputs.conclusion == 'success' &&
+                  steps.anthropic_gate.outputs.safe_to_merge == 'true'
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
