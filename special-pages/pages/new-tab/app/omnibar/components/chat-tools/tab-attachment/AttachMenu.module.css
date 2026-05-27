@@ -1,0 +1,30 @@
+/* Tab picker is a Dropdown variant — adds scroll behaviour for long lists. */
+.tabPicker {
+    max-height: 360px;
+    min-width: 240px;
+    overflow-y: auto;
+}
+
+.submenuChevron {
+    transform: rotate(-90deg);
+}
+
+.favicon {
+    border-radius: 3px;
+    flex: none;
+    height: 16px;
+    object-fit: cover;
+    width: 16px;
+}
+
+.faviconFallback {
+    align-items: center;
+    border-radius: 3px;
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    flex: none;
+    height: 16px;
+    justify-content: center;
+    width: 16px;
+}
+
