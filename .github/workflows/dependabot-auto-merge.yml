@@ -29,7 +29,7 @@ jobs:
                   github-token: '${{ secrets.GITHUB_TOKEN }}'
 
             - name: Wait for Cursor Bugbot
-              if: steps.metadata.outputs.package-ecosystem == 'npm'
+              if: steps.metadata.outputs.package-ecosystem == 'npm_and_yarn'
               uses: fountainhead/action-wait-for-check@v1.2.0
               id: wait_cursor_bugbot
               with:
@@ -39,7 +39,7 @@ jobs:
                   timeoutSeconds: 1800
 
             - name: Wait for Cursor Dependabot review
-              if: steps.metadata.outputs.package-ecosystem == 'npm'
+              if: steps.metadata.outputs.package-ecosystem == 'npm_and_yarn'
               uses: fountainhead/action-wait-for-check@v1.2.0
               id: wait_cursor_dependabot
               with:
@@ -49,7 +49,7 @@ jobs:
                   timeoutSeconds: 1800
 
             - name: Wait for Cursor web compat and security review
-              if: steps.metadata.outputs.package-ecosystem == 'npm'
+              if: steps.metadata.outputs.package-ecosystem == 'npm_and_yarn'
               uses: fountainhead/action-wait-for-check@v1.2.0
               id: wait_cursor_web_compat
               with:
@@ -60,7 +60,7 @@ jobs:
 
             - name: Ask Anthropic to assess Cursor results
               if: |
-                  steps.metadata.outputs.package-ecosystem == 'npm' &&
+                  steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
                   steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_web_compat.outputs.conclusion == 'success'
@@ -75,7 +75,7 @@ jobs:
 
             - name: Approve npm update
               if: |
-                  steps.metadata.outputs.package-ecosystem == 'npm' &&
+                  steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
                   steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_web_compat.outputs.conclusion == 'success' &&
@@ -90,7 +90,7 @@ jobs:
 
             - name: Enable auto-merge for npm update
               if: |
-                  steps.metadata.outputs.package-ecosystem == 'npm' &&
+                  steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
                   steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_web_compat.outputs.conclusion == 'success' &&
