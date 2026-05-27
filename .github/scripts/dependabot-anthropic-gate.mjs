@@ -4,6 +4,14 @@ const EXPECTED_CHECKS = ['Cursor Bugbot', 'Cursor Automation: Review dependabot'
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BODY_CHARS = 12000;
 
+/**
+ * @typedef {Object} RequestOptions
+ * @property {string} [token]
+ * @property {string} [method]
+ * @property {Record<string, string>} [headers]
+ * @property {string} [body]
+ */
+
 function requiredEnv(name) {
     const value = process.env[name];
     if (!value) {
@@ -33,7 +41,12 @@ function parseLinkHeader(header) {
     return null;
 }
 
+/**
+ * @param {string} url
+ * @param {RequestOptions} [options]
+ */
 async function requestJson(url, { token, method = 'GET', headers = {}, body } = {}) {
+    /** @type {Record<string, string>} */
     const requestHeaders = {
         accept: token ? 'application/vnd.github+json' : 'application/json',
         ...headers,
@@ -61,7 +74,15 @@ async function requestJson(url, { token, method = 'GET', headers = {}, body } = 
     };
 }
 
+/**
+ * @template T
+ * @param {string} url
+ * @param {string} token
+ * @param {(data: any) => T[]} selectItems
+ * @returns {Promise<T[]>}
+ */
 async function requestAllPages(url, token, selectItems) {
+    /** @type {T[]} */
     const items = [];
     let nextUrl = url;
     while (nextUrl) {
