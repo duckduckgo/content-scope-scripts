@@ -162,7 +162,10 @@ function describeCommitStatus(status) {
 async function waitForOtherChecksToPass({ apiRoot, headSha, token, currentRunId }) {
     const deadline = Date.now() + OTHER_CHECK_TIMEOUT_MS;
     while (true) {
-        const [checkRuns, statuses] = await Promise.all([fetchCheckRuns(apiRoot, headSha, token), fetchCommitStatuses(apiRoot, headSha, token)]);
+        const [checkRuns, statuses] = await Promise.all([
+            fetchCheckRuns(apiRoot, headSha, token),
+            fetchCommitStatuses(apiRoot, headSha, token),
+        ]);
         const checkRunStatus = checkRunState(checkRuns, currentRunId);
         const commitStatus = commitStatusState(statuses);
 
