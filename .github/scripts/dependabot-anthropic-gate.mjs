@@ -109,6 +109,19 @@ async function fetchCommitStatuses(apiRoot, headSha, token) {
     return data.statuses ?? [];
 }
 
+/**
+ * Returns the set of check-run IDs created by jobs in the current workflow run.
+ * GitHub Actions creates one check run per job, and the job `id` returned by the
+ * workflow-jobs API equals the corresponding check-run `id` returned by the
+ * commit check-runs API. Using these IDs lets us reliably exclude the current
+ * workflow's own jobs from the "other checks" wait without depending on
+ * fragile name matches against the workflow YAML.
+ */
+async function fetchCurrentWorkflowCheckRunIds(apiRoot, runId, token) {
+    const jobs = await requestAllPages(`${apiRoot}/actions/runs/${runId}/jobs?per_page=100`, token, (data) => data.jobs ?? []);
+    return new Set(jobs.map((job) => job.id).filter((id) => typeof id === 'number'));
+}
+
 function latestCheckRunsByName(checkRuns) {
     const byName = new Map();
     for (const run of checkRuns) {
@@ -123,11 +136,10 @@ function latestCheckRunsByName(checkRuns) {
     return EXPECTED_CHECKS.map((name) => byName.get(name)).filter(Boolean);
 }
 
-function latestOtherCheckRunsByName(checkRuns, currentRunId) {
+function latestOtherCheckRunsByName(checkRuns, currentRunCheckIds) {
     const byName = new Map();
     for (const run of checkRuns) {
-        if (String(run.run_id ?? '') === currentRunId) continue;
-        if (run.name === 'dependabot') continue;
+        if (currentRunCheckIds.has(run.id)) continue;
         const previous = byName.get(run.name);
         const currentTime = new Date(run.completed_at ?? run.started_at ?? run.created_at ?? 0).getTime();
         const previousTime = previous ? new Date(previous.completed_at ?? previous.started_at ?? previous.created_at ?? 0).getTime() : 0;
@@ -138,8 +150,8 @@ function latestOtherCheckRunsByName(checkRuns, currentRunId) {
     return [...byName.values()];
 }
 
-function checkRunState(checkRuns, currentRunId) {
-    const latestRuns = latestOtherCheckRunsByName(checkRuns, currentRunId);
+function checkRunState(checkRuns, currentRunCheckIds) {
+    const latestRuns = latestOtherCheckRunsByName(checkRuns, currentRunCheckIds);
     const pending = latestRuns.filter((run) => run.status !== 'completed');
     const failed = latestRuns.filter((run) => run.status === 'completed' && !PASSING_CHECK_CONCLUSIONS.has(run.conclusion));
     return { pending, failed };
@@ -159,14 +171,14 @@ function describeCommitStatus(status) {
     return `${status.context} (${status.state})`;
 }
 
-async function waitForOtherChecksToPass({ apiRoot, headSha, token, currentRunId }) {
+async function waitForOtherChecksToPass({ apiRoot, headSha, token, currentRunCheckIds }) {
     const deadline = Date.now() + OTHER_CHECK_TIMEOUT_MS;
     while (true) {
         const [checkRuns, statuses] = await Promise.all([
             fetchCheckRuns(apiRoot, headSha, token),
             fetchCommitStatuses(apiRoot, headSha, token),
         ]);
-        const checkRunStatus = checkRunState(checkRuns, currentRunId);
+        const checkRunStatus = checkRunState(checkRuns, currentRunCheckIds);
         const commitStatus = commitStatusState(statuses);
 
         if (checkRunStatus.failed.length > 0 || commitStatus.failed.length > 0) {
@@ -299,7 +311,8 @@ async function main() {
     const currentRunId = requiredEnv('GITHUB_RUN_ID');
     const apiRoot = `https://api.github.com/repos/${owner}/${repo}`;
 
-    const checkRuns = await waitForOtherChecksToPass({ apiRoot, headSha, token: githubToken, currentRunId });
+    const currentRunCheckIds = await fetchCurrentWorkflowCheckRunIds(apiRoot, currentRunId, githubToken);
+    const checkRuns = await waitForOtherChecksToPass({ apiRoot, headSha, token: githubToken, currentRunCheckIds });
     const [{ data: pull }, reviews, comments] = await Promise.all([
         requestJson(`${apiRoot}/pulls/${prNumber}`, { token: githubToken }),
         requestAllPages(`${apiRoot}/pulls/${prNumber}/reviews?per_page=100`, githubToken, (data) => data ?? []),
