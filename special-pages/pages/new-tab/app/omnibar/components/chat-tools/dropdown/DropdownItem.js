@@ -8,9 +8,12 @@ import styles from './Dropdown.module.css';
  * and `onClick` via `cloneElement` when it renders its children.
  *
  * The caller supplies `onSelect`; Dropdown invokes it on click and on Enter.
+ * `onHover` fires on `mouseenter` and is independent of Dropdown's internal
+ * active-index tracking — use it to react to hover (e.g. open/close a submenu).
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} [props.icon]
+ * @param {import('preact').ComponentChildren} [props.trailingIcon]
  * @param {string} props.name
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
@@ -18,22 +21,29 @@ import styles from './Dropdown.module.css';
  * @param {() => void} props.onSelect
  * @param {boolean} [props.ariaChecked]
  * @param {boolean} [props.ariaSelected]
+ * @param {boolean} [props.ariaHasPopup]
+ * @param {boolean} [props.ariaExpanded]
  * @param {boolean} [props.isActive]
  * @param {string} [props.id]
  * @param {(e: MouseEvent) => void} [props.onMouseOver]
+ * @param {(e: MouseEvent) => void} [props.onHover]
  * @param {(e: MouseEvent) => void} [props.onClick]
  */
 export function DropdownItem({
     icon,
+    trailingIcon,
     name,
     description,
     isSelected = false,
     role,
     ariaChecked,
     ariaSelected,
+    ariaHasPopup,
+    ariaExpanded,
     isActive = false,
     id,
     onMouseOver,
+    onHover,
     onClick,
 }) {
     return (
@@ -42,8 +52,11 @@ export function DropdownItem({
             role={role}
             aria-checked={ariaChecked}
             aria-selected={ariaSelected}
+            aria-haspopup={ariaHasPopup}
+            aria-expanded={ariaExpanded}
             class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected)}
             onMouseOver={onMouseOver}
+            onMouseEnter={onHover}
             onClick={onClick}
         >
             <span class={styles.checkmark} aria-hidden="true" />
@@ -52,6 +65,11 @@ export function DropdownItem({
                 <span class={styles.itemName}>{name}</span>
                 {description && <span class={styles.itemDescription}>{description}</span>}
             </div>
+            {trailingIcon && (
+                <span class={styles.trailingIcon} aria-hidden="true">
+                    {trailingIcon}
+                </span>
+            )}
         </li>
     );
 }

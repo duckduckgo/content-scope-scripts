@@ -1,5 +1,6 @@
 import { h, cloneElement, toChildArray } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
+import cn from 'classnames';
 import styles from './Dropdown.module.css';
 
 /**
@@ -36,14 +37,16 @@ function getItemProps(child) {
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
+ * @param {import('preact').ComponentChildren} [props.header] - Non-interactive header rendered at the top of the panel.
  * @param {string} props.ariaLabel
  * @param {'menu' | 'listbox'} props.role
  * @param {DropdownPosition} props.position
  * @param {(options: {restoreFocus: boolean}) => void} props.onClose
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {string} [props.idPrefix]
+ * @param {string} [props.className] - Extra class for the dropdown root, on top of the shared chrome.
  */
-export function Dropdown({ children, ariaLabel, role, position, onClose, dropdownRef, idPrefix = 'dropdown-item' }) {
+export function Dropdown({ children, header, ariaLabel, role, position, onClose, dropdownRef, idPrefix = 'dropdown-item', className }) {
     const items = toChildArray(children);
 
     const getInitialActiveIndex = () => {
@@ -70,12 +73,12 @@ export function Dropdown({ children, ariaLabel, role, position, onClose, dropdow
         return () => window.cancelAnimationFrame(frameId);
     }, [dropdownRef]);
 
-    /** @param {number} index */
-    const getItemId = (index) => `${idPrefix}-${index}`;
+    /** @param {number} itemIdx */
+    const getItemId = (itemIdx) => `${idPrefix}-${itemIdx}`;
 
-    /** @param {number} index */
-    const selectAt = (index) => {
-        getItemProps(items[index])?.onSelect?.();
+    /** @param {number} itemIdx */
+    const selectAt = (itemIdx) => {
+        getItemProps(items[itemIdx])?.onSelect?.();
     };
 
     /** @type {(e: KeyboardEvent) => void} */
@@ -133,7 +136,7 @@ export function Dropdown({ children, ariaLabel, role, position, onClose, dropdow
     return (
         <ul
             ref={dropdownRef}
-            class={styles.dropdown}
+            class={cn(styles.dropdown, className)}
             tabIndex={-1}
             role={role}
             aria-label={ariaLabel}
@@ -142,6 +145,11 @@ export function Dropdown({ children, ariaLabel, role, position, onClose, dropdow
             onKeyDown={handleKeyDown}
             onMouseLeave={clearActiveIndex}
         >
+            {header && (
+                <li role="presentation" class={styles.header}>
+                    {header}
+                </li>
+            )}
             {clonedItems}
         </ul>
     );

@@ -27,6 +27,18 @@
     }
 }
 
+.header {
+    align-items: center;
+    color: var(--ds-color-theme-text-secondary);
+    display: flex;
+    font-size: 10px;
+    font-weight: 600;
+    height: 20px;
+    letter-spacing: 0.12px;
+    line-height: 13px;
+    padding: 0 9px 0 19px;
+}
+
 .item {
     align-items: center;
     border-radius: 3px;
@@ -42,6 +54,17 @@
     & > svg {
         flex-shrink: 0;
     }
+}
+
+.trailingIcon {
+    align-items: center;
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    margin-left: auto;
+}
+
+.itemActive .trailingIcon {
+    color: var(--ds-color-theme-accent-content-primary);
 }
 
 .itemActive {
