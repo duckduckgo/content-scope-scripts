@@ -1242,7 +1242,7 @@ export interface GetOpenTabsResponse {
   tabs: TabMetadata[];
 }
 /**
- * Lightweight metadata for an open browser tab. Returned by `omnibar_getOpenTabs` to populate the tab attachment picker — no content is extracted at this stage.
+ * Metadata for an open browser tab.
  */
 export interface TabMetadata {
   /**

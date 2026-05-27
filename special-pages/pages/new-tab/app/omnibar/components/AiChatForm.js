@@ -11,6 +11,10 @@ import styles from './AiChatForm.module.css';
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ *
+ * @typedef {object} ComboboxOverride
+ * @property {string} listboxId - Listbox the textarea is currently driving.
+ * @property {string|null} activeDescendantId - Currently-highlighted item inside that listbox.
  */
 
 /**
@@ -22,18 +26,39 @@ import styles from './AiChatForm.module.css';
  * Anything passed in `toolbarRight` is rendered inside the underlying `<form>`, so a
  * `type="submit"` button placed there works as expected.
  *
+ * `onTextareaKeyDown` lets the parent claim keys before the form acts on them — call
+ * `event.preventDefault()` to skip the default recent-chats handling. `combobox`
+ * overrides the textarea's aria-controls / aria-activedescendant / aria-expanded so a
+ * parent-owned listbox (e.g. a `@`-mention picker) can take over the combobox role.
+ *
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} [props.disabled]
- * @param {(query: string) => void} props.onChange
+ * @param {(query: string, caret: number) => void} props.onChange
  * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
  * @param {string} [props.placeholder]
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
  * @param {import('preact').ComponentChildren} [props.toolbarRight]
+ * @param {(event: KeyboardEvent) => void} [props.onTextareaKeyDown]
+ * @param {ComboboxOverride|null} [props.combobox]
+ * @param {(api: { setSelection: (start: number, end: number) => void, focus: () => void }) => void} [props.onTextareaReady]
  */
-export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, placeholder, toolbarLeft, toolbarRight }) {
+export function AiChatForm({
+    query,
+    autoFocus,
+    disabled,
+    onChange,
+    onSubmit,
+    children,
+    placeholder,
+    toolbarLeft,
+    toolbarRight,
+    onTextareaKeyDown,
+    combobox = null,
+    onTextareaReady,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat, viewAllAiChats } = useContext(OmnibarContext);
@@ -48,6 +73,18 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
             textAreaRef.current.focus();
         }
     }, [autoFocus]);
+
+    useEffect(() => {
+        if (!onTextareaReady) return;
+        onTextareaReady({
+            setSelection: (start, end) => {
+                const el = textAreaRef.current;
+                if (!el) return;
+                el.setSelectionRange(start, end);
+            },
+            focus: () => textAreaRef.current?.focus(),
+        });
+    }, [onTextareaReady]);
 
     useLayoutEffect(() => {
         const textArea = textAreaRef.current;
@@ -75,6 +112,12 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
 
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
+        // Let the parent claim keys first (e.g. routing arrow keys into a
+        // mention picker). If they preventDefault, we skip the default
+        // recent-chats handling for that key.
+        onTextareaKeyDown?.(event);
+        if (event.defaultPrevented) return;
+
         switch (event.key) {
             case 'ArrowUp': {
                 if (selectPreviousChat()) event.preventDefault();
@@ -124,6 +167,10 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
     };
 
     const getActiveDescendant = () => {
+        if (combobox?.activeDescendantId) {
+            return combobox.activeDescendantId;
+        }
+
         if (selectedChat) {
             return getAiChatElementId(selectedChat.chatId);
         }
@@ -154,16 +201,29 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 value={query}
                 placeholder={placeholderText}
                 aria-label={placeholderText}
-                aria-expanded={chats.length > 0}
+                aria-expanded={combobox ? true : chats.length > 0}
                 aria-haspopup="listbox"
-                aria-controls={aiChatsListId}
+                aria-controls={combobox?.listboxId ?? aiChatsListId}
                 aria-activedescendant={getActiveDescendant()}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
-                onChange={(event) => {
-                    onChange(event.currentTarget.value);
+                // The tab-attachment flow needs caret position to detect active
+                // `@` mentions, so emit both value and caret on every input.
+                onInput={(event) => {
+                    onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
                     clearSelectedChat();
+                }}
+                onKeyUp={(event) => {
+                    // Caret-only changes (arrow keys, mouse-positioned caret) don't
+                    // fire `onInput`, but they can still move the caret into or out
+                    // of an `@` mention. Re-emit so the picker can react.
+                    if (event.key.startsWith('Arrow') || event.key === 'Home' || event.key === 'End') {
+                        onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
+                    }
+                }}
+                onClick={(event) => {
+                    onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
                 }}
             />
             {children}

@@ -19,7 +19,7 @@ import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.
 import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
-import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
+import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
@@ -27,6 +27,11 @@ import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
 import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
+import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
+import { TabChips } from './chat-tools/tab-attachment/TabChips';
+import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
+import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
+import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
 
 /**
  * @typedef {typeof import('../strings.json')} Strings
@@ -46,6 +51,7 @@ import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
  * @param {boolean} props.showCustomizePopover
  * @param {boolean} [props.enableVoiceChatAccess]
  * @param {boolean} [props.enableAskAiSuggestion]
+ * @param {boolean} [props.enableAttachTabs]
  * @param {string|null|undefined} props.tabId
  */
 export function Omnibar({
@@ -57,6 +63,7 @@ export function Omnibar({
     showCustomizePopover,
     enableVoiceChatAccess = false,
     enableAskAiSuggestion = true,
+    enableAttachTabs = false,
     tabId,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
@@ -161,6 +168,7 @@ export function Omnibar({
                                     autoFocus={autoFocus}
                                     enableRecentAiChats={enableRecentAiChats}
                                     enableVoiceChatAccess={enableVoiceChatAccess}
+                                    enableAttachTabs={enableAttachTabs}
                                     onChange={setQuery}
                                     onSubmit={handleSubmitChat}
                                 />
@@ -179,10 +187,19 @@ export function Omnibar({
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} [props.enableVoiceChatAccess]
+ * @param {boolean} [props.enableAttachTabs]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
-function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatAccess = false, onChange, onSubmit }) {
+function AiChatContent({
+    query,
+    autoFocus,
+    enableRecentAiChats,
+    enableVoiceChatAccess = false,
+    enableAttachTabs = false,
+    onChange,
+    onSubmit,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { showChats, hideChats } = useAiChatsContext();
@@ -201,6 +218,16 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
+    const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const tabAttachments = useTabAttachments();
+    const mention = useMentionPicker({
+        enabled: canAttachTabs,
+        query,
+        onChange,
+        hideChats,
+        onAttachTab: tabAttachments.attachTab,
+    });
+
     const clearTool = () => {
         setActiveTool(null);
     };
@@ -218,10 +245,11 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
         setActiveTool(nextTool);
     };
 
-    /** @type {(query: string) => void} */
-    const handleChange = (value) => {
+    /** @type {(query: string, caret?: number) => void} */
+    const handleChange = (value, caret) => {
         onChange(value);
-        if (!hasVisibleImagesRef.current && !imageGenerationActive) showChats();
+        if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
+        mention.handleTextChange(value, caret);
     };
 
     /**
@@ -230,6 +258,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
      */
     const handleSubmit = (chat, target) => {
         const images = canAttachImages ? imageState.getImagesForSubmission() : null;
+        const pageContext = canAttachTabs ? tabAttachments.getTabsForSubmission() : null;
         const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
         const reasoningEffort = imageGenerationActive ? null : selectedEffort;
         const toolChoice = webSearchActive
@@ -245,10 +274,12 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
             ...(reasoningEffort && { reasoningEffort }),
             ...(toolChoice && { toolChoice }),
             ...(images && { images }),
+            ...(pageContext && { pageContext }),
         };
 
         onSubmit(action);
         imageState.clearAttachedImages();
+        tabAttachments.clearAttachedTabs();
         clearTool();
     };
 
@@ -286,14 +317,21 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
         handleVoiceSubmit(eventToTarget(event, platformName));
     };
 
-    const showRecentChats = enableRecentAiChats && !imageGenerationActive;
+    const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
 
     return (
         <div
             ref={containerRef}
+            class={styles.aiChatContent}
             data-image-warning={imageWarning || undefined}
             onFocusCapture={(event) => {
-                if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationActive) showChats();
+                if (
+                    event.target instanceof HTMLTextAreaElement &&
+                    !hasVisibleImagesRef.current &&
+                    !imageGenerationActive &&
+                    !mention.pickerActive
+                )
+                    showChats();
             }}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
@@ -311,9 +349,20 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
                     placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
+                    onTextareaKeyDown={mention.handleTextareaKeyDown}
+                    combobox={mention.combobox}
+                    onTextareaReady={mention.setTextareaApi}
                     toolbarLeft={
                         <Fragment>
-                            {canAttachImages && <ImageUploadButton state={imageState} />}
+                            {(canAttachImages || canAttachTabs) && (
+                                <AttachMenu
+                                    imagesEnabled={canAttachImages}
+                                    tabsEnabled={canAttachTabs}
+                                    imageUploadDisabled={imageState.imageUploadDisabled}
+                                    onFileChange={imageState.handleFileChange}
+                                    onAttachTab={tabAttachments.attachTab}
+                                />
+                            )}
                             {availableTools.length > 0 && (
                                 <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
                             )}
@@ -354,6 +403,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
                         </Fragment>
                     }
                 >
+                    {canAttachTabs && <TabChips attachedTabs={tabAttachments.attachedTabs} onRemove={tabAttachments.removeTab} />}
                     <ImageAttachmentContent
                         state={imageState}
                         supportsImageUpload={canAttachImages}
@@ -361,7 +411,7 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
                             hasVisibleImagesRef.current = hasImages;
                             if (hasImages) {
                                 hideChats();
-                            } else if (document.activeElement?.tagName === 'TEXTAREA') {
+                            } else if (document.activeElement?.tagName === 'TEXTAREA' && !mention.pickerActive) {
                                 showChats();
                             }
                         }}
@@ -369,6 +419,11 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatA
                     />
                 </AiChatForm>
             </ResizingContainer>
+            {mention.pickerProps && (
+                <div class={styles.tabPickerWrapper}>
+                    <MentionPicker {...mention.pickerProps} />
+                </div>
+            )}
             {showRecentChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
     );
