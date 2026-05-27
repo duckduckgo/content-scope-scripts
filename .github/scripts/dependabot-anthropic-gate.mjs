@@ -3,6 +3,9 @@ import { appendFileSync } from 'node:fs';
 const EXPECTED_CHECKS = ['Cursor Bugbot', 'Cursor Automation: Review dependabot', 'Cursor Automation: Web compat and sec'];
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BODY_CHARS = 12000;
+const OTHER_CHECK_TIMEOUT_MS = 30 * 60 * 1000;
+const OTHER_CHECK_POLL_INTERVAL_MS = 30 * 1000;
+const PASSING_CHECK_CONCLUSIONS = new Set(['success', 'skipped', 'neutral']);
 
 /**
  * @typedef {Object} RequestOptions
@@ -39,6 +42,10 @@ function parseLinkHeader(header) {
         if (match) return match[1];
     }
     return null;
+}
+
+async function sleep(ms) {
+    await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -93,6 +100,15 @@ async function requestAllPages(url, token, selectItems) {
     return items;
 }
 
+async function fetchCheckRuns(apiRoot, headSha, token) {
+    return requestAllPages(`${apiRoot}/commits/${headSha}/check-runs?per_page=100`, token, (data) => data.check_runs ?? []);
+}
+
+async function fetchCommitStatuses(apiRoot, headSha, token) {
+    const { data } = await requestJson(`${apiRoot}/commits/${headSha}/status`, { token });
+    return data.statuses ?? [];
+}
+
 function latestCheckRunsByName(checkRuns) {
     const byName = new Map();
     for (const run of checkRuns) {
@@ -105,6 +121,69 @@ function latestCheckRunsByName(checkRuns) {
         }
     }
     return EXPECTED_CHECKS.map((name) => byName.get(name)).filter(Boolean);
+}
+
+function latestOtherCheckRunsByName(checkRuns, currentRunId) {
+    const byName = new Map();
+    for (const run of checkRuns) {
+        if (String(run.run_id ?? '') === currentRunId) continue;
+        if (run.name === 'dependabot') continue;
+        const previous = byName.get(run.name);
+        const currentTime = new Date(run.completed_at ?? run.started_at ?? run.created_at ?? 0).getTime();
+        const previousTime = previous ? new Date(previous.completed_at ?? previous.started_at ?? previous.created_at ?? 0).getTime() : 0;
+        if (!previous || currentTime >= previousTime) {
+            byName.set(run.name, run);
+        }
+    }
+    return [...byName.values()];
+}
+
+function checkRunState(checkRuns, currentRunId) {
+    const latestRuns = latestOtherCheckRunsByName(checkRuns, currentRunId);
+    const pending = latestRuns.filter((run) => run.status !== 'completed');
+    const failed = latestRuns.filter((run) => run.status === 'completed' && !PASSING_CHECK_CONCLUSIONS.has(run.conclusion));
+    return { pending, failed };
+}
+
+function commitStatusState(statuses) {
+    const pending = statuses.filter((status) => status.state === 'pending');
+    const failed = statuses.filter((status) => status.state === 'failure' || status.state === 'error');
+    return { pending, failed };
+}
+
+function describeCheckRun(run) {
+    return `${run.name} (${run.status}/${run.conclusion ?? 'pending'})`;
+}
+
+function describeCommitStatus(status) {
+    return `${status.context} (${status.state})`;
+}
+
+async function waitForOtherChecksToPass({ apiRoot, headSha, token, currentRunId }) {
+    const deadline = Date.now() + OTHER_CHECK_TIMEOUT_MS;
+    while (true) {
+        const [checkRuns, statuses] = await Promise.all([fetchCheckRuns(apiRoot, headSha, token), fetchCommitStatuses(apiRoot, headSha, token)]);
+        const checkRunStatus = checkRunState(checkRuns, currentRunId);
+        const commitStatus = commitStatusState(statuses);
+
+        if (checkRunStatus.failed.length > 0 || commitStatus.failed.length > 0) {
+            const failed = [...checkRunStatus.failed.map(describeCheckRun), ...commitStatus.failed.map(describeCommitStatus)].join(', ');
+            throw new Error(`Non-Cursor checks failed; not asking Anthropic: ${failed}`);
+        }
+
+        if (checkRunStatus.pending.length === 0 && commitStatus.pending.length === 0) {
+            return checkRuns;
+        }
+
+        if (Date.now() >= deadline) {
+            const pending = [...checkRunStatus.pending.map(describeCheckRun), ...commitStatus.pending.map(describeCommitStatus)].join(', ');
+            throw new Error(`Timed out waiting for non-Cursor checks before asking Anthropic: ${pending}`);
+        }
+
+        const pending = [...checkRunStatus.pending.map(describeCheckRun), ...commitStatus.pending.map(describeCommitStatus)].join(', ');
+        console.log(`Waiting for non-Cursor checks before asking Anthropic: ${pending}`);
+        await sleep(OTHER_CHECK_POLL_INTERVAL_MS);
+    }
 }
 
 function cursorAgentId(detailsUrl) {
@@ -214,11 +293,12 @@ async function main() {
     const [owner, repo] = requiredEnv('GITHUB_REPOSITORY').split('/');
     const prNumber = requiredEnv('PR_NUMBER');
     const headSha = requiredEnv('PR_HEAD_SHA');
+    const currentRunId = requiredEnv('GITHUB_RUN_ID');
     const apiRoot = `https://api.github.com/repos/${owner}/${repo}`;
 
-    const [{ data: pull }, checkRuns, reviews, comments] = await Promise.all([
+    const checkRuns = await waitForOtherChecksToPass({ apiRoot, headSha, token: githubToken, currentRunId });
+    const [{ data: pull }, reviews, comments] = await Promise.all([
         requestJson(`${apiRoot}/pulls/${prNumber}`, { token: githubToken }),
-        requestAllPages(`${apiRoot}/commits/${headSha}/check-runs?per_page=100`, githubToken, (data) => data.check_runs ?? []),
         requestAllPages(`${apiRoot}/pulls/${prNumber}/reviews?per_page=100`, githubToken, (data) => data ?? []),
         requestAllPages(`${apiRoot}/issues/${prNumber}/comments?per_page=100`, githubToken, (data) => data ?? []),
     ]);
