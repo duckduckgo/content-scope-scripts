@@ -28,8 +28,20 @@ jobs:
               with:
                   github-token: '${{ secrets.GITHUB_TOKEN }}'
 
+            - name: Classify npm update
+              id: classify
+              env:
+                  PACKAGE_ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+              run: |
+                  set -euo pipefail
+                  if [[ "$PACKAGE_ECOSYSTEM" == "npm_and_yarn" ]]; then
+                    echo "is_npm=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "is_npm=false" >> "$GITHUB_OUTPUT"
+                  fi
+
             - name: Wait for Cursor Bugbot
-              if: steps.metadata.outputs.package-ecosystem == 'npm_and_yarn'
+              if: steps.classify.outputs.is_npm == 'true'
               uses: fountainhead/action-wait-for-check@v1.2.0
               id: wait_cursor_bugbot
               with:
@@ -39,7 +51,7 @@ jobs:
                   timeoutSeconds: 1800
 
             - name: Wait for Cursor Dependabot review
-              if: steps.metadata.outputs.package-ecosystem == 'npm_and_yarn'
+              if: steps.classify.outputs.is_npm == 'true'
               uses: fountainhead/action-wait-for-check@v1.2.0
               id: wait_cursor_dependabot
               with:
@@ -49,7 +61,7 @@ jobs:
                   timeoutSeconds: 1800
 
             - name: Wait for Cursor web compat and security review
-              if: steps.metadata.outputs.package-ecosystem == 'npm_and_yarn'
+              if: steps.classify.outputs.is_npm == 'true'
               uses: fountainhead/action-wait-for-check@v1.2.0
               id: wait_cursor_web_compat
               with:
@@ -58,12 +70,17 @@ jobs:
                   ref: ${{ github.event.pull_request.head.sha }}
                   timeoutSeconds: 1800
 
-            - name: Ask Anthropic to assess Cursor results
+            - name: Validate Cursor checks
               if: |
-                  steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
+                  steps.classify.outputs.is_npm == 'true' &&
                   steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
                   steps.wait_cursor_web_compat.outputs.conclusion == 'success'
+              id: cursor_gate
+              run: echo "passed=true" >> "$GITHUB_OUTPUT"
+
+            - name: Ask Anthropic to assess Cursor results
+              if: steps.cursor_gate.outputs.passed == 'true'
               id: anthropic_gate
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -74,12 +91,7 @@ jobs:
               run: node .github/scripts/dependabot-anthropic-gate.mjs
 
             - name: Approve npm update
-              if: |
-                  steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
-                  steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
-                  steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
-                  steps.wait_cursor_web_compat.outputs.conclusion == 'success' &&
-                  steps.anthropic_gate.outputs.safe_to_merge == 'true'
+              if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -89,12 +101,7 @@ jobs:
                   gh pr review "$PR_NUMBER" --repo "$REPO" --approve || true
 
             - name: Enable auto-merge for npm update
-              if: |
-                  steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
-                  steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
-                  steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
-                  steps.wait_cursor_web_compat.outputs.conclusion == 'success' &&
-                  steps.anthropic_gate.outputs.safe_to_merge == 'true'
+              if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
