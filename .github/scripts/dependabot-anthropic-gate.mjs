@@ -227,7 +227,9 @@ async function main() {
     setOutput('safe_to_merge', String(decision.safe_to_merge));
     setOutput('reason', decision.reason);
     setOutput('confidence', decision.confidence ?? 'unknown');
-    console.log(`Anthropic safe_to_merge=${decision.safe_to_merge}; confidence=${decision.confidence ?? 'unknown'}; reason=${decision.reason}`);
+    console.log(
+        `Anthropic safe_to_merge=${decision.safe_to_merge}; confidence=${decision.confidence ?? 'unknown'}; reason=${decision.reason}`,
+    );
 }
 
 await main();
