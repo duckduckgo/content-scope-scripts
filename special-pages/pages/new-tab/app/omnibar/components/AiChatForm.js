@@ -43,7 +43,7 @@ import styles from './AiChatForm.module.css';
  * @param {import('preact').ComponentChildren} [props.toolbarRight]
  * @param {(event: KeyboardEvent) => void} [props.onTextareaKeyDown]
  * @param {ComboboxOverride|null} [props.combobox]
- * @param {(api: { setSelection: (start: number, end: number) => void, focus: () => void }) => void} [props.onTextareaReady]
+ * @param {import('preact').RefObject<HTMLTextAreaElement>} props.textareaRef - Ref the parent owns and uses to drive focus/selection or measure layout.
  */
 export function AiChatForm({
     query,
@@ -57,7 +57,7 @@ export function AiChatForm({
     toolbarRight,
     onTextareaKeyDown,
     combobox = null,
-    onTextareaReady,
+    textareaRef,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
@@ -66,28 +66,15 @@ export function AiChatForm({
         useAiChatsContext();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
-    const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
 
     useEffect(() => {
-        if (autoFocus && textAreaRef.current) {
-            textAreaRef.current.focus();
+        if (autoFocus && textareaRef.current) {
+            textareaRef.current.focus();
         }
-    }, [autoFocus]);
-
-    useEffect(() => {
-        if (!onTextareaReady) return;
-        onTextareaReady({
-            setSelection: (start, end) => {
-                const el = textAreaRef.current;
-                if (!el) return;
-                el.setSelectionRange(start, end);
-            },
-            focus: () => textAreaRef.current?.focus(),
-        });
-    }, [onTextareaReady]);
+    }, [autoFocus, textareaRef]);
 
     useLayoutEffect(() => {
-        const textArea = textAreaRef.current;
+        const textArea = textareaRef.current;
         const form = formRef.current;
 
         if (!textArea || !form) return;
@@ -101,7 +88,7 @@ export function AiChatForm({
         } else {
             form.classList.remove(styles.hasScroll);
         }
-    }, [query]);
+    }, [query, textareaRef]);
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
@@ -190,13 +177,13 @@ export function AiChatForm({
             class={styles.form}
             onSubmit={handleSubmit}
             onClick={(e) => {
-                if (e.target === e.currentTarget || e.target === textAreaRef.current) {
-                    textAreaRef.current?.focus();
+                if (e.target === e.currentTarget || e.target === textareaRef.current) {
+                    textareaRef.current?.focus();
                 }
             }}
         >
             <textarea
-                ref={textAreaRef}
+                ref={textareaRef}
                 class={styles.textarea}
                 value={query}
                 placeholder={placeholderText}

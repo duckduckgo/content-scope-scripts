@@ -51,8 +51,7 @@ export function Dropdown({ children, header, ariaLabel, role, position, onClose,
 
     const getInitialActiveIndex = () => {
         if (items.length === 0) return -1;
-        const selected = items.findIndex((c) => getItemProps(c)?.isSelected);
-        return selected >= 0 ? selected : 0;
+        return items.findIndex((c) => getItemProps(c)?.isSelected);
     };
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);

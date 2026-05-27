@@ -220,12 +220,15 @@ function AiChatContent({
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
     const tabAttachments = useTabAttachments();
+    const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
         enabled: canAttachTabs,
         query,
         onChange,
         hideChats,
         onAttachTab: tabAttachments.attachTab,
+        textareaRef,
+        anchorRef: containerRef,
     });
 
     const clearTool = () => {
@@ -351,7 +354,7 @@ function AiChatContent({
                     onSubmit={handleSubmit}
                     onTextareaKeyDown={mention.handleTextareaKeyDown}
                     combobox={mention.combobox}
-                    onTextareaReady={mention.setTextareaApi}
+                    textareaRef={textareaRef}
                     toolbarLeft={
                         <Fragment>
                             {(canAttachImages || canAttachTabs) && (
@@ -420,7 +423,7 @@ function AiChatContent({
                 </AiChatForm>
             </ResizingContainer>
             {mention.pickerProps && (
-                <div class={styles.tabPickerWrapper}>
+                <div class={styles.tabPickerWrapper} style={mention.wrapperStyle}>
                     <MentionPicker {...mention.pickerProps} />
                 </div>
             )}
