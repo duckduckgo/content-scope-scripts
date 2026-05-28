@@ -31,7 +31,7 @@ export function SpecialErrorView() {
 
 function PageTitle() {
     const errorData = useErrorData();
-    const { kind } = errorData;
+    const { kind, title } = errorData;
     const { t } = useTypedTranslation();
 
     useEffect(() => {
@@ -42,12 +42,12 @@ function PageTitle() {
                 document.title = t('maliciousSiteTabTitle');
                 break;
             case 'generalPageProblem':
-                document.title = errorData.title || t('generalPageProblemPageHeading');
+                document.title = title || t('generalPageProblemPageHeading');
                 break;
             default:
                 document.title = t('sslPageHeading');
         }
-    }, [kind, t]);
+    }, [kind, title, t]);
 
     return null;
 }
