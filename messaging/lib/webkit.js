@@ -84,9 +84,14 @@ export class WebkitMessagingTransport {
     constructor(config, messagingContext) {
         this.messagingContext = messagingContext;
         this.config = config;
-        if (!this.config.hasModernWebkitAPI) {
-            this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
-        }
+        // Capture handler references at construction on both legacy and modern WebKit.
+        // On modern WebKit this previously read `window.webkit.messageHandlers[handler]`
+        // on every send, which means the transport silently breaks if site-level
+        // privacy hardening (e.g. apiManipulation-driven nullification of
+        // `window.webkit.messageHandlers` to reduce fingerprinting surface) replaces
+        // the namespace after init. Capturing once at construction makes the transport
+        // resilient to those changes.
+        this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
     }
 
     /**
@@ -98,7 +103,8 @@ export class WebkitMessagingTransport {
      * @internal
      */
     wkSend(handler, data = {}) {
-        if (!(handler in window.webkit.messageHandlers)) {
+        const captured = this.capturedWebkitHandlers[handler];
+        if (typeof captured !== 'function') {
             throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
         }
         if (!this.config.hasModernWebkitAPI) {
@@ -109,13 +115,9 @@ export class WebkitMessagingTransport {
                     secret: this.config.secret,
                 },
             };
-            if (!(handler in this.capturedWebkitHandlers)) {
-                throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
-            } else {
-                return this.capturedWebkitHandlers[handler](outgoing);
-            }
+            return captured(outgoing);
         }
-        return window.webkit.messageHandlers[handler].postMessage?.(data);
+        return captured(data);
     }
 
     /**
@@ -282,8 +284,18 @@ export class WebkitMessagingTransport {
     }
 
     /**
-     * When required (such as on macos 10.x), capture the `postMessage` method on
-     * each webkit messageHandler
+     * Capture the `postMessage` method on each webkit messageHandler so the
+     * transport can call them later without re-reading `window.webkit.messageHandlers`.
+     *
+     * Used on both modern and legacy WebKit:
+     * - **Legacy (macOS Catalina, < 11)**: capture is required for the secure
+     *   messaging protocol, and the original `postMessage` is deleted to prevent
+     *   page-script JS from invoking it directly without the encrypted envelope.
+     * - **Modern**: capture makes the transport resilient to later removal or
+     *   replacement of `window.webkit.messageHandlers` by privacy hardening
+     *   (e.g. apiManipulation-driven nullification to reduce fingerprinting
+     *   surface). The original is left in place so callers reading directly
+     *   from the namespace continue to see the host binding's normal shape.
      *
      * @param {string[]} handlerNames
      */
@@ -299,7 +311,9 @@ export class WebkitMessagingTransport {
                 const original = handlers[webkitMessageHandlerName];
                 const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
                 this.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
-                delete handlers[webkitMessageHandlerName].postMessage;
+                if (!this.config.hasModernWebkitAPI) {
+                    delete handlers[webkitMessageHandlerName].postMessage;
+                }
             }
         }
     }
