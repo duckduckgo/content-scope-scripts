@@ -5,6 +5,12 @@ on:
         types: [opened, reopened, synchronize, ready_for_review]
 
 permissions:
+    # `actions: read` is required so the gate script can call
+    # `GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs` to exclude its own
+    # workflow run from the wait set in `fetchCurrentWorkflowCheckRunIds()`.
+    # Once explicit permissions are set, anything not listed defaults to
+    # `none`, so omitting this would 403 before the gate ever runs.
+    actions: read
     checks: read
     contents: write
     pull-requests: write
