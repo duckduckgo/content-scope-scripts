@@ -12,7 +12,7 @@ import { Button } from '../../../../shared/components/Button/Button';
 import styles from './Warning.module.css';
 
 /**
- * @param {import("../../types/special-error.js").InitialSetupResponse['platform']['name']} platformName
+ * @param {"android"|"windows"|"ios"|"macos"|"extension"|undefined} platformName
  * @returns {import('../../../../shared/components/Button/Button').ButtonProps['variant']}
  */
 function getPrimaryActionButtonVariant(platformName) {
