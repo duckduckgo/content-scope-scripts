@@ -38,14 +38,23 @@
           }
         }, {
           "type": "object",
-          "title": "Safari Redirect Loop",
+          "title": "General Page Problem",
           "required": ["kind", "url"],
           "properties": {
             "kind": {
               "type": "string",
-              "const": "safariRedirectLoop"
+              "const": "generalPageProblem"
             },
             "url": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "button": {
               "type": "string"
             }
           }

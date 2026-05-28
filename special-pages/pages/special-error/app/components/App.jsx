@@ -14,7 +14,7 @@ export function SpecialErrorView() {
     const [advancedInfoVisible, setAdvancedInfoVisible] = useState(false);
     const { messaging } = useMessaging();
     const { kind } = useErrorData();
-    const shouldShowAdvancedInfo = kind !== 'safariRedirectLoop';
+    const shouldShowAdvancedInfo = kind !== 'generalPageProblem';
 
     const advancedButtonHandler = () => {
         messaging?.advancedInfo();
@@ -30,7 +30,8 @@ export function SpecialErrorView() {
 }
 
 function PageTitle() {
-    const { kind } = useErrorData();
+    const errorData = useErrorData();
+    const { kind } = errorData;
     const { t } = useTypedTranslation();
 
     useEffect(() => {
@@ -40,8 +41,8 @@ function PageTitle() {
             case 'scam':
                 document.title = t('maliciousSiteTabTitle');
                 break;
-            case 'safariRedirectLoop':
-                document.title = t('safariRedirectLoopPageHeading');
+            case 'generalPageProblem':
+                document.title = errorData.title || t('generalPageProblemPageHeading');
                 break;
             default:
                 document.title = t('sslPageHeading');

@@ -21,10 +21,10 @@ export const sampleData = {
             url: 'https://privacy-test-pages.site/security/badware/scam.html',
         },
     },
-    safariRedirectLoop: {
-        name: 'Safari Redirect Loop',
+    generalPageProblem: {
+        name: 'General Page Problem',
         data: {
-            kind: 'safariRedirectLoop',
+            kind: 'generalPageProblem',
             url: 'https://privacy-test-pages.site/security/redirect-loop',
         },
     },

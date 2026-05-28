@@ -4,7 +4,7 @@ import { useTypedTranslation } from '../types';
 import { useMessaging } from '../providers/MessagingProvider';
 import { useErrorData } from '../providers/SpecialErrorProvider';
 import { usePlatformName, useIsMobile } from '../providers/SettingsProvider';
-import { useWarningHeading, useWarningContent } from '../hooks/ErrorStrings';
+import { useGeneralPageProblemButtonText, useWarningHeading, useWarningContent } from '../hooks/ErrorStrings';
 // eslint-disable-next-line no-redeclare -- shadows DOM global `Text` intentionally
 import { Text } from '../../../../shared/components/Text/Text';
 import { Button } from '../../../../shared/components/Button/Button';
@@ -58,6 +58,7 @@ export function VisitSiteButton() {
     const { messaging } = useMessaging();
     const { kind } = useErrorData();
     const platformName = usePlatformName();
+    const generalPageProblemButtonText = useGeneralPageProblemButtonText();
 
     /** @type {import('../../../../shared/components/Button/Button').ButtonProps['variant']} */
     let buttonVariant;
@@ -73,10 +74,10 @@ export function VisitSiteButton() {
             buttonVariant = 'accent';
     }
 
-    const titleKey = kind === 'safariRedirectLoop' ? 'openInSafariButton' : 'visitSiteButton';
+    const title = kind === 'generalPageProblem' ? generalPageProblemButtonText : t('visitSiteButton');
     return (
-        <Button variant={buttonVariant} className={classNames(styles.button, styles.leaveSite)} onClick={() => messaging?.visitSite()}>
-            {t(titleKey)}
+        <Button variant={buttonVariant} className={classNames(styles.button, styles.leaveSite)} onClick={() => messaging?.openInBrowser()}>
+            {title}
         </Button>
     );
 }
@@ -134,7 +135,7 @@ export function WarningContent() {
  */
 export function Warning({ advancedInfoVisible, advancedButtonHandler }) {
     const { kind } = useErrorData();
-    const isSafariRedirectLoop = kind === 'safariRedirectLoop';
+    const isGeneralPageProblem = kind === 'generalPageProblem';
 
     return (
         <section className={styles.container}>
@@ -143,8 +144,8 @@ export function Warning({ advancedInfoVisible, advancedButtonHandler }) {
             <WarningContent />
 
             <div className={styles.buttonContainer}>
-                {!isSafariRedirectLoop && !advancedInfoVisible && <AdvancedInfoButton onClick={() => advancedButtonHandler()} />}
-                {isSafariRedirectLoop ? <VisitSiteButton /> : <LeaveSiteButton />}
+                {!isGeneralPageProblem && !advancedInfoVisible && <AdvancedInfoButton onClick={() => advancedButtonHandler()} />}
+                {isGeneralPageProblem ? <VisitSiteButton /> : <LeaveSiteButton />}
             </div>
         </section>
     );

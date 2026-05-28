@@ -27,7 +27,7 @@ export function VisitSiteLink({ elemRef }) {
     const { t } = useTypedTranslation();
     const { messaging } = useMessaging();
     return (
-        <a className={styles.visitSite} onClick={() => messaging?.visitSite()} ref={elemRef}>
+        <a className={styles.visitSite} onClick={() => messaging?.openInBrowser()} ref={elemRef}>
             {t('visitSiteButton')}
         </a>
     );

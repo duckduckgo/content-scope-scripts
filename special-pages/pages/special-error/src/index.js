@@ -60,10 +60,10 @@ export class SpecialErrorPage {
     }
 
     /**
-     * This will be sent when the user chooses to visit the current site despite warnings
+     * This will be sent when the user chooses to open the current site in the browser
      */
-    visitSite() {
-        this.messaging.notify('visitSite');
+    openInBrowser() {
+        this.messaging.notify('openInBrowser');
     }
 
     /**

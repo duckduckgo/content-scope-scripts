@@ -69,10 +69,10 @@ test.describe('special-error', () => {
         await special.showsScamPage();
     });
 
-    test('shows safari redirect loop warning', async ({ page }, workerInfo) => {
+    test('shows general page problem warning', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
-        await special.openPage({ errorId: 'safariRedirectLoop' });
-        await special.showsSafariRedirectLoopPage();
+        await special.openPage({ errorId: 'generalPageProblem' });
+        await special.showsGeneralPageProblem();
     });
 
     test('leaves site', async ({ page }, workerInfo) => {
@@ -81,16 +81,43 @@ test.describe('special-error', () => {
         await special.leavesSite();
     });
 
-    test('visits site', async ({ page }, workerInfo) => {
+    test('opens site in browser from advanced info', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'ssl.expired' });
-        await special.visitsSite();
+        await special.opensInBrowserFromAdvancedInfo();
     });
 
-    test('opens site in safari', async ({ page }, workerInfo) => {
+    test('opens site in browser', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
-        await special.openPage({ errorId: 'safariRedirectLoop' });
-        await special.opensInSafari();
+        await special.openPage({ errorId: 'generalPageProblem' });
+        await special.opensInBrowser();
+    });
+
+    test('supports native-provided general page problem copy', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        const title = 'Open this page in your default browser';
+        const message = 'This page cannot be shown in private mode here.';
+        const button = 'Open in Browser';
+
+        await special.openPage({
+            errorId: 'generalPageProblem',
+            additional: {
+                errorData: {
+                    kind: 'generalPageProblem',
+                    url: 'https://privacy-test-pages.site/security/redirect-loop',
+                    title,
+                    message,
+                    button,
+                },
+            },
+        });
+        await special.showsGeneralPageProblem({
+            pageTitle: title,
+            heading: title,
+            message,
+            buttonTitle: button,
+        });
+        await special.opensInBrowser(button);
     });
 
     test('opens phishing help page in a new window', async ({ page }, workerInfo) => {

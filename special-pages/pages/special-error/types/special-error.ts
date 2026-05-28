@@ -16,9 +16,9 @@ export interface SpecialErrorMessages {
   notifications:
     | AdvancedInfoNotification
     | LeaveSiteNotification
+    | OpenInBrowserNotification
     | ReportInitExceptionNotification
-    | ReportPageExceptionNotification
-    | VisitSiteNotification;
+    | ReportPageExceptionNotification;
   requests: InitialSetupRequest;
   subscriptions: OnThemeUpdateSubscription;
 }
@@ -33,6 +33,12 @@ export interface AdvancedInfoNotification {
  */
 export interface LeaveSiteNotification {
   method: "leaveSite";
+}
+/**
+ * Generated from @see "../messages/openInBrowser.notify.json"
+ */
+export interface OpenInBrowserNotification {
+  method: "openInBrowser";
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
@@ -55,12 +61,6 @@ export interface ReportPageExceptionNotify {
   message: string;
 }
 /**
- * Generated from @see "../messages/visitSite.notify.json"
- */
-export interface VisitSiteNotification {
-  method: "visitSite";
-}
-/**
  * Generated from @see "../messages/initialSetup.request.json"
  */
 export interface InitialSetupRequest {
@@ -75,7 +75,7 @@ export interface InitialSetupResponse {
   };
   errorData:
     | MaliciousSite
-    | SafariRedirectLoop
+    | GeneralPageProblem
     | SSLExpiredCertificate
     | SSLInvalidCertificate
     | SSLSelfSignedCertificate
@@ -91,9 +91,12 @@ export interface MaliciousSite {
   kind: "phishing" | "malware" | "scam";
   url: string;
 }
-export interface SafariRedirectLoop {
-  kind: "safariRedirectLoop";
+export interface GeneralPageProblem {
+  kind: "generalPageProblem";
   url: string;
+  title?: string;
+  message?: string;
+  button?: string;
 }
 export interface SSLExpiredCertificate {
   kind: "ssl";

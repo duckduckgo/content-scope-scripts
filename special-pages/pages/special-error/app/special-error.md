@@ -102,6 +102,12 @@ Example for an SSL wrong host error:
 - `domain`: The domain with the certificate issue
 - `eTldPlus1`: (Only for `wrongHost`) The eTLD+1 of the expected domain
 
+**General Page Problem** (`kind`: `generalPageProblem`):
+- `url`: The URL that could not be displayed in the current context
+- `title`: (Optional) Override heading shown by the page
+- `message`: (Optional) Override body copy shown by the page
+- `button`: (Optional) Override primary button label
+
 Available theme variants: `default`, `coolGray`, `slateBlue`, `green`, `violet`, `rose`, `orange`, `desert`
 
 ## Subscriptions
@@ -131,9 +137,9 @@ Available theme variants: `default`, `coolGray`, `slateBlue`, `green`, `violet`,
 - {@link "SpecialError Messages".LeaveSiteNotification}
 - Sent when the user clicks the "Leave Site" or "Go Back" button to navigate away from the dangerous site.
 
-### `visitSite`
-- {@link "SpecialError Messages".VisitSiteNotification}
-- Sent when the user chooses to proceed to the site despite the warning.
+### `openInBrowser`
+- {@link "SpecialError Messages".OpenInBrowserNotification}
+- Sent when the user chooses to open the current site in their browser.
 
 ### `advancedInfo`
 - {@link "SpecialError Messages".AdvancedInfoNotification}

@@ -146,33 +146,33 @@ export class SpecialErrorPage {
         ]);
     }
 
-    async visitsSite() {
+    async opensInBrowserFromAdvancedInfo() {
         const { page } = this;
         this.showsAdvancedInfo();
         await page.getByText('Accept Risk and Visit Site').click();
-        const calls = await this.mocks.waitForCallCount({ method: 'visitSite', count: 1 });
+        const calls = await this.mocks.waitForCallCount({ method: 'openInBrowser', count: 1 });
         expect(calls).toMatchObject([
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'special-error',
-                    method: 'visitSite',
+                    method: 'openInBrowser',
                     params: {},
                 },
             },
         ]);
     }
 
-    async opensInSafari() {
+    async opensInBrowser(buttonTitle = 'Open in Browser') {
         const { page } = this;
-        await page.getByRole('button', { name: 'Open in Safari' }).click();
-        const calls = await this.mocks.waitForCallCount({ method: 'visitSite', count: 1 });
+        await page.getByRole('button', { name: buttonTitle }).click();
+        const calls = await this.mocks.waitForCallCount({ method: 'openInBrowser', count: 1 });
         expect(calls).toMatchObject([
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'special-error',
-                    method: 'visitSite',
+                    method: 'openInBrowser',
                     params: {},
                 },
             },
@@ -344,16 +344,19 @@ export class SpecialErrorPage {
         ).toBeVisible();
     }
 
-    async showsSafariRedirectLoopPage() {
+    async showsGeneralPageProblem({
+        pageTitle = 'This page cannot be displayed here',
+        heading = 'This page cannot be displayed here',
+        message = 'Try opening it in your browser instead.',
+        buttonTitle = 'Open in Browser',
+    } = {}) {
         const { page } = this;
 
-        await this.showsPageTitle('This site only loads in Safari');
+        await this.showsPageTitle(pageTitle);
 
-        await expect(page.getByText('This site only loads in Safari', { exact: true })).toBeVisible();
-        await expect(
-            page.getByText("We tried to load it privately, but it won't display.", { exact: true }),
-        ).toBeVisible();
-        await expect(page.getByRole('button', { name: 'Open in Safari' })).toBeVisible();
+        await expect(page.getByText(heading, { exact: true })).toBeVisible();
+        await expect(page.getByText(message, { exact: true })).toBeVisible();
+        await expect(page.getByRole('button', { name: buttonTitle })).toBeVisible();
         await expect(page.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
     }
 

@@ -24,8 +24,8 @@
     "title" : "Aceptar el riesgo y visitar el sitio",
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
-  "openInSafariButton" : {
-    "title" : "Open in Safari",
+  "openInBrowserButton" : {
+    "title" : "Open in Browser",
     "note" : "Primary button shown on an error page when the page cannot be opened due to a Safari redirect loop. It opens the current URL in Safari."
   },
   "maliciousSiteTabTitle" : {
@@ -72,12 +72,12 @@
     "title" : "Advertencia: este sitio puede ser inseguro",
     "note" : "Title shown in an error page that warn users of security risks on a website due to SSL issues"
   },
-  "safariRedirectLoopPageHeading" : {
-    "title" : "This site only loads in Safari",
+  "generalPageProblemPageHeading" : {
+    "title" : "This page cannot be displayed here",
     "note" : "Title shown in an error page when the page cannot be opened inside the app due to a Safari redirect loop."
   },
-  "safariRedirectLoopWarningText" : {
-    "title" : "We tried to load it privately, but it won't display.",
+  "generalPageProblemWarningText" : {
+    "title" : "Try opening it in your browser instead.",
     "note" : "Message shown in an error page when the page cannot be opened inside the app due to a Safari redirect loop."
   },
   "sslWarningText" : {

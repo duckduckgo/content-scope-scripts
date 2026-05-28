@@ -50,21 +50,37 @@ const reportSiteAnchorTagParams = (urlParam) => {
  * @typedef {import("../../types/special-error.js").SSLSelfSignedCertificate} SSLSelfSignedCertificate
  * @typedef {import("../../types/special-error.js").SSLWrongHost} SSLWrongHost
  * @typedef {import("../../types/special-error.js").MaliciousSite} MaliciousSite
+ * @typedef {import("../../types/special-error.js").GeneralPageProblem} GeneralPageProblem
  * @typedef {SSLExpiredCertificate|SSLInvalidCertificate|SSLSelfSignedCertificate|SSLWrongHost} SSLError
  */
+
+/**
+ * @param {GeneralPageProblem} errorData
+ * @param {(key: string, replacements?: Record<string, string>) => string} t
+ */
+function getGeneralPageProblemCopy(errorData, t) {
+    return {
+        heading: errorData.title || t('generalPageProblemPageHeading'),
+        message: errorData.message || t('generalPageProblemWarningText'),
+        button: errorData.button || t('openInBrowserButton'),
+    };
+}
 
 /**
  * @returns {string}
  */
 export function useWarningHeading() {
     const { t } = useTypedTranslation();
-    const { kind } = useErrorData();
+    const errorData = useErrorData();
+    const { kind } = errorData;
 
     switch (kind) {
         case 'ssl':
             return t('sslPageHeading');
-        case 'safariRedirectLoop':
-            return t('safariRedirectLoopPageHeading');
+        case 'generalPageProblem': {
+            const copy = getGeneralPageProblemCopy(/** @type {GeneralPageProblem} */ (errorData), t);
+            return copy.heading;
+        }
         case 'malware':
         case 'phishing':
         case 'scam': {
@@ -83,7 +99,7 @@ export function useWarningHeading() {
 export function useWarningContent() {
     const { t } = useTypedTranslation();
     const errorData = useErrorData();
-    const { kind } = useErrorData();
+    const { kind } = errorData;
 
     if (kind === 'phishing') {
         const text = t('phishingWarningText').replace('{newline}', '\n');
@@ -105,8 +121,9 @@ export function useWarningContent() {
         return [<Trans str={t('sslWarningText', { domain })} values="" />];
     }
 
-    if (kind === 'safariRedirectLoop') {
-        return [t('safariRedirectLoopWarningText')];
+    if (kind === 'generalPageProblem') {
+        const copy = getGeneralPageProblemCopy(/** @type {GeneralPageProblem} */ (errorData), t);
+        return [copy.message];
     }
 
     throw new Error(`Unhandled error kind ${kind}`);
@@ -123,7 +140,7 @@ export function useAdvancedInfoHeading() {
     switch (kind) {
         case 'ssl':
             return t('sslAdvancedInfoHeading');
-        case 'safariRedirectLoop':
+        case 'generalPageProblem':
             return '';
         case 'malware':
         case 'phishing':
@@ -147,7 +164,7 @@ export function useAdvancedInfoContent() {
     const errorData = useErrorData();
     const { kind } = errorData;
 
-    if (kind === 'malware' || kind === 'phishing' || kind === 'scam' || kind === 'safariRedirectLoop') {
+    if (kind === 'malware' || kind === 'phishing' || kind === 'scam' || kind === 'generalPageProblem') {
         return [];
     }
 
@@ -170,4 +187,16 @@ export function useAdvancedInfoContent() {
     }
 
     throw new Error(`Unhandled error kind ${kind}`);
+}
+
+/**
+ * @returns {string}
+ */
+export function useGeneralPageProblemButtonText() {
+    const { t } = useTypedTranslation();
+    const errorData = useErrorData();
+    if (errorData.kind !== 'generalPageProblem') {
+        return t('openInBrowserButton');
+    }
+    return getGeneralPageProblemCopy(errorData, t).button;
 }
