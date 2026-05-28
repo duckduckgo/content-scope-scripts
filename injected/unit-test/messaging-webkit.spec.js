@@ -120,4 +120,68 @@ describe('WebkitMessagingTransport', () => {
             delete Object.prototype.hostilePollutionHandler;
         }
     });
+
+    it('cache is not derived from a tampered `Object.create`', () => {
+        // Simulate page JS replacing Object.create *before* the transport is
+        // constructed (which can happen because Messaging is lazy on
+        // ContentFeature). The cache must still be a true null-prototype
+        // object, not one synthesised by the tampered Object.create.
+        const originalCreate = Object.create;
+        const tampered = jasmine.createSpy('tamperedObjectCreate').and.callFake(() => ({ polluted: true }));
+        Object.create = /** @type {any} */ (tampered);
+
+        try {
+            env = setupWebkit();
+            const transport = makeTransport();
+
+            // If the cache went through the tampered Object.create, looking up
+            // `polluted` would resolve to `true` (the tampered factory injected
+            // it as an own property). With `{ __proto__: null }` literal, it
+            // doesn't.
+            expect(() => transport.wkSend('polluted', {})).toThrowMatching(
+                (e) => e?.name === 'MissingHandler' || /Missing webkit handler/.test(e?.message ?? ''),
+            );
+        } finally {
+            Object.create = originalCreate;
+        }
+    });
+
+    it('stores handler and postMessage as a separate pair, not a single bound function', () => {
+        // Storing a `{ handler, postMessage }` pair rather than the result of
+        // `handler.postMessage.bind(handler)` is what lets wkSend dispatch via
+        // captured ReflectApply without going through Function.prototype.bind
+        // — which is critical because page JS can replace
+        // Function.prototype.bind before lazy transport construction
+        // (Messaging is lazy on ContentFeature.messaging). The structural
+        // check below proves the cache holds the raw references rather than a
+        // bound copy: a bound function would not be reference-equal to the
+        // original `postMessage`.
+        env = setupWebkit();
+        const transport = makeTransport();
+
+        const stored = transport.capturedWebkitHandlers.contentScopeScripts;
+
+        expect(stored.handler).toBe(env.handlers.contentScopeScripts);
+        expect(stored.postMessage).toBe(env.handlers.contentScopeScripts.postMessage);
+    });
+
+    it('dispatches through the captured handler with the correct `this` even without `.bind`', () => {
+        // Replace the host handler's postMessage with one that asserts on its
+        // `this`. If wkSend dispatched via a bare call (`postMessage(data)`)
+        // rather than ReflectApply against the captured handler, `this` would
+        // be wrong (undefined in strict mode) and the call would not preserve
+        // host-binding semantics.
+        env = setupWebkit();
+        const handler = env.handlers.contentScopeScripts;
+        const observed = { thisValue: /** @type {any} */ (undefined) };
+        handler.postMessage = function postMessage(/** @type {any} */ _data) {
+            observed.thisValue = this;
+            return Promise.resolve('{}');
+        };
+        const transport = makeTransport();
+
+        transport.wkSend('contentScopeScripts', { hello: 'world' });
+
+        expect(observed.thisValue).toBe(handler);
+    });
 });

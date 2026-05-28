@@ -6,7 +6,13 @@
 import { MessagingTransport, MissingHandler } from '../index.js';
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
 import { ensureNavigatorDuckDuckGo } from '../../injected/src/navigator-global.js';
-import { JSONparse, Error as _Error, ReflectDeleteProperty, objectDefineProperty } from '../../injected/src/captured-globals.js';
+import {
+    JSONparse,
+    Error as _Error,
+    ReflectApply,
+    ReflectDeleteProperty,
+    objectDefineProperty,
+} from '../../injected/src/captured-globals.js';
 
 /**
  * @example
@@ -25,9 +31,16 @@ export class WebkitMessagingTransport {
     /**
      * Null-prototype cache so a hostile page that pollutes `Object.prototype`
      * cannot supply a callable from there if `capture` ever misses a handler.
-     * @type {Record<string, any>}
+     *
+     * Uses the `{ __proto__: null }` literal rather than `Object.create(null)`
+     * because the latter is a method dispatch through `globalThis.Object`, which
+     * page JS could replace before this class field runs if transport
+     * construction is deferred (`Messaging` is lazy on `ContentFeature.messaging`).
+     * The `__proto__: null` literal is a syntactic construct, not method
+     * dispatch, so it always yields a true null-prototype object.
+     * @type {Record<string, { handler: any, postMessage: Function }>}
      */
-    capturedWebkitHandlers = Object.create(null);
+    capturedWebkitHandlers = /** @type {any} */ ({ __proto__: null });
 
     /**
      * @param {WebkitMessagingConfig} config
@@ -56,10 +69,12 @@ export class WebkitMessagingTransport {
      */
     wkSend(handler, data = {}) {
         const captured = this.capturedWebkitHandlers[handler];
-        if (typeof captured !== 'function') {
+        if (!captured || typeof captured.postMessage !== 'function') {
             throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
         }
-        return captured(data);
+        // Use the captured ReflectApply so the send path doesn't go through
+        // any page-mutable function (`.call`, `.bind`, etc.).
+        return ReflectApply(captured.postMessage, captured.handler, [data]);
     }
 
     /**
@@ -108,20 +123,26 @@ export class WebkitMessagingTransport {
      * `window.webkit.messageHandlers` (e.g. by privacy hardening that nullifies
      * the namespace for site JS to reduce fingerprinting surface).
      *
+     * Stores the handler object and its `postMessage` function as a pair so
+     * `wkSend` can dispatch via the captured `ReflectApply` rather than calling
+     * `.bind()` here. `.bind` is a method on the page-mutable
+     * `Function.prototype` — if transport construction is deferred (`Messaging`
+     * is lazy on `ContentFeature.messaging`) page JS could replace
+     * `Function.prototype.bind` first and have the cache store an attacker-
+     * controlled function. Storing the unbound pair sidesteps that.
+     *
      * @param {string[]} handlerNames
      */
     captureWebkitHandlers(handlerNames) {
         const handlers = window.webkit.messageHandlers;
         if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all');
         for (const webkitMessageHandlerName of handlerNames) {
-            if (typeof handlers[webkitMessageHandlerName]?.postMessage === 'function') {
-                /**
-                 * `bind` is used here to ensure future calls to the captured
-                 * `postMessage` have the correct `this` context
-                 */
-                const original = handlers[webkitMessageHandlerName];
-                const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
-                this.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+            const handler = handlers[webkitMessageHandlerName];
+            if (typeof handler?.postMessage === 'function') {
+                this.capturedWebkitHandlers[webkitMessageHandlerName] = {
+                    handler,
+                    postMessage: handler.postMessage,
+                };
             }
         }
     }
