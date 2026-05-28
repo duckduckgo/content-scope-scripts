@@ -21,6 +21,8 @@ import { useDrawerControls, useDrawerEventListeners } from '../../components/Dra
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
+import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
+import { FileChips } from './chat-tools/file-attachment/FileChips';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
@@ -218,6 +220,9 @@ function AiChatContent({
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
+    const fileState = useFileAttachments(selectedModel?.supportedFileTypes);
+    const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
+
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
     const tabAttachments = useTabAttachments();
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
@@ -261,6 +266,7 @@ function AiChatContent({
      */
     const handleSubmit = (chat, target) => {
         const images = canAttachImages ? imageState.getImagesForSubmission() : null;
+        const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
         const pageContext = canAttachTabs ? tabAttachments.getTabsForSubmission() : null;
         const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
         const reasoningEffort = imageGenerationActive ? null : selectedEffort;
@@ -277,11 +283,13 @@ function AiChatContent({
             ...(reasoningEffort && { reasoningEffort }),
             ...(toolChoice && { toolChoice }),
             ...(images && { images }),
+            ...(files && { files }),
             ...(pageContext && { pageContext }),
         };
 
         onSubmit(action);
         imageState.clearAttachedImages();
+        fileState.clearAttachedFiles();
         tabAttachments.clearAttachedTabs();
         clearTool();
     };
@@ -357,12 +365,23 @@ function AiChatContent({
                     textareaRef={textareaRef}
                     toolbarLeft={
                         <Fragment>
-                            {(canAttachImages || canAttachTabs) && (
+                            {(canAttachImages || canAttachFiles || canAttachTabs) && (
                                 <AttachMenu
-                                    imagesEnabled={canAttachImages}
+                                    image={
+                                        canAttachImages
+                                            ? { processFiles: imageState.processFiles, disabled: imageState.imageUploadDisabled }
+                                            : null
+                                    }
+                                    file={
+                                        canAttachFiles
+                                            ? {
+                                                  processFiles: fileState.processFiles,
+                                                  disabled: fileState.fileUploadDisabled,
+                                                  mimeTypes: selectedModel?.supportedFileTypes ?? [],
+                                              }
+                                            : null
+                                    }
                                     tabsEnabled={canAttachTabs}
-                                    imageUploadDisabled={imageState.imageUploadDisabled}
-                                    onFileChange={imageState.handleFileChange}
                                     onAttachTab={tabAttachments.attachTab}
                                 />
                             )}
@@ -407,6 +426,7 @@ function AiChatContent({
                     }
                 >
                     {canAttachTabs && <TabChips attachedTabs={tabAttachments.attachedTabs} onRemove={tabAttachments.removeTab} />}
+                    {canAttachFiles && <FileChips attachedFiles={fileState.attachedFiles} onRemove={fileState.handleRemoveFile} />}
                     <ImageAttachmentContent
                         state={imageState}
                         supportsImageUpload={canAttachImages}
