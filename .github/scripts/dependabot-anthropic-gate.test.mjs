@@ -119,6 +119,7 @@ describe('matchExpectedCheck', () => {
     it('only ever returns entries that are present in EXPECTED_CHECKS', () => {
         const run = cursorBugbotRun();
         const matched = matchExpectedCheck(run);
+        assert.ok(matched);
         assert.ok(EXPECTED_CHECKS.includes(matched));
     });
 });
@@ -138,6 +139,11 @@ describe('latestCheckRunsByName', () => {
 });
 
 describe('latestOtherCheckRunsByName / checkRunState', () => {
+    /**
+     * @param {string} name
+     * @param {string} status
+     * @param {string | null} [conclusion]
+     */
     function externalRun(name, status, conclusion = null) {
         return {
             id: 900 + Math.floor(Math.random() * 100),
@@ -268,6 +274,7 @@ describe('source builders gate on isTrustedAutomationActor', () => {
     it('captures path/line/in_reply_to_id on inline review comments', () => {
         const inline = trustedComment('inline', { path: 'a/b.js', line: 42, in_reply_to_id: 7 });
         const src = sourceFromInlineReviewComment(inline);
+        assert.ok(src);
         assert.equal(src.type, 'inline_review_comment');
         assert.equal(src.path, 'a/b.js');
         assert.equal(src.line, 42);
