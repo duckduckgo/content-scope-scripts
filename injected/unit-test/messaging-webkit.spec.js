@@ -143,8 +143,8 @@ describe('WebkitMessagingTransport', () => {
             // plain `{}` cache, resolve via the prototype chain and be invoked
             // as if it were a captured native handler.
             const malicious = jasmine.createSpy('pollutedPostMessage');
-            // eslint-disable-next-line no-extend-native -- intentional: simulating page-side prototype pollution
             // @ts-expect-error - intentional ad-hoc property on Object.prototype to simulate page-side pollution
+            // eslint-disable-next-line no-extend-native -- intentional: simulating page-side prototype pollution
             Object.prototype.hostilePollutionHandler = malicious;
 
             try {
