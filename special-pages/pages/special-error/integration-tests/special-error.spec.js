@@ -69,6 +69,12 @@ test.describe('special-error', () => {
         await special.showsScamPage();
     });
 
+    test('shows safari redirect loop warning', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.openPage({ errorId: 'safariRedirectLoop' });
+        await special.showsSafariRedirectLoopPage();
+    });
+
     test('leaves site', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'ssl.expired' });
@@ -79,6 +85,12 @@ test.describe('special-error', () => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'ssl.expired' });
         await special.visitsSite();
+    });
+
+    test('opens site in safari', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.openPage({ errorId: 'safariRedirectLoop' });
+        await special.opensInSafari();
     });
 
     test('opens phishing help page in a new window', async ({ page }, workerInfo) => {

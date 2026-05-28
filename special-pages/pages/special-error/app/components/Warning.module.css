@@ -50,11 +50,11 @@
         gap: var(--sp-4);
     }
 
-    & .ssl.heading {
+    & .ssl.heading, & .safariRedirectLoop.heading {
         height: var(--sp-8);
     }
 
-    & .ssl .icon {
+    & .ssl .icon, & .safariRedirectLoop .icon {
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
         margin-left: calc(-1 * var(--sp-2));
         margin-top: calc(-1 * var(--sp-2));
@@ -113,7 +113,7 @@
         width: var(--sp-32);
     }
 
-    & .ssl .icon {
+    & .ssl .icon, & .safariRedirectLoop .icon {
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-128.svg);
     }
 
@@ -157,11 +157,11 @@
         gap: var(--sp-4);
     }
 
-    & .ssl.heading {
+    & .ssl.heading, & .safariRedirectLoop.heading {
         height: var(--sp-8);
     }
 
-    & .ssl .icon {
+    & .ssl .icon, & .safariRedirectLoop .icon {
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
         margin-left: calc(-1 * var(--sp-2));
         margin-top: calc(-1 * var(--sp-2));

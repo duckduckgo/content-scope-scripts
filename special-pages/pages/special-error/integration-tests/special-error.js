@@ -163,6 +163,22 @@ export class SpecialErrorPage {
         ]);
     }
 
+    async opensInSafari() {
+        const { page } = this;
+        await page.getByRole('button', { name: 'Open in Safari' }).click();
+        const calls = await this.mocks.waitForCallCount({ method: 'visitSite', count: 1 });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'special-error',
+                    method: 'visitSite',
+                    params: {},
+                },
+            },
+        ]);
+    }
+
     async showsExpiredPage() {
         const { page } = this;
 
@@ -326,6 +342,19 @@ export class SpecialErrorPage {
                 { exact: true },
             ),
         ).toBeVisible();
+    }
+
+    async showsSafariRedirectLoopPage() {
+        const { page } = this;
+
+        await this.showsPageTitle('This site only loads in Safari ');
+
+        await expect(page.getByText('This site only loads in Safari ', { exact: true })).toBeVisible();
+        await expect(
+            page.getByText("We tried to load it privately, but it won't display.", { exact: true }),
+        ).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Open in Safari' })).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
     }
 
     /**

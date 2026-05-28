@@ -38,6 +38,19 @@
           }
         }, {
           "type": "object",
+          "title": "Safari Redirect Loop",
+          "required": ["kind", "url"],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "safariRedirectLoop"
+            },
+            "url": {
+              "type": "string"
+            }
+          }
+        }, {
+          "type": "object",
           "title": "SSL Expired Certificate",
           "required": ["kind", "errorType", "domain"],
           "properties": {

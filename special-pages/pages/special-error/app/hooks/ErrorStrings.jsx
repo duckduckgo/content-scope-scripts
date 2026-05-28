@@ -63,6 +63,8 @@ export function useWarningHeading() {
     switch (kind) {
         case 'ssl':
             return t('sslPageHeading');
+        case 'safariRedirectLoop':
+            return t('safariRedirectLoopPageHeading');
         case 'malware':
         case 'phishing':
         case 'scam': {
@@ -103,6 +105,10 @@ export function useWarningContent() {
         return [<Trans str={t('sslWarningText', { domain })} values="" />];
     }
 
+    if (kind === 'safariRedirectLoop') {
+        return [t('safariRedirectLoopWarningText')];
+    }
+
     throw new Error(`Unhandled error kind ${kind}`);
 }
 
@@ -117,6 +123,8 @@ export function useAdvancedInfoHeading() {
     switch (kind) {
         case 'ssl':
             return t('sslAdvancedInfoHeading');
+        case 'safariRedirectLoop':
+            return '';
         case 'malware':
         case 'phishing':
         case 'scam': {
@@ -139,7 +147,7 @@ export function useAdvancedInfoContent() {
     const errorData = useErrorData();
     const { kind } = errorData;
 
-    if (kind === 'malware' || kind === 'phishing' || kind === 'scam') {
+    if (kind === 'malware' || kind === 'phishing' || kind === 'scam' || kind === 'safariRedirectLoop') {
         return [];
     }
 

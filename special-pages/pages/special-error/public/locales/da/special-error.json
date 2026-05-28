@@ -24,6 +24,10 @@
     "title" : "Accepter risiko og besøg webstedet",
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing or Malware issues. The buttons allows the user to visit the website anyway despite the risks."
   },
+  "openInSafariButton" : {
+    "title" : "Open in Safari",
+    "note" : "Primary button shown on an error page when the page cannot be opened due to a Safari redirect loop. It opens the current URL in Safari."
+  },
   "maliciousSiteTabTitle" : {
     "title" : "Advarsel: Sikkerhedsrisiko",
     "note" : "Title shown in the browser window or tab when the current page may be a security risk due to phishing"
@@ -67,6 +71,14 @@
   "sslPageHeading" : {
     "title" : "Advarsel: Denne side kan være usikker",
     "note" : "Title shown in an error page that warn users of security risks on a website due to SSL issues"
+  },
+  "safariRedirectLoopPageHeading" : {
+    "title" : "This site only loads in Safari ",
+    "note" : "Title shown in an error page when the page cannot be opened inside the app due to a Safari redirect loop."
+  },
+  "safariRedirectLoopWarningText" : {
+    "title" : "We tried to load it privately, but it won't display.",
+    "note" : "Message shown in an error page when the page cannot be opened inside the app due to a Safari redirect loop."
   },
   "sslWarningText" : {
     "title" : "Certifikatet for dette websted er ugyldigt. Du opretter muligvis forbindelse til en server, der foregiver at være <b>{domain}</b>, hvilket kan bringe dine fortrolige oplysninger i fare.",

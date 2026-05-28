@@ -13,6 +13,8 @@ import { Warning } from './Warning';
 export function SpecialErrorView() {
     const [advancedInfoVisible, setAdvancedInfoVisible] = useState(false);
     const { messaging } = useMessaging();
+    const { kind } = useErrorData();
+    const shouldShowAdvancedInfo = kind !== 'safariRedirectLoop';
 
     const advancedButtonHandler = () => {
         messaging?.advancedInfo();
@@ -22,7 +24,7 @@ export function SpecialErrorView() {
     return (
         <div className={styles.container}>
             <Warning advancedInfoVisible={advancedInfoVisible} advancedButtonHandler={advancedButtonHandler} />
-            {advancedInfoVisible && <AdvancedInfo />}
+            {shouldShowAdvancedInfo && advancedInfoVisible && <AdvancedInfo />}
         </div>
     );
 }
@@ -37,6 +39,9 @@ function PageTitle() {
             case 'phishing':
             case 'scam':
                 document.title = t('maliciousSiteTabTitle');
+                break;
+            case 'safariRedirectLoop':
+                document.title = t('safariRedirectLoopPageHeading');
                 break;
             default:
                 document.title = t('sslPageHeading');

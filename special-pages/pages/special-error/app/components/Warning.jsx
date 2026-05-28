@@ -53,6 +53,34 @@ export function LeaveSiteButton() {
     );
 }
 
+export function VisitSiteButton() {
+    const { t } = useTypedTranslation();
+    const { messaging } = useMessaging();
+    const { kind } = useErrorData();
+    const platformName = usePlatformName();
+
+    /** @type {import('../../../../shared/components/Button/Button').ButtonProps['variant']} */
+    let buttonVariant;
+    switch (platformName) {
+        case 'ios':
+        case 'android':
+            buttonVariant = 'primary';
+            break;
+        case 'windows':
+            buttonVariant = 'accentBrand';
+            break;
+        default:
+            buttonVariant = 'accent';
+    }
+
+    const titleKey = kind === 'safariRedirectLoop' ? 'openInSafariButton' : 'visitSiteButton';
+    return (
+        <Button variant={buttonVariant} className={classNames(styles.button, styles.leaveSite)} onClick={() => messaging?.visitSite()}>
+            {t(titleKey)}
+        </Button>
+    );
+}
+
 export function WarningHeading() {
     const heading = useWarningHeading();
     const { kind } = useErrorData();
@@ -105,6 +133,9 @@ export function WarningContent() {
  * @param {() => void} props.advancedButtonHandler
  */
 export function Warning({ advancedInfoVisible, advancedButtonHandler }) {
+    const { kind } = useErrorData();
+    const isSafariRedirectLoop = kind === 'safariRedirectLoop';
+
     return (
         <section className={styles.container}>
             <WarningHeading />
@@ -112,8 +143,8 @@ export function Warning({ advancedInfoVisible, advancedButtonHandler }) {
             <WarningContent />
 
             <div className={styles.buttonContainer}>
-                {!advancedInfoVisible && <AdvancedInfoButton onClick={() => advancedButtonHandler()} />}
-                <LeaveSiteButton />
+                {!isSafariRedirectLoop && !advancedInfoVisible && <AdvancedInfoButton onClick={() => advancedButtonHandler()} />}
+                {isSafariRedirectLoop ? <VisitSiteButton /> : <LeaveSiteButton />}
             </div>
         </section>
     );

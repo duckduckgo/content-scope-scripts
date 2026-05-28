@@ -21,6 +21,13 @@ export const sampleData = {
             url: 'https://privacy-test-pages.site/security/badware/scam.html',
         },
     },
+    safariRedirectLoop: {
+        name: 'Safari Redirect Loop',
+        data: {
+            kind: 'safariRedirectLoop',
+            url: 'https://privacy-test-pages.site/security/redirect-loop',
+        },
+    },
     'ssl.expired': {
         name: 'Expired',
         data: {

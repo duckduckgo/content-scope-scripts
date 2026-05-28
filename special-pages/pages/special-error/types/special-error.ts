@@ -73,7 +73,13 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios";
   };
-  errorData: MaliciousSite | SSLExpiredCertificate | SSLInvalidCertificate | SSLSelfSignedCertificate | SSLWrongHost;
+  errorData:
+    | MaliciousSite
+    | SafariRedirectLoop
+    | SSLExpiredCertificate
+    | SSLInvalidCertificate
+    | SSLSelfSignedCertificate
+    | SSLWrongHost;
   /**
    * Optional locale-specific strings
    */
@@ -83,6 +89,10 @@ export interface InitialSetupResponse {
 }
 export interface MaliciousSite {
   kind: "phishing" | "malware" | "scam";
+  url: string;
+}
+export interface SafariRedirectLoop {
+  kind: "safariRedirectLoop";
   url: string;
 }
 export interface SSLExpiredCertificate {
