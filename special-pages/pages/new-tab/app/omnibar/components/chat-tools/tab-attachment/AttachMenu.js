@@ -13,54 +13,129 @@ import styles from './AttachMenu.module.css';
  * @typedef {typeof import('../../../strings.json')} Strings
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
  * @typedef {import('../../../../../types/new-tab.js').Favicon} Favicon
+ * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean }} ImageChannel
+ * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean, mimeTypes: string[] }} FileChannel
  */
+
+const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
 /**
+ * Paperclip entry point. Renders whichever items the caller enabled:
+ *   - "Add Images" / "Add PDFs" / "Add Images or PDFs" — file picker entry
+ *     whose label and `accept` come from which of `image`/`file` are non-null.
+ *   - "Add Page Content" → tab picker, when `tabsEnabled`.
+ * Collapses to a direct paperclip-button (no dropdown) when the only enabled
+ * mode is image/file. Tabs always render the dropdown so the user has a
+ * labelled entry rather than the picker firing on first click.
+ *
  * @param {object} props
- * @param {boolean} props.imagesEnabled
+ * @param {ImageChannel | null} props.image — Pass null to omit the image route.
+ * @param {FileChannel | null} props.file — Pass null to omit the file (PDF) route.
  * @param {boolean} props.tabsEnabled
- * @param {boolean} props.imageUploadDisabled
- * @param {(event: Event) => void} props.onFileChange
  * @param {(tab: TabMetadata) => void} props.onAttachTab
  */
-export function AttachMenu({ imagesEnabled, tabsEnabled, imageUploadDisabled, onFileChange, onAttachTab }) {
+export function AttachMenu({ image, file, tabsEnabled, onAttachTab }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
-    if (!imagesEnabled && !tabsEnabled) return null;
+    const attachEnabled = image !== null || file !== null;
+    if (!attachEnabled && !tabsEnabled) return null;
 
-    if (imagesEnabled && !tabsEnabled) {
-        return <ImageOnlyButton t={t} imageUploadDisabled={imageUploadDisabled} onFileChange={onFileChange} />;
+    const fileLabel = pickFileLabel(t, image, file);
+    const accept = combinedAccept(image, file);
+    const fileDisabled = (image?.disabled ?? true) && (file?.disabled ?? true);
+    const onAttachChange = makeAttachChangeHandler(image, file);
+
+    if (attachEnabled && !tabsEnabled) {
+        return <DirectFileButton ariaLabel={fileLabel} accept={accept} disabled={fileDisabled} onChange={onAttachChange} />;
     }
 
-    if (!imagesEnabled && tabsEnabled) {
-        return <TabsOnlyMenu t={t} onAttachTab={onAttachTab} />;
-    }
-
-    return <BothModesMenu t={t} imageUploadDisabled={imageUploadDisabled} onFileChange={onFileChange} onAttachTab={onAttachTab} />;
+    return (
+        <DropdownMenu
+            t={t}
+            attachEnabled={attachEnabled}
+            fileLabel={fileLabel}
+            accept={accept}
+            fileDisabled={fileDisabled}
+            onAttachChange={onAttachChange}
+            onAttachTab={onAttachTab}
+        />
+    );
 }
 
 /**
- * @param {object} props
- * @param {(key: keyof Strings) => string} props.t
- * @param {boolean} props.imageUploadDisabled
- * @param {(event: Event) => void} props.onFileChange
+ * @param {(key: keyof Strings) => string} t
+ * @param {ImageChannel | null} image
+ * @param {FileChannel | null} file
  */
-function ImageOnlyButton({ t, imageUploadDisabled, onFileChange }) {
+function pickFileLabel(t, image, file) {
+    if (image && file) return t('omnibar_attachImageOrFileLabel');
+    if (image) return t('omnibar_attachImageLabel');
+    return t('omnibar_attachFileLabel');
+}
+
+/**
+ * @param {ImageChannel | null} image
+ * @param {FileChannel | null} file
+ */
+function combinedAccept(image, file) {
+    return [image ? IMAGE_ACCEPT : '', file ? file.mimeTypes.join(',') : ''].filter(Boolean).join(',');
+}
+
+/**
+ * Builds the single `onChange` for the hidden file input. Partitions the
+ * selected `File`s into images (anything `image/*`) and everything else,
+ * routing each subset to the appropriate channel.
+ *
+ * @param {ImageChannel | null} image
+ * @param {FileChannel | null} file
+ * @returns {(event: Event) => Promise<void>}
+ */
+function makeAttachChangeHandler(image, file) {
+    return async (event) => {
+        const input = /** @type {HTMLInputElement} */ (event.currentTarget);
+        if (!input.files || input.files.length === 0) return;
+        const all = Array.from(input.files);
+        /** @type {Promise<void>[]} */
+        const tasks = [];
+        if (image) {
+            const images = all.filter((f) => f.type.startsWith('image/'));
+            if (images.length > 0) tasks.push(image.processFiles(images));
+        }
+        if (file) {
+            const others = all.filter((f) => !f.type.startsWith('image/'));
+            if (others.length > 0) tasks.push(file.processFiles(others));
+        }
+        await Promise.all(tasks);
+        input.value = '';
+    };
+}
+
+/**
+ * Single-mode shortcut: a `<label>` that wraps a hidden file input. Used when
+ * tabs aren't enabled, so no dropdown is needed.
+ *
+ * @param {object} props
+ * @param {string} props.ariaLabel
+ * @param {string} props.accept
+ * @param {boolean} props.disabled
+ * @param {(event: Event) => void} props.onChange
+ */
+function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     return (
         <label
-            class={imageUploadDisabled ? `${imageStyles.toolButton} ${imageStyles.toolButtonDisabled}` : imageStyles.toolButton}
-            aria-label={t('omnibar_attachImageLabel')}
-            aria-disabled={imageUploadDisabled}
+            class={disabled ? `${imageStyles.toolButton} ${imageStyles.toolButtonDisabled}` : imageStyles.toolButton}
+            aria-label={ariaLabel}
+            aria-disabled={disabled}
             role="button"
-            tabIndex={imageUploadDisabled ? -1 : 0}
+            tabIndex={disabled ? -1 : 0}
             onClick={(e) => {
                 e.stopPropagation();
-                if (imageUploadDisabled) e.preventDefault();
+                if (disabled) e.preventDefault();
             }}
             onKeyDown={(e) => {
-                if (imageUploadDisabled) return;
+                if (disabled) return;
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     fileInputRef.current?.click();
@@ -71,76 +146,39 @@ function ImageOnlyButton({ t, imageUploadDisabled, onFileChange }) {
             <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept={accept}
                 multiple
                 aria-hidden="true"
-                disabled={imageUploadDisabled}
+                disabled={disabled}
                 class={imageStyles.hiddenFileInput}
-                onChange={onFileChange}
+                onChange={onChange}
             />
         </label>
     );
 }
 
 /**
+ * Paperclip-triggered dropdown. Always used when `tabsEnabled` (whether or not
+ * the file route is also enabled), so the user always sees a labelled menu
+ * entry instead of the picker firing on click. The hidden file input lives
+ * here and is `click()`-triggered from the menu entry on a microtask so the
+ * menu can finish unmounting before the OS file picker takes focus.
+ *
  * @param {object} props
  * @param {(key: keyof Strings) => string} props.t
+ * @param {boolean} props.attachEnabled
+ * @param {string} props.fileLabel
+ * @param {string} props.accept
+ * @param {boolean} props.fileDisabled
+ * @param {(event: Event) => void} props.onAttachChange
  * @param {(tab: TabMetadata) => void} props.onAttachTab
  */
-function TabsOnlyMenu({ t, onAttachTab }) {
-    const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: 'left' });
-
-    const handleClose = ({ restoreFocus }) => {
-        close();
-        if (restoreFocus) buttonRef.current?.focus();
-    };
-
-    return (
-        <Fragment>
-            <button
-                ref={buttonRef}
-                type="button"
-                class={imageStyles.toolButton}
-                aria-label={t('omnibar_attachTabsLabel')}
-                aria-haspopup="menu"
-                aria-expanded={isOpen}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    toggle();
-                }}
-            >
-                <PaperclipIcon />
-            </button>
-            {isOpen && dropdownPos && (
-                <TabPicker
-                    t={t}
-                    position={dropdownPos}
-                    dropdownRef={dropdownRef}
-                    onSelect={(tab) => {
-                        onAttachTab(tab);
-                        close();
-                    }}
-                    onClose={handleClose}
-                />
-            )}
-        </Fragment>
-    );
-}
-
-/**
- * @param {object} props
- * @param {(key: keyof Strings) => string} props.t
- * @param {boolean} props.imageUploadDisabled
- * @param {(event: Event) => void} props.onFileChange
- * @param {(tab: TabMetadata) => void} props.onAttachTab
- */
-function BothModesMenu({ t, imageUploadDisabled, onFileChange, onAttachTab }) {
+function DropdownMenu({ t, attachEnabled, fileLabel, accept, fileDisabled, onAttachChange, onAttachTab }) {
     const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: 'left' });
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     const triggerFileInput = () => {
-        if (imageUploadDisabled) return;
-
+        if (fileDisabled) return;
         window.setTimeout(() => fileInputRef.current?.click(), 0);
     };
 
@@ -165,19 +203,23 @@ function BothModesMenu({ t, imageUploadDisabled, onFileChange, onAttachTab }) {
             >
                 <PaperclipIcon />
             </button>
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                aria-hidden="true"
-                disabled={imageUploadDisabled}
-                class={imageStyles.hiddenFileInput}
-                onChange={onFileChange}
-            />
+            {attachEnabled && (
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={accept}
+                    multiple
+                    aria-hidden="true"
+                    disabled={fileDisabled}
+                    class={imageStyles.hiddenFileInput}
+                    onChange={onAttachChange}
+                />
+            )}
             {isOpen && dropdownPos && (
-                <OpenAttachMenu
+                <OpenDropdownBody
                     t={t}
+                    attachEnabled={attachEnabled}
+                    fileLabel={fileLabel}
                     dropdownPos={dropdownPos}
                     dropdownRef={dropdownRef}
                     onClose={handleClose}
@@ -199,20 +241,18 @@ function BothModesMenu({ t, imageUploadDisabled, onFileChange, onAttachTab }) {
  *
  * @param {object} props
  * @param {(key: keyof Strings) => string} props.t
+ * @param {boolean} props.attachEnabled
+ * @param {string} props.fileLabel
  * @param {import('../useDropdown.js').DropdownPosition} props.dropdownPos
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {(opts: { restoreFocus: boolean }) => void} props.onClose
  * @param {() => void} props.onTriggerFileInput
  * @param {(tab: TabMetadata) => void} props.onAttachTab
  */
-function OpenAttachMenu({ t, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onAttachTab }) {
+function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onAttachTab }) {
     const submenuRef = useRef(/** @type {HTMLUListElement|null} */ (null));
     const [submenuOpen, setSubmenuOpen] = useState(false);
 
-    // Submenu sits flush with the parent menu's right edge in the same
-    // (containing-block-relative) coordinate space dropdownPos uses, so the
-    // two panels stay top-aligned regardless of any transformed ancestor.
-    // `align: 'left'` on the parent useDropdown guarantees dropdownPos.left is defined.
     const submenuPos =
         submenuOpen && dropdownPos.left !== undefined && dropdownRef.current
             ? { left: dropdownPos.left + dropdownRef.current.offsetWidth + 4, top: dropdownPos.top }
@@ -228,13 +268,15 @@ function OpenAttachMenu({ t, dropdownPos, dropdownRef, onClose, onTriggerFileInp
                 onClose={onClose}
                 idPrefix="attach-menu-item"
             >
-                <DropdownItem
-                    role="menuitem"
-                    icon={<ImageIcon />}
-                    name={t('omnibar_attachImageOrFileLabel')}
-                    onSelect={onTriggerFileInput}
-                    onHover={() => setSubmenuOpen(false)}
-                />
+                {attachEnabled && (
+                    <DropdownItem
+                        role="menuitem"
+                        icon={<ImageIcon />}
+                        name={fileLabel}
+                        onSelect={onTriggerFileInput}
+                        onHover={() => setSubmenuOpen(false)}
+                    />
+                )}
                 <DropdownItem
                     role="menuitem"
                     ariaHasPopup

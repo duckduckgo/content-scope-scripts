@@ -234,8 +234,8 @@
     "description": "Description message in the popover including privacy statement and customize option."
   },
   "omnibar_attachImageLabel": {
-    "title": "Attach image",
-    "description": "Accessible label for the attach image button in the AI chat toolbar."
+    "title": "Add Images",
+    "description": "Label for the attach-image entry — both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
   },
   "omnibar_removeImageLabel": {
     "title": "Remove image",
@@ -334,8 +334,16 @@
     "description": "Accessible label for the paperclip button when only tab attachments are available."
   },
   "omnibar_attachImageOrFileLabel": {
-    "title": "Attach Image or File",
-    "description": "Menu item in the attach dropdown that opens the file picker for image attachments."
+    "title": "Add Images or PDFs",
+    "description": "Label for the attach entry when the active model accepts both images and PDFs — covers the menu item in the combined dropdown and the standalone paperclip button's aria-label."
+  },
+  "omnibar_attachFileLabel": {
+    "title": "Add PDFs",
+    "description": "Label for the attach-PDF entry — both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
+  },
+  "omnibar_removeAttachedFileLabel": {
+    "title": "Remove {fileName}",
+    "description": "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
   },
   "omnibar_attachPageContentLabel": {
     "title": "Attach Page Content",

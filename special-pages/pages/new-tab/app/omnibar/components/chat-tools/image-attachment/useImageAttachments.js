@@ -88,15 +88,13 @@ export function useImageAttachments() {
     const clearAttachedImages = () => setAttachedImages([]);
     const clearImageError = () => setImageError(null);
 
-    /** @type {(event: Event) => Promise<void>} */
-    const handleFileChange = async (event) => {
-        const input = /** @type {HTMLInputElement} */ (event.currentTarget);
-        const files = input.files;
-        if (!files || files.length === 0) return;
+    /** @type {(files: File[]) => Promise<void>} */
+    const processFiles = async (files) => {
+        if (files.length === 0) return;
         setImageError(null);
 
         const existingNames = new Set(attachedImages.map((img) => img.fileName));
-        const validFiles = Array.from(files).filter((file) => {
+        const validFiles = files.filter((file) => {
             if (!ALLOWED_FORMATS.includes(file.type)) {
                 console.warn('Attachment rejected: unsupported file type');
                 return false;
@@ -107,19 +105,13 @@ export function useImageAttachments() {
             return true;
         });
 
-        if (validFiles.length === 0) {
-            input.value = '';
-            return;
-        }
+        if (validFiles.length === 0) return;
 
         // Only process enough to reach MAX_IMAGES + 1 (to trigger the limit warning).
         const processLimit = MAX_IMAGES + 1 - attachedImages.length;
         const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
 
-        if (filesToProcess.length === 0) {
-            input.value = '';
-            return;
-        }
+        if (filesToProcess.length === 0) return;
 
         const newImages = filesToProcess.map(
             (file) =>
@@ -180,7 +172,13 @@ export function useImageAttachments() {
         if (images.length > 0) {
             setAttachedImages((prev) => [...prev, ...images]);
         }
+    };
 
+    /** @type {(event: Event) => Promise<void>} */
+    const handleFileChange = async (event) => {
+        const input = /** @type {HTMLInputElement} */ (event.currentTarget);
+        if (!input.files || input.files.length === 0) return;
+        await processFiles(Array.from(input.files));
         input.value = '';
     };
 
@@ -214,6 +212,7 @@ export function useImageAttachments() {
 
     return {
         attachedImages,
+        processFiles,
         handleFileChange,
         handleRemoveImage,
         clearAttachedImages,

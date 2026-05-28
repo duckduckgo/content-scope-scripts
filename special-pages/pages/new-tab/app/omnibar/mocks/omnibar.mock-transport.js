@@ -163,7 +163,6 @@ export function omnibarMockTransport() {
         enableVoiceChatAccess: false,
         enableAskAiSuggestion: true,
         enableAttachTabs: false,
-        enableAttachFiles: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -234,7 +233,6 @@ export function omnibarMockTransport() {
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
-                    config.enableAttachFiles = parseBooleanQueryParam('omnibar.enableAttachFiles') ?? config.enableAttachFiles;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {

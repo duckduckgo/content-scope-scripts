@@ -682,6 +682,10 @@ export interface AIModelItem {
    */
   supportsImageUpload: boolean;
   /**
+   * MIME types this model accepts as file attachments. Empty or omitted means the model does not accept files. The omnibar uses this to drive the file picker's `accept` attribute and to clear attached files whose MIME isn't supported when the user switches models. v1 only sends `application/pdf`; the array shape leaves room for additional types (e.g. `text/plain`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) without a schema change.
+   */
+  supportedFileTypes?: string[];
+  /**
    * Tools this model supports.
    */
   supportedTools?: ToolId[];
@@ -733,6 +737,10 @@ export interface SubmitChatAction {
    * Page contexts attached from open tabs via the attach-tabs picker. Each entry is the same PageContext shape returned by `omnibar_getTabContent` and is guaranteed by NTP to carry a `tabId` so native can attribute attachments back to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
    */
   pageContext?: PageContext[];
+  /**
+   * Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.
+   */
+  files?: NativePromptFile[];
 }
 /**
  * Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.
@@ -763,6 +771,23 @@ export interface PageContext {
    * The unbounded length of the source content, before any truncation. Useful for surfacing truncation indicators in the UI.
    */
   fullContentLength?: number;
+}
+/**
+ * File attached to a Duck.ai prompt. Shape mirrors Duck.ai's existing `NativePromptFile` input so native forwards entries unchanged. NTP encodes the file in the browser (`FileReader.readAsDataURL` → base64) and includes it on `omnibar_submitChat`.
+ */
+export interface NativePromptFile {
+  /**
+   * Base64-encoded file bytes, without the `data:` URL prefix.
+   */
+  data: string;
+  /**
+   * Original filename, used for chip display in the omnibar and forwarded to Duck.ai.
+   */
+  fileName: string;
+  /**
+   * MIME type of the file. v1: NTP only sends `application/pdf`. The field is left as an open string (not an enum) to match Duck.ai's input shape and to let additional types be added later without a schema change.
+   */
+  mimeType: string;
 }
 /**
  * Generated from @see "../messages/omnibar_submitSearch.notify.json"
