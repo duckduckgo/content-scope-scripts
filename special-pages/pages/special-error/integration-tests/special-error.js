@@ -148,7 +148,7 @@ export class SpecialErrorPage {
 
     async visitsSiteFromAdvancedInfo() {
         const { page } = this;
-        this.showsAdvancedInfo();
+        await this.showsAdvancedInfo();
         await page.getByText('Accept Risk and Visit Site').click();
         const calls = await this.mocks.waitForCallCount({ method: 'visitSite', count: 1 });
         expect(calls).toMatchObject([
