@@ -1,4 +1,5 @@
 import { appendFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 // Each expected Cursor check is identified by *three* trust signals:
 //   - the check-run display name (`run.name`)
@@ -10,7 +11,7 @@ import { appendFileSync } from 'node:fs';
 // and having the Anthropic gate treat it as trusted Cursor evidence.
 const CURSOR_APP_SLUG = 'cursor';
 const CURSOR_DETAILS_HOST = 'cursor.com';
-const EXPECTED_CHECKS = [
+export const EXPECTED_CHECKS = [
     { name: 'Cursor Bugbot', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
     { name: 'Cursor Automation: Review dependabot', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
     { name: 'Cursor Automation: Web compat and sec', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
@@ -19,13 +20,13 @@ const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BODY_CHARS = 12000;
 const CHECK_WAIT_TIMEOUT_MS = 30 * 60 * 1000;
 const CHECK_WAIT_POLL_INTERVAL_MS = 30 * 1000;
-const PASSING_CHECK_CONCLUSIONS = new Set(['success', 'skipped', 'neutral']);
+export const PASSING_CHECK_CONCLUSIONS = new Set(['success', 'skipped', 'neutral']);
 // Only reviews / issue comments authored by these GitHub App bots are eligible
 // to be matched as Cursor-authored evidence. Everything else (including human
 // commenters) is untrusted input — without this filter, anyone with comment
 // access could echo a public Cursor agent id and inject text that the
 // Anthropic gate would treat as authenticated automation output.
-const TRUSTED_AUTOMATION_AUTHORS = new Set(['cursor[bot]']);
+export const TRUSTED_AUTOMATION_AUTHORS = new Set(['cursor[bot]']);
 
 /**
  * @typedef {Object} RequestOptions
@@ -49,13 +50,13 @@ function setOutput(name, value) {
     appendFileSync(outputPath, `${name}<<${delimiter}\n${value}\n${delimiter}\n`);
 }
 
-function truncate(value, limit = MAX_BODY_CHARS) {
+export function truncate(value, limit = MAX_BODY_CHARS) {
     if (!value) return '';
     if (value.length <= limit) return value;
     return `${value.slice(0, limit)}\n\n[truncated ${value.length - limit} characters]`;
 }
 
-function parseLinkHeader(header) {
+export function parseLinkHeader(header) {
     if (!header) return null;
     for (const part of header.split(',')) {
         const match = part.match(/<([^>]+)>;\s*rel="next"/);
@@ -142,7 +143,7 @@ async function fetchCurrentWorkflowCheckRunIds(apiRoot, runId, token) {
     return new Set(jobs.map((job) => job.id).filter((id) => typeof id === 'number'));
 }
 
-function detailsHost(detailsUrl) {
+export function detailsHost(detailsUrl) {
     if (!detailsUrl) return null;
     try {
         return new URL(detailsUrl).host;
@@ -157,7 +158,7 @@ function detailsHost(detailsUrl) {
  * not sufficient because any GitHub App with `checks:write` could publish a
  * later run reusing one of our expected names.
  */
-function matchExpectedCheck(run) {
+export function matchExpectedCheck(run) {
     return (
         EXPECTED_CHECKS.find((expected) => {
             if (expected.name !== run.name) return false;
@@ -167,7 +168,7 @@ function matchExpectedCheck(run) {
     );
 }
 
-function latestCheckRunsByName(checkRuns) {
+export function latestCheckRunsByName(checkRuns) {
     const byName = new Map();
     for (const run of checkRuns) {
         if (!matchExpectedCheck(run)) continue;
@@ -181,7 +182,7 @@ function latestCheckRunsByName(checkRuns) {
     return EXPECTED_CHECKS.map((expected) => byName.get(expected.name)).filter(Boolean);
 }
 
-function latestOtherCheckRunsByName(checkRuns, currentRunCheckIds) {
+export function latestOtherCheckRunsByName(checkRuns, currentRunCheckIds) {
     const byName = new Map();
     for (const run of checkRuns) {
         if (currentRunCheckIds.has(run.id)) continue;
@@ -195,14 +196,14 @@ function latestOtherCheckRunsByName(checkRuns, currentRunCheckIds) {
     return [...byName.values()];
 }
 
-function checkRunState(checkRuns, currentRunCheckIds) {
+export function checkRunState(checkRuns, currentRunCheckIds) {
     const latestRuns = latestOtherCheckRunsByName(checkRuns, currentRunCheckIds);
     const pending = latestRuns.filter((run) => run.status !== 'completed');
     const failed = latestRuns.filter((run) => run.status === 'completed' && !PASSING_CHECK_CONCLUSIONS.has(run.conclusion));
     return { pending, failed };
 }
 
-function commitStatusState(statuses) {
+export function commitStatusState(statuses) {
     const pending = statuses.filter((status) => status.state === 'pending');
     const failed = statuses.filter((status) => status.state === 'failure' || status.state === 'error');
     return { pending, failed };
@@ -221,12 +222,12 @@ function describeCommitStatus(status) {
  * on the head SHA. Used so the wait loop blocks until Cursor has actually
  * registered each expected check run, not just until other checks are idle.
  */
-function missingExpectedCheckNames(checkRuns) {
+export function missingExpectedCheckNames(checkRuns) {
     const present = new Set(checkRuns.filter((run) => matchExpectedCheck(run)).map((run) => run.name));
     return EXPECTED_CHECKS.filter((expected) => !present.has(expected.name)).map((expected) => expected.name);
 }
 
-function pendingExpectedCheckRuns(checkRuns) {
+export function pendingExpectedCheckRuns(checkRuns) {
     return checkRuns.filter((run) => matchExpectedCheck(run) && run.status !== 'completed');
 }
 
@@ -281,7 +282,7 @@ async function waitForChecksToSettle({ apiRoot, headSha, token, currentRunCheckI
     }
 }
 
-function cursorAgentId(detailsUrl) {
+export function cursorAgentId(detailsUrl) {
     return detailsUrl?.match(/\/agents\/([^/?#]+)/)?.[1] ?? null;
 }
 
@@ -291,13 +292,13 @@ function cursorAgentId(detailsUrl) {
  * user objects) is rejected so its body can never be carried into the
  * Anthropic gate as evidence.
  */
-function isTrustedAutomationActor(user) {
+export function isTrustedAutomationActor(user) {
     if (!user) return false;
     if (user.type !== 'Bot') return false;
     return TRUSTED_AUTOMATION_AUTHORS.has(user.login);
 }
 
-function sourceFromReview(review) {
+export function sourceFromReview(review) {
     if (!isTrustedAutomationActor(review.user)) return null;
     return {
         type: 'review',
@@ -307,7 +308,7 @@ function sourceFromReview(review) {
     };
 }
 
-function sourceFromComment(comment) {
+export function sourceFromComment(comment) {
     if (!isTrustedAutomationActor(comment.user)) return null;
     return {
         type: 'comment',
@@ -325,7 +326,7 @@ function sourceFromComment(comment) {
  * would let the Anthropic gate auto-approve while blocking inline review
  * findings sit unread on the PR.
  */
-function sourceFromInlineReviewComment(comment) {
+export function sourceFromInlineReviewComment(comment) {
     if (!isTrustedAutomationActor(comment.user)) return null;
     return {
         type: 'inline_review_comment',
@@ -353,7 +354,7 @@ function sourceFromInlineReviewComment(comment) {
  * is enough to attribute those findings to this run without re-trusting
  * arbitrary comment authors.
  */
-function sourceMatchesCheckRun(source, run) {
+export function sourceMatchesCheckRun(source, run) {
     const agentId = cursorAgentId(run.details_url);
     if (agentId && source.body.includes(agentId)) return true;
     if (run.name === 'Cursor Bugbot' && run.head_sha && source.body.includes(run.head_sha)) {
@@ -362,7 +363,7 @@ function sourceMatchesCheckRun(source, run) {
     return false;
 }
 
-function matchedCursorSources(run, sources) {
+export function matchedCursorSources(run, sources) {
     return sources
         .filter((source) => sourceMatchesCheckRun(source, run))
         .map((source) => ({
@@ -373,7 +374,7 @@ function matchedCursorSources(run, sources) {
         }));
 }
 
-function evidenceForRun(run, sources) {
+export function evidenceForRun(run, sources) {
     return {
         checkName: run.name,
         conclusion: run.conclusion,
@@ -399,7 +400,7 @@ function evidenceForRun(run, sources) {
  * candidates lets the caller pick the first one that parses with the
  * expected shape.
  */
-function* candidateJsonObjects(text) {
+export function* candidateJsonObjects(text) {
     if (!text) return;
     for (let start = text.indexOf('{'); start !== -1; start = text.indexOf('{', start + 1)) {
         let depth = 0;
@@ -428,7 +429,7 @@ function* candidateJsonObjects(text) {
     }
 }
 
-function parseAnthropicDecision(text) {
+export function parseAnthropicDecision(text) {
     let lastError = null;
     let sawCandidate = false;
     for (const candidate of candidateJsonObjects(text)) {
@@ -544,4 +545,6 @@ async function main() {
     );
 }
 
-await main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    await main();
+}
