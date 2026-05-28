@@ -317,6 +317,27 @@ function sourceFromComment(comment) {
     };
 }
 
+/**
+ * Inline review comments (those attached to a diff hunk) come from
+ * `GET /pulls/{pr}/comments` rather than `/pulls/{pr}/reviews` or
+ * `/issues/{pr}/comments`. Cursor Bugbot publishes its findings as inline
+ * review comments with an empty parent review body, so omitting this feed
+ * would let the Anthropic gate auto-approve while blocking inline review
+ * findings sit unread on the PR.
+ */
+function sourceFromInlineReviewComment(comment) {
+    if (!isTrustedAutomationActor(comment.user)) return null;
+    return {
+        type: 'inline_review_comment',
+        author: comment.user.login,
+        submittedAt: comment.created_at,
+        body: comment.body ?? '',
+        path: comment.path ?? null,
+        line: comment.line ?? comment.original_line ?? null,
+        inReplyToId: comment.in_reply_to_id ?? null,
+    };
+}
+
 function matchedCursorSources(run, sources) {
     const agentId = cursorAgentId(run.details_url);
     if (!agentId) return [];
@@ -458,10 +479,11 @@ async function main() {
 
     const currentRunCheckIds = await fetchCurrentWorkflowCheckRunIds(apiRoot, currentRunId, githubToken);
     const checkRuns = await waitForChecksToSettle({ apiRoot, headSha, token: githubToken, currentRunCheckIds });
-    const [{ data: pull }, reviews, comments] = await Promise.all([
+    const [{ data: pull }, reviews, comments, inlineReviewComments] = await Promise.all([
         requestJson(`${apiRoot}/pulls/${prNumber}`, { token: githubToken }),
         requestAllPages(`${apiRoot}/pulls/${prNumber}/reviews?per_page=100`, githubToken, (data) => data ?? []),
         requestAllPages(`${apiRoot}/issues/${prNumber}/comments?per_page=100`, githubToken, (data) => data ?? []),
+        requestAllPages(`${apiRoot}/pulls/${prNumber}/comments?per_page=100`, githubToken, (data) => data ?? []),
     ]);
 
     const latestChecks = latestCheckRunsByName(checkRuns);
@@ -476,7 +498,11 @@ async function main() {
         throw new Error(`Expected Cursor checks to be successful: ${unsuccessfulChecks.map((run) => run.name).join(', ')}`);
     }
 
-    const sources = [...reviews.map(sourceFromReview), ...comments.map(sourceFromComment)].filter(Boolean);
+    const sources = [
+        ...reviews.map(sourceFromReview),
+        ...comments.map(sourceFromComment),
+        ...inlineReviewComments.map(sourceFromInlineReviewComment),
+    ].filter(Boolean);
     const evidence = {
         pullRequest: {
             number: pull.number,
