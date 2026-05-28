@@ -345,16 +345,67 @@ function evidenceForRun(run, sources) {
     };
 }
 
+/**
+ * Yields every substring of `text` that looks like a top-level brace-balanced
+ * `{...}` object. Tracks JSON string literals so that `{` or `}` inside
+ * quoted values do not disturb the depth counter.
+ *
+ * The original `/\{[\s\S]*\}/` regex matched greedily from the first `{` to
+ * the *last* `}`, so a preamble such as `Based on {evidence}...` followed by
+ * the real JSON would parse as invalid and fail the gate. Iterating
+ * candidates lets the caller pick the first one that parses with the
+ * expected shape.
+ */
+function* candidateJsonObjects(text) {
+    if (!text) return;
+    for (let start = text.indexOf('{'); start !== -1; start = text.indexOf('{', start + 1)) {
+        let depth = 0;
+        let inString = false;
+        let escape = false;
+        for (let i = start; i < text.length; i++) {
+            const ch = text[i];
+            if (inString) {
+                if (escape) escape = false;
+                else if (ch === '\\') escape = true;
+                else if (ch === '"') inString = false;
+                continue;
+            }
+            if (ch === '"') {
+                inString = true;
+            } else if (ch === '{') {
+                depth++;
+            } else if (ch === '}') {
+                depth--;
+                if (depth === 0) {
+                    yield text.slice(start, i + 1);
+                    break;
+                }
+            }
+        }
+    }
+}
+
 function parseAnthropicDecision(text) {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) {
+    let lastError = null;
+    let sawCandidate = false;
+    for (const candidate of candidateJsonObjects(text)) {
+        sawCandidate = true;
+        let parsed;
+        try {
+            parsed = JSON.parse(candidate);
+        } catch (err) {
+            lastError = err;
+            continue;
+        }
+        if (typeof parsed.safe_to_merge === 'boolean' && typeof parsed.reason === 'string') {
+            return parsed;
+        }
+        lastError = new Error(`unexpected shape: ${candidate}`);
+    }
+    if (!sawCandidate) {
         throw new Error(`Anthropic response did not contain JSON: ${text}`);
     }
-    const decision = JSON.parse(match[0]);
-    if (typeof decision.safe_to_merge !== 'boolean' || typeof decision.reason !== 'string') {
-        throw new Error(`Anthropic response JSON had an unexpected shape: ${match[0]}`);
-    }
-    return decision;
+    throw new Error(`Anthropic response did not contain a usable decision object (${lastError?.message ?? 'no candidates'}): ${text}`);
 }
 
 async function askAnthropic({ apiKey, model, evidence }) {
