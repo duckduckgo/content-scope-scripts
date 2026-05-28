@@ -144,6 +144,7 @@ describe('WebkitMessagingTransport', () => {
             // as if it were a captured native handler.
             const malicious = jasmine.createSpy('pollutedPostMessage');
             // eslint-disable-next-line no-extend-native -- intentional: simulating page-side prototype pollution
+            // @ts-expect-error - intentional ad-hoc property on Object.prototype to simulate page-side pollution
             Object.prototype.hostilePollutionHandler = malicious;
 
             try {
@@ -152,7 +153,7 @@ describe('WebkitMessagingTransport', () => {
                 );
                 expect(malicious).not.toHaveBeenCalled();
             } finally {
-                // @ts-expect-error - test-only cleanup
+                // @ts-expect-error - test-only cleanup of the ad-hoc property added above
                 delete Object.prototype.hostilePollutionHandler;
             }
         });
