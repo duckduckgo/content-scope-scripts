@@ -2,7 +2,7 @@ import { MessagingContext, WebkitMessagingConfig, WebkitMessagingTransport } fro
 
 /**
  * Sets up a minimal `window.webkit.messageHandlers` fake and returns
- * helpers for inspecting / mutating it during tests. Cleans up on done().
+ * helpers for inspecting / mutating it during tests. Cleans up via env.cleanup().
  */
 function setupWebkit({ handlerNames = ['contentScopeScripts'] } = {}) {
     const originalWindow = /** @type {any} */ (globalThis).window;
@@ -28,22 +28,21 @@ function setupWebkit({ handlerNames = ['contentScopeScripts'] } = {}) {
         nullifyMessageHandlers() {
             /** @type {any} */ (globalThis).window.webkit.messageHandlers = undefined;
         },
-        /** Remove a specific handler (simulates per-handler hiding) */
-        removeHandler(name) {
-            delete (/** @type {any} */ (globalThis).window.webkit.messageHandlers[name]);
-        },
         cleanup() {
             /** @type {any} */ (globalThis).window = originalWindow;
         },
     };
 }
 
-function makeContext() {
-    return new MessagingContext({
-        context: 'contentScopeScripts',
-        featureName: 'webkit-transport-spec',
-        env: 'development',
-    });
+function makeTransport(handlerNames = ['contentScopeScripts']) {
+    return new WebkitMessagingTransport(
+        new WebkitMessagingConfig({ webkitMessageHandlerNames: handlerNames }),
+        new MessagingContext({
+            context: 'contentScopeScripts',
+            featureName: 'webkit-transport-spec',
+            env: 'development',
+        }),
+    );
 }
 
 describe('WebkitMessagingTransport', () => {
@@ -54,146 +53,71 @@ describe('WebkitMessagingTransport', () => {
         env?.cleanup();
     });
 
-    describe('modern WebKit (hasModernWebkitAPI: true)', () => {
-        it('captures handler references at construction and routes wkSend through them', () => {
-            env = setupWebkit({ handlerNames: ['contentScopeScripts'] });
-            const transport = new WebkitMessagingTransport(
-                new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: ['contentScopeScripts'],
-                    secret: '',
-                    hasModernWebkitAPI: true,
-                }),
-                makeContext(),
-            );
+    it('captures handler references at construction and routes wkSend through them', () => {
+        env = setupWebkit();
+        const transport = makeTransport();
 
-            transport.wkSend('contentScopeScripts', { hello: 'world' });
+        transport.wkSend('contentScopeScripts', { hello: 'world' });
 
-            expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({ hello: 'world' });
-        });
-
-        it('does NOT delete the original postMessage on the host handler', () => {
-            env = setupWebkit({ handlerNames: ['contentScopeScripts'] });
-            const transport = new WebkitMessagingTransport(
-                new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: ['contentScopeScripts'],
-                    secret: '',
-                    hasModernWebkitAPI: true,
-                }),
-                makeContext(),
-            );
-            expect(transport).toBeDefined();
-
-            // Modern WebKit must leave the host binding intact for any other code
-            // that reads `window.webkit.messageHandlers.X.postMessage` directly.
-            expect(typeof env.handlers.contentScopeScripts.postMessage).toBe('function');
-        });
-
-        it('continues to work after `window.webkit.messageHandlers` is replaced post-init', () => {
-            env = setupWebkit({ handlerNames: ['contentScopeScripts'] });
-            const transport = new WebkitMessagingTransport(
-                new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: ['contentScopeScripts'],
-                    secret: '',
-                    hasModernWebkitAPI: true,
-                }),
-                makeContext(),
-            );
-
-            // Simulate site-level hardening removing the namespace after the
-            // transport has been constructed (e.g. via apiManipulation defining
-            // a `messageHandlers` getter that returns undefined on the
-            // WebKitNamespace prototype).
-            env.nullifyMessageHandlers();
-
-            // The captured reference should still reach native (the spy on the
-            // original handler object).
-            transport.wkSend('contentScopeScripts', { after: 'nullify' });
-
-            expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({ after: 'nullify' });
-        });
-
-        it('throws MissingHandler when a handler was never registered', () => {
-            env = setupWebkit({ handlerNames: ['contentScopeScripts'] });
-            const transport = new WebkitMessagingTransport(
-                new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: ['contentScopeScripts'],
-                    secret: '',
-                    hasModernWebkitAPI: true,
-                }),
-                makeContext(),
-            );
-
-            expect(() => transport.wkSend('nonExistentHandler', {})).toThrowMatching(
-                (e) => e?.name === 'MissingHandler' || /Missing webkit handler/.test(e?.message ?? ''),
-            );
-        });
-
-        it('ignores Object.prototype pollution when an uncaptured handler is looked up', () => {
-            env = setupWebkit({ handlerNames: ['contentScopeScripts'] });
-            const transport = new WebkitMessagingTransport(
-                new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: ['contentScopeScripts'],
-                    secret: '',
-                    hasModernWebkitAPI: true,
-                }),
-                makeContext(),
-            );
-
-            // Hostile page-scripted prototype pollution that would, with a
-            // plain `{}` cache, resolve via the prototype chain and be invoked
-            // as if it were a captured native handler.
-            const malicious = jasmine.createSpy('pollutedPostMessage');
-            // @ts-expect-error - intentional ad-hoc property on Object.prototype to simulate page-side pollution
-            // eslint-disable-next-line no-extend-native -- intentional: simulating page-side prototype pollution
-            Object.prototype.hostilePollutionHandler = malicious;
-
-            try {
-                expect(() => transport.wkSend('hostilePollutionHandler', { secret: 'data' })).toThrowMatching(
-                    (e) => e?.name === 'MissingHandler' || /Missing webkit handler/.test(e?.message ?? ''),
-                );
-                expect(malicious).not.toHaveBeenCalled();
-            } finally {
-                // @ts-expect-error - test-only cleanup of the ad-hoc property added above
-                delete Object.prototype.hostilePollutionHandler;
-            }
-        });
+        expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({ hello: 'world' });
     });
 
-    describe('legacy WebKit (hasModernWebkitAPI: false)', () => {
-        it('captures handler references and deletes the original postMessage', () => {
-            env = setupWebkit({ handlerNames: ['contentScopeScripts'] });
-            const transport = new WebkitMessagingTransport(
-                new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: ['contentScopeScripts'],
-                    secret: 'shh',
-                    hasModernWebkitAPI: false,
-                }),
-                makeContext(),
+    it('leaves the original `postMessage` on the host handler in place', () => {
+        env = setupWebkit();
+        const transport = makeTransport();
+        expect(transport).toBeDefined();
+
+        // Other code that reads `window.webkit.messageHandlers.X.postMessage` directly
+        // must continue to see the host binding's normal shape.
+        expect(typeof env.handlers.contentScopeScripts.postMessage).toBe('function');
+    });
+
+    it('continues to work after `window.webkit.messageHandlers` is replaced post-init', () => {
+        env = setupWebkit();
+        const transport = makeTransport();
+
+        // Simulate site-level hardening removing the namespace after the
+        // transport has been constructed (e.g. via apiManipulation defining
+        // a `messageHandlers` getter that returns undefined on the
+        // WebKitNamespace prototype).
+        env.nullifyMessageHandlers();
+
+        // The captured reference should still reach native (the spy on the
+        // original handler object).
+        transport.wkSend('contentScopeScripts', { after: 'nullify' });
+
+        expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({ after: 'nullify' });
+    });
+
+    it('throws MissingHandler when a handler was never registered', () => {
+        env = setupWebkit();
+        const transport = makeTransport();
+
+        expect(() => transport.wkSend('nonExistentHandler', {})).toThrowMatching(
+            (e) => e?.name === 'MissingHandler' || /Missing webkit handler/.test(e?.message ?? ''),
+        );
+    });
+
+    it('ignores Object.prototype pollution when an uncaptured handler is looked up', () => {
+        env = setupWebkit();
+        const transport = makeTransport();
+
+        // Hostile page-scripted prototype pollution that would, with a
+        // plain `{}` cache, resolve via the prototype chain and be invoked
+        // as if it were a captured native handler.
+        const malicious = jasmine.createSpy('pollutedPostMessage');
+        // @ts-expect-error - intentional ad-hoc property on Object.prototype to simulate page-side pollution
+        // eslint-disable-next-line no-extend-native -- intentional: simulating page-side prototype pollution
+        Object.prototype.hostilePollutionHandler = malicious;
+
+        try {
+            expect(() => transport.wkSend('hostilePollutionHandler', { secret: 'data' })).toThrowMatching(
+                (e) => e?.name === 'MissingHandler' || /Missing webkit handler/.test(e?.message ?? ''),
             );
-            expect(transport).toBeDefined();
-
-            // Legacy macOS behaviour: original postMessage is removed so page JS
-            // cannot invoke the handler directly without the secure envelope.
-            expect(env.handlers.contentScopeScripts.postMessage).toBeUndefined();
-        });
-
-        it('adds the secure messaging envelope (secret) to outgoing payloads', () => {
-            env = setupWebkit({ handlerNames: ['contentScopeScripts'] });
-            const transport = new WebkitMessagingTransport(
-                new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: ['contentScopeScripts'],
-                    secret: 'shh',
-                    hasModernWebkitAPI: false,
-                }),
-                makeContext(),
-            );
-
-            transport.wkSend('contentScopeScripts', { hello: 'world' });
-
-            expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({
-                hello: 'world',
-                messageHandling: { secret: 'shh' },
-            });
-        });
+            expect(malicious).not.toHaveBeenCalled();
+        } finally {
+            // @ts-expect-error - test-only cleanup of the ad-hoc property added above
+            delete Object.prototype.hostilePollutionHandler;
+        }
     });
 });

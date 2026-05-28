@@ -1,75 +1,23 @@
 /**
  *
- * A wrapper for messaging on WebKit platforms. It supports modern WebKit messageHandlers
- * along with encryption for older versions (like macOS Catalina)
- *
- * Note: If you wish to support Catalina then you'll need to implement the native
- * part of the message handling, see {@link WebkitMessagingTransport} for details.
+ * A wrapper for messaging on WebKit platforms (iOS, macOS 11+).
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MessagingTransport, MissingHandler } from '../index.js';
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
 import { ensureNavigatorDuckDuckGo } from '../../injected/src/navigator-global.js';
-import {
-    TextDecoder as _TextDecoder,
-    Uint8Array as _Uint8Array,
-    Uint32Array as _Uint32Array,
-    JSONparse,
-    Arrayfrom,
-    Promise as _Promise,
-    Error as _Error,
-    ReflectDeleteProperty,
-    objectDefineProperty,
-    getRandomValues,
-    generateKey,
-    exportKey,
-    importKey,
-    decrypt,
-} from '../../injected/src/captured-globals.js';
+import { JSONparse, Error as _Error, ReflectDeleteProperty, objectDefineProperty } from '../../injected/src/captured-globals.js';
 
 /**
  * @example
- * On macOS 11+, this will just call through to `window.webkit.messageHandlers.x.postMessage`
+ * Calls through to `window.webkit.messageHandlers.x.postMessage`.
  *
- * Eg: for a `foo` message defined in Swift that accepted the payload `{"bar": "baz"}`, the following
- * would occur:
+ * For a `foo` message defined in Swift that accepted the payload `{"bar": "baz"}`,
+ * the following would occur:
  *
  * ```js
  * const json = await window.webkit.messageHandlers.foo.postMessage({ bar: "baz" });
  * const response = JSON.parse(json)
- * ```
- *
- * @example
- * On macOS 10 however, the process is a little more involved. A method will be appended to
- * `navigator.duckduckgo.messageHandlers` that allows the response to be delivered there instead.
- * It's not exactly this, but you can visualize the flow as being something along the lines of:
- *
- * ```js
- * // add the callback method to navigator.duckduckgo.messageHandlers
- * navigator.duckduckgo.messageHandlers["_0123456"] = (response) => {
- *    // decrypt `response` and deliver the result to the caller here
- *    // then remove the temporary method
- *    delete navigator.duckduckgo.messageHandlers['_0123456']
- * };
- *
- * // send the data + `messageHanding` values
- * window.webkit.messageHandlers.foo.postMessage({
- *   bar: "baz",
- *   messagingHandling: {
- *     methodName: "_0123456",
- *     secret: "super-secret",
- *     key: [1, 2, 45, 2],
- *     iv: [34, 4, 43],
- *   }
- * });
- *
- * // later in swift, the following JavaScript snippet will be executed
- * (() => {
- *   navigator.duckduckgo.messageHandlers['_0123456']({
- *     ciphertext: [12, 13, 4],
- *     tag: [3, 5, 67, 56]
- *   })
- * })()
  * ```
  * @implements {MessagingTransport}
  */
@@ -111,16 +59,6 @@ export class WebkitMessagingTransport {
         if (typeof captured !== 'function') {
             throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
         }
-        if (!this.config.hasModernWebkitAPI) {
-            const outgoing = {
-                ...data,
-                messageHandling: {
-                    ...data.messageHandling,
-                    secret: this.config.secret,
-                },
-            };
-            return captured(outgoing);
-        }
         return captured(data);
     }
 
@@ -132,46 +70,8 @@ export class WebkitMessagingTransport {
      * @internal
      */
     async wkSendAndWait(handler, data) {
-        if (this.config.hasModernWebkitAPI) {
-            const response = await this.wkSend(handler, data);
-            return JSONparse(response || '{}');
-        }
-
-        try {
-            const randMethodName = this.createRandMethodName();
-            const key = await this.createRandKey();
-            const iv = this.createRandIv();
-
-            const { ciphertext, tag } = await new _Promise((/** @type {any} */ resolve) => {
-                this.generateRandomMethod(randMethodName, resolve);
-
-                // @ts-expect-error - this is a carve-out for catalina that will be removed soon
-                data.messageHandling = new SecureMessagingParams({
-                    methodName: randMethodName,
-                    secret: this.config.secret,
-                    key: Arrayfrom(key),
-                    iv: Arrayfrom(iv),
-                });
-                this.wkSend(handler, data);
-            });
-
-            const cipher = new _Uint8Array([...ciphertext, ...tag]);
-            const decrypted = await this.decryptResponse(
-                /** @type {BufferSource} */ (/** @type {unknown} */ (cipher)),
-                /** @type {BufferSource} */ (/** @type {unknown} */ (key)),
-                iv,
-            );
-            return JSONparse(decrypted || '{}');
-        } catch (e) {
-            // re-throw when the error is just a 'MissingHandler'
-            if (e instanceof MissingHandler) {
-                throw e;
-            } else {
-                console.error('decryption failed', e);
-                console.error(e);
-                return { error: e };
-            }
-        }
+        const response = await this.wkSend(handler, data);
+        return JSONparse(response || '{}');
     }
 
     /**
@@ -202,92 +102,6 @@ export class WebkitMessagingTransport {
     }
 
     /**
-     * Generate a random method name and adds it to navigator.duckduckgo.messageHandlers
-     * The native layer will use this method to send the response
-     * @param {string | number} randomMethodName
-     * @param {Function} callback
-     * @internal
-     */
-    generateRandomMethod(randomMethodName, callback) {
-        const target = ensureNavigatorDuckDuckGo().messageHandlers;
-        objectDefineProperty(target, randomMethodName, {
-            enumerable: false,
-            configurable: true,
-            writable: false,
-            /**
-             * @param {any[]} args
-             */
-            value: (...args) => {
-                callback(...args);
-                ReflectDeleteProperty(target, randomMethodName);
-            },
-        });
-    }
-
-    /**
-     * @internal
-     * @return {string}
-     */
-    randomString() {
-        return '' + getRandomValues(new _Uint32Array(1))[0];
-    }
-
-    /**
-     * @internal
-     * @return {string}
-     */
-    createRandMethodName() {
-        return '_' + this.randomString();
-    }
-
-    /**
-     * @type {{name: string, length: number}}
-     * @internal
-     */
-    algoObj = {
-        name: 'AES-GCM',
-        length: 256,
-    };
-
-    /**
-     * @returns {Promise<Uint8Array>}
-     * @internal
-     */
-    async createRandKey() {
-        const key = await generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
-        const exportedKey = await exportKey('raw', key);
-        return new _Uint8Array(exportedKey);
-    }
-
-    /**
-     * @returns {Uint8Array}
-     * @internal
-     */
-    createRandIv() {
-        return getRandomValues(new _Uint8Array(12));
-    }
-
-    /**
-     * @param {BufferSource} ciphertext
-     * @param {BufferSource} key
-     * @param {Uint8Array} iv
-     * @returns {Promise<string>}
-     * @internal
-     */
-    async decryptResponse(ciphertext, key, iv) {
-        const cryptoKey = await importKey('raw', key, 'AES-GCM', false, ['decrypt']);
-        const algo = {
-            name: 'AES-GCM',
-            iv,
-        };
-
-        const decrypted = await decrypt(algo, cryptoKey, ciphertext);
-
-        const dec = new _TextDecoder();
-        return dec.decode(decrypted);
-    }
-
-    /**
      * Capture the `postMessage` method on each webkit messageHandler so the
      * transport can call them later without re-reading `window.webkit.messageHandlers`.
      * Makes the transport resilient to later removal or replacement of
@@ -308,9 +122,6 @@ export class WebkitMessagingTransport {
                 const original = handlers[webkitMessageHandlerName];
                 const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
                 this.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
-                if (!this.config.hasModernWebkitAPI) {
-                    delete handlers[webkitMessageHandlerName].postMessage;
-                }
             }
         }
     }
@@ -344,8 +155,7 @@ export class WebkitMessagingTransport {
 
 /**
  * Use this configuration to create an instance of {@link Messaging} for WebKit platforms
- *
- * We support modern WebKit environments *and* macOS Catalina.
+ * (iOS, macOS 11+).
  *
  * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
  *
@@ -354,17 +164,10 @@ export class WebkitMessagingTransport {
 export class WebkitMessagingConfig {
     /**
      * @param {object} params
-     * @param {boolean} params.hasModernWebkitAPI
      * @param {string[]} params.webkitMessageHandlerNames
-     * @param {string} params.secret
      * @internal
      */
     constructor(params) {
-        /**
-         * Whether or not the current WebKit Platform supports secure messaging
-         * by default (eg: macOS 11+)
-         */
-        this.hasModernWebkitAPI = params.hasModernWebkitAPI;
         /**
          * A list of WebKit message handler names that a user script can send.
          *
@@ -381,42 +184,5 @@ export class WebkitMessagingConfig {
          * ```
          */
         this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
-        /**
-         * A string provided by native platforms to be sent with future outgoing
-         * messages.
-         */
-        this.secret = params.secret;
-    }
-}
-
-/**
- * This is the additional payload that gets appended to outgoing messages.
- * It's used in the Swift side to encrypt the response that comes back
- */
-export class SecureMessagingParams {
-    /**
-     * @param {object} params
-     * @param {string} params.methodName
-     * @param {string} params.secret
-     * @param {number[]} params.key
-     * @param {number[]} params.iv
-     */
-    constructor(params) {
-        /**
-         * The method that's been appended to `navigator.duckduckgo.messageHandlers` to be called later
-         */
-        this.methodName = params.methodName;
-        /**
-         * The secret used to ensure message sender validity
-         */
-        this.secret = params.secret;
-        /**
-         * The CipherKey as number[]
-         */
-        this.key = params.key;
-        /**
-         * The Initial Vector as number[]
-         */
-        this.iv = params.iv;
     }
 }
