@@ -79,6 +79,7 @@ export function omnibarMockTransport() {
                         shortName: 'Haiku 4.5',
                         isEnabled: true,
                         supportsImageUpload: true,
+                        supportedFileTypes: ['application/pdf'],
                         supportedTools: ['WebSearch'],
                         supportedReasoningEffort: ['none', 'low'],
                     },
@@ -126,6 +127,7 @@ export function omnibarMockTransport() {
                         shortName: 'Sonnet 4.5',
                         isEnabled: false,
                         supportsImageUpload: true,
+                        supportedFileTypes: ['application/pdf'],
                         supportedTools: ['WebSearch'],
                         supportedReasoningEffort: ['none', 'low'],
                     },
@@ -161,6 +163,7 @@ export function omnibarMockTransport() {
         enableVoiceChatAccess: false,
         enableAskAiSuggestion: true,
         enableAttachTabs: false,
+        enableAttachFiles: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -231,6 +234,7 @@ export function omnibarMockTransport() {
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
+                    config.enableAttachFiles = parseBooleanQueryParam('omnibar.enableAttachFiles') ?? config.enableAttachFiles;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {

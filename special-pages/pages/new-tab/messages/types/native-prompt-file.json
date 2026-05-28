@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Native Prompt File",
+  "description": "File attached to a Duck.ai prompt. Shape mirrors Duck.ai's existing `NativePromptFile` input so native forwards entries unchanged. NTP encodes the file in the browser (`FileReader.readAsDataURL` → base64) and includes it on `omnibar_submitChat`.",
+  "type": "object",
+  "required": ["data", "fileName", "mimeType"],
+  "additionalProperties": false,
+  "properties": {
+    "data": {
+      "description": "Base64-encoded file bytes, without the `data:` URL prefix.",
+      "type": "string"
+    },
+    "fileName": {
+      "description": "Original filename, used for chip display in the omnibar and forwarded to Duck.ai.",
+      "type": "string"
+    },
+    "mimeType": {
+      "description": "MIME type of the file. v1: NTP only sends `application/pdf`. The field is left as an open string (not an enum) to match Duck.ai's input shape and to let additional types be added later without a schema change.",
+      "type": "string"
+    }
+  }
+}
