@@ -12,6 +12,22 @@ import { Button } from '../../../../shared/components/Button/Button';
 import styles from './Warning.module.css';
 
 /**
+ * @param {import("../../types/special-error.js").InitialSetupResponse['platform']['name']} platformName
+ * @returns {import('../../../../shared/components/Button/Button').ButtonProps['variant']}
+ */
+function getPrimaryActionButtonVariant(platformName) {
+    switch (platformName) {
+        case 'ios':
+        case 'android':
+            return 'primary';
+        case 'windows':
+            return 'accentBrand';
+        default:
+            return 'accent';
+    }
+}
+
+/**
  * @param {object} props
  * @param {import('preact').JSX.MouseEventHandler<EventTarget>} props.onClick
  */
@@ -31,20 +47,7 @@ export function LeaveSiteButton() {
     const { t } = useTypedTranslation();
     const { messaging } = useMessaging();
     const platformName = usePlatformName();
-
-    /** @type {import('../../../../shared/components/Button/Button').ButtonProps['variant']} */
-    let buttonVariant;
-    switch (platformName) {
-        case 'ios':
-        case 'android':
-            buttonVariant = 'primary';
-            break;
-        case 'windows':
-            buttonVariant = 'accentBrand';
-            break;
-        default:
-            buttonVariant = 'accent';
-    }
+    const buttonVariant = getPrimaryActionButtonVariant(platformName);
 
     return (
         <Button variant={buttonVariant} className={classNames(styles.button, styles.leaveSite)} onClick={() => messaging?.leaveSite()}>
@@ -59,20 +62,7 @@ export function VisitSiteButton() {
     const { kind } = useErrorData();
     const platformName = usePlatformName();
     const generalPageProblemButtonText = useGeneralPageProblemButtonText();
-
-    /** @type {import('../../../../shared/components/Button/Button').ButtonProps['variant']} */
-    let buttonVariant;
-    switch (platformName) {
-        case 'ios':
-        case 'android':
-            buttonVariant = 'primary';
-            break;
-        case 'windows':
-            buttonVariant = 'accentBrand';
-            break;
-        default:
-            buttonVariant = 'accent';
-    }
+    const buttonVariant = getPrimaryActionButtonVariant(platformName);
 
     const title = kind === 'generalPageProblem' ? generalPageProblemButtonText : t('visitSiteButton');
     return (
