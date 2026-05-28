@@ -127,6 +127,35 @@ describe('WebkitMessagingTransport', () => {
                 (e) => e?.name === 'MissingHandler' || /Missing webkit handler/.test(e?.message ?? ''),
             );
         });
+
+        it('ignores Object.prototype pollution when an uncaptured handler is looked up', () => {
+            env = setupWebkit({ handlerNames: ['contentScopeScripts'] });
+            const transport = new WebkitMessagingTransport(
+                new WebkitMessagingConfig({
+                    webkitMessageHandlerNames: ['contentScopeScripts'],
+                    secret: '',
+                    hasModernWebkitAPI: true,
+                }),
+                makeContext(),
+            );
+
+            // Hostile page-scripted prototype pollution that would, with a
+            // plain `{}` cache, resolve via the prototype chain and be invoked
+            // as if it were a captured native handler.
+            const malicious = jasmine.createSpy('pollutedPostMessage');
+            // eslint-disable-next-line no-extend-native -- intentional: simulating page-side prototype pollution
+            Object.prototype.hostilePollutionHandler = malicious;
+
+            try {
+                expect(() => transport.wkSend('hostilePollutionHandler', { secret: 'data' })).toThrowMatching(
+                    (e) => e?.name === 'MissingHandler' || /Missing webkit handler/.test(e?.message ?? ''),
+                );
+                expect(malicious).not.toHaveBeenCalled();
+            } finally {
+                // @ts-expect-error - test-only cleanup
+                delete Object.prototype.hostilePollutionHandler;
+            }
+        });
     });
 
     describe('legacy WebKit (hasModernWebkitAPI: false)', () => {

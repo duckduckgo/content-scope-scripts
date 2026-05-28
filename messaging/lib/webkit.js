@@ -74,8 +74,12 @@ import {
  * @implements {MessagingTransport}
  */
 export class WebkitMessagingTransport {
-    /** @type {Record<string, any>} */
-    capturedWebkitHandlers = {};
+    /**
+     * Null-prototype cache so a hostile page that pollutes `Object.prototype`
+     * cannot supply a callable from there if `capture` ever misses a handler.
+     * @type {Record<string, any>}
+     */
+    capturedWebkitHandlers = Object.create(null);
 
     /**
      * @param {WebkitMessagingConfig} config
@@ -286,16 +290,9 @@ export class WebkitMessagingTransport {
     /**
      * Capture the `postMessage` method on each webkit messageHandler so the
      * transport can call them later without re-reading `window.webkit.messageHandlers`.
-     *
-     * Used on both modern and legacy WebKit:
-     * - **Legacy (macOS Catalina, < 11)**: capture is required for the secure
-     *   messaging protocol, and the original `postMessage` is deleted to prevent
-     *   page-script JS from invoking it directly without the encrypted envelope.
-     * - **Modern**: capture makes the transport resilient to later removal or
-     *   replacement of `window.webkit.messageHandlers` by privacy hardening
-     *   (e.g. apiManipulation-driven nullification to reduce fingerprinting
-     *   surface). The original is left in place so callers reading directly
-     *   from the namespace continue to see the host binding's normal shape.
+     * Makes the transport resilient to later removal or replacement of
+     * `window.webkit.messageHandlers` (e.g. by privacy hardening that nullifies
+     * the namespace for site JS to reduce fingerprinting surface).
      *
      * @param {string[]} handlerNames
      */
