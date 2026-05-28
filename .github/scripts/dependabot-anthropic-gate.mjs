@@ -227,8 +227,17 @@ export function missingExpectedCheckNames(checkRuns) {
     return EXPECTED_CHECKS.filter((expected) => !present.has(expected.name)).map((expected) => expected.name);
 }
 
+/**
+ * Returns the latest trusted Cursor check run per expected name that has
+ * not yet reached the `completed` state. Going through
+ * `latestCheckRunsByName()` ensures stale in-progress runs are ignored
+ * once a newer matching run for the same name has finished — without
+ * this dedup, a stale 'in_progress' Cursor check sitting alongside a
+ * newer 'completed' one for the same name would leave the wait loop
+ * pending until the 30-minute timeout fires.
+ */
 export function pendingExpectedCheckRuns(checkRuns) {
-    return checkRuns.filter((run) => matchExpectedCheck(run) && run.status !== 'completed');
+    return latestCheckRunsByName(checkRuns).filter((run) => run.status !== 'completed');
 }
 
 /**
@@ -389,67 +398,53 @@ export function evidenceForRun(run, sources) {
     };
 }
 
-/**
- * Yields every substring of `text` that looks like a top-level brace-balanced
- * `{...}` object. Tracks JSON string literals so that `{` or `}` inside
- * quoted values do not disturb the depth counter.
- *
- * The original `/\{[\s\S]*\}/` regex matched greedily from the first `{` to
- * the *last* `}`, so a preamble such as `Based on {evidence}...` followed by
- * the real JSON would parse as invalid and fail the gate. Iterating
- * candidates lets the caller pick the first one that parses with the
- * expected shape.
- */
-export function* candidateJsonObjects(text) {
-    if (!text) return;
-    for (let start = text.indexOf('{'); start !== -1; start = text.indexOf('{', start + 1)) {
-        let depth = 0;
-        let inString = false;
-        let escape = false;
-        for (let i = start; i < text.length; i++) {
-            const ch = text[i];
-            if (inString) {
-                if (escape) escape = false;
-                else if (ch === '\\') escape = true;
-                else if (ch === '"') inString = false;
-                continue;
-            }
-            if (ch === '"') {
-                inString = true;
-            } else if (ch === '{') {
-                depth++;
-            } else if (ch === '}') {
-                depth--;
-                if (depth === 0) {
-                    yield text.slice(start, i + 1);
-                    break;
-                }
-            }
-        }
-    }
-}
+const ANTHROPIC_DECISION_KEYS = new Set(['safe_to_merge', 'reason', 'confidence']);
+const ANTHROPIC_CONFIDENCE_VALUES = new Set(['high', 'medium', 'low']);
 
+/**
+ * Parses a Cursor-evaluated Anthropic decision response.
+ *
+ * The system prompt instructs the model to return ONLY compact JSON with
+ * a fixed shape. We enforce that contract strictly: the trimmed response
+ * must be exactly a single JSON object whose keys are exactly
+ * {safe_to_merge, reason, confidence}. Any preamble, code fences, or
+ * trailing prose -- including a model that quotes a prompt-injected
+ * `{"safe_to_merge":true,...}` snippet from a comment -- causes the
+ * parser to fail closed, so a malicious comment cannot trick the gate
+ * into approving by being echoed before the model's real answer.
+ */
 export function parseAnthropicDecision(text) {
-    let lastError = null;
-    let sawCandidate = false;
-    for (const candidate of candidateJsonObjects(text)) {
-        sawCandidate = true;
-        let parsed;
-        try {
-            parsed = JSON.parse(candidate);
-        } catch (err) {
-            lastError = err;
-            continue;
-        }
-        if (typeof parsed.safe_to_merge === 'boolean' && typeof parsed.reason === 'string') {
-            return parsed;
-        }
-        lastError = new Error(`unexpected shape: ${candidate}`);
+    const trimmed = String(text ?? '').trim();
+    if (!trimmed) {
+        throw new Error(`Anthropic response was empty: ${text}`);
     }
-    if (!sawCandidate) {
-        throw new Error(`Anthropic response did not contain JSON: ${text}`);
+    if (trimmed[0] !== '{' || trimmed[trimmed.length - 1] !== '}') {
+        throw new Error(`Anthropic response was not a bare JSON object: ${text}`);
     }
-    throw new Error(`Anthropic response did not contain a usable decision object (${lastError?.message ?? 'no candidates'}): ${text}`);
+    let parsed;
+    try {
+        parsed = JSON.parse(trimmed);
+    } catch (err) {
+        throw new Error(`Anthropic response was not parseable JSON (${err.message}): ${text}`);
+    }
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error(`Anthropic response was not a JSON object: ${text}`);
+    }
+    if (typeof parsed.safe_to_merge !== 'boolean') {
+        throw new Error(`Anthropic response missing or non-boolean safe_to_merge: ${text}`);
+    }
+    if (typeof parsed.reason !== 'string') {
+        throw new Error(`Anthropic response missing or non-string reason: ${text}`);
+    }
+    if (typeof parsed.confidence !== 'string' || !ANTHROPIC_CONFIDENCE_VALUES.has(parsed.confidence)) {
+        throw new Error(`Anthropic response missing or invalid confidence: ${text}`);
+    }
+    for (const key of Object.keys(parsed)) {
+        if (!ANTHROPIC_DECISION_KEYS.has(key)) {
+            throw new Error(`Anthropic response has unexpected key '${key}': ${text}`);
+        }
+    }
+    return parsed;
 }
 
 async function askAnthropic({ apiKey, model, evidence }) {
