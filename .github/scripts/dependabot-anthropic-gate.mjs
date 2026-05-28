@@ -17,8 +17,8 @@ const EXPECTED_CHECKS = [
 ];
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BODY_CHARS = 12000;
-const OTHER_CHECK_TIMEOUT_MS = 30 * 60 * 1000;
-const OTHER_CHECK_POLL_INTERVAL_MS = 30 * 1000;
+const CHECK_WAIT_TIMEOUT_MS = 30 * 60 * 1000;
+const CHECK_WAIT_POLL_INTERVAL_MS = 30 * 1000;
 const PASSING_CHECK_CONCLUSIONS = new Set(['success', 'skipped', 'neutral']);
 // Only reviews / issue comments authored by these GitHub App bots are eligible
 // to be matched as Cursor-authored evidence. Everything else (including human
@@ -216,8 +216,35 @@ function describeCommitStatus(status) {
     return `${status.context} (${status.state})`;
 }
 
-async function waitForOtherChecksToPass({ apiRoot, headSha, token, currentRunCheckIds }) {
-    const deadline = Date.now() + OTHER_CHECK_TIMEOUT_MS;
+/**
+ * Names of EXPECTED_CHECKS that have not yet appeared as a matching check run
+ * on the head SHA. Used so the wait loop blocks until Cursor has actually
+ * registered each expected check run, not just until other checks are idle.
+ */
+function missingExpectedCheckNames(checkRuns) {
+    const present = new Set(checkRuns.filter((run) => matchExpectedCheck(run)).map((run) => run.name));
+    return EXPECTED_CHECKS.filter((expected) => !present.has(expected.name)).map((expected) => expected.name);
+}
+
+function pendingExpectedCheckRuns(checkRuns) {
+    return checkRuns.filter((run) => matchExpectedCheck(run) && run.status !== 'completed');
+}
+
+/**
+ * Waits until:
+ *   - every non-current check run on the head SHA is completed and passing,
+ *   - every commit status is non-pending and not failed, and
+ *   - every EXPECTED_CHECKS entry has appeared as a trusted check run and
+ *     reached `completed` state.
+ *
+ * Throws on the first failed non-gate check or when the deadline expires.
+ *
+ * Folding this wait into the gate script (instead of the workflow YAML) keeps
+ * the `pull_request_target` job from passing GITHUB_TOKEN to a third-party
+ * action pinned only by mutable tag.
+ */
+async function waitForChecksToSettle({ apiRoot, headSha, token, currentRunCheckIds }) {
+    const deadline = Date.now() + CHECK_WAIT_TIMEOUT_MS;
     while (true) {
         const [checkRuns, statuses] = await Promise.all([
             fetchCheckRuns(apiRoot, headSha, token),
@@ -228,21 +255,29 @@ async function waitForOtherChecksToPass({ apiRoot, headSha, token, currentRunChe
 
         if (checkRunStatus.failed.length > 0 || commitStatus.failed.length > 0) {
             const failed = [...checkRunStatus.failed.map(describeCheckRun), ...commitStatus.failed.map(describeCommitStatus)].join(', ');
-            throw new Error(`Non-Cursor checks failed; not asking Anthropic: ${failed}`);
+            throw new Error(`Non-gate checks failed; not asking Anthropic: ${failed}`);
         }
 
-        if (checkRunStatus.pending.length === 0 && commitStatus.pending.length === 0) {
+        const missingCursor = missingExpectedCheckNames(checkRuns);
+        const pendingCursor = pendingExpectedCheckRuns(checkRuns);
+        const otherIdle = checkRunStatus.pending.length === 0 && commitStatus.pending.length === 0;
+        if (otherIdle && missingCursor.length === 0 && pendingCursor.length === 0) {
             return checkRuns;
         }
 
+        const pendingDesc = [
+            ...checkRunStatus.pending.map(describeCheckRun),
+            ...commitStatus.pending.map(describeCommitStatus),
+            ...pendingCursor.map(describeCheckRun),
+            ...missingCursor.map((name) => `${name} (missing)`),
+        ].join(', ');
+
         if (Date.now() >= deadline) {
-            const pending = [...checkRunStatus.pending.map(describeCheckRun), ...commitStatus.pending.map(describeCommitStatus)].join(', ');
-            throw new Error(`Timed out waiting for non-Cursor checks before asking Anthropic: ${pending}`);
+            throw new Error(`Timed out waiting for checks before asking Anthropic: ${pendingDesc}`);
         }
 
-        const pending = [...checkRunStatus.pending.map(describeCheckRun), ...commitStatus.pending.map(describeCommitStatus)].join(', ');
-        console.log(`Waiting for non-Cursor checks before asking Anthropic: ${pending}`);
-        await sleep(OTHER_CHECK_POLL_INTERVAL_MS);
+        console.log(`Waiting for checks before asking Anthropic: ${pendingDesc}`);
+        await sleep(CHECK_WAIT_POLL_INTERVAL_MS);
     }
 }
 
@@ -371,7 +406,7 @@ async function main() {
     const apiRoot = `https://api.github.com/repos/${owner}/${repo}`;
 
     const currentRunCheckIds = await fetchCurrentWorkflowCheckRunIds(apiRoot, currentRunId, githubToken);
-    const checkRuns = await waitForOtherChecksToPass({ apiRoot, headSha, token: githubToken, currentRunCheckIds });
+    const checkRuns = await waitForChecksToSettle({ apiRoot, headSha, token: githubToken, currentRunCheckIds });
     const [{ data: pull }, reviews, comments] = await Promise.all([
         requestJson(`${apiRoot}/pulls/${prNumber}`, { token: githubToken }),
         requestAllPages(`${apiRoot}/pulls/${prNumber}/reviews?per_page=100`, githubToken, (data) => data ?? []),

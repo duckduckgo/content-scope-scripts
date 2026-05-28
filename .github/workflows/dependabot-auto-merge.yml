@@ -40,47 +40,15 @@ jobs:
                     echo "is_npm=false" >> "$GITHUB_OUTPUT"
                   fi
 
-            - name: Wait for Cursor Bugbot
-              if: steps.classify.outputs.is_npm == 'true'
-              uses: fountainhead/action-wait-for-check@v1.2.0
-              id: wait_cursor_bugbot
-              with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  checkName: Cursor Bugbot
-                  ref: ${{ github.event.pull_request.head.sha }}
-                  timeoutSeconds: 1800
-
-            - name: Wait for Cursor Dependabot review
-              if: steps.classify.outputs.is_npm == 'true'
-              uses: fountainhead/action-wait-for-check@v1.2.0
-              id: wait_cursor_dependabot
-              with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  checkName: 'Cursor Automation: Review dependabot'
-                  ref: ${{ github.event.pull_request.head.sha }}
-                  timeoutSeconds: 1800
-
-            - name: Wait for Cursor web compat and security review
-              if: steps.classify.outputs.is_npm == 'true'
-              uses: fountainhead/action-wait-for-check@v1.2.0
-              id: wait_cursor_web_compat
-              with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  checkName: 'Cursor Automation: Web compat and sec'
-                  ref: ${{ github.event.pull_request.head.sha }}
-                  timeoutSeconds: 1800
-
-            - name: Validate Cursor checks
-              if: |
-                  steps.classify.outputs.is_npm == 'true' &&
-                  steps.wait_cursor_bugbot.outputs.conclusion == 'success' &&
-                  steps.wait_cursor_dependabot.outputs.conclusion == 'success' &&
-                  steps.wait_cursor_web_compat.outputs.conclusion == 'success'
-              id: cursor_gate
-              run: echo "passed=true" >> "$GITHUB_OUTPUT"
-
+            # The gate script (checked in on the base branch via the sparse
+            # checkout above) handles waiting for all other check runs and
+            # commit statuses on the head SHA — including the three Cursor
+            # checks — and refuses to ask Anthropic unless every expected
+            # Cursor check completed successfully. Folding the wait inline
+            # avoids passing GITHUB_TOKEN to a mutable third-party action on
+            # this pull_request_target workflow.
             - name: Ask Anthropic to assess Cursor results
-              if: steps.cursor_gate.outputs.passed == 'true'
+              if: steps.classify.outputs.is_npm == 'true'
               id: anthropic_gate
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
