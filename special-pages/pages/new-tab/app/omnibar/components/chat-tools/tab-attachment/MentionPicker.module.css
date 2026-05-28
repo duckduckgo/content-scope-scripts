@@ -1,0 +1,113 @@
+.panel {
+    background: var(--ds-color-theme-surface-tertiary);
+    border-radius: 12px;
+    box-shadow:
+        0 1px 4px 0 rgba(0, 0, 0, 0.1),
+        0 10px 24px 0 rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    min-width: 280px;
+    max-width: 360px;
+    overflow: hidden;
+    padding: var(--sp-1);
+
+    [data-theme="dark"] & {
+        background: rgba(40, 40, 40, 0.98);
+        box-shadow:
+            0 0 0 0.5px var(--color-white-at-15),
+            0 10px 24px var(--color-black-at-40);
+    }
+}
+
+.header {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    padding: var(--sp-2) var(--sp-2) var(--sp-1);
+}
+
+.headerTitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    list-style: none;
+    margin: 0;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.row {
+    align-items: center;
+    border-radius: 6px;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 14px;
+    gap: var(--sp-2);
+    line-height: 20px;
+    padding: var(--sp-1) var(--sp-2);
+}
+
+.rowActive {
+    background: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-content-primary);
+}
+
+.rowAttached {
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.rowActive.rowAttached {
+    color: var(--ds-color-theme-accent-content-primary);
+}
+
+.favicon {
+    border-radius: 4px;
+    flex: none;
+    height: 20px;
+    object-fit: cover;
+    width: 20px;
+}
+
+.faviconFallback {
+    align-items: center;
+    border-radius: 4px;
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    flex: none;
+    height: 20px;
+    justify-content: center;
+    width: 20px;
+}
+
+.rowActive .faviconFallback {
+    color: var(--ds-color-theme-accent-content-primary);
+}
+
+.rowTitle {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.attachedMark {
+    flex: none;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.statusMessage {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 13px;
+    margin: 0;
+    padding: var(--sp-2) var(--sp-3) var(--sp-3);
+}
