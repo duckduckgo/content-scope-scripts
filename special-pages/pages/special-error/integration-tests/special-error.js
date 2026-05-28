@@ -347,9 +347,9 @@ export class SpecialErrorPage {
     async showsSafariRedirectLoopPage() {
         const { page } = this;
 
-        await this.showsPageTitle('This site only loads in Safari ');
+        await this.showsPageTitle('This site only loads in Safari');
 
-        await expect(page.getByText('This site only loads in Safari ', { exact: true })).toBeVisible();
+        await expect(page.getByText('This site only loads in Safari', { exact: true })).toBeVisible();
         await expect(
             page.getByText("We tried to load it privately, but it won't display.", { exact: true }),
         ).toBeVisible();
