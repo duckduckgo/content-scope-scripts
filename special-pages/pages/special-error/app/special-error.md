@@ -141,6 +141,10 @@ Available theme variants: `default`, `coolGray`, `slateBlue`, `green`, `violet`,
 - {@link "SpecialError Messages".OpenInBrowserNotification}
 - Sent when the user chooses to open the current site in their browser.
 
+### `visitSite`
+- {@link "SpecialError Messages".VisitSiteNotification}
+- Sent when the user chooses to proceed to a warned site from the existing advanced flow.
+
 ### `advancedInfo`
 - {@link "SpecialError Messages".AdvancedInfoNotification}
 - Sent when the user clicks the "Advanced" button to view more details about the error.

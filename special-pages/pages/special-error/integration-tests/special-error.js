@@ -146,17 +146,17 @@ export class SpecialErrorPage {
         ]);
     }
 
-    async opensInBrowserFromAdvancedInfo() {
+    async visitsSiteFromAdvancedInfo() {
         const { page } = this;
         this.showsAdvancedInfo();
         await page.getByText('Accept Risk and Visit Site').click();
-        const calls = await this.mocks.waitForCallCount({ method: 'openInBrowser', count: 1 });
+        const calls = await this.mocks.waitForCallCount({ method: 'visitSite', count: 1 });
         expect(calls).toMatchObject([
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'special-error',
-                    method: 'openInBrowser',
+                    method: 'visitSite',
                     params: {},
                 },
             },

@@ -81,10 +81,10 @@ test.describe('special-error', () => {
         await special.leavesSite();
     });
 
-    test('opens site in browser from advanced info', async ({ page }, workerInfo) => {
+    test('visits site from advanced info', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'ssl.expired' });
-        await special.opensInBrowserFromAdvancedInfo();
+        await special.visitsSiteFromAdvancedInfo();
     });
 
     test('opens site in browser', async ({ page }, workerInfo) => {

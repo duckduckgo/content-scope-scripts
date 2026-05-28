@@ -18,7 +18,8 @@ export interface SpecialErrorMessages {
     | LeaveSiteNotification
     | OpenInBrowserNotification
     | ReportInitExceptionNotification
-    | ReportPageExceptionNotification;
+    | ReportPageExceptionNotification
+    | VisitSiteNotification;
   requests: InitialSetupRequest;
   subscriptions: OnThemeUpdateSubscription;
 }
@@ -59,6 +60,12 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/visitSite.notify.json"
+ */
+export interface VisitSiteNotification {
+  method: "visitSite";
 }
 /**
  * Generated from @see "../messages/initialSetup.request.json"

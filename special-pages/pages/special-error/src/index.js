@@ -67,6 +67,14 @@ export class SpecialErrorPage {
     }
 
     /**
+     * This will be sent when the user chooses to visit the current site despite warnings.
+     * Kept for compatibility with existing special-error flows.
+     */
+    visitSite() {
+        this.messaging.notify('visitSite');
+    }
+
+    /**
      * This will be sent when the user clicks the Advanced Info button
      */
     advancedInfo() {
