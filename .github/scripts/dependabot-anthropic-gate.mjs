@@ -1,6 +1,20 @@
 import { appendFileSync } from 'node:fs';
 
-const EXPECTED_CHECKS = ['Cursor Bugbot', 'Cursor Automation: Review dependabot', 'Cursor Automation: Web compat and sec'];
+// Each expected Cursor check is identified by *three* trust signals:
+//   - the check-run display name (`run.name`)
+//   - the GitHub App slug that authored the check run (`run.app.slug`),
+//     which GitHub guarantees is globally unique across github.com
+//   - the host of the check run's `details_url`
+// Requiring all three prevents another installed GitHub App with
+// `checks:write` from publishing a later success with the same display name
+// and having the Anthropic gate treat it as trusted Cursor evidence.
+const CURSOR_APP_SLUG = 'cursor';
+const CURSOR_DETAILS_HOST = 'cursor.com';
+const EXPECTED_CHECKS = [
+    { name: 'Cursor Bugbot', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
+    { name: 'Cursor Automation: Review dependabot', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
+    { name: 'Cursor Automation: Web compat and sec', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
+];
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BODY_CHARS = 12000;
 const OTHER_CHECK_TIMEOUT_MS = 30 * 60 * 1000;
@@ -128,10 +142,35 @@ async function fetchCurrentWorkflowCheckRunIds(apiRoot, runId, token) {
     return new Set(jobs.map((job) => job.id).filter((id) => typeof id === 'number'));
 }
 
+function detailsHost(detailsUrl) {
+    if (!detailsUrl) return null;
+    try {
+        return new URL(detailsUrl).host;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Returns the EXPECTED_CHECKS entry whose `name`, app slug, and details URL
+ * host all match the given check run; otherwise null. Display name alone is
+ * not sufficient because any GitHub App with `checks:write` could publish a
+ * later run reusing one of our expected names.
+ */
+function matchExpectedCheck(run) {
+    return (
+        EXPECTED_CHECKS.find((expected) => {
+            if (expected.name !== run.name) return false;
+            if (run.app?.slug !== expected.appSlug) return false;
+            return detailsHost(run.details_url) === expected.detailsHost;
+        }) ?? null
+    );
+}
+
 function latestCheckRunsByName(checkRuns) {
     const byName = new Map();
     for (const run of checkRuns) {
-        if (!EXPECTED_CHECKS.includes(run.name)) continue;
+        if (!matchExpectedCheck(run)) continue;
         const previous = byName.get(run.name);
         const currentTime = new Date(run.completed_at ?? run.started_at ?? run.created_at ?? 0).getTime();
         const previousTime = previous ? new Date(previous.completed_at ?? previous.started_at ?? previous.created_at ?? 0).getTime() : 0;
@@ -139,7 +178,7 @@ function latestCheckRunsByName(checkRuns) {
             byName.set(run.name, run);
         }
     }
-    return EXPECTED_CHECKS.map((name) => byName.get(name)).filter(Boolean);
+    return EXPECTED_CHECKS.map((expected) => byName.get(expected.name)).filter(Boolean);
 }
 
 function latestOtherCheckRunsByName(checkRuns, currentRunCheckIds) {
@@ -340,7 +379,9 @@ async function main() {
     ]);
 
     const latestChecks = latestCheckRunsByName(checkRuns);
-    const missingChecks = EXPECTED_CHECKS.filter((name) => !latestChecks.some((run) => run.name === name));
+    const missingChecks = EXPECTED_CHECKS.filter((expected) => !latestChecks.some((run) => run.name === expected.name)).map(
+        (expected) => expected.name,
+    );
     if (missingChecks.length > 0) {
         throw new Error(`Missing expected Cursor checks: ${missingChecks.join(', ')}`);
     }
