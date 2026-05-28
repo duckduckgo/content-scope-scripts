@@ -338,11 +338,33 @@ function sourceFromInlineReviewComment(comment) {
     };
 }
 
-function matchedCursorSources(run, sources) {
+/**
+ * Decides whether a trusted-author review / comment / inline-comment body
+ * corresponds to the given Cursor check run.
+ *
+ * The default match — `details_url` contains `/agents/<id>` and that id
+ * appears in the body — works for the two `Cursor Automation: ...` runs,
+ * but the `Cursor Bugbot` check uses a generic `https://cursor.com/docs/bugbot`
+ * URL with no agent id. Bugbot's review and inline-comment bodies instead
+ * carry a `Reviewed by Cursor Bugbot for commit <head_sha>` footer (along
+ * with `<!-- BUGBOT_REVIEW -->` / `<!-- BUGBOT_BUG_ID: ... -->` markers).
+ * Since the source has already been filtered to `cursor[bot]` only by
+ * `isTrustedAutomationActor`, scoping by the trusted check's `head_sha`
+ * is enough to attribute those findings to this run without re-trusting
+ * arbitrary comment authors.
+ */
+function sourceMatchesCheckRun(source, run) {
     const agentId = cursorAgentId(run.details_url);
-    if (!agentId) return [];
+    if (agentId && source.body.includes(agentId)) return true;
+    if (run.name === 'Cursor Bugbot' && run.head_sha && source.body.includes(run.head_sha)) {
+        return true;
+    }
+    return false;
+}
+
+function matchedCursorSources(run, sources) {
     return sources
-        .filter((source) => source.body.includes(agentId))
+        .filter((source) => sourceMatchesCheckRun(source, run))
         .map((source) => ({
             type: source.type,
             author: source.author,
