@@ -182,18 +182,38 @@ export function latestCheckRunsByName(checkRuns) {
     return EXPECTED_CHECKS.map((expected) => byName.get(expected.name)).filter(Boolean);
 }
 
+/**
+ * Returns the most recent non-current check run for each `(app, name)`
+ * pair on the head SHA.
+ *
+ * Keying by display name alone would let a check run published by one
+ * GitHub App supersede a same-named run from a different app. Concretely,
+ * if `github-actions` reports `lint: failure` and another installed App
+ * with `checks:write` later reports `lint: success`, deduping by name
+ * would drop the failure before `checkRunState()` evaluates it and the
+ * gate would happily ask Anthropic. Including `run.app.slug` (falling
+ * back to `run.app.id`, then `null`) in the key keeps each app's runs
+ * tracked independently, so a failure from any app still surfaces while
+ * reruns from the same app still collapse to the latest one.
+ */
+function checkRunIdentityKey(run) {
+    const appKey = run.app?.slug ?? run.app?.id ?? null;
+    return `${appKey}\u0000${run.name}`;
+}
+
 export function latestOtherCheckRunsByName(checkRuns, currentRunCheckIds) {
-    const byName = new Map();
+    const byKey = new Map();
     for (const run of checkRuns) {
         if (currentRunCheckIds.has(run.id)) continue;
-        const previous = byName.get(run.name);
+        const key = checkRunIdentityKey(run);
+        const previous = byKey.get(key);
         const currentTime = new Date(run.completed_at ?? run.started_at ?? run.created_at ?? 0).getTime();
         const previousTime = previous ? new Date(previous.completed_at ?? previous.started_at ?? previous.created_at ?? 0).getTime() : 0;
         if (!previous || currentTime >= previousTime) {
-            byName.set(run.name, run);
+            byKey.set(key, run);
         }
     }
-    return [...byName.values()];
+    return [...byKey.values()];
 }
 
 export function checkRunState(checkRuns, currentRunCheckIds) {

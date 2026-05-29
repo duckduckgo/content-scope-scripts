@@ -143,14 +143,17 @@ describe('latestOtherCheckRunsByName / checkRunState', () => {
      * @param {string} name
      * @param {string} status
      * @param {string | null} [conclusion]
+     * @param {{appSlug?: string, completedAt?: string, id?: number}} [extras]
      */
-    function externalRun(name, status, conclusion = null) {
+    function externalRun(name, status, conclusion = null, extras = {}) {
         return {
-            id: 900 + Math.floor(Math.random() * 100),
+            id: extras.id ?? 900 + Math.floor(Math.random() * 100),
             name,
             status,
             conclusion,
             head_sha: HEAD_SHA,
+            app: { slug: extras.appSlug ?? 'github-actions' },
+            completed_at: extras.completedAt,
         };
     }
 
@@ -161,6 +164,43 @@ describe('latestOtherCheckRunsByName / checkRunState', () => {
         const result = latestOtherCheckRunsByName([own, other], new Set([42]));
         assert.equal(result.length, 1);
         assert.equal(result[0].name, 'lint');
+    });
+
+    it('does not let a same-named success from a different app supersede a failure', () => {
+        // Realistic scenario: github-actions reports `lint` as failed,
+        // and another installed App with checks:write later publishes a
+        // newer `lint: success`. Keying dedup by (app, name) rather than
+        // name alone means the failure must still surface.
+        const failure = externalRun('lint', 'completed', 'failure', {
+            id: 1,
+            appSlug: 'github-actions',
+            completedAt: '2026-05-28T00:00:00Z',
+        });
+        const spoofedSuccess = externalRun('lint', 'completed', 'success', {
+            id: 2,
+            appSlug: 'another-app',
+            completedAt: '2026-05-28T01:00:00Z',
+        });
+        const { failed: f, pending } = checkRunState([failure, spoofedSuccess], new Set());
+        assert.equal(f.length, 1);
+        assert.equal(f[0].id, 1);
+        assert.equal(pending.length, 0);
+    });
+
+    it('still dedupes reruns within the same app to the latest run', () => {
+        const older = externalRun('lint', 'completed', 'failure', {
+            id: 10,
+            appSlug: 'github-actions',
+            completedAt: '2026-05-27T00:00:00Z',
+        });
+        const newerRerun = externalRun('lint', 'completed', 'success', {
+            id: 11,
+            appSlug: 'github-actions',
+            completedAt: '2026-05-28T00:00:00Z',
+        });
+        const result = latestOtherCheckRunsByName([older, newerRerun], new Set());
+        assert.equal(result.length, 1);
+        assert.equal(result[0].id, 11);
     });
 
     it('classifies pending vs failed correctly', () => {
