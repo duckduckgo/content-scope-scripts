@@ -44,4 +44,33 @@ test.describe('screenshots @screenshots', () => {
         await special.showsAdvancedInfo();
         await expect(page).toHaveScreenshot('scam-warning-advanced.png', { maxDiffPixels });
     });
+
+    test('General page problem', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.openPage({ errorId: 'generalPageProblem' });
+        await special.showsGeneralPageProblem();
+        await expect(page).toHaveScreenshot('general-page-problem.png', { maxDiffPixels });
+    });
+
+    test('General page problem with native-provided copy', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        const title = 'Title override';
+        const message = 'Message override';
+        const button = 'Button override';
+
+        await special.openPage({
+            errorId: 'generalPageProblem',
+            additional: {
+                errorData: {
+                    kind: 'generalPageProblem',
+                    url: 'https://privacy-test-pages.site/security/redirect-loop',
+                    title,
+                    message,
+                    button,
+                },
+            },
+        });
+        await special.showsGeneralPageProblem({ pageTitle: title, heading: title, message, buttonTitle: button });
+        await expect(page).toHaveScreenshot('general-page-problem-overrides.png', { maxDiffPixels });
+    });
 });
