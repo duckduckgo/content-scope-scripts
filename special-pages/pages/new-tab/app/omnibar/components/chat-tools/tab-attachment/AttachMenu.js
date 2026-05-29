@@ -149,6 +149,7 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
                 accept={accept}
                 multiple
                 aria-hidden="true"
+                tabIndex={-1}
                 disabled={disabled}
                 class={imageStyles.hiddenFileInput}
                 onChange={onChange}
@@ -192,6 +193,7 @@ function DropdownMenu({ t, attachEnabled, fileLabel, accept, fileDisabled, onAtt
             <button
                 ref={buttonRef}
                 type="button"
+                tabIndex={0}
                 class={imageStyles.toolButton}
                 aria-label={t('omnibar_attachMenuLabel')}
                 aria-haspopup="menu"
@@ -210,6 +212,7 @@ function DropdownMenu({ t, attachEnabled, fileLabel, accept, fileDisabled, onAtt
                     accept={accept}
                     multiple
                     aria-hidden="true"
+                    tabIndex={-1}
                     disabled={fileDisabled}
                     class={imageStyles.hiddenFileInput}
                     onChange={onAttachChange}

@@ -50,7 +50,7 @@ function TabChip({ tab, onRemove, removeLabel }) {
             <span class={styles.title} title={tab.metadata.title}>
                 {tab.metadata.title}
             </span>
-            <button type="button" class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
+            <button type="button" tabIndex={0} class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
                 <CloseSmallIcon width="10" height="10" />
             </button>
         </div>

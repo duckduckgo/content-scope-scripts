@@ -59,7 +59,7 @@ function FileChip({ file, onRemove, removeLabel }) {
                     </span>
                     <span class={styles.format}>{formatLabel}</span>
                 </span>
-                <button type="button" class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
+                <button type="button" tabIndex={0} class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
                     <CloseSmallIcon width="10" height="10" style="stroke: currentColor; stroke-width: 1px;" />
                 </button>
             </div>

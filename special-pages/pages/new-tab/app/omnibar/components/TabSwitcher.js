@@ -32,11 +32,11 @@ export function TabSwitcher({ mode, onChange }) {
             aria-label={t('omnibar_tabSwitcherLabel')}
         >
             <div class={styles.blob} />
-            <button class={styles.tab} role="tab" aria-selected={mode === 'search'} onClick={() => onChange('search')}>
+            <button class={styles.tab} tabIndex={0} role="tab" aria-selected={mode === 'search'} onClick={() => onChange('search')}>
                 <TabIcon mode="search" selected={mode === 'search'} />
                 <span class={styles.tabLabel}>{t('omnibar_searchTabLabel')}</span>
             </button>
-            <button class={styles.tab} role="tab" aria-selected={mode === 'ai'} onClick={() => onChange('ai')}>
+            <button class={styles.tab} tabIndex={0} role="tab" aria-selected={mode === 'ai'} onClick={() => onChange('ai')}>
                 <TabIcon mode="ai" selected={mode === 'ai'} />
                 <span class={styles.tabLabel}>{t('omnibar_aiTabLabel')}</span>
             </button>

@@ -8,7 +8,7 @@ import styles from './Dropdown.module.css';
  */
 
 /**
- * @typedef {{ isSelected?: boolean, onSelect?: () => void }} DropdownItemProps
+ * @typedef {{ isSelected?: boolean, ariaHasPopup?: boolean, onSelect?: () => void }} DropdownItemProps
  */
 
 /**
@@ -104,7 +104,11 @@ export function Dropdown({ children, header, ariaLabel, role, position, onClose,
                 e.preventDefault();
                 if (activeIndex >= 0 && activeIndex < items.length) {
                     selectAt(activeIndex);
-                    onClose({ restoreFocus: true });
+                    // Items that open a submenu keep the parent dropdown
+                    // mounted — the submenu mounts inside it and pulls focus.
+                    if (!getItemProps(items[activeIndex])?.ariaHasPopup) {
+                        onClose({ restoreFocus: true });
+                    }
                 }
                 break;
             case 'Escape':
@@ -127,7 +131,9 @@ export function Dropdown({ children, header, ariaLabel, role, position, onClose,
             onClick: (/** @type {MouseEvent} */ e) => {
                 e.stopPropagation();
                 selectAt(index);
-                onClose({ restoreFocus: false });
+                if (!getItemProps(child)?.ariaHasPopup) {
+                    onClose({ restoreFocus: false });
+                }
             },
         });
     });

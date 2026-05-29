@@ -18,6 +18,7 @@ export function ImagePreviewArea({ images, onRemove, removeLabel }) {
                     <img src={img.dataUrl} alt="" class={styles.thumbnail} />
                     <button
                         type="button"
+                        tabIndex={0}
                         class={styles.thumbnailRemove}
                         aria-label={removeLabel}
                         onClick={(e) => {
