@@ -378,6 +378,14 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Attach' });
     }
 
+    /**
+     * Paperclip entry point rendered as a direct file-picker button (no dropdown)
+     * when the tabs feature is off — labelled with the file label rather than "Attach".
+     */
+    directFileButton() {
+        return this.context().getByRole('button', { name: /Add (Images|PDFs|Images or PDFs)/ });
+    }
+
     attachMenu() {
         return this.context().getByRole('menu', { name: 'Attach' });
     }

@@ -166,6 +166,26 @@ test.describe('omnibar file attachment', () => {
         expect(params.files?.[0].data.length).toBeGreaterThan(0);
     });
 
+    test('with the tabs feature off, the paperclip opens the file picker directly (no dropdown)', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            // file-supporting model, attach-tabs feature OFF → must behave like main: a single file route
+            // collapses to a direct paperclip button instead of a one-item "Add …" dropdown.
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+        });
+        await omnibar.ready();
+
+        // No dropdown trigger is rendered; the control is the direct file button.
+        await expect(omnibar.attachMenuButton()).toHaveCount(0);
+        await expect(omnibar.directFileButton()).toBeVisible();
+
+        // Selecting a file attaches it without any menu ever opening.
+        await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: PDF_BYTES });
+        await expect(omnibar.fileChip()).toHaveCount(1);
+        await expect(omnibar.attachMenu()).toHaveCount(0);
+    });
+
     test('the file picker only accepts the active model’s supported types', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

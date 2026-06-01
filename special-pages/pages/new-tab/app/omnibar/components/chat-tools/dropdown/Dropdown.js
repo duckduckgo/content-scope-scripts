@@ -73,12 +73,12 @@ export function Dropdown({ children, header, ariaLabel, role, position, onClose,
         return () => window.cancelAnimationFrame(frameId);
     }, [dropdownRef]);
 
-    /** @param {number} itemIdx */
-    const getItemId = (itemIdx) => `${idPrefix}-${itemIdx}`;
+    /** @param {number} index */
+    const getItemId = (index) => `${idPrefix}-${index}`;
 
-    /** @param {number} itemIdx */
-    const selectAt = (itemIdx) => {
-        getItemProps(items[itemIdx])?.onSelect?.();
+    /** @param {number} index */
+    const selectAt = (index) => {
+        getItemProps(items[index])?.onSelect?.();
     };
 
     /** @type {(e: KeyboardEvent) => void} */
@@ -103,13 +103,13 @@ export function Dropdown({ children, header, ariaLabel, role, position, onClose,
             case 'Enter':
             case ' ':
                 e.preventDefault();
-                if (activeIndex >= 0 && activeIndex < items.length) {
-                    selectAt(activeIndex);
-                    // Items that open a submenu keep the parent dropdown
-                    // mounted — the submenu mounts inside it and pulls focus.
-                    if (!getItemProps(items[activeIndex])?.ariaHasPopup) {
-                        onClose({ restoreFocus: true });
-                    }
+                if (activeIndex < 0 || activeIndex >= items.length) {
+                    break;
+                }
+
+                selectAt(activeIndex);
+                if (!getItemProps(items[activeIndex])?.ariaHasPopup) {
+                    onClose({ restoreFocus: true });
                 }
                 break;
             case 'Escape':

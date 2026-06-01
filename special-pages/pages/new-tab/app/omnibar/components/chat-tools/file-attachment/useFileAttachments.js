@@ -8,14 +8,6 @@ export const MAX_FILES = 3;
 const FILE_READ_TIMEOUT = 30000;
 
 /**
- * Tracks files (PDFs in v1) attached alongside the chat. Independent of
- * `useImageAttachments` — files are read straight to base64 via FileReader
- * and submitted unmodified (no canvas pipeline).
- *
- * The active model's `supportedFileTypes` is the allow-list: it drives the
- * file picker's `accept` attribute and clears any attachment whose MIME drops
- * out of the set when the user switches models.
- *
  * @param {string[] | undefined} supportedFileTypes — MIME types the active model accepts.
  */
 export function useFileAttachments(supportedFileTypes) {

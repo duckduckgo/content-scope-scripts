@@ -38,7 +38,8 @@ export function FileChips({ attachedFiles, onRemove }) {
 
 /**
  * Card-style chip matching the Figma file-attachment design — two grey
- * "document lines" stacked above an orange format label (e.g. "PDF").
+ * "document lines" stacked above an orange "PDF" label. v1 only supports PDF
+ * attachments; the label is hardcoded.
  * Hover/focus surfaces the filename via tooltip.
  *
  * @param {object} props
@@ -47,8 +48,6 @@ export function FileChips({ attachedFiles, onRemove }) {
  * @param {string} props.removeLabel
  */
 function FileChip({ file, onRemove, removeLabel }) {
-    const formatLabel = formatLabelFor(file.mimeType);
-
     return (
         <Tooltip content={file.fileName} position="above">
             <div class={styles.chipWrapper}>
@@ -57,7 +56,7 @@ function FileChip({ file, onRemove, removeLabel }) {
                         <span class={styles.line} />
                         <span class={styles.line} />
                     </span>
-                    <span class={styles.format}>{formatLabel}</span>
+                    <span class={styles.format}>PDF</span>
                 </span>
                 <button type="button" tabIndex={0} class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
                     <CloseSmallIcon width="10" height="10" style="stroke: currentColor; stroke-width: 1px;" />
@@ -65,18 +64,4 @@ function FileChip({ file, onRemove, removeLabel }) {
             </div>
         </Tooltip>
     );
-}
-
-/**
- * Maps a file MIME type to the badge label rendered on the chip. v1 only ships
- * `application/pdf`; anything else falls back to the subtype (uppercased) so
- * future types (e.g. `text/plain` → `PLAIN`) render sensibly without a code
- * change.
- *
- * @param {string} mimeType
- */
-function formatLabelFor(mimeType) {
-    if (mimeType === 'application/pdf') return 'PDF';
-    const subtype = mimeType.split('/')[1] ?? mimeType;
-    return subtype.toUpperCase();
 }

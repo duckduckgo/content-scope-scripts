@@ -575,6 +575,23 @@ export function TabDesktopIcon(props) {
 }
 
 /**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Folder-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function FolderIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M4 1C1.79086 1 0 2.79086 0 5V11C0 13.2091 1.79086 15 4 15H12C14.2091 15 16 13.2091 16 11V7C16 4.79086 14.2091 3 12 3H10C9.40983 3 8.8541 2.72214 8.5 2.25C7.90983 1.463107 6.98362 1 6 1H4ZM1.25 5C1.25 3.48122 2.48122 2.25 4 2.25H6C6.59017 2.25 7.1459 2.52786 7.5 3C8.09017 3.78689 9.01638 4.25 10 4.25H12C13.166 4.25 14.1625 4.97566 14.5625 6H1.25V5ZM1.25 7.25V11C1.25 12.5188 2.48122 13.75 4 13.75H12C13.5188 13.75 14.75 12.5188 14.75 11V7.25H1.25Z"
+            />
+        </svg>
+    );
+}
+
+/**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Page-Content-16.svg
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */

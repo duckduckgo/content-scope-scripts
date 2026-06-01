@@ -88,21 +88,16 @@ Adds an optional `files` field carrying any PDFs the user attached. Omitted when
 
 ## Notes
 
-- **Validation lives in the web layer.** The file input's `accept` attribute is derived from the active model's `supportedFileTypes`, and the upload hook rejects MIME types not in that array before encoding. Schema does not constrain MIME because the field shape mirrors Duck.ai's input.
-- **No size cap in v1 on the JS side** beyond what the browser's `FileReader` will accept. Native may impose a cap when forwarding to the Duck.ai session if needed.
-- **No re-encoding.** Unlike images (which go through a canvas resize pipeline), PDFs are base64'd as-is.
-- **Coexistence.** A single submission may carry any combination of `images`, `files`, and `pageContext`. Native handlers should treat them independently.
+- **Open question — should file-type validation also live in NTP native?** Today validation lives in the web layer: the file input's `accept` attribute is derived from the active model's `supportedFileTypes`, and the upload hook rejects MIME types not in that array before encoding. Schema does not constrain MIME because the field shape mirrors Duck.ai's input. Do we want the NTP native layer to also validate the MIME type when it receives the file, or is trusting the web layer sufficient?
+- **Open question — should the size cap live in NTP native?** v1 has no size cap on the JS side beyond what the browser's `FileReader` will accept. Should the NTP native layer enforce a cap before forwarding, and if so what limit?
 
 ## Testing
 
 **FE:**
-- Paperclip menu shows the "Add PDFs" / "Add Images or PDFs" entry only when the currently selected model has a non-empty `supportedFileTypes`
-- File picker's `accept` attribute matches the active model's `supportedFileTypes` (e.g. `application/pdf` for v1); MIME types outside that set are rejected client-side
-- Selecting a file renders a chip with the filename
-- Removing a chip drops the file from the next submit
-- Submit with N file chips includes `files` of length N in `omnibar_submitChat`
-- Submit with images + files + tabs all attached carries all three fields independently
-- Switching to a model whose `supportedFileTypes` is empty (or doesn't include an attached file's MIME) clears the non-matching files and hides the entry as needed
+- Paperclip entry and file picker `accept` are driven by the active model's `supportedFileTypes`; entry is hidden when it's empty
+- Selecting a file adds a chip; removing it drops the file from the next submit
+- `omnibar_submitChat` carries `files` (and `images`/`pageContext`) matching the attached chips
+- Switching to a model that doesn't support an attached file's MIME clears it
 
 **Mock transport:** Testable via the existing NTP `mock-transport.js` — any model item declaring `supportedFileTypes: ["application/pdf"]` will surface the entry.
 
