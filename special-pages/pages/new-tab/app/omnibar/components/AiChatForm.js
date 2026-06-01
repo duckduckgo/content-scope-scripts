@@ -23,14 +23,6 @@ import styles from './AiChatForm.module.css';
  * voice button, etc.) and renders it via the right slot — this component only forwards
  * Enter-key submissions through `onSubmit(query, target)`.
  *
- * Anything passed in `toolbarRight` is rendered inside the underlying `<form>`, so a
- * `type="submit"` button placed there works as expected.
- *
- * `onTextareaKeyDown` lets the parent claim keys before the form acts on them — call
- * `event.preventDefault()` to skip the default recent-chats handling. `combobox`
- * overrides the textarea's aria-controls / aria-activedescendant / aria-expanded so a
- * parent-owned listbox (e.g. a `@`-mention picker) can take over the combobox role.
- *
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
@@ -41,7 +33,7 @@ import styles from './AiChatForm.module.css';
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
  * @param {import('preact').ComponentChildren} [props.toolbarRight]
- * @param {(event: KeyboardEvent) => void} [props.onTextareaKeyDown]
+ * @param {(event: KeyboardEvent) => ({ handled: boolean } | void)} [props.onTextareaKeyDown]
  * @param {ComboboxOverride|null} [props.combobox]
  * @param {import('preact').RefObject<HTMLTextAreaElement>} props.textareaRef - Ref the parent owns and uses to drive focus/selection or measure layout.
  */
@@ -100,10 +92,10 @@ export function AiChatForm({
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
         // Let the parent claim keys first (e.g. routing arrow keys into a
-        // mention picker). If they preventDefault, we skip the default
-        // recent-chats handling for that key.
-        onTextareaKeyDown?.(event);
-        if (event.defaultPrevented) return;
+        // mention picker). If it reports the key as handled, we skip the
+        // default recent-chats handling for that key.
+        const result = onTextareaKeyDown?.(event);
+        if (result?.handled) return;
 
         switch (event.key) {
             case 'ArrowUp': {

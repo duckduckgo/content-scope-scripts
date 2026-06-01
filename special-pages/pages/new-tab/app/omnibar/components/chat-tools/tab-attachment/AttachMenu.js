@@ -1,23 +1,22 @@
 import { Fragment, h } from 'preact';
 import { useRef, useState } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
-import { ChevronSmall, FolderIcon, GlobeIcon, PageContentIcon, PaperclipIcon } from '../../../../components/Icons';
+import { ChevronSmall, FolderIcon, PageContentIcon, PaperclipIcon } from '../../../../components/Icons';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
-import { useOpenTabs } from './useOpenTabs';
+import { resolveFileInput } from './fileChannels';
+import { TabPicker } from './TabPicker';
 import imageStyles from '../image-attachment/ImageAttachment.module.css';
 import styles from './AttachMenu.module.css';
 
 /**
  * @typedef {typeof import('../../../strings.json')} Strings
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
- * @typedef {import('../../../../../types/new-tab.js').Favicon} Favicon
- * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean }} ImageChannel
- * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean, mimeTypes: string[] }} FileChannel
+ * @typedef {import('./fileChannels.js').ImageChannel} ImageChannel
+ * @typedef {import('./fileChannels.js').FileChannel} FileChannel
+ * @typedef {import('./fileChannels.js').ResolvedFileInput} ResolvedFileInput
  */
-
-const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
 /**
  * Paperclip entry point. Renders whichever items the caller enabled:
@@ -40,74 +39,20 @@ export function AttachMenu({ image, file, tabsEnabled, onAttachTab }) {
     const attachEnabled = image !== null || file !== null;
     if (!attachEnabled && !tabsEnabled) return null;
 
-    const fileLabel = pickFileLabel(t, image, file);
-    const accept = combinedAccept(image, file);
-    const fileDisabled = (image?.disabled ?? true) && (file?.disabled ?? true);
-    const onAttachChange = makeAttachChangeHandler(image, file);
+    const fileInput = resolveFileInput(t, image, file);
 
     if (attachEnabled && !tabsEnabled) {
-        return <DirectFileButton ariaLabel={fileLabel} accept={accept} disabled={fileDisabled} onChange={onAttachChange} />;
+        return (
+            <DirectFileButton
+                ariaLabel={fileInput.label}
+                accept={fileInput.accept}
+                disabled={fileInput.disabled}
+                onChange={fileInput.onChange}
+            />
+        );
     }
 
-    return (
-        <DropdownMenu
-            t={t}
-            attachEnabled={attachEnabled}
-            fileLabel={fileLabel}
-            accept={accept}
-            fileDisabled={fileDisabled}
-            onAttachChange={onAttachChange}
-            onAttachTab={onAttachTab}
-        />
-    );
-}
-
-/**
- * @param {(key: keyof Strings) => string} t
- * @param {ImageChannel | null} image
- * @param {FileChannel | null} file
- */
-function pickFileLabel(t, image, file) {
-    if (image && file) return t('omnibar_attachImageOrFileLabel');
-    if (image) return t('omnibar_attachImageLabel');
-    return t('omnibar_attachFileLabel');
-}
-
-/**
- * @param {ImageChannel | null} image
- * @param {FileChannel | null} file
- */
-function combinedAccept(image, file) {
-    return [image ? IMAGE_ACCEPT : '', file ? file.mimeTypes.join(',') : ''].filter(Boolean).join(',');
-}
-
-/**
- * Builds the single `onChange` for the hidden file input. Partitions the
- * selected `File`s into images (anything `image/*`) and everything else,
- * routing each subset to the appropriate channel.
- *
- * @param {ImageChannel | null} image
- * @param {FileChannel | null} file
- * @returns {(event: Event) => Promise<void>}
- */
-function makeAttachChangeHandler(image, file) {
-    return async (event) => {
-        const input = /** @type {HTMLInputElement} */ (event.currentTarget);
-        if (!input.files || input.files.length === 0) return;
-        const all = Array.from(input.files);
-        /** @type {Promise<void>[]} */
-        const tasks = [];
-        if (image) {
-            const images = all.filter((f) => f.type.startsWith('image/'));
-            if (images.length > 0) tasks.push(image.processFiles(images));
-        }
-        if (file) {
-            const others = all.filter((f) => !f.type.startsWith('image/'));
-            if (others.length > 0) tasks.push(file.processFiles(others));
-        }
-        await Promise.all(tasks);
-        input.value = '';
-    };
+    return <DropdownMenu t={t} attachEnabled={attachEnabled} fileInput={fileInput} onAttachTab={onAttachTab} />;
 }
 
 /**
@@ -168,18 +113,15 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
  * @param {object} props
  * @param {(key: keyof Strings) => string} props.t
  * @param {boolean} props.attachEnabled
- * @param {string} props.fileLabel
- * @param {string} props.accept
- * @param {boolean} props.fileDisabled
- * @param {(event: Event) => void} props.onAttachChange
+ * @param {ResolvedFileInput} props.fileInput
  * @param {(tab: TabMetadata) => void} props.onAttachTab
  */
-function DropdownMenu({ t, attachEnabled, fileLabel, accept, fileDisabled, onAttachChange, onAttachTab }) {
+function DropdownMenu({ t, attachEnabled, fileInput, onAttachTab }) {
     const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: 'left' });
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     const triggerFileInput = () => {
-        if (fileDisabled) return;
+        if (fileInput.disabled) return;
         window.setTimeout(() => fileInputRef.current?.click(), 0);
     };
 
@@ -209,20 +151,20 @@ function DropdownMenu({ t, attachEnabled, fileLabel, accept, fileDisabled, onAtt
                 <input
                     ref={fileInputRef}
                     type="file"
-                    accept={accept}
+                    accept={fileInput.accept}
                     multiple
                     aria-hidden="true"
                     tabIndex={-1}
-                    disabled={fileDisabled}
+                    disabled={fileInput.disabled}
                     class={imageStyles.hiddenFileInput}
-                    onChange={onAttachChange}
+                    onChange={fileInput.onChange}
                 />
             )}
             {isOpen && dropdownPos && (
                 <OpenDropdownBody
                     t={t}
                     attachEnabled={attachEnabled}
-                    fileLabel={fileLabel}
+                    fileLabel={fileInput.label}
                     dropdownPos={dropdownPos}
                     dropdownRef={dropdownRef}
                     onClose={handleClose}
@@ -298,58 +240,4 @@ function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRe
             {submenuPos && <TabPicker t={t} position={submenuPos} dropdownRef={submenuRef} onSelect={onAttachTab} onClose={onClose} />}
         </Fragment>
     );
-}
-
-/**
- * Recent-tabs picker — a Dropdown with a "Recent Tabs" header and a
- * DropdownItem per open tab.
- *
- * @param {object} props
- * @param {(key: keyof Strings) => string} props.t
- * @param {import('../useDropdown.js').DropdownPosition} props.position
- * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
- * @param {(tab: TabMetadata) => void} props.onSelect
- * @param {(opts: { restoreFocus: boolean }) => void} props.onClose
- */
-function TabPicker({ t, position, dropdownRef, onSelect, onClose }) {
-    const { tabs } = useOpenTabs({ active: true });
-
-    return (
-        <Dropdown
-            dropdownRef={dropdownRef}
-            role="menu"
-            ariaLabel={t('omnibar_attachTabsPickerTitle')}
-            header={t('omnibar_attachTabsPickerTitle')}
-            position={position}
-            onClose={onClose}
-            idPrefix="tab-picker-item"
-            className={styles.tabPicker}
-        >
-            {tabs.map((tab) => (
-                <DropdownItem
-                    key={tab.tabId}
-                    role="menuitem"
-                    icon={<TabFavicon favicon={tab.favicon} />}
-                    name={tab.title}
-                    onSelect={() => onSelect(tab)}
-                />
-            ))}
-        </Dropdown>
-    );
-}
-
-/**
- * @param {object} props
- * @param {Favicon} props.favicon
- */
-function TabFavicon({ favicon }) {
-    const [errored, setErrored] = useState(false);
-    if (!favicon || !favicon.src || errored) {
-        return (
-            <span class={styles.faviconFallback} aria-hidden="true">
-                <GlobeIcon width="12" height="12" />
-            </span>
-        );
-    }
-    return <img class={styles.favicon} src={favicon.src} alt="" onError={() => setErrored(true)} loading="lazy" />;
 }

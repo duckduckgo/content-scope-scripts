@@ -128,29 +128,31 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onAttach
         return () => observer.disconnect();
     }, [pickerActive, anchorRef, textareaRef]);
 
-    /** @type {(event: KeyboardEvent) => void} */
+    /** @type {(event: KeyboardEvent) => { handled: boolean }} */
     const handleTextareaKeyDown = (event) => {
-        if (!pickerActive) return;
+        if (!pickerActive) return { handled: false };
         switch (event.key) {
             case 'ArrowUp':
                 event.preventDefault();
                 setActiveIndex((i) => clampBackward(i, filtered.length));
-                return;
+                return { handled: true };
             case 'ArrowDown':
                 event.preventDefault();
                 setActiveIndex((i) => clampForward(i, filtered.length));
-                return;
+                return { handled: true };
             case 'Enter': {
-                if (event.shiftKey) return;
+                if (event.shiftKey) return { handled: false };
                 event.preventDefault();
                 const tab = filtered[activeIndex];
                 if (tab) handleTabSelect(tab);
-                return;
+                return { handled: true };
             }
             case 'Escape':
                 event.preventDefault();
                 closePicker();
-                break;
+                return { handled: true };
+            default:
+                return { handled: false };
         }
     };
 

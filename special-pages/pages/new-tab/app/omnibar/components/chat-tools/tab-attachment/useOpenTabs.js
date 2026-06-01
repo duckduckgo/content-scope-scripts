@@ -12,7 +12,6 @@ import { OmnibarContext } from '../../OmnibarProvider';
  */
 export function useOpenTabs({ active }) {
     const { getOpenTabs } = useContext(OmnibarContext);
-
     const [tabs, setTabs] = useState(/** @type {TabMetadata[]} */ ([]));
 
     const fetchTabs = useCallback(async () => {
