@@ -11,7 +11,6 @@ import {
 /* eslint-enable no-redeclare */
 
 const MSG_INBOUND_PASSKEY_SELECTED = 'passkeySelected';
-const MSG_OUTBOUND_FEATURE = 'Autofill';
 const MSG_OUTBOUND_NAME = 'registerPasskeyRequest';
 const MEDIATION_CONDITIONAL = 'conditional';
 const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
@@ -19,12 +18,6 @@ const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
 export default class AutofillPasskeys extends ContentFeature {
     /** @type {(() => void) | null} */
     #cancelPending = null;
-    /** @type {((msg: object) => void) | null} */
-    #postMessage = null;
-    /** @type {((type: string, handler: Function) => void) | null} */
-    #addEventListener = null;
-    /** @type {((type: string, handler: Function) => void) | null} */
-    #removeEventListener = null;
 
     init() {
         // Bail if the Credentials API is absent. Note: web-compat's navigatorCredentialsFix()
@@ -38,11 +31,6 @@ export default class AutofillPasskeys extends ContentFeature {
         ) {
             return;
         }
-
-        // Capture interop globals early so page code can't replace them later.
-        this.#postMessage = /** @type {any} */ (windowsInteropPostMessage);
-        this.#addEventListener = /** @type {any} */ (windowsInteropAddEventListener);
-        this.#removeEventListener = /** @type {any} */ (windowsInteropRemoveEventListener);
 
         const credentialsSingleton = navigator.credentials;
         // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -97,26 +85,26 @@ export default class AutofillPasskeys extends ContentFeature {
         }
 
         return new CapturedPromise((resolve, reject) => {
+            /** @type {(() => void) | undefined} */
+            // eslint-disable-next-line prefer-const -- assigned after closures that read it (see abort path); const would hit the TDZ
+            let unsubscribe;
+
             const cleanup = () => {
-                this.#removeEventListener?.('message', handler);
+                unsubscribe?.();
                 if (options.signal) {
                     options.signal.removeEventListener('abort', onAbort);
                 }
                 this.#cancelPending = null;
             };
 
-            // Mirror WindowsMessagingTransport._subscribe() origin validation:
-            // in production, only browser-process messages (origin null/undefined) are accepted.
-            const handler = async (/** @type {MessageEvent} */ event) => {
-                if (event.origin !== null && event.origin !== undefined) return;
-                if (event.data?.type !== MSG_INBOUND_PASSKEY_SELECTED) return;
-                if (typeof event.data.credentialId !== 'string' || event.data.credentialId.length === 0) return;
-                if (event.data.requestId !== requestId) return;
+            const handler = async (/** @type {any} */ data) => {
+                if (typeof data?.credentialId !== 'string' || data.credentialId.length === 0) return;
+                if (data.requestId !== requestId) return;
 
                 cleanup();
 
                 try {
-                    const raw = atob(event.data.credentialId);
+                    const raw = atob(data.credentialId);
                     const arr = new Uint8Array(raw.length);
                     for (let i = 0; i < raw.length; i++) arr[i] = charCodeAt.call(raw, i);
 
@@ -156,13 +144,8 @@ export default class AutofillPasskeys extends ContentFeature {
                 options.signal.addEventListener('abort', onAbort);
             }
 
-            this.#addEventListener?.('message', handler);
-
-            this.#postMessage?.({
-                Feature: MSG_OUTBOUND_FEATURE,
-                Name: MSG_OUTBOUND_NAME,
-                Data: { rpId, requestId },
-            });
+            unsubscribe = this.subscribe(MSG_INBOUND_PASSKEY_SELECTED, handler);
+            this.notify(MSG_OUTBOUND_NAME, { rpId, requestId });
         });
     }
 }
