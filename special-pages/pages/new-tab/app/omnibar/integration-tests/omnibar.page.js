@@ -419,13 +419,17 @@ export class OmnibarPage {
         await this.tabPickerItem(title).click();
     }
 
-    tabChips() {
-        return this.context().getByTestId('omnibar-tab-chips');
+    /**
+     * The single attachment chips row. Tabs, files, and images all render here;
+     * the per-type helpers below scope into it by each chip's own markers.
+     */
+    attachmentChips() {
+        return this.context().getByTestId('omnibar-attachment-chips');
     }
 
     /** Individual tab chips, located by their per-chip status wrapper. */
     tabChip() {
-        return this.tabChips().locator('[data-status]');
+        return this.attachmentChips().locator('[data-status]');
     }
 
     /** @param {string} title */
@@ -433,22 +437,17 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: `Remove ${title}` });
     }
 
-    fileChips() {
-        return this.context().getByTestId('omnibar-file-chips');
-    }
-
     /**
-     * Individual file chips, located by their remove `<button>`. Targets the real
-     * button element (not the `Tooltip` wrapper, which also exposes role=button
-     * and borrows its accessible name from this button).
+     * Individual file chips inside the shared attachment row, scoped by their
+     * `data-attachment-kind` marker so tab/image chips in the same row don't match.
      */
     fileChip() {
-        return this.fileChips().locator('button[aria-label^="Remove "]');
+        return this.attachmentChips().locator('[data-attachment-kind="file"]');
     }
 
     /** @param {string} fileName */
     removeFileButton(fileName) {
-        return this.fileChips().locator(`button[aria-label="Remove ${fileName}"]`);
+        return this.attachmentChips().locator(`button[aria-label="Remove ${fileName}"]`);
     }
 
     /** The `@`-mention typeahead picker. */

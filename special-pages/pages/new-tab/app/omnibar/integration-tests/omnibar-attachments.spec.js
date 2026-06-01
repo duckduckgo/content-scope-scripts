@@ -39,7 +39,7 @@ test.describe('omnibar tab attachment', () => {
         await omnibar.attachTab('Starbucks Coffee Company');
 
         // chip becomes "ready" once omnibar_getTabContent resolves
-        await expect(omnibar.tabChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
 
         await omnibar.types({ mode: 'ai', value: 'compare these' });
         await omnibar.submitChat();
@@ -61,7 +61,7 @@ test.describe('omnibar tab attachment', () => {
 
         await omnibar.attachTab('Starbucks Coffee Company');
         await omnibar.attachTab('MacBook Neo - Apple');
-        await expect(omnibar.tabChips().locator('[data-status="ready"]')).toHaveCount(2);
+        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(2);
 
         await omnibar.types({ mode: 'ai', value: 'compare' });
         await omnibar.submitChat();
@@ -80,10 +80,10 @@ test.describe('omnibar tab attachment', () => {
         await omnibar.ready();
 
         await omnibar.attachTab('Starbucks Coffee Company');
-        await expect(omnibar.tabChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
 
         await omnibar.removeTabButton('Starbucks Coffee Company').click();
-        await expect(omnibar.tabChips()).toHaveCount(0);
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
 
         await omnibar.types({ mode: 'ai', value: 'hello' });
         await omnibar.submitChat();
@@ -102,7 +102,7 @@ test.describe('omnibar tab attachment', () => {
 
         // tab-broken resolves to null pageContext in the mock transport
         await omnibar.attachTab('Tab That Fails to Extract');
-        await expect(omnibar.tabChips()).toHaveCount(0);
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
     });
 
     test('the @-mention picker filters tabs and attaches the selected one', async ({ page }, workerInfo) => {
@@ -123,7 +123,7 @@ test.describe('omnibar tab attachment', () => {
 
         // the @-token is stripped from the input and the tab is attached
         await omnibar.expectChatValue('');
-        await expect(omnibar.tabChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
     });
 
     test('paperclip and @-mention are hidden when the feature is off', async ({ page }, workerInfo) => {
@@ -209,7 +209,7 @@ test.describe('omnibar file attachment', () => {
         await expect(omnibar.fileChip()).toHaveCount(1);
 
         await omnibar.removeFileButton('q3-report.pdf').click();
-        await expect(omnibar.fileChips()).toHaveCount(0);
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
 
         await omnibar.types({ mode: 'ai', value: 'hello' });
         await omnibar.submitChat();
@@ -233,7 +233,7 @@ test.describe('omnibar file attachment', () => {
         await omnibar.modelOption('GPT-4o mini').click();
 
         // GPT-4o mini declares no supportedFileTypes → the chip is dropped
-        await expect(omnibar.fileChips()).toHaveCount(0);
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
     });
 });
 
@@ -255,7 +255,7 @@ test.describe('omnibar attachment coexistence', () => {
         await expect(omnibar.fileChip()).toHaveCount(1);
 
         await omnibar.attachTab('Starbucks Coffee Company');
-        await expect(omnibar.tabChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
 
         await omnibar.types({ mode: 'ai', value: 'compare and summarize' });
         await omnibar.submitChat();

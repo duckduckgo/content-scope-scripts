@@ -22,7 +22,7 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
 import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
-import { FileChips } from './chat-tools/file-attachment/FileChips';
+import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
@@ -30,7 +30,6 @@ import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
 import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
-import { TabChips } from './chat-tools/tab-attachment/TabChips';
 import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
@@ -425,8 +424,14 @@ function AiChatContent({
                         </Fragment>
                     }
                 >
-                    {canAttachTabs && <TabChips attachedTabs={tabAttachments.attachedTabs} onRemove={tabAttachments.removeTab} />}
-                    {canAttachFiles && <FileChips attachedFiles={fileState.attachedFiles} onRemove={fileState.handleRemoveFile} />}
+                    <AttachmentChips
+                        tabs={canAttachTabs ? tabAttachments.attachedTabs : []}
+                        files={canAttachFiles ? fileState.attachedFiles : []}
+                        images={canAttachImages ? imageState.attachedImages : []}
+                        onRemoveTab={tabAttachments.removeTab}
+                        onRemoveFile={fileState.handleRemoveFile}
+                        onRemoveImage={imageState.handleRemoveImage}
+                    />
                     <ImageAttachmentContent
                         state={imageState}
                         supportsImageUpload={canAttachImages}

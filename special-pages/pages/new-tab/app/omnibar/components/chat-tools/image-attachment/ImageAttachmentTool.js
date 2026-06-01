@@ -2,7 +2,6 @@ import { Fragment, h } from 'preact';
 import { useLayoutEffect, useRef } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
 import { MAX_IMAGES, getImageErrorMessage } from './useImageAttachments';
-import { ImagePreviewArea } from './ImagePreviewArea';
 import { ImageUploadButton as ImageUploadButtonUI } from './ImageUploadButton';
 import { Tooltip } from '../../Tooltip.js';
 import styles from './ImageAttachment.module.css';
@@ -13,8 +12,10 @@ import styles from './ImageAttachment.module.css';
  */
 
 /**
- * Content renderer for image attachments. Renders alerts and preview
- * thumbnails in the form's content area (between textarea and toolbar).
+ * Alert renderer for image attachments — the limit warning and processing
+ * errors shown in the form's content area. Image thumbnails themselves are
+ * rendered by the shared `AttachmentChips` container; this component only owns
+ * the alerts plus the visibility/warning callbacks that drive the chat list.
  * The parent reads image state directly when assembling the submit payload.
  *
  * @param {object} props
@@ -25,7 +26,7 @@ import styles from './ImageAttachment.module.css';
  */
 export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleImagesChange, onImageWarningChange }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { attachedImages, handleRemoveImage, imageLimitExceeded, imageError, clearImageError } = state;
+    const { attachedImages, imageLimitExceeded, imageError, clearImageError } = state;
 
     const hasVisibleImages = !!(supportsImageUpload && attachedImages.length > 0);
     const showImageWarning = !!(supportsImageUpload && imageLimitExceeded);
@@ -72,7 +73,6 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
                     </button>
                 </p>
             )}
-            <ImagePreviewArea images={attachedImages} onRemove={handleRemoveImage} removeLabel={t('omnibar_removeImageLabel')} />
         </>
     );
 }

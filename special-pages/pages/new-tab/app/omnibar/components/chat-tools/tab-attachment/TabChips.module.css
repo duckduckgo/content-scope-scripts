@@ -1,11 +1,3 @@
-.chipsArea {
-    align-self: stretch;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-2);
-    padding: var(--sp-3) var(--sp-3) 0;
-}
-
 .chip {
     align-items: center;
     background: var(--ds-color-theme-surface-secondary, var(--color-black-at-6));

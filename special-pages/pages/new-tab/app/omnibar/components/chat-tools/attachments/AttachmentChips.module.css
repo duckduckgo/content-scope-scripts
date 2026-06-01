@@ -1,0 +1,8 @@
+.chipsArea {
+    align-items: center;
+    align-self: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    padding: var(--sp-3) var(--sp-3) 0;
+}
