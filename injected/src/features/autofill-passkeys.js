@@ -45,46 +45,55 @@ export default class AutofillPasskeys extends ContentFeature {
                     return originalGet.call(this, options);
                 }
 
-                if (!globalThis.isSecureContext || options?.mediation !== MEDIATION_CONDITIONAL || !options?.publicKey) {
-                    return originalGet.call(this, options);
+                // Native get() is a WebIDL promise-returning operation: reads of the
+                // page-supplied options dictionary that throw surface as a rejected
+                // promise, never a synchronous throw. Mirror that here.
+                try {
+                    const mediation = options?.mediation;
+                    const publicKey = options?.publicKey;
+                    if (!globalThis.isSecureContext || mediation !== MEDIATION_CONDITIONAL || !publicKey) {
+                        return originalGet.call(this, options);
+                    }
+                    return feature.registerPasskeyRequest(publicKey, options, originalGet, this);
+                } catch (e) {
+                    return CapturedPromise.reject(e);
                 }
-
-                // RP ID validation (registrable domain, public suffix, Related Origin
-                // Requests via .well-known/webauthn) is the native side's responsibility.
-                const rpId = options?.publicKey?.rpId;
-                return feature.registerPasskeyRequest(typeof rpId === 'string' ? rpId : location.hostname, options, originalGet, this);
             },
         );
     }
 
     /**
-     * @param {string} rpId
+     * @param {PublicKeyCredentialRequestOptions} publicKey - page-supplied publicKey dictionary (already confirmed present)
      * @param {CredentialRequestOptions} options
      * @param {CredentialsContainer['get']} originalGet - unbound original method
      * @param {CredentialsContainer} receiver - the receiver from the intercepted call
      * @returns {Promise<Credential | null>}
      */
-    registerPasskeyRequest(rpId, options, originalGet, receiver) {
+    registerPasskeyRequest(publicKey, options, originalGet, receiver) {
         if (this.#cancelPending) {
             this.#cancelPending();
         }
 
-        const pk = options.publicKey;
-        const publicKeySnapshot = pk
-            ? {
-                  challenge: pk.challenge,
-                  timeout: pk.timeout,
-                  rpId: pk.rpId,
-                  userVerification: pk.userVerification,
-                  extensions: pk.extensions,
-              }
-            : undefined;
         const requestId = randomUUID?.();
         if (!requestId) {
             return originalGet.call(receiver, options);
         }
 
         return new CapturedPromise((resolve, reject) => {
+            // Snapshot the page-supplied getters inside the executor so a throwing
+            // getter rejects this promise (matching native get()) rather than
+            // throwing synchronously to the caller.
+            const publicKeySnapshot = {
+                challenge: publicKey.challenge,
+                timeout: publicKey.timeout,
+                rpId: publicKey.rpId,
+                userVerification: publicKey.userVerification,
+                extensions: publicKey.extensions,
+            };
+            // RP ID validation (registrable domain, public suffix, Related Origin
+            // Requests via .well-known/webauthn) is the native side's responsibility.
+            const rpId = typeof publicKeySnapshot.rpId === 'string' ? publicKeySnapshot.rpId : location.hostname;
+
             /** @type {(() => void) | undefined} */
             // eslint-disable-next-line prefer-const -- assigned after closures that read it (see abort path); const would hit the TDZ
             let unsubscribe;
@@ -110,12 +119,10 @@ export default class AutofillPasskeys extends ContentFeature {
 
                     const /** @type {CredentialRequestOptions} */ narrowed = {
                             signal: options.signal,
-                            publicKey: publicKeySnapshot
-                                ? {
-                                      ...publicKeySnapshot,
-                                      allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }],
-                                  }
-                                : undefined,
+                            publicKey: {
+                                ...publicKeySnapshot,
+                                allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }],
+                            },
                         };
 
                     const credential = await originalGet.call(receiver, narrowed);
