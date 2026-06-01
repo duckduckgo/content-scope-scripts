@@ -131,7 +131,7 @@ function DropdownMenu({ t, attachEnabled, fileInput, onAttachTab }) {
     };
 
     return (
-        <Fragment>
+        <div class={styles.attachMenu}>
             <button
                 ref={buttonRef}
                 type="button"
@@ -175,7 +175,7 @@ function DropdownMenu({ t, attachEnabled, fileInput, onAttachTab }) {
                     }}
                 />
             )}
-        </Fragment>
+        </div>
     );
 }
 

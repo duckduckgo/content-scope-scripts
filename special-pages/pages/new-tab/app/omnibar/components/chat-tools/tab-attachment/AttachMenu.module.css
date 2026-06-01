@@ -1,3 +1,9 @@
+.attachMenu {
+    align-items: center;
+    display: flex;
+    position: relative;
+}
+
 /* Tab picker is a Dropdown variant — adds scroll behaviour for long lists. */
 .tabPicker {
     max-height: 360px;
@@ -27,4 +33,3 @@
     justify-content: center;
     width: 16px;
 }
-
