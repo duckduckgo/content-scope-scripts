@@ -135,14 +135,6 @@
     position: relative;
 }
 
-/*
- * Tab-attachment picker floats as a popover directly under the typing line.
- * Rendered as a sibling of .field (not inside it) so the field's
- * `overflow: hidden` — needed for the resize animation — doesn't clip the
- * picker. `top` is set inline by `useMentionPicker`, which measures the
- * textarea bottom relative to .aiChatContent and follows it as the textarea
- * grows (multi-line typing) or the field's margins shift (focus state).
- */
 .tabPickerWrapper {
     left: var(--sp-2);
     margin-top: var(--sp-1);
