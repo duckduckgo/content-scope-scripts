@@ -2,8 +2,6 @@ import { Fragment, h } from 'preact';
 import { useLayoutEffect, useRef } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
 import { MAX_IMAGES, getImageErrorMessage } from './useImageAttachments';
-import { ImageUploadButton as ImageUploadButtonUI } from './ImageUploadButton';
-import { Tooltip } from '../../Tooltip.js';
 import styles from './ImageAttachment.module.css';
 
 /**
@@ -75,31 +73,4 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
             )}
         </>
     );
-}
-
-/**
- * Toolbar button for image uploads. Renders the upload button with
- * a tooltip when the image limit is reached. Place in the form's leftSlot.
- *
- * @param {object} props
- * @param {ImageAttachmentState} props.state
- */
-export function ImageUploadButton({ state }) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { imageUploadDisabled, handleFileChange } = state;
-
-    const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) });
-    const uploadButton = (
-        <ImageUploadButtonUI disabled={imageUploadDisabled} onChange={handleFileChange} ariaLabel={t('omnibar_attachImageLabel')} />
-    );
-
-    if (imageUploadDisabled) {
-        return (
-            <Tooltip content={imageLimitWarning} position="above">
-                {uploadButton}
-            </Tooltip>
-        );
-    }
-
-    return uploadButton;
 }

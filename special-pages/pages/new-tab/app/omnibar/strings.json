@@ -195,18 +195,6 @@
     "title": "Pick an open tab to attach",
     "description": "Accessible label for the open-tabs picker panel (the dialog wrapper around the listbox)."
   },
-  "omnibar_attachTabsLoading": {
-    "title": "Loading open tabs…",
-    "description": "Loading state shown while the open-tabs picker is fetching the tab list from native."
-  },
-  "omnibar_attachTabsError": {
-    "title": "Couldn't load open tabs. Try again.",
-    "description": "Error state shown when the open-tabs picker fails to fetch the tab list."
-  },
-  "omnibar_attachTabsEmpty": {
-    "title": "No matching tabs",
-    "description": "Empty-state message shown in the open-tabs picker when no tabs match the current filter."
-  },
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",
     "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."

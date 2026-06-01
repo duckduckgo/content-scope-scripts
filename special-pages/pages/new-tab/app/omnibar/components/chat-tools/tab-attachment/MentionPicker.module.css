@@ -60,14 +60,6 @@
     color: var(--ds-color-theme-accent-content-primary);
 }
 
-.rowAttached {
-    color: var(--ds-color-theme-text-secondary);
-}
-
-.rowActive.rowAttached {
-    color: var(--ds-color-theme-accent-content-primary);
-}
-
 .favicon {
     border-radius: 4px;
     flex: none;
@@ -96,18 +88,4 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.attachedMark {
-    flex: none;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.statusMessage {
-    color: var(--ds-color-theme-text-secondary);
-    font-size: 13px;
-    margin: 0;
-    padding: var(--sp-2) var(--sp-3) var(--sp-3);
 }

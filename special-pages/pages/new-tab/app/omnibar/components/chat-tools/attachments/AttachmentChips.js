@@ -80,8 +80,11 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 removeLabel={t('omnibar_removeImageLabel')}
                             />
                         );
-                    default:
-                        return null;
+                    default: {
+                        /** @type {never} */
+                        const _exhaustiveCheck = item;
+                        return _exhaustiveCheck;
+                    }
                 }
             })}
         </div>

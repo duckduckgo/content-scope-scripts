@@ -1,5 +1,6 @@
 import { Fragment, h } from 'preact';
 import { useRef, useState } from 'preact/hooks';
+import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
 import { ChevronSmall, FolderIcon, PageContentIcon, PaperclipIcon } from '../../../../components/Icons';
 import { useDropdown } from '../useDropdown';
@@ -70,7 +71,7 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
 
     return (
         <label
-            class={disabled ? `${imageStyles.toolButton} ${imageStyles.toolButtonDisabled}` : imageStyles.toolButton}
+            class={cn(imageStyles.toolButton, { [imageStyles.toolButtonDisabled]: disabled })}
             aria-label={ariaLabel}
             aria-disabled={disabled}
             role="button"

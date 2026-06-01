@@ -12,13 +12,9 @@ const FILE_READ_TIMEOUT = 30000;
  */
 export function useFileAttachments(supportedFileTypes) {
     const [attachedFiles, setAttachedFiles] = useState(/** @type {AttachedFile[]} */ ([]));
-
     const allowList = supportedFileTypes ?? [];
     const allowListKey = allowList.join('|');
 
-    // Drop attachments whose MIME isn't in the current model's allow-list.
-    // In-render reset (React's sync-state-from-props pattern) so the
-    // submitted set always matches the active model.
     const [prevAllowListKey, setPrevAllowListKey] = useState(allowListKey);
     if (prevAllowListKey !== allowListKey) {
         setPrevAllowListKey(allowListKey);
