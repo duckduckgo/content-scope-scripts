@@ -19,6 +19,10 @@
     "lastEdit": {
       "description": "ISO timestamp of last edit",
       "type": "string"
+    },
+    "model": {
+      "description": "The AI model the chat was conducted with.",
+      "anyOf": [{ "$ref": "custom-model.json" }, { "type": "string" }]
     }
   }
 }

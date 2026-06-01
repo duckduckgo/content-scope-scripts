@@ -81,7 +81,7 @@ export function Bubble({
         });
         observer.observe(content);
         return () => observer.disconnect();
-    }, [onHeight]);
+    }, [onHeight, frameRef]);
 
     useEffect(() => {
         if (prevBounceKey.current === bounceKey) return;
@@ -115,7 +115,7 @@ export function Bubble({
                 delay: bounceDelay,
             },
         );
-    }, [bounceKey, animateFrame, animateProgressBadge, bounceDelay]);
+    }, [bounceKey, animateFrame, animateProgressBadge, bounceDelay, frameRef, contentRef, prevBounceKey]);
 
     /** @param {import('preact').JSX.TargetedAnimationEvent<HTMLDivElement>} e */
     const complete = (e) => {
