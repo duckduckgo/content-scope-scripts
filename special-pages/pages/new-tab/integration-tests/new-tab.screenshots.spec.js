@@ -1,3 +1,4 @@
+/* global Buffer */
 import { expect, test } from '@playwright/test';
 import { NewtabPage } from './new-tab.page.js';
 import { ActivityPage } from '../app/activity/integration-tests/activity.page.js';
@@ -338,6 +339,80 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             });
             await omnibar.ready();
             await expect(page).toHaveScreenshot('omnibar-reasoning-picker-selected-medium.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar attachments @screenshots', () => {
+        // A model that supports images + PDFs, with tab attachment enabled, so the
+        // paperclip surfaces every route.
+        const attachmentsConfig = {
+            'omnibar.mode': 'ai',
+            'omnibar.enableAiChatTools': 'true',
+            'omnibar.enableAttachTabs': 'true',
+            'omnibar.selectedModelId': 'claude-haiku-4-5',
+        };
+
+        /** A tiny valid PDF for `setInputFiles` without a fixture file. */
+        const pdfBytes = Buffer.from(
+            'JVBERi0xLjEKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbXS9Db3VudCAwPj5lbmRvYmoKdHJhaWxlcjw8L1Jvb3QgMSAwIFI+Pgo=',
+            'base64',
+        );
+
+        test('attach menu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: attachmentsConfig });
+            await omnibar.ready();
+            await omnibar.attachMenuButton().click();
+            await expect(omnibar.attachPageContentMenuItem()).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-attach-menu-open.png', { maxDiffPixels });
+        });
+
+        test('tab picker open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: attachmentsConfig });
+            await omnibar.ready();
+            await omnibar.attachMenuButton().click();
+            await omnibar.attachPageContentMenuItem().click();
+            await expect(omnibar.tabPickerItem('Starbucks Coffee Company')).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-tab-picker-open.png', { maxDiffPixels });
+        });
+
+        test('attached tab chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: attachmentsConfig });
+            await omnibar.ready();
+            await omnibar.attachTab('Starbucks Coffee Company');
+            await expect(omnibar.tabChips().locator('[data-status="ready"]')).toHaveCount(1);
+            await expect(page).toHaveScreenshot('omnibar-attached-tab-chip.png', { maxDiffPixels });
+        });
+
+        test('attached file chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: attachmentsConfig });
+            await omnibar.ready();
+            await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: pdfBytes });
+            await expect(omnibar.fileChip()).toHaveCount(1);
+            await expect(page).toHaveScreenshot('omnibar-attached-file-chip.png', { maxDiffPixels });
+        });
+
+        test('mention picker open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: attachmentsConfig });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await omnibar.chatInput().pressSequentially('@star');
+            await expect(omnibar.mentionOption('Starbucks Coffee Company')).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-mention-picker-open.png', { maxDiffPixels });
         });
     });
 

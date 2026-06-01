@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact';
 import { useRef, useState } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
-import { ChevronSmall, GlobeIcon, ImageIcon, PaperclipIcon, TabDesktopIcon } from '../../../../components/Icons';
+import { ChevronSmall, GlobeIcon, ImageIcon, PageContentIcon, PaperclipIcon } from '../../../../components/Icons';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
@@ -284,7 +284,7 @@ function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRe
                     role="menuitem"
                     ariaHasPopup
                     ariaExpanded={submenuOpen}
-                    icon={<TabDesktopIcon />}
+                    icon={<PageContentIcon />}
                     name={t('omnibar_attachPageContentLabel')}
                     trailingIcon={
                         <span class={styles.submenuChevron}>

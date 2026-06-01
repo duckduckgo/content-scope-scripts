@@ -370,6 +370,102 @@ export class OmnibarPage {
     reasoningOption(optionName) {
         return this.reasoningDropdown().getByRole('option', { name: optionName });
     }
+
+    // --- Attachments (paperclip menu, tab/file chips, @-mention picker) ---
+
+    /** Paperclip entry point rendered as a dropdown when tabs are enabled. */
+    attachMenuButton() {
+        return this.context().getByRole('button', { name: 'Attach' });
+    }
+
+    attachMenu() {
+        return this.context().getByRole('menu', { name: 'Attach' });
+    }
+
+    /** The "Add Images" / "Add PDFs" / "Add Images or PDFs" file entry inside the paperclip menu. */
+    attachFilesMenuItem() {
+        return this.attachMenu().getByRole('menuitem', { name: /Add (Images|PDFs|Images or PDFs)/ });
+    }
+
+    attachPageContentMenuItem() {
+        return this.attachMenu().getByRole('menuitem', { name: 'Attach Page Content' });
+    }
+
+    /** The recent-tabs submenu opened from "Attach Page Content". */
+    tabPicker() {
+        return this.context().getByRole('menu', { name: 'Recent Tabs' });
+    }
+
+    /** @param {string} title */
+    tabPickerItem(title) {
+        return this.tabPicker().getByRole('menuitem', { name: title });
+    }
+
+    /**
+     * Open the paperclip menu and pick a tab from the recent-tabs submenu.
+     * @param {string} title
+     */
+    async attachTab(title) {
+        await this.attachMenuButton().click();
+        await this.attachPageContentMenuItem().click();
+        await this.tabPickerItem(title).click();
+    }
+
+    tabChips() {
+        return this.context().getByTestId('omnibar-tab-chips');
+    }
+
+    /** Individual tab chips, located by their per-chip status wrapper. */
+    tabChip() {
+        return this.tabChips().locator('[data-status]');
+    }
+
+    /** @param {string} title */
+    removeTabButton(title) {
+        return this.context().getByRole('button', { name: `Remove ${title}` });
+    }
+
+    fileChips() {
+        return this.context().getByTestId('omnibar-file-chips');
+    }
+
+    /**
+     * Individual file chips, located by their remove `<button>`. Targets the real
+     * button element (not the `Tooltip` wrapper, which also exposes role=button
+     * and borrows its accessible name from this button).
+     */
+    fileChip() {
+        return this.fileChips().locator('button[aria-label^="Remove "]');
+    }
+
+    /** @param {string} fileName */
+    removeFileButton(fileName) {
+        return this.fileChips().locator(`button[aria-label="Remove ${fileName}"]`);
+    }
+
+    /** The `@`-mention typeahead picker. */
+    mentionPicker() {
+        return this.context().getByRole('dialog', { name: 'Pick an open tab to attach' });
+    }
+
+    /** @param {string} title */
+    mentionOption(title) {
+        return this.mentionPicker().getByRole('option', { name: title });
+    }
+
+    async submitChat() {
+        await this.chatSubmitButton().click();
+    }
+
+    /**
+     * Wait for N `omnibar_submitChat` notifications and return the most recent payload params.
+     * @param {number} [count]
+     * @returns {Promise<import('../../../types/new-tab.js').SubmitChatAction>}
+     */
+    async lastSubmitChatParams(count = 1) {
+        const calls = await this.ntp.mocks.waitForCallCount({ method: 'omnibar_submitChat', count });
+        return calls[calls.length - 1].payload.params;
+    }
 }
 
 /**
