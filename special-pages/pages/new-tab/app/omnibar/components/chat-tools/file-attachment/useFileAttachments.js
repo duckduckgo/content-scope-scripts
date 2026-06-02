@@ -1,4 +1,7 @@
 import { useState } from 'preact/hooks';
+import { FileAttachments } from '../../PersistentOmnibarValuesProvider';
+
+const { useStateWithLocalPersistence } = FileAttachments;
 
 /**
  * @typedef {{ data: string, fileName: string, mimeType: string }} AttachedFile
@@ -9,9 +12,12 @@ const FILE_READ_TIMEOUT = 30000;
 
 /**
  * @param {string[] | undefined} supportedFileTypes — MIME types the active model accepts.
+ * @param {string|null|undefined} [tabId] - The NTP tab these attachments belong to. Used to persist
+ * them per-tab so they survive switching between browser tabs (see `PersistentAttachmentsProvider`).
  */
-export function useFileAttachments(supportedFileTypes) {
-    const [attachedFiles, setAttachedFiles] = useState(/** @type {AttachedFile[]} */ ([]));
+export function useFileAttachments(supportedFileTypes, tabId) {
+    const [attachedFiles, setAttachedFiles] = useStateWithLocalPersistence(tabId);
+
     const allowList = supportedFileTypes ?? [];
     const allowListKey = allowList.join('|');
 

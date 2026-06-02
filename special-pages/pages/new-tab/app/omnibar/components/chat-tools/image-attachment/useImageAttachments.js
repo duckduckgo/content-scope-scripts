@@ -1,4 +1,7 @@
 import { useState } from 'preact/hooks';
+import { ImageAttachments } from '../../PersistentOmnibarValuesProvider';
+
+const { useStateWithLocalPersistence } = ImageAttachments;
 
 /**
  * @typedef {{ dataUrl: string, fileName: string, mimeType: string }} AttachedImage
@@ -78,8 +81,12 @@ function normaliseImage(srcDataUrl, targetMime) {
     });
 }
 
-export function useImageAttachments() {
-    const [attachedImages, setAttachedImages] = useState(/** @type {AttachedImage[]} */ ([]));
+/**
+ * @param {string|null|undefined} [tabId] - The NTP tab these attachments belong to. Used to persist
+ * them per-tab so they survive switching between browser tabs (see `PersistentAttachmentsProvider`).
+ */
+export function useImageAttachments(tabId) {
+    const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = useState(/** @type {ImageError|null} */ (null));
 
     const imageLimitExceeded = attachedImages.length > MAX_IMAGES;

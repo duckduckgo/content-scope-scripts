@@ -19,6 +19,9 @@ const PDF_BYTES = Buffer.from(
     'base64',
 );
 
+/** A 1x1 PNG, base64-encoded, used to drive image `setInputFiles` without a fixture file. */
+const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+
 /** @param {import('@playwright/test').Page} page @param {import('@playwright/test').TestInfo} workerInfo */
 function setup(page, workerInfo) {
     const ntp = NewtabPage.create(page, workerInfo);
@@ -264,5 +267,99 @@ test.describe('omnibar attachment coexistence', () => {
         expect(params.files).toHaveLength(1);
         expect(params.pageContext).toHaveLength(1);
         expect(params.pageContext?.[0].tabId).toBe('tab-2');
+    });
+});
+
+/**
+ * Attachments are stored per NTP tab (above the tab-keyed remount boundary), so they must
+ * survive switching between browser tabs and be dropped when a tab closes — see the tech
+ * designs' "chips persist across browser-tab switches and clear when the NTP tab closes".
+ */
+test.describe('omnibar attachment per-tab persistence', () => {
+    /**
+     * Multi-tab (`tabs`) so `didSwitchToTab` drives a real tabId change, AI mode with attach-tabs
+     * on, and a model that accepts both images and PDFs so all three attachment routes are available.
+     */
+    const config = {
+        tabs: true,
+        'omnibar.mode': 'ai',
+        'omnibar.enableAttachTabs': 'true',
+        'omnibar.enableAiChatTools': 'true',
+        'omnibar.selectedModelId': 'claude-haiku-4-5',
+    };
+
+    test('attached tabs survive a browser-tab switch and stay scoped to their tab', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: config });
+        await omnibar.ready();
+
+        // attach two tabs on tab 01
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await omnibar.attachTab('MacBook Neo - Apple');
+        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(2);
+
+        // a freshly-focused tab 02 has its own (empty) attachment state
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
+
+        // returning to 01 restores both chips
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(2);
+    });
+
+    test('attached files survive a browser-tab switch', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: config });
+        await omnibar.ready();
+
+        // wait for the attach entry point so the model (and thus the file route) has resolved
+        await expect(omnibar.attachMenuButton()).toBeVisible();
+        await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: PDF_BYTES });
+        await expect(omnibar.fileChip()).toHaveCount(1);
+
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+        await expect(omnibar.fileChip()).toHaveCount(0);
+
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await expect(omnibar.fileChip()).toHaveCount(1);
+    });
+
+    test('attached images survive a browser-tab switch', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: config });
+        await omnibar.ready();
+
+        // wait for the attach entry point so the model (and thus the image route) has resolved
+        await expect(omnibar.attachMenuButton()).toBeVisible();
+        await omnibar.fileInput().setInputFiles({ name: 'shot.png', mimeType: 'image/png', buffer: TINY_PNG });
+        await expect(omnibar.attachmentChips().locator('[data-attachment-kind="image"]')).toHaveCount(1);
+
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
+
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await expect(omnibar.attachmentChips().locator('[data-attachment-kind="image"]')).toHaveCount(1);
+    });
+
+    test('closing an NTP tab clears its persisted attachments', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: config });
+        await omnibar.ready();
+
+        // attach on tab 01, then open tab 02 (01 still present, so it's preserved)
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+
+        // tab 01 closes (drops out of the tab id list) → its stored attachments are pruned
+        await omnibar.didSwitchToTab('02', ['02']);
+
+        // 01 comes back around with nothing restored
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
     });
 });

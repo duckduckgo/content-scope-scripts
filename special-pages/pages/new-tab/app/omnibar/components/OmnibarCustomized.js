@@ -6,7 +6,17 @@ import { h } from 'preact';
 
 import { OmnibarConsumer } from './OmnibarConsumer.js';
 import { SearchIcon } from '../../components/Icons.js';
-import { PersistentModeProvider, PersistentTextInputProvider } from './PersistentOmnibarValuesProvider.js';
+import {
+    FileAttachments,
+    ImageAttachments,
+    PersistentModeProvider,
+    PersistentTextInputProvider,
+    TabAttachments,
+} from './PersistentOmnibarValuesProvider.js';
+
+const { Provider: TabAttachmentsProvider } = TabAttachments;
+const { Provider: FileAttachmentsProvider } = FileAttachments;
+const { Provider: ImageAttachmentsProvider } = ImageAttachments;
 
 /**
  * @import enStrings from "../strings.json"
@@ -34,9 +44,15 @@ export function OmnibarCustomized() {
     return (
         <PersistentTextInputProvider>
             <PersistentModeProvider>
-                <OmnibarProvider>
-                    <OmnibarConsumer />
-                </OmnibarProvider>
+                <TabAttachmentsProvider>
+                    <FileAttachmentsProvider>
+                        <ImageAttachmentsProvider>
+                            <OmnibarProvider>
+                                <OmnibarConsumer />
+                            </OmnibarProvider>
+                        </ImageAttachmentsProvider>
+                    </FileAttachmentsProvider>
+                </TabAttachmentsProvider>
             </PersistentModeProvider>
         </PersistentTextInputProvider>
     );

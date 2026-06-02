@@ -1,5 +1,6 @@
 /**
- * @template {string} T - the value to hold.
+ * @template T - the value to hold. Keys are always tab ids (strings); the value
+ * can be any type (e.g. a string query, a mode, or an array of attachments).
  */
 export class PersistentValue {
     /** @type {Map<string, T>} */

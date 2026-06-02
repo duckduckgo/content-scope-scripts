@@ -170,6 +170,7 @@ export function Omnibar({
                                     enableRecentAiChats={enableRecentAiChats}
                                     enableVoiceChatAccess={enableVoiceChatAccess}
                                     enableAttachTabs={enableAttachTabs}
+                                    tabId={tabId}
                                     onChange={setQuery}
                                     onSubmit={handleSubmitChat}
                                 />
@@ -189,6 +190,7 @@ export function Omnibar({
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} [props.enableVoiceChatAccess]
  * @param {boolean} [props.enableAttachTabs]
+ * @param {string|null|undefined} [props.tabId]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
@@ -198,6 +200,7 @@ function AiChatContent({
     enableRecentAiChats,
     enableVoiceChatAccess = false,
     enableAttachTabs = false,
+    tabId,
     onChange,
     onSubmit,
 }) {
@@ -210,7 +213,7 @@ function AiChatContent({
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const imageState = useImageAttachments();
+    const imageState = useImageAttachments(tabId);
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages
@@ -219,11 +222,11 @@ function AiChatContent({
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
-    const fileState = useFileAttachments(selectedModel?.supportedFileTypes);
+    const fileState = useFileAttachments(selectedModel?.supportedFileTypes, tabId);
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
-    const tabAttachments = useTabAttachments();
+    const tabAttachments = useTabAttachments(tabId);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
         enabled: canAttachTabs,

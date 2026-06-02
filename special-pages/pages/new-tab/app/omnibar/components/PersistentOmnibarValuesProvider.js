@@ -6,6 +6,9 @@ import { PersistentValue } from '../../tabs/PersistentValue.js';
 
 /**
  * @typedef {import("../../../types/new-tab.js").OmnibarConfig["mode"]} Mode
+ * @typedef {import("./chat-tools/tab-attachment/useTabAttachments.js").AttachedTab} AttachedTab
+ * @typedef {import("./chat-tools/file-attachment/useFileAttachments.js").AttachedFile} AttachedFile
+ * @typedef {import("./chat-tools/image-attachment/useImageAttachments.js").AttachedImage} AttachedImage
  */
 
 const TextInputContext = createContext(/** @type {PersistentValue<string>|null} */ (null));
@@ -40,6 +43,57 @@ export function PersistentModeProvider({ children }) {
     }, [all, value]);
     return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>;
 }
+
+/**
+ * @template T
+ * @typedef {object} PersistentList
+ * @property {(props: { children: import('preact').ComponentChildren }) => import('preact').VNode} Provider
+ * @property {(tabId: string|null|undefined) => readonly [T[], (next: T[] | ((prev: T[]) => T[])) => void]} useStateWithLocalPersistence
+ */
+
+/**
+ * @template T
+ * @returns {PersistentList<T>}
+ */
+function createPersistentList() {
+    const Context = createContext(/** @type {PersistentValue<T[]>|null} */ (null));
+
+    /** @param {{ children: import('preact').ComponentChildren }} props */
+    function Provider({ children }) {
+        const [store] = useState(() => /** @type {PersistentValue<T[]>} */ (new PersistentValue()));
+        const { all } = useTabState();
+        useEffect(() => {
+            return all.subscribe((tabIds) => store.prune({ preserve: tabIds }));
+        }, [all, store]);
+
+        return <Context.Provider value={store}>{children}</Context.Provider>;
+    }
+
+    /** @param {string|null|undefined} tabId */
+    function useStateWithLocalPersistence(tabId) {
+        const store = useContext(Context);
+        const [items, setItems] = useState(() => store?.byId(tabId) ?? []);
+        const setter = useCallback(
+            /** @param {T[] | ((prev: T[]) => T[])} next */
+            (next) => {
+                setItems((prev) => {
+                    const value = typeof next === 'function' ? /** @type {(prev: T[]) => T[]} */ (next)(prev) : next;
+                    if (tabId) store?.update({ id: tabId, value });
+                    return value;
+                });
+            },
+            [store, tabId],
+        );
+        return /** @type {const} */ ([items, setter]);
+    }
+
+    return { Provider, useStateWithLocalPersistence };
+}
+
+// Three independent attachment lists, each with its own Provider + `useStateWithLocalPersistence` hook.
+export const TabAttachments = /** @type {() => PersistentList<AttachedTab>} */ (createPersistentList)();
+export const FileAttachments = /** @type {() => PersistentList<AttachedFile>} */ (createPersistentList)();
+export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */ (createPersistentList)();
 
 /**
  * A normal set-state, but with values recorded. Must be used when the Omnibar Service is ready

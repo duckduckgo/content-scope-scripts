@@ -1,5 +1,8 @@
-import { useCallback, useContext, useMemo, useState } from 'preact/hooks';
+import { useCallback, useContext, useMemo } from 'preact/hooks';
 import { OmnibarContext } from '../../OmnibarProvider';
+import { TabAttachments } from '../../PersistentOmnibarValuesProvider';
+
+const { useStateWithLocalPersistence } = TabAttachments;
 
 /**
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
@@ -14,10 +17,14 @@ import { OmnibarContext } from '../../OmnibarProvider';
  * @property {PageContext|null} pageContext — Native-extracted content, populated once `getTabContent` resolves. `null` when extraction failed.
  */
 
-export function useTabAttachments() {
+/**
+ * @param {string|null|undefined} tabId — The NTP tab these attachments belong to. Used to persist
+ * them per-tab so they survive switching between browser tabs (see `PersistentAttachmentsProvider`).
+ */
+export function useTabAttachments(tabId) {
     const { getTabContent } = useContext(OmnibarContext);
 
-    const [attachedTabs, setAttachedTabs] = useState(/** @type {AttachedTab[]} */ ([]));
+    const [attachedTabs, setAttachedTabs] = useStateWithLocalPersistence(tabId);
 
     const isAttached = useCallback(
         /** @param {string} tabId */
@@ -58,7 +65,7 @@ export function useTabAttachments() {
                 setAttachedTabs((prev) => prev.filter((t) => t.tabId !== tabToAttach.tabId));
             }
         },
-        [getTabContent],
+        [getTabContent, setAttachedTabs],
     );
 
     const removeTab = useCallback(
@@ -66,12 +73,12 @@ export function useTabAttachments() {
         (tabId) => {
             setAttachedTabs((prev) => prev.filter((tab) => tab.tabId !== tabId));
         },
-        [],
+        [setAttachedTabs],
     );
 
     const clearAttachedTabs = useCallback(() => {
         setAttachedTabs([]);
-    }, []);
+    }, [setAttachedTabs]);
 
     /**
      * @returns {PageContext[] | null}

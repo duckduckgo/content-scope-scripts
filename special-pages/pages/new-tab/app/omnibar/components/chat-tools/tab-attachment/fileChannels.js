@@ -8,6 +8,23 @@
 const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
 /**
+ * @type {Record<string, string>}
+ */
+const FILE_EXTENSIONS = {
+    'application/pdf': '.pdf',
+};
+
+/**
+ * Builds the file channel's `accept` fragment from the model's supported MIME
+ * types (e.g. `['application/pdf']` → `.pdf`).
+ * @param {string[]} mimeTypes
+ * @returns {string}
+ */
+function buildFileAccept(mimeTypes) {
+    return mimeTypes.map((mime) => FILE_EXTENSIONS[mime] ?? mime).join(',');
+}
+
+/**
  * Collapses the optional image / file (PDF) channels into the config for the
  * single hidden `<input type="file">` rendered by {@link AttachMenu}:
  *   - `label` / `accept` reflect which of `image`/`file` are non-null.
@@ -24,7 +41,7 @@ const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 export function resolveFileInput({ t, image, file }) {
     const label =
         image && file ? t('omnibar_attachImageOrFileLabel') : image ? t('omnibar_attachImageLabel') : t('omnibar_attachFileLabel');
-    const accept = [image ? IMAGE_ACCEPT : '', file ? file.mimeTypes.join(',') : ''].filter(Boolean).join(',');
+    const accept = [...(image ? [IMAGE_ACCEPT] : []), ...(file ? [buildFileAccept(file.mimeTypes)] : [])].filter(Boolean).join(',');
     const disabled = (image?.disabled ?? true) && (file?.disabled ?? true);
 
     /** @param {Event} event */
