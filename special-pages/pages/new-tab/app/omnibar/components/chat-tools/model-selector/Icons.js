@@ -104,7 +104,7 @@ export function OSSIcon(props) {
  */
 export function getModelIcon(modelId) {
     if (modelId.startsWith('meta-llama/') || modelId.startsWith('meta-llama_')) return LlamaIcon;
-    if (modelId.startsWith('mistralai/') || modelId.startsWith('mistralai_')) return MistralIcon;
+    if (modelId.startsWith('mistral')) return MistralIcon;
     if (modelId.includes('gpt-oss')) return OSSIcon;
     if (modelId.startsWith('claude')) return ClaudeIcon;
     if (modelId.startsWith('gpt') || modelId.startsWith('openai')) return OpenAIIcon;
