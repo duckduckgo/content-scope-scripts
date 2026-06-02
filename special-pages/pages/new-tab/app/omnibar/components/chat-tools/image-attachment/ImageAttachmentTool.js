@@ -10,12 +10,6 @@ import styles from './ImageAttachment.module.css';
  */
 
 /**
- * Alert renderer for image attachments — the limit warning and processing
- * errors shown in the form's content area. Image thumbnails themselves are
- * rendered by the shared `AttachmentChips` container; this component only owns
- * the alerts plus the visibility/warning callbacks that drive the chat list.
- * The parent reads image state directly when assembling the submit payload.
- *
  * @param {object} props
  * @param {ImageAttachmentState} props.state
  * @param {boolean} props.supportsImageUpload
@@ -34,6 +28,7 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
 
     useLayoutEffect(() => {
         if (prevVisibleRef.current !== hasVisibleImages) {
+            console.log('[attach-debug] ImageAttachment visibleImagesChange', { hasVisibleImages, count: attachedImages.length }); // [DEBUG_LOG]
             prevVisibleRef.current = hasVisibleImages;
             onVisibleImagesChange(hasVisibleImages);
         }
@@ -42,6 +37,7 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
 
     useLayoutEffect(() => {
         if (prevWarningRef.current !== showImageWarning) {
+            console.log('[attach-debug] ImageAttachment warningChange', { showImageWarning }); // [DEBUG_LOG]
             prevWarningRef.current = showImageWarning;
             onImageWarningChange(showImageWarning);
         }

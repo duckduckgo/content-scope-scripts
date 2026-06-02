@@ -6,9 +6,7 @@ import { PdfFileChip } from './PdfFileChip';
  */
 
 /**
- * Picks the chip representation for an attached file based on its MIME type.
- * Today only PDFs have a chip; any other type renders nothing. Add a case here
- * as each new file type gains its own chip.
+ * Picks the chip representation for an attached file
  *
  * @param {object} props
  * @param {AttachedFile} props.file
@@ -16,10 +14,12 @@ import { PdfFileChip } from './PdfFileChip';
  * @param {string} props.removeLabel
  */
 export function FileChip({ file, onRemove, removeLabel }) {
+    console.log('[attach-debug] FileChip render', { fileName: file.fileName, mimeType: file.mimeType }); // [DEBUG_LOG]
     switch (file.mimeType) {
         case 'application/pdf':
             return <PdfFileChip file={file} onRemove={onRemove} removeLabel={removeLabel} />;
         default:
+            console.log('[attach-debug] FileChip no chip for mimeType', file.mimeType); // [DEBUG_LOG]
             return null;
     }
 }

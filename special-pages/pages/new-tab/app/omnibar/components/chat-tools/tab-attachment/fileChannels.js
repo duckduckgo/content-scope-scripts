@@ -15,12 +15,13 @@ const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
  *   - `onChange` partitions the picked files back to the right channel
  *     (anything `image/*` → image, everything else → file).
  *
- * @param {(key: keyof Strings) => string} t
- * @param {ImageChannel | null} image - Pass null to omit the image route.
- * @param {FileChannel | null} file - Pass null to omit the file (PDF) route.
+ * @param {object} params
+ * @param {(key: keyof Strings) => string} params.t
+ * @param {ImageChannel | null} params.image - Pass null to omit the image route.
+ * @param {FileChannel | null} params.file - Pass null to omit the file (PDF) route.
  * @returns {ResolvedFileInput}
  */
-export function resolveFileInput(t, image, file) {
+export function resolveFileInput({ t, image, file }) {
     const label =
         image && file ? t('omnibar_attachImageOrFileLabel') : image ? t('omnibar_attachImageLabel') : t('omnibar_attachFileLabel');
     const accept = [image ? IMAGE_ACCEPT : '', file ? file.mimeTypes.join(',') : ''].filter(Boolean).join(',');
@@ -31,19 +32,27 @@ export function resolveFileInput(t, image, file) {
         const input = /** @type {HTMLInputElement} */ (event.currentTarget);
         if (!input.files || input.files.length === 0) return;
         const all = Array.from(input.files);
+        console.log('[attach-debug] fileChannels.onChange picked', {
+            all: all.map((f) => ({ name: f.name, type: f.type })),
+            hasImageChannel: !!image,
+            hasFileChannel: !!file,
+        }); // [DEBUG_LOG]
         /** @type {Promise<void>[]} */
         const tasks = [];
         if (image) {
             const images = all.filter((f) => f.type.startsWith('image/'));
+            console.log('[attach-debug] fileChannels.onChange → image channel', { images: images.map((f) => f.name) }); // [DEBUG_LOG]
             if (images.length > 0) tasks.push(image.processFiles(images));
         }
         if (file) {
             const others = all.filter((f) => !f.type.startsWith('image/'));
+            console.log('[attach-debug] fileChannels.onChange → file channel', { others: others.map((f) => f.name) }); // [DEBUG_LOG]
             if (others.length > 0) tasks.push(file.processFiles(others));
         }
         await Promise.all(tasks);
         input.value = '';
     };
 
+    console.log('[attach-debug] resolveFileInput config', { label, accept, disabled }); // [DEBUG_LOG]
     return { label, accept, disabled, onChange };
 }

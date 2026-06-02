@@ -8,13 +8,6 @@ import styles from './PdfFileChip.module.css';
  */
 
 /**
- * Card-style chip matching the Figma file-attachment design — two grey
- * "document lines" stacked above an orange "PDF" label. v1 only supports PDF
- * attachments, so the label is hardcoded and the component is named for it;
- * rename/generalise once other file types are supported.
- * Hover/focus surfaces the filename via tooltip. Rendered by the shared
- * `AttachmentChips` container, which owns the row layout.
- *
  * @param {object} props
  * @param {AttachedFile} props.file
  * @param {() => void} props.onRemove
@@ -31,7 +24,16 @@ export function PdfFileChip({ file, onRemove, removeLabel }) {
                     </span>
                     <span class={styles.format}>PDF</span>
                 </span>
-                <button type="button" tabIndex={0} class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
+                <button
+                    type="button"
+                    tabIndex={0}
+                    class={styles.remove}
+                    aria-label={removeLabel}
+                    onClick={() => {
+                        console.log('[attach-debug] PdfFileChip remove clicked', { fileName: file.fileName }); // [DEBUG_LOG]
+                        onRemove();
+                    }}
+                >
                     <CloseSmallIcon width="10" height="10" style="stroke: currentColor; stroke-width: 1px;" />
                 </button>
             </div>

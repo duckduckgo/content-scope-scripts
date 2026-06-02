@@ -20,17 +20,9 @@ import styles from './AttachMenu.module.css';
  */
 
 /**
- * Paperclip entry point. Renders whichever items the caller enabled:
- *   - "Add Images" / "Add PDFs" / "Add Images or PDFs" — file picker entry
- *     whose label and `accept` come from which of `image`/`file` are non-null.
- *   - "Add Page Content" → tab picker, when `tabsEnabled`.
- * Collapses to a direct paperclip-button (no dropdown) when the only enabled
- * mode is image/file. Tabs always render the dropdown so the user has a
- * labelled entry rather than the picker firing on first click.
- *
  * @param {object} props
  * @param {ImageChannel | null} props.image — Pass null to omit the image route.
- * @param {FileChannel | null} props.file — Pass null to omit the file (PDF) route.
+ * @param {FileChannel | null} props.file — Pass null to omit the file route.
  * @param {boolean} props.tabsEnabled
  * @param {(tab: TabMetadata) => void} props.onAttachTab
  */
@@ -38,11 +30,13 @@ export function AttachMenu({ image, file, tabsEnabled, onAttachTab }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const attachEnabled = image !== null || file !== null;
+    console.log('[attach-debug] AttachMenu render', { attachEnabled, tabsEnabled, hasImage: image !== null, hasFile: file !== null }); // [DEBUG_LOG]
     if (!attachEnabled && !tabsEnabled) return null;
 
-    const fileInput = resolveFileInput(t, image, file);
+    const fileInput = resolveFileInput({ t, image, file });
 
     if (attachEnabled && !tabsEnabled) {
+        console.log('[attach-debug] AttachMenu → DirectFileButton branch'); // [DEBUG_LOG]
         return (
             <DirectFileButton
                 ariaLabel={fileInput.label}
@@ -122,6 +116,7 @@ function DropdownMenu({ t, attachEnabled, fileInput, onAttachTab }) {
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     const triggerFileInput = () => {
+        console.log('[attach-debug] AttachMenu triggerFileInput', { disabled: fileInput.disabled }); // [DEBUG_LOG]
         if (fileInput.disabled) return;
         window.setTimeout(() => fileInputRef.current?.click(), 0);
     };
@@ -171,6 +166,7 @@ function DropdownMenu({ t, attachEnabled, fileInput, onAttachTab }) {
                     onClose={handleClose}
                     onTriggerFileInput={triggerFileInput}
                     onAttachTab={(tab) => {
+                        console.log('[attach-debug] AttachMenu onAttachTab', { tab }); // [DEBUG_LOG]
                         onAttachTab(tab);
                         close();
                     }}
