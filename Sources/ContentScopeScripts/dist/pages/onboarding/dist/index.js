@@ -31446,6 +31446,9 @@
   var Uint16Array2 = globalThis.Uint16Array;
   var Uint32Array2 = globalThis.Uint32Array;
   var JSONparse = JSON.parse;
+  var atob2 = globalThis.atob?.bind(globalThis);
+  var DOMException2 = globalThis.DOMException;
+  var charCodeAt = globalThis.String.prototype.charCodeAt;
   var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
   var ReflectApply = Reflect2.apply.bind(Reflect2);
   var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);

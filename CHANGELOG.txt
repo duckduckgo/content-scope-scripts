@@ -1,1 +1,1 @@
-- Capture message handler refs at construction on WebKit (#2729)
+- Added `autofillPasskeys` feature that intercepts `navigator.credentials.get()` on Windows (#2571)

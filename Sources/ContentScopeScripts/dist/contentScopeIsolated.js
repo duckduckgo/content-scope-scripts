@@ -1548,6 +1548,7 @@
   __export(captured_globals_exports, {
     Arrayfrom: () => Arrayfrom,
     CustomEvent: () => CustomEvent2,
+    DOMException: () => DOMException2,
     Error: () => Error2,
     JSONparse: () => JSONparse,
     JSONstringify: () => JSONstringify,
@@ -1568,6 +1569,8 @@
     Uint32Array: () => Uint32Array,
     Uint8Array: () => Uint8Array2,
     addEventListener: () => addEventListener,
+    atob: () => atob,
+    charCodeAt: () => charCodeAt,
     console: () => console2,
     consoleError: () => consoleError,
     consoleLog: () => consoleLog,
@@ -1632,6 +1635,9 @@
   var JSONstringify = JSON.stringify;
   var JSONparse = JSON.parse;
   var Arrayfrom = Array.from;
+  var atob = globalThis.atob?.bind(globalThis);
+  var DOMException2 = globalThis.DOMException;
+  var charCodeAt = globalThis.String.prototype.charCodeAt;
   var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
   var ReflectApply = Reflect2.apply.bind(Reflect2);
   var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
@@ -2181,7 +2187,8 @@
       "hover",
       "browserUiLock",
       "trackerProtection",
-      "tabSuspension"
+      "tabSuspension",
+      "autofillPasskeys"
     ]
   );
   var platformSupport = {
@@ -2252,7 +2259,8 @@
       "pageContext",
       "duckAiDataClearing",
       "performanceMetrics",
-      "duckAiChatHistory"
+      "duckAiChatHistory",
+      "autofillPasskeys"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],

@@ -2296,6 +2296,7 @@
   __export(captured_globals_exports, {
     Arrayfrom: () => Arrayfrom,
     CustomEvent: () => CustomEvent2,
+    DOMException: () => DOMException2,
     Error: () => Error2,
     JSONparse: () => JSONparse,
     JSONstringify: () => JSONstringify,
@@ -2316,6 +2317,8 @@
     Uint32Array: () => Uint32Array2,
     Uint8Array: () => Uint8Array2,
     addEventListener: () => addEventListener,
+    atob: () => atob,
+    charCodeAt: () => charCodeAt,
     console: () => console2,
     consoleError: () => consoleError,
     consoleLog: () => consoleLog,
@@ -2380,6 +2383,9 @@
   var JSONstringify = JSON.stringify;
   var JSONparse = JSON.parse;
   var Arrayfrom = Array.from;
+  var atob = globalThis.atob?.bind(globalThis);
+  var DOMException2 = globalThis.DOMException;
+  var charCodeAt = globalThis.String.prototype.charCodeAt;
   var ReflectDeleteProperty = Reflect2.deleteProperty.bind(Reflect2);
   var ReflectApply = Reflect2.apply.bind(Reflect2);
   var getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
@@ -2977,7 +2983,8 @@
       "hover",
       "browserUiLock",
       "trackerProtection",
-      "tabSuspension"
+      "tabSuspension",
+      "autofillPasskeys"
     ]
   );
   var platformSupport = {
@@ -3048,7 +3055,8 @@
       "pageContext",
       "duckAiDataClearing",
       "performanceMetrics",
-      "duckAiChatHistory"
+      "duckAiChatHistory",
+      "autofillPasskeys"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad", "webDetection", "webEvents", "webInterferenceDetection", "breakageReporting"],
@@ -18898,6 +18906,121 @@ ${iframeContent}
   var DuckAiChatHistory = _DuckAiChatHistory;
   var duck_ai_chat_history_default = DuckAiChatHistory;
 
+  // src/features/autofill-passkeys.js
+  init_define_import_meta_trackerLookup();
+  var MSG_INBOUND_PASSKEY_SELECTED = "passkeySelected";
+  var MSG_OUTBOUND_NAME = "registerPasskeyRequest";
+  var MEDIATION_CONDITIONAL = "conditional";
+  var CREDENTIAL_TYPE_PUBLIC_KEY = "public-key";
+  var _cancelPending;
+  var AutofillPasskeys = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {(() => void) | null} */
+      __privateAdd(this, _cancelPending, null);
+    }
+    init() {
+      if (typeof CredentialsContainer === "undefined" || !navigator.credentials || !(navigator.credentials instanceof CredentialsContainer) || typeof navigator.credentials.get !== "function") {
+        return;
+      }
+      const credentialsSingleton = navigator.credentials;
+      const feature = this;
+      this.wrapMethod(
+        CredentialsContainer.prototype,
+        "get",
+        /** @this {CredentialsContainer} */
+        function(originalGet, options) {
+          if (this !== credentialsSingleton) {
+            return originalGet.call(this, options);
+          }
+          try {
+            const mediation = options?.mediation;
+            const publicKey = options?.publicKey;
+            if (!globalThis.isSecureContext || mediation !== MEDIATION_CONDITIONAL || !publicKey) {
+              return originalGet.call(this, options);
+            }
+            return feature.registerPasskeyRequest(publicKey, options, originalGet, this);
+          } catch (e) {
+            return Promise2.reject(e);
+          }
+        }
+      );
+    }
+    /**
+     * @param {PublicKeyCredentialRequestOptions} publicKey - page-supplied publicKey dictionary (already confirmed present)
+     * @param {CredentialRequestOptions} options
+     * @param {CredentialsContainer['get']} originalGet - unbound original method
+     * @param {CredentialsContainer} receiver - the receiver from the intercepted call
+     * @returns {Promise<Credential | null>}
+     */
+    registerPasskeyRequest(publicKey, options, originalGet, receiver) {
+      if (__privateGet(this, _cancelPending)) {
+        __privateGet(this, _cancelPending).call(this);
+      }
+      const requestId = randomUUID?.();
+      if (!requestId) {
+        return originalGet.call(receiver, options);
+      }
+      return new Promise2((resolve, reject) => {
+        const publicKeySnapshot = {
+          challenge: publicKey.challenge,
+          timeout: publicKey.timeout,
+          rpId: publicKey.rpId,
+          userVerification: publicKey.userVerification,
+          extensions: publicKey.extensions
+        };
+        const rpId = typeof publicKeySnapshot.rpId === "string" ? publicKeySnapshot.rpId : location.hostname;
+        let unsubscribe;
+        const cleanup = () => {
+          unsubscribe?.();
+          if (options.signal) {
+            options.signal.removeEventListener("abort", onAbort);
+          }
+          __privateSet(this, _cancelPending, null);
+        };
+        const handler = async (data2) => {
+          if (typeof data2?.credentialId !== "string" || data2.credentialId.length === 0) return;
+          if (data2.requestId !== requestId) return;
+          cleanup();
+          try {
+            const raw = atob(data2.credentialId);
+            const arr = new Uint8Array2(raw.length);
+            for (let i = 0; i < raw.length; i++) arr[i] = charCodeAt.call(raw, i);
+            const narrowed = {
+              signal: options.signal,
+              publicKey: {
+                ...publicKeySnapshot,
+                allowCredentials: [{ type: CREDENTIAL_TYPE_PUBLIC_KEY, id: arr.buffer }]
+              }
+            };
+            const credential = await originalGet.call(receiver, narrowed);
+            resolve(credential);
+          } catch (e) {
+            reject(e);
+          }
+        };
+        const onAbort = () => {
+          cleanup();
+          reject(options.signal?.reason ?? new DOMException2("The operation was aborted.", "AbortError"));
+        };
+        __privateSet(this, _cancelPending, () => {
+          cleanup();
+          reject(new DOMException2("A new passkey request superseded this one.", "AbortError"));
+        });
+        if (options.signal?.aborted) {
+          onAbort();
+          return;
+        }
+        if (options.signal) {
+          options.signal.addEventListener("abort", onAbort);
+        }
+        unsubscribe = this.subscribe(MSG_INBOUND_PASSKEY_SELECTED, handler);
+        this.notify(MSG_OUTBOUND_NAME, { rpId, requestId });
+      });
+    }
+  };
+  _cancelPending = new WeakMap();
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_cookie: CookieFeature,
@@ -18928,7 +19051,8 @@ ${iframeContent}
     ddg_feature_pageContext: PageContext,
     ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default,
     ddg_feature_performanceMetrics: PerformanceMetrics,
-    ddg_feature_duckAiChatHistory: duck_ai_chat_history_default
+    ddg_feature_duckAiChatHistory: duck_ai_chat_history_default,
+    ddg_feature_autofillPasskeys: AutofillPasskeys
   };
 
   // src/url-change.js
