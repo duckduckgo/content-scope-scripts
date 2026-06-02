@@ -7,7 +7,7 @@
   "required": ["credentialId", "requestId"],
   "properties": {
     "credentialId": {
-      "description": "Base64-encoded WebAuthn credential ID selected by native Autofill.",
+      "description": "Base64-encoded (standard Base64, not Base64URL) WebAuthn credential ID selected by native Autofill.",
       "type": "string"
     },
     "requestId": {
