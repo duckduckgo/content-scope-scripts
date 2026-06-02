@@ -1,4 +1,5 @@
 import { WebEvents } from '../src/features/web-events.js';
+import { buildExperimentsParameter } from '../src/features/web-events/experiments.js';
 
 describe('WebEvents', () => {
     describe('fireEvent', () => {
@@ -74,6 +75,98 @@ describe('WebEvents', () => {
             // only { type, data }, so nativeData should never appear in the outgoing message.
             const { params } = captureNotify(/** @type {any} */ ({ type: 'adwall', nativeData: { bad: true } }));
             expect('nativeData' in params).toBe(false);
+        });
+    });
+    describe('buildExperimentsParameter', () => {
+        it('returns an empty object when there are no assignments', () => {
+            expect(buildExperimentsParameter([])).toEqual({});
+        });
+
+        it('maps assignments to the canonical shape', () => {
+            const result = buildExperimentsParameter([
+                { name: 'contentScopeExperiment4', cohort: 'treatment' },
+                { name: 'tdsNextExperiment008', cohort: 'control' },
+            ]);
+            expect(result).toEqual({
+                contentScopeExperiment4: { cohort: 'treatment' },
+                tdsNextExperiment008: { cohort: 'control' },
+            });
+        });
+
+        it('includes changedInPeriod only when truthy', () => {
+            const result = buildExperimentsParameter([
+                { name: 'a', cohort: 'treatment', changedInPeriod: true },
+                { name: 'b', cohort: 'control', changedInPeriod: false },
+            ]);
+            expect(result).toEqual({
+                a: { cohort: 'treatment', changedInPeriod: true },
+                b: { cohort: 'control' },
+            });
+        });
+
+        it('filters by matchExperiments regex', () => {
+            const assignments = [
+                { name: 'tdsNextExperiment008', cohort: 'treatment' },
+                { name: 'contentScopeExperiment4', cohort: 'control' },
+                { name: 'someOtherExperiment', cohort: 'control' },
+            ];
+            const result = buildExperimentsParameter(assignments, '^(tdsNextExperiment|contentScopeExperiment)');
+            expect(result).toEqual({
+                tdsNextExperiment008: { cohort: 'treatment' },
+                contentScopeExperiment4: { cohort: 'control' },
+            });
+        });
+
+        it('returns an empty object for an invalid regex', () => {
+            expect(buildExperimentsParameter([{ name: 'a', cohort: 'b' }], '([')).toEqual({});
+        });
+
+        it('ignores assignments missing a name or cohort', () => {
+            const result = buildExperimentsParameter([
+                { name: '', cohort: 'treatment' },
+                { name: 'a', cohort: '' },
+                { name: 'b', cohort: 'control' },
+            ]);
+            expect(result).toEqual({ b: { cohort: 'control' } });
+        });
+    });
+
+    describe('getExperiments', () => {
+        /**
+         * @param {Array<{feature: string, cohort: string, subfeature: string}>} [currentCohorts]
+         */
+        function createFeature(currentCohorts) {
+            const args = {
+                site: { domain: 'example.com', url: 'https://example.com' },
+                platform: {},
+                featureSettings: {},
+                bundledConfig: undefined,
+                messagingContextName: 'test',
+                currentCohorts,
+            };
+            return new WebEvents('webEvents', undefined, {}, args);
+        }
+
+        it('returns an empty object when there are no current cohorts', () => {
+            expect(createFeature(undefined).getExperiments()).toEqual({});
+            expect(createFeature([]).getExperiments()).toEqual({});
+        });
+
+        it('maps currentCohorts using the subfeature as the experiment name', () => {
+            const feature = createFeature([
+                { feature: 'contentScopeExperiments', subfeature: 'contentScopeExperiment4', cohort: 'treatment' },
+            ]);
+            expect(feature.getExperiments()).toEqual({ contentScopeExperiment4: { cohort: 'treatment' } });
+        });
+
+        it('applies matchExperiments filtering', () => {
+            const feature = createFeature([
+                { feature: 'contentScopeExperiments', subfeature: 'contentScopeExperiment4', cohort: 'treatment' },
+                { feature: 'other', subfeature: 'someOtherExperiment', cohort: 'control' },
+            ]);
+            expect(feature.getExperiments({ matchExperiments: '^contentScopeExperiment' })).toEqual({
+                contentScopeExperiment4: { cohort: 'treatment' },
+            });
         });
     });
 });
