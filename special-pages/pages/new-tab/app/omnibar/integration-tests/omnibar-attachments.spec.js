@@ -41,8 +41,7 @@ test.describe('omnibar tab attachment', () => {
 
         await omnibar.attachTab('Starbucks Coffee Company');
 
-        // chip becomes "ready" once omnibar_getTabContent resolves
-        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.tabChip()).toHaveCount(1);
 
         await omnibar.types({ mode: 'ai', value: 'compare these' });
         await omnibar.submitChat();
@@ -64,7 +63,7 @@ test.describe('omnibar tab attachment', () => {
 
         await omnibar.attachTab('Starbucks Coffee Company');
         await omnibar.attachTab('MacBook Neo - Apple');
-        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(2);
+        await expect(omnibar.tabChip()).toHaveCount(2);
 
         await omnibar.types({ mode: 'ai', value: 'compare' });
         await omnibar.submitChat();
@@ -83,7 +82,7 @@ test.describe('omnibar tab attachment', () => {
         await omnibar.ready();
 
         await omnibar.attachTab('Starbucks Coffee Company');
-        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.tabChip()).toHaveCount(1);
 
         await omnibar.removeTabButton('Starbucks Coffee Company').click();
         await expect(omnibar.attachmentChips()).toHaveCount(0);
@@ -95,7 +94,7 @@ test.describe('omnibar tab attachment', () => {
         expect(params.pageContext).toBeUndefined();
     });
 
-    test('a tab whose content fails to extract adds no chip', async ({ page }, workerInfo) => {
+    test('a tab whose content fails to extract is dropped from the submit payload', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({
@@ -103,9 +102,17 @@ test.describe('omnibar tab attachment', () => {
         });
         await omnibar.ready();
 
-        // tab-broken resolves to null pageContext in the mock transport
+        // The chip is added on attach (content is extracted lazily on submit), but
+        // tab-broken resolves to a null pageContext in the mock transport, so it's
+        // dropped when the payload is built.
         await omnibar.attachTab('Tab That Fails to Extract');
-        await expect(omnibar.attachmentChips()).toHaveCount(0);
+        await expect(omnibar.tabChip()).toHaveCount(1);
+
+        await omnibar.types({ mode: 'ai', value: 'summarize' });
+        await omnibar.submitChat();
+
+        const params = await omnibar.lastSubmitChatParams();
+        expect(params.pageContext).toBeUndefined();
     });
 
     test('the @-mention picker filters tabs and attaches the selected one', async ({ page }, workerInfo) => {
@@ -126,7 +133,7 @@ test.describe('omnibar tab attachment', () => {
 
         // the @-token is stripped from the input and the tab is attached
         await omnibar.expectChatValue('');
-        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.tabChip()).toHaveCount(1);
     });
 
     test('paperclip and @-mention are hidden when the feature is off', async ({ page }, workerInfo) => {
@@ -258,7 +265,7 @@ test.describe('omnibar attachment coexistence', () => {
         await expect(omnibar.fileChip()).toHaveCount(1);
 
         await omnibar.attachTab('Starbucks Coffee Company');
-        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.tabChip()).toHaveCount(1);
 
         await omnibar.types({ mode: 'ai', value: 'compare and summarize' });
         await omnibar.submitChat();
@@ -297,7 +304,7 @@ test.describe('omnibar attachment per-tab persistence', () => {
         // attach two tabs on tab 01
         await omnibar.attachTab('Starbucks Coffee Company');
         await omnibar.attachTab('MacBook Neo - Apple');
-        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(2);
+        await expect(omnibar.tabChip()).toHaveCount(2);
 
         // a freshly-focused tab 02 has its own (empty) attachment state
         await omnibar.didSwitchToTab('02', ['01', '02']);
@@ -305,7 +312,7 @@ test.describe('omnibar attachment per-tab persistence', () => {
 
         // returning to 01 restores both chips
         await omnibar.didSwitchToTab('01', ['01', '02']);
-        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(2);
+        await expect(omnibar.tabChip()).toHaveCount(2);
     });
 
     test('attached files survive a browser-tab switch', async ({ page }, workerInfo) => {
@@ -352,7 +359,7 @@ test.describe('omnibar attachment per-tab persistence', () => {
 
         // attach on tab 01, then open tab 02 (01 still present, so it's preserved)
         await omnibar.attachTab('Starbucks Coffee Company');
-        await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
+        await expect(omnibar.tabChip()).toHaveCount(1);
         await omnibar.didSwitchToTab('02', ['01', '02']);
 
         // tab 01 closes (drops out of the tab id list) → its stored attachments are pruned

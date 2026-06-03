@@ -266,10 +266,10 @@ function AiChatContent({
      * @param {string} chat
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
-    const handleSubmit = (chat, target) => {
+    const handleSubmit = async (chat, target) => {
         const images = canAttachImages ? imageState.getImagesForSubmission() : null;
         const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
-        const pageContext = canAttachTabs ? tabAttachments.getTabsForSubmission() : null;
+        const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
         const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
         const reasoningEffort = imageGenerationActive ? null : selectedEffort;
         const toolChoice = webSearchActive

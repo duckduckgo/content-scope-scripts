@@ -427,9 +427,9 @@ export class OmnibarPage {
         return this.context().getByTestId('omnibar-attachment-chips');
     }
 
-    /** Individual tab chips, located by their per-chip status wrapper. */
+    /** Individual tab chips inside the shared attachment row, scoped by their `data-attachment-kind` marker. */
     tabChip() {
-        return this.attachmentChips().locator('[data-status]');
+        return this.attachmentChips().locator('[data-attachment-kind="tab"]');
     }
 
     /** @param {string} title */

@@ -388,7 +388,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await ntp.openPage({ additional: attachmentsConfig });
             await omnibar.ready();
             await omnibar.attachTab('Starbucks Coffee Company');
-            await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
+            await expect(omnibar.tabChip()).toHaveCount(1);
             await expect(page).toHaveScreenshot('omnibar-attached-tab-chip.png', { maxDiffPixels });
         });
 
@@ -412,7 +412,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: pdfBytes });
             await expect(omnibar.fileChip()).toHaveCount(1);
             await omnibar.attachTab('Starbucks Coffee Company');
-            await expect(omnibar.attachmentChips().locator('[data-status="ready"]')).toHaveCount(1);
+            await expect(omnibar.tabChip()).toHaveCount(1);
             await expect(page).toHaveScreenshot('omnibar-attached-mixed-chips.png', { maxDiffPixels });
         });
 

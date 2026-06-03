@@ -10,16 +10,8 @@ const { useStateWithLocalPersistence } = TabAttachments;
  */
 
 /**
- * @typedef {object} AttachedTab
- * @property {string} tabId — Identifier of the source tab, used to dedupe and reconcile with metadata.
- * @property {'pending'|'ready'|'error'} status — Lifecycle of the content fetch.
- * @property {TabMetadata} metadata — Tab metadata captured at attach-time. Used to render the chip while content is still loading and as a fallback when the page context is incomplete.
- * @property {PageContext|null} pageContext — Native-extracted content, populated once `getTabContent` resolves. `null` when extraction failed.
- */
-
-/**
  * @param {string|null|undefined} tabId — The NTP tab these attachments belong to. Used to persist
- * them per-tab so they survive switching between browser tabs (see `PersistentAttachmentsProvider`).
+ * them per-tab so they survive switching between browser tabs
  */
 export function useTabAttachments(tabId) {
     const { getTabContent } = useContext(OmnibarContext);
@@ -34,38 +26,13 @@ export function useTabAttachments(tabId) {
 
     const attachTab = useCallback(
         /** @param {TabMetadata} tabToAttach */
-        async (tabToAttach) => {
-            /** @type {AttachedTab} */
-            const pending = { tabId: tabToAttach.tabId, status: 'pending', metadata: tabToAttach, pageContext: null };
-
+        (tabToAttach) => {
             setAttachedTabs((prev) => {
-                const idx = prev.findIndex((tab) => tab.tabId === tabToAttach.tabId);
-                if (idx === -1) return [...prev, pending];
-
-                return prev.map((tab, i) => (i === idx ? pending : tab));
+                if (prev.some((tab) => tab.tabId === tabToAttach.tabId)) return prev;
+                return [...prev, tabToAttach];
             });
-
-            try {
-                const pageContext = await getTabContent(tabToAttach.tabId);
-                setAttachedTabs((prev) => {
-                    if (!prev.some((tab) => tab.tabId === tabToAttach.tabId)) return prev;
-
-                    if (pageContext === null) {
-                        return prev.filter((tab) => tab.tabId !== tabToAttach.tabId);
-                    }
-
-                    return prev.map((tab) =>
-                        tab.tabId === tabToAttach.tabId
-                            ? { ...tab, status: /** @type {const} */ ('ready'), pageContext: { ...pageContext, tabId: tabToAttach.tabId } }
-                            : tab,
-                    );
-                });
-            } catch (err) {
-                console.error('omnibar_getTabContent failed', err);
-                setAttachedTabs((prev) => prev.filter((t) => t.tabId !== tabToAttach.tabId));
-            }
         },
-        [getTabContent, setAttachedTabs],
+        [setAttachedTabs],
     );
 
     const removeTab = useCallback(
@@ -81,13 +48,32 @@ export function useTabAttachments(tabId) {
     }, [setAttachedTabs]);
 
     /**
-     * @returns {PageContext[] | null}
+     * Extracts page content for every attached tab in parallel. Called at submit
+     * time — content is not fetched on attach. Tabs whose extraction fails or
+     * returns `null` (closed/restricted/extraction error) are dropped. Each
+     * returned context carries its source `tabId` so native can attribute the
+     * attachment back to the tab it came from.
+     *
+     * @returns {Promise<PageContext[] | null>}
      */
-    const getTabsForSubmission = useCallback(() => {
-        const ready = attachedTabs.filter((tab) => tab.status === 'ready' && tab.pageContext !== null);
-        if (ready.length === 0) return null;
-        return ready.map((tab) => /** @type {PageContext} */ ({ ...tab.pageContext, tabId: tab.tabId }));
-    }, [attachedTabs]);
+    const getTabsForSubmission = useCallback(async () => {
+        if (attachedTabs.length === 0) return null;
+
+        const results = await Promise.all(
+            attachedTabs.map(async (tab) => {
+                try {
+                    const pageContext = await getTabContent(tab.tabId);
+                    return pageContext === null ? null : /** @type {PageContext} */ ({ ...pageContext, tabId: tab.tabId });
+                } catch (err) {
+                    console.error('omnibar_getTabContent failed', err);
+                    return null;
+                }
+            }),
+        );
+
+        const ready = /** @type {PageContext[]} */ (results.filter((ctx) => ctx !== null));
+        return ready.length > 0 ? ready : null;
+    }, [attachedTabs, getTabContent]);
 
     const state = useMemo(
         () => ({

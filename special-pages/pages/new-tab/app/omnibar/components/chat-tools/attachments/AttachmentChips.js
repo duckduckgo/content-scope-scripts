@@ -7,11 +7,11 @@ import styles from './AttachmentChips.module.css';
 
 /**
  * @typedef {typeof import('../../../strings.json')} Strings
- * @typedef {import('../tab-attachment/useTabAttachments').AttachedTab} AttachedTab
+ * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
  * @typedef {import('../file-attachment/useFileAttachments').AttachedFile} AttachedFile
  * @typedef {import('../image-attachment/useImageAttachments').AttachedImage} AttachedImage
  *
- * @typedef {{ kind: 'tab', key: string, tab: AttachedTab }} TabItem
+ * @typedef {{ kind: 'tab', key: string, tab: TabMetadata }} TabItem
  * @typedef {{ kind: 'file', key: string, file: AttachedFile, index: number }} FileItem
  * @typedef {{ kind: 'image', key: string, image: AttachedImage, index: number }} ImageItem
  * @typedef {TabItem | FileItem | ImageItem} AttachmentItem
@@ -28,7 +28,7 @@ import styles from './AttachmentChips.module.css';
  * in `ImageAttachmentContent` — this container only renders the chips.
  *
  * @param {object} props
- * @param {AttachedTab[]} props.tabs
+ * @param {TabMetadata[]} props.tabs
  * @param {AttachedFile[]} props.files
  * @param {AttachedImage[]} props.images
  * @param {(tabId: string) => void} props.onRemoveTab
@@ -59,7 +59,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                                 key={item.key}
                                 tab={item.tab}
                                 onRemove={() => onRemoveTab(item.tab.tabId)}
-                                removeLabel={t('omnibar_removeAttachedTabLabel', { title: item.tab.metadata.title })}
+                                removeLabel={t('omnibar_removeAttachedTabLabel', { title: item.tab.title })}
                             />
                         );
                     case 'file':

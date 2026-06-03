@@ -1,28 +1,30 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import cn from 'classnames';
 import { CloseSmallIcon, GlobeIcon } from '../../../../components/Icons';
 import styles from './TabChips.module.css';
 
 /**
- * @typedef {import('./useTabAttachments').AttachedTab} AttachedTab
+ * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
+ * @typedef {import('../../../../../types/new-tab.js').Favicon} Favicon
  */
 
 /**
  * A single attached-tab chip: favicon, title, and a remove button. Rendered by
- * the shared `AttachmentChips` container, which owns the row layout.
+ * the shared `AttachmentChips` container, which owns the row layout. Shows only
+ * the tab's metadata — page content is extracted lazily on submit, so there is
+ * no per-chip loading state.
  *
  * @param {object} props
- * @param {AttachedTab} props.tab
+ * @param {TabMetadata} props.tab
  * @param {() => void} props.onRemove
  * @param {string} props.removeLabel
  */
 export function TabChip({ tab, onRemove, removeLabel }) {
     return (
-        <div class={cn(styles.chip, tab.status === 'pending' && styles.chipPending)} data-attachment-kind="tab" data-status={tab.status}>
-            <TabFavicon favicon={tab.metadata.favicon} />
-            <span class={styles.title} title={tab.metadata.title}>
-                {tab.metadata.title}
+        <div class={styles.chip} data-attachment-kind="tab">
+            <TabFavicon favicon={tab.favicon} />
+            <span class={styles.title} title={tab.title}>
+                {tab.title}
             </span>
             <button type="button" tabIndex={0} class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
                 <CloseSmallIcon width="10" height="10" />
@@ -33,7 +35,7 @@ export function TabChip({ tab, onRemove, removeLabel }) {
 
 /**
  * @param {object} props
- * @param {import('../../../../../types/new-tab.js').Favicon} props.favicon
+ * @param {Favicon} props.favicon
  */
 function TabFavicon({ favicon }) {
     const [errored, setErrored] = useState(false);

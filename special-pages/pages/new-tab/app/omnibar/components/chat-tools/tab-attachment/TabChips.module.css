@@ -19,11 +19,6 @@
     }
 }
 
-.chipPending {
-    /* Subtle dim while content is being extracted — keeps the layout stable. */
-    opacity: 0.7;
-}
-
 .favicon {
     border-radius: 3px;
     flex: none;

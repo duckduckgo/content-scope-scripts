@@ -6,7 +6,7 @@ import { PersistentValue } from '../../tabs/PersistentValue.js';
 
 /**
  * @typedef {import("../../../types/new-tab.js").OmnibarConfig["mode"]} Mode
- * @typedef {import("./chat-tools/tab-attachment/useTabAttachments.js").AttachedTab} AttachedTab
+ * @typedef {import("../../../types/new-tab.js").TabMetadata} TabMetadata
  * @typedef {import("./chat-tools/file-attachment/useFileAttachments.js").AttachedFile} AttachedFile
  * @typedef {import("./chat-tools/image-attachment/useImageAttachments.js").AttachedImage} AttachedImage
  */
@@ -91,7 +91,7 @@ function createPersistentList() {
 }
 
 // Three independent attachment lists, each with its own Provider + `useStateWithLocalPersistence` hook.
-export const TabAttachments = /** @type {() => PersistentList<AttachedTab>} */ (createPersistentList)();
+export const TabAttachments = /** @type {() => PersistentList<TabMetadata>} */ (createPersistentList)();
 export const FileAttachments = /** @type {() => PersistentList<AttachedFile>} */ (createPersistentList)();
 export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */ (createPersistentList)();
 
