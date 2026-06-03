@@ -2,45 +2,52 @@
     align-items: center;
     background: var(--ds-color-theme-surface-secondary, var(--color-black-at-6));
     border-radius: 8px;
-    box-shadow: 0 0 0 1px var(--ds-color-theme-container-border-primary, var(--color-black-at-9));
+    box-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.1),
+        0 4px 8px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
     color: var(--ds-color-theme-text-primary);
     display: inline-flex;
-    font-size: 13px;
-    gap: var(--sp-2);
-    height: var(--sp-7);
-    line-height: 16px;
-    max-width: 196px;
-    padding: 0 var(--sp-2) 0 var(--sp-2);
+    font-size: 14px;
+    gap: 10px;
+    line-height: 20px;
+    padding: 10px 14px 10px 10px;
     position: relative;
+    width: var(--sp-56);
 
     [data-theme="dark"] & {
         background: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 0 0 1px var(--color-white-at-15);
+        box-shadow:
+            0 0 0 1px var(--color-white-at-15),
+            0 1px 4px rgba(0, 0, 0, 0.3),
+            0 4px 8px rgba(0, 0, 0, 0.2);
     }
+}
+
+.faviconTile {
+    align-items: center;
+    background: var(--ds-color-theme-surface-primary, var(--color-black-at-6));
+    border-radius: 6px;
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    flex: none;
+    height: var(--sp-9);
+    justify-content: center;
+    overflow: hidden;
+    width: var(--sp-9);
 }
 
 .favicon {
     border-radius: 3px;
-    flex: none;
-    height: 18px;
+    height: 20px;
     object-fit: cover;
-    width: 18px;
-}
-
-.faviconFallback {
-    align-items: center;
-    border-radius: 3px;
-    color: var(--ds-color-theme-icons-secondary);
-    display: flex;
-    flex: none;
-    height: 18px;
-    justify-content: center;
-    width: 18px;
+    width: 20px;
 }
 
 .title {
     flex: 1;
     font-weight: 600;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

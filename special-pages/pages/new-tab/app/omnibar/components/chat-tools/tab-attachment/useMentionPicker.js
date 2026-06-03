@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'preact/hooks';
-import { useOpenTabs } from './useOpenTabs';
+import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'preact/hooks';
+import { OpenTabsContext } from './OpenTabsProvider';
 import { filterTabs } from './tabFilter.js';
 
 /**
@@ -27,9 +27,13 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onAttach
     const [anchor, setAnchor] = useState(/** @type {number | null} */ (null));
     const [mentionQuery, setMentionQuery] = useState('');
     const pickerActive = enabled && anchor !== null;
-    const { tabs } = useOpenTabs({ active: pickerActive });
+    const { openTabs, refetchTabs } = useContext(OpenTabsContext);
 
-    const filtered = useMemo(() => filterTabs(tabs, mentionQuery), [tabs, mentionQuery]);
+    useEffect(() => {
+        if (pickerActive) refetchTabs();
+    }, [pickerActive, refetchTabs]);
+
+    const filtered = useMemo(() => filterTabs(openTabs, mentionQuery), [openTabs, mentionQuery]);
     const [activeIndex, setActiveIndex] = useState(0);
     const [anchorTop, setAnchorTop] = useState(0);
 

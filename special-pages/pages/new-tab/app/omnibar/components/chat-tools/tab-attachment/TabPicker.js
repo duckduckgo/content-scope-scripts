@@ -1,9 +1,9 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useContext, useEffect, useState } from 'preact/hooks';
 import { GlobeIcon } from '../../../../components/Icons';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
-import { useOpenTabs } from './useOpenTabs';
+import { OpenTabsContext } from './OpenTabsProvider';
 import styles from './AttachMenu.module.css';
 
 /**
@@ -24,7 +24,11 @@ import styles from './AttachMenu.module.css';
  * @param {(opts: { restoreFocus: boolean }) => void} props.onClose
  */
 export function TabPicker({ t, position, dropdownRef, onSelect, onClose }) {
-    const { tabs } = useOpenTabs({ active: true });
+    const { openTabs, refetchTabs } = useContext(OpenTabsContext);
+
+    useEffect(() => {
+        refetchTabs();
+    }, [refetchTabs]);
 
     return (
         <Dropdown
@@ -37,7 +41,7 @@ export function TabPicker({ t, position, dropdownRef, onSelect, onClose }) {
             idPrefix="tab-picker-item"
             className={styles.tabPicker}
         >
-            {tabs.map((tab) => (
+            {openTabs.map((tab) => (
                 <DropdownItem
                     key={tab.tabId}
                     role="menuitem"

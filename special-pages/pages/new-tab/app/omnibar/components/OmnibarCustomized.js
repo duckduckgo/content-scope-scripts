@@ -9,6 +9,7 @@ import { SearchIcon } from '../../components/Icons.js';
 import {
     FileAttachments,
     ImageAttachments,
+    OpenTabsList,
     PersistentModeProvider,
     PersistentTextInputProvider,
     TabAttachments,
@@ -17,6 +18,7 @@ import {
 const { Provider: TabAttachmentsProvider } = TabAttachments;
 const { Provider: FileAttachmentsProvider } = FileAttachments;
 const { Provider: ImageAttachmentsProvider } = ImageAttachments;
+const { Provider: OpenTabsListProvider } = OpenTabsList;
 
 /**
  * @import enStrings from "../strings.json"
@@ -45,13 +47,15 @@ export function OmnibarCustomized() {
         <PersistentTextInputProvider>
             <PersistentModeProvider>
                 <TabAttachmentsProvider>
-                    <FileAttachmentsProvider>
-                        <ImageAttachmentsProvider>
-                            <OmnibarProvider>
-                                <OmnibarConsumer />
-                            </OmnibarProvider>
-                        </ImageAttachmentsProvider>
-                    </FileAttachmentsProvider>
+                    <OpenTabsListProvider>
+                        <FileAttachmentsProvider>
+                            <ImageAttachmentsProvider>
+                                <OmnibarProvider>
+                                    <OmnibarConsumer />
+                                </OmnibarProvider>
+                            </ImageAttachmentsProvider>
+                        </FileAttachmentsProvider>
+                    </OpenTabsListProvider>
                 </TabAttachmentsProvider>
             </PersistentModeProvider>
         </PersistentTextInputProvider>

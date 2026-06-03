@@ -31,6 +31,7 @@ import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
 import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
 import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
+import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
 import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
 import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
 
@@ -164,16 +165,18 @@ export function Omnibar({
                                     <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
                                 </>
                             ) : (
-                                <AiChatContent
-                                    query={query}
-                                    autoFocus={autoFocus}
-                                    enableRecentAiChats={enableRecentAiChats}
-                                    enableVoiceChatAccess={enableVoiceChatAccess}
-                                    enableAttachTabs={enableAttachTabs}
-                                    tabId={tabId}
-                                    onChange={setQuery}
-                                    onSubmit={handleSubmitChat}
-                                />
+                                <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
+                                    <AiChatContent
+                                        query={query}
+                                        autoFocus={autoFocus}
+                                        enableRecentAiChats={enableRecentAiChats}
+                                        enableVoiceChatAccess={enableVoiceChatAccess}
+                                        enableAttachTabs={enableAttachTabs}
+                                        tabId={tabId}
+                                        onChange={setQuery}
+                                        onSubmit={handleSubmitChat}
+                                    />
+                                </OpenTabsProvider>
                             )}
                         </div>
                     </div>

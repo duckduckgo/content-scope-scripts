@@ -39,12 +39,14 @@ export function TabChip({ tab, onRemove, removeLabel }) {
  */
 function TabFavicon({ favicon }) {
     const [errored, setErrored] = useState(false);
-    if (!favicon || !favicon.src || errored) {
-        return (
-            <span class={styles.faviconFallback} aria-hidden="true">
-                <GlobeIcon width="14" height="14" />
-            </span>
-        );
-    }
-    return <img class={styles.favicon} src={favicon.src} alt="" onError={() => setErrored(true)} loading="lazy" />;
+    const showFallback = !favicon || !favicon.src || errored;
+    return (
+        <span class={styles.faviconTile} aria-hidden="true">
+            {showFallback ? (
+                <GlobeIcon width="18" height="18" />
+            ) : (
+                <img class={styles.favicon} src={favicon.src} alt="" onError={() => setErrored(true)} loading="lazy" />
+            )}
+        </span>
+    );
 }

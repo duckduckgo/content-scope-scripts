@@ -90,10 +90,12 @@ function createPersistentList() {
     return { Provider, useStateWithLocalPersistence };
 }
 
-// Three independent attachment lists, each with its own Provider + `useStateWithLocalPersistence` hook.
-export const TabAttachments = /** @type {() => PersistentList<TabMetadata>} */ (createPersistentList)();
+// Per-NTP-tab persisted lists, each with its own Provider + `useStateWithLocalPersistence` hook.
+export const TabAttachments = /** @type {() => PersistentList<string>} */ (createPersistentList)(); // attached tab ids
 export const FileAttachments = /** @type {() => PersistentList<AttachedFile>} */ (createPersistentList)();
 export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */ (createPersistentList)();
+// Single source of truth for open-tab metadata; tab chips and the pickers derive from this.
+export const OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */ (createPersistentList)();
 
 /**
  * A normal set-state, but with values recorded. Must be used when the Omnibar Service is ready

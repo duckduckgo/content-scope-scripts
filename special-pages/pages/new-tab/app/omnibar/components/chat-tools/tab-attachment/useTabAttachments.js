@@ -1,6 +1,7 @@
 import { useCallback, useContext, useMemo } from 'preact/hooks';
 import { OmnibarContext } from '../../OmnibarProvider';
 import { TabAttachments } from '../../PersistentOmnibarValuesProvider';
+import { OpenTabsContext } from './OpenTabsProvider';
 
 const { useStateWithLocalPersistence } = TabAttachments;
 
@@ -15,55 +16,60 @@ const { useStateWithLocalPersistence } = TabAttachments;
  */
 export function useTabAttachments(tabId) {
     const { getTabContent } = useContext(OmnibarContext);
+    const { openTabs } = useContext(OpenTabsContext);
 
-    const [attachedTabs, setAttachedTabs] = useStateWithLocalPersistence(tabId);
+    const [attachedIds, setAttachedIds] = useStateWithLocalPersistence(tabId);
+
+    // Chips are the attached subset of the live open-tab list, looked up by id. A tab that's no
+    // longer open (closed since it was attached) just stops rendering.
+    const attachedTabs = useMemo(
+        () =>
+            attachedIds.flatMap((id) => {
+                const tab = openTabs.find((t) => t.tabId === id);
+                return tab ? [tab] : [];
+            }),
+        [attachedIds, openTabs],
+    );
 
     const isAttached = useCallback(
         /** @param {string} tabId */
-        (tabId) => attachedTabs.some((t) => t.tabId === tabId),
-        [attachedTabs],
+        (tabId) => attachedIds.includes(tabId),
+        [attachedIds],
     );
 
     const attachTab = useCallback(
         /** @param {TabMetadata} tabToAttach */
         (tabToAttach) => {
-            setAttachedTabs((prev) => {
-                if (prev.some((tab) => tab.tabId === tabToAttach.tabId)) return prev;
-                return [...prev, tabToAttach];
-            });
+            setAttachedIds((prev) => (prev.includes(tabToAttach.tabId) ? prev : [...prev, tabToAttach.tabId]));
         },
-        [setAttachedTabs],
+        [setAttachedIds],
     );
 
     const removeTab = useCallback(
         /** @param {string} tabId */
         (tabId) => {
-            setAttachedTabs((prev) => prev.filter((tab) => tab.tabId !== tabId));
+            setAttachedIds((prev) => prev.filter((id) => id !== tabId));
         },
-        [setAttachedTabs],
+        [setAttachedIds],
     );
 
     const clearAttachedTabs = useCallback(() => {
-        setAttachedTabs([]);
-    }, [setAttachedTabs]);
+        setAttachedIds([]);
+    }, [setAttachedIds]);
 
     /**
-     * Extracts page content for every attached tab in parallel. Called at submit
-     * time — content is not fetched on attach. Tabs whose extraction fails or
-     * returns `null` (closed/restricted/extraction error) are dropped. Each
-     * returned context carries its source `tabId` so native can attribute the
-     * attachment back to the tab it came from.
-     *
+     * Extract page content for each attached tab in parallel, on submit. Drops
+     * tabs whose extraction fails or returns null.
      * @returns {Promise<PageContext[] | null>}
      */
     const getTabsForSubmission = useCallback(async () => {
-        if (attachedTabs.length === 0) return null;
+        if (attachedIds.length === 0) return null;
 
         const results = await Promise.all(
-            attachedTabs.map(async (tab) => {
+            attachedIds.map(async (id) => {
                 try {
-                    const pageContext = await getTabContent(tab.tabId);
-                    return pageContext === null ? null : /** @type {PageContext} */ ({ ...pageContext, tabId: tab.tabId });
+                    const pageContext = await getTabContent(id);
+                    return pageContext === null ? null : /** @type {PageContext} */ ({ ...pageContext, tabId: id });
                 } catch (err) {
                     console.error('omnibar_getTabContent failed', err);
                     return null;
@@ -73,7 +79,7 @@ export function useTabAttachments(tabId) {
 
         const ready = /** @type {PageContext[]} */ (results.filter((ctx) => ctx !== null));
         return ready.length > 0 ? ready : null;
-    }, [attachedTabs, getTabContent]);
+    }, [attachedIds, getTabContent]);
 
     const state = useMemo(
         () => ({
