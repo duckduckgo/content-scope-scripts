@@ -17,19 +17,16 @@ const { useStateWithLocalPersistence } = TabAttachments;
 export function useTabAttachments(tabId) {
     const { getTabContent } = useContext(OmnibarContext);
     const { openTabs } = useContext(OpenTabsContext);
-
     const [attachedIds, setAttachedIds] = useStateWithLocalPersistence(tabId);
 
     // Chips are the attached subset of the live open-tab list, looked up by id. A tab that's no
     // longer open (closed since it was attached) just stops rendering.
-    const attachedTabs = useMemo(
-        () =>
-            attachedIds.flatMap((id) => {
-                const tab = openTabs.find((t) => t.tabId === id);
-                return tab ? [tab] : [];
-            }),
-        [attachedIds, openTabs],
-    );
+    const attachedTabs = useMemo(() => {
+        return attachedIds.flatMap((id) => {
+            const tab = openTabs.find((t) => t.tabId === id);
+            return tab ? [tab] : [];
+        });
+    }, [attachedIds, openTabs]);
 
     const isAttached = useCallback(
         /** @param {string} tabId */

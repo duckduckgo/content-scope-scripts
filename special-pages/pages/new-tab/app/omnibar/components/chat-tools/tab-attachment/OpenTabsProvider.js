@@ -15,8 +15,8 @@ export const OpenTabsContext = createContext(/** @type {OpenTabsValue} */ ({ ope
 /**
  * Holds the open-tab list for one NTP tab as a single shared state: the pickers and the attachment
  * chips both read from here, so they can't show divergent metadata for the same tab. The list is
- * fetched lazily (a picker triggers `refetchTabs` on open) and refreshed on visibility regain; it's
- * persisted per NTP tab so it survives switching between browser tabs.
+ * persisted per NTP tab as a cache so chips render instantly across the browser-tab-switch remount,
+ * then revalidated: refetched on (re)mount, on visibility regain, and whenever a picker opens.
  *
  * @param {object} props
  * @param {string|null|undefined} props.tabId — The NTP tab this list belongs to.
@@ -29,19 +29,20 @@ export function OpenTabsProvider({ tabId, enabled, children }) {
 
     const refetchTabs = useCallback(async () => {
         try {
-            console.log('fetching open tabs');
             const response = await getOpenTabs();
             setOpenTabs(response.tabs ?? []);
-        } catch (err) {
-            console.error('omnibar_getOpenTabs failed', err);
-        }
+        } catch (err) {}
     }, [getOpenTabs, setOpenTabs]);
 
     useEffect(() => {
         if (!enabled) return;
+
+        refetchTabs();
+
         const handler = () => {
             if (document.visibilityState === 'visible') refetchTabs();
         };
+
         document.addEventListener('visibilitychange', handler);
         return () => document.removeEventListener('visibilitychange', handler);
     }, [enabled, refetchTabs]);
