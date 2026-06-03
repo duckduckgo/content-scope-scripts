@@ -8,20 +8,18 @@
 const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
 
 /**
- * @type {Record<string, string>}
+ * @type {Record<string, string[]>}
  */
 const FILE_EXTENSIONS = {
-    'application/pdf': '.pdf',
+    'application/pdf': ['.pdf'],
 };
 
 /**
- * Builds the file channel's `accept` fragment from the model's supported MIME
- * types (e.g. `['application/pdf']` → `.pdf`).
  * @param {string[]} mimeTypes
  * @returns {string}
  */
 function buildFileAccept(mimeTypes) {
-    return mimeTypes.map((mime) => FILE_EXTENSIONS[mime] ?? mime).join(',');
+    return mimeTypes.flatMap((mime) => [mime, ...(FILE_EXTENSIONS[mime] ?? [])]).join(',');
 }
 
 /**
@@ -41,6 +39,8 @@ function buildFileAccept(mimeTypes) {
 export function resolveFileInput({ t, image, file }) {
     const label =
         image && file ? t('omnibar_attachImageOrFileLabel') : image ? t('omnibar_attachImageLabel') : t('omnibar_attachFileLabel');
+    // TODO(testing): empty accept = no native picker filtering. Restore the
+    // line below once we know whether `accept` is what's blocking PDFs.
     const accept = [...(image ? [IMAGE_ACCEPT] : []), ...(file ? [buildFileAccept(file.mimeTypes)] : [])].filter(Boolean).join(',');
     const disabled = (image?.disabled ?? true) && (file?.disabled ?? true);
 
@@ -57,13 +57,13 @@ export function resolveFileInput({ t, image, file }) {
         /** @type {Promise<void>[]} */
         const tasks = [];
         if (image) {
-            const images = all.filter((f) => f.type.startsWith('image/'));
-            console.log('[attach-debug] fileChannels.onChange → image channel', { images: images.map((f) => f.name) }); // [DEBUG_LOG]
+            const images = all.filter((file) => file.type.startsWith('image/'));
+            console.log('[attach-debug] fileChannels.onChange → image channel', { images: images.map((file) => file.name) }); // [DEBUG_LOG]
             if (images.length > 0) tasks.push(image.processFiles(images));
         }
         if (file) {
-            const others = all.filter((f) => !f.type.startsWith('image/'));
-            console.log('[attach-debug] fileChannels.onChange → file channel', { others: others.map((f) => f.name) }); // [DEBUG_LOG]
+            const others = all.filter((file) => !file.type.startsWith('image/'));
+            console.log('[attach-debug] fileChannels.onChange → file channel', { others: others.map((file) => file.name) }); // [DEBUG_LOG]
             if (others.length > 0) tasks.push(file.processFiles(others));
         }
         await Promise.all(tasks);
