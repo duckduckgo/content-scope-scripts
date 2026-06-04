@@ -19,11 +19,12 @@ const LISTBOX_ID = 'omnibar-mention-picker';
  * @param {string} params.query — Current input value, needed to strip a `@…` mention on select.
  * @param {(value: string) => void} params.onChange — Update the input value (used to strip the mention).
  * @param {() => void} params.hideChats — Recent-chats hide callback from the omnibar.
- * @param {(tab: TabMetadata) => void} params.onAttachTab — Called when the user confirms a tab in the picker.
+ * @param {(tab: TabMetadata) => void} params.onToggleTab — Attach the tab, or detach it if it's already attached.
+ * @param {(tabId: string) => boolean} params.isAttached — Whether a tab is already attached, to show its checked state.
  * @param {import('preact').RefObject<HTMLTextAreaElement>} params.textareaRef — Textarea the mention is being typed into. Used to restore focus/caret after the user picks a tab.
  * @param {import('preact').RefObject<HTMLElement>} params.anchorRef — Positioning context the picker wrapper is absolutely positioned within. Used to compute the picker's vertical offset so it sits just below the textarea (which lives inside an `overflow: hidden` ancestor and so can't be a positioning parent directly).
  */
-export function useMentionPicker({ enabled, query, onChange, hideChats, onAttachTab, textareaRef, anchorRef }) {
+export function useMentionPicker({ enabled, query, onChange, hideChats, onToggleTab, isAttached, textareaRef, anchorRef }) {
     const [anchor, setAnchor] = useState(/** @type {number | null} */ (null));
     const [mentionQuery, setMentionQuery] = useState('');
     const pickerActive = enabled && anchor !== null;
@@ -96,10 +97,10 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onAttach
                     textareaRef.current?.setSelectionRange(caret, caret);
                 });
             }
-            onAttachTab(tab);
+            onToggleTab(tab);
             closePicker();
         },
-        [anchor, mentionQuery, query, onChange, onAttachTab, closePicker, textareaRef],
+        [anchor, mentionQuery, query, onChange, onToggleTab, closePicker, textareaRef],
     );
 
     // Keep recent-chats collapsed whenever the picker is open.
@@ -173,10 +174,11 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onAttach
                       activeIndex,
                       onActiveIndexChange: setActiveIndex,
                       onSelect: handleTabSelect,
+                      isAttached,
                       listboxId: LISTBOX_ID,
                   }
                 : null,
-        [pickerActive, filtered, activeIndex, handleTabSelect],
+        [pickerActive, filtered, activeIndex, handleTabSelect, isAttached],
     );
 
     return {

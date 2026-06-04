@@ -60,6 +60,36 @@
     color: var(--ds-color-theme-accent-content-primary);
 }
 
+.check {
+    flex: none;
+    height: 20px;
+    position: relative;
+    width: 4px;
+
+    &::before {
+        color: transparent;
+        content: '\2713';
+        font-size: 14px;
+        font-weight: 700;
+        left: -6px;
+        line-height: 20px;
+        position: absolute;
+        top: 0;
+    }
+}
+
+.rowSelected .check::before {
+    color: var(--ds-color-theme-text-primary);
+}
+
+.rowActive .check::before {
+    color: transparent;
+}
+
+.rowActive.rowSelected .check::before {
+    color: var(--ds-color-theme-accent-content-primary);
+}
+
 .favicon {
     border-radius: 4px;
     flex: none;

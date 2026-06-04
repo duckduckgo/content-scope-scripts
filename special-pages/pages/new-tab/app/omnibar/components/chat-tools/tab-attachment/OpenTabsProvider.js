@@ -13,11 +13,6 @@ const { useStateWithLocalPersistence } = OpenTabsList;
 export const OpenTabsContext = createContext(/** @type {OpenTabsValue} */ ({ openTabs: [], refetchTabs: async () => {} }));
 
 /**
- * Holds the open-tab list for one NTP tab as a single shared state: the pickers and the attachment
- * chips both read from here, so they can't show divergent metadata for the same tab. The list is
- * persisted per NTP tab as a cache so chips render instantly across the browser-tab-switch remount,
- * then revalidated: refetched on (re)mount, on visibility regain, and whenever a picker opens.
- *
  * @param {object} props
  * @param {string|null|undefined} props.tabId — The NTP tab this list belongs to.
  * @param {boolean} props.enabled — Master switch; when false the visibility refresh is skipped.

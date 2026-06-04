@@ -236,7 +236,8 @@ function AiChatContent({
         query,
         onChange,
         hideChats,
-        onAttachTab: tabAttachments.attachTab,
+        onToggleTab: tabAttachments.toggleTab,
+        isAttached: tabAttachments.isAttached,
         textareaRef,
         anchorRef: containerRef,
     });

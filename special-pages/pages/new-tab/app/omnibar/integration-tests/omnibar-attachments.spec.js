@@ -170,6 +170,29 @@ test.describe('omnibar tab attachment', () => {
         await expect(omnibar.tabChip()).toHaveCount(1);
     });
 
+    test('the @-mention picker marks attached tabs as selected and toggles them off', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('@star');
+        await omnibar.mentionOption('Starbucks Coffee Company').click();
+        await expect(omnibar.tabChip()).toHaveCount(1);
+
+        // Reopening the picker shows the attached tab as selected; an unattached one isn't.
+        await omnibar.chatInput().pressSequentially('@');
+        await expect(omnibar.mentionOption('Starbucks Coffee Company')).toHaveAttribute('aria-selected', 'true');
+        await expect(omnibar.mentionOption('MacBook Neo - Apple')).toHaveAttribute('aria-selected', 'false');
+
+        // Selecting the attached tab again toggles it back off.
+        await omnibar.mentionOption('Starbucks Coffee Company').click();
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
+    });
+
     test('paperclip and @-mention are hidden when the feature is off', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
