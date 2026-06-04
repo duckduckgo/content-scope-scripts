@@ -36,7 +36,7 @@ export function TabPicker({ t, position, dropdownRef, onSelect, isAttached, onCl
             dropdownRef={dropdownRef}
             role="menu"
             ariaLabel={t('omnibar_attachTabsPickerTitle')}
-            header={t('omnibar_attachTabsPickerTitle')}
+            header={openTabs.length > 0 ? t('omnibar_attachTabsPickerTitle') : undefined}
             emptyMessage={t('omnibar_attachTabsNoOpenTabs')}
             position={position}
             onClose={onClose}

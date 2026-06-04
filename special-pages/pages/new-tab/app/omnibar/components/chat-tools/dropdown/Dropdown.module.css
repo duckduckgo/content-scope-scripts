@@ -42,7 +42,7 @@
 .empty {
     color: var(--ds-color-theme-text-secondary);
     font-size: 13px;
-    padding: 6px 9px 6px 19px;
+    padding: 9px;
 }
 
 .item {

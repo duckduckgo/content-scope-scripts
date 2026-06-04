@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
@@ -24,40 +24,42 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
 
     return (
         <div class={styles.panel} role="dialog" aria-label={t('omnibar_attachTabsPickerLabel')}>
-            <div class={styles.header}>
-                <span class={styles.headerTitle}>{t('omnibar_attachTabsPickerTitle')}</span>
-            </div>
             {filtered.length === 0 ? (
                 <div class={styles.empty}>{t('omnibar_attachTabsNoMatches')}</div>
             ) : (
-                <ul class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsPickerTitle')}>
-                    {filtered.map((tab, index) => {
-                        const isActive = index === activeIndex;
-                        const attached = isAttached(tab.tabId);
-                        return (
-                            <li
-                                id={`${listboxId}-${tab.tabId}`}
-                                key={tab.tabId}
-                                role="option"
-                                aria-selected={attached}
-                                class={cn(styles.row, isActive && styles.rowActive, attached && styles.rowSelected)}
-                                onMouseDown={(e) => {
-                                    // Prevent the textarea from losing focus when the row is clicked.
-                                    e.preventDefault();
-                                }}
-                                onMouseEnter={() => onActiveIndexChange(index)}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onSelect(tab);
-                                }}
-                            >
-                                <span class={styles.check} aria-hidden="true" />
-                                <TabFavicon favicon={tab.favicon} />
-                                <span class={styles.rowTitle}>{tab.title}</span>
-                            </li>
-                        );
-                    })}
-                </ul>
+                <Fragment>
+                    <div class={styles.header}>
+                        <span class={styles.headerTitle}>{t('omnibar_attachTabsPickerTitle')}</span>
+                    </div>
+                    <ul class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsPickerTitle')}>
+                        {filtered.map((tab, index) => {
+                            const isActive = index === activeIndex;
+                            const attached = isAttached(tab.tabId);
+                            return (
+                                <li
+                                    id={`${listboxId}-${tab.tabId}`}
+                                    key={tab.tabId}
+                                    role="option"
+                                    aria-selected={attached}
+                                    class={cn(styles.row, isActive && styles.rowActive, attached && styles.rowSelected)}
+                                    onMouseDown={(e) => {
+                                        // Prevent the textarea from losing focus when the row is clicked.
+                                        e.preventDefault();
+                                    }}
+                                    onMouseEnter={() => onActiveIndexChange(index)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onSelect(tab);
+                                    }}
+                                >
+                                    <span class={styles.check} aria-hidden="true" />
+                                    <TabFavicon favicon={tab.favicon} />
+                                    <span class={styles.rowTitle}>{tab.title}</span>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </Fragment>
             )}
         </div>
     );
