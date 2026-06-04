@@ -193,6 +193,55 @@ test.describe('omnibar tab attachment', () => {
         await expect(omnibar.attachmentChips()).toHaveCount(0);
     });
 
+    test('reopening the @-mention picker highlights the first item, not the last active row', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        // Open, move the highlight off the first row, then commit — leaving a non-zero active index.
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('@');
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('Enter');
+        await expect(omnibar.tabChip()).toHaveCount(1);
+
+        // Reopening starts the highlight back at the first item.
+        await omnibar.chatInput().pressSequentially('@');
+        const firstOptionId = await omnibar.mentionOption('MacBook Neo - Apple').getAttribute('id');
+        expect(firstOptionId).toBeTruthy();
+        await expect(omnibar.chatInput()).toHaveAttribute('aria-activedescendant', firstOptionId ?? '');
+    });
+
+    test('a very long tab title is cropped instead of widening either picker', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        const longTitle = /^Breckenreid Makes Thoughtful Illustrations/;
+
+        // Dropdown picker: the long-titled row is present, and the panel stays capped at its max width.
+        await omnibar.attachMenuButton().click();
+        await omnibar.attachPageContentMenuItem().click();
+        await expect(omnibar.tabPickerItem(longTitle)).toBeVisible();
+        const menuBox = await omnibar.tabPicker().boundingBox();
+        expect(menuBox?.width ?? Infinity).toBeLessThanOrEqual(361);
+        await page.keyboard.press('Escape');
+
+        // @-mention picker: same long title, same cap.
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('@');
+        await expect(omnibar.mentionOption(longTitle)).toBeVisible();
+        const panelBox = await omnibar.mentionPicker().boundingBox();
+        expect(panelBox?.width ?? Infinity).toBeLessThanOrEqual(361);
+    });
+
     test('paperclip and @-mention are hidden when the feature is off', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

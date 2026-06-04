@@ -404,7 +404,7 @@ export class OmnibarPage {
         return this.context().getByRole('menu', { name: 'Recent Tabs' });
     }
 
-    /** @param {string} title */
+    /** @param {string | RegExp} title */
     tabPickerItem(title) {
         return this.tabPicker().getByRole('menuitemcheckbox', { name: title });
     }
@@ -455,7 +455,7 @@ export class OmnibarPage {
         return this.context().getByRole('dialog', { name: 'Pick an open tab to attach' });
     }
 
-    /** @param {string} title */
+    /** @param {string | RegExp} title */
     mentionOption(title) {
         return this.mentionPicker().getByRole('option', { name: title });
     }

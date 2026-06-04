@@ -4,9 +4,11 @@
     position: relative;
 }
 
-/* Tab picker is a Dropdown variant — adds scroll behaviour for long lists. */
+/* Tab picker is a Dropdown variant — adds scroll behaviour for long lists, and a
+   max-width so long tab titles truncate with an ellipsis instead of widening the panel. */
 .tabPicker {
     max-height: 360px;
+    max-width: 360px;
     min-width: 240px;
     overflow-y: auto;
 }

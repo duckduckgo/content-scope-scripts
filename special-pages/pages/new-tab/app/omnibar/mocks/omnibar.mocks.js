@@ -178,6 +178,12 @@ const allMockOpenTabs = [
         favicon: { src: 'https://icons.duckduckgo.com/ip3/starbucks.com.ico', maxAvailableSize: 64 },
     },
     {
+        tabId: 'tab-long',
+        title: 'Breckenreid Makes Thoughtful Illustrations About Typography, History, And Why Extremely Long Page Titles Must Be Truncated With An Ellipsis Instead Of Wrapping Or Overflowing The Picker',
+        url: 'https://example.com/an/extremely/long/article/about/typography',
+        favicon: { src: 'https://icons.duckduckgo.com/ip3/example.com.ico', maxAvailableSize: 64 },
+    },
+    {
         tabId: 'tab-3',
         title: 'MacBook Pro - Apple',
         url: 'https://www.apple.com/macbook-pro',

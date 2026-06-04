@@ -77,6 +77,7 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onToggle
             if (prev !== '' && !/\s/.test(prev)) return;
             setAnchor(cursor - 1);
             setMentionQuery('');
+            setActiveIndex(0);
             hideChats();
         },
         [enabled, anchor, hideChats, closePicker],
