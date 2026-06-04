@@ -357,6 +357,14 @@
     "title": "Pick an open tab to attach",
     "description": "Accessible label for the open-tabs picker panel (the dialog wrapper around the listbox)."
   },
+  "omnibar_attachTabsNoMatches": {
+    "title": "No matching tabs",
+    "description": "Empty-state message shown in the @-mention tab picker when no open tabs match what the user typed."
+  },
+  "omnibar_attachTabsNoOpenTabs": {
+    "title": "No open tabs",
+    "description": "Empty-state message shown in the attach-page-content tabs dropdown when there are no open tabs to attach."
+  },
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",
     "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."

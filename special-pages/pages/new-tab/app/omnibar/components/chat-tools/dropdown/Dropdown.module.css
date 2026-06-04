@@ -39,6 +39,12 @@
     padding: 0 9px 0 19px;
 }
 
+.empty {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 13px;
+    padding: 6px 9px 6px 19px;
+}
+
 .item {
     align-items: center;
     border-radius: 3px;

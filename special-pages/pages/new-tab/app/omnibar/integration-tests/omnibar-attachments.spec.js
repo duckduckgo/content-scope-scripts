@@ -170,6 +170,22 @@ test.describe('omnibar tab attachment', () => {
         await expect(omnibar.tabChip()).toHaveCount(1);
     });
 
+    test('the @-mention picker shows an empty state when nothing matches the query', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.chatInput().click();
+        await omnibar.chatInput().pressSequentially('@zzznomatch');
+
+        await expect(omnibar.mentionPicker()).toBeVisible();
+        await expect(omnibar.mentionPicker().getByText('No matching tabs')).toBeVisible();
+        await expect(omnibar.mentionPicker().getByRole('option')).toHaveCount(0);
+    });
+
     test('the @-mention picker marks attached tabs as selected and toggles them off', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

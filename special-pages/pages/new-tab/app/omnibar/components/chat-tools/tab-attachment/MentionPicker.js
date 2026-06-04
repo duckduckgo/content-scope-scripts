@@ -27,7 +27,9 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
             <div class={styles.header}>
                 <span class={styles.headerTitle}>{t('omnibar_attachTabsPickerTitle')}</span>
             </div>
-            {filtered.length > 0 && (
+            {filtered.length === 0 ? (
+                <div class={styles.empty}>{t('omnibar_attachTabsNoMatches')}</div>
+            ) : (
                 <ul class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsPickerTitle')}>
                     {filtered.map((tab, index) => {
                         const isActive = index === activeIndex;

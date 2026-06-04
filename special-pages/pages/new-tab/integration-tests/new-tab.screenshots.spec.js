@@ -427,6 +427,18 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(omnibar.mentionOption('Starbucks Coffee Company')).toBeVisible();
             await expect(page).toHaveScreenshot('omnibar-mention-picker-open.png', { maxDiffPixels });
         });
+
+        test('mention picker empty state', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: attachmentsConfig });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await omnibar.chatInput().pressSequentially('@zzznomatch');
+            await expect(omnibar.mentionPicker().getByText('No matching tabs')).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-mention-picker-empty.png', { maxDiffPixels });
+        });
     });
 
     test.describe('customizer drawer', () => {

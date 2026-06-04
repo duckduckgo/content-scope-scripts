@@ -33,6 +33,7 @@ function getItemProps(child) {
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
  * @param {import('preact').ComponentChildren} [props.header] - Non-interactive header rendered at the top of the panel.
+ * @param {import('preact').ComponentChildren} [props.emptyMessage] - Non-interactive message rendered when there are no item children.
  * @param {string} props.ariaLabel
  * @param {'menu' | 'listbox'} props.role
  * @param {DropdownPosition} props.position
@@ -45,6 +46,7 @@ function getItemProps(child) {
 export function Dropdown({
     children,
     header,
+    emptyMessage,
     ariaLabel,
     role,
     position,
@@ -165,7 +167,13 @@ export function Dropdown({
                     {header}
                 </li>
             )}
-            {clonedItems}
+            {items.length === 0 && emptyMessage ? (
+                <li role="presentation" class={styles.empty}>
+                    {emptyMessage}
+                </li>
+            ) : (
+                clonedItems
+            )}
         </ul>
     );
 }

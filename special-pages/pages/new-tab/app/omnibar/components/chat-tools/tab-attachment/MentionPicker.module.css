@@ -43,6 +43,13 @@
     padding: 0;
 }
 
+.empty {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 14px;
+    line-height: 20px;
+    padding: var(--sp-1) var(--sp-2);
+}
+
 .row {
     align-items: center;
     border-radius: 6px;
