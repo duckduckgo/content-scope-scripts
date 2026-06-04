@@ -28,7 +28,6 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
 
     useLayoutEffect(() => {
         if (prevVisibleRef.current !== hasVisibleImages) {
-            console.log('[attach-debug] ImageAttachment visibleImagesChange', { hasVisibleImages, count: attachedImages.length }); // [DEBUG_LOG]
             prevVisibleRef.current = hasVisibleImages;
             onVisibleImagesChange(hasVisibleImages);
         }
@@ -37,7 +36,6 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
 
     useLayoutEffect(() => {
         if (prevWarningRef.current !== showImageWarning) {
-            console.log('[attach-debug] ImageAttachment warningChange', { showImageWarning }); // [DEBUG_LOG]
             prevWarningRef.current = showImageWarning;
             onImageWarningChange(showImageWarning);
         }

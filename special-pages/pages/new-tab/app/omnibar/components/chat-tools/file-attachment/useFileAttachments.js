@@ -23,7 +23,6 @@ export function useFileAttachments(supportedFileTypes, tabId) {
 
     const [prevAllowListKey, setPrevAllowListKey] = useState(allowListKey);
     if (prevAllowListKey !== allowListKey) {
-        console.log('[attach-debug] allowList changed, pruning files', { from: prevAllowListKey, to: allowListKey }); // [DEBUG_LOG]
         setPrevAllowListKey(allowListKey);
         setAttachedFiles((prev) => prev.filter((f) => allowList.includes(f.mimeType)));
     }
@@ -34,19 +33,10 @@ export function useFileAttachments(supportedFileTypes, tabId) {
 
     /** @type {(files: File[]) => Promise<void>} */
     const processFiles = async (files) => {
-        console.log('[attach-debug] processFiles called', {
-            incoming: files.map((f) => ({ name: f.name, type: f.type, size: f.size })),
-            allowList,
-            currentCount: attachedFiles.length,
-        }); // [DEBUG_LOG]
         if (files.length === 0) return;
 
         const existingNames = new Set(attachedFiles.map((file) => file.fileName));
         const validFiles = files.filter((file) => allowList.includes(file.type) && !existingNames.has(file.name));
-        console.log('[attach-debug] processFiles validFiles', {
-            valid: validFiles.map((f) => f.name),
-            rejected: files.filter((f) => !validFiles.includes(f)).map((f) => f.name),
-        }); // [DEBUG_LOG]
         if (validFiles.length === 0) return;
 
         const remaining = MAX_FILES - attachedFiles.length;
@@ -57,10 +47,6 @@ export function useFileAttachments(supportedFileTypes, tabId) {
         const ok = /** @type {PromiseFulfilledResult<AttachedFile>[]} */ (results.filter((r) => r.status === 'fulfilled')).map(
             (r) => r.value,
         );
-        console.log('[attach-debug] processFiles read results', {
-            ok: ok.map((f) => f.fileName),
-            failed: results.filter((r) => r.status === 'rejected').map((r) => /** @type {PromiseRejectedResult} */ (r).reason?.message),
-        }); // [DEBUG_LOG]
 
         if (ok.length > 0) {
             setAttachedFiles((prev) => [...prev, ...ok]);
@@ -69,13 +55,11 @@ export function useFileAttachments(supportedFileTypes, tabId) {
 
     /** @param {number} index */
     const handleRemoveFile = (index) => {
-        console.log('[attach-debug] handleRemoveFile', { index, removing: attachedFiles[index]?.fileName }); // [DEBUG_LOG]
         setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
     /** @returns {AttachedFile[] | undefined} */
     const getFilesForSubmission = () => {
-        console.log('[attach-debug] getFilesForSubmission', { count: attachedFiles.length, names: attachedFiles.map((f) => f.fileName) }); // [DEBUG_LOG]
         return attachedFiles.length > 0 ? attachedFiles : undefined;
     };
 

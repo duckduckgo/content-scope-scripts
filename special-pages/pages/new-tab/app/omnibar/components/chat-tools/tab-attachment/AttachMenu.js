@@ -8,6 +8,8 @@ import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
 import { resolveFileInput } from './fileChannels';
 import { TabPicker } from './TabPicker';
+import { Tooltip } from '../../Tooltip';
+import { MAX_IMAGES } from '../image-attachment/useImageAttachments';
 import imageStyles from '../image-attachment/ImageAttachment.module.css';
 import styles from './AttachMenu.module.css';
 
@@ -31,14 +33,12 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const attachEnabled = image !== null || file !== null;
-    console.log('[attach-debug] AttachMenu render', { attachEnabled, tabsEnabled, hasImage: image !== null, hasFile: file !== null }); // [DEBUG_LOG]
     if (!attachEnabled && !tabsEnabled) return null;
 
     const fileInput = resolveFileInput({ t, image, file });
 
     if (attachEnabled && !tabsEnabled) {
-        console.log('[attach-debug] AttachMenu → DirectFileButton branch'); // [DEBUG_LOG]
-        return (
+        const button = (
             <DirectFileButton
                 ariaLabel={fileInput.label}
                 accept={fileInput.accept}
@@ -46,6 +46,16 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }
                 onChange={fileInput.onChange}
             />
         );
+        // Image-only button is disabled only when the image limit is reached;
+        // restore main's limit-warning tooltip for that case.
+        if (image && !file && fileInput.disabled) {
+            return (
+                <Tooltip content={t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) })} position="above">
+                    {button}
+                </Tooltip>
+            );
+        }
+        return button;
     }
 
     return <DropdownMenu t={t} attachEnabled={attachEnabled} fileInput={fileInput} onToggleTab={onToggleTab} isAttached={isAttached} />;
@@ -118,7 +128,6 @@ function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) 
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     const triggerFileInput = () => {
-        console.log('[attach-debug] AttachMenu triggerFileInput', { disabled: fileInput.disabled }); // [DEBUG_LOG]
         if (fileInput.disabled) return;
         window.setTimeout(() => fileInputRef.current?.click(), 0);
     };
@@ -169,7 +178,6 @@ function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) 
                     onTriggerFileInput={triggerFileInput}
                     isAttached={isAttached}
                     onToggleTab={(tab) => {
-                        console.log('[attach-debug] AttachMenu onToggleTab', { tab }); // [DEBUG_LOG]
                         onToggleTab(tab);
                         close();
                     }}

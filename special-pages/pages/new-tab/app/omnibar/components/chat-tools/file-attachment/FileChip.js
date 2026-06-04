@@ -14,12 +14,10 @@ import { PdfFileChip } from './PdfFileChip';
  * @param {string} props.removeLabel
  */
 export function FileChip({ file, onRemove, removeLabel }) {
-    console.log('[attach-debug] FileChip render', { fileName: file.fileName, mimeType: file.mimeType }); // [DEBUG_LOG]
     switch (file.mimeType) {
         case 'application/pdf':
             return <PdfFileChip file={file} onRemove={onRemove} removeLabel={removeLabel} />;
         default:
-            console.log('[attach-debug] FileChip no chip for mimeType', file.mimeType); // [DEBUG_LOG]
             return null;
     }
 }
