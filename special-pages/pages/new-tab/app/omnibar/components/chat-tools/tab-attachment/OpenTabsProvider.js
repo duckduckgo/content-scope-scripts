@@ -40,7 +40,9 @@ export function OpenTabsProvider({ tabId, enabled, children }) {
         refetchTabs();
 
         const handler = () => {
-            if (document.visibilityState === 'visible') refetchTabs();
+            if (document.visibilityState === 'visible') {
+                refetchTabs();
+            }
         };
 
         document.addEventListener('visibilitychange', handler);

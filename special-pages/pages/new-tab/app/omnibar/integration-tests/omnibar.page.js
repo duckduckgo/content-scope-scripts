@@ -406,7 +406,7 @@ export class OmnibarPage {
 
     /** @param {string} title */
     tabPickerItem(title) {
-        return this.tabPicker().getByRole('menuitem', { name: title });
+        return this.tabPicker().getByRole('menuitemcheckbox', { name: title });
     }
 
     /**

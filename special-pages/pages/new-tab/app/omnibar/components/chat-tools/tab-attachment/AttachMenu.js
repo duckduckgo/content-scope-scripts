@@ -24,9 +24,10 @@ import styles from './AttachMenu.module.css';
  * @param {ImageChannel | null} props.image — Pass null to omit the image route.
  * @param {FileChannel | null} props.file — Pass null to omit the file route.
  * @param {boolean} props.tabsEnabled
- * @param {(tab: TabMetadata) => void} props.onAttachTab
+ * @param {(tab: TabMetadata) => void} props.onToggleTab — Attach the tab, or detach it if it's already attached.
+ * @param {(tabId: string) => boolean} props.isAttached
  */
-export function AttachMenu({ image, file, tabsEnabled, onAttachTab }) {
+export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const attachEnabled = image !== null || file !== null;
@@ -47,7 +48,7 @@ export function AttachMenu({ image, file, tabsEnabled, onAttachTab }) {
         );
     }
 
-    return <DropdownMenu t={t} attachEnabled={attachEnabled} fileInput={fileInput} onAttachTab={onAttachTab} />;
+    return <DropdownMenu t={t} attachEnabled={attachEnabled} fileInput={fileInput} onToggleTab={onToggleTab} isAttached={isAttached} />;
 }
 
 /**
@@ -109,9 +110,10 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
  * @param {(key: keyof Strings) => string} props.t
  * @param {boolean} props.attachEnabled
  * @param {ResolvedFileInput} props.fileInput
- * @param {(tab: TabMetadata) => void} props.onAttachTab
+ * @param {(tab: TabMetadata) => void} props.onToggleTab
+ * @param {(tabId: string) => boolean} props.isAttached
  */
-function DropdownMenu({ t, attachEnabled, fileInput, onAttachTab }) {
+function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) {
     const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: 'left' });
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
@@ -165,9 +167,10 @@ function DropdownMenu({ t, attachEnabled, fileInput, onAttachTab }) {
                     dropdownRef={dropdownRef}
                     onClose={handleClose}
                     onTriggerFileInput={triggerFileInput}
-                    onAttachTab={(tab) => {
-                        console.log('[attach-debug] AttachMenu onAttachTab', { tab }); // [DEBUG_LOG]
-                        onAttachTab(tab);
+                    isAttached={isAttached}
+                    onToggleTab={(tab) => {
+                        console.log('[attach-debug] AttachMenu onToggleTab', { tab }); // [DEBUG_LOG]
+                        onToggleTab(tab);
                         close();
                     }}
                 />
@@ -189,9 +192,10 @@ function DropdownMenu({ t, attachEnabled, fileInput, onAttachTab }) {
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {(opts: { restoreFocus: boolean }) => void} props.onClose
  * @param {() => void} props.onTriggerFileInput
- * @param {(tab: TabMetadata) => void} props.onAttachTab
+ * @param {(tab: TabMetadata) => void} props.onToggleTab
+ * @param {(tabId: string) => boolean} props.isAttached
  */
-function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onAttachTab }) {
+function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onToggleTab, isAttached }) {
     const submenuRef = useRef(/** @type {HTMLUListElement|null} */ (null));
     const [submenuOpen, setSubmenuOpen] = useState(false);
 
@@ -234,7 +238,16 @@ function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRe
                     onHover={() => setSubmenuOpen(true)}
                 />
             </Dropdown>
-            {submenuPos && <TabPicker t={t} position={submenuPos} dropdownRef={submenuRef} onSelect={onAttachTab} onClose={onClose} />}
+            {submenuPos && (
+                <TabPicker
+                    t={t}
+                    position={submenuPos}
+                    dropdownRef={submenuRef}
+                    onSelect={onToggleTab}
+                    isAttached={isAttached}
+                    onClose={onClose}
+                />
+            )}
         </Fragment>
     );
 }

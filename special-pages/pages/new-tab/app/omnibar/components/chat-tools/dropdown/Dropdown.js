@@ -30,11 +30,6 @@ function getItemProps(child) {
  * `id`, `onMouseOver`, and `onClick` via `cloneElement`, and invokes each
  * item's `onSelect` on click or Enter.
  *
- * Parent controls visibility — Dropdown calls `onClose({restoreFocus})` when it
- * wants to be dismissed, and the parent unmounts it. This lets the initial
- * active index be re-seeded from `isSelected` on each remount without extra
- * state plumbing.
- *
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
  * @param {import('preact').ComponentChildren} [props.header] - Non-interactive header rendered at the top of the panel.
@@ -45,12 +40,25 @@ function getItemProps(child) {
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {string} [props.idPrefix]
  * @param {string} [props.className] - Extra class for the dropdown root, on top of the shared chrome.
+ * @param {boolean} [props.multiSelect] - Open with no row highlighted instead of focusing the first `isSelected` row. Use for menus where many items can be checked.
  */
-export function Dropdown({ children, header, ariaLabel, role, position, onClose, dropdownRef, idPrefix = 'dropdown-item', className }) {
+export function Dropdown({
+    children,
+    header,
+    ariaLabel,
+    role,
+    position,
+    onClose,
+    dropdownRef,
+    idPrefix = 'dropdown-item',
+    className,
+    multiSelect = false,
+}) {
     const items = toChildArray(children);
 
     const getInitialActiveIndex = () => {
         if (items.length === 0) return -1;
+        if (multiSelect) return -1;
         const selected = items.findIndex((c) => getItemProps(c)?.isSelected);
         return selected >= 0 ? selected : 0;
     };

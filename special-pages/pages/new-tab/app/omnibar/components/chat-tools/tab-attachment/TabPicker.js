@@ -21,9 +21,10 @@ import styles from './AttachMenu.module.css';
  * @param {import('../useDropdown.js').DropdownPosition} props.position
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {(tab: TabMetadata) => void} props.onSelect
+ * @param {(tabId: string) => boolean} props.isAttached — Whether a tab is already attached, to show its checked state.
  * @param {(opts: { restoreFocus: boolean }) => void} props.onClose
  */
-export function TabPicker({ t, position, dropdownRef, onSelect, onClose }) {
+export function TabPicker({ t, position, dropdownRef, onSelect, isAttached, onClose }) {
     const { openTabs, refetchTabs } = useContext(OpenTabsContext);
 
     useEffect(() => {
@@ -40,16 +41,22 @@ export function TabPicker({ t, position, dropdownRef, onSelect, onClose }) {
             onClose={onClose}
             idPrefix="tab-picker-item"
             className={styles.tabPicker}
+            multiSelect
         >
-            {openTabs.map((tab) => (
-                <DropdownItem
-                    key={tab.tabId}
-                    role="menuitem"
-                    icon={<TabFavicon favicon={tab.favicon} />}
-                    name={tab.title}
-                    onSelect={() => onSelect(tab)}
-                />
-            ))}
+            {openTabs.map((tab) => {
+                const attached = isAttached(tab.tabId);
+                return (
+                    <DropdownItem
+                        key={tab.tabId}
+                        role="menuitemcheckbox"
+                        ariaChecked={attached}
+                        isSelected={attached}
+                        icon={<TabFavicon favicon={tab.favicon} />}
+                        name={tab.title}
+                        onSelect={() => onSelect(tab)}
+                    />
+                );
+            })}
         </Dropdown>
     );
 }

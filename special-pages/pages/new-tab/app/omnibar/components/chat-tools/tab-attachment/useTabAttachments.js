@@ -50,6 +50,14 @@ export function useTabAttachments(tabId) {
         [setAttachedIds],
     );
 
+    const toggleTab = useCallback(
+        /** @param {TabMetadata} tab */
+        (tab) => {
+            setAttachedIds((prev) => (prev.includes(tab.tabId) ? prev.filter((id) => id !== tab.tabId) : [...prev, tab.tabId]));
+        },
+        [setAttachedIds],
+    );
+
     const clearAttachedTabs = useCallback(() => {
         setAttachedIds([]);
     }, [setAttachedIds]);
@@ -84,10 +92,11 @@ export function useTabAttachments(tabId) {
             isAttached,
             attachTab,
             removeTab,
+            toggleTab,
             clearAttachedTabs,
             getTabsForSubmission,
         }),
-        [attachedTabs, isAttached, attachTab, removeTab, clearAttachedTabs, getTabsForSubmission],
+        [attachedTabs, isAttached, attachTab, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission],
     );
 
     return state;

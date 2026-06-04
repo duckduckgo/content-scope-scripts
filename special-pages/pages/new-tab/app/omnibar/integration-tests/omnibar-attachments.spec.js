@@ -53,6 +53,40 @@ test.describe('omnibar tab attachment', () => {
         expect(params.pageContext?.[0].title).toBe('Starbucks Coffee Company');
     });
 
+    test('an attached tab shows as checked when the picker is reopened', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await expect(omnibar.tabChip()).toHaveCount(1);
+
+        // Reopening the picker: the attached tab reports its checked state, the others don't.
+        await omnibar.attachMenuButton().click();
+        await omnibar.attachPageContentMenuItem().click();
+        await expect(omnibar.tabPickerItem('Starbucks Coffee Company')).toHaveAttribute('aria-checked', 'true');
+        await expect(omnibar.tabPickerItem('MacBook Neo - Apple')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    test('selecting an already-attached tab in the picker detaches it', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAttachTabs': 'true', 'omnibar.selectedModelId': 'openai_gpt-oss-120b' },
+        });
+        await omnibar.ready();
+
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await expect(omnibar.tabChip()).toHaveCount(1);
+
+        // Picking the same tab again toggles it back off, dropping its chip.
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
+    });
+
     test('attaches multiple tabs and submits a pageContext entry per chip', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
