@@ -20,6 +20,7 @@ import {
     matchedCursorSources,
     evidenceForRun,
     parseAnthropicDecision,
+    assertPrHeadUnchanged,
     truncate,
     parseLinkHeader,
 } from './dependabot-anthropic-gate.mjs';
@@ -468,6 +469,28 @@ describe('truncate', () => {
     it('returns the empty string for falsy input', () => {
         assert.equal(truncate(null), '');
         assert.equal(truncate(''), '');
+    });
+});
+
+describe('assertPrHeadUnchanged', () => {
+    it('allows approval when the current head matches the assessed SHA', () => {
+        assert.doesNotThrow(() =>
+            assertPrHeadUnchanged({
+                currentHead: HEAD_SHA,
+                assessedHead: HEAD_SHA,
+            }),
+        );
+    });
+
+    it('fails closed when the PR head advanced after the gate assessment', () => {
+        assert.throws(
+            () =>
+                assertPrHeadUnchanged({
+                    currentHead: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+                    assessedHead: HEAD_SHA,
+                }),
+            /PR head advanced/,
+        );
     });
 });
 

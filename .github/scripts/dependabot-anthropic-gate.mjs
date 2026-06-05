@@ -50,6 +50,16 @@ function setOutput(name, value) {
     appendFileSync(outputPath, `${name}<<${delimiter}\n${value}\n${delimiter}\n`);
 }
 
+/**
+ * Fail closed when the PR head advanced after the gate started evaluating a
+ * specific commit. Approval and auto-merge must only act on the assessed SHA.
+ */
+export function assertPrHeadUnchanged({ currentHead, assessedHead }) {
+    if (currentHead !== assessedHead) {
+        throw new Error(`PR head advanced from ${assessedHead} to ${currentHead}; refusing to approve or auto-merge using stale evidence.`);
+    }
+}
+
 export function truncate(value, limit = MAX_BODY_CHARS) {
     if (!value) return '';
     if (value.length <= limit) return value;
@@ -552,6 +562,7 @@ async function main() {
     };
 
     const decision = await askAnthropic({ apiKey: anthropicApiKey, model, evidence });
+    setOutput('assessed_head_sha', headSha);
     setOutput('safe_to_merge', String(decision.safe_to_merge));
     setOutput('reason', decision.reason);
     setOutput('confidence', decision.confidence ?? 'unknown');

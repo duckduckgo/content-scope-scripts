@@ -69,19 +69,34 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
                   REPO: ${{ github.repository }}
               run: |
                   set -euo pipefail
-                  gh pr review "$PR_NUMBER" --repo "$REPO" --approve || true
+                  current_head="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefOid --jq '.headRefOid')"
+                  if [[ "$current_head" != "$PR_HEAD_SHA" ]]; then
+                    echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to approve using stale evidence."
+                    exit 1
+                  fi
+                  gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+                    --method POST \
+                    -f event=APPROVE \
+                    -f commit_id="$PR_HEAD_SHA" || true
 
             - name: Enable auto-merge for npm update
               if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
                   REPO: ${{ github.repository }}
               run: |
                   set -euo pipefail
+                  current_head="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefOid --jq '.headRefOid')"
+                  if [[ "$current_head" != "$PR_HEAD_SHA" ]]; then
+                    echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to enable auto-merge using stale evidence."
+                    exit 1
+                  fi
 
                   merge_state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergeStateStatus,isDraft --jq '.mergeStateStatus + " " + (if .isDraft then "draft" else "ready" end)')"
                   echo "merge_state=$merge_state"
@@ -99,7 +114,7 @@ jobs:
                       ;;
                   esac
 
-                  if ! out="$(gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --merge 2>&1)"; then
+                  if ! out="$(gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --merge --match-head-commit "$PR_HEAD_SHA" 2>&1)"; then
                     echo "Could not enable auto-merge for PR; leaving it unqueued."
                     echo "$out"
                     exit 0
