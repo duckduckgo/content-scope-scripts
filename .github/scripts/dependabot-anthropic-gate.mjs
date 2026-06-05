@@ -20,6 +20,11 @@ const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BODY_CHARS = 12000;
 const CHECK_WAIT_TIMEOUT_MS = 30 * 60 * 1000;
 const CHECK_WAIT_POLL_INTERVAL_MS = 30 * 1000;
+// Cursor check runs often flip to `completed` before cursor[bot] posts the
+// matching review/comment. A short post-check poll avoids calling Anthropic
+// with empty evidence when the comment is only seconds behind the check run.
+const SOURCE_SETTLE_TIMEOUT_MS = 3 * 60 * 1000;
+const SOURCE_SETTLE_POLL_INTERVAL_MS = 10 * 1000;
 export const PASSING_CHECK_CONCLUSIONS = new Set(['success', 'skipped', 'neutral']);
 // Only reviews / issue comments authored by these GitHub App bots are eligible
 // to be matched as Cursor-authored evidence. Everything else (including human
@@ -280,8 +285,8 @@ export function pendingExpectedCheckRuns(checkRuns) {
  * Throws on the first failed non-gate check or when the deadline expires.
  *
  * Folding this wait into the gate script (instead of the workflow YAML) keeps
- * the `pull_request_target` job from passing GITHUB_TOKEN to a third-party
- * action pinned only by mutable tag.
+ * the workflow job from passing GITHUB_TOKEN to a third-party action pinned
+ * only by mutable tag.
  */
 async function waitForChecksToSettle({ apiRoot, headSha, token, currentRunCheckIds }) {
     const deadline = Date.now() + CHECK_WAIT_TIMEOUT_MS;
@@ -405,6 +410,7 @@ export function sourceMatchesCheckRun(source, run) {
 export function matchedCursorSources(run, sources) {
     return sources
         .filter((source) => sourceMatchesCheckRun(source, run))
+        .filter((source) => (source.body ?? '').trim().length > 0)
         .map((source) => ({
             type: source.type,
             author: source.author,
@@ -426,6 +432,63 @@ export function evidenceForRun(run, sources) {
         },
         matchedCursorSources: matchedCursorSources(run, sources),
     };
+}
+
+function trimmedOutputFields(output) {
+    return [output.title, output.summary, output.text].map((value) => (value ?? '').trim()).filter(Boolean);
+}
+
+/**
+ * Returns true when a Cursor check has non-empty matched sources or check-run
+ * output text. Empty evidence must not be sent to Anthropic.
+ */
+export function hasActionableEvidence(evidenceItem) {
+    if (evidenceItem.matchedCursorSources.length > 0) {
+        return true;
+    }
+    return trimmedOutputFields(evidenceItem.output).length > 0;
+}
+
+export function runsMissingActionableEvidence(runs, sources) {
+    return runs.filter((run) => !hasActionableEvidence(evidenceForRun(run, sources))).map((run) => run.name);
+}
+
+export function validateCursorEvidence(cursorResults) {
+    const insufficient = cursorResults.filter((item) => !hasActionableEvidence(item)).map((item) => item.checkName);
+    if (insufficient.length > 0) {
+        throw new Error(`Insufficient Cursor evidence for: ${insufficient.join(', ')}`);
+    }
+}
+
+async function fetchPullRequestSources(apiRoot, prNumber, token) {
+    const [{ data: pull }, reviews, comments, inlineReviewComments] = await Promise.all([
+        requestJson(`${apiRoot}/pulls/${prNumber}`, { token }),
+        requestAllPages(`${apiRoot}/pulls/${prNumber}/reviews?per_page=100`, token, (data) => data ?? []),
+        requestAllPages(`${apiRoot}/issues/${prNumber}/comments?per_page=100`, token, (data) => data ?? []),
+        requestAllPages(`${apiRoot}/pulls/${prNumber}/comments?per_page=100`, token, (data) => data ?? []),
+    ]);
+    const sources = [
+        ...reviews.map(sourceFromReview),
+        ...comments.map(sourceFromComment),
+        ...inlineReviewComments.map(sourceFromInlineReviewComment),
+    ].filter(Boolean);
+    return { pull, sources };
+}
+
+async function fetchSourcesUntilActionable({ apiRoot, prNumber, token, runs }) {
+    const deadline = Date.now() + SOURCE_SETTLE_TIMEOUT_MS;
+    while (true) {
+        const { pull, sources } = await fetchPullRequestSources(apiRoot, prNumber, token);
+        const missing = runsMissingActionableEvidence(runs, sources);
+        if (missing.length === 0) {
+            return { pull, sources };
+        }
+        if (Date.now() >= deadline) {
+            throw new Error(`Timed out waiting for Cursor-authored evidence: ${missing.join(', ')}`);
+        }
+        console.log(`Waiting for Cursor-authored evidence: ${missing.join(', ')}`);
+        await sleep(SOURCE_SETTLE_POLL_INTERVAL_MS);
+    }
 }
 
 const ANTHROPIC_DECISION_KEYS = new Set(['safe_to_merge', 'reason', 'confidence']);
@@ -527,12 +590,6 @@ async function main() {
 
     const currentRunCheckIds = await fetchCurrentWorkflowCheckRunIds(apiRoot, currentRunId, githubToken);
     const checkRuns = await waitForChecksToSettle({ apiRoot, headSha, token: githubToken, currentRunCheckIds });
-    const [{ data: pull }, reviews, comments, inlineReviewComments] = await Promise.all([
-        requestJson(`${apiRoot}/pulls/${prNumber}`, { token: githubToken }),
-        requestAllPages(`${apiRoot}/pulls/${prNumber}/reviews?per_page=100`, githubToken, (data) => data ?? []),
-        requestAllPages(`${apiRoot}/issues/${prNumber}/comments?per_page=100`, githubToken, (data) => data ?? []),
-        requestAllPages(`${apiRoot}/pulls/${prNumber}/comments?per_page=100`, githubToken, (data) => data ?? []),
-    ]);
 
     const latestChecks = latestCheckRunsByName(checkRuns);
     const missingChecks = EXPECTED_CHECKS.filter((expected) => !latestChecks.some((run) => run.name === expected.name)).map(
@@ -546,11 +603,14 @@ async function main() {
         throw new Error(`Expected Cursor checks to be successful: ${unsuccessfulChecks.map((run) => run.name).join(', ')}`);
     }
 
-    const sources = [
-        ...reviews.map(sourceFromReview),
-        ...comments.map(sourceFromComment),
-        ...inlineReviewComments.map(sourceFromInlineReviewComment),
-    ].filter(Boolean);
+    const { pull, sources } = await fetchSourcesUntilActionable({
+        apiRoot,
+        prNumber,
+        token: githubToken,
+        runs: latestChecks,
+    });
+    const cursorResults = latestChecks.map((run) => evidenceForRun(run, sources));
+    validateCursorEvidence(cursorResults);
     const evidence = {
         pullRequest: {
             number: pull.number,
@@ -558,7 +618,7 @@ async function main() {
             author: pull.user?.login,
             headSha,
         },
-        cursorResults: latestChecks.map((run) => evidenceForRun(run, sources)),
+        cursorResults,
     };
 
     const decision = await askAnthropic({ apiKey: anthropicApiKey, model, evidence });

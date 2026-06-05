@@ -19,6 +19,9 @@ import {
     sourceMatchesCheckRun,
     matchedCursorSources,
     evidenceForRun,
+    hasActionableEvidence,
+    runsMissingActionableEvidence,
+    validateCursorEvidence,
     parseAnthropicDecision,
     assertPrHeadUnchanged,
     truncate,
@@ -354,6 +357,17 @@ describe('sourceMatchesCheckRun', () => {
 });
 
 describe('matchedCursorSources', () => {
+    it('drops matched sources whose body is blank whitespace', () => {
+        const run = cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-zzz');
+        const sources = [
+            { type: 'comment', author: 'cursor[bot]', submittedAt: 't', body: '   ' },
+            { type: 'comment', author: 'cursor[bot]', submittedAt: 't', body: 'bc-zzz says ok' },
+        ];
+        const matched = matchedCursorSources(run, sources);
+        assert.equal(matched.length, 1);
+        assert.ok(matched[0].body.includes('bc-zzz'));
+    });
+
     it('only surfaces sources matching the specific check run', () => {
         const bugbotRun = cursorBugbotRun();
         const sources = [
@@ -374,6 +388,45 @@ describe('matchedCursorSources', () => {
         const run = cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-zzz');
         const sources = [{ type: 'comment', author: 'cursor[bot]', submittedAt: 't', body: 'nothing useful here' }];
         assert.deepEqual(matchedCursorSources(run, sources), []);
+    });
+});
+
+describe('hasActionableEvidence / validateCursorEvidence', () => {
+    it('accepts non-empty matched sources', () => {
+        const run = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-abc');
+        const evidence = evidenceForRun(run, [{ type: 'comment', author: 'cursor[bot]', submittedAt: 't', body: 'bc-abc approved' }]);
+        assert.equal(hasActionableEvidence(evidence), true);
+    });
+
+    it('accepts non-empty check-run output when matched sources are absent', () => {
+        const run = cursorBugbotRun({ output: { title: 'Bugbot', summary: 'Low Risk', text: '' } });
+        const evidence = evidenceForRun(run, []);
+        assert.equal(hasActionableEvidence(evidence), true);
+    });
+
+    it('rejects blank matched sources and blank check-run output', () => {
+        const run = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-abc', {
+            output: { title: '', summary: '', text: '' },
+        });
+        const evidence = evidenceForRun(run, [{ type: 'comment', author: 'cursor[bot]', submittedAt: 't', body: '   ' }]);
+        assert.equal(hasActionableEvidence(evidence), false);
+        assert.throws(() => validateCursorEvidence([evidence]), /Insufficient Cursor evidence/);
+    });
+
+    it('reports runs still missing actionable evidence', () => {
+        const bugbot = cursorBugbotRun({ output: { title: '', summary: '', text: '' } });
+        const automation = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-abc', {
+            output: { title: '', summary: '', text: '' },
+        });
+        const sources = [
+            {
+                type: 'inline_review_comment',
+                author: 'cursor[bot]',
+                submittedAt: 't',
+                body: `Reviewed by Cursor Bugbot for commit ${HEAD_SHA}`,
+            },
+        ];
+        assert.deepEqual(runsMissingActionableEvidence([bugbot, automation], sources), ['Cursor Automation: Review dependabot']);
     });
 });
 

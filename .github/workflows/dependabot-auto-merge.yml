@@ -1,8 +1,12 @@
 name: Dependabot auto-approve and auto-merge
 
 on:
-    pull_request_target:
+    pull_request:
         types: [opened, reopened, synchronize, ready_for_review]
+
+concurrency:
+    group: dependabot-gate-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
 
 permissions:
     # `actions: read` is required so the gate script can call
@@ -18,7 +22,9 @@ permissions:
 jobs:
     dependabot:
         runs-on: ubuntu-latest
-        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        if: |
+            github.event.pull_request.user.login == 'dependabot[bot]' &&
+            github.event.pull_request.head.repo.full_name == github.repository
         steps:
             - name: Checkout workflow scripts
               uses: actions/checkout@v6
@@ -52,7 +58,7 @@ jobs:
             # checks — and refuses to ask Anthropic unless every expected
             # Cursor check completed successfully. Folding the wait inline
             # avoids passing GITHUB_TOKEN to a mutable third-party action on
-            # this pull_request_target workflow.
+            # this workflow.
             - name: Ask Anthropic to assess Cursor results
               if: steps.classify.outputs.is_npm == 'true'
               id: anthropic_gate
@@ -78,10 +84,15 @@ jobs:
                     echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to approve using stale evidence."
                     exit 1
                   fi
-                  gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+                  if ! out="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
                     --method POST \
                     -f event=APPROVE \
-                    -f commit_id="$PR_HEAD_SHA" || true
+                    -f commit_id="$PR_HEAD_SHA" 2>&1)"; then
+                    echo "Failed to approve PR #$PR_NUMBER at commit $PR_HEAD_SHA:"
+                    echo "$out"
+                    exit 1
+                  fi
+                  echo "$out"
 
             - name: Enable auto-merge for npm update
               if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
