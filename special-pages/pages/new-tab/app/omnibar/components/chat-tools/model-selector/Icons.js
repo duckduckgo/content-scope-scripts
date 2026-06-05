@@ -103,10 +103,12 @@ export function OSSIcon(props) {
  * @returns {import('preact').ComponentType<import('preact').JSX.SVGAttributes<SVGSVGElement>> | null}
  */
 export function getModelIcon(modelId) {
-    if (modelId.startsWith('meta-llama/') || modelId.startsWith('meta-llama_')) return LlamaIcon;
-    if (modelId.startsWith('mistral')) return MistralIcon;
-    if (modelId.includes('gpt-oss')) return OSSIcon;
-    if (modelId.startsWith('claude')) return ClaudeIcon;
-    if (modelId.startsWith('gpt') || modelId.startsWith('openai')) return OpenAIIcon;
+    const normalizedModelId = modelId.toLowerCase();
+
+    if (normalizedModelId.startsWith('meta-llama/') || normalizedModelId.startsWith('meta-llama_')) return LlamaIcon;
+    if (normalizedModelId.startsWith('mistral')) return MistralIcon;
+    if (normalizedModelId.includes('gpt-oss')) return OSSIcon;
+    if (normalizedModelId.startsWith('claude')) return ClaudeIcon;
+    if (normalizedModelId.startsWith('gpt') || normalizedModelId.startsWith('openai')) return OpenAIIcon;
     return null;
 }
