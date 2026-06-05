@@ -105,7 +105,7 @@ export function OSSIcon(props) {
 export function getModelIcon(modelId) {
     const normalizedModelId = modelId.toLowerCase();
 
-    if (normalizedModelId.startsWith('meta-llama/') || normalizedModelId.startsWith('meta-llama_')) return LlamaIcon;
+    if (normalizedModelId.startsWith('meta-llama')) return LlamaIcon;
     if (normalizedModelId.startsWith('mistral')) return MistralIcon;
     if (normalizedModelId.includes('gpt-oss')) return OSSIcon;
     if (normalizedModelId.startsWith('claude')) return ClaudeIcon;
