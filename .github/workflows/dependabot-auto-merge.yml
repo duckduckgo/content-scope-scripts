@@ -1,37 +1,133 @@
 name: Dependabot auto-approve and auto-merge
-on: pull_request
+
+on:
+    pull_request:
+        types: [opened, reopened, synchronize, ready_for_review]
+
+concurrency:
+    group: dependabot-gate-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
 
 permissions:
+    # `actions: read` is required so the gate script can call
+    # `GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs` to exclude its own
+    # workflow run from the wait set in `fetchCurrentWorkflowCheckRunIds()`.
+    # Once explicit permissions are set, anything not listed defaults to
+    # `none`, so omitting this would 403 before the gate ever runs.
+    actions: read
+    checks: read
     contents: write
     pull-requests: write
 
 jobs:
     dependabot:
         runs-on: ubuntu-latest
-        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        if: |
+            github.event.pull_request.user.login == 'dependabot[bot]' &&
+            github.event.pull_request.head.repo.full_name == github.repository
         steps:
+            - name: Checkout workflow scripts
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.ref }}
+                  sparse-checkout: .github/scripts/dependabot-anthropic-gate.mjs
+                  sparse-checkout-cone-mode: false
+                  persist-credentials: false
+
             - name: Dependabot metadata
               id: metadata
               uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
               with:
                   github-token: '${{ secrets.GITHUB_TOKEN }}'
 
-            - name: Enable auto-merge for npm updates
-              if: steps.metadata.outputs.package-ecosystem == 'npm'
-              run: gh pr merge --auto --merge "$PR_URL"
+            - name: Classify npm update
+              id: classify
               env:
-                  PR_URL: ${{ github.event.pull_request.html_url }}
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PACKAGE_ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+              run: |
+                  set -euo pipefail
+                  if [[ "$PACKAGE_ECOSYSTEM" == "npm_and_yarn" ]]; then
+                    echo "is_npm=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "is_npm=false" >> "$GITHUB_OUTPUT"
+                  fi
 
-            - name: Auto-approve npm patch updates (except ignored packages)
-              if: |
-                  steps.metadata.outputs.package-ecosystem == 'npm' &&
-                  steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
-                  !contains(steps.metadata.outputs.dependency-names, '@atlaskit/pragmatic-drag-and-drop') &&
-                  !contains(steps.metadata.outputs.dependency-names, 'preact') &&
-                  !contains(steps.metadata.outputs.dependency-names, '@preact/signals') &&
-                  !contains(steps.metadata.outputs.dependency-names, 'lottie-web')
-              run: gh pr review --approve "$PR_URL"
+            # The gate script (checked in on the base branch via the sparse
+            # checkout above) handles waiting for all other check runs and
+            # commit statuses on the head SHA — including the three Cursor
+            # checks — and refuses to ask Anthropic unless every expected
+            # Cursor check completed successfully. Folding the wait inline
+            # avoids passing GITHUB_TOKEN to a mutable third-party action on
+            # this workflow.
+            - name: Ask Anthropic to assess Cursor results
+              if: steps.classify.outputs.is_npm == 'true'
+              id: anthropic_gate
               env:
-                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  ANTHROPIC_MODEL: claude-sonnet-4-5-20250929
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: node .github/scripts/dependabot-anthropic-gate.mjs
+
+            - name: Approve npm update
+              if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
+              env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
+                  REPO: ${{ github.repository }}
+              run: |
+                  set -euo pipefail
+                  current_head="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefOid --jq '.headRefOid')"
+                  if [[ "$current_head" != "$PR_HEAD_SHA" ]]; then
+                    echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to approve using stale evidence."
+                    exit 1
+                  fi
+                  if ! out="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+                    --method POST \
+                    -f event=APPROVE \
+                    -f commit_id="$PR_HEAD_SHA" 2>&1)"; then
+                    echo "Failed to approve PR #$PR_NUMBER at commit $PR_HEAD_SHA:"
+                    echo "$out"
+                    exit 1
+                  fi
+                  echo "$out"
+
+            - name: Enable auto-merge for npm update
+              if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
+                  REPO: ${{ github.repository }}
+              run: |
+                  set -euo pipefail
+                  current_head="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefOid --jq '.headRefOid')"
+                  if [[ "$current_head" != "$PR_HEAD_SHA" ]]; then
+                    echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to enable auto-merge using stale evidence."
+                    exit 1
+                  fi
+
+                  merge_state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergeStateStatus,isDraft --jq '.mergeStateStatus + " " + (if .isDraft then "draft" else "ready" end)')"
+                  echo "merge_state=$merge_state"
+
+                  if [[ "$merge_state" == *" draft" ]]; then
+                    echo "PR is a draft; skipping."
+                    exit 0
+                  fi
+
+                  state="${merge_state%% *}"
+                  case "$state" in
+                    DIRTY)
+                      echo "PR has conflicts (DIRTY); skipping."
+                      exit 0
+                      ;;
+                  esac
+
+                  if ! out="$(gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --merge --match-head-commit "$PR_HEAD_SHA" 2>&1)"; then
+                    echo "Could not enable auto-merge for PR; leaving it unqueued."
+                    echo "$out"
+                    exit 0
+                  fi
+                  echo "$out"
