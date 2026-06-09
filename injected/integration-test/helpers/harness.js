@@ -25,13 +25,16 @@ export function testContextForExtension(test) {
             const extensionPath = resolve('integration-test/extension');
 
             const launchOptions = {
-                devtools: true,
                 headless: false,
                 viewport: {
                     width: 1920,
                     height: 1080,
                 },
-                args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
+                args: [
+                    '--auto-open-devtools-for-tabs',
+                    `--disable-extensions-except=${extensionPath}`,
+                    `--load-extension=${extensionPath}`,
+                ],
             };
 
             const context = await browserTypes[browserName].launchPersistentContext(dataDir, launchOptions);
