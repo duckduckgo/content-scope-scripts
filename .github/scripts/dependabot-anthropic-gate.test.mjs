@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
     EXPECTED_CHECKS,
+    REQUIRED_PREREQ_CHECK_NAMES,
     cursorAgentId,
     detailsHost,
     matchExpectedCheck,
@@ -10,6 +11,8 @@ import {
     latestOtherCheckRunsByName,
     checkRunState,
     commitStatusState,
+    isRequiredPrereqCheck,
+    missingRequiredCheckNames,
     missingExpectedCheckNames,
     pendingExpectedCheckRuns,
     isTrustedAutomationActor,
@@ -171,16 +174,16 @@ describe('latestOtherCheckRunsByName / checkRunState', () => {
     });
 
     it('does not let a same-named success from a different app supersede a failure', () => {
-        // Realistic scenario: github-actions reports `lint` as failed,
+        // Realistic scenario: github-actions reports `CI gate` as failed,
         // and another installed App with checks:write later publishes a
-        // newer `lint: success`. Keying dedup by (app, name) rather than
+        // newer `CI gate: success`. Keying dedup by (app, name) rather than
         // name alone means the failure must still surface.
-        const failure = externalRun('lint', 'completed', 'failure', {
+        const failure = externalRun('CI gate', 'completed', 'failure', {
             id: 1,
             appSlug: 'github-actions',
             completedAt: '2026-05-28T00:00:00Z',
         });
-        const spoofedSuccess = externalRun('lint', 'completed', 'success', {
+        const spoofedSuccess = externalRun('CI gate', 'completed', 'success', {
             id: 2,
             appSlug: 'another-app',
             completedAt: '2026-05-28T01:00:00Z',
@@ -207,33 +210,83 @@ describe('latestOtherCheckRunsByName / checkRunState', () => {
         assert.equal(result[0].id, 11);
     });
 
-    it('classifies pending vs failed correctly', () => {
-        const ok = externalRun('lint', 'completed', 'success');
-        const skipped = externalRun('typecheck', 'completed', 'skipped');
-        const failed = externalRun('test', 'completed', 'failure');
-        const queued = externalRun('build', 'queued');
+    it('classifies pending vs failed correctly for required checks', () => {
+        // Required checks are scoped by allowlist, so each scenario uses
+        // the only allowlisted name (`CI gate`) with different app slugs
+        // to keep the (app, name) dedup happy.
+        const ok = externalRun('CI gate', 'completed', 'success', { id: 80, appSlug: 'app-ok' });
+        const skipped = externalRun('CI gate', 'completed', 'skipped', { id: 81, appSlug: 'app-skipped' });
+        const failed = externalRun('CI gate', 'completed', 'failure', { id: 82, appSlug: 'app-failed' });
+        const queued = externalRun('CI gate', 'queued', null, { id: 83, appSlug: 'app-queued' });
         const { pending, failed: f } = checkRunState([ok, skipped, failed, queued], new Set());
         assert.equal(pending.length, 1);
-        assert.equal(pending[0].name, 'build');
+        assert.equal(pending[0].id, 83);
         assert.equal(f.length, 1);
-        assert.equal(f[0].name, 'test');
+        assert.equal(f[0].id, 82);
+    });
+
+    it('ignores check runs whose name is not in the required allowlist', () => {
+        // `sync` (asana sync) and `Authorized Review` are intentionally
+        // not on REQUIRED_PREREQ_CHECK_NAMES — failures or pending states
+        // on them must not block the gate.
+        const asanaSync = externalRun('sync', 'completed', 'failure');
+        const authorizedReview = externalRun('Authorized Review', 'queued');
+        const otherCi = externalRun('lint', 'completed', 'failure');
+        const { pending, failed } = checkRunState([asanaSync, authorizedReview, otherCi], new Set());
+        assert.equal(pending.length, 0);
+        assert.equal(failed.length, 0);
     });
 });
 
 describe('commitStatusState', () => {
-    it('separates pending statuses from failures and successes', () => {
+    it('separates pending statuses from failures and successes for required contexts', () => {
         const statuses = [
-            { context: 'ci/a', state: 'success' },
-            { context: 'ci/b', state: 'pending' },
-            { context: 'ci/c', state: 'failure' },
-            { context: 'ci/d', state: 'error' },
+            { context: 'CI gate', state: 'success' },
+            { context: 'CI gate', state: 'pending' },
+            { context: 'CI gate', state: 'failure' },
+            { context: 'CI gate', state: 'error' },
         ];
         const { pending, failed } = commitStatusState(statuses);
         assert.deepEqual(
-            pending.map((s) => s.context),
-            ['ci/b'],
+            pending.map((s) => s.state),
+            ['pending'],
         );
-        assert.deepEqual(failed.map((s) => s.context).sort(), ['ci/c', 'ci/d']);
+        assert.deepEqual(failed.map((s) => s.state).sort(), ['error', 'failure']);
+    });
+
+    it('ignores statuses whose context is not in the required allowlist', () => {
+        const statuses = [
+            { context: 'sync', state: 'failure' },
+            { context: 'Authorized Review', state: 'pending' },
+        ];
+        const { pending, failed } = commitStatusState(statuses);
+        assert.equal(pending.length, 0);
+        assert.equal(failed.length, 0);
+    });
+});
+
+describe('isRequiredPrereqCheck / missingRequiredCheckNames', () => {
+    it('isRequiredPrereqCheck only returns true for names on the allowlist', () => {
+        for (const name of REQUIRED_PREREQ_CHECK_NAMES) {
+            assert.equal(isRequiredPrereqCheck(name), true);
+        }
+        assert.equal(isRequiredPrereqCheck('sync'), false);
+        assert.equal(isRequiredPrereqCheck('Authorized Review'), false);
+        assert.equal(isRequiredPrereqCheck(undefined), false);
+        assert.equal(isRequiredPrereqCheck(null), false);
+        assert.equal(isRequiredPrereqCheck(''), false);
+    });
+
+    it('missingRequiredCheckNames lists allowlist names absent from checks and statuses', () => {
+        const missing = missingRequiredCheckNames([], []);
+        assert.deepEqual(missing.sort(), [...REQUIRED_PREREQ_CHECK_NAMES].sort());
+    });
+
+    it('missingRequiredCheckNames treats either a check run or a commit status as present', () => {
+        const fromCheck = missingRequiredCheckNames([{ name: 'CI gate', status: 'queued' }], []);
+        assert.deepEqual(fromCheck, []);
+        const fromStatus = missingRequiredCheckNames([], [{ context: 'CI gate', state: 'pending' }]);
+        assert.deepEqual(fromStatus, []);
     });
 });
 
