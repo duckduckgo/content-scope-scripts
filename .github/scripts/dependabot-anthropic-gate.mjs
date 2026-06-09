@@ -16,6 +16,23 @@ export const EXPECTED_CHECKS = [
     { name: 'Cursor Automation: Review dependabot', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
     { name: 'Cursor Automation: Web compat and sec', appSlug: CURSOR_APP_SLUG, detailsHost: CURSOR_DETAILS_HOST },
 ];
+// Names of check runs / commit statuses that must complete and pass before
+// the gate calls Anthropic. The gate is a token-spend optimisation: it
+// avoids asking Anthropic to assess a PR whose test signal is already red.
+// Real merge enforcement still runs through GitHub branch protection, so
+// this list only needs to cover the test signals we'd refuse to spend
+// Anthropic tokens around — admin workflows (`sync` / asana sync) and
+// human-gated checks (`Authorized Review`) are intentionally excluded.
+//
+// Cursor checks aren't on this list; they're already gated separately via
+// EXPECTED_CHECKS (which carries app + host trust signals beyond a name).
+export const REQUIRED_PREREQ_CHECK_NAMES = new Set([
+    // `CI gate` in `.github/workflows/tests.yml` `needs:` every test job
+    // (github-scripts-unit, unit, unit-tests, integration, integration-tests,
+    // integration-tests-special-pages, production-deps) and only succeeds
+    // if all of them do. Gating on it alone covers full test signal.
+    'CI gate',
+]);
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_BODY_CHARS = 12000;
 const CHECK_WAIT_TIMEOUT_MS = 30 * 60 * 1000;
@@ -231,17 +248,40 @@ export function latestOtherCheckRunsByName(checkRuns, currentRunCheckIds) {
     return [...byKey.values()];
 }
 
+export function isRequiredPrereqCheck(name) {
+    return !!name && REQUIRED_PREREQ_CHECK_NAMES.has(name);
+}
+
 export function checkRunState(checkRuns, currentRunCheckIds) {
-    const latestRuns = latestOtherCheckRunsByName(checkRuns, currentRunCheckIds);
+    const latestRuns = latestOtherCheckRunsByName(checkRuns, currentRunCheckIds).filter((run) => isRequiredPrereqCheck(run.name));
     const pending = latestRuns.filter((run) => run.status !== 'completed');
     const failed = latestRuns.filter((run) => run.status === 'completed' && !PASSING_CHECK_CONCLUSIONS.has(run.conclusion));
     return { pending, failed };
 }
 
 export function commitStatusState(statuses) {
-    const pending = statuses.filter((status) => status.state === 'pending');
-    const failed = statuses.filter((status) => status.state === 'failure' || status.state === 'error');
+    const filtered = statuses.filter((status) => isRequiredPrereqCheck(status.context));
+    const pending = filtered.filter((status) => status.state === 'pending');
+    const failed = filtered.filter((status) => status.state === 'failure' || status.state === 'error');
     return { pending, failed };
+}
+
+/**
+ * Names from REQUIRED_PREREQ_CHECK_NAMES that have not yet appeared as
+ * either a check run or a commit status on the head SHA. Without this,
+ * the wait loop would exit early (treating "no required pending" as
+ * "all clear") before the required checks have even started — wasting
+ * Anthropic tokens on a PR whose CI hasn't run.
+ */
+export function missingRequiredCheckNames(checkRuns, statuses) {
+    const present = new Set();
+    for (const run of checkRuns) {
+        if (run.name) present.add(run.name);
+    }
+    for (const status of statuses) {
+        if (status.context) present.add(status.context);
+    }
+    return [...REQUIRED_PREREQ_CHECK_NAMES].filter((name) => !present.has(name));
 }
 
 function describeCheckRun(run) {
@@ -305,8 +345,9 @@ async function waitForChecksToSettle({ apiRoot, headSha, token, currentRunCheckI
 
         const missingCursor = missingExpectedCheckNames(checkRuns);
         const pendingCursor = pendingExpectedCheckRuns(checkRuns);
-        const otherIdle = checkRunStatus.pending.length === 0 && commitStatus.pending.length === 0;
-        if (otherIdle && missingCursor.length === 0 && pendingCursor.length === 0) {
+        const missingRequired = missingRequiredCheckNames(checkRuns, statuses);
+        const requiredIdle = checkRunStatus.pending.length === 0 && commitStatus.pending.length === 0;
+        if (requiredIdle && missingRequired.length === 0 && missingCursor.length === 0 && pendingCursor.length === 0) {
             return checkRuns;
         }
 
@@ -315,6 +356,7 @@ async function waitForChecksToSettle({ apiRoot, headSha, token, currentRunCheckI
             ...commitStatus.pending.map(describeCommitStatus),
             ...pendingCursor.map(describeCheckRun),
             ...missingCursor.map((name) => `${name} (missing)`),
+            ...missingRequired.map((name) => `${name} (missing)`),
         ].join(', ');
 
         if (Date.now() >= deadline) {
