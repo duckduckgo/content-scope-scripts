@@ -134,7 +134,12 @@ jobs:
                       ;;
                   esac
 
-                  if ! out="$(gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --merge --match-head-commit "$PR_HEAD_SHA" 2>&1)"; then
+                  # No strategy flag (`--merge`/`--squash`/`--rebase`):
+                  # `main` is governed by a merge queue, which dictates
+                  # the strategy and rejects any explicit override with
+                  # "The merge strategy for main is set by the merge
+                  # queue", silently leaving the PR unqueued.
+                  if ! out="$(gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --match-head-commit "$PR_HEAD_SHA" 2>&1)"; then
                     echo "Could not enable auto-merge for PR; leaving it unqueued."
                     echo "$out"
                     exit 0
