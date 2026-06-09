@@ -16,7 +16,7 @@
     "build-types": "node scripts/types.mjs",
     "bundle-trackers": "node scripts/bundleTrackers.mjs --output ../build/tracker-lookup.json",
     "pretest-unit": "npm run build-surrogates",
-    "test-unit": "jasmine --config=unit-test/config.json",
+    "test-unit": "jasmine --config=unit-test/config.json && node --test unit-test/merge-coverage.test.mjs",
     "test-unit-coverage": "c8 jasmine --config=unit-test/config.json",
     "coverage-int": "COLLECT_COVERAGE=1 playwright test --project windows --grep-invert '@screenshots' --reporter list",
     "coverage-report": "node scripts/merge-coverage.js",
