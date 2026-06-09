@@ -70,10 +70,19 @@ jobs:
                   PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
               run: node .github/scripts/dependabot-anthropic-gate.mjs
 
+            # Approve as `daxtheduck` (via DAX_PAT) rather than the
+            # workflow's GITHUB_TOKEN. The Authorized Review check in
+            # `review-check.yml` only treats approvals from `daxtheduck`
+            # or a required-team member as authorized, and branch
+            # protection's `require_code_owner_reviews` then blocks
+            # merge until one lands. A review posted as
+            # `github-actions[bot]` never satisfies that, so without
+            # this swap the auto-merge step enables auto-merge on a
+            # PR that can never go green.
             - name: Approve npm update
               if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
               env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ secrets.DAX_PAT }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
                   PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
                   REPO: ${{ github.repository }}
