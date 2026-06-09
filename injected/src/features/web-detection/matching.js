@@ -1,5 +1,12 @@
+import { hasOwnProperty, objectKeys } from '../../captured-globals.js';
+
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
+ */
+
+/**
+ * @template Final
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionBranch<Final>} ConditionBranch
  */
 
 /**
@@ -106,7 +113,7 @@ function evaluateSingleElementCondition(config) {
  * Sibling operator keys are AND-combined.
  *
  * @template Final
- * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionBranch<Final> | undefined} node
+ * @param {ConditionBranch<Final> | undefined} node
  * @param {(final: Final) => boolean} evalFinal
  * @returns {boolean}
  */
@@ -130,9 +137,10 @@ function evaluateNode(node, evalFinal) {
         throw new Error(`Condition node mixes operator keys [${opKeys.join(', ')}] with leaf fields [${otherKeys.join(', ')}]`);
     }
 
-    if ('all' in node && !asArray(node.all).every((n) => evaluateNode(n, evalFinal))) return false;
-    if ('any' in node && !asArray(node.any).some((n) => evaluateNode(n, evalFinal))) return false;
-    if ('none' in node && asArray(node.none).some((n) => evaluateNode(n, evalFinal))) return false;
+    const block = /** @type {Partial<Record<'all' | 'any' | 'none', ConditionBranch<Final>>>} */ (node);
+    if (hasOwnProperty.call(block, 'all') && !asArray(block.all).every((n) => evaluateNode(n, evalFinal))) return false;
+    if (hasOwnProperty.call(block, 'any') && !asArray(block.any).some((n) => evaluateNode(n, evalFinal))) return false;
+    if (hasOwnProperty.call(block, 'none') && asArray(block.none).some((n) => evaluateNode(n, evalFinal))) return false;
     return true;
 }
 
