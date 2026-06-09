@@ -495,13 +495,19 @@ describe('evidenceForRun', () => {
 
 describe('extractDecisionFromAnthropicResponse (tool_use)', () => {
     const validInput = { safe_to_merge: true, reason: 'ok', confidence: 'high' };
+    /**
+     * @param {unknown} [input]
+     * @param {string} [name]
+     */
     const toolUseBlock = (input = validInput, name = SUBMIT_DECISION_TOOL_NAME) => ({
         type: 'tool_use',
         id: 'toolu_1',
         name,
         input,
     });
+    /** @param {string} text */
     const textBlock = (text) => ({ type: 'text', text });
+    /** @param {...unknown} blocks */
     const responseWith = (...blocks) => ({ content: blocks });
 
     it('returns the decision from a single submit_decision tool_use block', () => {
