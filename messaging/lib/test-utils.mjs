@@ -350,11 +350,9 @@ export function mockAndroidAdsjsMessaging(params) {
 
     const dispatch = (payload) => {
         const event = { data: JSON.stringify(payload) };
-        setTimeout(() => {
-            for (const listener of listeners) {
-                listener(event);
-            }
-        }, 0);
+        for (const listener of listeners) {
+            listener(event);
+        }
     };
 
     window.__playwright_01.androidAdsjsDispatch = dispatch;
