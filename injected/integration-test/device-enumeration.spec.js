@@ -255,6 +255,75 @@ test.describe('Device Enumeration Feature', () => {
             expect(result.audioCapabilitiesAfterDelete).toEqual({});
         });
 
+        test('should return synthetic devices when deviceEnumeration messaging times out', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        enumerateDevices: {
+                            state: 'enabled',
+                            timeoutMs: 50,
+                        },
+                    },
+                },
+            });
+
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => new Promise(() => {});
+            });
+
+            const result = await page.evaluate(async () => {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                return {
+                    count: devices.length,
+                    kinds: devices.map((device) => device.kind).sort(),
+                    labels: devices.map((device) => device.label),
+                    inputDevicesAreInputDeviceInfo: devices
+                        .filter((device) => device.kind === 'audioinput' || device.kind === 'videoinput')
+                        .every((device) => device instanceof InputDeviceInfo),
+                };
+            });
+
+            expect(result).toEqual({
+                count: 3,
+                kinds: ['audioinput', 'audiooutput', 'videoinput'],
+                labels: ['', '', ''],
+                inputDevicesAreInputDeviceInfo: true,
+            });
+        });
+
+        test('should return synthetic devices when deviceEnumeration messaging rejects', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        enumerateDevices: 'enabled',
+                    },
+                },
+            });
+
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => Promise.reject(new Error('native handler unavailable'));
+            });
+
+            const result = await page.evaluate(async () => {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                return {
+                    count: devices.length,
+                    kinds: devices.map((device) => device.kind).sort(),
+                };
+            });
+
+            expect(result).toEqual({
+                count: 3,
+                kinds: ['audioinput', 'audiooutput', 'videoinput'],
+            });
+        });
+
         test('shimMode=instanceOwn preserves the prototype identity and exposes an own shim', async ({ page }) => {
             await gotoAndWait(page, '/blank.html', {
                 site: {
