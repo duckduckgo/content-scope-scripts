@@ -48,5 +48,5 @@ injected/src/navigator-global.js @duckduckgo/content-scope-scripts-owners
 
 # Workflows and admin
 .github/ @duckduckgo/content-scope-scripts-owners
-package.json @duckduckgo/content-scope-scripts-owners
-package-lock.json @duckduckgo/content-scope-scripts-owners
+package.json @duckduckgo/content-scope-scripts-owners @daxtheduck
+package-lock.json @duckduckgo/content-scope-scripts-owners @daxtheduck
