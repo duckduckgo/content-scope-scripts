@@ -53,6 +53,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'browserUiLock',
     'trackerProtection',
     'tabSuspension',
+    'autofillPasskeys',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -125,6 +126,7 @@ export const platformSupport = {
         'duckAiDataClearing',
         'performanceMetrics',
         'duckAiChatHistory',
+        'autofillPasskeys',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
