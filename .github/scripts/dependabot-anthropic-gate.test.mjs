@@ -26,7 +26,19 @@ import {
     runsMissingActionableEvidence,
     validateCursorEvidence,
     extractDecisionFromAnthropicResponse,
+    extractCommentDecisionFromAnthropicResponse,
+    shouldDismissDependabotReviewerThread,
+    isCursorBugbotComment,
+    isDependencyManifestPath,
+    isDependabotReviewerComment,
+    commentImpliesManualFollowUp,
+    isDependabotReviewerThread,
+    dependabotReviewerThreads,
+    gateStatePath,
+    writeGateState,
+    readGateState,
     SUBMIT_DECISION_TOOL_NAME,
+    SUBMIT_COMMENT_DECISION_TOOL_NAME,
     assertPrHeadUnchanged,
     truncate,
     parseLinkHeader,
@@ -632,6 +644,139 @@ describe('assertPrHeadUnchanged', () => {
                 }),
             /PR head advanced/,
         );
+    });
+});
+
+describe('isCursorBugbotComment / isDependencyManifestPath', () => {
+    it('detects Bugbot markers in inline comment bodies', () => {
+        assert.equal(isCursorBugbotComment(`Reviewed by Cursor Bugbot for commit ${HEAD_SHA}`), true);
+        assert.equal(isCursorBugbotComment('Patch bump only.'), false);
+    });
+
+    it('recognises dependency manifest paths in the monorepo', () => {
+        assert.equal(isDependencyManifestPath('package.json'), true);
+        assert.equal(isDependencyManifestPath('special-pages/package.json'), true);
+        assert.equal(isDependencyManifestPath('package-lock.json'), true);
+        assert.equal(isDependencyManifestPath('injected/src/features/cookie.js'), false);
+    });
+});
+
+const DEPENDABOT_REVIEWER_HEADER = '<!-- CURSOR_AUTOMATION_ID: 59f84727-8ede-45cc-810e-433b77231fad | RUN_ID: bc-dep -->';
+
+describe('isDependabotReviewerThread / dependabotReviewerThreads', () => {
+    const dependabotRun = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-dep');
+    const webCompatRun = cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-sec');
+
+    function thread({ body, path = 'special-pages/package.json', isResolved = false, author = 'cursor[bot]' }) {
+        return {
+            id: 'PRRT_test',
+            isResolved,
+            comments: [{ author, body, path }],
+        };
+    }
+
+    it('accepts manifest-path Dependabot reviewer notes with the automation header', () => {
+        const candidate = thread({ body: `${DEPENDABOT_REVIEWER_HEADER}\nPatch bump only. Low regression risk.` });
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), true);
+    });
+
+    it('rejects manifest-path comments that lack Dependabot reviewer attribution', () => {
+        const candidate = thread({ body: 'Patch bump only. Low regression risk.' });
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), false);
+    });
+
+    it('rejects web-compat-shaped manifest comments without the dependabot run id', () => {
+        const candidate = thread({
+            body: `${DEPENDABOT_REVIEWER_HEADER.replace('bc-dep', 'bc-sec')}\nLow Risk — CI-only workflow hardening.`,
+            path: 'package.json',
+        });
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), false);
+    });
+
+    it('accepts threads whose body references the Review dependabot agent id', () => {
+        const candidate = thread({ body: 'see https://cursor.com/agents/bc-dep for details' });
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), true);
+    });
+
+    it('rejects Bugbot inline findings and web-compat threads', () => {
+        const bugbot = thread({ body: `Reviewed by Cursor Bugbot for commit ${HEAD_SHA}` });
+        const webCompat = thread({ body: 'bc-sec flagged a web-compat concern' });
+        assert.equal(isDependabotReviewerThread(bugbot, { dependabotRun, webCompatRun }), false);
+        assert.equal(isDependabotReviewerThread(webCompat, { dependabotRun, webCompatRun }), false);
+    });
+
+    it('rejects resolved threads and non-manifest paths without agent attribution', () => {
+        const resolved = thread({ body: 'Patch bump only.', isResolved: true });
+        const sourceFile = thread({ body: 'Patch bump only.', path: 'injected/src/features/cookie.js' });
+        assert.equal(isDependabotReviewerThread(resolved, { dependabotRun, webCompatRun }), false);
+        assert.equal(isDependabotReviewerThread(sourceFile, { dependabotRun, webCompatRun }), false);
+    });
+
+    it('filters a mixed thread list down to Dependabot reviewer candidates', () => {
+        const threads = [
+            thread({ body: `${DEPENDABOT_REVIEWER_HEADER}\nUnrelated churn in package-lock.json.` }),
+            thread({ body: `Reviewed by Cursor Bugbot for commit ${HEAD_SHA}` }),
+            thread({ body: 'bc-sec flagged harmful API usage', path: 'injected/src/features/harmful-apis.js' }),
+        ];
+        const candidates = dependabotReviewerThreads(threads, [dependabotRun, webCompatRun]);
+        assert.equal(candidates.length, 1);
+        assert.ok(candidates[0].comments[0].body.includes('Unrelated churn in package-lock.json.'));
+    });
+});
+
+describe('extractCommentDecisionFromAnthropicResponse / shouldDismissDependabotReviewerThread', () => {
+    const validInput = { low_risk: true, reason: 'patch bump', confidence: 'high' };
+    const toolUseBlock = (input = validInput, name = SUBMIT_COMMENT_DECISION_TOOL_NAME) => ({
+        type: 'tool_use',
+        id: 'toolu_2',
+        name,
+        input,
+    });
+    const responseWith = (...blocks) => ({ content: blocks });
+
+    it('parses a submit_comment_decision tool_use block', () => {
+        assert.deepEqual(extractCommentDecisionFromAnthropicResponse(responseWith(toolUseBlock())), validInput);
+    });
+
+    it('only dismisses high-confidence low-risk comments without manual-follow-up keywords', () => {
+        const body = `${DEPENDABOT_REVIEWER_HEADER}\nPatch bump only.`;
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'high' }, body), true);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'medium' }, body), false);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'low' }, body), false);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: false, reason: 'no', confidence: 'high' }, body), false);
+        assert.equal(
+            shouldDismissDependabotReviewerThread(
+                { low_risk: true, reason: 'ok', confidence: 'high' },
+                `${body}\nPossible CVE-2024-1234 in transitive dependency.`,
+            ),
+            false,
+        );
+    });
+
+    it('detects Dependabot reviewer headers and manual-follow-up keywords', () => {
+        assert.equal(isDependabotReviewerComment(DEPENDABOT_REVIEWER_HEADER), true);
+        assert.equal(commentImpliesManualFollowUp('breaking change in renderer API'), true);
+        assert.equal(commentImpliesManualFollowUp('patch bump only'), false);
+    });
+});
+
+describe('gate state helpers', () => {
+    it('round-trips gate state for the same head SHA', () => {
+        const path = `${gateStatePath()}.test-${Date.now()}`;
+        const state = {
+            headSha: HEAD_SHA,
+            threadClassification: { complete: true, classified: 2, dismissed: 1 },
+            pullRequest: { number: 1, title: 't', author: 'dependabot[bot]', headSha: HEAD_SHA },
+            cursorResults: [],
+        };
+        writeGateState(path, state);
+        assert.deepEqual(readGateState(path, HEAD_SHA), state);
+    });
+
+    it('rejects stale gate state when the PR head advanced', () => {
+        const path = `${gateStatePath()}.stale-${Date.now()}`;
+        writeGateState(path, { headSha: HEAD_SHA, threadClassification: { complete: true } });
+        assert.throws(() => readGateState(path, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /missing or stale/);
     });
 });
 

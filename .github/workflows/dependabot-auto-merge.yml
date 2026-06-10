@@ -52,15 +52,24 @@ jobs:
                     echo "is_npm=false" >> "$GITHUB_OUTPUT"
                   fi
 
-            # The gate script (checked in on the base branch via the sparse
-            # checkout above) handles waiting for all other check runs and
-            # commit statuses on the head SHA — including the three Cursor
-            # checks — and refuses to ask Anthropic unless every expected
-            # Cursor check completed successfully. Folding the wait inline
-            # avoids passing GITHUB_TOKEN to a mutable third-party action on
-            # this workflow.
-            - name: Ask Anthropic to assess Cursor results
+            # Each Dependabot reviewer inline comment is classified (and
+            # low-risk threads resolved) in its own step before the merge
+            # gate runs or any human-deferral step (#2756) can assign a
+            # reviewer. The classify step writes a runner-local state file
+            # that merge-gate consumes so we don't repeat the check wait.
+            - name: Classify Dependabot reviewer inline comments
               if: steps.classify.outputs.is_npm == 'true'
+              id: classify_threads
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  ANTHROPIC_MODEL: claude-sonnet-4-5-20250929
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: node .github/scripts/dependabot-anthropic-gate.mjs classify-threads
+
+            - name: Ask Anthropic to assess Cursor results
+              if: steps.classify.outputs.is_npm == 'true' && steps.classify_threads.outcome == 'success'
               id: anthropic_gate
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -68,7 +77,13 @@ jobs:
                   ANTHROPIC_MODEL: claude-sonnet-4-5-20250929
                   PR_NUMBER: ${{ github.event.pull_request.number }}
                   PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-              run: node .github/scripts/dependabot-anthropic-gate.mjs
+              run: node .github/scripts/dependabot-anthropic-gate.mjs merge-gate
+
+            # Any human-deferral step (e.g. #2756) must also require
+            # `steps.classify_threads.outcome == 'success'` and
+            # `steps.classify_threads.outputs.review_thread_classification_complete == 'true'`
+            # so reviewers are only assigned after every Dependabot reviewer
+            # inline thread has been individually classified.
 
             # Approve as `daxtheduck` (via DAX_PAT) rather than the
             # workflow's GITHUB_TOKEN. The Authorized Review check in
