@@ -103,10 +103,18 @@ jobs:
                   fi
                   echo "$out"
 
+            # Enable auto-merge as `daxtheduck` (via DAX_PAT) rather than
+            # GITHUB_TOKEN. When github-actions[bot] arms auto-merge and the
+            # PR later enters the merge queue, GitHub attributes the enqueue
+            # to github-actions and merge_group CI often never dispatches —
+            # the queue sits in AWAITING_CHECKS with only incidental push
+            # workflows (e.g. build-branch) reporting. Enabling as a real
+            # user matches manual "Merge when ready" and reliably triggers
+            # the required snapshots / CI gate / review_validation runs.
             - name: Enable auto-merge for npm update
               if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
               env:
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ secrets.DAX_PAT }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
                   PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
                   REPO: ${{ github.repository }}
