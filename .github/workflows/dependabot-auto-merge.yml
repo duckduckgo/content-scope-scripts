@@ -177,8 +177,20 @@ jobs:
             # approval can outlive a later `safe_to_merge: false`
             # verdict and leave the PR mergeable from the UI against
             # the gate's current judgement.
+            #
+            # Required upstream signal (per the note above the merge
+            # gate): only run after the per-thread classifier has
+            # completed every Dependabot reviewer inline thread, and
+            # only after the Anthropic merge gate itself has returned
+            # a `safe_to_merge: false` verdict. That ordering ensures
+            # we never assign a human reviewer on a half-evaluated PR
+            # — e.g. one where the classifier crashed mid-pass and
+            # only some threads have been triaged.
             - name: Defer to human reviewer if Anthropic declined
-              if: steps.anthropic_gate.outputs.safe_to_merge == 'false'
+              if: |
+                  steps.classify_threads.outcome == 'success' &&
+                  steps.classify_threads.outputs.review_thread_classification_complete == 'true' &&
+                  steps.anthropic_gate.outputs.safe_to_merge == 'false'
               env:
                   GH_TOKEN: ${{ secrets.DAX_PAT }}
                   PR_NUMBER: ${{ github.event.pull_request.number }}
