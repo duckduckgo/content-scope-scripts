@@ -330,6 +330,94 @@ export function mockAndroidMessaging(params) {
 }
 
 /**
+ * Install a mock interface for Android addWebMessageListener messaging.
+ * @param {{
+ *  responses: Record<string, any>,
+ *  objectName?: string
+ * }} params
+ */
+export function mockAndroidAdsjsMessaging(params) {
+    window.__playwright_01 = {
+        mockResponses: params.responses,
+        subscriptionEvents: [],
+        mocks: {
+            outgoing: [],
+        },
+    };
+
+    const objectName = params.objectName || 'contentScopeAdsjs';
+    const listeners = new Set();
+
+    const dispatch = (payload) => {
+        const event = { data: JSON.stringify(payload) };
+        setTimeout(() => {
+            for (const listener of listeners) {
+                listener(event);
+            }
+        }, 0);
+    };
+
+    window.__playwright_01.androidAdsjsDispatch = dispatch;
+    window[objectName] = {
+        /**
+         * @param {string} jsonString
+         * @return {Promise<void>}
+         */
+        // eslint-disable-next-line require-await
+        postMessage: async (jsonString) => {
+            /** @type {RequestMessage | NotificationMessage} */
+            const msg = JSON.parse(jsonString);
+
+            window.__playwright_01.mocks.outgoing.push(
+                JSON.parse(
+                    JSON.stringify({
+                        payload: msg,
+                    }),
+                ),
+            );
+
+            if (!('id' in msg)) {
+                return;
+            }
+
+            if (!(msg.method in window.__playwright_01.mockResponses)) {
+                throw new Error('response not found for ' + msg.method);
+            }
+
+            const response = window.__playwright_01.mockResponses[msg.method];
+
+            /** @type {Omit<MessageResponse, 'error'>} */
+            const r = {
+                result: response,
+                context: msg.context,
+                featureName: msg.featureName,
+                id: msg.id,
+            };
+
+            dispatch(r);
+        },
+        /**
+         * @param {string} type
+         * @param {(event: MessageEvent) => void} listener
+         */
+        addEventListener: (type, listener) => {
+            if (type === 'message') {
+                listeners.add(listener);
+            }
+        },
+        /**
+         * @param {string} type
+         * @param {(event: MessageEvent) => void} listener
+         */
+        removeEventListener: (type, listener) => {
+            if (type === 'message') {
+                listeners.delete(listener);
+            }
+        },
+    };
+}
+
+/**
  * @param {object} params
  * @param {Record<string, any>} params.responses
  */
@@ -430,6 +518,13 @@ export function simulateSubscriptionMessage(params) {
                 throw new Error('`messageCallback` + `messageSecret` needed to simulate subscription event on Android');
 
             window[params.messageCallback]?.(params.messageSecret, subscriptionEvent);
+            break;
+        }
+        case 'android-adsjs': {
+            if (typeof window.__playwright_01.androidAdsjsDispatch !== 'function') {
+                throw new Error('androidAdsjsDispatch not found');
+            }
+            window.__playwright_01.androidAdsjsDispatch(subscriptionEvent);
             break;
         }
         case 'apple':

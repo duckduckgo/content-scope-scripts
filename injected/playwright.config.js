@@ -71,6 +71,17 @@ export default defineConfig({
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
+            name: 'android-adsjs',
+            testMatch: [
+                'integration-test/browser-ui-lock.spec.js',
+                'integration-test/duckplayer-mobile.spec.js',
+                'integration-test/duckplayer-mobile-drawer.spec.js',
+                'integration-test/web-compat-android.spec.js',
+                'integration-test/message-bridge-android.spec.js',
+            ],
+            use: { injectName: 'android-adsjs', platform: 'android', ...devices['Galaxy S5'] },
+        },
+        {
             name: 'android-autofill-import',
             testMatch: ['integration-test/autofill-import.spec.js'],
             use: { injectName: 'android-autofill-import', platform: 'android', ...devices['Galaxy S5'] },

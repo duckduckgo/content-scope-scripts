@@ -2,6 +2,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import {
+    mockAndroidAdsjsMessaging,
     mockAndroidMessaging,
     mockResponses,
     mockWebkitMessaging,
@@ -206,6 +207,9 @@ export class ResultsCollector {
             android: async () => {
                 // noop
             },
+            'android-adsjs': async () => {
+                // noop
+            },
             'android-autofill-import': async () => {
                 // noop
             },
@@ -216,6 +220,7 @@ export class ResultsCollector {
             'apple-isolated': () => mockWebkitMessaging,
             windows: () => mockWindowsMessaging,
             android: () => mockAndroidMessaging,
+            'android-adsjs': () => mockAndroidAdsjsMessaging,
             'android-autofill-import': () => mockAndroidMessaging,
         });
 
@@ -230,6 +235,7 @@ export class ResultsCollector {
             'apple-isolated': () => wrapWebkitScripts,
             apple: () => wrapWebkitScripts,
             android: () => wrapWebkitScripts,
+            'android-adsjs': () => wrapWebkitScripts,
             'android-autofill-import': () => wrapWebkitScripts,
             windows: () => wrapWindowsScripts,
         });

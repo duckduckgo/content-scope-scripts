@@ -59,6 +59,7 @@ export class Build {
         const path = this.switch({
             windows: () => '../build/windows/contentScope.js',
             android: () => '../build/android/contentScope.js',
+            'android-adsjs': () => '../build/android/adsjsContentScope.js',
             apple: () => '../Sources/ContentScopeScripts/dist/contentScope.js',
             'apple-isolated': () => '../Sources/ContentScopeScripts/dist/contentScopeIsolated.js',
             'android-autofill-import': () => '../build/android/autofillImport.js',
@@ -73,7 +74,17 @@ export class Build {
      */
     static supported(name) {
         /** @type {ImportMeta['injectName'][]} */
-        const items = ['apple', 'apple-isolated', 'windows', 'integration', 'android', 'android-autofill-import', 'chrome-mv3', 'firefox'];
+        const items = [
+            'apple',
+            'apple-isolated',
+            'windows',
+            'integration',
+            'android',
+            'android-adsjs',
+            'android-autofill-import',
+            'chrome-mv3',
+            'firefox',
+        ];
         if (items.includes(name)) {
             return name;
         }
