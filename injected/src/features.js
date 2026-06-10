@@ -56,6 +56,19 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'autofillPasskeys',
 ]);
 
+const androidFeatures = /** @type {FeatureName[]} */ ([
+    ...baseFeatures,
+    'webCompat',
+    'webDetection',
+    'webEvents',
+    'webInterferenceDetection',
+    'breakageReporting',
+    'duckPlayer',
+    'messageBridge',
+    'pageContext',
+    'browserUiLock',
+]);
+
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
@@ -79,35 +92,12 @@ export const platformSupport = {
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
-    android: [
-        ...baseFeatures,
-        'webCompat',
-        'webDetection',
-        'webEvents',
-        'webInterferenceDetection',
-        'breakageReporting',
-        'duckPlayer',
-        'messageBridge',
-        'pageContext',
-        'browserUiLock',
-    ],
+    android: androidFeatures,
     'android-broker-protection': ['brokerProtection'],
     'android-ai-clear': ['duckAiDataClearing'],
     'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
-    'android-adsjs': [
-        'apiManipulation',
-        'webCompat',
-        'fingerprintingHardware',
-        'fingerprintingScreenSize',
-        'fingerprintingTemporaryStorage',
-        'fingerprintingAudio',
-        'fingerprintingBattery',
-        'gpc',
-        'webDetection',
-        'webEvents',
-        'breakageReporting',
-    ],
+    'android-adsjs': androidFeatures,
     windows: [
         'cookie',
         ...baseFeatures,

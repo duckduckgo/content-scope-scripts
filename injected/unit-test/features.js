@@ -21,6 +21,10 @@ describe('Features definition', () => {
         expect(fpScreenSizeIdx).not.toBe(-1);
         expect(webCompatIdx).toBeLessThan(fpScreenSizeIdx);
     });
+
+    it('keeps Android document-start and legacy bundles on the same C-S-S feature set', () => {
+        expect(platformSupport['android-adsjs']).toEqual(platformSupport.android);
+    });
 });
 
 describe('test-pages/*/config/*.json schema validation', () => {
