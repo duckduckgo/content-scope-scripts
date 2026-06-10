@@ -15,6 +15,10 @@
     position: relative;
 }
 
+.placeholderTabs {
+    height: calc(var(--sp-8) + var(--sp-0_5) * 2);
+}
+
 .popover {
     --popover-offset-x: 7px;
 }
@@ -112,7 +116,7 @@
     margin: 0;
 
     .field {
-        margin: 3px; 
+        margin: 3px;
     }
 }
 
