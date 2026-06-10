@@ -25,6 +25,7 @@ import styles from './Dropdown.module.css';
  * @param {boolean} [props.ariaExpanded]
  * @param {boolean} [props.isActive]
  * @param {string} [props.id]
+ * @param {import('preact').RefObject<HTMLLIElement>} [props.elementRef]
  * @param {(e: MouseEvent) => void} [props.onMouseOver]
  * @param {(e: MouseEvent) => void} [props.onHover]
  * @param {(e: MouseEvent) => void} [props.onClick]
@@ -42,12 +43,14 @@ export function DropdownItem({
     ariaExpanded,
     isActive = false,
     id,
+    elementRef,
     onMouseOver,
     onHover,
     onClick,
 }) {
     return (
         <li
+            ref={elementRef}
             id={id}
             role={role}
             aria-checked={ariaChecked}

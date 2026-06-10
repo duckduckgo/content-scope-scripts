@@ -205,12 +205,20 @@ function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) 
  */
 function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onToggleTab, isAttached }) {
     const submenuRef = useRef(/** @type {HTMLUListElement|null} */ (null));
+    const triggerRef = useRef(/** @type {HTMLLIElement|null} */ (null));
     const [submenuOpen, setSubmenuOpen] = useState(false);
 
-    const submenuPos =
-        submenuOpen && dropdownPos.left !== undefined && dropdownRef.current
-            ? { left: dropdownPos.left + dropdownRef.current.offsetWidth + 4, top: dropdownPos.top }
-            : null;
+    const getSubmenuPos = () => {
+        if (!submenuOpen || dropdownPos.left === undefined || !dropdownRef.current) return null;
+        // Open the submenu from the triggering item ("Add Page Content") rather than the
+        // top of the parent panel, matching native submenu behaviour.
+        const triggerOffsetTop = triggerRef.current?.offsetTop ?? 0;
+        return {
+            left: dropdownPos.left + dropdownRef.current.offsetWidth + 4,
+            top: dropdownPos.top + triggerOffsetTop,
+        };
+    };
+    const submenuPos = getSubmenuPos();
 
     return (
         <Fragment>
@@ -233,6 +241,7 @@ function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRe
                 )}
                 <DropdownItem
                     role="menuitem"
+                    elementRef={triggerRef}
                     ariaHasPopup
                     ariaExpanded={submenuOpen}
                     icon={<PageContentIcon />}

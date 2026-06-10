@@ -416,6 +416,22 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-attached-mixed-chips.png', { maxDiffPixels });
         });
 
+        test('chips beyond the width overflow into a horizontal carousel', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: attachmentsConfig });
+            await omnibar.ready();
+            // Enough wide tab chips to exceed the field width; they stay on one row and the
+            // trailing chip is clipped at the scroll edge rather than wrapping to a new row.
+            await omnibar.attachTab('MacBook Neo - Apple');
+            await omnibar.attachTab('Starbucks Coffee Company');
+            await omnibar.attachTab('MacBook Pro - Apple');
+            await omnibar.attachTab('Daring Fireball');
+            await expect(omnibar.tabChip()).toHaveCount(4);
+            await expect(page).toHaveScreenshot('omnibar-attachment-carousel-overflow.png', { maxDiffPixels });
+        });
+
         test('mention picker open', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

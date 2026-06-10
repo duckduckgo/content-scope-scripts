@@ -60,7 +60,7 @@ export function Dropdown({
 
     const getInitialActiveIndex = () => {
         if (items.length === 0) return -1;
-        if (multiSelect) return 0;
+        if (multiSelect) return -1;
 
         const selected = items.findIndex((c) => getItemProps(c)?.isSelected);
         return selected >= 0 ? selected : 0;
