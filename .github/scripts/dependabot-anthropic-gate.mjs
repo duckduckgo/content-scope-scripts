@@ -1,4 +1,5 @@
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // Each expected Cursor check is identified by *three* trust signals:
@@ -898,7 +899,39 @@ export async function dismissLowRiskDependabotReviewerThreads({ apiKey, model, o
         }
     }
 
-    return { dismissed, candidates: candidates.length };
+    return { dismissed, classified: candidates.length, candidates: candidates.length };
+}
+
+export function gateStatePath() {
+    const runnerTemp = process.env.RUNNER_TEMP || '/tmp';
+    return join(runnerTemp, 'dependabot-gate-state.json');
+}
+
+/**
+ * @param {string} path
+ * @param {unknown} state
+ */
+export function writeGateState(path, state) {
+    writeFileSync(path, JSON.stringify(state));
+}
+
+/**
+ * @param {string} path
+ * @param {string} expectedHeadSha
+ */
+export function readGateState(path, expectedHeadSha) {
+    const raw = readFileSync(path, 'utf8');
+    const state = JSON.parse(raw);
+    if (!state || typeof state !== 'object' || state.headSha !== expectedHeadSha) {
+        throw new Error(`Dependabot gate state at ${path} is missing or stale for head ${expectedHeadSha}`);
+    }
+    return state;
+}
+
+export function setThreadClassificationOutputs({ classified, dismissed }) {
+    setOutput('review_thread_classification_complete', 'true');
+    setOutput('review_threads_classified', String(classified));
+    setOutput('dismissed_review_threads', String(dismissed));
 }
 
 async function askAnthropic({ apiKey, model, evidence }) {
@@ -938,16 +971,7 @@ async function askAnthropic({ apiKey, model, evidence }) {
     return extractDecisionFromAnthropicResponse(data);
 }
 
-async function main() {
-    const githubToken = requiredEnv('GITHUB_TOKEN');
-    const anthropicApiKey = requiredEnv('ANTHROPIC_API_KEY');
-    const model = requiredEnv('ANTHROPIC_MODEL');
-    const [owner, repo] = requiredEnv('GITHUB_REPOSITORY').split('/');
-    const prNumber = requiredEnv('PR_NUMBER');
-    const headSha = requiredEnv('PR_HEAD_SHA');
-    const currentRunId = requiredEnv('GITHUB_RUN_ID');
-    const apiRoot = `https://api.github.com/repos/${owner}/${repo}`;
-
+async function prepareGateContext({ githubToken, headSha, currentRunId, apiRoot, prNumber }) {
     const currentRunCheckIds = await fetchCurrentWorkflowCheckRunIds(apiRoot, currentRunId, githubToken);
     const checkRuns = await waitForChecksToSettle({ apiRoot, headSha, token: githubToken, currentRunCheckIds });
 
@@ -972,7 +996,28 @@ async function main() {
     const cursorResults = latestChecks.map((run) => evidenceForRun(run, sources));
     validateCursorEvidence(cursorResults);
 
-    const { dismissed, candidates } = await dismissLowRiskDependabotReviewerThreads({
+    return { latestChecks, pull, cursorResults };
+}
+
+async function runClassifyThreadsMode() {
+    const githubToken = requiredEnv('GITHUB_TOKEN');
+    const anthropicApiKey = requiredEnv('ANTHROPIC_API_KEY');
+    const model = requiredEnv('ANTHROPIC_MODEL');
+    const [owner, repo] = requiredEnv('GITHUB_REPOSITORY').split('/');
+    const prNumber = requiredEnv('PR_NUMBER');
+    const headSha = requiredEnv('PR_HEAD_SHA');
+    const currentRunId = requiredEnv('GITHUB_RUN_ID');
+    const apiRoot = `https://api.github.com/repos/${owner}/${repo}`;
+
+    const { latestChecks, pull, cursorResults } = await prepareGateContext({
+        githubToken,
+        headSha,
+        currentRunId,
+        apiRoot,
+        prNumber,
+    });
+
+    const { dismissed, classified } = await dismissLowRiskDependabotReviewerThreads({
         apiKey: anthropicApiKey,
         model,
         owner,
@@ -982,10 +1027,11 @@ async function main() {
         runs: latestChecks,
         pull,
     });
-    console.log(`Dismissed ${dismissed}/${candidates} low-risk Dependabot reviewer thread(s)`);
-    setOutput('dismissed_review_threads', String(dismissed));
+    console.log(`Classified ${classified} Dependabot reviewer thread(s); dismissed ${dismissed} low-risk thread(s)`);
+    setThreadClassificationOutputs({ classified, dismissed });
 
-    const evidence = {
+    writeGateState(gateStatePath(), {
+        headSha,
         pullRequest: {
             number: pull.number,
             title: pull.title,
@@ -993,9 +1039,31 @@ async function main() {
             headSha,
         },
         cursorResults,
-    };
+        threadClassification: {
+            complete: true,
+            classified,
+            dismissed,
+        },
+    });
+}
 
-    const decision = await askAnthropic({ apiKey: anthropicApiKey, model, evidence });
+async function runMergeGateMode() {
+    const anthropicApiKey = requiredEnv('ANTHROPIC_API_KEY');
+    const model = requiredEnv('ANTHROPIC_MODEL');
+    const headSha = requiredEnv('PR_HEAD_SHA');
+    const state = readGateState(gateStatePath(), headSha);
+    if (!state.threadClassification?.complete) {
+        throw new Error('Dependabot reviewer thread classification did not complete before merge gate');
+    }
+
+    const decision = await askAnthropic({
+        apiKey: anthropicApiKey,
+        model,
+        evidence: {
+            pullRequest: state.pullRequest,
+            cursorResults: state.cursorResults,
+        },
+    });
     setOutput('assessed_head_sha', headSha);
     setOutput('safe_to_merge', String(decision.safe_to_merge));
     setOutput('reason', decision.reason);
@@ -1003,6 +1071,28 @@ async function main() {
     console.log(
         `Anthropic safe_to_merge=${decision.safe_to_merge}; confidence=${decision.confidence ?? 'unknown'}; reason=${decision.reason}`,
     );
+}
+
+async function runFullMode() {
+    await runClassifyThreadsMode();
+    await runMergeGateMode();
+}
+
+async function main() {
+    const mode = process.argv[2] ?? 'full';
+    switch (mode) {
+        case 'classify-threads':
+            await runClassifyThreadsMode();
+            break;
+        case 'merge-gate':
+            await runMergeGateMode();
+            break;
+        case 'full':
+            await runFullMode();
+            break;
+        default:
+            throw new Error(`Unknown dependabot gate mode '${mode}'; expected classify-threads, merge-gate, or full`);
+    }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -32,6 +32,9 @@ import {
     isDependencyManifestPath,
     isDependabotReviewerThread,
     dependabotReviewerThreads,
+    gateStatePath,
+    writeGateState,
+    readGateState,
     SUBMIT_DECISION_TOOL_NAME,
     SUBMIT_COMMENT_DECISION_TOOL_NAME,
     assertPrHeadUnchanged,
@@ -723,6 +726,26 @@ describe('extractCommentDecisionFromAnthropicResponse / shouldDismissDependabotR
         assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'medium' }), true);
         assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'low' }), false);
         assert.equal(shouldDismissDependabotReviewerThread({ low_risk: false, reason: 'no', confidence: 'high' }), false);
+    });
+});
+
+describe('gate state helpers', () => {
+    it('round-trips gate state for the same head SHA', () => {
+        const path = `${gateStatePath()}.test-${Date.now()}`;
+        const state = {
+            headSha: HEAD_SHA,
+            threadClassification: { complete: true, classified: 2, dismissed: 1 },
+            pullRequest: { number: 1, title: 't', author: 'dependabot[bot]', headSha: HEAD_SHA },
+            cursorResults: [],
+        };
+        writeGateState(path, state);
+        assert.deepEqual(readGateState(path, HEAD_SHA), state);
+    });
+
+    it('rejects stale gate state when the PR head advanced', () => {
+        const path = `${gateStatePath()}.stale-${Date.now()}`;
+        writeGateState(path, { headSha: HEAD_SHA, threadClassification: { complete: true } });
+        assert.throws(() => readGateState(path, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /missing or stale/);
     });
 });
 
