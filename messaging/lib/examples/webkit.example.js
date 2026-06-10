@@ -4,8 +4,6 @@ import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../index.
  * Configuration for WebkitMessaging
  */
 const config = new WebkitMessagingConfig({
-    hasModernWebkitAPI: true,
-    secret: 'SECRET',
     webkitMessageHandlerNames: ['contentScopeScripts'],
 });
 
