@@ -30,6 +30,8 @@ import {
     shouldDismissDependabotReviewerThread,
     isCursorBugbotComment,
     isDependencyManifestPath,
+    isDependabotReviewerComment,
+    commentImpliesManualFollowUp,
     isDependabotReviewerThread,
     dependabotReviewerThreads,
     gateStatePath,
@@ -659,6 +661,8 @@ describe('isCursorBugbotComment / isDependencyManifestPath', () => {
     });
 });
 
+const DEPENDABOT_REVIEWER_HEADER = '<!-- CURSOR_AUTOMATION_ID: 59f84727-8ede-45cc-810e-433b77231fad | RUN_ID: bc-dep -->';
+
 describe('isDependabotReviewerThread / dependabotReviewerThreads', () => {
     const dependabotRun = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-dep');
     const webCompatRun = cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-sec');
@@ -671,9 +675,22 @@ describe('isDependabotReviewerThread / dependabotReviewerThreads', () => {
         };
     }
 
-    it('accepts manifest-path Dependabot reviewer notes without an agent id', () => {
-        const candidate = thread({ body: 'Patch bump only. Low regression risk.' });
+    it('accepts manifest-path Dependabot reviewer notes with the automation header', () => {
+        const candidate = thread({ body: `${DEPENDABOT_REVIEWER_HEADER}\nPatch bump only. Low regression risk.` });
         assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), true);
+    });
+
+    it('rejects manifest-path comments that lack Dependabot reviewer attribution', () => {
+        const candidate = thread({ body: 'Patch bump only. Low regression risk.' });
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), false);
+    });
+
+    it('rejects web-compat-shaped manifest comments without the dependabot run id', () => {
+        const candidate = thread({
+            body: `${DEPENDABOT_REVIEWER_HEADER.replace('bc-dep', 'bc-sec')}\nLow Risk — CI-only workflow hardening.`,
+            path: 'package.json',
+        });
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), false);
     });
 
     it('accepts threads whose body references the Review dependabot agent id', () => {
@@ -697,13 +714,13 @@ describe('isDependabotReviewerThread / dependabotReviewerThreads', () => {
 
     it('filters a mixed thread list down to Dependabot reviewer candidates', () => {
         const threads = [
-            thread({ body: 'Unrelated churn in package-lock.json.' }),
+            thread({ body: `${DEPENDABOT_REVIEWER_HEADER}\nUnrelated churn in package-lock.json.` }),
             thread({ body: `Reviewed by Cursor Bugbot for commit ${HEAD_SHA}` }),
             thread({ body: 'bc-sec flagged harmful API usage', path: 'injected/src/features/harmful-apis.js' }),
         ];
         const candidates = dependabotReviewerThreads(threads, [dependabotRun, webCompatRun]);
         assert.equal(candidates.length, 1);
-        assert.equal(candidates[0].comments[0].body, 'Unrelated churn in package-lock.json.');
+        assert.ok(candidates[0].comments[0].body.includes('Unrelated churn in package-lock.json.'));
     });
 });
 
@@ -721,11 +738,25 @@ describe('extractCommentDecisionFromAnthropicResponse / shouldDismissDependabotR
         assert.deepEqual(extractCommentDecisionFromAnthropicResponse(responseWith(toolUseBlock())), validInput);
     });
 
-    it('only dismisses when low_risk is true with high or medium confidence', () => {
-        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'high' }), true);
-        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'medium' }), true);
-        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'low' }), false);
-        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: false, reason: 'no', confidence: 'high' }), false);
+    it('only dismisses high-confidence low-risk comments without manual-follow-up keywords', () => {
+        const body = `${DEPENDABOT_REVIEWER_HEADER}\nPatch bump only.`;
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'high' }, body), true);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'medium' }, body), false);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'low' }, body), false);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: false, reason: 'no', confidence: 'high' }, body), false);
+        assert.equal(
+            shouldDismissDependabotReviewerThread(
+                { low_risk: true, reason: 'ok', confidence: 'high' },
+                `${body}\nPossible CVE-2024-1234 in transitive dependency.`,
+            ),
+            false,
+        );
+    });
+
+    it('detects Dependabot reviewer headers and manual-follow-up keywords', () => {
+        assert.equal(isDependabotReviewerComment(DEPENDABOT_REVIEWER_HEADER), true);
+        assert.equal(commentImpliesManualFollowUp('breaking change in renderer API'), true);
+        assert.equal(commentImpliesManualFollowUp('patch bump only'), false);
     });
 });
 

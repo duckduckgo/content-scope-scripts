@@ -453,6 +453,9 @@ export function sourceMatchesCheckRun(source, run) {
 }
 
 const BUGBOT_COMMENT_MARKERS = ['<!-- BUGBOT_REVIEW -->', '<!-- BUGBOT_BUG_ID:', 'Reviewed by Cursor Bugbot for commit'];
+const DEPENDABOT_REVIEWER_COMMENT_MARKER = '<!-- CURSOR_AUTOMATION_ID:';
+const MANUAL_FOLLOWUP_KEYWORDS =
+    /\b(?:cve-\d{4}-\d+|vulnerability|vulnerabilities|security issue|breaking change|manual follow-up|requires? manual|do not merge|blocking)\b/i;
 
 export function isCursorBugbotComment(body) {
     if (!body) return false;
@@ -464,6 +467,16 @@ const DEPENDENCY_MANIFEST_PATH = /(?:^|\/)(package(?:-lock)?\.json|npm-shrinkwra
 export function isDependencyManifestPath(path) {
     if (!path) return false;
     return DEPENDENCY_MANIFEST_PATH.test(path);
+}
+
+export function isDependabotReviewerComment(body) {
+    if (!body) return false;
+    return body.includes(DEPENDABOT_REVIEWER_COMMENT_MARKER);
+}
+
+export function commentImpliesManualFollowUp(body) {
+    if (!body) return false;
+    return MANUAL_FOLLOWUP_KEYWORDS.test(body);
 }
 
 /**
@@ -483,6 +496,7 @@ export function isDependabotReviewerThread(thread, { dependabotRun, webCompatRun
     if (dependabotRun && sourceMatchesCheckRun(source, dependabotRun)) return true;
     if (webCompatRun && sourceMatchesCheckRun(source, webCompatRun)) return false;
     if (!isDependencyManifestPath(rootComment.path)) return false;
+    if (!isDependabotReviewerComment(body)) return false;
 
     const webCompatAgentId = webCompatRun ? cursorAgentId(webCompatRun.details_url) : null;
     if (webCompatAgentId && body.includes(webCompatAgentId)) return false;
@@ -587,7 +601,7 @@ async function fetchSourcesUntilActionable({ apiRoot, prNumber, token, runs }) {
 const ANTHROPIC_DECISION_KEYS = new Set(['safe_to_merge', 'reason', 'confidence']);
 const COMMENT_DECISION_KEYS = new Set(['low_risk', 'reason', 'confidence']);
 const ANTHROPIC_CONFIDENCE_VALUES = new Set(['high', 'medium', 'low']);
-const DISMISSABLE_CONFIDENCE_VALUES = new Set(['high', 'medium']);
+const DISMISSABLE_CONFIDENCE_VALUES = new Set(['high']);
 export const SUBMIT_DECISION_TOOL_NAME = 'submit_decision';
 export const SUBMIT_COMMENT_DECISION_TOOL_NAME = 'submit_comment_decision';
 export const SUBMIT_DECISION_TOOL = {
@@ -732,8 +746,11 @@ export function extractCommentDecisionFromAnthropicResponse(response) {
     return extractAnthropicToolDecision(response, SUBMIT_COMMENT_DECISION_TOOL_NAME, COMMENT_DECISION_KEYS, 'low_risk');
 }
 
-export function shouldDismissDependabotReviewerThread(decision) {
-    return decision.low_risk === true && DISMISSABLE_CONFIDENCE_VALUES.has(decision.confidence);
+export function shouldDismissDependabotReviewerThread(decision, body = '') {
+    if (decision.low_risk !== true || !DISMISSABLE_CONFIDENCE_VALUES.has(decision.confidence)) {
+        return false;
+    }
+    return !commentImpliesManualFollowUp(body);
 }
 
 async function githubGraphql({ token, query, variables }) {
@@ -889,7 +906,7 @@ export async function dismissLowRiskDependabotReviewerThreads({ apiKey, model, o
         console.log(
             `Dependabot reviewer thread on ${rootComment.path ?? 'unknown'}: low_risk=${decision.low_risk}; confidence=${decision.confidence}; reason=${decision.reason}`,
         );
-        if (!shouldDismissDependabotReviewerThread(decision)) {
+        if (!shouldDismissDependabotReviewerThread(decision, rootComment.body)) {
             continue;
         }
         const resolved = await resolveReviewThread(thread.id, token);
