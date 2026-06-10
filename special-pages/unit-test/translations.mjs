@@ -36,7 +36,7 @@ describe('applying string replacements for translations', () => {
             deepEqual(actual, expected);
         }
     });
-    it('should not throw and always return a string', { only: true }, () => {
+    it('should not throw and always return a string', () => {
         const subject = fc.anything();
         const textLen = fc.oneof(fc.integer({ min: 0, max: 10 }), fc.float({ min: 0, max: 10 }));
         fc.assert(
