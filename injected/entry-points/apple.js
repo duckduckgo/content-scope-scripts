@@ -17,8 +17,6 @@ function initCode() {
 
     processedConfig.messagingConfig = new WebkitMessagingConfig({
         webkitMessageHandlerNames: [processedConfig.messagingContextName],
-        secret: '',
-        hasModernWebkitAPI: true,
     });
 
     load(getLoadArgs(processedConfig));
