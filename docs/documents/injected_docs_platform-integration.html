@@ -1,0 +1,115 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>injected/docs/platform-integration | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb" aria-label="Breadcrumb"><li><a href="" aria-current="page">injected/docs/platform-integration</a></li></ul></div><div class="tsd-panel tsd-typography"><h1 id="platform-integration-guide" class="tsd-anchor-link">Platform Integration Guide<a href="#platform-integration-guide" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<h2 id="overview" class="tsd-anchor-link">Overview<a href="#overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The <a href="https://github.com/duckduckgo/content-scope-scripts/tree/main/injected/entry-points">injected/entry-points/</a> directory handles platform specific differences and is glue code into calling the contentScopeFeatures API.</p>
+<h2 id="browser-compatibility" class="tsd-anchor-link">Browser Compatibility<a href="#browser-compatibility" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The following is a guideline for when using native JavaScript syntax or built-in global DOM objects. Testing is always advised, but code authors might be unable to replicate the code on the correct application environments (due to hardware or an updated local environment).</p>
+<h3 id="minimum-supported-engines" class="tsd-anchor-link">Minimum Supported Engines<a href="#minimum-supported-engines" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<h4 id="ios" class="tsd-anchor-link">iOS<a href="#ios" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4>
+<ul>
+<li><strong>Safari 14</strong> (minimum)</li>
+<li><strong>Minimum support</strong>: iOS 14 - <a href="https://support.apple.com/en-us/102662">Review supported device and iOS versions</a></li>
+<li><strong>Engine</strong>: WKWebView should behave like Safari 14 as this is the native engine</li>
+</ul>
+<h4 id="macos" class="tsd-anchor-link">macOS<a href="#macos" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4>
+<ul>
+<li><strong>Safari 14</strong> (minimum)</li>
+<li><strong>Minimum support</strong>: Catalina (potentially Safari 14 is native engine in non-updated device)</li>
+<li><strong>Engine</strong>: WKWebView should behave like Safari 14</li>
+</ul>
+<h4 id="android" class="tsd-anchor-link">Android<a href="#android" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4>
+<ul>
+<li><strong>Android 23</strong> (minimum) - <a href="https://app.asana.com/1/137249556945/project/1175293949586521/task/1200982924050797?focus=true">Product feedback request: Android - min supported version</a></li>
+<li><strong>Chrome 80+</strong> (minimum)</li>
+<li><strong>Reference</strong>: See <a href="https://app.asana.com/1/137249556945/project/908478224964033/task/1209367367171662?focus=true">pixel dashboard</a></li>
+</ul>
+<h4 id="windows" class="tsd-anchor-link">Windows<a href="#windows" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4>
+<ul>
+<li><strong>Edge-based</strong> behavior expected</li>
+<li><strong>Minimum</strong>: Chrome 83 (if client has disabled all updates)</li>
+<li><strong>Reference</strong>: <a href="https://app.asana.com/1/137249556945/project/908478224964033/task/1209367367171662?focus=true">Windows Browser: Minimum specs</a></li>
+</ul>
+<h4 id="extensions" class="tsd-anchor-link">Extensions<a href="#extensions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h4>
+<ul>
+<li><strong>Chrome</strong>: Version 96+ - <a href="https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/249d8d6ebe38b9b8265ba311909c8971c422122c/browsers/chrome/manifest.json#L6">Chrome manifest reference</a></li>
+<li><strong>Firefox</strong>: Version 91+ - <a href="https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/249d8d6ebe38b9b8265ba311909c8971c422122c/browsers/firefox/manifest.json#L6">Firefox manifest reference</a></li>
+</ul>
+<h2 id="platform-specific-implementation-details" class="tsd-anchor-link">Platform-Specific Implementation Details<a href="#platform-specific-implementation-details" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="firefox" class="tsd-anchor-link">Firefox<a href="#firefox" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>The code is loaded as a standard extension content script.</p>
+<h3 id="apple-windows-and-android" class="tsd-anchor-link">Apple, Windows, and Android<a href="#apple-windows-and-android" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>The code is a UserScript that has some string replacements for properties and loads in as the page scope.</p>
+<blockquote>
+<p><strong>Note</strong>: Currently we don't implement the update calls as it's only required by cookie protections which we don't implement.</p>
+</blockquote>
+<h3 id="all-other-browsers" class="tsd-anchor-link">All Other Browsers<a href="#all-other-browsers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>The code is stringified, base64 encoded and injected in as a self deleting <code>&lt;script&gt;</code> tag.</p>
+<p>In the built output you will see these dramatic differences in the bundled code which is created into: <code>/build</code></p>
+<h2 id="app-specific-integration-replacements" class="tsd-anchor-link">App-Specific Integration Replacements<a href="#app-specific-integration-replacements" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The following placeholders are replaced during the build process:</p>
+<ul>
+<li><strong><code>$CONTENT_SCOPE$</code></strong> - Raw remote config object</li>
+<li><strong><code>$USER_UNPROTECTED_DOMAINS$</code></strong> - An array of user allowlisted domains</li>
+<li><strong><code>$USER_PREFERENCES$</code></strong> - An object containing:
+<ul>
+<li><code>platform</code>:
+<ul>
+<li><code>name</code>: '&lt;ios | macos | extension | android | windows&gt;',</li>
+<li><code>internal</code>: <code>&lt;boolean&gt;</code></li>
+<li><code>preview</code>: <code>&lt;boolean&gt;</code></li>
+<li><code>version</code>: <code>&lt;string | number&gt;</code></li>
+</ul>
+</li>
+<li><code>debug</code>: boolean</li>
+<li><code>globalPrivacyControlValue</code>: boolean</li>
+<li><code>sessionKey</code>: <code>&lt;CSRNG UUID 4 string&gt;</code> (used for fingerprinting) - this should regenerate on browser close or every 24 hours</li>
+<li><code>messagingContextName</code>: An optional string for the context name for message passing. (e.g. 'contentScopeScripts')</li>
+<li><code>features</code>: <code>[&lt;string feature names&gt;]</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="adding-a-new-platform" class="tsd-anchor-link">Adding a New Platform<a href="#adding-a-new-platform" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="1-create-platform-entry-point" class="tsd-anchor-link">1. Create Platform Entry Point<a href="#1-create-platform-entry-point" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>For a new platform, add a new inject file to <a href="https://github.com/duckduckgo/content-scope-scripts/tree/main/injected/entry-points">injected/entry-points/</a>.</p>
+<p>This file contains platform-specific implementation details for the Content Scope Features API. There's a strong chance you'll want to copy <code>apple.js</code> as a starting point.</p>
+<blockquote>
+<p><strong>Note</strong>: Apple currently doesn't implement the <code>update</code> method used for Cookies as it's not implementing cookie protections yet. It's likely the platform will struggle to track blocked frames anyway.</p>
+</blockquote>
+<h3 id="2-build-process" class="tsd-anchor-link">2. Build Process<a href="#2-build-process" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Ensure the <code>build/</code> directory contains the relevant platform file after running the build process.</p>
+<h3 id="3-platform-integration-all-but-extension" class="tsd-anchor-link">3. Platform Integration (All but Extension)<a href="#3-platform-integration-all-but-extension" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>In your platform code:</p>
+<ol>
+<li><strong>Include as submodule</strong>: Include the content-scope-scripts repo as a submodule</li>
+<li><strong>Load the build file</strong>: Load <code>build/{platform}/inject.js</code> into all webpages</li>
+<li><strong>Inject configuration</strong>: This should inject the variables required to configure the JS API</li>
+<li><strong>Frame coverage</strong>: This should be injected into all frames and windows</li>
+</ol>
+<h3 id="4-configuration-injection" class="tsd-anchor-link">4. Configuration Injection<a href="#4-configuration-injection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Inject the generated file into the page context of the website whilst replacing the placeholders with the relevant data:</p>
+<ul>
+<li><strong><code>$CONTENT_SCOPE$</code></strong> - Raw remote config object</li>
+<li><strong><code>$USER_UNPROTECTED_DOMAINS$</code></strong> - Array of user allowlisted domains</li>
+<li><strong><code>$USER_PREFERENCES$</code></strong> - Platform configuration object (see macOS integration for details)</li>
+</ul>
+<p>These should be passed into <code>processConfig</code> to make the data match the extension format.</p>
+<h3 id="5-platform-specific-integration-tasks" class="tsd-anchor-link">5. Platform-Specific Integration Tasks<a href="#5-platform-specific-integration-tasks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><a href="https://app.asana.com/1/137249556945/project/1201614831475344/task/1201631403895846">iOS: Content scope scripts integration</a></li>
+<li><a href="https://app.asana.com/1/137249556945/project/1201614831475344/task/1201631403895850">Windows Browser: content scope scripts integration</a></li>
+<li><a href="https://app.asana.com/1/137249556945/project/1201614831475344/task/1201631403895848">Android: Content scope scripts integration</a></li>
+</ul>
+<h2 id="implementation-verification" class="tsd-anchor-link">Implementation Verification<a href="#implementation-verification" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Check that relevant Privacy Features are working as expected:</p>
+<ul>
+<li><strong>GPC (DOM signal)</strong>: <a href="https://app.asana.com/1/137249556945/project/1198207348643509/task/1200195761608650?focus=true">Global Privacy Control Implementation Guidelines</a></li>
+<li><strong>Referrer trimming</strong>: <a href="https://app.asana.com/1/137249556945/project/1198207348643509/task/1200339587157290?focus=true">Referrer Header Trimming Implementation Guidelines</a></li>
+<li><strong>Fingerprint protection</strong>: <a href="https://app.asana.com/1/137249556945/project/1198207348643509/task/1200511341201907?focus=true">Fingerprint Protection Implementation Guidelines</a></li>
+<li><strong>Cookie protection</strong>:
+<ul>
+<li><a href="https://app.asana.com/1/137249556945/project/1198207348643509/task/1200539099112751?focus=true">Block Third Party Tracking Cookies Implementation Guidelines</a></li>
+<li><a href="https://app.asana.com/1/137249556945/project/1198207348643509/task/1200364574828671?focus=true">Expire First Party Script Cookies Implementation Guidelines</a></li>
+</ul>
+</li>
+</ul>
+<p>See <a href="injected_docs_build-and-troubleshooting.html">Platform-Specific Build &amp; Troubleshooting Tips</a> for detailed troubleshooting and setup instructions.</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#platform-integration-guide"><span>Platform <wbr/>Integration <wbr/>Guide</span></a><ul><li><a href="#overview"><span>Overview</span></a></li><li><a href="#browser-compatibility"><span>Browser <wbr/>Compatibility</span></a></li><li><ul><li><a href="#minimum-supported-engines"><span>Minimum <wbr/>Supported <wbr/>Engines</span></a></li><li><ul><li><a href="#ios"><span>i<wbr/>OS</span></a></li><li><a href="#macos"><span>mac<wbr/>OS</span></a></li><li><a href="#android"><span>Android</span></a></li><li><a href="#windows"><span>Windows</span></a></li><li><a href="#extensions"><span>Extensions</span></a></li></ul></li></ul></li><li><a href="#platform-specific-implementation-details"><span>Platform-<wbr/>Specific <wbr/>Implementation <wbr/>Details</span></a></li><li><ul><li><a href="#firefox"><span>Firefox</span></a></li><li><a href="#apple-windows-and-android"><span>Apple, <wbr/>Windows, and <wbr/>Android</span></a></li><li><a href="#all-other-browsers"><span>All <wbr/>Other <wbr/>Browsers</span></a></li></ul></li><li><a href="#app-specific-integration-replacements"><span>App-<wbr/>Specific <wbr/>Integration <wbr/>Replacements</span></a></li><li><a href="#adding-a-new-platform"><span>Adding a <wbr/>New <wbr/>Platform</span></a></li><li><ul><li><a href="#1-create-platform-entry-point"><span>1. <wbr/>Create <wbr/>Platform <wbr/>Entry <wbr/>Point</span></a></li><li><a href="#2-build-process"><span>2. <wbr/>Build <wbr/>Process</span></a></li><li><a href="#3-platform-integration-all-but-extension"><span>3. <wbr/>Platform <wbr/>Integration (<wbr/>All but <wbr/>Extension)</span></a></li><li><a href="#4-configuration-injection"><span>4. <wbr/>Configuration <wbr/>Injection</span></a></li><li><a href="#5-platform-specific-integration-tasks"><span>5. <wbr/>Platform-<wbr/>Specific <wbr/>Integration <wbr/>Tasks</span></a></li></ul></li><li><a href="#implementation-verification"><span>Implementation <wbr/>Verification</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
