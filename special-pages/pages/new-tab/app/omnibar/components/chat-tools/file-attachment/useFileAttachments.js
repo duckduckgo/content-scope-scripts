@@ -4,7 +4,9 @@ import { FileAttachments } from '../../PersistentOmnibarValuesProvider';
 const { useStateWithLocalPersistence } = FileAttachments;
 
 /**
- * @typedef {{ data: string, fileName: string, mimeType: string }} AttachedFile
+ * `addedAtRelative` is a `performance.now()` value used only to sort attachments into the
+ * order the user attached them; it's relative and monotonic, not a wall-clock timestamp.
+ * @typedef {{ data: string, fileName: string, mimeType: string, addedAtRelative: number }} AttachedFile
  */
 
 export const MAX_FILES = 3;
@@ -44,12 +46,13 @@ export function useFileAttachments(supportedFileTypes, tabId) {
         if (toRead.length === 0) return;
 
         const results = await Promise.allSettled(toRead.map(readFileAsBase64));
-        const ok = /** @type {PromiseFulfilledResult<AttachedFile>[]} */ (results.filter((r) => r.status === 'fulfilled')).map(
-            (r) => r.value,
-        );
+        const ok = /** @type {PromiseFulfilledResult<Omit<AttachedFile, 'addedAtRelative'>>[]} */ (
+            results.filter((r) => r.status === 'fulfilled')
+        ).map((r) => r.value);
 
         if (ok.length > 0) {
-            setAttachedFiles((prev) => [...prev, ...ok]);
+            const addedAtRelative = performance.now();
+            setAttachedFiles((prev) => [...prev, ...ok.map((file) => ({ ...file, addedAtRelative }))]);
         }
     };
 
@@ -58,9 +61,10 @@ export function useFileAttachments(supportedFileTypes, tabId) {
         setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
     };
 
-    /** @returns {AttachedFile[] | undefined} */
+    /** @returns {Omit<AttachedFile, 'addedAtRelative'>[] | undefined} */
     const getFilesForSubmission = () => {
-        return attachedFiles.length > 0 ? attachedFiles : undefined;
+        if (attachedFiles.length === 0) return undefined;
+        return attachedFiles.map(({ data, fileName, mimeType }) => ({ data, fileName, mimeType }));
     };
 
     return {
@@ -75,7 +79,7 @@ export function useFileAttachments(supportedFileTypes, tabId) {
 
 /**
  * @param {File} file
- * @returns {Promise<AttachedFile>}
+ * @returns {Promise<Omit<AttachedFile, 'addedAtRelative'>>}
  */
 function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {

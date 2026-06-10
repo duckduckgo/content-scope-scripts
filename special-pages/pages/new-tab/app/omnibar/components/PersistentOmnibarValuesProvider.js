@@ -9,6 +9,7 @@ import { PersistentValue } from '../../tabs/PersistentValue.js';
  * @typedef {import("../../../types/new-tab.js").TabMetadata} TabMetadata
  * @typedef {import("./chat-tools/file-attachment/useFileAttachments.js").AttachedFile} AttachedFile
  * @typedef {import("./chat-tools/image-attachment/useImageAttachments.js").AttachedImage} AttachedImage
+ * @typedef {import("./chat-tools/tab-attachment/useTabAttachments.js").AttachedTabEntry} AttachedTabEntry
  */
 
 const TextInputContext = createContext(/** @type {PersistentValue<string>|null} */ (null));
@@ -91,7 +92,7 @@ function createPersistentList() {
 }
 
 // Per-NTP-tab persisted lists, each with its own Provider + `useStateWithLocalPersistence` hook.
-export const TabAttachments = /** @type {() => PersistentList<string>} */ (createPersistentList)(); // attached tab ids
+export const TabAttachments = /** @type {() => PersistentList<AttachedTabEntry>} */ (createPersistentList)(); // attached tabs (id + attach order)
 export const FileAttachments = /** @type {() => PersistentList<AttachedFile>} */ (createPersistentList)();
 export const ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */ (createPersistentList)();
 // Single source of truth for open-tab metadata; tab chips and the pickers derive from this.

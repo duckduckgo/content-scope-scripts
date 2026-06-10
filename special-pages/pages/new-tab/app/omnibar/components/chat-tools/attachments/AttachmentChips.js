@@ -7,13 +7,13 @@ import styles from './AttachmentChips.module.css';
 
 /**
  * @typedef {typeof import('../../../strings.json')} Strings
- * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
+ * @typedef {import('../tab-attachment/useTabAttachments').AttachedTab} AttachedTab
  * @typedef {import('../file-attachment/useFileAttachments').AttachedFile} AttachedFile
  * @typedef {import('../image-attachment/useImageAttachments').AttachedImage} AttachedImage
  *
- * @typedef {{ kind: 'tab', key: string, tab: TabMetadata }} TabItem
- * @typedef {{ kind: 'file', key: string, file: AttachedFile, index: number }} FileItem
- * @typedef {{ kind: 'image', key: string, image: AttachedImage, index: number }} ImageItem
+ * @typedef {{ kind: 'tab', key: string, tab: AttachedTab, addedAtRelative: number }} TabItem
+ * @typedef {{ kind: 'file', key: string, file: AttachedFile, index: number, addedAtRelative: number }} FileItem
+ * @typedef {{ kind: 'image', key: string, image: AttachedImage, index: number, addedAtRelative: number }} ImageItem
  * @typedef {TabItem | FileItem | ImageItem} AttachmentItem
  */
 
@@ -28,7 +28,7 @@ import styles from './AttachmentChips.module.css';
  * in `ImageAttachmentContent` — this container only renders the chips.
  *
  * @param {object} props
- * @param {TabMetadata[]} props.tabs
+ * @param {AttachedTab[]} props.tabs
  * @param {AttachedFile[]} props.files
  * @param {AttachedImage[]} props.images
  * @param {(tabId: string) => void} props.onRemoveTab
@@ -38,14 +38,31 @@ import styles from './AttachmentChips.module.css';
 export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile, onRemoveImage }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
+    // Render in the order the user attached them (matching the address bar), not grouped by type.
     /** @type {AttachmentItem[]} */
     const items = [
-        ...tabs.map((tab) => /** @type {TabItem} */ ({ kind: 'tab', key: `tab-${tab.tabId}`, tab })),
-        ...files.map((file, index) => /** @type {FileItem} */ ({ kind: 'file', key: `file-${file.fileName}-${index}`, file, index })),
-        ...images.map(
-            (image, index) => /** @type {ImageItem} */ ({ kind: 'image', key: `image-${image.fileName}-${index}`, image, index }),
+        ...tabs.map((tab) => /** @type {TabItem} */ ({ kind: 'tab', key: `tab-${tab.tabId}`, tab, addedAtRelative: tab.addedAtRelative })),
+        ...files.map(
+            (file, index) =>
+                /** @type {FileItem} */ ({
+                    kind: 'file',
+                    key: `file-${file.fileName}-${index}`,
+                    file,
+                    index,
+                    addedAtRelative: file.addedAtRelative,
+                }),
         ),
-    ];
+        ...images.map(
+            (image, index) =>
+                /** @type {ImageItem} */ ({
+                    kind: 'image',
+                    key: `image-${image.fileName}-${index}`,
+                    image,
+                    index,
+                    addedAtRelative: image.addedAtRelative,
+                }),
+        ),
+    ].sort((a, b) => a.addedAtRelative - b.addedAtRelative);
 
     if (items.length === 0) return null;
 

@@ -4,7 +4,9 @@ import { ImageAttachments } from '../../PersistentOmnibarValuesProvider';
 const { useStateWithLocalPersistence } = ImageAttachments;
 
 /**
- * @typedef {{ dataUrl: string, fileName: string, mimeType: string }} AttachedImage
+ * `addedAtRelative` is a `performance.now()` value used only to sort attachments into the
+ * order the user attached them; it's relative and monotonic, not a wall-clock timestamp.
+ * @typedef {{ dataUrl: string, fileName: string, mimeType: string, addedAtRelative: number }} AttachedImage
  * @typedef {'imageTooLarge' | 'processingFailed'} ImageErrorType
  * @typedef {{ type: ImageErrorType, fileNames: string[] }} ImageError
  * @typedef {ReturnType<typeof useImageAttachments>} ImageAttachmentState
@@ -154,9 +156,9 @@ export function useImageAttachments(tabId) {
         );
 
         const results = await Promise.allSettled(newImages);
-        const images = /** @type {PromiseFulfilledResult<AttachedImage>[]} */ (results.filter((r) => r.status === 'fulfilled')).map(
-            (r) => r.value,
-        );
+        const images = /** @type {PromiseFulfilledResult<Omit<AttachedImage, 'addedAtRelative'>>[]} */ (
+            results.filter((r) => r.status === 'fulfilled')
+        ).map((r) => r.value);
         const tooLargeNames = [];
         const failedNames = [];
         for (let i = 0; i < results.length; i++) {
@@ -177,7 +179,8 @@ export function useImageAttachments(tabId) {
         }
 
         if (images.length > 0) {
-            setAttachedImages((prev) => [...prev, ...images]);
+            const addedAtRelative = performance.now();
+            setAttachedImages((prev) => [...prev, ...images.map((img) => ({ ...img, addedAtRelative }))]);
         }
     };
 
