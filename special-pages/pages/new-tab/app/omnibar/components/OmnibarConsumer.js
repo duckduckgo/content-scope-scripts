@@ -48,11 +48,6 @@ export function OmnibarConsumer() {
     );
 }
 
-/**
- * Placeholder shown while the omnibar config loads. It mirrors the collapsed
- * (Duck.ai-enabled) layout — logo, tab switcher and the fixed-height input
- * spacer.
- */
 function OmnibarPlaceholder() {
     return (
         <div class={styles.root} aria-hidden="true">
