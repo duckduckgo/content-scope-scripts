@@ -232,8 +232,33 @@ jobs:
                     > /dev/null
                   echo "Posted REQUEST_CHANGES on $PR_NUMBER at $PR_HEAD_SHA."
 
-                  # Best-effort: ping the CODEOWNERS team. If they're
-                  # already requested, gh exits non-zero with a benign
-                  # "already requested" message — don't fail the step.
+                  # Best-effort: ping the CODEOWNERS team for review.
+                  # CODEOWNERS should already auto-request, but reinforce
+                  # here in case the team was removed via prior review
+                  # activity. If already requested, gh exits non-zero
+                  # with a benign message — don't fail the step.
                   gh pr edit "$PR_NUMBER" --repo "$REPO" --add-reviewer "$REVIEWER_TEAM" \
                     || echo "Could not add reviewer team $REVIEWER_TEAM (likely already requested; continuing)"
+
+                  # Assign a random member of the CODEOWNERS team so the
+                  # Asana ↔ GitHub integration opens a task. GitHub
+                  # `assignees` must be individuals — there is no team-
+                  # assignee API surface — so we sample one to spread
+                  # load across rotations. Skip if a human is already
+                  # assigned, so re-runs don't keep growing the list.
+                  existing_assignees="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json assignees --jq '.assignees | length')"
+                  if [[ "$existing_assignees" -eq 0 ]]; then
+                    team_org="${REVIEWER_TEAM%%/*}"
+                    team_slug="${REVIEWER_TEAM##*/}"
+                    members="$(gh api "orgs/$team_org/teams/$team_slug/members" --paginate --jq '.[].login' || true)"
+                    random_member="$(printf '%s\n' "$members" | shuf -n 1 || true)"
+                    if [[ -n "$random_member" ]]; then
+                      gh pr edit "$PR_NUMBER" --repo "$REPO" --add-assignee "$random_member" \
+                        && echo "Assigned $random_member from $REVIEWER_TEAM" \
+                        || echo "Could not assign $random_member (continuing)"
+                    else
+                      echo "Could not pick a random member from $REVIEWER_TEAM (token may lack read:org)"
+                    fi
+                  else
+                    echo "Skipping assignment: PR already has $existing_assignees assignee(s)."
+                  fi
