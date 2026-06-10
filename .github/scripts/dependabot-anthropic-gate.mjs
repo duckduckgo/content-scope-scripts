@@ -643,18 +643,43 @@ export const SUBMIT_COMMENT_DECISION_TOOL = {
 };
 
 /**
+ * @typedef {Object} AnthropicResponseContentBlock
+ * @property {string} [type]
+ * @property {string} [name]
+ * @property {Record<string, unknown>} [input]
+ */
+
+/**
+ * @typedef {Object} AnthropicMessageResponse
+ * @property {AnthropicResponseContentBlock[]} [content]
+ */
+
+/**
+ * @param {unknown} response
+ * @returns {AnthropicResponseContentBlock[]}
+ */
+function anthropicContentBlocks(response) {
+    if (!response || typeof response !== 'object') {
+        throw new Error(`Anthropic response had no content array: ${JSON.stringify(response)}`);
+    }
+    const content = /** @type {AnthropicMessageResponse} */ (response).content;
+    if (!Array.isArray(content)) {
+        throw new Error(`Anthropic response had no content array: ${JSON.stringify(response)}`);
+    }
+    return content;
+}
+
+/**
  * @param {unknown} response
  * @param {string} expectedToolName
  * @param {Set<string>} expectedKeys
  * @param {string} booleanField
  */
 function extractAnthropicToolDecision(response, expectedToolName, expectedKeys, booleanField) {
-    if (!response || !Array.isArray(response.content)) {
-        throw new Error(`Anthropic response had no content array: ${JSON.stringify(response)}`);
-    }
-    const toolUses = response.content.filter((block) => block && block.type === 'tool_use');
+    const content = anthropicContentBlocks(response);
+    const toolUses = content.filter((block) => block && block.type === 'tool_use');
     if (toolUses.length === 0) {
-        throw new Error(`Anthropic response did not call ${expectedToolName}: ${JSON.stringify(response.content)}`);
+        throw new Error(`Anthropic response did not call ${expectedToolName}: ${JSON.stringify(content)}`);
     }
     if (toolUses.length > 1) {
         throw new Error(`Anthropic response called ${toolUses.length} tools; expected exactly one ${expectedToolName} call`);
