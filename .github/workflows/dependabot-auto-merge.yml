@@ -195,27 +195,22 @@ jobs:
                     exit 1
                   fi
 
-                  # Idempotent: skip if daxtheduck's latest decision on
-                  # this head SHA is already REQUEST_CHANGES. Must use
-                  # latest-decision semantics (not "any historical
-                  # CHANGES_REQUESTED") so a later APPROVE on the same
-                  # commit is not left in place when Anthropic declines.
-                  latest_is_changes_requested="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
-                    --jq --arg sha "$PR_HEAD_SHA" '
-                      [.[] | select(.user.login == "daxtheduck" and (.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))]
-                      | last
-                      | (. != null and .state == "CHANGES_REQUESTED" and .commit_id == $sha)
-                    ')"
-                  if [[ "$latest_is_changes_requested" == "true" ]]; then
-                    echo "daxtheduck latest decision is already REQUEST_CHANGES on $PR_HEAD_SHA; skipping."
-                    exit 0
-                  fi
+                  # Each action below is independently idempotent rather
+                  # than gating on a single top-level "already done"
+                  # check. A previous run that crashed between posting
+                  # REQUEST_CHANGES and adding the reviewer/assignee
+                  # would otherwise leave those best-effort steps
+                  # permanently skipped on subsequent runs against the
+                  # same SHA.
 
                   # Dismiss any prior APPROVED reviews from daxtheduck.
-                  # The new REQUEST_CHANGES already supersedes them in
-                  # `review-helpers.findAuthorizedApproval` (which keys
-                  # on latest decision per user), but explicit dismissal
-                  # makes the supersede visible in the timeline.
+                  # Naturally idempotent: the filter is `state ==
+                  # APPROVED`, so already-dismissed reviews don't
+                  # appear in the list and aren't re-dismissed. The new
+                  # REQUEST_CHANGES below also supersedes them via
+                  # `findAuthorizedApproval`'s latest-decision-per-user
+                  # logic, but explicit dismissal makes the supersede
+                  # visible in the timeline.
                   approved_ids="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
                     --jq '[.[] | select(.user.login == "daxtheduck" and .state == "APPROVED") | .id] | .[]')"
                   for id in $approved_ids; do
@@ -228,22 +223,37 @@ jobs:
                       > /dev/null || echo "Failed to dismiss review $id (continuing)"
                   done
 
-                  jq -n \
-                    --arg event "REQUEST_CHANGES" \
-                    --arg commit_id "$PR_HEAD_SHA" \
-                    --arg reason "$REASON" \
-                    --arg confidence "$CONFIDENCE" \
-                    --arg team "$REVIEWER_TEAM" \
-                    '{
-                      event: $event,
-                      commit_id: $commit_id,
-                      body: ("Anthropic gate declined to auto-approve this PR.\n\n**Reason:** " + $reason + "\n**Confidence:** " + $confidence + "\n\nDeferred to @" + $team + " for review.")
-                    }' | \
-                  gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
-                    --method POST \
-                    --input - \
-                    > /dev/null
-                  echo "Posted REQUEST_CHANGES on $PR_NUMBER at $PR_HEAD_SHA."
+                  # Post REQUEST_CHANGES with its own latest-decision
+                  # idempotency check so this single action doesn't
+                  # spam the timeline, while the reviewer/assignee
+                  # steps below still run if a prior attempt crashed
+                  # after posting the review.
+                  latest_is_changes_requested="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
+                    --jq --arg sha "$PR_HEAD_SHA" '
+                      [.[] | select(.user.login == "daxtheduck" and (.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))]
+                      | last
+                      | (. != null and .state == "CHANGES_REQUESTED" and .commit_id == $sha)
+                    ')"
+                  if [[ "$latest_is_changes_requested" == "true" ]]; then
+                    echo "daxtheduck latest decision is already REQUEST_CHANGES on $PR_HEAD_SHA; skipping new review."
+                  else
+                    jq -n \
+                      --arg event "REQUEST_CHANGES" \
+                      --arg commit_id "$PR_HEAD_SHA" \
+                      --arg reason "$REASON" \
+                      --arg confidence "$CONFIDENCE" \
+                      --arg team "$REVIEWER_TEAM" \
+                      '{
+                        event: $event,
+                        commit_id: $commit_id,
+                        body: ("Anthropic gate declined to auto-approve this PR.\n\n**Reason:** " + $reason + "\n**Confidence:** " + $confidence + "\n\nDeferred to @" + $team + " for review.")
+                      }' | \
+                    gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+                      --method POST \
+                      --input - \
+                      > /dev/null
+                    echo "Posted REQUEST_CHANGES on $PR_NUMBER at $PR_HEAD_SHA."
+                  fi
 
                   # Best-effort: ping the CODEOWNERS team for review.
                   # CODEOWNERS should already auto-request, but reinforce
