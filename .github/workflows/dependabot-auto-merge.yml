@@ -168,3 +168,72 @@ jobs:
                     exit 0
                   fi
                   echo "$out"
+
+            # Symmetric counterpart to the Approve step: when Anthropic
+            # declines, dismiss any stale `daxtheduck` approval, post a
+            # REQUEST_CHANGES review carrying Anthropic's reason, and
+            # request review from the CODEOWNERS team so a human picks
+            # it up. Without this, a previous `safe_to_merge: true`
+            # approval can outlive a later `safe_to_merge: false`
+            # verdict and leave the PR mergeable from the UI against
+            # the gate's current judgement.
+            - name: Defer to human reviewer if Anthropic declined
+              if: steps.anthropic_gate.outputs.safe_to_merge == 'false'
+              env:
+                  GH_TOKEN: ${{ secrets.DAX_PAT }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
+                  REASON: ${{ steps.anthropic_gate.outputs.reason }}
+                  CONFIDENCE: ${{ steps.anthropic_gate.outputs.confidence }}
+                  REPO: ${{ github.repository }}
+                  REVIEWER_TEAM: duckduckgo/content-scope-scripts-owners
+              run: |
+                  set -euo pipefail
+                  current_head="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefOid --jq '.headRefOid')"
+                  if [[ "$current_head" != "$PR_HEAD_SHA" ]]; then
+                    echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to act on stale gate evidence."
+                    exit 1
+                  fi
+
+                  # Idempotent: skip if daxtheduck already posted
+                  # REQUEST_CHANGES on the current head SHA. Mirrors
+                  # the latest-decision pattern used by Approve, but
+                  # keyed to the unique signal we emit here.
+                  already_requested_changes="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
+                    --jq --arg sha "$PR_HEAD_SHA" '
+                      [.[] | select(.user.login == "daxtheduck" and .state == "CHANGES_REQUESTED" and .commit_id == $sha)] | length
+                    ')"
+                  if [[ "$already_requested_changes" -gt 0 ]]; then
+                    echo "daxtheduck already posted REQUEST_CHANGES on $PR_HEAD_SHA; skipping."
+                    exit 0
+                  fi
+
+                  # Dismiss any prior APPROVED reviews from daxtheduck.
+                  # The new REQUEST_CHANGES already supersedes them in
+                  # `review-helpers.findAuthorizedApproval` (which keys
+                  # on latest decision per user), but explicit dismissal
+                  # makes the supersede visible in the timeline.
+                  approved_ids="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
+                    --jq '[.[] | select(.user.login == "daxtheduck" and .state == "APPROVED") | .id] | .[]')"
+                  for id in $approved_ids; do
+                    gh api "repos/$REPO/pulls/$PR_NUMBER/reviews/$id/dismissals" \
+                      --method PUT \
+                      -f message="Superseded: Anthropic gate now reports safe_to_merge=false. $REASON" \
+                      -f event=DISMISS \
+                      > /dev/null || echo "Failed to dismiss review $id (continuing)"
+                  done
+
+                  body="$(printf 'Anthropic gate declined to auto-approve this PR.\n\n**Reason:** %s\n**Confidence:** %s\n\nDeferred to @%s for review.' "$REASON" "$CONFIDENCE" "$REVIEWER_TEAM")"
+                  gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+                    --method POST \
+                    -f event=REQUEST_CHANGES \
+                    -f commit_id="$PR_HEAD_SHA" \
+                    -f body="$body" \
+                    > /dev/null
+                  echo "Posted REQUEST_CHANGES on $PR_NUMBER at $PR_HEAD_SHA."
+
+                  # Best-effort: ping the CODEOWNERS team. If they're
+                  # already requested, gh exits non-zero with a benign
+                  # "already requested" message — don't fail the step.
+                  gh pr edit "$PR_NUMBER" --repo "$REPO" --add-reviewer "$REVIEWER_TEAM" \
+                    || echo "Could not add reviewer team $REVIEWER_TEAM (likely already requested; continuing)"
