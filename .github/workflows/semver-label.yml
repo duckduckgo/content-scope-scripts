@@ -10,7 +10,7 @@ permissions:
 
 jobs:
     semver_label:
-        if: ${{ !github.event.pull_request.head.repo.fork }}
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request.user.login != 'dependabot[bot]' }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout base branch
