@@ -38,6 +38,7 @@ interface Window {
         mockResponses: Record<string, import('../index.js').MessageResponse>;
         subscriptionEvents: import('../index.js').SubscriptionEvent[];
         publishSubscriptionEvent?: (evt: import('../index.js').SubscriptionEvent) => void;
+        androidAdsjsDispatch?: (evt: import('../index.js').SubscriptionEvent | import('../index.js').MessageResponse) => void;
         /** Optional map of subscription name -> Set of callbacks (used by onboarding mock transport in tests). */
         subscriptions?: Map<string, Set<(data: unknown) => void>>;
         mocks: {
