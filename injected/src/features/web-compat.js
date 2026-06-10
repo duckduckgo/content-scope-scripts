@@ -1257,6 +1257,21 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * Fallback device list when the deviceEnumeration messaging request fails.
+     * Mimics pre-permission enumerateDevices (unlabeled devices) without calling native.
+     * Includes audiooutput so sites can still detect speaker/output capability.
+     * @param {'syntheticPrototype' | 'instanceOwn'} shimMode
+     * @returns {MediaDeviceInfo[]}
+     */
+    createEnumerateDevicesFallback(shimMode) {
+        return [
+            this.createMediaDeviceInfo('videoinput', shimMode),
+            this.createMediaDeviceInfo('audioinput', shimMode),
+            this.createMediaDeviceInfo('audiooutput', shimMode),
+        ];
+    }
+
+    /**
      * Helper to wrap a promise with timeout
      * @param {Promise} promise - Promise to wrap
      * @param {number} timeoutMs - Timeout in milliseconds
@@ -1317,9 +1332,10 @@ export class WebCompat extends ContentFeature {
                         // If no prompts would be required, proceed with the regular device enumeration
                         return DDGReflect.apply(target, thisArg, args);
                     }
-                } catch (err) {
-                    // If the native request fails or times out, fall back to the original implementation
-                    return DDGReflect.apply(target, thisArg, args);
+                } catch (_err) {
+                    // Messaging failed or timed out — return a shimmed response instead of calling native
+                    // enumerateDevices (we do not know willPrompt and native may trigger permission UI).
+                    return Promise.resolve(this.createEnumerateDevicesFallback(shimMode));
                 }
             },
         });
