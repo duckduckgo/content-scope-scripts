@@ -40,7 +40,7 @@
     "types-generator"
   ],
   "devDependencies": {
-    "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
+    "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.2.1",
     "@playwright/cli": "^0.1.13",
     "@playwright/test": "^1.58.2",
     "ajv": "^8.20.0",
