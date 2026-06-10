@@ -26,7 +26,14 @@ import {
     runsMissingActionableEvidence,
     validateCursorEvidence,
     extractDecisionFromAnthropicResponse,
+    extractCommentDecisionFromAnthropicResponse,
+    shouldDismissDependabotReviewerThread,
+    isCursorBugbotComment,
+    isDependencyManifestPath,
+    isDependabotReviewerThread,
+    dependabotReviewerThreads,
     SUBMIT_DECISION_TOOL_NAME,
+    SUBMIT_COMMENT_DECISION_TOOL_NAME,
     assertPrHeadUnchanged,
     truncate,
     parseLinkHeader,
@@ -632,6 +639,90 @@ describe('assertPrHeadUnchanged', () => {
                 }),
             /PR head advanced/,
         );
+    });
+});
+
+describe('isCursorBugbotComment / isDependencyManifestPath', () => {
+    it('detects Bugbot markers in inline comment bodies', () => {
+        assert.equal(isCursorBugbotComment(`Reviewed by Cursor Bugbot for commit ${HEAD_SHA}`), true);
+        assert.equal(isCursorBugbotComment('Patch bump only.'), false);
+    });
+
+    it('recognises dependency manifest paths in the monorepo', () => {
+        assert.equal(isDependencyManifestPath('package.json'), true);
+        assert.equal(isDependencyManifestPath('special-pages/package.json'), true);
+        assert.equal(isDependencyManifestPath('package-lock.json'), true);
+        assert.equal(isDependencyManifestPath('injected/src/features/cookie.js'), false);
+    });
+});
+
+describe('isDependabotReviewerThread / dependabotReviewerThreads', () => {
+    const dependabotRun = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-dep');
+    const webCompatRun = cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-sec');
+
+    function thread({ body, path = 'special-pages/package.json', isResolved = false, author = 'cursor[bot]' }) {
+        return {
+            id: 'PRRT_test',
+            isResolved,
+            comments: [{ author, body, path }],
+        };
+    }
+
+    it('accepts manifest-path Dependabot reviewer notes without an agent id', () => {
+        const candidate = thread({ body: 'Patch bump only. Low regression risk.' });
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), true);
+    });
+
+    it('accepts threads whose body references the Review dependabot agent id', () => {
+        const candidate = thread({ body: 'see https://cursor.com/agents/bc-dep for details' });
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), true);
+    });
+
+    it('rejects Bugbot inline findings and web-compat threads', () => {
+        const bugbot = thread({ body: `Reviewed by Cursor Bugbot for commit ${HEAD_SHA}` });
+        const webCompat = thread({ body: 'bc-sec flagged a web-compat concern' });
+        assert.equal(isDependabotReviewerThread(bugbot, { dependabotRun, webCompatRun }), false);
+        assert.equal(isDependabotReviewerThread(webCompat, { dependabotRun, webCompatRun }), false);
+    });
+
+    it('rejects resolved threads and non-manifest paths without agent attribution', () => {
+        const resolved = thread({ body: 'Patch bump only.', isResolved: true });
+        const sourceFile = thread({ body: 'Patch bump only.', path: 'injected/src/features/cookie.js' });
+        assert.equal(isDependabotReviewerThread(resolved, { dependabotRun, webCompatRun }), false);
+        assert.equal(isDependabotReviewerThread(sourceFile, { dependabotRun, webCompatRun }), false);
+    });
+
+    it('filters a mixed thread list down to Dependabot reviewer candidates', () => {
+        const threads = [
+            thread({ body: 'Unrelated churn in package-lock.json.' }),
+            thread({ body: `Reviewed by Cursor Bugbot for commit ${HEAD_SHA}` }),
+            thread({ body: 'bc-sec flagged harmful API usage', path: 'injected/src/features/harmful-apis.js' }),
+        ];
+        const candidates = dependabotReviewerThreads(threads, [dependabotRun, webCompatRun]);
+        assert.equal(candidates.length, 1);
+        assert.equal(candidates[0].comments[0].body, 'Unrelated churn in package-lock.json.');
+    });
+});
+
+describe('extractCommentDecisionFromAnthropicResponse / shouldDismissDependabotReviewerThread', () => {
+    const validInput = { low_risk: true, reason: 'patch bump', confidence: 'high' };
+    const toolUseBlock = (input = validInput, name = SUBMIT_COMMENT_DECISION_TOOL_NAME) => ({
+        type: 'tool_use',
+        id: 'toolu_2',
+        name,
+        input,
+    });
+    const responseWith = (...blocks) => ({ content: blocks });
+
+    it('parses a submit_comment_decision tool_use block', () => {
+        assert.deepEqual(extractCommentDecisionFromAnthropicResponse(responseWith(toolUseBlock())), validInput);
+    });
+
+    it('only dismisses when low_risk is true with high or medium confidence', () => {
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'high' }), true);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'medium' }), true);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: true, reason: 'ok', confidence: 'low' }), false);
+        assert.equal(shouldDismissDependabotReviewerThread({ low_risk: false, reason: 'no', confidence: 'high' }), false);
     });
 });
 
