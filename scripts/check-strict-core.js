@@ -73,6 +73,7 @@ const CORE_FILES = new Set([
     'injected/src/features/duckplayer-native/get-current-timestamp.js',
     'injected/src/features/duckplayer-native/mute-audio.js',
     'injected/src/features/duckplayer-native/pause-video.js',
+    'injected/src/features/duckplayer-native/sub-features/duck-player-native-no-cookie.js',
     'injected/src/features/duckplayer-native/sub-features/duck-player-native-serp.js',
     'injected/src/features/duckplayer/components/ddg-video-overlay-mobile.js',
     'injected/src/features/duckplayer/components/ddg-video-thumbnail-overlay-mobile.js',
