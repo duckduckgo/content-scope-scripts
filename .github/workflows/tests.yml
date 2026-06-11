@@ -46,6 +46,18 @@ jobs:
               if: ${{ matrix.workspace == 'injected' }}
               run: npm run build -w injected
             - run: npm run test-unit -w ${{ matrix.workspace }}
+    github-scripts-unit:
+        name: Unit tests (github scripts)
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - name: Dependabot Anthropic gate helpers
+              run: node --test .github/scripts/dependabot-anthropic-gate.test.mjs
+
     unit:
         runs-on: ${{ matrix.os }}
         strategy:
@@ -284,7 +296,7 @@ jobs:
             - name: Setup Github Pages
               uses: actions/configure-pages@v6
             - name: Upload artifact
-              uses: actions/upload-pages-artifact@v4
+              uses: actions/upload-pages-artifact@v5
               with:
                   path: docs
             - name: Deploy to GitHub Pages
@@ -328,6 +340,7 @@ jobs:
         runs-on: ubuntu-latest
         if: ${{ always() }}
         needs:
+            - github-scripts-unit
             - unit
             - unit-tests
             - playwright-cli-smoke
@@ -338,6 +351,7 @@ jobs:
         steps:
             - name: Ensure all required jobs succeeded
               run: |
+                  echo "github-scripts-unit: ${{ needs.github-scripts-unit.result }}"
                   echo "unit: ${{ needs.unit.result }}"
                   echo "unit-tests: ${{ needs.unit-tests.result }}"
                   echo "playwright-cli-smoke: ${{ needs.playwright-cli-smoke.result }}"
@@ -346,6 +360,7 @@ jobs:
                   echo "integration-tests-special-pages: ${{ needs.integration-tests-special-pages.result }}"
                   echo "production-deps: ${{ needs.production-deps.result }}"
 
+                  test "${{ needs.github-scripts-unit.result }}" = "success"
                   test "${{ needs.unit.result }}" = "success"
                   test "${{ needs.unit-tests.result }}" = "success"
                   test "${{ needs.playwright-cli-smoke.result }}" = "success"

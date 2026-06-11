@@ -20,7 +20,7 @@ jobs:
         steps:
             - name: Check for semver label
               id: check
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               with:
                   script: |
                       const pr = context.payload.pull_request;
@@ -37,7 +37,7 @@ jobs:
 
             - name: Trigger Release workflow
               if: steps.check.outputs.severity
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               env:
                   SEVERITY: ${{ steps.check.outputs.severity }}
                   PR_NUMBER: ${{ steps.check.outputs.pr_number }}

@@ -6,7 +6,9 @@
       "state": "enabled",
       "exceptions": [],
       "settings": {
-        "inputFieldFocusDetection": "enabled"
+        "inputFieldFocusDetection": {
+            "state": "enabled"
+        }
       }
     }
   },

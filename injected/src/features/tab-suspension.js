@@ -21,6 +21,7 @@ export class TabSuspension extends ContentFeature {
             'focusin',
             (e) => {
                 if (!this.#canBeSuspended) return;
+                if (document.hidden) return;
                 if (isFormElement(/** @type {Element | null} */ (e.target))) {
                     this.#canBeSuspended = false;
                     this.notify('canBeSuspended', { canBeSuspended: false });

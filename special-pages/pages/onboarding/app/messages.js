@@ -130,6 +130,15 @@ export class OnboardingMessages {
     }
 
     /**
+     * Sent to allow native to fire a pixel for UI interactions.
+     *
+     * @param {import('../types/onboarding.ts').TelemetryEvent} event
+     */
+    telemetryEvent(event) {
+        this.messaging.notify('telemetryEvent', event);
+    }
+
+    /**
      * Sent when onboarding is complete and the user has chosen to go to settings
      */
     dismissToSettings() {
