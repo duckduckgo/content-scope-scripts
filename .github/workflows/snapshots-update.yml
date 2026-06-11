@@ -24,9 +24,10 @@ jobs:
             - uses: actions/checkout@v6
             - name: Checkout PR ${{ github.event.inputs.pr_number }}
               if: github.event_name == 'workflow_dispatch'
-              run: gh pr checkout ${{ github.event.inputs.pr_number }}
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PR_NUMBER: ${{ github.event.inputs.pr_number }}
+              run: gh pr checkout "$PR_NUMBER"
 
             - name: Use Node.js
               uses: actions/setup-node@v6

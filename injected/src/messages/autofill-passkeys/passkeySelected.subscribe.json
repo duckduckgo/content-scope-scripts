@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "PasskeySelectedParams",
+  "description": "Subscription payload sent when native Autofill selects a passkey for a pending request.",
+  "additionalProperties": false,
+  "required": ["credentialId", "requestId"],
+  "properties": {
+    "credentialId": {
+      "description": "Base64-encoded (standard Base64, not Base64URL) WebAuthn credential ID selected by native Autofill.",
+      "type": "string"
+    },
+    "requestId": {
+      "description": "Opaque request ID from the matching registerPasskeyRequest notification.",
+      "type": "string"
+    }
+  }
+}

@@ -105,6 +105,20 @@ const response = await this.request('messageName', { data });
 this.subscribe('eventName', (data) => { ... });
 ```
 
+### Reserved Fields
+
+The `nativeData` field is **reserved for native platform use** and must never be included in messages sent from C-S-S to the client. Native implementations inject a `nativeData` field into incoming messages; `nativeData` is reserved for that layer. Including it in outgoing messages would conflict with native-side processing.
+
+When constructing notification or request params, only pass explicitly defined fields:
+
+```js
+// ✅ Correct — only known fields
+this.messaging.notify('webEvent', { type, data });
+
+// ❌ Wrong — spreading unknown fields risks leaking nativeData
+this.messaging.notify('webEvent', eventObject);
+```
+
 ## API Shims & Error Types
 
 When shimming browser APIs, use the correct error types to match native behavior:
