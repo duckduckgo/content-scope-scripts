@@ -389,7 +389,7 @@ export default class ElementHiding extends ContentFeature {
 
         // collect all matching rules for domain
         const activeDomainRules = this.matchConditionalFeatureSetting('domains').flatMap((item) => {
-            return /** @type {ElementHidingRule[]} */ (item.rules || []);
+            return /** @type {ElementHidingRule[]} */ (item.rules) || [];
         });
 
         const overrideRules = activeDomainRules.filter((rule) => {
@@ -410,10 +410,9 @@ export default class ElementHiding extends ContentFeature {
         }
 
         // remove overrides and rules that match overrides from array of rules to be applied to page
-        overrideRules.forEach((override) => {
-            if (override.type !== 'override') return;
-            activeRules = activeRules.filter((rule) => {
-                return rule.type === 'disable-default' || rule.selector !== override.selector;
+        overrideRules.forEach((/** @type {ElementHidingRuleHide} */ override) => {
+            activeRules = activeRules.filter((/** @type {ElementHidingRuleHide} */ rule) => {
+                return rule.selector !== override.selector;
             });
         });
 
