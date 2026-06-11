@@ -1,5 +1,6 @@
 import { createContext, h } from 'preact';
 import { useContext, useEffect, useState } from 'preact/hooks';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
 
 const EnvironmentContext = createContext({
     isReducedMotion: false,
@@ -35,15 +36,8 @@ export function EnvironmentProvider({
     injectName = 'windows',
     locale = 'en',
 }) {
-    const [theme, setTheme] = useState(window.matchMedia(THEME_QUERY).matches ? 'dark' : 'light');
+    const isDarkMode = useMediaQuery(THEME_QUERY);
     const [isReducedMotion, setReducedMotion] = useState(window.matchMedia(REDUCED_MOTION_QUERY).matches);
-
-    useEffect(() => {
-        const mediaQueryList = window.matchMedia(THEME_QUERY);
-        const listener = (e) => setTheme(e.matches ? 'dark' : 'light');
-        mediaQueryList.addEventListener('change', listener);
-        return () => mediaQueryList.removeEventListener('change', listener);
-    }, []);
 
     useEffect(() => {
         // media query
@@ -76,7 +70,7 @@ export function EnvironmentProvider({
             value={{
                 isReducedMotion,
                 debugState,
-                isDarkMode: theme === 'dark',
+                isDarkMode,
                 injectName,
                 willThrow,
                 env,

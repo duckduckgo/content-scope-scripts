@@ -1,56 +1,299 @@
 name: Dependabot auto-approve and auto-merge
-on: pull_request
+
+on:
+    pull_request:
+        types: [opened, reopened, synchronize, ready_for_review]
+
+concurrency:
+    group: dependabot-gate-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
 
 permissions:
+    # `actions: read` is required so the gate script can call
+    # `GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs` to exclude its own
+    # workflow run from the wait set in `fetchCurrentWorkflowCheckRunIds()`.
+    # Once explicit permissions are set, anything not listed defaults to
+    # `none`, so omitting this would 403 before the gate ever runs.
+    actions: read
+    checks: read
     contents: write
     pull-requests: write
 
 jobs:
     dependabot:
         runs-on: ubuntu-latest
-        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        if: |
+            github.event.pull_request.user.login == 'dependabot[bot]' &&
+            github.event.pull_request.head.repo.full_name == github.repository
         steps:
+            - name: Checkout workflow scripts
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.pull_request.base.ref }}
+                  sparse-checkout: .github/scripts/dependabot-anthropic-gate.mjs
+                  sparse-checkout-cone-mode: false
+                  persist-credentials: false
+
             - name: Dependabot metadata
               id: metadata
-              uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a # v2.5.0
+              uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
               with:
                   github-token: '${{ secrets.GITHUB_TOKEN }}'
 
-            - name: Enable auto-merge for npm updates
-              if: steps.metadata.outputs.package-ecosystem == 'npm'
-              run: gh pr merge --auto --merge "$PR_URL"
+            - name: Classify npm update
+              id: classify
               env:
-                  PR_URL: ${{ github.event.pull_request.html_url }}
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Auto-approve npm patch updates (except ignored packages)
-              if: |
-                  steps.metadata.outputs.package-ecosystem == 'npm' &&
-                  steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
-                  !contains(steps.metadata.outputs.dependency-names, '@atlaskit/pragmatic-drag-and-drop') &&
-                  !contains(steps.metadata.outputs.dependency-names, 'preact') &&
-                  !contains(steps.metadata.outputs.dependency-names, '@preact/signals') &&
-                  !contains(steps.metadata.outputs.dependency-names, 'lottie-web')
-              run: gh pr review --approve "$PR_URL"
-              env:
-                  PR_URL: ${{ github.event.pull_request.html_url }}
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Request Cursor review
-              if: github.event.action == 'opened'
+                  PACKAGE_ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
               run: |
-                  gh pr comment "$PR_URL" --body "**Suggested comment for Cursor review** (copy and paste as a new comment):
+                  set -euo pipefail
+                  if [[ "$PACKAGE_ECOSYSTEM" == "npm_and_yarn" ]]; then
+                    echo "is_npm=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "is_npm=false" >> "$GITHUB_OUTPUT"
+                  fi
 
-                  \`\`\`
-                  @cursoragent can you review against the current code and outline potential impacts based on the changelogs of the update?
-
-                  Can you check the test coverage and ensure that the new code is covered?
-                  Can you think through if this dependency is still needed or if there's better practices used elsewhere.
-
-                  Can you draft a separate PR with any fixes that might be needed?
-                  \`\`\`
-
-                  *Note: GitHub Actions bot cannot trigger Cursor agent directly. Please copy the above comment to invoke the review.*"
+            # Each Dependabot reviewer inline comment is classified (and
+            # low-risk threads resolved) in its own step before the merge
+            # gate runs or any human-deferral step (#2756) can assign a
+            # reviewer. The classify step writes a runner-local state file
+            # that merge-gate consumes so we don't repeat the check wait.
+            - name: Classify Dependabot reviewer inline comments
+              if: steps.classify.outputs.is_npm == 'true'
+              id: classify_threads
               env:
-                  PR_URL: ${{ github.event.pull_request.html_url }}
-                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  ANTHROPIC_MODEL: claude-sonnet-4-5-20250929
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: node .github/scripts/dependabot-anthropic-gate.mjs classify-threads
+
+            - name: Ask Anthropic to assess Cursor results
+              if: steps.classify.outputs.is_npm == 'true' && steps.classify_threads.outcome == 'success'
+              id: anthropic_gate
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                  ANTHROPIC_MODEL: claude-sonnet-4-5-20250929
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: node .github/scripts/dependabot-anthropic-gate.mjs merge-gate
+
+            # Any human-deferral step (e.g. #2756) must also require
+            # `steps.classify_threads.outcome == 'success'` and
+            # `steps.classify_threads.outputs.review_thread_classification_complete == 'true'`
+            # so reviewers are only assigned after every Dependabot reviewer
+            # inline thread has been individually classified.
+
+            # Approve as `daxtheduck` (via DAX_PAT) rather than the
+            # workflow's GITHUB_TOKEN. The Authorized Review check in
+            # `review-check.yml` only treats approvals from `daxtheduck`
+            # or a required-team member as authorized, and branch
+            # protection's `require_code_owner_reviews` then blocks
+            # merge until one lands. A review posted as
+            # `github-actions[bot]` never satisfies that, so without
+            # this swap the auto-merge step enables auto-merge on a
+            # PR that can never go green.
+            - name: Approve npm update
+              if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
+              env:
+                  GH_TOKEN: ${{ secrets.DAX_PAT }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
+                  REPO: ${{ github.repository }}
+              run: |
+                  set -euo pipefail
+                  current_head="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefOid --jq '.headRefOid')"
+                  if [[ "$current_head" != "$PR_HEAD_SHA" ]]; then
+                    echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to approve using stale evidence."
+                    exit 1
+                  fi
+                  if ! out="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+                    --method POST \
+                    -f event=APPROVE \
+                    -f commit_id="$PR_HEAD_SHA" 2>&1)"; then
+                    echo "Failed to approve PR #$PR_NUMBER at commit $PR_HEAD_SHA:"
+                    echo "$out"
+                    exit 1
+                  fi
+                  echo "$out"
+
+            # Enable auto-merge as `daxtheduck` (via DAX_PAT) rather than
+            # GITHUB_TOKEN. When github-actions[bot] arms auto-merge and the
+            # PR later enters the merge queue, GitHub attributes the enqueue
+            # to github-actions and merge_group CI often never dispatches —
+            # the queue sits in AWAITING_CHECKS with only incidental push
+            # workflows (e.g. build-branch) reporting. Enabling as a real
+            # user matches manual "Merge when ready" and reliably triggers
+            # the required snapshots / CI gate / review_validation runs.
+            - name: Enable auto-merge for npm update
+              if: steps.anthropic_gate.outputs.safe_to_merge == 'true'
+              env:
+                  GH_TOKEN: ${{ secrets.DAX_PAT }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
+                  REPO: ${{ github.repository }}
+              run: |
+                  set -euo pipefail
+                  current_head="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefOid --jq '.headRefOid')"
+                  if [[ "$current_head" != "$PR_HEAD_SHA" ]]; then
+                    echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to enable auto-merge using stale evidence."
+                    exit 1
+                  fi
+
+                  merge_state="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json mergeStateStatus,isDraft --jq '.mergeStateStatus + " " + (if .isDraft then "draft" else "ready" end)')"
+                  echo "merge_state=$merge_state"
+
+                  if [[ "$merge_state" == *" draft" ]]; then
+                    echo "PR is a draft; skipping."
+                    exit 0
+                  fi
+
+                  state="${merge_state%% *}"
+                  case "$state" in
+                    DIRTY)
+                      echo "PR has conflicts (DIRTY); skipping."
+                      exit 0
+                      ;;
+                  esac
+
+                  # No strategy flag (`--merge`/`--squash`/`--rebase`):
+                  # `main` is governed by a merge queue, which dictates
+                  # the strategy and rejects any explicit override with
+                  # "The merge strategy for main is set by the merge
+                  # queue", silently leaving the PR unqueued.
+                  if ! out="$(gh pr merge "$PR_NUMBER" --repo "$REPO" --auto --match-head-commit "$PR_HEAD_SHA" 2>&1)"; then
+                    echo "Could not enable auto-merge for PR; leaving it unqueued."
+                    echo "$out"
+                    exit 0
+                  fi
+                  echo "$out"
+
+            # Symmetric counterpart to the Approve step: when Anthropic
+            # declines, dismiss any stale `daxtheduck` approval, post a
+            # REQUEST_CHANGES review carrying Anthropic's reason, and
+            # request review from the CODEOWNERS team so a human picks
+            # it up. Without this, a previous `safe_to_merge: true`
+            # approval can outlive a later `safe_to_merge: false`
+            # verdict and leave the PR mergeable from the UI against
+            # the gate's current judgement.
+            #
+            # Required upstream signal (per the note above the merge
+            # gate): only run after the per-thread classifier has
+            # completed every Dependabot reviewer inline thread, and
+            # only after the Anthropic merge gate itself has returned
+            # a `safe_to_merge: false` verdict. That ordering ensures
+            # we never assign a human reviewer on a half-evaluated PR
+            # — e.g. one where the classifier crashed mid-pass and
+            # only some threads have been triaged.
+            - name: Defer to human reviewer if Anthropic declined
+              if: |
+                  steps.classify_threads.outcome == 'success' &&
+                  steps.classify_threads.outputs.review_thread_classification_complete == 'true' &&
+                  steps.anthropic_gate.outputs.safe_to_merge == 'false'
+              env:
+                  GH_TOKEN: ${{ secrets.DAX_PAT }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_SHA: ${{ steps.anthropic_gate.outputs.assessed_head_sha }}
+                  REASON: ${{ steps.anthropic_gate.outputs.reason }}
+                  CONFIDENCE: ${{ steps.anthropic_gate.outputs.confidence }}
+                  REPO: ${{ github.repository }}
+                  REVIEWER_TEAM: duckduckgo/content-scope-scripts-owners
+              run: |
+                  set -euo pipefail
+                  current_head="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json headRefOid --jq '.headRefOid')"
+                  if [[ "$current_head" != "$PR_HEAD_SHA" ]]; then
+                    echo "PR head advanced from $PR_HEAD_SHA to $current_head; refusing to act on stale gate evidence."
+                    exit 1
+                  fi
+
+                  # Each action below is independently idempotent rather
+                  # than gating on a single top-level "already done"
+                  # check. A previous run that crashed between posting
+                  # REQUEST_CHANGES and adding the reviewer/assignee
+                  # would otherwise leave those best-effort steps
+                  # permanently skipped on subsequent runs against the
+                  # same SHA.
+
+                  # Dismiss any prior APPROVED reviews from daxtheduck.
+                  # Naturally idempotent: the filter is `state ==
+                  # APPROVED`, so already-dismissed reviews don't
+                  # appear in the list and aren't re-dismissed. The new
+                  # REQUEST_CHANGES below also supersedes them via
+                  # `findAuthorizedApproval`'s latest-decision-per-user
+                  # logic, but explicit dismissal makes the supersede
+                  # visible in the timeline.
+                  approved_ids="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
+                    --jq '[.[] | select(.user.login == "daxtheduck" and .state == "APPROVED") | .id] | .[]')"
+                  for id in $approved_ids; do
+                    jq -n \
+                      --arg reason "$REASON" \
+                      '{message: ("Superseded: Anthropic gate now reports safe_to_merge=false. " + $reason), event: "DISMISS"}' | \
+                    gh api "repos/$REPO/pulls/$PR_NUMBER/reviews/$id/dismissals" \
+                      --method PUT \
+                      --input - \
+                      > /dev/null || echo "Failed to dismiss review $id (continuing)"
+                  done
+
+                  # Post REQUEST_CHANGES with its own latest-decision
+                  # idempotency check so this single action doesn't
+                  # spam the timeline, while the reviewer/assignee
+                  # steps below still run if a prior attempt crashed
+                  # after posting the review.
+                  latest_is_changes_requested="$(gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate \
+                    --jq --arg sha "$PR_HEAD_SHA" '
+                      [.[] | select(.user.login == "daxtheduck" and (.state == "APPROVED" or .state == "CHANGES_REQUESTED" or .state == "DISMISSED"))]
+                      | last
+                      | (. != null and .state == "CHANGES_REQUESTED" and .commit_id == $sha)
+                    ')"
+                  if [[ "$latest_is_changes_requested" == "true" ]]; then
+                    echo "daxtheduck latest decision is already REQUEST_CHANGES on $PR_HEAD_SHA; skipping new review."
+                  else
+                    jq -n \
+                      --arg event "REQUEST_CHANGES" \
+                      --arg commit_id "$PR_HEAD_SHA" \
+                      --arg reason "$REASON" \
+                      --arg confidence "$CONFIDENCE" \
+                      --arg team "$REVIEWER_TEAM" \
+                      '{
+                        event: $event,
+                        commit_id: $commit_id,
+                        body: ("Anthropic gate declined to auto-approve this PR.\n\n**Reason:** " + $reason + "\n**Confidence:** " + $confidence + "\n\nDeferred to @" + $team + " for review.")
+                      }' | \
+                    gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" \
+                      --method POST \
+                      --input - \
+                      > /dev/null
+                    echo "Posted REQUEST_CHANGES on $PR_NUMBER at $PR_HEAD_SHA."
+                  fi
+
+                  # Best-effort: ping the CODEOWNERS team for review.
+                  # CODEOWNERS should already auto-request, but reinforce
+                  # here in case the team was removed via prior review
+                  # activity. If already requested, gh exits non-zero
+                  # with a benign message — don't fail the step.
+                  gh pr edit "$PR_NUMBER" --repo "$REPO" --add-reviewer "$REVIEWER_TEAM" \
+                    || echo "Could not add reviewer team $REVIEWER_TEAM (likely already requested; continuing)"
+
+                  # Assign a random member of the CODEOWNERS team so the
+                  # Asana ↔ GitHub integration opens a task. GitHub
+                  # `assignees` must be individuals — there is no team-
+                  # assignee API surface — so we sample one to spread
+                  # load across rotations. Skip if a human is already
+                  # assigned, so re-runs don't keep growing the list.
+                  existing_assignees="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json assignees --jq '.assignees | length')"
+                  if [[ "$existing_assignees" -eq 0 ]]; then
+                    team_org="${REVIEWER_TEAM%%/*}"
+                    team_slug="${REVIEWER_TEAM##*/}"
+                    members="$(gh api "orgs/$team_org/teams/$team_slug/members" --paginate --jq '.[].login' || true)"
+                    random_member="$(printf '%s\n' "$members" | shuf -n 1 || true)"
+                    if [[ -n "$random_member" ]]; then
+                      gh pr edit "$PR_NUMBER" --repo "$REPO" --add-assignee "$random_member" \
+                        && echo "Assigned $random_member from $REVIEWER_TEAM" \
+                        || echo "Could not assign $random_member (continuing)"
+                    else
+                      echo "Could not pick a random member from $REVIEWER_TEAM (token may lack read:org)"
+                    fi
+                  else
+                    echo "Skipping assignment: PR already has $existing_assignees assignee(s)."
+                  fi
