@@ -41,6 +41,7 @@ export function useStepConfig() {
 
     const enqueueNext = () => dispatch({ kind: 'enqueue-next' });
     const dismiss = () => dispatch({ kind: 'dismiss' });
+    const onTitleComplete = () => dispatch({ kind: 'title-complete' });
 
     /** @type {(id: import('../../types').SystemValueId, payload: import('../../types').SystemValue, current: boolean) => void} */
     const updateSystemValue = (id, payload, current) =>
@@ -60,6 +61,7 @@ export function useStepConfig() {
         advance,
         enqueueNext,
         dismiss,
+        onTitleComplete,
         updateSystemValue,
         isShortViewport,
     };

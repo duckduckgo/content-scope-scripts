@@ -52,6 +52,8 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'hover',
     'browserUiLock',
     'trackerProtection',
+    'tabSuspension',
+    'autofillPasskeys',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -70,8 +72,10 @@ export const platformSupport = {
         'webDetection',
         'webEvents',
         'webInterferenceDetection',
+        'webTelemetry',
         'pageObserver',
         'hover',
+        'tabSuspension',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
@@ -122,6 +126,7 @@ export const platformSupport = {
         'duckAiDataClearing',
         'performanceMetrics',
         'duckAiChatHistory',
+        'autofillPasskeys',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
