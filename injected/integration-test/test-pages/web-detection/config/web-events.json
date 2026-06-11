@@ -1,0 +1,43 @@
+{
+    "readme": "Config for testing webEvents message flow from webDetection fireEvent actions",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "webDetection": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": [],
+            "settings": {
+                "detectors": {
+                    "adwall": {
+                        "fire_event_text": {
+                            "match": {
+                                "text": {
+                                    "pattern": "ad ?block(er)? detected"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "intervalMs": [50]
+                                    }
+                                }
+                            },
+                            "actions": {
+                                "fireEvent": {
+                                    "type": "adwall"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "webEvents": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": []
+        }
+    }
+}
