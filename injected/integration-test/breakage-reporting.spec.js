@@ -1,10 +1,30 @@
 import { test, expect } from '@playwright/test';
 import { ResultsCollector } from './page-objects/results-collector.js';
+import { readFileSync } from 'node:fs';
 
 const HTML = '/breakage-reporting/index.html';
 const CONFIG = './integration-test/test-pages/breakage-reporting/config/config.json';
 
 test.describe('Breakage Reporting Feature', () => {
+    test('breakageData is undefined when no features add data', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        // disable webInterferenceDetection feature so it doesn't add data to the breakage report
+        config.features.webInterferenceDetection.state = 'disabled';
+        await collector.load(HTML, config);
+
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigate();
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+        const calls = await collector.outgoingMessages();
+
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        expect(result.params?.detectorData).toBeUndefined();
+        expect(result.params?.breakageData).toBeUndefined();
+    });
+
     test('collects basic metrics without detectors', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
         await collector.load(HTML, CONFIG);
@@ -38,6 +58,12 @@ test.describe('Breakage Reporting Feature', () => {
         expect(result.params?.detectorData).toBeDefined();
         expect(result.params?.detectorData?.botDetection.detected).toBe(false);
         expect(result.params?.detectorData?.fraudDetection.detected).toBe(false);
+        expect(result.params?.detectorData?.adwallDetection.detected).toBe(false);
+
+        // Verify breakageData contains URL-encoded JSON with detectorData
+        expect(result.params?.breakageData).toBeDefined();
+        const decodedBreakageData = JSON.parse(decodeURIComponent(result.params?.breakageData));
+        expect(decodedBreakageData.detectorData).toEqual(result.params?.detectorData);
     });
 
     test('detects Cloudflare challenge', async ({ page }, testInfo) => {
@@ -100,6 +126,44 @@ test.describe('Breakage Reporting Feature', () => {
 
         const fraudResult = result.params?.detectorData?.fraudDetection.results[0];
         expect(fraudResult.alertId).toBe('px');
+    });
+
+    test('detects adwall on page with adblocker message', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG);
+
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigateToPage('/breakage-reporting/pages/adwall.html');
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+        const calls = await collector.outgoingMessages();
+
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        expect(result.params?.detectorData).toBeDefined();
+        expect(result.params?.detectorData?.adwallDetection.detected).toBe(true);
+        expect(result.params?.detectorData?.adwallDetection.results.length).toBeGreaterThan(0);
+
+        const adwallResult = result.params?.detectorData?.adwallDetection.results[0];
+        expect(adwallResult.detectorId).toBe('generic');
+        expect(adwallResult.detected).toBe(true);
+    });
+
+    test('does not detect adwall on clean page', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG);
+
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigateToPage('/breakage-reporting/pages/no-challenge.html');
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+        const calls = await collector.outgoingMessages();
+
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        expect(result.params?.detectorData).toBeDefined();
+        expect(result.params?.detectorData?.adwallDetection.detected).toBe(false);
+        expect(result.params?.detectorData?.adwallDetection.results.length).toBe(0);
     });
 });
 

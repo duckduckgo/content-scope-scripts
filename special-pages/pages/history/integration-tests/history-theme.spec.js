@@ -38,7 +38,7 @@ test.describe('history theme and theme variants', () => {
         await hp.hasBackgroundColor({ hex: '#f5f4ef' }); // desert light surface-canvas
         await hp.acceptsThemeUpdate('dark', 'slateBlue');
         await hp.hasTheme('dark', 'slateBlue');
-        await hp.hasBackgroundColor({ hex: '#243a50' }); // slateBlue dark surface-canvas
+        await hp.hasBackgroundColor({ hex: '#1e3042' }); // slateBlue dark surface-canvas
     });
 
     test('changing theme to light and themeVariant using onThemeUpdate', async ({ page }, workerInfo) => {

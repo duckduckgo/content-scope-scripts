@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Show Theme Variant Popover Data",
+  "type": "object",
+  "required": ["showThemeVariantPopover"],
+  "properties": {
+    "showThemeVariantPopover": {
+      "type": "boolean",
+      "description": "Controls a popover that onboards users to the theme variant feature"
+    }
+  }
+}

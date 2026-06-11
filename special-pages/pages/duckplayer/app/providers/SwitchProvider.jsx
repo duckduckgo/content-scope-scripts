@@ -1,6 +1,5 @@
 import { createContext, h } from 'preact';
 import { useEffect, useReducer } from 'preact/hooks';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { useSetEnabled, useUserValues } from './UserValuesProvider.jsx';
 
 /**
@@ -65,6 +64,7 @@ export function SwitchProvider({ children }) {
     useEffect(() => {
         const evt = 'enabled' in userValues.privatePlayerMode ? 'enabled' : 'ask';
         dispatch(evt);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [initialState]);
 
     function onDone() {

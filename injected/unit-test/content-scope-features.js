@@ -9,6 +9,11 @@ import ContentFeature from '../src/content-feature.js';
  * }
  */
 describe('content-scope-features additionalCheck conditional', () => {
+    class BaseTestFeature extends ContentFeature {
+        constructor(featureName, importConfig, args) {
+            super(featureName, importConfig, {}, args);
+        }
+    }
     describe('additionalCheck feature setting with conditional patching', () => {
         it('should return false when additionalCheck is disabled via conditional patching', () => {
             // Setup: Create new feature instance with conditional patching that disables additionalCheck
@@ -41,7 +46,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             };
 
             // Create feature instance with conditional patching
-            const testFeatureInstance = new ContentFeature('testFeature', {}, args);
+            const testFeatureInstance = new BaseTestFeature('testFeature', {}, args);
 
             // Act: Check if the feature setting is enabled after conditional patching
             const isEnabled = testFeatureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled');
@@ -81,7 +86,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             };
 
             // Create feature instance with conditional patching
-            const testFeatureInstance = new ContentFeature('testFeature', {}, args);
+            const testFeatureInstance = new BaseTestFeature('testFeature', {}, args);
 
             // Act: Check if the feature setting is enabled after conditional patching
             const isEnabled = testFeatureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled');
@@ -121,7 +126,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             };
 
             // Create feature instance with conditional patching
-            const testFeatureInstance = new ContentFeature('testFeature', {}, args);
+            const testFeatureInstance = new BaseTestFeature('testFeature', {}, args);
 
             // Act: Check if the feature setting is disabled by URL pattern
             const isEnabled = testFeatureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled');
@@ -161,7 +166,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             };
 
             // Create feature instance with conditional patching
-            const testFeatureInstance = new ContentFeature('testFeature', {}, args);
+            const testFeatureInstance = new BaseTestFeature('testFeature', {}, args);
 
             // Act: Check if the feature setting remains enabled
             const isEnabled = testFeatureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled');
@@ -194,7 +199,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             };
 
             // Create feature instance without additionalCheck
-            const testFeatureInstance = new ContentFeature('testFeature', {}, args);
+            const testFeatureInstance = new BaseTestFeature('testFeature', {}, args);
 
             // Act: Check if the feature setting uses default value
             const isEnabledWithDefault = testFeatureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled');
@@ -241,7 +246,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             };
 
             // Create feature instance with conditional patching
-            const testFeatureInstance = new ContentFeature('testFeature', {}, args);
+            const testFeatureInstance = new BaseTestFeature('testFeature', {}, args);
 
             // Act: Check if the feature setting is enabled
             const isEnabled = testFeatureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled');
@@ -252,11 +257,11 @@ describe('content-scope-features additionalCheck conditional', () => {
     });
 
     describe('simulated load/init behavior', () => {
-        it('should demonstrate how additionalCheck gates feature loading', () => {
+        it('should demonstrate how additionalCheck gates feature loading', async () => {
             // This test demonstrates the pattern used in content-scope-features.js
             // Lines 60-62: if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) { return; }
 
-            class MockFeature extends ContentFeature {
+            class MockFeature extends BaseTestFeature {
                 constructor(featureName, importConfig, args) {
                     super(featureName, importConfig, args);
                     this.loadCalled = false;
@@ -271,7 +276,7 @@ describe('content-scope-features additionalCheck conditional', () => {
                     this.loadCalled = true;
                 }
 
-                callInit() {
+                init() {
                     // Simulate the additionalCheck gate in content-scope-features.js init function
                     if (!this.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                         return; // Early return when disabled
@@ -308,7 +313,7 @@ describe('content-scope-features additionalCheck conditional', () => {
 
             const disabledFeature = new MockFeature('testFeature', {}, disabledArgs);
             disabledFeature.callLoad();
-            disabledFeature.callInit();
+            await disabledFeature.callInit(disabledArgs);
 
             expect(disabledFeature.loadCalled).toBe(false); // Should not load
             expect(disabledFeature.initCalled).toBe(false); // Should not init
@@ -341,7 +346,7 @@ describe('content-scope-features additionalCheck conditional', () => {
 
             const enabledFeature = new MockFeature('testFeature', {}, enabledArgs);
             enabledFeature.callLoad();
-            enabledFeature.callInit();
+            await enabledFeature.callInit(enabledArgs);
 
             expect(enabledFeature.loadCalled).toBe(true); // Should load
             expect(enabledFeature.initCalled).toBe(true); // Should init

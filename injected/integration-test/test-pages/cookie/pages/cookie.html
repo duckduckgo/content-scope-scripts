@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Cookie</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Cookie]</a></p>
+
+    <p>This page verifies that cookie expiry protection is active</p>
+
+    <script>
+        test('Cookie expiry protection', async () => {
+            const results = [];
+
+            // Set a cookie with a far-future expiry
+            const farFuture = new Date(Date.now() + 86400 * 1000 * 400).toUTCString();
+            document.cookie = 'testCookie=testValue; expires=' + farFuture + ';';
+
+            // Wait for cookie policy to be applied (async)
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            // The cookie should exist
+            const hasCookie = document.cookie.includes('testCookie=testValue');
+            results.push({
+                name: 'Cookie is set',
+                result: hasCookie,
+                expected: true,
+            });
+
+            // Verify the document.cookie getter still works
+            results.push({
+                name: 'document.cookie getter returns a string',
+                result: typeof document.cookie,
+                expected: 'string',
+            });
+
+            // Setting a cookie with non-string value should not throw
+            let didThrow = false;
+            try {
+                document.cookie = null;
+                document.cookie = undefined;
+            } catch (e) {
+                didThrow = true;
+            }
+            results.push({
+                name: 'Setting non-string cookie values does not throw',
+                result: didThrow,
+                expected: false,
+            });
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

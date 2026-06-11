@@ -22,7 +22,11 @@ const expectedFingerprintValues = {
 };
 
 const pagePath = '/index.html';
-const tests = [{ url: `http://localhost:3220${pagePath}` }, { url: `http://127.0.0.1:8383${pagePath}` }];
+const TEST_PAGE_SERVER_PORT = 3220;
+const tests = [
+    { url: `http://localhost:${TEST_PAGE_SERVER_PORT}${pagePath}` },
+    { url: `http://127.0.0.1:${TEST_PAGE_SERVER_PORT}${pagePath}` },
+];
 const enabledCanvasArgs = {
     site: {
         enabledFeatures: ['fingerprintingCanvas'],
@@ -37,8 +41,7 @@ const enabledCanvasArgs = {
 test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () => {
     test.describe.serial('Fingerprint Defense Tests', () => {
         for (const _test of tests) {
-            test(`${_test.url} should include anti-fingerprinting code`, async ({ page, altServerPort }) => {
-                console.log('running:', altServerPort);
+            test(`${_test.url} should include anti-fingerprinting code`, async ({ page }) => {
                 await gotoAndWait(page, _test.url, enabledCanvasArgs);
                 const values = await page.evaluate(() => {
                     return {
@@ -94,8 +97,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
         }
 
         for (const testCase of tests) {
-            test(`Fingerprints should not change amongst page loads test ${testCase.url}`, async ({ page, altServerPort }) => {
-                console.log('running:', altServerPort);
+            test(`Fingerprints should not change amongst page loads test ${testCase.url}`, async ({ page }) => {
                 const result = await runTest(page, testCase);
 
                 const result2 = await runTest(page, testCase);
@@ -104,8 +106,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
             });
         }
 
-        test('Fingerprints should not match across first parties', async ({ page, altServerPort }) => {
-            console.log('running:', altServerPort);
+        test('Fingerprints should not match across first parties', async ({ page }) => {
             const canvas = new Set();
             const plugin = new Set();
 
@@ -125,8 +126,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
 
     test.describe.serial('Verify injected script is not visible to the page', () => {
         tests.forEach((testCase) => {
-            test(`Fingerprints should not match across first parties ${testCase.url}`, async ({ page, altServerPort }) => {
-                console.log('running:', altServerPort);
+            test(`Fingerprints should not match across first parties ${testCase.url}`, async ({ page }) => {
                 await gotoAndWait(page, testCase.url, enabledCanvasArgs);
 
                 // give it another second just to be sure

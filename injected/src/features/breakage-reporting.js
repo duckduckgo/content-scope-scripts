@@ -1,16 +1,34 @@
-import ContentFeature from '../content-feature';
+import ContentFeature, { CallFeatureMethodError } from '../content-feature';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
+import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
+import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
+
+/**
+ * @typedef {{
+ *   jsPerformance: number[];
+ *   referrer: string;
+ *   opener?: boolean;
+ *   pageReloaded?: boolean;
+ *   detectorData?: object;
+ *   expandedPerformanceMetrics?: unknown;
+ *   breakageData?: string;
+ * }} BreakageReportResult
+ */
 
 export default class BreakageReporting extends ContentFeature {
     init() {
         const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled('expandedPerformanceMetrics', 'enabled');
 
         this.messaging.subscribe('getBreakageReportValues', async () => {
+            // Payload that will be URL-encoded and passed directly through to breakage reports.
+            const breakageDataPayload = /** @type {Record<string, unknown>} */ ({});
+
             const jsPerformance = getJsPerformanceMetrics();
             const referrer = document.referrer;
 
+            /** @type {BreakageReportResult} */
             const result = {
                 jsPerformance,
                 referrer,
@@ -28,13 +46,23 @@ export default class BreakageReporting extends ContentFeature {
                     (window.performance.getEntriesByType('navigation')).map((nav) => nav.type).includes('reload');
             }
 
-            // Only run detectors if explicitly configured
-            // Fetch interferenceTypes from webInterferenceDetection feature settings
+            // Run webDetection detectors for the breakageReport trigger
+            const webDetectionResults = await this.callFeatureMethod('webDetection', 'runDetectors', { trigger: 'breakageReport' });
+            if (!(webDetectionResults instanceof CallFeatureMethodError) && webDetectionResults.length > 0) {
+                breakageDataPayload.webDetection = webDetectionResults;
+            }
+
+            // Runs detector functions directly using webInterferenceDetection's config.
+            // This means detectors execute in breakageReporting's world (apple-isolated),
+            // not in webInterferenceDetection's world — so DOM checks work but window
+            // property checks won't see page-script globals on Apple platforms.
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {
                 result.detectorData = {
                     botDetection: runBotDetection(detectorSettings.botDetection),
                     fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
+                    adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
+                    youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),
                 };
             }
 
@@ -44,6 +72,19 @@ export default class BreakageReporting extends ContentFeature {
                     result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
                 }
             }
+
+            if (result.detectorData) {
+                breakageDataPayload.detectorData = result.detectorData;
+            }
+            if (Object.keys(breakageDataPayload).length > 0) {
+                try {
+                    result.breakageData = encodeURIComponent(JSON.stringify(breakageDataPayload));
+                } catch (e) {
+                    // Send error indicator so we know encoding failed
+                    result.breakageData = encodeURIComponent(JSON.stringify({ error: 'encoding_failed' }));
+                }
+            }
+
             this.messaging.notify('breakageReportResult', result);
         });
     }

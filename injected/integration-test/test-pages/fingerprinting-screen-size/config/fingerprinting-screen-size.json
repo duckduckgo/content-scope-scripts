@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the fingerprinting screen size feature which normalizes screen properties.",
+    "version": 1,
+    "features": {
+        "fingerprintingScreenSize": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

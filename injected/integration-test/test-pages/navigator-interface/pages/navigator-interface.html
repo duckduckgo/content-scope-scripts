@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Navigator Interface</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Navigator Interface]</a></p>
+
+    <p>This page verifies that navigator.duckduckgo is available</p>
+
+    <script>
+        test('navigator.duckduckgo', async () => {
+            const results = [
+                {
+                    name: 'navigator.duckduckgo exists',
+                    result: typeof navigator.duckduckgo,
+                    expected: 'object',
+                },
+                {
+                    name: 'navigator.duckduckgo.isDuckDuckGo is a function',
+                    result: typeof navigator.duckduckgo?.isDuckDuckGo,
+                    expected: 'function',
+                },
+            ];
+
+            if (navigator.duckduckgo) {
+                const isDDG = await navigator.duckduckgo.isDuckDuckGo();
+                results.push({
+                    name: 'navigator.duckduckgo.isDuckDuckGo() resolves to true',
+                    result: isDDG,
+                    expected: true,
+                });
+                results.push({
+                    name: 'navigator.duckduckgo.platform is a string',
+                    result: typeof navigator.duckduckgo.platform,
+                    expected: 'string',
+                });
+            }
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

@@ -42,3 +42,8 @@
         }
     }
 }
+
+.popover {
+    --popover-offset-x: -10px;
+    --popover-offset-y: -3px;
+}

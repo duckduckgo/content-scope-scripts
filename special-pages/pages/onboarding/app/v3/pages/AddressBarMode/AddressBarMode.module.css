@@ -1,0 +1,40 @@
+.container {
+  align-items: center;
+  font-size: calc(13 * var(--px-in-rem));
+  gap: 0;
+}
+
+.body {
+  align-items: center;
+  max-width: 432px;
+  gap: calc(10 * var(--px-in-rem));
+  margin-bottom: var(--sp-10);
+}
+
+.buttons {
+  display: flex;
+  width: 100%;
+  gap: var(--sp-2);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-7);
+}
+
+.starIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.footerText {
+  color: var(--theme-txt-color-progress);
+}
+
+.footerText :where(b) {
+  font-weight: 600;
+}
+

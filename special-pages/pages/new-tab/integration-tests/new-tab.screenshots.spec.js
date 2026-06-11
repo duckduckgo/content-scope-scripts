@@ -69,6 +69,21 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-search-suggestions.png', { maxDiffPixels });
         });
 
+        test('search long suggestion selected', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await omnibar.ready();
+            await omnibar.searchInput().fill('pizza');
+            await omnibar.waitForSuggestions();
+            const longSuggestion = omnibar.suggestionsList().getByRole('option', { name: /Over a billion reviews/ });
+            await longSuggestion.scrollIntoViewIfNeeded();
+            await longSuggestion.hover();
+            await expect(longSuggestion).toHaveAttribute('aria-selected', 'true');
+            await expect(page).toHaveScreenshot('omnibar-search-long-suggestion.png', { maxDiffPixels });
+        });
+
         test('ai rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -120,6 +135,17 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-ai-overflow.png', { maxDiffPixels });
         });
 
+        test('ai overflow with color background', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', background: 'color03' } });
+            await omnibar.ready();
+            const longText = Array.from({ length: 15 }, (_, i) => `Line ${i + 1}`).join('\n');
+            await omnibar.chatInput().fill(longText);
+            await expect(page).toHaveScreenshot('omnibar-ai-overflow-color-bg.png', { maxDiffPixels });
+        });
+
         test('customize popover', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -127,6 +153,191 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await ntp.openPage({ additional: { 'omnibar.showCustomizePopover': 'true' } });
             await omnibar.ready();
             await expect(page).toHaveScreenshot('omnibar-customize-popover.png', { maxDiffPixels });
+        });
+
+        test('ai chat tools rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-rest.png', { maxDiffPixels });
+        });
+
+        test('ai chat tools focused', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-tools-focused.png', { maxDiffPixels });
+        });
+
+        test('image generation rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-rest.png', { maxDiffPixels });
+        });
+
+        test('image generation tools menu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-tools-menu-open.png', { maxDiffPixels });
+        });
+
+        test('image generation active', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableImageGeneration': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.createImageMenuItem().click();
+            await expect(page).toHaveScreenshot('omnibar-image-generation-active.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar web search @screenshots', () => {
+        test('web search rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-web-search-rest.png', { maxDiffPixels });
+        });
+
+        test('web search tools menu open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await expect(page).toHaveScreenshot('omnibar-web-search-tools-menu-open.png', { maxDiffPixels });
+        });
+
+        test('web search active', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableWebSearch': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.toolsMenuButton().click();
+            await omnibar.webSearchMenuItem().click();
+            await expect(page).toHaveScreenshot('omnibar-web-search-active.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar voice chat access @screenshots', () => {
+        test('voice chat rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-voice-chat-rest.png', { maxDiffPixels });
+        });
+
+        test('voice chat replaced by submit when typing', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.enableVoiceChatAccess': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.chatInput().fill('hello');
+            await expect(page).toHaveScreenshot('omnibar-voice-chat-typing.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar recent ai chats @screenshots', () => {
+        test('recent ai chats list', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: { 'omnibar.mode': 'ai', 'omnibar.enableRecentAiChats': 'true' },
+            });
+            await omnibar.ready();
+            await omnibar.chatInput().click();
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await expect(page).toHaveScreenshot('omnibar-recent-ai-chats.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('omnibar reasoning picker @screenshots', () => {
+        test('reasoning picker rest', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-rest.png', { maxDiffPixels });
+        });
+
+        test('reasoning picker dropdown open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.reasoningPickerButton().click();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-dropdown-open.png', { maxDiffPixels });
+        });
+
+        test('reasoning picker with selected effort', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.subscription': 'true',
+                    'omnibar.selectedModelId': 'claude-opus-4-6',
+                    'omnibar.selectedReasoningEffort': 'medium',
+                },
+            });
+            await omnibar.ready();
+            await expect(page).toHaveScreenshot('omnibar-reasoning-picker-selected-medium.png', { maxDiffPixels });
         });
     });
 
@@ -159,6 +370,28 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.ready();
             await omnibar.customizeButton().click();
             await expect(page).toHaveScreenshot('omnibar-sidebar-hide-ai-setting.png', { maxDiffPixels });
+        });
+
+        test('theme section', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { themeVariant: 'default', autoOpen: 'true' } });
+            await expect(page).toHaveScreenshot('customizer-theme-section.png', { maxDiffPixels });
+        });
+
+        test('theme section with long strings', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { themeVariant: 'default', autoOpen: 'true', locale: 'pl' } });
+            await expect(page).toHaveScreenshot('customizer-theme-section-long-strings.png', { maxDiffPixels });
+        });
+
+        test('theme variant popover', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': 'true', themeVariant: 'default' } });
+            await page.getByRole('dialog', { name: 'Pick a color theme that suits you' }).waitFor();
+            await expect(page).toHaveScreenshot('customizer-theme-variant-popover.png', { maxDiffPixels });
         });
     });
 
@@ -255,6 +488,23 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await ntp.openPage({ additional: { 'next-steps': ['bringStuff', 'defaultApp'] } });
             await page.locator('[data-entry-point="nextSteps"]').waitFor();
             await expect(page).toHaveScreenshot('next-steps-two.png', { maxDiffPixels });
+        });
+    });
+
+    test.describe('next steps list', () => {
+        test('single card', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ nextStepsList: 'emailProtection' });
+            await page.locator('[data-entry-point="nextStepsList"]').waitFor();
+            await expect(page).toHaveScreenshot('next-steps-list-single.png', { maxDiffPixels });
+        });
+        test('stacked cards', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ nextStepsList: ['emailProtection', 'duckplayer'] });
+            await page.locator('[data-entry-point="nextStepsList"]').waitFor();
+            await expect(page).toHaveScreenshot('next-steps-list-stacked.png', { maxDiffPixels });
         });
     });
 

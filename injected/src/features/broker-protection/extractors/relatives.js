@@ -17,7 +17,7 @@ export class RelativesExtractor {
                 .flat()
                 // for relatives, remove anything following a comma (usually 'age')
                 // eg: 'John Smith, 39' -> 'John Smith'
-                .map((x) => x.split(',')[0])
+                .map((x) => /** @type {string} */ (x.split(',')[0]))
         );
     }
 }

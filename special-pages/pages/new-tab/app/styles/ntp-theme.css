@@ -35,6 +35,12 @@
     --border-radius-xs: 4px;
 }
 
+/* Widen drawer when it has the new Theme section */
+[data-has-theme-variants="true"] {
+    --ntp-drawer-width: calc(256 * var(--px-in-rem));
+    --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
+}
+
 [data-theme="light"],
 [data-theme="dark"] {
     --ntp-surface-background-color: var(--ds-color-theme-tone-tint-primary);

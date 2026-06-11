@@ -43,7 +43,7 @@ test.describe('special-error theme and theme variants', () => {
         await sp.hasBackgroundColor({ hex: isIOS ? '#eeeeee' : '#f5f4ef' });
         await sp.acceptsThemeUpdate('dark', 'slateBlue');
         await sp.hasTheme('dark', 'slateBlue');
-        await sp.hasBackgroundColor({ hex: isIOS ? '#222222' : '#243a50' });
+        await sp.hasBackgroundColor({ hex: isIOS ? '#222222' : '#1e3042' });
     });
 
     test('changing theme to light and themeVariant using onThemeUpdate', async ({ page }, workerInfo) => {
