@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import { FileAttachments } from '../../PersistentOmnibarValuesProvider';
+import { resolveFileMimeType } from '../tab-attachment/fileChannels';
 
 const { useStateWithLocalPersistence } = FileAttachments;
 
@@ -38,14 +39,18 @@ export function useFileAttachments(supportedFileTypes, tabId) {
         if (files.length === 0) return;
 
         const existingNames = new Set(attachedFiles.map((file) => file.fileName));
-        const validFiles = files.filter((file) => allowList.includes(file.type) && !existingNames.has(file.name));
+        const validFiles = files
+            .map((file) => ({ file, mimeType: resolveFileMimeType(file, allowList) }))
+            .filter(({ file, mimeType }) => mimeType !== null && !existingNames.has(file.name));
         if (validFiles.length === 0) return;
 
         const remaining = MAX_FILES - attachedFiles.length;
         const toRead = remaining > 0 ? validFiles.slice(0, remaining) : [];
         if (toRead.length === 0) return;
 
-        const results = await Promise.allSettled(toRead.map(readFileAsBase64));
+        const results = await Promise.allSettled(
+            toRead.map(({ file, mimeType }) => readFileAsBase64(file, /** @type {string} */ (mimeType))),
+        );
         const ok = /** @type {PromiseFulfilledResult<Omit<AttachedFile, 'addedAtRelative'>>[]} */ (
             results.filter((r) => r.status === 'fulfilled')
         ).map((r) => r.value);
@@ -79,9 +84,11 @@ export function useFileAttachments(supportedFileTypes, tabId) {
 
 /**
  * @param {File} file
+ * @param {string} mimeType — Resolved MIME type for the outgoing payload, normalized so an empty
+ * `File.type` from WebKit pickers doesn't leak through.
  * @returns {Promise<Omit<AttachedFile, 'addedAtRelative'>>}
  */
-function readFileAsBase64(file) {
+function readFileAsBase64(file, mimeType) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
 
@@ -98,7 +105,7 @@ function readFileAsBase64(file) {
                 reject(new Error('FileReader returned unexpected output'));
                 return;
             }
-            resolve({ data: result.slice(commaIndex + 1), fileName: file.name, mimeType: file.type });
+            resolve({ data: result.slice(commaIndex + 1), fileName: file.name, mimeType });
         };
 
         reader.onerror = () => {

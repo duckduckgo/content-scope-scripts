@@ -26,7 +26,9 @@ export function OpenTabsProvider({ tabId, enabled, children }) {
         try {
             const response = await getOpenTabs();
             setOpenTabs(response.tabs ?? []);
-        } catch (err) {}
+        } catch (err) {
+            console.error('omnibar_getOpenTabs failed', err);
+        }
     }, [getOpenTabs, setOpenTabs]);
 
     useEffect(() => {

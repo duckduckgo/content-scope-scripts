@@ -215,6 +215,7 @@ function AiChatContent({
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
+    const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
     const imageState = useImageAttachments(tabId);
 
@@ -271,33 +272,39 @@ function AiChatContent({
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
     const handleSubmit = async (chat, target) => {
-        const images = canAttachImages ? imageState.getImagesForSubmission() : null;
-        const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
-        const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
-        const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
-        const reasoningEffort = imageGenerationActive ? null : selectedEffort;
-        const toolChoice = webSearchActive
-            ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
-            : null;
+        if (submittingRef.current) return;
+        submittingRef.current = true;
+        try {
+            const images = canAttachImages ? imageState.getImagesForSubmission() : null;
+            const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
+            const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
+            const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
+            const reasoningEffort = imageGenerationActive ? null : selectedEffort;
+            const toolChoice = webSearchActive
+                ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
+                : null;
 
-        /** @type {SubmitChatAction} */
-        const action = {
-            chat,
-            target,
-            ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
-            ...(modelId && { modelId }),
-            ...(reasoningEffort && { reasoningEffort }),
-            ...(toolChoice && { toolChoice }),
-            ...(images && { images }),
-            ...(files && { files }),
-            ...(pageContext && { pageContext }),
-        };
+            /** @type {SubmitChatAction} */
+            const action = {
+                chat,
+                target,
+                ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
+                ...(modelId && { modelId }),
+                ...(reasoningEffort && { reasoningEffort }),
+                ...(toolChoice && { toolChoice }),
+                ...(images && { images }),
+                ...(files && { files }),
+                ...(pageContext && { pageContext }),
+            };
 
-        onSubmit(action);
-        imageState.clearAttachedImages();
-        fileState.clearAttachedFiles();
-        tabAttachments.clearAttachedTabs();
-        clearTool();
+            onSubmit(action);
+            imageState.clearAttachedImages();
+            fileState.clearAttachedFiles();
+            tabAttachments.clearAttachedTabs();
+            clearTool();
+        } finally {
+            submittingRef.current = false;
+        }
     };
 
     /**
@@ -317,7 +324,13 @@ function AiChatContent({
     const disabled = !query || imageWarning;
     // Voice-chat mode: feature flag on AND nothing in the input/attachments. The same button can't
     // be both "submit text" and "start voice chat", so the submit button is replaced when active.
-    const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && !query;
+    const isVoiceChatMode =
+        enableVoiceChatAccess &&
+        !imageGenerationActive &&
+        !hasAttachedImages &&
+        fileState.attachedFiles.length === 0 &&
+        tabAttachments.attachedTabs.length === 0 &&
+        !query;
 
     /** @type {(event: MouseEvent) => void} */
     const handleClickSubmit = (event) => {

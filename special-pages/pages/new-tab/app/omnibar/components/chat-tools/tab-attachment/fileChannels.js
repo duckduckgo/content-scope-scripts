@@ -23,6 +23,24 @@ function buildFileAccept(mimeTypes) {
 }
 
 /**
+ * Resolve a picked file's effective MIME type against the allowed list, falling back to its
+ * extension.
+ *
+ * @param {File} file
+ * @param {string[]} allowList — MIME types the active model accepts.
+ * @returns {string | null} the resolved MIME type, or null if the file is unsupported.
+ */
+export function resolveFileMimeType(file, allowList) {
+    if (allowList.includes(file.type)) return file.type;
+
+    const lowerName = file.name.toLowerCase();
+    for (const mime of allowList) {
+        if ((FILE_EXTENSIONS[mime] ?? []).some((ext) => lowerName.endsWith(ext))) return mime;
+    }
+    return null;
+}
+
+/**
  * Collapses the optional image / file (PDF) channels into the config for the
  * single hidden `<input type="file">` rendered by {@link AttachMenu}:
  *   - `label` / `accept` reflect which of `image`/`file` are non-null.
