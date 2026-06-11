@@ -119,6 +119,7 @@ export function useDrawer(initial) {
         return () => {
             controller.abort();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [isReducedMotion, initial]);
 
     const ntp = useMessaging();
@@ -182,6 +183,7 @@ export function useDrawerEventListeners({ onOpen, onClose, onToggle }, deps = []
             );
         }
         return () => controller.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, deps);
 }
 

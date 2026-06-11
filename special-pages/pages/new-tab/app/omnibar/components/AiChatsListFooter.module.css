@@ -22,8 +22,7 @@
         margin: var(--sp-2);
     }
 
-    &[aria-selected="true"],
-    &:hover {
+    &[aria-selected="true"] {
         background: var(--ds-color-theme-accent-primary);
         color: var(--ds-color-theme-accent-content-primary);
 
