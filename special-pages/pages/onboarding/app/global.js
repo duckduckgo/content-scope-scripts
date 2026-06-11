@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
-import { usePlatformName } from './components/SettingsProvider.js';
+import { usePlatformName } from './shared/components/SettingsProvider.js';
 
 /**
  * @typedef {import("./types.js").GlobalState} GlobalState
@@ -23,6 +23,29 @@ export function reducer(state, action) {
     // console.log('action', action)
     // console.groupEnd()
 
+    if (action.kind === 'config-update') {
+        let nextStepDefs = state.stepDefinitions;
+        if (action.stepDefinitions) {
+            nextStepDefs = { ...state.stepDefinitions };
+            for (const [key, value] of Object.entries(action.stepDefinitions)) {
+                if (typeof value === 'object' && value !== null && nextStepDefs[key]) {
+                    nextStepDefs[key] = { ...nextStepDefs[key], ...value };
+                } else {
+                    nextStepDefs[key] = value;
+                }
+            }
+        }
+        let nextOrder = state.order;
+        if (action.exclude) {
+            nextOrder = state.order.filter((id) => !action.exclude?.includes(id));
+        }
+        return {
+            ...state,
+            stepDefinitions: nextStepDefs,
+            order: nextOrder,
+            step: nextStepDefs[state.activeStep] ?? state.step,
+        };
+    }
     switch (state.status.kind) {
         case 'idle': {
             switch (action.kind) {
@@ -49,6 +72,7 @@ export function reducer(state, action) {
                             activeRow: 0,
                             activeStepVisible: false,
                             exiting: false,
+                            overlay: null,
                             step: state.stepDefinitions[state.order[nextPageIndex]],
                         };
                     }
@@ -60,12 +84,26 @@ export function reducer(state, action) {
                         exiting: true,
                     };
                 }
+                case 'show-overlay': {
+                    return {
+                        ...state,
+                        overlay: action.overlay,
+                    };
+                }
+                case 'dismiss-overlay': {
+                    return {
+                        ...state,
+                        overlay: null,
+                    };
+                }
                 default:
                     return state;
             }
         }
         case 'executing': {
             switch (action.kind) {
+                case 'telemetry':
+                    return state;
                 case 'exec-complete': {
                     if (state.step.kind === 'settings') {
                         // only advance to another row if we're updating the current item.
@@ -111,6 +149,18 @@ export function reducer(state, action) {
                             },
                         };
                     }
+                    // Handle exec-complete for 'info' kind steps (e.g., addressBarMode)
+                    // These steps dispatch system values but don't need row advancement
+                    if (state.step.kind === 'info') {
+                        return {
+                            ...state,
+                            status: { kind: 'idle' },
+                            values: {
+                                ...state.values,
+                                [action.id]: action.payload,
+                            },
+                        };
+                    }
                     throw new Error('unimplemented');
                 }
                 case 'exec-error': {
@@ -132,7 +182,7 @@ export function reducer(state, action) {
  * @param {Object} props - The properties for the NavigationProvider component.
  * @param {import('./types').Step['id'][]} props.order - The order of screens to display
  * @param {import("preact").ComponentChild} props.children - The children components.
- * @param {import('./data').StepDefinitions} props.stepDefinitions -
+ * @param {import('./types').StepDefinitions} props.stepDefinitions -
  * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
  */
@@ -147,6 +197,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,
+        overlay: null,
         values: {},
         UIValues: {
             dock: 'idle',
@@ -158,6 +209,8 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             'placebo-ad-blocking': 'idle',
             'aggressive-ad-blocking': 'idle',
             'youtube-ad-blocking': 'idle',
+            'address-bar-mode': 'idle',
+            'dock-instructions': 'idle',
         },
     });
 
@@ -170,10 +223,28 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             dispatch(msg);
 
             /**
-             * Side effects that don't impact global state
+             * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
-                messaging.stepCompleted({ id: state.activeStep });
+                const currentIndex = state.order.indexOf(state.activeStep);
+                const next = state.order[currentIndex + 1] ?? null;
+                messaging.stepCompleted({ id: state.activeStep, next });
+                // Fire row_shown for the first row of the incoming settings step
+                if (next) {
+                    const nextStepDef = state.stepDefinitions[next];
+                    if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
+                        messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
+                    }
+                }
+            }
+            if (msg.kind === 'show-overlay' && msg.overlay === 'dock-instructions') {
+                messaging.telemetryEvent({ attributes: { name: 'dock_instructions_shown' } });
+            }
+            if (msg.kind === 'update-system-value' && !msg.payload.enabled && msg.current) {
+                messaging.telemetryEvent({ attributes: { name: 'row_skipped', value: msg.id } });
+            }
+            if (msg.kind === 'telemetry') {
+                messaging.telemetryEvent({ attributes: msg.attributes });
             }
             if (msg.kind === 'dismiss-to-settings') {
                 messaging.dismissToSettings();
@@ -185,11 +256,22 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
         [state, messaging],
     );
 
+    useEffect(() => {
+        const unsubscribe = messaging.onConfigUpdate((data) => {
+            dispatch({
+                kind: 'config-update',
+                stepDefinitions: data.stepDefinitions,
+                exclude: /** @type {import('./types.js').ConfigUpdateEvent['exclude']} */ (data.exclude),
+            });
+        });
+        return unsubscribe;
+    }, [messaging]);
     // handle *fatal* state (from error boundary)
     useEffect(() => {
         if (state.status.kind !== 'fatal') return;
         const { error } = state.status.action;
         messaging.reportPageException(error);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [state.status.kind, messaging]);
 
     // handle 'update-system-value' messages from the UI
@@ -208,12 +290,23 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                     id: action.id,
                     payload,
                 });
+                // Fire row_shown for the next row if we just completed the active row
+                if (state.step?.kind === 'settings') {
+                    const currentRow = state.step.rows[state.activeRow];
+                    if (currentRow === action.id) {
+                        const nextRowId = state.step.rows[state.activeRow + 1];
+                        if (nextRowId) {
+                            messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextRowId } });
+                        }
+                    }
+                }
             })
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch((e) => {
                 const message = e?.message || 'unknown error';
                 dispatch({ kind: 'exec-error', id: action.id, message });
             });
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [state.status.kind, messaging]);
 
     return (
@@ -249,6 +342,10 @@ async function handleSystemSettingUpdate(action, messaging, platform) {
         case 'aggressive-ad-blocking':
         case 'youtube-ad-blocking': {
             messaging.setAdBlocking(payload);
+            return payload;
+        }
+        case 'address-bar-mode': {
+            messaging.setDuckAiInAddressBar(payload);
             return payload;
         }
         case 'dock': {

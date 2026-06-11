@@ -1,5 +1,14 @@
+/**
+ * Re-export auto-generated feature map types.
+ * The FeatureMap type is generated from src/features/*.js files.
+ * Run `npm run build-types` to regenerate, or it runs automatically on build.
+ *
+ * @typedef {import('./types/feature-map').FeatureMap} FeatureMap
+ * @typedef {import('./types/feature-map').FeatureName} FeatureName
+ */
+
 // Features must exist in either `baseFeatures` or `otherFeatures`
-export const baseFeatures = /** @type {const} */ ([
+export const baseFeatures = /** @type {FeatureName[]} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
@@ -15,41 +24,77 @@ export const baseFeatures = /** @type {const} */ ([
     'apiManipulation',
 ]);
 
-const otherFeatures = /** @type {const} */ ([
+const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
+    'contextMenu',
     'cookie',
     'messageBridge',
     'duckPlayer',
     'duckPlayerNative',
-    'duckAiListener',
+    'duckAiDataClearing',
+    'duckAiChatHistory',
     'harmfulApis',
     'webCompat',
+    'webDetection',
+    'webEvents',
+    'webInterferenceDetection',
     'windowsPermissionUsage',
+    'uaChBrands',
     'brokerProtection',
     'performanceMetrics',
     'breakageReporting',
-    'autofillPasswordImport',
+    'autofillImport',
     'favicon',
     'webTelemetry',
     'pageContext',
+    'print',
+    'pageObserver',
+    'hover',
+    'browserUiLock',
+    'trackerProtection',
+    'tabSuspension',
+    'autofillPasskeys',
 ]);
 
-/** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'duckAiListener', 'pageContext'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'pageContext', 'print', 'trackerProtection'],
     'apple-isolated': [
+        'contextMenu',
         'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
+        'breakageReporting',
         'performanceMetrics',
         'clickToLoad',
         'messageBridge',
         'favicon',
+        'webDetection',
+        'webEvents',
+        'webInterferenceDetection',
+        'webTelemetry',
+        'pageObserver',
+        'hover',
+        'tabSuspension',
     ],
-    android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
+    'apple-ai-clear': ['duckAiDataClearing'],
+    'apple-ai-history': ['duckAiChatHistory'],
+    android: [
+        ...baseFeatures,
+        'webCompat',
+        'webDetection',
+        'webEvents',
+        'webInterferenceDetection',
+        'breakageReporting',
+        'duckPlayer',
+        'messageBridge',
+        'pageContext',
+        'browserUiLock',
+    ],
     'android-broker-protection': ['brokerProtection'],
-    'android-autofill-password-import': ['autofillPasswordImport'],
+    'android-ai-clear': ['duckAiDataClearing'],
+    'android-ai-history': ['duckAiChatHistory'],
+    'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
         'apiManipulation',
         'webCompat',
@@ -59,23 +104,32 @@ export const platformSupport = {
         'fingerprintingAudio',
         'fingerprintingBattery',
         'gpc',
+        'webDetection',
+        'webEvents',
         'breakageReporting',
     ],
     windows: [
         'cookie',
         ...baseFeatures,
+        'webDetection',
+        'webEvents',
+        'webInterferenceDetection',
         'webTelemetry',
         'windowsPermissionUsage',
+        'uaChBrands',
         'duckPlayer',
         'brokerProtection',
         'breakageReporting',
         'messageBridge',
         'webCompat',
         'pageContext',
-        'duckAiListener',
+        'duckAiDataClearing',
+        'performanceMetrics',
+        'duckAiChatHistory',
+        'autofillPasskeys',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webEvents', 'webInterferenceDetection', 'breakageReporting'],
     integration: [...baseFeatures, ...otherFeatures],
 };

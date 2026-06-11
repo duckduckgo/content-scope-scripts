@@ -116,8 +116,15 @@ async function renderResults() {
         results[test.name] = result;
     }
     updateResultsHeader(results);
+
+    // Use results-container if present, otherwise append to body
+    const container = document.getElementById('results-container') || document.body;
+    const summary = document.querySelector('summary');
+    if (summary) {
+        container.appendChild(summary);
+    }
     // @ts-expect-error - buildResultTable is not defined in the type definition
-    document.body.appendChild(buildResultTable(results));
+    container.appendChild(buildResultTable(results));
     // @ts-expect-error - results is not defined in the type definition
     window.results = results;
     window.dispatchEvent(new CustomEvent('results-ready', { detail: results }));

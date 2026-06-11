@@ -6,6 +6,44 @@
     "breakageReporting": {
       "state": "enabled",
       "exceptions": []
+    },
+    "webInterferenceDetection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "interferenceTypes": {
+          "botDetection": {
+            "cloudflare": {
+              "state": "enabled",
+              "vendor": "Cloudflare",
+              "selectors": ["#challenge-running", ".cf-browser-verification"]
+            },
+            "recaptcha": {
+              "state": "enabled",
+              "vendor": "reCAPTCHA",
+              "selectors": [".g-recaptcha", "iframe[src*='google.com/recaptcha']"]
+            }
+          },
+          "fraudDetection": {
+            "px": {
+              "state": "enabled",
+              "type": "PerimeterX",
+              "selectors": ["#px-captcha", "[id^='px-']"]
+            }
+          },
+          "adwallDetection": {
+            "generic": {
+              "state": "enabled",
+              "textPatterns": [
+                "ad ?block(er)? detected",
+                "adjust(ing)?( your)? ad blocking settings",
+                "(turn off|disable|disabling|deactivate)( your)? ad ?block(er)?",
+                "you're using an ad blocker"
+              ]
+            }
+          }
+        }
+      }
     }
   }
 }

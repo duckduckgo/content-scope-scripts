@@ -7,7 +7,7 @@ import { commentPlugin } from './comment-plugin.js';
 const ROOT = join(cwd(import.meta.url), '..', '..');
 const DEBUG = false;
 
-const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */';
+const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts $INJECT_NAME$ https://github.com/duckduckgo/content-scope-scripts/ */';
 
 /**
  * @param {object} params
@@ -15,10 +15,11 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https:/
  * @param {string} params.platform
  * @param {string[]} [params.featureNames]
  * @param {string} [params.name]
+ * @param {boolean} [params.sourcemap] - Enable inline source maps for debugging
  * @return {Promise<string>}
  */
 export async function bundle(params) {
-    const { scriptPath, platform, name, featureNames } = params;
+    const { scriptPath, platform, name, featureNames, sourcemap = false } = params;
 
     const extensions = ['firefox', 'chrome-mv3'];
     const isExtension = extensions.includes(platform);
@@ -29,6 +30,8 @@ export async function bundle(params) {
     }
     const loadFeaturesPlugin = loadFeatures(platform, featureNames);
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
+
+    const outputPrefixName = prefixMessage.replace('$INJECT_NAME$', platform);
 
     /** @type {import("esbuild").BuildOptions} */
     const buildOptions = {
@@ -52,8 +55,11 @@ export async function bundle(params) {
         },
         plugins: [loadFeaturesPlugin, commentPlugin()],
         banner: {
-            js: prefixMessage,
+            js: outputPrefixName,
         },
+        // Inline source maps embed mapping data as base64 data URL - useful for debugging
+        // without requiring separate .map files. Only parsed when DevTools are open.
+        ...(sourcemap && { sourcemap: 'inline' }),
     };
 
     const result = await esbuild.build(buildOptions);

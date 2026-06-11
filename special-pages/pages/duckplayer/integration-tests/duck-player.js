@@ -478,6 +478,23 @@ export class DuckPlayerPage {
      * @return {Promise<void>}
      */
     async enabledViaSettings() {
+        // Wait for the subscription handler to appear before trying to simulate push events.
+        // On WebKit platforms this is exposed via `navigator.duckduckgo[subscriptionName]`.
+        //
+        // Note: on Windows the subscription callback is *not* exposed on `window`, so we can’t
+        // wait on a global function being present.
+        await this.build.switch({
+            apple: async () => {
+                await this.page.waitForFunction(() => {
+                    const fn = navigator.duckduckgo?.messageHandlers?.onUserValuesChanged;
+                    return typeof fn === 'function';
+                });
+            },
+            windows: async () => {},
+            android: async () => {},
+            integration: async () => {},
+        });
+
         await this.mocks.simulateSubscriptionMessage('onUserValuesChanged', {
             privatePlayerMode: {
                 enabled: {},
@@ -560,7 +577,7 @@ export class DuckPlayerPage {
         return this.build.switch({
             windows: () => '../build/windows/pages/duckplayer',
             android: () => '../build/android/pages/duckplayer',
-            apple: () => '../build/apple/pages/duckplayer',
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/duckplayer',
         });
     }
 

@@ -1,0 +1,155 @@
+{
+    "readme": "Config demonstrating webDetection feature with various detector configurations",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "breakageReporting": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": []
+        },
+        "webDetection": {
+            "state": "enabled",
+            "hash": "test",
+            "exceptions": [],
+            "settings": {
+                "detectors": {
+                    "adwall": {
+                        "generic_text": {
+                            "match": {
+                                "text": {
+                                    "pattern": ["ad ?block(er)? detected", "disable your ad ?blocker"]
+                                }
+                            }
+                        },
+                        "paywall_element": {
+                            "match": {
+                                "element": {
+                                    "selector": ".paywall-overlay",
+                                    "visibility": "visible"
+                                }
+                            }
+                        }
+                    },
+                    "video": {
+                        "unavailable": {
+                            "match": {
+                                "text": {
+                                    "pattern": "video (is )?unavailable",
+                                    "selector": ".video-error, .player-error"
+                                }
+                            }
+                        }
+                    },
+                    "combined": {
+                        "text_and_element": {
+                            "match": {
+                                "text": {
+                                    "pattern": "subscribe to continue"
+                                },
+                                "element": {
+                                    "selector": ".subscribe-modal"
+                                }
+                            }
+                        }
+                    },
+                    "custom": {
+                        "trigger_disabled": {
+                            "match": {
+                                "text": {
+                                    "pattern": "trigger disabled test"
+                                }
+                            },
+                            "triggers": {
+                                "breakageReport": {
+                                    "state": "disabled"
+                                }
+                            }
+                        },
+                        "action_disabled": {
+                            "match": {
+                                "text": {
+                                    "pattern": "action disabled test"
+                                }
+                            },
+                            "actions": {
+                                "breakageReportData": {
+                                    "state": "disabled"
+                                }
+                            }
+                        },
+                        "detector_disabled": {
+                            "state": "disabled",
+                            "match": {
+                                "text": {
+                                    "pattern": "detector disabled test"
+                                }
+                            }
+                        },
+                        "domain_restricted": {
+                            "match": {
+                                "text": {
+                                    "pattern": "domain restricted test"
+                                }
+                            },
+                            "triggers": {
+                                "breakageReport": {
+                                    "runConditions": {
+                                        "domain": "example.com"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "autorun": {
+                        "basic_auto": {
+                            "match": {
+                                "text": {
+                                    "pattern": "auto run test"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "intervalMs": [100, 300]
+                                    }
+                                }
+                            }
+                        },
+                        "delayed_content": {
+                            "match": {
+                                "text": {
+                                    "pattern": "first success test"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "intervalMs": [100, 200, 300]
+                                    }
+                                }
+                            }
+                        },
+                        "auto_disabled": {
+                            "match": {
+                                "text": {
+                                    "pattern": "auto disabled test"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "disabled",
+                                    "when": {
+                                        "intervalMs": [100]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "RequestPermissionResponse",
+  "description": "Response from notification permission request",
+  "additionalProperties": false,
+  "required": ["permission"],
+  "properties": {
+    "permission": {
+      "description": "The permission state",
+      "type": "string",
+      "enum": ["default", "denied", "granted"]
+    }
+  }
+}
+
+

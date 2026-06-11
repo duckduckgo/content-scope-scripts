@@ -1,0 +1,77 @@
+.root {
+    align-items: flex-start;
+    animation:
+        slide-up 0.9s both,
+        fade-in 0.9s both;
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-7); /* 28px */
+    padding: 0 var(--sp-3); /* 0 12px */
+    align-self: stretch;
+}
+
+.title {
+    align-self: stretch;
+}
+
+.body {
+    font-family: var(--font-product);
+    font-size: calc(18 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(22 * var(--px-in-rem));
+    text-align: left;
+    color: var(--ds-text-primary);
+    word-wrap: break-word;
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+    white-space: pre-line;
+    margin: 0;
+    align-self: stretch;
+}
+
+@keyframes slide-up {
+    0%,
+    40.74% {
+        translate: 0 41px;
+        animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
+    }
+    77.78%,
+    100% {
+        translate: 0 0;
+    }
+}
+
+@keyframes fade-in {
+    0%,
+    51.85% {
+        opacity: 0;
+        animation-timing-function: cubic-bezier(0.66, 0, 0.34, 1);
+    }
+    81.48%,
+    100% {
+        opacity: 1;
+    }
+}
+
+.hidden {
+    opacity: 0;
+    transition: none;
+}
+
+.revealable {
+    transition: opacity 0.3s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .root {
+        animation: none;
+    }
+
+    .revealable {
+        transition: none;
+    }
+}

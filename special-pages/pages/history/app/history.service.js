@@ -421,6 +421,7 @@ export function toRange(input) {
         'sunday',
         'recentlyOpened',
         'older',
+        'sites',
     ];
     return valid.includes(input) ? /** @type {import('../types/history.js').RangeId} */ (input) : null;
 }

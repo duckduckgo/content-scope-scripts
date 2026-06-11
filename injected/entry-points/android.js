@@ -2,7 +2,7 @@
  * @module Android integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig } from './../src/utils';
+import { processConfig, getLoadArgs } from './../src/utils';
 import { AndroidMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -27,13 +27,7 @@ function initCode() {
         debug: processedConfig.debug,
     });
 
-    load({
-        platform: processedConfig.platform,
-        site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig,
-        messageSecret: processedConfig.messageSecret,
-    });
+    load(getLoadArgs(processedConfig));
 
     init(processedConfig);
 }

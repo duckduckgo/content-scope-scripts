@@ -1,0 +1,76 @@
+.button {
+  /* Base tokens (light) — override via --toggle-*-light / --toggle-*-dark from parent */
+  --btn-bg: var(--toggle-bg-light, #ffffff);
+  --btn-border: var(--toggle-border-light, var(--color-black-at-6));
+  --btn-color: var(--toggle-color-light, var(--color-black-at-84));
+
+  /* Selected tokens (light) */
+  --btn-selected-bg: var(--toggle-accent-bg-light, var(--ddg-color-primary-tint-12));
+  --btn-selected-border: var(--toggle-accent-light, var(--ddg-color-primary));
+  --btn-selected-color: var(--toggle-accent-text-light, var(--toggle-accent-light, var(--ddg-color-primary)));
+
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  background-color: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--sp-3);
+  color: var(--btn-color);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 400;
+
+  @media (prefers-color-scheme: dark) {
+    --btn-bg: var(--toggle-bg-dark, var(--color-gray-82));
+    --btn-border: var(--toggle-border-dark, var(--color-white-at-15));
+    --btn-color: var(--toggle-color-dark, var(--color-white-at-84));
+    --btn-selected-bg: var(--toggle-accent-bg-dark, var(--color-blue-60));
+    --btn-selected-border: var(--toggle-accent-dark, var(--color-blue-0));
+    --btn-selected-color: var(--toggle-accent-text-dark, var(--toggle-accent-dark, var(--color-blue-0)));
+  }
+
+  &.selected {
+    background-color: var(--btn-selected-bg);
+    border-color: var(--btn-selected-border);
+    color: var(--btn-selected-color);
+  }
+}
+
+.buttonText {
+  flex: 1;
+  text-align: left;
+}
+
+.radioButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.radioCircle {
+  --radio-circle: var(--toggle-radio-light, #3969ef);
+  fill: var(--radio-circle);
+  @media (prefers-color-scheme: dark) {
+    --radio-circle: var(--toggle-radio-dark, #8fabf9);
+  }
+}
+
+.radioCheckmark {
+  --radio-checkmark: var(--toggle-radio-check-light, #ffffff);
+  fill: var(--radio-checkmark);
+  @media (prefers-color-scheme: dark) {
+    --radio-checkmark: var(--toggle-radio-check-dark, #051133);
+  }
+}
+
+.radioCircleUnselected {
+  --radio-unselected: rgba(0, 0, 0, 0.36);
+  stroke: var(--radio-unselected);
+  fill: none;
+  @media (prefers-color-scheme: dark) {
+    --radio-unselected: rgba(255, 255, 255, 0.24);
+  }
+}

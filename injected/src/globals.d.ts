@@ -15,16 +15,37 @@ interface ImportMeta {
         | 'firefox'
         | 'apple'
         | 'apple-isolated'
+        | 'apple-ai-clear'
+        | 'apple-ai-history'
         | 'android'
         | 'windows'
         | 'integration'
         | 'chrome-mv3'
         | 'android-broker-protection'
-        | 'android-autofill-password-import'
-        | 'android-adsjs';
-    trackerLookup?: Record<string, unknown>;
+        | 'android-autofill-import'
+        | 'android-adsjs'
+        | 'android-ai-history'
+        | 'android-ai-clear';
+    trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
 }
+
+interface BatteryManager extends EventTarget {
+    charging: boolean;
+    chargingTime: number;
+    dischargingTime: number;
+    level: number;
+    onchargingchange: ((this: BatteryManager, ev: Event) => unknown) | null;
+    onchargingtimechange: ((this: BatteryManager, ev: Event) => unknown) | null;
+    ondischargingtimechange: ((this: BatteryManager, ev: Event) => unknown) | null;
+    onlevelchange: ((this: BatteryManager, ev: Event) => unknown) | null;
+}
+
+// eslint-disable-next-line no-var
+declare var BatteryManager: {
+    prototype: BatteryManager;
+    new (): BatteryManager;
+};
 
 declare module '*.svg' {
     const content: string;
@@ -44,9 +65,11 @@ declare module '*.riv' {
 }
 
 declare module 'ddg:platformFeatures' {
+    type FeatureMap = import('./features.js').FeatureMap;
+    type LoadArgs = import('./content-scope-features.js').LoadArgs;
     const output: Record<
         string,
-        new (featureName: string, importConfig: ImportConfig, args: LoadArgs) => import('./content-feature').default
+        new <K extends keyof FeatureMap>(featureName: K, importConfig: *, features: Partial<FeatureMap>, args: LoadArgs) => FeatureMap[K]
     >;
     export default output;
 }

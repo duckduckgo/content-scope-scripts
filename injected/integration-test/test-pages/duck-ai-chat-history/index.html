@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duck AI Chat History Test</title>
+    <link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+    <header>
+        <h1>Duck AI Chat History Test</h1>
+        <p>This page tests the Duck AI chat history retrieval and search functionality.</p>
+    </header>
+    
+    <main>
+        <section>
+            <h2>Setup Data</h2>
+            <button id="setup-data">Setup Test Data</button>
+            <button id="clear-data">Clear All Data</button>
+            <div id="data-status"></div>
+        </section>
+        
+        <section>
+            <h2>Current Data</h2>
+            <button id="show-data">Show Current Data</button>
+            <pre id="current-data"></pre>
+        </section>
+    </main>
+
+    <script src="../shared/utils.js"></script>
+    <script>
+        const dataStatus = document.getElementById('data-status');
+        const currentData = document.getElementById('current-data');
+        
+        // Helper to create a chat object
+        function createChat(id, title, pinned = false) {
+            return {
+                chatId: id,
+                title: title,
+                model: 'gpt-4.1-internal',
+                messages: [
+                    { createdAt: new Date().toISOString(), content: 'Test message', role: 'user' },
+                    { createdAt: new Date().toISOString(), content: '', role: 'assistant', parts: [{ type: 'text', text: 'Response' }] }
+                ],
+                lastEdit: new Date().toISOString(),
+                pinned: pinned
+            };
+        }
+
+        // Setup test data with pinned and unpinned chats
+        document.getElementById('setup-data').addEventListener('click', () => {
+            try {
+                const chatData = {
+                    version: '0.7',
+                    chats: [
+                        createChat('chat-pinned-1', 'Pinned chat', true),
+                        createChat('chat-unpinned-1', 'Regular chat', false)
+                    ]
+                };
+                
+                localStorage.setItem('savedAIChats', JSON.stringify(chatData));
+                dataStatus.textContent = 'Test data setup complete (1 pinned, 1 unpinned)';
+            } catch (error) {
+                dataStatus.textContent = 'Error: ' + error.message;
+            }
+        });
+
+        
+        // Clear all data
+        document.getElementById('clear-data').addEventListener('click', () => {
+            try {
+                localStorage.removeItem('savedAIChats');
+                dataStatus.textContent = 'All data cleared';
+            } catch (error) {
+                dataStatus.textContent = 'Error: ' + error.message;
+            }
+        });
+        
+        // Show current data
+        document.getElementById('show-data').addEventListener('click', () => {
+            try {
+                const data = localStorage.getItem('savedAIChats');
+                if (data) {
+                    currentData.textContent = JSON.stringify(JSON.parse(data), null, 2);
+                } else {
+                    currentData.textContent = 'No data found';
+                }
+            } catch (error) {
+                currentData.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

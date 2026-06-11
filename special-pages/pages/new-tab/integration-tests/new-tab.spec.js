@@ -27,6 +27,7 @@ test.describe('newtab widgets', () => {
                     context: 'specialPages',
                     featureName: 'newTabPage',
                     params: [
+                        { id: 'omnibar', visibility: 'visible' },
                         { id: 'favorites', visibility: 'visible' },
                         { id: 'protections', visibility: 'hidden' },
                     ],
@@ -60,6 +61,7 @@ test.describe('newtab widgets', () => {
                     context: 'specialPages',
                     featureName: 'newTabPage',
                     params: [
+                        { id: 'omnibar', visibility: 'visible' },
                         { id: 'favorites', visibility: 'visible' },
                         { id: 'protections', visibility: 'visible' },
                     ],
@@ -86,6 +88,10 @@ test.describe('newtab widgets', () => {
             params: {
                 visibilityMenuItems: [
                     {
+                        id: 'omnibar',
+                        title: 'Search',
+                    },
+                    {
                         id: 'favorites',
                         title: 'Favorites',
                     },
@@ -111,7 +117,7 @@ test.describe('newtab widgets', () => {
             await ntp.darkMode();
             await ntp.openPage();
             await ntp.waitForCustomizer();
-            await ntp.hasBackgroundColor({ hex: '#333333' });
+            await ntp.hasBackgroundColor({ hex: '#1c1c1c' });
         });
         test('with overrides from initial setup (light)', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
@@ -147,6 +153,66 @@ test.describe('newtab widgets', () => {
             await ntp.waitForCustomizer();
             await cp.acceptsThemeUpdateWithDefaults('dark', { darkBackgroundColor: '#000000', lightBackgroundColor: '#ffffff' });
             await ntp.hasBackgroundColor({ hex: '#000000' });
+        });
+    });
+
+    test.describe('global error listeners', () => {
+        test('reports uncaught errors via reportInitException', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+
+            await page.evaluate(() => {
+                setTimeout(() => {
+                    throw new Error('test uncaught error');
+                }, 0);
+            });
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'newTabPage',
+                        method: 'reportInitException',
+                        params: { message: '[uncaught] test uncaught error' },
+                    },
+                },
+            ]);
+        });
+
+        test('reports unhandled rejections via reportInitException', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+
+            await page.evaluate(() => {
+                Promise.reject(new Error('test unhandled rejection'));
+            });
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'newTabPage',
+                        method: 'reportInitException',
+                        params: { message: '[unhandledrejection] test unhandled rejection' },
+                    },
+                },
+            ]);
+        });
+
+        test('does not fire reportInitException during normal page load', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage();
+            await ntp.waitForCustomizer();
+
+            const calls = await ntp.mocks.outgoing({ names: ['reportInitException'] });
+            expect(calls).toHaveLength(0);
         });
     });
 });

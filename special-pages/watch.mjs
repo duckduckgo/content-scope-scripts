@@ -4,10 +4,17 @@ import { spawn } from 'node:child_process';
 import { rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { watch } from 'chokidar';
 import { baseEsbuildOptions } from './opts.mjs';
+import { pages } from './pages.mjs';
 import { parseArgs, cwd } from '../scripts/script-utils.js';
 
 const args = parseArgs(process.argv.slice(2), ['page']);
 const CWD = cwd(import.meta.url);
+
+// Determine entry points based on page's build type
+const pageConfig = pages[args.page];
+const buildJobs = pageConfig?.integration || [];
+const isCssOnly = buildJobs.includes('build-css') && !buildJobs.includes('build-js');
+const entry = isCssOnly ? ['index.css'] : undefined;
 
 const publicDir = join(CWD, 'pages', args.page, 'public');
 const dist = join(publicDir, 'dist');
@@ -28,7 +35,7 @@ writeTimestamp();
 // setup esbuild in serve+watch mode
 {
     /** @type {import('esbuild').BuildOptions} */
-    const opts = baseEsbuildOptions(args.page, 'integration', 'development');
+    const opts = baseEsbuildOptions(args.page, 'integration', 'development', { entry });
     opts.dropLabels = [];
     opts.plugins ??= [];
     opts.plugins.push({

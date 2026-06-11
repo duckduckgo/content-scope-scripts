@@ -7,6 +7,8 @@ import { otherRMFExamples, RMFExamples } from '../remote-messaging-framework/com
 import { updateNotificationExamples } from '../update-notification/components/UpdateNotification.examples.js';
 import { activityExamples } from '../activity/components/Activity.examples.js';
 import { protectionsHeadingExamples } from '../protections/components/ProtectionsHeading.examples.js';
+import { subscriptionWinBackBannerExamples } from '../subscription-winback-banner/components/SubscriptionWinBackBanner.examples.js';
+import { omnibarExamples } from '../omnibar/components/Omnibar.examples.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -15,6 +17,8 @@ export const mainExamples = {
     ...nextStepsExamples,
     ...privacyStatsExamples,
     ...RMFExamples,
+    ...subscriptionWinBackBannerExamples,
+    ...omnibarExamples,
 };
 
 export const otherExamples = {
