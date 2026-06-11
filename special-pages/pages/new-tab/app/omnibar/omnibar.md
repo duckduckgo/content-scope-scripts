@@ -34,15 +34,20 @@ title: Omnibar Widget
   - `enableAiChatTools` — enables AI chat tools: model selector, image attachments (default `false`)
   - `enableImageGeneration` — shows "Create Image" in the tools menu (default `false`)
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
-  - `aiModelSections` — array of model sections for the model selector
+  - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
+  - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
+  - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
+  - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
 ```json
 {
    "mode": "search",
    "enableAi": true,
    "enableAiChatTools": false,
    "enableImageGeneration": false,
-   "enableWebSearch": false
+   "enableWebSearch": false,
+   "enableVoiceChatAccess": false,
+   "enableAskAiSuggestion": true
 }
 ```
 
@@ -119,6 +124,7 @@ title: Omnibar Widget
 - requires `chat` (the chat message) and `target` (where to open the chat)
 - optional fields:
   - `modelId` — the selected AI model identifier. Omitted when in image-generation mode.
+  - `reasoningEffort` — stable server key (e.g. `"none"`, `"low"`, `"medium"`) for the reasoning-effort selection. Omitted when the active model doesn't expose a reasoning picker, or in image-generation mode.
   - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
   - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.

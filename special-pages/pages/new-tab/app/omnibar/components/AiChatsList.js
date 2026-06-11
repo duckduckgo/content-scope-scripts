@@ -2,7 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ChatBubbleIcon, PinIcon } from '../../components/Icons';
+import { ChatBubbleIcon, ImageIcon, PinIcon, VoiceIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
@@ -12,8 +12,17 @@ import styles from './AiChatsList.module.css';
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
+ * @typedef {import('../../../types/new-tab.js').CustomModel} CustomModel
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
+
+/**
+ * @type {ReadonlyMap<CustomModel, import('preact').FunctionComponent>}
+ */
+const ICON_BY_MODEL = new Map([
+    ['voice-mode', VoiceIcon],
+    ['image-generation', ImageIcon],
+]);
 
 /**
  * @param {object} props
@@ -51,7 +60,7 @@ export function AiChatsList({ className }) {
                             });
                         }}
                     >
-                        {chat.pinned ? <PinIcon /> : <ChatBubbleIcon />}
+                        <ChatIcon chat={chat} />
                         <span class={styles.title}>{chat.title}</span>
                     </button>
                 );
@@ -59,4 +68,18 @@ export function AiChatsList({ className }) {
             {showViewAllAiChats && <AiChatsListFooter />}
         </div>
     );
+}
+
+/**
+ * @param {object} props
+ * @param {AiChat} props.chat
+ */
+function ChatIcon({ chat }) {
+    if (chat.pinned) {
+        return <PinIcon />;
+    }
+
+    const Icon = chat.model && ICON_BY_MODEL.get(/** @type {CustomModel} */ (chat.model));
+
+    return Icon ? <Icon /> : <ChatBubbleIcon />;
 }

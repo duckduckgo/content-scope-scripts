@@ -47,6 +47,10 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Send' });
     }
 
+    voiceChatButton() {
+        return this.context().getByRole('button', { name: 'Start voice chat' });
+    }
+
     tabList() {
         return this.context().getByRole('tablist');
     }
@@ -350,6 +354,21 @@ export class OmnibarPage {
 
     webSearchChip() {
         return this.context().getByRole('button', { name: 'Web Search' });
+    }
+
+    reasoningPickerButton() {
+        return this.context().getByRole('button', { name: 'Reasoning' });
+    }
+
+    reasoningDropdown() {
+        return this.page.getByRole('listbox', { name: 'Reasoning' });
+    }
+
+    /**
+     * @param {string} optionName
+     */
+    reasoningOption(optionName) {
+        return this.reasoningDropdown().getByRole('option', { name: optionName });
     }
 }
 

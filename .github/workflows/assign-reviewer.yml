@@ -1,11 +1,12 @@
 name: Assign Reviewer
 
 on:
-    pull_request_target:
+    pull_request:
         types: [assigned]
 
 jobs:
     request-review:
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         runs-on: ubuntu-latest
         steps:
             - name: Request review from assignee

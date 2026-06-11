@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "RegisterPasskeyRequestParams",
+  "description": "Registers a pending conditional passkey request with native Autofill.",
+  "additionalProperties": false,
+  "required": ["rpId", "requestId"],
+  "properties": {
+    "rpId": {
+      "description": "The relying party ID for the pending WebAuthn request.",
+      "type": "string"
+    },
+    "requestId": {
+      "description": "Opaque request ID echoed by the native passkey selection event.",
+      "type": "string"
+    }
+  }
+}
