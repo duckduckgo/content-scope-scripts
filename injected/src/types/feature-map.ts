@@ -9,6 +9,7 @@
 
 import type ApiManipulation from '../features/api-manipulation.js';
 import type AutofillImport from '../features/autofill-import.js';
+import type AutofillPasskeys from '../features/autofill-passkeys.js';
 import type BreakageReporting from '../features/breakage-reporting.js';
 import type BrokerProtection from '../features/broker-protection.js';
 import type BrowserUiLock from '../features/browser-ui-lock.js';
@@ -39,9 +40,12 @@ import type PageObserver from '../features/page-observer.js';
 import type PerformanceMetrics from '../features/performance-metrics.js';
 import type Print from '../features/print.js';
 import type Referrer from '../features/referrer.js';
+import type TabSuspension from '../features/tab-suspension.js';
+import type TrackerProtection from '../features/tracker-protection.js';
 import type UaChBrands from '../features/ua-ch-brands.js';
 import type WebCompat from '../features/web-compat.js';
 import type WebDetection from '../features/web-detection.js';
+import type WebEvents from '../features/web-events.js';
 import type WebInterferenceDetection from '../features/web-interference-detection.js';
 import type WebTelemetry from '../features/web-telemetry.js';
 import type WindowsPermissionUsage from '../features/windows-permission-usage.js';
@@ -53,6 +57,7 @@ import type WindowsPermissionUsage from '../features/windows-permission-usage.js
 export interface FeatureMap {
     apiManipulation: ApiManipulation;
     autofillImport: AutofillImport;
+    autofillPasskeys: AutofillPasskeys;
     breakageReporting: BreakageReporting;
     brokerProtection: BrokerProtection;
     browserUiLock: BrowserUiLock;
@@ -83,9 +88,12 @@ export interface FeatureMap {
     performanceMetrics: PerformanceMetrics;
     print: Print;
     referrer: Referrer;
+    tabSuspension: TabSuspension;
+    trackerProtection: TrackerProtection;
     uaChBrands: UaChBrands;
     webCompat: WebCompat;
     webDetection: WebDetection;
+    webEvents: WebEvents;
     webInterferenceDetection: WebInterferenceDetection;
     webTelemetry: WebTelemetry;
     windowsPermissionUsage: WindowsPermissionUsage;
