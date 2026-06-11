@@ -54,7 +54,7 @@ There are three stages that the content scope code is hooked into the platform:
 - This should be reserved for work that could cause a delay in loading the feature
 - Given the current limitations of how we inject our code, we don't have the Privacy Remote Configuration exceptions, so authors should be wary of actually loading anything that would modify the page (and potentially breaking it)
 - This limitation may be re-addressed in manifest v3
-- One exception here is the first party cookie protections that are triggered on init to prevent race conditions
+- One exception here is the cookie protection, which installs wrappers in `load()` and completes policy setup in `init()` to avoid race conditions
 
 ### `init`
 
@@ -64,6 +64,39 @@ There are three stages that the content scope code is hooked into the platform:
 
 - This allows the feature to be sent updates from the browser
 - If this is triggered before init, these updates will be queued and triggered straight after
+
+## Special-case init/load behaviors
+
+When editing core lifecycle code (`src/content-scope-features.js`, `src/utils.js`) or the feature registry (`src/features.js`), preserve these behaviors:
+
+### Always-run platform-specific features (global disable bypass)
+
+- In `load()`, when `isGloballyDisabled(args)` is true (allowlisted or broken sites), we still load `platformSpecificFeatures`.
+- Current list is defined in `src/utils.js` under `platformSpecificFeatures`.
+- Rationale: these provide platform integration and must remain available even when protections are disabled.
+
+### Self-gating features (exception bypass)
+
+- `selfGatingFeatures` in `src/utils.js` (currently `['trackerProtection']`) bypass exception-based disabling in `computeEnabledFeatures`.
+- These features are always included in `enabledFeatures` when their `state` is enabled, regardless of domain exceptions.
+- The feature handles its own exceptions internally by reading `this.bundledConfig.features.<name>.exceptions` and adjusting behavior (e.g., reporting without blocking on excepted domains).
+- Use this for features that need to stay active on excepted/unprotected domains for reporting or other passive behavior.
+
+### Always-init extension features (cookie)
+
+- `alwaysInitFeatures` in `src/content-scope-features.js` (currently `['cookie']`) bypasses `isFeatureBroken` for `platform.name === 'extension'`.
+- This ensures `cookie` runs `init()` even on allowlisted/broken sites to complete policy setup.
+
+### Cookie feature early load/init ordering
+
+- `src/features/cookie.js` installs the `Document.cookie` wrapper in `load()` before full config is available.
+- `load()` seeds a best-effort policy from `bundledConfig`, then `init()` finalizes policy (including extension-provided `args.cookie`) and resolves `loadedPolicyResolve`.
+- Changing load/init ordering or gating can create gaps where cookies are not intercepted or policy resolution never completes.
+
+### Extension load uses bundled feature list
+
+- In `load()`, extensions do not have `site.enabledFeatures` yet, so they fall back to `platformSupport[import.meta.injectName]`.
+- Avoid tightening this flow; it is required for early-load features (especially `cookie`) to install hooks on time.
 
 ## Debug and Breakage Management
 

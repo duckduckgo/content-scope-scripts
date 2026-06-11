@@ -1,0 +1,112 @@
+# Intentional Error Management
+
+## Principle
+
+Thrown errors and unhandled promise rejections must be **intentional** and represent **exceptional conditions**, not part of the normal "happy path" of code execution.
+
+## Guidelines
+
+### 1. Errors Are Not Control Flow
+
+**Do NOT** use errors as a mechanism for normal control flow:
+
+```javascript
+// BAD: Using errors for expected conditions
+function getValue(key) {
+    const value = map.get(key);
+    if (!value) throw new Error('Key not found'); // Expected case!
+    return value;
+}
+
+// GOOD: Return a sentinel or optional value
+function getValue(key) {
+    return map.get(key) ?? null;
+}
+```
+
+### 2. Valid Uses of Thrown Errors
+
+Errors should be thrown only for:
+
+- **Unreachable code paths** (exhaustiveness checks):
+  ```javascript
+  switch (type) {
+      case 'a': return handleA();
+      case 'b': return handleB();
+      default: throw new Error('unreachable');
+  }
+  ```
+
+- **Invalid invariants** (programmer errors, not user errors):
+  ```javascript
+  if (!this.args) throw new Error('messaging requires args to be set');
+  if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments');
+  ```
+
+- **Missing required dependencies**:
+  ```javascript
+  if (!_messagingModuleScope) throw new Error('Messaging not initialized');
+  ```
+
+### 3. Promise Rejection Rules
+
+- **Never leave promises unhandled** - always attach `.catch()` or use `try/catch` with `await`
+- **Use `Promise.reject()` only when mimicking browser API behavior** (e.g., `web-compat.js` returning `DOMException`):
+  ```javascript
+  // Mimicking native Share API behavior
+  if (!canShare(data)) return Promise.reject(new TypeError('Invalid share data'));
+  ```
+
+- **Handle async errors explicitly**:
+  ```javascript
+  // GOOD: Explicit error handling
+  await this.setUserChoice(choice).catch((e) => console.error('error setting user choice', e));
+  
+  // GOOD: Swallow expected failures intentionally
+  await fetchOptional().catch(() => {});  // Comment explaining why this is OK
+  ```
+
+### 4. Assertion Pattern
+
+Use assertion functions for type/state validation that throws on failure:
+
+```javascript
+/**
+ * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
+ */
+function assertCustomEvent(event) {
+    if (!('detail' in event)) throw new Error('none-custom event');
+    if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string');
+}
+```
+
+### 5. Error Messages
+
+- Error messages should clearly indicate **what went wrong** and **why it's a bug**
+- Include context that helps debugging:
+  ```javascript
+  throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+  ```
+
+## Anti-Patterns to Avoid
+
+| Anti-Pattern | Problem | Solution |
+|--------------|---------|----------|
+| Empty catch blocks | Silently swallows errors | Log or re-throw with context |
+| Throwing for expected `null`/`undefined` | Using errors as control flow | Return optional/sentinel values |
+| Unhandled promise chains | Leads to unhandled rejections | Add `.catch()` handler |
+| Generic error messages | Hard to debug | Include specific context |
+| Catching and ignoring all errors | Masks bugs | Catch specific error types |
+
+## ESLint Support
+
+The codebase enforces:
+- `require-await` - async functions must use await
+- `promise/prefer-await-to-then` - prefer async/await over `.then()`
+- `@typescript-eslint/await-thenable` - only await promises
+
+## Summary
+
+- Errors = **exceptional conditions** (bugs, invariant violations, unreachable code)
+- Errors ≠ **expected conditions** (missing data, user input validation, optional features)
+- Every promise rejection must be **handled** or **intentionally propagated**

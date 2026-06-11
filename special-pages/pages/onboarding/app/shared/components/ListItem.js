@@ -28,6 +28,11 @@ export const availableIcons = /** @type {const} */ ([
     'v3/Shield-Color-24.svg',
     'v3/Video-Player-Color-24.svg',
     'v3/Ai-Chat-Color-24.svg',
+    'v4/bookmark.svg',
+    'v4/dock.svg',
+    'v4/home.svg',
+    'v4/import.svg',
+    'v4/session-restore.svg',
 ]);
 
 const prefix = 'assets/img/steps/';

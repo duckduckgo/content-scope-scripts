@@ -9,7 +9,11 @@ import onboardingAnimation from '../../shared/animations/Onboarding.riv';
 
 import styles from './DuckPlayerStep.module.css';
 
-export function DuckPlayerStep() {
+/**
+ * @param {object} props
+ * @param {'before' | 'after'} [props.defaultState] - Initial animation state. Defaults to 'before'.
+ */
+export function DuckPlayerStep({ defaultState = 'before' }) {
     const { isDarkMode, isReducedMotion } = useEnv();
     const [canPlay, setCanPlay] = useState(false);
     const { getStep, setStep } = useBeforeAfter();
@@ -29,6 +33,7 @@ export function DuckPlayerStep() {
         return () => {
             if (timer.current) clearTimeout(timer.current);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, [canPlay, isReducedMotion]);
 
     const animationDidEnd = () => {
@@ -40,7 +45,7 @@ export function DuckPlayerStep() {
             <div className={styles.animationContainer}>
                 <RiveAnimation
                     animation={onboardingAnimation}
-                    state={getStep('duckPlayerSingle') || 'before'}
+                    state={getStep('duckPlayerSingle') || defaultState}
                     isDarkMode={isDarkMode}
                     artboard="Duck Player"
                     inputName="Duck Player?"
