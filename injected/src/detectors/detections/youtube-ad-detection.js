@@ -14,6 +14,7 @@ import { isVisible, toRegExpArray } from '../utils/detection-utils.js';
  * @property {string[]} adBlockerDetectionSelectors
  * @property {string[]} adBlockerDetectionPatterns
  * @property {{signInButton: string, avatarButton: string, premiumLogo: string}} loginStateSelectors
+ * @property {Record<string, boolean>} [fireDetectionEvents] - Per-type gating for event firing. Only types set to `true` fire events. Absent = no events.
  */
 
 /**
@@ -24,14 +25,17 @@ import { isVisible, toRegExpArray } from '../utils/detection-utils.js';
 /** @type {{info: Function, warn: Function, error: Function}} */
 const noopLogger = { info: () => {}, warn: () => {}, error: () => {} };
 
-class YouTubeAdDetector {
+export class YouTubeAdDetector {
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
      * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+     * @param {(type: string, data?: Record<string, unknown>) => void} [onEvent] - Callback fired when a new detection occurs (may be async)
      */
-    constructor(config, logger) {
+    constructor(config, logger, onEvent) {
         // Logger for debug output (only logs when debug mode is enabled)
         this.log = logger || noopLogger;
+        /** @type {(type: string, data?: Record<string, unknown>) => void} */
+        this.onEvent = onEvent || (() => {});
 
         // All config comes from privacy-config
         this.config = {
@@ -46,6 +50,7 @@ class YouTubeAdDetector {
             adBlockerDetectionSelectors: config.adBlockerDetectionSelectors,
             adBlockerDetectionPatterns: config.adBlockerDetectionPatterns,
             loginStateSelectors: config.loginStateSelectors,
+            fireDetectionEvents: config.fireDetectionEvents,
         };
 
         // Initialize state
@@ -54,6 +59,7 @@ class YouTubeAdDetector {
         // Intervals and tracking
         this.pollInterval = null;
         this.rerootInterval = null;
+        this.startRetryTimeout = null;
         this.trackedVideoElement = null;
         this.lastLoggedVideoId = null;
         this.currentVideoId = null;
@@ -104,6 +110,28 @@ class YouTubeAdDetector {
     }
 
     /**
+     * Fire an event notification for native telemetry/action handling.
+     * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'|'buffering'} type
+     */
+    fireDetectionEvent(type) {
+        if (this.config.fireDetectionEvents?.[type]) {
+            try {
+                const result = /** @type {any} */ (
+                    this.onEvent(`youtube_${type}`, {
+                        loginState: this.state.loginState?.state || 'unknown',
+                    })
+                );
+                if (result && typeof result.catch === 'function') {
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    result.catch(() => {});
+                }
+            } catch {
+                // onEvent callback failure should never break detection
+            }
+        }
+    }
+
+    /**
      * Report a detection event
      * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type
      * @param {Object} [details]
@@ -125,6 +153,8 @@ class YouTubeAdDetector {
         if (details.message && 'lastMessage' in typeState) {
             typeState.lastMessage = details.message;
         }
+
+        this.fireDetectionEvent(type);
 
         return true;
     }
@@ -524,12 +554,17 @@ class YouTubeAdDetector {
         };
 
         const onPlaying = () => {
+            let firedBufferingEvent = false;
             if (this.bufferingStartTime) {
                 const bufferingDuration = performance.now() - this.bufferingStartTime;
                 this.state.buffering.durations.push(Math.round(bufferingDuration));
                 // Cap durations array to prevent memory growth
                 if (this.state.buffering.durations.length > 50) {
                     this.state.buffering.durations.shift();
+                }
+                if (bufferingDuration > this.config.slowLoadThresholdMs) {
+                    this.fireDetectionEvent('buffering');
+                    firedBufferingEvent = true;
                 }
                 this.bufferingStartTime = null;
             }
@@ -545,6 +580,9 @@ class YouTubeAdDetector {
             if (isSlow && !duringAd && !tabWasHidden && !tooLong) {
                 this.state.buffering.count++;
                 this.state.buffering.durations.push(Math.round(loadTime));
+                if (!firedBufferingEvent) {
+                    this.fireDetectionEvent('buffering');
+                }
                 // Cap durations array to prevent memory growth
                 if (this.state.buffering.durations.length > 50) {
                     this.state.buffering.durations.shift();
@@ -602,7 +640,7 @@ class YouTubeAdDetector {
         if (!root) {
             if (attempt < 25) {
                 this.log.info(`Player root not found, retrying in 500ms (attempt ${attempt}/25)`);
-                setTimeout(() => this.start(attempt + 1), 500);
+                this.startRetryTimeout = setTimeout(() => this.start(attempt + 1), 500);
             } else {
                 this.log.info('Player root not found after 25 attempts, giving up');
             }
@@ -638,6 +676,10 @@ class YouTubeAdDetector {
      * Stop the detector
      */
     stop() {
+        if (this.startRetryTimeout) {
+            clearTimeout(this.startRetryTimeout);
+            this.startRetryTimeout = null;
+        }
         if (this.pollInterval) {
             clearInterval(this.pollInterval);
             this.pollInterval = null;
@@ -721,15 +763,27 @@ let detectorInstance = null;
 /**
  * @param {YouTubeDetectorConfig} [config] - Configuration from privacy-config
  * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+ * @param {(type: string) => void} [fireEvent] - Callback fired when a new detection occurs
  */
-export function runYoutubeAdDetection(config, logger) {
+export function runYoutubeAdDetection(config, logger, fireEvent) {
+    const hostname = window.location.hostname;
+    const isYouTube = hostname === 'youtube.com' || hostname.endsWith('.youtube.com');
+    const isTestDomain =
+        hostname === 'privacy-test-pages.site' || hostname.endsWith('.privacy-test-pages.site') || hostname === 'localhost';
+    if (!isYouTube && !isTestDomain) {
+        return { detected: false, type: 'youtubeAds', results: [] };
+    }
+
     // Only run if explicitly enabled or internal
     if (config?.state !== 'enabled' && config?.state !== 'internal') {
         return { detected: false, type: 'youtubeAds', results: [] };
     }
 
-    // If detector already exists, return its results (even if config is undefined)
+    // If detector already exists, update callback if provided and return results
     if (detectorInstance) {
+        if (fireEvent) {
+            detectorInstance.onEvent = fireEvent;
+        }
         return detectorInstance.getResults();
     }
 
@@ -738,13 +792,17 @@ export function runYoutubeAdDetection(config, logger) {
         return { detected: false, type: 'youtubeAds', results: [] };
     }
 
-    // Auto-initialize on first call if on YouTube
-    const hostname = window.location.hostname;
-    if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
-        detectorInstance = new YouTubeAdDetector(config, logger);
-        detectorInstance.start();
-        return detectorInstance.getResults();
-    }
+    detectorInstance = new YouTubeAdDetector(config, logger, fireEvent);
+    detectorInstance.start();
+    return detectorInstance.getResults();
+}
 
-    return { detected: false, type: 'youtubeAds', results: [] };
+/**
+ * @visibleForTesting
+ */
+export function resetYoutubeAdDetection() {
+    if (detectorInstance) {
+        detectorInstance.stop();
+        detectorInstance = null;
+    }
 }

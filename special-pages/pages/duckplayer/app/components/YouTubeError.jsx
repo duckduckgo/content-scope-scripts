@@ -1,21 +1,21 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
 import { Button, OpenInIcon } from './Button.jsx';
 import { useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 
 import styles from './YouTubeError.module.css';
-import { useLocale, useYouTubeError } from '../providers/YouTubeErrorProvider';
+import { useYouTubeError } from '../providers/YouTubeErrorProvider';
 
 /**
+ * @import {Settings} from '../settings';
  * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
  * @typedef {import('preact').ComponentChild} ComponentChild
  * @typedef {{heading: ComponentChild, messages: ComponentChild[], variant: 'list'|'inline'|'paragraphs'}} ErrorStrings
  */
 
 /**
- * @param {YouTubeError} youtubeError
+ * @param {YouTubeError | null} youtubeError
  * @returns {ErrorStrings}
  */
 function useErrorStrings(youtubeError) {
@@ -64,7 +64,7 @@ function useErrorStrings(youtubeError) {
         },
     };
 
-    return versions[version]?.[youtubeError] || versions[version]?.['unknown'] || versions['v1']['unknown'];
+    return (youtubeError && versions[version]?.[youtubeError]) || versions[version]?.unknown || versions.v1.unknown;
 }
 
 /**
@@ -74,13 +74,12 @@ function useErrorStrings(youtubeError) {
  */
 export function YouTubeError({ layout, embed }) {
     const youtubeError = useYouTubeError();
-    if (!youtubeError) {
-        return null;
-    }
-
     const { t } = useTypedTranslation();
     const openOnYoutube = useOpenOnYoutubeHandler();
     const { heading, messages, variant } = useErrorStrings(youtubeError);
+    if (!youtubeError) {
+        return null;
+    }
     const classes = cn(styles.error, {
         [styles.desktop]: layout === 'desktop',
         [styles.mobile]: layout === 'mobile',

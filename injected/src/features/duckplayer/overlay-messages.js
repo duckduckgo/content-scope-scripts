@@ -86,7 +86,9 @@ export class DuckPlayerOverlayMessages {
      * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
-        return this.messaging.subscribe('onUserValuesChanged', cb);
+        return this.messaging.subscribe('onUserValuesChanged', (value) => {
+            cb(/** @type {import("../duck-player.js").UserValues} */ (value));
+        });
     }
 
     /**
@@ -94,13 +96,19 @@ export class DuckPlayerOverlayMessages {
      * @param {(userValues: import("../duck-player.js").UISettings) => void} cb
      */
     onUIValuesChanged(cb) {
-        return this.messaging.subscribe('onUIValuesChanged', cb);
+        return this.messaging.subscribe('onUIValuesChanged', (value) => {
+            cb(/** @type {import("../duck-player.js").UISettings} */ (value));
+        });
     }
 
     /**
      * This allows our SERP to interact with Duck Player settings.
      */
     serpProxy() {
+        /**
+         * @param {string} kind
+         * @param {unknown} data
+         */
         function respond(kind, data) {
             window.dispatchEvent(
                 new CustomEvent(constants.MSG_NAME_PROXY_RESPONSE, {
