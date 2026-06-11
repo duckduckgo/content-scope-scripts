@@ -1,3 +1,11 @@
+/**
+ * @return {'macos' | 'windows'}
+ */
+function detectPlatform() {
+    if (globalThis.navigator?.userAgent?.includes('Windows')) return 'windows';
+    return 'macos';
+}
+
 export class Settings {
     /**
      * @param {object} params
@@ -6,7 +14,7 @@ export class Settings {
      * @param {{state: 'enabled' | 'disabled'}} [params.adBlocking]
      */
     constructor({
-        platform = { name: 'macos' },
+        platform = { name: detectPlatform() },
         customizerDrawer = { state: 'enabled', autoOpen: false },
         adBlocking = { state: 'disabled' },
     }) {

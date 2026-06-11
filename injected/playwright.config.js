@@ -20,6 +20,7 @@ export default defineConfig({
                 'integration-test/duck-ai-chat-history.spec.js',
                 'integration-test/web-detection.spec.js',
                 'integration-test/web-events.spec.js',
+                'integration-test/web-interference-detection-events.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
@@ -33,6 +34,7 @@ export default defineConfig({
                 'integration-test/favicon.spec.js',
                 'integration-test/page-observer.spec.js',
                 'integration-test/hover.spec.js',
+                'integration-test/tab-suspension.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
@@ -42,7 +44,8 @@ export default defineConfig({
             testMatch: [
                 'integration-test/navigator-interface-insecure.js',
                 'integration-test/webcompat.spec.js',
-                'integration-test/message-bridge-apple.spec.js'
+                'integration-test/message-bridge-apple.spec.js',
+                'integration-test/tracker-protection.spec.js',
             ],
             use: { injectName: 'apple', platform: 'macos' },
         },
@@ -77,6 +80,7 @@ export default defineConfig({
             testMatch: [
                 'integration-test/remote-pages.spec.js',
                 'integration-test/cookie.spec.js',
+                'integration-test/device-enumeration.spec.js',
                 'integration-test/fingerprint.spec.js',
                 'integration-test/navigator-interface.spec.js',
                 'integration-test/pages.spec.js',
