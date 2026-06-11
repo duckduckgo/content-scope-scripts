@@ -1,8 +1,7 @@
 import { Fragment, h } from 'preact';
-import { useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
-import { GlobeIcon } from '../../../../components/Icons';
+import { TabFavicon } from './TabFavicon';
 import styles from './MentionPicker.module.css';
 
 /**
@@ -53,7 +52,12 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
                                     }}
                                 >
                                     <span class={styles.check} aria-hidden="true" />
-                                    <TabFavicon favicon={tab.favicon} />
+                                    <TabFavicon
+                                        favicon={tab.favicon}
+                                        iconSize={14}
+                                        className={styles.favicon}
+                                        fallbackClassName={styles.faviconFallback}
+                                    />
                                     <span class={styles.rowTitle}>{tab.title}</span>
                                 </li>
                             );
@@ -63,20 +67,4 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
             )}
         </div>
     );
-}
-
-/**
- * @param {object} props
- * @param {import('../../../../../types/new-tab.js').Favicon} props.favicon
- */
-function TabFavicon({ favicon }) {
-    const [errored, setErrored] = useState(false);
-    if (!favicon || !favicon.src || errored) {
-        return (
-            <span class={styles.faviconFallback} aria-hidden="true">
-                <GlobeIcon width="14" height="14" />
-            </span>
-        );
-    }
-    return <img class={styles.favicon} src={favicon.src} alt="" onError={() => setErrored(true)} loading="lazy" />;
 }

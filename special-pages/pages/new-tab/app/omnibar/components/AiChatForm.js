@@ -161,6 +161,11 @@ export function AiChatForm({
         return undefined;
     };
 
+    /** @param {{ currentTarget: HTMLTextAreaElement }} event */
+    const emitChange = (event) => {
+        onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
+    };
+
     const placeholderText = placeholder || t('omnibar_aiChatFormPlaceholder');
 
     return (
@@ -190,7 +195,7 @@ export function AiChatForm({
                 // The tab-attachment flow needs caret position to detect active
                 // `@` mentions, so emit both value and caret on every input.
                 onInput={(event) => {
-                    onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
+                    emitChange(event);
                     clearSelectedChat();
                 }}
                 onKeyUp={(event) => {
@@ -198,12 +203,10 @@ export function AiChatForm({
                     // fire `onInput`, but they can still move the caret into or out
                     // of an `@` mention. Re-emit so the picker can react.
                     if (event.key.startsWith('Arrow') || event.key === 'Home' || event.key === 'End') {
-                        onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
+                        emitChange(event);
                     }
                 }}
-                onClick={(event) => {
-                    onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
-                }}
+                onClick={emitChange}
             />
             {children}
             <div tabIndex={-1} class={styles.buttons}>

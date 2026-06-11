@@ -167,20 +167,16 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onToggle
     /** @type {ComboboxOverride | null} */
     const combobox = pickerActive ? { listboxId: LISTBOX_ID, activeDescendantId: activeDescendant } : null;
 
-    const pickerProps = useMemo(
-        () =>
-            pickerActive
-                ? {
-                      filtered,
-                      activeIndex,
-                      onActiveIndexChange: setActiveIndex,
-                      onSelect: handleTabSelect,
-                      isAttached,
-                      listboxId: LISTBOX_ID,
-                  }
-                : null,
-        [pickerActive, filtered, activeIndex, handleTabSelect, isAttached],
-    );
+    const pickerProps = pickerActive
+        ? {
+              filtered,
+              activeIndex,
+              onActiveIndexChange: setActiveIndex,
+              onSelect: handleTabSelect,
+              isAttached,
+              listboxId: LISTBOX_ID,
+          }
+        : null;
 
     return {
         pickerActive,

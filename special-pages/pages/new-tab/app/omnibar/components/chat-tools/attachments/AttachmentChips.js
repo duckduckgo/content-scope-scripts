@@ -100,7 +100,8 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                     default: {
                         /** @type {never} */
                         const _exhaustiveCheck = item;
-                        return _exhaustiveCheck;
+                        console.error(`Unknown attachment item kind: ${_exhaustiveCheck}`);
+                        return null;
                     }
                 }
             })}

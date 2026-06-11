@@ -1,15 +1,14 @@
 import { h } from 'preact';
-import { useContext, useEffect, useState } from 'preact/hooks';
-import { GlobeIcon } from '../../../../components/Icons';
+import { useContext, useEffect } from 'preact/hooks';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
 import { OpenTabsContext } from './OpenTabsProvider';
+import { TabFavicon } from './TabFavicon';
 import styles from './AttachMenu.module.css';
 
 /**
  * @typedef {typeof import('../../../strings.json')} Strings
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
- * @typedef {import('../../../../../types/new-tab.js').Favicon} Favicon
  */
 
 /**
@@ -52,7 +51,14 @@ export function TabPicker({ t, position, dropdownRef, onSelect, isAttached, onCl
                         role="menuitemcheckbox"
                         ariaChecked={attached}
                         isSelected={attached}
-                        icon={<TabFavicon favicon={tab.favicon} />}
+                        icon={
+                            <TabFavicon
+                                favicon={tab.favicon}
+                                iconSize={12}
+                                className={styles.favicon}
+                                fallbackClassName={styles.faviconFallback}
+                            />
+                        }
                         name={tab.title}
                         onSelect={() => onSelect(tab)}
                     />
@@ -60,20 +66,4 @@ export function TabPicker({ t, position, dropdownRef, onSelect, isAttached, onCl
             })}
         </Dropdown>
     );
-}
-
-/**
- * @param {object} props
- * @param {Favicon} props.favicon
- */
-function TabFavicon({ favicon }) {
-    const [errored, setErrored] = useState(false);
-    if (!favicon || !favicon.src || errored) {
-        return (
-            <span class={styles.faviconFallback} aria-hidden="true">
-                <GlobeIcon width="12" height="12" />
-            </span>
-        );
-    }
-    return <img class={styles.favicon} src={favicon.src} alt="" onError={() => setErrored(true)} loading="lazy" />;
 }
