@@ -8,7 +8,27 @@ export function getJsPerformanceMetrics() {
 }
 
 /** @typedef {{error: string, success: false}} ErrorObject */
-/** @typedef {{success: true, metrics: any}} PerformanceMetricsResponse */
+/**
+ * @typedef {object} ExpandedPerformanceMetrics
+ * @property {number} loadComplete
+ * @property {number} domComplete
+ * @property {number} domContentLoaded
+ * @property {number} domInteractive
+ * @property {number | null} firstContentfulPaint
+ * @property {number | null} largestContentfulPaint
+ * @property {number} timeToFirstByte
+ * @property {number} responseTime
+ * @property {number} serverTime
+ * @property {number} transferSize
+ * @property {number} encodedBodySize
+ * @property {number} decodedBodySize
+ * @property {number} resourceCount
+ * @property {number} totalResourcesSize
+ * @property {string} protocol
+ * @property {number} redirectCount
+ * @property {string} navigationType
+ */
+/** @typedef {{success: true, metrics: ExpandedPerformanceMetrics}} PerformanceMetricsResponse */
 
 /**
  * Convenience function to return an error object
@@ -24,24 +44,22 @@ function returnError(errorMessage) {
  */
 function waitForLCP(timeoutMs = 500) {
     return new Promise((resolve) => {
-        // eslint-disable-next-line prefer-const
-        let timeoutId;
-        // eslint-disable-next-line prefer-const
-        let observer;
+        /** @type {{ id?: ReturnType<typeof setTimeout>, obs?: PerformanceObserver }} */
+        const refs = {};
 
         const cleanup = () => {
-            if (observer) observer.disconnect();
-            if (timeoutId) clearTimeout(timeoutId);
+            if (refs.obs) refs.obs.disconnect();
+            if (refs.id) clearTimeout(refs.id);
         };
 
         // Set timeout
-        timeoutId = setTimeout(() => {
+        refs.id = setTimeout(() => {
             cleanup();
             resolve(null); // Resolve with null instead of hanging
         }, timeoutMs);
 
         // Try to get existing LCP
-        observer = new PerformanceObserver((list) => {
+        refs.obs = new PerformanceObserver((list) => {
             const entries = list.getEntries();
             const lastEntry = entries[entries.length - 1];
             if (lastEntry) {
@@ -51,7 +69,7 @@ function waitForLCP(timeoutMs = 500) {
         });
 
         try {
-            observer.observe({ type: 'largest-contentful-paint', buffered: true });
+            refs.obs.observe({ type: 'largest-contentful-paint', buffered: true });
         } catch (error) {
             // Handle browser compatibility issues
             cleanup();
@@ -124,6 +142,7 @@ export async function getExpandedPerformanceMetrics(timeoutMs = 500) {
 
         return returnError('No navigation timing found');
     } catch (e) {
-        return returnError('JavaScript execution error: ' + e.message);
+        const message = e instanceof Error ? e.message : String(e);
+        return returnError('JavaScript execution error: ' + message);
     }
 }

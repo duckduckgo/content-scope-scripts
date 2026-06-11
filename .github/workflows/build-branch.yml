@@ -24,15 +24,22 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v5
+                  cache: 'npm'
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v5
               with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-                  restore-keys: |
-                      ${{ runner.os }}-node-
+                  path: |
+                      node_modules
+                      injected/node_modules
+                      special-pages/node_modules
+                      messaging/node_modules
+                      types-generator/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('.nvmrc') }}-${{ hashFiles('**/package-lock.json') }}
 
             - name: Install dependencies
-              run: npm ci --verbose
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: npm ci
 
             - name: Run build
               run: npm run build
@@ -58,13 +65,34 @@ jobs:
                   git checkout -b "${BUILD_BRANCH}"
                   git add -f build Sources/ContentScopeScripts/dist docs
                   git commit -m "Build artifacts for ${SOURCE_BRANCH}"
-                  git push -u origin "${BUILD_BRANCH}" --force
+
+                  push_build_branch() {
+                      local attempt
+                      local delay
+
+                      for attempt in 1 2 3 4 5; do
+                          if git push -u origin "${BUILD_BRANCH}" --force; then
+                              return 0
+                          fi
+
+                          if [ "${attempt}" -eq 5 ]; then
+                              echo "Failed to push ${BUILD_BRANCH} after ${attempt} attempts"
+                              return 1
+                          fi
+
+                          delay=$((attempt * 5))
+                          echo "::warning::Push to ${BUILD_BRANCH} failed on attempt ${attempt}; retrying in ${delay}s"
+                          sleep "${delay}"
+                      done
+                  }
+
+                  push_build_branch
 
                   echo "BUILD_BRANCH=${BUILD_BRANCH}" >> $GITHUB_ENV
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
             - name: Comment on associated PR
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               env:
                   BUILD_BRANCH: ${{ env.BUILD_BRANCH }}
                   COMMIT_HASH: ${{ env.COMMIT_HASH }}
