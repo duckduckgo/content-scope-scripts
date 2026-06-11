@@ -1,42 +1,30 @@
 import { h } from 'preact';
-import { useContext, useEffect } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
-import { OmnibarContext } from '../../OmnibarProvider';
+import { useSelectedModel } from '../../useSelectedModel';
 import { useModelSelector } from './useModelSelector';
 import { ModelSelector } from './ModelSelector';
 
 /**
  * @typedef {import('../../../strings.json')} Strings
- * @typedef {import('./useModelSelector').AIModelItem} AIModelItem
  */
 
-/**
- * Model selector UI. The parent reads selectedModelId directly from
- * config state when assembling the submit payload.
- *
- * @param {object} props
- * @param {(model: AIModelItem | null) => void} [props.onSelectedModelChange]
- */
-export function ModelSelectorTool({ onSelectedModelChange }) {
+export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { setSelectedModelId: persistModelId, state } = useContext(OmnibarContext);
-
-    const enableAiChatTools = state.config?.enableAiChatTools === true;
-    const aiModelSections = enableAiChatTools ? (state.config?.aiModelSections ?? []) : [];
+    const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
 
     const selector = useModelSelector({
-        aiModelSections,
-        persistedModelId: state.config?.selectedModelId,
-        onModelChange: persistModelId,
+        allModels,
+        onModelChange: setSelectedModelId,
     });
-
-    const { selectedModel } = selector;
-
-    useEffect(() => {
-        onSelectedModelChange?.(selectedModel ?? null);
-    }, [selectedModel]);
 
     if (aiModelSections.length === 0) return null;
 
-    return <ModelSelector selector={selector} aiModelSections={aiModelSections} ariaLabel={t('omnibar_modelSelectorLabel')} />;
+    return (
+        <ModelSelector
+            selector={selector}
+            selectedModel={selectedModel}
+            aiModelSections={aiModelSections}
+            ariaLabel={t('omnibar_modelSelectorLabel')}
+        />
+    );
 }
