@@ -105,7 +105,7 @@ export function WidgetList() {
  * by the error boundaries.
  *
  * @param {object} props
- * @return {any}
+ * @return {import("preact").ComponentChild}
  */
 function WidgetLoader({ fn }) {
     const result = fn?.();
