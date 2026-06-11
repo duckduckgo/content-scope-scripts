@@ -302,7 +302,7 @@ function isValidLink(element, excludedRegions) {
      * We shouldn't be able to get here, but this keeps Typescript happy
      * and is a good check regardless
      */
-    if (!('href' in element)) return null;
+    if (!('href' in element) || typeof element.href !== 'string') return null;
 
     const href = element.href;
     if (typeof href !== 'string') return null;
