@@ -80,7 +80,7 @@
 }
 
 /* Focused */
-.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .popup {
+.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup {
     border-radius: 15px;
     border: 2px solid var(--ds-color-theme-accent-primary);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
@@ -98,8 +98,8 @@
     }
 }
 
-/* Image limit exceeded */
-.root:has([data-image-warning]) .popup {
+/* Attachment limit exceeded */
+.root:has([data-attachment-warning]) .popup {
     border: 2px solid var(--color-red-50);
     border-radius: 15px;
     margin: 0;
@@ -108,6 +108,18 @@
     .field {
         margin: 1px;
     }
+}
+
+.attachmentWarning {
+    align-self: stretch;
+    color: var(--color-red-50);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 13px;
+    margin: 0;
+    order: -1;
+    padding: var(--sp-2) var(--sp-3) 0;
 }
 
 /* Suggestions / AI chats list visible */

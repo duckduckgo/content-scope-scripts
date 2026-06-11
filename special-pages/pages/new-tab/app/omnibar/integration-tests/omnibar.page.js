@@ -449,6 +449,21 @@ export class OmnibarPage {
         return this.attachmentChips().locator(`button[aria-label="Remove ${fileName}"]`);
     }
 
+    /** Remove buttons for attached image chips (all share the same accessible label). */
+    removeImageButton() {
+        return this.attachmentChips().locator('button[aria-label="Remove image"]');
+    }
+
+    /** The over-limit file warning shown when more than the allowed number of files are attached. */
+    fileLimitWarning() {
+        return this.context().getByText(/You can only attach \d+ files at a time/);
+    }
+
+    /** The over-limit image warning shown when more than the allowed number of images are attached. */
+    imageLimitWarning() {
+        return this.context().getByText(/You can only attach \d+ images at a time/);
+    }
+
     /** The `@`-mention typeahead picker. */
     mentionPicker() {
         return this.context().getByRole('dialog', { name: 'Pick an open tab to attach' });

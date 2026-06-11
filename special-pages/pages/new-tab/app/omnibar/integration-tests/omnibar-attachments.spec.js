@@ -350,6 +350,35 @@ test.describe('omnibar file attachment', () => {
         expect(params.files).toBeUndefined();
     });
 
+    test('files over the cap are kept but warn and block submit until removed', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: { 'omnibar.mode': 'ai', 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+        });
+        await omnibar.ready();
+
+        // Any number can be attached — five files (past the cap of three) are all kept, not truncated.
+        await omnibar
+            .fileInput()
+            .setInputFiles(
+                ['a.pdf', 'b.pdf', 'c.pdf', 'd.pdf', 'e.pdf'].map((name) => ({ name, mimeType: 'application/pdf', buffer: PDF_BYTES })),
+            );
+        await expect(omnibar.fileChip()).toHaveCount(5);
+
+        // Over the limit → the warning shows and submit stays disabled even with a query typed.
+        await expect(omnibar.fileLimitWarning()).toBeVisible();
+        await omnibar.types({ mode: 'ai', value: 'summarize these' });
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+
+        // Removing chips back down to the cap clears the warning and re-enables submit.
+        await omnibar.removeFileButton('e.pdf').click();
+        await omnibar.removeFileButton('d.pdf').click();
+        await expect(omnibar.fileChip()).toHaveCount(3);
+        await expect(omnibar.fileLimitWarning()).toHaveCount(0);
+        await expect(omnibar.chatSubmitButton()).toBeEnabled();
+    });
+
     test('switching to a model without file support clears attached files', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

@@ -21,7 +21,7 @@ import { useDrawerControls, useDrawerEventListeners } from '../../components/Dra
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
-import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
+import { MAX_FILES, useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
@@ -321,9 +321,12 @@ function AiChatContent({
         });
     };
 
-    const disabled = !query || imageWarning;
-    // Voice-chat mode: feature flag on AND nothing in the input/attachments. The same button can't
-    // be both "submit text" and "start voice chat", so the submit button is replaced when active.
+    const fileWarning = canAttachFiles && fileState.fileLimitExceeded;
+
+    const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
+    const showFileWarning = fileWarning && !imageMessageShowing;
+    const disabled = !query || imageWarning || fileWarning;
+
     const isVoiceChatMode =
         enableVoiceChatAccess &&
         !imageGenerationActive &&
@@ -353,7 +356,7 @@ function AiChatContent({
         <div
             ref={containerRef}
             class={styles.aiChatContent}
-            data-image-warning={imageWarning || undefined}
+            data-attachment-warning={imageWarning || fileWarning || undefined}
             onFocusCapture={(event) => {
                 if (
                     event.target instanceof HTMLTextAreaElement &&
@@ -453,6 +456,11 @@ function AiChatContent({
                         onRemoveFile={fileState.handleRemoveFile}
                         onRemoveImage={imageState.handleRemoveImage}
                     />
+                    {showFileWarning && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_fileAttachmentLimitWarning', { limit: String(MAX_FILES) })}
+                        </p>
+                    )}
                     <ImageAttachmentContent
                         state={imageState}
                         supportsImageUpload={canAttachImages}

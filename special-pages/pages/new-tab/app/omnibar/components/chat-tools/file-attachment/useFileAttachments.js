@@ -30,7 +30,10 @@ export function useFileAttachments(supportedFileTypes, tabId) {
         setAttachedFiles((prev) => prev.filter((f) => allowList.includes(f.mimeType)));
     }
 
-    const fileUploadDisabled = attachedFiles.length >= MAX_FILES || allowList.length === 0;
+    // Files can always be added (no count cap on the attach button); going over MAX_FILES
+    // surfaces an over-limit warning + disabled submit instead, which the user clears by removing.
+    const fileUploadDisabled = allowList.length === 0;
+    const fileLimitExceeded = attachedFiles.length > MAX_FILES;
 
     const clearAttachedFiles = () => setAttachedFiles([]);
 
@@ -44,9 +47,7 @@ export function useFileAttachments(supportedFileTypes, tabId) {
             .filter(({ file, mimeType }) => mimeType !== null && !existingNames.has(file.name));
         if (validFiles.length === 0) return;
 
-        const remaining = MAX_FILES - attachedFiles.length;
-        const toRead = remaining > 0 ? validFiles.slice(0, remaining) : [];
-        if (toRead.length === 0) return;
+        const toRead = validFiles;
 
         const results = await Promise.allSettled(
             toRead.map(({ file, mimeType }) => readFileAsBase64(file, /** @type {string} */ (mimeType))),
@@ -78,6 +79,7 @@ export function useFileAttachments(supportedFileTypes, tabId) {
         handleRemoveFile,
         clearAttachedFiles,
         fileUploadDisabled,
+        fileLimitExceeded,
         getFilesForSubmission,
     };
 }

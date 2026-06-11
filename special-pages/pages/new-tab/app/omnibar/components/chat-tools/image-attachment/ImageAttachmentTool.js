@@ -57,7 +57,7 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
                     {imageLimitWarning}
                 </p>
             )}
-            {imageErrorMessage && (
+            {!imageLimitExceeded && imageErrorMessage && (
                 <p class={styles.imageWarning} role="alert">
                     {imageErrorMessage}
                     <button class={styles.dismissError} type="button" tabIndex={0} onClick={clearImageError} aria-label="Dismiss">
