@@ -251,7 +251,7 @@ const MockWithState = ({ children, initial = 0, feedType = 'privacy-stats', inte
         if (interval === 0) return;
         const int = setInterval(() => (signal.value += 1), interval);
         return () => clearInterval(int);
-    }, [interval]);
+    }, [interval, signal]);
     const toggle = () => {
         setExpansion((old) => (old === 'expanded' ? 'collapsed' : 'expanded'));
     };

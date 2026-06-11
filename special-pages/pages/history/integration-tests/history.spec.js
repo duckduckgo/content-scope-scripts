@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { HistoryTestPage } from './history.page.js';
 
 test.describe('history', () => {
@@ -261,6 +261,63 @@ test.describe('history', () => {
             await hp.openPage({ additional: { defaultStyles: 'visual-refresh' } });
             await hp.hasEmptyState();
             await hp.hasBackgroundColor({ hex: '#27282A' });
+        });
+    });
+
+    test.describe('global error listeners', () => {
+        test('reports uncaught errors via reportInitException', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+            await hp.openPage();
+            await hp.hasEmptyState();
+
+            await page.evaluate(() => {
+                setTimeout(() => {
+                    throw new Error('test uncaught error');
+                }, 0);
+            });
+
+            const calls = await hp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'history',
+                        method: 'reportInitException',
+                        params: { message: '[uncaught] test uncaught error' },
+                    },
+                },
+            ]);
+        });
+
+        test('reports unhandled rejections via reportInitException', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+            await hp.openPage();
+            await hp.hasEmptyState();
+
+            await page.evaluate(() => {
+                Promise.reject(new Error('test unhandled rejection'));
+            });
+
+            const calls = await hp.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'history',
+                        method: 'reportInitException',
+                        params: { message: '[unhandledrejection] test unhandled rejection' },
+                    },
+                },
+            ]);
+        });
+
+        test('does not fire reportInitException during normal page load', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);
+            await hp.openPage();
+            await hp.hasEmptyState();
+
+            const calls = await hp.mocks.outgoing({ names: ['reportInitException'] });
+            expect(calls).toHaveLength(0);
         });
     });
 });

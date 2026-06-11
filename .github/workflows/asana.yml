@@ -1,7 +1,7 @@
 name: 'asana sync'
 on:
     pull_request_review:
-    pull_request_target:
+    pull_request:
         types:
             - opened
             - edited
@@ -12,6 +12,11 @@ on:
 
 jobs:
     sync:
+        if: >-
+            !github.event.pull_request.head.repo.fork &&
+            github.event.pull_request.user.login != 'dependabot[bot]' &&
+            !startsWith(github.event.pull_request.head.ref, 'cursor/') &&
+            !startsWith(github.event.pull_request.head.ref, 'claude/')
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
