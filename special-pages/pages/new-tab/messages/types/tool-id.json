@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ToolId",
+  "description": "Identifier for an AI chat tool.",
+  "type": "string",
+  "enum": ["WebSearch"]
+}

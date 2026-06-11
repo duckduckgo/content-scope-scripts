@@ -17,13 +17,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
             Paused: 'paused',
         };
 
-        // isDdgWebView is a Windows-specific property injected via userPreferences
-        const isDdgWebView = this.args?.isDdgWebView;
-
-        const isFrameInsideFrameInWebView2 = isDdgWebView
-            ? false // In DDG WebView, we can handle nested frames properly
-            : window.self !== window.top && window.parent !== window.top; // In WebView2, we need to deny permission for nested frames
-
         /**
          * @param {string} name
          * @param {object} data
@@ -51,11 +44,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
         const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, 'watchPosition', {
             apply(target, thisArg, args) {
-                if (isFrameInsideFrameInWebView2) {
-                    // we can't communicate with iframes inside iframes in WebView2 -> deny permission instead of putting users at risk
-                    throw new DOMException('Permission denied');
-                }
-
                 const successHandler = args[0];
                 args[0] = /**
                  * @param {GeolocationPosition} position
@@ -376,11 +364,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
         if (window.MediaDevices) {
             const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
                 apply(target, thisArg, args) {
-                    if (isFrameInsideFrameInWebView2) {
-                        // we can't communicate with iframes inside iframes in WebView2-> deny permission instead of putting users at risk
-                        return Promise.reject(new DOMException('Permission denied'));
-                    }
-
                     const videoRequested = args[0]?.video;
                     const audioRequested = args[0]?.audio;
 

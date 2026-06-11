@@ -22,8 +22,8 @@ export function Components() {
         platform: { name: 'macos' },
         customError: { state: 'enabled' },
     });
-    let embed = /** @type {EmbedSettings} */ (EmbedSettings.fromHref('https://localhost?videoID=123'));
-    let url = embed?.toEmbedUrl();
+    const embed = /** @type {EmbedSettings} */ (EmbedSettings.fromHref('https://localhost?videoID=123'));
+    const url = embed?.toEmbedUrl();
     if (!url) throw new Error('unreachable');
     return (
         <>

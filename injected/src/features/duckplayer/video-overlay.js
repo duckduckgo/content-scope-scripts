@@ -363,7 +363,7 @@ export class VideoOverlay {
 
                 const video = /** @type {HTMLVideoElement} */ (document.querySelector(this.settings.selectors.videoElement));
                 if (video?.isConnected) {
-                    video.play();
+                    void video.play();
                 }
             };
         });
@@ -374,9 +374,9 @@ export class VideoOverlay {
      */
     appendThumbnail(overlayElement) {
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
-        const videoId = params?.id;
+        if (!params) return;
 
-        const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
+        const imageUrl = this.environment.getLargeThumbnailSrc(params.id);
         appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
     }
 
