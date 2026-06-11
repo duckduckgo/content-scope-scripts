@@ -396,12 +396,11 @@ export class OmnibarPage {
     }
 
     attachPageContentMenuItem() {
-        return this.attachMenu().getByRole('menuitem', { name: 'Attach Page Content' });
+        return this.attachMenu().getByRole('menuitem', { name: 'Add Page Content' });
     }
 
-    /** The recent-tabs submenu opened from "Attach Page Content". */
     tabPicker() {
-        return this.context().getByRole('menu', { name: 'Recent Tabs' });
+        return this.context().getByRole('menu', { name: 'Tabs' });
     }
 
     /** @param {string | RegExp} title */

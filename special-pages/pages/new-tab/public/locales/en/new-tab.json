@@ -346,11 +346,11 @@
     "description": "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
   },
   "omnibar_attachPageContentLabel": {
-    "title": "Attach Page Content",
+    "title": "Add Page Content",
     "description": "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
   },
   "omnibar_attachTabsPickerTitle": {
-    "title": "Recent Tabs",
+    "title": "Tabs",
     "description": "Header text for the open-tabs picker panel."
   },
   "omnibar_attachTabsPickerLabel": {

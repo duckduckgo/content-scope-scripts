@@ -12,9 +12,6 @@ import styles from './AttachMenu.module.css';
  */
 
 /**
- * Recent-tabs picker — a Dropdown with a "Recent Tabs" header and a
- * DropdownItem per open tab.
- *
  * @param {object} props
  * @param {(key: keyof Strings) => string} props.t
  * @param {import('../useDropdown.js').DropdownPosition} props.position
