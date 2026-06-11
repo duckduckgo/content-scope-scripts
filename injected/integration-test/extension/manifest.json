@@ -3,6 +3,14 @@
   "description": "integration-test-extension",
   "version": "1.0",
   "manifest_version": 3,
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "integration-test-extension@duckduckgo.com",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

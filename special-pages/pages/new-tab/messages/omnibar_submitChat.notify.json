@@ -13,6 +13,43 @@
     },
     "target": {
       "$ref": "./types/open-target.json"
+    },
+    "modelId": {
+      "description": "The selected AI model identifier. Optional - if not provided, the backend will use the default model.",
+      "type": "string"
+    },
+    "reasoningEffort": {
+      "$ref": "./types/reasoning-effort.json"
+    },
+    "mode": {
+      "description": "Duck.ai mode. If omitted, defaults to 'chat'. Use 'voice-mode' for 1-click voice-chat handoff (no chat content needed — Duck.ai routes to the voice flow on mode alone).",
+      "type": "string",
+      "enum": ["chat", "image-generation", "voice-mode"]
+    },
+    "toolChoice": {
+      "description": "Tools to enable for this chat session.",
+      "type": "array",
+      "items": { "$ref": "./types/tool-id.json" }
+    },
+    "images": {
+      "description": "Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["data", "format"],
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "description": "Base64-encoded image data (without data URL prefix)",
+            "type": "string"
+          },
+          "format": {
+            "description": "Image format after processing. Only 'jpeg' or 'png' are sent. JPEG is preserved for .jpg/.jpeg files, all others (including WebP) are converted to PNG.",
+            "type": "string",
+            "enum": ["jpeg", "png"]
+          }
+        }
+      }
     }
   }
 }
