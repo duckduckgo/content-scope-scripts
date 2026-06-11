@@ -4,9 +4,9 @@ import { privacyStatsMocks } from './privacy-stats/mocks/privacy-stats.mocks.js'
 import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js';
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
-import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
+import { subscriptionWinBackBannerDataExamples } from './subscription-winback-banner/mocks/subscriptionWinBackBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
 import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
 import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js';
@@ -95,6 +95,7 @@ export function mockTransport() {
     const rmfSubscriptions = new Map();
     const freemiumPIRBannerSubscriptions = new Map();
     const nextStepsSubscriptions = new Map();
+    const subscriptionWinBackBannerSubscriptions = new Map();
 
     function clearRmf() {
         const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || [];
@@ -161,6 +162,14 @@ export function mockTransport() {
                 }
                 case 'freemiumPIRBanner_dismiss': {
                     console.log('ignoring freemiumPIRBanner_dismiss', msg.params);
+                    return;
+                }
+                case 'winBackOffer_action': {
+                    console.log('ignoring winBackOffer_action', msg.params);
+                    return;
+                }
+                case 'winBackOffer_dismiss': {
+                    console.log('ignoring winBackOffer_dismiss', msg.params);
                     return;
                 }
                 case 'favorites_setConfig': {
@@ -256,13 +265,33 @@ export function mockTransport() {
                     }
                     return () => {};
                 }
+                case 'winBackOffer_onDataUpdate': {
+                    // store the callback for later (eg: dismiss)
+                    const prev = subscriptionWinBackBannerSubscriptions.get('winBackOffer_onDataUpdate') || [];
+                    const next = [...prev];
+                    next.push(cb);
+                    subscriptionWinBackBannerSubscriptions.set('winBackOffer_onDataUpdate', next);
+
+                    const subscriptionWinBackBannerParam = url.searchParams.get('winback');
+
+                    if (
+                        subscriptionWinBackBannerParam !== null &&
+                        subscriptionWinBackBannerParam in subscriptionWinBackBannerDataExamples
+                    ) {
+                        const message = subscriptionWinBackBannerDataExamples[subscriptionWinBackBannerParam];
+                        cb(message);
+                    }
+                    return () => {};
+                }
                 case 'nextSteps_onDataUpdate': {
                     const prev = nextStepsSubscriptions.get('nextSteps_onDataUpdate') || [];
                     const next = [...prev];
                     next.push(cb);
                     nextStepsSubscriptions.set('nextSteps_onDataUpdate', next);
-                    const params = url.searchParams.get('next-steps');
-                    if (params && params in nextSteps) {
+                    // Support both next-steps and next-steps-list query params
+                    const hasNextSteps = url.searchParams.has('next-steps');
+                    const hasNextStepsList = url.searchParams.has('next-steps-list');
+                    if (hasNextSteps || hasNextStepsList) {
                         const data = read('nextSteps_data');
                         cb(data);
                     }
@@ -424,22 +453,15 @@ export function mockTransport() {
                 case 'nextSteps_getData': {
                     /** @type {NextStepsData} */
                     let data = { content: null };
-                    const ids = url.searchParams.getAll('next-steps');
+                    // Support both next-steps and next-steps-list query params
+                    // Both widgets use the same nextSteps_getData message
+                    const nextStepsIds = url.searchParams.getAll('next-steps');
+                    const nextStepsListIds = url.searchParams.getAll('next-steps-list');
+                    const ids = nextStepsIds.length > 0 ? nextStepsIds : nextStepsListIds;
                     if (ids.length) {
                         /** @type {NextStepsData} */
                         data = {
-                            content: ids
-                                .filter((id) => {
-                                    if (!(id in nextSteps)) {
-                                        console.warn(`${id} missing in nextSteps data`);
-                                        return false;
-                                    }
-                                    return true;
-                                })
-                                .map((id) => {
-                                    // eslint-disable-next-line object-shorthand
-                                    return { id: /** @type {any} */ (id) };
-                                }),
+                            content: ids.map((id) => ({ id: /** @type {any} */ (id) })),
                         };
                         write('nextSteps_data', data);
                     }
@@ -470,6 +492,18 @@ export function mockTransport() {
                     }
 
                     return Promise.resolve(freemiumPIRBannerMessage);
+                }
+                case 'winBackOffer_getData': {
+                    /** @type {import('../types/new-tab.ts').SubscriptionWinBackBannerData} */
+                    let subscriptionWinBackBannerMessage = { content: null };
+
+                    const subscriptionWinBackBannerParam = url.searchParams.get('winback');
+
+                    if (subscriptionWinBackBannerParam && subscriptionWinBackBannerParam in subscriptionWinBackBannerDataExamples) {
+                        subscriptionWinBackBannerMessage = subscriptionWinBackBannerDataExamples[subscriptionWinBackBannerParam];
+                    }
+
+                    return Promise.resolve(subscriptionWinBackBannerMessage);
                 }
                 case 'favorites_getData': {
                     const param = url.searchParams.get('favorites');
@@ -514,7 +548,7 @@ export function initialSetup(url) {
         { id: 'updateNotification' },
         { id: 'rmf' },
         { id: 'freemiumPIRBanner' },
-        { id: 'nextSteps' },
+        { id: 'subscriptionWinBackBanner' },
         { id: 'favorites' },
     ];
 
@@ -545,11 +579,24 @@ export function initialSetup(url) {
     widgetsFromStorage.push({ id: 'protections' });
     widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
 
-    if (url.searchParams.has('omnibar')) {
+    if (url.searchParams.get('omnibar') !== 'false') {
         const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'omnibar' });
         const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: 'omnibar', visibility: 'visible' });
+    }
+
+    // Insert nextSteps after omnibar (or at the beginning if omnibar is not present) and before favorites
+    if (url.searchParams.has('next-steps')) {
+        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextSteps' });
+    }
+
+    // Insert nextStepsList after omnibar (or at the beginning if omnibar is not present) and before favorites
+    // Note: nextStepsList uses the same nextSteps_* messages, just a different widget ID
+    if (url.searchParams.has('next-steps-list')) {
+        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextStepsList' });
     }
 
     initial.customizer = customizerData();

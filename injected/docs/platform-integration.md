@@ -66,11 +66,13 @@ The following placeholders are replaced during the build process:
 - **`$USER_PREFERENCES$`** - An object containing:
     - `platform`:
         - `name`: '<ios | macos | extension | android | windows>',
-        - `internal`: <boolean>
-        - `version`: <string | number>
+        - `internal`: `<boolean>`
+        - `preview`: `<boolean>`
+        - `version`: `<string | number>`
     - `debug`: boolean
     - `globalPrivacyControlValue`: boolean
     - `sessionKey`: `<CSRNG UUID 4 string>` (used for fingerprinting) - this should regenerate on browser close or every 24 hours
+    - `messagingContextName`: An optional string for the context name for message passing. (e.g. 'contentScopeScripts')
     - `features`: `[<string feature names>]`
 
 ## Adding a New Platform

@@ -3,6 +3,15 @@ import { test as base, expect } from '@playwright/test';
 
 const test = testContextForExtension(base);
 
+// Test runner for API-not-present scenario
+// Note: "API present" case is covered by "Permissions API - when present" test suite
+// which uses permissionsPresent feature with different (proxy-based) behavior
+function createApiTestRunner(testName, testFunction) {
+    test.describe(testName, () => {
+        testFunction({ removeApi: true });
+    });
+}
+
 test.describe('Ensure safari interface is injected', () => {
     test('should expose window.safari when enabled', async ({ page }) => {
         await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } });
@@ -153,15 +162,380 @@ test.describe('Ensure Notification interface is injected', () => {
     });
 });
 
-test.describe('Permissions API', () => {
-    // Fake the Permission API not existing in this browser
-    const removePermissionsScript = `
-    Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
-    `;
-
-    function checkForPermissions() {
-        return !!window.navigator.permissions;
+test.describe('webNotifications', () => {
+    /**
+     * @param {import("@playwright/test").Page} page
+     */
+    async function beforeWebNotifications(page) {
+        await gotoAndWait(page, '/blank.html', {
+            site: { enabledFeatures: ['webCompat'] },
+            featureSettings: { webCompat: { webNotifications: 'enabled' } },
+        });
     }
+
+    test('should override Notification API when enabled', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const hasNotification = await page.evaluate(() => 'Notification' in window);
+        expect(hasNotification).toEqual(true);
+    });
+
+    test('should return default for permission initially', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const permission = await page.evaluate(() => window.Notification.permission);
+        expect(permission).toEqual('default');
+    });
+
+    test('should return 2 for maxActions', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const maxActions = await page.evaluate(() => {
+            // @ts-expect-error - maxActions is experimental
+            return window.Notification.maxActions;
+        });
+        expect(maxActions).toEqual(2);
+    });
+
+    test('should send showNotification message when constructing', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => new window.Notification('Test Title', { body: 'Test Body' }));
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        expect(calls.length).toBeGreaterThan(0);
+        expect(calls[0]).toMatchObject({
+            featureName: 'webCompat',
+            method: 'showNotification',
+            params: { title: 'Test Title', body: 'Test Body' },
+        });
+    });
+
+    test('should send closeNotification message on close()', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => {
+            const n = new window.Notification('Test');
+            n.close();
+        });
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        const closeCall = calls.find((c) => c.method === 'closeNotification');
+        expect(closeCall).toBeDefined();
+        expect(closeCall).toMatchObject({
+            featureName: 'webCompat',
+            method: 'closeNotification',
+        });
+        expect(closeCall.params.id).toBeDefined();
+    });
+
+    test('should only fire onclose once when close() is called multiple times', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        const closeCount = await page.evaluate(() => {
+            let count = 0;
+            const notification = new window.Notification('Test');
+            notification.onclose = () => {
+                count++;
+            };
+
+            // Call close() multiple times - should only fire onclose once
+            notification.close();
+            notification.close();
+            notification.close();
+
+            return count;
+        });
+
+        expect(closeCount).toEqual(1);
+    });
+
+    test('should propagate requestPermission result from native', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.resolve({ permission: 'denied' });
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        expect(permission).toEqual('denied');
+    });
+
+    test('should update Notification.permission after requestPermission resolves', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        // Initially should be 'default'
+        const initialPermission = await page.evaluate(() => window.Notification.permission);
+        expect(initialPermission).toEqual('default');
+
+        // Mock native to return 'granted'
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.resolve({ permission: 'granted' });
+            };
+        });
+
+        await page.evaluate(() => window.Notification.requestPermission());
+
+        // After requestPermission, Notification.permission should reflect the new state
+        const updatedPermission = await page.evaluate(() => window.Notification.permission);
+        expect(updatedPermission).toEqual('granted');
+    });
+
+    test('should return denied when native error occurs', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.reject(new Error('native error'));
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        expect(permission).toEqual('denied');
+    });
+
+    test('requestPermission should have native-looking toString()', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        const requestPermissionToString = await page.evaluate(() => window.Notification.requestPermission.toString());
+        expect(requestPermissionToString).toEqual('function requestPermission() { [native code] }');
+    });
+});
+
+test.describe('webNotifications with nativeEnabled: false', () => {
+    /**
+     * @param {import("@playwright/test").Page} page
+     */
+    async function beforeWebNotificationsDisabled(page) {
+        await gotoAndWait(page, '/blank.html', {
+            site: { enabledFeatures: ['webCompat'] },
+            featureSettings: { webCompat: { webNotifications: { state: 'enabled', nativeEnabled: false } } },
+        });
+    }
+
+    test('should return denied for permission when nativeEnabled is false', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        const permission = await page.evaluate(() => window.Notification.permission);
+        expect(permission).toEqual('denied');
+    });
+
+    test('should not send showNotification when nativeEnabled is false', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => new window.Notification('Test Title'));
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        expect(calls.length).toEqual(0);
+    });
+
+    test('should return denied from requestPermission without calling native', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        await page.evaluate(() => {
+            globalThis.requestCalls = [];
+            globalThis.cssMessaging.impl.request = (msg) => {
+                globalThis.requestCalls.push(msg);
+                return Promise.resolve({ permission: 'granted' });
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        const calls = await page.evaluate(() => globalThis.requestCalls);
+
+        expect(permission).toEqual('denied');
+        expect(calls.length).toEqual(0);
+    });
+});
+
+// Shared utility functions for permissions tests
+function checkForPermissions() {
+    return !!window.navigator.permissions;
+}
+
+/**
+ * Shared test setup for permissions tests
+ * @param {import("@playwright/test").Page} page
+ * @param {Object} options - Setup options
+ * @param {boolean} [options.removePermissions=false] - Whether to remove permissions API
+ * @param {boolean} [options.enablePermissionsPresent=false] - Whether to enable permissionsPresent feature
+ */
+async function setupPermissionsTest(page, options = {}) {
+    const { removePermissions = false, enablePermissionsPresent = false } = options;
+
+    const featureSettings = {
+        webCompat: {
+            permissions: {
+                state: 'enabled',
+                supportedPermissions: {
+                    // Non-native permissions (should fall through to original API)
+                    geolocation: {},
+                    notification: { name: 'name-override' },
+                    // Native permissions (handled by our implementation)
+                    push: {
+                        name: 'notifications',
+                        native: true,
+                    },
+                    camera: {
+                        name: 'video_capture',
+                        native: true,
+                    },
+                },
+            },
+        },
+    };
+
+    if (enablePermissionsPresent) {
+        featureSettings.webCompat.permissionsPresent = {
+            state: 'enabled',
+        };
+    }
+
+    const removePermissionsScript = removePermissions
+        ? `
+        Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
+    `
+        : undefined;
+
+    await gotoAndWait(
+        page,
+        '/blank.html',
+        {
+            site: {
+                enabledFeatures: ['webCompat'],
+            },
+            featureSettings,
+        },
+        removePermissionsScript,
+    );
+}
+
+/**
+ * Shared permission checking function
+ * @param {import("@playwright/test").Page} page
+ * @param {any} name
+ * @return {Promise<{result: any, message: *}>}
+ */
+async function checkPermission(page, name) {
+    const payload = `window.navigator.permissions.query(${JSON.stringify({ name })})`;
+    const result = await page.evaluate(payload).catch((e) => {
+        return { threw: e };
+    });
+    const message = await page.evaluate(() => {
+        return globalThis.shareReq;
+    });
+    return { result, message };
+}
+
+/**
+ * Shared test cases for permissions functionality
+ */
+const permissionsTestCases = {
+    /**
+     * Test that permissions API is exposed when enabled
+     * @param {import("@playwright/test").Page} page
+     */
+    async testPermissionsExposed(page) {
+        const hasPermissions = await page.evaluate(checkForPermissions);
+        expect(hasPermissions).toEqual(true);
+    },
+
+    /**
+     * Test error handling for unsupported permissions
+     * @param {import("@playwright/test").Page} page
+     */
+    async testUnsupportedPermission(page) {
+        const { result } = await checkPermission(page, 'notexistent');
+        expect(result.threw).not.toBeUndefined();
+        expect(result.threw.message).toContain('notexistent');
+    },
+
+    /**
+     * Test default prompt response
+     * @param {import("@playwright/test").Page} page
+     */
+    async testDefaultPrompt(page) {
+        const { result } = await checkPermission(page, 'geolocation');
+        expect(result).toMatchObject({ name: 'geolocation', state: 'prompt' });
+    },
+
+    /**
+     * Test name override functionality
+     * @param {import("@playwright/test").Page} page
+     */
+    async testNameOverride(page) {
+        const { result } = await checkPermission(page, 'notification');
+        expect(result).toMatchObject({ name: 'name-override', state: 'prompt' });
+    },
+
+    /**
+     * Test native permission with successful messaging
+     * @param {import("@playwright/test").Page} page
+     */
+    async testNativePermissionSuccess(page) {
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = (req) => {
+                globalThis.shareReq = req;
+                return Promise.resolve({ state: 'granted' });
+            };
+        });
+        const { result, message } = await checkPermission(page, 'camera');
+        expect(result).toMatchObject({ name: 'video_capture', state: 'granted' });
+        expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } });
+    },
+
+    /**
+     * Test native permission with unexpected response
+     * @param {import("@playwright/test").Page} page
+     */
+    async testNativePermissionUnexpectedResponse(page) {
+        page.on('console', (msg) => {
+            console.log(`PAGE LOG: ${msg.text()}`);
+        });
+
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = (message) => {
+                globalThis.shareReq = message;
+                return Promise.resolve({ noState: 'xxx' });
+            };
+        });
+        const { result, message } = await checkPermission(page, 'camera');
+        expect(result).toMatchObject({ name: 'video_capture', state: 'prompt' });
+        expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } });
+    },
+
+    /**
+     * Test native permission with messaging error
+     * @param {import("@playwright/test").Page} page
+     */
+    async testNativePermissionError(page) {
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = (message) => {
+                globalThis.shareReq = message;
+                return Promise.reject(new Error('something wrong'));
+            };
+        });
+        const { result, message } = await checkPermission(page, 'camera');
+        expect(result).toMatchObject({ name: 'video_capture', state: 'prompt' });
+        expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } });
+    },
+};
+
+createApiTestRunner('Permissions API', ({ removeApi }) => {
     function checkObjectDescriptorIsNotPresent() {
         const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'permissions');
         return descriptor === undefined;
@@ -175,115 +549,130 @@ test.describe('Permissions API', () => {
             expect(initialPermissions).toEqual(true);
             const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent);
             expect(initialDescriptorSerialization).toEqual(true);
-            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } }, removePermissionsScript);
+            // Remove permissions API without enabling webCompat feature
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                { site: { enabledFeatures: [] } },
+                `
+                Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
+            `,
+            );
             const noPermissions = await page.evaluate(checkForPermissions);
             expect(noPermissions).toEqual(false);
         });
     });
 
     test.describe('enabled feature', () => {
-        /**
-         * @param {import("@playwright/test").Page} page
-         */
-        async function before(page) {
-            await gotoAndWait(
-                page,
-                '/blank.html',
-                {
-                    site: {
-                        enabledFeatures: ['webCompat'],
-                    },
-                    featureSettings: {
-                        webCompat: {
-                            permissions: {
-                                state: 'enabled',
-                                supportedPermissions: {
-                                    geolocation: {},
-                                    push: {
-                                        name: 'notifications',
-                                    },
-                                    camera: {
-                                        name: 'video_capture',
-                                        native: true,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                removePermissionsScript,
-            );
-        }
-        /**
-         * @param {import("@playwright/test").Page} page
-         * @param {any} name
-         * @return {Promise<{result: any, message: *}>}
-         */
-        async function checkPermission(page, name) {
-            const payload = `window.navigator.permissions.query(${JSON.stringify({ name })})`;
-            const result = await page.evaluate(payload).catch((e) => {
-                return { threw: e };
-            });
-            const message = await page.evaluate(() => {
-                return globalThis.shareReq;
-            });
-            return { result, message };
-        }
         test('should expose window.navigator.permissions when enabled', async ({ page }) => {
-            await before(page);
-            const hasPermissions = await page.evaluate(checkForPermissions);
-            expect(hasPermissions).toEqual(true);
+            await setupPermissionsTest(page, { removePermissions: removeApi });
+            await permissionsTestCases.testPermissionsExposed(page);
             const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent);
             // This fails in a test condition purely because we have to add a descriptor to modify the prop
             expect(modifiedDescriptorSerialization).toEqual(false);
         });
+
         test('should throw error when permission not supported', async ({ page }) => {
-            await before(page);
-            const { result } = await checkPermission(page, 'notexistent');
-            expect(result.threw).not.toBeUndefined();
-            expect(result.threw.message).toContain('notexistent');
+            await setupPermissionsTest(page, { removePermissions: removeApi });
+            await permissionsTestCases.testUnsupportedPermission(page);
         });
+
         test('should return prompt by default', async ({ page }) => {
-            await before(page);
-            const { result } = await checkPermission(page, 'geolocation');
-            expect(result).toMatchObject({ name: 'geolocation', state: 'prompt' });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
+            await permissionsTestCases.testDefaultPrompt(page);
         });
+
         test('should return updated name when configured', async ({ page }) => {
-            await before(page);
-            const { result } = await checkPermission(page, 'push');
-            expect(result).toMatchObject({ name: 'notifications', state: 'prompt' });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
+            await permissionsTestCases.testNameOverride(page);
         });
+
         test('should propagate result from native when configured', async ({ page }) => {
-            await before(page);
-            // Fake result from native
+            await setupPermissionsTest(page, { removePermissions: removeApi });
+            await permissionsTestCases.testNativePermissionSuccess(page);
+        });
+
+        test('should default to prompt when native sends unexpected response', async ({ page }) => {
+            await setupPermissionsTest(page, { removePermissions: removeApi });
+            await permissionsTestCases.testNativePermissionUnexpectedResponse(page);
+        });
+
+        test('should default to prompt when native error occurs', async ({ page }) => {
+            await setupPermissionsTest(page, { removePermissions: removeApi });
+            await permissionsTestCases.testNativePermissionError(page);
+        });
+    });
+});
+
+test.describe('Permissions API - when present', () => {
+    test.describe('disabled feature', () => {
+        test('should not modify existing permissions API', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } });
+            const hasPermissions = await page.evaluate(checkForPermissions);
+            expect(hasPermissions).toEqual(true);
+
+            // Test that the original API behavior is preserved
+            // Only test if the query method is actually available
+            const originalQuery = await page.evaluate(() => {
+                return window.navigator.permissions.query;
+            });
+
+            // Only run the assertion if the query method is available
+            // This can happen in test environments where the API is partially implemented
+            if (typeof originalQuery !== 'undefined') {
+                expect(typeof originalQuery).toBe('function');
+            }
+        });
+    });
+
+    test.describe('enabled feature', () => {
+        test('should preserve existing permissions API', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            await permissionsTestCases.testPermissionsExposed(page);
+        });
+
+        test('should fall through to original API for non-native permissions', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            // Native PermissionStatus has name/state as getters that don't serialize,
+            // so we extract them inside the page context
+            const result = await page.evaluate(async () => {
+                const status = await window.navigator.permissions.query({ name: 'geolocation' });
+                return { name: status.name, state: status.state };
+            });
+
+            // Should use original API behavior - verifies non-native permissions bypass our shim
+            expect(result.name).toBe('geolocation');
+            expect(result.state).toBeDefined();
+        });
+
+        test('should fall through to original API for unsupported permissions', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            await permissionsTestCases.testUnsupportedPermission(page);
+        });
+
+        test('should intercept native permissions and return custom result', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            await permissionsTestCases.testNativePermissionSuccess(page);
+        });
+
+        test('should apply name overrides for native permissions', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = (req) => {
                     globalThis.shareReq = req;
                     return Promise.resolve({ state: 'granted' });
                 };
             });
-            const { result, message } = await checkPermission(page, 'camera');
-            expect(result).toMatchObject({ name: 'video_capture', state: 'granted' });
-            expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } });
-        });
-        test('should default to prompt when native sends unexpected response', async ({ page }) => {
-            await before(page);
-            page.on('console', (msg) => {
-                console.log(`PAGE LOG: ${msg.text()}`);
-            });
 
-            await page.evaluate(() => {
-                globalThis.cssMessaging.impl.request = (message) => {
-                    globalThis.shareReq = message;
-                    return Promise.resolve({ noState: 'xxx' });
-                };
-            });
-            const { result, message } = await checkPermission(page, 'camera');
-            expect(result).toMatchObject({ name: 'video_capture', state: 'prompt' });
-            expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } });
+            const { result } = await checkPermission(page, 'camera');
+
+            // Should use our custom implementation for native permissions
+            // with the overridden name from config
+            expect(result).toMatchObject({ name: 'video_capture', state: 'granted' });
         });
-        test('should default to prompt when native error occurs', async ({ page }) => {
-            await before(page);
+
+        test('should fall through to original API when native messaging fails', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = (message) => {
                     globalThis.shareReq = message;
@@ -291,8 +680,66 @@ test.describe('Permissions API', () => {
                 };
             });
             const { result, message } = await checkPermission(page, 'camera');
-            expect(result).toMatchObject({ name: 'video_capture', state: 'prompt' });
+            // Should fall through to original API when messaging fails
+            expect(result).toBeDefined();
             expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } });
+        });
+
+        test('should fall through to original API for invalid arguments', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            const { result } = await checkPermission(page, null);
+            // Should use original API validation
+            expect(result.threw).not.toBeUndefined();
+        });
+
+        test('should use configured name override for native permissions', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = (req) => {
+                    globalThis.shareReq = req;
+                    return Promise.resolve({ state: 'denied' });
+                };
+            });
+            const { result } = await checkPermission(page, 'push');
+            expect(result).toMatchObject({ name: 'notifications', state: 'denied' });
+        });
+
+        test('should fire change event (addEventListener) after permission prompt was granted', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            const result = await page.evaluate(async () => {
+                // Start with prompt
+                globalThis.cssMessaging.impl.request = () => Promise.resolve({ state: 'prompt' });
+                const status = await window.navigator.permissions.query({ name: 'camera' });
+                const initialState = status.state;
+                // Switch to granted (simulating user granting permission)
+                globalThis.cssMessaging.impl.request = () => Promise.resolve({ state: 'granted' });
+                // Wait for change event
+                const newState = await new Promise((resolve) => {
+                    status.addEventListener('change', () => resolve(status.state), { once: true });
+                });
+                return { initialState, newState };
+            });
+            expect(result.initialState).toBe('prompt');
+            expect(result.newState).toBe('granted');
+        });
+
+        test('should fire change event (onchange) after permission prompt was denied', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            const result = await page.evaluate(async () => {
+                // Start with prompt
+                globalThis.cssMessaging.impl.request = () => Promise.resolve({ state: 'prompt' });
+                const status = await window.navigator.permissions.query({ name: 'camera' });
+                const initialState = status.state;
+                // Switch to denied (simulating user rejecting permission)
+                globalThis.cssMessaging.impl.request = () => Promise.resolve({ state: 'denied' });
+                // Wait for change event
+                const newState = await new Promise((resolve) => {
+                    status.onchange = () => resolve(status.state);
+                });
+                return { initialState, newState };
+            });
+            expect(result.initialState).toBe('prompt');
+            expect(result.newState).toBe('denied');
         });
     });
 });

@@ -1,0 +1,21 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "noEmit": true
+    },
+    "include": [
+        "injected/src",
+        "injected/entry-points",
+        "messaging",
+        "injected/src/globals.d.ts"
+    ],
+    "exclude": [
+        "injected/integration-test",
+        "injected/unit-test",
+        "injected/scripts",
+        "special-pages",
+        "types-generator"
+    ]
+}

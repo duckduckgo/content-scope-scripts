@@ -4,8 +4,9 @@ import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
+import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider.js';
-import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
+import { ArrowIndentCenteredIcon, LogoStacked } from '../../components/Icons.js';
 import { useModeWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { useTabState } from '../../tabs/TabsProvider.js';
 
@@ -31,9 +32,12 @@ export function OmnibarConsumer() {
     const { state, setEnableAi } = useContext(OmnibarContext);
     const { current } = useTabState();
     const { visibility } = useVisibility();
-    if (state.status !== 'ready') return null;
-
     const visible = visibility.value === 'visible';
+
+    if (state.status !== 'ready') {
+        return visible ? <OmnibarPlaceholder /> : null;
+    }
+
     return (
         <>
             {state.config.showAiSetting && (
@@ -44,13 +48,32 @@ export function OmnibarConsumer() {
     );
 }
 
+function OmnibarPlaceholder() {
+    return (
+        <div class={styles.root} aria-hidden="true">
+            <LogoStacked class={styles.logo} />
+            <div class={styles.placeholderTabs} />
+            <div class={styles.spacer} />
+        </div>
+    );
+}
+
 /**
  * @param {object} props
  * @param {OmnibarConfig} props.config
  * @param {string} props.tabId
  */
 function OmnibarReadyState({ config, tabId }) {
-    const { enableAi = true, showAiSetting = true, showCustomizePopover = false, mode: defaultMode } = config;
+    const {
+        enableAi = true,
+        showAiSetting = true,
+        showCustomizePopover = false,
+        enableRecentAiChats = false,
+        showViewAllAiChats = false,
+        enableVoiceChatAccess = false,
+        enableAskAiSuggestion = true,
+        mode: defaultMode,
+    } = config;
     const { setMode } = useContext(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
 
@@ -59,7 +82,11 @@ function OmnibarReadyState({ config, tabId }) {
             mode={modeForCurrentTab}
             setMode={setMode}
             enableAi={showAiSetting && enableAi}
+            enableRecentAiChats={enableRecentAiChats}
+            showViewAllAiChats={showViewAllAiChats}
             showCustomizePopover={showCustomizePopover}
+            enableVoiceChatAccess={enableVoiceChatAccess}
+            enableAskAiSuggestion={enableAskAiSuggestion}
             tabId={tabId}
         />
     );
@@ -77,7 +104,7 @@ export function AiSetting({ enableAi, setEnableAi, omnibarVisible }) {
     useCustomizer({
         title: t('omnibar_toggleDuckAi'),
         id: `_${id}-toggleAi`,
-        icon: <ArrowIndentCenteredIcon style={{ color: 'var(--ntp-icons-tertiary)' }} />,
+        icon: <ArrowIndentCenteredIcon style={{ color: 'var(--ds-color-theme-icons-tertiary)' }} />,
         toggle: () => setEnableAi(!enableAi),
         /**
          * Duck.ai is only ever shown as 'visible' (eg: switch is checked) if the omnibar is also visible.

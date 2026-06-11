@@ -7,8 +7,41 @@ import {
     computeLimitedSiteObject,
     isSupportedVersion,
     isMaxSupportedVersion,
+    isStateEnabled,
 } from './utils.js';
-import { URLPattern } from 'urlpattern-polyfill';
+import { URLPattern as URLPatternPolyfill } from 'urlpattern-polyfill';
+
+/**
+ * Used to match conditional changes for a settings feature.
+ *
+ * @typedef {object} ConditionBlock
+ * @property {string[] | string} [domain]
+ * @property {object} [urlPattern]
+ * @property {string | number} [minSupportedVersion]
+ * @property {string | number} [maxSupportedVersion]
+ * @property {object} [experiment]
+ * @property {string} [experiment.experimentName]
+ * @property {string} [experiment.cohort]
+ * @property {object} [context]
+ * @property {boolean} [context.frame] - true if the condition applies to frames
+ * @property {boolean} [context.top] - true if the condition applies to the top frame
+ * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
+ * @property {boolean} [internal] - true if the condition applies to internal builds
+ * @property {boolean} [preview] - true if the condition applies to preview builds
+ */
+
+/**
+ * @typedef {ConditionBlock|ConditionBlock[]} ConditionBlockOrArray
+ */
+
+/**
+ * An entry from a conditional feature setting list.
+ * Each entry has optional condition/domain fields for matching,
+ * plus optional patchSettings for config patching.
+ * Features may add additional properties specific to their config.
+ *
+ * @typedef {{condition?: ConditionBlockOrArray, domain?: string | string[], patchSettings?: import('immutable-json-patch').JSONPatchDocument} & Record<string, unknown>} ConditionalSettingEntry
+ */
 
 /**
  * This class is extended by each feature to implement remote config handling:
@@ -34,7 +67,9 @@ export default class ConfigFeature {
      *   assets?: import('./content-feature.js').AssetConfig | undefined,
      *   site: import('./content-feature.js').Site,
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
-     *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
+     *   messagingContextName: string,
+     *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
+     *   trackerData?: import('./features/tracker-protection/tracker-resolver.js').TrackerData,
      * } | null}
      */
     #args;
@@ -52,8 +87,8 @@ export default class ConfigFeature {
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
-            this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+            const enabledFeatures = computeEnabledFeatures(this.#bundledConfig, site.domain, platform);
+            this.#args.featureSettings = parseFeatureSettings(this.#bundledConfig, enabledFeatures);
         }
     }
 
@@ -91,12 +126,12 @@ export default class ConfigFeature {
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
-     * @return {any[]}
+     * @return {ConditionalSettingEntry[]}
      * @protected
      */
     matchConditionalFeatureSetting(featureKeyName) {
         const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
-        return conditionalChanges.filter((rule) => {
+        return conditionalChanges.filter((/** @type {any} */ rule) => {
             let condition = rule.condition;
             // Support shorthand for domain matching for backwards compatibility
             if (condition === undefined && 'domain' in rule) {
@@ -120,25 +155,8 @@ export default class ConfigFeature {
     }
 
     /**
-     * Used to match conditional changes for a settings feature.
-     * @typedef {object} ConditionBlock
-     * @property {string[] | string} [domain]
-     * @property {object} [urlPattern]
-     * @property {object} [minSupportedVersion]
-     * @property {object} [maxSupportedVersion]
-     * @property {object} [experiment]
-     * @property {string} [experiment.experimentName]
-     * @property {string} [experiment.cohort]
-     * @property {object} [context]
-     * @property {boolean} [context.frame] - true if the condition applies to frames
-     * @property {boolean} [context.top] - true if the condition applies to the top frame
-     * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
-     * @property {boolean} [internal] - true if the condition applies to internal builds
-     */
-
-    /**
      * Takes multiple conditional blocks and returns true if any apply.
-     * @param {ConditionBlock|ConditionBlock[]} conditionBlock
+     * @param {ConditionBlockOrArray} conditionBlock
      * @returns {boolean}
      */
     _matchConditionalBlockOrArray(conditionBlock) {
@@ -166,6 +184,7 @@ export default class ConfigFeature {
             maxSupportedVersion: this._matchMaxSupportedVersion,
             injectName: this._matchInjectNameConditional,
             internal: this._matchInternalConditional,
+            preview: this._matchPreviewConditional,
         };
 
         for (const key in conditionBlock) {
@@ -254,9 +273,9 @@ export default class ConfigFeature {
         if (!url) return false;
         if (typeof conditionBlock.urlPattern === 'string') {
             // Use the current URL as the base for matching
-            return new URLPattern(conditionBlock.urlPattern, url).test(url);
+            return new URLPatternPolyfill(conditionBlock.urlPattern, url).test(url);
         }
-        const pattern = new URLPattern(conditionBlock.urlPattern);
+        const pattern = new URLPatternPolyfill(conditionBlock.urlPattern);
         return pattern.test(url);
     }
 
@@ -302,6 +321,18 @@ export default class ConfigFeature {
     }
 
     /**
+     * Takes a condition block and returns true if the preview state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchPreviewConditional(conditionBlock) {
+        if (conditionBlock.preview === undefined) return false;
+        const isPreview = this.#args?.platform?.preview;
+        if (isPreview === undefined) return false;
+        return Boolean(conditionBlock.preview) === Boolean(isPreview);
+    }
+
+    /**
      * Takes a condition block and returns true if the platform version satisfies the `minSupportedFeature`
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
@@ -319,6 +350,15 @@ export default class ConfigFeature {
     _matchMaxSupportedVersion(conditionBlock) {
         if (!conditionBlock.maxSupportedVersion) return false;
         return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, this.#args?.platform?.version);
+    }
+
+    /**
+     * Check if a state value is enabled for the current platform.
+     * @param {import('./utils.js').FeatureState | undefined} state
+     * @returns {boolean}
+     */
+    _isStateEnabled(state) {
+        return isStateEnabled(state, this.#args?.platform);
     }
 
     /**
@@ -350,18 +390,20 @@ export default class ConfigFeature {
      *   }
      * }
      * ```
+     * State values can be: 'enabled', 'disabled', 'internal', or 'preview'.
+     * 'internal' and 'preview' are enabled based on platform flags.
      * This also supports domain overrides as per `getFeatureSetting`.
      * @param {string} featureKeyName
-     * @param {'enabled' | 'disabled'} [defaultState]
+     * @param {import('./utils.js').FeatureState} [defaultState]
      * @param {string} [featureName]
      * @returns {boolean}
      */
     getFeatureSettingEnabled(featureKeyName, defaultState, featureName) {
         const result = this.getFeatureSetting(featureKeyName, featureName) || defaultState;
         if (typeof result === 'object') {
-            return result.state === 'enabled';
+            return this._isStateEnabled(result.state);
         }
-        return result === 'enabled';
+        return this._isStateEnabled(result);
     }
 
     /**

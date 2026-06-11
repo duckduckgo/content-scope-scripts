@@ -63,13 +63,20 @@
  - **Options**:
    - `true`
 
-### Control Visual styles
-`defaultStyles`
- - **Purpose**: If set to `visual-refresh`, applies specific background color variables (`--default-light-background-color`, `--default-dark-background-color`) to the body.
- - **Parameter**: `defaultStyles`
- - **Example**: `?defaultStyles=visual-refresh`
+### Theme Variant
+ - **Purpose**: Sets a visual theme variant to customize the default background colors
+ - **Parameter**: `themeVariant`
+ - **Example**: `?themeVariant=violet&theme=light`
  - **Options**:
-   - `visual-refresh`
+   - `default` - Default gray background
+   - `coolGray` - Cool gray tones
+   - `slateBlue` - Slate blue tones
+   - `green` - Green tones
+   - `violet` - Violet tones
+   - `rose` - Rose tones
+   - `orange` - Orange tones
+   - `desert` - Desert tones
+ - **Note**: Works with default backgrounds only. Custom colors/gradients override the variant.
 
  ## Feature Parameters
 
@@ -121,6 +128,43 @@
  - **Example**: `?rmf-delay=10000`
  - **Options**: Time in milliseconds
 
+ ### Next Steps Cards
+ - **Purpose**: Displays the different Next Steps cards
+ - **Parameter**: `next-steps`
+ - **Example**: `?next-steps=bringStuff`
+ - **Options**:
+   - `bringStuff`
+   - `defaultApp`
+   - `blockCookies`
+   - `emailProtection`
+   - `duckplayer`
+   - `addAppToDockMac`
+   - `pinAppToTaskbarWindows`
+   - `subscription`
+
+ ### Next Steps List Cards
+ - **Purpose**: Displays the Next Steps List widget (single card at a time with step indicator)
+ - **Parameter**: `next-steps-list`
+ - **Example**: `?next-steps-list=bringStuff`
+ - **Options**:
+   - `bringStuff`
+   - `defaultApp`
+   - `personalizeBrowser`
+   - `emailProtection`
+   - `duckplayer`
+   - `addAppToDockMac`
+   - `pinAppToTaskbarWindows`
+   - `subscription`
+   - `sync`
+
+ ### Freemium PIR Banner
+ - **Purpose**: Tests different PIR banner states
+ - **Parameter**: `pir`
+ - **Example**: `?pir=onboarding`
+ - **Options**:
+   - `onboarding` - Shows onboarding PIR banner
+   - `scan_results` - Shows scan results PIR banner
+
 ## Privacy Protections widget
 
  ### Activity
@@ -170,15 +214,101 @@
  - **Options**: Any positive integer
 
 
- ## Experiment Parameters
 
- ### Freemium PIR Banner
- - **Purpose**: Tests different PIR banner states
- - **Parameter**: `pir`
- - **Example**: `?pir=onboarding`
+
+## Omnibar / AI Chat Parameters
+
+### Omnibar Mode
+ - **Purpose**: Sets the default omnibar mode (search or AI chat)
+ - **Parameter**: `omnibar.mode`
+ - **Example**: `?omnibar.mode=ai`
  - **Options**:
-   - `onboarding` - Shows onboarding PIR banner
-   - `scan_results` - Shows scan results PIR banner
+   - `search` - Default search mode
+   - `ai` - AI chat mode
+
+### Enable AI
+ - **Purpose**: Enables the Duck.ai chat interface
+ - **Parameter**: `omnibar.enableAi`
+ - **Example**: `?omnibar.enableAi=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Show AI Setting
+ - **Purpose**: Controls whether the Duck.ai setting is shown
+ - **Parameter**: `omnibar.showAiSetting`
+ - **Example**: `?omnibar.showAiSetting=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Show Customize Popover
+ - **Purpose**: Shows the onboarding popover pointing to the customizer
+ - **Parameter**: `omnibar.showCustomizePopover`
+ - **Example**: `?omnibar.showCustomizePopover=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Enable Recent AI Chats
+ - **Purpose**: Shows recent AI chat history in the AI mode dropdown
+ - **Parameter**: `omnibar.enableRecentAiChats`
+ - **Example**: `?omnibar.enableRecentAiChats=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Enable AI Chat Tools
+ - **Purpose**: Feature flag to enable AI chat tools (model selector, image attachments)
+ - **Parameter**: `omnibar.enableAiChatTools`
+ - **Example**: `?omnibar.enableAiChatTools=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Enable Image Generation
+ - **Purpose**: Shows the "Create Image" tool in the AI chat toolbar's tools menu
+ - **Parameter**: `omnibar.enableImageGeneration`
+ - **Example**: `?omnibar.enableImageGeneration=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Enable Web Search
+ - **Purpose**: Shows the "Web Search" tool in the AI chat toolbar's tools menu
+ - **Parameter**: `omnibar.enableWebSearch`
+ - **Example**: `?omnibar.enableWebSearch=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Selected Model ID
+ - **Purpose**: Pre-selects a specific AI model in the model selector
+ - **Parameter**: `omnibar.selectedModelId`
+ - **Example**: `?omnibar.selectedModelId=claude-haiku-4-5`
+ - **Options**: Any model ID from the `aiModelSections` config
+
+### Subscription (simulate subscribed user)
+ - **Purpose**: Flips `isEnabled: true` on every AI model in the mock, unlocking the "Advanced Models - DuckDuckGo subscription" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
+ - **Parameter**: `omnibar.subscription`
+ - **Example**: `?omnibar.subscription=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Show View All AI Chats
+ - **Purpose**: Shows a "View all chats" link at the bottom of the recent AI chats list
+ - **Parameter**: `omnibar.showViewAllAiChats`
+ - **Example**: `?omnibar.showViewAllAiChats=true`
+ - **Options**:
+   - `true`
+   - `false`
+
+### Subscription Win-back Banner
+ - **Purpose**: Tests different win-back banner states
+ - **Parameter**: `winback`
+ - **Example**: `?winback=true`
+ - **Options**:
 
 
 
@@ -202,6 +332,11 @@
  ### For Product Reviews
  - Testing experiment variations: `?pir=onboarding`
  - Testing feature states: `?stats=show&feed=empty`
+
+ ### For AI Chat Development
+ - Full AI chat tools: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true&omnibar.enableWebSearch=true`
+ - Image generation only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableImageGeneration=true`
+ - Web search only: `?omnibar.mode=ai&omnibar.enableAiChatTools=true&omnibar.enableWebSearch=true`
 
  ### For Design Reviews
  - Component review: `?display=components`

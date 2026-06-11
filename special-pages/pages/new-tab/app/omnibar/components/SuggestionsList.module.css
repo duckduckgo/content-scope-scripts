@@ -1,5 +1,5 @@
 .list {
-    border-top: 1px solid var(--ntp-surface-border-color);
+    border-top: 1px solid var(--ds-color-theme-container-border-primary);
     display: flex;
     flex-direction: column;
     margin-top: -1px; /* - 1px to account for the border-top */
@@ -13,7 +13,7 @@
 }
 
 .main + .footer {
-    border-top: 1px solid var(--ntp-surface-border-color);
+    border-top: 1px solid var(--ds-color-theme-container-border-primary);
 }
 
 .item {
@@ -21,11 +21,12 @@
     background: none;
     border-radius: 4px;
     border: none;
-    color: var(--ntp-text-primary);
+    color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
     height: var(--sp-8);
     justify-content: flex-start;
+    text-align: left;
     padding: 0 var(--sp-2) 0 0;
 
     svg {
@@ -33,39 +34,39 @@
         margin: var(--sp-2);
     }
 
-    &[aria-selected="true"],
+    &[aria-selected='true'],
     &:active {
-        color: var(--ntp-accent-content-primary);
+        color: var(--ds-color-theme-accent-content-primary);
 
         .suffix {
-            color: var(--ntp-accent-content-primary);
+            color: var(--ds-color-theme-accent-content-primary);
         }
 
         .badge {
-            background: var(--color-white-at-30); /* @fixme: Should use a --ntp theme variable for this. This pill design differs from Figma, though */
+            background: var(--ds-color-theme-accent-secondary);
         }
     }
 
-    &[aria-selected="true"] {
-        background: var(--ntp-accent-primary);
+    &[aria-selected='true'] {
+        background: var(--ds-color-theme-accent-primary);
     }
 
     &:active {
-        background: var(--ntp-accent-secondary);
+        background: var(--ds-color-theme-accent-secondary);
     }
 }
 
 .title {
-    flex: none;
-    max-width: 60%;
+    flex: 0 1.5 auto; /* shrink 1.5x faster than suffix to match native's lower title compression resistance */
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .suffix {
-    color: var(--ntp-text-tertiary);
-    flex: initial;
+    color: var(--ds-color-theme-text-tertiary);
+    flex: 1 1 auto;
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -74,7 +75,7 @@
 
 .badge {
     align-items: center;
-    background: var(--ntp-controls-raised-backdrop);
+    background: var(--ds-color-theme-control-raised-backdrop);
     border-radius: var(--border-radius-sm);
     display: flex;
     flex: none;

@@ -1,9 +1,11 @@
 import { Fragment, h } from 'preact';
+import { useContext } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './CustomizerDrawerInner.module.css';
 import { useDrawerControls } from '../../components/Drawer.js';
 import { BackgroundSection } from './BackgroundSection.js';
 import { BrowserThemeSection } from './BrowserThemeSection.js';
+import { ThemeSection } from './ThemeSection.js';
 import { VisibilityMenuSection } from './VisibilityMenuSection.js';
 import { ColorSelection } from './ColorSelection.js';
 import { GradientSelection } from './GradientSelection.js';
@@ -13,8 +15,9 @@ import { BorderedSection, CustomizerSection } from './CustomizerSection.js';
 import { SettingsLink } from './SettingsLink.js';
 import { DismissButton } from '../../components/DismissButton.jsx';
 import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
-import { useMessaging, useTypedTranslationWith } from '../../types.js';
+import { useInitialSetupData, useMessaging, useTypedTranslationWith } from '../../types.js';
 import { Open } from '../../components/icons/Open.js';
+import { CustomizerContext } from '../CustomizerProvider.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, UserImageContextMenu } from '../../../types/new-tab.js'
@@ -35,6 +38,9 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
     const { close } = useDrawerControls();
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const messaging = useMessaging();
+    const { customizer } = useInitialSetupData();
+    const { showThemeNewBadge } = useContext(CustomizerContext);
+    const hasThemeVariants = customizer?.themeVariant !== undefined;
     return (
         <div class={styles.root}>
             <header class={cn(styles.header, styles.internal)}>
@@ -58,12 +64,22 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                 <TwoCol
                     left={({ push }) => (
                         <div class={styles.sections}>
+                            {hasThemeVariants && (
+                                <CustomizerSection
+                                    title={t('customizer_section_title_theme_variant')}
+                                    showNewBadge={showThemeNewBadge.value}
+                                >
+                                    <ThemeSection data={data} setTheme={setTheme} />
+                                </CustomizerSection>
+                            )}
                             <CustomizerSection title={t('customizer_section_title_background')}>
                                 <BackgroundSection data={data} onNav={push} onUpload={onUpload} select={select} />
                             </CustomizerSection>
-                            <CustomizerSection title={t('customizer_section_title_theme')}>
-                                <BrowserThemeSection data={data} setTheme={setTheme} />
-                            </CustomizerSection>
+                            {!hasThemeVariants && (
+                                <CustomizerSection title={t('customizer_section_title_theme')}>
+                                    <BrowserThemeSection data={data} setTheme={setTheme} />
+                                </CustomizerSection>
+                            )}
                             <CustomizerSection title={t('customizer_section_title_sections')}>
                                 <VisibilityMenuSection />
                             </CustomizerSection>

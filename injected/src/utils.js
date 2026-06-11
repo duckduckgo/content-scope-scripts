@@ -5,13 +5,18 @@ import { Set } from './captured-globals.js';
 
 let globalObj = typeof window === 'undefined' ? globalThis : window;
 let Error = globalObj.Error;
+/** @type {string | undefined} */
 let messageSecret;
 
+/** @type {boolean | null} */
 let isAppleSiliconCache = null;
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
 export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
+/**
+ * @param {string} secret
+ */
 export function registerMessageSecret(secret) {
     messageSecret = secret;
 }
@@ -36,6 +41,7 @@ export function createStyleElement(css) {
 
 /**
  * Injects a script into the page, avoiding CSP restrictions if possible.
+ * @param {string} css
  */
 export function injectGlobalStyles(css) {
     const style = createStyleElement(css);
@@ -59,14 +65,26 @@ export function getGlobal() {
     return globalObj;
 }
 
-// linear feedback shift register to find a random approximation
+/**
+ * Linear feedback shift register to find a random approximation
+ * @param {number} v
+ * @returns {number}
+ */
 export function nextRandom(v) {
     return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
 }
 
+/** @type {Record<string, RegExp[]>} */
 const exemptionLists = {};
+/**
+ * @param {string} type
+ * @param {string} url
+ * @returns {boolean}
+ */
 export function shouldExemptUrl(type, url) {
-    for (const regex of exemptionLists[type]) {
+    const list = exemptionLists[type];
+    if (!list) return false;
+    for (const regex of list) {
         if (regex.test(url)) {
             return true;
         }
@@ -76,12 +94,17 @@ export function shouldExemptUrl(type, url) {
 
 let debug = false;
 
+/**
+ * @param {{ stringExemptionLists?: Record<string, string[]>; debug?: boolean }} args
+ */
 export function initStringExemptionLists(args) {
     const { stringExemptionLists } = args;
-    debug = args.debug;
+    debug = args.debug || false;
     for (const type in stringExemptionLists) {
         exemptionLists[type] = [];
-        for (const stringExemption of stringExemptionLists[type]) {
+        const exemptions = stringExemptionLists[type];
+        if (!exemptions) continue;
+        for (const stringExemption of exemptions) {
             exemptionLists[type].push(new RegExp(stringExemption));
         }
     }
@@ -114,10 +137,18 @@ export function isThirdPartyFrame() {
     return !matchHostname(globalThis.location.hostname, tabHostname);
 }
 
+/**
+ * @param {string} hostname
+ * @returns {boolean}
+ */
 function isThirdPartyOrigin(hostname) {
     return matchHostname(globalThis.location.hostname, hostname);
 }
 
+/**
+ * @param {string[]} scriptOrigins
+ * @returns {boolean}
+ */
 export function hasThirdPartyOrigin(scriptOrigins) {
     for (const origin of scriptOrigins) {
         if (isThirdPartyOrigin(origin)) {
@@ -183,14 +214,19 @@ export function matchHostname(hostname, exceptionDomain) {
 }
 
 const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+/**
+ * @param {string | undefined} stack
+ * @returns {Set<URL>}
+ */
 export function getStackTraceUrls(stack) {
     const urls = new Set();
+    if (!stack) return urls;
     try {
         const errorLines = stack.split('\n');
         // Should cater for Chrome and Firefox stacks, we only care about https? resources.
         for (const line of errorLines) {
             const res = line.match(lineTest);
-            if (res) {
+            if (res && res[2]) {
                 urls.add(new URL(res[2], location.href));
             }
         }
@@ -200,6 +236,10 @@ export function getStackTraceUrls(stack) {
     return urls;
 }
 
+/**
+ * @param {string | undefined} stack
+ * @returns {Set<string>}
+ */
 export function getStackTraceOrigins(stack) {
     const urls = getStackTraceUrls(stack);
     const origins = new Set();
@@ -209,13 +249,19 @@ export function getStackTraceOrigins(stack) {
     return origins;
 }
 
-// Checks the stack trace if there are known libraries that are broken.
+/**
+ * Checks the stack trace if there are known libraries that are broken.
+ * @param {string} type
+ * @returns {boolean}
+ */
 export function shouldExemptMethod(type) {
     // Short circuit stack tracing if we don't have checks
-    if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
+    const typeExemptions = exemptionLists[type];
+    if (!typeExemptions || typeExemptions.length === 0) {
         return false;
     }
     const stack = getStack();
+    if (!stack) return false;
     const errorFiles = getStackTraceUrls(stack);
     for (const path of errorFiles) {
         if (shouldExemptUrl(type, path.href)) {
@@ -225,10 +271,14 @@ export function shouldExemptMethod(type) {
     return false;
 }
 
-// Iterate through the key, passing an item index and a byte to be modified
+/**
+ * Iterate through the key, passing an item index and a byte to be modified
+ * @param {string} key
+ * @param {(item: number, byte: number) => null | void} callback
+ */
 export function iterateDataKey(key, callback) {
     let item = key.charCodeAt(0);
-    for (const i in key) {
+    for (let i = 0; i < key.length; i++) {
         let byte = key.charCodeAt(i);
         for (let j = 8; j >= 0; j--) {
             const res = callback(item, byte);
@@ -262,8 +312,12 @@ export function isFeatureBroken(args, feature) {
     return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
 }
 
+/**
+ * @param {string} dashCaseText
+ * @returns {string}
+ */
 export function camelcase(dashCaseText) {
-    return dashCaseText.replace(/-(.)/g, (_, letter) => {
+    return dashCaseText.replace(/-(.)/g, (/** @type {string} */ _, /** @type {string} */ letter) => {
         return letter.toUpperCase();
     });
 }
@@ -308,6 +362,7 @@ function processAttrByCriteria(configSetting) {
     return bestOption;
 }
 
+/** @type {Record<string, (...args: any[]) => void>} */
 const functionMap = {
     /** Useful for debugging APIs in the wild, shouldn't be used */
     debug: (...args) => {
@@ -388,6 +443,10 @@ export function getStack() {
     return new Error().stack;
 }
 
+/**
+ * @param {Record<string, any>} scope
+ * @returns {any}
+ */
 export function getContextId(scope) {
     if (document?.currentScript && 'contextID' in document.currentScript) {
         return document.currentScript.contextID;
@@ -425,20 +484,22 @@ function debugSerialize(argsArray) {
 }
 
 /**
- * @template {object} P
- * @typedef {object} ProxyObject<P>
- * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+ * @template {Record<string, any>} P
+ * @template {string} K
+ * @typedef {object} ProxyObject
+ * @property {(target: K extends keyof P ? P[K] : any, thisArg: P | undefined, args: any[]) => any} apply
  */
 
 /**
- * @template [P=object]
+ * @template {Record<string, any>} [P=Record<string, any>]
+ * @template {string} [K=string]
  */
 export class DDGProxy {
     /**
      * @param {import('./content-feature').default} feature
      * @param {P} objectScope
-     * @param {string} property
-     * @param {ProxyObject<P>} proxyObject
+     * @param {K} property
+     * @param {ProxyObject<P, K>} proxyObject
      */
     constructor(feature, objectScope, property, proxyObject) {
         this.objectScope = objectScope;
@@ -446,7 +507,7 @@ export class DDGProxy {
         this.feature = feature;
         this.featureName = feature.name;
         this.camelFeatureName = camelcase(this.featureName);
-        const outputHandler = (...args) => {
+        const outputHandler = (/** @type {[P[K], P, any[]]} */ ...args) => {
             this.feature.addDebugFlag();
             const isExempt = shouldExemptMethod(this.camelFeatureName);
             // Keep this here as getStack() is expensive
@@ -466,7 +527,7 @@ export class DDGProxy {
             }
             return proxyObject.apply(...args);
         };
-        const getMethod = (target, prop, receiver) => {
+        const getMethod = (/** @type {any} */ target, /** @type {any} */ prop, /** @type {any} */ receiver) => {
             this.feature.addDebugFlag();
             if (prop === 'toString') {
                 const method = Reflect.get(target, prop, receiver).bind(target);
@@ -487,7 +548,7 @@ export class DDGProxy {
 
     // Actually apply the proxy to the native property
     overload() {
-        this.objectScope[this.property] = this.internal;
+        Reflect.set(this.objectScope, this.property, this.internal);
     }
 
     overloadDescriptor() {
@@ -501,18 +562,25 @@ export class DDGProxy {
     }
 }
 
+/** @type {Map<string, number>} */
 const maxCounter = new Map();
+/**
+ * @param {string} feature
+ * @returns {number}
+ */
 function numberOfTimesDebugged(feature) {
-    if (!maxCounter.has(feature)) {
-        maxCounter.set(feature, 1);
-    } else {
-        maxCounter.set(feature, maxCounter.get(feature) + 1);
-    }
-    return maxCounter.get(feature);
+    const current = maxCounter.get(feature) ?? 0;
+    maxCounter.set(feature, current + 1);
+    return current + 1;
 }
 
 const DEBUG_MAX_TIMES = 5000;
 
+/**
+ * @param {string} feature
+ * @param {Record<string, any>} message
+ * @param {boolean} [allowNonDebug]
+ */
 export function postDebugMessage(feature, message, allowNonDebug = false) {
     if (!debug && !allowNonDebug) {
         return;
@@ -535,7 +603,7 @@ export const DDGReflect = globalObj.Reflect;
 
 /**
  * @param {string | null} topLevelHostname
- * @param {object[]} featureList
+ * @param {{domain: string}[]} featureList
  * @returns {boolean}
  */
 export function isUnprotectedDomain(topLevelHostname, featureList) {
@@ -544,6 +612,10 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
         return false;
     }
     const domainParts = topLevelHostname.split('.');
+
+    if (domainParts.length === 1) {
+        return featureList.some((entry) => entry.domain === topLevelHostname);
+    }
 
     // walk up the domain to see if it's unprotected
     while (domainParts.length > 1 && !unprotectedDomain) {
@@ -562,6 +634,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {'ios' | 'macos' | 'extension' | 'android' | 'windows'} name
  * @property {string | number } [version]
  * @property {boolean} [internal] - Internal build flag
+ * @property {boolean} [preview] - Preview build flag
  */
 
 /**
@@ -572,6 +645,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {number} [versionNumber] - Android version number only
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
+ * @property {string} [messagingContextName] - The context name for messaging (e.g. 'contentScopeScripts')
  */
 
 /**
@@ -612,6 +686,7 @@ function getPlatformVersion(preferences) {
  */
 export function stripVersion(version, keepComponents = 1) {
     const splitVersion = version.split('.');
+    /** @type {string[]} */
     const filteredVersion = [];
     let foundNonZero = false;
     let keptComponents = 0;
@@ -627,6 +702,10 @@ export function stripVersion(version, keepComponents = 1) {
     return filteredVersion.join('.');
 }
 
+/**
+ * @param {string} versionString
+ * @returns {number[]}
+ */
 function parseVersionString(versionString) {
     return versionString.split('.').map(Number);
 }
@@ -692,7 +771,7 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
 /**
  * @typedef RemoteConfig
  * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
- * @property {string[]} unprotectedTemporary
+ * @property {{domain: string}[]} unprotectedTemporary
  */
 
 /**
@@ -713,7 +792,7 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
             output.platform.version = version;
         }
     }
-    const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform?.version, platformSpecificFeatures);
+    const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform, platformSpecificFeatures);
     const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary);
     output.site = Object.assign(site, {
         isBroken,
@@ -725,18 +804,61 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.featureSettings = parseFeatureSettings(data, enabledFeatures);
     output.bundledConfig = data;
 
+    // Set messaging context name, using messagingContextName from native if provided
+    output.messagingContextName = output.messagingContextName || 'contentScopeScripts';
+
     return output;
 }
 
 /**
- * Retutns a list of enabled features
+ * Extract the properties needed for the load() function from processedConfig.
+ * @param {Record<string, any>} processedConfig
+ * @returns {import('./content-scope-features.js').LoadArgs}
+ */
+export function getLoadArgs(processedConfig) {
+    const { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts } = processedConfig;
+    return { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts };
+}
+
+/**
+ * Valid feature state values
+ * @typedef {'enabled' | 'disabled' | 'internal' | 'preview'} FeatureState
+ */
+
+/**
+ * Checks if a feature state should be considered enabled based on the platform flags.
+ * - 'enabled' is always enabled
+ * - 'disabled' is always disabled
+ * - 'internal' is enabled only when platform.internal is true
+ * - 'preview' is enabled only when platform.preview is true
+ * @param {FeatureState | string | undefined} state
+ * @param {Platform | undefined} platform
+ * @returns {boolean}
+ */
+export function isStateEnabled(state, platform) {
+    switch (state) {
+        case 'enabled':
+            return true;
+        case 'disabled':
+            return false;
+        case 'internal':
+            return platform?.internal === true;
+        case 'preview':
+            return platform?.preview === true;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Returns a list of enabled features
  * @param {RemoteConfig} data
  * @param {string | null} topLevelHostname
- * @param {Platform['version']} platformVersion
+ * @param {Platform | undefined} platform
  * @param {string[]} platformSpecificFeatures
  * @returns {string[]}
  */
-export function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+export function computeEnabledFeatures(data, topLevelHostname, platform, platformSpecificFeatures = []) {
     const remoteFeatureNames = Object.keys(data.features);
     const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
         (featureName) => !remoteFeatureNames.includes(featureName),
@@ -744,13 +866,17 @@ export function computeEnabledFeatures(data, topLevelHostname, platformVersion, 
     const enabledFeatures = remoteFeatureNames
         .filter((featureName) => {
             const feature = data.features[featureName];
+            if (!feature) return false;
             // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
-            if (feature.minSupportedVersion && platformVersion) {
-                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
+            if (feature.minSupportedVersion && platform?.version) {
+                if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
                     return false;
                 }
             }
-            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
+            if (isSelfGatingFeature(featureName)) {
+                return isStateEnabled(feature.state, platform);
+            }
+            return isStateEnabled(feature.state, platform) && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
         })
         .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
     return enabledFeatures;
@@ -771,11 +897,17 @@ export function parseFeatureSettings(data, enabledFeatures) {
             return;
         }
 
-        featureSettings[featureName] = data.features[featureName].settings;
+        const feature = data.features[featureName];
+        if (!feature) return;
+        featureSettings[featureName] = feature.settings;
     });
     return featureSettings;
 }
 
+/**
+ * @param {import('./content-scope-features.js').LoadArgs} args
+ * @returns {boolean | undefined}
+ */
 export function isGloballyDisabled(args) {
     return args.site.allowlisted || args.site.isBroken;
 }
@@ -784,18 +916,60 @@ export function isGloballyDisabled(args) {
  * @import {FeatureName} from "./features";
  * @type {FeatureName[]}
  */
-export const platformSpecificFeatures = ['navigatorInterface', 'duckAiListener', 'windowsPermissionUsage', 'messageBridge', 'favicon'];
+export const platformSpecificFeatures = [
+    'contextMenu',
+    'navigatorInterface',
+    'windowsPermissionUsage',
+    'messageBridge',
+    'favicon',
+    'breakageReporting',
+    'print',
+    'webInterferenceDetection',
+    'webDetection',
+    'webEvents',
+    'pageObserver',
+    'hover',
+    'trackerProtection', // only enabled on apple platforms
+];
+/**
+ * Features that bypass exception-based disabling in computeEnabledFeatures.
+ * These features handle their own exceptions internally (e.g., to stay active
+ * for reporting on excepted domains while adjusting behavior).
+ * @type {FeatureName[]}
+ */
+export const selfGatingFeatures = ['trackerProtection'];
 
+/**
+ * @param {string} featureName
+ * @returns {boolean}
+ */
 export function isPlatformSpecificFeature(featureName) {
-    return platformSpecificFeatures.includes(featureName);
+    return platformSpecificFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
 }
 
+/**
+ * @param {string} featureName
+ * @returns {boolean}
+ */
+export function isSelfGatingFeature(featureName) {
+    return selfGatingFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
+}
+
+/**
+ * @param {string} eventName
+ * @param {CustomEventInit} [eventDetail]
+ * @returns {CustomEvent}
+ */
 export function createCustomEvent(eventName, eventDetail) {
     // @ts-expect-error - possibly null
     return new OriginalCustomEvent(eventName, eventDetail);
 }
 
-/** @deprecated */
+/**
+ * @deprecated
+ * @param {string} messageType
+ * @param {unknown} options
+ */
 export function legacySendMessage(messageType, options) {
     // FF & Chrome
     return (
@@ -809,9 +983,10 @@ export function legacySendMessage(messageType, options) {
 
 /**
  * Takes a function that returns an element and tries to execute it until it returns a valid result or the max attempts are reached.
- * @param {number} delay
+ * @param {() => any} fn - Function to try executing
  * @param {number} [maxAttempts=4] - The maximum number of attempts to find the element.
  * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
+ * @param {string} [strategy='exponential'] - The retry strategy
  * @returns {Promise<Element|HTMLElement>}
  */
 export function withRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponential') {
@@ -846,7 +1021,7 @@ export function withRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponent
 export function isDuckAi() {
     const tabUrl = getTabUrl();
     const domains = ['duckduckgo.com', 'duck.ai', 'duck.co'];
-    if (tabUrl?.hostname && domains.includes(tabUrl?.hostname)) {
+    if (tabUrl?.hostname && domains.some((domain) => matchHostname(tabUrl?.hostname, domain))) {
         const url = new URL(tabUrl?.href);
         return url.searchParams.has('duckai') || url.searchParams.get('ia') === 'chat';
     }

@@ -55,6 +55,8 @@ export class NewtabPage {
             omnibar_openSuggestion: {},
             omnibar_submitSearch: {},
             omnibar_submitChat: {},
+            omnibar_getAiChats: { chats: [] },
+            omnibar_openAiChat: {},
         });
     }
 
@@ -66,22 +68,26 @@ export class NewtabPage {
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {string|number} [params.favorites] - Optional flag to preload a list of favorites
      * @param {string|string[]} [params.nextSteps] - Optional flag to load Next Steps cards
+     * @param {string|string[]} [params.nextStepsList] - Optional flag to load Next Steps List widget
      * @param {Record<string, any>} [params.additional] - Optional map of key/values to add
      * @param {string} [params.rmf] - Optional flag to add certain rmf example
      * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
      * @param {string} [params.pir] - Optional flag to add certain Freemium PIR Banner example
      * @param {string} [params.platformName] - Optional parameters for opening the page.
+     * @param {string} [params.winback] - Optional parameters for Subscription Win-back Banner.
      */
     async openPage({
         mode = 'debug',
         additional,
-        platformName,
+        platformName = 'macos',
         willThrow = false,
         favorites,
         nextSteps,
+        nextStepsList,
         rmf,
         pir,
         updateNotification,
+        winback,
     } = {}) {
         await this.mocks.install();
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) });
@@ -104,8 +110,22 @@ export class NewtabPage {
             }
         }
 
+        if (nextStepsList !== undefined) {
+            if (typeof nextStepsList === 'string') {
+                searchParams.set('next-steps-list', nextStepsList);
+            } else if (Array.isArray(nextStepsList)) {
+                for (const step of nextStepsList) {
+                    searchParams.append('next-steps-list', step);
+                }
+            }
+        }
+
         if (pir !== undefined) {
             searchParams.set('pir', pir);
+        }
+
+        if (winback !== undefined) {
+            searchParams.set('winback', winback);
         }
 
         if (platformName !== undefined) {
@@ -117,7 +137,13 @@ export class NewtabPage {
         }
 
         for (const [key, value] of Object.entries(additional || {})) {
-            searchParams.set(key, value);
+            if (Array.isArray(value)) {
+                for (const item of value) {
+                    searchParams.append(key, item);
+                }
+            } else {
+                searchParams.set(key, value);
+            }
         }
 
         // eslint-disable-next-line no-undef

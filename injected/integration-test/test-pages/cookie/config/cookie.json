@@ -1,0 +1,24 @@
+{
+    "readme": "This config is used to test the cookie protection feature which restricts cookie expiry.",
+    "version": 1,
+    "features": {
+        "cookie": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "trackerCookie": "enabled",
+                "nonTrackerCookie": "enabled",
+                "excludedCookieDomains": [],
+                "firstPartyCookiePolicy": {
+                    "threshold": 604800,
+                    "maxAge": 604800
+                },
+                "firstPartyTrackerCookiePolicy": {
+                    "threshold": 86400,
+                    "maxAge": 86400
+                }
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

@@ -40,11 +40,11 @@
     "note": "Button text of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_emailProtection_title": {
-    "title": "Protect Your Inbox",
+    "title": "Protect Your Email Address and Block Trackers",
     "note": "Title of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_summary": {
-    "title": "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
     "note": "Summary of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_actionText": {
@@ -60,8 +60,20 @@
     "note": "Summary of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_actionText": {
-    "title": "Try DuckPlayer",
+    "title": "Try Duck Player",
     "note": "Button text of the Next Steps card for adopting DuckPlayer"
+  },
+  "nextSteps_youtubeAdBlocking_title": {
+    "title": "Watch YouTube Without Ads",
+    "note": "Title of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_actionText": {
+    "title": "Visit YouTube",
+    "note": "Button text of the Next Steps card for YouTube ad blocking"
   },
   "nextSteps_addAppDockMac_title": {
     "title": "Add App to the Dock",
@@ -94,5 +106,17 @@
   "nextSteps_pinAppToTaskbarWindows_confirmationText": {
     "title": "Pinned to Taskbar!",
     "note": "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_subscription_title": {
+    "title": "Unlock Premium Features",
+    "note": "Title of the Next Steps card for unlocking your free trial of DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_summary": {
+    "title": "Get a free trial of our subscription featuring VPN + more advanced features.",
+    "note": "Summary of the Next Steps card about the DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_actionText": {
+    "title": "Try for Free",
+    "note": "Button text of the Next Steps card for trying the DuckDuckGo subscription"
   }
 }

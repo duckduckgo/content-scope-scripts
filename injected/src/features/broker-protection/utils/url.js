@@ -44,5 +44,5 @@ export function removeUrlQueryParams(url) {
         return '';
     }
 
-    return url.split('?')[0];
+    return /** @type {string} */ (url.split('?')[0]);
 }

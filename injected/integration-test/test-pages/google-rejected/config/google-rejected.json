@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the Google Rejected feature which removes Privacy Sandbox APIs.",
+    "version": 1,
+    "features": {
+        "googleRejected": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

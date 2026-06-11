@@ -3,65 +3,63 @@
     display: flex;
     filter: drop-shadow(0 0 calc(0.5px) rgba(0, 0, 0, 0.75))
             drop-shadow(0 0 calc(1px) rgba(0, 0, 0, 0.25))
-            drop-shadow(0 calc(8px) calc(16px) rgba(0, 0, 0, 0.20));
+            drop-shadow(0 calc(8px) calc(24px) rgba(0, 0, 0, 0.20));
     flex-direction: row;
-    left: calc(100% + 7px);
+    left: calc(100% + var(--popover-offset-x, 0px));
     outline: none;
     position: absolute;
-    top: 50%;
+    top: calc(50% + var(--popover-offset-y, 0px));
     transform: translateY(-50%);
-    width: 390px;
+    width: 380px;
     z-index: 1000;
+
+    &[data-position="bottomRight"] {
+        bottom: calc(100% - var(--popover-offset-y, 0px));
+        flex-direction: column;
+        left: auto;
+        right: calc(0px - var(--popover-offset-x, 0px));
+        top: auto;
+        transform: none;
+    }
 }
 
 .content {
-    background: var(--ntp-surface-tertiary);
-    border-radius: 16px;
+    align-items: center;
+    background: var(--ds-color-theme-surface-tertiary);
+    border-radius: 10px;
+    display: flex;
     flex: auto;
-    padding: var(--sp-4) var(--sp-11) var(--sp-4) var(--sp-5);
+    gap: var(--sp-4);
+    padding: var(--sp-2) var(--sp-8) var(--sp-2) var(--sp-2);
     position: relative;
 }
 
 .closeButton {
-    background: none;
-    border-radius: 100%;
-    border: none;
-    color: var(--ntp-icons-primary);
-    cursor: pointer;
-    padding: 0;
     position: absolute;
     right: var(--sp-4);
     top: var(--sp-4);
+}
 
-    &:hover {
-        background: rgba(0, 0, 0, 0.06); /* @todo: dark mode? */
-    }
+.imageContainer {
+    flex: none;
+}
 
-    &:active {
-        background: rgba(0, 0, 0, 0.12); /* @todo: dark mode? */
-    }
+.textContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    padding: var(--sp-2) 0 var(--sp-2) var(--sp-2);
+}
 
-    &:focus-visible {
-        box-shadow: var(--focus-ring);
-    }
+/* When image is present, remove extra left padding */
+.imageContainer + .textContainer {
+    padding-left: 0;
 }
 
 .heading {
     display: flex;
     flex-direction: column;
     gap: var(--sp-1);
-}
-
-.badge {
-    background: var(--color-yellow-60);
-    border-radius: var(--border-radius-xs);
-    color: var(--color-black);
-    font-size: 11.5px;
-    font-weight: 600;
-    line-height: var(--sp-4);
-    padding: 0 var(--sp-2);
-    text-transform: uppercase;
-    width: fit-content;
 }
 
 .title {
@@ -74,22 +72,36 @@
     button {
         background: none;
         border: none;
-        color: var(--ntp-accent-primary);
+        color: var(--ds-color-theme-accent-primary);
         cursor: pointer;
         padding: 0;
         transform: translateZ(0); /* Fix shadow rendering issue on .popover in WebKit */
 
         &:hover {
-            color: var(--ntp-accent-secondary);
+            color: var(--ds-color-theme-accent-secondary);
         }
 
         &:active {
-            color: var(--ntp-accent-tertiary);
+            color: var(--ds-color-theme-accent-tertiary);
+        }
+
+        &:focus-visible {
+            box-shadow: var(--focus-ring);
+            outline: none;
         }
     }
 }
 
 .arrow {
-    color: var(--ntp-surface-tertiary);
+    color: var(--ds-color-theme-surface-tertiary);
     margin-right: -1px;
+
+    .popover[data-position="bottomRight"] & {
+        align-self: flex-end;
+        margin-bottom: -9px;
+        margin-right: var(--sp-10);
+        margin-top: -9px;
+        order: 1;
+        transform: rotate(-90deg);
+    }
 }
