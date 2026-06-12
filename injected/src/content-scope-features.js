@@ -38,6 +38,7 @@ const isHTMLDocument =
  * @property {Record<string, unknown>} [featureSettings]
  * @property {import('./content-feature.js').AssetConfig} [assets]
  * @property {Record<string, string[]>} [stringExemptionLists]
+ * @property {import('./features/tracker-protection/tracker-resolver.js').TrackerData} [trackerData]
  */
 
 /**
@@ -166,7 +167,7 @@ export function update(args) {
         updates.push(args);
         return;
     }
-    updateFeaturesInner(args);
+    void updateFeaturesInner(args);
 }
 
 /**
