@@ -151,13 +151,31 @@ export class Messaging {
             params: data,
         });
         try {
-            this.transport.notify(message);
-        } catch (e) {
-            // Silently ignore transport errors in production, per JSON-RPC notifications guidance.
-            if (this.messagingContext.env === 'development') {
-                console.error('[Messaging] Failed to send notification:', e);
-                console.error('[Messaging] Message details:', { name, data });
+            // `transport.notify` may be sync OR async (e.g. Webkit's transport
+            // returns `Promise<void>` and can reject with MissingHandler). A
+            // straight sync try/catch only catches sync throws — promise
+            // rejections would surface as unhandled-rejection warnings.
+            // Detect a thenable and route async failures through the same
+            // env-gated logging path.
+            const maybeAsyncResult = this.transport.notify(message);
+            if (maybeAsyncResult !== null && maybeAsyncResult !== undefined && typeof maybeAsyncResult.then === 'function') {
+                maybeAsyncResult.catch(/** @param {unknown} err */ (err) => this._logNotificationError(name, data, err));
             }
+        } catch (e) {
+            this._logNotificationError(name, data, e);
+        }
+    }
+
+    /**
+     * @param {string} name
+     * @param {Record<string, any>} data
+     * @param {unknown} error
+     */
+    _logNotificationError(name, data, error) {
+        // Silently ignore transport errors in production, per JSON-RPC notifications guidance.
+        if (this.messagingContext.env === 'development') {
+            console.error('[Messaging] Failed to send notification:', error);
+            console.error('[Messaging] Message details:', { name, data });
         }
     }
 
