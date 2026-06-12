@@ -456,7 +456,7 @@ export class OmnibarPage {
     }
 
     mentionPicker() {
-        return this.context().getByRole('dialog', { name: 'Pick an open tab to attach' });
+        return this.context().getByRole('dialog', { name: 'Pick an open tab to add' });
     }
 
     /** @param {string | RegExp} title */
