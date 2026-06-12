@@ -1,5 +1,5 @@
 /**
- * @template {string} T - the value to hold.
+ * @template T - the value to hold (keys are always tab id strings).
  */
 export class PersistentValue {
     /** @type {Map<string, T>} */

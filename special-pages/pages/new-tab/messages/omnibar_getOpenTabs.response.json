@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Get Open Tabs Response",
+  "type": "object",
+  "required": ["tabs"],
+  "properties": {
+    "tabs": {
+      "description": "Metadata for the user's open tabs, excluding the requesting NTP tab, in recency order.",
+      "type": "array",
+      "items": { "$ref": "types/tab-metadata.json" }
+    }
+  }
+}

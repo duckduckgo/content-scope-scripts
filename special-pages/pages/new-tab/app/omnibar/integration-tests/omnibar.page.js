@@ -370,6 +370,113 @@ export class OmnibarPage {
     reasoningOption(optionName) {
         return this.reasoningDropdown().getByRole('option', { name: optionName });
     }
+
+    // --- Attachments (paperclip menu, tab/file chips, @-mention picker) ---
+
+    /** Paperclip entry point rendered as a dropdown when tabs are enabled. */
+    attachMenuButton() {
+        return this.context().getByRole('button', { name: 'Add Attachment' });
+    }
+
+    /**
+     * Paperclip entry point rendered as a direct file-picker button (no dropdown)
+     * when the tabs feature is off — labelled with the file label rather than "Add Attachment".
+     */
+    directFileButton() {
+        return this.context().getByRole('button', { name: /Add (Images|PDFs|Images or PDFs)/ });
+    }
+
+    attachMenu() {
+        return this.context().getByRole('menu', { name: 'Add Attachment' });
+    }
+
+    attachFilesMenuItem() {
+        return this.attachMenu().getByRole('menuitem', { name: /Add (Images|PDFs|Images or PDFs)/ });
+    }
+
+    attachPageContentMenuItem() {
+        return this.attachMenu().getByRole('menuitem', { name: 'Add Page Content' });
+    }
+
+    tabPicker() {
+        return this.context().getByRole('menu', { name: 'Tabs' });
+    }
+
+    /** @param {string | RegExp} title */
+    tabPickerItem(title) {
+        return this.tabPicker().getByRole('menuitemcheckbox', { name: title });
+    }
+
+    /**
+     * Open the paperclip menu and pick a tab from the recent-tabs submenu.
+     * @param {string} title
+     */
+    async attachTab(title) {
+        await this.attachMenuButton().click();
+        await this.attachPageContentMenuItem().click();
+        await this.tabPickerItem(title).click();
+    }
+
+    /**
+     * The single attachment chips row. Tabs, files, and images all render here;
+     * the per-type helpers below scope into it by each chip's own markers.
+     */
+    attachmentChips() {
+        return this.context().getByTestId('omnibar-attachment-chips');
+    }
+
+    tabChip() {
+        return this.attachmentChips().locator('[data-attachment-kind="tab"]');
+    }
+
+    /** @param {string} title */
+    removeTabButton(title) {
+        return this.context().getByRole('button', { name: `Remove ${title}` });
+    }
+
+    fileChip() {
+        return this.attachmentChips().locator('[data-attachment-kind="file"]');
+    }
+
+    /** @param {string} fileName */
+    removeFileButton(fileName) {
+        return this.attachmentChips().locator(`button[aria-label="Remove ${fileName}"]`);
+    }
+
+    removeImageButton() {
+        return this.attachmentChips().locator('button[aria-label="Remove image"]');
+    }
+
+    fileLimitWarning() {
+        return this.context().getByText(/You can only attach \d+ files at a time/);
+    }
+
+    imageLimitWarning() {
+        return this.context().getByText(/You can only attach \d+ images at a time/);
+    }
+
+    mentionPicker() {
+        return this.context().getByRole('dialog', { name: 'Pick an open tab to add' });
+    }
+
+    /** @param {string | RegExp} title */
+    mentionOption(title) {
+        return this.mentionPicker().getByRole('option', { name: title });
+    }
+
+    async submitChat() {
+        await this.chatSubmitButton().click();
+    }
+
+    /**
+     * Wait for N `omnibar_submitChat` notifications and return the most recent payload params.
+     * @param {number} [count]
+     * @returns {Promise<import('../../../types/new-tab.js').SubmitChatAction>}
+     */
+    async lastSubmitChatParams(count = 1) {
+        const calls = await this.ntp.mocks.waitForCallCount({ method: 'omnibar_submitChat', count });
+        return calls[calls.length - 1].payload.params;
+    }
 }
 
 /**

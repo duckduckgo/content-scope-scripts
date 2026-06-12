@@ -36,6 +36,7 @@ title: Omnibar Widget
   - `enableWebSearch` — shows "Web Search" in the tools menu (default `false`)
   - `enableVoiceChatAccess` — when true and the input is empty, replaces the AI chat submit button with a 1-click voice-chat button. Click/Enter sends `omnibar_submitChat` with an empty `chat` and `mode: "voice-mode"` — native handles the voice handoff (default `false`)
   - `enableAskAiSuggestion` — when `false`, hides the inline "Ask Duck.ai: <query>" entry in the suggestions dropdown. Missing/undefined is treated as `true` (default `true`). Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by `enableAi`
+  - `enableAttachTabs` — when `true`, the omnibar shows the page context entry point and accepts `@` mentions for attaching open tabs as context. Requires native to handle `omnibar_getOpenTabs` and `omnibar_getTabContent` (default `false`).
   - `aiModelSections` — array of model sections for the model selector. Each model may include `supportedReasoningEffort` (e.g. `["none", "low", "medium"]`) to surface the reasoning picker
   - `selectedModelId` — the user's persisted model choice
   - `selectedReasoningEffort` — the user's persisted reasoning-effort choice for the active model. Native validates against the model's `supportedReasoningEffort` on write
@@ -47,7 +48,53 @@ title: Omnibar Widget
    "enableImageGeneration": false,
    "enableWebSearch": false,
    "enableVoiceChatAccess": false,
-   "enableAskAiSuggestion": true
+   "enableAskAiSuggestion": true,
+   "enableAttachTabs": false
+}
+```
+
+### `omnibar_getOpenTabs`
+- {@link "NewTab Messages".OmnibarGetOpenTabsRequest}
+- Used to populate the attach-tabs picker. Called when the user opens the picker (clicks the paperclip's "Attach Page Content" menu item, or types `@` in the chat input).
+- No params for v1. Filtering / `@`-typeahead is performed client-side over the returned list.
+- Native is expected to exclude the requesting NTP tab and return tabs in recency order.
+- returns {@link "NewTab Messages".GetOpenTabsResponse}
+```json
+{
+   "tabs": [
+      {
+         "tabId": "tab-1",
+         "title": "MacBook Neo - Apple",
+         "url": "https://apple.com/macbook",
+         "favicon": { "src": "https://apple.com/favicon.ico", "maxAvailableSize": 64 }
+      },
+      {
+         "tabId": "tab-2",
+         "title": "Starbucks Coffee Company",
+         "url": "https://starbucks.com",
+         "favicon": null
+      }
+   ]
+}
+```
+
+### `omnibar_getTabContent`
+- {@link "NewTab Messages".OmnibarGetTabContentRequest}
+- Extracts page content for a specific tab. Called when the user picks a tab from the picker.
+- requires `tabId` (returned by `omnibar_getOpenTabs`).
+- Returns `{ pageContext: null }` when the tab has any issue (closed, restricted page, extraction failure, etc) — the UI handles this by silently dropping the chip.
+- returns {@link "NewTab Messages".GetTabContentResponse}
+```json
+{
+   "pageContext": {
+      "tabId": "tab-1",
+      "title": "MacBook Neo - Apple",
+      "url": "https://apple.com/macbook",
+      "favicon": { "src": "https://apple.com/favicon.ico", "maxAvailableSize": 64 },
+      "content": "## MacBook Neo\n\nMarkdown content...",
+      "truncated": false,
+      "fullContentLength": 4200
+   }
 }
 ```
 
@@ -128,6 +175,7 @@ title: Omnibar Widget
   - `mode` — `"chat"` or `"image-generation"`. Sent as `"image-generation"` when the Create Image tool is active. Omitted for normal chat (defaults to `"chat"`).
   - `toolChoice` — `["WebSearch"]` when the user has the Web Search tool active. Omitted otherwise.
   - `images` — array of `{ data, format }` objects for attached images. Omitted when no images are attached.
+  - `pageContext` — array of {@link "NewTab Messages".PageContext} objects echoed back from `omnibar_getTabContent`. Each entry **always** includes `tabId` so native can attribute attachments to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.
 - example payloads:
 
 **Normal chat:**
@@ -166,6 +214,27 @@ title: Omnibar Widget
    "modelId": "gpt-4o-mini",
    "images": [
       { "data": "<base64>", "format": "png" }
+   ]
+}
+```
+
+**Chat with attached tab page contexts:**
+```json
+{
+   "chat": "Compare these laptops",
+   "target": "same-tab",
+   "modelId": "gpt-4o-mini",
+   "pageContext": [
+      {
+         "tabId": "tab-1",
+         "title": "MacBook Neo - Apple",
+         "url": "https://apple.com/macbook",
+         "favicon": { "src": "https://apple.com/favicon.ico", "maxAvailableSize": 64 },
+         "content": "...",
+         "truncated": false,
+         "fullContentLength": 4200
+      },
+      { "tabId": "tab-2", "...": "..." }
    ]
 }
 ```

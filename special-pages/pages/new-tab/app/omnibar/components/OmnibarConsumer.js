@@ -72,6 +72,7 @@ function OmnibarReadyState({ config, tabId }) {
         showViewAllAiChats = false,
         enableVoiceChatAccess = false,
         enableAskAiSuggestion = true,
+        enableAttachTabs = false,
         mode: defaultMode,
     } = config;
     const { setMode } = useContext(OmnibarContext);
@@ -87,6 +88,7 @@ function OmnibarReadyState({ config, tabId }) {
             showCustomizePopover={showCustomizePopover}
             enableVoiceChatAccess={enableVoiceChatAccess}
             enableAskAiSuggestion={enableAskAiSuggestion}
+            enableAttachTabs={enableAttachTabs}
             tabId={tabId}
         />
     );
