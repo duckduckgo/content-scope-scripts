@@ -374,9 +374,9 @@ export class VideoOverlay {
      */
     appendThumbnail(overlayElement) {
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
-        const videoId = params?.id;
+        if (!params) return;
 
-        const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
+        const imageUrl = this.environment.getLargeThumbnailSrc(params.id);
         appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
     }
 
