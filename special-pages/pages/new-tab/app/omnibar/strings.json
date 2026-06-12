@@ -192,7 +192,7 @@
     "description": "Header text for the open-tabs picker panel."
   },
   "omnibar_attachTabsPickerLabel": {
-    "title": "Pick an open tab to attach",
+    "title": "Pick an open tab to add",
     "description": "Accessible label for the open-tabs picker panel (the dialog wrapper around the listbox)."
   },
   "omnibar_attachTabsNoMatches": {
