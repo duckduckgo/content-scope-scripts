@@ -25,6 +25,7 @@ export default class WebInterferenceDetection extends ContentFeature {
          */
         const fireEvent = async (type) => {
             try {
+                // @ts-expect-error — webEvents will be added to FeatureMap when the feature lands
                 const result = await this.callFeatureMethod('webEvents', 'fireEvent', { type });
                 if (result instanceof CallFeatureMethodError && this.isDebug) {
                     this.log.warn('webEvents.fireEvent failed:', result.message);
