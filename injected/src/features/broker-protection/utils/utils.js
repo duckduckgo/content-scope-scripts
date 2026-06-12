@@ -1,3 +1,5 @@
+import { getRandomValues, Uint32Array } from '../../../captured-globals.js';
+
 /**
  * Get a single element.
  *
@@ -174,7 +176,21 @@ function safeQuerySelectorAllXpath(element, selector) {
  * @returns {number}
  */
 export function generateRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    if (!getRandomValues) {
+        throw new Error('crypto.getRandomValues is not available');
+    }
+
+    const range = max - min + 1;
+    const randomBuffer = new Uint32Array(1);
+    const maxValid = Math.floor(0x100000000 / range) * range;
+    let value;
+
+    do {
+        getRandomValues(randomBuffer);
+        value = randomBuffer[0];
+    } while (value >= maxValid);
+
+    return min + (value % range);
 }
 
 /**
