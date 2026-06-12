@@ -375,19 +375,19 @@ export class OmnibarPage {
 
     /** Paperclip entry point rendered as a dropdown when tabs are enabled. */
     attachMenuButton() {
-        return this.context().getByRole('button', { name: 'Attach' });
+        return this.context().getByRole('button', { name: 'Add Attachment' });
     }
 
     /**
      * Paperclip entry point rendered as a direct file-picker button (no dropdown)
-     * when the tabs feature is off — labelled with the file label rather than "Attach".
+     * when the tabs feature is off — labelled with the file label rather than "Add Attachment".
      */
     directFileButton() {
         return this.context().getByRole('button', { name: /Add (Images|PDFs|Images or PDFs)/ });
     }
 
     attachMenu() {
-        return this.context().getByRole('menu', { name: 'Attach' });
+        return this.context().getByRole('menu', { name: 'Add Attachment' });
     }
 
     attachFilesMenuItem() {

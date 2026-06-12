@@ -330,12 +330,8 @@
     "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
   },
   "omnibar_attachMenuLabel": {
-    "title": "Attach",
+    "title": "Add Attachment",
     "description": "Accessible label for the paperclip button that opens a menu offering image attachments and tab content attachments."
-  },
-  "omnibar_attachTabsLabel": {
-    "title": "Attach tab content",
-    "description": "Accessible label for the paperclip button when only tab attachments are available."
   },
   "omnibar_attachImageOrFileLabel": {
     "title": "Add Images or PDFs",
