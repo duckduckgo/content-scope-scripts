@@ -159,6 +159,7 @@ export function omnibarMockTransport() {
         ],
         showViewAllAiChats: false,
         enableVoiceChatAccess: false,
+        enableAskAiSuggestion: true,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -201,6 +202,10 @@ export function omnibarMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'omnibar_getConfig': {
+                    const configDelay = parseInt(url.searchParams.get('omnibar.configDelay') ?? '', 10);
+                    if (configDelay > 0) {
+                        await new Promise((resolve) => setTimeout(resolve, configDelay));
+                    }
                     const modeOverride = url.searchParams.get('omnibar.mode');
                     if (modeOverride === 'search' || modeOverride === 'ai') {
                         config.mode = modeOverride;
@@ -223,6 +228,7 @@ export function omnibarMockTransport() {
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
+                    config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {

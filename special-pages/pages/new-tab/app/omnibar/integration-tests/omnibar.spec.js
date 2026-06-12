@@ -14,6 +14,34 @@ test.describe('omnibar widget', () => {
         await ntp.mocks.waitForCallCount({ method: 'omnibar_getConfig', count: 1 });
     });
 
+    test('reserves its height while config is loading (no layout shift)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+        await page.clock.install();
+
+        // Delay the omnibar config so we can observe the loading state.
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true, 'omnibar.configDelay': 1000 } });
+
+        const favorites = page.locator('[data-entry-point="favorites"]');
+        await favorites.waitFor();
+
+        // Measure while config is still pending.
+        await expect(omnibar.searchInput()).toHaveCount(0);
+        const reservedHeight = (await omnibar.context().boundingBox())?.height ?? 0;
+        expect(reservedHeight).toBeGreaterThan(250);
+        const favTopWhileLoading = (await favorites.boundingBox())?.y ?? 0;
+
+        // Advance the clock so the config resolves.
+        await page.clock.fastForward(1000);
+
+        // Measure after config has loaded.
+        await omnibar.searchInput().waitFor({ state: 'visible' });
+        const favTopAfterLoad = (await favorites.boundingBox())?.y ?? 0;
+
+        expect(Math.abs(favTopAfterLoad - favTopWhileLoading)).toBeLessThanOrEqual(1);
+    });
+
     test('search form submission', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
@@ -374,6 +402,47 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).not.toBeVisible();
+    });
+
+    test('suggestions do not include Ask Duck.ai entry when enableAskAiSuggestion is false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAskAiSuggestion': false } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+
+        // Mode pills are still visible — enableAi defaults to true and is unaffected
+        await expect(omnibar.tabList()).toBeVisible();
+        // Inline Ask Duck.ai entry is gone
+        await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).not.toBeVisible();
+    });
+
+    test('Ask Duck.ai suggestion reacts live to enableAskAiSuggestion config update', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Default (missing → true): Ask Duck.ai entry is visible
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+        await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).toBeVisible();
+
+        // Native pushes a config update disabling the suggestion
+        await omnibar.didReceiveConfig({ mode: 'search', enableAi: true, enableAskAiSuggestion: false });
+
+        // Re-trigger suggestions; entry is gone, mode pills still visible
+        await omnibar.searchInput().fill('');
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+        await expect(omnibar.suggestions().getByText('pizza dough – Ask Duck.ai')).not.toBeVisible();
+        await expect(omnibar.tabList()).toBeVisible();
     });
 
     test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
