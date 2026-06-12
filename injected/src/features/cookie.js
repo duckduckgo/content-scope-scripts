@@ -24,6 +24,16 @@ function initialShouldBlockTrackerCookie() {
     return injectName === 'firefox' || injectName === 'chrome-mv3' || injectName === 'windows';
 }
 
+const DEFAULT_COOKIE_POLICY = {
+    threshold: 604800, // 7 days
+    maxAge: 604800, // 7 days
+};
+
+const DEFAULT_TRACKER_COOKIE_POLICY = {
+    threshold: 86400, // 1 day
+    maxAge: 86400, // 1 day
+};
+
 // Initial cookie policy pre init
 let cookiePolicy = {
     debug: false,
@@ -34,12 +44,10 @@ let cookiePolicy = {
     shouldBlockNonTrackerCookie: false,
     isThirdPartyFrame: isThirdPartyFrame(),
     policy: {
-        threshold: 604800, // 7 days
-        maxAge: 604800, // 7 days
+        ...DEFAULT_COOKIE_POLICY,
     },
     trackerPolicy: {
-        threshold: 86400, // 1 day
-        maxAge: 86400, // 1 day
+        ...DEFAULT_TRACKER_COOKIE_POLICY,
     },
     allowlist: /** @type {{ host: string }[]} */ ([]),
 };
@@ -133,8 +141,9 @@ export default class CookieFeature extends ContentFeature {
                 },
             );
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
-            cookiePolicy.policy = settings.firstPartyCookiePolicy;
-            cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
+            cookiePolicy.policy = settings.firstPartyCookiePolicy ?? cookiePolicy.policy ?? DEFAULT_COOKIE_POLICY;
+            cookiePolicy.trackerPolicy =
+                settings.firstPartyTrackerCookiePolicy ?? cookiePolicy.trackerPolicy ?? DEFAULT_TRACKER_COOKIE_POLICY;
             // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
             // This only applies when the resources that would set these cookies are unblocked.
             cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || [];
@@ -255,6 +264,8 @@ export default class CookieFeature extends ContentFeature {
      * @param {import('../content-scope-features.js').LoadArgs & { cookie?: ExtensionCookiePolicy }} args
      */
     init(args) {
+        const fallbackPolicy = cookiePolicy.policy ?? DEFAULT_COOKIE_POLICY;
+        const fallbackTrackerPolicy = cookiePolicy.trackerPolicy ?? DEFAULT_TRACKER_COOKIE_POLICY;
         const restOfPolicy = {
             debug: this.isDebug,
             shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
@@ -274,6 +285,13 @@ export default class CookieFeature extends ContentFeature {
             // copy non-null entries from restOfPolicy to cookiePolicy
             const toCopy = Object.fromEntries(Object.entries(restOfPolicy).filter(([, v]) => v));
             Object.assign(cookiePolicy, toCopy);
+        }
+
+        if (cookiePolicy.policy == null) {
+            cookiePolicy.policy = fallbackPolicy;
+        }
+        if (cookiePolicy.trackerPolicy == null) {
+            cookiePolicy.trackerPolicy = fallbackTrackerPolicy;
         }
 
         loadedPolicyResolve();
