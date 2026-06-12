@@ -105,7 +105,13 @@ export class DuckPlayerPage {
      */
     async openPage(urlParams) {
         const url = 'https://www.youtube-nocookie.com' + '?' + urlParams.toString();
-        await this.mocks.install();
+        // Duck player intentionally triggers `duck://` protocol navigations
+        // as part of its assertions, which Chromium reports as "Failed to
+        // load resource" console errors. Drop those from the forwarded
+        // console output so they don't pollute the test log. Other special
+        // pages keep the default (no filtering) so real resource failures
+        // remain visible.
+        await this.mocks.install({ filterResourceErrors: true });
         await this.installYoutubeMocks(urlParams);
         // construct the final url
         await this.page.goto(url);

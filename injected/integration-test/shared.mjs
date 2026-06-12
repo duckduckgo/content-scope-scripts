@@ -26,9 +26,13 @@ export function forwardConsole(page, options = {}) {
             console.error('assert', text);
             return;
         }
-        // Use the appropriate console method to preserve log levels
-        // Fall back to console.log for unknown types
-        const logFn = console[type] ?? console.log;
+        // Use the appropriate console method to preserve log levels.
+        // Playwright reports warn-level messages as `'warning'`, but Node's
+        // console exposes `console.warn` (no `console.warning`), so the
+        // straight `console[type]` lookup would fall through to console.log
+        // for that case and silently downgrade browser warnings.
+        const methodName = type === 'warning' ? 'warn' : type;
+        const logFn = console[methodName] ?? console.log;
         logFn.call(console, type, text);
     });
 }

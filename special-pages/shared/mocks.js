@@ -30,10 +30,16 @@ export class Mocks {
     }
 
     /**
+     * @param {{ filterResourceErrors?: boolean }} [options]
+     *  - `filterResourceErrors`: drop the browser's "Failed to load resource"
+     *    console messages from forwarded output. Only set this where
+     *    resource failures are *expected* (e.g. duckplayer asserting on
+     *    `duck://` protocol 404s); leaving it off elsewhere keeps real
+     *    resource load failures visible in test logs.
      * @returns {Promise<void|*|string>}
      */
-    async install() {
-        forwardConsole(this.page, { filterResourceErrors: true });
+    async install({ filterResourceErrors = false } = {}) {
+        forwardConsole(this.page, { filterResourceErrors });
         await this.installMessagingMocks();
     }
 
