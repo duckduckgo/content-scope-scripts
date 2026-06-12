@@ -163,85 +163,96 @@ export function getMockAiChats(query) {
     return { chats: filtered.slice(0, MAX_RESULTS) };
 }
 
+/**
+ * Inline favicon as a data URI so the tab picker renders deterministically in
+ * screenshot tests — real favicon URLs would race a live network fetch.
+ * @param {string} color
+ * @returns {import("../../../types/new-tab").Favicon}
+ */
+function squareFavicon(color) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" rx="14" fill="${color}"/></svg>`;
+    return { src: `data:image/svg+xml,${encodeURIComponent(svg)}`, maxAvailableSize: 64 };
+}
+
 /** @type {import("../../../types/new-tab").TabMetadata[]} */
 const allMockOpenTabs = [
     {
         tabId: 'tab-1',
         title: 'MacBook Neo - Apple',
         url: 'https://www.apple.com/macbook-neo',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/apple.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#555555'),
     },
     {
         tabId: 'tab-2',
         title: 'Starbucks Coffee Company',
         url: 'https://www.starbucks.com',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/starbucks.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#00704A'),
     },
     {
         tabId: 'tab-long',
         title: 'Breckenreid Makes Thoughtful Illustrations About Typography, History, And Why Extremely Long Page Titles Must Be Truncated With An Ellipsis Instead Of Wrapping Or Overflowing The Picker',
         url: 'https://example.com/an/extremely/long/article/about/typography',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/example.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#4A90D9'),
     },
     {
         tabId: 'tab-3',
         title: 'MacBook Pro - Apple',
         url: 'https://www.apple.com/macbook-pro',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/apple.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#555555'),
     },
     {
         tabId: 'tab-4',
         title: 'Duck.ai - Project planning',
         url: 'https://duck.ai/chat/abc',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/duck.ai.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#DE5833'),
     },
     {
         tabId: 'tab-5',
         title: 'Dinosaurus',
         url: 'https://en.wikipedia.org/wiki/Dinosaur',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/wikipedia.org.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#333333'),
     },
     {
         tabId: 'tab-6',
         title: 'Amazon.com. Spend less. Smile more.',
         url: 'https://www.amazon.com',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/amazon.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#FF9900'),
     },
     {
         tabId: 'tab-7',
         title: 'Daring Fireball',
         url: 'https://daringfireball.net',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/daringfireball.net.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#4A4A4A'),
     },
     {
         tabId: 'tab-8',
         title: 'Ranking MLB best at every position',
         url: 'https://www.mlb.com/news/best-players-position',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/mlb.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#BF0D3E'),
     },
     {
         tabId: 'tab-9',
         title: 'Asana',
         url: 'https://app.asana.com',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/asana.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#F06A6A'),
     },
     {
         tabId: 'tab-10',
         title: 'Discord',
         url: 'https://discord.com/channels/@me',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/discord.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#5865F2'),
     },
     {
         tabId: 'tab-11',
         title: 'The Verge',
         url: 'https://www.theverge.com',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/theverge.com.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#E2127A'),
     },
     {
         tabId: 'tab-12',
         title: 'BlueSky',
         url: 'https://bsky.app',
-        favicon: { src: 'https://icons.duckduckgo.com/ip3/bsky.app.ico', maxAvailableSize: 64 },
+        favicon: squareFavicon('#1185FE'),
     },
     {
         tabId: 'tab-broken',
