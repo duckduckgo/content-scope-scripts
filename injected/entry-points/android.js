@@ -54,9 +54,15 @@ async function initCode() {
         await init(processedConfig);
         sendInitialPing(processedConfig.messagingConfig, processedConfig);
     } catch (error) {
-        if (processedConfig.debug) {
-            console.error('Android: Initial ping skipped after init failure:', error);
-        }
+        // Always surface init failures via console.error, not only when debug
+        // is set. Before this try/catch was introduced, init() was called
+        // without `await` and any rejection became an unhandled-promise
+        // warning visible in DevTools; gating the log on `debug` would
+        // silence those signals in production, making init failures
+        // invisible. The catch only exists to keep `sendInitialPing` from
+        // throwing past the entry point — the failure itself should still
+        // be loud.
+        console.error('Android: Initial ping skipped after init failure:', error);
     }
 }
 
