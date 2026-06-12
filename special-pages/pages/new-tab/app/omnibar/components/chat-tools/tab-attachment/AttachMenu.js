@@ -23,10 +23,10 @@ import styles from './AttachMenu.module.css';
 
 /**
  * @param {object} props
- * @param {ImageChannel | null} props.image — Pass null to omit the image route.
- * @param {FileChannel | null} props.file — Pass null to omit the file route.
+ * @param {ImageChannel | null} props.image — null omits the image route.
+ * @param {FileChannel | null} props.file — null omits the file route.
  * @param {boolean} props.tabsEnabled
- * @param {(tab: TabMetadata) => void} props.onToggleTab — Attach the tab, or detach it if it's already attached.
+ * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
  */
 export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }) {
@@ -46,8 +46,7 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }
                 onChange={fileInput.onChange}
             />
         );
-        // Image-only button is disabled only when the image limit is reached;
-        // restore main's limit-warning tooltip for that case.
+        // Image-only: a disabled button means the image limit is reached — show its warning tooltip.
         if (image && !file && fileInput.disabled) {
             return (
                 <Tooltip content={t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) })} position="above">
@@ -62,8 +61,7 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }
 }
 
 /**
- * Single-mode shortcut: a `<label>` that wraps a hidden file input. Used when
- * tabs aren't enabled, so no dropdown is needed.
+ * A `<label>` wrapping a hidden file input — used when tabs are off, so no dropdown is needed.
  *
  * @param {object} props
  * @param {string} props.ariaLabel
@@ -110,11 +108,8 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
 }
 
 /**
- * Paperclip-triggered dropdown. Always used when `tabsEnabled` (whether or not
- * the file route is also enabled), so the user always sees a labelled menu
- * entry instead of the picker firing on click. The hidden file input lives
- * here and is `click()`-triggered from the menu entry on a microtask so the
- * menu can finish unmounting before the OS file picker takes focus.
+ * Paperclip-triggered dropdown, used whenever `tabsEnabled`. The hidden file input is
+ * `click()`-triggered on a microtask so the menu unmounts before the OS picker takes focus.
  *
  * @param {object} props
  * @param {(key: keyof Strings) => string} props.t
@@ -188,9 +183,7 @@ function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) 
 }
 
 /**
- * Body of the paperclip menu while it's open. Mounted only while the parent
- * menu is open, so `submenuOpen` resets naturally on each re-open instead of
- * needing an effect to sync with `isOpen`.
+ * Body of the paperclip menu while open. Mounted only while open, so `submenuOpen` resets on re-open.
  *
  * @param {object} props
  * @param {(key: keyof Strings) => string} props.t
@@ -210,8 +203,7 @@ function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRe
 
     const getSubmenuPos = () => {
         if (!submenuOpen || dropdownPos.left === undefined || !dropdownRef.current) return null;
-        // Open the submenu from the triggering item ("Add Page Content") rather than the
-        // top of the parent panel, matching native submenu behaviour.
+        // Align the submenu to its triggering item, not the top of the parent panel.
         const triggerOffsetTop = triggerRef.current?.offsetTop ?? 0;
         return {
             left: dropdownPos.left + dropdownRef.current.offsetWidth + 4,

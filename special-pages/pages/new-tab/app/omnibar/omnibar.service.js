@@ -212,7 +212,7 @@ export class OmnibarService {
     }
 
     /**
-     * Requests open-tab metadata, returns the list of open tabs that are valid for attachment.
+     * Requests the list of open tabs available for attachment.
      * @returns {Promise<GetOpenTabsResponse>}
      */
     getOpenTabs() {
@@ -220,8 +220,7 @@ export class OmnibarService {
     }
 
     /**
-     * Request extracted page content for a specific tab. Resolves with `null`
-     * when the tab has any issue (closed, restricted, extraction failed).
+     * Requests extracted page content for a tab; resolves `null` if the tab can't be read.
      * @param {string} tabId
      * @returns {Promise<PageContext | null>}
      */

@@ -682,7 +682,7 @@ export interface AIModelItem {
    */
   supportsImageUpload: boolean;
   /**
-   * MIME types this model accepts as file attachments. Empty or omitted means the model does not accept files. The omnibar uses this to drive the file picker's `accept` attribute and to clear attached files whose MIME isn't supported when the user switches models. v1 only sends `application/pdf`; the array shape leaves room for additional types (e.g. `text/plain`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) without a schema change.
+   * MIME types this model accepts as file attachments; empty or omitted means it accepts no files. Drives the file picker's `accept` attribute and clears attached files the newly-selected model doesn't support.
    */
   supportedFileTypes?: string[];
   /**
@@ -773,7 +773,7 @@ export interface PageContext {
   fullContentLength?: number;
 }
 /**
- * File attached to a Duck.ai prompt. Shape mirrors Duck.ai's existing `NativePromptFile` input so native forwards entries unchanged. NTP encodes the file in the browser (`FileReader.readAsDataURL` → base64) and includes it on `omnibar_submitChat`.
+ * File attached to a Duck.ai prompt. Shape mirrors Duck.ai's `NativePromptFile` input so native forwards entries unchanged.
  */
 export interface NativePromptFile {
   /**
@@ -781,11 +781,11 @@ export interface NativePromptFile {
    */
   data: string;
   /**
-   * Original filename, used for chip display in the omnibar and forwarded to Duck.ai.
+   * Original filename, forwarded to Duck.ai.
    */
   fileName: string;
   /**
-   * MIME type of the file. v1: NTP only sends `application/pdf`. The field is left as an open string (not an enum) to match Duck.ai's input shape and to let additional types be added later without a schema change.
+   * MIME type of the file. An open string (not an enum) to match Duck.ai's input shape. v1 only sends `application/pdf`.
    */
   mimeType: string;
 }
@@ -1314,7 +1314,7 @@ export interface OmnibarGetTabContentRequest {
   result: GetTabContentResponse;
 }
 /**
- * Asks native to extract the page content for a specific open tab. Called when the user picks a tab from the attach-tabs picker.
+ * Asks native to extract the page content for a specific open tab.
  */
 export interface GetTabContentRequest {
   /**

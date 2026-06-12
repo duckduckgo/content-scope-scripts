@@ -91,9 +91,7 @@ export function AiChatForm({
 
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
-        // Let the parent claim keys first (e.g. routing arrow keys into a
-        // mention picker). If it reports the key as handled, we skip the
-        // default recent-chats handling for that key.
+        // Let the parent claim keys first (e.g. arrow keys → mention picker); skip ours if it does.
         const result = onTextareaKeyDown?.(event);
         if (result?.handled) return;
 
@@ -192,16 +190,13 @@ export function AiChatForm({
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
-                // The tab-attachment flow needs caret position to detect active
-                // `@` mentions, so emit both value and caret on every input.
+                // Emit caret with value so the mention flow can detect active `@` mentions.
                 onInput={(event) => {
                     emitChange(event);
                     clearSelectedChat();
                 }}
                 onKeyUp={(event) => {
-                    // Caret-only changes (arrow keys, mouse-positioned caret) don't
-                    // fire `onInput`, but they can still move the caret into or out
-                    // of an `@` mention. Re-emit so the picker can react.
+                    // Caret moves (arrows, Home/End) don't fire onInput but can enter/exit an `@`; re-emit.
                     if (event.key.startsWith('Arrow') || event.key === 'Home' || event.key === 'End') {
                         emitChange(event);
                     }

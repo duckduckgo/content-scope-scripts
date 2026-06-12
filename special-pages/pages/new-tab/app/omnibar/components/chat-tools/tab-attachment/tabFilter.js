@@ -3,11 +3,6 @@
  */
 
 /**
- * Filter tabs by a case-insensitive substring match against title + URL.
- *
- * Lives in its own module so it can be unit-tested without dragging in Preact
- * or the CSS modules referenced by the renderer.
- *
  * @param {TabMetadata[]} tabs
  * @param {string} query
  * @returns {TabMetadata[]}

@@ -5,12 +5,8 @@ import { OmnibarPage } from './omnibar.page.js';
 
 /**
  * Functional coverage for the omnibar attachment features (open-tab content +
- * PDF files). These assert the behaviours the tech designs call out as the
- * web↔native contract — primarily the shape of the `omnibar_submitChat`
- * payload — using the dev mock transport (`omnibar.mock-transport.js`), which
- * serves mock open tabs / tab content and records outgoing notifications.
- *
- * @see attach-tabs-ntp-td.md, attach-files-ntp-td.md
+ * PDF files), asserting the shape of the outgoing `omnibar_submitChat` payload
+ * via the dev mock transport (`omnibar.mock-transport.js`).
  */
 
 /** A tiny valid PDF, base64-encoded, used to drive `setInputFiles` without a fixture file. */
@@ -64,7 +60,6 @@ test.describe('omnibar tab attachment', () => {
         await omnibar.attachTab('Starbucks Coffee Company');
         await expect(omnibar.tabChip()).toHaveCount(1);
 
-        // Reopening the picker: the attached tab reports its checked state, the others don't.
         await omnibar.attachMenuButton().click();
         await omnibar.attachPageContentMenuItem().click();
         await expect(omnibar.tabPickerItem('Starbucks Coffee Company')).toHaveAttribute('aria-checked', 'true');
@@ -82,7 +77,6 @@ test.describe('omnibar tab attachment', () => {
         await omnibar.attachTab('Starbucks Coffee Company');
         await expect(omnibar.tabChip()).toHaveCount(1);
 
-        // Picking the same tab again toggles it back off, dropping its chip.
         await omnibar.attachTab('Starbucks Coffee Company');
         await expect(omnibar.attachmentChips()).toHaveCount(0);
     });
@@ -165,7 +159,6 @@ test.describe('omnibar tab attachment', () => {
 
         await omnibar.mentionOption('Starbucks Coffee Company').click();
 
-        // the @-token is stripped from the input and the tab is attached
         await omnibar.expectChatValue('');
         await expect(omnibar.tabChip()).toHaveCount(1);
     });
@@ -199,12 +192,10 @@ test.describe('omnibar tab attachment', () => {
         await omnibar.mentionOption('Starbucks Coffee Company').click();
         await expect(omnibar.tabChip()).toHaveCount(1);
 
-        // Reopening the picker shows the attached tab as selected; an unattached one isn't.
         await omnibar.chatInput().pressSequentially('@');
         await expect(omnibar.mentionOption('Starbucks Coffee Company')).toHaveAttribute('aria-selected', 'true');
         await expect(omnibar.mentionOption('MacBook Neo - Apple')).toHaveAttribute('aria-selected', 'false');
 
-        // Selecting the attached tab again toggles it back off.
         await omnibar.mentionOption('Starbucks Coffee Company').click();
         await expect(omnibar.attachmentChips()).toHaveCount(0);
     });
@@ -225,7 +216,6 @@ test.describe('omnibar tab attachment', () => {
         await page.keyboard.press('Enter');
         await expect(omnibar.tabChip()).toHaveCount(1);
 
-        // Reopening starts the highlight back at the first item.
         await omnibar.chatInput().pressSequentially('@');
         const firstOptionId = await omnibar.mentionOption('MacBook Neo - Apple').getAttribute('id');
         expect(firstOptionId).toBeTruthy();
@@ -242,7 +232,6 @@ test.describe('omnibar tab attachment', () => {
 
         const longTitle = /^Breckenreid Makes Thoughtful Illustrations/;
 
-        // Dropdown picker: the long-titled row is present, and the panel stays capped at its max width.
         await omnibar.attachMenuButton().click();
         await omnibar.attachPageContentMenuItem().click();
         await expect(omnibar.tabPickerItem(longTitle)).toBeVisible();
@@ -250,7 +239,6 @@ test.describe('omnibar tab attachment', () => {
         expect(menuBox?.width ?? Infinity).toBeLessThanOrEqual(361);
         await page.keyboard.press('Escape');
 
-        // @-mention picker: same long title, same cap.
         await omnibar.chatInput().click();
         await omnibar.chatInput().pressSequentially('@');
         await expect(omnibar.mentionOption(longTitle)).toBeVisible();
@@ -269,7 +257,6 @@ test.describe('omnibar tab attachment', () => {
 
         await expect(omnibar.attachMenuButton()).toHaveCount(0);
 
-        // typing @ does not open the picker
         await omnibar.chatInput().click();
         await omnibar.chatInput().pressSequentially('@star');
         await expect(omnibar.mentionPicker()).toHaveCount(0);
@@ -308,11 +295,9 @@ test.describe('omnibar file attachment', () => {
         });
         await omnibar.ready();
 
-        // No dropdown trigger is rendered; the control is the direct file button.
         await expect(omnibar.attachMenuButton()).toHaveCount(0);
         await expect(omnibar.directFileButton()).toBeVisible();
 
-        // Selecting a file attaches it without any menu ever opening.
         await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: PDF_BYTES });
         await expect(omnibar.fileChip()).toHaveCount(1);
         await expect(omnibar.attachMenu()).toHaveCount(0);
@@ -358,7 +343,7 @@ test.describe('omnibar file attachment', () => {
         });
         await omnibar.ready();
 
-        // Any number can be attached — five files (past the cap of three) are all kept, not truncated.
+        // Five files, past the cap of three, are all kept rather than truncated.
         await omnibar
             .fileInput()
             .setInputFiles(
@@ -366,12 +351,10 @@ test.describe('omnibar file attachment', () => {
             );
         await expect(omnibar.fileChip()).toHaveCount(5);
 
-        // Over the limit → the warning shows and submit stays disabled even with a query typed.
         await expect(omnibar.fileLimitWarning()).toBeVisible();
         await omnibar.types({ mode: 'ai', value: 'summarize these' });
         await expect(omnibar.chatSubmitButton()).toBeDisabled();
 
-        // Removing chips back down to the cap clears the warning and re-enables submit.
         await omnibar.removeFileButton('e.pdf').click();
         await omnibar.removeFileButton('d.pdf').click();
         await expect(omnibar.fileChip()).toHaveCount(3);
@@ -430,8 +413,7 @@ test.describe('omnibar attachment coexistence', () => {
 
 /**
  * Attachments are stored per NTP tab (above the tab-keyed remount boundary), so they must
- * survive switching between browser tabs and be dropped when a tab closes — see the tech
- * designs' "chips persist across browser-tab switches and clear when the NTP tab closes".
+ * survive switching between browser tabs and be dropped when a tab closes.
  */
 test.describe('omnibar attachment per-tab persistence', () => {
     /**
@@ -452,16 +434,13 @@ test.describe('omnibar attachment per-tab persistence', () => {
         await ntp.openPage({ additional: config });
         await omnibar.ready();
 
-        // attach two tabs on tab 01
         await omnibar.attachTab('Starbucks Coffee Company');
         await omnibar.attachTab('MacBook Neo - Apple');
         await expect(omnibar.tabChip()).toHaveCount(2);
 
-        // a freshly-focused tab 02 has its own (empty) attachment state
         await omnibar.didSwitchToTab('02', ['01', '02']);
         await expect(omnibar.attachmentChips()).toHaveCount(0);
 
-        // returning to 01 restores both chips
         await omnibar.didSwitchToTab('01', ['01', '02']);
         await expect(omnibar.tabChip()).toHaveCount(2);
     });
@@ -508,15 +487,13 @@ test.describe('omnibar attachment per-tab persistence', () => {
         await ntp.openPage({ additional: config });
         await omnibar.ready();
 
-        // attach on tab 01, then open tab 02 (01 still present, so it's preserved)
         await omnibar.attachTab('Starbucks Coffee Company');
         await expect(omnibar.tabChip()).toHaveCount(1);
         await omnibar.didSwitchToTab('02', ['01', '02']);
 
-        // tab 01 closes (drops out of the tab id list) → its stored attachments are pruned
+        // Dropping 01 from the tab-id list signals it closed, pruning its stored attachments.
         await omnibar.didSwitchToTab('02', ['02']);
 
-        // 01 comes back around with nothing restored
         await omnibar.didSwitchToTab('01', ['01', '02']);
         await expect(omnibar.attachmentChips()).toHaveCount(0);
     });

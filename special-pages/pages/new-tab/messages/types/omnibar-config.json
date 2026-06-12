@@ -48,7 +48,7 @@
           "type": "boolean"
         },
         "supportedFileTypes": {
-          "description": "MIME types this model accepts as file attachments. Empty or omitted means the model does not accept files. The omnibar uses this to drive the file picker's `accept` attribute and to clear attached files whose MIME isn't supported when the user switches models. v1 only sends `application/pdf`; the array shape leaves room for additional types (e.g. `text/plain`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) without a schema change.",
+          "description": "MIME types this model accepts as file attachments; empty or omitted means it accepts no files. Drives the file picker's `accept` attribute and clears attached files the newly-selected model doesn't support.",
           "type": "array",
           "items": { "type": "string" }
         },

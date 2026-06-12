@@ -32,16 +32,16 @@ function getItemProps(child) {
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
- * @param {import('preact').ComponentChildren} [props.header] - Non-interactive header rendered at the top of the panel.
- * @param {import('preact').ComponentChildren} [props.emptyMessage] - Non-interactive message rendered when there are no item children.
+ * @param {import('preact').ComponentChildren} [props.header] - header rendered at the top of the panel.
+ * @param {import('preact').ComponentChildren} [props.emptyMessage] - shown when there are no items.
  * @param {string} props.ariaLabel
  * @param {'menu' | 'listbox'} props.role
  * @param {DropdownPosition} props.position
  * @param {(options: {restoreFocus: boolean}) => void} props.onClose
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {string} [props.idPrefix]
- * @param {string} [props.className] - Extra class for the dropdown root, on top of the shared chrome.
- * @param {boolean} [props.multiSelect] - Open with no row highlighted instead of focusing the first `isSelected` row. Use for menus where many items can be checked.
+ * @param {string} [props.className]
+ * @param {boolean} [props.multiSelect] - open with no row highlighted instead of the first `isSelected` row.
  */
 export function Dropdown({
     children,

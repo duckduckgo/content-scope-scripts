@@ -390,7 +390,6 @@ export class OmnibarPage {
         return this.context().getByRole('menu', { name: 'Attach' });
     }
 
-    /** The "Add Images" / "Add PDFs" / "Add Images or PDFs" file entry inside the paperclip menu. */
     attachFilesMenuItem() {
         return this.attachMenu().getByRole('menuitem', { name: /Add (Images|PDFs|Images or PDFs)/ });
     }
@@ -426,7 +425,6 @@ export class OmnibarPage {
         return this.context().getByTestId('omnibar-attachment-chips');
     }
 
-    /** Individual tab chips inside the shared attachment row, scoped by their `data-attachment-kind` marker. */
     tabChip() {
         return this.attachmentChips().locator('[data-attachment-kind="tab"]');
     }
@@ -436,10 +434,6 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: `Remove ${title}` });
     }
 
-    /**
-     * Individual file chips inside the shared attachment row, scoped by their
-     * `data-attachment-kind` marker so tab/image chips in the same row don't match.
-     */
     fileChip() {
         return this.attachmentChips().locator('[data-attachment-kind="file"]');
     }
@@ -449,22 +443,18 @@ export class OmnibarPage {
         return this.attachmentChips().locator(`button[aria-label="Remove ${fileName}"]`);
     }
 
-    /** Remove buttons for attached image chips (all share the same accessible label). */
     removeImageButton() {
         return this.attachmentChips().locator('button[aria-label="Remove image"]');
     }
 
-    /** The over-limit file warning shown when more than the allowed number of files are attached. */
     fileLimitWarning() {
         return this.context().getByText(/You can only attach \d+ files at a time/);
     }
 
-    /** The over-limit image warning shown when more than the allowed number of images are attached. */
     imageLimitWarning() {
         return this.context().getByText(/You can only attach \d+ images at a time/);
     }
 
-    /** The `@`-mention typeahead picker. */
     mentionPicker() {
         return this.context().getByRole('dialog', { name: 'Pick an open tab to attach' });
     }

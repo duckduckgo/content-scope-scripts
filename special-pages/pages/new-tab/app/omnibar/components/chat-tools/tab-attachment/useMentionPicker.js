@@ -10,19 +10,17 @@ import { filterTabs } from './tabFilter.js';
 const LISTBOX_ID = 'omnibar-mention-picker';
 
 /**
- * Owns the full `@`-mention typeahead flow: input detection, the open-tab
- * fetch, client-side filtering, keyboard nav and highlight state, picker
- * positioning, and stripping the `@…` token from the input on select.
+ * `@`-mention typeahead for attaching open tabs.
  *
  * @param {object} params
- * @param {boolean} params.enabled — Master switch (feature flag + model capability).
- * @param {string} params.query — Current input value, needed to strip a `@…` mention on select.
- * @param {(value: string) => void} params.onChange — Update the input value (used to strip the mention).
- * @param {() => void} params.hideChats — Recent-chats hide callback from the omnibar.
- * @param {(tab: TabMetadata) => void} params.onToggleTab — Attach the tab, or detach it if it's already attached.
- * @param {(tabId: string) => boolean} params.isAttached — Whether a tab is already attached, to show its checked state.
- * @param {import('preact').RefObject<HTMLTextAreaElement>} params.textareaRef — Textarea the mention is being typed into. Used to restore focus/caret after the user picks a tab.
- * @param {import('preact').RefObject<HTMLElement>} params.anchorRef — Positioning context the picker wrapper is absolutely positioned within. Used to compute the picker's vertical offset so it sits just below the textarea (which lives inside an `overflow: hidden` ancestor and so can't be a positioning parent directly).
+ * @param {boolean} params.enabled
+ * @param {string} params.query
+ * @param {(value: string) => void} params.onChange
+ * @param {() => void} params.hideChats
+ * @param {(tab: TabMetadata) => void} params.onToggleTab
+ * @param {(tabId: string) => boolean} params.isAttached
+ * @param {import('preact').RefObject<HTMLTextAreaElement>} params.textareaRef
+ * @param {import('preact').RefObject<HTMLElement>} params.anchorRef
  */
 export function useMentionPicker({ enabled, query, onChange, hideChats, onToggleTab, isAttached, textareaRef, anchorRef }) {
     const [anchor, setAnchor] = useState(/** @type {number | null} */ (null));
@@ -56,8 +54,7 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onToggle
             const cursor = caret ?? value.length;
 
             if (anchor !== null) {
-                // Picker is open — keep query in sync, or close if the mention
-                // has been deleted or committed by whitespace.
+                // Sync the query, or close if the mention was deleted or ended by whitespace.
                 if (cursor <= anchor || value[anchor] !== '@') {
                     closePicker();
                     return;
@@ -71,7 +68,7 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onToggle
                 return;
             }
 
-            // Picker is closed — detect a freshly typed `@` at a word boundary.
+            // Open on a freshly typed `@` at a word boundary.
             if (cursor < 1 || value[cursor - 1] !== '@') return;
             const prev = cursor >= 2 ? value[cursor - 2] : '';
             if (prev !== '' && !/\s/.test(prev)) return;
@@ -91,8 +88,7 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onToggle
                 const after = query.slice(anchor + 1 + mentionQuery.length);
                 onChange(before + after);
                 const caret = before.length;
-                // Defer caret restoration until the controlled value commits,
-                // otherwise the caret jumps to end-of-text.
+                // Defer until the controlled value commits, else the caret jumps to end-of-text.
                 queueMicrotask(() => {
                     textareaRef.current?.focus();
                     textareaRef.current?.setSelectionRange(caret, caret);
@@ -104,17 +100,12 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onToggle
         [anchor, mentionQuery, query, onChange, onToggleTab, closePicker, textareaRef],
     );
 
-    // Keep recent-chats collapsed whenever the picker is open.
     useEffect(() => {
         if (pickerActive) hideChats();
     }, [pickerActive, hideChats]);
 
-    // While the picker is open, glue its top to the textarea bottom. The picker
-    // wrapper is rendered as a sibling of the input field (so the input's
-    // `overflow: hidden` doesn't clip it), which means we can't use CSS
-    // `top: 100%` of the textarea — measure it instead and recompute whenever
-    // the textarea grows (multi-line typing) or the field's layout shifts
-    // (focus state changes its margin).
+    // The picker is a sibling of the input (so `overflow: hidden` can't clip it), so its top
+    // can't be CSS `top: 100%`. Measure the textarea bottom and recompute on resize instead.
     useLayoutEffect(() => {
         if (!pickerActive) return;
         const textarea = textareaRef.current;

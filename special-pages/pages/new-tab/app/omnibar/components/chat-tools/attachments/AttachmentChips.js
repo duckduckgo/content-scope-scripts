@@ -18,14 +18,7 @@ import styles from './AttachmentChips.module.css';
  */
 
 /**
- * Single container for every omnibar attachment. Collects attached tabs, files,
- * and images into one flowing, wrapping row and renders each as its own
- * representation based on its `kind` — tab → page chip, file → file card,
- * image → thumbnail. Returns nothing when empty; callers should still mount it
- * so the area can appear/disappear without layout jumps.
- *
- * Image limit/error alerts and the chat-list visibility wiring live separately
- * in `ImageAttachmentContent` — this container only renders the chips.
+ * Renders attached tabs, files, and images as chips in one row, ordered by attach time.
  *
  * @param {object} props
  * @param {AttachedTab[]} props.tabs
@@ -38,7 +31,6 @@ import styles from './AttachmentChips.module.css';
 export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile, onRemoveImage }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
-    // Render in the order the user attached them (matching the address bar), not grouped by type.
     /** @type {AttachmentItem[]} */
     const items = [
         ...tabs.map((tab) => /** @type {TabItem} */ ({ kind: 'tab', key: `tab-${tab.tabId}`, tab, addedAtRelative: tab.addedAtRelative })),

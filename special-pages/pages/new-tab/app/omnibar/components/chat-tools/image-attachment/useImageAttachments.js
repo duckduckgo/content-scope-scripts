@@ -4,8 +4,7 @@ import { ImageAttachments } from '../../PersistentOmnibarValuesProvider';
 const { useStateWithLocalPersistence } = ImageAttachments;
 
 /**
- * `addedAtRelative` is a `performance.now()` value used only to sort attachments into the
- * order the user attached them; it's relative and monotonic, not a wall-clock timestamp.
+ * `addedAtRelative` is a `performance.now()` value used to sort attachments by attach order.
  * @typedef {{ dataUrl: string, fileName: string, mimeType: string, addedAtRelative: number }} AttachedImage
  * @typedef {'imageTooLarge' | 'processingFailed'} ImageErrorType
  * @typedef {{ type: ImageErrorType, fileNames: string[] }} ImageError
@@ -83,10 +82,7 @@ function normaliseImage(srcDataUrl, targetMime) {
     });
 }
 
-/**
- * @param {string|null|undefined} [tabId] - The NTP tab these attachments belong to. Used to persist
- * them per-tab so they survive switching between browser tabs (see `PersistentAttachmentsProvider`).
- */
+/** @param {string|null|undefined} [tabId] - NTP tab the attachments are persisted under. */
 export function useImageAttachments(tabId) {
     const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = useState(/** @type {ImageError|null} */ (null));
@@ -184,14 +180,6 @@ export function useImageAttachments(tabId) {
         }
     };
 
-    /** @type {(event: Event) => Promise<void>} */
-    const handleFileChange = async (event) => {
-        const input = /** @type {HTMLInputElement} */ (event.currentTarget);
-        if (!input.files || input.files.length === 0) return;
-        await processFiles(Array.from(input.files));
-        input.value = '';
-    };
-
     /** @param {number} index */
     const handleRemoveImage = (index) => {
         setAttachedImages((prev) => prev.filter((_, i) => i !== index));
@@ -223,7 +211,6 @@ export function useImageAttachments(tabId) {
     return {
         attachedImages,
         processFiles,
-        handleFileChange,
         handleRemoveImage,
         clearAttachedImages,
         imageUploadDisabled,

@@ -9,23 +9,18 @@ const { useStateWithLocalPersistence } = TabAttachments;
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
  * @typedef {import('../../../../../types/new-tab.js').PageContext} PageContext
  *
- * `addedAtRelative` is a `performance.now()` value used only to sort attachments into the
- * order the user attached them; it's relative and monotonic, not a wall-clock timestamp.
- * @typedef {{ tabId: string, addedAtRelative: number }} AttachedTabEntry — persisted per-tab attachment record
- * @typedef {TabMetadata & { addedAtRelative: number }} AttachedTab — live tab metadata carrying its attach order, for chip rendering
+ * `addedAtRelative` is a `performance.now()` value used to sort attachments by attach order.
+ * @typedef {{ tabId: string, addedAtRelative: number }} AttachedTabEntry
+ * @typedef {TabMetadata & { addedAtRelative: number }} AttachedTab
  */
 
-/**
- * @param {string|null|undefined} tabId — The NTP tab these attachments belong to. Used to persist
- * them per-tab so they survive switching between browser tabs
- */
+/** @param {string|null|undefined} tabId — NTP tab the attachments are persisted under. */
 export function useTabAttachments(tabId) {
     const { getTabContent } = useContext(OmnibarContext);
     const { openTabs } = useContext(OpenTabsContext);
     const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence(tabId);
 
-    // Chips are the attached subset of the live open-tab list, looked up by id, each carrying its
-    // attach order. A tab that's no longer open (closed since it was attached) just stops rendering.
+    // Attached subset of the live open-tab list; a tab that has since closed just stops rendering.
     const attachedTabs = useMemo(() => {
         return attachedEntries.flatMap((entry) => {
             const tab = openTabs.find((t) => t.tabId === entry.tabId);
@@ -37,18 +32,6 @@ export function useTabAttachments(tabId) {
         /** @param {string} tabId */
         (tabId) => attachedEntries.some((entry) => entry.tabId === tabId),
         [attachedEntries],
-    );
-
-    const attachTab = useCallback(
-        /** @param {TabMetadata} tabToAttach */
-        (tabToAttach) => {
-            setAttachedEntries((prev) =>
-                prev.some((entry) => entry.tabId === tabToAttach.tabId)
-                    ? prev
-                    : [...prev, { tabId: tabToAttach.tabId, addedAtRelative: performance.now() }],
-            );
-        },
-        [setAttachedEntries],
     );
 
     const removeTab = useCallback(
@@ -76,8 +59,7 @@ export function useTabAttachments(tabId) {
     }, [setAttachedEntries]);
 
     /**
-     * Extract page content for each attached tab in parallel, on submit. Drops
-     * tabs whose extraction fails or returns null.
+     * Extracts page content for each attached tab in parallel; drops failures.
      * @returns {Promise<PageContext[] | null>}
      */
     const getTabsForSubmission = useCallback(async () => {
@@ -103,16 +85,13 @@ export function useTabAttachments(tabId) {
         () => ({
             attachedTabs,
             isAttached,
-            attachTab,
             removeTab,
             toggleTab,
             clearAttachedTabs,
             getTabsForSubmission,
         }),
-        [attachedTabs, isAttached, attachTab, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission],
+        [attachedTabs, isAttached, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission],
     );
 
     return state;
 }
-
-/** @typedef {ReturnType<typeof useTabAttachments>} TabAttachmentState */

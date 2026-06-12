@@ -8,8 +8,7 @@ import styles from './Dropdown.module.css';
  * and `onClick` via `cloneElement` when it renders its children.
  *
  * The caller supplies `onSelect`; Dropdown invokes it on click and on Enter.
- * `onHover` fires on `mouseenter` and is independent of Dropdown's internal
- * active-index tracking — use it to react to hover (e.g. open/close a submenu).
+ * `onHover` fires on `mouseenter`, independent of active-index tracking — used for submenus.
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} [props.icon]

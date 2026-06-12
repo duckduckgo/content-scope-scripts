@@ -14,8 +14,8 @@ export const OpenTabsContext = createContext(/** @type {OpenTabsValue} */ ({ ope
 
 /**
  * @param {object} props
- * @param {string|null|undefined} props.tabId — The NTP tab this list belongs to.
- * @param {boolean} props.enabled — Master switch; when false the visibility refresh is skipped.
+ * @param {string|null|undefined} props.tabId
+ * @param {boolean} props.enabled
  * @param {import('preact').ComponentChildren} props.children
  */
 export function OpenTabsProvider({ tabId, enabled, children }) {

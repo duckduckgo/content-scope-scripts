@@ -11,12 +11,12 @@ import styles from './MentionPicker.module.css';
 
 /**
  * @param {object} props
- * @param {TabMetadata[]} props.filtered — Already-filtered tabs from the hook
- * @param {number} props.activeIndex — Index of the currently highlighted row, or -1 when none
- * @param {(index: number) => void} props.onActiveIndexChange — Hover handler that promotes a row to highlighted
+ * @param {TabMetadata[]} props.filtered
+ * @param {number} props.activeIndex — highlighted row, or -1 when none
+ * @param {(index: number) => void} props.onActiveIndexChange
  * @param {(tab: TabMetadata) => void} props.onSelect
- * @param {(tabId: string) => boolean} props.isAttached — Whether a tab is already attached, to show its checked state.
- * @param {string} props.listboxId — id assigned to the rendered listbox, used by `aria-controls` on the input
+ * @param {(tabId: string) => boolean} props.isAttached
+ * @param {string} props.listboxId
  */
 export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSelect, isAttached, listboxId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));

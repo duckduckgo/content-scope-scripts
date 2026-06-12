@@ -5,8 +5,7 @@ import { resolveFileMimeType } from '../tab-attachment/fileChannels';
 const { useStateWithLocalPersistence } = FileAttachments;
 
 /**
- * `addedAtRelative` is a `performance.now()` value used only to sort attachments into the
- * order the user attached them; it's relative and monotonic, not a wall-clock timestamp.
+ * `addedAtRelative` is a `performance.now()` value used to sort attachments by attach order.
  * @typedef {{ data: string, fileName: string, mimeType: string, addedAtRelative: number }} AttachedFile
  */
 
@@ -15,8 +14,7 @@ const FILE_READ_TIMEOUT = 30000;
 
 /**
  * @param {string[] | undefined} supportedFileTypes — MIME types the active model accepts.
- * @param {string|null|undefined} [tabId] - The NTP tab these attachments belong to. Used to persist
- * them per-tab so they survive switching between browser tabs (see `PersistentAttachmentsProvider`).
+ * @param {string|null|undefined} [tabId] - NTP tab the attachments are persisted under.
  */
 export function useFileAttachments(supportedFileTypes, tabId) {
     const [attachedFiles, setAttachedFiles] = useStateWithLocalPersistence(tabId);
@@ -30,8 +28,7 @@ export function useFileAttachments(supportedFileTypes, tabId) {
         setAttachedFiles((prev) => prev.filter((f) => allowList.includes(f.mimeType)));
     }
 
-    // Files can always be added (no count cap on the attach button); going over MAX_FILES
-    // surfaces an over-limit warning + disabled submit instead, which the user clears by removing.
+    // No hard cap on adding files; exceeding MAX_FILES warns and blocks submit until removed.
     const fileUploadDisabled = allowList.length === 0;
     const fileLimitExceeded = attachedFiles.length > MAX_FILES;
 
@@ -84,8 +81,7 @@ export function useFileAttachments(supportedFileTypes, tabId) {
 
 /**
  * @param {File} file
- * @param {string} mimeType — Resolved MIME type for the outgoing payload, normalized so an empty
- * `File.type` from WebKit pickers doesn't leak through.
+ * @param {string} mimeType — normalized so an empty WebKit `File.type` doesn't leak through.
  * @returns {Promise<Omit<AttachedFile, 'addedAtRelative'>>}
  */
 function readFileAsBase64(file, mimeType) {

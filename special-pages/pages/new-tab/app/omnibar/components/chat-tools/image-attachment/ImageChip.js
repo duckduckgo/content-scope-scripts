@@ -7,9 +7,6 @@ import styles from './ImageAttachment.module.css';
  */
 
 /**
- * A single attached-image thumbnail with a remove button. Rendered by the
- * shared `AttachmentChips` container, which owns the row layout.
- *
  * @param {object} props
  * @param {AttachedImage} props.image
  * @param {() => void} props.onRemove

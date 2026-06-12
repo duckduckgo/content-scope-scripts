@@ -9,11 +9,6 @@ import styles from './TabChips.module.css';
  */
 
 /**
- * A single attached-tab chip: favicon, title, and a remove button. Rendered by
- * the shared `AttachmentChips` container, which owns the row layout. Shows only
- * the tab's metadata — page content is extracted lazily on submit, so there is
- * no per-chip loading state.
- *
  * @param {object} props
  * @param {TabMetadata} props.tab
  * @param {() => void} props.onRemove

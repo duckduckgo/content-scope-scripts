@@ -23,12 +23,11 @@ function buildFileAccept(mimeTypes) {
 }
 
 /**
- * Resolve a picked file's effective MIME type against the allowed list, falling back to its
- * extension.
+ * Resolves a file's MIME type against the allow-list, falling back to its extension.
  *
  * @param {File} file
- * @param {string[]} allowList — MIME types the active model accepts.
- * @returns {string | null} the resolved MIME type, or null if the file is unsupported.
+ * @param {string[]} allowList
+ * @returns {string | null} resolved MIME type, or null if unsupported.
  */
 export function resolveFileMimeType(file, allowList) {
     if (allowList.includes(file.type)) return file.type;
@@ -53,17 +52,13 @@ function resolveFileInputLabel(t, image, file) {
 }
 
 /**
- * Collapses the optional image / file (PDF) channels into the config for the
- * single hidden `<input type="file">` rendered by {@link AttachMenu}:
- *   - `label` / `accept` reflect which of `image`/`file` are non-null.
- *   - `disabled` is true only when every enabled channel is disabled.
- *   - `onChange` partitions the picked files back to the right channel
- *     (anything `image/*` → image, everything else → file).
+ * Collapses the optional image / file channels into config for one hidden file input;
+ * `onChange` routes `image/*` files to the image channel and the rest to the file channel.
  *
  * @param {object} params
  * @param {(key: keyof Strings) => string} params.t
- * @param {ImageChannel | null} params.image - Pass null to omit the image route.
- * @param {FileChannel | null} params.file - Pass null to omit the file (PDF) route.
+ * @param {ImageChannel | null} params.image
+ * @param {FileChannel | null} params.file
  * @returns {ResolvedFileInput}
  */
 export function resolveFileInput({ t, image, file }) {
