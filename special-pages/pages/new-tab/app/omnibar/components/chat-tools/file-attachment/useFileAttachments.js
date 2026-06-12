@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { FileAttachments } from '../../PersistentOmnibarValuesProvider';
 import { resolveFileMimeType } from '../tab-attachment/fileChannels';
+import { FILE_READ_TIMEOUT, readFileAsDataUrl } from '../attachments/readFileAsDataUrl';
 
 const { useStateWithLocalPersistence } = FileAttachments;
 
@@ -10,7 +11,6 @@ const { useStateWithLocalPersistence } = FileAttachments;
  */
 
 export const MAX_FILES = 3;
-const FILE_READ_TIMEOUT = 30000;
 
 /**
  * @param {string[] | undefined} supportedFileTypes — MIME types the active model accepts.
@@ -84,31 +84,11 @@ export function useFileAttachments(supportedFileTypes, tabId) {
  * @param {string} mimeType — normalized so an empty WebKit `File.type` doesn't leak through.
  * @returns {Promise<Omit<AttachedFile, 'addedAtRelative'>>}
  */
-function readFileAsBase64(file, mimeType) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        const timeoutId = setTimeout(() => {
-            reader.abort();
-            reject(new Error(`File reading timed out after ${FILE_READ_TIMEOUT / 1000} seconds`));
-        }, FILE_READ_TIMEOUT);
-
-        reader.onload = () => {
-            clearTimeout(timeoutId);
-            const result = /** @type {string} */ (reader.result);
-            const commaIndex = result.indexOf(',');
-            if (commaIndex < 0) {
-                reject(new Error('FileReader returned unexpected output'));
-                return;
-            }
-            resolve({ data: result.slice(commaIndex + 1), fileName: file.name, mimeType });
-        };
-
-        reader.onerror = () => {
-            clearTimeout(timeoutId);
-            reject(new Error('Failed to read file'));
-        };
-
-        reader.readAsDataURL(file);
-    });
+async function readFileAsBase64(file, mimeType) {
+    const result = await readFileAsDataUrl(file, FILE_READ_TIMEOUT);
+    const commaIndex = result.indexOf(',');
+    if (commaIndex < 0) {
+        throw new Error('FileReader returned unexpected output');
+    }
+    return { data: result.slice(commaIndex + 1), fileName: file.name, mimeType };
 }

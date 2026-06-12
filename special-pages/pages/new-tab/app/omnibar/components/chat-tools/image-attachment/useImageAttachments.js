@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import { ImageAttachments } from '../../PersistentOmnibarValuesProvider';
+import { FILE_READ_TIMEOUT, readFileAsDataUrl } from '../attachments/readFileAsDataUrl';
 
 const { useStateWithLocalPersistence } = ImageAttachments;
 
@@ -20,7 +21,6 @@ class ImageTooLargeError extends Error {
 
 export const MAX_IMAGES = 3;
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
-const FILE_READ_TIMEOUT = 30000;
 const MAX_DIMENSION = 512;
 const MAX_ENCODED_BYTES = 10 * 1024 * 1024;
 // Reject decoded images whose pixel count exceeds this threshold before
@@ -118,38 +118,24 @@ export function useImageAttachments(tabId) {
 
         if (filesToProcess.length === 0) return;
 
-        const newImages = filesToProcess.map(
-            (file) =>
-                new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-
-                    reader.onload = async () => {
-                        clearTimeout(timeoutId);
-                        try {
-                            const rawDataUrl = /** @type {string} */ (reader.result);
-                            const targetMime = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
-                            const dataUrl = await normaliseImage(rawDataUrl, targetMime);
-                            resolve({ dataUrl, fileName: file.name, mimeType: targetMime });
-                        } catch (err) {
-                            console.warn('Attachment rejected: image normalisation failed');
-                            reject(err);
-                        }
-                    };
-
-                    reader.onerror = () => {
-                        clearTimeout(timeoutId);
-                        console.warn('Attachment rejected: failed to read file');
-                        reject(new Error('Failed to read file'));
-                    };
-
-                    const timeoutId = setTimeout(() => {
-                        reader.abort();
-                        reject(new Error(`File reading timed out after ${FILE_READ_TIMEOUT / 1000} seconds`));
-                    }, FILE_READ_TIMEOUT);
-
-                    reader.readAsDataURL(file);
-                }),
-        );
+        const newImages = filesToProcess.map(async (file) => {
+            /** @type {string} */
+            let rawDataUrl;
+            try {
+                rawDataUrl = await readFileAsDataUrl(file, FILE_READ_TIMEOUT);
+            } catch (err) {
+                console.warn('Attachment rejected: failed to read file');
+                throw err;
+            }
+            try {
+                const targetMime = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
+                const dataUrl = await normaliseImage(rawDataUrl, targetMime);
+                return { dataUrl, fileName: file.name, mimeType: targetMime };
+            } catch (err) {
+                console.warn('Attachment rejected: image normalisation failed');
+                throw err;
+            }
+        });
 
         const results = await Promise.allSettled(newImages);
         const images = /** @type {PromiseFulfilledResult<Omit<AttachedImage, 'addedAtRelative'>>[]} */ (

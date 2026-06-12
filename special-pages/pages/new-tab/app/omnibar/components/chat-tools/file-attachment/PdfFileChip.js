@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { CloseSmallIcon } from '../../../../components/Icons';
+import { ChipRemoveButton } from '../attachments/ChipRemoveButton';
 import { Tooltip } from '../../Tooltip.js';
 import styles from './PdfFileChip.module.css';
 
@@ -24,9 +24,7 @@ export function PdfFileChip({ file, onRemove, removeLabel }) {
                     </span>
                     <span class={styles.format}>PDF</span>
                 </span>
-                <button type="button" tabIndex={0} class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
-                    <CloseSmallIcon width="10" height="10" />
-                </button>
+                <ChipRemoveButton className={styles.remove} onRemove={onRemove} label={removeLabel} />
             </div>
         </Tooltip>
     );

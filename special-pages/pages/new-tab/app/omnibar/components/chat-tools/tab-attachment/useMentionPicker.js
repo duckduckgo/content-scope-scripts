@@ -100,10 +100,6 @@ export function useMentionPicker({ enabled, query, onChange, hideChats, onToggle
         [anchor, mentionQuery, query, onChange, onToggleTab, closePicker, textareaRef],
     );
 
-    useEffect(() => {
-        if (pickerActive) hideChats();
-    }, [pickerActive, hideChats]);
-
     // The picker is a sibling of the input (so `overflow: hidden` can't clip it), so its top
     // can't be CSS `top: 100%`. Measure the textarea bottom and recompute on resize instead.
     useLayoutEffect(() => {

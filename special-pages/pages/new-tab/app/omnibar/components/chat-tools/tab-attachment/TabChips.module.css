@@ -44,6 +44,10 @@
     width: 20px;
 }
 
+.faviconFallback {
+    display: contents;
+}
+
 .title {
     flex: 1;
     font-weight: 600;
