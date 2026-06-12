@@ -6,8 +6,6 @@ import { PdfFileChip } from './PdfFileChip';
  */
 
 /**
- * Picks the chip representation for an attached file
- *
  * @param {object} props
  * @param {AttachedFile} props.file
  * @param {() => void} props.onRemove

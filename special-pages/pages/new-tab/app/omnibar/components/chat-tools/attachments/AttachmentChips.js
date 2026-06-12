@@ -18,8 +18,6 @@ import styles from './AttachmentChips.module.css';
  */
 
 /**
- * Renders attached tabs, files, and images as chips in one row, ordered by attach time.
- *
  * @param {object} props
  * @param {AttachedTab[]} props.tabs
  * @param {AttachedFile[]} props.files
@@ -31,6 +29,7 @@ import styles from './AttachmentChips.module.css';
 export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile, onRemoveImage }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
+    // Ordered by attach time so chips appear in the order the user attached them, not grouped by type.
     /** @type {AttachmentItem[]} */
     const items = [
         ...tabs.map((tab) => /** @type {TabItem} */ ({ kind: 'tab', key: `tab-${tab.tabId}`, tab, addedAtRelative: tab.addedAtRelative })),
