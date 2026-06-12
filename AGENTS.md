@@ -94,6 +94,11 @@ See [`guides/debugging.md`](guides/debugging.md) for debugging resources includi
 - When running Playwright commands, use `--reporter list` to prevent the Shell tool from hanging
 - Use `.github/pull_request_template.md` when creating a pull request.
 
+## Local dev quick wins (common pain points)
+
+- **Special Pages CSS local dev**: use `npm run serve-special-pages` (repo root) + `npm run watch -- --page=<page>` (inside `special-pages/`) for hot CSS reload (usually `http://localhost:8000/`). The `build/` output does **not** auto-update in watch mode.
+- **Release workflow**: releases are created from GitHub Actions (see `CONTRIBUTING.md` → “Release Process”). For most iteration, prefer Netlify preview URLs or `npm link` into native apps; only cut a release when you need native consumption via the `releases` branch artifacts.
+
 ## Cursor Cloud specific instructions
 
 - Node 22 and npm are pre-installed. Playwright browsers + system deps are pre-installed. Just run `npm ci` to refresh dependencies.
