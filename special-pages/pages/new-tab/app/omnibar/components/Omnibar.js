@@ -68,6 +68,7 @@ export function Omnibar({
     enableAttachTabs = false,
     tabId,
 }) {
+    console.log('Omnibar local version 1');
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
