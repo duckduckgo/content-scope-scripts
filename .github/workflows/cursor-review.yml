@@ -11,31 +11,62 @@ jobs:
         outputs:
             is_member: ${{ steps.membership.outputs.is_member }}
         steps:
-            - name: Verify author is in duckduckgo/core
+            - name: Verify trusted launcher
               uses: actions/github-script@v9
               id: membership
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
-                      const author = context.payload.pull_request.user.login;
+                      const prAuthor = context.payload.pull_request.user.login;
+
+                      // For human-authored PRs the PR author IS the launcher
+                      // — check team membership against them. For Cursor-app
+                      // PRs (`cursor[bot]`) the PR author is the bot, which
+                      // is never a team member, so we instead use the commit
+                      // committer of the head commit. The committer is the
+                      // GitHub identity that actually pushed the commit, so
+                      // it carries the same trust the team-membership lookup
+                      // intends to verify. Same-repo branches are already
+                      // required (the `head.repo.fork` check on this job),
+                      // so the committer can only have been a user with
+                      // push access to this repo.
+                      let userToCheck = prAuthor;
+                      if (prAuthor === 'cursor[bot]') {
+                          const { data: commits } = await github.rest.pulls.listCommits({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              pull_number: context.payload.pull_request.number,
+                              per_page: 100,
+                          });
+                          const headCommit = commits[commits.length - 1];
+                          const committer = headCommit?.committer?.login;
+                          if (!committer) {
+                              console.log(`⏭️ ${prAuthor} PR has no resolvable committer — skipping auto-review`);
+                              core.setOutput('is_member', 'false');
+                              return;
+                          }
+                          console.log(`Resolved ${prAuthor} launcher to committer: ${committer}`);
+                          userToCheck = committer;
+                      }
+
                       try {
                           const { data } = await github.rest.teams.getMembershipForUserInOrg({
                               org: 'duckduckgo',
                               team_slug: 'core',
-                              username: author
+                              username: userToCheck
                           });
                           if (data.state === 'active') {
-                              console.log(`✅ ${author} is an active member of duckduckgo/core`);
+                              console.log(`✅ ${userToCheck} is an active member of duckduckgo/core`);
                               core.setOutput('is_member', 'true');
                           } else {
-                              console.log(`⏭️ ${author} is not an active member — skipping auto-review`);
+                              console.log(`⏭️ ${userToCheck} is not an active member — skipping auto-review`);
                               core.setOutput('is_member', 'false');
                           }
                       } catch (error) {
                           if (error.status === 404) {
-                              console.log(`⏭️ ${author} is not a member of duckduckgo/core — skipping auto-review`);
+                              console.log(`⏭️ ${userToCheck} is not a member of duckduckgo/core — skipping auto-review`);
                           } else {
-                              console.log(`⚠️ Could not verify ${author}: ${error.message} (status: ${error.status})`);
+                              console.log(`⚠️ Could not verify ${userToCheck}: ${error.message} (status: ${error.status})`);
                           }
                           core.setOutput('is_member', 'false');
                       }
