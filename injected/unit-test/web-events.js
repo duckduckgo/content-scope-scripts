@@ -16,7 +16,7 @@ describe('WebEvents', () => {
                 bundledConfig: undefined,
                 messagingContextName: 'test',
             };
-            const instance = new WebEvents('webEvents', undefined, {}, args);
+            const instance = new WebEvents('webEvents', {}, {}, args);
             // @ts-expect-error - partial mock: only notify is needed for this test
             instance._messaging = {
                 notify: (/** @type {string} */ method, /** @type {Record<string, any>} */ params) => {

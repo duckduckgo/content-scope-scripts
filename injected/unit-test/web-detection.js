@@ -498,19 +498,19 @@ describe('WebDetection', () => {
          * @returns {WebDetection}
          */
         function createInstance() {
-            const args = {
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
                 site: { domain: 'example.com', url: 'https://example.com/page' },
                 platform: {},
                 featureSettings: { webDetection: { detectors: {} } },
                 bundledConfig: undefined,
                 messagingContextName: 'test',
-            };
+            });
             const originalWindow = globalThis.window;
             const mockSelf = {};
             // @ts-expect-error - mocking for test
             globalThis.window = { self: mockSelf, top: mockSelf };
             try {
-                const instance = new WebDetection('webDetection', undefined, {}, args);
+                const instance = new WebDetection('webDetection', {}, {}, args);
                 instance.init();
                 return instance;
             } finally {
@@ -569,13 +569,13 @@ describe('WebDetection', () => {
             globalThis.window = originalWindow;
         });
 
-        const defaultArgs = {
+        const defaultArgs = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
             site: { domain: 'example.com', url: 'https://example.com/page' },
             platform: {},
             featureSettings: { webDetection: { detectors: {} } },
             bundledConfig: undefined,
             messagingContextName: 'test',
-        };
+        });
 
         /**
          * @param {Partial<import('../src/features/web-detection/parse.js').DetectorActions>} overrides
@@ -586,7 +586,7 @@ describe('WebDetection', () => {
         const fireEventConfig = actionsConfig({ fireEvent: { type: 'adwall', state: 'enabled' } });
 
         it('should not fire when webEvents feature is not loaded', async () => {
-            const instance = new WebDetection('webDetection', undefined, {}, defaultArgs);
+            const instance = new WebDetection('webDetection', {}, {}, defaultArgs);
             instance.init();
 
             // callFeatureMethod will return CallFeatureMethodError (feature not found)
@@ -597,12 +597,12 @@ describe('WebDetection', () => {
         it('should not fire when webEvents feature is skipped (disabled on page)', async () => {
             /** @type {Partial<import('../src/features.js').FeatureMap>} */
             const features = {};
-            const webEvents = new WebEvents('webEvents', undefined, features, defaultArgs);
+            const webEvents = new WebEvents('webEvents', {}, features, defaultArgs);
             features.webEvents = webEvents;
             webEvents.markFeatureAsSkipped('feature disabled for this site');
             const fireEventSpy = spyOn(webEvents, 'fireEvent');
 
-            const instance = new WebDetection('webDetection', undefined, features, defaultArgs);
+            const instance = new WebDetection('webDetection', {}, features, defaultArgs);
             instance.init();
 
             // callFeatureMethod will return CallFeatureMethodError (skipped)
@@ -613,12 +613,12 @@ describe('WebDetection', () => {
         it('should fire when webEvents feature is loaded and ready', async () => {
             /** @type {Partial<import('../src/features.js').FeatureMap>} */
             const features = {};
-            const webEvents = new WebEvents('webEvents', undefined, features, defaultArgs);
+            const webEvents = new WebEvents('webEvents', {}, features, defaultArgs);
             features.webEvents = webEvents;
             await webEvents.callInit(defaultArgs);
             const fireEventSpy = spyOn(webEvents, 'fireEvent');
 
-            const instance = new WebDetection('webDetection', undefined, features, defaultArgs);
+            const instance = new WebDetection('webDetection', {}, features, defaultArgs);
             instance.init();
 
             await instance._executeFireEvent(fireEventConfig, true);
