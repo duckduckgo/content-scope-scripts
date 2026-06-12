@@ -4,8 +4,9 @@ import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
+import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider.js';
-import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
+import { ArrowIndentCenteredIcon, LogoStacked } from '../../components/Icons.js';
 import { useModeWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { useTabState } from '../../tabs/TabsProvider.js';
 
@@ -31,9 +32,12 @@ export function OmnibarConsumer() {
     const { state, setEnableAi } = useContext(OmnibarContext);
     const { current } = useTabState();
     const { visibility } = useVisibility();
-    if (state.status !== 'ready') return null;
-
     const visible = visibility.value === 'visible';
+
+    if (state.status !== 'ready') {
+        return visible ? <OmnibarPlaceholder /> : null;
+    }
+
     return (
         <>
             {state.config.showAiSetting && (
@@ -41,6 +45,16 @@ export function OmnibarConsumer() {
             )}
             {visible && <OmnibarReadyState config={state.config} key={current.value} tabId={current.value} />}
         </>
+    );
+}
+
+function OmnibarPlaceholder() {
+    return (
+        <div class={styles.root} aria-hidden="true">
+            <LogoStacked class={styles.logo} />
+            <div class={styles.placeholderTabs} />
+            <div class={styles.spacer} />
+        </div>
     );
 }
 
