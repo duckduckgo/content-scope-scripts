@@ -1,4 +1,6 @@
+/* eslint-disable no-redeclare */
 import { getRandomValues, Uint32Array } from '../../../captured-globals.js';
+/* eslint-enable no-redeclare */
 
 /**
  * Get a single element.
