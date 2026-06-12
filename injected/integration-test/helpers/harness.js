@@ -25,7 +25,6 @@ export function testContextForExtension(test) {
             const extensionPath = resolve('integration-test/extension');
 
             const launchOptions = {
-                devtools: true,
                 headless: false,
                 viewport: {
                     width: 1920,
