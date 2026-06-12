@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useContext, useEffect } from 'preact/hooks';
+import { useTypedTranslationWith } from '../../../../types';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
 import { OpenTabsContext } from './OpenTabsProvider';
@@ -13,14 +14,14 @@ import styles from './AttachMenu.module.css';
 
 /**
  * @param {object} props
- * @param {(key: keyof Strings) => string} props.t
  * @param {import('../useDropdown.js').DropdownPosition} props.position
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {(tab: TabMetadata) => void} props.onSelect
  * @param {(tabId: string) => boolean} props.isAttached — Whether a tab is already attached, to show its checked state.
  * @param {(opts: { restoreFocus: boolean }) => void} props.onClose
  */
-export function TabPicker({ t, position, dropdownRef, onSelect, isAttached, onClose }) {
+export function TabPicker({ position, dropdownRef, onSelect, isAttached, onClose }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { openTabs, refetchTabs } = useContext(OpenTabsContext);
 
     useEffect(() => {

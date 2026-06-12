@@ -57,7 +57,7 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }
         return button;
     }
 
-    return <DropdownMenu t={t} attachEnabled={attachEnabled} fileInput={fileInput} onToggleTab={onToggleTab} isAttached={isAttached} />;
+    return <DropdownMenu attachEnabled={attachEnabled} fileInput={fileInput} onToggleTab={onToggleTab} isAttached={isAttached} />;
 }
 
 /**
@@ -112,13 +112,13 @@ function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
  * `click()`-triggered on a microtask so the menu unmounts before the OS picker takes focus.
  *
  * @param {object} props
- * @param {(key: keyof Strings) => string} props.t
  * @param {boolean} props.attachEnabled
  * @param {ResolvedFileInput} props.fileInput
  * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
  */
-function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) {
+function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: 'left' });
     const fileInputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
 
@@ -164,7 +164,6 @@ function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) 
             )}
             {isOpen && dropdownPos && (
                 <OpenDropdownBody
-                    t={t}
                     attachEnabled={attachEnabled}
                     fileLabel={fileInput.label}
                     dropdownPos={dropdownPos}
@@ -186,7 +185,6 @@ function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) 
  * Body of the paperclip menu while open. Mounted only while open, so `submenuOpen` resets on re-open.
  *
  * @param {object} props
- * @param {(key: keyof Strings) => string} props.t
  * @param {boolean} props.attachEnabled
  * @param {string} props.fileLabel
  * @param {import('../useDropdown.js').DropdownPosition} props.dropdownPos
@@ -196,7 +194,8 @@ function DropdownMenu({ t, attachEnabled, fileInput, onToggleTab, isAttached }) 
  * @param {(tab: TabMetadata) => void} props.onToggleTab
  * @param {(tabId: string) => boolean} props.isAttached
  */
-function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onToggleTab, isAttached }) {
+function OpenDropdownBody({ attachEnabled, fileLabel, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onToggleTab, isAttached }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const submenuRef = useRef(/** @type {HTMLUListElement|null} */ (null));
     const triggerRef = useRef(/** @type {HTMLLIElement|null} */ (null));
     const [submenuOpen, setSubmenuOpen] = useState(false);
@@ -249,7 +248,6 @@ function OpenDropdownBody({ t, attachEnabled, fileLabel, dropdownPos, dropdownRe
             </Dropdown>
             {submenuPos && (
                 <TabPicker
-                    t={t}
                     position={submenuPos}
                     dropdownRef={submenuRef}
                     onSelect={onToggleTab}
