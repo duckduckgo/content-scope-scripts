@@ -31,6 +31,8 @@ describe('Print feature', () => {
                     domain: 'example.com',
                     url: 'http://example.com',
                 },
+                platform: /** @type {import('../src/utils.js').Platform} */ ({ name: 'extension' }),
+                messagingContextName: 'test',
             },
         );
 

@@ -211,8 +211,8 @@ export function cleanArray(input, prev = []) {
 /**
  * Determines whether the given input is a non-empty string.
  *
- * @param {any} [input] - The input to be checked.
- * @return {boolean} - True if the input is a non-empty string, false otherwise.
+ * @param {unknown} [input] - The input to be checked.
+ * @return {input is string} True if the input is a non-empty string, false otherwise.
  */
 export function nonEmptyString(input) {
     if (typeof input !== 'string') return false;
@@ -222,8 +222,8 @@ export function nonEmptyString(input) {
 /**
  * Checks if two strings are a matching pair, ignoring case and leading/trailing white spaces.
  *
- * @param {any} a - The first string to compare.
- * @param {any} b - The second string to compare.
+ * @param {unknown} a - The first string to compare.
+ * @param {unknown} b - The second string to compare.
  * @return {boolean} - Returns true if the strings are a matching pair, false otherwise.
  */
 export function matchingPair(a, b) {
@@ -235,8 +235,8 @@ export function matchingPair(a, b) {
 /**
  * Sorts an array of addresses by state, then by city within the state.
  *
- * @param {any} addresses
- * @return {Array}
+ * @param {Array<{state: string, city: string} & Record<string, unknown>>} addresses
+ * @return {Array<{state: string, city: string} & Record<string, unknown>>}
  */
 export function sortAddressesByStateAndCity(addresses) {
     return addresses.sort((a, b) => {
