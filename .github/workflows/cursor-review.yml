@@ -22,31 +22,35 @@ jobs:
                       // For human-authored PRs the PR author IS the launcher
                       // — check team membership against them. For Cursor-app
                       // PRs (`cursor[bot]`) the PR author is the bot, which
-                      // is never a team member, so we instead use the commit
-                      // committer of the head commit. The committer is the
-                      // GitHub identity that actually pushed the commit, so
-                      // it carries the same trust the team-membership lookup
-                      // intends to verify. Same-repo branches are already
+                      // is never a team member, so we resolve a human identity
+                      // from the head commit instead. Prefer the committer
+                      // (who pushed); Cursor app commits often keep
+                      // `cursor[bot]` as committer, so fall back to the
+                      // commit author. Same-repo branches are already
                       // required (the `head.repo.fork` check on this job),
-                      // so the committer can only have been a user with
+                      // so a human committer can only have been a user with
                       // push access to this repo.
                       let userToCheck = prAuthor;
                       if (prAuthor === 'cursor[bot]') {
-                          const { data: commits } = await github.rest.pulls.listCommits({
+                          const { data: headCommit } = await github.rest.repos.getCommit({
                               owner: context.repo.owner,
                               repo: context.repo.repo,
-                              pull_number: context.payload.pull_request.number,
-                              per_page: 100,
+                              ref: context.payload.pull_request.head.sha,
                           });
-                          const headCommit = commits[commits.length - 1];
-                          const committer = headCommit?.committer?.login;
-                          if (!committer) {
-                              console.log(`⏭️ ${prAuthor} PR has no resolvable committer — skipping auto-review`);
+                          const candidates = [
+                              { label: 'committer', user: headCommit.committer },
+                              { label: 'author', user: headCommit.author },
+                          ];
+                          const resolved = candidates.find(
+                              ({ user }) => user?.login && user.type !== 'Bot'
+                          );
+                          if (!resolved) {
+                              console.log(`⏭️ ${prAuthor} PR has no resolvable human committer/author — skipping auto-review`);
                               core.setOutput('is_member', 'false');
                               return;
                           }
-                          console.log(`Resolved ${prAuthor} launcher to committer: ${committer}`);
-                          userToCheck = committer;
+                          console.log(`Resolved ${prAuthor} launcher to ${resolved.label}: ${resolved.user.login}`);
+                          userToCheck = resolved.user.login;
                       }
 
                       try {
