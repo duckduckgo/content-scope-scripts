@@ -1,10 +1,14 @@
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
 import { CoverageReport } from 'monocart-coverage-reports';
 
-const SRC_FILE = fileURLToPath(new URL('../src/utils/dom-metadata.js', import.meta.url));
+// Use the URL's .href (file:// with forward slashes) rather than its
+// filesystem path. On Windows, fileURLToPath returns a backslash-separated
+// path, and c8/monocart's URL filter (which looks for `/src/`) would then
+// reject the fixture — dropping it from the report and failing this smoke
+// test on `windows-latest` CI.
+const SRC_FILE = new URL('../src/utils/dom-metadata.js', import.meta.url).href;
 
 const SAMPLE_SOURCE = `export function covered() {
     return 1;
