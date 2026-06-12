@@ -68,6 +68,9 @@ function isObject(item) {
     return Boolean(item) && typeof item === 'object' && !Array.isArray(item);
 }
 
+/** @type {Set<string>} */
+const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 /**
  * Deep merge two objects.
  * @template {Record<string, unknown>} T
@@ -82,6 +85,9 @@ function mergeDeep(target, ...sources) {
 
     if (source && isObject(target) && isObject(source)) {
         for (const key of Object.keys(source)) {
+            if (PROTOTYPE_POLLUTION_KEYS.has(key)) {
+                continue;
+            }
             const sourceValue = source[key];
             const targetValue = mutableTarget[key];
 
