@@ -41,6 +41,18 @@ export function resolveFileMimeType(file, allowList) {
 }
 
 /**
+ * @param {(key: keyof Strings) => string} t
+ * @param {ImageChannel | null} image
+ * @param {FileChannel | null} file
+ * @returns {string}
+ */
+function resolveFileInputLabel(t, image, file) {
+    if (image && file) return t('omnibar_attachImageOrFileLabel');
+    if (image) return t('omnibar_attachImageLabel');
+    return t('omnibar_attachFileLabel');
+}
+
+/**
  * Collapses the optional image / file (PDF) channels into the config for the
  * single hidden `<input type="file">` rendered by {@link AttachMenu}:
  *   - `label` / `accept` reflect which of `image`/`file` are non-null.
@@ -55,9 +67,10 @@ export function resolveFileMimeType(file, allowList) {
  * @returns {ResolvedFileInput}
  */
 export function resolveFileInput({ t, image, file }) {
-    const label =
-        image && file ? t('omnibar_attachImageOrFileLabel') : image ? t('omnibar_attachImageLabel') : t('omnibar_attachFileLabel');
+    const label = resolveFileInputLabel(t, image, file);
+
     const accept = [...(image ? [IMAGE_ACCEPT] : []), ...(file ? [buildFileAccept(file.mimeTypes)] : [])].filter(Boolean).join(',');
+
     const disabled = (image?.disabled ?? true) && (file?.disabled ?? true);
 
     /** @param {Event} event */

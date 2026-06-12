@@ -47,10 +47,8 @@ export function useFileAttachments(supportedFileTypes, tabId) {
             .filter(({ file, mimeType }) => mimeType !== null && !existingNames.has(file.name));
         if (validFiles.length === 0) return;
 
-        const toRead = validFiles;
-
         const results = await Promise.allSettled(
-            toRead.map(({ file, mimeType }) => readFileAsBase64(file, /** @type {string} */ (mimeType))),
+            validFiles.map(({ file, mimeType }) => readFileAsBase64(file, /** @type {string} */ (mimeType))),
         );
         const ok = /** @type {PromiseFulfilledResult<Omit<AttachedFile, 'addedAtRelative'>>[]} */ (
             results.filter((r) => r.status === 'fulfilled')

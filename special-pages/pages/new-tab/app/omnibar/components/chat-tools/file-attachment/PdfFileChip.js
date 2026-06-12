@@ -25,7 +25,7 @@ export function PdfFileChip({ file, onRemove, removeLabel }) {
                     <span class={styles.format}>PDF</span>
                 </span>
                 <button type="button" tabIndex={0} class={styles.remove} aria-label={removeLabel} onClick={onRemove}>
-                    <CloseSmallIcon width="10" height="10" style="stroke: currentColor; stroke-width: 1px;" />
+                    <CloseSmallIcon width="10" height="10" />
                 </button>
             </div>
         </Tooltip>

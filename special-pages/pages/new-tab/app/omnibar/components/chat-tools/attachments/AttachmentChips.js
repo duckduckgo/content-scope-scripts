@@ -12,8 +12,8 @@ import styles from './AttachmentChips.module.css';
  * @typedef {import('../image-attachment/useImageAttachments').AttachedImage} AttachedImage
  *
  * @typedef {{ kind: 'tab', key: string, tab: AttachedTab, addedAtRelative: number }} TabItem
- * @typedef {{ kind: 'file', key: string, file: AttachedFile, index: number, addedAtRelative: number }} FileItem
- * @typedef {{ kind: 'image', key: string, image: AttachedImage, index: number, addedAtRelative: number }} ImageItem
+ * @typedef {{ kind: 'file', key: string, file: AttachedFile, originalIndex: number, addedAtRelative: number }} FileItem
+ * @typedef {{ kind: 'image', key: string, image: AttachedImage, originalIndex: number, addedAtRelative: number }} ImageItem
  * @typedef {TabItem | FileItem | ImageItem} AttachmentItem
  */
 
@@ -32,8 +32,8 @@ import styles from './AttachmentChips.module.css';
  * @param {AttachedFile[]} props.files
  * @param {AttachedImage[]} props.images
  * @param {(tabId: string) => void} props.onRemoveTab
- * @param {(index: number) => void} props.onRemoveFile
- * @param {(index: number) => void} props.onRemoveImage
+ * @param {(originalIndex: number) => void} props.onRemoveFile
+ * @param {(originalIndex: number) => void} props.onRemoveImage
  */
 export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile, onRemoveImage }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
@@ -43,22 +43,22 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
     const items = [
         ...tabs.map((tab) => /** @type {TabItem} */ ({ kind: 'tab', key: `tab-${tab.tabId}`, tab, addedAtRelative: tab.addedAtRelative })),
         ...files.map(
-            (file, index) =>
+            (file, originalIndex) =>
                 /** @type {FileItem} */ ({
                     kind: 'file',
-                    key: `file-${file.fileName}-${index}`,
+                    key: `file-${file.fileName}-${originalIndex}`,
                     file,
-                    index,
+                    originalIndex,
                     addedAtRelative: file.addedAtRelative,
                 }),
         ),
         ...images.map(
-            (image, index) =>
+            (image, originalIndex) =>
                 /** @type {ImageItem} */ ({
                     kind: 'image',
-                    key: `image-${image.fileName}-${index}`,
+                    key: `image-${image.fileName}-${originalIndex}`,
                     image,
-                    index,
+                    originalIndex,
                     addedAtRelative: image.addedAtRelative,
                 }),
         ),
@@ -84,7 +84,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                             <FileChip
                                 key={item.key}
                                 file={item.file}
-                                onRemove={() => onRemoveFile(item.index)}
+                                onRemove={() => onRemoveFile(item.originalIndex)}
                                 removeLabel={t('omnibar_removeAttachedFileLabel', { fileName: item.file.fileName })}
                             />
                         );
@@ -93,7 +93,7 @@ export function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile
                             <ImageChip
                                 key={item.key}
                                 image={item.image}
-                                onRemove={() => onRemoveImage(item.index)}
+                                onRemove={() => onRemoveImage(item.originalIndex)}
                                 removeLabel={t('omnibar_removeImageLabel')}
                             />
                         );

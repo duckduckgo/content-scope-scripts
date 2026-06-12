@@ -63,6 +63,11 @@
     top: calc(-1 * var(--sp-1));
     width: var(--sp-4);
 
+    svg {
+        stroke: currentColor;
+        stroke-width: 1px;
+    }
+
     [data-theme="dark"] & {
         background: var(--color-gray-40);
         outline: 2px solid var(--ds-color-theme-surface-primary);
