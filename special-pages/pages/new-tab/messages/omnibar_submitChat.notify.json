@@ -50,6 +50,16 @@
           }
         }
       }
+    },
+    "pageContext": {
+      "description": "Page contexts attached from open tabs via the attach-tabs picker. Each entry is the same PageContext shape returned by `omnibar_getTabContent` and is guaranteed by NTP to carry a `tabId` so native can attribute attachments back to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.",
+      "type": "array",
+      "items": { "$ref": "./types/page-context.json" }
+    },
+    "files": {
+      "description": "Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.",
+      "type": "array",
+      "items": { "$ref": "./types/native-prompt-file.json" }
     }
   }
 }

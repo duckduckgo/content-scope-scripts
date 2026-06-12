@@ -2435,7 +2435,6 @@
             e4[a4] = c4;
           } else c4.o(v4, o4);
         }
-        for (var s4 in t4) o4[s4] = t4[s4];
       }
     }
     i5(n3);
@@ -2469,14 +2468,19 @@
           }
         }
       }
+      var f4 = n3.__np;
+      if (f4) {
+        var u4 = n3.props;
+        for (var a4 in f4) u4[a4] = f4[a4];
+      }
       n3.__np = void 0;
     } else {
-      var f4 = n3.__c;
-      if (f4) {
-        var u4 = f4.__$u;
-        if (u4) {
-          f4.__$u = void 0;
-          u4.d();
+      var c4 = n3.__c;
+      if (c4) {
+        var v4 = c4.__$u;
+        if (v4) {
+          c4.__$u = void 0;
+          v4.d();
         }
       }
     }

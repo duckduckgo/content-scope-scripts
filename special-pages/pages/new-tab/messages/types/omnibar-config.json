@@ -47,6 +47,11 @@
           "description": "Whether this model supports image attachments",
           "type": "boolean"
         },
+        "supportedFileTypes": {
+          "description": "MIME types this model accepts as file attachments; empty or omitted means it accepts no files. Drives the file picker's `accept` attribute and clears attached files the newly-selected model doesn't support.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
         "supportedTools": {
           "description": "Tools this model supports.",
           "type": "array",
@@ -136,6 +141,12 @@
       "description": "Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.",
       "type": "boolean",
       "default": true
+    },
+    "enableAttachTabs": {
+      "title": "Enable Attach Tabs",
+      "description": "Show the paperclip entry point and accept `@` mentions for attaching open tabs as context to a Duck.ai submission. When true, the omnibar can call `omnibar_getOpenTabs` and `omnibar_getTabContent`.",
+      "type": "boolean",
+      "default": false
     }
   }
 }

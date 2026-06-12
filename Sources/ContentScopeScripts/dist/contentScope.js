@@ -1098,6 +1098,9 @@
     }
   };
   function processAttr(configSetting, defaultValue) {
+    if (typeof defaultValue === "number" && isNaN(defaultValue)) {
+      defaultValue = void 0;
+    }
     if (configSetting === void 0) {
       return defaultValue;
     }
@@ -4174,9 +4177,10 @@
       const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
       return conditionalChanges.filter((rule) => {
         let condition = rule.condition;
-        if (condition === void 0 && "domain" in rule) {
+        if (condition === void 0 && rule.domain !== void 0) {
           condition = this._domainToConditonBlocks(rule.domain);
         }
+        if (condition === void 0) return true;
         return this._matchConditionalBlockOrArray(condition);
       });
     }
@@ -6294,7 +6298,7 @@
     /**
      * Convert a relative pathname into VideoParams
      *
-     * @param pathname
+     * @param {string} pathname
      * @returns {VideoParams|null}
      */
     static fromPathname(pathname) {
@@ -6310,7 +6314,7 @@
      * Convert a href into valid video params. Those can then be converted into a private player
      * link when needed
      *
-     * @param href
+     * @param {string} href
      * @returns {VideoParams|null}
      */
     static fromHref(href) {
@@ -6355,18 +6359,26 @@
       this.shouldLog = shouldLog;
       this.id = id;
     }
+    /** @param {unknown[]} args */
     error(...args) {
       this.output(console.error, args);
     }
+    /** @param {unknown[]} args */
     info(...args) {
       this.output(console.info, args);
     }
+    /** @param {unknown[]} args */
     log(...args) {
       this.output(console.log, args);
     }
+    /** @param {unknown[]} args */
     warn(...args) {
       this.output(console.warn, args);
     }
+    /**
+     * @param {(...args: unknown[]) => void} handler
+     * @param {unknown[]} args
+     */
     output(handler, args) {
       if (this.shouldLog()) {
         handler(`${this.id.padEnd(20, " ")} |`, ...args);
@@ -7151,7 +7163,7 @@ ul.messages {
   }
   function getErrorType(windowObject, signInRequiredSelector, logger) {
     const currentWindow = (
-      /** @type {Window & typeof globalThis & { ytcfg: object }} */
+      /** @type {Window & typeof globalThis & { ytcfg?: { get: (key: string) => unknown } }} */
       windowObject
     );
     const currentDocument = currentWindow.document;
@@ -7166,9 +7178,13 @@ ul.messages {
       logger?.log("Got ytcfg", currentWindow.ytcfg);
     }
     try {
-      const playerResponseJSON = currentWindow.ytcfg?.get("PLAYER_VARS")?.embedded_player_response;
+      const playVars = currentWindow.ytcfg?.get("PLAYER_VARS");
+      const raw = typeof playVars === "object" && playVars !== null && "embedded_player_response" in playVars ? playVars.embedded_player_response : void 0;
+      const playerResponseJSON = typeof raw === "string" ? raw : void 0;
       logger?.log("Player response", playerResponseJSON);
-      playerResponse = JSON.parse(playerResponseJSON);
+      if (playerResponseJSON) {
+        playerResponse = JSON.parse(playerResponseJSON);
+      }
     } catch (e) {
       logger?.log("Could not parse player response", e);
     }
@@ -7443,10 +7459,17 @@ ul.messages {
       }
       return window.location.href;
     }
+    /**
+     * @param {string} videoId
+     * @returns {string}
+     */
     getLargeThumbnailSrc(videoId) {
       const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, "https://i.ytimg.com");
       return url.href;
     }
+    /**
+     * @param {string} href
+     */
     setHref(href) {
       window.location.href = href;
     }
@@ -9214,6 +9237,9 @@ ul.messages {
   var hideTimeouts = [0, 100, 300, 500, 1e3, 2e3, 3e3];
   var unhideTimeouts = [1250, 2250, 3e3];
   var featureInstance;
+  function hasSelector(rule) {
+    return "selector" in rule;
+  }
   function collapseDomNode(element, rule, previousElement) {
     if (!element) {
       return;
@@ -9355,16 +9381,9 @@ ul.messages {
     let selector = "";
     rules.forEach((rule, i) => {
       if (i !== rules.length - 1) {
-        selector = selector.concat(
-          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-          rule.selector,
-          ","
-        );
+        selector = selector.concat(rule.selector, ",");
       } else {
-        selector = selector.concat(
-          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-          rule.selector
-        );
+        selector = selector.concat(rule.selector);
       }
     });
     const styleTagProperties = "display:none!important;min-height:0!important;height:0!important;";
@@ -9374,11 +9393,8 @@ ul.messages {
   }
   function hideAdNodes(rules) {
     const document2 = globalThis.document;
-    rules.forEach((rule) => {
-      const selector = forgivingSelector(
-        /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-        rule.selector
-      );
+    rules.filter(hasSelector).forEach((rule) => {
+      const selector = forgivingSelector(rule.selector);
       const matchingElementArray = [...document2.querySelectorAll(selector)];
       matchingElementArray.forEach((element) => {
         collapseDomNode(element, rule);
@@ -9418,14 +9434,15 @@ ul.messages {
         shouldInjectStyleTag = this.matchConditionalFeatureSetting("styleTagExceptions").length === 0;
       }
       const activeDomainRules = this.matchConditionalFeatureSetting("domains").flatMap((item) => {
-        return (
+        return Array.isArray(item.rules) ? (
           /** @type {ElementHidingRule[]} */
-          item.rules || []
-        );
+          item.rules
+        ) : [];
       });
-      const overrideRules = activeDomainRules.filter((rule) => {
-        return rule.type === "override";
-      });
+      const overrideRules = activeDomainRules.filter(
+        /** @returns {rule is ElementHidingRuleHide} */
+        (rule) => rule.type === "override"
+      );
       const disableDefault = activeDomainRules.some((rule) => {
         return rule.type === "disable-default";
       });
@@ -9438,7 +9455,7 @@ ul.messages {
       }
       overrideRules.forEach((override) => {
         activeRules = activeRules.filter((rule) => {
-          return rule.selector !== override.selector;
+          return !hasSelector(rule) || rule.selector !== override.selector;
         });
       });
       const applyRules = this.applyRules.bind(this);

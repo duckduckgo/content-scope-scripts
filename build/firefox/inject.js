@@ -1078,6 +1078,9 @@
     }
   };
   function processAttr(configSetting, defaultValue) {
+    if (typeof defaultValue === "number" && isNaN(defaultValue)) {
+      defaultValue = void 0;
+    }
     if (configSetting === void 0) {
       return defaultValue;
     }
@@ -4104,9 +4107,10 @@
       const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
       return conditionalChanges.filter((rule) => {
         let condition = rule.condition;
-        if (condition === void 0 && "domain" in rule) {
+        if (condition === void 0 && rule.domain !== void 0) {
           condition = this._domainToConditonBlocks(rule.domain);
         }
+        if (condition === void 0) return true;
         return this._matchConditionalBlockOrArray(condition);
       });
     }
@@ -4886,6 +4890,18 @@
     const injectName = "firefox";
     return injectName === "firefox" || injectName === "chrome-mv3" || injectName === "windows";
   }
+  var DEFAULT_COOKIE_POLICY = {
+    threshold: 604800,
+    // 7 days
+    maxAge: 604800
+    // 7 days
+  };
+  var DEFAULT_TRACKER_COOKIE_POLICY = {
+    threshold: 86400,
+    // 1 day
+    maxAge: 86400
+    // 1 day
+  };
   var cookiePolicy = {
     debug: false,
     isFrame: isBeingFramed(),
@@ -4895,16 +4911,10 @@
     shouldBlockNonTrackerCookie: false,
     isThirdPartyFrame: isThirdPartyFrame(),
     policy: {
-      threshold: 604800,
-      // 7 days
-      maxAge: 604800
-      // 7 days
+      ...DEFAULT_COOKIE_POLICY
     },
     trackerPolicy: {
-      threshold: 86400,
-      // 1 day
-      maxAge: 86400
-      // 1 day
+      ...DEFAULT_TRACKER_COOKIE_POLICY
     },
     allowlist: (
       /** @type {{ host: string }[]} */
@@ -4974,8 +4984,8 @@
           }
         );
         cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
-        cookiePolicy.policy = settings.firstPartyCookiePolicy;
-        cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
+        cookiePolicy.policy = settings.firstPartyCookiePolicy ?? cookiePolicy.policy ?? DEFAULT_COOKIE_POLICY;
+        cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy ?? cookiePolicy.trackerPolicy ?? DEFAULT_TRACKER_COOKIE_POLICY;
         cookiePolicy.allowlist = this.getFeatureSetting("allowlist", "adClickAttribution") || [];
       }
       const document2 = globalThis.document;
@@ -5061,6 +5071,8 @@
      * @param {import('../content-scope-features.js').LoadArgs & { cookie?: ExtensionCookiePolicy }} args
      */
     init(args) {
+      const fallbackPolicy = cookiePolicy.policy ?? DEFAULT_COOKIE_POLICY;
+      const fallbackTrackerPolicy = cookiePolicy.trackerPolicy ?? DEFAULT_TRACKER_COOKIE_POLICY;
       const restOfPolicy = {
         debug: this.isDebug,
         shouldBlockTrackerCookie: this.getFeatureSettingEnabled("trackerCookie"),
@@ -5081,6 +5093,12 @@
       } else {
         const toCopy = Object.fromEntries(Object.entries(restOfPolicy).filter(([, v2]) => v2));
         Object.assign(cookiePolicy, toCopy);
+      }
+      if (cookiePolicy.policy == null) {
+        cookiePolicy.policy = fallbackPolicy;
+      }
+      if (cookiePolicy.trackerPolicy == null) {
+        cookiePolicy.trackerPolicy = fallbackTrackerPolicy;
       }
       loadedPolicyResolve();
     }
@@ -6683,6 +6701,9 @@
   var hideTimeouts = [0, 100, 300, 500, 1e3, 2e3, 3e3];
   var unhideTimeouts = [1250, 2250, 3e3];
   var featureInstance;
+  function hasSelector(rule) {
+    return "selector" in rule;
+  }
   function collapseDomNode(element, rule, previousElement) {
     if (!element) {
       return;
@@ -6824,16 +6845,9 @@
     let selector = "";
     rules.forEach((rule, i) => {
       if (i !== rules.length - 1) {
-        selector = selector.concat(
-          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-          rule.selector,
-          ","
-        );
+        selector = selector.concat(rule.selector, ",");
       } else {
-        selector = selector.concat(
-          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-          rule.selector
-        );
+        selector = selector.concat(rule.selector);
       }
     });
     const styleTagProperties = "display:none!important;min-height:0!important;height:0!important;";
@@ -6843,11 +6857,8 @@
   }
   function hideAdNodes(rules) {
     const document2 = globalThis.document;
-    rules.forEach((rule) => {
-      const selector = forgivingSelector(
-        /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-        rule.selector
-      );
+    rules.filter(hasSelector).forEach((rule) => {
+      const selector = forgivingSelector(rule.selector);
       const matchingElementArray = [...document2.querySelectorAll(selector)];
       matchingElementArray.forEach((element) => {
         collapseDomNode(element, rule);
@@ -6887,14 +6898,15 @@
         shouldInjectStyleTag = this.matchConditionalFeatureSetting("styleTagExceptions").length === 0;
       }
       const activeDomainRules = this.matchConditionalFeatureSetting("domains").flatMap((item) => {
-        return (
+        return Array.isArray(item.rules) ? (
           /** @type {ElementHidingRule[]} */
-          item.rules || []
-        );
+          item.rules
+        ) : [];
       });
-      const overrideRules = activeDomainRules.filter((rule) => {
-        return rule.type === "override";
-      });
+      const overrideRules = activeDomainRules.filter(
+        /** @returns {rule is ElementHidingRuleHide} */
+        (rule) => rule.type === "override"
+      );
       const disableDefault = activeDomainRules.some((rule) => {
         return rule.type === "disable-default";
       });
@@ -6907,7 +6919,7 @@
       }
       overrideRules.forEach((override) => {
         activeRules = activeRules.filter((rule) => {
-          return rule.selector !== override.selector;
+          return !hasSelector(rule) || rule.selector !== override.selector;
         });
       });
       const applyRules = this.applyRules.bind(this);

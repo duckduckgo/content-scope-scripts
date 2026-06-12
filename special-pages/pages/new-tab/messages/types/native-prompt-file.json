@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Native Prompt File",
+  "description": "File attached to a Duck.ai prompt. Shape mirrors Duck.ai's `NativePromptFile` input so native forwards entries unchanged.",
+  "type": "object",
+  "required": ["data", "fileName", "mimeType"],
+  "additionalProperties": false,
+  "properties": {
+    "data": {
+      "description": "Base64-encoded file bytes, without the `data:` URL prefix.",
+      "type": "string"
+    },
+    "fileName": {
+      "description": "Original filename, forwarded to Duck.ai.",
+      "type": "string"
+    },
+    "mimeType": {
+      "description": "MIME type of the file. An open string (not an enum) to match Duck.ai's input shape. v1 only sends `application/pdf`.",
+      "type": "string"
+    }
+  }
+}

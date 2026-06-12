@@ -1803,6 +1803,9 @@
     }
   };
   function processAttr(configSetting, defaultValue) {
+    if (typeof defaultValue === "number" && isNaN(defaultValue)) {
+      defaultValue = void 0;
+    }
     if (configSetting === void 0) {
       return defaultValue;
     }
@@ -4852,9 +4855,10 @@
       const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
       return conditionalChanges.filter((rule) => {
         let condition2 = rule.condition;
-        if (condition2 === void 0 && "domain" in rule) {
+        if (condition2 === void 0 && rule.domain !== void 0) {
           condition2 = this._domainToConditonBlocks(rule.domain);
         }
+        if (condition2 === void 0) return true;
         return this._matchConditionalBlockOrArray(condition2);
       });
     }
@@ -5804,14 +5808,24 @@
      * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
-      return this.messaging.subscribe("onUserValuesChanged", cb);
+      return this.messaging.subscribe("onUserValuesChanged", (value) => {
+        cb(
+          /** @type {import("../duck-player.js").UserValues} */
+          value
+        );
+      });
     }
     /**
      * Get notification when ui settings changed
      * @param {(userValues: import("../duck-player.js").UISettings) => void} cb
      */
     onUIValuesChanged(cb) {
-      return this.messaging.subscribe("onUIValuesChanged", cb);
+      return this.messaging.subscribe("onUIValuesChanged", (value) => {
+        cb(
+          /** @type {import("../duck-player.js").UISettings} */
+          value
+        );
+      });
     }
     /**
      * This allows our SERP to interact with Duck Player settings.
@@ -6055,7 +6069,7 @@
     /**
      * Convert a relative pathname into VideoParams
      *
-     * @param pathname
+     * @param {string} pathname
      * @returns {VideoParams|null}
      */
     static fromPathname(pathname) {
@@ -6071,7 +6085,7 @@
      * Convert a href into valid video params. Those can then be converted into a private player
      * link when needed
      *
-     * @param href
+     * @param {string} href
      * @returns {VideoParams|null}
      */
     static fromHref(href) {
@@ -6102,12 +6116,16 @@
   var DomState = class {
     constructor() {
       __publicField(this, "loaded", false);
+      /** @type {Array<() => void>} */
       __publicField(this, "loadedCallbacks", []);
       window.addEventListener("DOMContentLoaded", () => {
         this.loaded = true;
         this.loadedCallbacks.forEach((cb) => cb());
       });
     }
+    /**
+     * @param {() => void} loadedCallback
+     */
     onLoaded(loadedCallback) {
       if (this.loaded) return loadedCallback();
       this.loadedCallbacks.push(loadedCallback);
@@ -6130,18 +6148,26 @@
       this.shouldLog = shouldLog;
       this.id = id;
     }
+    /** @param {unknown[]} args */
     error(...args) {
       this.output(console.error, args);
     }
+    /** @param {unknown[]} args */
     info(...args) {
       this.output(console.info, args);
     }
+    /** @param {unknown[]} args */
     log(...args) {
       this.output(console.log, args);
     }
+    /** @param {unknown[]} args */
     warn(...args) {
       this.output(console.warn, args);
     }
+    /**
+     * @param {(...args: unknown[]) => void} handler
+     * @param {unknown[]} args
+     */
     output(handler, args) {
       if (this.shouldLog()) {
         handler(`${this.id.padEnd(20, " ")} |`, ...args);
@@ -6591,10 +6617,17 @@
       }
       return window.location.href;
     }
+    /**
+     * @param {string} videoId
+     * @returns {string}
+     */
     getLargeThumbnailSrc(videoId) {
       const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, "https://i.ytimg.com");
       return url.href;
     }
+    /**
+     * @param {string} href
+     */
     setHref(href) {
       window.location.href = href;
     }
@@ -6670,8 +6703,12 @@
         });
         let clicked = false;
         const clickHandler = (e) => {
-          const overlay = icon.getHoverOverlay();
-          if (overlay?.contains(e.target)) {
+          const overlay = (
+            /** @type {HTMLElement | null} */
+            icon.getHoverOverlay()
+          );
+          const target = e.target;
+          if (overlay && target instanceof Node && overlay.contains(target)) {
           } else if (overlay) {
             clicked = true;
             icon.hideOverlay(overlay);
@@ -6683,7 +6720,10 @@
         };
         parentNode.addEventListener("click", clickHandler, true);
         const removeOverlay = () => {
-          const overlay = icon.getHoverOverlay();
+          const overlay = (
+            /** @type {HTMLElement | null} */
+            icon.getHoverOverlay()
+          );
           if (overlay) {
             icon.hideOverlay(overlay);
             icon.hoverOverlayVisible = false;
@@ -6707,10 +6747,11 @@
           if (!hoverElement.querySelector("img")) {
             return removeOverlay();
           }
-          if (e.target === hoverElement || hoverElement?.contains(e.target)) {
+          const target = e.target;
+          if (target === hoverElement || target instanceof Node && hoverElement?.contains(target)) {
             return appendOverlay(hoverElement);
           }
-          const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css));
+          const matched = target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
           if (matched) {
             appendOverlay(hoverElement);
           }
@@ -6755,10 +6796,11 @@
           if (!validLink) {
             return;
           }
-          if (e.target === elementInStack || elementInStack?.contains(e.target)) {
+          const target = e.target;
+          if (target === elementInStack || target instanceof Node && elementInStack?.contains(target)) {
             return block(validLink);
           }
-          const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css));
+          const matched = target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
           if (matched) {
             block(validLink);
           }
@@ -6797,8 +6839,10 @@
       return false;
     });
     if (existsInExcludedParent) return null;
-    if (!("href" in element)) return null;
-    return VideoParams.fromHref(element.href)?.toPrivatePlayerUrl();
+    if (!("href" in element) || typeof element.href !== "string") return null;
+    const href = element.href;
+    if (typeof href !== "string") return null;
+    return VideoParams.fromHref(href)?.toPrivatePlayerUrl();
   }
 
   // src/features/duckplayer/video-overlay.js
@@ -7618,8 +7662,8 @@
      */
     appendThumbnail(overlayElement) {
       const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
-      const videoId = params?.id;
-      const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
+      if (!params) return;
+      const imageUrl = this.environment.getLargeThumbnailSrc(params.id);
       appendImageAsBackground(overlayElement, ".ddg-vpo-bg", imageUrl);
     }
     /**
@@ -8655,7 +8699,7 @@ ul.messages {
   }
   function getErrorType(windowObject, signInRequiredSelector, logger) {
     const currentWindow = (
-      /** @type {Window & typeof globalThis & { ytcfg: object }} */
+      /** @type {Window & typeof globalThis & { ytcfg?: { get: (key: string) => unknown } }} */
       windowObject
     );
     const currentDocument = currentWindow.document;
@@ -8670,9 +8714,13 @@ ul.messages {
       logger?.log("Got ytcfg", currentWindow.ytcfg);
     }
     try {
-      const playerResponseJSON = currentWindow.ytcfg?.get("PLAYER_VARS")?.embedded_player_response;
+      const playVars = currentWindow.ytcfg?.get("PLAYER_VARS");
+      const raw = typeof playVars === "object" && playVars !== null && "embedded_player_response" in playVars ? playVars.embedded_player_response : void 0;
+      const playerResponseJSON = typeof raw === "string" ? raw : void 0;
       logger?.log("Player response", playerResponseJSON);
-      playerResponse = JSON.parse(playerResponseJSON);
+      if (playerResponseJSON) {
+        playerResponse = JSON.parse(playerResponseJSON);
+      }
     } catch (e) {
       logger?.log("Could not parse player response", e);
     }

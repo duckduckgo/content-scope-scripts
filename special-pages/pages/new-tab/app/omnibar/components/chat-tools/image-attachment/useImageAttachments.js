@@ -1,7 +1,12 @@
 import { useState } from 'preact/hooks';
+import { ImageAttachments } from '../../PersistentOmnibarValuesProvider';
+import { FILE_READ_TIMEOUT, readFileAsDataUrl } from '../attachments/readFileAsDataUrl';
+
+const { useStateWithLocalPersistence } = ImageAttachments;
 
 /**
- * @typedef {{ dataUrl: string, fileName: string, mimeType: string }} AttachedImage
+ * `addedAtRelative` is a `performance.now()` value used to sort attachments by attach order.
+ * @typedef {{ dataUrl: string, fileName: string, mimeType: string, addedAtRelative: number }} AttachedImage
  * @typedef {'imageTooLarge' | 'processingFailed'} ImageErrorType
  * @typedef {{ type: ImageErrorType, fileNames: string[] }} ImageError
  * @typedef {ReturnType<typeof useImageAttachments>} ImageAttachmentState
@@ -16,7 +21,6 @@ class ImageTooLargeError extends Error {
 
 export const MAX_IMAGES = 3;
 const ALLOWED_FORMATS = ['image/jpeg', 'image/png', 'image/webp'];
-const FILE_READ_TIMEOUT = 30000;
 const MAX_DIMENSION = 512;
 const MAX_ENCODED_BYTES = 10 * 1024 * 1024;
 // Reject decoded images whose pixel count exceeds this threshold before
@@ -78,8 +82,9 @@ function normaliseImage(srcDataUrl, targetMime) {
     });
 }
 
-export function useImageAttachments() {
-    const [attachedImages, setAttachedImages] = useState(/** @type {AttachedImage[]} */ ([]));
+/** @param {string|null|undefined} [tabId] - NTP tab the attachments are persisted under. */
+export function useImageAttachments(tabId) {
+    const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = useState(/** @type {ImageError|null} */ (null));
 
     const imageLimitExceeded = attachedImages.length > MAX_IMAGES;
@@ -88,15 +93,13 @@ export function useImageAttachments() {
     const clearAttachedImages = () => setAttachedImages([]);
     const clearImageError = () => setImageError(null);
 
-    /** @type {(event: Event) => Promise<void>} */
-    const handleFileChange = async (event) => {
-        const input = /** @type {HTMLInputElement} */ (event.currentTarget);
-        const files = input.files;
-        if (!files || files.length === 0) return;
+    /** @type {(files: File[]) => Promise<void>} */
+    const processFiles = async (files) => {
+        if (files.length === 0) return;
         setImageError(null);
 
         const existingNames = new Set(attachedImages.map((img) => img.fileName));
-        const validFiles = Array.from(files).filter((file) => {
+        const validFiles = files.filter((file) => {
             if (!ALLOWED_FORMATS.includes(file.type)) {
                 console.warn('Attachment rejected: unsupported file type');
                 return false;
@@ -107,57 +110,37 @@ export function useImageAttachments() {
             return true;
         });
 
-        if (validFiles.length === 0) {
-            input.value = '';
-            return;
-        }
+        if (validFiles.length === 0) return;
 
         // Only process enough to reach MAX_IMAGES + 1 (to trigger the limit warning).
         const processLimit = MAX_IMAGES + 1 - attachedImages.length;
         const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
 
-        if (filesToProcess.length === 0) {
-            input.value = '';
-            return;
-        }
+        if (filesToProcess.length === 0) return;
 
-        const newImages = filesToProcess.map(
-            (file) =>
-                new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-
-                    reader.onload = async () => {
-                        clearTimeout(timeoutId);
-                        try {
-                            const rawDataUrl = /** @type {string} */ (reader.result);
-                            const targetMime = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
-                            const dataUrl = await normaliseImage(rawDataUrl, targetMime);
-                            resolve({ dataUrl, fileName: file.name, mimeType: targetMime });
-                        } catch (err) {
-                            console.warn('Attachment rejected: image normalisation failed');
-                            reject(err);
-                        }
-                    };
-
-                    reader.onerror = () => {
-                        clearTimeout(timeoutId);
-                        console.warn('Attachment rejected: failed to read file');
-                        reject(new Error('Failed to read file'));
-                    };
-
-                    const timeoutId = setTimeout(() => {
-                        reader.abort();
-                        reject(new Error(`File reading timed out after ${FILE_READ_TIMEOUT / 1000} seconds`));
-                    }, FILE_READ_TIMEOUT);
-
-                    reader.readAsDataURL(file);
-                }),
-        );
+        const newImages = filesToProcess.map(async (file) => {
+            /** @type {string} */
+            let rawDataUrl;
+            try {
+                rawDataUrl = await readFileAsDataUrl(file, FILE_READ_TIMEOUT);
+            } catch (err) {
+                console.warn('Attachment rejected: failed to read file');
+                throw err;
+            }
+            try {
+                const targetMime = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
+                const dataUrl = await normaliseImage(rawDataUrl, targetMime);
+                return { dataUrl, fileName: file.name, mimeType: targetMime };
+            } catch (err) {
+                console.warn('Attachment rejected: image normalisation failed');
+                throw err;
+            }
+        });
 
         const results = await Promise.allSettled(newImages);
-        const images = /** @type {PromiseFulfilledResult<AttachedImage>[]} */ (results.filter((r) => r.status === 'fulfilled')).map(
-            (r) => r.value,
-        );
+        const images = /** @type {PromiseFulfilledResult<Omit<AttachedImage, 'addedAtRelative'>>[]} */ (
+            results.filter((r) => r.status === 'fulfilled')
+        ).map((r) => r.value);
         const tooLargeNames = [];
         const failedNames = [];
         for (let i = 0; i < results.length; i++) {
@@ -178,10 +161,9 @@ export function useImageAttachments() {
         }
 
         if (images.length > 0) {
-            setAttachedImages((prev) => [...prev, ...images]);
+            const addedAtRelative = performance.now();
+            setAttachedImages((prev) => [...prev, ...images.map((img) => ({ ...img, addedAtRelative }))]);
         }
-
-        input.value = '';
     };
 
     /** @param {number} index */
@@ -214,7 +196,7 @@ export function useImageAttachments() {
 
     return {
         attachedImages,
-        handleFileChange,
+        processFiles,
         handleRemoveImage,
         clearAttachedImages,
         imageUploadDisabled,

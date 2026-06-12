@@ -3809,6 +3809,9 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .Omnibar_tabSwitcherContainer {
   position: relative;
 }
+.Omnibar_placeholderTabs {
+  height: calc(var(--sp-8) + var(--sp-0_5) * 2);
+}
 .Omnibar_popover {
   --popover-offset-x: 7px;
 }
@@ -3852,29 +3855,40 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .Omnibar_root:has(input:focus, textarea:focus) .Omnibar_popup {
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08);
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .Omnibar_popup {
+.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .Omnibar_popup {
   border-radius: 15px;
   border: 2px solid var(--ds-color-theme-accent-primary);
   box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08);
   margin: 0;
   outline: 2px solid var(--ds-color-theme-accent-glow-primary);
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .Omnibar_popup .Omnibar_field {
+.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .Omnibar_popup .Omnibar_field {
   margin: 1px;
 }
-.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-image-warning])) .Omnibar_popup .Omnibar_aiChatsList {
+.Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .Omnibar_popup .Omnibar_aiChatsList {
   margin-left: -2px;
   margin-right: -2px;
   margin-top: 3px;
 }
-.Omnibar_root:has([data-image-warning]) .Omnibar_popup {
+.Omnibar_root:has([data-attachment-warning]) .Omnibar_popup {
   border: 2px solid var(--color-red-50);
   border-radius: 15px;
   margin: 0;
   outline: none;
 }
-.Omnibar_root:has([data-image-warning]) .Omnibar_popup .Omnibar_field {
+.Omnibar_root:has([data-attachment-warning]) .Omnibar_popup .Omnibar_field {
   margin: 1px;
+}
+.Omnibar_attachmentWarning {
+  align-self: stretch;
+  color: var(--color-red-50);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 13px;
+  margin: 0;
+  order: -1;
+  padding: var(--sp-2) var(--sp-3) 0;
 }
 .Omnibar_root:has([data-omnibar-list]) .Omnibar_popup {
   border-radius: 15px;
@@ -3893,6 +3907,15 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   .Omnibar_field {
     transition: none;
   }
+}
+.Omnibar_aiChatContent {
+  position: relative;
+}
+.Omnibar_tabPickerWrapper {
+  left: var(--sp-2);
+  margin-top: var(--sp-1);
+  position: absolute;
+  z-index: 2;
 }
 
 /* pages/new-tab/app/omnibar/components/SearchForm.module.css */
@@ -4361,6 +4384,85 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   width: 0;
 }
 
+/* pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.module.css */
+.TabChips_chip {
+  align-items: center;
+  background: var(--ds-color-theme-surface-secondary, var(--color-black-at-6));
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  color: var(--ds-color-theme-text-primary);
+  display: inline-flex;
+  font-size: 14px;
+  gap: 10px;
+  line-height: 20px;
+  padding: 10px 14px 10px 10px;
+  position: relative;
+  width: var(--sp-56);
+}
+[data-theme=dark] .TabChips_chip {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 0 0 1px var(--color-white-at-15),
+    0 1px 4px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.TabChips_faviconTile {
+  align-items: center;
+  background: var(--ds-color-theme-surface-primary, var(--color-black-at-6));
+  border-radius: 6px;
+  color: var(--ds-color-theme-icons-secondary);
+  display: flex;
+  flex: none;
+  height: var(--sp-9);
+  justify-content: center;
+  overflow: hidden;
+  width: var(--sp-9);
+}
+.TabChips_favicon {
+  border-radius: 3px;
+  height: 20px;
+  object-fit: cover;
+  width: 20px;
+}
+.TabChips_faviconFallback {
+  display: contents;
+}
+.TabChips_title {
+  flex: 1;
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.TabChips_remove {
+  align-items: center;
+  background: var(--ds-color-theme-text-primary);
+  border-radius: 50%;
+  border: none;
+  color: var(--ds-color-theme-surface-primary);
+  cursor: pointer;
+  display: flex;
+  height: var(--sp-4);
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: calc(-1 * var(--sp-1));
+  top: calc(-1 * var(--sp-1));
+  width: var(--sp-4);
+}
+[data-theme=dark] .TabChips_remove {
+  background: var(--color-gray-40);
+  outline: 2px solid var(--ds-color-theme-surface-primary);
+}
+.TabChips_remove:hover {
+  opacity: 0.8;
+}
+.TabChips_remove:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 /* pages/new-tab/app/omnibar/components/Tooltip.module.css */
 .Tooltip_container {
   display: inline-flex;
@@ -4407,6 +4509,98 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+/* pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.module.css */
+.PdfFileChip_chipWrapper {
+  position: relative;
+}
+.PdfFileChip_card {
+  align-items: center;
+  background: var(--ds-color-theme-surface-secondary, rgba(255, 255, 255, 0.84));
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  height: calc(var(--sp-12) + var(--sp-0_5));
+  justify-content: flex-end;
+  padding: var(--sp-1);
+  width: calc(var(--sp-12) + var(--sp-0_5));
+}
+.PdfFileChip_lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+.PdfFileChip_line {
+  background: var(--color-black-at-6, rgba(0, 0, 0, 0.06));
+  border-radius: 4px;
+  height: 6px;
+  width: 100%;
+}
+.PdfFileChip_format {
+  align-items: center;
+  background: #de5833;
+  border-radius: 4px;
+  color: #fff;
+  display: flex;
+  font-size: 11px;
+  font-weight: 700;
+  height: 27px;
+  justify-content: center;
+  letter-spacing: 1px;
+  width: 100%;
+}
+.PdfFileChip_remove {
+  align-items: center;
+  background: var(--ds-color-theme-text-primary);
+  border-radius: 100%;
+  border: none;
+  color: var(--ds-color-theme-surface-primary);
+  cursor: pointer;
+  display: flex;
+  height: var(--sp-4);
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: calc(-1 * var(--sp-1));
+  top: calc(-1 * var(--sp-1));
+  width: var(--sp-4);
+}
+.PdfFileChip_remove svg {
+  stroke: currentColor;
+  stroke-width: 1px;
+}
+[data-theme=dark] .PdfFileChip_remove {
+  background: var(--color-gray-40);
+  outline: 2px solid var(--ds-color-theme-surface-primary);
+}
+.PdfFileChip_remove:hover {
+  opacity: 0.8;
+}
+.PdfFileChip_remove:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+/* pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChips.module.css */
+.AttachmentChips_chipsArea {
+  align-items: center;
+  align-self: stretch;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  padding: var(--sp-3) var(--sp-3) var(--sp-2);
+  scrollbar-width: none;
+}
+.AttachmentChips_chipsArea::-webkit-scrollbar {
+  display: none;
+}
+.AttachmentChips_chipsArea > * {
+  flex: none;
 }
 
 /* pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.module.css */
@@ -4581,6 +4775,22 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
     0 10px 24px var(--color-black-at-40),
     inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
+.Dropdown_header {
+  align-items: center;
+  color: var(--ds-color-theme-text-secondary);
+  display: flex;
+  font-size: 10px;
+  font-weight: 600;
+  height: 20px;
+  letter-spacing: 0.12px;
+  line-height: 13px;
+  padding: 0 9px 0 19px;
+}
+.Dropdown_empty {
+  color: var(--ds-color-theme-text-secondary);
+  font-size: 13px;
+  padding: 9px;
+}
 .Dropdown_item {
   align-items: center;
   border-radius: 3px;
@@ -4595,6 +4805,15 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 .Dropdown_item > svg {
   flex-shrink: 0;
+}
+.Dropdown_trailingIcon {
+  align-items: center;
+  color: var(--ds-color-theme-icons-secondary);
+  display: flex;
+  margin-left: auto;
+}
+.Dropdown_itemActive .Dropdown_trailingIcon {
+  color: var(--ds-color-theme-accent-content-primary);
 }
 .Dropdown_itemActive {
   background: var(--ds-color-theme-accent-primary);
@@ -4786,6 +5005,149 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 .ToolsMenu_chipLabel {
   font-weight: 400;
+}
+
+/* pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.module.css */
+.AttachMenu_attachMenu {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+.AttachMenu_tabPicker {
+  max-height: 360px;
+  max-width: 360px;
+  min-width: 240px;
+  overflow-y: auto;
+}
+.AttachMenu_submenuChevron {
+  transform: rotate(-90deg);
+}
+.AttachMenu_favicon {
+  border-radius: 3px;
+  flex: none;
+  height: 16px;
+  object-fit: cover;
+  width: 16px;
+}
+.AttachMenu_faviconFallback {
+  align-items: center;
+  border-radius: 3px;
+  color: var(--ds-color-theme-icons-secondary);
+  display: flex;
+  flex: none;
+  height: 16px;
+  justify-content: center;
+  width: 16px;
+}
+
+/* pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/MentionPicker.module.css */
+.MentionPicker_panel {
+  background: var(--ds-color-theme-surface-tertiary);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 10px 24px 0 rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  max-width: 360px;
+  overflow: hidden;
+  padding: var(--sp-1);
+}
+[data-theme=dark] .MentionPicker_panel {
+  background: rgba(40, 40, 40, 0.98);
+  box-shadow: 0 0 0 0.5px var(--color-white-at-15), 0 10px 24px var(--color-black-at-40);
+}
+.MentionPicker_header {
+  color: var(--ds-color-theme-text-secondary);
+  font-size: 13px;
+  font-weight: 400;
+  padding: var(--sp-2) var(--sp-2) var(--sp-1);
+}
+.MentionPicker_headerTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.MentionPicker_list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  list-style: none;
+  margin: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0;
+}
+.MentionPicker_empty {
+  color: var(--ds-color-theme-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  padding: var(--sp-3) var(--sp-2);
+}
+.MentionPicker_row {
+  align-items: center;
+  border-radius: 6px;
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  gap: var(--sp-2);
+  line-height: 20px;
+  padding: var(--sp-1) var(--sp-2);
+}
+.MentionPicker_rowActive {
+  background: var(--ds-color-theme-accent-primary);
+  color: var(--ds-color-theme-accent-content-primary);
+}
+.MentionPicker_check {
+  flex: none;
+  height: 20px;
+  position: relative;
+  width: 4px;
+}
+.MentionPicker_check::before {
+  color: transparent;
+  content: "\2713";
+  font-size: 14px;
+  font-weight: 700;
+  left: -6px;
+  line-height: 20px;
+  position: absolute;
+  top: 0;
+}
+.MentionPicker_rowSelected .MentionPicker_check::before {
+  color: var(--ds-color-theme-text-primary);
+}
+.MentionPicker_rowActive .MentionPicker_check::before {
+  color: transparent;
+}
+.MentionPicker_rowActive.MentionPicker_rowSelected .MentionPicker_check::before {
+  color: var(--ds-color-theme-accent-content-primary);
+}
+.MentionPicker_favicon {
+  border-radius: 4px;
+  flex: none;
+  height: 20px;
+  object-fit: cover;
+  width: 20px;
+}
+.MentionPicker_faviconFallback {
+  align-items: center;
+  border-radius: 4px;
+  color: var(--ds-color-theme-icons-secondary);
+  display: flex;
+  flex: none;
+  height: 20px;
+  justify-content: center;
+  width: 20px;
+}
+.MentionPicker_rowActive .MentionPicker_faviconFallback {
+  color: var(--ds-color-theme-accent-content-primary);
+}
+.MentionPicker_rowTitle {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* pages/new-tab/app/protections/components/Protections.module.css */

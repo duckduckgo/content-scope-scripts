@@ -2590,6 +2590,9 @@
     }
   };
   function processAttr(configSetting, defaultValue) {
+    if (typeof defaultValue === "number" && isNaN(defaultValue)) {
+      defaultValue = void 0;
+    }
     if (configSetting === void 0) {
       return defaultValue;
     }
@@ -6196,9 +6199,10 @@
       const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
       return conditionalChanges.filter((rule) => {
         let condition2 = rule.condition;
-        if (condition2 === void 0 && "domain" in rule) {
+        if (condition2 === void 0 && rule.domain !== void 0) {
           condition2 = this._domainToConditonBlocks(rule.domain);
         }
+        if (condition2 === void 0) return true;
         return this._matchConditionalBlockOrArray(condition2);
       });
     }
@@ -8075,6 +8079,9 @@
   var hideTimeouts = [0, 100, 300, 500, 1e3, 2e3, 3e3];
   var unhideTimeouts = [1250, 2250, 3e3];
   var featureInstance;
+  function hasSelector(rule) {
+    return "selector" in rule;
+  }
   function collapseDomNode(element, rule, previousElement) {
     if (!element) {
       return;
@@ -8216,16 +8223,9 @@
     let selector = "";
     rules2.forEach((rule, i) => {
       if (i !== rules2.length - 1) {
-        selector = selector.concat(
-          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-          rule.selector,
-          ","
-        );
+        selector = selector.concat(rule.selector, ",");
       } else {
-        selector = selector.concat(
-          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-          rule.selector
-        );
+        selector = selector.concat(rule.selector);
       }
     });
     const styleTagProperties = "display:none!important;min-height:0!important;height:0!important;";
@@ -8235,11 +8235,8 @@
   }
   function hideAdNodes(rules2) {
     const document2 = globalThis.document;
-    rules2.forEach((rule) => {
-      const selector = forgivingSelector(
-        /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
-        rule.selector
-      );
+    rules2.filter(hasSelector).forEach((rule) => {
+      const selector = forgivingSelector(rule.selector);
       const matchingElementArray = [...document2.querySelectorAll(selector)];
       matchingElementArray.forEach((element) => {
         collapseDomNode(element, rule);
@@ -8279,14 +8276,15 @@
         shouldInjectStyleTag = this.matchConditionalFeatureSetting("styleTagExceptions").length === 0;
       }
       const activeDomainRules = this.matchConditionalFeatureSetting("domains").flatMap((item) => {
-        return (
+        return Array.isArray(item.rules) ? (
           /** @type {ElementHidingRule[]} */
-          item.rules || []
-        );
+          item.rules
+        ) : [];
       });
-      const overrideRules = activeDomainRules.filter((rule) => {
-        return rule.type === "override";
-      });
+      const overrideRules = activeDomainRules.filter(
+        /** @returns {rule is ElementHidingRuleHide} */
+        (rule) => rule.type === "override"
+      );
       const disableDefault = activeDomainRules.some((rule) => {
         return rule.type === "disable-default";
       });
@@ -8299,7 +8297,7 @@
       }
       overrideRules.forEach((override) => {
         activeRules = activeRules.filter((rule) => {
-          return rule.selector !== override.selector;
+          return !hasSelector(rule) || rule.selector !== override.selector;
         });
       });
       const applyRules = this.applyRules.bind(this);
@@ -11595,6 +11593,18 @@
     const injectName = "integration";
     return injectName === "firefox" || injectName === "chrome-mv3" || injectName === "windows";
   }
+  var DEFAULT_COOKIE_POLICY = {
+    threshold: 604800,
+    // 7 days
+    maxAge: 604800
+    // 7 days
+  };
+  var DEFAULT_TRACKER_COOKIE_POLICY = {
+    threshold: 86400,
+    // 1 day
+    maxAge: 86400
+    // 1 day
+  };
   var cookiePolicy = {
     debug: false,
     isFrame: isBeingFramed(),
@@ -11604,16 +11614,10 @@
     shouldBlockNonTrackerCookie: false,
     isThirdPartyFrame: isThirdPartyFrame(),
     policy: {
-      threshold: 604800,
-      // 7 days
-      maxAge: 604800
-      // 7 days
+      ...DEFAULT_COOKIE_POLICY
     },
     trackerPolicy: {
-      threshold: 86400,
-      // 1 day
-      maxAge: 86400
-      // 1 day
+      ...DEFAULT_TRACKER_COOKIE_POLICY
     },
     allowlist: (
       /** @type {{ host: string }[]} */
@@ -11683,8 +11687,8 @@
           }
         );
         cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
-        cookiePolicy.policy = settings.firstPartyCookiePolicy;
-        cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
+        cookiePolicy.policy = settings.firstPartyCookiePolicy ?? cookiePolicy.policy ?? DEFAULT_COOKIE_POLICY;
+        cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy ?? cookiePolicy.trackerPolicy ?? DEFAULT_TRACKER_COOKIE_POLICY;
         cookiePolicy.allowlist = this.getFeatureSetting("allowlist", "adClickAttribution") || [];
       }
       const document2 = globalThis.document;
@@ -11770,6 +11774,8 @@
      * @param {import('../content-scope-features.js').LoadArgs & { cookie?: ExtensionCookiePolicy }} args
      */
     init(args) {
+      const fallbackPolicy = cookiePolicy.policy ?? DEFAULT_COOKIE_POLICY;
+      const fallbackTrackerPolicy = cookiePolicy.trackerPolicy ?? DEFAULT_TRACKER_COOKIE_POLICY;
       const restOfPolicy = {
         debug: this.isDebug,
         shouldBlockTrackerCookie: this.getFeatureSettingEnabled("trackerCookie"),
@@ -11790,6 +11796,12 @@
       } else {
         const toCopy = Object.fromEntries(Object.entries(restOfPolicy).filter(([, v2]) => v2));
         Object.assign(cookiePolicy, toCopy);
+      }
+      if (cookiePolicy.policy == null) {
+        cookiePolicy.policy = fallbackPolicy;
+      }
+      if (cookiePolicy.trackerPolicy == null) {
+        cookiePolicy.trackerPolicy = fallbackTrackerPolicy;
       }
       loadedPolicyResolve();
     }
@@ -12036,14 +12048,24 @@
      * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
-      return this.messaging.subscribe("onUserValuesChanged", cb);
+      return this.messaging.subscribe("onUserValuesChanged", (value) => {
+        cb(
+          /** @type {import("../duck-player.js").UserValues} */
+          value
+        );
+      });
     }
     /**
      * Get notification when ui settings changed
      * @param {(userValues: import("../duck-player.js").UISettings) => void} cb
      */
     onUIValuesChanged(cb) {
-      return this.messaging.subscribe("onUIValuesChanged", cb);
+      return this.messaging.subscribe("onUIValuesChanged", (value) => {
+        cb(
+          /** @type {import("../duck-player.js").UISettings} */
+          value
+        );
+      });
     }
     /**
      * This allows our SERP to interact with Duck Player settings.
@@ -12287,7 +12309,7 @@
     /**
      * Convert a relative pathname into VideoParams
      *
-     * @param pathname
+     * @param {string} pathname
      * @returns {VideoParams|null}
      */
     static fromPathname(pathname) {
@@ -12303,7 +12325,7 @@
      * Convert a href into valid video params. Those can then be converted into a private player
      * link when needed
      *
-     * @param href
+     * @param {string} href
      * @returns {VideoParams|null}
      */
     static fromHref(href) {
@@ -12334,12 +12356,16 @@
   var DomState = class {
     constructor() {
       __publicField(this, "loaded", false);
+      /** @type {Array<() => void>} */
       __publicField(this, "loadedCallbacks", []);
       window.addEventListener("DOMContentLoaded", () => {
         this.loaded = true;
         this.loadedCallbacks.forEach((cb) => cb());
       });
     }
+    /**
+     * @param {() => void} loadedCallback
+     */
     onLoaded(loadedCallback) {
       if (this.loaded) return loadedCallback();
       this.loadedCallbacks.push(loadedCallback);
@@ -12362,18 +12388,26 @@
       this.shouldLog = shouldLog;
       this.id = id;
     }
+    /** @param {unknown[]} args */
     error(...args) {
       this.output(console.error, args);
     }
+    /** @param {unknown[]} args */
     info(...args) {
       this.output(console.info, args);
     }
+    /** @param {unknown[]} args */
     log(...args) {
       this.output(console.log, args);
     }
+    /** @param {unknown[]} args */
     warn(...args) {
       this.output(console.warn, args);
     }
+    /**
+     * @param {(...args: unknown[]) => void} handler
+     * @param {unknown[]} args
+     */
     output(handler, args) {
       if (this.shouldLog()) {
         handler(`${this.id.padEnd(20, " ")} |`, ...args);
@@ -12738,10 +12772,17 @@
       }
       return window.location.href;
     }
+    /**
+     * @param {string} videoId
+     * @returns {string}
+     */
     getLargeThumbnailSrc(videoId) {
       const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, "https://i.ytimg.com");
       return url.href;
     }
+    /**
+     * @param {string} href
+     */
     setHref(href) {
       window.location.href = href;
     }
@@ -12817,8 +12858,12 @@
         });
         let clicked = false;
         const clickHandler = (e) => {
-          const overlay = icon.getHoverOverlay();
-          if (overlay?.contains(e.target)) {
+          const overlay = (
+            /** @type {HTMLElement | null} */
+            icon.getHoverOverlay()
+          );
+          const target = e.target;
+          if (overlay && target instanceof Node && overlay.contains(target)) {
           } else if (overlay) {
             clicked = true;
             icon.hideOverlay(overlay);
@@ -12830,7 +12875,10 @@
         };
         parentNode.addEventListener("click", clickHandler, true);
         const removeOverlay = () => {
-          const overlay = icon.getHoverOverlay();
+          const overlay = (
+            /** @type {HTMLElement | null} */
+            icon.getHoverOverlay()
+          );
           if (overlay) {
             icon.hideOverlay(overlay);
             icon.hoverOverlayVisible = false;
@@ -12854,10 +12902,11 @@
           if (!hoverElement.querySelector("img")) {
             return removeOverlay();
           }
-          if (e.target === hoverElement || hoverElement?.contains(e.target)) {
+          const target = e.target;
+          if (target === hoverElement || target instanceof Node && hoverElement?.contains(target)) {
             return appendOverlay(hoverElement);
           }
-          const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css));
+          const matched = target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
           if (matched) {
             appendOverlay(hoverElement);
           }
@@ -12902,10 +12951,11 @@
           if (!validLink) {
             return;
           }
-          if (e.target === elementInStack || elementInStack?.contains(e.target)) {
+          const target = e.target;
+          if (target === elementInStack || target instanceof Node && elementInStack?.contains(target)) {
             return block(validLink);
           }
-          const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css));
+          const matched = target instanceof Element && selectors.allowedEventTargets.find((css) => target.matches(css));
           if (matched) {
             block(validLink);
           }
@@ -12944,8 +12994,10 @@
       return false;
     });
     if (existsInExcludedParent) return null;
-    if (!("href" in element)) return null;
-    return VideoParams.fromHref(element.href)?.toPrivatePlayerUrl();
+    if (!("href" in element) || typeof element.href !== "string") return null;
+    const href = element.href;
+    if (typeof href !== "string") return null;
+    return VideoParams.fromHref(href)?.toPrivatePlayerUrl();
   }
 
   // src/features/duckplayer/video-overlay.js
@@ -13765,8 +13817,8 @@
      */
     appendThumbnail(overlayElement) {
       const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
-      const videoId = params?.id;
-      const imageUrl = this.environment.getLargeThumbnailSrc(videoId);
+      if (!params) return;
+      const imageUrl = this.environment.getLargeThumbnailSrc(params.id);
       appendImageAsBackground(overlayElement, ".ddg-vpo-bg", imageUrl);
     }
     /**
@@ -14802,7 +14854,7 @@ ul.messages {
   }
   function getErrorType(windowObject, signInRequiredSelector, logger) {
     const currentWindow = (
-      /** @type {Window & typeof globalThis & { ytcfg: object }} */
+      /** @type {Window & typeof globalThis & { ytcfg?: { get: (key: string) => unknown } }} */
       windowObject
     );
     const currentDocument = currentWindow.document;
@@ -14817,9 +14869,13 @@ ul.messages {
       logger?.log("Got ytcfg", currentWindow.ytcfg);
     }
     try {
-      const playerResponseJSON = currentWindow.ytcfg?.get("PLAYER_VARS")?.embedded_player_response;
+      const playVars = currentWindow.ytcfg?.get("PLAYER_VARS");
+      const raw = typeof playVars === "object" && playVars !== null && "embedded_player_response" in playVars ? playVars.embedded_player_response : void 0;
+      const playerResponseJSON = typeof raw === "string" ? raw : void 0;
       logger?.log("Player response", playerResponseJSON);
-      playerResponse = JSON.parse(playerResponseJSON);
+      if (playerResponseJSON) {
+        playerResponse = JSON.parse(playerResponseJSON);
+      }
     } catch (e) {
       logger?.log("Could not parse player response", e);
     }
@@ -15140,15 +15196,19 @@ ul.messages {
   init_define_import_meta_trackerLookup();
   var DuckAiDataClearing = class extends ContentFeature {
     init() {
-      this.messaging.subscribe("duckAiClearData", (params) => this.clearData(params));
+      this.messaging.subscribe("duckAiClearData", (params) => {
+        void this.clearData(params);
+      });
       this.notify("duckAiClearDataReady");
     }
     /**
-     * @param {object} [params]
-     * @param {string} [params.chatId] - If provided, only delete this specific chat; otherwise clear all data
+     * @param {unknown} [params]
      */
     clearData(params) {
-      const chatId = params?.chatId;
+      const chatId = params !== null && typeof params === "object" && "chatId" in params ? (
+        /** @type {{ chatId?: string }} */
+        params.chatId
+      ) : void 0;
       if (chatId) {
         return this.deleteSingleChat(chatId);
       } else {
@@ -15202,7 +15262,7 @@ ul.messages {
         try {
           operation(key);
         } catch (error) {
-          errors.push(error);
+          errors.push(error instanceof Error ? error : new Error(String(error)));
           this.log.error("Error in localStorage operation:", error);
         }
       }
@@ -15220,7 +15280,7 @@ ul.messages {
             operation(objectStore, transaction, dbName, storeName);
           });
         } catch (error) {
-          errors.push(error);
+          errors.push(error instanceof Error ? error : new Error(String(error)));
           this.log.error("Error in IndexedDB operation:", error);
         }
       }
@@ -15265,6 +15325,9 @@ ul.messages {
         this.log.info(`Chat '${chatId}' not found in '${localStorageKey}'`);
       }
     }
+    /**
+     * @param {string} localStorageKey
+     */
     clearSavedAIChats(localStorageKey) {
       this.log.info(`Clearing '${localStorageKey}'`);
       window.localStorage.removeItem(localStorageKey);

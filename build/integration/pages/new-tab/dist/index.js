@@ -1180,7 +1180,6 @@
                 e4[a4] = c4;
               } else c4.o(v4, o4);
             }
-            for (var s4 in t4) o4[s4] = t4[s4];
           }
         }
         i5(n3);
@@ -1198,14 +1197,19 @@
               }
             }
           }
+          var f4 = n3.__np;
+          if (f4) {
+            var u4 = n3.props;
+            for (var a4 in f4) u4[a4] = f4[a4];
+          }
           n3.__np = void 0;
         } else {
-          var f4 = n3.__c;
-          if (f4) {
-            var u4 = f4.__$u;
-            if (u4) {
-              f4.__$u = void 0;
-              u4.d();
+          var c4 = n3.__c;
+          if (c4) {
+            var v4 = c4.__$u;
+            if (v4) {
+              c4.__$u = void 0;
+              v4.d();
             }
           }
         }
@@ -1841,6 +1845,28 @@
       {
         fill: "currentColor",
         d: "M11 2a4 4 0 0 1 4 4v4c0 .854.39 1.617 1 2.121v.357c0 .517-.541.841-.925.495A4 4 0 0 1 13.75 10V6A2.75 2.75 0 0 0 11 3.25H5A2.75 2.75 0 0 0 2.25 6v4a4 4 0 0 1-1.325 2.973c-.384.346-.925.022-.925-.495v-.357c.61-.504 1-1.267 1-2.121V6a4 4 0 0 1 4-4z"
+      }
+    ));
+  }
+  function FolderIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M4 1C1.79086 1 0 2.79086 0 5V11C0 13.2091 1.79086 15 4 15H12C14.2091 15 16 13.2091 16 11V7C16 4.79086 14.2091 3 12 3H10C9.40983 3 8.8541 2.72214 8.5 2.25C7.90983 1.463107 6.98362 1 6 1H4ZM1.25 5C1.25 3.48122 2.48122 2.25 4 2.25H6C6.59017 2.25 7.1459 2.52786 7.5 3C8.09017 3.78689 9.01638 4.25 10 4.25H12C13.166 4.25 14.1625 4.97566 14.5625 6H1.25V5ZM1.25 7.25V11C1.25 12.5188 2.48122 13.75 4 13.75H12C13.5188 13.75 14.75 12.5188 14.75 11V7.25H1.25Z"
+      }
+    ));
+  }
+  function PageContentIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M12 1C14.2091 1 16 2.79086 16 5V11C16 13.2091 14.2091 15 12 15H4C1.79086 15 0 13.2091 0 11V5C0 2.79086 1.79086 1 4 1H12ZM4 2.25C2.48122 2.25 1.25 3.48122 1.25 5V11C1.25 12.5188 2.48122 13.75 4 13.75H12C13.5188 13.75 14.75 12.5188 14.75 11V6.3125C14.75 5.7257 14.2743 5.25 13.6875 5.25H10.427C9.1625 5.24998 8.00656 4.53554 7.44104 3.40454C7.08727 2.697 6.36405 2.25002 5.573 2.25H4ZM7.375 10C7.72018 10 8 10.27982 8 10.625C8 10.97018 7.72018 11.25 7.375 11.25H3.625C3.27982 11.25 3 10.97018 3 10.625C3 10.27982 3.27982 10 3.625 10H7.375ZM9.375 7C9.72018 7 10 7.27982 10 7.625C10 7.97018 9.72018 8.25 9.375 8.25H3.625C3.27982 8.25 3 7.97018 3 7.625C3 7.27982 3.27982 7 3.625 7H9.375ZM8.17761 2.25C8.3237 2.43222 8.45191 2.63137 8.55896 2.84546C8.91273 3.553 9.63595 3.99998 10.427 4H13.6875C14.0239 4 14.3435 4.07189 14.6318 4.20105C14.2895 3.07196 13.2409 2.25 12 2.25H8.17761Z"
       }
     ));
   }
@@ -4203,6 +4229,54 @@
     }
   });
 
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/popover-reset-styles.js
+  var popoverResetUserAgentStyles;
+  var init_popover_reset_styles = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/popover-reset-styles.js"() {
+      popoverResetUserAgentStyles = {
+        inset: "unset",
+        border: "none",
+        padding: 0,
+        margin: 0,
+        overflow: "visible",
+        color: "inherit",
+        background: "transparent"
+      };
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js
+  function once(fn) {
+    var cache = null;
+    return function wrapped() {
+      if (!cache) {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+        var result = fn.apply(this, args);
+        cache = {
+          result
+        };
+      }
+      return cache.result;
+    };
+  }
+  var init_once = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/supports-popover.js
+  var supportsPopover;
+  var init_supports_popover = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/supports-popover.js"() {
+      init_once();
+      supportsPopover = once(function supportsPopover2() {
+        return typeof HTMLElement !== "undefined" && typeof HTMLElement.prototype.showPopover === "function";
+      });
+    }
+  });
+
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/make-honey-pot-fix.js
   function ownKeys(e4, r4) {
     var t4 = Object.keys(e4);
@@ -4280,32 +4354,42 @@
     var initial = _ref4.initial;
     var element = document.createElement("div");
     element.setAttribute(honeyPotDataAttribute, "true");
+    if (supportsPopover()) {
+      element.setAttribute("popover", "manual");
+    }
     var clientRect = getHoneyPotRectFor({
       client: initial
     });
     Object.assign(element.style, _objectSpread(_objectSpread({
+      position: "fixed"
+    }, supportsPopover() ? (
+      // needs to come first as it has 'inset: unset' which
+      // needs to be overridden by our top / left values
+      popoverResetUserAgentStyles
+    ) : {
+      // Fallback: using maximum possible z-index so that this element
+      // will always be on top of other positioned content.
+      zIndex: maxZIndex
+    }), {}, {
       // Setting a background color explicitly to avoid any inherited styles.
       // Looks like this could be `opacity: 0`, but worried that _might_
       // cause the element to be ignored on some platforms.
       // When debugging, set backgroundColor to something like "red".
       backgroundColor: "transparent",
-      position: "fixed",
       // Being explicit to avoid inheriting styles
       padding: 0,
       margin: 0,
-      boxSizing: "border-box"
-    }, getRectStyles({
-      clientRect
-    })), {}, {
+      boxSizing: "border-box",
       // We want this element to absorb pointer events,
       // it's kind of the whole point 😉
-      pointerEvents: "auto",
-      // Want to make sure the honey pot is top of everything else.
-      // Don't need to worry about native drag previews, as they will
-      // have been rendered (and removed) before the honey pot is rendered
-      zIndex: maxZIndex
-    }));
+      pointerEvents: "auto"
+    }, getRectStyles({
+      clientRect
+    })));
     document.body.appendChild(element);
+    if (supportsPopover()) {
+      element.showPopover();
+    }
     var unbindPointerMove = (0, import_bind_event_listener.bind)(window, {
       type: "pointermove",
       listener: function listener(event) {
@@ -4439,6 +4523,8 @@
       init_defineProperty();
       import_bind_event_listener = __toESM(require_dist());
       init_max_z_index();
+      init_popover_reset_styles();
+      init_supports_popover();
       init_honey_pot_data_attribute();
       honeyPotSize = 2;
       halfHoneyPotSize = honeyPotSize / 2;
@@ -4483,27 +4569,6 @@
       init_iterableToArray();
       init_unsupportedIterableToArray();
       init_nonIterableSpread();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js
-  function once(fn) {
-    var cache = null;
-    return function wrapped() {
-      if (!cache) {
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-        var result = fn.apply(this, args);
-        cache = {
-          result
-        };
-      }
-      return cache.result;
-    };
-  }
-  var init_once = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js"() {
     }
   });
 
@@ -6269,6 +6334,27 @@
   });
 
   // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview.js
+  function ownKeys5(e4, r4) {
+    var t4 = Object.keys(e4);
+    if (Object.getOwnPropertySymbols) {
+      var o4 = Object.getOwnPropertySymbols(e4);
+      r4 && (o4 = o4.filter(function(r5) {
+        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
+      })), t4.push.apply(t4, o4);
+    }
+    return t4;
+  }
+  function _objectSpread5(e4) {
+    for (var r4 = 1; r4 < arguments.length; r4++) {
+      var t4 = null != arguments[r4] ? arguments[r4] : {};
+      r4 % 2 ? ownKeys5(Object(t4), true).forEach(function(r5) {
+        _defineProperty(e4, r5, t4[r5]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys5(Object(t4)).forEach(function(r5) {
+        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
+      });
+    }
+    return e4;
+  }
   function defaultOffset() {
     return {
       x: 0,
@@ -6278,12 +6364,24 @@
   function setCustomNativeDragPreview(_ref) {
     var render = _ref.render, nativeSetDragImage = _ref.nativeSetDragImage, _ref$getOffset = _ref.getOffset, getOffset = _ref$getOffset === void 0 ? defaultOffset : _ref$getOffset;
     var container = document.createElement("div");
-    Object.assign(container.style, {
+    if (supportsPopover()) {
+      container.setAttribute("popover", "manual");
+    }
+    Object.assign(container.style, _objectSpread5(_objectSpread5({
       // Ensuring we don't cause reflow when adding the element to the page
       // Using `position:fixed` rather than `position:absolute` so we are
       // positioned on the current viewport.
       // `position:fixed` also creates a new stacking context, so we don't need to do that here
-      position: "fixed",
+      position: "fixed"
+    }, supportsPopover() ? (
+      // needs to come first as it has 'inset: unset' which
+      // needs to be overridden by our top / left values
+      popoverResetUserAgentStyles
+    ) : {
+      // Fallback: using maximum possible z-index so that this element
+      // will always be on top of other positioned content.
+      zIndex: maxZIndex
+    }), {}, {
       // According to `mdn`, the element can be offscreen:
       // https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/setDragImage#imgelement
       //
@@ -6293,19 +6391,13 @@
       // If the element is _completely_ offscreen, Safari@17.1 will cancel the drag
       top: 0,
       left: 0,
-      // Using maximum possible z-index so that this element will always be on top
-      // https://stackoverflow.com/questions/491052/minimum-and-maximum-value-of-z-index
-      // Did not use `layers` in `@atlaskit/theme` because:
-      // 1. This element is not a 'layer' in the conventional sense, as this element
-      //    is only created for a single frame for the browser to take a photo of it,
-      //    and then it is destroyed
-      // 2. Did not want to add a dependency onto `@atlaskit/theme`
-      // 3. Want to always be on top of product UI which might have higher z-index's
-      zIndex: maxZIndex,
       // Avoiding any additional events caused by the new element (being super safe)
       pointerEvents: "none"
-    });
+    }));
     document.body.append(container);
+    if (supportsPopover()) {
+      container.showPopover();
+    }
     var unmount = render({
       container
     });
@@ -6336,9 +6428,12 @@
   }
   var init_set_custom_native_drag_preview = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview.js"() {
+      init_defineProperty();
       init_element_adapter();
       init_is_safari();
       init_max_z_index();
+      init_popover_reset_styles();
+      init_supports_popover();
     }
   });
 
@@ -8977,6 +9072,22 @@
         viewAllAiChats(params) {
           this.ntp.messaging.notify("omnibar_viewAllAIChats", params);
         }
+        /**
+         * Requests the list of open tabs available for attachment.
+         * @returns {Promise<GetOpenTabsResponse>}
+         */
+        getOpenTabs() {
+          return this.ntp.messaging.request("omnibar_getOpenTabs");
+        }
+        /**
+         * Requests extracted page content for a tab; resolves `null` if the tab can't be read.
+         * @param {string} tabId
+         * @returns {Promise<PageContext | null>}
+         */
+        async getTabContent(tabId) {
+          const response = await this.ntp.messaging.request("omnibar_getTabContent", { tabId });
+          return response?.pageContext ?? null;
+        }
       };
     }
   });
@@ -9083,6 +9194,17 @@
       },
       [service]
     );
+    const getOpenTabs = q2(() => {
+      if (!service.current) throw new Error("Service not available");
+      return service.current.getOpenTabs();
+    }, [service]);
+    const getTabContent = q2(
+      (tabId) => {
+        if (!service.current) throw new Error("Service not available");
+        return service.current.getTabContent(tabId);
+      },
+      [service]
+    );
     return /* @__PURE__ */ k(
       OmnibarContext.Provider,
       {
@@ -9101,7 +9223,9 @@
           getAiChats,
           onAiChats,
           openAiChat,
-          viewAllAiChats
+          viewAllAiChats,
+          getOpenTabs,
+          getTabContent
         }
       },
       /* @__PURE__ */ k(OmnibarServiceContext.Provider, { value: service.current }, props.children)
@@ -9191,6 +9315,14 @@
         },
         /** @type {(params: {target: OpenTarget}) => void} */
         viewAllAiChats: () => {
+          throw new Error("must implement");
+        },
+        /** @type {() => Promise<GetOpenTabsResponse>} */
+        getOpenTabs: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(tabId: string) => Promise<PageContext | null>} */
+        getTabContent: () => {
           throw new Error("must implement");
         }
       });
@@ -9325,12 +9457,12 @@
       if (!chatsVisible || !showViewAllAiChats || itemCount === 0) return;
       dispatch({ type: "selectViewAllChats", targetIndex: itemCount - 1 });
     };
-    const hideChats = () => {
+    const hideChats = q2(() => {
       dispatch({ type: "hideChats" });
-    };
-    const showChats = () => {
+    }, []);
+    const showChats = q2(() => {
       dispatch({ type: "showChats" });
-    };
+    }, []);
     return {
       chats: chatsVisible ? state.chats : EMPTY_ARRAY,
       selectedChat,
@@ -9407,7 +9539,20 @@
   });
 
   // pages/new-tab/app/omnibar/components/AiChatForm.js
-  function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, placeholder, toolbarLeft, toolbarRight }) {
+  function AiChatForm({
+    query,
+    autoFocus,
+    disabled,
+    onChange,
+    onSubmit,
+    children,
+    placeholder,
+    toolbarLeft,
+    toolbarRight,
+    onTextareaKeyDown,
+    combobox = null,
+    textareaRef
+  }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -9419,17 +9564,13 @@
       /** @type {HTMLFormElement|null} */
       null
     );
-    const textAreaRef = A2(
-      /** @type {HTMLTextAreaElement|null} */
-      null
-    );
     y2(() => {
-      if (autoFocus && textAreaRef.current) {
-        textAreaRef.current.focus();
+      if (autoFocus && textareaRef.current) {
+        textareaRef.current.focus();
       }
-    }, [autoFocus]);
+    }, [autoFocus, textareaRef]);
     _2(() => {
-      const textArea = textAreaRef.current;
+      const textArea = textareaRef.current;
       const form = formRef.current;
       if (!textArea || !form) return;
       const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
@@ -9440,13 +9581,15 @@
       } else {
         form.classList.remove(AiChatForm_default.hasScroll);
       }
-    }, [query]);
+    }, [query, textareaRef]);
     const handleSubmit = (event) => {
       event.preventDefault();
       if (disabled) return;
       onSubmit(query, "same-tab");
     };
     const handleKeyDown = (event) => {
+      const result = onTextareaKeyDown?.(event);
+      if (result?.handled) return;
       switch (event.key) {
         case "ArrowUp": {
           if (selectPreviousChat()) event.preventDefault();
@@ -9490,6 +9633,9 @@
       }
     };
     const getActiveDescendant = () => {
+      if (combobox?.activeDescendantId) {
+        return combobox.activeDescendantId;
+      }
       if (selectedChat) {
         return getAiChatElementId(selectedChat.chatId);
       }
@@ -9497,6 +9643,9 @@
         return VIEW_ALL_CHATS_ELEMENT_ID;
       }
       return void 0;
+    };
+    const emitChange = (event) => {
+      onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
     };
     const placeholderText = placeholder || t4("omnibar_aiChatFormPlaceholder");
     return /* @__PURE__ */ k(
@@ -9506,30 +9655,36 @@
         class: AiChatForm_default.form,
         onSubmit: handleSubmit,
         onClick: (e4) => {
-          if (e4.target === e4.currentTarget || e4.target === textAreaRef.current) {
-            textAreaRef.current?.focus();
+          if (e4.target === e4.currentTarget || e4.target === textareaRef.current) {
+            textareaRef.current?.focus();
           }
         }
       },
       /* @__PURE__ */ k(
         "textarea",
         {
-          ref: textAreaRef,
+          ref: textareaRef,
           class: AiChatForm_default.textarea,
           value: query,
           placeholder: placeholderText,
           "aria-label": placeholderText,
-          "aria-expanded": chats.length > 0,
+          "aria-expanded": combobox ? true : chats.length > 0,
           "aria-haspopup": "listbox",
-          "aria-controls": aiChatsListId,
+          "aria-controls": combobox?.listboxId ?? aiChatsListId,
           "aria-activedescendant": getActiveDescendant(),
           autoComplete: "off",
           rows: 1,
           onKeyDown: handleKeyDown,
-          onChange: (event) => {
-            onChange(event.currentTarget.value);
+          onInput: (event) => {
+            emitChange(event);
             clearSelectedChat();
-          }
+          },
+          onKeyUp: (event) => {
+            if (event.key.startsWith("Arrow") || event.key === "Home" || event.key === "End") {
+              emitChange(event);
+            }
+          },
+          onClick: emitChange
         }
       ),
       children,
@@ -9559,11 +9714,15 @@
         root: "Omnibar_root",
         logo: "Omnibar_logo",
         tabSwitcherContainer: "Omnibar_tabSwitcherContainer",
+        placeholderTabs: "Omnibar_placeholderTabs",
         popover: "Omnibar_popover",
         spacer: "Omnibar_spacer",
         popup: "Omnibar_popup",
         field: "Omnibar_field",
-        aiChatsList: "Omnibar_aiChatsList"
+        aiChatsList: "Omnibar_aiChatsList",
+        attachmentWarning: "Omnibar_attachmentWarning",
+        aiChatContent: "Omnibar_aiChatContent",
+        tabPickerWrapper: "Omnibar_tabPickerWrapper"
       };
     }
   });
@@ -10457,8 +10616,8 @@
         "aria-label": t4("omnibar_tabSwitcherLabel")
       },
       /* @__PURE__ */ k("div", { class: TabSwitcher_default.blob }),
-      /* @__PURE__ */ k("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, /* @__PURE__ */ k(TabIcon, { mode: "search", selected: mode === "search" }), /* @__PURE__ */ k("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))),
-      /* @__PURE__ */ k("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, /* @__PURE__ */ k(TabIcon, { mode: "ai", selected: mode === "ai" }), /* @__PURE__ */ k("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel")))
+      /* @__PURE__ */ k("button", { class: TabSwitcher_default.tab, tabIndex: 0, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, /* @__PURE__ */ k(TabIcon, { mode: "search", selected: mode === "search" }), /* @__PURE__ */ k("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))),
+      /* @__PURE__ */ k("button", { class: TabSwitcher_default.tab, tabIndex: 0, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, /* @__PURE__ */ k(TabIcon, { mode: "ai", selected: mode === "ai" }), /* @__PURE__ */ k("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel")))
     );
   }
   function TabIcon({ mode, selected }) {
@@ -10682,6 +10841,46 @@
     }, [all2, value2]);
     return /* @__PURE__ */ k(ModeContext.Provider, { value: value2 }, children);
   }
+  function createPersistentList() {
+    const Context = X(
+      /** @type {PersistentValue<T[]>|null} */
+      null
+    );
+    function Provider2({ children }) {
+      const [store] = d2(() => (
+        /** @type {PersistentValue<T[]>} */
+        new PersistentValue()
+      ));
+      const { all: all2 } = useTabState();
+      y2(() => {
+        return all2.subscribe((tabIds) => store.prune({ preserve: tabIds }));
+      }, [all2, store]);
+      return /* @__PURE__ */ k(Context.Provider, { value: store }, children);
+    }
+    function useStateWithLocalPersistence5(tabId) {
+      const store = x2(Context);
+      const [items, setItems] = d2(() => store?.byId(tabId) ?? []);
+      const setter = q2(
+        /** @param {T[] | ((prev: T[]) => T[])} next */
+        (next) => {
+          setItems((prev) => {
+            const value2 = typeof next === "function" ? (
+              /** @type {(prev: T[]) => T[]} */
+              next(prev)
+            ) : next;
+            if (tabId) store?.update({ id: tabId, value: value2 });
+            return value2;
+          });
+        },
+        [store, tabId]
+      );
+      return (
+        /** @type {const} */
+        [items, setter]
+      );
+    }
+    return { Provider: Provider2, useStateWithLocalPersistence: useStateWithLocalPersistence5 };
+  }
   function useQueryWithLocalPersistence(tabId) {
     const terms = x2(TextInputContext);
     invariant(
@@ -10739,7 +10938,7 @@
     if (message) throw new Error("Invariant failed: " + message);
     throw new Error("Invariant failed");
   }
-  var TextInputContext, ModeContext;
+  var TextInputContext, ModeContext, TabAttachments, FileAttachments, ImageAttachments, OpenTabsList;
   var init_PersistentOmnibarValuesProvider = __esm({
     "pages/new-tab/app/omnibar/components/PersistentOmnibarValuesProvider.js"() {
       "use strict";
@@ -10756,6 +10955,44 @@
         /** @type {PersistentValue<Mode>|null} */
         null
       );
+      TabAttachments = /** @type {() => PersistentList<AttachedTabEntry>} */
+      createPersistentList();
+      FileAttachments = /** @type {() => PersistentList<AttachedFile>} */
+      createPersistentList();
+      ImageAttachments = /** @type {() => PersistentList<AttachedImage>} */
+      createPersistentList();
+      OpenTabsList = /** @type {() => PersistentList<TabMetadata>} */
+      createPersistentList();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/readFileAsDataUrl.js
+  function readFileAsDataUrl(file, timeoutMs) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      const timeoutId = setTimeout(() => {
+        reader.abort();
+        reject(new Error(`File reading timed out after ${timeoutMs / 1e3} seconds`));
+      }, timeoutMs);
+      reader.onload = () => {
+        clearTimeout(timeoutId);
+        resolve(
+          /** @type {string} */
+          reader.result
+        );
+      };
+      reader.onerror = () => {
+        clearTimeout(timeoutId);
+        reject(new Error("Failed to read file"));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  var FILE_READ_TIMEOUT;
+  var init_readFileAsDataUrl = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/readFileAsDataUrl.js"() {
+      "use strict";
+      FILE_READ_TIMEOUT = 3e4;
     }
   });
 
@@ -10798,11 +11035,8 @@
       img.src = srcDataUrl;
     });
   }
-  function useImageAttachments() {
-    const [attachedImages, setAttachedImages] = d2(
-      /** @type {AttachedImage[]} */
-      []
-    );
+  function useImageAttachments(tabId) {
+    const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = d2(
       /** @type {ImageError|null} */
       null
@@ -10811,16 +11045,11 @@
     const imageUploadDisabled = attachedImages.length >= MAX_IMAGES;
     const clearAttachedImages = () => setAttachedImages([]);
     const clearImageError = () => setImageError(null);
-    const handleFileChange = async (event) => {
-      const input = (
-        /** @type {HTMLInputElement} */
-        event.currentTarget
-      );
-      const files = input.files;
-      if (!files || files.length === 0) return;
+    const processFiles = async (files) => {
+      if (files.length === 0) return;
       setImageError(null);
       const existingNames = new Set(attachedImages.map((img) => img.fileName));
-      const validFiles = Array.from(files).filter((file) => {
+      const validFiles = files.filter((file) => {
         if (!ALLOWED_FORMATS.includes(file.type)) {
           console.warn("Attachment rejected: unsupported file type");
           return false;
@@ -10830,52 +11059,31 @@
         }
         return true;
       });
-      if (validFiles.length === 0) {
-        input.value = "";
-        return;
-      }
+      if (validFiles.length === 0) return;
       const processLimit = MAX_IMAGES + 1 - attachedImages.length;
       const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
-      if (filesToProcess.length === 0) {
-        input.value = "";
-        return;
-      }
-      const newImages = filesToProcess.map(
-        (file) => new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = async () => {
-            clearTimeout(timeoutId);
-            try {
-              const rawDataUrl = (
-                /** @type {string} */
-                reader.result
-              );
-              const targetMime = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
-              const dataUrl = await normaliseImage(rawDataUrl, targetMime);
-              resolve({ dataUrl, fileName: file.name, mimeType: targetMime });
-            } catch (err) {
-              console.warn("Attachment rejected: image normalisation failed");
-              reject(err);
-            }
-          };
-          reader.onerror = () => {
-            clearTimeout(timeoutId);
-            console.warn("Attachment rejected: failed to read file");
-            reject(new Error("Failed to read file"));
-          };
-          const timeoutId = setTimeout(() => {
-            reader.abort();
-            reject(new Error(`File reading timed out after ${FILE_READ_TIMEOUT / 1e3} seconds`));
-          }, FILE_READ_TIMEOUT);
-          reader.readAsDataURL(file);
-        })
-      );
+      if (filesToProcess.length === 0) return;
+      const newImages = filesToProcess.map(async (file) => {
+        let rawDataUrl;
+        try {
+          rawDataUrl = await readFileAsDataUrl(file, FILE_READ_TIMEOUT);
+        } catch (err) {
+          console.warn("Attachment rejected: failed to read file");
+          throw err;
+        }
+        try {
+          const targetMime = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
+          const dataUrl = await normaliseImage(rawDataUrl, targetMime);
+          return { dataUrl, fileName: file.name, mimeType: targetMime };
+        } catch (err) {
+          console.warn("Attachment rejected: image normalisation failed");
+          throw err;
+        }
+      });
       const results = await Promise.allSettled(newImages);
       const images = (
-        /** @type {PromiseFulfilledResult<AttachedImage>[]} */
-        results.filter((r4) => r4.status === "fulfilled").map(
-          (r4) => r4.value
-        )
+        /** @type {PromiseFulfilledResult<Omit<AttachedImage, 'addedAtRelative'>>[]} */
+        results.filter((r4) => r4.status === "fulfilled").map((r4) => r4.value)
       );
       const tooLargeNames = [];
       const failedNames = [];
@@ -10896,9 +11104,9 @@
         setImageError({ type: "processingFailed", fileNames: failedNames });
       }
       if (images.length > 0) {
-        setAttachedImages((prev) => [...prev, ...images]);
+        const addedAtRelative = performance.now();
+        setAttachedImages((prev) => [...prev, ...images.map((img) => ({ ...img, addedAtRelative }))]);
       }
-      input.value = "";
     };
     const handleRemoveImage = (index2) => {
       setAttachedImages((prev) => prev.filter((_5, i5) => i5 !== index2));
@@ -10922,7 +11130,7 @@
     };
     return {
       attachedImages,
-      handleFileChange,
+      processFiles,
       handleRemoveImage,
       clearAttachedImages,
       imageUploadDisabled,
@@ -10938,11 +11146,14 @@
     const base = imageError.type === "imageTooLarge" ? messages.imageTooLarge : messages.processingFailed;
     return `${names2}: ${base}`;
   }
-  var ImageTooLargeError, MAX_IMAGES, ALLOWED_FORMATS, FILE_READ_TIMEOUT, MAX_DIMENSION, MAX_ENCODED_BYTES, MAX_DECODED_PIXELS;
+  var useStateWithLocalPersistence, ImageTooLargeError, MAX_IMAGES, ALLOWED_FORMATS, MAX_DIMENSION, MAX_ENCODED_BYTES, MAX_DECODED_PIXELS;
   var init_useImageAttachments = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/useImageAttachments.js"() {
       "use strict";
       init_hooks_module();
+      init_PersistentOmnibarValuesProvider();
+      init_readFileAsDataUrl();
+      ({ useStateWithLocalPersistence } = ImageAttachments);
       ImageTooLargeError = class extends Error {
         constructor(message) {
           super(message);
@@ -10951,7 +11162,6 @@
       };
       MAX_IMAGES = 3;
       ALLOWED_FORMATS = ["image/jpeg", "image/png", "image/webp"];
-      FILE_READ_TIMEOUT = 3e4;
       MAX_DIMENSION = 512;
       MAX_ENCODED_BYTES = 10 * 1024 * 1024;
       MAX_DECODED_PIXELS = 1e4 * 1e4;
@@ -10976,83 +11186,241 @@
     }
   });
 
-  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImagePreviewArea.js
-  function ImagePreviewArea({ images, onRemove, removeLabel }) {
-    if (images.length === 0) return null;
-    return /* @__PURE__ */ k("div", { class: ImageAttachment_default.imagePreviewArea }, images.map((img, index2) => /* @__PURE__ */ k("div", { key: `${img.fileName}-${index2}`, class: ImageAttachment_default.thumbnailWrapper }, /* @__PURE__ */ k("img", { src: img.dataUrl, alt: "", class: ImageAttachment_default.thumbnail }), /* @__PURE__ */ k(
-      "button",
-      {
-        type: "button",
-        class: ImageAttachment_default.thumbnailRemove,
-        "aria-label": removeLabel,
-        onClick: (e4) => {
-          e4.stopPropagation();
-          onRemove(index2);
-        }
-      },
-      /* @__PURE__ */ k(CloseSmallIcon, { width: "10", height: "10", style: "stroke: currentColor; stroke-width: 1px;" })
-    ))));
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachmentTool.js
+  function ImageAttachmentContent({ state, supportsImageUpload, onVisibleImagesChange, onImageWarningChange }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { attachedImages, imageLimitExceeded, imageError, clearImageError } = state;
+    const hasVisibleImages = !!(supportsImageUpload && attachedImages.length > 0);
+    const showImageWarning = !!(supportsImageUpload && imageLimitExceeded);
+    const prevVisibleRef = A2(hasVisibleImages);
+    const prevWarningRef = A2(showImageWarning);
+    _2(() => {
+      if (prevVisibleRef.current !== hasVisibleImages) {
+        prevVisibleRef.current = hasVisibleImages;
+        onVisibleImagesChange(hasVisibleImages);
+      }
+    }, [hasVisibleImages]);
+    _2(() => {
+      if (prevWarningRef.current !== showImageWarning) {
+        prevWarningRef.current = showImageWarning;
+        onImageWarningChange(showImageWarning);
+      }
+    }, [showImageWarning]);
+    if (!supportsImageUpload) return null;
+    const imageLimitWarning = t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) });
+    const imageErrorMessage = getImageErrorMessage(imageError, {
+      imageTooLarge: t4("omnibar_imageTooLargeError"),
+      processingFailed: t4("omnibar_imageProcessingError")
+    });
+    return /* @__PURE__ */ k(S, null, imageLimitExceeded && /* @__PURE__ */ k("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageLimitWarning), !imageLimitExceeded && imageErrorMessage && /* @__PURE__ */ k("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageErrorMessage, /* @__PURE__ */ k("button", { class: ImageAttachment_default.dismissError, type: "button", tabIndex: 0, onClick: clearImageError, "aria-label": "Dismiss" }, "\xD7")));
   }
-  var init_ImagePreviewArea = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImagePreviewArea.js"() {
+  var init_ImageAttachmentTool = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachmentTool.js"() {
       "use strict";
       init_preact_module();
-      init_Icons2();
+      init_hooks_module();
+      init_types();
+      init_useImageAttachments();
       init_ImageAttachment();
     }
   });
 
-  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageUploadButton.js
-  function ImageUploadButton({ disabled, onChange, ariaLabel }) {
-    const fileInputRef = A2(
-      /** @type {HTMLInputElement|null} */
-      null
-    );
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/fileChannels.js
+  function buildFileAccept(mimeTypes) {
+    return mimeTypes.flatMap((mime) => [mime, ...FILE_EXTENSIONS[mime] ?? []]).join(",");
+  }
+  function resolveFileMimeType(file, allowList) {
+    if (allowList.includes(file.type)) return file.type;
+    const lowerName = file.name.toLowerCase();
+    for (const mime of allowList) {
+      if ((FILE_EXTENSIONS[mime] ?? []).some((ext) => lowerName.endsWith(ext))) return mime;
+    }
+    return null;
+  }
+  function resolveFileInputLabel(t4, image, file) {
+    if (image && file) return t4("omnibar_attachImageOrFileLabel");
+    if (image) return t4("omnibar_attachImageLabel");
+    return t4("omnibar_attachFileLabel");
+  }
+  function resolveFileInput({ t: t4, image, file }) {
+    const label = resolveFileInputLabel(t4, image, file);
+    const accept = [...image ? [IMAGE_ACCEPT] : [], ...file ? [buildFileAccept(file.mimeTypes)] : []].filter(Boolean).join(",");
+    const disabled = (image?.disabled ?? true) && (file?.disabled ?? true);
+    const onChange = async (event) => {
+      const input = (
+        /** @type {HTMLInputElement} */
+        event.currentTarget
+      );
+      if (!input.files || input.files.length === 0) return;
+      const all2 = Array.from(input.files);
+      const tasks = [];
+      if (image) {
+        const images = all2.filter((file2) => file2.type.startsWith("image/"));
+        if (images.length > 0) tasks.push(image.processFiles(images));
+      }
+      if (file) {
+        const others = all2.filter((file2) => !file2.type.startsWith("image/"));
+        if (others.length > 0) tasks.push(file.processFiles(others));
+      }
+      await Promise.all(tasks);
+      input.value = "";
+    };
+    return { label, accept, disabled, onChange };
+  }
+  var IMAGE_ACCEPT, FILE_EXTENSIONS;
+  var init_fileChannels = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/fileChannels.js"() {
+      "use strict";
+      IMAGE_ACCEPT = "image/jpeg,image/png,image/webp";
+      FILE_EXTENSIONS = {
+        "application/pdf": [".pdf"]
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/useFileAttachments.js
+  function useFileAttachments(supportedFileTypes, tabId) {
+    const [attachedFiles, setAttachedFiles] = useStateWithLocalPersistence2(tabId);
+    const allowList = supportedFileTypes ?? [];
+    const allowListKey = allowList.join("|");
+    const [prevAllowListKey, setPrevAllowListKey] = d2(allowListKey);
+    if (prevAllowListKey !== allowListKey) {
+      setPrevAllowListKey(allowListKey);
+      setAttachedFiles((prev) => prev.filter((f4) => allowList.includes(f4.mimeType)));
+    }
+    const fileUploadDisabled = allowList.length === 0;
+    const fileLimitExceeded = attachedFiles.length > MAX_FILES;
+    const clearAttachedFiles = () => setAttachedFiles([]);
+    const processFiles = async (files) => {
+      if (files.length === 0) return;
+      const existingNames = new Set(attachedFiles.map((file) => file.fileName));
+      const validFiles = files.map((file) => ({ file, mimeType: resolveFileMimeType(file, allowList) })).filter(({ file, mimeType }) => mimeType !== null && !existingNames.has(file.name));
+      if (validFiles.length === 0) return;
+      const results = await Promise.allSettled(
+        validFiles.map(({ file, mimeType }) => readFileAsBase64(
+          file,
+          /** @type {string} */
+          mimeType
+        ))
+      );
+      const ok = (
+        /** @type {PromiseFulfilledResult<Omit<AttachedFile, 'addedAtRelative'>>[]} */
+        results.filter((r4) => r4.status === "fulfilled").map((r4) => r4.value)
+      );
+      if (ok.length > 0) {
+        const addedAtRelative = performance.now();
+        setAttachedFiles((prev) => [...prev, ...ok.map((file) => ({ ...file, addedAtRelative }))]);
+      }
+    };
+    const handleRemoveFile = (index2) => {
+      setAttachedFiles((prev) => prev.filter((_5, i5) => i5 !== index2));
+    };
+    const getFilesForSubmission = () => {
+      if (attachedFiles.length === 0) return void 0;
+      return attachedFiles.map(({ data: data2, fileName, mimeType }) => ({ data: data2, fileName, mimeType }));
+    };
+    return {
+      attachedFiles,
+      processFiles,
+      handleRemoveFile,
+      clearAttachedFiles,
+      fileUploadDisabled,
+      fileLimitExceeded,
+      getFilesForSubmission
+    };
+  }
+  async function readFileAsBase64(file, mimeType) {
+    const result = await readFileAsDataUrl(file, FILE_READ_TIMEOUT);
+    const commaIndex = result.indexOf(",");
+    if (commaIndex < 0) {
+      throw new Error("FileReader returned unexpected output");
+    }
+    return { data: result.slice(commaIndex + 1), fileName: file.name, mimeType };
+  }
+  var useStateWithLocalPersistence2, MAX_FILES;
+  var init_useFileAttachments = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/useFileAttachments.js"() {
+      "use strict";
+      init_hooks_module();
+      init_PersistentOmnibarValuesProvider();
+      init_fileChannels();
+      init_readFileAsDataUrl();
+      ({ useStateWithLocalPersistence: useStateWithLocalPersistence2 } = FileAttachments);
+      MAX_FILES = 3;
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.js
+  function ChipRemoveButton({ className, onRemove, label, stopPropagation, iconStyle }) {
     return /* @__PURE__ */ k(
-      "label",
+      "button",
       {
-        class: (0, import_classnames11.default)(ImageAttachment_default.toolButton, disabled && ImageAttachment_default.toolButtonDisabled),
-        "aria-label": ariaLabel,
-        "aria-disabled": disabled,
-        role: "button",
-        tabIndex: disabled ? -1 : 0,
+        type: "button",
+        tabIndex: 0,
+        class: className,
+        "aria-label": label,
         onClick: (e4) => {
-          e4.stopPropagation();
-          if (disabled) e4.preventDefault();
-        },
-        onKeyDown: (e4) => {
-          if (disabled) return;
-          if (e4.key === "Enter" || e4.key === " ") {
-            e4.preventDefault();
-            fileInputRef.current?.click();
-          }
+          if (stopPropagation) e4.stopPropagation();
+          onRemove();
         }
       },
-      /* @__PURE__ */ k(PaperclipIcon, null),
-      /* @__PURE__ */ k(
-        "input",
-        {
-          ref: fileInputRef,
-          type: "file",
-          accept: "image/jpeg,image/png,image/webp",
-          multiple: true,
-          "aria-hidden": "true",
-          disabled,
-          class: ImageAttachment_default.hiddenFileInput,
-          onChange
-        }
-      )
+      /* @__PURE__ */ k(CloseSmallIcon, { width: "10", height: "10", style: iconStyle })
     );
   }
-  var import_classnames11;
-  var init_ImageUploadButton = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageUploadButton.js"() {
+  var init_ChipRemoveButton = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.js"() {
+      "use strict";
+      init_preact_module();
+      init_Icons2();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabFavicon.js
+  function TabFavicon({ favicon, iconSize, className, fallbackClassName }) {
+    const [errored, setErrored] = d2(false);
+    if (!favicon || !favicon.src || errored) {
+      return /* @__PURE__ */ k("span", { class: fallbackClassName, "aria-hidden": "true" }, /* @__PURE__ */ k(GlobeIcon, { width: iconSize, height: iconSize }));
+    }
+    return /* @__PURE__ */ k("img", { class: className, src: favicon.src, alt: "", onError: () => setErrored(true), loading: "lazy" });
+  }
+  var init_TabFavicon = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabFavicon.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames11 = __toESM(require_classnames(), 1);
       init_Icons2();
-      init_ImageAttachment();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.module.css
+  var TabChips_default;
+  var init_TabChips = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.module.css"() {
+      TabChips_default = {
+        chip: "TabChips_chip",
+        faviconTile: "TabChips_faviconTile",
+        favicon: "TabChips_favicon",
+        faviconFallback: "TabChips_faviconFallback",
+        title: "TabChips_title",
+        remove: "TabChips_remove"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.js
+  function TabChip({ tab, onRemove, removeLabel }) {
+    return /* @__PURE__ */ k("div", { class: TabChips_default.chip, "data-attachment-kind": "tab" }, /* @__PURE__ */ k("span", { class: TabChips_default.faviconTile, "aria-hidden": "true" }, /* @__PURE__ */ k(TabFavicon, { favicon: tab.favicon, iconSize: 18, className: TabChips_default.favicon, fallbackClassName: TabChips_default.faviconFallback })), /* @__PURE__ */ k("span", { class: TabChips_default.title, title: tab.title }, tab.title), /* @__PURE__ */ k(ChipRemoveButton, { className: TabChips_default.remove, onRemove, label: removeLabel }));
+  }
+  var init_TabChips2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.js"() {
+      "use strict";
+      init_preact_module();
+      init_ChipRemoveButton();
+      init_TabFavicon();
+      init_TabChips();
     }
   });
 
@@ -11134,12 +11502,12 @@
         };
       }
     }
-    const tooltipClass = position2 === "above" ? (0, import_classnames12.default)(Tooltip_default.tooltip, Tooltip_default.tooltipAbove) : (0, import_classnames12.default)(Tooltip_default.tooltip, Tooltip_default.tooltipRight);
+    const tooltipClass = position2 === "above" ? (0, import_classnames11.default)(Tooltip_default.tooltip, Tooltip_default.tooltipAbove) : (0, import_classnames11.default)(Tooltip_default.tooltip, Tooltip_default.tooltipRight);
     return /* @__PURE__ */ k(
       "div",
       {
         ref: containerRef,
-        class: (0, import_classnames12.default)(Tooltip_default.container, className),
+        class: (0, import_classnames11.default)(Tooltip_default.container, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -11156,7 +11524,7 @@
       )
     );
   }
-  var import_classnames12, VIEWPORT_PADDING;
+  var import_classnames11, VIEWPORT_PADDING;
   var init_Tooltip2 = __esm({
     "pages/new-tab/app/omnibar/components/Tooltip.js"() {
       "use strict";
@@ -11164,66 +11532,175 @@
       init_hooks_module();
       init_compat_module();
       init_Tooltip();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
       VIEWPORT_PADDING = 8;
     }
   });
 
-  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachmentTool.js
-  function ImageAttachmentContent({ state, supportsImageUpload, onVisibleImagesChange, onImageWarningChange }) {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {Strings} */
-      {}
-    );
-    const { attachedImages, handleRemoveImage, imageLimitExceeded, imageError, clearImageError } = state;
-    const hasVisibleImages = !!(supportsImageUpload && attachedImages.length > 0);
-    const showImageWarning = !!(supportsImageUpload && imageLimitExceeded);
-    const prevVisibleRef = A2(hasVisibleImages);
-    const prevWarningRef = A2(showImageWarning);
-    _2(() => {
-      if (prevVisibleRef.current !== hasVisibleImages) {
-        prevVisibleRef.current = hasVisibleImages;
-        onVisibleImagesChange(hasVisibleImages);
-      }
-    }, [hasVisibleImages]);
-    _2(() => {
-      if (prevWarningRef.current !== showImageWarning) {
-        prevWarningRef.current = showImageWarning;
-        onImageWarningChange(showImageWarning);
-      }
-    }, [showImageWarning]);
-    if (!supportsImageUpload) return null;
-    const imageLimitWarning = t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) });
-    const imageErrorMessage = getImageErrorMessage(imageError, {
-      imageTooLarge: t4("omnibar_imageTooLargeError"),
-      processingFailed: t4("omnibar_imageProcessingError")
-    });
-    return /* @__PURE__ */ k(S, null, imageLimitExceeded && /* @__PURE__ */ k("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageLimitWarning), imageErrorMessage && /* @__PURE__ */ k("p", { class: ImageAttachment_default.imageWarning, role: "alert" }, imageErrorMessage, /* @__PURE__ */ k("button", { class: ImageAttachment_default.dismissError, type: "button", onClick: clearImageError, "aria-label": "Dismiss" }, "\xD7")), /* @__PURE__ */ k(ImagePreviewArea, { images: attachedImages, onRemove: handleRemoveImage, removeLabel: t4("omnibar_removeImageLabel") }));
-  }
-  function ImageUploadButton2({ state }) {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {Strings} */
-      {}
-    );
-    const { imageUploadDisabled, handleFileChange } = state;
-    const imageLimitWarning = t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) });
-    const uploadButton = /* @__PURE__ */ k(ImageUploadButton, { disabled: imageUploadDisabled, onChange: handleFileChange, ariaLabel: t4("omnibar_attachImageLabel") });
-    if (imageUploadDisabled) {
-      return /* @__PURE__ */ k(Tooltip, { content: imageLimitWarning, position: "above" }, uploadButton);
+  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.module.css
+  var PdfFileChip_default;
+  var init_PdfFileChip = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.module.css"() {
+      PdfFileChip_default = {
+        chipWrapper: "PdfFileChip_chipWrapper",
+        card: "PdfFileChip_card",
+        lines: "PdfFileChip_lines",
+        line: "PdfFileChip_line",
+        format: "PdfFileChip_format",
+        remove: "PdfFileChip_remove"
+      };
     }
-    return uploadButton;
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.js
+  function PdfFileChip({ file, onRemove, removeLabel }) {
+    return /* @__PURE__ */ k(Tooltip, { content: file.fileName, position: "above" }, /* @__PURE__ */ k("div", { class: PdfFileChip_default.chipWrapper, "data-attachment-kind": "file" }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.card, "aria-hidden": "true" }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.lines }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.line }), /* @__PURE__ */ k("span", { class: PdfFileChip_default.line })), /* @__PURE__ */ k("span", { class: PdfFileChip_default.format }, "PDF")), /* @__PURE__ */ k(ChipRemoveButton, { className: PdfFileChip_default.remove, onRemove, label: removeLabel })));
   }
-  var init_ImageAttachmentTool = __esm({
-    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachmentTool.js"() {
+  var init_PdfFileChip2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.js"() {
       "use strict";
       init_preact_module();
-      init_hooks_module();
-      init_types();
-      init_useImageAttachments();
-      init_ImagePreviewArea();
-      init_ImageUploadButton();
+      init_ChipRemoveButton();
       init_Tooltip2();
+      init_PdfFileChip();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/FileChip.js
+  function FileChip({ file, onRemove, removeLabel }) {
+    switch (file.mimeType) {
+      case "application/pdf":
+        return /* @__PURE__ */ k(PdfFileChip, { file, onRemove, removeLabel });
+      default:
+        return null;
+    }
+  }
+  var init_FileChip = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/FileChip.js"() {
+      "use strict";
+      init_preact_module();
+      init_PdfFileChip2();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageChip.js
+  function ImageChip({ image, onRemove, removeLabel }) {
+    return /* @__PURE__ */ k("div", { class: ImageAttachment_default.thumbnailWrapper, "data-attachment-kind": "image" }, /* @__PURE__ */ k("img", { src: image.dataUrl, alt: "", class: ImageAttachment_default.thumbnail }), /* @__PURE__ */ k(
+      ChipRemoveButton,
+      {
+        className: ImageAttachment_default.thumbnailRemove,
+        onRemove,
+        label: removeLabel,
+        stopPropagation: true,
+        iconStyle: "stroke: currentColor; stroke-width: 1px;"
+      }
+    ));
+  }
+  var init_ImageChip = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageChip.js"() {
+      "use strict";
+      init_preact_module();
+      init_ChipRemoveButton();
       init_ImageAttachment();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChips.module.css
+  var AttachmentChips_default;
+  var init_AttachmentChips = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChips.module.css"() {
+      AttachmentChips_default = {
+        chipsArea: "AttachmentChips_chipsArea"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChips.js
+  function AttachmentChips({ tabs, files, images, onRemoveTab, onRemoveFile, onRemoveImage }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const items = [
+      ...tabs.map((tab) => (
+        /** @type {TabItem} */
+        { kind: "tab", key: `tab-${tab.tabId}`, tab, addedAtRelative: tab.addedAtRelative }
+      )),
+      ...files.map(
+        (file, originalIndex) => (
+          /** @type {FileItem} */
+          {
+            kind: "file",
+            key: `file-${file.fileName}-${originalIndex}`,
+            file,
+            originalIndex,
+            addedAtRelative: file.addedAtRelative
+          }
+        )
+      ),
+      ...images.map(
+        (image, originalIndex) => (
+          /** @type {ImageItem} */
+          {
+            kind: "image",
+            key: `image-${image.fileName}-${originalIndex}`,
+            image,
+            originalIndex,
+            addedAtRelative: image.addedAtRelative
+          }
+        )
+      )
+    ].sort((a4, b4) => a4.addedAtRelative - b4.addedAtRelative);
+    if (items.length === 0) return null;
+    return /* @__PURE__ */ k("div", { class: AttachmentChips_default.chipsArea, "data-testid": "omnibar-attachment-chips" }, items.map((item) => {
+      switch (item.kind) {
+        case "tab":
+          return /* @__PURE__ */ k(
+            TabChip,
+            {
+              key: item.key,
+              tab: item.tab,
+              onRemove: () => onRemoveTab(item.tab.tabId),
+              removeLabel: t4("omnibar_removeAttachedTabLabel", { title: item.tab.title })
+            }
+          );
+        case "file":
+          return /* @__PURE__ */ k(
+            FileChip,
+            {
+              key: item.key,
+              file: item.file,
+              onRemove: () => onRemoveFile(item.originalIndex),
+              removeLabel: t4("omnibar_removeAttachedFileLabel", { fileName: item.file.fileName })
+            }
+          );
+        case "image":
+          return /* @__PURE__ */ k(
+            ImageChip,
+            {
+              key: item.key,
+              image: item.image,
+              onRemove: () => onRemoveImage(item.originalIndex),
+              removeLabel: t4("omnibar_removeImageLabel")
+            }
+          );
+        default: {
+          const _exhaustiveCheck = item;
+          console.error(`Unknown attachment item kind: ${_exhaustiveCheck}`);
+          return null;
+        }
+      }
+    }));
+  }
+  var init_AttachmentChips2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChips.js"() {
+      "use strict";
+      init_preact_module();
+      init_types();
+      init_TabChips2();
+      init_FileChip();
+      init_ImageChip();
+      init_AttachmentChips();
     }
   });
 
@@ -11429,11 +11906,12 @@
     )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "aiModelOSS_a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function getModelIcon(modelId) {
-    if (modelId.startsWith("meta-llama/") || modelId.startsWith("meta-llama_")) return LlamaIcon;
-    if (modelId.startsWith("mistralai/") || modelId.startsWith("mistralai_")) return MistralIcon;
-    if (modelId.includes("gpt-oss")) return OSSIcon;
-    if (modelId.startsWith("claude")) return ClaudeIcon;
-    if (modelId.startsWith("gpt") || modelId.startsWith("openai")) return OpenAIIcon;
+    const normalizedModelId = modelId.toLowerCase();
+    if (normalizedModelId.startsWith("meta-llama")) return LlamaIcon;
+    if (normalizedModelId.startsWith("mistral")) return MistralIcon;
+    if (normalizedModelId.includes("gpt-oss")) return OSSIcon;
+    if (normalizedModelId.startsWith("claude")) return ClaudeIcon;
+    if (normalizedModelId.startsWith("gpt") || normalizedModelId.startsWith("openai")) return OpenAIIcon;
     return null;
   }
   var init_Icons3 = __esm({
@@ -11542,7 +12020,7 @@
             role: "option",
             "aria-selected": model.isEnabled ? model.id === selectedModelId : void 0,
             "aria-disabled": !model.isEnabled || void 0,
-            class: (0, import_classnames13.default)(
+            class: (0, import_classnames12.default)(
               ModelSelector_default.modelOption,
               model.isEnabled && activeIndex === optionIndex && ModelSelector_default.modelOptionActive,
               !model.isEnabled && ModelSelector_default.modelOptionDisabled,
@@ -11560,13 +12038,13 @@
       })))
     );
   }
-  var import_classnames13;
+  var import_classnames12;
   var init_ModelDropdown = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelDropdown.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_ModelSelector();
       init_Icons3();
     }
@@ -11585,7 +12063,7 @@
         ref: modelButtonRef,
         type: "button",
         tabIndex: 0,
-        class: (0, import_classnames14.default)(ModelSelector_default.modelButton, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
+        class: (0, import_classnames13.default)(ModelSelector_default.modelButton, modelDropdownOpen && ModelSelector_default.modelButtonOpen),
         "aria-label": ariaLabel,
         "aria-haspopup": "listbox",
         "aria-expanded": modelDropdownOpen,
@@ -11609,12 +12087,12 @@
       }
     ));
   }
-  var import_classnames14;
+  var import_classnames13;
   var init_ModelSelector2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/model-selector/ModelSelector.js"() {
       "use strict";
       init_preact_module();
-      import_classnames14 = __toESM(require_classnames(), 1);
+      import_classnames13 = __toESM(require_classnames(), 1);
       init_Icons2();
       init_ModelDropdown();
       init_ModelSelector();
@@ -11711,7 +12189,10 @@
     "pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.module.css"() {
       Dropdown_default = {
         dropdown: "Dropdown_dropdown",
+        header: "Dropdown_header",
+        empty: "Dropdown_empty",
         item: "Dropdown_item",
+        trailingIcon: "Dropdown_trailingIcon",
         itemActive: "Dropdown_itemActive",
         itemDescription: "Dropdown_itemDescription",
         checkmark: "Dropdown_checkmark",
@@ -11730,10 +12211,23 @@
       child.props
     );
   }
-  function Dropdown({ children, ariaLabel, role, position: position2, onClose, dropdownRef, idPrefix: idPrefix2 = "dropdown-item" }) {
+  function Dropdown({
+    children,
+    header,
+    emptyMessage,
+    ariaLabel,
+    role,
+    position: position2,
+    onClose,
+    dropdownRef,
+    idPrefix: idPrefix2 = "dropdown-item",
+    className,
+    multiSelect = false
+  }) {
     const items = F(children);
     const getInitialActiveIndex = () => {
       if (items.length === 0) return -1;
+      if (multiSelect) return -1;
       const selected = items.findIndex((c4) => getItemProps(c4)?.isSelected);
       return selected >= 0 ? selected : 0;
     };
@@ -11776,8 +12270,11 @@
         case "Enter":
         case " ":
           e4.preventDefault();
-          if (activeIndex >= 0 && activeIndex < items.length) {
-            selectAt(activeIndex);
+          if (activeIndex < 0 || activeIndex >= items.length) {
+            break;
+          }
+          selectAt(activeIndex);
+          if (!getItemProps(items[activeIndex])?.ariaHasPopup) {
             onClose({ restoreFocus: true });
           }
           break;
@@ -11802,7 +12299,9 @@
           onClick: (e4) => {
             e4.stopPropagation();
             selectAt(index2);
-            onClose({ restoreFocus: false });
+            if (!getItemProps(child)?.ariaHasPopup) {
+              onClose({ restoreFocus: false });
+            }
           }
         }
       );
@@ -11811,7 +12310,7 @@
       "ul",
       {
         ref: dropdownRef,
-        class: Dropdown_default.dropdown,
+        class: (0, import_classnames14.default)(Dropdown_default.dropdown, className),
         tabIndex: -1,
         role,
         "aria-label": ariaLabel,
@@ -11820,14 +12319,17 @@
         onKeyDown: handleKeyDown,
         onMouseLeave: clearActiveIndex
       },
-      clonedItems
+      header && /* @__PURE__ */ k("li", { role: "presentation", class: Dropdown_default.header }, header),
+      items.length === 0 && emptyMessage ? /* @__PURE__ */ k("li", { role: "presentation", class: Dropdown_default.empty }, emptyMessage) : clonedItems
     );
   }
+  var import_classnames14;
   var init_Dropdown2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
+      import_classnames14 = __toESM(require_classnames(), 1);
       init_Dropdown();
     }
   });
@@ -11835,31 +12337,41 @@
   // pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownItem.js
   function DropdownItem({
     icon,
+    trailingIcon,
     name: name2,
     description,
     isSelected = false,
     role,
     ariaChecked,
     ariaSelected,
+    ariaHasPopup,
+    ariaExpanded,
     isActive = false,
     id,
+    elementRef,
     onMouseOver,
+    onHover,
     onClick
   }) {
     return /* @__PURE__ */ k(
       "li",
       {
+        ref: elementRef,
         id,
         role,
         "aria-checked": ariaChecked,
         "aria-selected": ariaSelected,
+        "aria-haspopup": ariaHasPopup,
+        "aria-expanded": ariaExpanded,
         class: (0, import_classnames15.default)(Dropdown_default.item, isActive && Dropdown_default.itemActive, isSelected && Dropdown_default.itemSelected),
         onMouseOver,
+        onMouseEnter: onHover,
         onClick
       },
       /* @__PURE__ */ k("span", { class: Dropdown_default.checkmark, "aria-hidden": "true" }),
       icon,
-      /* @__PURE__ */ k("div", { class: Dropdown_default.itemLabel }, /* @__PURE__ */ k("span", { class: Dropdown_default.itemName }, name2), description && /* @__PURE__ */ k("span", { class: Dropdown_default.itemDescription }, description))
+      /* @__PURE__ */ k("div", { class: Dropdown_default.itemLabel }, /* @__PURE__ */ k("span", { class: Dropdown_default.itemName }, name2), description && /* @__PURE__ */ k("span", { class: Dropdown_default.itemDescription }, description)),
+      trailingIcon && /* @__PURE__ */ k("span", { class: Dropdown_default.trailingIcon, "aria-hidden": "true" }, trailingIcon)
     );
   }
   var import_classnames15;
@@ -12198,6 +12710,672 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/OpenTabsProvider.js
+  function OpenTabsProvider({ tabId, enabled, children }) {
+    const { getOpenTabs } = x2(OmnibarContext);
+    const [openTabs, setOpenTabs] = useStateWithLocalPersistence3(tabId);
+    const refetchTabs = q2(async () => {
+      try {
+        const response = await getOpenTabs();
+        setOpenTabs(response.tabs ?? []);
+      } catch (err) {
+        console.error("omnibar_getOpenTabs failed", err);
+      }
+    }, [getOpenTabs, setOpenTabs]);
+    y2(() => {
+      if (!enabled) return;
+      refetchTabs();
+      const handler = () => {
+        if (document.visibilityState === "visible") {
+          refetchTabs();
+        }
+      };
+      document.addEventListener("visibilitychange", handler);
+      return () => document.removeEventListener("visibilitychange", handler);
+    }, [enabled, refetchTabs]);
+    const value2 = T2(() => ({ openTabs, refetchTabs }), [openTabs, refetchTabs]);
+    return /* @__PURE__ */ k(OpenTabsContext.Provider, { value: value2 }, children);
+  }
+  var useStateWithLocalPersistence3, OpenTabsContext;
+  var init_OpenTabsProvider = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/OpenTabsProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_OmnibarProvider();
+      init_PersistentOmnibarValuesProvider();
+      ({ useStateWithLocalPersistence: useStateWithLocalPersistence3 } = OpenTabsList);
+      OpenTabsContext = X(
+        /** @type {OpenTabsValue} */
+        { openTabs: [], refetchTabs: async () => {
+        } }
+      );
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.module.css
+  var AttachMenu_default;
+  var init_AttachMenu = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.module.css"() {
+      AttachMenu_default = {
+        attachMenu: "AttachMenu_attachMenu",
+        tabPicker: "AttachMenu_tabPicker",
+        submenuChevron: "AttachMenu_submenuChevron",
+        favicon: "AttachMenu_favicon",
+        faviconFallback: "AttachMenu_faviconFallback"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabPicker.js
+  function TabPicker({ position: position2, dropdownRef, onSelect, isAttached, onClose }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { openTabs, refetchTabs } = x2(OpenTabsContext);
+    y2(() => {
+      refetchTabs();
+    }, [refetchTabs]);
+    return /* @__PURE__ */ k(
+      Dropdown,
+      {
+        dropdownRef,
+        role: "menu",
+        ariaLabel: t4("omnibar_attachTabsPickerTitle"),
+        header: openTabs.length > 0 ? t4("omnibar_attachTabsPickerTitle") : void 0,
+        emptyMessage: t4("omnibar_attachTabsNoOpenTabs"),
+        position: position2,
+        onClose,
+        idPrefix: "tab-picker-item",
+        className: AttachMenu_default.tabPicker,
+        multiSelect: true
+      },
+      openTabs.map((tab) => {
+        const attached = isAttached(tab.tabId);
+        return /* @__PURE__ */ k(
+          DropdownItem,
+          {
+            key: tab.tabId,
+            role: "menuitemcheckbox",
+            ariaChecked: attached,
+            isSelected: attached,
+            icon: /* @__PURE__ */ k(
+              TabFavicon,
+              {
+                favicon: tab.favicon,
+                iconSize: 12,
+                className: AttachMenu_default.favicon,
+                fallbackClassName: AttachMenu_default.faviconFallback
+              }
+            ),
+            name: tab.title,
+            onSelect: () => onSelect(tab)
+          }
+        );
+      })
+    );
+  }
+  var init_TabPicker = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabPicker.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_Dropdown2();
+      init_DropdownItem();
+      init_OpenTabsProvider();
+      init_TabFavicon();
+      init_AttachMenu();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.js
+  function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const attachEnabled = image !== null || file !== null;
+    if (!attachEnabled && !tabsEnabled) return null;
+    const fileInput = resolveFileInput({ t: t4, image, file });
+    if (attachEnabled && !tabsEnabled) {
+      const button = /* @__PURE__ */ k(
+        DirectFileButton,
+        {
+          ariaLabel: fileInput.label,
+          accept: fileInput.accept,
+          disabled: fileInput.disabled,
+          onChange: fileInput.onChange
+        }
+      );
+      if (image && !file && fileInput.disabled) {
+        return /* @__PURE__ */ k(Tooltip, { content: t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) }), position: "above" }, button);
+      }
+      return button;
+    }
+    return /* @__PURE__ */ k(DropdownMenu, { attachEnabled, fileInput, onToggleTab, isAttached });
+  }
+  function DirectFileButton({ ariaLabel, accept, disabled, onChange }) {
+    const fileInputRef = A2(
+      /** @type {HTMLInputElement|null} */
+      null
+    );
+    return /* @__PURE__ */ k(
+      "label",
+      {
+        class: (0, import_classnames17.default)(ImageAttachment_default.toolButton, { [ImageAttachment_default.toolButtonDisabled]: disabled }),
+        "aria-label": ariaLabel,
+        "aria-disabled": disabled,
+        role: "button",
+        tabIndex: disabled ? -1 : 0,
+        onClick: (e4) => {
+          e4.stopPropagation();
+          if (disabled) e4.preventDefault();
+        },
+        onKeyDown: (e4) => {
+          if (disabled) return;
+          if (e4.key === "Enter" || e4.key === " ") {
+            e4.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }
+      },
+      /* @__PURE__ */ k(PaperclipIcon, null),
+      /* @__PURE__ */ k(
+        "input",
+        {
+          ref: fileInputRef,
+          type: "file",
+          accept,
+          multiple: true,
+          "aria-hidden": "true",
+          tabIndex: -1,
+          disabled,
+          class: ImageAttachment_default.hiddenFileInput,
+          onChange
+        }
+      )
+    );
+  }
+  function DropdownMenu({ attachEnabled, fileInput, onToggleTab, isAttached }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { isOpen, buttonRef, dropdownRef, dropdownPos, toggle, close } = useDropdown({ align: "left" });
+    const fileInputRef = A2(
+      /** @type {HTMLInputElement|null} */
+      null
+    );
+    const triggerFileInput = () => {
+      if (fileInput.disabled) return;
+      window.setTimeout(() => fileInputRef.current?.click(), 0);
+    };
+    const handleClose = ({ restoreFocus }) => {
+      close();
+      if (restoreFocus) buttonRef.current?.focus();
+    };
+    return /* @__PURE__ */ k("div", { class: AttachMenu_default.attachMenu }, /* @__PURE__ */ k(
+      "button",
+      {
+        ref: buttonRef,
+        type: "button",
+        tabIndex: 0,
+        class: ImageAttachment_default.toolButton,
+        "aria-label": t4("omnibar_attachMenuLabel"),
+        "aria-haspopup": "menu",
+        "aria-expanded": isOpen,
+        onClick: (e4) => {
+          e4.stopPropagation();
+          toggle();
+        }
+      },
+      /* @__PURE__ */ k(PaperclipIcon, null)
+    ), attachEnabled && /* @__PURE__ */ k(
+      "input",
+      {
+        ref: fileInputRef,
+        type: "file",
+        accept: fileInput.accept,
+        multiple: true,
+        "aria-hidden": "true",
+        tabIndex: -1,
+        disabled: fileInput.disabled,
+        class: ImageAttachment_default.hiddenFileInput,
+        onChange: fileInput.onChange
+      }
+    ), isOpen && dropdownPos && /* @__PURE__ */ k(
+      OpenDropdownBody,
+      {
+        attachEnabled,
+        fileLabel: fileInput.label,
+        dropdownPos,
+        dropdownRef,
+        onClose: handleClose,
+        onTriggerFileInput: triggerFileInput,
+        isAttached,
+        onToggleTab: (tab) => {
+          onToggleTab(tab);
+          close();
+        }
+      }
+    ));
+  }
+  function OpenDropdownBody({ attachEnabled, fileLabel, dropdownPos, dropdownRef, onClose, onTriggerFileInput, onToggleTab, isAttached }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const submenuRef = A2(
+      /** @type {HTMLUListElement|null} */
+      null
+    );
+    const triggerRef = A2(
+      /** @type {HTMLLIElement|null} */
+      null
+    );
+    const [submenuOpen, setSubmenuOpen] = d2(false);
+    const getSubmenuPos = () => {
+      if (!submenuOpen || dropdownPos.left === void 0 || !dropdownRef.current) return null;
+      const triggerOffsetTop = triggerRef.current?.offsetTop ?? 0;
+      return {
+        left: dropdownPos.left + dropdownRef.current.offsetWidth + 4,
+        top: dropdownPos.top + triggerOffsetTop
+      };
+    };
+    const submenuPos = getSubmenuPos();
+    return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
+      Dropdown,
+      {
+        dropdownRef,
+        role: "menu",
+        ariaLabel: t4("omnibar_attachMenuLabel"),
+        position: dropdownPos,
+        onClose,
+        idPrefix: "attach-menu-item"
+      },
+      attachEnabled && /* @__PURE__ */ k(
+        DropdownItem,
+        {
+          role: "menuitem",
+          icon: /* @__PURE__ */ k(FolderIcon, null),
+          name: fileLabel,
+          onSelect: onTriggerFileInput,
+          onHover: () => setSubmenuOpen(false)
+        }
+      ),
+      /* @__PURE__ */ k(
+        DropdownItem,
+        {
+          role: "menuitem",
+          elementRef: triggerRef,
+          ariaHasPopup: true,
+          ariaExpanded: submenuOpen,
+          icon: /* @__PURE__ */ k(PageContentIcon, null),
+          name: t4("omnibar_attachPageContentLabel"),
+          trailingIcon: /* @__PURE__ */ k("span", { class: AttachMenu_default.submenuChevron }, /* @__PURE__ */ k(ChevronSmall, null)),
+          onSelect: () => setSubmenuOpen(true),
+          onHover: () => setSubmenuOpen(true)
+        }
+      )
+    ), submenuPos && /* @__PURE__ */ k(
+      TabPicker,
+      {
+        position: submenuPos,
+        dropdownRef: submenuRef,
+        onSelect: onToggleTab,
+        isAttached,
+        onClose
+      }
+    ));
+  }
+  var import_classnames17;
+  var init_AttachMenu2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      import_classnames17 = __toESM(require_classnames(), 1);
+      init_types();
+      init_Icons2();
+      init_useDropdown();
+      init_Dropdown2();
+      init_DropdownItem();
+      init_fileChannels();
+      init_TabPicker();
+      init_Tooltip2();
+      init_useImageAttachments();
+      init_ImageAttachment();
+      init_AttachMenu();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/MentionPicker.module.css
+  var MentionPicker_default;
+  var init_MentionPicker = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/MentionPicker.module.css"() {
+      MentionPicker_default = {
+        panel: "MentionPicker_panel",
+        header: "MentionPicker_header",
+        headerTitle: "MentionPicker_headerTitle",
+        list: "MentionPicker_list",
+        empty: "MentionPicker_empty",
+        row: "MentionPicker_row",
+        rowActive: "MentionPicker_rowActive",
+        check: "MentionPicker_check",
+        rowSelected: "MentionPicker_rowSelected",
+        favicon: "MentionPicker_favicon",
+        faviconFallback: "MentionPicker_faviconFallback",
+        rowTitle: "MentionPicker_rowTitle"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/MentionPicker.js
+  function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSelect, isAttached, listboxId }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    return /* @__PURE__ */ k("div", { class: MentionPicker_default.panel, role: "dialog", "aria-label": t4("omnibar_attachTabsPickerLabel") }, filtered.length === 0 ? /* @__PURE__ */ k("div", { class: MentionPicker_default.empty }, t4("omnibar_attachTabsNoMatches")) : /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: MentionPicker_default.header }, /* @__PURE__ */ k("span", { class: MentionPicker_default.headerTitle }, t4("omnibar_attachTabsPickerTitle"))), /* @__PURE__ */ k("ul", { class: MentionPicker_default.list, role: "listbox", id: listboxId, "aria-label": t4("omnibar_attachTabsPickerTitle") }, filtered.map((tab, index2) => {
+      const isActive = index2 === activeIndex;
+      const attached = isAttached(tab.tabId);
+      return /* @__PURE__ */ k(
+        "li",
+        {
+          id: `${listboxId}-${tab.tabId}`,
+          key: tab.tabId,
+          role: "option",
+          "aria-selected": attached,
+          class: (0, import_classnames18.default)(MentionPicker_default.row, isActive && MentionPicker_default.rowActive, attached && MentionPicker_default.rowSelected),
+          onMouseDown: (e4) => {
+            e4.preventDefault();
+          },
+          onMouseEnter: () => onActiveIndexChange(index2),
+          onClick: (e4) => {
+            e4.stopPropagation();
+            onSelect(tab);
+          }
+        },
+        /* @__PURE__ */ k("span", { class: MentionPicker_default.check, "aria-hidden": "true" }),
+        /* @__PURE__ */ k(
+          TabFavicon,
+          {
+            favicon: tab.favicon,
+            iconSize: 14,
+            className: MentionPicker_default.favicon,
+            fallbackClassName: MentionPicker_default.faviconFallback
+          }
+        ),
+        /* @__PURE__ */ k("span", { class: MentionPicker_default.rowTitle }, tab.title)
+      );
+    }))));
+  }
+  var import_classnames18;
+  var init_MentionPicker2 = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/MentionPicker.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames18 = __toESM(require_classnames(), 1);
+      init_types();
+      init_TabFavicon();
+      init_MentionPicker();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/tabFilter.js
+  function filterTabs(tabs, query) {
+    const trimmed = query.trim().toLowerCase();
+    if (!trimmed) return tabs;
+    return tabs.filter((t4) => t4.title.toLowerCase().includes(trimmed) || t4.url.toLowerCase().includes(trimmed));
+  }
+  var init_tabFilter = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/tabFilter.js"() {
+      "use strict";
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/useMentionPicker.js
+  function useMentionPicker({ enabled, query, onChange, hideChats, onToggleTab, isAttached, textareaRef, anchorRef }) {
+    const [anchor, setAnchor] = d2(
+      /** @type {number | null} */
+      null
+    );
+    const [mentionQuery, setMentionQuery] = d2("");
+    const pickerActive = enabled && anchor !== null;
+    const { openTabs, refetchTabs } = x2(OpenTabsContext);
+    y2(() => {
+      if (pickerActive) refetchTabs();
+    }, [pickerActive, refetchTabs]);
+    const filtered = T2(() => filterTabs(openTabs, mentionQuery), [openTabs, mentionQuery]);
+    const [activeIndex, setActiveIndex] = d2(0);
+    const [anchorTop, setAnchorTop] = d2(0);
+    const [prevFilteredLength, setPrevFilteredLength] = d2(filtered.length);
+    if (prevFilteredLength !== filtered.length) {
+      setPrevFilteredLength(filtered.length);
+      setActiveIndex(filtered.length > 0 ? 0 : -1);
+    }
+    const closePicker = q2(() => {
+      setAnchor(null);
+      setMentionQuery("");
+    }, []);
+    const handleTextChange = q2(
+      /** @param {string} value @param {number} [caret] */
+      (value2, caret) => {
+        if (!enabled) return;
+        const cursor = caret ?? value2.length;
+        if (anchor !== null) {
+          if (cursor <= anchor || value2[anchor] !== "@") {
+            closePicker();
+            return;
+          }
+          const next = value2.slice(anchor + 1, cursor);
+          if (/\s/.test(next)) {
+            closePicker();
+            return;
+          }
+          setMentionQuery(next);
+          return;
+        }
+        if (cursor < 1 || value2[cursor - 1] !== "@") return;
+        const prev = cursor >= 2 ? value2[cursor - 2] : "";
+        if (prev !== "" && !/\s/.test(prev)) return;
+        setAnchor(cursor - 1);
+        setMentionQuery("");
+        setActiveIndex(0);
+        hideChats();
+      },
+      [enabled, anchor, hideChats, closePicker]
+    );
+    const handleTabSelect = q2(
+      /** @param {TabMetadata} tab */
+      (tab) => {
+        if (anchor !== null) {
+          const before = query.slice(0, anchor);
+          const after = query.slice(anchor + 1 + mentionQuery.length);
+          onChange(before + after);
+          const caret = before.length;
+          queueMicrotask(() => {
+            textareaRef.current?.focus();
+            textareaRef.current?.setSelectionRange(caret, caret);
+          });
+        }
+        onToggleTab(tab);
+        closePicker();
+      },
+      [anchor, mentionQuery, query, onChange, onToggleTab, closePicker, textareaRef]
+    );
+    _2(() => {
+      if (!pickerActive) return;
+      const textarea = textareaRef.current;
+      const anchorEl = anchorRef.current;
+      if (!textarea || !anchorEl) return;
+      const update = () => {
+        const taRect = textarea.getBoundingClientRect();
+        const anchorRect = anchorEl.getBoundingClientRect();
+        setAnchorTop(taRect.bottom - anchorRect.top);
+      };
+      update();
+      const observer = new ResizeObserver(update);
+      observer.observe(textarea);
+      observer.observe(anchorEl);
+      return () => observer.disconnect();
+    }, [pickerActive, anchorRef, textareaRef]);
+    const handleTextareaKeyDown = (event) => {
+      if (!pickerActive) return { handled: false };
+      switch (event.key) {
+        case "ArrowUp":
+          event.preventDefault();
+          setActiveIndex((i5) => clampBackward(i5, filtered.length));
+          return { handled: true };
+        case "ArrowDown":
+          event.preventDefault();
+          setActiveIndex((i5) => clampForward(i5, filtered.length));
+          return { handled: true };
+        case "Enter": {
+          if (event.shiftKey) return { handled: false };
+          event.preventDefault();
+          const tab = filtered[activeIndex];
+          if (tab) handleTabSelect(tab);
+          return { handled: true };
+        }
+        case "Escape":
+          event.preventDefault();
+          closePicker();
+          return { handled: true };
+        default:
+          return { handled: false };
+      }
+    };
+    const activeDescendant = activeIndex >= 0 && activeIndex < filtered.length ? rowId(LISTBOX_ID, filtered[activeIndex].tabId) : null;
+    const combobox = pickerActive ? { listboxId: LISTBOX_ID, activeDescendantId: activeDescendant } : null;
+    const pickerProps = pickerActive ? {
+      filtered,
+      activeIndex,
+      onActiveIndexChange: setActiveIndex,
+      onSelect: handleTabSelect,
+      isAttached,
+      listboxId: LISTBOX_ID
+    } : null;
+    return {
+      pickerActive,
+      handleTextareaKeyDown,
+      combobox,
+      pickerProps,
+      handleTextChange,
+      wrapperStyle: { top: `${anchorTop}px` }
+    };
+  }
+  function rowId(listboxId, tabId) {
+    return `${listboxId}-${tabId}`;
+  }
+  function clampForward(idx, len) {
+    if (len === 0) return -1;
+    const next = idx + 1;
+    return next >= len ? 0 : next;
+  }
+  function clampBackward(idx, len) {
+    if (len === 0) return -1;
+    const prev = idx - 1;
+    return prev < 0 ? len - 1 : prev;
+  }
+  var LISTBOX_ID;
+  var init_useMentionPicker = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/useMentionPicker.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OpenTabsProvider();
+      init_tabFilter();
+      LISTBOX_ID = "omnibar-mention-picker";
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/useTabAttachments.js
+  function useTabAttachments(tabId) {
+    const { getTabContent } = x2(OmnibarContext);
+    const { openTabs } = x2(OpenTabsContext);
+    const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence4(tabId);
+    const attachedTabs = T2(() => {
+      return attachedEntries.flatMap((entry) => {
+        const tab = openTabs.find((t4) => t4.tabId === entry.tabId);
+        return tab ? [
+          /** @type {AttachedTab} */
+          { ...tab, addedAtRelative: entry.addedAtRelative }
+        ] : [];
+      });
+    }, [attachedEntries, openTabs]);
+    const isAttached = q2(
+      /** @param {string} tabId */
+      (tabId2) => attachedEntries.some((entry) => entry.tabId === tabId2),
+      [attachedEntries]
+    );
+    const removeTab = q2(
+      /** @param {string} tabId */
+      (tabId2) => {
+        setAttachedEntries((prev) => prev.filter((entry) => entry.tabId !== tabId2));
+      },
+      [setAttachedEntries]
+    );
+    const toggleTab = q2(
+      /** @param {TabMetadata} tab */
+      (tab) => {
+        setAttachedEntries(
+          (prev) => prev.some((entry) => entry.tabId === tab.tabId) ? prev.filter((entry) => entry.tabId !== tab.tabId) : [...prev, { tabId: tab.tabId, addedAtRelative: performance.now() }]
+        );
+      },
+      [setAttachedEntries]
+    );
+    const clearAttachedTabs = q2(() => {
+      setAttachedEntries([]);
+    }, [setAttachedEntries]);
+    const getTabsForSubmission = q2(async () => {
+      if (attachedEntries.length === 0) return null;
+      const results = await Promise.all(
+        attachedEntries.map(async ({ tabId: id }) => {
+          try {
+            const pageContext = await getTabContent(id);
+            return pageContext === null ? null : (
+              /** @type {PageContext} */
+              { ...pageContext, tabId: id }
+            );
+          } catch (err) {
+            console.error("omnibar_getTabContent failed", err);
+            return null;
+          }
+        })
+      );
+      const ready = (
+        /** @type {PageContext[]} */
+        results.filter((ctx) => ctx !== null)
+      );
+      return ready.length > 0 ? ready : null;
+    }, [attachedEntries, getTabContent]);
+    const state = T2(
+      () => ({
+        attachedTabs,
+        isAttached,
+        removeTab,
+        toggleTab,
+        clearAttachedTabs,
+        getTabsForSubmission
+      }),
+      [attachedTabs, isAttached, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission]
+    );
+    return state;
+  }
+  var useStateWithLocalPersistence4;
+  var init_useTabAttachments = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/useTabAttachments.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+      init_PersistentOmnibarValuesProvider();
+      init_OpenTabsProvider();
+      ({ useStateWithLocalPersistence: useStateWithLocalPersistence4 } = TabAttachments);
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/Omnibar.js
   function Omnibar({
     mode,
@@ -12208,6 +13386,7 @@
     showCustomizePopover,
     enableVoiceChatAccess = false,
     enableAskAiSuggestion = true,
+    enableAttachTabs = false,
     tabId
   }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -12284,20 +13463,31 @@
           onSubmit: handleSubmitSearch,
           onSubmitChat: handleSubmitChat
         }
-      )), /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ k(
+      )), /* @__PURE__ */ k(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })) : /* @__PURE__ */ k(OpenTabsProvider, { tabId, enabled: enableAttachTabs }, /* @__PURE__ */ k(
         AiChatContent,
         {
           query,
           autoFocus,
           enableRecentAiChats,
           enableVoiceChatAccess,
+          enableAttachTabs,
+          tabId,
           onChange: setQuery,
           onSubmit: handleSubmitChat
         }
-      )))
+      ))))
     )));
   }
-  function AiChatContent({ query, autoFocus, enableRecentAiChats, enableVoiceChatAccess = false, onChange, onSubmit }) {
+  function AiChatContent({
+    query,
+    autoFocus,
+    enableRecentAiChats,
+    enableVoiceChatAccess = false,
+    enableAttachTabs = false,
+    tabId,
+    onChange,
+    onSubmit
+  }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -12312,12 +13502,31 @@
       null
     );
     const hasVisibleImagesRef = A2(false);
+    const submittingRef = A2(false);
     const [imageWarning, setImageWarning] = d2(false);
-    const imageState = useImageAttachments();
+    const imageState = useImageAttachments(tabId);
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages ? t4("omnibar_imageGenerationWithAttachmentPlaceholder") : t4("omnibar_imageGenerationPlaceholder");
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
+    const fileState = useFileAttachments(selectedModel?.supportedFileTypes, tabId);
+    const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
+    const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const tabAttachments = useTabAttachments(tabId);
+    const textareaRef = A2(
+      /** @type {HTMLTextAreaElement|null} */
+      null
+    );
+    const mention = useMentionPicker({
+      enabled: canAttachTabs,
+      query,
+      onChange,
+      hideChats,
+      onToggleTab: tabAttachments.toggleTab,
+      isAttached: tabAttachments.isAttached,
+      textareaRef,
+      anchorRef: containerRef
+    });
     const clearTool = () => {
       setActiveTool(null);
     };
@@ -12328,33 +13537,46 @@
       }
       setActiveTool(nextTool);
     };
-    const handleChange = (value2) => {
+    const handleChange = (value2, caret) => {
       onChange(value2);
-      if (!hasVisibleImagesRef.current && !imageGenerationActive) showChats();
+      if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
+      mention.handleTextChange(value2, caret);
     };
-    const handleSubmit = (chat, target) => {
-      const images = canAttachImages ? imageState.getImagesForSubmission() : null;
-      const modelId = imageGenerationActive ? null : selectedModel?.id ?? null;
-      const reasoningEffort = imageGenerationActive ? null : selectedEffort;
-      const toolChoice = webSearchActive ? (
-        /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */
-        ["WebSearch"]
-      ) : null;
-      const action = {
-        chat,
-        target,
-        ...imageGenerationActive && { mode: (
-          /** @type {const} */
-          "image-generation"
-        ) },
-        ...modelId && { modelId },
-        ...reasoningEffort && { reasoningEffort },
-        ...toolChoice && { toolChoice },
-        ...images && { images }
-      };
-      onSubmit(action);
-      imageState.clearAttachedImages();
-      clearTool();
+    const handleSubmit = async (chat, target) => {
+      if (submittingRef.current) return;
+      submittingRef.current = true;
+      try {
+        const images = canAttachImages ? imageState.getImagesForSubmission() : null;
+        const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
+        const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
+        const modelId = imageGenerationActive ? null : selectedModel?.id ?? null;
+        const reasoningEffort = imageGenerationActive ? null : selectedEffort;
+        const toolChoice = webSearchActive ? (
+          /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */
+          ["WebSearch"]
+        ) : null;
+        const action = {
+          chat,
+          target,
+          ...imageGenerationActive && { mode: (
+            /** @type {const} */
+            "image-generation"
+          ) },
+          ...modelId && { modelId },
+          ...reasoningEffort && { reasoningEffort },
+          ...toolChoice && { toolChoice },
+          ...images && { images },
+          ...files && { files },
+          ...pageContext && { pageContext }
+        };
+        onSubmit(action);
+        imageState.clearAttachedImages();
+        fileState.clearAttachedFiles();
+        tabAttachments.clearAttachedTabs();
+        clearTool();
+      } finally {
+        submittingRef.current = false;
+      }
     };
     const handleVoiceSubmit = (target) => {
       onSubmit({
@@ -12366,8 +13588,11 @@
         )
       });
     };
-    const disabled = !query || imageWarning;
-    const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && !query;
+    const fileWarning = canAttachFiles && fileState.fileLimitExceeded;
+    const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
+    const showFileWarning = fileWarning && !imageMessageShowing;
+    const disabled = !query || imageWarning || fileWarning;
+    const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
     const handleClickSubmit = (event) => {
       event.preventDefault();
       if (disabled) return;
@@ -12379,14 +13604,16 @@
       event.stopPropagation();
       handleVoiceSubmit(eventToTarget2(event, platformName));
     };
-    const showRecentChats = enableRecentAiChats && !imageGenerationActive;
+    const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
     return /* @__PURE__ */ k(
       "div",
       {
         ref: containerRef,
-        "data-image-warning": imageWarning || void 0,
+        class: Omnibar_default.aiChatContent,
+        "data-attachment-warning": imageWarning || fileWarning || void 0,
         onFocusCapture: (event) => {
-          if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationActive) showChats();
+          if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive)
+            showChats();
         },
         onBlurCapture: (event) => {
           if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
@@ -12404,7 +13631,23 @@
           placeholder: imageGenerationActive ? imageGenerationPlaceholder : void 0,
           onChange: handleChange,
           onSubmit: handleSubmit,
-          toolbarLeft: /* @__PURE__ */ k(S, null, canAttachImages && /* @__PURE__ */ k(ImageUploadButton2, { state: imageState }), availableTools.length > 0 && /* @__PURE__ */ k(ToolsMenu, { tools: availableTools, activeTool, onToggle: handleToggleTool })),
+          onTextareaKeyDown: mention.handleTextareaKeyDown,
+          combobox: mention.combobox,
+          textareaRef,
+          toolbarLeft: /* @__PURE__ */ k(S, null, (canAttachImages || canAttachFiles || canAttachTabs) && /* @__PURE__ */ k(
+            AttachMenu,
+            {
+              image: canAttachImages ? { processFiles: imageState.processFiles, disabled: imageState.imageUploadDisabled } : null,
+              file: canAttachFiles ? {
+                processFiles: fileState.processFiles,
+                disabled: fileState.fileUploadDisabled,
+                mimeTypes: selectedModel?.supportedFileTypes ?? []
+              } : null,
+              tabsEnabled: canAttachTabs,
+              onToggleTab: tabAttachments.toggleTab,
+              isAttached: tabAttachments.isAttached
+            }
+          ), availableTools.length > 0 && /* @__PURE__ */ k(ToolsMenu, { tools: availableTools, activeTool, onToggle: handleToggleTool })),
           toolbarRight: /* @__PURE__ */ k(S, null, !imageGenerationActive && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(ReasoningPickerTool, null), /* @__PURE__ */ k(ModelSelectorTool, null)), isVoiceChatMode ? /* @__PURE__ */ k(
             "button",
             {
@@ -12431,6 +13674,18 @@
           ))
         },
         /* @__PURE__ */ k(
+          AttachmentChips,
+          {
+            tabs: canAttachTabs ? tabAttachments.attachedTabs : [],
+            files: canAttachFiles ? fileState.attachedFiles : [],
+            images: canAttachImages ? imageState.attachedImages : [],
+            onRemoveTab: tabAttachments.removeTab,
+            onRemoveFile: fileState.handleRemoveFile,
+            onRemoveImage: imageState.handleRemoveImage
+          }
+        ),
+        showFileWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileAttachmentLimitWarning", { limit: String(MAX_FILES) })),
+        /* @__PURE__ */ k(
           ImageAttachmentContent,
           {
             state: imageState,
@@ -12439,7 +13694,7 @@
               hasVisibleImagesRef.current = hasImages;
               if (hasImages) {
                 hideChats();
-              } else if (document.activeElement?.tagName === "TEXTAREA") {
+              } else if (document.activeElement?.tagName === "TEXTAREA" && !mention.pickerActive) {
                 showChats();
               }
             },
@@ -12447,6 +13702,7 @@
           }
         )
       )),
+      mention.pickerProps && /* @__PURE__ */ k("div", { class: Omnibar_default.tabPickerWrapper, style: mention.wrapperStyle }, /* @__PURE__ */ k(MentionPicker, { ...mention.pickerProps })),
       showRecentChats && /* @__PURE__ */ k(AiChatsList, { className: Omnibar_default.aiChatsList })
     );
   }
@@ -12476,12 +13732,19 @@
       init_TranslationsProvider();
       init_ImageAttachmentTool();
       init_useImageAttachments();
+      init_useFileAttachments();
+      init_AttachmentChips2();
       init_ModelSelectorTool();
       init_ReasoningPickerTool();
       init_ToolsMenu2();
       init_useActiveTools();
       init_useSelectedModel();
       init_useSelectedReasoningEffort();
+      init_AttachMenu2();
+      init_MentionPicker2();
+      init_OpenTabsProvider();
+      init_useMentionPicker();
+      init_useTabAttachments();
     }
   });
 
@@ -12490,9 +13753,14 @@
     const { state, setEnableAi } = x2(OmnibarContext);
     const { current } = useTabState();
     const { visibility } = useVisibility();
-    if (state.status !== "ready") return null;
     const visible = visibility.value === "visible";
+    if (state.status !== "ready") {
+      return visible ? /* @__PURE__ */ k(OmnibarPlaceholder, null) : null;
+    }
     return /* @__PURE__ */ k(S, null, state.config.showAiSetting && /* @__PURE__ */ k(AiSetting, { enableAi: state.config?.enableAi === true, setEnableAi, omnibarVisible: visible }), visible && /* @__PURE__ */ k(OmnibarReadyState, { config: state.config, key: current.value, tabId: current.value }));
+  }
+  function OmnibarPlaceholder() {
+    return /* @__PURE__ */ k("div", { class: Omnibar_default.root, "aria-hidden": "true" }, /* @__PURE__ */ k(LogoStacked, { class: Omnibar_default.logo }), /* @__PURE__ */ k("div", { class: Omnibar_default.placeholderTabs }), /* @__PURE__ */ k("div", { class: Omnibar_default.spacer }));
   }
   function OmnibarReadyState({ config, tabId }) {
     const {
@@ -12503,6 +13771,7 @@
       showViewAllAiChats = false,
       enableVoiceChatAccess = false,
       enableAskAiSuggestion = true,
+      enableAttachTabs = false,
       mode: defaultMode
     } = config;
     const { setMode } = x2(OmnibarContext);
@@ -12518,6 +13787,7 @@
         showCustomizePopover,
         enableVoiceChatAccess,
         enableAskAiSuggestion,
+        enableAttachTabs,
         tabId
       }
     );
@@ -12551,6 +13821,7 @@
       init_types();
       init_widget_config_provider();
       init_Omnibar2();
+      init_Omnibar();
       init_OmnibarProvider();
       init_Icons2();
       init_PersistentOmnibarValuesProvider();
@@ -12567,8 +13838,9 @@
     const sectionTitle = t4("omnibar_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
     useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ k(SearchIcon, null), toggle, visibility: visibility.value, index: index2, enabled: true });
-    return /* @__PURE__ */ k(PersistentTextInputProvider, null, /* @__PURE__ */ k(PersistentModeProvider, null, /* @__PURE__ */ k(OmnibarProvider, null, /* @__PURE__ */ k(OmnibarConsumer, null))));
+    return /* @__PURE__ */ k(PersistentTextInputProvider, null, /* @__PURE__ */ k(PersistentModeProvider, null, /* @__PURE__ */ k(TabAttachmentsProvider, null, /* @__PURE__ */ k(OpenTabsListProvider, null, /* @__PURE__ */ k(FileAttachmentsProvider, null, /* @__PURE__ */ k(ImageAttachmentsProvider, null, /* @__PURE__ */ k(OmnibarProvider, null, /* @__PURE__ */ k(OmnibarConsumer, null))))))));
   }
+  var TabAttachmentsProvider, FileAttachmentsProvider, ImageAttachmentsProvider, OpenTabsListProvider;
   var init_OmnibarCustomized = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarCustomized.js"() {
       "use strict";
@@ -12580,6 +13852,10 @@
       init_OmnibarConsumer();
       init_Icons2();
       init_PersistentOmnibarValuesProvider();
+      ({ Provider: TabAttachmentsProvider } = TabAttachments);
+      ({ Provider: FileAttachmentsProvider } = FileAttachments);
+      ({ Provider: ImageAttachmentsProvider } = ImageAttachments);
+      ({ Provider: OpenTabsListProvider } = OpenTabsList);
     }
   });
 
@@ -12875,7 +14151,7 @@
     return /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames17.default)(Tooltip_default2.tooltipContainer, className),
+        class: (0, import_classnames19.default)(Tooltip_default2.tooltipContainer, className),
         role: "button",
         tabIndex: 0,
         "aria-describedby": isVisible ? tooltipId : void 0,
@@ -12889,14 +14165,14 @@
       isVisible && /* @__PURE__ */ k("div", { id: tooltipId, class: Tooltip_default2.tooltip, role: "tooltip", dangerouslySetInnerHTML: { __html: content2 } })
     );
   }
-  var import_classnames17;
+  var import_classnames19;
   var init_Tooltip4 = __esm({
     "pages/new-tab/app/components/Tooltip/Tooltip.js"() {
       "use strict";
       init_preact_module();
       init_hooks_module();
       init_Tooltip3();
-      import_classnames17 = __toESM(require_classnames(), 1);
+      import_classnames19 = __toESM(require_classnames(), 1);
     }
   });
 
@@ -13173,7 +14449,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames18.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames20.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -13184,16 +14460,16 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames18.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ k("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ k("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ k("div", { class: (0, import_classnames20.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ k("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ k("span", null, cookiePopUpsBlockedHeading)), showProtectionsReportNewLabel && /* @__PURE__ */ k(NewBadge, null))));
   }
-  var import_classnames18;
+  var import_classnames20;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
       init_types();
       init_PrivacyStats();
       init_ShowHideButton();
-      import_classnames18 = __toESM(require_classnames(), 1);
+      import_classnames20 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
       init_NewBadge2();
@@ -13263,9 +14539,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames19.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ k("div", { class: PrivacyStatsLegacy_default.counter }, none && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ k("h3", { class: PrivacyStatsLegacy_default.title }, " ", /* @__PURE__ */ k(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ k("p", { class: (0, import_classnames21.default)(PrivacyStatsLegacy_default.subtitle, PrivacyStatsLegacy_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames19;
+  var import_classnames21;
   var init_ProtectionsHeadingLegacy = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeadingLegacy.js"() {
       "use strict";
@@ -13273,7 +14549,7 @@
       init_hooks_module();
       init_PrivacyStatsLegacy();
       init_ShowHideButton();
-      import_classnames19 = __toESM(require_classnames(), 1);
+      import_classnames21 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -13332,14 +14608,14 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames20.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames22.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames20.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames22.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ k("button", { class: (0, import_classnames20.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ k("button", { class: (0, import_classnames22.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === "collapsed";
@@ -13348,28 +14624,28 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames20.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames22.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames20.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames22.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ k("button", { class: (0, import_classnames20.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ k("button", { class: (0, import_classnames22.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames20.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames22.default)(Protections_default.block, Protections_default.empty) }, children);
   }
   function ProtectionsEmptyLegacy({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames20.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames22.default)(Protections_default.blockLegacy, Protections_default.empty) }, children);
   }
-  var import_classnames20;
+  var import_classnames22;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames20 = __toESM(require_classnames(), 1);
+      import_classnames22 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -14423,7 +15699,7 @@
     return /* @__PURE__ */ k("div", { className: Activity_default.controls }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames21.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames23.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -14434,7 +15710,7 @@
     ), /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames21.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames23.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url8,
@@ -14443,13 +15719,13 @@
       canBurn ? shouldDisplayLegacyActivity ? /* @__PURE__ */ k(Fire, null) : /* @__PURE__ */ k(FireIcon, null) : /* @__PURE__ */ k(Cross, null)
     ));
   }
-  var import_classnames21, ActivityItem, ActivityItemLegacy;
+  var import_classnames23, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames21 = __toESM(require_classnames(), 1);
+      import_classnames23 = __toESM(require_classnames(), 1);
       init_Activity();
       init_ActivityLegacy();
       init_FaviconWithState2();
@@ -14476,7 +15752,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames21.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames23.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -14504,7 +15780,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames21.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
+          return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames23.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -30934,20 +32210,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url8]);
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames22.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames24.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
     y2(() => doneBurning(url8), [url8]);
     return null;
   }
-  var import_classnames22, BurnAnimationLazy;
+  var import_classnames24, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames22 = __toESM(require_classnames(), 1);
+      import_classnames24 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -31057,15 +32333,15 @@
 
   // pages/new-tab/app/components/TickPill/TickPill.js
   function TickPill({ text: text2, className, displayTick = true }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames23.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)(TickPill_default.tickPill, className || "") }, displayTick && /* @__PURE__ */ k("span", { class: TickPill_default.iconWrapper }, /* @__PURE__ */ k(Check, null)), /* @__PURE__ */ k("span", { class: TickPill_default.text }, text2));
   }
-  var import_classnames23;
+  var import_classnames25;
   var init_TickPill2 = __esm({
     "pages/new-tab/app/components/TickPill/TickPill.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
-      import_classnames23 = __toESM(require_classnames(), 1);
+      import_classnames25 = __toESM(require_classnames(), 1);
       init_TickPill();
     }
   });
@@ -31877,7 +33153,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames24.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ k(S, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ k(S, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ k(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames26.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ k(S, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ k(S, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ k(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -31894,12 +33170,12 @@
     }
     return null;
   }
-  var import_classnames24;
+  var import_classnames26;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames24 = __toESM(require_classnames(), 1);
+      import_classnames26 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -32078,7 +33354,7 @@
   // pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js
   function SubscriptionWinBackBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames25.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames27.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
@@ -32087,11 +33363,11 @@
     }
     return null;
   }
-  var import_classnames25;
+  var import_classnames27;
   var init_SubscriptionWinBackBanner2 = __esm({
     "pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js"() {
       "use strict";
-      import_classnames25 = __toESM(require_classnames(), 1);
+      import_classnames27 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Button2();
       init_DismissButton2();
@@ -32252,7 +33528,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames26.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ k("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ k("div", { class: (0, import_classnames28.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ k(WithNotes, { notes, version }) : /* @__PURE__ */ k(WithoutNotes, { version })), /* @__PURE__ */ k(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -32314,12 +33590,12 @@
     }
     return null;
   }
-  var import_classnames26;
+  var import_classnames28;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames26 = __toESM(require_classnames(), 1);
+      import_classnames28 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -32359,7 +33635,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames37 = __toESM(require_classnames(), 1);
+  var import_classnames39 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -32723,7 +33999,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames36 = __toESM(require_classnames(), 1);
+  var import_classnames38 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -32759,7 +34035,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames27 = __toESM(require_classnames(), 1);
+  var import_classnames29 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -32784,7 +34060,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ k("ul", { class: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("ul", { class: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ k("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -32818,7 +34094,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -32838,7 +34114,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -32860,7 +34136,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -32900,7 +34176,7 @@
       return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
         "button",
         {
-          class: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -32915,7 +34191,7 @@
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames27.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames29.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -32941,7 +34217,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames28 = __toESM(require_classnames(), 1);
+  var import_classnames30 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -32954,7 +34230,7 @@
     return /* @__PURE__ */ k("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames28.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames30.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -32965,7 +34241,7 @@
     ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames28.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames30.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -32976,7 +34252,7 @@
     ), /* @__PURE__ */ k("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ k("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ k(
       "button",
       {
-        class: (0, import_classnames28.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames30.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -32990,7 +34266,7 @@
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_preact_module();
   init_signals_module();
-  var import_classnames29 = __toESM(require_classnames(), 1);
+  var import_classnames31 = __toESM(require_classnames(), 1);
   init_types();
 
   // pages/new-tab/app/customizer/components/ThemeSection.module.css
@@ -33033,7 +34309,7 @@
     return /* @__PURE__ */ k("div", { class: ThemeSection_default.root }, /* @__PURE__ */ k(
       "div",
       {
-        class: (0, import_classnames29.default)(ThemeSection_default.segmentedControl, {
+        class: (0, import_classnames31.default)(ThemeSection_default.segmentedControl, {
           [ThemeSection_default.vertical]: ["pl", "ru"].includes(locale)
         }),
         role: "radiogroup",
@@ -33104,7 +34380,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames30 = __toESM(require_classnames(), 1);
+  var import_classnames32 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
 
@@ -33161,8 +34437,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames30.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames30.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames32.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ k("li", { key: row.id }, /* @__PURE__ */ k("div", { class: (0, import_classnames32.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ k("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ k("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ k(
         Switch,
         {
           theme: browser.value,
@@ -33205,7 +34481,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames31 = __toESM(require_classnames(), 1);
+  var import_classnames33 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -33234,7 +34510,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames31.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames31.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames33.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ k("div", { class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ k(PickerPanel, { data: data2, select }), /* @__PURE__ */ k(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -33271,7 +34547,7 @@
     return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ k(
       "button",
       {
-        className: (0, import_classnames31.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -33296,12 +34572,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ k("span", { class: (0, import_classnames31.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
+    ), /* @__PURE__ */ k("span", { class: (0, import_classnames33.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ k(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames32 = __toESM(require_classnames(), 1);
+  var import_classnames34 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -33329,12 +34605,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames32.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ k("div", null, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames34.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ k(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames32.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames34.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ k("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ k(
         "button",
@@ -33362,7 +34638,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames33 = __toESM(require_classnames(), 1);
+  var import_classnames35 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -33406,7 +34682,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames33.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ k("div", { onContextMenu }, /* @__PURE__ */ k("button", { type: "button", onClick: back, class: (0, import_classnames35.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ k(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ k(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ k(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ k("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -33421,7 +34697,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ k("ul", { className: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ k("ul", { className: (0, import_classnames35.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
@@ -33458,7 +34734,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames33.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames35.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ k(PlusIcon, null),
@@ -33469,24 +34745,24 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames34 = __toESM(require_classnames(), 1);
+  var import_classnames36 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
     return /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ k("span", null, title), showNewBadge && /* @__PURE__ */ k(NewBadge, null)), /* @__PURE__ */ k("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ k("div", { class: (0, import_classnames34.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ k("div", { class: (0, import_classnames36.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames35 = __toESM(require_classnames(), 1);
+  var import_classnames37 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
     return /* @__PURE__ */ k(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames35.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames37.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
@@ -33531,7 +34807,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames36.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ k("header", { class: (0, import_classnames38.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ k("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ k(
       DismissButton,
       {
         onClick: close,
@@ -33601,7 +34877,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames36.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames36.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ k("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ k("div", { class: (0, import_classnames38.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ k("div", { class: (0, import_classnames38.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -33658,7 +34934,7 @@
         "data-drawer-visibility": visibility,
         "data-has-theme-variants": hasThemeVariants
       },
-      /* @__PURE__ */ k("main", { class: (0, import_classnames37.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
+      /* @__PURE__ */ k("main", { class: (0, import_classnames39.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ k("div", { class: App_default.content }, /* @__PURE__ */ k("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ k(WidgetList, null)))),
       /* @__PURE__ */ k("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ k(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ k(
         CustomizerButton,
         {
@@ -33673,7 +34949,7 @@
       /* @__PURE__ */ k(
         "aside",
         {
-          class: (0, import_classnames37.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+          class: (0, import_classnames39.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
           tabindex: tabIndex,
           "aria-hidden": hidden,
           "data-theme": browser,
@@ -33989,8 +35265,8 @@
       description: "Description message in the popover including privacy statement and customize option."
     },
     omnibar_attachImageLabel: {
-      title: "Attach image",
-      description: "Accessible label for the attach image button in the AI chat toolbar."
+      title: "Add Images",
+      description: "Label for the attach-image entry \u2014 both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
     },
     omnibar_removeImageLabel: {
       title: "Remove image",
@@ -34003,6 +35279,10 @@
     omnibar_imageAttachmentLimitWarning: {
       title: "You can only attach {limit} images at a time.",
       description: "Warning shown when user attaches more images than the allowed maximum."
+    },
+    omnibar_fileAttachmentLimitWarning: {
+      title: "You can only attach {limit} files at a time.",
+      description: "Warning shown when user attaches more files than the allowed maximum."
     },
     omnibar_imageTooLargeError: {
       title: "Image is too large. Please use an image smaller than 10000\xD710000 pixels.",
@@ -34079,6 +35359,46 @@
     omnibar_reasoningEffortExtendedReasoningDescription: {
       title: "Researches before responding",
       description: "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
+    },
+    omnibar_attachMenuLabel: {
+      title: "Add Attachment",
+      description: "Accessible label for the paperclip button that opens a menu offering image attachments and tab content attachments."
+    },
+    omnibar_attachImageOrFileLabel: {
+      title: "Add Images or PDFs",
+      description: "Label for the attach entry when the active model accepts both images and PDFs \u2014 covers the menu item in the combined dropdown and the standalone paperclip button's aria-label."
+    },
+    omnibar_attachFileLabel: {
+      title: "Add PDFs",
+      description: "Label for the attach-PDF entry \u2014 both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
+    },
+    omnibar_removeAttachedFileLabel: {
+      title: "Remove {fileName}",
+      description: "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
+    },
+    omnibar_attachPageContentLabel: {
+      title: "Add Page Content",
+      description: "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
+    },
+    omnibar_attachTabsPickerTitle: {
+      title: "Tabs",
+      description: "Header text for the open-tabs picker panel."
+    },
+    omnibar_attachTabsPickerLabel: {
+      title: "Pick an open tab to add",
+      description: "Accessible label for the open-tabs picker panel (the dialog wrapper around the listbox)."
+    },
+    omnibar_attachTabsNoMatches: {
+      title: "No matching tabs",
+      description: "Empty-state message shown in the @-mention tab picker when no open tabs match what the user typed."
+    },
+    omnibar_attachTabsNoOpenTabs: {
+      title: "No page content available",
+      description: "Empty-state message shown in the attach-page-content tabs dropdown when there is no page content available to attach."
+    },
+    omnibar_removeAttachedTabLabel: {
+      title: "Remove {title}",
+      description: "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
     },
     nextStepsList_sectionTitle: {
       title: "Next Steps",
@@ -39038,6 +40358,117 @@
     const filtered = trimmed ? allMockChats.filter((chat) => chat.title.toLowerCase().includes(trimmed)) : allMockChats;
     return { chats: filtered.slice(0, MAX_RESULTS) };
   }
+  function localFavicon(file) {
+    return { src: `./company-icons/${file}`, maxAvailableSize: 64 };
+  }
+  var allMockOpenTabs = [
+    {
+      tabId: "tab-1",
+      title: "MacBook Neo - Apple",
+      url: "https://www.apple.com/macbook-neo",
+      favicon: localFavicon("a.svg")
+    },
+    {
+      tabId: "tab-2",
+      title: "Starbucks Coffee Company",
+      url: "https://www.starbucks.com",
+      favicon: localFavicon("s.svg")
+    },
+    {
+      tabId: "tab-long",
+      title: "Breckenreid Makes Thoughtful Illustrations About Typography, History, And Why Extremely Long Page Titles Must Be Truncated With An Ellipsis Instead Of Wrapping Or Overflowing The Picker",
+      url: "https://example.com/an/extremely/long/article/about/typography",
+      favicon: localFavicon("e.svg")
+    },
+    {
+      tabId: "tab-3",
+      title: "MacBook Pro - Apple",
+      url: "https://www.apple.com/macbook-pro",
+      favicon: localFavicon("a.svg")
+    },
+    {
+      tabId: "tab-4",
+      title: "Duck.ai - Project planning",
+      url: "https://duck.ai/chat/abc",
+      favicon: localFavicon("d.svg")
+    },
+    {
+      tabId: "tab-5",
+      title: "Dinosaurus",
+      url: "https://en.wikipedia.org/wiki/Dinosaur",
+      favicon: localFavicon("w.svg")
+    },
+    {
+      tabId: "tab-6",
+      title: "Amazon.com. Spend less. Smile more.",
+      url: "https://www.amazon.com",
+      favicon: localFavicon("amazon.svg")
+    },
+    {
+      tabId: "tab-7",
+      title: "Daring Fireball",
+      url: "https://daringfireball.net",
+      favicon: localFavicon("d.svg")
+    },
+    {
+      tabId: "tab-8",
+      title: "Ranking MLB best at every position",
+      url: "https://www.mlb.com/news/best-players-position",
+      favicon: localFavicon("m.svg")
+    },
+    {
+      tabId: "tab-9",
+      title: "Asana",
+      url: "https://app.asana.com",
+      favicon: localFavicon("a.svg")
+    },
+    {
+      tabId: "tab-10",
+      title: "Discord",
+      url: "https://discord.com/channels/@me",
+      favicon: localFavicon("d.svg")
+    },
+    {
+      tabId: "tab-11",
+      title: "The Verge",
+      url: "https://www.theverge.com",
+      favicon: localFavicon("t.svg")
+    },
+    {
+      tabId: "tab-12",
+      title: "BlueSky",
+      url: "https://bsky.app",
+      favicon: localFavicon("b.svg")
+    },
+    {
+      tabId: "tab-broken",
+      title: "Tab That Fails to Extract",
+      url: "https://example.invalid/restricted",
+      favicon: null
+    }
+  ];
+  function getMockOpenTabs() {
+    return { tabs: allMockOpenTabs };
+  }
+  function getMockTabContent(tabId) {
+    if (tabId === "tab-broken") return null;
+    const tab = allMockOpenTabs.find((t4) => t4.tabId === tabId);
+    if (!tab) return null;
+    const content2 = `## ${tab.title}
+
+Mock markdown content extracted from ${tab.url}.
+
+This is placeholder content used by the NTP mock transport so the attach-tabs feature can be exercised without a native backend.`;
+    return {
+      tabId: tab.tabId,
+      title: tab.title,
+      url: tab.url,
+      favicon: tab.favicon,
+      content: content2,
+      truncated: false,
+      fullContentLength: content2.length
+    };
+  }
   function containsIgnoreCase(text2, searchTerm) {
     return text2.toLowerCase().includes(searchTerm.toLowerCase());
   }
@@ -39108,6 +40539,7 @@
               shortName: "Haiku 4.5",
               isEnabled: true,
               supportsImageUpload: true,
+              supportedFileTypes: ["application/pdf"],
               supportedTools: ["WebSearch"],
               supportedReasoningEffort: ["none", "low"]
             },
@@ -39155,6 +40587,7 @@
               shortName: "Sonnet 4.5",
               isEnabled: false,
               supportsImageUpload: true,
+              supportedFileTypes: ["application/pdf"],
               supportedTools: ["WebSearch"],
               supportedReasoningEffort: ["none", "low"]
             },
@@ -39188,7 +40621,8 @@
       ],
       showViewAllAiChats: false,
       enableVoiceChatAccess: false,
-      enableAskAiSuggestion: true
+      enableAskAiSuggestion: true,
+      enableAttachTabs: false
     };
     const subs = /* @__PURE__ */ new Map();
     return new TestTransportConfig({
@@ -39236,6 +40670,10 @@
         );
         switch (msg.method) {
           case "omnibar_getConfig": {
+            const configDelay = parseInt(url5.searchParams.get("omnibar.configDelay") ?? "", 10);
+            if (configDelay > 0) {
+              await new Promise((resolve) => setTimeout(resolve, configDelay));
+            }
             const modeOverride = url5.searchParams.get("omnibar.mode");
             if (modeOverride === "search" || modeOverride === "ai") {
               config.mode = modeOverride;
@@ -39258,6 +40696,7 @@
             config.showViewAllAiChats = parseBooleanQueryParam("omnibar.showViewAllAiChats") ?? config.showViewAllAiChats;
             config.enableVoiceChatAccess = parseBooleanQueryParam("omnibar.enableVoiceChatAccess") ?? config.enableVoiceChatAccess;
             config.enableAskAiSuggestion = parseBooleanQueryParam("omnibar.enableAskAiSuggestion") ?? config.enableAskAiSuggestion;
+            config.enableAttachTabs = parseBooleanQueryParam("omnibar.enableAttachTabs") ?? config.enableAttachTabs;
             return config;
           }
           case "omnibar_getSuggestions": {
@@ -39267,6 +40706,14 @@
           case "omnibar_getAiChats": {
             await new Promise((resolve) => setTimeout(resolve, 100));
             return getMockAiChats(msg.params.query);
+          }
+          case "omnibar_getOpenTabs": {
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            return getMockOpenTabs();
+          }
+          case "omnibar_getTabContent": {
+            await new Promise((resolve) => setTimeout(resolve, 150));
+            return { pageContext: getMockTabContent(msg.params.tabId) };
           }
           default: {
             throw new Error("unhandled request" + msg);

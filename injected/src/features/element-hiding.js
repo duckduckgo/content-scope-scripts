@@ -30,6 +30,10 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  */
 
 /**
+ * @typedef {ElementHidingRuleHide | ElementHidingRuleModify} ElementHidingRuleWithSelector
+ */
+
+/**
  * @typedef {Object} ElementHidingDomain
  * @property {string | string[]} domain
  * @property {ElementHidingRule[]} rules
@@ -66,6 +70,14 @@ let unhideTimeouts = [1250, 2250, 3000];
 
 /** @type {ElementHiding} */
 let featureInstance;
+
+/**
+ * @param {ElementHidingRule} rule
+ * @returns {rule is ElementHidingRuleWithSelector}
+ */
+function hasSelector(rule) {
+    return 'selector' in rule;
+}
 
 /**
  * Hide DOM element if rule conditions met
@@ -267,7 +279,9 @@ function extractTimeoutRules(rules) {
         return rules;
     }
 
+    /** @type {ElementHidingRuleHide[]} */
     const strictHideRules = [];
+    /** @type {ElementHidingRule[]} */
     const timeoutRules = [];
 
     rules.forEach((rule) => {
@@ -284,7 +298,7 @@ function extractTimeoutRules(rules) {
 
 /**
  * Create styletag for strict hide rules and append it to the document
- * @param {ElementHidingRule[]} rules
+ * @param {ElementHidingRuleWithSelector[]} rules
  */
 function injectStyleTag(rules) {
     // if style tag already injected on SPA url change, don't inject again
@@ -297,9 +311,9 @@ function injectStyleTag(rules) {
 
     rules.forEach((rule, i) => {
         if (i !== rules.length - 1) {
-            selector = selector.concat(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector, ',');
+            selector = selector.concat(rule.selector, ',');
         } else {
-            selector = selector.concat(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
+            selector = selector.concat(rule.selector);
         }
     });
     const styleTagProperties = 'display:none!important;min-height:0!important;height:0!important;';
@@ -316,8 +330,8 @@ function injectStyleTag(rules) {
 function hideAdNodes(rules) {
     const document = globalThis.document;
 
-    rules.forEach((rule) => {
-        const selector = forgivingSelector(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
+    rules.filter(hasSelector).forEach((rule) => {
+        const selector = forgivingSelector(rule.selector);
         const matchingElementArray = [...document.querySelectorAll(selector)];
         matchingElementArray.forEach((element) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -382,12 +396,10 @@ export default class ElementHiding extends ContentFeature {
 
         // collect all matching rules for domain
         const activeDomainRules = this.matchConditionalFeatureSetting('domains').flatMap((item) => {
-            return /** @type {ElementHidingRule[]} */ (item.rules) || [];
+            return Array.isArray(item.rules) ? /** @type {ElementHidingRule[]} */ (item.rules) : [];
         });
 
-        const overrideRules = activeDomainRules.filter((rule) => {
-            return rule.type === 'override';
-        });
+        const overrideRules = activeDomainRules.filter(/** @returns {rule is ElementHidingRuleHide} */ (rule) => rule.type === 'override');
 
         const disableDefault = activeDomainRules.some((rule) => {
             return rule.type === 'disable-default';
@@ -403,9 +415,9 @@ export default class ElementHiding extends ContentFeature {
         }
 
         // remove overrides and rules that match overrides from array of rules to be applied to page
-        overrideRules.forEach((/** @type {ElementHidingRuleHide} */ override) => {
-            activeRules = activeRules.filter((/** @type {ElementHidingRuleHide} */ rule) => {
-                return rule.selector !== override.selector;
+        overrideRules.forEach((override) => {
+            activeRules = activeRules.filter((rule) => {
+                return !hasSelector(rule) || rule.selector !== override.selector;
             });
         });
 
