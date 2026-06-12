@@ -247,7 +247,11 @@ jobs:
         runs-on: ubuntu-latest
         needs: integration
         if: ${{ github.ref == 'refs/heads/main' }}
+        # `contents: read` is required for `actions/checkout` — defining any
+        # job-level `permissions:` block sets every unlisted scope to `none`
+        # and skips inheritance from the workflow's `contents: read`.
         permissions:
+            contents: read
             pages: write
             id-token: write
             deployments: write
