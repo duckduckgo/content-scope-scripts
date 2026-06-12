@@ -1,11 +1,11 @@
-import { getElement, generateRandomInt } from '../utils/utils.js';
+import { getElement, generateRandomInt, hasOwn } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
 import { states } from '../comparisons/constants.js';
 
 /**
- * @param {Record<string, any>} action
- * @param {Record<string, any>} userData
+ * @param {import('../types.js').FillFormAction} action
+ * @param {import('../types.js').BrokerProtectionProfile} userData
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
@@ -36,8 +36,8 @@ export function fillForm(action, userData, root = document) {
 /**
  * Try to fill form elements. Collecting results + warnings for reporting.
  * @param {HTMLElement} root
- * @param {{selector: string; type: string; min?: string; max?: string;}[]} elements
- * @param {Record<string, any>} data
+ * @param {import('../types.js').FillFormElement[]} elements
+ * @param {import('../types.js').BrokerProtectionProfile} data
  * @return {({result: true} | {result: false; error: string})[]}
  */
 export function fillMany(root, elements, data) {
@@ -55,7 +55,7 @@ export function fillMany(root, elements, data) {
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()));
         } else if (element.type === '$generated_zip_code$') {
-            results.push(setValueForInput(inputElem, generateZipCode()));
+            results.push(setValueForInput(inputElem, generateZipCode(element.useState ? data : null)));
         } else if (element.type === '$generated_random_number$') {
             if (!element.min || !element.max) {
                 results.push({
@@ -81,7 +81,7 @@ export function fillMany(root, elements, data) {
 
             // This is a composite of existing (but separate) city and state fields
         } else if (element.type === 'cityState') {
-            if (!Object.prototype.hasOwnProperty.call(data, 'city') || !Object.prototype.hasOwnProperty.call(data, 'state')) {
+            if (!hasOwn(data, 'city') || !hasOwn(data, 'state')) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'`,
@@ -90,7 +90,7 @@ export function fillMany(root, elements, data) {
             }
             results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
         } else if (element.type === 'fullState') {
-            if (!Object.prototype.hasOwnProperty.call(data, 'state')) {
+            if (!hasOwn(data, 'state')) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data didn't contain the key 'state'`,
@@ -100,7 +100,7 @@ export function fillMany(root, elements, data) {
 
             const state = data.state;
 
-            if (!Object.prototype.hasOwnProperty.call(states, state)) {
+            if (!hasOwn(states, state)) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`,
@@ -115,7 +115,7 @@ export function fillMany(root, elements, data) {
             if (isElementTypeOptional(element.type)) {
                 continue;
             }
-            if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
+            if (!hasOwn(data, element.type)) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`,
@@ -129,7 +129,7 @@ export function fillMany(root, elements, data) {
                 });
                 continue;
             }
-            results.push(setValueForInput(inputElem, data[element.type]));
+            results.push(setValueForInput(inputElem, /** @type {string} */ (data[element.type])));
         }
     }
 

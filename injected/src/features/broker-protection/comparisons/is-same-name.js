@@ -1,4 +1,5 @@
 import { names } from './constants.js';
+import { hasOwn } from '../utils/utils.js';
 
 /**
  * @param {string} fullNameExtracted
@@ -182,7 +183,7 @@ export function getNicknames(name, nicknames) {
 
     name = name.toLowerCase();
 
-    if (Object.prototype.hasOwnProperty.call(nicknames, name)) {
+    if (hasOwn(nicknames, name)) {
         return new Set(nicknames[name]);
     }
 

@@ -5,13 +5,22 @@ import { stringToList, extractValue } from '../src/features/broker-protection/ac
 import { addressMatch } from '../src/features/broker-protection/comparisons/address.js';
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js';
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js';
-import { names } from '../src/features/broker-protection/comparisons/constants.js';
-import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils/utils.js';
+import { names, states } from '../src/features/broker-protection/comparisons/constants.js';
+import {
+    generateRandomInt,
+    getOwn,
+    hasOwn,
+    hashObject,
+    sortAddressesByStateAndCity,
+} from '../src/features/broker-protection/utils/utils.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js';
+import STATE_CITY_ZIPS from '../src/features/broker-protection/actions/state-city-zips.json' with { type: 'json' };
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js';
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
 import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
 import { isElementType } from '../src/features/broker-protection/captcha-services/utils/element.js';
+
+const ANY_FIVE_DIGIT_ZIP = /^\d{5}$/;
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -732,12 +741,67 @@ describe('generators', () => {
         });
     });
     describe('generateZipCode', () => {
-        it('generates a string of integers of an appropriate size', () => {
-            const zipCode = generateZipCode();
+        it('always returns a 5-digit string', () => {
+            expect(generateZipCode()).toMatch(ANY_FIVE_DIGIT_ZIP);
+            expect(generateZipCode(null)).toMatch(ANY_FIVE_DIGIT_ZIP);
+            expect(generateZipCode({ state: 'ZZ', city: 'Nowhere' })).toMatch(ANY_FIVE_DIGIT_ZIP);
+        });
 
-            expect(typeof zipCode).toEqual('string');
-            expect(zipCode.length).toBe(5);
-            expect(zipCode).toMatch(/^\d{5}$/);
+        it('uses the city ZIPs when the city and state are provided', () => {
+            expect(STATE_CITY_ZIPS.IL.CHICAGO).toContain(generateZipCode({ state: 'IL', city: 'Chicago' }));
+        });
+
+        it('handles lowercase state and city', () => {
+            [
+                { state: 'IL', city: 'CHICAGO' },
+                { state: 'il', city: 'chicago' },
+                { state: 'Il', city: 'cHiCaGo' },
+            ].forEach((params) => {
+                expect(STATE_CITY_ZIPS.IL.CHICAGO).toContain(generateZipCode(params));
+            });
+        });
+
+        it('uses the default city ZIPs when only the state is provided', () => {
+            const defaultZips = STATE_CITY_ZIPS.IL[STATE_CITY_ZIPS.IL._default];
+            expect(defaultZips).toContain(generateZipCode({ state: 'IL' }));
+        });
+
+        it('uses the default city ZIPs when the city is unknown', () => {
+            const defaultZips = STATE_CITY_ZIPS.IL[STATE_CITY_ZIPS.IL._default];
+            expect(defaultZips).toContain(generateZipCode({ state: 'IL', city: 'Nonexistentville' }));
+        });
+
+        it('returns a random ZIP when the state is not a string', () => {
+            expect(generateZipCode({ state: 5, city: 'Chicago' })).toMatch(ANY_FIVE_DIGIT_ZIP);
+        });
+
+        it('uses the default city ZIPs when the city is not a string', () => {
+            const defaultZips = STATE_CITY_ZIPS.IL[STATE_CITY_ZIPS.IL._default];
+            expect(defaultZips).toContain(generateZipCode({ state: 'IL', city: [] }));
+        });
+
+        it('includes ZIP data for every US state and DC', () => {
+            expect(Object.keys(STATE_CITY_ZIPS).sort()).toEqual(Object.keys(states).sort());
+        });
+
+        it('uses a city key as each state default', () => {
+            Object.keys(STATE_CITY_ZIPS).forEach((state) => {
+                const stateCities = STATE_CITY_ZIPS[state];
+                const defaultCity = stateCities._default;
+
+                expect(Object.keys(stateCities)).toContain(defaultCity);
+                expect(stateCities[defaultCity]).toEqual(jasmine.arrayContaining([jasmine.stringMatching(ANY_FIVE_DIGIT_ZIP)]));
+            });
+        });
+
+        it('stores every city ZIP as a 5-digit string', () => {
+            Object.entries(STATE_CITY_ZIPS).forEach(([, cities]) => {
+                const cityZipEntries = /** @type {[string, string[]][]} */ (Object.entries(cities).filter(([city]) => city !== '_default'));
+                cityZipEntries.forEach(([, zips]) => {
+                    expect(zips).toEqual(jasmine.arrayContaining([jasmine.stringMatching(ANY_FIVE_DIGIT_ZIP)]));
+                    expect(zips).toEqual(zips.map(() => jasmine.stringMatching(ANY_FIVE_DIGIT_ZIP)));
+                });
+            });
         });
     });
     describe('generateStreetAddress', () => {
@@ -778,6 +842,23 @@ describe('captcha-services', () => {
 });
 
 describe('utils', () => {
+    describe('hasOwn', () => {
+        it('uses the captured hasOwnProperty when Object.prototype is changed', () => {
+            const originalHasOwnProperty = Object.prototype.hasOwnProperty;
+            // eslint-disable-next-line no-extend-native
+            Object.defineProperty(Object.prototype, 'hasOwnProperty', { value: () => true, configurable: true });
+            try {
+                const target = Object.create({ inherited: 'value' });
+
+                expect(hasOwn(target, 'inherited')).toBe(false);
+                expect(getOwn(target, 'inherited')).toBeUndefined();
+            } finally {
+                // eslint-disable-next-line no-extend-native
+                Object.defineProperty(Object.prototype, 'hasOwnProperty', { value: originalHasOwnProperty, configurable: true });
+            }
+        });
+    });
+
     describe('generateRandomInt', () => {
         it('generates an integers between the min and max values', () => {
             fc.assert(

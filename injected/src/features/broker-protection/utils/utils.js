@@ -1,3 +1,5 @@
+import { hasOwnProperty as capturedHasOwnProperty } from '../../../captured-globals.js';
+
 /**
  * Get a single element.
  *
@@ -230,6 +232,26 @@ export function matchingPair(a, b) {
     if (!nonEmptyString(a)) return false;
     if (!nonEmptyString(b)) return false;
     return a.toLowerCase().trim() === b.toLowerCase().trim();
+}
+
+/**
+ * @template {object} T
+ * @param {T} obj
+ * @param {any} key
+ * @return {key is keyof T}
+ */
+export function hasOwn(obj, key) {
+    return capturedHasOwnProperty.call(obj, key);
+}
+
+/**
+ * @template {object} T
+ * @param {T} obj
+ * @param {PropertyKey | null | undefined} key
+ * @return {T[keyof T] | undefined}
+ */
+export function getOwn(obj, key) {
+    return key != null && hasOwn(obj, key) ? obj[key] : undefined;
 }
 
 /**
