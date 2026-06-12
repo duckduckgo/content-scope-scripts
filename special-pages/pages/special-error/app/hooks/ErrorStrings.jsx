@@ -76,7 +76,7 @@ export function useWarningHeading() {
 }
 
 /**
- * @returns {(string|import("preact/src/jsx").JSXInternal.Element)[]}
+ * @returns {(string|import("preact").JSX.Element)[]}
  */
 export function useWarningContent() {
     const { t } = useTypedTranslation();
@@ -107,7 +107,7 @@ export function useWarningContent() {
 }
 
 /**
- * @returns {string|import("preact/src/jsx").JSXInternal.Element}
+ * @returns {string|import("preact").JSX.Element}
  */
 export function useAdvancedInfoHeading() {
     const { t } = useTypedTranslation();
@@ -132,7 +132,7 @@ export function useAdvancedInfoHeading() {
 }
 
 /**
- * @returns {(string|import("preact/src/jsx").JSXInternal.Element)[]}
+ * @returns {(string|import("preact").JSX.Element)[]}
  */
 export function useAdvancedInfoContent() {
     const { t } = useTypedTranslation();
