@@ -102,9 +102,29 @@ export class OmnibarService {
      */
     setSelectedModelId(selectedModelId) {
         this.configService.update((old) => {
+            const nextModel = (old.aiModelSections ?? []).flatMap((section) => section.items).find((model) => model.id === selectedModelId);
+            const supportedEfforts = nextModel?.supportedReasoningEffort ?? [];
+
+            const currentEffort = old.selectedReasoningEffort;
+            const nextEffort =
+                currentEffort && supportedEfforts.includes(currentEffort) ? currentEffort : (supportedEfforts[0] ?? undefined);
+
             return {
                 ...old,
                 selectedModelId,
+                selectedReasoningEffort: nextEffort,
+            };
+        });
+    }
+
+    /**
+     * @param {import('../../types/new-tab.js').ReasoningEffort} selectedReasoningEffort
+     */
+    setSelectedReasoningEffort(selectedReasoningEffort) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                selectedReasoningEffort,
             };
         });
     }
@@ -179,5 +199,13 @@ export class OmnibarService {
      */
     openAiChat(params) {
         this.ntp.messaging.notify('omnibar_openAiChat', params);
+    }
+
+    /**
+     * Notify native to open the full AI chats list view
+     * @param {{ target: OpenTarget }} params
+     */
+    viewAllAiChats(params) {
+        this.ntp.messaging.notify('omnibar_viewAllAIChats', params);
     }
 }

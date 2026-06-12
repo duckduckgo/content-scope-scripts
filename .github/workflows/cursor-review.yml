@@ -1,40 +1,76 @@
 name: Cursor Auto Review
 
 on:
-    pull_request_target:
+    pull_request:
         types: [opened, synchronize, reopened]
 
 jobs:
     check_membership:
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         runs-on: ubuntu-latest
         outputs:
             is_member: ${{ steps.membership.outputs.is_member }}
         steps:
-            - name: Verify author is in duckduckgo/core
-              uses: actions/github-script@v8
+            - name: Verify trusted launcher
+              uses: actions/github-script@v9
               id: membership
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
-                      const author = context.payload.pull_request.user.login;
+                      const prAuthor = context.payload.pull_request.user.login;
+
+                      // For human-authored PRs the PR author IS the launcher
+                      // — check team membership against them. For Cursor-app
+                      // PRs (`cursor[bot]`) the PR author is the bot, which
+                      // is never a team member, so we resolve a human identity
+                      // from the head commit instead. Prefer the committer
+                      // (who pushed); Cursor app commits often keep
+                      // `cursor[bot]` as committer, so fall back to the
+                      // commit author. Same-repo branches are already
+                      // required (the `head.repo.fork` check on this job),
+                      // so a human committer can only have been a user with
+                      // push access to this repo.
+                      let userToCheck = prAuthor;
+                      if (prAuthor === 'cursor[bot]') {
+                          const { data: headCommit } = await github.rest.repos.getCommit({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              ref: context.payload.pull_request.head.sha,
+                          });
+                          const candidates = [
+                              { label: 'committer', user: headCommit.committer },
+                              { label: 'author', user: headCommit.author },
+                          ];
+                          const resolved = candidates.find(
+                              ({ user }) => user?.login && user.type !== 'Bot'
+                          );
+                          if (!resolved) {
+                              console.log(`⏭️ ${prAuthor} PR has no resolvable human committer/author — skipping auto-review`);
+                              core.setOutput('is_member', 'false');
+                              return;
+                          }
+                          console.log(`Resolved ${prAuthor} launcher to ${resolved.label}: ${resolved.user.login}`);
+                          userToCheck = resolved.user.login;
+                      }
+
                       try {
                           const { data } = await github.rest.teams.getMembershipForUserInOrg({
                               org: 'duckduckgo',
                               team_slug: 'core',
-                              username: author
+                              username: userToCheck
                           });
                           if (data.state === 'active') {
-                              console.log(`✅ ${author} is an active member of duckduckgo/core`);
+                              console.log(`✅ ${userToCheck} is an active member of duckduckgo/core`);
                               core.setOutput('is_member', 'true');
                           } else {
-                              console.log(`⏭️ ${author} is not an active member — skipping auto-review`);
+                              console.log(`⏭️ ${userToCheck} is not an active member — skipping auto-review`);
                               core.setOutput('is_member', 'false');
                           }
                       } catch (error) {
                           if (error.status === 404) {
-                              console.log(`⏭️ ${author} is not a member of duckduckgo/core — skipping auto-review`);
+                              console.log(`⏭️ ${userToCheck} is not a member of duckduckgo/core — skipping auto-review`);
                           } else {
-                              console.log(`⚠️ Could not verify ${author}: ${error.message} (status: ${error.status})`);
+                              console.log(`⚠️ Could not verify ${userToCheck}: ${error.message} (status: ${error.status})`);
                           }
                           core.setOutput('is_member', 'false');
                       }
@@ -48,7 +84,7 @@ jobs:
         steps:
             - name: Dismiss stale Dax approval on new push
               if: github.event.action == 'synchronize'
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
@@ -94,7 +130,7 @@ jobs:
 
             - name: Check Cursor Bugbot risk assessment
               if: steps.wait-for-cursor.outputs.conclusion == 'success'
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               id: risk_check
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -110,7 +146,7 @@ jobs:
                       core.setOutput('is_low_risk', riskLevel?.toLowerCase() === 'low');
 
             - name: Check for existing Dax approval
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               id: check_reviews
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -152,7 +188,7 @@ jobs:
                   (steps.wait-for-cursor.outputs.conclusion != 'success' ||
                   steps.risk_check.outputs.is_low_risk != 'true') &&
                   steps.find_comment.outputs.comment-id == ''
-              uses: actions/github-script@v8
+              uses: actions/github-script@v9
               env:
                   CURSOR_CONCLUSION: ${{ steps.wait-for-cursor.outputs.conclusion }}
                   RISK_LEVEL: ${{ steps.risk_check.outputs.risk_level }}

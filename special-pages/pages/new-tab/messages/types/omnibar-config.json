@@ -46,6 +46,16 @@
         "supportsImageUpload": {
           "description": "Whether this model supports image attachments",
           "type": "boolean"
+        },
+        "supportedTools": {
+          "description": "Tools this model supports.",
+          "type": "array",
+          "items": { "$ref": "./tool-id.json" }
+        },
+        "supportedReasoningEffort": {
+          "description": "Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.",
+          "type": "array",
+          "items": { "$ref": "./reasoning-effort.json" }
         }
       }
     }
@@ -88,11 +98,44 @@
       "description": "The user's currently selected AI model, persisted across tabs",
       "type": "string"
     },
+    "selectedReasoningEffort": {
+      "$ref": "./reasoning-effort.json"
+    },
     "aiModelSections": {
       "title": "AI Model Sections",
       "description": "Sections of AI models for the model selector.",
       "type": "array",
       "items": { "$ref": "#/$defs/AIModelSection" }
+    },
+    "showViewAllAiChats": {
+      "title": "Show View All AI Chats",
+      "description": "When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list",
+      "type": "boolean",
+      "default": false
+    },
+    "enableImageGeneration": {
+      "title": "Enable Image Generation",
+      "description": "Show 'Create Image' toggle in the AI chat toolbar.",
+      "type": "boolean",
+      "default": false
+    },
+    "enableWebSearch": {
+      "title": "Enable Web Search",
+      "description": "Allow AI chat submissions to include web search tool.",
+      "type": "boolean",
+      "default": false
+    },
+    "enableVoiceChatAccess": {
+      "title": "Enable Voice Chat Access",
+      "description": "Show a 1-click voice-chat button in place of the AI chat submit button when the input is empty.",
+      "type": "boolean",
+      "default": false
+    },
+    "enableAskAiSuggestion": {
+      "title": "Enable Ask Duck.ai Suggestion",
+      "description": "Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.",
+      "type": "boolean",
+      "default": true
     }
   }
 }
