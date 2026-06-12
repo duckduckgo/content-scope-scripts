@@ -13,7 +13,7 @@ export const ddgShimMark = Symbol('ddgShimMark');
 /**
  * FIXME: this function is not needed anymore after FF xray removal
  * Like Object.defineProperty, but with support for Firefox's mozProxies.
- * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
+ * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
  * @param {string | symbol} propertyName
  * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
  */
@@ -112,8 +112,47 @@ export function wrapFunction(functionValue, realTarget) {
 }
 
 /**
+ * Merge `partial` into `orig` only when the partial supplies the same descriptor kind
+ * (data `value` vs accessor `get`/`set`). Spreading incompatible shapes produces an
+ * invalid ECMAScript property descriptor and makes `Object.defineProperty` throw.
+ *
+ * @param {PropertyDescriptor} origDescriptor
+ * @param {Partial<PropertyDescriptor>} partialDescriptor
+ * @returns {import('./wrapper-utils').StrictPropertyDescriptor | undefined} merged descriptor, or undefined when kinds disagree
+ */
+export function mergePropertyDescriptors(origDescriptor, partialDescriptor) {
+    if (
+        ('value' in origDescriptor && 'value' in partialDescriptor) ||
+        ('get' in origDescriptor && 'get' in partialDescriptor) ||
+        ('set' in origDescriptor && 'set' in partialDescriptor)
+    ) {
+        const merged = {
+            ...origDescriptor,
+            ...partialDescriptor,
+        };
+        // DOM descriptors always include configurable/enumerable at runtime; default when absent
+        // so the result satisfies StrictPropertyDescriptor for defineProperty().
+        if ('value' in merged) {
+            return /** @type {import('./wrapper-utils').StrictPropertyDescriptor} */ ({
+                value: merged.value,
+                writable: typeof merged.writable === 'boolean' ? merged.writable : true,
+                configurable: typeof merged.configurable === 'boolean' ? merged.configurable : true,
+                enumerable: typeof merged.enumerable === 'boolean' ? merged.enumerable : true,
+            });
+        }
+        return /** @type {import('./wrapper-utils').StrictPropertyDescriptor} */ ({
+            get: merged.get,
+            set: merged.set,
+            configurable: typeof merged.configurable === 'boolean' ? merged.configurable : true,
+            enumerable: typeof merged.enumerable === 'boolean' ? merged.enumerable : true,
+        });
+    }
+    return undefined;
+}
+
+/**
  * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
- * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
+ * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
  * @param {string} propertyName
  * @param {Partial<PropertyDescriptor>} descriptor
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
@@ -132,25 +171,18 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
         return;
     }
 
-    if (
-        ('value' in origDescriptor && 'value' in descriptor) ||
-        ('get' in origDescriptor && 'get' in descriptor) ||
-        ('set' in origDescriptor && 'set' in descriptor)
-    ) {
-        definePropertyFn(object, propertyName, {
-            ...origDescriptor,
-            ...descriptor,
-        });
-        return origDescriptor;
-    } else {
+    const merged = mergePropertyDescriptors(origDescriptor, descriptor);
+    if (!merged) {
         // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
         throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`);
     }
+    definePropertyFn(object, propertyName, merged);
+    return origDescriptor;
 }
 
 /**
  * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
- * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
+ * @param {object} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
  * @param {string} propertyName
  * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property

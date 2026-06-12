@@ -86,7 +86,9 @@ export class DuckPlayerOverlayMessages {
      * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
      */
     onUserValuesChanged(cb) {
-        return this.messaging.subscribe('onUserValuesChanged', cb);
+        return this.messaging.subscribe('onUserValuesChanged', (value) => {
+            cb(/** @type {import("../duck-player.js").UserValues} */ (value));
+        });
     }
 
     /**
@@ -94,13 +96,19 @@ export class DuckPlayerOverlayMessages {
      * @param {(userValues: import("../duck-player.js").UISettings) => void} cb
      */
     onUIValuesChanged(cb) {
-        return this.messaging.subscribe('onUIValuesChanged', cb);
+        return this.messaging.subscribe('onUIValuesChanged', (value) => {
+            cb(/** @type {import("../duck-player.js").UISettings} */ (value));
+        });
     }
 
     /**
      * This allows our SERP to interact with Duck Player settings.
      */
     serpProxy() {
+        /**
+         * @param {string} kind
+         * @param {unknown} data
+         */
         function respond(kind, data) {
             window.dispatchEvent(
                 new CustomEvent(constants.MSG_NAME_PROXY_RESPONSE, {
@@ -121,7 +129,7 @@ export class DuckPlayerOverlayMessages {
             try {
                 assertCustomEvent(evt);
                 if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
-                    return this.setUserValues(evt.detail.data)
+                    return this.setUserValues(/** @type {import("../duck-player.js").UserValues} */ (evt.detail.data))
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch(console.error);
                 }
@@ -143,7 +151,7 @@ export class DuckPlayerOverlayMessages {
 
 /**
  * @param {Event} event
- * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
+ * @returns {asserts event is CustomEvent<{kind: string, data: unknown}>}
  */
 function assertCustomEvent(event) {
     if (!('detail' in event)) throw new Error('none-custom event');

@@ -74,7 +74,7 @@ function Stage({ entries }) {
                 const matchingMinus1 = matching.length === 1 ? [] : matching.slice(0, -1);
 
                 without.searchParams.delete('id');
-                for (let string of [...others, ...matchingMinus1]) {
+                for (const string of [...others, ...matchingMinus1]) {
                     without.searchParams.append('id', string);
                 }
 
@@ -218,12 +218,6 @@ export function TubeGrid({ children }) {
  * @param {Array} options.entries - The list of examples to choose from, each represented as an array with an id.
  */
 function Append({ entries }) {
-    function onReset() {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('id');
-        window.location.href = url.toString();
-    }
-
     function onSubmit(event) {
         if (!event.target) return;
         event.preventDefault();
