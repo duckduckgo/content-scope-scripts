@@ -63,7 +63,11 @@ jobs:
 
             - name: Run Snapshot Tests
               id: snapshot_tests
-              run: npm run test-int-snapshots
+              # `--max-failures=5` caps how many failures we surface on CI to
+              # keep the report short. It's applied here (not in the package.json
+              # script) so the Update Snapshots workflow, which runs the same
+              # script then re-runs with `--last-failed`, isn't capped to 5.
+              run: npm run test-int-snapshots -- --max-failures=5
 
             - uses: actions/upload-artifact@v7
               if: always()
