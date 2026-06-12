@@ -2,6 +2,28 @@ import AutofillPasskeys from '../src/features/autofill-passkeys.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
 /**
+ * Race the given promise against a setTimeout-based sentinel so the assertion
+ * actually proves the promise is still pending — not just that the
+ * already-settled sentinel won the microtask race. Returns 'pending' iff the
+ * promise hasn't settled within `timeoutMs`; otherwise resolves/rejects with
+ * the promise's value/reason as `{ type, value }` / `{ type, reason }`.
+ *
+ * @template T
+ * @param {Promise<T>} promise
+ * @param {number} [timeoutMs]
+ * @returns {Promise<'pending' | { type: 'resolved'; value: T } | { type: 'rejected'; reason: unknown }>}
+ */
+function settledOrPending(promise, timeoutMs = 50) {
+    return Promise.race([
+        promise.then(
+            (value) => /** @type {const} */ ({ type: 'resolved', value }),
+            (reason) => /** @type {const} */ ({ type: 'rejected', reason }),
+        ),
+        new Promise((resolve) => setTimeout(() => resolve('pending'), timeoutMs)),
+    ]);
+}
+
+/**
  * @typedef {AutofillPasskeys & {
  *   _messaging: { notify: jasmine.Spy; subscribe: jasmine.Spy };
  *   emitPasskeySelected: (data: unknown) => void;
@@ -314,7 +336,7 @@ describe('AutofillPasskeys', () => {
             );
 
             feature.emitPasskeySelected({ credentialId: btoa('cred'), requestId: 'wrong-id' });
-            await expectAsync(Promise.race([promise, Promise.resolve('pending')])).toBeResolvedTo('pending');
+            expect(await settledOrPending(promise)).toBe('pending');
             expect(originalGet).not.toHaveBeenCalled();
         });
 
@@ -332,7 +354,7 @@ describe('AutofillPasskeys', () => {
 
             feature.emitPasskeySelected({ credentialId: '', requestId });
             feature.emitPasskeySelected({ credentialId: 123, requestId });
-            await expectAsync(Promise.race([promise, Promise.resolve('pending')])).toBeResolvedTo('pending');
+            expect(await settledOrPending(promise)).toBe('pending');
             expect(originalGet).not.toHaveBeenCalled();
         });
 
