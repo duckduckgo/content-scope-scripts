@@ -27,18 +27,17 @@ export class AddressFullExtractor {
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
     extract(strs, extractorParams) {
-        return (
-            strs
-                .map((str) => str.replace('\n', ' '))
-                .map((str) => stringToList(str, extractorParams.separator))
-                .flat()
-                .map((str) => parseAddress.parseLocation(str) || {})
-                // at least 'city' is required.
-                .filter((parsed) => Boolean(parsed?.city))
-                .map((addr) => {
-                    return { city: addr.city, state: addr.state || null };
-                })
-        );
+        return strs
+            .map((str) => str.replace('\n', ' '))
+            .map((str) => stringToList(str, extractorParams.separator))
+            .flat()
+            .flatMap((str) => {
+                const parsed = parseAddress.parseLocation(str);
+                if (parsed?.city) {
+                    return [{ city: parsed.city, state: parsed.state ?? null }];
+                }
+                return [];
+            });
     }
 }
 
