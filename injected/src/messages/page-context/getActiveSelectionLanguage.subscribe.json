@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GetActiveSelectionLanguage",
+  "description": "Subscription to get the active selection's language",
+  "properties": {},
+  "additionalProperties": false
+}
