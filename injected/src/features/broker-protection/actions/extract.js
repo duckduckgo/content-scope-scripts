@@ -91,6 +91,7 @@ export function extractProfiles(action, userData, root = document) {
 
     return {
         results: profilesElementList.map((element) => {
+            /** @type {(key: string, value: ExtractProfileProperty) => ({ innerText: string } | { textContent: string })[]} */
             const elementFactory = (_, value) => {
                 return value?.findElements
                     ? cleanArray(getElements(element, value.selector))
@@ -129,12 +130,13 @@ export function extractProfiles(action, userData, root = document) {
  *   "profileUrl": "https://example.com/1234"
  * }
  *
- * @param {(key: string, value: ExtractProfileProperty) => {innerText: string}[]} elementFactory
+ * @param {(key: string, value: ExtractProfileProperty) => ({ innerText: string } | { textContent: string })[]} elementFactory
  *   a function that produces elements for a given key + ExtractProfileProperty
  * @param {Record<string, ExtractProfileProperty>} extractData
  * @return {Record<string, any>}
  */
 export function createProfile(elementFactory, extractData) {
+    /** @type {Record<string, unknown>} */
     const output = {};
     for (const [key, value] of Object.entries(extractData)) {
         if (!value?.selector) {
@@ -163,7 +165,7 @@ export function createProfile(elementFactory, extractData) {
  * @param {({ textContent: string } | { innerText: string })[]} elements
  * @param {string} key
  * @param {ExtractProfileProperty} extractField
- * @return {string[]}
+ * @return {(string | null)[]}
  */
 export function stringValuesFromElements(elements, key, extractField) {
     return elements.map((element) => {
@@ -178,7 +180,7 @@ export function stringValuesFromElements(elements, key, extractField) {
         }
 
         if (!elementValue) {
-            return elementValue;
+            return null;
         }
 
         if (extractField?.afterText) {
@@ -186,7 +188,8 @@ export function stringValuesFromElements(elements, key, extractField) {
         }
         // there is a case where we may want to get the text "after" and "before" certain text
         if (extractField?.beforeText) {
-            elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue;
+            const parts = elementValue.split(extractField.beforeText);
+            elementValue = (parts[0] ?? elementValue).trim() || elementValue;
         }
 
         elementValue = removeCommonSuffixesAndPrefixes(elementValue);
@@ -202,6 +205,7 @@ export function stringValuesFromElements(elements, key, extractField) {
  * @return {{score: number, matchedFields: string[], result: boolean}}
  */
 export function scrapedDataMatchesUserData(userData, scrapedData) {
+    /** @type {string[]} */
     const matchedFields = [];
 
     // the name matching is always a *requirement*
@@ -371,10 +375,11 @@ export function stringToList(inputList, separator) {
     return cleanArray(inputList.split(splitOn));
 }
 
-// For extraction
+// For extraction - element may have href (anchor), innerText, or textContent depending on context
+/** @type {Record<string, (element: { href?: string; innerText?: string; textContent?: string } | null) => string | null>} */
 const rules = {
-    profileUrl: function (link) {
-        return link?.href ?? null;
+    profileUrl: function (element) {
+        return element?.href ?? null;
     },
 };
 
