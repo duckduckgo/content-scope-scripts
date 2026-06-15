@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Page Context",
+  "description": "Extracted page content for a specific tab, used as a Duck.ai chat attachment. Mirrors the shape produced by the Duck.ai sidebar's page-context extraction.",
+  "type": "object",
+  "required": ["title", "url", "favicon"],
+  "properties": {
+    "tabId": {
+      "description": "Identifier of the source tab. Optional on responses from native (NTP maps responses back to the requested tab); always populated by NTP when echoed on submit.",
+      "type": "string"
+    },
+    "title": {
+      "description": "Title of the source tab",
+      "type": "string"
+    },
+    "url": {
+      "description": "URL of the source tab",
+      "type": "string"
+    },
+    "favicon": {
+      "$ref": "./favicon.json"
+    },
+    "content": {
+      "description": "Markdown-formatted extracted page content. Empty string is allowed for pages with no extractable content.",
+      "type": "string"
+    },
+    "truncated": {
+      "description": "True when the returned content was truncated to fit within native-imposed limits.",
+      "type": "boolean"
+    },
+    "fullContentLength": {
+      "description": "The unbounded length of the source content, before any truncation. Useful for surfacing truncation indicators in the UI.",
+      "type": "number"
+    }
+  }
+}

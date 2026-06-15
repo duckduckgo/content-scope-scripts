@@ -166,12 +166,16 @@
     "description": "Title of the omnibar widget in the customizer panel."
   },
   "omnibar_aiChatFormPlaceholder": {
-    "title": "Ask privately",
+    "title": "Ask anything privately",
     "description": "Placeholder text for the AI chat input field."
   },
   "omnibar_aiChatFormSubmitButtonLabel": {
     "title": "Send",
     "description": "Accesible label for the AI chat submit button."
+  },
+  "omnibar_aiChatFormVoiceButtonLabel": {
+    "title": "Start voice chat",
+    "description": "Accessible label for the voice-chat button shown in place of the AI chat submit button when the input is empty and the feature is enabled."
   },
   "omnibar_logoAlt": {
     "title": "DuckDuckGo",
@@ -230,8 +234,8 @@
     "description": "Description message in the popover including privacy statement and customize option."
   },
   "omnibar_attachImageLabel": {
-    "title": "Attach image",
-    "description": "Accessible label for the attach image button in the AI chat toolbar."
+    "title": "Add Images",
+    "description": "Label for the attach-image entry — both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
   },
   "omnibar_removeImageLabel": {
     "title": "Remove image",
@@ -245,6 +249,10 @@
     "title": "You can only attach {limit} images at a time.",
     "description": "Warning shown when user attaches more images than the allowed maximum."
   },
+  "omnibar_fileAttachmentLimitWarning": {
+    "title": "You can only attach {limit} files at a time.",
+    "description": "Warning shown when user attaches more files than the allowed maximum."
+  },
   "omnibar_imageTooLargeError": {
     "title": "Image is too large. Please use an image smaller than 10000×10000 pixels.",
     "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
@@ -256,6 +264,110 @@
   "omnibar_advancedModelsSectionHeader": {
     "title": "Advanced Models - DuckDuckGo subscription",
     "description": "Section header in the model picker for premium models that require a subscription."
+  },
+  "omnibar_viewAllChats": {
+    "title": "View all chats",
+    "description": "Link text to view all AI chat history."
+  },
+  "omnibar_openDuckAi": {
+    "title": "Open Duck.ai",
+    "description": "Link text to open the Duck.ai chat interface."
+  },
+  "omnibar_createImageLabel": {
+    "title": "Create Image",
+    "description": "Label for the toggle button to enable image generation mode in the AI chat toolbar."
+  },
+  "omnibar_imageGenerationPlaceholder": {
+    "title": "Describe the image you want to create",
+    "description": "Placeholder text for the AI chat input when image generation mode is active."
+  },
+  "omnibar_toolsMenuLabel": {
+    "title": "Tools",
+    "description": "Accessible label for the tools menu button in the AI chat toolbar."
+  },
+  "omnibar_createImageDescription": {
+    "title": "Turn text into images",
+    "description": "Description for the Create Image tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchLabel": {
+    "title": "Web Search",
+    "description": "Label for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_webSearchDescription": {
+    "title": "Source answers from the web",
+    "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_imageGenerationWithAttachmentPlaceholder": {
+    "title": "Describe changes based on the image",
+    "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
+  },
+  "omnibar_reasoningPickerLabel": {
+    "title": "Reasoning",
+    "description": "Accessible label (and chip text) for the reasoning-effort picker in the AI chat toolbar."
+  },
+  "omnibar_reasoningEffortFastLabel": {
+    "title": "Fast",
+    "description": "Label for the 'fast' reasoning-effort option (answers right away, no deliberate reasoning)."
+  },
+  "omnibar_reasoningEffortFastDescription": {
+    "title": "Answers right away",
+    "description": "Subtitle for the 'fast' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortReasoningLabel": {
+    "title": "Reasoning",
+    "description": "Label for the 'reasoning' reasoning-effort option (model spends a moment reasoning)."
+  },
+  "omnibar_reasoningEffortReasoningDescription": {
+    "title": "Takes a moment to respond",
+    "description": "Subtitle for the 'reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_reasoningEffortExtendedReasoningLabel": {
+    "title": "Extended Reasoning",
+    "description": "Label for the 'extended reasoning' reasoning-effort option (model researches before responding)."
+  },
+  "omnibar_reasoningEffortExtendedReasoningDescription": {
+    "title": "Researches before responding",
+    "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
+  },
+  "omnibar_attachMenuLabel": {
+    "title": "Add Attachment",
+    "description": "Accessible label for the paperclip button that opens a menu offering image attachments and tab content attachments."
+  },
+  "omnibar_attachImageOrFileLabel": {
+    "title": "Add Images or PDFs",
+    "description": "Label for the attach entry when the active model accepts both images and PDFs — covers the menu item in the combined dropdown and the standalone paperclip button's aria-label."
+  },
+  "omnibar_attachFileLabel": {
+    "title": "Add PDFs",
+    "description": "Label for the attach-PDF entry — both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
+  },
+  "omnibar_removeAttachedFileLabel": {
+    "title": "Remove {fileName}",
+    "description": "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
+  },
+  "omnibar_attachPageContentLabel": {
+    "title": "Add Page Content",
+    "description": "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
+  },
+  "omnibar_attachTabsPickerTitle": {
+    "title": "Tabs",
+    "description": "Header text for the open-tabs picker panel."
+  },
+  "omnibar_attachTabsPickerLabel": {
+    "title": "Pick an open tab to add",
+    "description": "Accessible label for the open-tabs picker panel (the dialog wrapper around the listbox)."
+  },
+  "omnibar_attachTabsNoMatches": {
+    "title": "No matching tabs",
+    "description": "Empty-state message shown in the @-mention tab picker when no open tabs match what the user typed."
+  },
+  "omnibar_attachTabsNoOpenTabs": {
+    "title": "No page content available",
+    "description": "Empty-state message shown in the attach-page-content tabs dropdown when there is no page content available to attach."
+  },
+  "omnibar_removeAttachedTabLabel": {
+    "title": "Remove {title}",
+    "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
   },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
@@ -312,6 +424,18 @@
   "nextStepsList_duckplayer_actionText": {
     "title": "Try Duck Player",
     "note": "Button text of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_youtubeAdBlocking_title": {
+    "title": "Watch YouTube Without Ads",
+    "note": "Title of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps List card for YouTube ad blocking"
+  },
+  "nextStepsList_youtubeAdBlocking_actionText": {
+    "title": "Visit YouTube",
+    "note": "Button text of the Next Steps List card for YouTube ad blocking"
   },
   "nextStepsList_emailProtection_title": {
     "title": "Protect Your Email Address and Block Trackers",
@@ -436,6 +560,18 @@
   "nextSteps_duckPlayer_actionText": {
     "title": "Try Duck Player",
     "note": "Button text of the Next Steps card for adopting DuckPlayer"
+  },
+  "nextSteps_youtubeAdBlocking_title": {
+    "title": "Watch YouTube Without Ads",
+    "note": "Title of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps card for YouTube ad blocking"
+  },
+  "nextSteps_youtubeAdBlocking_actionText": {
+    "title": "Visit YouTube",
+    "note": "Button text of the Next Steps card for YouTube ad blocking"
   },
   "nextSteps_addAppDockMac_title": {
     "title": "Add App to the Dock",

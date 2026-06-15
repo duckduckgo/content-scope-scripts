@@ -18,6 +18,19 @@
       "description": "The selected AI model identifier. Optional - if not provided, the backend will use the default model.",
       "type": "string"
     },
+    "reasoningEffort": {
+      "$ref": "./types/reasoning-effort.json"
+    },
+    "mode": {
+      "description": "Duck.ai mode. If omitted, defaults to 'chat'. Use 'voice-mode' for 1-click voice-chat handoff (no chat content needed — Duck.ai routes to the voice flow on mode alone).",
+      "type": "string",
+      "enum": ["chat", "image-generation", "voice-mode"]
+    },
+    "toolChoice": {
+      "description": "Tools to enable for this chat session.",
+      "type": "array",
+      "items": { "$ref": "./types/tool-id.json" }
+    },
     "images": {
       "description": "Images to attach to the chat. Optional - maximum 3 images. Images are resized to 512px max dimension; encoded output is capped at 10MB per image. WebP images are converted to PNG.",
       "type": "array",
@@ -37,6 +50,16 @@
           }
         }
       }
+    },
+    "pageContext": {
+      "description": "Page contexts attached from open tabs via the attach-tabs picker. Each entry is the same PageContext shape returned by `omnibar_getTabContent` and is guaranteed by NTP to carry a `tabId` so native can attribute attachments back to their source tab. Omitted when no tabs are attached so existing native handlers continue to work unchanged.",
+      "type": "array",
+      "items": { "$ref": "./types/page-context.json" }
+    },
+    "files": {
+      "description": "Files (PDFs in v1) attached via the paperclip menu. Each entry mirrors Duck.ai's `NativePromptFile` shape so native forwards them through unchanged. Omitted when no files are attached.",
+      "type": "array",
+      "items": { "$ref": "./types/native-prompt-file.json" }
     }
   }
 }

@@ -65,9 +65,10 @@ export function useWarningHeading() {
             return t('sslPageHeading');
         case 'malware':
         case 'phishing':
-        case 'scam':
+        case 'scam': {
             const translationKey = /** @type {const} */ (`${kind}PageHeading`);
             return t(translationKey).replace('{newline}', '\n');
+        }
         default:
     }
 
@@ -75,7 +76,7 @@ export function useWarningHeading() {
 }
 
 /**
- * @returns {(string|import("preact/src/jsx").JSXInternal.Element)[]}
+ * @returns {(string|import("preact").JSX.Element)[]}
  */
 export function useWarningContent() {
     const { t } = useTypedTranslation();
@@ -106,7 +107,7 @@ export function useWarningContent() {
 }
 
 /**
- * @returns {string|import("preact/src/jsx").JSXInternal.Element}
+ * @returns {string|import("preact").JSX.Element}
  */
 export function useAdvancedInfoHeading() {
     const { t } = useTypedTranslation();
@@ -118,11 +119,12 @@ export function useAdvancedInfoHeading() {
             return t('sslAdvancedInfoHeading');
         case 'malware':
         case 'phishing':
-        case 'scam':
+        case 'scam': {
             const { url } = /** @type {MaliciousSite} */ (errorData);
             const anchorTagParams = reportSiteAnchorTagParams(url);
             const translationKey = /** @type {const} */ (`${kind}AdvancedInfoHeading`);
             return <Trans str={t(translationKey)} values={{ a: anchorTagParams }} />;
+        }
         default:
     }
 
@@ -130,7 +132,7 @@ export function useAdvancedInfoHeading() {
 }
 
 /**
- * @returns {(string|import("preact/src/jsx").JSXInternal.Element)[]}
+ * @returns {(string|import("preact").JSX.Element)[]}
  */
 export function useAdvancedInfoContent() {
     const { t } = useTypedTranslation();
@@ -150,9 +152,10 @@ export function useAdvancedInfoContent() {
                 return [<Trans str={t('sslInvalidAdvancedInfoText', { domain })} values="" />];
             case 'selfSigned':
                 return [<Trans str={t('sslSelfSignedAdvancedInfoText', { domain })} values="" />];
-            case 'wrongHost':
+            case 'wrongHost': {
                 const { eTldPlus1 } = /** @type {SSLWrongHost} */ (errorData);
                 return [<Trans str={t('sslWrongHostAdvancedInfoText', { domain, eTldPlus1 })} values="" />];
+            }
             default:
                 throw new Error(`Unhandled SSL error type ${errorType}`);
         }

@@ -27,6 +27,7 @@ export function App({ children }) {
             console.log('DATA RECEIVED', data);
             setReleaseData(data);
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- workaround during eslint react rollout; consider removing and addressing deps
     }, []);
 
     /**

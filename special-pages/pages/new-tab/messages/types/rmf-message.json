@@ -141,11 +141,13 @@
                 "DDGAnnounce",
                 "DuckAi",
                 "PIR",
+                "Preview",
                 "Radar",
                 "RadarCheckGreen",
                 "RadarCheckPurple",
                 "Subscription",
-                "VeryCriticalUpdate"
+                "VeryCriticalUpdate",
+                "YoutubeNew"
             ]
         }
     }

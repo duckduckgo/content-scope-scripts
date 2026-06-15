@@ -2,10 +2,15 @@
   "compilerOptions": {
     "target": "es2021",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "alwaysStrict": true,
     "allowJs": true,
     "checkJs": true,
+    "strict": false,
+    "ignoreDeprecations": "6.0",
+    "types": [
+      "*"
+    ],
     "noEmit": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,

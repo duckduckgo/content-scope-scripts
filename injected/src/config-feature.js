@@ -9,7 +9,7 @@ import {
     isMaxSupportedVersion,
     isStateEnabled,
 } from './utils.js';
-import { URLPattern } from 'urlpattern-polyfill';
+import { URLPattern as URLPatternPolyfill } from 'urlpattern-polyfill';
 
 /**
  * Used to match conditional changes for a settings feature.
@@ -130,13 +130,16 @@ export default class ConfigFeature {
      * @protected
      */
     matchConditionalFeatureSetting(featureKeyName) {
+        /** @type {ConditionalSettingEntry[]} */
         const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
-        return conditionalChanges.filter((/** @type {any} */ rule) => {
+        return conditionalChanges.filter((rule) => {
+            /** @type {ConditionBlockOrArray | undefined} */
             let condition = rule.condition;
             // Support shorthand for domain matching for backwards compatibility
-            if (condition === undefined && 'domain' in rule) {
+            if (condition === undefined && rule.domain !== undefined) {
                 condition = this._domainToConditonBlocks(rule.domain);
             }
+            if (condition === undefined) return true;
             return this._matchConditionalBlockOrArray(condition);
         });
     }
@@ -273,9 +276,9 @@ export default class ConfigFeature {
         if (!url) return false;
         if (typeof conditionBlock.urlPattern === 'string') {
             // Use the current URL as the base for matching
-            return new URLPattern(conditionBlock.urlPattern, url).test(url);
+            return new URLPatternPolyfill(conditionBlock.urlPattern, url).test(url);
         }
-        const pattern = new URLPattern(conditionBlock.urlPattern);
+        const pattern = new URLPatternPolyfill(conditionBlock.urlPattern);
         return pattern.test(url);
     }
 

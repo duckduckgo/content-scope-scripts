@@ -17,7 +17,7 @@ test.describe('onboarding v3', () => {
     });
 
     test.describe('Given I am on the make default step', () => {
-        test('Then "Play YouTube without targeted ads" appears when ad blocking is enabled (placebo variant)', async ({
+        test('Then "Play YouTube videos without ads" appears when ad blocking is enabled (placebo variant)', async ({
             page,
         }, workerInfo) => {
             const onboarding = OnboardingV3Page.create(page, workerInfo);

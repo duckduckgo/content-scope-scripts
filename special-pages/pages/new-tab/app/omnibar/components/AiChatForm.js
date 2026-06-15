@@ -1,51 +1,72 @@
 import { h } from 'preact';
 import { useContext, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
-import { useAiChatsContext } from './AiChatsProvider';
+import { useAiChatsContext, VIEW_ALL_CHATS_ELEMENT_ID } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
 import styles from './AiChatForm.module.css';
 
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ *
+ * @typedef {object} ComboboxOverride
+ * @property {string} listboxId - Listbox the textarea is currently driving.
+ * @property {string|null} activeDescendantId - Currently-highlighted item inside that listbox.
  */
 
 /**
- * A simple form shell for the AI chat input. Renders a textarea, submit button,
- * and tool-provided UI via slots. The parent owns all tool state and assembles
- * the submit payload; this component just provides (chat, target) on submit.
+ * A simple form shell for the AI chat input. Renders a textarea plus two toolbar slots
+ * (`toolbarLeft`, `toolbarRight`). The parent owns all submission UI (submit button,
+ * voice button, etc.) and renders it via the right slot — this component only forwards
+ * Enter-key submissions through `onSubmit(query, target)`.
  *
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} [props.disabled]
- * @param {(query: string) => void} props.onChange
+ * @param {(query: string, caret: number) => void} props.onChange
  * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
+ * @param {string} [props.placeholder]
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
  * @param {import('preact').ComponentChildren} [props.toolbarRight]
+ * @param {(event: KeyboardEvent) => ({ handled: boolean } | void)} [props.onTextareaKeyDown]
+ * @param {ComboboxOverride|null} [props.combobox]
+ * @param {import('preact').RefObject<HTMLTextAreaElement>} props.textareaRef - Ref the parent owns and uses to drive focus/selection or measure layout.
  */
-export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, toolbarLeft, toolbarRight }) {
+export function AiChatForm({
+    query,
+    autoFocus,
+    disabled,
+    onChange,
+    onSubmit,
+    children,
+    placeholder,
+    toolbarLeft,
+    toolbarRight,
+    onTextareaKeyDown,
+    combobox = null,
+    textareaRef,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { openAiChat } = useContext(OmnibarContext);
-    const { chats, selectedChat, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    const { openAiChat, viewAllAiChats } = useContext(OmnibarContext);
+    const { chats, selectedChat, viewAllChatsSelected, selectPreviousChat, selectNextChat, clearSelectedChat, aiChatsListId } =
+        useAiChatsContext();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
-    const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
 
     useEffect(() => {
-        if (autoFocus && textAreaRef.current) {
-            textAreaRef.current.focus();
+        if (autoFocus && textareaRef.current) {
+            textareaRef.current.focus();
         }
-    }, [autoFocus]);
+    }, [autoFocus, textareaRef]);
 
     useLayoutEffect(() => {
-        const textArea = textAreaRef.current;
+        const textArea = textareaRef.current;
         const form = formRef.current;
 
         if (!textArea || !form) return;
@@ -59,7 +80,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         } else {
             form.classList.remove(styles.hasScroll);
         }
-    }, [query]);
+    }, [query, textareaRef]);
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
@@ -70,19 +91,21 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
 
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
+        // Let the parent claim keys first (e.g. arrow keys → mention picker); skip ours if it does.
+        const result = onTextareaKeyDown?.(event);
+        if (result?.handled) return;
+
         switch (event.key) {
             case 'ArrowUp': {
-                const success = selectPreviousChat();
-                if (success) event.preventDefault();
+                if (selectPreviousChat()) event.preventDefault();
                 break;
             }
             case 'ArrowDown': {
-                const success = selectNextChat();
-                if (success) event.preventDefault();
+                if (selectNextChat()) event.preventDefault();
                 break;
             }
             case 'Escape':
-                if (selectedChat) {
+                if (selectedChat || viewAllChatsSelected) {
                     event.preventDefault();
                     clearSelectedChat();
                 }
@@ -93,6 +116,13 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
                 }
 
                 event.preventDefault();
+
+                if (viewAllChatsSelected) {
+                    viewAllAiChats({
+                        target: eventToTarget(event, platformName),
+                    });
+                    break;
+                }
 
                 if (selectedChat) {
                     openAiChat({
@@ -113,13 +143,28 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         }
     };
 
-    /** @type {(event: MouseEvent) => void} */
-    const handleClickSubmit = (event) => {
-        event.preventDefault();
-        if (disabled) return;
-        event.stopPropagation();
-        onSubmit(query, eventToTarget(event, platformName));
+    const getActiveDescendant = () => {
+        if (combobox?.activeDescendantId) {
+            return combobox.activeDescendantId;
+        }
+
+        if (selectedChat) {
+            return getAiChatElementId(selectedChat.chatId);
+        }
+
+        if (viewAllChatsSelected && chats.length > 0) {
+            return VIEW_ALL_CHATS_ELEMENT_ID;
+        }
+
+        return undefined;
     };
+
+    /** @param {{ currentTarget: HTMLTextAreaElement }} event */
+    const emitChange = (event) => {
+        onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
+    };
+
+    const placeholderText = placeholder || t('omnibar_aiChatFormPlaceholder');
 
     return (
         <form
@@ -127,46 +172,41 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
             class={styles.form}
             onSubmit={handleSubmit}
             onClick={(e) => {
-                if (e.target === e.currentTarget || e.target === textAreaRef.current) {
-                    textAreaRef.current?.focus();
+                if (e.target === e.currentTarget || e.target === textareaRef.current) {
+                    textareaRef.current?.focus();
                 }
             }}
         >
             <textarea
-                ref={textAreaRef}
+                ref={textareaRef}
                 class={styles.textarea}
                 value={query}
-                placeholder={t('omnibar_aiChatFormPlaceholder')}
-                aria-label={t('omnibar_aiChatFormPlaceholder')}
-                aria-expanded={chats.length > 0}
+                placeholder={placeholderText}
+                aria-label={placeholderText}
+                aria-expanded={combobox ? true : chats.length > 0}
                 aria-haspopup="listbox"
-                aria-controls={aiChatsListId}
-                aria-activedescendant={selectedChat ? getAiChatElementId(selectedChat.chatId) : undefined}
+                aria-controls={combobox?.listboxId ?? aiChatsListId}
+                aria-activedescendant={getActiveDescendant()}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
-                onChange={(event) => {
-                    onChange(event.currentTarget.value);
+                // Emit caret with value so the mention flow can detect active `@` mentions.
+                onInput={(event) => {
+                    emitChange(event);
                     clearSelectedChat();
                 }}
+                onKeyUp={(event) => {
+                    // Caret moves (arrows, Home/End) don't fire onInput but can enter/exit an `@`; re-emit.
+                    if (event.key.startsWith('Arrow') || event.key === 'Home' || event.key === 'End') {
+                        emitChange(event);
+                    }
+                }}
+                onClick={emitChange}
             />
             {children}
             <div tabIndex={-1} class={styles.buttons}>
                 {toolbarLeft}
-                <div class={styles.rightButtons}>
-                    {toolbarRight}
-                    <button
-                        tabIndex={0}
-                        type="submit"
-                        class={styles.submitButton}
-                        aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
-                        disabled={disabled}
-                        onClick={handleClickSubmit}
-                        onAuxClick={handleClickSubmit}
-                    >
-                        <ArrowRightIcon />
-                    </button>
-                </div>
+                <div class={styles.rightButtons}>{toolbarRight}</div>
             </div>
         </form>
     );

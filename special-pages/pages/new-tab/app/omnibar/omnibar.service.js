@@ -10,6 +10,8 @@ import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
  * @typedef {import("../../types/new-tab.js").AiChatsData} AiChatsData
  * @typedef {import("../../types/new-tab.js").OpenAIChatAction} OpenAIChatAction
  * @typedef {import("../../types/new-tab.js").SubmitChatAction} SubmitChatAction
+ * @typedef {import("../../types/new-tab.js").GetOpenTabsResponse} GetOpenTabsResponse
+ * @typedef {import("../../types/new-tab.js").PageContext} PageContext
  */
 
 export class OmnibarService {
@@ -102,9 +104,29 @@ export class OmnibarService {
      */
     setSelectedModelId(selectedModelId) {
         this.configService.update((old) => {
+            const nextModel = (old.aiModelSections ?? []).flatMap((section) => section.items).find((model) => model.id === selectedModelId);
+            const supportedEfforts = nextModel?.supportedReasoningEffort ?? [];
+
+            const currentEffort = old.selectedReasoningEffort;
+            const nextEffort =
+                currentEffort && supportedEfforts.includes(currentEffort) ? currentEffort : (supportedEfforts[0] ?? undefined);
+
             return {
                 ...old,
                 selectedModelId,
+                selectedReasoningEffort: nextEffort,
+            };
+        });
+    }
+
+    /**
+     * @param {import('../../types/new-tab.js').ReasoningEffort} selectedReasoningEffort
+     */
+    setSelectedReasoningEffort(selectedReasoningEffort) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                selectedReasoningEffort,
             };
         });
     }
@@ -179,5 +201,31 @@ export class OmnibarService {
      */
     openAiChat(params) {
         this.ntp.messaging.notify('omnibar_openAiChat', params);
+    }
+
+    /**
+     * Notify native to open the full AI chats list view
+     * @param {{ target: OpenTarget }} params
+     */
+    viewAllAiChats(params) {
+        this.ntp.messaging.notify('omnibar_viewAllAIChats', params);
+    }
+
+    /**
+     * Requests the list of open tabs available for attachment.
+     * @returns {Promise<GetOpenTabsResponse>}
+     */
+    getOpenTabs() {
+        return this.ntp.messaging.request('omnibar_getOpenTabs');
+    }
+
+    /**
+     * Requests extracted page content for a tab; resolves `null` if the tab can't be read.
+     * @param {string} tabId
+     * @returns {Promise<PageContext | null>}
+     */
+    async getTabContent(tabId) {
+        const response = await this.ntp.messaging.request('omnibar_getTabContent', { tabId });
+        return response?.pageContext ?? null;
     }
 }

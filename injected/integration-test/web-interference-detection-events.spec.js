@@ -27,7 +27,7 @@ test.describe('YouTube detection events via webInterferenceDetection', () => {
             (webEventMessages[0].payload).params;
         expect(params).toEqual({
             type: 'youtube_adBlocker',
-            data: {},
+            data: { loginState: 'unknown' },
         });
     });
 

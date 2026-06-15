@@ -392,6 +392,12 @@ const functionMap = {
  * @returns
  */
 export function processAttr(configSetting, defaultValue) {
+    // Normalize NaN to undefined — NaN breaks identity checks (NaN !== NaN)
+    // and is never a valid config default.
+    if (typeof defaultValue === 'number' && isNaN(defaultValue)) {
+        defaultValue = undefined;
+    }
+
     if (configSetting === undefined) {
         return defaultValue;
     }
@@ -612,6 +618,10 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
         return false;
     }
     const domainParts = topLevelHostname.split('.');
+
+    if (domainParts.length === 1) {
+        return featureList.some((entry) => entry.domain === topLevelHostname);
+    }
 
     // walk up the domain to see if it's unprotected
     while (domainParts.length > 1 && !unprotectedDomain) {
@@ -869,6 +879,9 @@ export function computeEnabledFeatures(data, topLevelHostname, platform, platfor
                     return false;
                 }
             }
+            if (isSelfGatingFeature(featureName)) {
+                return isStateEnabled(feature.state, platform);
+            }
             return isStateEnabled(feature.state, platform) && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
         })
         .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
@@ -922,13 +935,30 @@ export const platformSpecificFeatures = [
     'webEvents',
     'pageObserver',
     'hover',
+    'trackerProtection', // only enabled on apple platforms
 ];
+/**
+ * Features that bypass exception-based disabling in computeEnabledFeatures.
+ * These features handle their own exceptions internally (e.g., to stay active
+ * for reporting on excepted domains while adjusting behavior).
+ * @type {FeatureName[]}
+ */
+export const selfGatingFeatures = ['trackerProtection'];
+
 /**
  * @param {string} featureName
  * @returns {boolean}
  */
 export function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
+}
+
+/**
+ * @param {string} featureName
+ * @returns {boolean}
+ */
+export function isSelfGatingFeature(featureName) {
+    return selfGatingFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
 }
 
 /**

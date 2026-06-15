@@ -1,8 +1,11 @@
 import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
-import { LogoStacked } from '../../components/Icons';
+import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
+import { eventToTarget } from '../../../../../shared/handlers';
+import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
+import aiChatFormStyles from './AiChatForm.module.css';
 import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider';
 import { ResizingContainer } from './ResizingContainer';
@@ -16,12 +19,24 @@ import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.
 import { Popover } from '../../components/Popover';
 import { useDrawerControls, useDrawerEventListeners } from '../../components/Drawer';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
-import { ImageAttachmentContent, ImageUploadButton } from './chat-tools/image-attachment/ImageAttachmentTool';
+import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
+import { MAX_FILES, useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
+import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
+import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
+import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
+import { useActiveTools } from './chat-tools/useActiveTools';
+import { useSelectedModel } from './useSelectedModel';
+import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
+import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
+import { MentionPicker } from './chat-tools/tab-attachment/MentionPicker';
+import { OpenTabsProvider } from './chat-tools/tab-attachment/OpenTabsProvider';
+import { useMentionPicker } from './chat-tools/tab-attachment/useMentionPicker';
+import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments';
 
 /**
- * @typedef {import('../strings.json')} Strings
+ * @typedef {typeof import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
@@ -34,10 +49,25 @@ import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
  * @param {boolean} props.enableAi
  * @param {boolean} props.enableRecentAiChats
+ * @param {boolean} props.showViewAllAiChats
  * @param {boolean} props.showCustomizePopover
+ * @param {boolean} [props.enableVoiceChatAccess]
+ * @param {boolean} [props.enableAskAiSuggestion]
+ * @param {boolean} [props.enableAttachTabs]
  * @param {string|null|undefined} props.tabId
  */
-export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCustomizePopover, tabId }) {
+export function Omnibar({
+    mode,
+    setMode,
+    enableAi,
+    enableRecentAiChats,
+    showViewAllAiChats = false,
+    showCustomizePopover,
+    enableVoiceChatAccess = false,
+    enableAskAiSuggestion = true,
+    enableAttachTabs = false,
+    tabId,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
@@ -113,8 +143,13 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
                     )}
                 </div>
             )}
-            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi}>
-                <AiChatsProvider query={query} autoFocus={autoFocus} enableRecentAiChats={enableRecentAiChats}>
+            <SearchFormProvider term={query} setTerm={setQuery} enableAi={enableAi} enableAskAiSuggestion={enableAskAiSuggestion}>
+                <AiChatsProvider
+                    query={query}
+                    autoFocus={autoFocus}
+                    enableRecentAiChats={enableRecentAiChats}
+                    showViewAllAiChats={showViewAllAiChats}
+                >
                     <div class={styles.spacer}>
                         <div class={styles.popup}>
                             {mode === 'search' ? (
@@ -130,13 +165,18 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
                                     <SuggestionsList onOpenSuggestion={handleOpenSuggestion} onSubmitChat={handleSubmitChat} />
                                 </>
                             ) : (
-                                <AiChatContent
-                                    query={query}
-                                    autoFocus={autoFocus}
-                                    enableRecentAiChats={enableRecentAiChats}
-                                    onChange={setQuery}
-                                    onSubmit={handleSubmitChat}
-                                />
+                                <OpenTabsProvider tabId={tabId} enabled={enableAttachTabs}>
+                                    <AiChatContent
+                                        query={query}
+                                        autoFocus={autoFocus}
+                                        enableRecentAiChats={enableRecentAiChats}
+                                        enableVoiceChatAccess={enableVoiceChatAccess}
+                                        enableAttachTabs={enableAttachTabs}
+                                        tabId={tabId}
+                                        onChange={setQuery}
+                                        onSubmit={handleSubmitChat}
+                                    />
+                                </OpenTabsProvider>
                             )}
                         </div>
                     </div>
@@ -151,56 +191,180 @@ export function Omnibar({ mode, setMode, enableAi, enableRecentAiChats, showCust
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
+ * @param {boolean} [props.enableVoiceChatAccess]
+ * @param {boolean} [props.enableAttachTabs]
+ * @param {string|null|undefined} [props.tabId]
  * @param {(query: string) => void} props.onChange
  * @param {(params: SubmitChatAction) => void} props.onSubmit
  */
-function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChange }) {
+function AiChatContent({
+    query,
+    autoFocus,
+    enableRecentAiChats,
+    enableVoiceChatAccess = false,
+    enableAttachTabs = false,
+    tabId,
+    onChange,
+    onSubmit,
+}) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const platformName = usePlatformName();
     const { showChats, hideChats } = useAiChatsContext();
-    const { state } = useContext(OmnibarContext);
+    const { selectedModel } = useSelectedModel();
+    const { selectedEffort } = useSelectedReasoningEffort();
+    const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
-    const selectedModelIdRef = useRef(/** @type {string|null} */ (null));
+    const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const [supportsImageUpload, setSupportsImageUpload] = useState(false);
-    const imageState = useImageAttachments();
-    const enableAiChatTools = state.config?.enableAiChatTools === true;
+    const imageState = useImageAttachments(tabId);
 
-    /** @type {(query: string) => void} */
-    const handleChange = (value) => {
+    const hasAttachedImages = imageState.attachedImages.length > 0;
+    const imageGenerationPlaceholder = hasAttachedImages
+        ? t('omnibar_imageGenerationWithAttachmentPlaceholder')
+        : t('omnibar_imageGenerationPlaceholder');
+    const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
+    const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
+
+    const fileState = useFileAttachments(selectedModel?.supportedFileTypes, tabId);
+    const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
+
+    const canAttachTabs = enableAttachTabs && !imageGenerationActive;
+    const tabAttachments = useTabAttachments(tabId);
+    const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
+    const mention = useMentionPicker({
+        enabled: canAttachTabs,
+        query,
+        onChange,
+        hideChats,
+        onToggleTab: tabAttachments.toggleTab,
+        isAttached: tabAttachments.isAttached,
+        textareaRef,
+        anchorRef: containerRef,
+    });
+
+    const clearTool = () => {
+        setActiveTool(null);
+    };
+
+    /**
+     * @param {import('./chat-tools/tools-menu/ToolsMenu').ToolId} tool
+     */
+    const handleToggleTool = (tool) => {
+        const nextTool = activeTool === tool ? null : tool;
+
+        if (nextTool === 'image-generation') {
+            hideChats();
+        }
+
+        setActiveTool(nextTool);
+    };
+
+    /** @type {(query: string, caret?: number) => void} */
+    const handleChange = (value, caret) => {
         onChange(value);
-        if (!hasVisibleImagesRef.current) showChats();
+        if (!hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive) showChats();
+        mention.handleTextChange(value, caret);
     };
 
     /**
      * @param {string} chat
      * @param {import('../../../types/new-tab.js').OpenTarget} target
      */
-    const handleSubmit = (chat, target) => {
-        /** @type {SubmitChatAction} */
-        const action = { chat, target };
+    const handleSubmit = async (chat, target) => {
+        if (submittingRef.current) return;
+        submittingRef.current = true;
+        try {
+            const images = canAttachImages ? imageState.getImagesForSubmission() : null;
+            const files = canAttachFiles ? fileState.getFilesForSubmission() : null;
+            const pageContext = canAttachTabs ? await tabAttachments.getTabsForSubmission() : null;
+            const modelId = imageGenerationActive ? null : (selectedModel?.id ?? null);
+            const reasoningEffort = imageGenerationActive ? null : selectedEffort;
+            const toolChoice = webSearchActive
+                ? /** @type {import('../../../types/new-tab.js').SubmitChatAction['toolChoice']} */ (['WebSearch'])
+                : null;
 
-        if (enableAiChatTools) {
-            if (supportsImageUpload) {
-                const images = imageState.getImagesForSubmission();
-                if (images) {
-                    action.images = /** @type {SubmitChatAction['images']} */ (images);
-                }
-            }
-            if (selectedModelIdRef.current) {
-                action.modelId = selectedModelIdRef.current;
-            }
+            /** @type {SubmitChatAction} */
+            const action = {
+                chat,
+                target,
+                ...(imageGenerationActive && { mode: /** @type {const} */ ('image-generation') }),
+                ...(modelId && { modelId }),
+                ...(reasoningEffort && { reasoningEffort }),
+                ...(toolChoice && { toolChoice }),
+                ...(images && { images }),
+                ...(files && { files }),
+                ...(pageContext && { pageContext }),
+            };
+
+            onSubmit(action);
+            imageState.clearAttachedImages();
+            fileState.clearAttachedFiles();
+            tabAttachments.clearAttachedTabs();
+            clearTool();
+        } finally {
+            submittingRef.current = false;
         }
-
-        onSubmit(action);
-        imageState.clearAttachedImages();
     };
+
+    /**
+     * Voice handoff: reuses `omnibar_submitChat` with `mode: 'voice-mode'` and an empty chat
+     * payload. Native receives the mode in the prompt handoff and routes to the Duck.ai voice
+     * flow — same mechanism image-generation uses (no dedicated notify, no `?mode=voice` URL).
+     * @param {import('../../../types/new-tab.js').OpenTarget} target
+     */
+    const handleVoiceSubmit = (target) => {
+        onSubmit({
+            chat: '',
+            target,
+            mode: /** @type {const} */ ('voice-mode'),
+        });
+    };
+
+    const fileWarning = canAttachFiles && fileState.fileLimitExceeded;
+
+    const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
+    const showFileWarning = fileWarning && !imageMessageShowing;
+    const disabled = !query || imageWarning || fileWarning;
+
+    const isVoiceChatMode =
+        enableVoiceChatAccess &&
+        !imageGenerationActive &&
+        !hasAttachedImages &&
+        fileState.attachedFiles.length === 0 &&
+        tabAttachments.attachedTabs.length === 0 &&
+        !query;
+
+    /** @type {(event: MouseEvent) => void} */
+    const handleClickSubmit = (event) => {
+        event.preventDefault();
+        if (disabled) return;
+        event.stopPropagation();
+        handleSubmit(query, eventToTarget(event, platformName));
+    };
+
+    /** @type {(event: MouseEvent) => void} */
+    const handleClickVoiceChat = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        handleVoiceSubmit(eventToTarget(event, platformName));
+    };
+
+    const showRecentChats = enableRecentAiChats && !imageGenerationActive && !mention.pickerActive;
 
     return (
         <div
             ref={containerRef}
-            data-image-warning={imageWarning || undefined}
+            class={styles.aiChatContent}
+            data-attachment-warning={imageWarning || fileWarning || undefined}
             onFocusCapture={(event) => {
-                if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current) showChats();
+                if (
+                    event.target instanceof HTMLTextAreaElement &&
+                    !hasVisibleImagesRef.current &&
+                    !imageGenerationActive &&
+                    !mention.pickerActive
+                )
+                    showChats();
             }}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
@@ -214,27 +378,97 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                 <AiChatForm
                     query={query}
                     autoFocus={autoFocus}
-                    disabled={query.length === 0 || imageWarning}
+                    disabled={disabled}
+                    placeholder={imageGenerationActive ? imageGenerationPlaceholder : undefined}
                     onChange={handleChange}
                     onSubmit={handleSubmit}
-                    toolbarLeft={supportsImageUpload && <ImageUploadButton state={imageState} />}
+                    onTextareaKeyDown={mention.handleTextareaKeyDown}
+                    combobox={mention.combobox}
+                    textareaRef={textareaRef}
+                    toolbarLeft={
+                        <Fragment>
+                            {(canAttachImages || canAttachFiles || canAttachTabs) && (
+                                <AttachMenu
+                                    image={
+                                        canAttachImages
+                                            ? { processFiles: imageState.processFiles, disabled: imageState.imageUploadDisabled }
+                                            : null
+                                    }
+                                    file={
+                                        canAttachFiles
+                                            ? {
+                                                  processFiles: fileState.processFiles,
+                                                  disabled: fileState.fileUploadDisabled,
+                                                  mimeTypes: selectedModel?.supportedFileTypes ?? [],
+                                              }
+                                            : null
+                                    }
+                                    tabsEnabled={canAttachTabs}
+                                    onToggleTab={tabAttachments.toggleTab}
+                                    isAttached={tabAttachments.isAttached}
+                                />
+                            )}
+                            {availableTools.length > 0 && (
+                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
+                            )}
+                        </Fragment>
+                    }
                     toolbarRight={
-                        <ModelSelectorTool
-                            onSelectedModelChange={(model) => {
-                                selectedModelIdRef.current = model?.id ?? null;
-                                setSupportsImageUpload(model?.supportsImageUpload ?? false);
-                            }}
-                        />
+                        <Fragment>
+                            {!imageGenerationActive && (
+                                <Fragment>
+                                    <ReasoningPickerTool />
+                                    <ModelSelectorTool />
+                                </Fragment>
+                            )}
+                            {isVoiceChatMode ? (
+                                <button
+                                    tabIndex={0}
+                                    type="button"
+                                    class={aiChatFormStyles.submitButton}
+                                    aria-label={t('omnibar_aiChatFormVoiceButtonLabel')}
+                                    onClick={handleClickVoiceChat}
+                                    onAuxClick={handleClickVoiceChat}
+                                >
+                                    <VoiceIcon class={aiChatFormStyles.voiceIcon} />
+                                </button>
+                            ) : (
+                                <button
+                                    tabIndex={0}
+                                    type="submit"
+                                    class={aiChatFormStyles.submitButton}
+                                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
+                                    disabled={disabled}
+                                    onClick={handleClickSubmit}
+                                    onAuxClick={handleClickSubmit}
+                                >
+                                    <ArrowRightIcon />
+                                </button>
+                            )}
+                        </Fragment>
                     }
                 >
+                    <AttachmentChips
+                        tabs={canAttachTabs ? tabAttachments.attachedTabs : []}
+                        files={canAttachFiles ? fileState.attachedFiles : []}
+                        images={canAttachImages ? imageState.attachedImages : []}
+                        onRemoveTab={tabAttachments.removeTab}
+                        onRemoveFile={fileState.handleRemoveFile}
+                        onRemoveImage={imageState.handleRemoveImage}
+                    />
+                    {showFileWarning && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_fileAttachmentLimitWarning', { limit: String(MAX_FILES) })}
+                        </p>
+                    )}
                     <ImageAttachmentContent
                         state={imageState}
-                        supportsImageUpload={supportsImageUpload}
+                        supportsImageUpload={canAttachImages}
                         onVisibleImagesChange={(hasImages) => {
                             hasVisibleImagesRef.current = hasImages;
                             if (hasImages) {
                                 hideChats();
-                            } else if (document.activeElement?.tagName === 'TEXTAREA') {
+                            } else if (document.activeElement?.tagName === 'TEXTAREA' && !mention.pickerActive) {
                                 showChats();
                             }
                         }}
@@ -242,7 +476,12 @@ function AiChatContent({ query, autoFocus, enableRecentAiChats, onSubmit, onChan
                     />
                 </AiChatForm>
             </ResizingContainer>
-            {enableRecentAiChats && <AiChatsList className={styles.aiChatsList} />}
+            {mention.pickerProps && (
+                <div class={styles.tabPickerWrapper} style={mention.wrapperStyle}>
+                    <MentionPicker {...mention.pickerProps} />
+                </div>
+            )}
+            {showRecentChats && <AiChatsList className={styles.aiChatsList} />}
         </div>
     );
 }
