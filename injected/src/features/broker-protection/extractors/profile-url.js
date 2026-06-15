@@ -34,8 +34,13 @@ export class ProfileUrlExtractor {
      * @return {string}
      */
     getIdFromProfileUrl(profileUrl, identifierType, identifier) {
-        const parsedUrl = new URL(profileUrl);
-        const urlParams = parsedUrl.searchParams;
+        let urlParams;
+        try {
+            urlParams = new URL(profileUrl).searchParams;
+        } catch {
+            // Fall back to raw string if URL is invalid (e.g. read from a DOM attribute)
+            return profileUrl;
+        }
 
         // Attempt to parse out an id from the search parameters
         if (identifierType === 'param' && urlParams.has(identifier)) {

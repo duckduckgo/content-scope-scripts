@@ -482,4 +482,86 @@ describe('create profiles from extracted data', () => {
         };
         expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
     });
+
+    describe("'attribute' extraction", () => {
+        /**
+         * @param {Record<string, string|null>} attributes
+         * @param {Record<string, any>} [extras]
+         */
+        const fakeElement = (attributes, extras = {}) => ({
+            getAttribute: (/** @type {string} */ name) => attributes[name] ?? null,
+            ...extras,
+        });
+
+        it('reads the named attribute instead of the text', () => {
+            const element = fakeElement({ 'data-age': '42' }, { innerText: 'ignore me' });
+            expect(stringValuesFromElements([element], 'age', { selector: '.age', attribute: 'data-age' })).toEqual(['42']);
+        });
+
+        it('takes precedence over the built-in href rule for profileUrl', () => {
+            // The element exposes both a resolved `href` (used by the built-in rule) and a raw `href` attribute.
+            const element = fakeElement({ href: '/raw/relative' }, { href: 'https://resolved.example.com/abs' });
+            const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'href' } });
+            // The raw attribute value wins over the resolved link.href
+            expect(profile.profileUrl).toEqual({ profileUrl: '/raw/relative', identifier: '/raw/relative' });
+        });
+
+        it('wraps an attribute value as a profileUrl', () => {
+            const element = fakeElement({ 'data-profile-id': 'https://example.com/1234' });
+            const profile = createProfile(() => [element], { profileUrl: { selector: '.card', attribute: 'data-profile-id' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://example.com/1234',
+                identifier: 'https://example.com/1234',
+            });
+        });
+
+        it('falls back to null when the attribute is absent', () => {
+            const element = fakeElement({});
+            const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'data-missing' } });
+            expect(profile.profileUrl).toBeNull();
+        });
+    });
+
+    describe("source 'pageUrl'", () => {
+        const originalLocation = globalThis.location;
+        afterEach(() => {
+            globalThis.location = originalLocation;
+        });
+
+        it('reads profileUrl from the current page URL without touching the DOM', () => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://example.com/results?id=abc' };
+            const elementFactory = () => {
+                throw new Error('elementFactory should not be called for a pageUrl source');
+            };
+            const profile = createProfile(elementFactory, { profileUrl: { source: 'pageUrl' } });
+            expect(profile).toEqual({
+                profileUrl: { profileUrl: 'https://example.com/results?id=abc', identifier: 'https://example.com/results?id=abc' },
+            });
+        });
+
+        it('parses an identifier param out of the page URL', () => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://example.com/results?profileId=xyz789' };
+            const profile = createProfile(() => [], {
+                profileUrl: { source: 'pageUrl', identifierType: 'param', identifier: 'profileId' },
+            });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://example.com/results?profileId=xyz789',
+                identifier: 'xyz789',
+            });
+        });
+
+        it('coexists with selector-based fields', () => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://example.com/p?id=1' };
+            const elementFactory = (/** @type {string} */ key) => ({ age: [{ innerText: '42' }] })[key] ?? [];
+            const profile = createProfile(elementFactory, {
+                age: { selector: '.age' },
+                profileUrl: { source: 'pageUrl' },
+            });
+            expect(profile.age).toEqual('42');
+            expect(profile.profileUrl).toEqual({ profileUrl: 'https://example.com/p?id=1', identifier: 'https://example.com/p?id=1' });
+        });
+    });
 });

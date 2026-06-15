@@ -1,0 +1,29 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "selector": ".search-item",
+            "profile": {
+                "name": { "selector": ".search-item-title-link", "beforeText": "," },
+                "age": { "selector": ".age" },
+                "alternativeNamesList": { "selector": ".//dl[dt[contains(., 'Also known as')]]//dd", "findElements": true },
+                "addressCityStateList": { "selector": ".//dl[dt[contains(., 'Has lived in')]]//dd", "findElements": true },
+                "relativesList": { "selector": ".//dl[dt[contains(., 'Related to')]]//dd", "findElements": true },
+                "profileUrl": { "selector": ".view-profile", "attribute": "data-link" }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "age": "61",
+                "addresses": [
+                    {
+                        "city": "Detroit",
+                        "state": "MI"
+                    }
+                ]
+            }
+        }
+    }
+}
