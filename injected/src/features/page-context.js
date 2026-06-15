@@ -211,6 +211,104 @@ function getLinkText(node, children, settings) {
     return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
 }
 
+/**
+ * Extract cheap, normalized page-type signals from a document: schema.org JSON-LD `@type`,
+ * Open Graph `og:type`, and the declared page language. Every field is best-effort and is empty
+ * or null when the page doesn't expose it. Domain is intentionally omitted; consumers derive it
+ * from the page URL that already accompanies the collected content.
+ * @param {Document} document
+ * @param {{ maxTypes?: number, maxBlockLength?: number }} [options]
+ * @returns {{ jsonLdType: string[], ogType: string | null, lang: string }}
+ */
+export function extractPageTypeSignals(document, { maxTypes = 10, maxBlockLength = 100000 } = {}) {
+    return {
+        jsonLdType: extractJsonLdTypes(document, maxTypes, maxBlockLength),
+        ogType: extractOgType(document),
+        lang: extractLang(document),
+    };
+}
+
+/**
+ * Collect deduped schema.org `@type` values from every JSON-LD block, preserving casing. Handles
+ * `@type` as a string or array and entries nested under `@graph`. Malformed and oversized blocks
+ * are skipped so a bad block never fails the whole collection.
+ * @param {Document} document
+ * @param {number} maxTypes
+ * @param {number} maxBlockLength
+ * @returns {string[]}
+ */
+function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
+    /** @type {string[]} */
+    const types = [];
+    const seen = new Set();
+    /** @param {unknown} value */
+    const add = (value) => {
+        if (typeof value !== 'string') return;
+        const type = value.trim();
+        if (!type || seen.has(type)) return;
+        seen.add(type);
+        types.push(type);
+    };
+
+    const blocks = document.querySelectorAll('script[type="application/ld+json"]');
+    for (const block of blocks) {
+        if (types.length >= maxTypes) break;
+        const text = block.textContent || '';
+        if (!text || text.length > maxBlockLength) continue;
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            continue;
+        }
+        collectJsonLdTypes(data, add);
+    }
+
+    return types.slice(0, maxTypes);
+}
+
+/**
+ * Walk a parsed JSON-LD value (object, array, or `@graph` container) and report each `@type`.
+ * @param {unknown} node
+ * @param {(value: unknown) => void} add
+ */
+function collectJsonLdTypes(node, add) {
+    if (Array.isArray(node)) {
+        for (const item of node) collectJsonLdTypes(item, add);
+        return;
+    }
+    if (!node || typeof node !== 'object') return;
+    const obj = /** @type {Record<string, unknown>} */ (node);
+    const type = obj['@type'];
+    if (Array.isArray(type)) {
+        for (const value of type) add(value);
+    } else if (type != null) {
+        add(type);
+    }
+    if (obj['@graph']) {
+        collectJsonLdTypes(obj['@graph'], add);
+    }
+}
+
+/**
+ * @param {Document} document
+ * @returns {string | null}
+ */
+function extractOgType(document) {
+    const meta = document.querySelector('meta[property="og:type"]');
+    const content = meta?.getAttribute('content');
+    const trimmed = typeof content === 'string' ? content.trim() : '';
+    return trimmed || null;
+}
+
+/**
+ * @param {Document} document
+ * @returns {string}
+ */
+function extractLang(document) {
+    return (document.documentElement?.getAttribute('lang') || '').trim();
+}
+
 export default class PageContext extends ContentFeature {
     /** @type {any} */
     #cachedContent = undefined;
@@ -492,6 +590,9 @@ export default class PageContext extends ContentFeature {
         if (this.getFeatureSettingEnabled('includeImages', 'disabled')) {
             content.images = this.getImages();
         }
+        if (this.getFeatureSettingEnabled('includePageTypeSignals', 'disabled')) {
+            content.pageTypeSignals = this.getPageTypeSignals();
+        }
 
         // Cache the result - setter handles timestamp and observer
         // Note: We only cache if content exists. Consider caching empty content too
@@ -618,6 +719,13 @@ export default class PageContext extends ContentFeature {
         });
 
         return links;
+    }
+
+    getPageTypeSignals() {
+        return extractPageTypeSignals(document, {
+            maxTypes: this.getFeatureSetting('maxPageTypeSignals') || 10,
+            maxBlockLength: this.getFeatureSetting('maxJsonLdBlockLength') || 100000,
+        });
     }
 
     getImages() {
