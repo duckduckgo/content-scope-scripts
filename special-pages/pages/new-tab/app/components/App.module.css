@@ -63,6 +63,8 @@ body[data-animate-background="true"] {
 @supports (-webkit-appearance: none) {
     .main {
         overflow-y: scroll;
+        /* prevent content shifting left when mouse is dragged past the scrollbar and outside the viewport */
+        overflow-x: hidden;
     }
 }
 
