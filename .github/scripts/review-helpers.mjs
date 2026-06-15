@@ -2,6 +2,13 @@ import { readFileSync } from 'fs';
 
 const RISK_PATTERN = /\*\*(Low|Medium|High|Critical)\s+Risk\*\*/i;
 export const DAX_USERNAME = 'daxtheduck';
+export const FEXP_TEAM = 'fexp';
+
+const USER_VISIBLE_CHECKBOX = /^-\s*\[[xX]\]\s*This change will be visible to users\s*$/m;
+
+const USER_FACING_PATH_PREFIXES = ['special-pages/pages/'];
+const USER_FACING_PATH_EXCLUDES = [/integration-tests?\//, /\/tests?\//, /\.(spec|test)\.(js|ts|tsx|jsx)$/, /mock-transport/, /sampleData/];
+const USER_FACING_EXTENSIONS = /\.(css|scss|tsx?|jsx?|html|svg)$/i;
 
 export function loadRequiredTeams(path = '.github/REQUIRED_TEAMS') {
     return readFileSync(path, 'utf8').trim().split('\n').filter(Boolean);
@@ -9,6 +16,60 @@ export function loadRequiredTeams(path = '.github/REQUIRED_TEAMS') {
 
 export function formatTeamList(teams) {
     return teams.map((t) => `- @duckduckgo/${t}`).join('\n');
+}
+
+export function hasUserVisibleCheckbox(body) {
+    return USER_VISIBLE_CHECKBOX.test(body ?? '');
+}
+
+export function isUserFacingFilePath(filename) {
+    if (!USER_FACING_PATH_PREFIXES.some((prefix) => filename.startsWith(prefix))) {
+        return false;
+    }
+    if (USER_FACING_PATH_EXCLUDES.some((pattern) => pattern.test(filename))) {
+        return false;
+    }
+    return USER_FACING_EXTENSIONS.test(filename);
+}
+
+export function isUserFacingChange({ body, filenames }) {
+    if (hasUserVisibleCheckbox(body)) {
+        return true;
+    }
+    return filenames.some(isUserFacingFilePath);
+}
+
+export function pickRoundRobinMember(members, seed) {
+    if (members.length === 0) {
+        return null;
+    }
+    const sorted = [...members].sort((a, b) => a.localeCompare(b));
+    return sorted[seed % sorted.length];
+}
+
+export async function listPullRequestFilenames(github, { owner, repo, prNumber }) {
+    const files = await github.paginate(github.rest.pulls.listFiles, {
+        owner,
+        repo,
+        pull_number: prNumber,
+    });
+    return files.map((file) => file.filename);
+}
+
+export async function isUserFacingPullRequest(github, { owner, repo, prNumber }) {
+    const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+    const filenames = await listPullRequestFilenames(github, { owner, repo, prNumber });
+    return isUserFacingChange({ body: pr.body ?? '', filenames });
+}
+
+export async function listTeamMemberLogins(github, orgToken, org, teamSlug) {
+    const Ctor = /** @type {new (opts: {auth: string}) => typeof github} */ (github.constructor);
+    const orgClient = new Ctor({ auth: orgToken });
+    const members = await orgClient.paginate('GET /orgs/{org}/teams/{team_slug}/members', {
+        org,
+        team_slug: teamSlug,
+    });
+    return members.map((member) => member.login).filter(Boolean);
 }
 
 const CURSOR_BOT = 'cursor[bot]';
@@ -75,7 +136,7 @@ export async function findTeamForUser(github, orgToken, org, teams, username) {
  * @param opts.orgToken - Token with read:org scope for team membership checks (e.g. DAX_PAT).
  *                        If not provided, team membership checks are skipped.
  */
-export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgToken }) {
+export async function findAuthorizedApproval(github, { owner, repo, prNumber, org, teams, orgToken, requiredTeamSlug }) {
     const reviews = await github.paginate(github.rest.pulls.listReviews, {
         owner,
         repo,
@@ -92,6 +153,24 @@ export async function findAuthorizedApproval(github, { owner, repo, prNumber, or
     const approved = [...latestDecisionByUser.values()].filter((r) => r.state === 'APPROVED');
     if (approved.length === 0) return null;
 
+    if (requiredTeamSlug) {
+        if (!orgToken) {
+            console.log('No org token available — cannot validate required team approval');
+            return null;
+        }
+
+        for (const review of approved) {
+            if (review.user.login === DAX_USERNAME) {
+                continue;
+            }
+            if (await isTeamMember(github, orgToken, org, requiredTeamSlug, review.user.login)) {
+                return { user: review.user.login, team: requiredTeamSlug };
+            }
+        }
+
+        return null;
+    }
+
     if (approved.some((r) => r.user.login === DAX_USERNAME)) {
         return { user: DAX_USERNAME, team: null };
     }
@@ -107,4 +186,46 @@ export async function findAuthorizedApproval(github, { owner, repo, prNumber, or
     }
 
     return null;
+}
+
+/**
+ * Requests @duckduckgo/fexp review and assigns a round-robin member.
+ * Skips assignment when the PR already has assignees or the team is already requested.
+ */
+export async function requestFexpReview(github, orgToken, { owner, repo, prNumber, prAuthor, org = 'duckduckgo', teamSlug = FEXP_TEAM }) {
+    const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+    const teamAlreadyRequested = (pr.requested_teams ?? []).some((team) => team.slug === teamSlug);
+    if (!teamAlreadyRequested) {
+        await github.rest.pulls.requestReviewers({
+            owner,
+            repo,
+            pull_number: prNumber,
+            team_reviewers: [teamSlug],
+        });
+        console.log(`Requested review from @${org}/${teamSlug}`);
+    } else {
+        console.log(`Review already requested from @${org}/${teamSlug}`);
+    }
+
+    if ((pr.assignees ?? []).length > 0) {
+        console.log(`Skipping round-robin assignment: PR already has ${pr.assignees.length} assignee(s)`);
+        return null;
+    }
+
+    const members = await listTeamMemberLogins(github, orgToken, org, teamSlug);
+    const eligibleMembers = members.filter((login) => login !== prAuthor);
+    const reviewer = pickRoundRobinMember(eligibleMembers, prNumber);
+    if (!reviewer) {
+        console.log(`No eligible round-robin reviewer found for @${org}/${teamSlug}`);
+        return null;
+    }
+
+    await github.rest.issues.addAssignees({
+        owner,
+        repo,
+        issue_number: prNumber,
+        assignees: [reviewer],
+    });
+    console.log(`Assigned round-robin reviewer ${reviewer} from @${org}/${teamSlug}`);
+    return reviewer;
 }

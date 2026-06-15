@@ -1,6 +1,14 @@
 import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
-import { findAuthorizedApproval, DAX_USERNAME } from './review-helpers.mjs';
+import {
+    findAuthorizedApproval,
+    DAX_USERNAME,
+    FEXP_TEAM,
+    hasUserVisibleCheckbox,
+    isUserFacingChange,
+    isUserFacingFilePath,
+    pickRoundRobinMember,
+} from './review-helpers.mjs';
 
 function review(login, state, id = 1) {
     return { id, state, user: { login } };
@@ -130,5 +138,91 @@ describe('findAuthorizedApproval', () => {
             constructor: FailOctokit,
         };
         assert.equal(await findAuthorizedApproval(gh, BASE_OPTS), null);
+    });
+});
+
+describe('hasUserVisibleCheckbox', () => {
+    it('detects a checked user-visible checkbox', () => {
+        const body = '- [x] This change will be visible to users';
+        assert.equal(hasUserVisibleCheckbox(body), true);
+    });
+
+    it('ignores an unchecked user-visible checkbox', () => {
+        const body = '- [ ] This change will be visible to users';
+        assert.equal(hasUserVisibleCheckbox(body), false);
+    });
+});
+
+describe('isUserFacingFilePath', () => {
+    it('matches special-pages UI files', () => {
+        assert.equal(isUserFacingFilePath('special-pages/pages/new-tab/app/components/App.module.css'), true);
+    });
+
+    it('ignores special-pages integration tests', () => {
+        assert.equal(isUserFacingFilePath('special-pages/pages/new-tab/integration-tests/new-tab.spec.js'), false);
+    });
+
+    it('ignores non special-pages paths', () => {
+        assert.equal(isUserFacingFilePath('injected/src/features/cookie/index.js'), false);
+    });
+});
+
+describe('isUserFacingChange', () => {
+    it('returns true when the PR body checkbox is checked', () => {
+        assert.equal(
+            isUserFacingChange({
+                body: '- [x] This change will be visible to users',
+                filenames: ['injected/src/features/cookie/index.js'],
+            }),
+            true,
+        );
+    });
+
+    it('returns true for special-pages UI file changes without the checkbox', () => {
+        assert.equal(
+            isUserFacingChange({
+                body: '',
+                filenames: ['special-pages/pages/new-tab/app/components/App.module.css'],
+            }),
+            true,
+        );
+    });
+
+    it('returns false for non user-facing changes', () => {
+        assert.equal(
+            isUserFacingChange({
+                body: '',
+                filenames: ['injected/src/features/cookie/index.js'],
+            }),
+            false,
+        );
+    });
+});
+
+describe('pickRoundRobinMember', () => {
+    it('returns members in deterministic round-robin order', () => {
+        const members = ['charlie', 'alice', 'bob'];
+        assert.equal(pickRoundRobinMember(members, 0), 'alice');
+        assert.equal(pickRoundRobinMember(members, 1), 'bob');
+        assert.equal(pickRoundRobinMember(members, 2), 'charlie');
+        assert.equal(pickRoundRobinMember(members, 3), 'alice');
+    });
+
+    it('returns null for an empty member list', () => {
+        assert.equal(pickRoundRobinMember([], 5), null);
+    });
+});
+
+describe('findAuthorizedApproval requiredTeamSlug', () => {
+    it('requires fexp approval for user-facing PRs and ignores dax', async () => {
+        const gh = makeGitHub([review(DAX_USERNAME, 'APPROVED')]);
+        const opts = { ...BASE_OPTS, requiredTeamSlug: FEXP_TEAM, orgToken: 'tok' };
+        assert.equal(await findAuthorizedApproval(gh, opts), null);
+    });
+
+    it('accepts fexp member approval for user-facing PRs', async () => {
+        const gh = makeGitHub([review('alice', 'APPROVED')], { memberOf: [FEXP_TEAM] });
+        const opts = { ...BASE_OPTS, requiredTeamSlug: FEXP_TEAM, orgToken: 'tok' };
+        assert.deepEqual(await findAuthorizedApproval(gh, opts), { user: 'alice', team: FEXP_TEAM });
     });
 });

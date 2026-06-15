@@ -38,11 +38,11 @@ jobs:
                   ORG_TOKEN: ${{ secrets.DAX_PAT }}
               with:
                   script: |
-                      const { loadRequiredTeams, findAuthorizedApproval } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
+                      const { loadRequiredTeams, findAuthorizedApproval, isUserFacingPullRequest, FEXP_TEAM } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
                       const teams = loadRequiredTeams();
                       const sha = context.payload.pull_request.head.sha;
                       const repo = { owner: context.repo.owner, repo: context.repo.repo };
-                      const teamsList = teams.map(t => `@duckduckgo/${t}`).join(', ');
+                      const prNumber = context.payload.pull_request.number;
 
                       async function setReviewStatus({ state, description }) {
                           await github.rest.repos.createCommitStatus({
@@ -54,14 +54,29 @@ jobs:
                           });
                       }
 
+                      let isUserFacing = false;
+                      try {
+                          isUserFacing = await isUserFacingPullRequest(github, { ...repo, prNumber });
+                      } catch (error) {
+                          const msg = `Could not detect user-facing changes: ${error.message}`;
+                          await setReviewStatus({ state: 'error', description: msg.substring(0, 140) });
+                          core.setFailed(msg);
+                          return;
+                      }
+
+                      const teamsList = isUserFacing
+                          ? `@duckduckgo/${FEXP_TEAM}`
+                          : teams.map(t => `@duckduckgo/${t}`).join(', ');
+
                       let approval;
                       try {
                           approval = await findAuthorizedApproval(github, {
                               ...repo,
-                              prNumber: context.payload.pull_request.number,
+                              prNumber,
                               org: 'duckduckgo',
                               teams,
-                              orgToken: process.env.ORG_TOKEN || undefined
+                              orgToken: process.env.ORG_TOKEN || undefined,
+                              requiredTeamSlug: isUserFacing ? FEXP_TEAM : undefined
                           });
                       } catch (error) {
                           const msg = error.status === 401

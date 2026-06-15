@@ -4,6 +4,11 @@ on:
     pull_request:
         types: [opened, synchronize, reopened]
 
+permissions:
+    contents: read
+    pull-requests: write
+    issues: write
+
 jobs:
     check_membership:
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -145,6 +150,65 @@ jobs:
                       core.setOutput('risk_level', riskLevel ?? 'unknown');
                       core.setOutput('is_low_risk', riskLevel?.toLowerCase() === 'low');
 
+            - name: Detect user-facing changes
+              uses: actions/github-script@v9
+              id: user_facing
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const { isUserFacingPullRequest } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
+                      const isUserFacing = await isUserFacingPullRequest(github, {
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          prNumber: context.payload.pull_request.number
+                      });
+                      console.log(`User-facing PR: ${isUserFacing}`);
+                      core.setOutput('is_user_facing', isUserFacing ? 'true' : 'false');
+
+            - name: Dismiss bot approval for user-facing PRs
+              if: steps.user_facing.outputs.is_user_facing == 'true'
+              uses: actions/github-script@v9
+              with:
+                  github-token: ${{ secrets.DAX_PAT }}
+                  script: |
+                      const { DAX_USERNAME } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
+                      const reviews = await github.paginate(github.rest.pulls.listReviews, {
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: context.payload.pull_request.number
+                      });
+
+                      for (const review of reviews) {
+                          if (review.state === 'APPROVED' && review.user.login === DAX_USERNAME) {
+                              await github.rest.pulls.dismissReview({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  pull_number: context.payload.pull_request.number,
+                                  review_id: review.id,
+                                  message: 'User-facing changes require human review from @duckduckgo/fexp.'
+                              });
+                              console.log(`Dismissed bot approval (review ${review.id})`);
+                          }
+                      }
+
+            - name: Request fexp review for user-facing PRs
+              if: steps.user_facing.outputs.is_user_facing == 'true'
+              uses: actions/github-script@v9
+              id: request_fexp_review
+              env:
+                  ORG_TOKEN: ${{ secrets.DAX_PAT }}
+              with:
+                  github-token: ${{ secrets.DAX_PAT }}
+                  script: |
+                      const { requestFexpReview } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
+                      const reviewer = await requestFexpReview(github, process.env.ORG_TOKEN, {
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          prNumber: context.payload.pull_request.number,
+                          prAuthor: context.payload.pull_request.user.login
+                      });
+                      core.setOutput('reviewer', reviewer ?? '');
+
             - name: Check for existing Dax approval
               uses: actions/github-script@v9
               id: check_reviews
@@ -165,26 +229,59 @@ jobs:
               if: |
                   steps.wait-for-cursor.outputs.conclusion == 'success' &&
                   steps.risk_check.outputs.is_low_risk == 'true' &&
-                  steps.check_reviews.outputs.has_approved_review == 'false'
+                  steps.check_reviews.outputs.has_approved_review == 'false' &&
+                  steps.user_facing.outputs.is_user_facing != 'true'
               run: gh pr review --approve "$PR_URL"
               env:
                   PR_URL: ${{ github.event.pull_request.html_url }}
                   GITHUB_TOKEN: ${{ secrets.DAX_PAT }}
 
+            - name: Find previous user-facing review comment
+              if: steps.user_facing.outputs.is_user_facing == 'true'
+              uses: peter-evans/find-comment@v4
+              id: find_user_facing_comment
+              with:
+                  issue-number: ${{ github.event.pull_request.number }}
+                  comment-author: 'github-actions[bot]'
+                  body-includes: 'requires a manual review from the front-end team'
+                  direction: last
+
+            - name: Post user-facing review required comment
+              if: |
+                  steps.user_facing.outputs.is_user_facing == 'true' &&
+                  steps.find_user_facing_comment.outputs.comment-id == ''
+              uses: actions/github-script@v9
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const reviewer = `${{ steps.request_fexp_review.outputs.reviewer }}`.trim();
+                      const reviewerLine = reviewer
+                          ? `Round-robin assignee: @${reviewer}`
+                          : 'A reviewer from @duckduckgo/fexp has been requested.';
+
+                      await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.payload.pull_request.number,
+                          body: `⚠️ This PR includes user-facing changes and requires a manual review from the front-end team.\n\n${reviewerLine}\n\nAuto-approval is not available for user-visible changes.`
+                      });
+
             - name: Find previous review comment
               if: |
+                  steps.user_facing.outputs.is_user_facing != 'true' && (
                   steps.wait-for-cursor.outputs.conclusion != 'success' ||
-                  steps.risk_check.outputs.is_low_risk != 'true'
+                  steps.risk_check.outputs.is_low_risk != 'true')
               uses: peter-evans/find-comment@v4
               id: find_comment
               with:
                   issue-number: ${{ github.event.pull_request.number }}
                   comment-author: 'github-actions[bot]'
-                  body-includes: 'requires a manual review'
+                  body-includes: 'requires a manual review and approval from a member of one of the following teams'
                   direction: last
 
             - name: Post manual review required comment
               if: |
+                  steps.user_facing.outputs.is_user_facing != 'true' &&
                   (steps.wait-for-cursor.outputs.conclusion != 'success' ||
                   steps.risk_check.outputs.is_low_risk != 'true') &&
                   steps.find_comment.outputs.comment-id == ''
