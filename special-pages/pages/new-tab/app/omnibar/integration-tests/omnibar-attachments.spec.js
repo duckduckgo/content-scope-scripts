@@ -409,6 +409,32 @@ test.describe('omnibar attachment coexistence', () => {
         expect(params.pageContext).toHaveLength(1);
         expect(params.pageContext?.[0].tabId).toBe('tab-2');
     });
+
+    test('attached files and tabs are cleared after submit', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAttachTabs': 'true',
+                'omnibar.enableAiChatTools': 'true',
+                'omnibar.selectedModelId': 'claude-haiku-4-5',
+            },
+        });
+        await omnibar.ready();
+
+        await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: PDF_BYTES });
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await expect(omnibar.fileChip()).toHaveCount(1);
+        await expect(omnibar.tabChip()).toHaveCount(1);
+
+        await omnibar.types({ mode: 'ai', value: 'summarize this page and file' });
+        await omnibar.submitChat();
+
+        await omnibar.lastSubmitChatParams();
+        await expect(omnibar.attachmentChips()).toHaveCount(0);
+        await omnibar.expectChatValue('');
+    });
 });
 
 /**
