@@ -472,7 +472,10 @@ export class YouTubeAdDetector {
      * @returns {boolean}
      */
     isVideoWatchContext() {
-        return !!this.getVideoId() || /^\/(shorts|live|embed)\//.test(window.location.pathname);
+        const pathname = window.location.pathname;
+        // `/watch` always implies a video surface; matching the bare pathname also covers
+        // the brief SPA-transition window before `?v=` is applied.
+        return !!this.getVideoId() || pathname === '/watch' || /^\/(shorts|live|embed)\//.test(pathname);
     }
 
     // =========================================================================
