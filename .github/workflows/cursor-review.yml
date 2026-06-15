@@ -200,12 +200,13 @@ jobs:
               with:
                   github-token: ${{ secrets.DAX_PAT }}
                   script: |
-                      const { requestFexpReview } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
-                      const reviewer = await requestFexpReview(github, process.env.ORG_TOKEN, {
+                      const { requestTeamReview, FEXP_TEAM } = await import(`${process.cwd()}/.github/scripts/review-helpers.mjs`);
+                      const reviewer = await requestTeamReview(github, process.env.ORG_TOKEN, {
                           owner: context.repo.owner,
                           repo: context.repo.repo,
                           prNumber: context.payload.pull_request.number,
-                          prAuthor: context.payload.pull_request.user.login
+                          prAuthor: context.payload.pull_request.user.login,
+                          teamSlug: FEXP_TEAM
                       });
                       core.setOutput('reviewer', reviewer ?? '');
 

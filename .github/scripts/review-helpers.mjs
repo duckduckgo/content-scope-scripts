@@ -189,10 +189,10 @@ export async function findAuthorizedApproval(github, { owner, repo, prNumber, or
 }
 
 /**
- * Requests @duckduckgo/fexp review and assigns a round-robin member.
+ * Requests review from a GitHub team and assigns a round-robin member.
  * Skips assignment when the PR already has assignees or the team is already requested.
  */
-export async function requestFexpReview(github, orgToken, { owner, repo, prNumber, prAuthor, org = 'duckduckgo', teamSlug = FEXP_TEAM }) {
+export async function requestTeamReview(github, orgToken, { owner, repo, prNumber, prAuthor, teamSlug, org = 'duckduckgo' }) {
     const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
     const teamAlreadyRequested = (pr.requested_teams ?? []).some((team) => team.slug === teamSlug);
     if (!teamAlreadyRequested) {
