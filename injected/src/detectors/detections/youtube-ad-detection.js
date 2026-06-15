@@ -412,6 +412,13 @@ export class YouTubeAdDetector {
      * @returns {string|null}
      */
     checkForPlayabilityErrors() {
+        // Only treat a playability error as real on an actual video-watch surface.
+        // Non-playback pages (channel/home/etc.) render a featured-preview player that
+        // can transiently show "This content isn't available, try again later." for a
+        // video the user isn't trying to watch — a false positive (no videoId, no media).
+        if (!this.isVideoWatchContext()) {
+            return null;
+        }
         return this.checkVisiblePatternMatch(this.config.playabilityErrorSelectors, this.playabilityErrorPatterns, {
             maxLength: 100,
             checkAttributedStrings: true,
@@ -455,6 +462,17 @@ export class YouTubeAdDetector {
     getVideoId() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('v');
+    }
+
+    /**
+     * Whether the current page is an actual video-watch surface — a standard watch page
+     * (`?v=<id>`) or a Shorts/live/embed path. Used to avoid firing playability-error
+     * detections on non-playback pages (channel/home), where a featured-preview player
+     * can transiently show an unavailability message for a video the user isn't watching.
+     * @returns {boolean}
+     */
+    isVideoWatchContext() {
+        return !!this.getVideoId() || /^\/(shorts|live|embed)\//.test(window.location.pathname);
     }
 
     // =========================================================================
