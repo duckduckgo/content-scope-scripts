@@ -248,25 +248,22 @@ export function extractPageTypeSignals(document, { maxTypes = 10, maxBlockLength
  * @returns {string[]}
  */
 function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
-    /** @type {string[]} */
-    const types = [];
-    const seen = new Set();
+    // A Set both dedupes and preserves insertion order, so it doubles as the store and the cap counter.
+    const types = new Set();
     /** @param {unknown} value */
-    const add = (value) => {
+    const recordType = (value) => {
         // Short-circuit once the cap is hit so a single wide `@graph` doesn't keep iterating.
-        if (types.length >= maxTypes) return;
+        if (types.size >= maxTypes) return;
         if (typeof value !== 'string') return;
         const type = value.trim();
-        if (!type || seen.has(type)) return;
-        seen.add(type);
-        types.push(type);
+        if (type) types.add(type);
     };
 
     // Case-insensitive attribute match ("i") so non-canonical casing (e.g. APPLICATION/LD+JSON)
     // is still discovered.
     const blocks = document.querySelectorAll('script[type="application/ld+json" i]');
     for (const block of blocks) {
-        if (types.length >= maxTypes) break;
+        if (types.size >= maxTypes) break;
         const text = block.textContent || '';
         if (!text || text.length > maxBlockLength) continue;
         let data;
@@ -275,10 +272,10 @@ function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
         } catch (e) {
             continue;
         }
-        collectJsonLdTypes(data, add);
+        collectJsonLdTypes(data, recordType);
     }
 
-    return types.slice(0, maxTypes);
+    return Array.from(types);
 }
 
 /**
@@ -286,13 +283,13 @@ function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
  * Own-property checks keep a polluted `Object.prototype` from surfacing spurious `@type` /
  * `@graph` keys, and recursion is bounded by {@link MAX_JSON_LD_DEPTH}.
  * @param {unknown} node
- * @param {(value: unknown) => void} add
+ * @param {(value: unknown) => void} recordType
  * @param {number} [depth]
  */
-function collectJsonLdTypes(node, add, depth = 0) {
+function collectJsonLdTypes(node, recordType, depth = 0) {
     if (depth > MAX_JSON_LD_DEPTH) return;
     if (Array.isArray(node)) {
-        for (const item of node) collectJsonLdTypes(item, add, depth + 1);
+        for (const item of node) collectJsonLdTypes(item, recordType, depth + 1);
         return;
     }
     if (!node || typeof node !== 'object') return;
@@ -300,13 +297,13 @@ function collectJsonLdTypes(node, add, depth = 0) {
     if (hasOwnProperty.call(obj, '@type')) {
         const type = obj['@type'];
         if (Array.isArray(type)) {
-            for (const value of type) add(value);
+            for (const value of type) recordType(value);
         } else if (type != null) {
-            add(type);
+            recordType(type);
         }
     }
     if (hasOwnProperty.call(obj, '@graph')) {
-        collectJsonLdTypes(obj['@graph'], add, depth + 1);
+        collectJsonLdTypes(obj['@graph'], recordType, depth + 1);
     }
 }
 
