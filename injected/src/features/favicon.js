@@ -95,18 +95,6 @@ function isSvgFavicon(href, type) {
 }
 
 /**
- * Checks whether a link's `rel` denotes a Safari pinned-tab mask icon rather than a real favicon.
- * These are monochrome tint masks (e.g. safari-pinned-tab.svg) that render as a solid black shape if
- * used as a favicon, so they must be excluded. Matched by token, so other icons — including non-mask
- * SVG favicons — are unaffected.
- * @param {string} rel - The link's rel attribute
- * @returns {boolean}
- */
-function isMaskIcon(rel) {
-    return rel.toLowerCase().split(/\s+/).includes('mask-icon');
-}
-
-/**
  * Standalone function to get favicon list (without SVG filtering).
  * Used by page-context feature for AI chat context gathering.
  * @returns {import('../types/favicon.js').FaviconAttrs[]}
@@ -114,23 +102,22 @@ function isMaskIcon(rel) {
 export function getFaviconList() {
     const selectors = [
         "link[href][rel='favicon']",
-        "link[href][rel*='icon']",
+        // `rel*='icon'` also matches Safari's `rel="mask-icon"` (safari-pinned-tab.svg) — a monochrome
+        // tint mask, not a real favicon, that renders as a solid black square. Exclude it via `:not`.
+        // Non-mask icons, including SVG favicons, are still matched.
+        "link[href][rel*='icon']:not([rel~='mask-icon' i])",
         "link[href][rel='apple-touch-icon']",
         "link[href][rel='apple-touch-icon-precomposed']",
     ];
     const elements = document.head.querySelectorAll(selectors.join(','));
-    return (
-        Array.from(elements)
-            .filter((el) => el instanceof HTMLLinkElement)
-            // The `rel*='icon'` selector above also matches Safari's `rel="mask-icon"`; drop those.
-            .filter((el) => !isMaskIcon(el.getAttribute('rel') || ''))
-            .map((link) => {
-                const href = link.href || '';
-                const rel = link.getAttribute('rel') || '';
-                const type = link.type || '';
-                return { href, rel, type };
-            })
-    );
+    return Array.from(elements)
+        .filter((el) => el instanceof HTMLLinkElement)
+        .map((link) => {
+            const href = link.href || '';
+            const rel = link.getAttribute('rel') || '';
+            const type = link.type || '';
+            return { href, rel, type };
+        });
 }
 
 /**
