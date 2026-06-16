@@ -5,7 +5,13 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
+// eslint-disable-next-line no-redeclare
+import { JSONparse, Set, hasOwnProperty } from '../captured-globals.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
+
+// Bail past this nesting depth when walking JSON-LD so adversarially deep blocks
+// can't blow the stack and fail the whole content collection.
+const MAX_JSON_LD_DEPTH = 32;
 
 export function checkNodeIsVisible(node) {
     try {
@@ -250,14 +256,16 @@ function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
         types.push(type);
     };
 
-    const blocks = document.querySelectorAll('script[type="application/ld+json"]');
+    // Case-insensitive attribute match ("i") so non-canonical casing (e.g. APPLICATION/LD+JSON)
+    // is still discovered.
+    const blocks = document.querySelectorAll('script[type="application/ld+json" i]');
     for (const block of blocks) {
         if (types.length >= maxTypes) break;
         const text = block.textContent || '';
         if (!text || text.length > maxBlockLength) continue;
         let data;
         try {
-            data = JSON.parse(text);
+            data = JSONparse(text);
         } catch (e) {
             continue;
         }
@@ -269,24 +277,30 @@ function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
 
 /**
  * Walk a parsed JSON-LD value (object, array, or `@graph` container) and report each `@type`.
+ * Own-property checks keep a polluted `Object.prototype` from surfacing spurious `@type` /
+ * `@graph` keys, and recursion is bounded by {@link MAX_JSON_LD_DEPTH}.
  * @param {unknown} node
  * @param {(value: unknown) => void} add
+ * @param {number} [depth]
  */
-function collectJsonLdTypes(node, add) {
+function collectJsonLdTypes(node, add, depth = 0) {
+    if (depth > MAX_JSON_LD_DEPTH) return;
     if (Array.isArray(node)) {
-        for (const item of node) collectJsonLdTypes(item, add);
+        for (const item of node) collectJsonLdTypes(item, add, depth + 1);
         return;
     }
     if (!node || typeof node !== 'object') return;
     const obj = /** @type {Record<string, unknown>} */ (node);
-    const type = obj['@type'];
-    if (Array.isArray(type)) {
-        for (const value of type) add(value);
-    } else if (type != null) {
-        add(type);
+    if (hasOwnProperty.call(obj, '@type')) {
+        const type = obj['@type'];
+        if (Array.isArray(type)) {
+            for (const value of type) add(value);
+        } else if (type != null) {
+            add(type);
+        }
     }
-    if (obj['@graph']) {
-        collectJsonLdTypes(obj['@graph'], add);
+    if (hasOwnProperty.call(obj, '@graph')) {
+        collectJsonLdTypes(obj['@graph'], add, depth + 1);
     }
 }
 
@@ -722,9 +736,11 @@ export default class PageContext extends ContentFeature {
     }
 
     getPageTypeSignals() {
+        // `??` so an explicit 0 isn't silently replaced by the default; Math.min clamps remote
+        // config to a safe ceiling to bound parse work.
         return extractPageTypeSignals(document, {
-            maxTypes: this.getFeatureSetting('maxPageTypeSignals') || 10,
-            maxBlockLength: this.getFeatureSetting('maxJsonLdBlockLength') || 100000,
+            maxTypes: Math.min(this.getFeatureSetting('maxPageTypeSignals') ?? 10, 50),
+            maxBlockLength: Math.min(this.getFeatureSetting('maxJsonLdBlockLength') ?? 100000, 1000000),
         });
     }
 

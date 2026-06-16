@@ -78,6 +78,37 @@ describe('page-context.js - extractPageTypeSignals', () => {
         expect(signals.jsonLdType).toEqual([]);
     });
 
+    it('collects nothing when maxTypes is explicitly 0', () => {
+        const dom = new JSDOM(pageWithHead(scriptLd({ '@type': 'Recipe' })));
+        expect(extractPageTypeSignals(dom.window.document, { maxTypes: 0 }).jsonLdType).toEqual([]);
+    });
+
+    it('discovers JSON-LD with non-canonical script type casing', () => {
+        const head = '<script type="APPLICATION/LD+JSON">' + JSON.stringify({ '@type': 'Recipe' }) + '</script>';
+        expect(signalsFor(pageWithHead(head)).jsonLdType).toEqual(['Recipe']);
+    });
+
+    it('bails out of deeply nested JSON-LD without collecting past the cap (a thrown RangeError fails this test)', () => {
+        let nested = /** @type {any} */ ({ '@type': 'TooDeep' });
+        for (let i = 0; i < 60; i++) nested = { '@graph': [nested] };
+        const head = scriptLd({ '@type': 'Shallow', '@graph': [nested] });
+        const signals = signalsFor(pageWithHead(head));
+        expect(signals.jsonLdType).toContain('Shallow');
+        expect(signals.jsonLdType).not.toContain('TooDeep');
+    });
+
+    it('ignores @type / @graph inherited from a polluted Object.prototype', () => {
+        // Aliased reference so the deliberate pollution doesn't trip the no-extend-native lint rule.
+        const proto = /** @type {Record<string, unknown>} */ (Object.prototype);
+        proto['@type'] = 'Polluted';
+        try {
+            const signals = signalsFor(pageWithHead(scriptLd({ name: 'no own @type' })));
+            expect(signals.jsonLdType).toEqual([]);
+        } finally {
+            delete proto['@type'];
+        }
+    });
+
     it('collects all three signals from a realistic page (recipe with embedded video)', () => {
         const head =
             '<meta property="og:type" content="article">' +
