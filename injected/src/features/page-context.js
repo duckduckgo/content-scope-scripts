@@ -742,12 +742,24 @@ export default class PageContext extends ContentFeature {
     }
 
     getPageTypeSignals() {
-        // `??` so an explicit 0 isn't silently replaced by the default; Math.min clamps remote
-        // config to a safe ceiling to bound parse work.
         return extractPageTypeSignals(document, {
-            maxTypes: Math.min(this.getFeatureSetting('maxPageTypeSignals') ?? 10, 50),
-            maxBlockLength: Math.min(this.getFeatureSetting('maxJsonLdBlockLength') ?? 100000, 1000000),
+            maxTypes: this.clampedNumericSetting('maxPageTypeSignals', 10, 50),
+            maxBlockLength: this.clampedNumericSetting('maxJsonLdBlockLength', 100000, 1000000),
         });
+    }
+
+    /**
+     * Read a numeric feature setting, clamped to a safe ceiling. Malformed (non-finite) config
+     * falls back to the default rather than producing NaN — which would disable the cap — while an
+     * explicit 0 is still honored.
+     * @param {string} key
+     * @param {number} fallback
+     * @param {number} max
+     * @returns {number}
+     */
+    clampedNumericSetting(key, fallback, max) {
+        const value = this.getFeatureSetting(key);
+        return Math.min(typeof value === 'number' && Number.isFinite(value) ? value : fallback, max);
     }
 
     getImages() {
