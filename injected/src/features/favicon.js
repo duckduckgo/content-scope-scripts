@@ -103,10 +103,7 @@ function isSvgFavicon(href, type) {
  * @returns {boolean}
  */
 function isMaskIcon(rel) {
-    return rel
-        .toLowerCase()
-        .split(/\s+/)
-        .includes('mask-icon');
+    return rel.toLowerCase().split(/\s+/).includes('mask-icon');
 }
 
 /**
@@ -122,16 +119,18 @@ export function getFaviconList() {
         "link[href][rel='apple-touch-icon-precomposed']",
     ];
     const elements = document.head.querySelectorAll(selectors.join(','));
-    return Array.from(elements)
-        .filter((el) => el instanceof HTMLLinkElement)
-        // The `rel*='icon'` selector above also matches Safari's `rel="mask-icon"`; drop those.
-        .filter((el) => !isMaskIcon(el.getAttribute('rel') || ''))
-        .map((link) => {
-            const href = link.href || '';
-            const rel = link.getAttribute('rel') || '';
-            const type = link.type || '';
-            return { href, rel, type };
-        });
+    return (
+        Array.from(elements)
+            .filter((el) => el instanceof HTMLLinkElement)
+            // The `rel*='icon'` selector above also matches Safari's `rel="mask-icon"`; drop those.
+            .filter((el) => !isMaskIcon(el.getAttribute('rel') || ''))
+            .map((link) => {
+                const href = link.href || '';
+                const rel = link.getAttribute('rel') || '';
+                const type = link.type || '';
+                return { href, rel, type };
+            })
+    );
 }
 
 /**
