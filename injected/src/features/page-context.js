@@ -222,6 +222,10 @@ function getLinkText(node, children, settings) {
  * Open Graph `og:type`, and the declared page language. Every field is best-effort and is empty
  * or null when the page doesn't expose it. Domain is intentionally omitted; consumers derive it
  * from the page URL that already accompanies the collected content.
+ *
+ * `jsonLdType` is a shallow harvest: only top-level and `@graph` `@type` values are collected.
+ * Types nested under other properties (e.g. `mainEntity.@type`) are not walked, so consumers
+ * should not treat this as full schema.org graph coverage.
  * @param {Document} document
  * @param {{ maxTypes?: number, maxBlockLength?: number }} [options]
  * @returns {{ jsonLdType: string[], ogType: string | null, lang: string }}
@@ -249,6 +253,8 @@ function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
     const seen = new Set();
     /** @param {unknown} value */
     const add = (value) => {
+        // Short-circuit once the cap is hit so a single wide `@graph` doesn't keep iterating.
+        if (types.length >= maxTypes) return;
         if (typeof value !== 'string') return;
         const type = value.trim();
         if (!type || seen.has(type)) return;
