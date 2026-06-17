@@ -318,6 +318,16 @@ export class YouTubeAdDetector {
         if (!selectors || !selectors.background) {
             return false;
         }
+
+        // A genuine static ad renders while the player is in its ad state
+        // (#movie_player.ad-showing / .ad-interrupting). The creator pre-play/cued
+        // poster uses the same `.player-container-background` container WITHOUT the ad
+        // state, so without this gate it is mis-detected as a static ad (false positive).
+        const player = document.querySelector('#movie_player, .html5-video-player');
+        if (!player || !/\bad-showing\b|\bad-interrupting\b/.test((player.className || '').toString())) {
+            return false;
+        }
+
         const background = document.querySelector(selectors.background);
 
         if (!background || !isVisible(background)) {
