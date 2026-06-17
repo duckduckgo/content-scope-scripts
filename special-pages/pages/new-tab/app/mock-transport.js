@@ -141,6 +141,10 @@ export function mockTransport() {
                     broadcast('widget_config');
                     return;
                 }
+                case 'open': {
+                    console.log('ignoring open', msg.params);
+                    return;
+                }
                 case 'rmf_primaryAction': {
                     console.log('ignoring rmf_primaryAction', msg.params);
                     clearRmf();
@@ -613,6 +617,10 @@ export function initialSetup(url) {
     if (url.searchParams.get('adBlocking') === 'enabled') {
         settings.adBlocking = { state: 'enabled' };
     }
+
+    // Duck.ai navigation sidebar (left rail). Enabled by default in the mock so the POC is
+    // visible in the dev harness; pass `?duckAiSidebar=disabled` to hide it.
+    settings.duckAiSidebar = { state: url.searchParams.get('duckAiSidebar') === 'disabled' ? 'disabled' : 'enabled' };
 
     if (url.searchParams.has('tabs')) {
         initial.tabs = { tabId: '01', tabIds: ['01'] };

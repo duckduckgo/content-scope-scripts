@@ -66,7 +66,8 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withFeatureState('customizerDrawer', init.settings?.customizerDrawer)
-        .withFeatureState('adBlocking', init.settings?.adBlocking);
+        .withFeatureState('adBlocking', init.settings?.adBlocking)
+        .withFeatureState('duckAiSidebar', init.settings?.duckAiSidebar);
 
     if (!window.__playwright_01) {
         console.log('environment:', environment);

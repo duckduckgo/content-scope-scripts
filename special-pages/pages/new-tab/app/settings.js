@@ -12,15 +12,18 @@ export class Settings {
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {{state: 'enabled' | 'disabled', autoOpen: boolean}} [params.customizerDrawer]
      * @param {{state: 'enabled' | 'disabled'}} [params.adBlocking]
+     * @param {{state: 'enabled' | 'disabled'}} [params.duckAiSidebar]
      */
     constructor({
         platform = { name: detectPlatform() },
         customizerDrawer = { state: 'enabled', autoOpen: false },
         adBlocking = { state: 'disabled' },
+        duckAiSidebar = { state: 'disabled' },
     }) {
         this.platform = platform;
         this.customizerDrawer = customizerDrawer;
         this.adBlocking = adBlocking;
+        this.duckAiSidebar = duckAiSidebar;
     }
 
     withPlatformName(name) {
@@ -43,7 +46,7 @@ export class Settings {
     withFeatureState(named, settings) {
         if (!settings) return this;
         /** @type {(keyof import("../types/new-tab.js").NewTabPageSettings)[]} */
-        const valid = ['customizerDrawer', 'adBlocking'];
+        const valid = ['customizerDrawer', 'adBlocking', 'duckAiSidebar'];
         if (!valid.includes(named)) {
             console.warn(`Excluding invalid feature key ${named}`);
             return this;

@@ -50,6 +50,12 @@ body[data-animate-background="true"] {
 .layout {
     position: relative;
     z-index: 1;
+    --duckai-rail-width: 280px;
+}
+
+/* When the Duck.ai rail is shown, reserve space on the left for the fixed rail. */
+.layout[data-duckai-rail="true"] .main {
+    padding-left: var(--duckai-rail-width);
 }
 
 .main {
