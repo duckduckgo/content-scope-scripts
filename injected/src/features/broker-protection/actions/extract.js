@@ -150,29 +150,26 @@ export function extractProfiles(action, userData, root = document) {
 export function createProfile(elementFactory, extractData) {
     const output = {};
     for (const [key, value] of Object.entries(extractData)) {
-        if (value?.source === 'pageUrl') {
-            const url = globalThis.location.href;
-            output[key] = extractValue(key, value, [url]) || null;
-        } else if (!value?.selector) {
-            output[key] = null;
-        } else {
-            const elements = elementFactory(key, value);
-
-            // extract all strings first
-            const evaluatedValues = stringValuesFromElements(elements, key, value);
-
-            // clean them up - trimming, removing empties
-            const noneEmptyArray = cleanArray(evaluatedValues);
-
-            // Note: This can return any valid JSON valid, it depends on the extractor used.
-            const extractedValue = extractValue(key, value, noneEmptyArray);
-
-            // try to use the extracted value, or fall back to null
-            // this allows 'extractValue' to return null|undefined
-            output[key] = extractedValue || null;
-        }
+        const strings = stringsForProfileField(elementFactory, key, value);
+        output[key] = extractValue(key, value, strings) || null;
     }
     return output;
+}
+
+/**
+ * Resolve a profile field's raw candidate strings from whichever source it declares:
+ * a non-DOM `source` (e.g. the page URL), or DOM elements matched by its `selector`.
+ *
+ * @param {(key: string, value: ExtractProfileProperty) => ElementLike[]} elementFactory
+ * @param {string} key
+ * @param {ExtractProfileProperty} value
+ * @return {string[]}
+ */
+function stringsForProfileField(elementFactory, key, value) {
+    if (value?.source === 'pageUrl') {
+        return cleanArray(globalThis.location.href);
+    }
+    return cleanArray(stringValuesFromElements(elementFactory(key, value), key, value));
 }
 
 /**
