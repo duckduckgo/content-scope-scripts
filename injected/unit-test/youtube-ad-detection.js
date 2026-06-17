@@ -283,6 +283,59 @@ describe('YouTubeAdDetector', () => {
         });
     });
 
+    describe('static-ad player ad-state gate', () => {
+        let savedWindow;
+        let savedDocument;
+        let savedGetComputedStyle;
+
+        beforeEach(() => {
+            savedWindow = globalThis.window;
+            savedDocument = globalThis.document;
+            savedGetComputedStyle = globalThis.getComputedStyle;
+        });
+
+        afterEach(() => {
+            globalThis.window = savedWindow;
+            globalThis.document = savedDocument;
+            globalThis.getComputedStyle = savedGetComputedStyle;
+        });
+
+        const staticConfig = {
+            ...minimalConfig,
+            playerSelectors: ['#movie_player'],
+            staticAdSelectors: {
+                background: '.player-container-background',
+                thumbnail: '.player-container-background-image',
+                image: '.player-container-background yt-image',
+            },
+        };
+
+        function setupStaticAdDom({ adShowing }) {
+            const visible = () => ({ getBoundingClientRect: () => ({ width: 100, height: 100 }), querySelector: () => null });
+            const player = { className: 'html5-video-player' + (adShowing ? ' ad-showing' : '') };
+            const map = {
+                '#movie_player': player,
+                '.player-container-background': visible(),
+                '.player-container-background-image': visible(),
+                '.player-container-background yt-image': null,
+                '#movie_player video, .html5-video-player video': { paused: true, currentTime: 0 },
+            };
+            globalThis.getComputedStyle = () => /** @type {any} */ ({ display: 'block', visibility: 'visible', opacity: '1' });
+            globalThis.document = /** @type {any} */ ({ querySelector: (sel) => (sel in map ? map[sel] : null) });
+            globalThis.window = /** @type {any} */ ({ location: { search: '', pathname: '/watch' } });
+        }
+
+        it('does not detect a static ad when the player is not in its ad state (pre-play poster false positive)', () => {
+            setupStaticAdDom({ adShowing: false });
+            expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(false);
+        });
+
+        it('detects a static ad when the player is in its ad state', () => {
+            setupStaticAdDom({ adShowing: true });
+            expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(true);
+        });
+    });
+
     describe('runYoutubeAdDetection hostname gating', () => {
         const enabledConfig = { ...minimalConfig, state: 'enabled' };
         const emptyResult = { detected: false, type: 'youtubeAds', results: [] };

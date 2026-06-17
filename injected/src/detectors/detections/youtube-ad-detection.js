@@ -323,7 +323,8 @@ export class YouTubeAdDetector {
         // (#movie_player.ad-showing / .ad-interrupting). The creator pre-play/cued
         // poster uses the same `.player-container-background` container WITHOUT the ad
         // state, so without this gate it is mis-detected as a static ad (false positive).
-        const player = document.querySelector('#movie_player, .html5-video-player');
+        // Reuse the config-driven player root rather than a separate hardcoded query.
+        const player = this.playerRoot ?? this.findPlayerRoot();
         if (!player || !/\bad-showing\b|\bad-interrupting\b/.test((player.className || '').toString())) {
             return false;
         }
