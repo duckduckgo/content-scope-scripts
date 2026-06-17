@@ -164,6 +164,131 @@ export function getMockAiChats(query) {
 }
 
 /**
+ * Local bundled icon so the tab picker renders deterministically in screenshot
+ * tests — real favicon URLs would race a live network fetch.
+ * @param {string} file - filename under `public/company-icons/`
+ * @returns {import("../../../types/new-tab").Favicon}
+ */
+function localFavicon(file) {
+    return { src: `./company-icons/${file}`, maxAvailableSize: 64 };
+}
+
+/** @type {import("../../../types/new-tab").TabMetadata[]} */
+const allMockOpenTabs = [
+    {
+        tabId: 'tab-1',
+        title: 'MacBook Neo - Apple',
+        url: 'https://www.apple.com/macbook-neo',
+        favicon: localFavicon('a.svg'),
+    },
+    {
+        tabId: 'tab-2',
+        title: 'Starbucks Coffee Company',
+        url: 'https://www.starbucks.com',
+        favicon: localFavicon('s.svg'),
+    },
+    {
+        tabId: 'tab-long',
+        title: 'Breckenreid Makes Thoughtful Illustrations About Typography, History, And Why Extremely Long Page Titles Must Be Truncated With An Ellipsis Instead Of Wrapping Or Overflowing The Picker',
+        url: 'https://example.com/an/extremely/long/article/about/typography',
+        favicon: localFavicon('e.svg'),
+    },
+    {
+        tabId: 'tab-3',
+        title: 'MacBook Pro - Apple',
+        url: 'https://www.apple.com/macbook-pro',
+        favicon: localFavicon('a.svg'),
+    },
+    {
+        tabId: 'tab-4',
+        title: 'Duck.ai - Project planning',
+        url: 'https://duck.ai/chat/abc',
+        favicon: localFavicon('d.svg'),
+    },
+    {
+        tabId: 'tab-5',
+        title: 'Dinosaurus',
+        url: 'https://en.wikipedia.org/wiki/Dinosaur',
+        favicon: localFavicon('w.svg'),
+    },
+    {
+        tabId: 'tab-6',
+        title: 'Amazon.com. Spend less. Smile more.',
+        url: 'https://www.amazon.com',
+        favicon: localFavicon('amazon.svg'),
+    },
+    {
+        tabId: 'tab-7',
+        title: 'Daring Fireball',
+        url: 'https://daringfireball.net',
+        favicon: localFavicon('d.svg'),
+    },
+    {
+        tabId: 'tab-8',
+        title: 'Ranking MLB best at every position',
+        url: 'https://www.mlb.com/news/best-players-position',
+        favicon: localFavicon('m.svg'),
+    },
+    {
+        tabId: 'tab-9',
+        title: 'Asana',
+        url: 'https://app.asana.com',
+        favicon: localFavicon('a.svg'),
+    },
+    {
+        tabId: 'tab-10',
+        title: 'Discord',
+        url: 'https://discord.com/channels/@me',
+        favicon: localFavicon('d.svg'),
+    },
+    {
+        tabId: 'tab-11',
+        title: 'The Verge',
+        url: 'https://www.theverge.com',
+        favicon: localFavicon('t.svg'),
+    },
+    {
+        tabId: 'tab-12',
+        title: 'BlueSky',
+        url: 'https://bsky.app',
+        favicon: localFavicon('b.svg'),
+    },
+    {
+        tabId: 'tab-broken',
+        title: 'Tab That Fails to Extract',
+        url: 'https://example.invalid/restricted',
+        favicon: null,
+    },
+];
+
+/**
+ * @returns {import("../../../types/new-tab").GetOpenTabsResponse}
+ */
+export function getMockOpenTabs() {
+    return { tabs: allMockOpenTabs };
+}
+
+/**
+ * @param {string} tabId
+ * @returns {import("../../../types/new-tab").PageContext | null}
+ */
+export function getMockTabContent(tabId) {
+    if (tabId === 'tab-broken') return null;
+    const tab = allMockOpenTabs.find((t) => t.tabId === tabId);
+    if (!tab) return null;
+    const content = `## ${tab.title}\n\nMock markdown content extracted from ${tab.url}.\n\nThis is placeholder content used by the NTP mock transport so the attach-tabs feature can be exercised without a native backend.`;
+    return {
+        tabId: tab.tabId,
+        title: tab.title,
+        url: tab.url,
+        favicon: tab.favicon,
+        content,
+        truncated: false,
+        fullContentLength: content.length,
+    };
+}
+
+/**
  * @param {string} text
  * @param {string} searchTerm
  * @returns {boolean}

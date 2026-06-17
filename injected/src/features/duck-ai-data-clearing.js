@@ -11,17 +11,21 @@ import ContentFeature from '../content-feature.js';
  */
 export class DuckAiDataClearing extends ContentFeature {
     init() {
-        this.messaging.subscribe('duckAiClearData', (/** @type {{chatId?: string} | undefined} */ params) => this.clearData(params));
+        this.messaging.subscribe('duckAiClearData', (params) => {
+            void this.clearData(params);
+        });
 
         this.notify('duckAiClearDataReady');
     }
 
     /**
-     * @param {object} [params]
-     * @param {string} [params.chatId] - If provided, only delete this specific chat; otherwise clear all data
+     * @param {unknown} [params]
      */
     clearData(params) {
-        const chatId = params?.chatId;
+        const chatId =
+            params !== null && typeof params === 'object' && 'chatId' in params
+                ? /** @type {{ chatId?: string }} */ (params).chatId
+                : undefined;
 
         if (chatId) {
             return this.deleteSingleChat(chatId);
@@ -89,7 +93,7 @@ export class DuckAiDataClearing extends ContentFeature {
             try {
                 operation(key);
             } catch (error) {
-                errors.push(error);
+                errors.push(error instanceof Error ? error : new Error(String(error)));
                 this.log.error('Error in localStorage operation:', error);
             }
         }
@@ -108,7 +112,7 @@ export class DuckAiDataClearing extends ContentFeature {
                     operation(objectStore, transaction, dbName, storeName);
                 });
             } catch (error) {
-                errors.push(error);
+                errors.push(error instanceof Error ? error : new Error(String(error)));
                 this.log.error('Error in IndexedDB operation:', error);
             }
         }
@@ -150,7 +154,7 @@ export class DuckAiDataClearing extends ContentFeature {
         }
 
         const originalLength = data.chats.length;
-        data.chats = data.chats.filter((chat) => chat.chatId !== chatId);
+        data.chats = data.chats.filter((/** @type {{chatId?: string}} */ chat) => chat.chatId !== chatId);
 
         if (data.chats.length < originalLength) {
             window.localStorage.setItem(localStorageKey, JSON.stringify(data));
@@ -160,6 +164,9 @@ export class DuckAiDataClearing extends ContentFeature {
         }
     }
 
+    /**
+     * @param {string} localStorageKey
+     */
     clearSavedAIChats(localStorageKey) {
         this.log.info(`Clearing '${localStorageKey}'`);
         window.localStorage.removeItem(localStorageKey);

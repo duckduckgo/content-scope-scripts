@@ -21,6 +21,7 @@ export default defineConfig({
                 'integration-test/web-detection.spec.js',
                 'integration-test/web-events.spec.js',
                 'integration-test/web-interference-detection-events.spec.js',
+                'integration-test/page-type-signals.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },

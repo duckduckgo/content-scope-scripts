@@ -5,7 +5,13 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
+// eslint-disable-next-line no-redeclare
+import { JSONparse, Set, hasOwnProperty } from '../captured-globals.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
+
+// Bail past this nesting depth when walking JSON-LD so adversarially deep blocks
+// can't blow the stack and fail the whole content collection.
+const MAX_JSON_LD_DEPTH = 32;
 
 export function checkNodeIsVisible(node) {
     try {
@@ -209,6 +215,115 @@ function getLinkText(node, children, settings) {
         return '';
     }
     return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
+}
+
+/**
+ * Extract cheap, normalized page-type signals from a document: schema.org JSON-LD `@type`,
+ * Open Graph `og:type`, and the declared page language. Every field is best-effort and is empty
+ * or null when the page doesn't expose it. Domain is intentionally omitted; consumers derive it
+ * from the page URL that already accompanies the collected content.
+ *
+ * `jsonLdType` is a shallow harvest: only top-level and `@graph` `@type` values are collected.
+ * Types nested under other properties (e.g. `mainEntity.@type`) are not walked, so consumers
+ * should not treat this as full schema.org graph coverage.
+ * @param {Document} document
+ * @param {{ maxTypes?: number, maxBlockLength?: number }} [options]
+ * @returns {{ jsonLdType: string[], ogType: string | null, lang: string }}
+ */
+export function extractPageTypeSignals(document, { maxTypes = 10, maxBlockLength = 100000 } = {}) {
+    return {
+        jsonLdType: extractJsonLdTypes(document, maxTypes, maxBlockLength),
+        ogType: extractOgType(document),
+        lang: extractLang(document),
+    };
+}
+
+/**
+ * Collect deduped schema.org `@type` values from every JSON-LD block, preserving casing. Handles
+ * `@type` as a string or array and entries nested under `@graph`. Malformed and oversized blocks
+ * are skipped so a bad block never fails the whole collection.
+ * @param {Document} document
+ * @param {number} maxTypes
+ * @param {number} maxBlockLength
+ * @returns {string[]}
+ */
+function extractJsonLdTypes(document, maxTypes, maxBlockLength) {
+    // A Set both dedupes and preserves insertion order, so it doubles as the store and the cap counter.
+    const types = new Set();
+    /** @param {unknown} value */
+    const recordType = (value) => {
+        // Short-circuit once the cap is hit so a single wide `@graph` doesn't keep iterating.
+        if (types.size >= maxTypes) return;
+        if (typeof value !== 'string') return;
+        const type = value.trim();
+        if (type) types.add(type);
+    };
+
+    // Case-insensitive attribute match ("i") so non-canonical casing (e.g. APPLICATION/LD+JSON)
+    // is still discovered.
+    const blocks = document.querySelectorAll('script[type="application/ld+json" i]');
+    for (const block of blocks) {
+        if (types.size >= maxTypes) break;
+        const text = block.textContent || '';
+        if (!text || text.length > maxBlockLength) continue;
+        let data;
+        try {
+            data = JSONparse(text);
+        } catch (e) {
+            continue;
+        }
+        collectJsonLdTypes(data, recordType);
+    }
+
+    return Array.from(types);
+}
+
+/**
+ * Walk a parsed JSON-LD value (object, array, or `@graph` container) and report each `@type`.
+ * Own-property checks keep a polluted `Object.prototype` from surfacing spurious `@type` /
+ * `@graph` keys, and recursion is bounded by {@link MAX_JSON_LD_DEPTH}.
+ * @param {unknown} node
+ * @param {(value: unknown) => void} recordType
+ * @param {number} [depth]
+ */
+function collectJsonLdTypes(node, recordType, depth = 0) {
+    if (depth > MAX_JSON_LD_DEPTH) return;
+    if (Array.isArray(node)) {
+        for (const item of node) collectJsonLdTypes(item, recordType, depth + 1);
+        return;
+    }
+    if (!node || typeof node !== 'object') return;
+    const obj = /** @type {Record<string, unknown>} */ (node);
+    if (hasOwnProperty.call(obj, '@type')) {
+        const type = obj['@type'];
+        if (Array.isArray(type)) {
+            for (const value of type) recordType(value);
+        } else if (type != null) {
+            recordType(type);
+        }
+    }
+    if (hasOwnProperty.call(obj, '@graph')) {
+        collectJsonLdTypes(obj['@graph'], recordType, depth + 1);
+    }
+}
+
+/**
+ * @param {Document} document
+ * @returns {string | null}
+ */
+function extractOgType(document) {
+    const meta = document.querySelector('meta[property="og:type"]');
+    const content = meta?.getAttribute('content');
+    const trimmed = typeof content === 'string' ? content.trim() : '';
+    return trimmed || null;
+}
+
+/**
+ * @param {Document} document
+ * @returns {string}
+ */
+function extractLang(document) {
+    return (document.documentElement?.getAttribute('lang') || '').trim();
 }
 
 export default class PageContext extends ContentFeature {
@@ -492,6 +607,9 @@ export default class PageContext extends ContentFeature {
         if (this.getFeatureSettingEnabled('includeImages', 'disabled')) {
             content.images = this.getImages();
         }
+        if (this.getFeatureSettingEnabled('includePageTypeSignals', 'disabled')) {
+            content.pageTypeSignals = this.getPageTypeSignals();
+        }
 
         // Cache the result - setter handles timestamp and observer
         // Note: We only cache if content exists. Consider caching empty content too
@@ -618,6 +736,27 @@ export default class PageContext extends ContentFeature {
         });
 
         return links;
+    }
+
+    getPageTypeSignals() {
+        return extractPageTypeSignals(document, {
+            maxTypes: this.clampedNumericSetting('maxPageTypeSignals', 10, 50),
+            maxBlockLength: this.clampedNumericSetting('maxJsonLdBlockLength', 100000, 1000000),
+        });
+    }
+
+    /**
+     * Read a numeric feature setting, clamped to a safe ceiling. Malformed (non-finite) config
+     * falls back to the default rather than producing NaN — which would disable the cap — while an
+     * explicit 0 is still honored.
+     * @param {string} key
+     * @param {number} fallback
+     * @param {number} max
+     * @returns {number}
+     */
+    clampedNumericSetting(key, fallback, max) {
+        const value = this.getFeatureSetting(key);
+        return Math.min(typeof value === 'number' && Number.isFinite(value) ? value : fallback, max);
     }
 
     getImages() {
