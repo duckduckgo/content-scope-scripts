@@ -204,7 +204,7 @@ export class YouTubeAdDetector {
         }
 
         // Check for static ads
-        const hasStaticAd = this.checkForStaticAds();
+        const hasStaticAd = this.checkForStaticAds(root);
         if (hasStaticAd && !this.state.detections.staticAd.showing) {
             this.reportDetection('staticAd');
         } else if (!hasStaticAd && this.state.detections.staticAd.showing) {
@@ -311,9 +311,10 @@ export class YouTubeAdDetector {
 
     /**
      * Check for static overlay ads (image ads over the player)
+     * @param {Element|null} [root] - Player root already resolved by the sweep, if any
      * @returns {boolean}
      */
-    checkForStaticAds() {
+    checkForStaticAds(root) {
         const selectors = this.config.staticAdSelectors;
         if (!selectors || !selectors.background) {
             return false;
@@ -323,8 +324,8 @@ export class YouTubeAdDetector {
         // (#movie_player.ad-showing / .ad-interrupting). The creator pre-play/cued
         // poster uses the same `.player-container-background` container WITHOUT the ad
         // state, so without this gate it is mis-detected as a static ad (false positive).
-        // Reuse the config-driven player root rather than a separate hardcoded query.
-        const player = this.playerRoot ?? this.findPlayerRoot();
+        // Reuse the sweep's already-resolved (config-driven) player root when available.
+        const player = root ?? this.playerRoot ?? this.findPlayerRoot();
         if (!player || !/\bad-showing\b|\bad-interrupting\b/.test((player.className || '').toString())) {
             return false;
         }

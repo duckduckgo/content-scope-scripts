@@ -310,9 +310,11 @@ describe('YouTubeAdDetector', () => {
             },
         };
 
-        function setupStaticAdDom({ adShowing }) {
+        // `adStateClass` is the player ad-state class to inject (or null for a plain
+        // poster). The static-ad selectors all resolve to a visible element.
+        function setupStaticAdDom(adStateClass) {
             const visible = () => ({ getBoundingClientRect: () => ({ width: 100, height: 100 }), querySelector: () => null });
-            const player = { className: 'html5-video-player' + (adShowing ? ' ad-showing' : '') };
+            const player = { className: 'html5-video-player' + (adStateClass ? ' ' + adStateClass : '') };
             const map = {
                 '#movie_player': player,
                 '.player-container-background': visible(),
@@ -326,12 +328,17 @@ describe('YouTubeAdDetector', () => {
         }
 
         it('does not detect a static ad when the player is not in its ad state (pre-play poster false positive)', () => {
-            setupStaticAdDom({ adShowing: false });
+            setupStaticAdDom(null);
             expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(false);
         });
 
-        it('detects a static ad when the player is in its ad state', () => {
-            setupStaticAdDom({ adShowing: true });
+        it('detects a static ad when the player is in the ad-showing state', () => {
+            setupStaticAdDom('ad-showing');
+            expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(true);
+        });
+
+        it('detects a static ad when the player is in the ad-interrupting state', () => {
+            setupStaticAdDom('ad-interrupting');
             expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(true);
         });
     });
