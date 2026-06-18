@@ -459,6 +459,12 @@ describe('create profiles from extracted data', () => {
         expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
     });
 
+    it('strips known leading labels (prefixes) from the text', () => {
+        expect(stringValuesFromElements([{ innerText: 'Related to: John Smith' }], 'testKey', { selector: 'x' })).toEqual(['John Smith']);
+        expect(stringValuesFromElements([{ innerText: 'AKA: Jane Doe' }], 'testKey', { selector: 'x' })).toEqual(['Jane Doe']);
+        expect(stringValuesFromElements([{ innerText: 'RESIDES IN Dallas' }], 'testKey', { selector: 'x' })).toEqual(['Dallas']);
+    });
+
     describe("'attribute' extraction", () => {
         const originalLocation = globalThis.location;
         beforeEach(() => {
@@ -514,6 +520,15 @@ describe('create profiles from extracted data', () => {
             const element = fakeElement({});
             const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: 'a', attribute: 'data-missing' } });
             expect(profile.profileUrl).toBeNull();
+        });
+
+        it('uses the raw value as the identifier when it is not a valid URL', () => {
+            // a relative attribute value can't be parsed by `new URL()`, so the id parser returns it unchanged
+            const element = fakeElement({ 'data-link': '/relative/path' });
+            const profile = createProfile(() => [element], ROOT, {
+                profileUrl: { selector: 'a', attribute: 'data-link', identifierType: 'param', identifier: 'id' },
+            });
+            expect(profile.profileUrl).toEqual({ profileUrl: '/relative/path', identifier: '/relative/path' });
         });
     });
 
