@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+    <head>
+        <title>John Smith - People Search Results | PeopleLookup</title>
+    </head>
+    <body>
+        <!--
+            Synthetic people-search results — invented rather than reconstructed, since no live broker
+            requires regex extraction yet. Shaped like a real "John Smith" lookup: several same-name
+            cards, only one correct match (age 38, Chicago). Badge / age-label / alias-separator casing
+            varies between cards ("Verified"/"VERIFIED", "Age"/"AGE"/"age", "aka"/"AKA"), so only the
+            case-insensitive "/pattern/i" extraction in extract-regex.json reads the right card.
+        -->
+        <header class="site-header">
+            <a class="logo" href="/">PeopleLookup</a>
+            <form class="search-bar" action="/search">
+                <input type="search" name="q" value="John Smith" aria-label="Search a name" />
+                <button type="submit">Search</button>
+            </form>
+        </header>
+
+        <main class="container people-search">
+            <p class="results-summary">3 results found for <strong>John Smith</strong></p>
+
+            <ul class="results-list">
+                <li class="search-item">
+                    <h3 class="search-item__name">John Smith <span class="badge badge--verified">VERIFIED</span></h3>
+                    <p class="search-item__age">Born 1962 &middot; AGE 64</p>
+                    <p class="search-item__aka">John Smith aka Jack Smith</p>
+                    <ul class="search-item__cities">
+                        <li class="search-item__city">Houston, TX</li>
+                        <li class="search-item__city">Katy, TX</li>
+                    </ul>
+                    <a class="search-item__cta" href="/profile/john-smith/1a2b3c">View full report</a>
+                </li>
+
+                <li class="search-item">
+                    <h3 class="search-item__name">John Smith <span class="badge badge--verified">Verified</span></h3>
+                    <p class="search-item__age">Born 1988 &middot; Age 38</p>
+                    <p class="search-item__aka">John Smith aka Johnny AKA J Smith</p>
+                    <ul class="search-item__cities">
+                        <li class="search-item__city">Chicago, IL</li>
+                        <li class="search-item__city">Evanston, IL</li>
+                    </ul>
+                    <a class="search-item__cta" href="/profile/john-smith/8f2a3b">View full report</a>
+                </li>
+
+                <li class="search-item">
+                    <h3 class="search-item__name">John W Smith</h3>
+                    <p class="search-item__age">Born 2004 &middot; age 22</p>
+                    <p class="search-item__aka">John W Smith AKA Johnny W</p>
+                    <ul class="search-item__cities">
+                        <li class="search-item__city">Phoenix, AZ</li>
+                    </ul>
+                    <a class="search-item__cta" href="/profile/john-w-smith/9z8y7x">View full report</a>
+                </li>
+            </ul>
+        </main>
+    </body>
+</html>

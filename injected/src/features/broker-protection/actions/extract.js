@@ -23,9 +23,9 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  * }
  * @property {string} selector - xpath or css selector
  * @property {boolean} [findElements] - whether to get all occurrences of the selector
- * @property {string} [afterText] - get all text after this string
- * @property {string} [beforeText] - get all text before this string
- * @property {string} [separator] - split the text on this string, or use a regex by passing "/pattern/" (e.g. "/(?<=, [A-Z]{2}), /")
+ * @property {string} [afterText] - get all text after this string, or after the first regex match by passing "/pattern/" or "/pattern/i" (e.g. "/age:?\\s+/i")
+ * @property {string} [beforeText] - get all text before this string, or before the first regex match by passing "/pattern/" or "/pattern/i"
+ * @property {string} [separator] - split the text on this string, or use a regex by passing "/pattern/" or "/pattern/i" (e.g. "/(?<=, [A-Z]{2}), /")
  * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
  * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
  *
@@ -182,11 +182,11 @@ export function stringValuesFromElements(elements, key, extractField) {
         }
 
         if (extractField?.afterText) {
-            elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue;
+            elementValue = splitOnce(elementValue, parseRegexFromString(extractField.afterText), 'after')?.trim() || elementValue;
         }
         // there is a case where we may want to get the text "after" and "before" certain text
         if (extractField?.beforeText) {
-            elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue;
+            elementValue = splitOnce(elementValue, parseRegexFromString(extractField.beforeText), 'before')?.trim() || elementValue;
         }
 
         elementValue = removeCommonSuffixesAndPrefixes(elementValue);
@@ -347,27 +347,49 @@ async function applyPostTransforms(profile, params) {
 }
 
 /**
- * Coerce separator from JSON to a string or RegExp for use with String#split.
- * If separator is a string in the form "/pattern/", the middle is used as a regex pattern.
+ * Coerce a JSON-safe string into a RegExp when it is in the form "/pattern/" or "/pattern/i".
+ * Anything else (including unsupported flags like "/pattern/g") is returned unchanged and
+ * treated as a literal string, preserving existing behaviour.
  *
- * @param {string} [separator]
- * @return {string|RegExp|undefined}
+ * @template T
+ * @param {T} value
+ * @return {T|RegExp}
  */
-function parseRegexSeparator(separator) {
-    if (typeof separator === 'string' && separator.length >= 2 && separator.startsWith('/') && separator.endsWith('/')) {
-        return new RegExp(separator.slice(1, -1));
+export function parseRegexFromString(value) {
+    const match = typeof value === 'string' && value.match(/^\/(.+)\/(i?)$/);
+    return match ? new RegExp(match[1], match[2]) : value;
+}
+
+/**
+ * Split `value` once on `matcher`, keeping the text before or after the first occurrence.
+ *
+ * Literal (string) matchers preserve the existing `String#split` behaviour exactly. RegExp
+ * matchers use match + slice so that capture groups never interleave into the result (unlike
+ * `String#split` with a capturing group), and so the "after" side keeps everything following
+ * the first match rather than the text up to the next occurrence.
+ *
+ * @param {string} value
+ * @param {string|RegExp} matcher
+ * @param {'after'|'before'} keep
+ * @return {string|undefined}
+ */
+function splitOnce(value, matcher, keep) {
+    if (matcher instanceof RegExp) {
+        const match = value.match(matcher);
+        if (!match || match.index === undefined) return undefined;
+        return keep === 'after' ? value.slice(match.index + match[0].length) : value.slice(0, match.index);
     }
-    return separator;
+    return keep === 'after' ? value.split(matcher)[1] : value.split(matcher)[0];
 }
 
 /**
  * @param {string} inputList
- * @param {string} [separator] - literal string, or "/pattern/" for regex (JSON-safe)
+ * @param {string} [separator] - literal string, or "/pattern/" / "/pattern/i" for regex (JSON-safe)
  * @return {string[]}
  */
 export function stringToList(inputList, separator) {
     const defaultSeparator = /[|\n•·]/;
-    const splitOn = parseRegexSeparator(separator) || defaultSeparator;
+    const splitOn = parseRegexFromString(separator) || defaultSeparator;
     return cleanArray(inputList.split(splitOn));
 }
 
