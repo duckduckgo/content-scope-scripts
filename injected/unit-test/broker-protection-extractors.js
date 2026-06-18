@@ -131,6 +131,21 @@ describe('city/state combos', () => {
             expect(cityStateCombosFromStrings(['Dallas, TX'])).toEqual([{ city: 'Dallas', state: 'TX' }]);
         });
 
+        it('splits a space-separated "City ST" string (no comma)', () => {
+            expect(cityStateCombosFromStrings(['Chicago IL'])).toEqual([{ city: 'Chicago', state: 'IL' }]);
+        });
+
+        it('strips a trailing zip code', () => {
+            expect(cityStateCombosFromStrings(['Chicago IL 60611', 'River Forest IL 60305-1243'])).toEqual([
+                { city: 'Chicago', state: 'IL' },
+                { city: 'River Forest', state: 'IL' },
+            ]);
+        });
+
+        it('skips a partial single-token entry', () => {
+            expect(cityStateCombosFromStrings(['Fores...'])).toEqual([]);
+        });
+
         it('splits a delimited list of combos', () => {
             expect(cityStateCombosFromStrings(['Dallas, TX • Austin, TX'])).toEqual([
                 { city: 'Dallas', state: 'TX' },

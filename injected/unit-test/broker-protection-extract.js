@@ -4,6 +4,16 @@ import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
 const ROOT = {};
 
 describe('create profiles from extracted data', () => {
+    /**
+     * A stand-in DOM element exposing `getAttribute` (and any extra props like `innerText`/`href`).
+     * @param {Record<string, string|null>} attributes
+     * @param {Record<string, any>} [extras]
+     */
+    const fakeElement = (attributes, extras = {}) => ({
+        getAttribute: (/** @type {string} */ name) => attributes[name] ?? null,
+        ...extras,
+    });
+
     describe('cleanArray', () => {
         it('should filter out null, undefined, and empty strings', () => {
             /**
@@ -27,6 +37,7 @@ describe('create profiles from extracted data', () => {
             }
         });
     });
+
     it('handles combined, single strings', () => {
         const selectors = {
             name: {
@@ -68,6 +79,7 @@ describe('create profiles from extracted data', () => {
             expect(profile).toEqual(elementExample.expected);
         }
     });
+
     it('handles multiple strings', () => {
         const elementExamples = [
             {
@@ -115,118 +127,6 @@ describe('create profiles from extracted data', () => {
             const select = () => elementExample.elements;
             const profile = createProfile(select, ROOT, elementExample.selectors);
             expect(profile).toEqual(elementExample.expected);
-        }
-    });
-    it('should omit invalid addresses', () => {
-        const elementExamples = [
-            {
-                selectors: {
-                    addressCityState: {
-                        selector: 'example',
-                    },
-                },
-                elements: [{ innerText: 'anything, here' }],
-                expected: {
-                    addressCityState: [],
-                },
-            },
-        ];
-
-        for (const elementExample of elementExamples) {
-            const select = () => elementExample.elements;
-            const profile = createProfile(select, ROOT, elementExample.selectors);
-            expect(profile).toEqual(elementExample.expected);
-        }
-    });
-
-    it('should omit duplicate addresses when aggregated', () => {
-        const elementExamples = [
-            {
-                selectors: {
-                    addressCityState: {
-                        selector: 'example',
-                        findElements: true,
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX' }, { innerText: 'Dallas, TX' }],
-                expected: {
-                    addresses: [{ city: 'Dallas', state: 'TX' }],
-                },
-            },
-        ];
-
-        for (const elementExample of elementExamples) {
-            const select = () => elementExample.elements;
-            const profile = createProfile(select, ROOT, elementExample.selectors);
-            const aggregated = aggregateFields(profile);
-            expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
-        }
-    });
-
-    it('should handle addressCityStateList (with string or regex separator)', () => {
-        const elementExamples = [
-            {
-                selectors: {
-                    addressCityStateList: {
-                        selector: 'example',
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
-                expected: {
-                    addresses: [
-                        { city: 'Carrollton', state: 'TX' },
-                        { city: 'Dallas', state: 'TX' },
-                        { city: 'The Colony', state: 'TX' },
-                    ],
-                },
-            },
-            {
-                selectors: {
-                    addressCityStateList: {
-                        selector: 'example',
-                        separator: '/(?<=, [A-Z]{2}), /',
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
-                expected: {
-                    addresses: [
-                        { city: 'Carrollton', state: 'TX' },
-                        { city: 'Dallas', state: 'TX' },
-                        { city: 'The Colony', state: 'TX' },
-                    ],
-                },
-            },
-            {
-                selectors: {
-                    addressCityStateList: {
-                        selector: 'example',
-                        separator: '(?<=, [A-Z]{2}), ',
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
-                expected: {
-                    addresses: [{ city: 'Dallas TX The Colony TX Carrollton', state: 'TX' }],
-                },
-            },
-            {
-                selectors: {
-                    addressCityStateList: {
-                        selector: 'example',
-                        separator: '/(?<=, [A-Z]{2}), /',
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX' }],
-                expected: {
-                    addresses: [{ city: 'Dallas', state: 'TX' }],
-                },
-            },
-        ];
-
-        for (const elementExample of elementExamples) {
-            const select = () => elementExample.elements;
-            const profile = createProfile(select, ROOT, elementExample.selectors);
-            const aggregated = aggregateFields(profile);
-            expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
         }
     });
 
@@ -300,25 +200,6 @@ describe('create profiles from extracted data', () => {
                 'Jack Johnson',
             ],
         });
-    });
-
-    it('(1) Addresses: general validation [validation] https://app.asana.com/0/0/1206808587680141/f', () => {
-        const selectors = {
-            name: { selector: '.name' },
-            age: { selector: '.age' },
-            addressCityState: { selector: '.address', findElements: true },
-        };
-        const select = (_root, selector) =>
-            ({
-                '.name': [{ innerText: 'Shane Osbourne' }],
-                '.age': [{ innerText: '39' }],
-                '.address': [{ innerText: 'Dallas, TX' }, { innerText: 'anything, here' }],
-            })[selector ?? ''] ?? [];
-        const expected = [{ city: 'Dallas', state: 'TX' }];
-
-        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
-        const actual = aggregateFields(scraped);
-        expect(actual.addresses).toEqual(expected);
     });
 
     it('should handle relativesList (with string or regex separator)', () => {
@@ -444,28 +325,230 @@ describe('create profiles from extracted data', () => {
         expect(actual.alternativeNames).toEqual(['Fred Firth', 'Jerry Doug', 'Marvin Smith', 'Roger Star']);
     });
 
-    it('should extract innerText by default', () => {
-        const element = {
-            innerText: 'John Smith, 39',
-            textContent: 'Ignore me',
-        };
-        expect(stringsFromElements([element], { selector: 'example' })).toEqual(['John Smith, 39']);
+    describe('stringsFromElements (reading element values)', () => {
+        it('should extract innerText by default', () => {
+            const element = {
+                innerText: 'John Smith, 39',
+                textContent: 'Ignore me',
+            };
+            expect(stringsFromElements([element], { selector: 'example' })).toEqual(['John Smith, 39']);
+        });
+
+        it('should extract textElement if innerText is not present', () => {
+            const element = {
+                textContent: 'John Smith, 39',
+            };
+            expect(stringsFromElements([element], { selector: 'example' })).toEqual(['John Smith, 39']);
+        });
+
+        it('reads the named attribute instead of the text', () => {
+            const element = fakeElement({ 'data-age': '42' }, { innerText: 'ignore me' });
+            expect(stringsFromElements([element], { selector: '.age', attribute: 'data-age' })).toEqual(['42']);
+        });
+
+        it('strips known leading labels (prefixes) from the text', () => {
+            expect(stringsFromElements([{ innerText: 'Related to: John Smith' }], { selector: 'x' })).toEqual(['John Smith']);
+            expect(stringsFromElements([{ innerText: 'AKA: Jane Doe' }], { selector: 'x' })).toEqual(['Jane Doe']);
+            expect(stringsFromElements([{ innerText: 'RESIDES IN Dallas' }], { selector: 'x' })).toEqual(['Dallas']);
+        });
     });
 
-    it('should extract textElement if innerText is not present', () => {
-        const element = {
-            textContent: 'John Smith, 39',
-        };
-        expect(stringsFromElements([element], { selector: 'example' })).toEqual(['John Smith, 39']);
+    describe('addressCityState / addressCityStateList', () => {
+        it('should omit invalid addresses', () => {
+            const elementExamples = [
+                {
+                    selectors: {
+                        addressCityState: {
+                            selector: 'example',
+                        },
+                    },
+                    elements: [{ innerText: 'anything, here' }],
+                    expected: {
+                        addressCityState: [],
+                    },
+                },
+            ];
+
+            for (const elementExample of elementExamples) {
+                const select = () => elementExample.elements;
+                const profile = createProfile(select, ROOT, elementExample.selectors);
+                expect(profile).toEqual(elementExample.expected);
+            }
+        });
+
+        it('should omit duplicate addresses when aggregated', () => {
+            const elementExamples = [
+                {
+                    selectors: {
+                        addressCityState: {
+                            selector: 'example',
+                            findElements: true,
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX' }, { innerText: 'Dallas, TX' }],
+                    expected: {
+                        addresses: [{ city: 'Dallas', state: 'TX' }],
+                    },
+                },
+            ];
+
+            for (const elementExample of elementExamples) {
+                const select = () => elementExample.elements;
+                const profile = createProfile(select, ROOT, elementExample.selectors);
+                const aggregated = aggregateFields(profile);
+                expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
+            }
+        });
+
+        it('(1) Addresses: general validation [validation] https://app.asana.com/0/0/1206808587680141/f', () => {
+            const selectors = {
+                name: { selector: '.name' },
+                age: { selector: '.age' },
+                addressCityState: { selector: '.address', findElements: true },
+            };
+            const select = (_root, selector) =>
+                ({
+                    '.name': [{ innerText: 'Shane Osbourne' }],
+                    '.age': [{ innerText: '39' }],
+                    '.address': [{ innerText: 'Dallas, TX' }, { innerText: 'anything, here' }],
+                })[selector ?? ''] ?? [];
+            const expected = [{ city: 'Dallas', state: 'TX' }];
+
+            const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
+            const actual = aggregateFields(scraped);
+            expect(actual.addresses).toEqual(expected);
+        });
+
+        it('should handle addressCityStateList (with string or regex separator)', () => {
+            const elementExamples = [
+                {
+                    selectors: {
+                        addressCityStateList: {
+                            selector: 'example',
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
+                    expected: {
+                        addresses: [
+                            { city: 'Carrollton', state: 'TX' },
+                            { city: 'Dallas', state: 'TX' },
+                            { city: 'The Colony', state: 'TX' },
+                        ],
+                    },
+                },
+                {
+                    selectors: {
+                        addressCityStateList: {
+                            selector: 'example',
+                            separator: '/(?<=, [A-Z]{2}), /',
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+                    expected: {
+                        addresses: [
+                            { city: 'Carrollton', state: 'TX' },
+                            { city: 'Dallas', state: 'TX' },
+                            { city: 'The Colony', state: 'TX' },
+                        ],
+                    },
+                },
+                {
+                    selectors: {
+                        addressCityStateList: {
+                            selector: 'example',
+                            separator: '(?<=, [A-Z]{2}), ',
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+                    expected: {
+                        addresses: [{ city: 'Dallas TX The Colony TX Carrollton', state: 'TX' }],
+                    },
+                },
+                {
+                    selectors: {
+                        addressCityStateList: {
+                            selector: 'example',
+                            separator: '/(?<=, [A-Z]{2}), /',
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX' }],
+                    expected: {
+                        addresses: [{ city: 'Dallas', state: 'TX' }],
+                    },
+                },
+            ];
+
+            for (const elementExample of elementExamples) {
+                const select = () => elementExample.elements;
+                const profile = createProfile(select, ROOT, elementExample.selectors);
+                const aggregated = aggregateFields(profile);
+                expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
+            }
+        });
+
+        it('reads city and state per row, normalizing and keeping a missing state as null', () => {
+            const ROW1 = {};
+            const ROW2 = {};
+            const ROW3 = {};
+            const cells = new Map([
+                [ROW1, { './/city': [{ textContent: 'Dallas' }], './/state': [{ textContent: 'Florida' }] }],
+                [ROW2, { './/city': [{ textContent: 'Reno' }] }], // no state element
+                [ROW3, { './/city': [{ textContent: 'Nowhere' }], './/state': [{ textContent: 'ZZ' }] }], // invalid state
+            ]);
+            const select = (root, selector) => {
+                if (root === ROOT) return selector === '.row' ? [ROW1, ROW2, ROW3] : [];
+                return cells.get(root)?.[selector ?? ''] ?? [];
+            };
+
+            const profile = createProfile(select, ROOT, {
+                addressCityStateList: {
+                    selector: '.row',
+                    findElements: true,
+                    city: { selector: './/city' },
+                    state: { selector: './/state' },
+                },
+            });
+
+            expect(profile).toEqual({
+                addressCityStateList: [
+                    { city: 'Dallas', state: 'FL' }, // full state name normalized
+                    { city: 'Reno', state: null }, // no state element → kept as null
+                    // Nowhere dropped: its state element is present but unparseable
+                ],
+            });
+        });
+
+        it('reads city per row when only a city sub-selector is configured, keeping state null', () => {
+            const ROW1 = {};
+            const ROW2 = {};
+            const cells = new Map([
+                [ROW1, { './/city': [{ textContent: 'Dallas' }] }],
+                [ROW2, { './/city': [{ textContent: 'Reno' }] }],
+            ]);
+            const select = (root, selector) => {
+                if (root === ROOT) return selector === '.row' ? [ROW1, ROW2] : [];
+                return cells.get(root)?.[selector ?? ''] ?? [];
+            };
+
+            const profile = createProfile(select, ROOT, {
+                addressCityStateList: {
+                    selector: '.row',
+                    findElements: true,
+                    city: { selector: './/city' },
+                    // no state sub-selector: each row yields a city with state null
+                },
+            });
+
+            expect(profile).toEqual({
+                addressCityStateList: [
+                    { city: 'Dallas', state: null },
+                    { city: 'Reno', state: null },
+                ],
+            });
+        });
     });
 
-    it('strips known leading labels (prefixes) from the text', () => {
-        expect(stringsFromElements([{ innerText: 'Related to: John Smith' }], { selector: 'x' })).toEqual(['John Smith']);
-        expect(stringsFromElements([{ innerText: 'AKA: Jane Doe' }], { selector: 'x' })).toEqual(['Jane Doe']);
-        expect(stringsFromElements([{ innerText: 'RESIDES IN Dallas' }], { selector: 'x' })).toEqual(['Dallas']);
-    });
-
-    describe("'attribute' extraction", () => {
+    describe('profileUrl', () => {
         const originalLocation = globalThis.location;
         beforeEach(() => {
             // @ts-expect-error - mocking location
@@ -475,21 +558,7 @@ describe('create profiles from extracted data', () => {
             globalThis.location = originalLocation;
         });
 
-        /**
-         * @param {Record<string, string|null>} attributes
-         * @param {Record<string, any>} [extras]
-         */
-        const fakeElement = (attributes, extras = {}) => ({
-            getAttribute: (/** @type {string} */ name) => attributes[name] ?? null,
-            ...extras,
-        });
-
-        it('reads a named attribute instead of the element text', () => {
-            const element = fakeElement({ 'data-age': '42' }, { innerText: 'ignore me' });
-            expect(stringsFromElements([element], { selector: '.age', attribute: 'data-age' })).toEqual(['42']);
-        });
-
-        it('keeps an absolute profileUrl attribute unchanged', () => {
+        it('keeps an absolute attribute value unchanged', () => {
             const element = fakeElement({ 'data-link': 'https://example.com/1234' });
             const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
             expect(profile.profileUrl).toEqual({
@@ -498,7 +567,7 @@ describe('create profiles from extracted data', () => {
             });
         });
 
-        it('resolves a relative profileUrl attribute to an absolute URL', () => {
+        it('resolves a relative attribute value to an absolute URL against the page', () => {
             const element = fakeElement({ 'data-link': '/profile/John-Smith/BMFrB9EB' });
             const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
             expect(profile.profileUrl).toEqual({
@@ -507,7 +576,9 @@ describe('create profiles from extracted data', () => {
             });
         });
 
-        it('prefers the profileUrl attribute over the resolved href', () => {
+        it('attribute takes precedence over the resolved href, then resolves to absolute', () => {
+            // The element has both a resolved `href` property and a raw `href` attribute; the configured
+            // attribute wins, and its (relative) value is resolved against the page like an `<a href>`.
             const element = fakeElement({ href: '/raw/relative' }, { href: 'https://resolved.example.com/abs' });
             const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: 'a', attribute: 'href' } });
             expect(profile.profileUrl).toEqual({
@@ -516,125 +587,53 @@ describe('create profiles from extracted data', () => {
             });
         });
 
-        it('returns null when the attribute is absent', () => {
+        it('falls back to null when the attribute is absent', () => {
             const element = fakeElement({});
             const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: 'a', attribute: 'data-missing' } });
             expect(profile.profileUrl).toBeNull();
         });
 
-        it('uses the raw value as the identifier when it is not a valid URL', () => {
-            // a relative attribute value can't be parsed by `new URL()`, so the id parser returns it unchanged
-            const element = fakeElement({ 'data-link': '/relative/path' });
-            const profile = createProfile(() => [element], ROOT, {
-                profileUrl: { selector: 'a', attribute: 'data-link', identifierType: 'param', identifier: 'id' },
+        describe("source 'pageUrl'", () => {
+            const originalLocation = globalThis.location;
+            afterEach(() => {
+                globalThis.location = originalLocation;
             });
-            expect(profile.profileUrl).toEqual({ profileUrl: '/relative/path', identifier: '/relative/path' });
-        });
-    });
 
-    describe("source 'pageUrl'", () => {
-        const originalLocation = globalThis.location;
-        afterEach(() => {
-            globalThis.location = originalLocation;
-        });
-
-        it('reads profileUrl from the current page URL without touching the DOM', () => {
-            // @ts-expect-error - mocking location
-            globalThis.location = { href: 'https://example.com/results?id=abc' };
-            const select = () => {
-                throw new Error('select should not be called for a pageUrl source');
-            };
-            const profile = createProfile(select, ROOT, { profileUrl: { source: 'pageUrl' } });
-            expect(profile).toEqual({
-                profileUrl: { profileUrl: 'https://example.com/results?id=abc', identifier: 'https://example.com/results?id=abc' },
+            it('reads profileUrl from the current page URL without touching the DOM', () => {
+                // @ts-expect-error - mocking location
+                globalThis.location = { href: 'https://example.com/results?id=abc' };
+                const select = () => {
+                    throw new Error('select should not be called for a pageUrl source');
+                };
+                const profile = createProfile(select, ROOT, { profileUrl: { source: 'pageUrl' } });
+                expect(profile).toEqual({
+                    profileUrl: { profileUrl: 'https://example.com/results?id=abc', identifier: 'https://example.com/results?id=abc' },
+                });
             });
-        });
 
-        it('parses an identifier param out of the page URL', () => {
-            // @ts-expect-error - mocking location
-            globalThis.location = { href: 'https://example.com/results?profileId=xyz789' };
-            const profile = createProfile(() => [], ROOT, {
-                profileUrl: { source: 'pageUrl', identifierType: 'param', identifier: 'profileId' },
+            it('parses an identifier param out of the page URL', () => {
+                // @ts-expect-error - mocking location
+                globalThis.location = { href: 'https://example.com/results?profileId=xyz789' };
+                const profile = createProfile(() => [], ROOT, {
+                    profileUrl: { source: 'pageUrl', identifierType: 'param', identifier: 'profileId' },
+                });
+                expect(profile.profileUrl).toEqual({
+                    profileUrl: 'https://example.com/results?profileId=xyz789',
+                    identifier: 'xyz789',
+                });
             });
-            expect(profile.profileUrl).toEqual({
-                profileUrl: 'https://example.com/results?profileId=xyz789',
-                identifier: 'xyz789',
+
+            it('coexists with selector-based fields', () => {
+                // @ts-expect-error - mocking location
+                globalThis.location = { href: 'https://example.com/p?id=1' };
+                const select = (_root, selector) => (selector === '.age' ? [{ innerText: '42' }] : []);
+                const profile = createProfile(select, ROOT, {
+                    age: { selector: '.age' },
+                    profileUrl: { source: 'pageUrl' },
+                });
+                expect(profile.age).toEqual('42');
+                expect(profile.profileUrl).toEqual({ profileUrl: 'https://example.com/p?id=1', identifier: 'https://example.com/p?id=1' });
             });
-        });
-
-        it('coexists with selector-based fields', () => {
-            // @ts-expect-error - mocking location
-            globalThis.location = { href: 'https://example.com/p?id=1' };
-            const select = (_root, selector) => (selector === '.age' ? [{ innerText: '42' }] : []);
-            const profile = createProfile(select, ROOT, {
-                age: { selector: '.age' },
-                profileUrl: { source: 'pageUrl' },
-            });
-            expect(profile.age).toEqual('42');
-            expect(profile.profileUrl).toEqual({ profileUrl: 'https://example.com/p?id=1', identifier: 'https://example.com/p?id=1' });
-        });
-    });
-});
-
-describe('nested city/state extraction', () => {
-    it('reads city and state per row, normalizing and keeping a missing state as null', () => {
-        const ROW1 = {};
-        const ROW2 = {};
-        const ROW3 = {};
-        const cells = new Map([
-            [ROW1, { './/city': [{ textContent: 'Dallas' }], './/state': [{ textContent: 'Florida' }] }],
-            [ROW2, { './/city': [{ textContent: 'Reno' }] }], // no state element
-            [ROW3, { './/city': [{ textContent: 'Nowhere' }], './/state': [{ textContent: 'ZZ' }] }], // invalid state
-        ]);
-        const select = (root, selector) => {
-            if (root === ROOT) return selector === '.row' ? [ROW1, ROW2, ROW3] : [];
-            return cells.get(root)?.[selector ?? ''] ?? [];
-        };
-
-        const profile = createProfile(select, ROOT, {
-            addressCityStateList: {
-                selector: '.row',
-                findElements: true,
-                city: { selector: './/city' },
-                state: { selector: './/state' },
-            },
-        });
-
-        expect(profile).toEqual({
-            addressCityStateList: [
-                { city: 'Dallas', state: 'FL' }, // full state name normalized
-                { city: 'Reno', state: null }, // no state element → kept as null
-                // Nowhere dropped: its state element is present but unparseable
-            ],
-        });
-    });
-
-    it('reads city per row when only a city sub-selector is configured, keeping state null', () => {
-        const ROW1 = {};
-        const ROW2 = {};
-        const cells = new Map([
-            [ROW1, { './/city': [{ textContent: 'Dallas' }] }],
-            [ROW2, { './/city': [{ textContent: 'Reno' }] }],
-        ]);
-        const select = (root, selector) => {
-            if (root === ROOT) return selector === '.row' ? [ROW1, ROW2] : [];
-            return cells.get(root)?.[selector ?? ''] ?? [];
-        };
-
-        const profile = createProfile(select, ROOT, {
-            addressCityStateList: {
-                selector: '.row',
-                findElements: true,
-                city: { selector: './/city' },
-                // no state sub-selector: each row yields a city with state null
-            },
-        });
-
-        expect(profile).toEqual({
-            addressCityStateList: [
-                { city: 'Dallas', state: null },
-                { city: 'Reno', state: null },
-            ],
         });
     });
 });

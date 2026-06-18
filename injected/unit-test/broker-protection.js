@@ -9,7 +9,6 @@ import { processTemplateStringWithUserData } from '../src/features/broker-protec
 import { names } from '../src/features/broker-protection/comparisons/constants.js';
 import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils/utils.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js';
-import { cityStateCombosFromStrings } from '../src/features/broker-protection/extractors/address.js';
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
 import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
 import { isElementType } from '../src/features/broker-protection/captcha-services/utils/element.js';
@@ -195,113 +194,18 @@ describe('Actions', () => {
             });
         });
 
-        describe('get correct city state combos from list', () => {
-            const cityStateLists = ['Chicago IL, River Forest IL, Forest Park IL, Oak Park IL'];
-            const separator = ',';
-
-            it('should match when city/state is the same', () => {
-                for (const cityStateList of cityStateLists) {
-                    const list = stringToList(cityStateList, separator);
-                    expect(list).toEqual(['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']);
-                    const result = cityStateCombosFromStrings(list);
-                    expect(result).toEqual([
-                        { city: 'Chicago', state: 'IL' },
-                        { city: 'River Forest', state: 'IL' },
-                        { city: 'Forest Park', state: 'IL' },
-                        { city: 'Oak Park', state: 'IL' },
-                    ]);
-                }
+        describe('stringToList', () => {
+            it('splits on an explicit separator', () => {
+                expect(stringToList('Chicago IL | River Forest IL', '|')).toEqual(['Chicago IL', 'River Forest IL']);
+                expect(stringToList('Chicago IL\nRiver Forest IL', '\n')).toEqual(['Chicago IL', 'River Forest IL']);
             });
-        });
 
-        describe('get correct city state combo from a string', () => {
-            it('should successfully extract the city/state when a zip code is included', () => {
-                const cityStateZipList = [
-                    'Chicago IL 60611',
-                    'Chicago IL   60611',
-                    'River Forest IL 60305-1243',
-                    'Forest Park IL, 60130-1234',
-                    'Oak Park IL, 60302',
-                ];
-
-                const result = cityStateCombosFromStrings(cityStateZipList);
-
-                expect(result).toEqual([
-                    { city: 'Chicago', state: 'IL' },
-                    { city: 'Chicago', state: 'IL' },
-                    { city: 'River Forest', state: 'IL' },
-                    { city: 'Forest Park', state: 'IL' },
-                    { city: 'Oak Park', state: 'IL' },
+            it('splits on the default separators when none is given', () => {
+                expect(stringToList('Chicago IL • River Forest IL · Forest Park IL')).toEqual([
+                    'Chicago IL',
+                    'River Forest IL',
+                    'Forest Park IL',
                 ]);
-            });
-        });
-
-        describe('get correct city state combos from malformedlist', () => {
-            const malformedCityStateList = ['Chicago IL, River Forest IL, Fores...'];
-            const separator = ',';
-            it('shouldshow partial address', () => {
-                for (const cityStateList of malformedCityStateList) {
-                    const list = stringToList(cityStateList, separator);
-                    expect(list).toEqual(['Chicago IL', 'River Forest IL', 'Fores...']);
-                    const result = cityStateCombosFromStrings(list);
-                    expect(result).toEqual([
-                        { city: 'Chicago', state: 'IL' },
-                        { city: 'River Forest', state: 'IL' },
-                    ]);
-                }
-            });
-        });
-
-        describe('get correct city state combos with separator', () => {
-            const cityStateList = [
-                {
-                    listString: 'Chicago IL\nRiver Forest IL\nForest Park IL\nOak Park IL',
-                    separator: '\n',
-                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'],
-                },
-                {
-                    listString: 'Chicago, IL\nRiver Forest, IL\nForest Park, IL\nOak Park, IL',
-                    separator: '\n',
-                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'],
-                },
-                {
-                    listString: 'Chicago IL | River Forest IL | Forest Park IL | Oak Park IL',
-                    separator: '|',
-                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'],
-                },
-                {
-                    listString: 'Chicago, IL | River Forest, IL | Forest Park, IL | Oak Park, IL',
-                    separator: '|',
-                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'],
-                },
-                {
-                    listString: 'Chicago, IL • River Forest, IL • Forest Park, IL • Oak Park, IL',
-                    separator: '•',
-                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'],
-                },
-                {
-                    listString: 'Chicago IL • River Forest IL • Forest Park IL • Oak Park IL',
-                    separator: '•',
-                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'],
-                },
-                {
-                    listString: 'Chicago IL   ·   River Forest IL   ·   Forest Park IL   ·   Oak Park IL',
-                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'],
-                },
-            ];
-            it('should get correct city state with separator', () => {
-                for (const item of cityStateList) {
-                    const list = stringToList(item.listString, item.separator);
-                    expect(list).toEqual(item.list);
-
-                    const result = cityStateCombosFromStrings(list);
-                    expect(result).toEqual([
-                        { city: 'Chicago', state: 'IL' },
-                        { city: 'River Forest', state: 'IL' },
-                        { city: 'Forest Park', state: 'IL' },
-                        { city: 'Oak Park', state: 'IL' },
-                    ]);
-                }
             });
         });
 
