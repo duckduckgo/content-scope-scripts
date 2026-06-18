@@ -128,12 +128,12 @@ export function normalizeState(token) {
     }
 
     const upper = trimmed.toUpperCase();
-    if (upper in states) {
+    if (Object.prototype.hasOwnProperty.call(states, upper)) { // own-prop check, not `in`, to ignore a polluted prototype
         return upper;
     }
 
     if (stateNameToAbbreviation === null) {
-        stateNameToAbbreviation = {};
+        stateNameToAbbreviation = /** @type {Record<string, string>} */ (Object.create(null)); // null proto, no inherited keys
         for (const [abbreviation, name] of Object.entries(states)) {
             stateNameToAbbreviation[name.toLowerCase()] = abbreviation;
         }
