@@ -20,7 +20,8 @@ import { states } from '../comparisons/constants.js';
  * @return {{ city: string, state: string|null }[]}
  */
 export function extractCityState(select, root, spec) {
-    if ('city' in spec && spec.city) {
+    if (Object.prototype.hasOwnProperty.call(spec, 'city') && spec.city) {
+        // own-prop check, not `in`, so a polluted `Object.prototype.city` can't force nested mode
         const { city, state } = spec;
         return select(root, spec.selector, spec.findElements).flatMap((row) =>
             cityStatePartToCombo({
