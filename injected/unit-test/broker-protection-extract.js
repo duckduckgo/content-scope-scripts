@@ -608,4 +608,33 @@ describe('nested city/state extraction', () => {
             ],
         });
     });
+
+    it('reads city per row when only a city sub-selector is configured, keeping state null', () => {
+        const ROW1 = {};
+        const ROW2 = {};
+        const cells = new Map([
+            [ROW1, { './/city': [{ textContent: 'Dallas' }] }],
+            [ROW2, { './/city': [{ textContent: 'Reno' }] }],
+        ]);
+        const select = (root, selector) => {
+            if (root === ROOT) return selector === '.row' ? [ROW1, ROW2] : [];
+            return cells.get(root)?.[selector ?? ''] ?? [];
+        };
+
+        const profile = createProfile(select, ROOT, {
+            addressCityStateList: {
+                selector: '.row',
+                findElements: true,
+                city: { selector: './/city' },
+                // no state sub-selector: each row yields a city with state null
+            },
+        });
+
+        expect(profile).toEqual({
+            addressCityStateList: [
+                { city: 'Dallas', state: null },
+                { city: 'Reno', state: null },
+            ],
+        });
+    });
 });

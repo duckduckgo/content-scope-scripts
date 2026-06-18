@@ -9,10 +9,10 @@ import { states } from '../comparisons/constants.js';
  */
 
 /**
- * Extract city/state combos from one of the two shapes a {@link import('../actions/extract.js').CityStateSpec} can take:
+ * Extract city/state combos from one of the three shapes a {@link import('../actions/extract.js').CityStateSpec} can take:
  * - combined: `selector` resolves to "City, ST" text (optionally a delimited list)
- * - nested: `selector` resolves to each result row, with `city` and `state` sub-selectors read
- *   relative to that row. The state selector may even reach outside the row.
+ * - nested: `selector` resolves to each result row, with `city` (and optional `state`) sub-selectors
+ *   read relative to that row. `state` may be omitted, or may even reach outside the row.
  *
  * @param {import('../actions/extract.js').Select} select
  * @param {import('../actions/extract.js').ElementLike} root
@@ -20,12 +20,12 @@ import { states } from '../comparisons/constants.js';
  * @return {{ city: string, state: string|null }[]}
  */
 export function extractCityState(select, root, spec) {
-    if ('city' in spec && spec.city?.selector && spec.state?.selector) {
+    if ('city' in spec && spec.city) {
         const { city, state } = spec;
         return select(root, spec.selector, spec.findElements).flatMap((row) =>
             cityStatePartToCombo({
                 city: firstString(selectStrings(select, row, city)),
-                state: firstString(selectStrings(select, row, state)),
+                state: state ? firstString(selectStrings(select, row, state)) : '',
             }),
         );
     }

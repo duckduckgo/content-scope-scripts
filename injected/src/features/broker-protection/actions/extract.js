@@ -37,12 +37,13 @@ import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile
  */
 
 /**
- * City/state is located one of two ways:
+ * City/state can be located three ways, hence a union discriminated on the presence of `city`:
  * - combined: a `selector` whose text is "City, ST" (a plain {@link TextFieldSpec})
- * - nested: a `selector` for each result row, with `city` and `state` sub-selectors read relative to
- *   that row (the state selector may even reach outside the row, e.g. a shared `<h1>`)
+ * - nested + state: a `selector` for each result row, with `city` and `state` sub-selectors read
+ *   relative to that row (the state selector may even reach outside the row, e.g. a shared `<h1>`)
+ * - nested, city only: as above but with `state` omitted (kept as `{ state: null }`)
  *
- * @typedef {TextFieldSpec | (TextFieldSpec & { city: TextFieldSpec, state: TextFieldSpec })} CityStateSpec
+ * @typedef {TextFieldSpec | (TextFieldSpec & { city: TextFieldSpec, state?: TextFieldSpec })} CityStateSpec
  */
 
 /**
