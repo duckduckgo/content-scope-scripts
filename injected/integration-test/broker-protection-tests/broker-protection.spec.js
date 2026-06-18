@@ -359,6 +359,28 @@ test.describe('Broker Protection communications', () => {
             ]);
         });
 
+        test('extracts city and state from separate elements', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-nested-city-state.html');
+            await dbp.receivesAction('extract-nested-city-state.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+
+            const profiles = response[0].payload.params.result.success.response;
+            expect(profiles).toHaveLength(1);
+            expect(profiles[0]).toMatchObject({
+                name: 'Mark West',
+                alternativeNames: [],
+                age: '46',
+                addresses: [{ city: 'Dallas', state: 'TX' }],
+                phoneNumbers: [],
+                relatives: [],
+                profileUrl: baseURL + 'person/mark-west/2',
+                identifier: baseURL + 'person/mark-west/2',
+            });
+        });
+
         test('returns an empty array when no profile selector matches but the no results selector is present', async ({
             page,
         }, workerInfo) => {
