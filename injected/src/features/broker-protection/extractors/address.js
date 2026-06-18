@@ -128,7 +128,8 @@ export function normalizeState(token) {
     }
 
     const upper = trimmed.toUpperCase();
-    if (Object.prototype.hasOwnProperty.call(states, upper)) { // own-prop check, not `in`, to ignore a polluted prototype
+    if (Object.prototype.hasOwnProperty.call(states, upper)) {
+        // own-prop check, not `in`, to ignore a polluted prototype
         return upper;
     }
 
