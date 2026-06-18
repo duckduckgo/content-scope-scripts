@@ -1,4 +1,4 @@
-import { aggregateFields, createProfile, stringValuesFromElements } from '../src/features/broker-protection/actions/extract.js';
+import { aggregateFields, createProfile, stringsFromElements } from '../src/features/broker-protection/actions/extract.js';
 import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
 
 const ROOT = {};
@@ -449,20 +449,20 @@ describe('create profiles from extracted data', () => {
             innerText: 'John Smith, 39',
             textContent: 'Ignore me',
         };
-        expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
+        expect(stringsFromElements([element], { selector: 'example' })).toEqual(['John Smith, 39']);
     });
 
     it('should extract textElement if innerText is not present', () => {
         const element = {
             textContent: 'John Smith, 39',
         };
-        expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
+        expect(stringsFromElements([element], { selector: 'example' })).toEqual(['John Smith, 39']);
     });
 
     it('strips known leading labels (prefixes) from the text', () => {
-        expect(stringValuesFromElements([{ innerText: 'Related to: John Smith' }], 'testKey', { selector: 'x' })).toEqual(['John Smith']);
-        expect(stringValuesFromElements([{ innerText: 'AKA: Jane Doe' }], 'testKey', { selector: 'x' })).toEqual(['Jane Doe']);
-        expect(stringValuesFromElements([{ innerText: 'RESIDES IN Dallas' }], 'testKey', { selector: 'x' })).toEqual(['Dallas']);
+        expect(stringsFromElements([{ innerText: 'Related to: John Smith' }], { selector: 'x' })).toEqual(['John Smith']);
+        expect(stringsFromElements([{ innerText: 'AKA: Jane Doe' }], { selector: 'x' })).toEqual(['Jane Doe']);
+        expect(stringsFromElements([{ innerText: 'RESIDES IN Dallas' }], { selector: 'x' })).toEqual(['Dallas']);
     });
 
     describe("'attribute' extraction", () => {
@@ -486,7 +486,7 @@ describe('create profiles from extracted data', () => {
 
         it('reads a named attribute instead of the element text', () => {
             const element = fakeElement({ 'data-age': '42' }, { innerText: 'ignore me' });
-            expect(stringValuesFromElements([element], 'age', { selector: '.age', attribute: 'data-age' })).toEqual(['42']);
+            expect(stringsFromElements([element], { selector: '.age', attribute: 'data-age' })).toEqual(['42']);
         });
 
         it('keeps an absolute profileUrl attribute unchanged', () => {

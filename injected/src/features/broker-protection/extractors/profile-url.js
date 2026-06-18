@@ -1,65 +1,104 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { AsyncProfileTransform, Extractor } from '../types.js';
-import { hashObject } from '../utils/utils.js';
+import { AsyncProfileTransform } from '../types.js';
+import { firstString, shapeString } from '../actions/extract.js';
+import { cleanArray, hashObject } from '../utils/utils.js';
 
 /**
- * @implements {Extractor<{profileUrl: string; identifier: string} | null>}
+ * Resolves a profileUrl from `source: 'pageUrl'`, an anchor's resolved `href`, or an
+ * `attribute`/text, resolves it to an absolute URL (like the browser does for an `<a href>`),
+ * then optionally parses an identifier out of it.
+ *
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').ProfileUrlSpec} spec
+ * @return {{profileUrl: string, identifier: string} | null}
  */
-export class ProfileUrlExtractor {
-    /**
-     * @param {string[]} strs
-     * @param {import('../actions/extract.js').ExtractorParams} extractorParams
-     */
-    extract(strs, extractorParams) {
-        if (strs.length === 0) return null;
-        const firstStr = /** @type {string} */ (strs[0]);
+export function extractProfileUrl(select, root, spec) {
+    const rawUrl =
+        spec.source === 'pageUrl' ? firstString(cleanArray(globalThis.location.href)) : firstString(profileUrlStrings(select, root, spec));
 
-        const url = this.parseProfileUrl(firstStr);
-        const profileUrl = url?.href ?? firstStr;
+    if (!rawUrl) return null;
 
-        const profile = {
-            profileUrl,
-            identifier: profileUrl,
-        };
+    const url = parseProfileUrl(rawUrl);
+    const profileUrl = url?.href ?? rawUrl;
 
-        if (!extractorParams.identifierType || !extractorParams.identifier) {
-            return profile;
-        }
-
-        profile.identifier = this.getIdFromProfileUrl(url, extractorParams.identifierType, extractorParams.identifier) ?? profileUrl;
-        return profile;
+    const profile = { profileUrl, identifier: profileUrl };
+    if (spec.identifierType && spec.identifier) {
+        profile.identifier = getIdFromProfileUrl(url, spec.identifierType, spec.identifier) ?? profileUrl;
     }
+    return profile;
+}
 
-    /**
-     * Parse a (possibly relative) profile URL into an absolute `URL`, resolving against
-     * the current page like the browser does for an `<a href>`.
-     * @param {string} profileUrl
-     * @return {URL | null} `null` when the value can't be parsed as a URL
-     */
-    parseProfileUrl(profileUrl) {
-        try {
-            return new URL(profileUrl, globalThis.location.href);
-        } catch {
-            return null;
-        }
+/**
+ * Select and shape profileUrl candidates from the DOM, reading each element via
+ * {@link readProfileUrlValue} rather than the generic text path.
+ *
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').ProfileUrlSpec} spec
+ * @return {string[]}
+ */
+function profileUrlStrings(select, root, spec) {
+    return cleanArray(
+        select(root, spec.selector, spec.findElements)
+            .map((element) => readProfileUrlValue(element, spec))
+            .map((value) => (value ? shapeString(value, spec) : value)),
+    );
+}
+
+/**
+ * Read a profileUrl candidate from an element. Unlike other fields (text only), profileUrl prefers
+ * an explicit `attribute`, then an anchor's resolved `href` property, then falls back to text.
+ *
+ * @param {import('../actions/extract.js').ElementLike & {href?: string}} element
+ * @param {import('../actions/extract.js').ProfileUrlSpec} spec
+ * @return {string | null | undefined}
+ */
+function readProfileUrlValue(element, spec) {
+    if (spec.attribute && 'getAttribute' in element) {
+        return element.getAttribute?.(spec.attribute) ?? null;
     }
+    if ('href' in element && element.href) {
+        return element.href;
+    }
+    if ('innerText' in element) {
+        return element.innerText ?? null;
+    }
+    if ('textContent' in element) {
+        return element.textContent ?? null;
+    }
+    return undefined;
+}
 
-    /**
-     * Parse a profile id from an already-parsed profile URL.
-     * @param {URL | null} url
-     * @param {import('../actions/extract.js').IdentifierType} identifierType
-     * @param {string} identifier
-     * @return {string | null} the parsed id, or `null` to fall back to the profile URL
-     */
-    getIdFromProfileUrl(url, identifierType, identifier) {
-        if (!url) return null;
-
-        if (identifierType === 'param' && url.searchParams.has(identifier)) {
-            return url.searchParams.get(identifier) || null;
-        }
-
+/**
+ * Parse a (possibly relative) profile URL into an absolute `URL`, resolving against the current
+ * page like the browser does for an `<a href>`.
+ * @param {string} profileUrl
+ * @return {URL | null} `null` when the value can't be parsed as a URL
+ */
+function parseProfileUrl(profileUrl) {
+    try {
+        return new URL(profileUrl, globalThis.location.href);
+    } catch {
         return null;
     }
+}
+
+/**
+ * Parse a profile id from an already-parsed profile URL.
+ * @param {URL | null} url
+ * @param {import('../actions/extract.js').IdentifierType} identifierType
+ * @param {string} identifier
+ * @return {string | null} the parsed id, or `null` to fall back to the profile URL
+ */
+function getIdFromProfileUrl(url, identifierType, identifier) {
+    if (!url) return null;
+
+    if (identifierType === 'param' && url.searchParams.has(identifier)) {
+        return url.searchParams.get(identifier) || null;
+    }
+
+    return null;
 }
 
 /**

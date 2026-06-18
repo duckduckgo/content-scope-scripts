@@ -1,25 +1,46 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js';
-import { stringToList } from '../actions/extract.js';
+import { firstString, selectStrings, stringToList } from '../actions/extract.js';
 import parseAddress from 'parse-address';
 import { states } from '../comparisons/constants.js';
 
 /**
- * @implements {Extractor<{city:string; state: string|null}[]>}
+ * City/state text read from separate elements, before normalisation. An empty string for either
+ * means nothing was found there.
+ * @typedef {{city: string, state: string}} CityStatePart
  */
-export class CityStateExtractor {
-    /**
-     * Accepts either plain strings (combined "City, ST" text, split + parsed here) or
-     * structured `{city, state}` parts (city and state read from separate elements).
-     *
-     * @param {Array<string | import('../actions/extract.js').CityStatePart>} values
-     * @param {import('../actions/extract.js').ExtractorParams} extractorParams
-     */
-    extract(values, extractorParams) {
-        return values.flatMap((value) =>
-            typeof value === 'string' ? getCityStateCombos(stringToList(value, extractorParams.separator)) : cityStatePartToCombo(value),
+
+/**
+ * Extract city/state combos from one of the two shapes a {@link import('../actions/extract.js').CityStateSpec} can take:
+ * - combined: `selector` resolves to "City, ST" text (optionally a delimited list)
+ * - nested: `selector` resolves to each result row, with `city` and `state` sub-selectors read
+ *   relative to that row. The state selector may even reach outside the row.
+ *
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').CityStateSpec} spec
+ * @return {{ city: string, state: string|null }[]}
+ */
+export function extractCityState(select, root, spec) {
+    if ('city' in spec && spec.city?.selector && spec.state?.selector) {
+        const { city, state } = spec;
+        return select(root, spec.selector, spec.findElements).flatMap((row) =>
+            cityStatePartToCombo({
+                city: firstString(selectStrings(select, row, city)),
+                state: firstString(selectStrings(select, row, state)),
+            }),
         );
     }
+    return cityStateCombosFromStrings(selectStrings(select, root, spec), spec.separator);
+}
+
+/**
+ * Parse combined "City, ST" strings (each possibly a delimited list of combos) into city/state combos.
+ *
+ * @param {string[]} strings
+ * @param {string} [separator]
+ * @return {{ city: string, state: string|null }[]}
+ */
+export function cityStateCombosFromStrings(strings, separator) {
+    return strings.flatMap((value) => getCityStateCombos(stringToList(value, separator)));
 }
 
 /**
@@ -28,10 +49,10 @@ export class CityStateExtractor {
  * combo is kept as `{ city, state: null }`. That's deliberate — it lets us scrape pages that don't
  * show a state anywhere. A state that is present but unrecognised drops the combo.
  *
- * @param {import('../actions/extract.js').CityStatePart} part
+ * @param {CityStatePart} part
  * @return {{ city: string, state: string|null }[]}
  */
-function cityStatePartToCombo({ city, state }) {
+export function cityStatePartToCombo({ city, state }) {
     const trimmedCity = city.trim();
     if (!trimmedCity) return [];
 
@@ -43,27 +64,23 @@ function cityStatePartToCombo({ city, state }) {
 }
 
 /**
- * @implements {Extractor<{city:string; state: string|null}[]>}
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').TextFieldSpec} spec
+ * @return {{ city: string, state: string|null }[]}
  */
-export class AddressFullExtractor {
-    /**
-     * @param {string[]} strs
-     * @param {import('../actions/extract.js').ExtractorParams} extractorParams
-     */
-    extract(strs, extractorParams) {
-        return (
-            strs
-                .map((str) => str.replace('\n', ' '))
-                .map((str) => stringToList(str, extractorParams.separator))
-                .flat()
-                .map((str) => parseAddress.parseLocation(str) || {})
-                // at least 'city' is required.
-                .filter((parsed) => Boolean(parsed?.city))
-                .map((addr) => {
-                    return { city: addr.city, state: addr.state || null };
-                })
-        );
-    }
+export function extractAddressFull(select, root, spec) {
+    return (
+        selectStrings(select, root, spec)
+            .map((str) => str.replace('\n', ' '))
+            .flatMap((str) => stringToList(str, spec.separator))
+            .map((str) => parseAddress.parseLocation(str) || {})
+            // at least 'city' is required.
+            .filter((parsed) => Boolean(parsed?.city))
+            .map((addr) => {
+                return { city: addr.city, state: addr.state || null };
+            })
+    );
 }
 
 /**

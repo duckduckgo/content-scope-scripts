@@ -1,14 +1,15 @@
 import fc from 'fast-check';
 import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js';
 import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js';
-import { stringToList, extractValue } from '../src/features/broker-protection/actions/extract.js';
+import { stringToList } from '../src/features/broker-protection/actions/extract.js';
+import { extractName } from '../src/features/broker-protection/extractors/name.js';
 import { addressMatch } from '../src/features/broker-protection/comparisons/address.js';
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js';
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js';
 import { names } from '../src/features/broker-protection/comparisons/constants.js';
 import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils/utils.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js';
-import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js';
+import { cityStateCombosFromStrings } from '../src/features/broker-protection/extractors/address.js';
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
 import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
 import { isElementType } from '../src/features/broker-protection/captcha-services/utils/element.js';
@@ -80,10 +81,11 @@ describe('Actions', () => {
             });
         });
 
-        describe('extractValue', () => {
+        describe('extractName', () => {
             it('should convert newlines to spaces in names', () => {
-                expect(extractValue('name', { selector: 'example' }, ['John\nSmith'])).toEqual('John Smith');
-                expect(extractValue('name', { selector: 'example' }, ['John\nT\nSmith'])).toEqual('John T Smith');
+                const nameFrom = (/** @type {string} */ text) => extractName(() => [{ innerText: text }], {}, {});
+                expect(nameFrom('John\nSmith')).toEqual('John Smith');
+                expect(nameFrom('John\nT\nSmith')).toEqual('John T Smith');
             });
         });
 
@@ -201,7 +203,7 @@ describe('Actions', () => {
                 for (const cityStateList of cityStateLists) {
                     const list = stringToList(cityStateList, separator);
                     expect(list).toEqual(['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']);
-                    const result = new CityStateExtractor().extract(list, {});
+                    const result = cityStateCombosFromStrings(list);
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' },
@@ -222,7 +224,7 @@ describe('Actions', () => {
                     'Oak Park IL, 60302',
                 ];
 
-                const result = new CityStateExtractor().extract(cityStateZipList, {});
+                const result = cityStateCombosFromStrings(cityStateZipList);
 
                 expect(result).toEqual([
                     { city: 'Chicago', state: 'IL' },
@@ -241,7 +243,7 @@ describe('Actions', () => {
                 for (const cityStateList of malformedCityStateList) {
                     const list = stringToList(cityStateList, separator);
                     expect(list).toEqual(['Chicago IL', 'River Forest IL', 'Fores...']);
-                    const result = new CityStateExtractor().extract(list, {});
+                    const result = cityStateCombosFromStrings(list);
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' },
@@ -292,7 +294,7 @@ describe('Actions', () => {
                     const list = stringToList(item.listString, item.separator);
                     expect(list).toEqual(item.list);
 
-                    const result = new CityStateExtractor().extract(list, {});
+                    const result = cityStateCombosFromStrings(list);
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' },

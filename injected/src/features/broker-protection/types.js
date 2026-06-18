@@ -197,22 +197,6 @@ export class ProfileResult {
 }
 
 /**
- * @template JsonValue
- * @interface
- */
-export class Extractor {
-    /**
-     * @param {string[]} _noneEmptyStringArray
-     * @param {import("./actions/extract").ExtractorParams} _extractorParams
-     * @return {JsonValue}
-     */
-
-    extract(_noneEmptyStringArray, _extractorParams) {
-        throw new Error('must implement extract');
-    }
-}
-
-/**
  * @interface
  */
 export class AsyncProfileTransform {
