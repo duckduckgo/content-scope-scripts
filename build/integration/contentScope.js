@@ -23257,7 +23257,10 @@ ul.messages {
   function getFaviconList() {
     const selectors = [
       "link[href][rel='favicon']",
-      "link[href][rel*='icon']",
+      // `rel*='icon'` also matches Safari's `rel="mask-icon"` (safari-pinned-tab.svg) — a monochrome
+      // tint mask, not a real favicon, that renders as a solid black square. Exclude it via `:not`.
+      // Non-mask icons, including SVG favicons, are still matched.
+      "link[href][rel*='icon']:not([rel~='mask-icon' i])",
       "link[href][rel='apple-touch-icon']",
       "link[href][rel='apple-touch-icon-precomposed']"
     ];
@@ -23421,6 +23424,7 @@ ul.messages {
   // src/features/page-context.js
   init_define_import_meta_trackerLookup();
   var MSG_PAGE_CONTEXT_RESPONSE = "collectionResult";
+  var MAX_JSON_LD_DEPTH = 32;
   function checkNodeIsVisible(node) {
     try {
       const style = window.getComputedStyle(node);
@@ -23574,6 +23578,68 @@ ${iframeContent}
       return "";
     }
     return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
+  }
+  function extractPageTypeSignals(document2, { maxTypes = 10, maxBlockLength = 1e5 } = {}) {
+    return {
+      jsonLdType: extractJsonLdTypes(document2, maxTypes, maxBlockLength),
+      ogType: extractOgType(document2),
+      lang: extractLang(document2)
+    };
+  }
+  function extractJsonLdTypes(document2, maxTypes, maxBlockLength) {
+    const types = new Set2();
+    const recordType = (value) => {
+      if (types.size >= maxTypes) return;
+      if (typeof value !== "string") return;
+      const type = value.trim();
+      if (type) types.add(type);
+    };
+    const blocks = document2.querySelectorAll('script[type="application/ld+json" i]');
+    for (const block of blocks) {
+      if (types.size >= maxTypes) break;
+      const text2 = block.textContent || "";
+      if (!text2 || text2.length > maxBlockLength) continue;
+      let data2;
+      try {
+        data2 = JSONparse(text2);
+      } catch (e) {
+        continue;
+      }
+      collectJsonLdTypes(data2, recordType);
+    }
+    return Array.from(types);
+  }
+  function collectJsonLdTypes(node, recordType, depth = 0) {
+    if (depth > MAX_JSON_LD_DEPTH) return;
+    if (Array.isArray(node)) {
+      for (const item of node) collectJsonLdTypes(item, recordType, depth + 1);
+      return;
+    }
+    if (!node || typeof node !== "object") return;
+    const obj = (
+      /** @type {Record<string, unknown>} */
+      node
+    );
+    if (hasOwnProperty.call(obj, "@type")) {
+      const type = obj["@type"];
+      if (Array.isArray(type)) {
+        for (const value of type) recordType(value);
+      } else if (type != null) {
+        recordType(type);
+      }
+    }
+    if (hasOwnProperty.call(obj, "@graph")) {
+      collectJsonLdTypes(obj["@graph"], recordType, depth + 1);
+    }
+  }
+  function extractOgType(document2) {
+    const meta = document2.querySelector('meta[property="og:type"]');
+    const content = meta?.getAttribute("content");
+    const trimmed = typeof content === "string" ? content.trim() : "";
+    return trimmed || null;
+  }
+  function extractLang(document2) {
+    return (document2.documentElement?.getAttribute("lang") || "").trim();
   }
   var _cachedContent, _cachedTimestamp, _delayedRecheckTimer, _activeCapture;
   var PageContext = class extends ContentFeature {
@@ -23822,6 +23888,9 @@ ${iframeContent}
       if (this.getFeatureSettingEnabled("includeImages", "disabled")) {
         content.images = this.getImages();
       }
+      if (this.getFeatureSettingEnabled("includePageTypeSignals", "disabled")) {
+        content.pageTypeSignals = this.getPageTypeSignals();
+      }
       if (content.content.length > 0) {
         this.cachedContent = content;
       }
@@ -23920,6 +23989,25 @@ ${iframeContent}
         }
       });
       return links;
+    }
+    getPageTypeSignals() {
+      return extractPageTypeSignals(document, {
+        maxTypes: this.clampedNumericSetting("maxPageTypeSignals", 10, 50),
+        maxBlockLength: this.clampedNumericSetting("maxJsonLdBlockLength", 1e5, 1e6)
+      });
+    }
+    /**
+     * Read a numeric feature setting, clamped to a safe ceiling. Malformed (non-finite) config
+     * falls back to the default rather than producing NaN — which would disable the cap — while an
+     * explicit 0 is still honored.
+     * @param {string} key
+     * @param {number} fallback
+     * @param {number} max
+     * @returns {number}
+     */
+    clampedNumericSetting(key, fallback, max) {
+      const value = this.getFeatureSetting(key);
+      return Math.min(typeof value === "number" && Number.isFinite(value) ? value : fallback, max);
     }
     getImages() {
       const images = [];

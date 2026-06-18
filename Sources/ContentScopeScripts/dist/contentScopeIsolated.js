@@ -16916,7 +16916,10 @@ ul.messages {
   function getFaviconList() {
     const selectors = [
       "link[href][rel='favicon']",
-      "link[href][rel*='icon']",
+      // `rel*='icon'` also matches Safari's `rel="mask-icon"` (safari-pinned-tab.svg) — a monochrome
+      // tint mask, not a real favicon, that renders as a solid black square. Exclude it via `:not`.
+      // Non-mask icons, including SVG favicons, are still matched.
+      "link[href][rel*='icon']:not([rel~='mask-icon' i])",
       "link[href][rel='apple-touch-icon']",
       "link[href][rel='apple-touch-icon-precomposed']"
     ];
