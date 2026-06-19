@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ExtractedProfile",
+    "type": "object",
+    "additionalProperties": true,
+    "description": "The broker-specific profile data submitted by `fillForm` actions, keyed by the field names a FormElement `type` references (e.g. firstName, lastName, city, state, email). Native owns the exact shape, so extra properties are allowed.",
+    "properties": {
+        "firstName": { "type": "string" },
+        "middleName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" }
+    }
+}

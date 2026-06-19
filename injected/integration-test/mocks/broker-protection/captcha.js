@@ -1,6 +1,6 @@
 import { createPirState, getBrokerProtectionTestPageUrl } from './utils';
 /**
- * @import { PirAction } from '../../../src/features/broker-protection/types.js'
+ * @import { GetCaptchaInfoAction, SolveCaptchaAction } from '../../../src/types/broker-protection.js'
  */
 
 const MOCK_SITE_KEY = '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn';
@@ -9,7 +9,7 @@ const MOCK_SITE_KEY = '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn';
 
 /**
  * @param {object} params
- * @param {Omit<PirAction, 'id' | 'actionType'>} params.action
+ * @param {Omit<GetCaptchaInfoAction, 'id' | 'actionType'>} params.action
  */
 export function createGetCaptchaInfoAction({ action }) {
     return createPirState({
@@ -22,7 +22,7 @@ export function createGetCaptchaInfoAction({ action }) {
 }
 
 /**
- * @param {Partial<PirAction>} [actionOverrides]
+ * @param {Partial<GetCaptchaInfoAction>} [actionOverrides]
  */
 export function createGetRecaptchaInfoAction(actionOverrides = {}) {
     return createGetCaptchaInfoAction({
@@ -35,9 +35,9 @@ export function createGetRecaptchaInfoAction(actionOverrides = {}) {
 }
 
 /**
- * @param {Partial<PirAction>} [actionOverrides]
+ * @param {Partial<GetCaptchaInfoAction> & Pick<GetCaptchaInfoAction, 'selector'>} actionOverrides
  */
-export function createGetImageCaptchaInfoAction(actionOverrides = {}) {
+export function createGetImageCaptchaInfoAction(actionOverrides) {
     return createGetCaptchaInfoAction({
         action: {
             captchaType: 'image',
@@ -47,9 +47,9 @@ export function createGetImageCaptchaInfoAction(actionOverrides = {}) {
 }
 
 /**
- * @param {Partial<PirAction>} [actionOverrides]
+ * @param {Partial<GetCaptchaInfoAction> & Pick<GetCaptchaInfoAction, 'selector'>} actionOverrides
  */
-export function createGetCloudFlareCaptchaInfoAction(actionOverrides = {}) {
+export function createGetCloudFlareCaptchaInfoAction(actionOverrides) {
     return createGetCaptchaInfoAction({
         action: {
             captchaType: 'cloudFlareTurnstile',
@@ -60,7 +60,7 @@ export function createGetCloudFlareCaptchaInfoAction(actionOverrides = {}) {
 
 /**
  * @param {object} params
- * @param {Omit<PirAction, 'id' | 'actionType'>} params.action
+ * @param {Omit<SolveCaptchaAction, 'id' | 'actionType'>} params.action
  * @param {Record<string, any>} [params.data]
  */
 export function createSolveCaptchaAction({ action, data }) {
@@ -78,7 +78,7 @@ export function createSolveCaptchaAction({ action, data }) {
 }
 
 /**
- * @param {Partial<PirAction>} [actionOverrides]
+ * @param {Partial<SolveCaptchaAction>} [actionOverrides]
  */
 export function createSolveRecaptchaAction(actionOverrides = {}) {
     return createSolveCaptchaAction({
@@ -91,9 +91,9 @@ export function createSolveRecaptchaAction(actionOverrides = {}) {
 }
 
 /**
- * @param {Partial<PirAction>} [actionOverrides]
+ * @param {Partial<SolveCaptchaAction> & Pick<SolveCaptchaAction, 'selector'>} actionOverrides
  */
-export function createSolveImageCaptchaAction(actionOverrides = {}) {
+export function createSolveImageCaptchaAction(actionOverrides) {
     return createSolveCaptchaAction({
         action: {
             captchaType: 'image',
@@ -103,9 +103,9 @@ export function createSolveImageCaptchaAction(actionOverrides = {}) {
 }
 
 /**
- * @param {Partial<PirAction>} [actionOverrides]
+ * @param {Partial<SolveCaptchaAction> & Pick<SolveCaptchaAction, 'selector'>} actionOverrides
  */
-export function createSolveCloudFlareCaptchaAction(actionOverrides = {}) {
+export function createSolveCloudFlareCaptchaAction(actionOverrides) {
     return createSolveCaptchaAction({
         action: {
             captchaType: 'cloudFlareTurnstile',

@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ExpectationAction",
+    "type": "object",
+    "description": "Assert a set of expectations about the page. When they all pass, optionally run further `actions`.",
+    "required": ["id", "actionType", "expectations"],
+    "properties": {
+        "id": { "type": "string" },
+        "actionType": { "const": "expectation" },
+        "expectations": {
+            "type": "array",
+            "items": { "$ref": "../expectation.json" }
+        },
+        "actions": {
+            "type": "array",
+            "items": { "$ref": "../action.json" },
+            "description": "actions to run next when all expectations pass"
+        },
+        "dataSource": { "type": "string" },
+        "retry": { "$ref": "../retry-config.json" }
+    }
+}

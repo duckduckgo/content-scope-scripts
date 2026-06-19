@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "TextFieldSpec",
+    "type": "object",
+    "description": "The text-shaping knobs every selector-based field shares: where the value lives and how to clean the text once read. This is the spec for the majority of fields (name, age, phone, …); city/state and profileUrl extend it (see CityStateSpec, ProfileUrlSpec). For example: { \"selector\": \".//div[@class='relatives']//li\" }",
+    "properties": {
+        "selector": {
+            "type": "string",
+            "description": "xpath or css selector"
+        },
+        "findElements": {
+            "type": "boolean",
+            "description": "whether to get all occurrences of the selector"
+        },
+        "afterText": {
+            "type": "string",
+            "description": "get all text after this string"
+        },
+        "beforeText": {
+            "type": "string",
+            "description": "get all text before this string"
+        },
+        "separator": {
+            "type": "string",
+            "description": "split the text on this string, or use a regex by passing \"/pattern/\" (e.g. \"/(?<=, [A-Z]{2}), /\")"
+        },
+        "attribute": {
+            "type": "string",
+            "description": "read this attribute (e.g. \"data-profile-id\") instead of the element's text. The raw attribute value is used (e.g. \"href\" is not resolved to an absolute URL)"
+        }
+    }
+}

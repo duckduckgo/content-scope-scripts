@@ -4,7 +4,7 @@ import { PirError } from '../types';
 /**
  *
  * @param {Document | HTMLElement} root
- * @param {import('../types.js').PirAction['selector']} [selector]
+ * @param {string} [selector]
  * @returns {HTMLElement | PirError}
  */
 export function getCaptchaContainer(root, selector) {

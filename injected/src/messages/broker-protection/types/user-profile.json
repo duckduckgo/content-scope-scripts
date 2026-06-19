@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "UserProfile",
+    "type": "object",
+    "additionalProperties": true,
+    "description": "The person whose records we're searching for. Used to build search URLs and to match scraped profiles. Brokers may reference additional flat keys (e.g. city, state) in URL templates, so extra properties are allowed.",
+    "properties": {
+        "firstName": { "type": "string" },
+        "middleName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "age": { "type": ["string", "number"] },
+        "phone": { "type": "string" },
+        "addresses": {
+            "type": "array",
+            "items": { "$ref": "./address.json" }
+        }
+    }
+}

@@ -11,7 +11,7 @@ export class ActionExecutorBase extends ContentFeature {
     async processActionAndNotify(action, data) {
         try {
             if (!action) {
-                return this.messaging.notify('actionError', { error: 'No action found.' });
+                return this.notify('actionError', { error: 'No action found.' });
             }
 
             const { results, exceptions } = await this.exec(action, data);
@@ -23,7 +23,7 @@ export class ActionExecutorBase extends ContentFeature {
 
                 // if there are no secondary actions, or just no errors in general, just report the parent action
                 if (results.length === 1 || errors.length === 0) {
-                    return this.messaging.notify('actionCompleted', { result: parent });
+                    return this.notify('actionCompleted', { result: parent });
                 }
 
                 // here we must have secondary actions that failed.
@@ -35,13 +35,13 @@ export class ActionExecutorBase extends ContentFeature {
                     message: 'Secondary actions failed: ' + joinedErrors,
                 });
 
-                return this.messaging.notify('actionCompleted', { result: response });
+                return this.notify('actionCompleted', { result: response });
             } else {
-                return this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
+                return this.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
             }
         } catch (e) {
             this.log.error('unhandled exception: ', e);
-            return this.messaging.notify('actionError', { error: e.toString() });
+            return this.notify('actionError', { error: e.toString() });
         }
     }
 
@@ -85,9 +85,9 @@ export class ActionExecutorBase extends ContentFeature {
 /**
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
  */
-export default class BrokerProtection extends ActionExecutorBase {
+export class BrokerProtection extends ActionExecutorBase {
     init() {
-        this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
+        this.subscribe('onActionReceived', async (params) => {
             const { action, data } = params.state;
             return await this.processActionAndNotify(action, data);
         });
@@ -128,3 +128,5 @@ export default class BrokerProtection extends ActionExecutorBase {
         return retryConfig;
     }
 }
+
+export default BrokerProtection;

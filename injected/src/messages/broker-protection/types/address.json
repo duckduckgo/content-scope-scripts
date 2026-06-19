@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Address",
+    "type": "object",
+    "additionalProperties": true,
+    "description": "A single address belonging to the user profile. Extra broker-specific keys are allowed.",
+    "properties": {
+        "addressLine1": { "type": "string" },
+        "addressLine2": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string", "description": "two-letter state abbreviation" },
+        "zip": { "type": "string" }
+    }
+}

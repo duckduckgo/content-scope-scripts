@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "SuccessResponse",
+    "type": "object",
+    "description": "The wire shape of a successful action result. `response` is action-specific (e.g. { url } for navigate, an array of matched profiles for extract).",
+    "required": ["success"],
+    "properties": {
+        "success": {
+            "type": "object",
+            "required": ["actionID", "actionType", "response"],
+            "properties": {
+                "actionID": { "type": "string" },
+                "actionType": { "type": "string" },
+                "response": {
+                    "description": "action-specific result payload"
+                },
+                "next": {
+                    "type": "array",
+                    "items": {},
+                    "description": "follow-up actions to run with the same data (e.g. from an expectation action)"
+                },
+                "meta": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "description": "optional debugging metadata"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ErrorResponse",
+    "type": "object",
+    "description": "The wire shape of a failed action result.",
+    "required": ["error"],
+    "properties": {
+        "error": {
+            "type": "object",
+            "required": ["actionID", "message"],
+            "properties": {
+                "actionID": { "type": "string" },
+                "message": { "type": "string" }
+            }
+        }
+    }
+}

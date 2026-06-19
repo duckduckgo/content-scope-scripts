@@ -1,18 +1,11 @@
 /**
  * @typedef {SuccessResponse | ErrorResponse} ActionResponse
  * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
- * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string; failSilently?: boolean}} Expectation
  */
 
 /**
- * @typedef {object} PirAction
- * @property {string} id
- * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll"} actionType
- * @property {string} [selector]
- * @property {string} [captchaType]
- * @property {string} [injectCaptchaHandler]
- * @property {string} [dataSource]
- * @property {string} [url]
+ * @typedef {import('../../types/broker-protection.js').PirAction} PirAction
+ * @typedef {import('../../types/broker-protection.js').Expectation} Expectation
  */
 
 /**

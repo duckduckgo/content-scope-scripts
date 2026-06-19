@@ -11,82 +11,17 @@ import { extractRelatives } from '../extractors/relatives.js';
 import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile-url.js';
 
 /**
- * Adding these types here so that we can switch to generated ones later
  * @typedef {Record<string, any>} Action
  */
 
 /**
- * How a profile-URL identifier is located: a query `param`, a `path` segment, or the URL `hash`.
- * @typedef {'param'|'path'|'hash'} IdentifierType
- */
-
-/**
- * The text-shaping knobs every selector-based field shares: where the value lives and how to clean
- * the text once read. This is the spec for the majority of fields (name, age, phone, …); city/state
- * and profileUrl extend it (see {@link CityStateSpec}, {@link ProfileUrlSpec}).
- *
- * For example: { "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li" }
- *
- * @typedef {Object} TextFieldSpec
- * @property {string} [selector] - xpath or css selector
- * @property {boolean} [findElements] - whether to get all occurrences of the selector
- * @property {string} [afterText] - get all text after this string
- * @property {string} [beforeText] - get all text before this string
- * @property {string} [separator] - split the text on this string, or use a regex by passing "/pattern/" (e.g. "/(?<=, [A-Z]{2}), /")
- * @property {string} [attribute] - read this attribute (e.g. "data-link") instead of the element's text
- */
-
-/**
- * The nested city/state shape: the `selector` matches each result row, and `city` (plus optional
- * `state`) sub-selectors are read relative to that row. Two variants:
- * - with state: both sub-selectors present (the `state` selector may even reach outside the row,
- *   e.g. a shared `<h1>`)
- * - city only: `state` omitted, so the state comes out as `null`
- *
- * @typedef {TextFieldSpec & { city: TextFieldSpec, state?: TextFieldSpec }} NestedCityStateSpec
- */
-
-/**
- * Where a city/state field lives. A union of two shapes, discriminated on whether the spec carries
- * its own `city` sub-selector:
- * - combined: a single `selector` whose text is "City, ST" (a plain {@link TextFieldSpec})
- * - nested: per-row `city`/`state` sub-selectors (a {@link NestedCityStateSpec})
- *
- * @typedef {TextFieldSpec | NestedCityStateSpec} CityStateSpec
- */
-
-/**
- * Extends {@link TextFieldSpec} with the knobs unique to profileUrl:
- * - `source: 'pageUrl'` reads the value from the current page URL (`globalThis.location.href`)
- *   instead of from a `selector`
- * - `identifier` is the identifier itself (a param name, or a templated URI) and `identifierType`
- *   ({@link IdentifierType}) says where to find it within the resolved URL
- *
- * @typedef {TextFieldSpec & { source?: 'pageUrl', identifier?: string, identifierType?: IdentifierType }} ProfileUrlSpec
- */
-
-/**
- * Any single field's spec. Most fields are a plain {@link TextFieldSpec}.
+ * @typedef {import('../../../types/broker-protection.js').IdentifierType} IdentifierType
+ * @typedef {import('../../../types/broker-protection.js').TextFieldSpec} TextFieldSpec
+ * @typedef {import('../../../types/broker-protection.js').NestedCityStateSpec} NestedCityStateSpec
+ * @typedef {import('../../../types/broker-protection.js').CityStateSpec} CityStateSpec
+ * @typedef {import('../../../types/broker-protection.js').ProfileUrlSpec} ProfileUrlSpec
+ * @typedef {import('../../../types/broker-protection.js').ProfileSpec} ProfileSpec
  * @typedef {TextFieldSpec | CityStateSpec | ProfileUrlSpec} FieldSpec
- */
-
-/**
- * The `profile` block of an `extract` action: a map of output field name -> how to locate that
- * field. `null` disables a field. This is the per-broker config the native layer sends; the field
- * keys are a contract with that config.
- *
- * @typedef {Object} ProfileSpec
- * @property {TextFieldSpec | null} [name]
- * @property {TextFieldSpec | null} [age]
- * @property {TextFieldSpec | null} [alternativeNamesList]
- * @property {TextFieldSpec | null} [relativesList]
- * @property {TextFieldSpec | null} [phone]
- * @property {TextFieldSpec | null} [phoneList]
- * @property {TextFieldSpec | null} [addressFull]
- * @property {TextFieldSpec | null} [addressFullList]
- * @property {CityStateSpec | null} [addressCityState]
- * @property {CityStateSpec | null} [addressCityStateList]
- * @property {ProfileUrlSpec | null} [profileUrl]
  */
 
 /**

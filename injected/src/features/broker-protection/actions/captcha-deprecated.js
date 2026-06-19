@@ -5,7 +5,7 @@ import { ErrorResponse, SuccessResponse } from '../types.js';
 /**
  * Gets the captcha information to send to the backend
  *
- * @param {import('../types.js').PirAction} action
+ * @param {import('../../../types/broker-protection.js').GetCaptchaInfoAction} action
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */

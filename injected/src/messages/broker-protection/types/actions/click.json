@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ClickAction",
+    "type": "object",
+    "description": "Click one or more elements. Either provide `elements` directly, or `choices` (with an optional `default`) to pick elements conditionally.",
+    "required": ["id", "actionType"],
+    "properties": {
+        "id": { "type": "string" },
+        "actionType": { "const": "click" },
+        "elements": {
+            "type": "array",
+            "items": { "$ref": "../click-element.json" },
+            "description": "elements to click; mutually exclusive with `choices`"
+        },
+        "choices": {
+            "type": "array",
+            "items": { "$ref": "../choice.json" },
+            "description": "conditional branches; the first matching choice's elements are clicked"
+        },
+        "default": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "required": ["elements"],
+                    "properties": {
+                        "elements": {
+                            "type": "array",
+                            "items": { "$ref": "../click-element.json" }
+                        }
+                    }
+                },
+                { "type": "null" }
+            ],
+            "description": "fallback used when no choice matches; `null` means skip without error"
+        },
+        "dataSource": { "type": "string" },
+        "retry": { "$ref": "../retry-config.json" }
+    }
+}

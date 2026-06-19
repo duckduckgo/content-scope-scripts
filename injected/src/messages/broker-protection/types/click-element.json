@@ -1,0 +1,40 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ClickElement",
+    "type": "object",
+    "description": "A single element to click. When `parent.profileMatch` is present, the click is scoped to the best-matching profile element rather than the document.",
+    "required": ["selector"],
+    "properties": {
+        "type": {
+            "type": "string",
+            "description": "informational element type, e.g. \"button\""
+        },
+        "selector": {
+            "type": "string",
+            "description": "selector for the element to click"
+        },
+        "multiple": {
+            "type": "boolean",
+            "description": "click every match rather than just the first"
+        },
+        "failSilently": {
+            "type": "boolean",
+            "description": "treat a missing/disabled element as a non-error skip"
+        },
+        "parent": {
+            "type": "object",
+            "description": "scope the click to a matched profile element instead of the document",
+            "properties": {
+                "profileMatch": {
+                    "type": "object",
+                    "description": "an extract-style spec; the highest-scoring matching element becomes the click root",
+                    "required": ["selector", "profile"],
+                    "properties": {
+                        "selector": { "type": "string" },
+                        "profile": { "$ref": "./profile-spec.json" }
+                    }
+                }
+            }
+        }
+    }
+}

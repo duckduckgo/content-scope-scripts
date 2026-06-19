@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "FormElement",
+    "type": "object",
+    "description": "A single field to fill within a form. `type` is either a key to read from the data, or a special generator/composite token.",
+    "required": ["selector", "type"],
+    "properties": {
+        "selector": {
+            "type": "string",
+            "description": "selector for the input/select element"
+        },
+        "type": {
+            "type": "string",
+            "description": "a data key to fill (e.g. \"firstName\"), or a special token: $file_id$, $generated_phone_number$, $generated_zip_code$, $generated_random_number$, $generated_street_address$, cityState, fullState"
+        },
+        "min": {
+            "type": "string",
+            "description": "lower bound for $generated_random_number$"
+        },
+        "max": {
+            "type": "string",
+            "description": "upper bound for $generated_random_number$"
+        }
+    }
+}

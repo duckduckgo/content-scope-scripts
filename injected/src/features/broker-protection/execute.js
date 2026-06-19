@@ -30,9 +30,11 @@ export async function execute(action, inputData, root = document) {
             case 'scroll':
                 return scroll(action, root);
             default: {
+                // exhaustive switch ⇒ `action` is `never` here; cast to report an unimplemented actionType
+                const unknownAction = /** @type {{ id: string; actionType: string }} */ (action);
                 return new ErrorResponse({
-                    actionID: action.id,
-                    message: `unimplemented actionType: ${action.actionType}`,
+                    actionID: unknownAction.id,
+                    message: `unimplemented actionType: ${unknownAction.actionType}`,
                 });
             }
         }

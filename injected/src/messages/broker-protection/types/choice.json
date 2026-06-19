@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Choice",
+    "type": "object",
+    "description": "A conditional branch of a `click` action: when `condition` evaluates true, `elements` are clicked.",
+    "required": ["condition", "elements"],
+    "properties": {
+        "condition": {
+            "type": "object",
+            "required": ["operation", "left", "right"],
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "description": "comparison operator: =, ==, ===, !=, !==, <, <=, >, >="
+                },
+                "left": {
+                    "type": "string",
+                    "description": "left operand; may contain ${field} templates resolved from the data"
+                },
+                "right": {
+                    "type": "string",
+                    "description": "right operand; may contain ${field} templates resolved from the data"
+                }
+            }
+        },
+        "elements": {
+            "type": "array",
+            "items": { "$ref": "./click-element.json" }
+        }
+    }
+}

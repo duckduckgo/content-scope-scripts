@@ -8,7 +8,7 @@ import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptch
 /**
  *
  * @param {Document | HTMLElement} root
- * @param {import('../types.js').PirAction['selector']} [selector]
+ * @param {string} [selector]
  * @returns {HTMLElement | import('../types.js').PirError}
  */
 const getCaptchaContainer = (root, selector) => {
@@ -27,7 +27,7 @@ const getCaptchaContainer = (root, selector) => {
 /**
  * Returns the supporting code to inject for the given captcha type
  *
- * @param {import('../types.js').PirAction} action
+ * @param {import('../../../types/broker-protection.js').NavigateAction} action
  * @return {import('../types.js').ActionResponse}
  */
 export function getSupportingCodeToInject(action) {
@@ -49,7 +49,7 @@ export function getSupportingCodeToInject(action) {
 /**
  * Gets the captcha information to send to the backend
  *
- * @param {import('../types.js').PirAction} action
+ * @param {import('../../../types/broker-protection.js').GetCaptchaInfoAction} action
  * @param {Document | HTMLElement} root
  * @return {Promise<import('../types.js').ActionResponse>}
  */
@@ -93,7 +93,7 @@ export async function getCaptchaInfo(action, root = document) {
 /**
  * Takes the solved captcha token and injects it into the page to solve the captcha
  *
- * @param {import('../types.js').PirAction} action
+ * @param {import('../../../types/broker-protection.js').SolveCaptchaAction} action
  * @param {string} token
  * @param {Document} root
  * @return {import('../types.js').ActionResponse}

@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "PirAction",
+    "description": "A single instruction sent by native for the broker-protection executor to run on the page. Discriminated on `actionType`.",
+    "oneOf": [
+        { "$ref": "./actions/extract.json" },
+        { "$ref": "./actions/navigate.json" },
+        { "$ref": "./actions/click.json" },
+        { "$ref": "./actions/fill-form.json" },
+        { "$ref": "./actions/expectation.json" },
+        { "$ref": "./actions/condition.json" },
+        { "$ref": "./actions/scroll.json" },
+        { "$ref": "./actions/get-captcha-info.json" },
+        { "$ref": "./actions/solve-captcha.json" }
+    ]
+}

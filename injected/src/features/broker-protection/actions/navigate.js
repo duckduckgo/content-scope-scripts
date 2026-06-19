@@ -6,7 +6,7 @@ import { buildUrl } from './build-url';
  * This builds the proper URL given the URL template and userData.
  * Also, if the action requires a captcha handler, it will inject the necessary code.
  *
- * @param {import('../types.js').PirAction} action
+ * @param {import('../../../types/broker-protection.js').NavigateAction} action
  * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */

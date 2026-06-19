@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "NestedCityStateSpec",
+    "description": "The nested city/state shape: the `selector` matches each result row, and `city` (plus optional `state`) sub-selectors are read relative to that row. Two variants: with state (both sub-selectors present, the `state` selector may even reach outside the row, e.g. a shared `<h1>`), or city only (`state` omitted, so the state comes out as `null`).",
+    "allOf": [
+        {
+            "$ref": "./text-field-spec.json"
+        },
+        {
+            "type": "object",
+            "required": ["city"],
+            "properties": {
+                "city": {
+                    "$ref": "./text-field-spec.json"
+                },
+                "state": {
+                    "$ref": "./text-field-spec.json"
+                }
+            }
+        }
+    ]
+}

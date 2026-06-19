@@ -1,0 +1,7 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "IdentifierType",
+    "description": "How a profile-URL identifier is located: a query `param`, a `path` segment, or the URL `hash`.",
+    "type": "string",
+    "enum": ["param", "path", "hash"]
+}

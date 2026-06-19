@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "RetryConfig",
+    "type": "object",
+    "description": "Optional per-action retry policy. Honoured web-side only when `environment` is \"web\"; otherwise the native scheduler owns retries.",
+    "properties": {
+        "environment": {
+            "type": "string",
+            "description": "where the retry runs; \"web\" enables web-side retry for this action"
+        },
+        "interval": {
+            "type": "object",
+            "required": ["ms"],
+            "properties": {
+                "ms": { "type": "number", "description": "delay between attempts, in milliseconds" }
+            }
+        },
+        "maxAttempts": {
+            "type": "number",
+            "description": "maximum number of attempts before giving up"
+        }
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Expectation",
+    "type": "object",
+    "description": "A single condition checked by `expectation`/`condition` actions: that an element exists, that an element contains text, or that the current URL contains a string.",
+    "required": ["type", "selector"],
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["element", "text", "url"],
+            "description": "what to check"
+        },
+        "selector": {
+            "type": "string",
+            "description": "target element selector (unused for `url`)"
+        },
+        "parent": {
+            "type": "string",
+            "description": "optional parent selector to scroll into view first (element checks)"
+        },
+        "expect": {
+            "type": "string",
+            "description": "expected substring for `text`/`url` checks"
+        },
+        "failSilently": {
+            "type": "boolean",
+            "description": "treat a failed check as a non-error skip"
+        }
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ConditionAction",
+    "type": "object",
+    "description": "Evaluate a set of expectations and report back the `actions` to run when they pass (the caller decides whether to execute them).",
+    "required": ["id", "actionType", "expectations"],
+    "properties": {
+        "id": { "type": "string" },
+        "actionType": { "const": "condition" },
+        "expectations": {
+            "type": "array",
+            "items": { "$ref": "../expectation.json" }
+        },
+        "actions": {
+            "type": "array",
+            "items": { "$ref": "../action.json" },
+            "description": "actions returned for execution when all expectations pass"
+        },
+        "dataSource": { "type": "string" },
+        "retry": { "$ref": "../retry-config.json" }
+    }
+}

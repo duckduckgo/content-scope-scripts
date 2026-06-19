@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Native pushes the next action (plus its data) for the executor to run on the current page.",
+    "required": ["state"],
+    "properties": {
+        "state": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["action", "data"],
+            "properties": {
+                "action": { "$ref": "types/action.json" },
+                "data": { "$ref": "types/input-data.json" }
+            }
+        }
+    }
+}

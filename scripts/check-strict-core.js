@@ -111,6 +111,7 @@ const CORE_FILES = new Set([
     'injected/src/features/performance-metrics.js',
     'injected/src/features/autofill-passkeys.js',
     'injected/src/locales/duckplayer/en/native.json',
+    'injected/src/types/broker-protection.ts',
     'injected/src/types/context-menu.ts',
     'injected/src/types/favicon.ts',
     'injected/src/types/feature-map.ts',

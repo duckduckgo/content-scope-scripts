@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "CityStateSpec",
+    "description": "Where a city/state field lives. A union of two shapes, discriminated on whether the spec carries its own `city` sub-selector: combined (a single `selector` whose text is \"City, ST\" — a plain TextFieldSpec) or nested (per-row `city`/`state` sub-selectors — a NestedCityStateSpec).",
+    "oneOf": [
+        {
+            "$ref": "./text-field-spec.json"
+        },
+        {
+            "$ref": "./nested-city-state-spec.json"
+        }
+    ]
+}

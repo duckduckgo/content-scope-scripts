@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ProfileSpec",
+    "type": "object",
+    "description": "The `profile` block of an `extract` action: a map of output field name -> how to locate that field. `null` disables a field. This is the per-broker config the native layer sends; the field keys are a contract with that config.",
+    "properties": {
+        "name": {
+            "oneOf": [{ "$ref": "./specs/text-field-spec.json" }, { "type": "null" }]
+        },
+        "age": {
+            "oneOf": [{ "$ref": "./specs/text-field-spec.json" }, { "type": "null" }]
+        },
+        "alternativeNamesList": {
+            "oneOf": [{ "$ref": "./specs/text-field-spec.json" }, { "type": "null" }]
+        },
+        "relativesList": {
+            "oneOf": [{ "$ref": "./specs/text-field-spec.json" }, { "type": "null" }]
+        },
+        "phone": {
+            "oneOf": [{ "$ref": "./specs/text-field-spec.json" }, { "type": "null" }]
+        },
+        "phoneList": {
+            "oneOf": [{ "$ref": "./specs/text-field-spec.json" }, { "type": "null" }]
+        },
+        "addressFull": {
+            "oneOf": [{ "$ref": "./specs/text-field-spec.json" }, { "type": "null" }]
+        },
+        "addressFullList": {
+            "oneOf": [{ "$ref": "./specs/text-field-spec.json" }, { "type": "null" }]
+        },
+        "addressCityState": {
+            "oneOf": [{ "$ref": "./specs/city-state-spec.json" }, { "type": "null" }]
+        },
+        "addressCityStateList": {
+            "oneOf": [{ "$ref": "./specs/city-state-spec.json" }, { "type": "null" }]
+        },
+        "profileUrl": {
+            "oneOf": [{ "$ref": "./specs/profile-url-spec.json" }, { "type": "null" }]
+        }
+    }
+}
