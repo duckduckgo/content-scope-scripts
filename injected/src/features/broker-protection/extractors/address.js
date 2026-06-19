@@ -9,7 +9,7 @@ import { states } from '../comparisons/constants.js';
  */
 
 /**
- * Extract city/state combos from one of the three shapes a {@link import('../actions/extract.js').CityStateSpec} can take:
+ * Extract city/state combos from one of the two shapes a {@link import('../actions/extract.js').CityStateSpec} can take:
  * - combined: `selector` resolves to "City, ST" text (optionally a delimited list)
  * - nested: `selector` resolves to each result row, with `city` (and optional `state`) sub-selectors
  *   read relative to that row. `state` may be omitted, or may even reach outside the row.
@@ -20,8 +20,7 @@ import { states } from '../comparisons/constants.js';
  * @return {{ city: string, state: string|null }[]}
  */
 export function extractCityState(select, root, spec) {
-    if (Object.prototype.hasOwnProperty.call(spec, 'city') && spec.city) {
-        // own-prop check, not `in`, so a polluted `Object.prototype.city` can't force nested mode
+    if (isNestedCityStateSpec(spec)) {
         const { city, state } = spec;
         return select(root, spec.selector, spec.findElements).flatMap((row) =>
             cityStatePartToCombo({
@@ -31,6 +30,21 @@ export function extractCityState(select, root, spec) {
         );
     }
     return cityStateCombosFromStrings(selectStrings(select, root, spec), spec.separator);
+}
+
+/**
+ * Whether a city/state spec is the nested shape (per-row `city`/`state` sub-selectors) rather than a
+ * combined "City, ST" selector. Uses an own-property check, not `in`, so a polluted
+ * `Object.prototype.city` can't force nested mode.
+ *
+ * @param {import('../actions/extract.js').CityStateSpec} spec
+ * @return {spec is import('../actions/extract.js').NestedCityStateSpec}
+ */
+function isNestedCityStateSpec(spec) {
+    return (
+        Object.prototype.hasOwnProperty.call(spec, 'city') &&
+        Boolean(/** @type {import('../actions/extract.js').NestedCityStateSpec} */ (spec).city)
+    );
 }
 
 /**

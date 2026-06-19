@@ -37,23 +37,32 @@ import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile
  */
 
 /**
- * City/state can be located three ways, hence a union discriminated on the presence of `city`:
- * - combined: a `selector` whose text is "City, ST" (a plain {@link TextFieldSpec})
- * - nested + state: a `selector` for each result row, with `city` and `state` sub-selectors read
- *   relative to that row (the state selector may even reach outside the row, e.g. a shared `<h1>`)
- * - nested, city only: as above but with `state` omitted (kept as `{ state: null }`)
+ * The nested city/state shape: the `selector` matches each result row, and `city` (plus optional
+ * `state`) sub-selectors are read relative to that row. Two variants:
+ * - with state: both sub-selectors present (the `state` selector may even reach outside the row,
+ *   e.g. a shared `<h1>`)
+ * - city only: `state` omitted, so the state comes out as `null`
  *
- * @typedef {TextFieldSpec | (TextFieldSpec & { city: TextFieldSpec, state?: TextFieldSpec })} CityStateSpec
+ * @typedef {TextFieldSpec & { city: TextFieldSpec, state?: TextFieldSpec }} NestedCityStateSpec
  */
 
 /**
- * Extends {@link TextFieldSpec} with the knobs unique to profileUrl: a non-DOM `source`, and
- * `identifier`/`identifierType` for parsing an id out of the resolved URL.
+ * Where a city/state field lives. A union of two shapes, discriminated on whether the spec carries
+ * its own `city` sub-selector:
+ * - combined: a single `selector` whose text is "City, ST" (a plain {@link TextFieldSpec})
+ * - nested: per-row `city`/`state` sub-selectors (a {@link NestedCityStateSpec})
+ *
+ * @typedef {TextFieldSpec | NestedCityStateSpec} CityStateSpec
+ */
+
+/**
+ * Extends {@link TextFieldSpec} with the knobs unique to profileUrl:
+ * - `source: 'pageUrl'` reads the value from the current page URL (`globalThis.location.href`)
+ *   instead of from a `selector`
+ * - `identifier` is the identifier itself (a param name, or a templated URI) and `identifierType`
+ *   ({@link IdentifierType}) says where to find it within the resolved URL
  *
  * @typedef {TextFieldSpec & { source?: 'pageUrl', identifier?: string, identifierType?: IdentifierType }} ProfileUrlSpec
- * @property {'pageUrl'} [source] - read the value from the current page URL (`globalThis.location.href`) instead of a `selector`
- * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
- * @property {IdentifierType} [identifierType] - how to locate the identifier within the URL
  */
 
 /**
