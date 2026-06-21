@@ -30,7 +30,7 @@ jobs:
               uses: actions/checkout@v6
               with:
                   ref: ${{ github.event.pull_request.base.ref }}
-                  sparse-checkout: .github/scripts/dependabot-anthropic-gate.mjs
+                  sparse-checkout: .github/scripts
                   sparse-checkout-cone-mode: false
                   persist-credentials: false
 
