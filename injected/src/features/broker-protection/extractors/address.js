@@ -43,7 +43,7 @@ export function extractCityState(select, root, spec) {
 function isNestedCityStateSpec(spec) {
     return (
         Object.prototype.hasOwnProperty.call(spec, 'city') &&
-        Boolean(/** @type {import('../actions/extract.js').NestedCityStateSpec} */ (spec).city)
+        Boolean(/** @type {import('../actions/extract.js').NestedCityStateSpec} */ (spec).city?.selector)
     );
 }
 
