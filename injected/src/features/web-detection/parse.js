@@ -9,14 +9,11 @@
  */
 
 /**
- * Extract the member type of an array-like type. (T | T[]) -> T.
+ * Final-condition shape at the top-level match node — what
+ * `evaluateSingleMatchCondition` receives once `evaluateNode` has unwrapped
+ * any operator blocks and array-OR forms.
  *
- * @template T
- * @typedef {T extends (infer U)[] ? U : T} UnArray
- */
-
-/**
- * @typedef {UnArray<MatchCondition>} MatchConditionSingle
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').MatchConditionSingle} MatchConditionSingle
  */
 
 /**
