@@ -3776,14 +3776,14 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   box-shadow: var(--focus-ring);
 }
 .AiChatForm_submitButton:has(.AiChatForm_voiceIcon) {
-  background: var(--ds-color-theme-accent-alt-primary);
+  background: none;
   color: var(--ds-color-theme-icons-primary);
 }
-.AiChatForm_submitButton:has(.AiChatForm_voiceIcon):hover {
-  background: var(--ds-color-theme-accent-alt-secondary);
+.AiChatForm_submitButton:has(.AiChatForm_voiceIcon):hover:not([disabled]) {
+  background: color-mix(in srgb, var(--ds-color-theme-icons-primary) 12%, transparent);
 }
-.AiChatForm_submitButton:has(.AiChatForm_voiceIcon):active {
-  background: var(--ds-color-theme-accent-alt-tertiary);
+.AiChatForm_submitButton:has(.AiChatForm_voiceIcon):active:not([disabled]) {
+  background: color-mix(in srgb, var(--ds-color-theme-icons-primary) 20%, transparent);
 }
 @keyframes AiChatForm_fadeIn {
   from {

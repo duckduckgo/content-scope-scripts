@@ -283,6 +283,124 @@ describe('YouTubeAdDetector', () => {
         });
     });
 
+    describe('static-ad player ad-state gate', () => {
+        let savedWindow;
+        let savedDocument;
+        let savedGetComputedStyle;
+
+        beforeEach(() => {
+            savedWindow = globalThis.window;
+            savedDocument = globalThis.document;
+            savedGetComputedStyle = globalThis.getComputedStyle;
+        });
+
+        afterEach(() => {
+            globalThis.window = savedWindow;
+            globalThis.document = savedDocument;
+            globalThis.getComputedStyle = savedGetComputedStyle;
+        });
+
+        const staticConfig = {
+            ...minimalConfig,
+            playerSelectors: ['#movie_player'],
+            staticAdSelectors: {
+                background: '.player-container-background',
+                thumbnail: '.player-container-background-image',
+                image: '.player-container-background yt-image',
+            },
+        };
+
+        // `adStateClass` is the player ad-state class to inject (or null for a plain
+        // poster). The static-ad selectors all resolve to a visible element.
+        function setupStaticAdDom(adStateClass) {
+            const visible = () => ({ getBoundingClientRect: () => ({ width: 100, height: 100 }), querySelector: () => null });
+            const player = { className: 'html5-video-player' + (adStateClass ? ' ' + adStateClass : '') };
+            const map = {
+                '#movie_player': player,
+                '.player-container-background': visible(),
+                '.player-container-background-image': visible(),
+                '.player-container-background yt-image': null,
+                '#movie_player video, .html5-video-player video': { paused: true, currentTime: 0 },
+            };
+            globalThis.getComputedStyle = () => /** @type {any} */ ({ display: 'block', visibility: 'visible', opacity: '1' });
+            globalThis.document = /** @type {any} */ ({ querySelector: (sel) => (sel in map ? map[sel] : null) });
+            globalThis.window = /** @type {any} */ ({ location: { search: '', pathname: '/watch' } });
+        }
+
+        it('does not detect a static ad when the player is not in its ad state (pre-play poster false positive)', () => {
+            setupStaticAdDom(null);
+            expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(false);
+        });
+
+        it('detects a static ad when the player is in the ad-showing state', () => {
+            setupStaticAdDom('ad-showing');
+            expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(true);
+        });
+
+        it('detects a static ad when the player is in the ad-interrupting state', () => {
+            setupStaticAdDom('ad-interrupting');
+            expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(true);
+        });
+    });
+
+    describe('video watch context gating', () => {
+        let savedWindow;
+        let savedDocument;
+
+        beforeEach(() => {
+            savedWindow = globalThis.window;
+            savedDocument = globalThis.document;
+        });
+
+        afterEach(() => {
+            globalThis.window = savedWindow;
+            globalThis.document = savedDocument;
+        });
+
+        function setLocation(pathname, search = '') {
+            globalThis.window = /** @type {any} */ ({ location: { pathname, search } });
+        }
+
+        it('treats a standard watch page (?v=) as a watch context', () => {
+            setLocation('/watch', '?v=abc123');
+            expect(new YouTubeAdDetector(minimalConfig).isVideoWatchContext()).toBe(true);
+        });
+
+        it('treats a bare /watch pathname (SPA transition, no ?v=) as a watch context', () => {
+            setLocation('/watch', '');
+            expect(new YouTubeAdDetector(minimalConfig).isVideoWatchContext()).toBe(true);
+        });
+
+        it('treats shorts/live/embed paths as watch contexts', () => {
+            ['/shorts/abc123', '/live/abc123', '/embed/abc123'].forEach((pathname) => {
+                setLocation(pathname, '');
+                expect(new YouTubeAdDetector(minimalConfig).isVideoWatchContext()).toBe(true);
+            });
+        });
+
+        it('treats channel/home/feed/handle pages as non-watch contexts', () => {
+            ['/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ', '/', '/feed/subscriptions', '/@somehandle'].forEach((pathname) => {
+                setLocation(pathname, '');
+                expect(new YouTubeAdDetector(minimalConfig).isVideoWatchContext()).toBe(false);
+            });
+        });
+
+        it('does not report a playability error on a non-watch surface (channel page)', () => {
+            setLocation('/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ', '');
+            const detector = new YouTubeAdDetector(minimalConfig);
+            // Even if the underlying pattern match would hit, the guard short-circuits first.
+            detector.checkVisiblePatternMatch = () => 'unavailable';
+            expect(detector.checkForPlayabilityErrors()).toBeNull();
+        });
+
+        it('still runs playability-error matching on a watch page', () => {
+            setLocation('/watch', '?v=abc123');
+            const detector = new YouTubeAdDetector(minimalConfig);
+            detector.checkVisiblePatternMatch = () => 'unavailable';
+            expect(detector.checkForPlayabilityErrors()).toBe('unavailable');
+        });
+    });
+
     describe('runYoutubeAdDetection hostname gating', () => {
         const enabledConfig = { ...minimalConfig, state: 'enabled' };
         const emptyResult = { detected: false, type: 'youtubeAds', results: [] };

@@ -9569,7 +9569,7 @@
       } else if (!hasVideoAd && this.state.detections.videoAd.showing) {
         this.clearDetection("videoAd");
       }
-      const hasStaticAd = this.checkForStaticAds();
+      const hasStaticAd = this.checkForStaticAds(root);
       if (hasStaticAd && !this.state.detections.staticAd.showing) {
         this.reportDetection("staticAd");
       } else if (!hasStaticAd && this.state.detections.staticAd.showing) {
@@ -9654,11 +9654,16 @@
     }
     /**
      * Check for static overlay ads (image ads over the player)
+     * @param {Element|null} [root] - Player root already resolved by the sweep, if any
      * @returns {boolean}
      */
-    checkForStaticAds() {
+    checkForStaticAds(root) {
       const selectors = this.config.staticAdSelectors;
       if (!selectors || !selectors.background) {
+        return false;
+      }
+      const player = root ?? this.playerRoot ?? this.findPlayerRoot();
+      if (!player || !/\bad-showing\b|\bad-interrupting\b/.test((player.className || "").toString())) {
         return false;
       }
       const background = document.querySelector(selectors.background);
@@ -9745,6 +9750,9 @@
      * @returns {string|null}
      */
     checkForPlayabilityErrors() {
+      if (!this.isVideoWatchContext()) {
+        return null;
+      }
       return this.checkVisiblePatternMatch(this.config.playabilityErrorSelectors, this.playabilityErrorPatterns, {
         maxLength: 100,
         checkAttributedStrings: true
@@ -9784,6 +9792,17 @@
     getVideoId() {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get("v");
+    }
+    /**
+     * Whether the current page is an actual video-watch surface — a standard watch page
+     * (`?v=<id>`) or a Shorts/live/embed path. Used to avoid firing playability-error
+     * detections on non-playback pages (channel/home), where a featured-preview player
+     * can transiently show an unavailability message for a video the user isn't watching.
+     * @returns {boolean}
+     */
+    isVideoWatchContext() {
+      const pathname = window.location.pathname;
+      return !!this.getVideoId() || pathname === "/watch" || /^\/(shorts|live|embed)\//.test(pathname);
     }
     // =========================================================================
     // Login State Detection
