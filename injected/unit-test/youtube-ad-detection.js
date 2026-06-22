@@ -340,6 +340,22 @@ describe('YouTubeAdDetector', () => {
         it('detects a static ad when the player is in the ad-interrupting state', () => {
             setupStaticAdDom('ad-interrupting');
             expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(true);
+        });
+    });
+
+    describe('video watch context gating', () => {
+        let savedWindow;
+        let savedDocument;
+
+        beforeEach(() => {
+            savedWindow = globalThis.window;
+            savedDocument = globalThis.document;
+        });
+
+        afterEach(() => {
+            globalThis.window = savedWindow;
+            globalThis.document = savedDocument;
+        });
 
         function setLocation(pathname, search = '') {
             globalThis.window = /** @type {any} */ ({ location: { pathname, search } });
