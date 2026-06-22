@@ -256,9 +256,7 @@ describe('WebDetection', () => {
             const result = oneDetectorConfigParsed({
                 match: { text: { pattern: ['adblocker', 'disable'] }, element: { selector: '.overlay', visibility: 'visible' } },
             });
-            const leaf = /** @type {import('../src/features/web-detection/parse.js').MatchConditionSingle} */ (
-                asSingle(result.match)
-            );
+            const leaf = /** @type {import('../src/features/web-detection/parse.js').MatchConditionSingle} */ (asSingle(result.match));
             expect(leaf.text).toEqual({ pattern: ['adblocker', 'disable'] });
             expect(leaf.element).toEqual({ selector: '.overlay', visibility: 'visible' });
         });
