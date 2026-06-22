@@ -54,7 +54,7 @@
     "@types/seedrandom": "^3.0.8",
     "c8": "^11.0.0",
     "fast-check": "^4.8.0",
-    "jasmine": "^6.2.0",
+    "jasmine": "^6.3.0",
     "jsdom": "^29.1.1",
     "monocart-coverage-reports": "^2.12.12",
     "web-ext": "^10.2.0"
