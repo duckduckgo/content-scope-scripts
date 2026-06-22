@@ -9,6 +9,7 @@
  *
  * Expects env vars:
  *   ANTHROPIC_API_KEY - Anthropic API key
+ *   ANTHROPIC_MODEL   - Optional; defaults to shared CI model in anthropic-config.mjs
  *   BUILD_DIFF        - Build output diff from diff-directories.js
  *   PR_TITLE          - Pull request title
  *   PR_BODY           - Pull request body/description
@@ -17,8 +18,9 @@
  * Outputs to stdout a JSON object: { "severity": "major"|"minor"|"patch", "reasoning": "..." }
  */
 
+import { resolveAnthropicModel } from './anthropic-config.mjs';
+
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-sonnet-4-20250514';
 const MAX_DIFF_CHARS = 80_000;
 
 const SYSTEM_PROMPT = `You are a semver classification expert for the duckduckgo/content-scope-scripts repository.
@@ -113,7 +115,7 @@ async function callAnthropic(systemPrompt, userPrompt, apiKey) {
             'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-            model: MODEL,
+            model: resolveAnthropicModel(),
             max_tokens: 512,
             temperature: 0,
             system: systemPrompt,
