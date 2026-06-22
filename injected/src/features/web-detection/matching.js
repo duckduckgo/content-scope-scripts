@@ -128,11 +128,11 @@ function evaluateNode(node, evalFinal) {
 
     const operatorKeys = ['any', 'all', 'none'];
 
-    const opKeys = operatorKeys.filter((k) => k in node);
+    const opKeys = operatorKeys.filter((k) => hasOwnProperty.call(node, k));
     if (opKeys.length === 0) {
         return evalFinal(/** @type {Final} */ (node));
     }
-    const otherKeys = Object.keys(node).filter((k) => !operatorKeys.includes(k));
+    const otherKeys = objectKeys(node).filter((k) => !operatorKeys.includes(k));
     if (otherKeys.length > 0) {
         throw new Error(`Condition node mixes operator keys [${opKeys.join(', ')}] with leaf fields [${otherKeys.join(', ')}]`);
     }
