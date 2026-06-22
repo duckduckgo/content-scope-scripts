@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "additionalProperties": false,
-    "description": "Sent back to native when an action could not be run at all (no action, unhandled exception, or no response).",
+    "description": "Emitted when an action could not be run at all (no action, unhandled exception, or no response).",
     "required": ["error"],
     "properties": {
         "error": {

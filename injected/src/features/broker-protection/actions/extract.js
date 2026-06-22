@@ -11,17 +11,18 @@ import { extractRelatives } from '../extractors/relatives.js';
 import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile-url.js';
 
 /**
- * @typedef {Record<string, any>} Action
- */
-
-/**
  * @typedef {import('../../../types/broker-protection.js').IdentifierType} IdentifierType
  * @typedef {import('../../../types/broker-protection.js').TextFieldSpec} TextFieldSpec
  * @typedef {import('../../../types/broker-protection.js').NestedCityStateSpec} NestedCityStateSpec
  * @typedef {import('../../../types/broker-protection.js').CityStateSpec} CityStateSpec
  * @typedef {import('../../../types/broker-protection.js').ProfileUrlSpec} ProfileUrlSpec
  * @typedef {import('../../../types/broker-protection.js').ProfileSpec} ProfileSpec
+ * @typedef {import('../../../types/broker-protection.js').ExtractAction} ExtractAction
+ * @typedef {import('../../../types/broker-protection.js').UserProfile} UserProfile
+ * @typedef {import('../types.js').ActionResponse} ActionResponse
+ * @typedef {import('../types.js').AsyncProfileTransform} AsyncProfileTransform
  * @typedef {TextFieldSpec | CityStateSpec | ProfileUrlSpec} FieldSpec
+ * @typedef {{ selector: string; profile: ProfileSpec; noResultsSelector?: string }} ExtractSpec - the subset of an extract action that `extractProfiles` reads; satisfied by both ExtractAction and a click action's `parent.profileMatch`
  */
 
 /**
@@ -37,10 +38,10 @@ import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile
  */
 
 /**
- * @param {Action} action
- * @param {Record<string, any>} userData
+ * @param {ExtractAction} action
+ * @param {UserProfile} userData
  * @param {Document | HTMLElement} root
- * @return {Promise<import('../types.js').ActionResponse>}
+ * @return {Promise<ActionResponse>}
  */
 export async function extract(action, userData, root = document) {
     const extractResult = extractProfiles(action, userData, root);
@@ -90,8 +91,8 @@ function select(root, selector, all = false) {
 }
 
 /**
- * @param {Action} action
- * @param {Record<string, any>} userData
+ * @param {ExtractSpec} action
+ * @param {UserProfile} userData
  * @param {Element | Document} [root]
  * @return {{error: string} | {results: ProfileResult[]}}
  */
@@ -353,7 +354,7 @@ export function aggregateFields(profile) {
  * @return {Promise<Record<string, any>>}
  */
 async function applyPostTransforms(profile, profileSpec) {
-    /** @type {import("../types.js").AsyncProfileTransform[]} */
+    /** @type {AsyncProfileTransform[]} */
     const transforms = [
         // creates a hash if needed
         new ProfileHashTransformer(),

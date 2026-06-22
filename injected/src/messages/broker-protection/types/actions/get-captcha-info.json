@@ -13,11 +13,7 @@
         },
         "captchaType": {
             "type": "string",
-            "description": "captcha provider type (e.g. recaptcha, hcaptcha); when omitted the deprecated handler is used"
-        },
-        "injectCaptchaHandler": {
-            "type": "string",
-            "description": "captcha type whose supporting code should be injected"
+            "description": "selects the captcha handler. Supported values: \"image\", \"cloudFlareTurnstile\". When omitted, the deprecated handler runs and self-detects recaptcha2/recaptchaEnterprise from the DOM."
         },
         "dataSource": { "type": "string" },
         "retry": { "$ref": "../retry-config.json" }

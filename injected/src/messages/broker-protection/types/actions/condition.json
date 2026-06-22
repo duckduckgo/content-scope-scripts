@@ -3,7 +3,7 @@
     "title": "ConditionAction",
     "type": "object",
     "description": "Evaluate a set of expectations and report back the `actions` to run when they pass (the caller decides whether to execute them).",
-    "required": ["id", "actionType", "expectations"],
+    "required": ["id", "actionType", "expectations", "actions"],
     "properties": {
         "id": { "type": "string" },
         "actionType": { "const": "condition" },

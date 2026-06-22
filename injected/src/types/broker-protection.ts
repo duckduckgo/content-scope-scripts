@@ -11,7 +11,7 @@
  */
 export type ActionResponse = SuccessResponse | ErrorResponse;
 /**
- * A single instruction sent by native for the broker-protection executor to run on the page. Discriminated on `actionType`.
+ * A single instruction for the broker-protection executor to run on the page, discriminated on `actionType`.
  */
 export type PirAction =
   | ExtractAction
@@ -68,7 +68,7 @@ export interface ActionCompletedNotification {
   params: ActionCompletedNotify;
 }
 /**
- * Sent back to native when an action finishes (successfully, or with an error captured in the result).
+ * Emitted when an action finishes (successfully, or with an error captured in the result).
  */
 export interface ActionCompletedNotify {
   result: ActionResponse;
@@ -87,56 +87,15 @@ export interface SuccessResponse {
       [k: string]: unknown;
     };
     /**
-     * follow-up actions to run with the same data (e.g. from an expectation action)
+     * follow-up actions the executor runs locally after this one (e.g. produced by an `expectation` action); each is executed with the same data and reports its own result
      */
-    next?: unknown[];
+    next?: PirAction[];
     /**
-     * optional debugging metadata
+     * optional action-specific metadata attached to the result (e.g. `extract` attaches the `{ userData }` it matched against)
      */
     meta?: {
       [k: string]: unknown;
     };
-  };
-}
-/**
- * The wire shape of a failed action result.
- */
-export interface ErrorResponse {
-  error: {
-    actionID: string;
-    message: string;
-  };
-}
-/**
- * Generated from @see "../messages/broker-protection/actionError.notify.json"
- */
-export interface ActionErrorNotification {
-  method: "actionError";
-  params: ActionErrorNotify;
-}
-/**
- * Sent back to native when an action could not be run at all (no action, unhandled exception, or no response).
- */
-export interface ActionErrorNotify {
-  /**
-   * human-readable error message
-   */
-  error: string;
-}
-/**
- * Generated from @see "../messages/broker-protection/onActionReceived.subscribe.json"
- */
-export interface OnActionReceivedSubscription {
-  subscriptionEvent: "onActionReceived";
-  params: OnActionReceivedSubscribe;
-}
-/**
- * Native pushes the next action (plus its data) for the executor to run on the current page.
- */
-export interface OnActionReceivedSubscribe {
-  state: {
-    action: PirAction;
-    data: ActionData;
   };
 }
 /**
@@ -203,14 +162,14 @@ export interface TextFieldSpec {
   attribute?: string;
 }
 /**
- * Optional per-action retry policy. Honoured web-side only when `environment` is "web"; otherwise the native scheduler owns retries.
+ * Optional per-action retry policy honoured by the web executor. Retries run web-side only when `environment` is "web"; otherwise retrying is left to the caller's scheduler. When present, both `interval` and `maxAttempts` are required: the executor uses `interval.ms` as the inter-attempt delay and `maxAttempts` as the loop bound, with no defaults.
  */
 export interface RetryConfig {
   /**
-   * where the retry runs; "web" enables web-side retry for this action
+   * where the retry runs; "web" is the only supported value and enables web-side retry for this action
    */
-  environment?: string;
-  interval?: {
+  environment?: "web";
+  interval: {
     /**
      * delay between attempts, in milliseconds
      */
@@ -219,7 +178,7 @@ export interface RetryConfig {
   /**
    * maximum number of attempts before giving up
    */
-  maxAttempts?: number;
+  maxAttempts: number;
 }
 /**
  * Build a URL from a template + the user's data and report it back for native to navigate to.
@@ -292,7 +251,7 @@ export interface ClickElement {
     /**
      * an extract-style spec; the highest-scoring matching element becomes the click root
      */
-    profileMatch?: {
+    profileMatch: {
       selector: string;
       profile: ProfileSpec;
     };
@@ -402,7 +361,7 @@ export interface ConditionAction {
   /**
    * actions returned for execution when all expectations pass
    */
-  actions?: PirAction[];
+  actions: PirAction[];
   dataSource?: string;
   retry?: RetryConfig;
 }
@@ -416,7 +375,6 @@ export interface ScrollAction {
    * selector for the element to scroll into view
    */
   selector: string;
-  dataSource?: string;
   retry?: RetryConfig;
 }
 /**
@@ -430,13 +388,9 @@ export interface GetCaptchaInfoAction {
    */
   selector: string;
   /**
-   * captcha provider type (e.g. recaptcha, hcaptcha); when omitted the deprecated handler is used
+   * selects the captcha handler. Supported values: "image", "cloudFlareTurnstile". When omitted, the deprecated handler runs and self-detects recaptcha2/recaptchaEnterprise from the DOM.
    */
   captchaType?: string;
-  /**
-   * captcha type whose supporting code should be injected
-   */
-  injectCaptchaHandler?: string;
   dataSource?: string;
   retry?: RetryConfig;
 }
@@ -451,18 +405,55 @@ export interface SolveCaptchaAction {
    */
   selector: string;
   /**
-   * captcha provider type; when omitted the deprecated handler is used
+   * selects the captcha handler. Supported values: "image", "cloudFlareTurnstile". When omitted, the deprecated handler runs and self-detects recaptcha2/recaptchaEnterprise from the DOM.
    */
   captchaType?: string;
-  /**
-   * captcha type whose supporting code should be injected
-   */
-  injectCaptchaHandler?: string;
   dataSource?: string;
   retry?: RetryConfig;
 }
 /**
- * The data bundle that accompanies an action. Which key an action reads is chosen by its `dataSource` (defaults: extract/navigate/click -> userProfile, fillForm -> extractedProfile, solveCaptcha -> token).
+ * The wire shape of a failed action result.
+ */
+export interface ErrorResponse {
+  error: {
+    actionID: string;
+    message: string;
+  };
+}
+/**
+ * Generated from @see "../messages/broker-protection/actionError.notify.json"
+ */
+export interface ActionErrorNotification {
+  method: "actionError";
+  params: ActionErrorNotify;
+}
+/**
+ * Emitted when an action could not be run at all (no action, unhandled exception, or no response).
+ */
+export interface ActionErrorNotify {
+  /**
+   * human-readable error message
+   */
+  error: string;
+}
+/**
+ * Generated from @see "../messages/broker-protection/onActionReceived.subscribe.json"
+ */
+export interface OnActionReceivedSubscription {
+  subscriptionEvent: "onActionReceived";
+  params: OnActionReceivedSubscribe;
+}
+/**
+ * Delivers the next action (plus its data) for the executor to run on the current page.
+ */
+export interface OnActionReceivedSubscribe {
+  state: {
+    action: PirAction;
+    data: ActionData;
+  };
+}
+/**
+ * The data bundle that accompanies an action. Which key an action reads is chosen by its `dataSource`; when an action omits `dataSource` the executor applies a fallback default (extract/navigate/click -> userProfile, fillForm -> extractedProfile, solveCaptcha -> token). An action may set `dataSource` explicitly to read a different bundle (e.g. a fillForm reading userProfile). `fetchedEmail`/`emailData` are also supported, for email-confirmation flows.
  */
 export interface ActionData {
   userProfile?: UserProfile;
@@ -471,17 +462,41 @@ export interface ActionData {
    * a solved captcha token (used by solveCaptcha)
    */
   token?: string;
+  /**
+   * a fetched email address (read when an action sets dataSource: fetchedEmail)
+   */
+  fetchedEmail?: {
+    email?: string;
+    [k: string]: unknown;
+  };
+  /**
+   * email-derived values such as a verification code (read when an action sets dataSource: emailData)
+   */
+  emailData?: {
+    [k: string]: string;
+  };
   [k: string]: unknown;
 }
 /**
  * The person whose records we're searching for. Used to build search URLs and to match scraped profiles. Brokers may reference additional flat keys (e.g. city, state) in URL templates, so extra properties are allowed.
  */
 export interface UserProfile {
+  id?: string;
   firstName?: string;
   middleName?: string;
   lastName?: string;
+  fullName?: string;
+  suffix?: string;
   age?: string | number;
+  birthYear?: string | number;
   phone?: string;
+  city?: string;
+  /**
+   * two-letter state abbreviation
+   */
+  state?: string;
+  street?: string;
+  zip?: string;
   addresses?: Address[];
   [k: string]: unknown;
 }
@@ -500,7 +515,7 @@ export interface Address {
   [k: string]: unknown;
 }
 /**
- * The broker-specific profile data submitted by `fillForm` actions, keyed by the field names a FormElement `type` references (e.g. firstName, lastName, city, state, email). Native owns the exact shape, so extra properties are allowed.
+ * The profile data a `fillForm` action draws from, keyed by the field names a FormElement `type` references (e.g. firstName, lastName, city, state, email). The exact shape is caller-defined, so extra properties are allowed.
  */
 export interface ExtractedProfile {
   firstName?: string;
@@ -510,6 +525,9 @@ export interface ExtractedProfile {
   state?: string;
   phone?: string;
   email?: string;
+  age?: string | number;
+  birthYear?: string | number;
+  profileUrl?: string;
   [k: string]: unknown;
 }
 

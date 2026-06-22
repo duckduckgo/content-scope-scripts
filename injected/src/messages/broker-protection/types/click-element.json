@@ -24,6 +24,7 @@
         "parent": {
             "type": "object",
             "description": "scope the click to a matched profile element instead of the document",
+            "required": ["profileMatch"],
             "properties": {
                 "profileMatch": {
                     "type": "object",

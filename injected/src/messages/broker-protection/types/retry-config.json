@@ -2,11 +2,13 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "RetryConfig",
     "type": "object",
-    "description": "Optional per-action retry policy. Honoured web-side only when `environment` is \"web\"; otherwise the native scheduler owns retries.",
+    "description": "Optional per-action retry policy honoured by the web executor. Retries run web-side only when `environment` is \"web\"; otherwise retrying is left to the caller's scheduler. When present, both `interval` and `maxAttempts` are required: the executor uses `interval.ms` as the inter-attempt delay and `maxAttempts` as the loop bound, with no defaults.",
+    "required": ["interval", "maxAttempts"],
     "properties": {
         "environment": {
             "type": "string",
-            "description": "where the retry runs; \"web\" enables web-side retry for this action"
+            "enum": ["web"],
+            "description": "where the retry runs; \"web\" is the only supported value and enables web-side retry for this action"
         },
         "interval": {
             "type": "object",

@@ -3,7 +3,7 @@
     "title": "ExtractedProfile",
     "type": "object",
     "additionalProperties": true,
-    "description": "The broker-specific profile data submitted by `fillForm` actions, keyed by the field names a FormElement `type` references (e.g. firstName, lastName, city, state, email). Native owns the exact shape, so extra properties are allowed.",
+    "description": "The profile data a `fillForm` action draws from, keyed by the field names a FormElement `type` references (e.g. firstName, lastName, city, state, email). The exact shape is caller-defined, so extra properties are allowed.",
     "properties": {
         "firstName": { "type": "string" },
         "middleName": { "type": "string" },
@@ -11,6 +11,9 @@
         "city": { "type": "string" },
         "state": { "type": "string" },
         "phone": { "type": "string" },
-        "email": { "type": "string" }
+        "email": { "type": "string" },
+        "age": { "type": ["string", "number"] },
+        "birthYear": { "type": ["string", "number"] },
+        "profileUrl": { "type": "string" }
     }
 }

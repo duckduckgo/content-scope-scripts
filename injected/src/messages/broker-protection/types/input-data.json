@@ -3,13 +3,26 @@
     "title": "ActionData",
     "type": "object",
     "additionalProperties": true,
-    "description": "The data bundle that accompanies an action. Which key an action reads is chosen by its `dataSource` (defaults: extract/navigate/click -> userProfile, fillForm -> extractedProfile, solveCaptcha -> token).",
+    "description": "The data bundle that accompanies an action. Which key an action reads is chosen by its `dataSource`; when an action omits `dataSource` the executor applies a fallback default (extract/navigate/click -> userProfile, fillForm -> extractedProfile, solveCaptcha -> token). An action may set `dataSource` explicitly to read a different bundle (e.g. a fillForm reading userProfile). `fetchedEmail`/`emailData` are also supported, for email-confirmation flows.",
     "properties": {
         "userProfile": { "$ref": "./user-profile.json" },
         "extractedProfile": { "$ref": "./extracted-profile.json" },
         "token": {
             "type": "string",
             "description": "a solved captcha token (used by solveCaptcha)"
+        },
+        "fetchedEmail": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "a fetched email address (read when an action sets dataSource: fetchedEmail)",
+            "properties": {
+                "email": { "type": "string" }
+            }
+        },
+        "emailData": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "description": "email-derived values such as a verification code (read when an action sets dataSource: emailData)"
         }
     }
 }

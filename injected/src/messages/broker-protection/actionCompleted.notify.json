@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "additionalProperties": false,
-    "description": "Sent back to native when an action finishes (successfully, or with an error captured in the result).",
+    "description": "Emitted when an action finishes (successfully, or with an error captured in the result).",
     "required": ["result"],
     "properties": {
         "result": { "$ref": "types/action-response.json" }

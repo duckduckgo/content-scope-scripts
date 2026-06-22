@@ -6,6 +6,7 @@
 /**
  * @typedef {import('../../types/broker-protection.js').PirAction} PirAction
  * @typedef {import('../../types/broker-protection.js').Expectation} Expectation
+ * @typedef {import('../../types/broker-protection.js').ActionData} ActionData
  */
 
 /**
@@ -128,7 +129,7 @@ export class ErrorResponse {
  * @property {PirAction['id']} actionID
  * @property {PirAction['actionType']} actionType
  * @property {any} response
- * @property {import("./actions/extract").Action[]} [next]
+ * @property {PirAction[]} [next]
  * @property {Record<string, any>} [meta] - optional meta data
  */
 

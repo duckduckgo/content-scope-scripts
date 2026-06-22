@@ -16,13 +16,13 @@
                 },
                 "next": {
                     "type": "array",
-                    "items": {},
-                    "description": "follow-up actions to run with the same data (e.g. from an expectation action)"
+                    "items": { "$ref": "./action.json" },
+                    "description": "follow-up actions the executor runs locally after this one (e.g. produced by an `expectation` action); each is executed with the same data and reports its own result"
                 },
                 "meta": {
                     "type": "object",
                     "additionalProperties": true,
-                    "description": "optional debugging metadata"
+                    "description": "optional action-specific metadata attached to the result (e.g. `extract` attaches the `{ userData }` it matched against)"
                 }
             }
         }

@@ -5,11 +5,19 @@
     "additionalProperties": true,
     "description": "The person whose records we're searching for. Used to build search URLs and to match scraped profiles. Brokers may reference additional flat keys (e.g. city, state) in URL templates, so extra properties are allowed.",
     "properties": {
+        "id": { "type": "string" },
         "firstName": { "type": "string" },
         "middleName": { "type": "string" },
         "lastName": { "type": "string" },
+        "fullName": { "type": "string" },
+        "suffix": { "type": "string" },
         "age": { "type": ["string", "number"] },
+        "birthYear": { "type": ["string", "number"] },
         "phone": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string", "description": "two-letter state abbreviation" },
+        "street": { "type": "string" },
+        "zip": { "type": "string" },
         "addresses": {
             "type": "array",
             "items": { "$ref": "./address.json" }
