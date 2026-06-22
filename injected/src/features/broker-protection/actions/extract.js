@@ -415,12 +415,12 @@ function removeCommonSuffixesAndPrefixes(elementValue) {
         elementValue = elementValue.replace(regex, '').trim();
     }
     for (const prefix of startsWith) {
-        if (elementValue.startsWith(prefix)) {
+        if (elementValue.toLowerCase().startsWith(prefix.toLowerCase())) {
             elementValue = elementValue.slice(prefix.length).trim();
         }
     }
     for (const suffix of endsWith) {
-        if (elementValue.endsWith(suffix)) {
+        if (elementValue.toLowerCase().endsWith(suffix.toLowerCase())) {
             elementValue = elementValue.slice(0, 0 - suffix.length).trim();
         }
     }
