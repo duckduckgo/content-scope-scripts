@@ -34,6 +34,24 @@ const DEFAULT_TRACKER_COOKIE_POLICY = {
     maxAge: 86400, // 1 day
 };
 
+/**
+ * Ensure cookie policy objects are never left null after config merges. Mirrors the fallback
+ * applied in {@link CookieFeature.init} so a missing remote policy cannot disable expiry caps.
+ * @param {{ policy?: { threshold: number, maxAge: number } | null, trackerPolicy?: { threshold: number, maxAge: number } | null }} state
+ * @param {{ policy: { threshold: number, maxAge: number }, trackerPolicy: { threshold: number, maxAge: number } }} [fallbacks]
+ */
+export function applyCookiePolicyFallbacks(
+    state,
+    fallbacks = { policy: DEFAULT_COOKIE_POLICY, trackerPolicy: DEFAULT_TRACKER_COOKIE_POLICY },
+) {
+    if (state.policy == null) {
+        state.policy = fallbacks.policy;
+    }
+    if (state.trackerPolicy == null) {
+        state.trackerPolicy = fallbacks.trackerPolicy;
+    }
+}
+
 // Initial cookie policy pre init
 let cookiePolicy = {
     debug: false,
@@ -287,12 +305,10 @@ export default class CookieFeature extends ContentFeature {
             Object.assign(cookiePolicy, toCopy);
         }
 
-        if (cookiePolicy.policy == null) {
-            cookiePolicy.policy = fallbackPolicy;
-        }
-        if (cookiePolicy.trackerPolicy == null) {
-            cookiePolicy.trackerPolicy = fallbackTrackerPolicy;
-        }
+        applyCookiePolicyFallbacks(cookiePolicy, {
+            policy: fallbackPolicy,
+            trackerPolicy: fallbackTrackerPolicy,
+        });
 
         loadedPolicyResolve();
     }
