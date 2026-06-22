@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-redeclare
 import { hasOwnProperty, objectKeys } from '../../captured-globals.js';
 
 /**
