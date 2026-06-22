@@ -340,6 +340,48 @@ describe('YouTubeAdDetector', () => {
         it('detects a static ad when the player is in the ad-interrupting state', () => {
             setupStaticAdDom('ad-interrupting');
             expect(new YouTubeAdDetector(staticConfig).checkForStaticAds()).toBe(true);
+
+        function setLocation(pathname, search = '') {
+            globalThis.window = /** @type {any} */ ({ location: { pathname, search } });
+        }
+
+        it('treats a standard watch page (?v=) as a watch context', () => {
+            setLocation('/watch', '?v=abc123');
+            expect(new YouTubeAdDetector(minimalConfig).isVideoWatchContext()).toBe(true);
+        });
+
+        it('treats a bare /watch pathname (SPA transition, no ?v=) as a watch context', () => {
+            setLocation('/watch', '');
+            expect(new YouTubeAdDetector(minimalConfig).isVideoWatchContext()).toBe(true);
+        });
+
+        it('treats shorts/live/embed paths as watch contexts', () => {
+            ['/shorts/abc123', '/live/abc123', '/embed/abc123'].forEach((pathname) => {
+                setLocation(pathname, '');
+                expect(new YouTubeAdDetector(minimalConfig).isVideoWatchContext()).toBe(true);
+            });
+        });
+
+        it('treats channel/home/feed/handle pages as non-watch contexts', () => {
+            ['/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ', '/', '/feed/subscriptions', '/@somehandle'].forEach((pathname) => {
+                setLocation(pathname, '');
+                expect(new YouTubeAdDetector(minimalConfig).isVideoWatchContext()).toBe(false);
+            });
+        });
+
+        it('does not report a playability error on a non-watch surface (channel page)', () => {
+            setLocation('/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ', '');
+            const detector = new YouTubeAdDetector(minimalConfig);
+            // Even if the underlying pattern match would hit, the guard short-circuits first.
+            detector.checkVisiblePatternMatch = () => 'unavailable';
+            expect(detector.checkForPlayabilityErrors()).toBeNull();
+        });
+
+        it('still runs playability-error matching on a watch page', () => {
+            setLocation('/watch', '?v=abc123');
+            const detector = new YouTubeAdDetector(minimalConfig);
+            detector.checkVisiblePatternMatch = () => 'unavailable';
+            expect(detector.checkForPlayabilityErrors()).toBe('unavailable');
         });
     });
 
