@@ -2,6 +2,8 @@ import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { resolveAnthropicModel } from './anthropic-config.mjs';
+
 // Each expected Cursor check is identified by *three* trust signals:
 //   - the check-run display name (`run.name`)
 //   - the GitHub App slug that authored the check run (`run.app.slug`),
@@ -1019,7 +1021,7 @@ async function prepareGateContext({ githubToken, headSha, currentRunId, apiRoot,
 async function runClassifyThreadsMode() {
     const githubToken = requiredEnv('GITHUB_TOKEN');
     const anthropicApiKey = requiredEnv('ANTHROPIC_API_KEY');
-    const model = requiredEnv('ANTHROPIC_MODEL');
+    const model = resolveAnthropicModel();
     const [owner, repo] = requiredEnv('GITHUB_REPOSITORY').split('/');
     const prNumber = requiredEnv('PR_NUMBER');
     const headSha = requiredEnv('PR_HEAD_SHA');
@@ -1066,7 +1068,7 @@ async function runClassifyThreadsMode() {
 
 async function runMergeGateMode() {
     const anthropicApiKey = requiredEnv('ANTHROPIC_API_KEY');
-    const model = requiredEnv('ANTHROPIC_MODEL');
+    const model = resolveAnthropicModel();
     const headSha = requiredEnv('PR_HEAD_SHA');
     const state = readGateState(gateStatePath(), headSha);
     if (!state.threadClassification?.complete) {

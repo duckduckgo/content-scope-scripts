@@ -56,7 +56,7 @@ jobs:
               with:
                   node-version-file: '.nvmrc'
             - name: Dependabot Anthropic gate helpers
-              run: node --test .github/scripts/dependabot-anthropic-gate.test.mjs
+              run: node --test .github/scripts/dependabot-anthropic-gate.test.mjs .github/scripts/anthropic-config.test.mjs
 
     unit:
         runs-on: ${{ matrix.os }}
