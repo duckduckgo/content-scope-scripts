@@ -2,11 +2,23 @@ import {
     aggregateFields,
     createProfile,
     parseRegexFromString,
-    stringValuesFromElements,
+    stringsFromElements,
 } from '../src/features/broker-protection/actions/extract.js';
 import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
 
+const ROOT = {};
+
 describe('create profiles from extracted data', () => {
+    /**
+     * A stand-in DOM element exposing `getAttribute` (and any extra props like `innerText`/`href`).
+     * @param {Record<string, string|null>} attributes
+     * @param {Record<string, any>} [extras]
+     */
+    const fakeElement = (attributes, extras = {}) => ({
+        getAttribute: (/** @type {string} */ name) => attributes[name] ?? null,
+        ...extras,
+    });
+
     describe('cleanArray', () => {
         it('should filter out null, undefined, and empty strings', () => {
             /**
@@ -30,6 +42,7 @@ describe('create profiles from extracted data', () => {
             }
         });
     });
+
     it('handles combined, single strings', () => {
         const selectors = {
             name: {
@@ -66,13 +79,12 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => {
-                return [{ innerText: elementExample.text }];
-            };
-            const profile = createProfile(elementFactory, selectors);
+            const select = () => [{ innerText: elementExample.text }];
+            const profile = createProfile(select, ROOT, selectors);
             expect(profile).toEqual(elementExample.expected);
         }
     });
+
     it('handles multiple strings', () => {
         const elementExamples = [
             {
@@ -117,121 +129,9 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, elementExample.selectors);
             expect(profile).toEqual(elementExample.expected);
-        }
-    });
-    it('should omit invalid addresses', () => {
-        const elementExamples = [
-            {
-                selectors: {
-                    addressCityState: {
-                        selector: 'example',
-                    },
-                },
-                elements: [{ innerText: 'anything, here' }],
-                expected: {
-                    addressCityState: [],
-                },
-            },
-        ];
-
-        for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
-            expect(profile).toEqual(elementExample.expected);
-        }
-    });
-
-    it('should omit duplicate addresses when aggregated', () => {
-        const elementExamples = [
-            {
-                selectors: {
-                    addressCityState: {
-                        selector: 'example',
-                        findElements: true,
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX' }, { innerText: 'Dallas, TX' }],
-                expected: {
-                    addresses: [{ city: 'Dallas', state: 'TX' }],
-                },
-            },
-        ];
-
-        for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
-            const aggregated = aggregateFields(profile);
-            expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
-        }
-    });
-
-    it('should handle addressCityStateList (with string or regex separator)', () => {
-        const elementExamples = [
-            {
-                selectors: {
-                    addressCityStateList: {
-                        selector: 'example',
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
-                expected: {
-                    addresses: [
-                        { city: 'Carrollton', state: 'TX' },
-                        { city: 'Dallas', state: 'TX' },
-                        { city: 'The Colony', state: 'TX' },
-                    ],
-                },
-            },
-            {
-                selectors: {
-                    addressCityStateList: {
-                        selector: 'example',
-                        separator: '/(?<=, [A-Z]{2}), /',
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
-                expected: {
-                    addresses: [
-                        { city: 'Carrollton', state: 'TX' },
-                        { city: 'Dallas', state: 'TX' },
-                        { city: 'The Colony', state: 'TX' },
-                    ],
-                },
-            },
-            {
-                selectors: {
-                    addressCityStateList: {
-                        selector: 'example',
-                        separator: '(?<=, [A-Z]{2}), ',
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
-                expected: {
-                    addresses: [{ city: 'Dallas TX The Colony TX Carrollton', state: 'TX' }],
-                },
-            },
-            {
-                selectors: {
-                    addressCityStateList: {
-                        selector: 'example',
-                        separator: '/(?<=, [A-Z]{2}), /',
-                    },
-                },
-                elements: [{ innerText: 'Dallas, TX' }],
-                expected: {
-                    addresses: [{ city: 'Dallas', state: 'TX' }],
-                },
-            },
-        ];
-
-        for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
-            const aggregated = aggregateFields(profile);
-            expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
         }
     });
 
@@ -255,8 +155,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, /** @type {any} */ (elementExample.selectors));
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, /** @type {any} */ (elementExample.selectors));
             const aggregated = aggregateFields(profile);
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
         }
@@ -270,27 +170,23 @@ describe('create profiles from extracted data', () => {
                 afterText: 'AKA:',
             },
         };
-        const elementFactory = (key) => {
-            return {
-                relativesList: [
-                    { innerText: 'AKA: Jane Smith' },
-                    { innerText: 'John Smith - ' },
-                    { innerText: 'Jimmy Smith +1 more' },
-                    { innerText: 'Jimmy Smith + 1 more' },
-                    { innerText: 'Jimmy Smith +3 more like this' },
-                    { innerText: 'Jill Johnson +4 more' },
-                    { innerText: 'Jack Johnson - ' },
-                    { innerText: 'John Smith, 39 - ' },
-                    { innerText: 'John Smith, 39 years old' },
-                    { innerText: 'Jimmy Smith, 39 +1 more' },
-                    { innerText: 'Jimmy Smith, 39 + 1 more' },
-                    { innerText: 'Jimmy Smith, 39 +3 more like this' },
-                    { innerText: 'Jill Johnson, 39 +4 more' },
-                    { innerText: 'Jack Johnson, 39 - ' },
-                ],
-            }[key];
-        };
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const select = () => [
+            { innerText: 'AKA: Jane Smith' },
+            { innerText: 'John Smith - ' },
+            { innerText: 'Jimmy Smith +1 more' },
+            { innerText: 'Jimmy Smith + 1 more' },
+            { innerText: 'Jimmy Smith +3 more like this' },
+            { innerText: 'Jill Johnson +4 more' },
+            { innerText: 'Jack Johnson - ' },
+            { innerText: 'John Smith, 39 - ' },
+            { innerText: 'John Smith, 39 years old' },
+            { innerText: 'Jimmy Smith, 39 +1 more' },
+            { innerText: 'Jimmy Smith, 39 + 1 more' },
+            { innerText: 'Jimmy Smith, 39 +3 more like this' },
+            { innerText: 'Jill Johnson, 39 +4 more' },
+            { innerText: 'Jack Johnson, 39 - ' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         expect(scraped).toEqual({
             relativesList: [
                 'Jane Smith',
@@ -309,33 +205,6 @@ describe('create profiles from extracted data', () => {
                 'Jack Johnson',
             ],
         });
-    });
-
-    it('(1) Addresses: general validation [validation] https://app.asana.com/0/0/1206808587680141/f', () => {
-        const selectors = {
-            name: {
-                selector: 'example',
-            },
-            age: {
-                selector: 'example',
-            },
-            addressCityState: {
-                selector: 'example',
-                findElements: true,
-            },
-        };
-        const elementFactory = (key) => {
-            return {
-                name: [{ innerText: 'Shane Osbourne' }],
-                age: [{ innerText: '39' }],
-                addressCityState: [{ innerText: 'Dallas, TX' }, { innerText: 'anything, here' }],
-            }[key];
-        };
-        const expected = [{ city: 'Dallas', state: 'TX' }];
-
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
-        const actual = aggregateFields(scraped);
-        expect(actual.addresses).toEqual(expected);
     });
 
     it('should handle relativesList (with string or regex separator)', () => {
@@ -408,8 +277,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, elementExample.selectors);
             const aggregated = aggregateFields(profile);
             expect(aggregated.relatives).toEqual(elementExample.expected.relatives);
         }
@@ -422,18 +291,14 @@ describe('create profiles from extracted data', () => {
                 findElements: true,
             },
         };
-        const elementFactory = (key) => {
-            return {
-                relativesList: [
-                    { innerText: 'Dale Johnson' },
-                    { innerText: 'John Smith' },
-                    { innerText: 'Jimmy Smith' },
-                    { innerText: 'Jill Johnson' },
-                    { innerText: 'Jack Johnson' },
-                ],
-            }[key];
-        };
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const select = () => [
+            { innerText: 'Dale Johnson' },
+            { innerText: 'John Smith' },
+            { innerText: 'Jimmy Smith' },
+            { innerText: 'Jill Johnson' },
+            { innerText: 'Jack Johnson' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         const actual = aggregateFields(scraped);
 
         expect(actual.relatives).toEqual(['Dale Johnson', 'Jack Johnson', 'Jill Johnson', 'Jimmy Smith', 'John Smith']);
@@ -446,18 +311,14 @@ describe('create profiles from extracted data', () => {
                 findElements: true,
             },
         };
-        const elementFactory = (key) => {
-            return {
-                phoneList: [
-                    { innerText: '123-456-7895' },
-                    { innerText: '123-456-7894' },
-                    { innerText: '123-456-7892' },
-                    { innerText: '123-456-7891' },
-                    { innerText: '123-456-7890' },
-                ],
-            }[key];
-        };
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const select = () => [
+            { innerText: '123-456-7895' },
+            { innerText: '123-456-7894' },
+            { innerText: '123-456-7892' },
+            { innerText: '123-456-7891' },
+            { innerText: '123-456-7890' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         const actual = aggregateFields(scraped);
 
         expect(actual.phoneNumbers).toEqual(['1234567890', '1234567891', '1234567892', '1234567894', '1234567895']);
@@ -470,35 +331,328 @@ describe('create profiles from extracted data', () => {
                 findElements: true,
             },
         };
-        const elementFactory = (key) => {
-            return {
-                alternativeNamesList: [
-                    { innerText: 'Jerry Doug' },
-                    { innerText: 'Marvin Smith' },
-                    { innerText: 'Roger Star' },
-                    { innerText: 'Fred Firth' },
-                ],
-            }[key];
-        };
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const select = () => [
+            { innerText: 'Jerry Doug' },
+            { innerText: 'Marvin Smith' },
+            { innerText: 'Roger Star' },
+            { innerText: 'Fred Firth' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         const actual = aggregateFields(scraped);
 
         expect(actual.alternativeNames).toEqual(['Fred Firth', 'Jerry Doug', 'Marvin Smith', 'Roger Star']);
     });
 
-    it('should extract innerText by default', () => {
-        const element = {
-            innerText: 'John Smith, 39',
-            textContent: 'Ignore me',
-        };
-        expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
+    describe('stringsFromElements (reading element values)', () => {
+        it('should extract innerText by default', () => {
+            const element = {
+                innerText: 'John Smith, 39',
+                textContent: 'Ignore me',
+            };
+            expect(stringsFromElements([element], { selector: 'example' })).toEqual(['John Smith, 39']);
+        });
+
+        it('should extract textElement if innerText is not present', () => {
+            const element = {
+                textContent: 'John Smith, 39',
+            };
+            expect(stringsFromElements([element], { selector: 'example' })).toEqual(['John Smith, 39']);
+        });
+
+        it('reads the named attribute instead of the text', () => {
+            const element = fakeElement({ 'data-age': '42' }, { innerText: 'ignore me' });
+            expect(stringsFromElements([element], { selector: '.age', attribute: 'data-age' })).toEqual(['42']);
+        });
+
+        it('strips known leading labels (prefixes) from the text', () => {
+            expect(stringsFromElements([{ innerText: 'Related to: John Smith' }], { selector: 'x' })).toEqual(['John Smith']);
+            expect(stringsFromElements([{ innerText: 'AKA: Jane Doe' }], { selector: 'x' })).toEqual(['Jane Doe']);
+            expect(stringsFromElements([{ innerText: 'RESIDES IN Dallas' }], { selector: 'x' })).toEqual(['Dallas']);
+        });
     });
 
-    it('should extract textElement if innerText is not present', () => {
-        const element = {
-            textContent: 'John Smith, 39',
-        };
-        expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
+    describe('addressCityState / addressCityStateList', () => {
+        it('should omit invalid addresses', () => {
+            const elementExamples = [
+                {
+                    selectors: {
+                        addressCityState: {
+                            selector: 'example',
+                        },
+                    },
+                    elements: [{ innerText: 'anything, here' }],
+                    expected: {
+                        addressCityState: [],
+                    },
+                },
+            ];
+
+            for (const elementExample of elementExamples) {
+                const select = () => elementExample.elements;
+                const profile = createProfile(select, ROOT, elementExample.selectors);
+                expect(profile).toEqual(elementExample.expected);
+            }
+        });
+
+        it('should omit duplicate addresses when aggregated', () => {
+            const elementExamples = [
+                {
+                    selectors: {
+                        addressCityState: {
+                            selector: 'example',
+                            findElements: true,
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX' }, { innerText: 'Dallas, TX' }],
+                    expected: {
+                        addresses: [{ city: 'Dallas', state: 'TX' }],
+                    },
+                },
+            ];
+
+            for (const elementExample of elementExamples) {
+                const select = () => elementExample.elements;
+                const profile = createProfile(select, ROOT, elementExample.selectors);
+                const aggregated = aggregateFields(profile);
+                expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
+            }
+        });
+
+        it('(1) Addresses: general validation [validation] https://app.asana.com/0/0/1206808587680141/f', () => {
+            const selectors = {
+                name: { selector: '.name' },
+                age: { selector: '.age' },
+                addressCityState: { selector: '.address', findElements: true },
+            };
+            const select = (_root, selector) =>
+                ({
+                    '.name': [{ innerText: 'Shane Osbourne' }],
+                    '.age': [{ innerText: '39' }],
+                    '.address': [{ innerText: 'Dallas, TX' }, { innerText: 'anything, here' }],
+                })[selector ?? ''] ?? [];
+            const expected = [{ city: 'Dallas', state: 'TX' }];
+
+            const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
+            const actual = aggregateFields(scraped);
+            expect(actual.addresses).toEqual(expected);
+        });
+
+        it('should handle addressCityStateList (with string or regex separator)', () => {
+            const elementExamples = [
+                {
+                    selectors: {
+                        addressCityStateList: {
+                            selector: 'example',
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
+                    expected: {
+                        addresses: [
+                            { city: 'Carrollton', state: 'TX' },
+                            { city: 'Dallas', state: 'TX' },
+                            { city: 'The Colony', state: 'TX' },
+                        ],
+                    },
+                },
+                {
+                    selectors: {
+                        addressCityStateList: {
+                            selector: 'example',
+                            separator: '/(?<=, [A-Z]{2}), /',
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+                    expected: {
+                        addresses: [
+                            { city: 'Carrollton', state: 'TX' },
+                            { city: 'Dallas', state: 'TX' },
+                            { city: 'The Colony', state: 'TX' },
+                        ],
+                    },
+                },
+                {
+                    selectors: {
+                        addressCityStateList: {
+                            selector: 'example',
+                            separator: '(?<=, [A-Z]{2}), ',
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+                    expected: {
+                        addresses: [{ city: 'Dallas TX The Colony TX Carrollton', state: 'TX' }],
+                    },
+                },
+                {
+                    selectors: {
+                        addressCityStateList: {
+                            selector: 'example',
+                            separator: '/(?<=, [A-Z]{2}), /',
+                        },
+                    },
+                    elements: [{ innerText: 'Dallas, TX' }],
+                    expected: {
+                        addresses: [{ city: 'Dallas', state: 'TX' }],
+                    },
+                },
+            ];
+
+            for (const elementExample of elementExamples) {
+                const select = () => elementExample.elements;
+                const profile = createProfile(select, ROOT, elementExample.selectors);
+                const aggregated = aggregateFields(profile);
+                expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
+            }
+        });
+
+        it('reads city and state per row, normalizing and keeping a missing state as null', () => {
+            const ROW1 = {};
+            const ROW2 = {};
+            const ROW3 = {};
+            const cells = new Map([
+                [ROW1, { './/city': [{ textContent: 'Dallas' }], './/state': [{ textContent: 'Florida' }] }],
+                [ROW2, { './/city': [{ textContent: 'Reno' }] }], // no state element
+                [ROW3, { './/city': [{ textContent: 'Nowhere' }], './/state': [{ textContent: 'ZZ' }] }], // invalid state
+            ]);
+            const select = (root, selector) => {
+                if (root === ROOT) return selector === '.row' ? [ROW1, ROW2, ROW3] : [];
+                return cells.get(root)?.[selector ?? ''] ?? [];
+            };
+
+            const profile = createProfile(select, ROOT, {
+                addressCityStateList: {
+                    selector: '.row',
+                    findElements: true,
+                    city: { selector: './/city' },
+                    state: { selector: './/state' },
+                },
+            });
+
+            expect(profile).toEqual({
+                addressCityStateList: [
+                    { city: 'Dallas', state: 'FL' }, // full state name normalized
+                    { city: 'Reno', state: null }, // no state element → kept as null
+                    // Nowhere dropped: its state element is present but unparseable
+                ],
+            });
+        });
+
+        it('reads city per row when only a city sub-selector is configured, keeping state null', () => {
+            const ROW1 = {};
+            const ROW2 = {};
+            const cells = new Map([
+                [ROW1, { './/city': [{ textContent: 'Dallas' }] }],
+                [ROW2, { './/city': [{ textContent: 'Reno' }] }],
+            ]);
+            const select = (root, selector) => {
+                if (root === ROOT) return selector === '.row' ? [ROW1, ROW2] : [];
+                return cells.get(root)?.[selector ?? ''] ?? [];
+            };
+
+            const profile = createProfile(select, ROOT, {
+                addressCityStateList: {
+                    selector: '.row',
+                    findElements: true,
+                    city: { selector: './/city' },
+                    // no state sub-selector: each row yields a city with state null
+                },
+            });
+
+            expect(profile).toEqual({
+                addressCityStateList: [
+                    { city: 'Dallas', state: null },
+                    { city: 'Reno', state: null },
+                ],
+            });
+        });
+    });
+
+    describe('profileUrl', () => {
+        const originalLocation = globalThis.location;
+        beforeEach(() => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://broker.example.com/search?q=john' };
+        });
+        afterEach(() => {
+            globalThis.location = originalLocation;
+        });
+
+        it('keeps an absolute attribute value unchanged', () => {
+            const element = fakeElement({ 'data-link': 'https://example.com/1234' });
+            const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://example.com/1234',
+                identifier: 'https://example.com/1234',
+            });
+        });
+
+        it('resolves a relative attribute value to an absolute URL against the page', () => {
+            const element = fakeElement({ 'data-link': '/profile/John-Smith/BMFrB9EB' });
+            const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://broker.example.com/profile/John-Smith/BMFrB9EB',
+                identifier: 'https://broker.example.com/profile/John-Smith/BMFrB9EB',
+            });
+        });
+
+        it('attribute takes precedence over the resolved href, then resolves to absolute', () => {
+            // The element has both a resolved `href` property and a raw `href` attribute; the configured
+            // attribute wins, and its (relative) value is resolved against the page like an `<a href>`.
+            const element = fakeElement({ href: '/raw/relative' }, { href: 'https://resolved.example.com/abs' });
+            const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: 'a', attribute: 'href' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://broker.example.com/raw/relative',
+                identifier: 'https://broker.example.com/raw/relative',
+            });
+        });
+
+        it('falls back to null when the attribute is absent', () => {
+            const element = fakeElement({});
+            const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: 'a', attribute: 'data-missing' } });
+            expect(profile.profileUrl).toBeNull();
+        });
+
+        describe("source 'pageUrl'", () => {
+            const originalLocation = globalThis.location;
+            afterEach(() => {
+                globalThis.location = originalLocation;
+            });
+
+            it('reads profileUrl from the current page URL without touching the DOM', () => {
+                // @ts-expect-error - mocking location
+                globalThis.location = { href: 'https://example.com/results?id=abc' };
+                const select = () => {
+                    throw new Error('select should not be called for a pageUrl source');
+                };
+                const profile = createProfile(select, ROOT, { profileUrl: { source: 'pageUrl' } });
+                expect(profile).toEqual({
+                    profileUrl: { profileUrl: 'https://example.com/results?id=abc', identifier: 'https://example.com/results?id=abc' },
+                });
+            });
+
+            it('parses an identifier param out of the page URL', () => {
+                // @ts-expect-error - mocking location
+                globalThis.location = { href: 'https://example.com/results?profileId=xyz789' };
+                const profile = createProfile(() => [], ROOT, {
+                    profileUrl: { source: 'pageUrl', identifierType: 'param', identifier: 'profileId' },
+                });
+                expect(profile.profileUrl).toEqual({
+                    profileUrl: 'https://example.com/results?profileId=xyz789',
+                    identifier: 'xyz789',
+                });
+            });
+
+            it('coexists with selector-based fields', () => {
+                // @ts-expect-error - mocking location
+                globalThis.location = { href: 'https://example.com/p?id=1' };
+                const select = (_root, selector) => (selector === '.age' ? [{ innerText: '42' }] : []);
+                const profile = createProfile(select, ROOT, {
+                    age: { selector: '.age' },
+                    profileUrl: { source: 'pageUrl' },
+                });
+                expect(profile.age).toEqual('42');
+                expect(profile.profileUrl).toEqual({ profileUrl: 'https://example.com/p?id=1', identifier: 'https://example.com/p?id=1' });
+            });
+        });
     });
 
     describe('parseRegexFromString', () => {
@@ -546,17 +700,13 @@ describe('create profiles from extracted data', () => {
 
     describe('afterText / beforeText with regex patterns', () => {
         it('matches case-insensitively with the /i flag (afterText)', () => {
-            expect(stringValuesFromElements([{ innerText: 'AGE: 39' }], 'testKey', { selector: 'x', afterText: '/age:?\\s*/i' })).toEqual([
-                '39',
-            ]);
-            expect(stringValuesFromElements([{ innerText: 'Age 39' }], 'testKey', { selector: 'x', afterText: '/age:?\\s*/i' })).toEqual([
-                '39',
-            ]);
+            expect(stringsFromElements([{ innerText: 'AGE: 39' }], { selector: 'x', afterText: '/age:?\\s*/i' })).toEqual(['39']);
+            expect(stringsFromElements([{ innerText: 'Age 39' }], { selector: 'x', afterText: '/age:?\\s*/i' })).toEqual(['39']);
         });
 
         it('matches case-insensitively with the /i flag (beforeText)', () => {
             expect(
-                stringValuesFromElements([{ innerText: 'John Smith AKA Johnny' }], 'testKey', {
+                stringsFromElements([{ innerText: 'John Smith AKA Johnny' }], {
                     selector: 'x',
                     beforeText: '/\\s+aka\\s+/i',
                 }),
@@ -564,36 +714,32 @@ describe('create profiles from extracted data', () => {
         });
 
         it('falls back to the original value when the regex does not match', () => {
-            expect(
-                stringValuesFromElements([{ innerText: 'no label here' }], 'testKey', { selector: 'x', afterText: '/age:?\\s*/i' }),
-            ).toEqual(['no label here']);
-            expect(
-                stringValuesFromElements([{ innerText: 'no label here' }], 'testKey', { selector: 'x', beforeText: '/\\s+aka\\s+/i' }),
-            ).toEqual(['no label here']);
+            expect(stringsFromElements([{ innerText: 'no label here' }], { selector: 'x', afterText: '/age:?\\s*/i' })).toEqual([
+                'no label here',
+            ]);
+            expect(stringsFromElements([{ innerText: 'no label here' }], { selector: 'x', beforeText: '/\\s+aka\\s+/i' })).toEqual([
+                'no label here',
+            ]);
         });
 
         it('keeps everything after the first regex match (multi-occurrence)', () => {
             // match + slice keeps everything after the FIRST match. Literal String#split(x)[1]
             // would instead return only the text between the first two matches ("x2").
-            expect(
-                stringValuesFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], 'testKey', { selector: 'x', afterText: '/\\s*sep\\s*/i' }),
-            ).toEqual(['x2 SEP x3']);
-            expect(stringValuesFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], 'testKey', { selector: 'x', afterText: ' SEP ' })).toEqual(
-                ['x2'],
-            );
+            expect(stringsFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], { selector: 'x', afterText: '/\\s*sep\\s*/i' })).toEqual([
+                'x2 SEP x3',
+            ]);
+            expect(stringsFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], { selector: 'x', afterText: ' SEP ' })).toEqual(['x2']);
         });
 
         it('keeps everything before the first regex match (multi-occurrence)', () => {
-            expect(
-                stringValuesFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], 'testKey', { selector: 'x', beforeText: '/\\s*sep\\s*/i' }),
-            ).toEqual(['x1']);
+            expect(stringsFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], { selector: 'x', beforeText: '/\\s*sep\\s*/i' })).toEqual([
+                'x1',
+            ]);
         });
 
         it('does not leak capture groups into the result', () => {
             // match + slice (not String#split) means a capture group never interleaves into the output.
-            expect(stringValuesFromElements([{ innerText: 'Age 39' }], 'testKey', { selector: 'x', afterText: '/(age):?\\s*/i' })).toEqual([
-                '39',
-            ]);
+            expect(stringsFromElements([{ innerText: 'Age 39' }], { selector: 'x', afterText: '/(age):?\\s*/i' })).toEqual(['39']);
         });
     });
 });

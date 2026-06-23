@@ -1,17 +1,12 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js';
+import { selectStrings } from '../actions/extract.js';
 
 /**
- * @implements {Extractor<string | null>}
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').TextFieldSpec} spec
+ * @return {string | null}
  */
-export class AgeExtractor {
-    /**
-     * @param {string[]} strs
-     * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
-     */
-
-    extract(strs, _extractorParams) {
-        if (!strs[0]) return null;
-        return strs[0].match(/\d+/)?.[0] ?? null;
-    }
+export function extractAge(select, root, spec) {
+    const [first] = selectStrings(select, root, spec);
+    return first?.match(/\d+/)?.[0] ?? null;
 }
