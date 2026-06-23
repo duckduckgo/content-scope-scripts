@@ -1,5 +1,6 @@
 import { h, cloneElement, toChildArray } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
+import cn from 'classnames';
 import styles from './Dropdown.module.css';
 
 /**
@@ -7,7 +8,7 @@ import styles from './Dropdown.module.css';
  */
 
 /**
- * @typedef {{ isSelected?: boolean, onSelect?: () => void }} DropdownItemProps
+ * @typedef {{ isSelected?: boolean, ariaHasPopup?: boolean, onSelect?: () => void }} DropdownItemProps
  */
 
 /**
@@ -29,25 +30,38 @@ function getItemProps(child) {
  * `id`, `onMouseOver`, and `onClick` via `cloneElement`, and invokes each
  * item's `onSelect` on click or Enter.
  *
- * Parent controls visibility — Dropdown calls `onClose({restoreFocus})` when it
- * wants to be dismissed, and the parent unmounts it. This lets the initial
- * active index be re-seeded from `isSelected` on each remount without extra
- * state plumbing.
- *
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
+ * @param {import('preact').ComponentChildren} [props.header] - header rendered at the top of the panel.
+ * @param {import('preact').ComponentChildren} [props.emptyMessage] - shown when there are no items.
  * @param {string} props.ariaLabel
  * @param {'menu' | 'listbox'} props.role
  * @param {DropdownPosition} props.position
  * @param {(options: {restoreFocus: boolean}) => void} props.onClose
  * @param {import('preact').RefObject<HTMLUListElement>} props.dropdownRef
  * @param {string} [props.idPrefix]
+ * @param {string} [props.className]
+ * @param {boolean} [props.multiSelect] - open with no row highlighted instead of the first `isSelected` row.
  */
-export function Dropdown({ children, ariaLabel, role, position, onClose, dropdownRef, idPrefix = 'dropdown-item' }) {
+export function Dropdown({
+    children,
+    header,
+    emptyMessage,
+    ariaLabel,
+    role,
+    position,
+    onClose,
+    dropdownRef,
+    idPrefix = 'dropdown-item',
+    className,
+    multiSelect = false,
+}) {
     const items = toChildArray(children);
 
     const getInitialActiveIndex = () => {
         if (items.length === 0) return -1;
+        if (multiSelect) return -1;
+
         const selected = items.findIndex((c) => getItemProps(c)?.isSelected);
         return selected >= 0 ? selected : 0;
     };
@@ -100,8 +114,12 @@ export function Dropdown({ children, ariaLabel, role, position, onClose, dropdow
             case 'Enter':
             case ' ':
                 e.preventDefault();
-                if (activeIndex >= 0 && activeIndex < items.length) {
-                    selectAt(activeIndex);
+                if (activeIndex < 0 || activeIndex >= items.length) {
+                    break;
+                }
+
+                selectAt(activeIndex);
+                if (!getItemProps(items[activeIndex])?.ariaHasPopup) {
                     onClose({ restoreFocus: true });
                 }
                 break;
@@ -125,7 +143,9 @@ export function Dropdown({ children, ariaLabel, role, position, onClose, dropdow
             onClick: (/** @type {MouseEvent} */ e) => {
                 e.stopPropagation();
                 selectAt(index);
-                onClose({ restoreFocus: false });
+                if (!getItemProps(child)?.ariaHasPopup) {
+                    onClose({ restoreFocus: false });
+                }
             },
         });
     });
@@ -133,7 +153,7 @@ export function Dropdown({ children, ariaLabel, role, position, onClose, dropdow
     return (
         <ul
             ref={dropdownRef}
-            class={styles.dropdown}
+            class={cn(styles.dropdown, className)}
             tabIndex={-1}
             role={role}
             aria-label={ariaLabel}
@@ -142,7 +162,18 @@ export function Dropdown({ children, ariaLabel, role, position, onClose, dropdow
             onKeyDown={handleKeyDown}
             onMouseLeave={clearActiveIndex}
         >
-            {clonedItems}
+            {header && (
+                <li role="presentation" class={styles.header}>
+                    {header}
+                </li>
+            )}
+            {items.length === 0 && emptyMessage ? (
+                <li role="presentation" class={styles.empty}>
+                    {emptyMessage}
+                </li>
+            ) : (
+                clonedItems
+            )}
         </ul>
     );
 }

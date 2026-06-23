@@ -12,6 +12,8 @@ import { OmnibarService } from '../omnibar.service.js';
  * @typedef {import('../../../types/new-tab.js').AiChatsData} AiChatsData
  * @typedef {import('../../../types/new-tab.js').OpenAIChatAction} OpenAIChatAction
  * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
+ * @typedef {import('../../../types/new-tab.js').GetOpenTabsResponse} GetOpenTabsResponse
+ * @typedef {import('../../../types/new-tab.js').PageContext} PageContext
  * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State
  */
 
@@ -75,6 +77,14 @@ export const OmnibarContext = createContext({
     },
     /** @type {(params: {target: OpenTarget}) => void} */
     viewAllAiChats: () => {
+        throw new Error('must implement');
+    },
+    /** @type {() => Promise<GetOpenTabsResponse>} */
+    getOpenTabs: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(tabId: string) => Promise<PageContext | null>} */
+    getTabContent: () => {
         throw new Error('must implement');
     },
 });
@@ -221,6 +231,21 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {() => Promise<GetOpenTabsResponse>} */
+    const getOpenTabs = useCallback(() => {
+        if (!service.current) throw new Error('Service not available');
+        return service.current.getOpenTabs();
+    }, [service]);
+
+    /** @type {(tabId: string) => Promise<PageContext | null>} */
+    const getTabContent = useCallback(
+        (tabId) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.getTabContent(tabId);
+        },
+        [service],
+    );
+
     return (
         <OmnibarContext.Provider
             value={{
@@ -239,6 +264,8 @@ export function OmnibarProvider(props) {
                 onAiChats,
                 openAiChat,
                 viewAllAiChats,
+                getOpenTabs,
+                getTabContent,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

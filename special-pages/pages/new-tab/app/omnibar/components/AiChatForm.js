@@ -11,6 +11,10 @@ import styles from './AiChatForm.module.css';
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ *
+ * @typedef {object} ComboboxOverride
+ * @property {string} listboxId - Listbox the textarea is currently driving.
+ * @property {string|null} activeDescendantId - Currently-highlighted item inside that listbox.
  */
 
 /**
@@ -19,21 +23,34 @@ import styles from './AiChatForm.module.css';
  * voice button, etc.) and renders it via the right slot — this component only forwards
  * Enter-key submissions through `onSubmit(query, target)`.
  *
- * Anything passed in `toolbarRight` is rendered inside the underlying `<form>`, so a
- * `type="submit"` button placed there works as expected.
- *
  * @param {object} props
  * @param {string} props.query
  * @param {boolean} [props.autoFocus]
  * @param {boolean} [props.disabled]
- * @param {(query: string) => void} props.onChange
+ * @param {(query: string, caret: number) => void} props.onChange
  * @param {(chat: string, target: OpenTarget) => void} props.onSubmit
  * @param {string} [props.placeholder]
  * @param {import('preact').ComponentChildren} [props.children]
  * @param {import('preact').ComponentChildren} [props.toolbarLeft]
  * @param {import('preact').ComponentChildren} [props.toolbarRight]
+ * @param {(event: KeyboardEvent) => ({ handled: boolean } | void)} [props.onTextareaKeyDown]
+ * @param {ComboboxOverride|null} [props.combobox]
+ * @param {import('preact').RefObject<HTMLTextAreaElement>} props.textareaRef - Ref the parent owns and uses to drive focus/selection or measure layout.
  */
-export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, children, placeholder, toolbarLeft, toolbarRight }) {
+export function AiChatForm({
+    query,
+    autoFocus,
+    disabled,
+    onChange,
+    onSubmit,
+    children,
+    placeholder,
+    toolbarLeft,
+    toolbarRight,
+    onTextareaKeyDown,
+    combobox = null,
+    textareaRef,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
     const { openAiChat, viewAllAiChats } = useContext(OmnibarContext);
@@ -41,16 +58,15 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         useAiChatsContext();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
-    const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
 
     useEffect(() => {
-        if (autoFocus && textAreaRef.current) {
-            textAreaRef.current.focus();
+        if (autoFocus && textareaRef.current) {
+            textareaRef.current.focus();
         }
-    }, [autoFocus]);
+    }, [autoFocus, textareaRef]);
 
     useLayoutEffect(() => {
-        const textArea = textAreaRef.current;
+        const textArea = textareaRef.current;
         const form = formRef.current;
 
         if (!textArea || !form) return;
@@ -64,7 +80,7 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         } else {
             form.classList.remove(styles.hasScroll);
         }
-    }, [query]);
+    }, [query, textareaRef]);
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
@@ -75,6 +91,10 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
 
     /** @type {(event: KeyboardEvent) => void} */
     const handleKeyDown = (event) => {
+        // Let the parent claim keys first (e.g. arrow keys → mention picker); skip ours if it does.
+        const result = onTextareaKeyDown?.(event);
+        if (result?.handled) return;
+
         switch (event.key) {
             case 'ArrowUp': {
                 if (selectPreviousChat()) event.preventDefault();
@@ -124,6 +144,10 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
     };
 
     const getActiveDescendant = () => {
+        if (combobox?.activeDescendantId) {
+            return combobox.activeDescendantId;
+        }
+
         if (selectedChat) {
             return getAiChatElementId(selectedChat.chatId);
         }
@@ -135,6 +159,11 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
         return undefined;
     };
 
+    /** @param {{ currentTarget: HTMLTextAreaElement }} event */
+    const emitChange = (event) => {
+        onChange(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length);
+    };
+
     const placeholderText = placeholder || t('omnibar_aiChatFormPlaceholder');
 
     return (
@@ -143,28 +172,36 @@ export function AiChatForm({ query, autoFocus, disabled, onChange, onSubmit, chi
             class={styles.form}
             onSubmit={handleSubmit}
             onClick={(e) => {
-                if (e.target === e.currentTarget || e.target === textAreaRef.current) {
-                    textAreaRef.current?.focus();
+                if (e.target === e.currentTarget || e.target === textareaRef.current) {
+                    textareaRef.current?.focus();
                 }
             }}
         >
             <textarea
-                ref={textAreaRef}
+                ref={textareaRef}
                 class={styles.textarea}
                 value={query}
                 placeholder={placeholderText}
                 aria-label={placeholderText}
-                aria-expanded={chats.length > 0}
+                aria-expanded={combobox ? true : chats.length > 0}
                 aria-haspopup="listbox"
-                aria-controls={aiChatsListId}
+                aria-controls={combobox?.listboxId ?? aiChatsListId}
                 aria-activedescendant={getActiveDescendant()}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
-                onChange={(event) => {
-                    onChange(event.currentTarget.value);
+                // Emit caret with value so the mention flow can detect active `@` mentions.
+                onInput={(event) => {
+                    emitChange(event);
                     clearSelectedChat();
                 }}
+                onKeyUp={(event) => {
+                    // Caret moves (arrows, Home/End) don't fire onInput but can enter/exit an `@`; re-emit.
+                    if (event.key.startsWith('Arrow') || event.key === 'Home' || event.key === 'End') {
+                        emitChange(event);
+                    }
+                }}
+                onClick={emitChange}
             />
             {children}
             <div tabIndex={-1} class={styles.buttons}>

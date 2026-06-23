@@ -234,8 +234,8 @@
     "description": "Description message in the popover including privacy statement and customize option."
   },
   "omnibar_attachImageLabel": {
-    "title": "Attach image",
-    "description": "Accessible label for the attach image button in the AI chat toolbar."
+    "title": "Add Images",
+    "description": "Label for the attach-image entry — both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
   },
   "omnibar_removeImageLabel": {
     "title": "Remove image",
@@ -248,6 +248,10 @@
   "omnibar_imageAttachmentLimitWarning": {
     "title": "You can only attach {limit} images at a time.",
     "description": "Warning shown when user attaches more images than the allowed maximum."
+  },
+  "omnibar_fileAttachmentLimitWarning": {
+    "title": "You can only attach {limit} files at a time.",
+    "description": "Warning shown when user attaches more files than the allowed maximum."
   },
   "omnibar_imageTooLargeError": {
     "title": "Image is too large. Please use an image smaller than 10000×10000 pixels.",
@@ -325,6 +329,46 @@
     "title": "Researches before responding",
     "description": "Subtitle for the 'extended reasoning' reasoning-effort option in the reasoning picker dropdown."
   },
+  "omnibar_attachMenuLabel": {
+    "title": "Add Attachment",
+    "description": "Accessible label for the paperclip button that opens a menu offering image attachments and tab content attachments."
+  },
+  "omnibar_attachImageOrFileLabel": {
+    "title": "Add Images or PDFs",
+    "description": "Label for the attach entry when the active model accepts both images and PDFs — covers the menu item in the combined dropdown and the standalone paperclip button's aria-label."
+  },
+  "omnibar_attachFileLabel": {
+    "title": "Add PDFs",
+    "description": "Label for the attach-PDF entry — both the standalone paperclip button (aria-label) and the menu item in the combined attach dropdown."
+  },
+  "omnibar_removeAttachedFileLabel": {
+    "title": "Remove {fileName}",
+    "description": "Accessible label for the button that removes an attached file chip from the AI chat input. {fileName} is the original filename."
+  },
+  "omnibar_attachPageContentLabel": {
+    "title": "Add Page Content",
+    "description": "Menu item in the attach dropdown that opens the open-tabs picker so the user can attach extracted page content."
+  },
+  "omnibar_attachTabsPickerTitle": {
+    "title": "Tabs",
+    "description": "Header text for the open-tabs picker panel."
+  },
+  "omnibar_attachTabsPickerLabel": {
+    "title": "Pick an open tab to add",
+    "description": "Accessible label for the open-tabs picker panel (the dialog wrapper around the listbox)."
+  },
+  "omnibar_attachTabsNoMatches": {
+    "title": "No matching tabs",
+    "description": "Empty-state message shown in the @-mention tab picker when no open tabs match what the user typed."
+  },
+  "omnibar_attachTabsNoOpenTabs": {
+    "title": "No page content available",
+    "description": "Empty-state message shown in the attach-page-content tabs dropdown when there is no page content available to attach."
+  },
+  "omnibar_removeAttachedTabLabel": {
+    "title": "Remove {title}",
+    "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
+  },
   "nextStepsList_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble label above the card"
@@ -390,7 +434,7 @@
     "note": "Summary of the Next Steps List card for YouTube ad blocking"
   },
   "nextStepsList_youtubeAdBlocking_actionText": {
-    "title": "Open YouTube",
+    "title": "Visit YouTube",
     "note": "Button text of the Next Steps List card for YouTube ad blocking"
   },
   "nextStepsList_emailProtection_title": {
@@ -526,7 +570,7 @@
     "note": "Summary of the Next Steps card for YouTube ad blocking"
   },
   "nextSteps_youtubeAdBlocking_actionText": {
-    "title": "Open YouTube",
+    "title": "Visit YouTube",
     "note": "Button text of the Next Steps card for YouTube ad blocking"
   },
   "nextSteps_addAppDockMac_title": {

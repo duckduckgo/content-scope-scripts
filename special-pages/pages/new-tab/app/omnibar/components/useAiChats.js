@@ -1,4 +1,4 @@
-import { useContext, useEffect, useReducer } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -168,13 +168,13 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         dispatch({ type: 'selectViewAllChats', targetIndex: itemCount - 1 });
     };
 
-    const hideChats = () => {
+    const hideChats = useCallback(() => {
         dispatch({ type: 'hideChats' });
-    };
+    }, []);
 
-    const showChats = () => {
+    const showChats = useCallback(() => {
         dispatch({ type: 'showChats' });
-    };
+    }, []);
 
     return {
         chats: chatsVisible ? state.chats : EMPTY_ARRAY,

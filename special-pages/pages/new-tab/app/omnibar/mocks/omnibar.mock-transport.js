@@ -1,5 +1,5 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
-import { getMockSuggestions, getMockAiChats } from './omnibar.mocks.js';
+import { getMockSuggestions, getMockAiChats, getMockOpenTabs, getMockTabContent } from './omnibar.mocks.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
@@ -79,6 +79,7 @@ export function omnibarMockTransport() {
                         shortName: 'Haiku 4.5',
                         isEnabled: true,
                         supportsImageUpload: true,
+                        supportedFileTypes: ['application/pdf'],
                         supportedTools: ['WebSearch'],
                         supportedReasoningEffort: ['none', 'low'],
                     },
@@ -126,6 +127,7 @@ export function omnibarMockTransport() {
                         shortName: 'Sonnet 4.5',
                         isEnabled: false,
                         supportsImageUpload: true,
+                        supportedFileTypes: ['application/pdf'],
                         supportedTools: ['WebSearch'],
                         supportedReasoningEffort: ['none', 'low'],
                     },
@@ -160,6 +162,7 @@ export function omnibarMockTransport() {
         showViewAllAiChats: false,
         enableVoiceChatAccess: false,
         enableAskAiSuggestion: true,
+        enableAttachTabs: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -202,6 +205,10 @@ export function omnibarMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'omnibar_getConfig': {
+                    const configDelay = parseInt(url.searchParams.get('omnibar.configDelay') ?? '', 10);
+                    if (configDelay > 0) {
+                        await new Promise((resolve) => setTimeout(resolve, configDelay));
+                    }
                     const modeOverride = url.searchParams.get('omnibar.mode');
                     if (modeOverride === 'search' || modeOverride === 'ai') {
                         config.mode = modeOverride;
@@ -225,6 +232,7 @@ export function omnibarMockTransport() {
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
+                    config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
@@ -234,6 +242,14 @@ export function omnibarMockTransport() {
                 case 'omnibar_getAiChats': {
                     await new Promise((resolve) => setTimeout(resolve, 100));
                     return getMockAiChats(msg.params.query);
+                }
+                case 'omnibar_getOpenTabs': {
+                    await new Promise((resolve) => setTimeout(resolve, 50));
+                    return getMockOpenTabs();
+                }
+                case 'omnibar_getTabContent': {
+                    await new Promise((resolve) => setTimeout(resolve, 150));
+                    return { pageContext: getMockTabContent(msg.params.tabId) };
                 }
                 default: {
                     throw new Error('unhandled request' + msg);

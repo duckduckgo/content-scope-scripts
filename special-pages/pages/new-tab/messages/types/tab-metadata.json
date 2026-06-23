@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tab Metadata",
+  "description": "Metadata for an open browser tab.",
+  "type": "object",
+  "required": ["tabId", "title", "url", "favicon"],
+  "properties": {
+    "tabId": {
+      "description": "Stable identifier for the tab. Used to request content via `omnibar_getTabContent`.",
+      "type": "string"
+    },
+    "title": {
+      "description": "Tab title",
+      "type": "string"
+    },
+    "url": {
+      "description": "Tab URL",
+      "type": "string"
+    },
+    "favicon": {
+      "$ref": "./favicon.json"
+    }
+  }
+}
