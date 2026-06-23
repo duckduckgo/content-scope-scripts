@@ -23,10 +23,10 @@ export class CityStateExtractor {
 }
 
 /**
- * Convert a structured `{city, state}` part (text from dedicated sub-elements) into a
- * city/state combo. The city is trusted; the state is optional and normalised:
- * - no state text → `{ city, state: null }` (kept, like `AddressFullExtractor`)
- * - unparseable state text → dropped (consistent with `getCityStateCombos`)
+ * Convert a structured `{city, state}` part (city and state read from separate elements) into a
+ * city/state combo. City is required; state is optional: when the state element yields no text the
+ * combo is kept as `{ city, state: null }`. That's deliberate — it lets us scrape pages that don't
+ * show a state anywhere. A state that is present but unrecognised drops the combo.
  *
  * @param {import('../actions/extract.js').CityStatePart} part
  * @return {{ city: string, state: string|null }[]}
