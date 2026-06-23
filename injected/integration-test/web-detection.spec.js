@@ -12,26 +12,42 @@ const CONFIG = './integration-test/test-pages/web-detection/config/config.json';
  */
 const CAPTCHA_DETECTORS = {
     recaptcha: {
-        match: { element: { selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"], visibility: 'visible' } },
+        match: {
+            element: { selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"], visibility: 'visible' },
+        },
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         actions: { fireEvent: { type: 'captcha_recaptcha' } },
     },
     hcaptcha: {
-        match: { element: { selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"], visibility: 'visible' } },
+        match: {
+            element: { selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"], visibility: 'visible' },
+        },
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         actions: { fireEvent: { type: 'captcha_hcaptcha' } },
     },
     turnstile: {
         // :not(#turnstile-wrapper) excludes the Cloudflare interstitial's own Turnstile wrapper, so an
         // interstitial is counted as `cloudflare`, not `turnstile`.
-        match: { element: { selector: ['.cf-turnstile:not(#turnstile-wrapper)', '.cf-turnstile:not(#turnstile-wrapper) iframe'], visibility: 'visible' } },
+        match: {
+            element: {
+                selector: ['.cf-turnstile:not(#turnstile-wrapper)', '.cf-turnstile:not(#turnstile-wrapper) iframe'],
+                visibility: 'visible',
+            },
+        },
         triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
         actions: { fireEvent: { type: 'captcha_turnstile' } },
     },
     cloudflare: {
         match: {
             element: {
-                selector: ['#challenge-form', '#cf-wrapper', '.cf-browser-verification', '#challenge-running', '#cf-challenge-running', '#challenge-stage'],
+                selector: [
+                    '#challenge-form',
+                    '#cf-wrapper',
+                    '.cf-browser-verification',
+                    '#challenge-running',
+                    '#cf-challenge-running',
+                    '#challenge-stage',
+                ],
                 visibility: 'visible',
             },
         },
