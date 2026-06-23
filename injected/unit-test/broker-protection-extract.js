@@ -484,6 +484,15 @@ describe('create profiles from extracted data', () => {
     });
 
     describe("'attribute' extraction", () => {
+        const originalLocation = globalThis.location;
+        beforeEach(() => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://broker.example.com/search?q=john' };
+        });
+        afterEach(() => {
+            globalThis.location = originalLocation;
+        });
+
         /**
          * @param {Record<string, string|null>} attributes
          * @param {Record<string, any>} [extras]
@@ -493,29 +502,39 @@ describe('create profiles from extracted data', () => {
             ...extras,
         });
 
-        it('reads the named attribute instead of the text', () => {
+        it('reads a named attribute instead of the element text', () => {
             const element = fakeElement({ 'data-age': '42' }, { innerText: 'ignore me' });
             expect(stringValuesFromElements([element], 'age', { selector: '.age', attribute: 'data-age' })).toEqual(['42']);
         });
 
-        it('takes precedence over the built-in href rule for profileUrl', () => {
-            // The element exposes both a resolved `href` (used by the built-in rule) and a raw `href` attribute.
-            const element = fakeElement({ href: '/raw/relative' }, { href: 'https://resolved.example.com/abs' });
-            const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'href' } });
-            // The raw attribute value wins over the resolved link.href
-            expect(profile.profileUrl).toEqual({ profileUrl: '/raw/relative', identifier: '/raw/relative' });
-        });
-
-        it('wraps an attribute value as a profileUrl', () => {
-            const element = fakeElement({ 'data-profile-id': 'https://example.com/1234' });
-            const profile = createProfile(() => [element], { profileUrl: { selector: '.card', attribute: 'data-profile-id' } });
+        it('keeps an absolute profileUrl attribute unchanged', () => {
+            const element = fakeElement({ 'data-link': 'https://example.com/1234' });
+            const profile = createProfile(() => [element], { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
             expect(profile.profileUrl).toEqual({
                 profileUrl: 'https://example.com/1234',
                 identifier: 'https://example.com/1234',
             });
         });
 
-        it('falls back to null when the attribute is absent', () => {
+        it('resolves a relative profileUrl attribute to an absolute URL', () => {
+            const element = fakeElement({ 'data-link': '/profile/John-Smith/BMFrB9EB' });
+            const profile = createProfile(() => [element], { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://broker.example.com/profile/John-Smith/BMFrB9EB',
+                identifier: 'https://broker.example.com/profile/John-Smith/BMFrB9EB',
+            });
+        });
+
+        it('prefers the profileUrl attribute over the resolved href', () => {
+            const element = fakeElement({ href: '/raw/relative' }, { href: 'https://resolved.example.com/abs' });
+            const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'href' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://broker.example.com/raw/relative',
+                identifier: 'https://broker.example.com/raw/relative',
+            });
+        });
+
+        it('returns null when the attribute is absent', () => {
             const element = fakeElement({});
             const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'data-missing' } });
             expect(profile.profileUrl).toBeNull();

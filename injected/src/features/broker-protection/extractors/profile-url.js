@@ -13,42 +13,52 @@ export class ProfileUrlExtractor {
     extract(strs, extractorParams) {
         if (strs.length === 0) return null;
         const firstStr = /** @type {string} */ (strs[0]);
+
+        const url = this.parseProfileUrl(firstStr);
+        const profileUrl = url?.href ?? firstStr;
+
         const profile = {
-            profileUrl: firstStr,
-            identifier: firstStr,
+            profileUrl,
+            identifier: profileUrl,
         };
 
         if (!extractorParams.identifierType || !extractorParams.identifier) {
             return profile;
         }
 
-        profile.identifier = this.getIdFromProfileUrl(firstStr, extractorParams.identifierType, extractorParams.identifier);
+        profile.identifier = this.getIdFromProfileUrl(url, extractorParams.identifierType, extractorParams.identifier) ?? profileUrl;
         return profile;
     }
 
     /**
-     * Parse a profile id from a profile URL
+     * Parse a (possibly relative) profile URL into an absolute `URL`, resolving against
+     * the current page like the browser does for an `<a href>`.
      * @param {string} profileUrl
+     * @return {URL | null} `null` when the value can't be parsed as a URL
+     */
+    parseProfileUrl(profileUrl) {
+        try {
+            return new URL(profileUrl, globalThis.location.href);
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Parse a profile id from an already-parsed profile URL.
+     * @param {URL | null} url
      * @param {import('../actions/extract.js').IdentifierType} identifierType
      * @param {string} identifier
-     * @return {string}
+     * @return {string | null} the parsed id, or `null` to fall back to the profile URL
      */
-    getIdFromProfileUrl(profileUrl, identifierType, identifier) {
-        let urlParams;
-        try {
-            urlParams = new URL(profileUrl).searchParams;
-        } catch {
-            // Fall back to raw string if URL is invalid (e.g. read from a DOM attribute)
-            return profileUrl;
+    getIdFromProfileUrl(url, identifierType, identifier) {
+        if (!url) return null;
+
+        if (identifierType === 'param' && url.searchParams.has(identifier)) {
+            return url.searchParams.get(identifier) || null;
         }
 
-        // Attempt to parse out an id from the search parameters
-        if (identifierType === 'param' && urlParams.has(identifier)) {
-            const profileId = urlParams.get(identifier);
-            return profileId || profileUrl;
-        }
-
-        return profileUrl;
+        return null;
     }
 }
 

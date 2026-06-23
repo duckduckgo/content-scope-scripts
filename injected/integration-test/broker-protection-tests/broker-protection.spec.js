@@ -310,13 +310,14 @@ test.describe('Broker Protection communications', () => {
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta);
         });
 
-        test('extracts profileUrl from an element attribute', async ({ page }, workerInfo) => {
+        test('extracts profileUrl from an element attribute', async ({ page, baseURL }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-attribute.html');
             await dbp.receivesAction('extract-attribute.json');
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
+            const profileUrl = new URL('/profile/John-Smith/BMFrB9EB', baseURL).href;
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
                     name: 'John Wesley Smith',
@@ -330,9 +331,8 @@ test.describe('Broker Protection communications', () => {
                     ],
                     phoneNumbers: [],
                     relatives: ['Edward L Smith', 'Jeanette Sims Johnson', 'Johnnie Johnson', 'Renee Marie Johnson'],
-                    // raw `data-link` value, used verbatim as both the url and the identifier (not resolved to absolute)
-                    profileUrl: '/profile/John-Smith/BMFrB9EB',
-                    identifier: '/profile/John-Smith/BMFrB9EB',
+                    profileUrl,
+                    identifier: profileUrl,
                 },
             ]);
         });

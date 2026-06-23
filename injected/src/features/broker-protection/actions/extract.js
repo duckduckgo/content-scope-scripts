@@ -34,7 +34,7 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  * @property {string} [separator] - split the text on this string, or use a regex by passing "/pattern/" (e.g. "/(?<=, [A-Z]{2}), /")
  * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
  * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
- * @property {string} [attribute] - read this attribute (e.g. "data-profile-id") instead of the element's text. The raw attribute value is used (e.g. "href" is not resolved to an absolute URL)
+ * @property {string} [attribute] - read this attribute (e.g. "data-link") instead of the element's text. The raw attribute value is used, except for `profileUrl` which is resolved to an absolute URL against the page (like an `<a href>`)
  * @property {SourceType} [source] - read the value from this source instead of a `selector`
  *
  * @typedef {Omit<ExtractProfileProperty, 'selector' | 'findElements'>} ExtractorParams
