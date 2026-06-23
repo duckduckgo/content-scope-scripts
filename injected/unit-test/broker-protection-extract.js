@@ -207,6 +207,28 @@ describe('create profiles from extracted data', () => {
         });
     });
 
+    it('should exclude common prefixes/suffixes case-insensitively https://app.asana.com/0/0/1215654750660649/f', () => {
+        const selectors = {
+            relativesList: {
+                selector: 'example',
+                findElements: true,
+            },
+        };
+        const select = () => [
+            { innerText: 'aka: Jane Smith' },
+            { innerText: 'Aka: John Smith' },
+            { innerText: 'also known as: Jenny Smith' },
+            { innerText: 'RESIDES IN Springfield' },
+            { innerText: 'resides in Shelbyville' },
+            // suffix with no comma so it isn't masked by the relatives "remove after comma" age logic
+            { innerText: 'Jack Johnson YEARS OLD' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
+        expect(scraped).toEqual({
+            relativesList: ['Jane Smith', 'John Smith', 'Jenny Smith', 'Springfield', 'Shelbyville', 'Jack Johnson'],
+        });
+    });
+
     it('should handle relativesList (with string or regex separator)', () => {
         const elementExamples = [
             {
