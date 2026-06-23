@@ -151,7 +151,11 @@ function evaluateChoices(action, userData) {
         return { error: 'Elements should be nested inside of choices' };
     }
 
-    for (const choice of action.choices ?? []) {
+    if (!action.choices?.length) {
+        throw new Error('evaluateChoices requires a non-empty `choices` array');
+    }
+
+    for (const choice of action.choices) {
         if (!('condition' in choice) || !('elements' in choice)) {
             return { error: 'All choices must have a condition and elements' };
         }
