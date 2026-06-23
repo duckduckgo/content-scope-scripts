@@ -9,13 +9,37 @@ import { states } from '../comparisons/constants.js';
  */
 export class CityStateExtractor {
     /**
-     * @param {string[]} strs
+     * Accepts either plain strings (combined "City, ST" text, split + parsed here) or
+     * structured `{city, state}` parts (city and state read from separate elements).
+     *
+     * @param {Array<string | import('../actions/extract.js').CityStatePart>} values
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
-    extract(strs, extractorParams) {
-        const cityStateList = strs.map((str) => stringToList(str, extractorParams.separator)).flat();
-        return getCityStateCombos(cityStateList);
+    extract(values, extractorParams) {
+        return values.flatMap((value) =>
+            typeof value === 'string' ? getCityStateCombos(stringToList(value, extractorParams.separator)) : cityStatePartToCombo(value),
+        );
     }
+}
+
+/**
+ * Convert a structured `{city, state}` part (city and state read from separate elements) into a
+ * city/state combo. City is required; state is optional: when the state element yields no text the
+ * combo is kept as `{ city, state: null }`. That's deliberate — it lets us scrape pages that don't
+ * show a state anywhere. A state that is present but unrecognised drops the combo.
+ *
+ * @param {import('../actions/extract.js').CityStatePart} part
+ * @return {{ city: string, state: string|null }[]}
+ */
+function cityStatePartToCombo({ city, state }) {
+    const trimmedCity = city.trim();
+    if (!trimmedCity) return [];
+
+    const trimmedState = state.trim();
+    if (!trimmedState) return [{ city: trimmedCity, state: null }];
+
+    const normalized = normalizeState(trimmedState);
+    return normalized ? [{ city: trimmedCity, state: normalized }] : [];
 }
 
 /**
@@ -66,15 +90,55 @@ function getCityStateCombos(inputList) {
             continue;
         }
 
-        const state = words.pop();
+        const stateCandidate = words.pop();
         const city = words.join(' ');
 
-        // exclude invalid states
-        if (state && !Object.keys(states).includes(state.toUpperCase())) {
+        // Normalise the candidate to a state abbreviation. Full state names (e.g. "Florida")
+        // are accepted and converted; anything we don't recognise is discarded.
+        const state = stateCandidate ? normalizeState(stateCandidate) : null;
+        if (stateCandidate && !state) {
             continue;
         }
 
-        output.push({ city, state: state || null });
+        output.push({ city, state });
     }
     return output;
+}
+
+/**
+ * Reverse lookup of the `states` constant: lowercased full state name -> uppercase abbreviation.
+ * Built lazily and memoised, since most tokens are already abbreviations and never need it.
+ * @type {Record<string, string> | null}
+ */
+let stateNameToAbbreviation = null;
+
+/**
+ * Normalise a state token to its uppercase abbreviation.
+ *
+ * Accepts either a valid abbreviation ("fl", "FL") or a full state name ("Florida", "florida"),
+ * matched case-insensitively. Returns null for anything we don't recognise.
+ *
+ * @param {string} token
+ * @return {string|null}
+ */
+export function normalizeState(token) {
+    const trimmed = token.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    const upper = trimmed.toUpperCase();
+    if (Object.prototype.hasOwnProperty.call(states, upper)) {
+        // own-prop check, not `in`, to ignore a polluted prototype
+        return upper;
+    }
+
+    if (stateNameToAbbreviation === null) {
+        stateNameToAbbreviation = /** @type {Record<string, string>} */ (Object.create(null)); // null proto, no inherited keys
+        for (const [abbreviation, name] of Object.entries(states)) {
+            stateNameToAbbreviation[name.toLowerCase()] = abbreviation;
+        }
+    }
+
+    return stateNameToAbbreviation[trimmed.toLowerCase()] ?? null;
 }

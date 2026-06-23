@@ -1,6 +1,8 @@
 import { aggregateFields, createProfile, stringValuesFromElements } from '../src/features/broker-protection/actions/extract.js';
 import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
 
+const ROOT = {};
+
 describe('create profiles from extracted data', () => {
     describe('cleanArray', () => {
         it('should filter out null, undefined, and empty strings', () => {
@@ -61,10 +63,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => {
-                return [{ innerText: elementExample.text }];
-            };
-            const profile = createProfile(elementFactory, selectors);
+            const select = () => [{ innerText: elementExample.text }];
+            const profile = createProfile(select, ROOT, selectors);
             expect(profile).toEqual(elementExample.expected);
         }
     });
@@ -112,8 +112,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, elementExample.selectors);
             expect(profile).toEqual(elementExample.expected);
         }
     });
@@ -133,8 +133,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, elementExample.selectors);
             expect(profile).toEqual(elementExample.expected);
         }
     });
@@ -156,8 +156,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, elementExample.selectors);
             const aggregated = aggregateFields(profile);
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
         }
@@ -223,8 +223,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, elementExample.selectors);
             const aggregated = aggregateFields(profile);
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
         }
@@ -250,8 +250,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, /** @type {any} */ (elementExample.selectors));
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, /** @type {any} */ (elementExample.selectors));
             const aggregated = aggregateFields(profile);
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
         }
@@ -265,27 +265,23 @@ describe('create profiles from extracted data', () => {
                 afterText: 'AKA:',
             },
         };
-        const elementFactory = (key) => {
-            return {
-                relativesList: [
-                    { innerText: 'AKA: Jane Smith' },
-                    { innerText: 'John Smith - ' },
-                    { innerText: 'Jimmy Smith +1 more' },
-                    { innerText: 'Jimmy Smith + 1 more' },
-                    { innerText: 'Jimmy Smith +3 more like this' },
-                    { innerText: 'Jill Johnson +4 more' },
-                    { innerText: 'Jack Johnson - ' },
-                    { innerText: 'John Smith, 39 - ' },
-                    { innerText: 'John Smith, 39 years old' },
-                    { innerText: 'Jimmy Smith, 39 +1 more' },
-                    { innerText: 'Jimmy Smith, 39 + 1 more' },
-                    { innerText: 'Jimmy Smith, 39 +3 more like this' },
-                    { innerText: 'Jill Johnson, 39 +4 more' },
-                    { innerText: 'Jack Johnson, 39 - ' },
-                ],
-            }[key];
-        };
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const select = () => [
+            { innerText: 'AKA: Jane Smith' },
+            { innerText: 'John Smith - ' },
+            { innerText: 'Jimmy Smith +1 more' },
+            { innerText: 'Jimmy Smith + 1 more' },
+            { innerText: 'Jimmy Smith +3 more like this' },
+            { innerText: 'Jill Johnson +4 more' },
+            { innerText: 'Jack Johnson - ' },
+            { innerText: 'John Smith, 39 - ' },
+            { innerText: 'John Smith, 39 years old' },
+            { innerText: 'Jimmy Smith, 39 +1 more' },
+            { innerText: 'Jimmy Smith, 39 + 1 more' },
+            { innerText: 'Jimmy Smith, 39 +3 more like this' },
+            { innerText: 'Jill Johnson, 39 +4 more' },
+            { innerText: 'Jack Johnson, 39 - ' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         expect(scraped).toEqual({
             relativesList: [
                 'Jane Smith',
@@ -308,27 +304,19 @@ describe('create profiles from extracted data', () => {
 
     it('(1) Addresses: general validation [validation] https://app.asana.com/0/0/1206808587680141/f', () => {
         const selectors = {
-            name: {
-                selector: 'example',
-            },
-            age: {
-                selector: 'example',
-            },
-            addressCityState: {
-                selector: 'example',
-                findElements: true,
-            },
+            name: { selector: '.name' },
+            age: { selector: '.age' },
+            addressCityState: { selector: '.address', findElements: true },
         };
-        const elementFactory = (key) => {
-            return {
-                name: [{ innerText: 'Shane Osbourne' }],
-                age: [{ innerText: '39' }],
-                addressCityState: [{ innerText: 'Dallas, TX' }, { innerText: 'anything, here' }],
-            }[key];
-        };
+        const select = (_root, selector) =>
+            ({
+                '.name': [{ innerText: 'Shane Osbourne' }],
+                '.age': [{ innerText: '39' }],
+                '.address': [{ innerText: 'Dallas, TX' }, { innerText: 'anything, here' }],
+            })[selector ?? ''] ?? [];
         const expected = [{ city: 'Dallas', state: 'TX' }];
 
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         const actual = aggregateFields(scraped);
         expect(actual.addresses).toEqual(expected);
     });
@@ -390,8 +378,8 @@ describe('create profiles from extracted data', () => {
         ];
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements;
-            const profile = createProfile(elementFactory, elementExample.selectors);
+            const select = () => elementExample.elements;
+            const profile = createProfile(select, ROOT, elementExample.selectors);
             const aggregated = aggregateFields(profile);
             expect(aggregated.relatives).toEqual(elementExample.expected.relatives);
         }
@@ -404,18 +392,14 @@ describe('create profiles from extracted data', () => {
                 findElements: true,
             },
         };
-        const elementFactory = (key) => {
-            return {
-                relativesList: [
-                    { innerText: 'Dale Johnson' },
-                    { innerText: 'John Smith' },
-                    { innerText: 'Jimmy Smith' },
-                    { innerText: 'Jill Johnson' },
-                    { innerText: 'Jack Johnson' },
-                ],
-            }[key];
-        };
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const select = () => [
+            { innerText: 'Dale Johnson' },
+            { innerText: 'John Smith' },
+            { innerText: 'Jimmy Smith' },
+            { innerText: 'Jill Johnson' },
+            { innerText: 'Jack Johnson' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         const actual = aggregateFields(scraped);
 
         expect(actual.relatives).toEqual(['Dale Johnson', 'Jack Johnson', 'Jill Johnson', 'Jimmy Smith', 'John Smith']);
@@ -428,18 +412,14 @@ describe('create profiles from extracted data', () => {
                 findElements: true,
             },
         };
-        const elementFactory = (key) => {
-            return {
-                phoneList: [
-                    { innerText: '123-456-7895' },
-                    { innerText: '123-456-7894' },
-                    { innerText: '123-456-7892' },
-                    { innerText: '123-456-7891' },
-                    { innerText: '123-456-7890' },
-                ],
-            }[key];
-        };
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const select = () => [
+            { innerText: '123-456-7895' },
+            { innerText: '123-456-7894' },
+            { innerText: '123-456-7892' },
+            { innerText: '123-456-7891' },
+            { innerText: '123-456-7890' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         const actual = aggregateFields(scraped);
 
         expect(actual.phoneNumbers).toEqual(['1234567890', '1234567891', '1234567892', '1234567894', '1234567895']);
@@ -452,17 +432,13 @@ describe('create profiles from extracted data', () => {
                 findElements: true,
             },
         };
-        const elementFactory = (key) => {
-            return {
-                alternativeNamesList: [
-                    { innerText: 'Jerry Doug' },
-                    { innerText: 'Marvin Smith' },
-                    { innerText: 'Roger Star' },
-                    { innerText: 'Fred Firth' },
-                ],
-            }[key];
-        };
-        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors));
+        const select = () => [
+            { innerText: 'Jerry Doug' },
+            { innerText: 'Marvin Smith' },
+            { innerText: 'Roger Star' },
+            { innerText: 'Fred Firth' },
+        ];
+        const scraped = createProfile(select, ROOT, /** @type {any} */ (selectors));
         const actual = aggregateFields(scraped);
 
         expect(actual.alternativeNames).toEqual(['Fred Firth', 'Jerry Doug', 'Marvin Smith', 'Roger Star']);
@@ -509,7 +485,7 @@ describe('create profiles from extracted data', () => {
 
         it('keeps an absolute profileUrl attribute unchanged', () => {
             const element = fakeElement({ 'data-link': 'https://example.com/1234' });
-            const profile = createProfile(() => [element], { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
+            const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
             expect(profile.profileUrl).toEqual({
                 profileUrl: 'https://example.com/1234',
                 identifier: 'https://example.com/1234',
@@ -518,7 +494,7 @@ describe('create profiles from extracted data', () => {
 
         it('resolves a relative profileUrl attribute to an absolute URL', () => {
             const element = fakeElement({ 'data-link': '/profile/John-Smith/BMFrB9EB' });
-            const profile = createProfile(() => [element], { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
+            const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
             expect(profile.profileUrl).toEqual({
                 profileUrl: 'https://broker.example.com/profile/John-Smith/BMFrB9EB',
                 identifier: 'https://broker.example.com/profile/John-Smith/BMFrB9EB',
@@ -527,7 +503,7 @@ describe('create profiles from extracted data', () => {
 
         it('prefers the profileUrl attribute over the resolved href', () => {
             const element = fakeElement({ href: '/raw/relative' }, { href: 'https://resolved.example.com/abs' });
-            const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'href' } });
+            const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: 'a', attribute: 'href' } });
             expect(profile.profileUrl).toEqual({
                 profileUrl: 'https://broker.example.com/raw/relative',
                 identifier: 'https://broker.example.com/raw/relative',
@@ -536,7 +512,7 @@ describe('create profiles from extracted data', () => {
 
         it('returns null when the attribute is absent', () => {
             const element = fakeElement({});
-            const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'data-missing' } });
+            const profile = createProfile(() => [element], ROOT, { profileUrl: { selector: 'a', attribute: 'data-missing' } });
             expect(profile.profileUrl).toBeNull();
         });
     });
@@ -550,10 +526,10 @@ describe('create profiles from extracted data', () => {
         it('reads profileUrl from the current page URL without touching the DOM', () => {
             // @ts-expect-error - mocking location
             globalThis.location = { href: 'https://example.com/results?id=abc' };
-            const elementFactory = () => {
-                throw new Error('elementFactory should not be called for a pageUrl source');
+            const select = () => {
+                throw new Error('select should not be called for a pageUrl source');
             };
-            const profile = createProfile(elementFactory, { profileUrl: { source: 'pageUrl' } });
+            const profile = createProfile(select, ROOT, { profileUrl: { source: 'pageUrl' } });
             expect(profile).toEqual({
                 profileUrl: { profileUrl: 'https://example.com/results?id=abc', identifier: 'https://example.com/results?id=abc' },
             });
@@ -562,7 +538,7 @@ describe('create profiles from extracted data', () => {
         it('parses an identifier param out of the page URL', () => {
             // @ts-expect-error - mocking location
             globalThis.location = { href: 'https://example.com/results?profileId=xyz789' };
-            const profile = createProfile(() => [], {
+            const profile = createProfile(() => [], ROOT, {
                 profileUrl: { source: 'pageUrl', identifierType: 'param', identifier: 'profileId' },
             });
             expect(profile.profileUrl).toEqual({
@@ -574,13 +550,47 @@ describe('create profiles from extracted data', () => {
         it('coexists with selector-based fields', () => {
             // @ts-expect-error - mocking location
             globalThis.location = { href: 'https://example.com/p?id=1' };
-            const elementFactory = (/** @type {string} */ key) => ({ age: [{ innerText: '42' }] })[key] ?? [];
-            const profile = createProfile(elementFactory, {
+            const select = (_root, selector) => (selector === '.age' ? [{ innerText: '42' }] : []);
+            const profile = createProfile(select, ROOT, {
                 age: { selector: '.age' },
                 profileUrl: { source: 'pageUrl' },
             });
             expect(profile.age).toEqual('42');
             expect(profile.profileUrl).toEqual({ profileUrl: 'https://example.com/p?id=1', identifier: 'https://example.com/p?id=1' });
+        });
+    });
+});
+
+describe('nested city/state extraction', () => {
+    it('reads city and state per row, normalizing and keeping a missing state as null', () => {
+        const ROW1 = {};
+        const ROW2 = {};
+        const ROW3 = {};
+        const cells = new Map([
+            [ROW1, { './/city': [{ textContent: 'Dallas' }], './/state': [{ textContent: 'Florida' }] }],
+            [ROW2, { './/city': [{ textContent: 'Reno' }] }], // no state element
+            [ROW3, { './/city': [{ textContent: 'Nowhere' }], './/state': [{ textContent: 'ZZ' }] }], // invalid state
+        ]);
+        const select = (root, selector) => {
+            if (root === ROOT) return selector === '.row' ? [ROW1, ROW2, ROW3] : [];
+            return cells.get(root)?.[selector ?? ''] ?? [];
+        };
+
+        const profile = createProfile(select, ROOT, {
+            addressCityStateList: {
+                selector: '.row',
+                findElements: true,
+                city: { selector: './/city' },
+                state: { selector: './/state' },
+            },
+        });
+
+        expect(profile).toEqual({
+            addressCityStateList: [
+                { city: 'Dallas', state: 'FL' }, // full state name normalized
+                { city: 'Reno', state: null }, // no state element → kept as null
+                // Nowhere dropped: its state element is present but unparseable
+            ],
         });
     });
 });

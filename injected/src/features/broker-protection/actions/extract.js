@@ -16,17 +16,22 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  */
 
 /**
+ * How a profile-URL identifier is located: a query `param`, a `path` segment, or the URL `hash`.
+ * @typedef {'param'|'path'|'hash'} IdentifierType
+ */
+
+/**
  * Where a profile property's value comes from, used instead of a `selector`.
  * - `'pageUrl'`: read the value from the current page URL (`globalThis.location.href`)
  * @typedef {'pageUrl'} SourceType
  */
 
 /**
- * @typedef {'param'|'path'|'hash'} IdentifierType
- * @typedef {Object} ExtractProfileProperty
+ * Per-field config telling the extractor where a profile value lives and how to shape it.
  * For example: {
  *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
  * }
+ * @typedef {Object} ExtractProfileProperty
  * @property {string} [selector] - xpath or css selector (omit when reading from a `source` instead)
  * @property {boolean} [findElements] - whether to get all occurrences of the selector
  * @property {string} [afterText] - get all text after this string
@@ -36,12 +41,45 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
  * @property {string} [attribute] - read this attribute (e.g. "data-link") instead of the element's text. The raw attribute value is used, except for `profileUrl` which is resolved to an absolute URL against the page (like an `<a href>`)
  * @property {SourceType} [source] - read the value from this source instead of a `selector`
- *
+ * @property {CityStateSubField} [city] - sub-field locating the city, relative to each matched element (addressCityState* only)
+ * @property {CityStateSubField} [state] - sub-field locating the state, relative to each matched element (addressCityState* only)
+ */
+
+/**
+ * A `city`/`state` sub-field: an extract-field restricted to locating a single string (a
+ * selector plus the usual text transforms), with no `findElements`/`source`/nested fields.
+ * @typedef {Pick<ExtractProfileProperty, 'selector' | 'afterText' | 'beforeText' | 'separator' | 'attribute'>} CityStateSubField
+ */
+
+/**
+ * What an extractor needs to shape an already-selected value — the field config minus the parts
+ * used to find elements, since selection has already happened by the time an extractor runs.
  * @typedef {Omit<ExtractProfileProperty, 'selector' | 'findElements'>} ExtractorParams
  */
 
 /**
+ * The minimal element shape the extraction pipeline reads, so tests can pass plain objects in place
+ * of real DOM nodes.
  * @typedef {Partial<Pick<HTMLElement, 'innerText' | 'textContent' | 'getAttribute'>>} ElementLike
+ */
+
+/**
+ * Selects elements for `selector` within a `root` scope, returning every match when `all` is set
+ * and otherwise the first. Injected into `createProfile` so the DOM dependency can be stubbed in tests.
+ * @typedef {(root: ElementLike, selector?: string, all?: boolean) => ElementLike[]} Select
+ */
+
+/**
+ * The extracted value of a nested city/state field (as opposed to `CityStateSubField`, its config):
+ * the transformed text of each sub-field before an extractor parses it. An empty string for either
+ * means nothing was found there.
+ * @typedef {{city: string, state: string}} CityStatePart
+ */
+
+/**
+ * A raw candidate value for a profile field, before an extractor parses it: either plain
+ * text, or a structured city/state part.
+ * @typedef {string | CityStatePart} FieldValue
  */
 
 /**
@@ -80,6 +118,24 @@ export async function extract(action, userData, root = document) {
 }
 
 /**
+ * The one place DOM selection happens, so it can be injected into `createProfile` and stubbed with
+ * fixtures in tests (which have no live `document`/XPath engine).
+ *
+ * With `all`, returns every match; otherwise the first — falling back to `root` itself when it
+ * matches, since a profile element may *be* the target (e.g. a link).
+ *
+ * @param {ElementLike} root
+ * @param {string} [selector]
+ * @param {boolean} [all]
+ * @return {ElementLike[]}
+ */
+function select(root, selector, all = false) {
+    if (!selector) return [];
+    const node = /** @type {HTMLElement} */ (root);
+    return all ? cleanArray(getElements(node, selector)) : cleanArray(getElement(node, selector) || getElementMatches(node, selector));
+}
+
+/**
  * @param {Action} action
  * @param {Record<string, any>} userData
  * @param {Element | Document} [root]
@@ -103,13 +159,7 @@ export function extractProfiles(action, userData, root = document) {
 
     return {
         results: profilesElementList.map((element) => {
-            const elementFactory = (_, value) => {
-                if (!value?.selector) return [];
-                return value.findElements
-                    ? cleanArray(getElements(element, value.selector))
-                    : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector));
-            };
-            const scrapedData = createProfile(elementFactory, action.profile);
+            const scrapedData = createProfile(select, element, action.profile);
             const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData);
             return new ProfileResult({
                 scrapedData,
@@ -142,40 +192,61 @@ export function extractProfiles(action, userData, root = document) {
  *   "profileUrl": "https://example.com/1234"
  * }
  *
- * @param {(key: string, value: ExtractProfileProperty) => ElementLike[]} elementFactory
- *   a function that produces elements for a given key + ExtractProfileProperty
- * @param {Record<string, ExtractProfileProperty>} extractData
+ * @param {Select} select - resolves a field's selector to elements within a scope (injectable for tests)
+ * @param {ElementLike} root - the scope selectors are resolved within (a single profile element)
+ * @param {Record<string, ExtractProfileProperty | null>} extractData
  * @return {Record<string, any>}
  */
-export function createProfile(elementFactory, extractData) {
+export function createProfile(select, root, extractData) {
     const output = {};
     for (const [key, value] of Object.entries(extractData)) {
-        const strings = stringsForProfileField(elementFactory, key, value);
-        output[key] = extractValue(key, value, strings) || null;
+        output[key] = extractValue(key, value ?? {}, valuesForProfileField(select, root, key, value)) || null;
     }
     return output;
 }
 
 /**
- * Resolve a profile field's raw candidate strings from whichever source it declares:
- * a non-DOM `source` (e.g. the page URL), or DOM elements matched by its `selector`.
+ * Resolve a profile field's raw candidate values from whichever source it declares: a non-DOM
+ * `source` (e.g. the page URL), nested `city`/`state` sub-fields, or DOM elements matched by its
+ * `selector`. Most fields yield strings; `city`/`state` fields yield `CityStatePart`s, since the
+ * two halves may live in separate (even non-adjacent) elements.
  *
- * @param {(key: string, value: ExtractProfileProperty) => ElementLike[]} elementFactory
+ * @param {Select} select
+ * @param {ElementLike} root
  * @param {string} key
- * @param {ExtractProfileProperty} value
- * @return {string[]}
+ * @param {ExtractProfileProperty | null} value - null when a field is explicitly disabled in config (e.g. `"alternativeNamesList": null`)
+ * @return {FieldValue[]}
  */
-function stringsForProfileField(elementFactory, key, value) {
+function valuesForProfileField(select, root, key, value) {
     if (value?.source === 'pageUrl') {
         return cleanArray(globalThis.location.href);
     }
-    return cleanArray(stringValuesFromElements(elementFactory(key, value), key, value));
+    const elements = select(root, value?.selector, value?.findElements);
+    if (value?.city?.selector && value?.state?.selector) {
+        const cityField = value.city;
+        const stateField = value.state;
+        return elements.map((row) => ({
+            city: firstString(valuesForProfileField(select, row, key, cityField)),
+            state: firstString(valuesForProfileField(select, row, key, stateField)),
+        }));
+    }
+    return cleanArray(stringValuesFromElements(elements, key, value));
+}
+
+/**
+ * The first entry of `values` if it's a string, otherwise `''`.
+ * @param {FieldValue[]} values
+ * @return {string}
+ */
+function firstString(values) {
+    const [value] = values;
+    return typeof value === 'string' ? value : '';
 }
 
 /**
  * @param {ElementLike[]} elements
  * @param {string} key
- * @param {ExtractProfileProperty} extractField
+ * @param {ExtractProfileProperty | null} extractField
  * @return {string[]}
  */
 export function stringValuesFromElements(elements, key, extractField) {
@@ -308,33 +379,37 @@ export function aggregateFields(profile) {
  *
  * @param {string} outputFieldKey
  * @param {ExtractProfileProperty} extractorParams
- * @param {string[]} elementValues
+ * @param {FieldValue[]} elementValues
  * @return {any}
  */
 export function extractValue(outputFieldKey, extractorParams, elementValues) {
+    // City/state is the only field that can arrive as structured {city, state} parts; its extractor
+    // takes those and plain strings alike. Every other field is string-only, hence the cast below.
+    if (outputFieldKey === 'addressCityState' || outputFieldKey === 'addressCityStateList') {
+        return new CityStateExtractor().extract(elementValues, extractorParams);
+    }
+
+    const strings = /** @type {string[]} */ (elementValues);
     switch (outputFieldKey) {
         case 'age':
-            return new AgeExtractor().extract(elementValues, extractorParams);
+            return new AgeExtractor().extract(strings, extractorParams);
         case 'name':
-            return new NameExtractor().extract(elementValues, extractorParams);
+            return new NameExtractor().extract(strings, extractorParams);
 
         // all addresses are processed the same way
         case 'addressFull':
         case 'addressFullList':
-            return new AddressFullExtractor().extract(elementValues, extractorParams);
-        case 'addressCityState':
-        case 'addressCityStateList':
-            return new CityStateExtractor().extract(elementValues, extractorParams);
+            return new AddressFullExtractor().extract(strings, extractorParams);
 
         case 'alternativeNamesList':
-            return new AlternativeNamesExtractor().extract(elementValues, extractorParams);
+            return new AlternativeNamesExtractor().extract(strings, extractorParams);
         case 'relativesList':
-            return new RelativesExtractor().extract(elementValues, extractorParams);
+            return new RelativesExtractor().extract(strings, extractorParams);
         case 'phone':
         case 'phoneList':
-            return new PhoneExtractor().extract(elementValues, extractorParams);
+            return new PhoneExtractor().extract(strings, extractorParams);
         case 'profileUrl':
-            return new ProfileUrlExtractor().extract(elementValues, extractorParams);
+            return new ProfileUrlExtractor().extract(strings, extractorParams);
     }
     return null;
 }

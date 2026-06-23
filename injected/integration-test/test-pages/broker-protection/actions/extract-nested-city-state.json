@@ -1,0 +1,43 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "selector": ".person-card",
+            "profile": {
+                "name": {
+                    "selector": ".//h2[@class='person-card__name']/a"
+                },
+                "age": {
+                    "selector": ".//h2[@class='person-card__name']"
+                },
+                "addressCityStateList": {
+                    "selector": ".//div[@class='person-card__location']",
+                    "findElements": true,
+                    "city": {
+                        "selector": ".//span[@class='person-card__city']"
+                    },
+                    "state": {
+                        "selector": "//h1[@class='results-query']",
+                        "afterText": ", "
+                    }
+                },
+                "profileUrl": {
+                    "selector": ".//h2[@class='person-card__name']/a"
+                }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "Mark",
+                "lastName": "West",
+                "age": "46",
+                "addresses": [
+                    {
+                        "city": "Dallas",
+                        "state": "TX"
+                    }
+                ]
+            }
+        }
+    }
+}

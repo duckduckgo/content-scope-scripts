@@ -1,0 +1,94 @@
+<!doctype html>
+<!--
+  Reconstructed from a screenshot of a ClustrMaps person-search results page, since the live site
+  was offline during development — so it approximates the real shape rather than copying it.
+
+  The shape that motivates nested selectors: each row has a city but no state, and the state appears
+  only once, in the page-level <h1> query echo. So city is read per-row and state from the heading.
+-->
+<html>
+    <body>
+        <header class="site-header">
+            <a class="logo" href="/">ClustrMaps</a>
+            <input type="search" placeholder="Search a name or address" />
+        </header>
+
+        <main>
+            <p class="results-summary">Found 4 results for</p>
+            <h1 class="results-query">Mark West in Dallas, TX</h1>
+
+            <ul class="results-list">
+                <li class="person-card">
+                    <h2 class="person-card__name"><a href="/person/mark-a-west/1">Mark A West</a>, age 28</h2>
+                    <div class="person-card__location">
+                        <svg class="icon icon--home" aria-hidden="true"></svg>
+                        <span class="person-card__city">Dallas</span>
+                    </div>
+                    <div class="person-card__address">
+                        <svg class="icon icon--pin" aria-hidden="true"></svg>
+                        <a href="/address/100-example-st-dallas">100 Example St, Dallas</a>
+                    </div>
+                    <div class="person-card__relatives">
+                        <svg class="icon icon--people" aria-hidden="true"></svg>
+                        Associated persons:
+                        <a href="#">Jamie Tester</a>, <a href="#">Pat Sample</a>, <a href="#">Robin Placeholder</a>
+                    </div>
+                    <a class="person-card__cta" href="/person/mark-a-west/1">View Details</a>
+                </li>
+
+                <li class="person-card">
+                    <h2 class="person-card__name"><a href="/person/mark-west/2">Mark West</a>, age 46</h2>
+                    <div class="person-card__location">
+                        <svg class="icon icon--home" aria-hidden="true"></svg>
+                        <span class="person-card__city">Dallas</span>
+                    </div>
+                    <div class="person-card__address">
+                        <svg class="icon icon--pin" aria-hidden="true"></svg>
+                        <a href="/address/250-sample-ave-dallas">250 Sample Ave, Dallas</a>
+                    </div>
+                    <div class="person-card__relatives">
+                        <svg class="icon icon--people" aria-hidden="true"></svg>
+                        Associated persons:
+                        <a href="#">Alex Example</a>, <a href="#">Jordan Sample</a>, <a href="#">Taylor West</a>
+                    </div>
+                    <div class="person-card__phone">
+                        <svg class="icon icon--phone" aria-hidden="true"></svg>
+                        (214) 555-0142
+                    </div>
+                    <a class="person-card__cta" href="/person/mark-west/2">View Details</a>
+                </li>
+
+                <li class="person-card">
+                    <h2 class="person-card__name"><a href="/person/mark-west/3">Mark West</a>, age 64</h2>
+                    <div class="person-card__location">
+                        <svg class="icon icon--home" aria-hidden="true"></svg>
+                        <span class="person-card__city">Dallas</span>
+                    </div>
+                    <div class="person-card__address">
+                        <svg class="icon icon--pin" aria-hidden="true"></svg>
+                        <a href="/address/37-placeholder-dr-dallas">37 Placeholder Dr, Dallas</a>
+                    </div>
+                    <div class="person-card__relatives">
+                        <svg class="icon icon--people" aria-hidden="true"></svg>
+                        Associated persons:
+                        <a href="#">Casey Fixture</a>, <a href="#">Morgan Mock</a>, <a href="#">Sam West</a>
+                    </div>
+                    <a class="person-card__cta" href="/person/mark-west/3">View Details</a>
+                </li>
+
+                <li class="person-card">
+                    <h2 class="person-card__name"><a href="/person/mark-west/4">Mark West</a>, age 51</h2>
+                    <div class="person-card__location">
+                        <svg class="icon icon--home" aria-hidden="true"></svg>
+                        <span class="person-card__city">Dallas</span>
+                    </div>
+                    <div class="person-card__address">
+                        <svg class="icon icon--pin" aria-hidden="true"></svg>
+                        <a href="/address/9-fictional-ln-dallas">9 Fictional Ln, Dallas</a>
+                    </div>
+                    <a class="person-card__cta" href="/person/mark-west/4">View Details</a>
+                </li>
+            </ul>
+        </main>
+    </body>
+</html>
