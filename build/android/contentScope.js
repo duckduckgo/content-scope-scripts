@@ -8355,24 +8355,49 @@
       return false;
     });
   }
-  function evaluateORCondition(condition, singleConditionEvaluator) {
-    if (condition === void 0) return true;
-    if (Array.isArray(condition)) {
-      return condition.some((v2) => singleConditionEvaluator(v2));
+  function evaluateNode(node, evalFinal) {
+    if (node === void 0) return true;
+    if (Array.isArray(node)) {
+      return node.some((n) => evaluateNode(n, evalFinal));
     }
-    return singleConditionEvaluator(condition);
+    if (node === null || typeof node !== "object") {
+      return evalFinal(
+        /** @type {Final} */
+        node
+      );
+    }
+    const operatorKeys = ["any", "all", "none"];
+    const opKeys = operatorKeys.filter((k) => hasOwnProperty.call(node, k));
+    if (opKeys.length === 0) {
+      return evalFinal(
+        /** @type {Final} */
+        node
+      );
+    }
+    const otherKeys = objectKeys(node).filter((k) => !operatorKeys.includes(k));
+    if (otherKeys.length > 0) {
+      throw new Error(`Condition node mixes operator keys [${opKeys.join(", ")}] with leaf fields [${otherKeys.join(", ")}]`);
+    }
+    const block = (
+      /** @type {Partial<Record<'all' | 'any' | 'none', ConditionBranch<Final>>>} */
+      node
+    );
+    if (hasOwnProperty.call(block, "all") && !asArray(block.all).every((n) => evaluateNode(n, evalFinal))) return false;
+    if (hasOwnProperty.call(block, "any") && !asArray(block.any).some((n) => evaluateNode(n, evalFinal))) return false;
+    if (hasOwnProperty.call(block, "none") && asArray(block.none).some((n) => evaluateNode(n, evalFinal))) return false;
+    return true;
   }
   function evaluateSingleMatchCondition(condition) {
-    if (!evaluateORCondition(condition.text, evaluateSingleTextCondition)) {
+    if (!evaluateNode(condition.text, evaluateSingleTextCondition)) {
       return false;
     }
-    if (!evaluateORCondition(condition.element, evaluateSingleElementCondition)) {
+    if (!evaluateNode(condition.element, evaluateSingleElementCondition)) {
       return false;
     }
     return true;
   }
   function evaluateMatch(conditions) {
-    return evaluateORCondition(conditions, evaluateSingleMatchCondition);
+    return evaluateNode(conditions, evaluateSingleMatchCondition);
   }
 
   // src/features/web-detection.js
