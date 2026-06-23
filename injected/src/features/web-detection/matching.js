@@ -1,5 +1,13 @@
+// eslint-disable-next-line no-redeclare
+import { hasOwnProperty, objectKeys } from '../../captured-globals.js';
+
 /**
  * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
+ */
+
+/**
+ * @template Final
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionBranch<Final>} ConditionBranch
  */
 
 /**
@@ -96,37 +104,62 @@ function evaluateSingleElementCondition(config) {
 }
 
 /**
- * Evaluate an OR condition
- * @template T
- * @param {T | T[] | undefined} condition
- * @param {(value: T) => boolean} singleConditionEvaluator
+ * Evaluate a condition node that may be a final-condition object, an operator
+ * block (`{ any | all | none: ... }`), or an array (treated as `any`).
+ *
+ * Operator blocks and final-condition objects are mutually exclusive at the
+ * same node — mixing operator keys with leaf fields throws (surfaced as
+ * `detected: 'error'` by the caller in web-detection.js).
+ *
+ * Sibling operator keys are AND-combined.
+ *
+ * @template Final
+ * @param {ConditionBranch<Final> | undefined} node
+ * @param {(final: Final) => boolean} evalFinal
  * @returns {boolean}
  */
-function evaluateORCondition(condition, singleConditionEvaluator) {
-    if (condition === undefined) return true;
-    if (Array.isArray(condition)) {
-        return condition.some((v) => singleConditionEvaluator(v));
+function evaluateNode(node, evalFinal) {
+    if (node === undefined) return true;
+    if (Array.isArray(node)) {
+        return node.some((n) => evaluateNode(n, evalFinal));
     }
-    return singleConditionEvaluator(condition);
+    if (node === null || typeof node !== 'object') {
+        return evalFinal(/** @type {Final} */ (node));
+    }
+
+    const operatorKeys = ['any', 'all', 'none'];
+
+    const opKeys = operatorKeys.filter((k) => hasOwnProperty.call(node, k));
+    if (opKeys.length === 0) {
+        return evalFinal(/** @type {Final} */ (node));
+    }
+    const otherKeys = objectKeys(node).filter((k) => !operatorKeys.includes(k));
+    if (otherKeys.length > 0) {
+        throw new Error(`Condition node mixes operator keys [${opKeys.join(', ')}] with leaf fields [${otherKeys.join(', ')}]`);
+    }
+
+    const block = /** @type {Partial<Record<'all' | 'any' | 'none', ConditionBranch<Final>>>} */ (node);
+    if (hasOwnProperty.call(block, 'all') && !asArray(block.all).every((n) => evaluateNode(n, evalFinal))) return false;
+    if (hasOwnProperty.call(block, 'any') && !asArray(block.any).some((n) => evaluateNode(n, evalFinal))) return false;
+    if (hasOwnProperty.call(block, 'none') && asArray(block.none).some((n) => evaluateNode(n, evalFinal))) return false;
+    return true;
 }
 
 /**
  * Evaluate match conditions for a detector.
  *
- * This may be either a single condition or an array of conditions.
- *
- * Each key references a condition which must match. If an array is specified,
- * any condition in the array must match.
+ * Each key references a condition which must match (conjunction on keys).
+ * Each per-key value is itself a condition node, which may be a final-condition
+ * object, an array (OR), or an operator block.
  *
  * @param {import('./parse.js').MatchConditionSingle} condition
  * @returns {boolean}
  */
 function evaluateSingleMatchCondition(condition) {
-    // conjunction on keys
-    if (!evaluateORCondition(condition.text, evaluateSingleTextCondition)) {
+    if (!evaluateNode(condition.text, evaluateSingleTextCondition)) {
         return false;
     }
-    if (!evaluateORCondition(condition.element, evaluateSingleElementCondition)) {
+    if (!evaluateNode(condition.element, evaluateSingleElementCondition)) {
         return false;
     }
     return true;
@@ -137,10 +170,12 @@ function evaluateSingleMatchCondition(condition) {
  *
  * This determines whether the detector is considered to have successfully matched when run.
  *
- * Objects represent conjunction (AND), arrays represent disjunction (OR)
+ * Objects represent conjunction on their keys (AND); arrays represent disjunction (OR);
+ * operator blocks (`{ any | all | none: ... }`) are supported recursively at every layer.
+ *
  * @param {import('./parse.js').MatchCondition} conditions
  * @returns {boolean}
  */
 export function evaluateMatch(conditions) {
-    return evaluateORCondition(conditions, evaluateSingleMatchCondition);
+    return evaluateNode(conditions, evaluateSingleMatchCondition);
 }
