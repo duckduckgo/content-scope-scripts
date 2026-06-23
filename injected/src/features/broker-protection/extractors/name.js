@@ -1,32 +1,22 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js';
-import { stringToList } from '../actions/extract.js';
+import { selectStrings, stringToList } from '../actions/extract.js';
 
 /**
- * @implements {Extractor<string | null>}
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').TextFieldSpec} spec
+ * @return {string | null}
  */
-export class NameExtractor {
-    /**
-     * @param {string[]} strs
-     * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
-     */
-
-    extract(strs, _extractorParams) {
-        if (!strs[0]) return null;
-        return strs[0].replace(/\n/g, ' ').trim();
-    }
+export function extractName(select, root, spec) {
+    const [first] = selectStrings(select, root, spec);
+    return first ? first.replace(/\n/g, ' ').trim() : null;
 }
 
 /**
- * @implements {Extractor<string[]>}
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').TextFieldSpec} spec
+ * @return {string[]}
  */
-export class AlternativeNamesExtractor {
-    /**
-     * @param {string[]} strs
-     * @param {import('../actions/extract.js').ExtractorParams} extractorParams
-     * @returns {string[]}
-     */
-    extract(strs, extractorParams) {
-        return strs.map((x) => stringToList(x, extractorParams.separator)).flat();
-    }
+export function extractAlternativeNames(select, root, spec) {
+    return selectStrings(select, root, spec).flatMap((value) => stringToList(value, spec.separator));
 }

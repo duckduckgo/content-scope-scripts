@@ -3,12 +3,12 @@ import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js';
 import { isSameAge } from '../comparisons/is-same-age.js';
 import { isSameName } from '../comparisons/is-same-name.js';
 import { addressMatch } from '../comparisons/address.js';
-import { AgeExtractor } from '../extractors/age.js';
-import { AlternativeNamesExtractor, NameExtractor } from '../extractors/name.js';
-import { AddressFullExtractor, CityStateExtractor } from '../extractors/address.js';
-import { PhoneExtractor } from '../extractors/phone.js';
-import { RelativesExtractor } from '../extractors/relatives.js';
-import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profile-url.js';
+import { extractAge } from '../extractors/age.js';
+import { extractAlternativeNames, extractName } from '../extractors/name.js';
+import { extractAddressFull, extractCityState } from '../extractors/address.js';
+import { extractPhone } from '../extractors/phone.js';
+import { extractRelatives } from '../extractors/relatives.js';
+import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile-url.js';
 
 /**
  * Adding these types here so that we can switch to generated ones later
@@ -16,20 +16,89 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  */
 
 /**
+ * How a profile-URL identifier is located: a query `param`, a `path` segment, or the URL `hash`.
  * @typedef {'param'|'path'|'hash'} IdentifierType
- * @typedef {Object} ExtractProfileProperty
- * For example: {
- *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
- * }
- * @property {string} selector - xpath or css selector
- * @property {boolean} [findElements] - whether to get all occurrences of the selector
- * @property {string} [afterText] - get all text after this string
- * @property {string} [beforeText] - get all text before this string
- * @property {string} [separator] - split the text on this string, or use a regex by passing "/pattern/" (e.g. "/(?<=, [A-Z]{2}), /")
- * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
- * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
+ */
+
+/**
+ * The text-shaping knobs every selector-based field shares: where the value lives and how to clean
+ * the text once read. This is the spec for the majority of fields (name, age, phone, …); city/state
+ * and profileUrl extend it (see {@link CityStateSpec}, {@link ProfileUrlSpec}).
  *
- * @typedef {Omit<ExtractProfileProperty, 'selector' | 'findElements'>} ExtractorParams
+ * For example: { "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li" }
+ *
+ * @typedef {Object} TextFieldSpec
+ * @property {string} [selector] - xpath or css selector
+ * @property {boolean} [findElements] - whether to get all occurrences of the selector
+ * @property {string} [afterText] - get all text after this string, or after the first regex match by passing "/pattern/" or "/pattern/i" (e.g. "/age:?\\s+/i")
+ * @property {string} [beforeText] - get all text before this string, or before the first regex match by passing "/pattern/" or "/pattern/i"
+ * @property {string} [separator] - split the text on this string, or use a regex by passing "/pattern/" or "/pattern/i" (e.g. "/(?<=, [A-Z]{2}), /")
+ * @property {string} [attribute] - read this attribute (e.g. "data-link") instead of the element's text
+ */
+
+/**
+ * The nested city/state shape: the `selector` matches each result row, and `city` (plus optional
+ * `state`) sub-selectors are read relative to that row. Two variants:
+ * - with state: both sub-selectors present (the `state` selector may even reach outside the row,
+ *   e.g. a shared `<h1>`)
+ * - city only: `state` omitted, so the state comes out as `null`
+ *
+ * @typedef {TextFieldSpec & { city: TextFieldSpec, state?: TextFieldSpec }} NestedCityStateSpec
+ */
+
+/**
+ * Where a city/state field lives. A union of two shapes, discriminated on whether the spec carries
+ * its own `city` sub-selector:
+ * - combined: a single `selector` whose text is "City, ST" (a plain {@link TextFieldSpec})
+ * - nested: per-row `city`/`state` sub-selectors (a {@link NestedCityStateSpec})
+ *
+ * @typedef {TextFieldSpec | NestedCityStateSpec} CityStateSpec
+ */
+
+/**
+ * Extends {@link TextFieldSpec} with the knobs unique to profileUrl:
+ * - `source: 'pageUrl'` reads the value from the current page URL (`globalThis.location.href`)
+ *   instead of from a `selector`
+ * - `identifier` is the identifier itself (a param name, or a templated URI) and `identifierType`
+ *   ({@link IdentifierType}) says where to find it within the resolved URL
+ *
+ * @typedef {TextFieldSpec & { source?: 'pageUrl', identifier?: string, identifierType?: IdentifierType }} ProfileUrlSpec
+ */
+
+/**
+ * Any single field's spec. Most fields are a plain {@link TextFieldSpec}.
+ * @typedef {TextFieldSpec | CityStateSpec | ProfileUrlSpec} FieldSpec
+ */
+
+/**
+ * The `profile` block of an `extract` action: a map of output field name -> how to locate that
+ * field. `null` disables a field. This is the per-broker config the native layer sends; the field
+ * keys are a contract with that config.
+ *
+ * @typedef {Object} ProfileSpec
+ * @property {TextFieldSpec | null} [name]
+ * @property {TextFieldSpec | null} [age]
+ * @property {TextFieldSpec | null} [alternativeNamesList]
+ * @property {TextFieldSpec | null} [relativesList]
+ * @property {TextFieldSpec | null} [phone]
+ * @property {TextFieldSpec | null} [phoneList]
+ * @property {TextFieldSpec | null} [addressFull]
+ * @property {TextFieldSpec | null} [addressFullList]
+ * @property {CityStateSpec | null} [addressCityState]
+ * @property {CityStateSpec | null} [addressCityStateList]
+ * @property {ProfileUrlSpec | null} [profileUrl]
+ */
+
+/**
+ * The minimal element shape the extraction pipeline reads, so tests can pass plain objects in place
+ * of real DOM nodes.
+ * @typedef {Partial<Pick<HTMLElement, 'innerText' | 'textContent' | 'getAttribute'>>} ElementLike
+ */
+
+/**
+ * Selects elements for `selector` within a `root` scope, returning every match when `all` is set
+ * and otherwise the first. Injected into `createProfile` so the DOM dependency can be stubbed in tests.
+ * @typedef {(root: ElementLike, selector?: string, all?: boolean) => ElementLike[]} Select
  */
 
 /**
@@ -68,6 +137,24 @@ export async function extract(action, userData, root = document) {
 }
 
 /**
+ * The one place DOM selection happens, so it can be injected into `createProfile` and stubbed with
+ * fixtures in tests (which have no live `document`/XPath engine).
+ *
+ * With `all`, returns every match; otherwise the first — falling back to `root` itself when it
+ * matches, since a profile element may *be* the target (e.g. a link).
+ *
+ * @param {ElementLike} root
+ * @param {string} [selector]
+ * @param {boolean} [all]
+ * @return {ElementLike[]}
+ */
+function select(root, selector, all = false) {
+    if (!selector) return [];
+    const node = /** @type {HTMLElement} */ (root);
+    return all ? cleanArray(getElements(node, selector)) : cleanArray(getElement(node, selector) || getElementMatches(node, selector));
+}
+
+/**
  * @param {Action} action
  * @param {Record<string, any>} userData
  * @param {Element | Document} [root]
@@ -91,12 +178,7 @@ export function extractProfiles(action, userData, root = document) {
 
     return {
         results: profilesElementList.map((element) => {
-            const elementFactory = (_, value) => {
-                return value?.findElements
-                    ? cleanArray(getElements(element, value.selector))
-                    : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector));
-            };
-            const scrapedData = createProfile(elementFactory, action.profile);
+            const scrapedData = createProfile(select, element, action.profile);
             const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData);
             return new ProfileResult({
                 scrapedData,
@@ -108,6 +190,27 @@ export function extractProfiles(action, userData, root = document) {
         }),
     };
 }
+
+/**
+ * Each profile field is parsed by a plain `(select, root, fieldSpec) -> value` function. This map
+ * is the single point where an output field name selects its parser. Several output keys alias the
+ * same parser (e.g. `phone`/`phoneList`).
+ *
+ * @type {Record<string, (select: Select, root: ElementLike, spec: any) => any>}
+ */
+const extractors = {
+    name: extractName,
+    age: extractAge,
+    alternativeNamesList: extractAlternativeNames,
+    relativesList: extractRelatives,
+    phone: extractPhone,
+    phoneList: extractPhone,
+    addressFull: extractAddressFull,
+    addressFullList: extractAddressFull,
+    addressCityState: extractCityState,
+    addressCityStateList: extractCityState,
+    profileUrl: extractProfileUrl,
+};
 
 /**
  * Produces structures like this:
@@ -129,70 +232,99 @@ export function extractProfiles(action, userData, root = document) {
  *   "profileUrl": "https://example.com/1234"
  * }
  *
- * @param {(key: string, value: ExtractProfileProperty) => {innerText: string}[]} elementFactory
- *   a function that produces elements for a given key + ExtractProfileProperty
- * @param {Record<string, ExtractProfileProperty>} extractData
+ * @param {Select} select - resolves a field's selector to elements within a scope (injectable for tests)
+ * @param {ElementLike} root - the scope selectors are resolved within (a single profile element)
+ * @param {ProfileSpec} profileSpec - the `profile` block of an extract action; `null` disables a field
  * @return {Record<string, any>}
  */
-export function createProfile(elementFactory, extractData) {
+export function createProfile(select, root, profileSpec) {
     const output = {};
-    for (const [key, value] of Object.entries(extractData)) {
-        if (!value?.selector) {
-            output[key] = null;
-        } else {
-            const elements = elementFactory(key, value);
-
-            // extract all strings first
-            const evaluatedValues = stringValuesFromElements(elements, key, value);
-
-            // clean them up - trimming, removing empties
-            const noneEmptyArray = cleanArray(evaluatedValues);
-
-            // Note: This can return any valid JSON valid, it depends on the extractor used.
-            const extractedValue = extractValue(key, value, noneEmptyArray);
-
-            // try to use the extracted value, or fall back to null
-            // this allows 'extractValue' to return null|undefined
-            output[key] = extractedValue || null;
-        }
+    for (const [field, fieldSpec] of Object.entries(profileSpec)) {
+        const extractField = extractors[field];
+        if (!extractField) continue;
+        output[field] = extractField(select, root, fieldSpec ?? {}) || null;
     }
     return output;
 }
 
 /**
- * @param {({ textContent: string } | { innerText: string })[]} elements
- * @param {string} key
- * @param {ExtractProfileProperty} extractField
+ * Select elements for a field and shape each match into a cleaned string. This is the common path
+ * every selector-based field uses to turn its `spec` into candidate strings.
+ *
+ * @param {Select} select
+ * @param {ElementLike} root
+ * @param {TextFieldSpec} spec
  * @return {string[]}
  */
-export function stringValuesFromElements(elements, key, extractField) {
+export function selectStrings(select, root, spec) {
+    return cleanArray(stringsFromElements(select(root, spec.selector, spec.findElements), spec));
+}
+
+/**
+ * Shape each element into a string: read its text (or `attribute`), then apply the field's
+ * `afterText`/`beforeText`/common-affix transforms. A falsy raw value is passed through untouched
+ * (and later dropped by `cleanArray`).
+ *
+ * @param {ElementLike[]} elements
+ * @param {TextFieldSpec} spec
+ * @return {(string | null | undefined)[]}
+ */
+export function stringsFromElements(elements, spec) {
     return elements.map((element) => {
-        let elementValue;
-
-        if ('innerText' in element) {
-            elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
-
-            // In instances where we use the text() node test, innerText will be undefined, and we fall back to textContent
-        } else if ('textContent' in element) {
-            elementValue = rules[key]?.(element) ?? element?.textContent ?? null;
-        }
-
-        if (!elementValue) {
-            return elementValue;
-        }
-
-        if (extractField?.afterText) {
-            elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue;
-        }
-        // there is a case where we may want to get the text "after" and "before" certain text
-        if (extractField?.beforeText) {
-            elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue;
-        }
-
-        elementValue = removeCommonSuffixesAndPrefixes(elementValue);
-
-        return elementValue;
+        const value = readElementText(element, spec);
+        return value ? shapeString(value, spec) : value;
     });
+}
+
+/**
+ * Read an element's value: the named `attribute` if set, otherwise the element's text (`innerText`,
+ * falling back to `textContent` for text() node tests where innerText is undefined).
+ *
+ * @param {ElementLike} element
+ * @param {TextFieldSpec} spec
+ * @return {string | null | undefined}
+ */
+function readElementText(element, spec) {
+    if (spec.attribute && 'getAttribute' in element) {
+        return element.getAttribute?.(spec.attribute) ?? null;
+    }
+    if ('innerText' in element) {
+        return element.innerText ?? null;
+    }
+    if ('textContent' in element) {
+        return element.textContent ?? null;
+    }
+    return undefined;
+}
+
+/**
+ * Apply a field's text transforms: keep the text after `afterText` and/or before `beforeText`, then
+ * strip common prefixes/suffixes.
+ *
+ * @param {string} value
+ * @param {TextFieldSpec} spec
+ * @return {string}
+ */
+export function shapeString(value, spec) {
+    if (spec.afterText) {
+        value = splitOnce(value, parseRegexFromString(spec.afterText), 'after')?.trim() || value;
+    }
+    // there is a case where we may want to get the text "after" and "before" certain text
+    if (spec.beforeText) {
+        value = splitOnce(value, parseRegexFromString(spec.beforeText), 'before')?.trim() || value;
+    }
+    return removeCommonSuffixesAndPrefixes(value);
+}
+
+/**
+ * Returns `''` rather than `undefined` for an empty or non-string input, since callers feed the
+ * result straight into string operations.
+ * @param {string[]} strings
+ * @return {string}
+ */
+export function firstString(strings) {
+    const [value] = strings;
+    return typeof value === 'string' ? value : '';
 }
 
 /**
@@ -279,59 +411,13 @@ export function aggregateFields(profile) {
 }
 
 /**
- * Example input to this:
- *
- * ```json
- * {
- *   "key": "age",
- *   "value": {
- *     "selector": ".//div[@class='col-md-8']/div[2]"
- *   },
- *   "elementValues": ["Age 71"]
- * }
- * ```
- *
- * @param {string} outputFieldKey
- * @param {ExtractProfileProperty} extractorParams
- * @param {string[]} elementValues
- * @return {any}
- */
-export function extractValue(outputFieldKey, extractorParams, elementValues) {
-    switch (outputFieldKey) {
-        case 'age':
-            return new AgeExtractor().extract(elementValues, extractorParams);
-        case 'name':
-            return new NameExtractor().extract(elementValues, extractorParams);
-
-        // all addresses are processed the same way
-        case 'addressFull':
-        case 'addressFullList':
-            return new AddressFullExtractor().extract(elementValues, extractorParams);
-        case 'addressCityState':
-        case 'addressCityStateList':
-            return new CityStateExtractor().extract(elementValues, extractorParams);
-
-        case 'alternativeNamesList':
-            return new AlternativeNamesExtractor().extract(elementValues, extractorParams);
-        case 'relativesList':
-            return new RelativesExtractor().extract(elementValues, extractorParams);
-        case 'phone':
-        case 'phoneList':
-            return new PhoneExtractor().extract(elementValues, extractorParams);
-        case 'profileUrl':
-            return new ProfileUrlExtractor().extract(elementValues, extractorParams);
-    }
-    return null;
-}
-
-/**
  * A list of transforms that should be applied to the profile after extraction/aggregation
  *
  * @param {Record<string, any>} profile
- * @param {Record<string, ExtractProfileProperty>} params
+ * @param {ProfileSpec} profileSpec - the original `profile` block from the action
  * @return {Promise<Record<string, any>>}
  */
-async function applyPostTransforms(profile, params) {
+async function applyPostTransforms(profile, profileSpec) {
     /** @type {import("../types.js").AsyncProfileTransform[]} */
     const transforms = [
         // creates a hash if needed
@@ -340,43 +426,58 @@ async function applyPostTransforms(profile, params) {
 
     let output = profile;
     for (const knownTransform of transforms) {
-        output = await knownTransform.transform(output, params);
+        output = await knownTransform.transform(output, profileSpec);
     }
 
     return output;
 }
 
 /**
- * Coerce separator from JSON to a string or RegExp for use with String#split.
- * If separator is a string in the form "/pattern/", the middle is used as a regex pattern.
+ * Coerce a JSON-safe string into a RegExp when it is in the form "/pattern/" or "/pattern/i".
+ * Anything else (including unsupported flags like "/pattern/g") is returned unchanged and
+ * treated as a literal string, preserving existing behaviour.
  *
- * @param {string} [separator]
- * @return {string|RegExp|undefined}
+ * @template T
+ * @param {T} value
+ * @return {T|RegExp}
  */
-function parseRegexSeparator(separator) {
-    if (typeof separator === 'string' && separator.length >= 2 && separator.startsWith('/') && separator.endsWith('/')) {
-        return new RegExp(separator.slice(1, -1));
+export function parseRegexFromString(value) {
+    const match = typeof value === 'string' && value.match(/^\/(.+)\/(i?)$/);
+    return match ? new RegExp(match[1], match[2]) : value;
+}
+
+/**
+ * Split `value` once on `matcher`, keeping the text before or after the first occurrence.
+ *
+ * Literal (string) matchers preserve the existing `String#split` behaviour exactly. RegExp
+ * matchers use match + slice so that capture groups never interleave into the result (unlike
+ * `String#split` with a capturing group), and so the "after" side keeps everything following
+ * the first match rather than the text up to the next occurrence.
+ *
+ * @param {string} value
+ * @param {string|RegExp} matcher
+ * @param {'after'|'before'} keep
+ * @return {string|undefined}
+ */
+function splitOnce(value, matcher, keep) {
+    if (matcher instanceof RegExp) {
+        const match = value.match(matcher);
+        if (!match || match.index === undefined) return undefined;
+        return keep === 'after' ? value.slice(match.index + match[0].length) : value.slice(0, match.index);
     }
-    return separator;
+    return keep === 'after' ? value.split(matcher)[1] : value.split(matcher)[0];
 }
 
 /**
  * @param {string} inputList
- * @param {string} [separator] - literal string, or "/pattern/" for regex (JSON-safe)
+ * @param {string} [separator] - literal string, or "/pattern/" / "/pattern/i" for regex (JSON-safe)
  * @return {string[]}
  */
 export function stringToList(inputList, separator) {
     const defaultSeparator = /[|\n•·]/;
-    const splitOn = parseRegexSeparator(separator) || defaultSeparator;
+    const splitOn = parseRegexFromString(separator) || defaultSeparator;
     return cleanArray(inputList.split(splitOn));
 }
-
-// For extraction
-const rules = {
-    profileUrl: function (link) {
-        return link?.href ?? null;
-    },
-};
 
 /**
  * Remove common prefixes and suffixes such as

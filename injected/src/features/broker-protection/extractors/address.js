@@ -1,45 +1,101 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js';
-import { stringToList } from '../actions/extract.js';
+import { firstString, selectStrings, stringToList } from '../actions/extract.js';
 import parseAddress from 'parse-address';
 import { states } from '../comparisons/constants.js';
 
 /**
- * @implements {Extractor<{city:string; state: string|null}[]>}
+ * City/state text read from separate elements, before normalisation. An empty string for either
+ * means nothing was found there.
+ * @typedef {{city: string, state: string}} CityStatePart
  */
-export class CityStateExtractor {
-    /**
-     * @param {string[]} strs
-     * @param {import('../actions/extract.js').ExtractorParams} extractorParams
-     */
-    extract(strs, extractorParams) {
-        const cityStateList = strs.map((str) => stringToList(str, extractorParams.separator)).flat();
-        return getCityStateCombos(cityStateList);
+
+/**
+ * Extract city/state combos from one of the two shapes a {@link import('../actions/extract.js').CityStateSpec} can take:
+ * - combined: `selector` resolves to "City, ST" text (optionally a delimited list)
+ * - nested: `selector` resolves to each result row, with `city` (and optional `state`) sub-selectors
+ *   read relative to that row. `state` may be omitted, or may even reach outside the row.
+ *
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').CityStateSpec} spec
+ * @return {{ city: string, state: string|null }[]}
+ */
+export function extractCityState(select, root, spec) {
+    if (isNestedCityStateSpec(spec)) {
+        const { city, state } = spec;
+        return select(root, spec.selector, spec.findElements).flatMap((row) =>
+            cityStatePartToCombo({
+                city: firstString(selectStrings(select, row, city)),
+                state: state ? firstString(selectStrings(select, row, state)) : '',
+            }),
+        );
     }
+    return cityStateCombosFromStrings(selectStrings(select, root, spec), spec.separator);
 }
 
 /**
- * @implements {Extractor<{city:string; state: string|null}[]>}
+ * Whether a city/state spec is the nested shape (per-row `city`/`state` sub-selectors) rather than a
+ * combined "City, ST" selector. Uses an own-property check, not `in`, so a polluted
+ * `Object.prototype.city` can't force nested mode.
+ *
+ * @param {import('../actions/extract.js').CityStateSpec} spec
+ * @return {spec is import('../actions/extract.js').NestedCityStateSpec}
  */
-export class AddressFullExtractor {
-    /**
-     * @param {string[]} strs
-     * @param {import('../actions/extract.js').ExtractorParams} extractorParams
-     */
-    extract(strs, extractorParams) {
-        return (
-            strs
-                .map((str) => str.replace('\n', ' '))
-                .map((str) => stringToList(str, extractorParams.separator))
-                .flat()
-                .map((str) => parseAddress.parseLocation(str) || {})
-                // at least 'city' is required.
-                .filter((parsed) => Boolean(parsed?.city))
-                .map((addr) => {
-                    return { city: addr.city, state: addr.state || null };
-                })
-        );
-    }
+function isNestedCityStateSpec(spec) {
+    return (
+        Object.prototype.hasOwnProperty.call(spec, 'city') &&
+        Boolean(/** @type {import('../actions/extract.js').NestedCityStateSpec} */ (spec).city?.selector)
+    );
+}
+
+/**
+ * Parse combined "City, ST" strings (each possibly a delimited list of combos) into city/state combos.
+ *
+ * @param {string[]} strings
+ * @param {string} [separator]
+ * @return {{ city: string, state: string|null }[]}
+ */
+export function cityStateCombosFromStrings(strings, separator) {
+    return strings.flatMap((value) => getCityStateCombos(stringToList(value, separator)));
+}
+
+/**
+ * Convert a structured `{city, state}` part (city and state read from separate elements) into a
+ * city/state combo. City is required; state is optional: when the state element yields no text the
+ * combo is kept as `{ city, state: null }`. That's deliberate — it lets us scrape pages that don't
+ * show a state anywhere. A state that is present but unrecognised drops the combo.
+ *
+ * @param {CityStatePart} part
+ * @return {{ city: string, state: string|null }[]}
+ */
+export function cityStatePartToCombo({ city, state }) {
+    const trimmedCity = city.trim();
+    if (!trimmedCity) return [];
+
+    const trimmedState = state.trim();
+    if (!trimmedState) return [{ city: trimmedCity, state: null }];
+
+    const normalized = normalizeState(trimmedState);
+    return normalized ? [{ city: trimmedCity, state: normalized }] : [];
+}
+
+/**
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').TextFieldSpec} spec
+ * @return {{ city: string, state: string|null }[]}
+ */
+export function extractAddressFull(select, root, spec) {
+    return (
+        selectStrings(select, root, spec)
+            .map((str) => str.replace('\n', ' '))
+            .flatMap((str) => stringToList(str, spec.separator))
+            .map((str) => parseAddress.parseLocation(str) || {})
+            // at least 'city' is required.
+            .filter((parsed) => Boolean(parsed?.city))
+            .map((addr) => {
+                return { city: addr.city, state: addr.state || null };
+            })
+    );
 }
 
 /**
@@ -66,15 +122,55 @@ function getCityStateCombos(inputList) {
             continue;
         }
 
-        const state = words.pop();
+        const stateCandidate = words.pop();
         const city = words.join(' ');
 
-        // exclude invalid states
-        if (state && !Object.keys(states).includes(state.toUpperCase())) {
+        // Normalise the candidate to a state abbreviation. Full state names (e.g. "Florida")
+        // are accepted and converted; anything we don't recognise is discarded.
+        const state = stateCandidate ? normalizeState(stateCandidate) : null;
+        if (stateCandidate && !state) {
             continue;
         }
 
-        output.push({ city, state: state || null });
+        output.push({ city, state });
     }
     return output;
+}
+
+/**
+ * Reverse lookup of the `states` constant: lowercased full state name -> uppercase abbreviation.
+ * Built lazily and memoised, since most tokens are already abbreviations and never need it.
+ * @type {Record<string, string> | null}
+ */
+let stateNameToAbbreviation = null;
+
+/**
+ * Normalise a state token to its uppercase abbreviation.
+ *
+ * Accepts either a valid abbreviation ("fl", "FL") or a full state name ("Florida", "florida"),
+ * matched case-insensitively. Returns null for anything we don't recognise.
+ *
+ * @param {string} token
+ * @return {string|null}
+ */
+export function normalizeState(token) {
+    const trimmed = token.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    const upper = trimmed.toUpperCase();
+    if (Object.prototype.hasOwnProperty.call(states, upper)) {
+        // own-prop check, not `in`, to ignore a polluted prototype
+        return upper;
+    }
+
+    if (stateNameToAbbreviation === null) {
+        stateNameToAbbreviation = /** @type {Record<string, string>} */ (Object.create(null)); // null proto, no inherited keys
+        for (const [abbreviation, name] of Object.entries(states)) {
+            stateNameToAbbreviation[name.toLowerCase()] = abbreviation;
+        }
+    }
+
+    return stateNameToAbbreviation[trimmed.toLowerCase()] ?? null;
 }

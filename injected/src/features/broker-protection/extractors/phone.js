@@ -1,19 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js';
-import { stringToList } from '../actions/extract.js';
+import { selectStrings, stringToList } from '../actions/extract.js';
 
 /**
- * @implements {Extractor<string[]>}
+ * @param {import('../actions/extract.js').Select} select
+ * @param {import('../actions/extract.js').ElementLike} root
+ * @param {import('../actions/extract.js').TextFieldSpec} spec
+ * @return {string[]}
  */
-export class PhoneExtractor {
-    /**
-     * @param {string[]} strs
-     * @param {import('../actions/extract.js').ExtractorParams} extractorParams
-     */
-    extract(strs, extractorParams) {
-        return strs
-            .map((str) => stringToList(str, extractorParams.separator))
-            .flat()
-            .map((str) => str.replace(/\D/g, ''));
-    }
+export function extractPhone(select, root, spec) {
+    return selectStrings(select, root, spec)
+        .flatMap((str) => stringToList(str, spec.separator))
+        .map((str) => str.replace(/\D/g, ''));
 }
