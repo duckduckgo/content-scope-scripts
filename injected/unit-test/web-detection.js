@@ -1201,6 +1201,7 @@ describe('WebDetection', () => {
         // intentionally NOT used: a loaded captcha library is not a visible challenge and
         // would inflate the per-navigation ratio.
         describe('captcha vendor detectors', () => {
+            /** @type {Record<string, import('../src/features/web-detection/parse.js').MatchCondition>} */
             const captcha = {
                 recaptcha: {
                     element: {
@@ -1224,7 +1225,14 @@ describe('WebDetection', () => {
                 },
                 cloudflare: {
                     element: {
-                        selector: ['#challenge-form', '#cf-wrapper', '.cf-browser-verification', '#challenge-running', '#cf-challenge-running', '#challenge-stage'],
+                        selector: [
+                            '#challenge-form',
+                            '#cf-wrapper',
+                            '.cf-browser-verification',
+                            '#challenge-running',
+                            '#cf-challenge-running',
+                            '#challenge-stage',
+                        ],
                         visibility: 'visible',
                     },
                 },
@@ -1291,7 +1299,9 @@ describe('WebDetection', () => {
                 });
 
                 it('zero-size hcaptcha does not match', () => {
-                    expect(matchInDOM('<div class="h-captcha"></div>', captcha.hcaptcha, { zeroSizeSelectors: ['.h-captcha'] })).toBe(false);
+                    expect(matchInDOM('<div class="h-captcha"></div>', captcha.hcaptcha, { zeroSizeSelectors: ['.h-captcha'] })).toBe(
+                        false,
+                    );
                 });
 
                 it('hidden turnstile widget (display:none) does not match', () => {
