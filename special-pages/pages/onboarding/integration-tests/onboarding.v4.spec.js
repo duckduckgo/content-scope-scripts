@@ -890,23 +890,23 @@ test.describe('onboarding v4', () => {
             ]);
         });
 
-        test('prefers ErrorEvent.message over a non-Error event.error', async ({ page }, workerInfo) => {
-            // A thrown non-Error value (e.g. `throw 'raw string'`) surfaces as a truthy `event.error` with no
-            // `.message`, plus the browser's own `event.message`. Dispatch a synthetic event rather than a real
-            // throw because the browser-generated message text differs across Chromium and WebKit.
+        test('stringifies a thrown non-Error value', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app' });
 
             await page.evaluate(() => {
-                window.dispatchEvent(new ErrorEvent('error', { message: 'Uncaught raw string', error: 'raw string' }));
+                setTimeout(() => {
+                    // eslint-disable-next-line no-throw-literal -- intentional: a non-Error throw surfaces via event.error
+                    throw 'raw string';
+                }, 0);
             });
 
             const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
             expect(calls).toMatchObject([
                 {
                     payload: {
-                        params: { message: '[uncaught] Uncaught raw string' },
+                        params: { message: '[uncaught] raw string' },
                     },
                 },
             ]);

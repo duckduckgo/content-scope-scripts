@@ -84,7 +84,14 @@ const messaging = createSpecialPageMessaging({
 const historyPage = new HistoryPage(messaging);
 
 window.addEventListener('error', (event) => {
-    const message = event.error?.message || event.message || 'unknown error';
+    let message = 'unknown error';
+    if (event.error?.message) {
+        message = event.error.message;
+    } else if (event.error) {
+        message = String(event.error);
+    } else if (event.message) {
+        message = event.message;
+    }
     historyPage.reportInitException({ message: `[uncaught] ${message}` });
 });
 
