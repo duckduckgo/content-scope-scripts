@@ -310,6 +310,55 @@ test.describe('Broker Protection communications', () => {
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta);
         });
 
+        test('extracts profileUrl from an element attribute', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-attribute.html');
+            await dbp.receivesAction('extract-attribute.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            const profileUrl = new URL('/profile/John-Smith/BMFrB9EB', baseURL).href;
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Wesley Smith',
+                    alternativeNames: ['John J Smith', 'John W Smith', 'John Walter Smith', 'John Wesle Smith'],
+                    age: '61',
+                    addresses: [
+                        { city: 'Canton', state: 'MI' },
+                        { city: 'Detroit', state: 'MI' },
+                        { city: 'Ecorse', state: 'MI' },
+                        { city: 'Warren', state: 'MI' },
+                    ],
+                    phoneNumbers: [],
+                    relatives: ['Edward L Smith', 'Jeanette Sims Johnson', 'Johnnie Johnson', 'Renee Marie Johnson'],
+                    profileUrl,
+                    identifier: profileUrl,
+                },
+            ]);
+        });
+
+        test('extracts profileUrl from the current page URL', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-page-url.html');
+            await dbp.receivesAction('extract-page-url.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            const pageUrl = baseURL + 'broker-protection/pages/results-page-url.html';
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Smith',
+                    alternativeNames: [],
+                    age: '40',
+                    addresses: [{ city: 'Chicago', state: 'IL' }],
+                    phoneNumbers: [],
+                    relatives: [],
+                    profileUrl: pageUrl,
+                    identifier: pageUrl,
+                },
+            ]);
+        });
+
         test('returns an empty array when no profile selector matches but the no results selector is present', async ({
             page,
         }, workerInfo) => {

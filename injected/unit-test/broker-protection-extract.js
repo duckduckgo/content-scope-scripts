@@ -482,4 +482,105 @@ describe('create profiles from extracted data', () => {
         };
         expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
     });
+
+    describe("'attribute' extraction", () => {
+        const originalLocation = globalThis.location;
+        beforeEach(() => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://broker.example.com/search?q=john' };
+        });
+        afterEach(() => {
+            globalThis.location = originalLocation;
+        });
+
+        /**
+         * @param {Record<string, string|null>} attributes
+         * @param {Record<string, any>} [extras]
+         */
+        const fakeElement = (attributes, extras = {}) => ({
+            getAttribute: (/** @type {string} */ name) => attributes[name] ?? null,
+            ...extras,
+        });
+
+        it('reads a named attribute instead of the element text', () => {
+            const element = fakeElement({ 'data-age': '42' }, { innerText: 'ignore me' });
+            expect(stringValuesFromElements([element], 'age', { selector: '.age', attribute: 'data-age' })).toEqual(['42']);
+        });
+
+        it('keeps an absolute profileUrl attribute unchanged', () => {
+            const element = fakeElement({ 'data-link': 'https://example.com/1234' });
+            const profile = createProfile(() => [element], { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://example.com/1234',
+                identifier: 'https://example.com/1234',
+            });
+        });
+
+        it('resolves a relative profileUrl attribute to an absolute URL', () => {
+            const element = fakeElement({ 'data-link': '/profile/John-Smith/BMFrB9EB' });
+            const profile = createProfile(() => [element], { profileUrl: { selector: '.view-profile', attribute: 'data-link' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://broker.example.com/profile/John-Smith/BMFrB9EB',
+                identifier: 'https://broker.example.com/profile/John-Smith/BMFrB9EB',
+            });
+        });
+
+        it('prefers the profileUrl attribute over the resolved href', () => {
+            const element = fakeElement({ href: '/raw/relative' }, { href: 'https://resolved.example.com/abs' });
+            const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'href' } });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://broker.example.com/raw/relative',
+                identifier: 'https://broker.example.com/raw/relative',
+            });
+        });
+
+        it('returns null when the attribute is absent', () => {
+            const element = fakeElement({});
+            const profile = createProfile(() => [element], { profileUrl: { selector: 'a', attribute: 'data-missing' } });
+            expect(profile.profileUrl).toBeNull();
+        });
+    });
+
+    describe("source 'pageUrl'", () => {
+        const originalLocation = globalThis.location;
+        afterEach(() => {
+            globalThis.location = originalLocation;
+        });
+
+        it('reads profileUrl from the current page URL without touching the DOM', () => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://example.com/results?id=abc' };
+            const elementFactory = () => {
+                throw new Error('elementFactory should not be called for a pageUrl source');
+            };
+            const profile = createProfile(elementFactory, { profileUrl: { source: 'pageUrl' } });
+            expect(profile).toEqual({
+                profileUrl: { profileUrl: 'https://example.com/results?id=abc', identifier: 'https://example.com/results?id=abc' },
+            });
+        });
+
+        it('parses an identifier param out of the page URL', () => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://example.com/results?profileId=xyz789' };
+            const profile = createProfile(() => [], {
+                profileUrl: { source: 'pageUrl', identifierType: 'param', identifier: 'profileId' },
+            });
+            expect(profile.profileUrl).toEqual({
+                profileUrl: 'https://example.com/results?profileId=xyz789',
+                identifier: 'xyz789',
+            });
+        });
+
+        it('coexists with selector-based fields', () => {
+            // @ts-expect-error - mocking location
+            globalThis.location = { href: 'https://example.com/p?id=1' };
+            const elementFactory = (/** @type {string} */ key) => ({ age: [{ innerText: '42' }] })[key] ?? [];
+            const profile = createProfile(elementFactory, {
+                age: { selector: '.age' },
+                profileUrl: { source: 'pageUrl' },
+            });
+            expect(profile.age).toEqual('42');
+            expect(profile.profileUrl).toEqual({ profileUrl: 'https://example.com/p?id=1', identifier: 'https://example.com/p?id=1' });
+        });
+    });
 });

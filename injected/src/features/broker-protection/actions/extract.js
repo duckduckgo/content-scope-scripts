@@ -16,20 +16,32 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  */
 
 /**
+ * Where a profile property's value comes from, used instead of a `selector`.
+ * - `'pageUrl'`: read the value from the current page URL (`globalThis.location.href`)
+ * @typedef {'pageUrl'} SourceType
+ */
+
+/**
  * @typedef {'param'|'path'|'hash'} IdentifierType
  * @typedef {Object} ExtractProfileProperty
  * For example: {
  *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
  * }
- * @property {string} selector - xpath or css selector
+ * @property {string} [selector] - xpath or css selector (omit when reading from a `source` instead)
  * @property {boolean} [findElements] - whether to get all occurrences of the selector
  * @property {string} [afterText] - get all text after this string
  * @property {string} [beforeText] - get all text before this string
  * @property {string} [separator] - split the text on this string, or use a regex by passing "/pattern/" (e.g. "/(?<=, [A-Z]{2}), /")
  * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
  * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
+ * @property {string} [attribute] - read this attribute (e.g. "data-link") instead of the element's text. The raw attribute value is used, except for `profileUrl` which is resolved to an absolute URL against the page (like an `<a href>`)
+ * @property {SourceType} [source] - read the value from this source instead of a `selector`
  *
  * @typedef {Omit<ExtractProfileProperty, 'selector' | 'findElements'>} ExtractorParams
+ */
+
+/**
+ * @typedef {Partial<Pick<HTMLElement, 'innerText' | 'textContent' | 'getAttribute'>>} ElementLike
  */
 
 /**
@@ -92,7 +104,8 @@ export function extractProfiles(action, userData, root = document) {
     return {
         results: profilesElementList.map((element) => {
             const elementFactory = (_, value) => {
-                return value?.findElements
+                if (!value?.selector) return [];
+                return value.findElements
                     ? cleanArray(getElements(element, value.selector))
                     : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector));
             };
@@ -129,7 +142,7 @@ export function extractProfiles(action, userData, root = document) {
  *   "profileUrl": "https://example.com/1234"
  * }
  *
- * @param {(key: string, value: ExtractProfileProperty) => {innerText: string}[]} elementFactory
+ * @param {(key: string, value: ExtractProfileProperty) => ElementLike[]} elementFactory
  *   a function that produces elements for a given key + ExtractProfileProperty
  * @param {Record<string, ExtractProfileProperty>} extractData
  * @return {Record<string, any>}
@@ -137,30 +150,30 @@ export function extractProfiles(action, userData, root = document) {
 export function createProfile(elementFactory, extractData) {
     const output = {};
     for (const [key, value] of Object.entries(extractData)) {
-        if (!value?.selector) {
-            output[key] = null;
-        } else {
-            const elements = elementFactory(key, value);
-
-            // extract all strings first
-            const evaluatedValues = stringValuesFromElements(elements, key, value);
-
-            // clean them up - trimming, removing empties
-            const noneEmptyArray = cleanArray(evaluatedValues);
-
-            // Note: This can return any valid JSON valid, it depends on the extractor used.
-            const extractedValue = extractValue(key, value, noneEmptyArray);
-
-            // try to use the extracted value, or fall back to null
-            // this allows 'extractValue' to return null|undefined
-            output[key] = extractedValue || null;
-        }
+        const strings = stringsForProfileField(elementFactory, key, value);
+        output[key] = extractValue(key, value, strings) || null;
     }
     return output;
 }
 
 /**
- * @param {({ textContent: string } | { innerText: string })[]} elements
+ * Resolve a profile field's raw candidate strings from whichever source it declares:
+ * a non-DOM `source` (e.g. the page URL), or DOM elements matched by its `selector`.
+ *
+ * @param {(key: string, value: ExtractProfileProperty) => ElementLike[]} elementFactory
+ * @param {string} key
+ * @param {ExtractProfileProperty} value
+ * @return {string[]}
+ */
+function stringsForProfileField(elementFactory, key, value) {
+    if (value?.source === 'pageUrl') {
+        return cleanArray(globalThis.location.href);
+    }
+    return cleanArray(stringValuesFromElements(elementFactory(key, value), key, value));
+}
+
+/**
+ * @param {ElementLike[]} elements
  * @param {string} key
  * @param {ExtractProfileProperty} extractField
  * @return {string[]}
@@ -169,7 +182,9 @@ export function stringValuesFromElements(elements, key, extractField) {
     return elements.map((element) => {
         let elementValue;
 
-        if ('innerText' in element) {
+        if (extractField?.attribute && 'getAttribute' in element) {
+            elementValue = element.getAttribute?.(extractField.attribute) ?? null;
+        } else if ('innerText' in element) {
             elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
 
             // In instances where we use the text() node test, innerText will be undefined, and we fall back to textContent
