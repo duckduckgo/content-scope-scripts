@@ -210,6 +210,30 @@ test.describe('Broker Protection communications', () => {
             ]);
         });
 
+        test('extract with regex afterText / beforeText / separator (case-insensitive)', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-regex.html');
+            await dbp.receivesAction('extract-regex.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Smith',
+                    age: '38',
+                    alternativeNames: ['J Smith', 'John Smith', 'Johnny'],
+                    addresses: [
+                        { city: 'Chicago', state: 'IL' },
+                        { city: 'Evanston', state: 'IL' },
+                    ],
+                    phoneNumbers: [],
+                    relatives: [],
+                    profileUrl: baseURL + 'profile/john-smith/8f2a3b',
+                    identifier: baseURL + 'profile/john-smith/8f2a3b',
+                },
+            ]);
+        });
+
         test('extract profile from irregular HTML 1', async ({ page, baseURL }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();

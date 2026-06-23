@@ -1,4 +1,9 @@
-import { aggregateFields, createProfile, stringsFromElements } from '../src/features/broker-protection/actions/extract.js';
+import {
+    aggregateFields,
+    createProfile,
+    parseRegexFromString,
+    stringsFromElements,
+} from '../src/features/broker-protection/actions/extract.js';
 import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
 
 const ROOT = {};
@@ -252,6 +257,19 @@ describe('create profiles from extracted data', () => {
                     },
                 },
                 elements: [{ innerText: 'John Smith, 39, Jane Doe, 45, Bob Jones, 28' }],
+                expected: {
+                    relatives: ['Bob Jones', 'Jane Doe', 'John Smith'],
+                },
+            },
+            {
+                // "/pattern/i" splits on either case; the uppercase "AKA" only matches with the flag.
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                        separator: '/\\s*aka\\s*/i',
+                    },
+                },
+                elements: [{ innerText: 'John Smith aka Jane Doe AKA Bob Jones' }],
                 expected: {
                     relatives: ['Bob Jones', 'Jane Doe', 'John Smith'],
                 },
@@ -634,6 +652,94 @@ describe('create profiles from extracted data', () => {
                 expect(profile.age).toEqual('42');
                 expect(profile.profileUrl).toEqual({ profileUrl: 'https://example.com/p?id=1', identifier: 'https://example.com/p?id=1' });
             });
+        });
+    });
+
+    describe('parseRegexFromString', () => {
+        it('returns plain strings unchanged (literal)', () => {
+            expect(parseRegexFromString('age:')).toBe('age:');
+            expect(parseRegexFromString('Also Known as:')).toBe('Also Known as:');
+            expect(parseRegexFromString('')).toBe('');
+        });
+
+        it('returns non-string values unchanged', () => {
+            expect(parseRegexFromString(undefined)).toBe(undefined);
+            expect(parseRegexFromString(null)).toBe(null);
+        });
+
+        it('parses "/pattern/" into a flagless RegExp', () => {
+            const result = parseRegexFromString('/x/');
+            expect(result instanceof RegExp).toBe(true);
+            expect(/** @type {RegExp} */ (result).source).toBe('x');
+            expect(/** @type {RegExp} */ (result).flags).toBe('');
+        });
+
+        it('parses "/pattern/i" into a case-insensitive RegExp', () => {
+            const result = parseRegexFromString('/age:?\\s*/i');
+            expect(result instanceof RegExp).toBe(true);
+            expect(/** @type {RegExp} */ (result).source).toBe('age:?\\s*');
+            expect(/** @type {RegExp} */ (result).flags).toBe('i');
+        });
+
+        it('leaves strings with unsupported flags literal (e.g. "/x/g")', () => {
+            expect(parseRegexFromString('/x/g')).toBe('/x/g');
+            expect(parseRegexFromString('/x/gi')).toBe('/x/gi');
+        });
+
+        it('leaves degenerate slash strings literal ("/" and "//")', () => {
+            // Needs at least one character between the slashes to be a pattern.
+            expect(parseRegexFromString('/')).toBe('/');
+            expect(parseRegexFromString('//')).toBe('//');
+        });
+
+        it('leaves a string that only starts (or only ends) with a slash literal', () => {
+            expect(parseRegexFromString('/age')).toBe('/age');
+            expect(parseRegexFromString('age/')).toBe('age/');
+        });
+    });
+
+    describe('afterText / beforeText with regex patterns', () => {
+        it('matches case-insensitively with the /i flag (afterText)', () => {
+            expect(stringsFromElements([{ innerText: 'AGE: 39' }], { selector: 'x', afterText: '/age:?\\s*/i' })).toEqual(['39']);
+            expect(stringsFromElements([{ innerText: 'Age 39' }], { selector: 'x', afterText: '/age:?\\s*/i' })).toEqual(['39']);
+        });
+
+        it('matches case-insensitively with the /i flag (beforeText)', () => {
+            expect(
+                stringsFromElements([{ innerText: 'John Smith AKA Johnny' }], {
+                    selector: 'x',
+                    beforeText: '/\\s+aka\\s+/i',
+                }),
+            ).toEqual(['John Smith']);
+        });
+
+        it('falls back to the original value when the regex does not match', () => {
+            expect(stringsFromElements([{ innerText: 'no label here' }], { selector: 'x', afterText: '/age:?\\s*/i' })).toEqual([
+                'no label here',
+            ]);
+            expect(stringsFromElements([{ innerText: 'no label here' }], { selector: 'x', beforeText: '/\\s+aka\\s+/i' })).toEqual([
+                'no label here',
+            ]);
+        });
+
+        it('keeps everything after the first regex match (multi-occurrence)', () => {
+            // match + slice keeps everything after the FIRST match. Literal String#split(x)[1]
+            // would instead return only the text between the first two matches ("x2").
+            expect(stringsFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], { selector: 'x', afterText: '/\\s*sep\\s*/i' })).toEqual([
+                'x2 SEP x3',
+            ]);
+            expect(stringsFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], { selector: 'x', afterText: ' SEP ' })).toEqual(['x2']);
+        });
+
+        it('keeps everything before the first regex match (multi-occurrence)', () => {
+            expect(stringsFromElements([{ innerText: 'x1 SEP x2 SEP x3' }], { selector: 'x', beforeText: '/\\s*sep\\s*/i' })).toEqual([
+                'x1',
+            ]);
+        });
+
+        it('does not leak capture groups into the result', () => {
+            // match + slice (not String#split) means a capture group never interleaves into the output.
+            expect(stringsFromElements([{ innerText: 'Age 39' }], { selector: 'x', afterText: '/(age):?\\s*/i' })).toEqual(['39']);
         });
     });
 });

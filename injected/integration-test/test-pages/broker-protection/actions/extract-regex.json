@@ -1,0 +1,45 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "id": "extract-regex",
+            "selector": ".search-item",
+            "profile": {
+                "name": {
+                    "selector": ".search-item__name",
+                    "beforeText": "/\\s+verified/i"
+                },
+                "age": {
+                    "selector": ".search-item__age",
+                    "afterText": "/age:?\\s+/i"
+                },
+                "alternativeNamesList": {
+                    "selector": ".search-item__aka",
+                    "separator": "/\\s*aka\\s*/i"
+                },
+                "addressCityStateList": {
+                    "selector": ".search-item__city",
+                    "findElements": true
+                },
+                "profileUrl": {
+                    "selector": ".search-item__cta"
+                }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "age": "38",
+                "addresses": [
+                    {
+                        "addressLine1": "123 Fake St",
+                        "city": "Chicago",
+                        "state": "IL",
+                        "zip": "60602"
+                    }
+                ]
+            }
+        }
+    }
+}
