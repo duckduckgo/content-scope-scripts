@@ -871,6 +871,47 @@ test.describe('onboarding v4', () => {
             ]);
         });
 
+        test("falls back to 'unknown error' when ErrorEvent has neither error nor message", async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                window.dispatchEvent(new ErrorEvent('error', { error: null }));
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] unknown error' },
+                    },
+                },
+            ]);
+        });
+
+        test('prefers ErrorEvent.message over a non-Error event.error', async ({ page }, workerInfo) => {
+            // A thrown non-Error value (e.g. `throw 'raw string'`) surfaces as a truthy `event.error` with no
+            // `.message`, plus the browser's own `event.message`. Dispatch a synthetic event rather than a real
+            // throw because the browser-generated message text differs across Chromium and WebKit.
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app' });
+
+            await page.evaluate(() => {
+                window.dispatchEvent(new ErrorEvent('error', { message: 'Uncaught raw string', error: 'raw string' }));
+            });
+
+            const calls = await onboarding.mocks.waitForCallCount({ method: 'reportInitException', count: 1 });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        params: { message: '[uncaught] Uncaught raw string' },
+                    },
+                },
+            ]);
+        });
+
         test('reports primitive and nullish rejection reasons distinctly', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             await onboarding.reducedMotion();
