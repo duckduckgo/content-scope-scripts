@@ -5,6 +5,55 @@ import { readFileSync } from 'node:fs';
 const CONFIG = './integration-test/test-pages/web-detection/config/config.json';
 
 /**
+ * Captcha detectors mirroring privacy-configuration/features/web-detection.json (the `captcha`
+ * group) with the Windows conditionalChanges applied inline (auto trigger + per-provider
+ * fireEvent), so this test exercises the same auto-run → fireEvent path the product ships.
+ * Detection is element + visibility only (a *visible* challenge); keep selectors in sync with config.
+ */
+const CAPTCHA_DETECTORS = {
+    recaptcha: {
+        match: { element: { selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"], visibility: 'visible' } },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
+        actions: { fireEvent: { type: 'captcha_recaptcha' } },
+    },
+    hcaptcha: {
+        match: { element: { selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"], visibility: 'visible' } },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
+        actions: { fireEvent: { type: 'captcha_hcaptcha' } },
+    },
+    turnstile: {
+        // :not(#turnstile-wrapper) excludes the Cloudflare interstitial's own Turnstile wrapper, so an
+        // interstitial is counted as `cloudflare`, not `turnstile`.
+        match: { element: { selector: ['.cf-turnstile:not(#turnstile-wrapper)', '.cf-turnstile:not(#turnstile-wrapper) iframe'], visibility: 'visible' } },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
+        actions: { fireEvent: { type: 'captcha_turnstile' } },
+    },
+    cloudflare: {
+        match: {
+            element: {
+                selector: ['#challenge-form', '#cf-wrapper', '.cf-browser-verification', '#challenge-running', '#cf-challenge-running', '#challenge-stage'],
+                visibility: 'visible',
+            },
+        },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
+        actions: { fireEvent: { type: 'captcha_cloudflare' } },
+    },
+    other: {
+        match: {
+            text: {
+                pattern: [
+                    'press (and|&) hold to (confirm|verify)',
+                    'slide( right)? to (verify|complete)',
+                    'complete the security check to (access|continue)',
+                ],
+            },
+        },
+        triggers: { auto: { state: 'enabled', when: { intervalMs: [100] } } },
+        actions: { fireEvent: { type: 'captcha_other' } },
+    },
+};
+
+/**
  * Helper class for web-detection tests.
  */
 class WebDetectionTestHelper {
@@ -105,6 +154,28 @@ class WebDetectionTestHelper {
             fireEvent: { type: 'adwall' },
         };
         if (configModifier) configModifier(config);
+
+        const collector = ResultsCollector.create(page, projectUse);
+        collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null });
+        await page.clock.install();
+        await collector.load('/web-detection/index.html', config);
+        const helper = new WebDetectionTestHelper(page, collector);
+
+        return { collector, helper };
+    }
+
+    /**
+     * Set up collector for captcha detection tests: enables webEvents and installs the captcha
+     * detector group (auto-run + per-provider fireEvent), with fake timers.
+     *
+     * @param {import('@playwright/test').Page} page
+     * @param {Record<string, any>} projectUse
+     * @returns {Promise<{collector: ResultsCollector, helper: WebDetectionTestHelper}>}
+     */
+    static async setupCaptchaTest(page, projectUse) {
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        config.features.webEvents = { state: 'enabled', hash: 'test', exceptions: [] };
+        config.features.webDetection.settings.detectors.captcha = CAPTCHA_DETECTORS;
 
         const collector = ResultsCollector.create(page, projectUse);
         collector.withMockResponse({ webDetectionAutoRun: null, webEvent: null });
@@ -575,6 +646,49 @@ test.describe('WebDetection Feature', () => {
             // First-success: only 1 webEvent despite 3 intervals
             expect(webEvents.length).toBe(1);
             expect(webEvents[0].type).toBe('adwall');
+        });
+    });
+
+    test.describe('captcha detection (per-provider events)', () => {
+        /** @type {Array<[string, string]>} */
+        const cases = [
+            ['captcha-recaptcha.html', 'captcha_recaptcha'],
+            ['captcha-hcaptcha.html', 'captcha_hcaptcha'],
+            ['captcha-turnstile.html', 'captcha_turnstile'],
+            ['captcha-cloudflare.html', 'captcha_cloudflare'],
+            ['captcha-other.html', 'captcha_other'],
+        ];
+
+        for (const [pageName, expectedType] of cases) {
+            test(`fires exactly ${expectedType} for a visible ${pageName}`, async ({ page }, testInfo) => {
+                const { helper } = await WebDetectionTestHelper.setupCaptchaTest(page, testInfo.project.use);
+                await helper.navigateTo(`/web-detection/pages/${pageName}`);
+
+                await page.clock.fastForward(100);
+
+                const events = await helper.getWebEventNotifications();
+                // Exactly one event, of the expected provider — proves per-provider firing and no
+                // cross-counting (e.g. the Turnstile widget must not also fire captcha_cloudflare).
+                expect(events.map((e) => e.type)).toEqual([expectedType]);
+            });
+        }
+
+        test('does not fire on a page without a captcha', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupCaptchaTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/no-detection.html');
+
+            await page.clock.fastForward(100);
+
+            expect(await helper.getWebEventNotifications()).toEqual([]);
+        });
+
+        test('does not fire for a hidden (display:none) captcha', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupCaptchaTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/captcha-recaptcha-hidden.html');
+
+            await page.clock.fastForward(100);
+
+            expect(await helper.getWebEventNotifications()).toEqual([]);
         });
     });
 });

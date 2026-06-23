@@ -1193,5 +1193,115 @@ describe('WebDetection', () => {
                 expect(matchInDOM('<p>welcome</p>', condition)).toBe(false);
             });
         });
+
+        // Captcha vendor detectors. These mirror the per-provider `captcha` detectors in
+        // privacy-configuration/features/web-detection.json — keep the selectors in sync.
+        // The metric counts *visible* captcha challenges per navigation, so every detector
+        // uses visibility: 'visible'. Window-property signals (window.grecaptcha etc.) are
+        // intentionally NOT used: a loaded captcha library is not a visible challenge and
+        // would inflate the per-navigation ratio.
+        describe('captcha vendor detectors', () => {
+            const captcha = {
+                recaptcha: {
+                    element: {
+                        selector: ['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"],
+                        visibility: 'visible',
+                    },
+                },
+                hcaptcha: {
+                    element: {
+                        selector: ['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"],
+                        visibility: 'visible',
+                    },
+                },
+                turnstile: {
+                    element: {
+                        // :not(#turnstile-wrapper) excludes the Cloudflare interstitial's own Turnstile wrapper
+                        // (<div id="turnstile-wrapper" class="cf-turnstile">), so an interstitial counts as `cloudflare`, not `turnstile`.
+                        selector: ['.cf-turnstile:not(#turnstile-wrapper)', '.cf-turnstile:not(#turnstile-wrapper) iframe'],
+                        visibility: 'visible',
+                    },
+                },
+                cloudflare: {
+                    element: {
+                        selector: ['#challenge-form', '#cf-wrapper', '.cf-browser-verification', '#challenge-running', '#cf-challenge-running', '#challenge-stage'],
+                        visibility: 'visible',
+                    },
+                },
+                other: {
+                    text: {
+                        pattern: [
+                            'press (and|&) hold to (confirm|verify)',
+                            'slide( right)? to (verify|complete)',
+                            'complete the security check to (access|continue)',
+                        ],
+                    },
+                },
+            };
+
+            // Representative visible markup per vendor.
+            const fixtures = {
+                recaptcha:
+                    '<div class="g-recaptcha"></div><iframe src="https://www.google.com/recaptcha/api2/anchor" title="reCAPTCHA"></iframe>',
+                hcaptcha:
+                    '<div class="h-captcha"></div><iframe src="https://newassets.hcaptcha.com/captcha/v1/frame" title="hCaptcha"></iframe>',
+                turnstile:
+                    '<div class="cf-turnstile"><iframe src="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/turnstile"></iframe></div>',
+                // The current Cloudflare interstitial embeds Turnstile via <div id="turnstile-wrapper" class="cf-turnstile">,
+                // so it carries a .cf-turnstile element. It must match `cloudflare` (via #cf-wrapper/#challenge-*) but NOT
+                // `turnstile` — which is why the turnstile selector excludes #turnstile-wrapper.
+                cloudflare:
+                    '<div id="cf-wrapper"><div id="challenge-running">Checking your browser before accessing the site.</div><div id="challenge-stage"><div id="turnstile-wrapper" class="cf-turnstile"><iframe src="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/turnstile"></iframe></div></div></div>',
+                other: '<main><p>Please press and hold to confirm you are human.</p></main>',
+            };
+
+            const vendors = ['recaptcha', 'hcaptcha', 'turnstile', 'cloudflare', 'other'];
+
+            describe('matches its own visible fixture', () => {
+                for (const vendor of vendors) {
+                    it(`${vendor}`, () => {
+                        expect(matchInDOM(fixtures[vendor], captcha[vendor])).toBe(true);
+                    });
+                }
+            });
+
+            describe('does not match other vendors (no double counting)', () => {
+                for (const vendor of vendors) {
+                    for (const fixtureVendor of vendors) {
+                        if (vendor === fixtureVendor) continue;
+                        it(`${fixtureVendor} fixture does not match ${vendor}`, () => {
+                            expect(matchInDOM(fixtures[fixtureVendor], captcha[vendor])).toBe(false);
+                        });
+                    }
+                }
+            });
+
+            describe('does not match when absent', () => {
+                const clean = '<main><h1>Welcome</h1><p>Just an ordinary article with nothing to verify.</p></main>';
+                for (const vendor of vendors) {
+                    it(`${vendor}`, () => {
+                        expect(matchInDOM(clean, captcha[vendor])).toBe(false);
+                    });
+                }
+            });
+
+            describe('visibility gating (only visible challenges count)', () => {
+                it('hidden recaptcha (display:none) does not match', () => {
+                    expect(matchInDOM('<div class="g-recaptcha" style="display: none"></div>', captcha.recaptcha)).toBe(false);
+                });
+
+                it('zero-size hcaptcha does not match', () => {
+                    expect(matchInDOM('<div class="h-captcha"></div>', captcha.hcaptcha, { zeroSizeSelectors: ['.h-captcha'] })).toBe(false);
+                });
+
+                it('hidden turnstile widget (display:none) does not match', () => {
+                    expect(matchInDOM('<div class="cf-turnstile" style="display: none"></div>', captcha.turnstile)).toBe(false);
+                });
+            });
+
+            it('other does not fire on reCAPTCHA\'s "I\'m not a robot" label', () => {
+                expect(matchInDOM('<div class="g-recaptcha">I\'m not a robot</div>', captcha.other)).toBe(false);
+            });
+        });
     });
 });

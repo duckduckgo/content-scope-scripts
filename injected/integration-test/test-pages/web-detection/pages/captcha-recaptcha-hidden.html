@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Captcha - hidden reCAPTCHA</title>
+</head>
+<body>
+    <h1>Sign in</h1>
+    <p>No challenge is shown to the user on this page.</p>
+    <!-- reCAPTCHA present in the DOM but hidden — must NOT be counted as a visible challenge -->
+    <div class="g-recaptcha" style="display: none;" data-sitekey="test">
+        <iframe title="reCAPTCHA" src="about:blank#recaptcha"></iframe>
+    </div>
+</body>
+</html>
