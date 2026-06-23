@@ -1,0 +1,26 @@
+{
+    "readme": "Enables page-context collection with includePageTypeSignals to verify end-to-end signal extraction.",
+    "version": 1,
+    "features": {
+        "pageContext": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "collectOnInit": "enabled",
+                "subscribeToLoad": "enabled",
+                "subscribeToCollect": "enabled",
+                "observeMutations": "enabled",
+                "bodyFallback": "enabled",
+                "trimBlankLinks": "enabled",
+                "includeIframes": "enabled",
+                "includePageTypeSignals": "enabled",
+                "maxContentLength": 9500,
+                "maxTitleLength": 100,
+                "maxDepth": 5000,
+                "cacheExpiration": 30000,
+                "recheckLimit": 5
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

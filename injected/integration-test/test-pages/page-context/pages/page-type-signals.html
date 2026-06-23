@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Page Type Signals Test</title>
+    <meta name="description" content="Test page exercising page-type-signal collection">
+    <meta property="og:type" content="article">
+    <!-- Multi-@type block: priority order matters to consumers (Recipe before the embedded video). -->
+    <script type="application/ld+json">
+        { "@context": "https://schema.org", "@type": ["Recipe", "NewsArticle"] }
+    </script>
+    <!-- Non-canonical casing must still be discovered (case-insensitive selector). -->
+    <script type="APPLICATION/LD+JSON">
+        { "@graph": [{ "@type": "VideoObject" }] }
+    </script>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <p><a href="../index.html">[Page Context]</a></p>
+
+    <article>
+        <h1>Page Type Signals Test</h1>
+        <p>This page exposes JSON-LD <code>@type</code>, <code>og:type</code>, and a declared language so
+        the page-context feature can collect normalized page-type signals.</p>
+    </article>
+</body>
+</html>

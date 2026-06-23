@@ -1,7 +1,6 @@
 import { OptionDefaults } from 'typedoc';
 
-/** @type {Partial<import('typedoc').TypeDocOptionMap>} */
-const config = {
+const config = /** @type {Partial<import('typedoc').TypeDocOptions>} */ ({
     // prettier-ignore
     projectDocuments: [
         'guides/*.md',
@@ -49,6 +48,6 @@ const config = {
     blockTags: [...OptionDefaults.blockTags, '@maxItems'],
     modifierTags: [...OptionDefaults.modifierTags, '@implements'],
     highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid', 'java', 'swift'],
-};
+});
 
 export default config;
