@@ -22,7 +22,7 @@ jobs:
                 os: [ubuntu-latest, windows-latest]
                 workspace: [injected, special-pages]
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
@@ -50,7 +50,7 @@ jobs:
         name: Unit tests (github scripts)
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
@@ -64,7 +64,7 @@ jobs:
             matrix:
                 os: [ubuntu-latest, windows-latest]
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
@@ -96,7 +96,7 @@ jobs:
         outputs:
             version: ${{ steps.pw.outputs.version }}
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - id: pw
               run: |
                   VERSION=$(node -e "const l=require('./package-lock.json'); console.log((l.packages['node_modules/@playwright/test']||l.packages['node_modules/playwright']).version)")
@@ -122,7 +122,7 @@ jobs:
                       # macos=Desktop Safari, ios=iPhone 14, android/android-landscape=Galaxy S III (webkit)
                       projects: --project macos --project ios --project android --project android-landscape
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
@@ -177,7 +177,7 @@ jobs:
                     - project: chrome-mv3
                     - project: firefox
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
@@ -212,7 +212,7 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 15
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
@@ -254,7 +254,7 @@ jobs:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
@@ -280,7 +280,7 @@ jobs:
     production-deps:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:
