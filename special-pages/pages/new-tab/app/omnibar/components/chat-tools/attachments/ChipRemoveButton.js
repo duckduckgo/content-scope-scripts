@@ -25,7 +25,7 @@ export function ChipRemoveButton({ onRemove, label, className, stopPropagation }
                 onRemove();
             }}
         >
-            <CloseSmallIcon class={styles.icon} width="10" height="10" />
+            <CloseSmallIcon width="12" height="12" />
         </button>
     );
 }

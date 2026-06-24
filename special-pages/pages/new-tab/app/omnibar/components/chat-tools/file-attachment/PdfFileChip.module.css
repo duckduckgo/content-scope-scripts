@@ -4,11 +4,11 @@
 
 .card {
     align-items: center;
-    background: var(--ds-color-theme-surface-secondary, rgba(255, 255, 255, 0.84));
+    background: var(--ds-color-theme-surface-tertiary, #fff);
     border-radius: 8px;
     box-shadow:
-        0 1px 4px rgba(0, 0, 0, 0.1),
-        0 4px 8px rgba(0, 0, 0, 0.08);
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.08);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -39,7 +39,7 @@
     border-radius: 4px;
     color: #fff;
     display: flex;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     height: 27px;
     justify-content: center;

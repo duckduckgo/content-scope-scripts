@@ -28,8 +28,3 @@
         box-shadow: var(--focus-ring);
     }
 }
-
-.icon {
-    stroke: currentColor;
-    stroke-width: 1px;
-}
