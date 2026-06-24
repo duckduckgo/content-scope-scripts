@@ -1,4 +1,5 @@
 import { Fragment, h } from 'preact';
+import { useLayoutEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
 import { TabFavicon } from './TabFavicon';
@@ -20,6 +21,12 @@ import styles from './MentionPicker.module.css';
  */
 export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSelect, isAttached, listboxId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const listRef = useRef(/** @type {HTMLUListElement | null} */ (null));
+
+    useLayoutEffect(() => {
+        const active = listRef.current?.children[activeIndex];
+        active?.scrollIntoView({ block: 'nearest' });
+    }, [activeIndex]);
 
     return (
         <div class={styles.panel} role="dialog" aria-label={t('omnibar_attachTabsPickerLabel')}>
@@ -30,7 +37,7 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
                     <div class={styles.header}>
                         <span class={styles.headerTitle}>{t('omnibar_attachTabsPickerTitle')}</span>
                     </div>
-                    <ul class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsPickerTitle')}>
+                    <ul ref={listRef} class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsPickerTitle')}>
                         {filtered.map((tab, index) => {
                             const isActive = index === activeIndex;
                             const attached = isAttached(tab.tabId);
