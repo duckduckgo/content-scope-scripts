@@ -210,6 +210,30 @@ test.describe('Broker Protection communications', () => {
             ]);
         });
 
+        test('extract with regex afterText / beforeText / separator (case-insensitive)', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-regex.html');
+            await dbp.receivesAction('extract-regex.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Smith',
+                    age: '38',
+                    alternativeNames: ['J Smith', 'John Smith', 'Johnny'],
+                    addresses: [
+                        { city: 'Chicago', state: 'IL' },
+                        { city: 'Evanston', state: 'IL' },
+                    ],
+                    phoneNumbers: [],
+                    relatives: [],
+                    profileUrl: baseURL + 'profile/john-smith/8f2a3b',
+                    identifier: baseURL + 'profile/john-smith/8f2a3b',
+                },
+            ]);
+        });
+
         test('extract profile from irregular HTML 1', async ({ page, baseURL }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
@@ -308,6 +332,77 @@ test.describe('Broker Protection communications', () => {
                 },
             ]);
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta);
+        });
+
+        test('extracts profileUrl from an element attribute', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-attribute.html');
+            await dbp.receivesAction('extract-attribute.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            const profileUrl = new URL('/profile/John-Smith/BMFrB9EB', baseURL).href;
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Wesley Smith',
+                    alternativeNames: ['John J Smith', 'John W Smith', 'John Walter Smith', 'John Wesle Smith'],
+                    age: '61',
+                    addresses: [
+                        { city: 'Canton', state: 'MI' },
+                        { city: 'Detroit', state: 'MI' },
+                        { city: 'Ecorse', state: 'MI' },
+                        { city: 'Warren', state: 'MI' },
+                    ],
+                    phoneNumbers: [],
+                    relatives: ['Edward L Smith', 'Jeanette Sims Johnson', 'Johnnie Johnson', 'Renee Marie Johnson'],
+                    profileUrl,
+                    identifier: profileUrl,
+                },
+            ]);
+        });
+
+        test('extracts profileUrl from the current page URL', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-page-url.html');
+            await dbp.receivesAction('extract-page-url.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            const pageUrl = baseURL + 'broker-protection/pages/results-page-url.html';
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Smith',
+                    alternativeNames: [],
+                    age: '40',
+                    addresses: [{ city: 'Chicago', state: 'IL' }],
+                    phoneNumbers: [],
+                    relatives: [],
+                    profileUrl: pageUrl,
+                    identifier: pageUrl,
+                },
+            ]);
+        });
+
+        test('extracts city and state from separate elements', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-nested-city-state.html');
+            await dbp.receivesAction('extract-nested-city-state.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+
+            const profiles = response[0].payload.params.result.success.response;
+            expect(profiles).toHaveLength(1);
+            expect(profiles[0]).toMatchObject({
+                name: 'Mark West',
+                alternativeNames: [],
+                age: '46',
+                addresses: [{ city: 'Dallas', state: 'TX' }],
+                phoneNumbers: [],
+                relatives: [],
+                profileUrl: baseURL + 'person/mark-west/2',
+                identifier: baseURL + 'person/mark-west/2',
+            });
         });
 
         test('returns an empty array when no profile selector matches but the no results selector is present', async ({

@@ -41383,20 +41383,17 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
   var newTabMessaging = new NewTabPage(messaging, "integration");
   window.addEventListener("error", (event) => {
     let message = "unknown error";
-    if (typeof event.error?.message === "string") {
+    if (event.error?.message) {
       message = event.error.message;
     } else if (event.error) {
       message = String(event.error);
+    } else if (event.message) {
+      message = event.message;
     }
     newTabMessaging.reportInitException(`[uncaught] ${message}`);
   });
   window.addEventListener("unhandledrejection", (event) => {
-    let message = "unknown rejection";
-    if (typeof event.reason?.message === "string") {
-      message = event.reason.message;
-    } else if (event.reason) {
-      message = String(event.reason);
-    }
+    const message = event.reason?.message || String(event.reason);
     newTabMessaging.reportInitException(`[unhandledrejection] ${message}`);
   });
   var root = document.querySelector("#app");

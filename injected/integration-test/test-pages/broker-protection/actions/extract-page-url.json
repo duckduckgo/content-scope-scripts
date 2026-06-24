@@ -1,0 +1,27 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "selector": ".search-item",
+            "profile": {
+                "name": { "selector": ".name" },
+                "age": { "selector": ".age" },
+                "addressCityStateList": { "selector": ".location" },
+                "profileUrl": { "source": "pageUrl" }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "age": "40",
+                "addresses": [
+                    {
+                        "city": "Chicago",
+                        "state": "IL"
+                    }
+                ]
+            }
+        }
+    }
+}
