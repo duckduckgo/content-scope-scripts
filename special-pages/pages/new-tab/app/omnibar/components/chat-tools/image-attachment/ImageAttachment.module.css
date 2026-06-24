@@ -7,10 +7,10 @@
 }
 
 .thumbnail {
-    border: 2px solid var(--ds-color-theme-surface-primary);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-    box-sizing: border-box;
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.08);
     display: block;
     height: var(--sp-14);
     object-fit: cover;
