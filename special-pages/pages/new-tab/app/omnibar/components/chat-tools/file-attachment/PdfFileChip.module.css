@@ -17,6 +17,14 @@
     justify-content: flex-end;
     padding: var(--sp-1);
     width: var(--sp-14);
+
+    [data-theme="dark"] & {
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow:
+            0 0 0 1px var(--color-white-at-15),
+            0 1px 4px rgba(0, 0, 0, 0.3),
+            0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 }
 
 .lines {
@@ -31,6 +39,10 @@
     border-radius: 4px;
     height: 6px;
     width: 100%;
+
+    [data-theme="dark"] & {
+        background: var(--color-white-at-15);
+    }
 }
 
 .format {
