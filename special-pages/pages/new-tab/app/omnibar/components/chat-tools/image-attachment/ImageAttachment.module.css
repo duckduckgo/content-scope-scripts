@@ -8,47 +8,17 @@
 
 .thumbnail {
     border: 2px solid var(--ds-color-theme-surface-primary);
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     box-sizing: border-box;
     display: block;
-    height: calc(var(--sp-12) + var(--sp-0_5));
+    height: var(--sp-14);
     object-fit: cover;
-    width: calc(var(--sp-12) + var(--sp-0_5));
+    width: var(--sp-14);
 }
 
 .thumbnailWrapper {
     position: relative;
-}
-
-.thumbnailRemove {
-    align-items: center;
-    background: var(--ds-color-theme-text-primary);
-    border-radius: 100%;
-    border: none;
-    color: var(--ds-color-theme-surface-primary);
-    cursor: pointer;
-    display: flex;
-    height: var(--sp-4);
-    justify-content: center;
-    padding: 0;
-    position: absolute;
-    right: calc(-1 * var(--sp-1));
-    top: calc(-1 * var(--sp-1));
-    width: var(--sp-4);
-
-    [data-theme="dark"] & {
-        background: var(--color-gray-40);
-        outline: 2px solid var(--ds-color-theme-surface-primary);
-    }
-
-    &:hover {
-        opacity: 0.8;
-    }
-
-    &:focus-visible {
-        box-shadow: var(--focus-ring);
-    }
 }
 
 .imageWarning {
