@@ -21,11 +21,10 @@ import styles from './MentionPicker.module.css';
  */
 export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSelect, isAttached, listboxId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const listRef = useRef(/** @type {HTMLUListElement | null} */ (null));
+    const activeRowRef = useRef(/** @type {HTMLLIElement | null} */ (null));
 
     useLayoutEffect(() => {
-        const active = listRef.current?.children[activeIndex];
-        active?.scrollIntoView({ block: 'nearest' });
+        activeRowRef.current?.scrollIntoView({ block: 'nearest' });
     }, [activeIndex]);
 
     return (
@@ -37,12 +36,19 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
                     <div class={styles.header}>
                         <span class={styles.headerTitle}>{t('omnibar_attachTabsPickerTitle')}</span>
                     </div>
-                    <ul ref={listRef} class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsPickerTitle')}>
+                    <ul class={styles.list} role="listbox" id={listboxId} aria-label={t('omnibar_attachTabsPickerTitle')}>
                         {filtered.map((tab, index) => {
                             const isActive = index === activeIndex;
                             const attached = isAttached(tab.tabId);
                             return (
                                 <li
+                                    ref={
+                                        isActive
+                                            ? (el) => {
+                                                  activeRowRef.current = el;
+                                              }
+                                            : undefined
+                                    }
                                     id={`${listboxId}-${tab.tabId}`}
                                     key={tab.tabId}
                                     role="option"

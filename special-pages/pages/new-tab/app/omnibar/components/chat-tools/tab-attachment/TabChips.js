@@ -7,8 +7,6 @@ import styles from './TabChips.module.css';
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
  */
 
-// Decorative "page content" lines (x/y/width in px within the 36px tile) that, together with the
-// favicon in the top-left corner, render the tab thumbnail as the native page-card. Matches Figma.
 const FAVICON_LINES = [
     { left: 22, top: 5, width: 10 },
     { left: 22, top: 11, width: 10 },
