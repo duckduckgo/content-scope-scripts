@@ -2,9 +2,14 @@ import { ErrorResponse, SuccessResponse } from '../types.js';
 import { expectMany } from '../utils/expectations.js';
 
 /**
- * @param {Record<string, any>} action
+ * @typedef {import('../types.js').ExpectationAction} ExpectationAction
+ * @typedef {import('../types.js').ActionResponse} ActionResponse
+ */
+
+/**
+ * @param {ExpectationAction} action
  * @param {Document} root
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
 export function expectation(action, root = document) {
     const results = expectMany(action.expectations, root);

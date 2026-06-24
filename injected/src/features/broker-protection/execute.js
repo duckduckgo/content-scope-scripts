@@ -3,36 +3,56 @@ import { navigate, extract, click, scroll, expectation, fillForm, getCaptchaInfo
 import { ErrorResponse } from './types';
 
 /**
- * @param {import('./types.js').PirAction} action
- * @param {Record<string, any>} inputData
+ * @typedef {import('./types.js').PirAction} PirAction
+ * @typedef {import('./types.js').ActionResponse} ActionResponse
+ * @typedef {import('./types.js').ActionData} ActionData
+ * @typedef {import('./types.js').UserProfile} UserProfile
+ * @typedef {import('./types.js').ExtractedProfile} ExtractedProfile
+ */
+
+/**
+ * @param {PirAction} action
+ * @param {ActionData} inputData
  * @param {Document} [root] - optional root element
- * @return {Promise<import('./types.js').ActionResponse>}
+ * @return {Promise<ActionResponse>}
  */
 export async function execute(action, inputData, root = document) {
     try {
         switch (action.actionType) {
-            case 'navigate':
-                return navigate(action, data(action, inputData, 'userProfile'));
-            case 'extract':
-                return await extract(action, data(action, inputData, 'userProfile'), root);
-            case 'click':
-                return click(action, data(action, inputData, 'userProfile'), root);
+            case 'navigate': {
+                const userProfile = /** @type {UserProfile} */ (data(action, inputData, 'userProfile'));
+                return navigate(action, userProfile);
+            }
+            case 'extract': {
+                const userProfile = /** @type {UserProfile} */ (data(action, inputData, 'userProfile'));
+                return await extract(action, userProfile, root);
+            }
+            case 'click': {
+                const userProfile = /** @type {UserProfile} */ (data(action, inputData, 'userProfile'));
+                return click(action, userProfile, root);
+            }
             case 'expectation':
                 return expectation(action, root);
-            case 'fillForm':
-                return fillForm(action, data(action, inputData, 'extractedProfile'), root);
+            case 'fillForm': {
+                const extractedProfile = /** @type {ExtractedProfile} */ (data(action, inputData, 'extractedProfile'));
+                return fillForm(action, extractedProfile, root);
+            }
             case 'getCaptchaInfo':
                 return await getCaptchaInfo(action, root);
-            case 'solveCaptcha':
-                return solveCaptcha(action, data(action, inputData, 'token'), root);
+            case 'solveCaptcha': {
+                const token = /** @type {string} */ (data(action, inputData, 'token'));
+                return solveCaptcha(action, token, root);
+            }
             case 'condition':
                 return condition(action, root);
             case 'scroll':
                 return scroll(action, root);
             default: {
+                // exhaustive switch ⇒ `action` is `never` here; cast to report an unimplemented actionType
+                const unknownAction = /** @type {{ id: string; actionType: string }} */ (action);
                 return new ErrorResponse({
-                    actionID: action.id,
-                    message: `unimplemented actionType: ${action.actionType}`,
+                    actionID: unknownAction.id,
+                    message: `unimplemented actionType: ${unknownAction.actionType}`,
                 });
             }
         }
@@ -47,8 +67,9 @@ export async function execute(action, inputData, root = document) {
 
 /**
  * @param {{dataSource?: string}} action
- * @param {Record<string, any>} data
+ * @param {ActionData} data
  * @param {string} defaultSource
+ * @return {ActionData[keyof ActionData]} the selected bundle value, looked up by the dynamic `dataSource` key (or null when absent). `valueof ActionData` is `unknown` because the bundle allows extra keys, so each call site asserts the concrete bundle it expects.
  */
 function data(action, data, defaultSource) {
     if (!data) return null;

@@ -4,10 +4,16 @@ import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './g
 import { states } from '../comparisons/constants.js';
 
 /**
- * @param {Record<string, any>} action
+ * @typedef {import('../types.js').FillFormAction} FillFormAction
+ * @typedef {import('../types.js').FormElement} FormElement
+ * @typedef {import('../types.js').ActionResponse} ActionResponse
+ */
+
+/**
+ * @param {FillFormAction} action
  * @param {Record<string, any>} userData
  * @param {Document | HTMLElement} root
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
 export function fillForm(action, userData, root = document) {
     const form = getElement(root, action.selector);
@@ -36,7 +42,7 @@ export function fillForm(action, userData, root = document) {
 /**
  * Try to fill form elements. Collecting results + warnings for reporting.
  * @param {HTMLElement} root
- * @param {{selector: string; type: string; min?: string; max?: string;}[]} elements
+ * @param {FormElement[]} elements
  * @param {Record<string, any>} data
  * @return {({result: true} | {result: false; error: string})[]}
  */

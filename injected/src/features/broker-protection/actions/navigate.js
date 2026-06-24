@@ -3,12 +3,17 @@ import { ErrorResponse, SuccessResponse } from '../types';
 import { buildUrl } from './build-url';
 
 /**
+ * @typedef {import('../types.js').NavigateAction} NavigateAction
+ * @typedef {import('../types.js').ActionResponse} ActionResponse
+ */
+
+/**
  * This builds the proper URL given the URL template and userData.
  * Also, if the action requires a captcha handler, it will inject the necessary code.
  *
- * @param {import('../types.js').PirAction} action
+ * @param {NavigateAction} action
  * @param {Record<string, any>} userData
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
 export function navigate(action, userData) {
     const { id: actionID, actionType } = action;

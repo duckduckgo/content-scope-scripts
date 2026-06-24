@@ -4,13 +4,20 @@ import { extractProfiles } from './extract.js';
 import { processTemplateStringWithUserData } from './build-url-transforms.js';
 
 /**
- * @param {Record<string, any>} action
+ * @typedef {import('../types.js').ClickAction} ClickAction
+ * @typedef {import('../types.js').ClickElement} ClickElement
+ * @typedef {import('../types.js').Choice} Choice
+ * @typedef {import('../types.js').ActionResponse} ActionResponse
+ */
+
+/**
+ * @param {ClickAction} action
  * @param {Record<string, any>} userData
  * @param {Document | HTMLElement} root
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
 export function click(action, userData, root = document) {
-    /** @type {Array<any> | null} */
+    /** @type {ClickElement[] | undefined} */
     let elements = [];
 
     if (action.choices?.length) {
@@ -81,7 +88,7 @@ export function click(action, userData, root = document) {
 }
 
 /**
- * @param {{parent?: {profileMatch?: Record<string, any>}}} clickElement
+ * @param {ClickElement} clickElement
  * @param {Record<string, any>} userData
  * @param {Document | HTMLElement} root
  * @return {Node}
@@ -135,13 +142,17 @@ export function getComparisonFunction(operator) {
 /**
  * Evaluates the defined choices (and/or the default) and returns an array of the elements to be clicked
  *
- * @param {Record<string, any>} action
+ * @param {ClickAction} action
  * @param {Record<string, any>} userData
- * @returns {{ elements: [Record<string, any>] } | { error: String } | null}
+ * @returns {{ elements: ClickElement[] } | { error: string } | null}
  */
 function evaluateChoices(action, userData) {
     if ('elements' in action) {
         return { error: 'Elements should be nested inside of choices' };
+    }
+
+    if (!action.choices?.length) {
+        throw new Error('evaluateChoices requires a non-empty `choices` array');
     }
 
     for (const choice of action.choices) {
@@ -159,7 +170,7 @@ function evaluateChoices(action, userData) {
     }
 
     // If there's no default defined, return an error.
-    if (!('default' in action)) {
+    if (action.default === undefined) {
         return { error: 'All conditions failed and no default action was provided' };
     }
 
@@ -180,10 +191,10 @@ function evaluateChoices(action, userData) {
 /**
  * Attempts to turn a choice definition into an executable comparison and returns the result
  *
- * @param {Record<string, any>} choice
- * @param {Record<string, any>} action
+ * @param {Choice} choice
+ * @param {ClickAction} action
  * @param {Record<string, any>} userData
- * @returns {{ result: Boolean } | { error: String }}
+ * @returns {{ result: boolean } | { error: string }}
  */
 function runComparison(choice, action, userData) {
     let compare;

@@ -6,10 +6,17 @@ import { captchaFactory } from './providers/registry.js';
 import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
 
 /**
+ * @typedef {import('../types.js').NavigateAction} NavigateAction
+ * @typedef {import('../types.js').GetCaptchaInfoAction} GetCaptchaInfoAction
+ * @typedef {import('../types.js').SolveCaptchaAction} SolveCaptchaAction
+ * @typedef {import('../types.js').ActionResponse} ActionResponse
+ */
+
+/**
  *
  * @param {Document | HTMLElement} root
- * @param {import('../types.js').PirAction['selector']} [selector]
- * @returns {HTMLElement | import('../types.js').PirError}
+ * @param {string} [selector]
+ * @returns {HTMLElement | PirError}
  */
 const getCaptchaContainer = (root, selector) => {
     if (!selector) {
@@ -27,8 +34,8 @@ const getCaptchaContainer = (root, selector) => {
 /**
  * Returns the supporting code to inject for the given captcha type
  *
- * @param {import('../types.js').PirAction} action
- * @return {import('../types.js').ActionResponse}
+ * @param {NavigateAction} action
+ * @return {ActionResponse}
  */
 export function getSupportingCodeToInject(action) {
     const { id: actionID, actionType, injectCaptchaHandler: captchaType } = action;
@@ -49,9 +56,9 @@ export function getSupportingCodeToInject(action) {
 /**
  * Gets the captcha information to send to the backend
  *
- * @param {import('../types.js').PirAction} action
+ * @param {GetCaptchaInfoAction} action
  * @param {Document | HTMLElement} root
- * @return {Promise<import('../types.js').ActionResponse>}
+ * @return {Promise<ActionResponse>}
  */
 export async function getCaptchaInfo(action, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
@@ -93,10 +100,10 @@ export async function getCaptchaInfo(action, root = document) {
 /**
  * Takes the solved captcha token and injects it into the page to solve the captcha
  *
- * @param {import('../types.js').PirAction} action
+ * @param {SolveCaptchaAction} action
  * @param {string} token
  * @param {Document} root
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
 export function solveCaptcha(action, token, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;

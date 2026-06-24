@@ -109,12 +109,12 @@ function getIdFromProfileUrl(url, identifierType, identifier) {
  */
 export class ProfileHashTransformer {
     /**
-     * @param {Record<string, any>} profile
-     * @param {Record<string, any> } params
+     * @param {Record<string, any>} profile - the extracted/aggregated profile data to transform
+     * @param {import('../actions/extract.js').ProfileSpec} profileSpec - the action's `profile` block
      * @return {Promise<Record<string, any>>}
      */
-    async transform(profile, params) {
-        if (params?.profileUrl?.identifierType !== 'hash') {
+    async transform(profile, profileSpec) {
+        if (profileSpec?.profileUrl?.identifierType !== 'hash') {
             return profile;
         }
 

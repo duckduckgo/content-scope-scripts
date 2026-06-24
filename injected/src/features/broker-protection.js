@@ -3,10 +3,16 @@ import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
 
+/**
+ * @typedef {import('./broker-protection/types.js').PirAction} PirAction
+ * @typedef {import('./broker-protection/types.js').ActionData} ActionData
+ * @typedef {import('./broker-protection/types.js').ActionResponse} ActionResponse
+ */
+
 export class ActionExecutorBase extends ContentFeature {
     /**
-     * @param {any} action
-     * @param {Record<string, any>} data
+     * @param {PirAction} action
+     * @param {ActionData} data
      */
     async processActionAndNotify(action, data) {
         try {
@@ -48,8 +54,8 @@ export class ActionExecutorBase extends ContentFeature {
     /**
      * Recursively execute actions with the same dataset, collecting all results/exceptions for
      * later analysis
-     * @param {any} action
-     * @param {Record<string, any>} data
+     * @param {PirAction} action
+     * @param {ActionData} data
      * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
      */
     async exec(action, data) {
@@ -75,6 +81,7 @@ export class ActionExecutorBase extends ContentFeature {
     }
 
     /**
+     * @param {PirAction} action
      * @returns {any}
      */
     retryConfigFor(action) {
@@ -82,12 +89,9 @@ export class ActionExecutorBase extends ContentFeature {
     }
 }
 
-/**
- * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
- */
 export default class BrokerProtection extends ActionExecutorBase {
     init() {
-        this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
+        this.messaging.subscribe('onActionReceived', async (/** @type {{ state: { action: PirAction, data: ActionData } }} */ params) => {
             const { action, data } = params.state;
             return await this.processActionAndNotify(action, data);
         });
@@ -96,7 +100,7 @@ export default class BrokerProtection extends ActionExecutorBase {
     /**
      * Define default retry configurations for certain actions
      *
-     * @param {any} action
+     * @param {PirAction} action
      * @returns
      */
     retryConfigFor(action) {

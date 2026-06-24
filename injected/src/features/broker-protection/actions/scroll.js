@@ -2,9 +2,14 @@ import { ErrorResponse, SuccessResponse } from '../types';
 import { getElement } from '../utils/utils';
 
 /**
- * @param {Record<string, any>} action
+ * @typedef {import('../types.js').ScrollAction} ScrollAction
+ * @typedef {import('../types.js').ActionResponse} ActionResponse
+ */
+
+/**
+ * @param {ScrollAction} action
  * @param {Document} root
- * @return {import('../types.js').ActionResponse}
+ * @return {ActionResponse}
  */
 // eslint-disable-next-line no-redeclare
 export function scroll(action, root = document) {
