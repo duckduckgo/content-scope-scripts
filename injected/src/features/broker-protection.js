@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
+import { detectWebInterference } from '../utils/web-interference-detection/detector-service.js';
 
 export class ActionExecutorBase extends ContentFeature {
     /**
@@ -90,6 +91,20 @@ export default class BrokerProtection extends ActionExecutorBase {
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
             return await this.processActionAndNotify(action, data);
+        });
+
+        this.messaging.subscribe('detectInterference', (/** @type {any} */ params) => {
+            console.log('[BrokerProtection] detectInterference request received from native', { params });
+            try {
+                const result = detectWebInterference(params);
+                console.log('[BrokerProtection] Sending detection result to native:', result);
+                return this.messaging.notify('interferenceDetected', result);
+            } catch (error) {
+                console.error('[BrokerProtection] Error detecting interference:', error);
+                return this.messaging.notify('interferenceDetectionError', {
+                    error: error.toString(),
+                });
+            }
         });
     }
 
