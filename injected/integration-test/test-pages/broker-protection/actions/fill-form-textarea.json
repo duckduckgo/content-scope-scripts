@@ -1,0 +1,25 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "3",
+            "selector": ".ahm",
+            "dataSource": "userProfile",
+            "elements": [
+                {
+                    "type": "profileUrl",
+                    "selector": "#profile_url"
+                }
+            ]
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "city": "Chicago",
+                "state": "IL",
+                "profileUrl": "https://www.veripages.com/profile/John-Smith-12345"
+            }
+        }
+    }
+}
