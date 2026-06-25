@@ -121,22 +121,8 @@ jobs:
                       echo "source_branch=${SOURCE_BRANCH}" >> "$GITHUB_OUTPUT"
                       echo "source_head_sha=${SOURCE_HEAD_SHA}" >> "$GITHUB_OUTPUT"
                   else
-                      FETCH_DIR="$(mktemp -d)"
-                      git -C "$FETCH_DIR" init -q
-                      git -C "$FETCH_DIR" fetch --depth=2 "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "refs/heads/${BUILD_BRANCH}"
-                      BUILD_PARENT="$(git -C "$FETCH_DIR" rev-parse FETCH_HEAD^)"
-                      rm -rf "$FETCH_DIR"
-
-                      if [ "$BUILD_PARENT" = "$SOURCE_HEAD_SHA" ]; then
-                          echo "preview_state=ready" >> "$GITHUB_OUTPUT"
-                      else
-                          echo "Build branch ${BUILD_BRANCH} is stale: parent ${BUILD_PARENT} does not match source head ${SOURCE_HEAD_SHA}"
-                          echo "preview_state=stale" >> "$GITHUB_OUTPUT"
-                      fi
-
                       echo "build_branch=${BUILD_BRANCH}" >> "$GITHUB_OUTPUT"
                       echo "commit_hash=${COMMIT_HASH}" >> "$GITHUB_OUTPUT"
-                      echo "build_parent=${BUILD_PARENT}" >> "$GITHUB_OUTPUT"
                       echo "source_branch=${SOURCE_BRANCH}" >> "$GITHUB_OUTPUT"
                       echo "source_head_sha=${SOURCE_HEAD_SHA}" >> "$GITHUB_OUTPUT"
                   fi
@@ -146,7 +132,6 @@ jobs:
               uses: actions/github-script@v9
               env:
                   BUILD_BRANCH: ${{ steps.resolve.outputs.build_branch }}
-                  BUILD_PARENT: ${{ steps.resolve.outputs.build_parent }}
                   BUILD_RESULT: ${{ needs.build.result }}
                   COMMIT_HASH: ${{ steps.resolve.outputs.commit_hash }}
                   PREVIEW_STATE: ${{ steps.resolve.outputs.preview_state }}
@@ -156,17 +141,16 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const buildBranch = process.env.BUILD_BRANCH;
-                      const buildParent = process.env.BUILD_PARENT;
                       const buildResult = process.env.BUILD_RESULT;
                       const commitHash = process.env.COMMIT_HASH;
-                      const previewState = process.env.PREVIEW_STATE;
+                      let buildParent = '';
+                      let previewState = process.env.PREVIEW_STATE;
                       const sourceBranch = process.env.SOURCE_BRANCH;
                       const sourceHeadSha = process.env.SOURCE_HEAD_SHA;
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${buildBranch}`;
                       const commitUrl = commitHash ? `${repoUrl}/commit/${commitHash}` : '';
                       const sourceHeadUrl = `${repoUrl}/commit/${sourceHeadSha}`;
-                      const buildParentUrl = buildParent ? `${repoUrl}/commit/${buildParent}` : '';
 
                       const lastUpdated = (new Date()).toLocaleString('en-US', {
                           dateStyle: 'long',
@@ -174,6 +158,22 @@ jobs:
                       });
 
                       const marker = '<!-- BUILD_BRANCH_COMMENT -->';
+
+                      if (commitHash) {
+                          const { data: buildCommit } = await github.rest.repos.getCommit({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              ref: commitHash,
+                          });
+                          buildParent = buildCommit.parents[0]?.sha || '';
+                          previewState = buildParent === sourceHeadSha ? 'ready' : 'stale';
+
+                          if (previewState === 'stale') {
+                              console.log(`Build branch ${buildBranch} is stale: parent ${buildParent} does not match source head ${sourceHeadSha}`);
+                          }
+                      }
+
+                      const buildParentUrl = buildParent ? `${repoUrl}/commit/${buildParent}` : '';
 
                       let commentBody;
 
