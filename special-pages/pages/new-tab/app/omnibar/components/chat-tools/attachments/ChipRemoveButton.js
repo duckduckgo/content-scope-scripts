@@ -1,5 +1,4 @@
 import { h } from 'preact';
-import cn from 'classnames';
 import { CloseSmallIcon } from '../../../../components/Icons';
 import styles from './ChipRemoveButton.module.css';
 
@@ -10,15 +9,14 @@ import styles from './ChipRemoveButton.module.css';
  * @param {object} props
  * @param {() => void} props.onRemove
  * @param {string} props.label
- * @param {string} [props.className] - optional extra classes merged onto the button.
  * @param {boolean} [props.stopPropagation] - stop the click bubbling, e.g. when the chip itself is clickable.
  */
-export function ChipRemoveButton({ onRemove, label, className, stopPropagation }) {
+export function ChipRemoveButton({ onRemove, label, stopPropagation }) {
     return (
         <button
             type="button"
             tabIndex={0}
-            class={cn(styles.remove, className)}
+            class={styles.remove}
             aria-label={label}
             onClick={(e) => {
                 if (stopPropagation) e.stopPropagation();
