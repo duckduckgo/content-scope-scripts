@@ -165,6 +165,7 @@ function setValueForInput(el, val) {
     let target;
     if (el.tagName === 'INPUT') target = window.HTMLInputElement;
     if (el.tagName === 'SELECT') target = window.HTMLSelectElement;
+    if (el.tagName === 'TEXTAREA') target = window.HTMLTextAreaElement;
 
     // Bail early if we cannot fill this element
     if (!target) {
@@ -180,7 +181,7 @@ function setValueForInput(el, val) {
 
     try {
         // separate strategies for inputs vs selects
-        if (el.tagName === 'INPUT') {
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
             // set the input value
             el.dispatchEvent(new Event('keydown', { bubbles: true }));
             originalSet.call(el, val);
