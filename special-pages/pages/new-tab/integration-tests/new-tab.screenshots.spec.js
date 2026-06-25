@@ -358,6 +358,12 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             'base64',
         );
 
+        /** A 1x1 PNG for image `setInputFiles` without a fixture file. */
+        const pngBytes = Buffer.from(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwADhQGAWjR9awAAAABJRU5ErkJggg==',
+            'base64',
+        );
+
         test('attach menu open', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
@@ -401,6 +407,17 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await omnibar.fileInput().setInputFiles({ name: 'q3-report.pdf', mimeType: 'application/pdf', buffer: pdfBytes });
             await expect(omnibar.fileChip()).toHaveCount(1);
             await expect(page).toHaveScreenshot('omnibar-attached-file-chip.png', { maxDiffPixels });
+        });
+
+        test('attached image chip', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: attachmentsConfig });
+            await omnibar.ready();
+            await omnibar.fileInput().setInputFiles({ name: 'shot.png', mimeType: 'image/png', buffer: pngBytes });
+            await expect(omnibar.attachmentChips().locator('[data-attachment-kind="image"]')).toHaveCount(1);
+            await expect(page).toHaveScreenshot('omnibar-attached-image-chip.png', { maxDiffPixels });
         });
 
         test('attached chips of mixed types share one row', async ({ page }, workerInfo) => {

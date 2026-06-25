@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { useLayoutEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './Dropdown.module.css';
 
@@ -47,9 +48,21 @@ export function DropdownItem({
     onHover,
     onClick,
 }) {
+    const itemRef = useRef(/** @type {HTMLLIElement | null} */ (null));
+
+    useLayoutEffect(() => {
+        if (isActive) itemRef.current?.scrollIntoView({ block: 'nearest' });
+    }, [isActive]);
+
+    /** @param {HTMLLIElement | null} el */
+    const setRef = (el) => {
+        itemRef.current = el;
+        if (elementRef) elementRef.current = el;
+    };
+
     return (
         <li
-            ref={elementRef}
+            ref={setRef}
             id={id}
             role={role}
             aria-checked={ariaChecked}
