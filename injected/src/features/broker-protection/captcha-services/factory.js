@@ -58,6 +58,8 @@ export class CaptchaFactory {
      * @returns {Array<import('./providers/provider.interface').CaptchaProvider>}
      */
     _getAllProviders() {
-        return Array.from(this.providers.values());
+        // Aliases register the same provider instance under multiple keys, so deduplicate to
+        // avoid running a provider's detection methods once per alias on the detection miss path.
+        return Array.from(new Set(this.providers.values()));
     }
 }

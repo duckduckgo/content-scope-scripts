@@ -80,5 +80,20 @@ describe('CaptchaFactory', () => {
             expect(detected).toBe(provider);
             expect(provider.isSupportedForElement).toHaveBeenCalledTimes(1);
         });
+
+        it('does not probe an aliased provider once per alias on the detection miss path', () => {
+            const factory = new CaptchaFactory();
+            const provider = createStubProvider('image');
+            // Nothing matches, so detection iterates every distinct provider rather than
+            // short-circuiting. Without deduplication the aliased provider would be probed
+            // once per registered key.
+            spyOn(provider, 'isSupportedForElement').and.returnValue(false);
+
+            factory.registerProvider(provider, { aliases: ['red-circle', 'local-llm'] });
+
+            const detected = factory.detectProvider(/** @type {any} */ ({}), /** @type {any} */ ({}));
+            expect(detected).toBe(null);
+            expect(provider.isSupportedForElement).toHaveBeenCalledTimes(1);
+        });
     });
 });
