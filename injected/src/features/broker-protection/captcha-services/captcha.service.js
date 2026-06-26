@@ -81,10 +81,17 @@ export async function getCaptchaInfo(action, root = document) {
         return createError(captchaIdentifier.error.message);
     }
 
+    // Determine the type to report to dbp-api. When the requested captchaType resolved to its
+    // provider (including via an alias such as 'red-circle' → ImageProvider), echo the requested
+    // type back so aliased captchas are reported under the distinct type the backend expects. If
+    // we instead fell back to detection because the requested type didn't match the element, report
+    // the detected provider's canonical type.
+    const reportedType = captchaFactory.getProviderByType(captchaType) === captchaProvider ? captchaType : captchaProvider.getType();
+
     const response = {
         url: removeUrlQueryParams(window.location.href), // query params (which may include PII)
         siteKey: captchaIdentifier,
-        type: captchaProvider.getType(),
+        type: reportedType,
     };
 
     return SuccessResponse.create({ actionID, actionType, response });
