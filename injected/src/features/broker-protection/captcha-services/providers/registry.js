@@ -22,6 +22,6 @@ captchaFactory.registerProvider(
 );
 
 captchaFactory.registerProvider(new CloudFlareTurnstileProvider());
-captchaFactory.registerProvider(new ImageProvider(), { aliases: ['red-circle', 'local-llm'] });
+captchaFactory.registerProvider(new ImageProvider(), { aliases: ['red-circle', 'basic-math'] });
 
 export { captchaFactory };
