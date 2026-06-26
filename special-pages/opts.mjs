@@ -28,7 +28,8 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, config) {
         bundle: true,
         format: 'iife',
         sourcemap: nodeEnv === 'development',
-        target: 'safari14',
+        // safari14.1+ required for esbuild 0.28+ destructuring compat (see evanw/esbuild#4436)
+        target: 'safari14.1',
         logOverride: { 'unsupported-css-nesting': 'silent' },
         loader: {
             '.js': 'jsx',
