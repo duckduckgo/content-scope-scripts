@@ -9,9 +9,19 @@ export class CaptchaFactory {
     /**
      * Register a captcha provider
      * @param {import('./providers/provider.interface').CaptchaProvider} provider - The provider to register
+     * @param {Object} [options] - The optional provider options
+     * @param {Array<string>} [options.aliases] - An optional list of aliases for that provider
      */
-    registerProvider(provider) {
+    registerProvider(provider, options) {
         this.providers.set(provider.getType(), provider);
+
+        // Some captchas use the same DOM mechanisms to get the relevant captcha information, but
+        // need to call dbp-api with a distinct captcha type.
+        if (options?.aliases) {
+            options?.aliases.forEach((alias) => {
+                this.providers.set(alias, provider);
+            });
+        }
     }
 
     /**
