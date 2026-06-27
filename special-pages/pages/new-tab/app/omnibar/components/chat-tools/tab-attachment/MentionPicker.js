@@ -1,4 +1,5 @@
 import { Fragment, h } from 'preact';
+import { useLayoutEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
 import { TabFavicon } from './TabFavicon';
@@ -20,6 +21,11 @@ import styles from './MentionPicker.module.css';
  */
 export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSelect, isAttached, listboxId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const activeRowRef = useRef(/** @type {HTMLLIElement | null} */ (null));
+
+    useLayoutEffect(() => {
+        activeRowRef.current?.scrollIntoView({ block: 'nearest' });
+    }, [activeIndex]);
 
     return (
         <div class={styles.panel} role="dialog" aria-label={t('omnibar_attachTabsPickerLabel')}>
@@ -36,6 +42,13 @@ export function MentionPicker({ filtered, activeIndex, onActiveIndexChange, onSe
                             const attached = isAttached(tab.tabId);
                             return (
                                 <li
+                                    ref={
+                                        isActive
+                                            ? (el) => {
+                                                  activeRowRef.current = el;
+                                              }
+                                            : undefined
+                                    }
                                     id={`${listboxId}-${tab.tabId}`}
                                     key={tab.tabId}
                                     role="option"

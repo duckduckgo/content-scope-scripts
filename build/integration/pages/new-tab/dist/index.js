@@ -11176,7 +11176,6 @@
         imagePreviewArea: "ImageAttachment_imagePreviewArea",
         thumbnail: "ImageAttachment_thumbnail",
         thumbnailWrapper: "ImageAttachment_thumbnailWrapper",
-        thumbnailRemove: "ImageAttachment_thumbnailRemove",
         imageWarning: "ImageAttachment_imageWarning",
         dismissError: "ImageAttachment_dismissError",
         toolButton: "ImageAttachment_toolButton",
@@ -11353,28 +11352,39 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.module.css
+  var ChipRemoveButton_default;
+  var init_ChipRemoveButton = __esm({
+    "pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.module.css"() {
+      ChipRemoveButton_default = {
+        remove: "ChipRemoveButton_remove"
+      };
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.js
-  function ChipRemoveButton({ className, onRemove, label, stopPropagation, iconStyle }) {
+  function ChipRemoveButton({ onRemove, label, stopPropagation }) {
     return /* @__PURE__ */ k(
       "button",
       {
         type: "button",
         tabIndex: 0,
-        class: className,
+        class: ChipRemoveButton_default.remove,
         "aria-label": label,
         onClick: (e4) => {
           if (stopPropagation) e4.stopPropagation();
           onRemove();
         }
       },
-      /* @__PURE__ */ k(CloseSmallIcon, { width: "10", height: "10", style: iconStyle })
+      /* @__PURE__ */ k(CloseSmallIcon, { width: "12", height: "12" })
     );
   }
-  var init_ChipRemoveButton = __esm({
+  var init_ChipRemoveButton2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.js"() {
       "use strict";
       init_preact_module();
       init_Icons2();
+      init_ChipRemoveButton();
     }
   });
 
@@ -11402,25 +11412,34 @@
       TabChips_default = {
         chip: "TabChips_chip",
         faviconTile: "TabChips_faviconTile",
+        faviconLine: "TabChips_faviconLine",
+        faviconCorner: "TabChips_faviconCorner",
         favicon: "TabChips_favicon",
         faviconFallback: "TabChips_faviconFallback",
-        title: "TabChips_title",
-        remove: "TabChips_remove"
+        title: "TabChips_title"
       };
     }
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.js
   function TabChip({ tab, onRemove, removeLabel }) {
-    return /* @__PURE__ */ k("div", { class: TabChips_default.chip, "data-attachment-kind": "tab" }, /* @__PURE__ */ k("span", { class: TabChips_default.faviconTile, "aria-hidden": "true" }, /* @__PURE__ */ k(TabFavicon, { favicon: tab.favicon, iconSize: 18, className: TabChips_default.favicon, fallbackClassName: TabChips_default.faviconFallback })), /* @__PURE__ */ k("span", { class: TabChips_default.title, title: tab.title }, tab.title), /* @__PURE__ */ k(ChipRemoveButton, { className: TabChips_default.remove, onRemove, label: removeLabel }));
+    return /* @__PURE__ */ k("div", { class: TabChips_default.chip, "data-attachment-kind": "tab" }, /* @__PURE__ */ k("span", { class: TabChips_default.faviconTile, "aria-hidden": "true" }, FAVICON_LINES.map((line, i5) => /* @__PURE__ */ k("span", { key: i5, class: TabChips_default.faviconLine, style: { left: line.left, top: line.top, width: line.width } })), /* @__PURE__ */ k("span", { class: TabChips_default.faviconCorner }, /* @__PURE__ */ k(TabFavicon, { favicon: tab.favicon, iconSize: 16, className: TabChips_default.favicon, fallbackClassName: TabChips_default.faviconFallback }))), /* @__PURE__ */ k("span", { class: TabChips_default.title, title: tab.title }, tab.title), /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel }));
   }
+  var FAVICON_LINES;
   var init_TabChips2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.js"() {
       "use strict";
       init_preact_module();
-      init_ChipRemoveButton();
+      init_ChipRemoveButton2();
       init_TabFavicon();
       init_TabChips();
+      FAVICON_LINES = [
+        { left: 22, top: 5, width: 10 },
+        { left: 22, top: 11, width: 10 },
+        { left: 22, top: 17, width: 10 },
+        { left: 4, top: 23, width: 28 },
+        { left: 4, top: 29, width: 23 }
+      ];
     }
   });
 
@@ -11546,21 +11565,20 @@
         card: "PdfFileChip_card",
         lines: "PdfFileChip_lines",
         line: "PdfFileChip_line",
-        format: "PdfFileChip_format",
-        remove: "PdfFileChip_remove"
+        format: "PdfFileChip_format"
       };
     }
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.js
   function PdfFileChip({ file, onRemove, removeLabel }) {
-    return /* @__PURE__ */ k(Tooltip, { content: file.fileName, position: "above" }, /* @__PURE__ */ k("div", { class: PdfFileChip_default.chipWrapper, "data-attachment-kind": "file" }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.card, "aria-hidden": "true" }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.lines }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.line }), /* @__PURE__ */ k("span", { class: PdfFileChip_default.line })), /* @__PURE__ */ k("span", { class: PdfFileChip_default.format }, "PDF")), /* @__PURE__ */ k(ChipRemoveButton, { className: PdfFileChip_default.remove, onRemove, label: removeLabel })));
+    return /* @__PURE__ */ k(Tooltip, { content: file.fileName, position: "above" }, /* @__PURE__ */ k("div", { class: PdfFileChip_default.chipWrapper, "data-attachment-kind": "file" }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.card, "aria-hidden": "true" }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.lines }, /* @__PURE__ */ k("span", { class: PdfFileChip_default.line }), /* @__PURE__ */ k("span", { class: PdfFileChip_default.line })), /* @__PURE__ */ k("span", { class: PdfFileChip_default.format }, "PDF")), /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel })));
   }
   var init_PdfFileChip2 = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/PdfFileChip.js"() {
       "use strict";
       init_preact_module();
-      init_ChipRemoveButton();
+      init_ChipRemoveButton2();
       init_Tooltip2();
       init_PdfFileChip();
     }
@@ -11585,22 +11603,13 @@
 
   // pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageChip.js
   function ImageChip({ image, onRemove, removeLabel }) {
-    return /* @__PURE__ */ k("div", { class: ImageAttachment_default.thumbnailWrapper, "data-attachment-kind": "image" }, /* @__PURE__ */ k("img", { src: image.dataUrl, alt: "", class: ImageAttachment_default.thumbnail }), /* @__PURE__ */ k(
-      ChipRemoveButton,
-      {
-        className: ImageAttachment_default.thumbnailRemove,
-        onRemove,
-        label: removeLabel,
-        stopPropagation: true,
-        iconStyle: "stroke: currentColor; stroke-width: 1px;"
-      }
-    ));
+    return /* @__PURE__ */ k("div", { class: ImageAttachment_default.thumbnailWrapper, "data-attachment-kind": "image" }, /* @__PURE__ */ k("img", { src: image.dataUrl, alt: "", class: ImageAttachment_default.thumbnail }), /* @__PURE__ */ k(ChipRemoveButton, { onRemove, label: removeLabel, stopPropagation: true }));
   }
   var init_ImageChip = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageChip.js"() {
       "use strict";
       init_preact_module();
-      init_ChipRemoveButton();
+      init_ChipRemoveButton2();
       init_ImageAttachment();
     }
   });
@@ -12353,10 +12362,21 @@
     onHover,
     onClick
   }) {
+    const itemRef = A2(
+      /** @type {HTMLLIElement | null} */
+      null
+    );
+    _2(() => {
+      if (isActive) itemRef.current?.scrollIntoView({ block: "nearest" });
+    }, [isActive]);
+    const setRef = (el) => {
+      itemRef.current = el;
+      if (elementRef) elementRef.current = el;
+    };
     return /* @__PURE__ */ k(
       "li",
       {
-        ref: elementRef,
+        ref: setRef,
         id,
         role,
         "aria-checked": ariaChecked,
@@ -12379,6 +12399,7 @@
     "pages/new-tab/app/omnibar/components/chat-tools/dropdown/DropdownItem.js"() {
       "use strict";
       init_preact_module();
+      init_hooks_module();
       import_classnames15 = __toESM(require_classnames(), 1);
       init_Dropdown();
     }
@@ -13078,12 +13099,22 @@
       /** @type {Strings} */
       {}
     );
+    const activeRowRef = A2(
+      /** @type {HTMLLIElement | null} */
+      null
+    );
+    _2(() => {
+      activeRowRef.current?.scrollIntoView({ block: "nearest" });
+    }, [activeIndex]);
     return /* @__PURE__ */ k("div", { class: MentionPicker_default.panel, role: "dialog", "aria-label": t4("omnibar_attachTabsPickerLabel") }, filtered.length === 0 ? /* @__PURE__ */ k("div", { class: MentionPicker_default.empty }, t4("omnibar_attachTabsNoMatches")) : /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: MentionPicker_default.header }, /* @__PURE__ */ k("span", { class: MentionPicker_default.headerTitle }, t4("omnibar_attachTabsPickerTitle"))), /* @__PURE__ */ k("ul", { class: MentionPicker_default.list, role: "listbox", id: listboxId, "aria-label": t4("omnibar_attachTabsPickerTitle") }, filtered.map((tab, index2) => {
       const isActive = index2 === activeIndex;
       const attached = isAttached(tab.tabId);
       return /* @__PURE__ */ k(
         "li",
         {
+          ref: isActive ? (el) => {
+            activeRowRef.current = el;
+          } : void 0,
           id: `${listboxId}-${tab.tabId}`,
           key: tab.tabId,
           role: "option",
@@ -13117,6 +13148,7 @@
     "pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/MentionPicker.js"() {
       "use strict";
       init_preact_module();
+      init_hooks_module();
       import_classnames18 = __toESM(require_classnames(), 1);
       init_types();
       init_TabFavicon();

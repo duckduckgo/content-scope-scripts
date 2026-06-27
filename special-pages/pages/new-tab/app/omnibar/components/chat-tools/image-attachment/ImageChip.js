@@ -16,13 +16,7 @@ export function ImageChip({ image, onRemove, removeLabel }) {
     return (
         <div class={styles.thumbnailWrapper} data-attachment-kind="image">
             <img src={image.dataUrl} alt="" class={styles.thumbnail} />
-            <ChipRemoveButton
-                className={styles.thumbnailRemove}
-                onRemove={onRemove}
-                label={removeLabel}
-                stopPropagation
-                iconStyle="stroke: currentColor; stroke-width: 1px;"
-            />
+            <ChipRemoveButton onRemove={onRemove} label={removeLabel} stopPropagation />
         </div>
     );
 }

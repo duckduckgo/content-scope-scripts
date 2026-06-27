@@ -24,7 +24,7 @@ export function PdfFileChip({ file, onRemove, removeLabel }) {
                     </span>
                     <span class={styles.format}>PDF</span>
                 </span>
-                <ChipRemoveButton className={styles.remove} onRemove={onRemove} label={removeLabel} />
+                <ChipRemoveButton onRemove={onRemove} label={removeLabel} />
             </div>
         </Tooltip>
     );

@@ -1,4 +1,4 @@
-import { test as base } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import { createConfiguredDbpTest } from './fixtures';
 import {
     createGetRecaptchaInfoAction,
@@ -126,6 +126,22 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.receivesInlineAction(createGetImageCaptchaInfoAction({ selector: '#svg-captcha-rendering' }));
 
                 await dbp.isCaptchaError();
+            });
+
+            test('reports the requested alias type to the backend for an aliased image captcha', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(imageCaptchaTargetPage);
+                // 'red-circle' is registered as an alias of the image provider, so it is resolved and
+                // extracted via the same DOM mechanisms...
+                await dbp.receivesInlineAction(
+                    createGetImageCaptchaInfoAction({ captchaType: 'red-circle', selector: '#svg-captcha-rendering svg' }),
+                );
+                const successResponse = await dbp.getSuccessResponse();
+
+                // ...but the response echoes the alias type that dbp-api expects, not the provider's
+                // canonical 'image' type.
+                expect(successResponse.type).toBe('red-circle');
+                expect(successResponse.siteKey).toMatch(/^data:image\/jpeg;base64,/);
             });
         });
 

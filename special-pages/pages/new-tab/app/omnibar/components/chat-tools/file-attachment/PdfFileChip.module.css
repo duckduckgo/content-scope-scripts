@@ -4,19 +4,27 @@
 
 .card {
     align-items: center;
-    background: var(--ds-color-theme-surface-secondary, rgba(255, 255, 255, 0.84));
+    background: var(--ds-color-theme-surface-tertiary, #fff);
     border-radius: 8px;
     box-shadow:
-        0 1px 4px rgba(0, 0, 0, 0.1),
-        0 4px 8px rgba(0, 0, 0, 0.08);
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.08);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: var(--sp-1);
-    height: calc(var(--sp-12) + var(--sp-0_5));
+    height: var(--sp-14);
     justify-content: flex-end;
     padding: var(--sp-1);
-    width: calc(var(--sp-12) + var(--sp-0_5));
+    width: var(--sp-14);
+
+    [data-theme="dark"] & {
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow:
+            0 0 0 1px var(--color-white-at-15),
+            0 1px 4px rgba(0, 0, 0, 0.3),
+            0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 }
 
 .lines {
@@ -31,53 +39,22 @@
     border-radius: 4px;
     height: 6px;
     width: 100%;
+
+    [data-theme="dark"] & {
+        background: var(--color-white-at-15);
+    }
 }
 
 .format {
     align-items: center;
-    background: #de5833;
+    background: var(--color-red-50);
     border-radius: 4px;
     color: #fff;
     display: flex;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     height: 27px;
     justify-content: center;
     letter-spacing: 1px;
     width: 100%;
-}
-
-.remove {
-    align-items: center;
-    background: var(--ds-color-theme-text-primary);
-    border-radius: 100%;
-    border: none;
-    color: var(--ds-color-theme-surface-primary);
-    cursor: pointer;
-    display: flex;
-    height: var(--sp-4);
-    justify-content: center;
-    padding: 0;
-    position: absolute;
-    right: calc(-1 * var(--sp-1));
-    top: calc(-1 * var(--sp-1));
-    width: var(--sp-4);
-
-    svg {
-        stroke: currentColor;
-        stroke-width: 1px;
-    }
-
-    [data-theme="dark"] & {
-        background: var(--color-gray-40);
-        outline: 2px solid var(--ds-color-theme-surface-primary);
-    }
-
-    &:hover {
-        opacity: 0.8;
-    }
-
-    &:focus-visible {
-        box-shadow: var(--focus-ring);
-    }
 }

@@ -1,4 +1,4 @@
-- build(deps-dev): bump @types/node in the typescript group (#2802)
-- fix(broker-protection): support filling textarea elements in fill-form (#2801)
-- build(deps-dev): bump @playwright/cli from 0.1.13 to 0.1.14 (#2797)
-- build(deps-dev): bump prettier from 3.8.3 to 3.8.4 (#2798)
+- Add aliases for captcha providers (#2803)
+- build(deps-dev): bump @duckduckgo/design-tokens from v0.29.0 to v0.30.0 (#2805)
+- Add captcha detection test coverage for webDetection (#2793)
+- fix(ntp): minor ntp duck.ai attachment fixes (#2800)

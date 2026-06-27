@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Captcha - Cloudflare interstitial</title>
+</head>
+<body>
+    <!-- Current Cloudflare full-page interstitial / managed challenge. It embeds Turnstile via
+         <div id="turnstile-wrapper" class="cf-turnstile">, so it must fire ONLY captcha_cloudflare:
+         the turnstile detector excludes #turnstile-wrapper. -->
+    <div id="cf-wrapper" style="width: 100%; min-height: 400px;">
+        <div id="challenge-running" style="width: 320px; height: 40px;">Checking your browser before accessing the site.</div>
+        <div id="challenge-stage" style="width: 320px; height: 120px;">
+            <div id="turnstile-wrapper" class="cf-turnstile" style="width: 300px; height: 65px;"></div>
+        </div>
+    </div>
+</body>
+</html>

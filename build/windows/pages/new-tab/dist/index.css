@@ -4294,43 +4294,15 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   padding: var(--sp-3) var(--sp-3) 0;
 }
 .ImageAttachment_thumbnail {
-  border: 2px solid var(--ds-color-theme-surface-primary);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  box-sizing: border-box;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.08);
   display: block;
-  height: calc(var(--sp-12) + var(--sp-0_5));
+  height: var(--sp-14);
   object-fit: cover;
-  width: calc(var(--sp-12) + var(--sp-0_5));
+  width: var(--sp-14);
 }
 .ImageAttachment_thumbnailWrapper {
   position: relative;
-}
-.ImageAttachment_thumbnailRemove {
-  align-items: center;
-  background: var(--ds-color-theme-text-primary);
-  border-radius: 100%;
-  border: none;
-  color: var(--ds-color-theme-surface-primary);
-  cursor: pointer;
-  display: flex;
-  height: var(--sp-4);
-  justify-content: center;
-  padding: 0;
-  position: absolute;
-  right: calc(-1 * var(--sp-1));
-  top: calc(-1 * var(--sp-1));
-  width: var(--sp-4);
-}
-[data-theme=dark] .ImageAttachment_thumbnailRemove {
-  background: var(--color-gray-40);
-  outline: 2px solid var(--ds-color-theme-surface-primary);
-}
-.ImageAttachment_thumbnailRemove:hover {
-  opacity: 0.8;
-}
-.ImageAttachment_thumbnailRemove:focus-visible {
-  box-shadow: var(--focus-ring);
 }
 .ImageAttachment_imageWarning {
   align-self: stretch;
@@ -4393,6 +4365,36 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   width: 0;
 }
 
+/* pages/new-tab/app/omnibar/components/chat-tools/attachments/ChipRemoveButton.module.css */
+.ChipRemoveButton_remove {
+  align-items: center;
+  background: var(--ds-color-theme-text-primary);
+  border: none;
+  border-radius: 50%;
+  box-sizing: border-box;
+  color: var(--ds-color-theme-surface-primary);
+  cursor: pointer;
+  display: flex;
+  height: var(--sp-4);
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translate(50%, -50%);
+  width: var(--sp-4);
+}
+[data-theme=dark] .ChipRemoveButton_remove {
+  background: var(--color-gray-40);
+  outline: 2px solid var(--ds-color-theme-surface-primary);
+}
+.ChipRemoveButton_remove:hover {
+  opacity: 0.8;
+}
+.ChipRemoveButton_remove:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 /* pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/TabChips.module.css */
 .TabChips_chip {
   align-items: center;
@@ -4417,25 +4419,49 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
     0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .TabChips_faviconTile {
-  align-items: center;
   background: var(--ds-color-theme-surface-primary, var(--color-black-at-6));
   border-radius: 6px;
   color: var(--ds-color-theme-icons-secondary);
-  display: flex;
   flex: none;
   height: var(--sp-9);
-  justify-content: center;
   overflow: hidden;
+  position: relative;
   width: var(--sp-9);
 }
+.TabChips_faviconLine {
+  background: var(--color-black-at-12);
+  border-radius: 1px;
+  height: 2px;
+  position: absolute;
+}
+[data-theme=dark] .TabChips_faviconLine {
+  background: var(--color-white-at-15);
+}
+.TabChips_faviconCorner {
+  align-items: center;
+  border-radius: 2px;
+  display: flex;
+  height: 16px;
+  justify-content: center;
+  left: 4px;
+  overflow: hidden;
+  position: absolute;
+  top: 4px;
+  width: 16px;
+}
 .TabChips_favicon {
-  border-radius: 3px;
-  height: 20px;
+  border-radius: 2px;
+  height: 16px;
   object-fit: cover;
-  width: 20px;
+  width: 16px;
 }
 .TabChips_faviconFallback {
-  display: contents;
+  align-items: center;
+  color: var(--ds-color-theme-icons-secondary);
+  display: flex;
+  height: 16px;
+  justify-content: center;
+  width: 16px;
 }
 .TabChips_title {
   flex: 1;
@@ -4444,32 +4470,6 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.TabChips_remove {
-  align-items: center;
-  background: var(--ds-color-theme-text-primary);
-  border-radius: 50%;
-  border: none;
-  color: var(--ds-color-theme-surface-primary);
-  cursor: pointer;
-  display: flex;
-  height: var(--sp-4);
-  justify-content: center;
-  padding: 0;
-  position: absolute;
-  right: calc(-1 * var(--sp-1));
-  top: calc(-1 * var(--sp-1));
-  width: var(--sp-4);
-}
-[data-theme=dark] .TabChips_remove {
-  background: var(--color-gray-40);
-  outline: 2px solid var(--ds-color-theme-surface-primary);
-}
-.TabChips_remove:hover {
-  opacity: 0.8;
-}
-.TabChips_remove:focus-visible {
-  box-shadow: var(--focus-ring);
 }
 
 /* pages/new-tab/app/omnibar/components/Tooltip.module.css */
@@ -4526,17 +4526,24 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 .PdfFileChip_card {
   align-items: center;
-  background: var(--ds-color-theme-surface-secondary, rgba(255, 255, 255, 0.84));
+  background: var(--ds-color-theme-surface-tertiary, #fff);
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: var(--sp-1);
-  height: calc(var(--sp-12) + var(--sp-0_5));
+  height: var(--sp-14);
   justify-content: flex-end;
   padding: var(--sp-1);
-  width: calc(var(--sp-12) + var(--sp-0_5));
+  width: var(--sp-14);
+}
+[data-theme=dark] .PdfFileChip_card {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 0 0 1px var(--color-white-at-15),
+    0 1px 4px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .PdfFileChip_lines {
   display: flex;
@@ -4550,48 +4557,21 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   height: 6px;
   width: 100%;
 }
+[data-theme=dark] .PdfFileChip_line {
+  background: var(--color-white-at-15);
+}
 .PdfFileChip_format {
   align-items: center;
-  background: #de5833;
+  background: var(--color-red-50);
   border-radius: 4px;
   color: #fff;
   display: flex;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   height: 27px;
   justify-content: center;
   letter-spacing: 1px;
   width: 100%;
-}
-.PdfFileChip_remove {
-  align-items: center;
-  background: var(--ds-color-theme-text-primary);
-  border-radius: 100%;
-  border: none;
-  color: var(--ds-color-theme-surface-primary);
-  cursor: pointer;
-  display: flex;
-  height: var(--sp-4);
-  justify-content: center;
-  padding: 0;
-  position: absolute;
-  right: calc(-1 * var(--sp-1));
-  top: calc(-1 * var(--sp-1));
-  width: var(--sp-4);
-}
-.PdfFileChip_remove svg {
-  stroke: currentColor;
-  stroke-width: 1px;
-}
-[data-theme=dark] .PdfFileChip_remove {
-  background: var(--color-gray-40);
-  outline: 2px solid var(--ds-color-theme-surface-primary);
-}
-.PdfFileChip_remove:hover {
-  opacity: 0.8;
-}
-.PdfFileChip_remove:focus-visible {
-  box-shadow: var(--focus-ring);
 }
 
 /* pages/new-tab/app/omnibar/components/chat-tools/attachments/AttachmentChips.module.css */

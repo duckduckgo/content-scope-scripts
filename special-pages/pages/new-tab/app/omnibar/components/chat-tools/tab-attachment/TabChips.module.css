@@ -25,27 +25,54 @@
 }
 
 .faviconTile {
-    align-items: center;
     background: var(--ds-color-theme-surface-primary, var(--color-black-at-6));
     border-radius: 6px;
     color: var(--ds-color-theme-icons-secondary);
-    display: flex;
     flex: none;
     height: var(--sp-9);
-    justify-content: center;
     overflow: hidden;
+    position: relative;
     width: var(--sp-9);
 }
 
+.faviconLine {
+    background: var(--color-black-at-12);
+    border-radius: 1px;
+    height: 2px;
+    position: absolute;
+
+    [data-theme="dark"] & {
+        background: var(--color-white-at-15);
+    }
+}
+
+.faviconCorner {
+    align-items: center;
+    border-radius: 2px;
+    display: flex;
+    height: 16px;
+    justify-content: center;
+    left: 4px;
+    overflow: hidden;
+    position: absolute;
+    top: 4px;
+    width: 16px;
+}
+
 .favicon {
-    border-radius: 3px;
-    height: 20px;
+    border-radius: 2px;
+    height: 16px;
     object-fit: cover;
-    width: 20px;
+    width: 16px;
 }
 
 .faviconFallback {
-    display: contents;
+    align-items: center;
+    color: var(--ds-color-theme-icons-secondary);
+    display: flex;
+    height: 16px;
+    justify-content: center;
+    width: 16px;
 }
 
 .title {
@@ -55,34 +82,4 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.remove {
-    align-items: center;
-    background: var(--ds-color-theme-text-primary);
-    border-radius: 50%;
-    border: none;
-    color: var(--ds-color-theme-surface-primary);
-    cursor: pointer;
-    display: flex;
-    height: var(--sp-4);
-    justify-content: center;
-    padding: 0;
-    position: absolute;
-    right: calc(-1 * var(--sp-1));
-    top: calc(-1 * var(--sp-1));
-    width: var(--sp-4);
-
-    [data-theme="dark"] & {
-        background: var(--color-gray-40);
-        outline: 2px solid var(--ds-color-theme-surface-primary);
-    }
-
-    &:hover {
-        opacity: 0.8;
-    }
-
-    &:focus-visible {
-        box-shadow: var(--focus-ring);
-    }
 }
