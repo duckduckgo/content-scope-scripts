@@ -62,6 +62,15 @@ export async function imageToBase64(imageElement) {
     // Captcha images are commonly embedded directly in the DOM as base64 data URLs. In that case the
     // src already is the value we want (correct format and header), so return it without re-encoding.
     if (src.startsWith('data:') && src.includes(';base64,')) {
+        // Enforce the same size cap as the fetch path. Estimate the decoded byte length from the
+        // base64 string length (4 base64 chars -> 3 bytes, minus padding) so we never decode a huge
+        // page-controlled payload just to measure it.
+        const base64Data = src.slice(src.indexOf(',') + 1);
+        const padding = base64Data.endsWith('==') ? 2 : base64Data.endsWith('=') ? 1 : 0;
+        const decodedBytes = Math.floor((base64Data.length * 3) / 4) - padding;
+        if (decodedBytes > MAX_CAPTCHA_IMAGE_BYTES) {
+            throw new Error(`[imageToBase64] captcha image exceeds ${MAX_CAPTCHA_IMAGE_BYTES} bytes: ${decodedBytes}`);
+        }
         return src;
     }
 
