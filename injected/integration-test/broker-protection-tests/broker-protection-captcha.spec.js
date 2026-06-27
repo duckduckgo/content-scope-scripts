@@ -152,6 +152,16 @@ test.describe('Broker Protection Captcha', () => {
                 expect(successResponse.siteKey).toMatch(/^data:image\/gif;base64,/);
             });
 
+            test('returns an error response when a url-hosted captcha image cannot be fetched', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(imageCaptchaTargetPage);
+                await dbp.receivesInlineAction(createGetImageCaptchaInfoAction({ selector: '#missingHostedCaptchaImage' }));
+
+                // A non-ok fetch (404 here) must fail rather than base64-encoding the error body and
+                // sending non-image bytes to dbp-api as the siteKey.
+                await dbp.isCaptchaError();
+            });
+
             test('reports the requested alias type to the backend for an aliased image captcha', async ({ createConfiguredDbp }) => {
                 const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
                 await dbp.navigatesTo(imageCaptchaTargetPage);

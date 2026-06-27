@@ -61,6 +61,11 @@ export async function imageToBase64(imageElement) {
     // Otherwise the image is hosted at a URL — fetch the bytes and encode, preserving the original
     // format/header (e.g. a gif stays 'image/gif' rather than being flattened to a single-frame jpeg).
     const response = await fetch(src);
+    if (!response.ok) {
+        // Bail rather than base64-encoding an error body (404/403/500 etc.) and sending non-image
+        // bytes to dbp-api as the siteKey.
+        throw new Error(`[imageToBase64] failed to fetch image from ${src}: ${response.status} ${response.statusText}`);
+    }
     const blob = await response.blob();
 
     return await new Promise((resolve, reject) => {
