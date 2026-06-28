@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Fingerprinting Hardware - Custom Config</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Fingerprinting Hardware - Custom Config]</a></p>
+
+    <p>This page verifies that hardware fingerprinting properties respect config overrides</p>
+
+    <script>
+        test('Hardware properties with config overrides', async () => {
+            return [
+                {
+                    name: 'navigator.hardwareConcurrency returns config value (16)',
+                    result: navigator.hardwareConcurrency,
+                    expected: 16,
+                },
+                {
+                    name: 'navigator.deviceMemory returns config value (4)',
+                    result: navigator.deviceMemory,
+                    expected: 4,
+                },
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>
