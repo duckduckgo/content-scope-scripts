@@ -40,3 +40,10 @@ coverage/
 .claude/*
 !.claude/skills/
 !.claude/settings.json
+
+# Page-context crawler PoC outputs (#2017)
+# The crawler dumps HARs, page snapshots, and logs into the configured
+# `--output-dir` (default `page-context-collector`). Keep them out of git.
+injected/page-context-collector*/
+injected/integration-test/extension/contentScope.js.today
+injected/integration-test/extension/contentScope.js.backup
