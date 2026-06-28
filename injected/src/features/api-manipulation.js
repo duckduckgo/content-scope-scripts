@@ -151,13 +151,17 @@ export default class ApiManipulation extends ContentFeature {
                 valueDescriptor.value = this.maskMethodReplacement(valueDescriptor.value, origDescriptor.value);
             }
         } else if (descriptorKind === 'getter') {
-            // Mask the new setter against the original native setter (if any) so that
-            // descriptor inspection (`getOwnPropertyDescriptor(...).set.toString()` /
-            // `.set.name`) still resembles the original accessor. Event-handler IDL
-            // attributes such as `Element.prototype.onclick` and
-            // `MediaDevices.prototype.ondevicechange` expose a native setter; without
-            // masking, descriptor probes would see our JS `setter(v) {...}` shape.
+            // Mask the new getter/setter against the original native getter/setter (if
+            // any) so that descriptor inspection
+            // (`getOwnPropertyDescriptor(...).{get,set}.toString()` / `.name`) still
+            // resembles the original accessor. Event-handler IDL attributes such as
+            // `Element.prototype.onclick` and `MediaDevices.prototype.ondevicechange`
+            // expose native getter/setter pairs; without masking, descriptor probes
+            // would see our JS `(v) => ...` shape and trivially detect the override.
             const accessorDescriptor = /** @type {{ get?: () => any, set?: (v: any) => void }} */ (descriptor);
+            if (typeof accessorDescriptor.get === 'function' && typeof origDescriptor.get === 'function') {
+                accessorDescriptor.get = /** @type {() => any} */ (this.maskMethodReplacement(accessorDescriptor.get, origDescriptor.get));
+            }
             if (typeof accessorDescriptor.set === 'function' && typeof origDescriptor.set === 'function') {
                 accessorDescriptor.set = /** @type {(v: any) => void} */ (
                     this.maskMethodReplacement(accessorDescriptor.set, origDescriptor.set)
