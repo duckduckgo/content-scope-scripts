@@ -162,7 +162,7 @@
     letter-spacing: calc(0.06 * var(--px-in-rem));
     color: var(--ds-text-primary);
     white-space: normal;
-    word-break: break-word;
+    overflow-wrap: break-word;
     z-index: 10;
     pointer-events: none;
 }
