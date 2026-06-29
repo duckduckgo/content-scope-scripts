@@ -6,6 +6,55 @@
     "mode"
   ],
   "$defs": {
+    "AttachmentLimits": {
+      "type": "object",
+      "description": "Attachment limits sourced from the Duck.ai backend (`/duckchat/v1/models`, field `attachmentLimits`), already resolved for the user's tier by native. Omitted on older native clients, in which case the web falls back to its built-in defaults.",
+      "required": ["files", "images"],
+      "properties": {
+        "files": {
+          "description": "Limits for file attachments (e.g. PDFs).",
+          "type": "object",
+          "required": ["maxPerConversation", "maxFileSizeMB", "maxTotalFileSizeBytes", "maxPagesPerFile"],
+          "properties": {
+            "maxPerConversation": {
+              "description": "Maximum number of file attachments allowed.",
+              "type": "integer"
+            },
+            "maxFileSizeMB": {
+              "description": "Maximum size of a single file attachment, in megabytes.",
+              "type": "integer"
+            },
+            "maxTotalFileSizeBytes": {
+              "description": "Maximum combined size of all file attachments, in bytes.",
+              "type": "integer"
+            },
+            "maxPagesPerFile": {
+              "description": "Maximum number of pages allowed in a single file (e.g. PDF). Not enforced web-side.",
+              "type": "integer"
+            }
+          }
+        },
+        "images": {
+          "description": "Limits for image attachments.",
+          "type": "object",
+          "required": ["maxPerTurn", "maxPerConversation", "maxInputCharsWithAttachments"],
+          "properties": {
+            "maxPerTurn": {
+              "description": "Maximum number of images allowed in a single submission.",
+              "type": "integer"
+            },
+            "maxPerConversation": {
+              "description": "Maximum number of images allowed across an entire conversation.",
+              "type": "integer"
+            },
+            "maxInputCharsWithAttachments": {
+              "description": "Maximum prompt length (characters) when attachments are present. Not enforced web-side.",
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
     "AIModelSection": {
       "type": "object",
       "description": "A section of AI models with an optional header and a list of model items.",
@@ -111,6 +160,10 @@
       "description": "Sections of AI models for the model selector.",
       "type": "array",
       "items": { "$ref": "#/$defs/AIModelSection" }
+    },
+    "attachmentLimits": {
+      "title": "Attachment Limits",
+      "$ref": "#/$defs/AttachmentLimits"
     },
     "showViewAllAiChats": {
       "title": "Show View All AI Chats",

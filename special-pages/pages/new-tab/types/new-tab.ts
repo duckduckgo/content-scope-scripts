@@ -637,6 +637,7 @@ export interface OmnibarConfig {
   selectedModelId?: SelectedModelID;
   selectedReasoningEffort?: ReasoningEffort;
   aiModelSections?: AIModelSections;
+  attachmentLimits?: AttachmentLimits;
   showViewAllAiChats?: ShowViewAllAIChats;
   enableImageGeneration?: EnableImageGeneration;
   enableWebSearch?: EnableWebSearch;
@@ -693,6 +694,49 @@ export interface AIModelItem {
    * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
    */
   supportedReasoningEffort?: ReasoningEffort[];
+}
+/**
+ * Attachment limits sourced from the Duck.ai backend (`/duckchat/v1/models`, field `attachmentLimits`), already resolved for the user's tier by native. Omitted on older native clients, in which case the web falls back to its built-in defaults.
+ */
+export interface AttachmentLimits {
+  /**
+   * Limits for file attachments (e.g. PDFs).
+   */
+  files: {
+    /**
+     * Maximum number of file attachments allowed.
+     */
+    maxPerConversation: number;
+    /**
+     * Maximum size of a single file attachment, in megabytes.
+     */
+    maxFileSizeMB: number;
+    /**
+     * Maximum combined size of all file attachments, in bytes.
+     */
+    maxTotalFileSizeBytes: number;
+    /**
+     * Maximum number of pages allowed in a single file (e.g. PDF). Not enforced web-side.
+     */
+    maxPagesPerFile: number;
+  };
+  /**
+   * Limits for image attachments.
+   */
+  images: {
+    /**
+     * Maximum number of images allowed in a single submission.
+     */
+    maxPerTurn: number;
+    /**
+     * Maximum number of images allowed across an entire conversation.
+     */
+    maxPerConversation: number;
+    /**
+     * Maximum prompt length (characters) when attachments are present. Not enforced web-side.
+     */
+    maxInputCharsWithAttachments: number;
+  };
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
