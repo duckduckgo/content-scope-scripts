@@ -215,11 +215,12 @@ function AiChatContent({
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
+
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
     const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const imageState = useImageAttachments(tabId, attachmentLimits?.images.maxPerTurn);
+    const imageState = useImageAttachments(tabId, attachmentLimits?.images?.maxPerTurn);
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages
@@ -231,8 +232,8 @@ function AiChatContent({
     const fileState = useFileAttachments(
         selectedModel?.supportedFileTypes,
         tabId,
-        attachmentLimits?.files.maxPerConversation,
-        attachmentLimits?.files.maxFileSizeMB,
+        attachmentLimits?.files?.maxPerConversation,
+        attachmentLimits?.files?.maxFileSizeMB,
     );
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
