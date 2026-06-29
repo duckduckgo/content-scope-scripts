@@ -166,7 +166,7 @@ export function omnibarMockTransport() {
         attachmentLimits: {
             files: {
                 maxPerConversation: 3,
-                maxFileSizeMB: 25,
+                maxFileSizeMB: 3,
                 maxTotalFileSizeBytes: 75 * 1024 * 1024,
                 maxPagesPerFile: 100,
             },
