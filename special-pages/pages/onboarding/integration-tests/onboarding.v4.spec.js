@@ -10,7 +10,7 @@ test.describe('onboarding v4', () => {
         });
         await onboarding.reducedMotion();
         await onboarding.openPage({ env: 'app', page: 'getStarted' });
-        await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+        await page.getByRole('button', { name: 'Start browser setup' }).click();
         await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
 
         await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'makeDefaultSingle' });
@@ -338,7 +338,7 @@ test.describe('onboarding v4', () => {
 
         // Get started (welcome auto-advances after ~3.7s animation)
         await page.getByRole('heading', { name: 'Hi there' }).waitFor({ timeout: 5000 });
-        await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+        await page.getByRole('button', { name: 'Start browser setup' }).click();
 
         // Make default
         await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
@@ -391,7 +391,7 @@ test.describe('onboarding v4', () => {
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
 
-            await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
+            await page.getByRole('button', { name: 'Start browser setup' }).click();
 
             await onboarding.didFireTelemetryEvents([{ name: 'row_shown', value: 'dock-instructions' }]);
         });
@@ -939,6 +939,82 @@ test.describe('onboarding v4', () => {
 
             await page.waitForTimeout(200);
             const calls = await onboarding.mocks.outgoing({ names: ['reportInitException'] });
+            expect(calls).toHaveLength(0);
+        });
+    });
+
+    test.describe('Chrome extension checkbox on getStarted step', () => {
+        test('checkbox is NOT shown by default', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+            await expect(page.getByRole('checkbox', { name: 'Also install our Chrome search extension' })).not.toBeVisible();
+        });
+
+        test('checkbox IS shown when stepDefinitions include chrome-extension row', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    getStarted: {
+                        rows: ['chrome-extension'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+            await expect(page.getByRole('checkbox', { name: 'Also install our Chrome search extension' })).toBeVisible();
+        });
+
+        test('advancing with checkbox checked sends requestChromeExtensionInstall', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    getStarted: {
+                        rows: ['chrome-extension'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+            await page.getByRole('checkbox', { name: 'Also install our Chrome search extension' }).check();
+            await page.getByRole('button', { name: 'Start browser setup' }).click();
+
+            const calls = await onboarding.mocks.outgoing({ names: ['requestChromeExtensionInstall'] });
+            expect(calls).toMatchObject([
+                {
+                    payload: {
+                        context: 'specialPages',
+                        featureName: 'onboarding',
+                        method: 'requestChromeExtensionInstall',
+                        params: {},
+                    },
+                },
+            ]);
+        });
+
+        test('advancing with checkbox unchecked does NOT send requestChromeExtensionInstall', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    getStarted: {
+                        rows: ['chrome-extension'],
+                    },
+                },
+                order: 'v4',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'getStarted' });
+
+            await page.getByRole('button', { name: 'Start browser setup' }).click();
+
+            const calls = await onboarding.mocks.outgoing({ names: ['requestChromeExtensionInstall'] });
             expect(calls).toHaveLength(0);
         });
     });

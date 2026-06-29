@@ -56,6 +56,15 @@ export function mockTransport() {
                         };
                     }
 
+                    const chromeExtension = url.searchParams.get('chromeExtension');
+                    if (chromeExtension === 'true') {
+                        stepDefinitions.getStarted = {
+                            id: 'getStarted',
+                            kind: 'info',
+                            rows: ['chrome-extension'],
+                        };
+                    }
+
                     const duckPlayerVariant = url.searchParams.get('duckPlayer');
                     if (duckPlayerVariant === 'ad-free') {
                         stepDefinitions.duckPlayerSingle = {

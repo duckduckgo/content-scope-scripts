@@ -25,7 +25,10 @@ export const stepsConfig = {
             content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: ({ enqueueNext, onTitleComplete, isShortViewport }) => {
+    getStarted: ({ enqueueNext, onTitleComplete, isShortViewport, globalState }) => {
+        const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (globalState.step).rows?.includes(
+            'chrome-extension',
+        );
         return {
             bottomBubble: {
                 content: <GetStartedContent advance={enqueueNext} onTitleComplete={onTitleComplete} />,
@@ -36,7 +39,7 @@ export const stepsConfig = {
                 : {
                       foreground: <GetStartedAnimation />,
                   },
-            bubbleWidth: 'narrow',
+            bubbleWidth: showChromeExtension ? 'chromeExtension' : 'narrow',
         };
     },
     makeDefaultSingle: ({ enqueueNext, onTitleComplete, updateSystemValue }) => {
@@ -231,6 +234,13 @@ export const settingsRowItems = {
         secondaryText: t('row_dock_summary_v3'),
         kind: 'one-time',
         acceptText: t('row_dock-instructions_accept'),
+    }),
+    'chrome-extension': (t) => ({
+        id: 'chrome-extension',
+        icon: 'v3/Browser-Default-Color-24.svg',
+        title: t('getStarted_chromeExtension_label'),
+        kind: 'one-time',
+        acceptText: t('getStarted_chromeExtension_label'),
     }),
 };
 
