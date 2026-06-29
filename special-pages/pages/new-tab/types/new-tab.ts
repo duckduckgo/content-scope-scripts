@@ -696,7 +696,7 @@ export interface AIModelItem {
   supportedReasoningEffort?: ReasoningEffort[];
 }
 /**
- * Attachment limits sourced from the Duck.ai backend (`/duckchat/v1/models`, field `attachmentLimits`), already resolved for the user's tier by native. Omitted on older native clients, in which case the web falls back to its built-in defaults.
+ * Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.
  */
 export interface AttachmentLimits {
   /**
