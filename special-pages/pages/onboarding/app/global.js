@@ -211,7 +211,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             'youtube-ad-blocking': 'idle',
             'address-bar-mode': 'idle',
             'dock-instructions': 'idle',
-            'chrome-extension': 'idle',
+            'chrome-extension-install': 'idle',
         },
     });
 

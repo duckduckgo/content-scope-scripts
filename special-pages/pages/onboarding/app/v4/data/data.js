@@ -26,8 +26,8 @@ export const stepsConfig = {
         };
     },
     getStarted: ({ enqueueNext, onTitleComplete, isShortViewport, globalState }) => {
-        const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (globalState.step).rows?.includes(
-            'chrome-extension',
+        const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (globalState.step).options?.includes(
+            'chrome-extension-install',
         );
         return {
             bottomBubble: {
@@ -235,8 +235,8 @@ export const settingsRowItems = {
         kind: 'one-time',
         acceptText: t('row_dock-instructions_accept'),
     }),
-    'chrome-extension': (t) => ({
-        id: 'chrome-extension',
+    'chrome-extension-install': (t) => ({
+        id: 'chrome-extension-install',
         icon: 'v3/Browser-Default-Color-24.svg',
         title: t('getStarted_chromeExtension_label'),
         kind: 'one-time',

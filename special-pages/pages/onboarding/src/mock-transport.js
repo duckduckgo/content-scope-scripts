@@ -61,7 +61,7 @@ export function mockTransport() {
                         stepDefinitions.getStarted = {
                             id: 'getStarted',
                             kind: 'info',
-                            rows: ['chrome-extension'],
+                            options: ['chrome-extension-install'],
                         };
                     }
 

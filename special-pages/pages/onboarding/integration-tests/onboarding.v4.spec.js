@@ -955,12 +955,12 @@ test.describe('onboarding v4', () => {
             await expect(page.getByRole('checkbox', { name: 'Also install our Chrome search extension' })).not.toBeVisible();
         });
 
-        test('checkbox IS shown when stepDefinitions include chrome-extension row', async ({ page }, workerInfo) => {
+        test('checkbox IS shown when stepDefinitions include chrome-extension-install option', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: {
                     getStarted: {
-                        rows: ['chrome-extension'],
+                        options: ['chrome-extension-install'],
                     },
                 },
                 order: 'v4',
@@ -975,7 +975,7 @@ test.describe('onboarding v4', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     getStarted: {
-                        rows: ['chrome-extension'],
+                        options: ['chrome-extension-install'],
                     },
                 },
                 order: 'v4',
@@ -1004,7 +1004,7 @@ test.describe('onboarding v4', () => {
             onboarding.withInitData({
                 stepDefinitions: {
                     getStarted: {
-                        rows: ['chrome-extension'],
+                        options: ['chrome-extension-install'],
                     },
                 },
                 order: 'v4',

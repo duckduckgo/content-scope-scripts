@@ -15,7 +15,7 @@ import { useContext } from 'preact/hooks';
  *   | 'youtube-ad-blocking'
  *   | 'address-bar-mode'
  *   | 'dock-instructions'
- *   | 'chrome-extension'
+ *   | 'chrome-extension-install'
  * } SystemValueId - Each setting that can be updated should have a unique ID listed here.
  */
 
@@ -34,7 +34,7 @@ import { useContext } from 'preact/hooks';
  * } Step
  * @typedef {Record<Step['id'], Step>} StepDefinitions
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
- * @typedef {{ kind: 'info'; id: 'getStarted'; rows?: SystemValueId[] }} GetStartedStep
+ * @typedef {{ kind: 'info'; id: 'getStarted'; options?: SystemValueId[] }} GetStartedStep
  * @typedef {{ kind: 'settings'; id: 'systemSettings'; rows: SystemValueId[]; }} SystemSettingsStep
  * @typedef {{ kind: 'settings'; id: 'customize'; rows: SystemValueId[]; }} CustomizeStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep

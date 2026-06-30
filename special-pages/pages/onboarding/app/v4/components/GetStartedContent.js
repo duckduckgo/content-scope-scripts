@@ -26,7 +26,7 @@ export function GetStartedContent({ advance, onTitleComplete }) {
     const dispatch = useGlobalDispatch();
     const [chromeExtensionChecked, setChromeExtensionChecked] = useState(false);
 
-    const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (step).rows?.includes('chrome-extension');
+    const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (step).options?.includes('chrome-extension-install');
 
     const [title, body] = t('getStarted_title_v4', { newline: '\n' }).split('{paragraph}');
 

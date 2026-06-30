@@ -297,8 +297,8 @@ export const settingsRowItems = {
         acceptText: t('row_dock-instructions_accept'),
         accepButtonVariant: 'primary',
     }),
-    'chrome-extension': (t) => ({
-        id: 'chrome-extension',
+    'chrome-extension-install': (t) => ({
+        id: 'chrome-extension-install',
         icon: 'v3/Browser-Default-Color-24.svg',
         title: t('getStarted_chromeExtension_label'),
         kind: 'one-time',
