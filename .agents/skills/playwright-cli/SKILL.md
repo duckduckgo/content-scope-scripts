@@ -147,7 +147,8 @@ playwright-cli unroute
 ```bash
 playwright-cli console
 playwright-cli console warning
-playwright-cli network
+playwright-cli requests
+playwright-cli request 1
 playwright-cli run-code "async page => await page.context().grantPermissions(['geolocation'])"
 playwright-cli tracing-start
 playwright-cli tracing-stop
@@ -163,7 +164,7 @@ playwright-cli open --browser=firefox
 playwright-cli open --browser=webkit
 playwright-cli open --browser=msedge
 # Connect to browser via extension
-playwright-cli open --extension
+playwright-cli attach --extension
 
 # Use persistent profile (by default profile is in-memory)
 playwright-cli open --persistent
@@ -254,7 +255,7 @@ playwright-cli open https://example.com
 playwright-cli click e4
 playwright-cli fill e7 "test"
 playwright-cli console
-playwright-cli network
+playwright-cli requests
 playwright-cli close
 ```
 
