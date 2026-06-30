@@ -29,6 +29,10 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, config) {
         format: 'iife',
         sourcemap: nodeEnv === 'development',
         target: 'safari14',
+        // esbuild 0.28+ errors when targeting Safari 14.0 because it cannot lower
+        // destructuring for engines with the pre-14.1 destructuring bug. Keep native
+        // destructuring to match pre-0.28 output and our documented Safari 14 minimum.
+        supported: { destructuring: true },
         logOverride: { 'unsupported-css-nesting': 'silent' },
         loader: {
             '.js': 'jsx',
