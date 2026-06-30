@@ -36,8 +36,8 @@
     "web-resource-inliner": "^8.0.0"
   },
   "dependencies": {
-    "@atlaskit/pragmatic-drag-and-drop": "^1.8.1",
-    "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.2.0",
+    "@atlaskit/pragmatic-drag-and-drop": "^2.0.1",
+    "@atlaskit/pragmatic-drag-and-drop-hitbox": "^2.0.0",
     "@formkit/auto-animate": "^0.9.0",
     "@preact/signals": "^2.9.1",
     "@rive-app/canvas-single": "^2.38.1",
