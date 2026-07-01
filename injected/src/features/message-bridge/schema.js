@@ -6,6 +6,20 @@ import { isObject, isString } from '../../type-utils.js';
  */
 
 /**
+ * Validates an optional object field on a validated parent object.
+ * Returns the field value if it's a valid object, `undefined` if absent or null, or `null` if invalid (present but not an object).
+ * @param {object} obj
+ * @param {string} key
+ * @returns {object | undefined | null}
+ */
+function optionalObject(obj, key) {
+    if (!(key in obj)) return undefined;
+    const val = /** @type {Record<string, unknown>} */ (obj)[key];
+    if (val == null) return undefined;
+    return isObject(val) ? val : null;
+}
+
+/**
  * Sending this event
  */
 export class InstallProxy {
@@ -29,8 +43,8 @@ export class InstallProxy {
      */
     static create(params) {
         if (!isObject(params)) return null;
-        if (!isString(params.featureName)) return null;
-        if (!isString(params.id)) return null;
+        if (!('featureName' in params) || !isString(params.featureName)) return null;
+        if (!('id' in params) || !isString(params.id)) return null;
         return new InstallProxy({ featureName: params.featureName, id: params.id });
     }
 }
@@ -53,7 +67,7 @@ export class DidInstall {
      */
     static create(params) {
         if (!isObject(params)) return null;
-        if (!isString(params.id)) return null;
+        if (!('id' in params) || !isString(params.id)) return null;
         return new DidInstall({ id: params.id });
     }
 }
@@ -68,7 +82,7 @@ export class ProxyRequest {
      * @param {string} params.featureName
      * @param {string} params.method
      * @param {string} params.id
-     * @param {Record<string, any>} [params.params]
+     * @param {object} [params.params]
      */
     constructor(params) {
         this.featureName = params.featureName;
@@ -81,14 +95,15 @@ export class ProxyRequest {
      */
     static create(params) {
         if (!isObject(params)) return null;
-        if (!isString(params.featureName)) return null;
-        if (!isString(params.method)) return null;
-        if (!isString(params.id)) return null;
-        if (params.params && !isObject(params.params)) return null;
+        if (!('featureName' in params) || !isString(params.featureName)) return null;
+        if (!('method' in params) || !isString(params.method)) return null;
+        if (!('id' in params) || !isString(params.id)) return null;
+        const requestParams = optionalObject(params, 'params');
+        if (requestParams === null) return null;
         return new ProxyRequest({
             featureName: params.featureName,
             method: params.method,
-            params: params.params,
+            params: requestParams,
             id: params.id,
         });
     }
@@ -104,8 +119,8 @@ export class ProxyResponse {
      * @param {string} params.featureName
      * @param {string} params.method
      * @param {string} params.id
-     * @param {Record<string, any>} [params.result]
-     * @param {import("@duckduckgo/messaging").MessageError} [params.error]
+     * @param {object} [params.result]
+     * @param {object} [params.error]
      */
     constructor(params) {
         this.featureName = params.featureName;
@@ -119,16 +134,18 @@ export class ProxyResponse {
      */
     static create(params) {
         if (!isObject(params)) return null;
-        if (!isString(params.featureName)) return null;
-        if (!isString(params.method)) return null;
-        if (!isString(params.id)) return null;
-        if (params.result && !isObject(params.result)) return null;
-        if (params.error && !isObject(params.error)) return null;
+        if (!('featureName' in params) || !isString(params.featureName)) return null;
+        if (!('method' in params) || !isString(params.method)) return null;
+        if (!('id' in params) || !isString(params.id)) return null;
+        const responseResult = optionalObject(params, 'result');
+        if (responseResult === null) return null;
+        const responseError = optionalObject(params, 'error');
+        if (responseError === null) return null;
         return new ProxyResponse({
             featureName: params.featureName,
             method: params.method,
-            result: params.result,
-            error: params.error,
+            result: responseResult,
+            error: responseError,
             id: params.id,
         });
     }
@@ -145,7 +162,7 @@ export class ProxyNotification {
      * @param {object} params
      * @param {string} params.featureName
      * @param {string} params.method
-     * @param {Record<string, any>} [params.params]
+     * @param {object} [params.params]
      */
     constructor(params) {
         this.featureName = params.featureName;
@@ -158,13 +175,14 @@ export class ProxyNotification {
      */
     static create(params) {
         if (!isObject(params)) return null;
-        if (!isString(params.featureName)) return null;
-        if (!isString(params.method)) return null;
-        if (params.params && !isObject(params.params)) return null;
+        if (!('featureName' in params) || !isString(params.featureName)) return null;
+        if (!('method' in params) || !isString(params.method)) return null;
+        const notificationParams = optionalObject(params, 'params');
+        if (notificationParams === null) return null;
         return new ProxyNotification({
             featureName: params.featureName,
             method: params.method,
-            params: params.params,
+            params: notificationParams,
         });
     }
 }
@@ -190,9 +208,9 @@ export class SubscriptionRequest {
      */
     static create(params) {
         if (!isObject(params)) return null;
-        if (!isString(params.featureName)) return null;
-        if (!isString(params.subscriptionName)) return null;
-        if (!isString(params.id)) return null;
+        if (!('featureName' in params) || !isString(params.featureName)) return null;
+        if (!('subscriptionName' in params) || !isString(params.subscriptionName)) return null;
+        if (!('id' in params) || !isString(params.id)) return null;
         return new SubscriptionRequest({
             featureName: params.featureName,
             subscriptionName: params.subscriptionName,
@@ -211,7 +229,7 @@ export class SubscriptionResponse {
      * @param {string} params.featureName
      * @param {string} params.subscriptionName
      * @param {string} params.id
-     * @param {Record<string, any>} [params.params]
+     * @param {object} [params.params]
      */
     constructor(params) {
         this.featureName = params.featureName;
@@ -224,14 +242,15 @@ export class SubscriptionResponse {
      */
     static create(params) {
         if (!isObject(params)) return null;
-        if (!isString(params.featureName)) return null;
-        if (!isString(params.subscriptionName)) return null;
-        if (!isString(params.id)) return null;
-        if (params.params && !isObject(params.params)) return null;
+        if (!('featureName' in params) || !isString(params.featureName)) return null;
+        if (!('subscriptionName' in params) || !isString(params.subscriptionName)) return null;
+        if (!('id' in params) || !isString(params.id)) return null;
+        const responseParams = optionalObject(params, 'params');
+        if (responseParams === null) return null;
         return new SubscriptionResponse({
             featureName: params.featureName,
             subscriptionName: params.subscriptionName,
-            params: params.params,
+            params: responseParams,
             id: params.id,
         });
     }
@@ -254,7 +273,7 @@ export class SubscriptionUnsubscribe {
      */
     static create(params) {
         if (!isObject(params)) return null;
-        if (!isString(params.id)) return null;
+        if (!('id' in params) || !isString(params.id)) return null;
         return new SubscriptionUnsubscribe({
             id: params.id,
         });
