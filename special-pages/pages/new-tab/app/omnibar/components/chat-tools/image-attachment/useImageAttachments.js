@@ -82,13 +82,16 @@ function normaliseImage(srcDataUrl, targetMime) {
     });
 }
 
-/** @param {string|null|undefined} [tabId] - NTP tab the attachments are persisted under. */
-export function useImageAttachments(tabId) {
+/**
+ * @param {string|null|undefined} [tabId] - NTP tab the attachments are persisted under.
+ * @param {number} [maxImages] - Max images per submission, from backend `attachmentLimits`. Defaults to {@link MAX_IMAGES}.
+ */
+export function useImageAttachments(tabId, maxImages = MAX_IMAGES) {
     const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = useState(/** @type {ImageError|null} */ (null));
 
-    const imageLimitExceeded = attachedImages.length > MAX_IMAGES;
-    const imageUploadDisabled = attachedImages.length >= MAX_IMAGES;
+    const imageLimitExceeded = attachedImages.length > maxImages;
+    const imageUploadDisabled = attachedImages.length >= maxImages;
 
     const clearAttachedImages = () => setAttachedImages([]);
     const clearImageError = () => setImageError(null);
@@ -112,8 +115,8 @@ export function useImageAttachments(tabId) {
 
         if (validFiles.length === 0) return;
 
-        // Only process enough to reach MAX_IMAGES + 1 (to trigger the limit warning).
-        const processLimit = MAX_IMAGES + 1 - attachedImages.length;
+        // Only process enough to reach maxImages + 1 (to trigger the limit warning).
+        const processLimit = maxImages + 1 - attachedImages.length;
         const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
 
         if (filesToProcess.length === 0) return;
@@ -204,6 +207,7 @@ export function useImageAttachments(tabId) {
         imageError,
         clearImageError,
         getImagesForSubmission,
+        maxImages,
     };
 }
 

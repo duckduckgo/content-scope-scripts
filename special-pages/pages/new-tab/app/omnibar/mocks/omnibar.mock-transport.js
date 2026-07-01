@@ -163,6 +163,19 @@ export function omnibarMockTransport() {
         enableVoiceChatAccess: false,
         enableAskAiSuggestion: true,
         enableAttachTabs: false,
+        attachmentLimits: {
+            files: {
+                maxPerConversation: 3,
+                maxFileSizeMB: 3,
+                maxTotalFileSizeBytes: 75 * 1024 * 1024,
+                maxPagesPerFile: 100,
+            },
+            images: {
+                maxPerTurn: 3,
+                maxPerConversation: 10,
+                maxInputCharsWithAttachments: 30000,
+            },
+        },
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -233,6 +246,14 @@ export function omnibarMockTransport() {
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
+                    if (config.attachmentLimits) {
+                        const imageMaxPerTurn = parseInt(url.searchParams.get('omnibar.imageMaxPerTurn') ?? '', 10);
+                        if (imageMaxPerTurn > 0) config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
+                        const fileMaxPerConversation = parseInt(url.searchParams.get('omnibar.fileMaxPerConversation') ?? '', 10);
+                        if (fileMaxPerConversation > 0) config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;
+                        const fileMaxFileSizeMB = parseInt(url.searchParams.get('omnibar.fileMaxFileSizeMB') ?? '', 10);
+                        if (fileMaxFileSizeMB > 0) config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
+                    }
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
