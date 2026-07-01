@@ -114,12 +114,13 @@ export class CloudFlareTurnstileProvider {
 
         return stringifyFunction({
             /**
-             * @param {Object} args - The arguments passed to the function
-             * @param {string} args.callbackFunctionName - The callback function name
-             * @param {string} args.token - The solved captcha token
+             * @param {{callbackFunctionName: string, token: string}} args - The arguments passed to the function
              */
             functionBody: function cloudflareCaptchaCallback(args) {
-                window[args.callbackFunctionName](args.token);
+                const fn = /** @type {(token: string) => void} */ (
+                    /** @type {Record<string, unknown>} */ (globalThis)[args.callbackFunctionName]
+                );
+                fn(args.token);
             },
             functionName: 'cloudflareCaptchaCallback',
             args: { callbackFunctionName, token },
