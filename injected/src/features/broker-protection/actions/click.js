@@ -45,7 +45,8 @@ export function click(action, userData, root = document) {
         try {
             rootElement = selectRootElement(element, userData, root);
         } catch (error) {
-            return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${error.message}` });
+            const message = error instanceof Error ? error.message : String(error);
+            return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${message}` });
         }
 
         const elements = getElements(rootElement, element.selector);
@@ -65,6 +66,7 @@ export function click(action, userData, root = document) {
 
         for (let i = 0; i < loopLength; i++) {
             const elem = elements[i];
+            if (!elem) continue;
 
             if ('disabled' in elem) {
                 if (elem.disabled && !element.failSilently) {
@@ -193,14 +195,16 @@ function runComparison(choice, action, userData) {
     try {
         compare = getComparisonFunction(choice.condition.operation);
     } catch (error) {
-        return { error: `Unable to get comparison function: ${error.message}` };
+        const message = error instanceof Error ? error.message : String(error);
+        return { error: `Unable to get comparison function: ${message}` };
     }
 
     try {
         left = processTemplateStringWithUserData(choice.condition.left, action, userData);
         right = processTemplateStringWithUserData(choice.condition.right, action, userData);
     } catch (error) {
-        return { error: `Unable to resolve left/right comparison arguments: ${error.message}` };
+        const message = error instanceof Error ? error.message : String(error);
+        return { error: `Unable to resolve left/right comparison arguments: ${message}` };
     }
 
     let result;
@@ -208,7 +212,8 @@ function runComparison(choice, action, userData) {
     try {
         result = compare(left, right);
     } catch (error) {
-        return { error: `Comparison failed with the following error: ${error.message}` };
+        const message = error instanceof Error ? error.message : String(error);
+        return { error: `Comparison failed with the following error: ${message}` };
     }
 
     return { result };
