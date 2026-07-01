@@ -821,7 +821,7 @@ export interface OpenNotification {
   params: OpenAction;
 }
 export interface OpenAction {
-  target: "settings";
+  target: "settings" | "duckAISettings";
 }
 /**
  * Generated from @see "../messages/protections_setConfig.notify.json"
@@ -1151,6 +1151,9 @@ export interface NewTabPageSettings {
     autoOpen?: boolean;
   };
   adBlocking?: {
+    state: "enabled" | "disabled";
+  };
+  duckAiSidebar?: {
     state: "enabled" | "disabled";
   };
 }

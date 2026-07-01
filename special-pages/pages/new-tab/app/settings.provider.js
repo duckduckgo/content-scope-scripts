@@ -35,3 +35,12 @@ export function useAdBlocking() {
     const settings = useContext(SettingsContext).settings;
     return settings.adBlocking.state === 'enabled';
 }
+
+/**
+ * Whether the Duck.ai navigation sidebar (left rail) should be rendered.
+ * @returns {boolean}
+ */
+export function useDuckAiSidebar() {
+    const settings = useContext(SettingsContext).settings;
+    return settings.duckAiSidebar?.state === 'enabled';
+}

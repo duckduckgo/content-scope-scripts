@@ -1,8 +1,9 @@
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './App.module.css';
-import { useCustomizerDrawerSettings, usePlatformName } from '../settings.provider.js';
+import { useCustomizerDrawerSettings, useDuckAiSidebar, usePlatformName } from '../settings.provider.js';
 import { WidgetList } from '../widget-list/WidgetList.js';
+import { DuckAiSidebar } from '../duck-ai-sidebar/DuckAiSidebar.js';
 import { useGlobalDropzone } from '../dropzone.js';
 import { CustomizerButton, CustomizerMenuPositionedFixed, useContextMenu } from '../customizer/components/CustomizerMenu.js';
 import { useDrawer, useDrawerControls } from './Drawer.js';
@@ -23,6 +24,7 @@ import { useInitialSetupData } from '../types.js';
 export function App() {
     const platformName = usePlatformName();
     const customizerDrawer = useCustomizerDrawerSettings();
+    const showDuckAiSidebar = useDuckAiSidebar();
 
     useGlobalDropzone();
     useContextMenu();
@@ -55,7 +57,9 @@ export function App() {
                 data-drawer-visibility={visibility}
                 // Widen drawer when it has the new Theme section. Can remove this when theme variants are rolled out to all users
                 data-has-theme-variants={hasThemeVariants}
+                data-duckai-rail={showDuckAiSidebar}
             >
+                {showDuckAiSidebar && <DuckAiSidebar />}
                 <main class={cn(styles.main, styles.mainLayout, styles.mainScroller)} data-main-scroller data-theme={main}>
                     <div class={styles.content}>
                         <div className={styles.tube} data-content-tube data-platform={platformName}>

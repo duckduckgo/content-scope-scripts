@@ -26,6 +26,16 @@
           "enum": ["enabled", "disabled"]
         }
       }
+    },
+    "duckAiSidebar": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["enabled", "disabled"]
+        }
+      }
     }
   }
 }

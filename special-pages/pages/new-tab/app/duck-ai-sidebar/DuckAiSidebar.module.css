@@ -1,0 +1,160 @@
+.rail {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--duckai-rail-width, 280px);
+    z-index: 2;
+    color: var(--ds-color-theme-text-primary);
+    background: var(--ds-color-theme-surface-secondary);
+    border-right: 1px solid var(--ds-color-theme-surface-tertiary);
+    overflow: hidden;
+}
+
+.inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 12px 8px;
+    gap: 4px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+}
+
+.header svg {
+    width: 24px;
+    height: 24px;
+}
+
+.headerTitle {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+/* Nav buttons (New Chat / Voice / Image) and the settings button share the row style. */
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.navButton,
+.settings {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.navButton:hover,
+.settings:hover {
+    background: var(--ds-color-theme-surface-tertiary);
+}
+
+.navIcon {
+    display: flex;
+    flex: none;
+}
+
+.navIcon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.navLabel {
+    font-weight: 600;
+}
+
+.chats {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    margin-top: 12px;
+}
+
+.chatsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+}
+
+.chatsTitle {
+    font-weight: 700;
+}
+
+.fire {
+    display: flex;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+.fire svg {
+    width: 20px;
+    height: 20px;
+}
+
+.chatsList {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* The reused AiChatsList renders its own item styling; just let it fill the rail width. */
+.list {
+    width: 100%;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--ds-color-theme-surface-tertiary);
+}
+
+.settings {
+    width: auto;
+}
+
+.settings svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
+}
+
+.pro {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-right: 8px;
+}
+
+.proLabel {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 0.875rem;
+}
+
+.proBadge {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #e8a33d;
+    color: #fff;
+    font-weight: 700;
+    line-height: 1;
+}

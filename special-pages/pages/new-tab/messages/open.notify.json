@@ -6,7 +6,8 @@
   "properties": {
     "target": {
       "enum": [
-         "settings"
+         "settings",
+         "duckAISettings"
       ]
     }
   }
