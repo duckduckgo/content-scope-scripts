@@ -1,5 +1,5 @@
-import ContentFeature from '../content-feature';
-import { isBeingFramed, injectGlobalStyles } from '../utils';
+import ContentFeature from '../content-feature.js';
+import { isBeingFramed, injectGlobalStyles } from '../utils.js';
 
 /**
  * @typedef {Object} ElementHidingValue
@@ -57,10 +57,12 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  * @property {StyleTagException[]} [styleTagExceptions]
  */
 
+/** @type {string[]} */
 let adLabelStrings = [];
 const parser = new DOMParser();
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
+/** @type {Set<ElementHidingRuleHide>} */
 let appliedRules = new Set();
 let shouldInjectStyleTag = false;
 let styleTagInjected = false;
@@ -358,6 +360,8 @@ function unhideLoadedAds() {
 
 /**
  * Wrap selector(s) in :is(..) to make them forgiving
+ * @param {string} selector
+ * @returns {string}
  */
 function forgivingSelector(selector) {
     return `:is(${selector})`;
@@ -372,6 +376,7 @@ export default class ElementHiding extends ContentFeature {
             return;
         }
 
+        /** @type {ElementHidingRule[]} */
         let activeRules;
         /** @type {ElementHidingRule[]} */
         const globalRules = this.getFeatureSetting('rules');
