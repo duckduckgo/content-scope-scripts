@@ -18,7 +18,7 @@ permissions:
 jobs:
     snapshots:
         timeout-minutes: 10
-        runs-on: macos-14
+        runs-on: macos-15
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
