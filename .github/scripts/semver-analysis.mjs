@@ -9,7 +9,7 @@
  *
  * Expects env vars:
  *   ANTHROPIC_API_KEY - Anthropic API key
- *   ANTHROPIC_MODEL   - Optional; defaults to semver model in anthropic-config.mjs
+ *   ANTHROPIC_MODEL   - Optional; defaults to shared CI model in anthropic-config.mjs
  *   BUILD_DIFF        - Build output diff from diff-directories.js
  *   PR_TITLE          - Pull request title
  *   PR_BODY           - Pull request body/description
@@ -18,7 +18,7 @@
  * Outputs to stdout a JSON object: { "severity": "major"|"minor"|"patch", "reasoning": "..." }
  */
 
-import { resolveSemverAnthropicModel } from './anthropic-config.mjs';
+import { resolveAnthropicModel } from './anthropic-config.mjs';
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 const MAX_DIFF_CHARS = 80_000;
@@ -115,7 +115,7 @@ async function callAnthropic(systemPrompt, userPrompt, apiKey) {
             'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-            model: resolveSemverAnthropicModel(),
+            model: resolveAnthropicModel(),
             max_tokens: 512,
             system: systemPrompt,
             messages: [{ role: 'user', content: userPrompt }],

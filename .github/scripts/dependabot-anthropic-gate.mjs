@@ -860,7 +860,6 @@ async function askAnthropicForCommentRisk({ apiKey, model, thread, pullRequest }
     const body = JSON.stringify({
         model,
         max_tokens: 400,
-        temperature: 0,
         system,
         tools: [SUBMIT_COMMENT_DECISION_TOOL],
         tool_choice: { type: 'tool', name: SUBMIT_COMMENT_DECISION_TOOL_NAME, disable_parallel_tool_use: true },
@@ -967,7 +966,6 @@ async function askAnthropic({ apiKey, model, evidence }) {
     const body = JSON.stringify({
         model,
         max_tokens: 800,
-        temperature: 0,
         system,
         tools: [SUBMIT_DECISION_TOOL],
         tool_choice: { type: 'tool', name: SUBMIT_DECISION_TOOL_NAME, disable_parallel_tool_use: true },
