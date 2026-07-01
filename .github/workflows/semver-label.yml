@@ -51,6 +51,12 @@ jobs:
                   node base/.github/scripts/diff-directories.js base pr > /tmp/build_diff.txt
                   echo "Build diff size: $(wc -c < /tmp/build_diff.txt) bytes"
 
+            - name: Create source diff
+              run: |
+                  BASE_SHA=$(git -C base rev-parse HEAD)
+                  git -C pr diff "$BASE_SHA" > /tmp/source_diff.txt
+                  echo "Source diff size: $(wc -c < /tmp/source_diff.txt) bytes"
+
             - name: Get PR source files
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,6 +72,7 @@ jobs:
                   PR_BODY: ${{ github.event.pull_request.body }}
               run: |
                   export BUILD_DIFF="$(cat /tmp/build_diff.txt 2>/dev/null || echo '')"
+                  export SOURCE_DIFF="$(cat /tmp/source_diff.txt 2>/dev/null || echo '')"
                   export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
 
                   RESULT=$(node base/.github/scripts/semver-analysis.mjs)
