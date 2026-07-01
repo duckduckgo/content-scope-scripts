@@ -172,8 +172,43 @@ async function main() {
     }
 
     const userPrompt = buildUserPrompt({ buildDiff, title, body, files });
-    const rawResponse = await callAnthropic(SYSTEM_PROMPT, userPrompt, apiKey);
-    const result = parseResponse(rawResponse);
+
+    // Fail-soft on Anthropic outages. The check is informational — it picks
+    // a default semver label for the PR — and shouldn't gate merges if the
+    // API key has been rotated, the service is down, or rate limits hit.
+    // External (fork) PRs are already excluded by the workflow's
+    // `head.repo.fork` guard, so anyone reaching this code has push access
+    // and can manually correct the label if needed. Log loudly to stderr so
+    // a degraded run is visible in the job summary.
+    let rawResponse;
+    try {
+        rawResponse = await callAnthropic(SYSTEM_PROMPT, userPrompt, apiKey);
+    } catch (error) {
+        console.error(`[semver-analysis] Anthropic call failed (${error?.message ?? error}); defaulting to patch.`);
+        console.log(
+            JSON.stringify({
+                severity: 'patch',
+                reasoning:
+                    'Anthropic classification unavailable — defaulted to patch. Re-label manually if this PR ships a breaking or feature-level change.',
+            }),
+        );
+        return;
+    }
+
+    let result;
+    try {
+        result = parseResponse(rawResponse);
+    } catch (error) {
+        console.error(`[semver-analysis] Could not parse Anthropic response (${error?.message ?? error}); defaulting to patch.`);
+        console.log(
+            JSON.stringify({
+                severity: 'patch',
+                reasoning:
+                    'Anthropic returned an unparseable response — defaulted to patch. Re-label manually if this PR ships a breaking or feature-level change.',
+            }),
+        );
+        return;
+    }
 
     console.log(JSON.stringify(result));
 }
