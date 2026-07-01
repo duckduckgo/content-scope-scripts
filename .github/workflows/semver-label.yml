@@ -54,17 +54,17 @@ jobs:
             - name: Create source diff
               run: |
                   BASE_SHA=$(git -C base rev-parse HEAD)
-                  if ! git -C pr cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+                  if git -C pr cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+                      BASE_REF="$BASE_SHA"
+                  else
                       git -C pr remote add base-checkout "$GITHUB_WORKSPACE/base" 2>/dev/null || \
                         git -C pr remote set-url base-checkout "$GITHUB_WORKSPACE/base"
-                      git -C pr fetch --no-tags base-checkout "$BASE_SHA":refs/base-sha
-                      BASE_REF=refs/base-sha
-                  else
-                      BASE_REF="$BASE_SHA"
+                      git -C pr fetch --no-tags --depth=1 base-checkout "$BASE_SHA"
+                      BASE_REF=FETCH_HEAD
                   fi
 
-                  git -C pr diff --name-only "$BASE_REF" > /tmp/pr_files.txt
-                  git -C pr diff "$BASE_REF" > /tmp/source_diff.txt
+                  git -C pr diff --name-only "$BASE_REF" HEAD > /tmp/pr_files.txt
+                  git -C pr diff "$BASE_REF" HEAD > /tmp/source_diff.txt
                   echo "Changed files: $(wc -l < /tmp/pr_files.txt)"
                   echo "Source diff size: $(wc -c < /tmp/source_diff.txt) bytes"
 
