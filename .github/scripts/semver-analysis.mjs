@@ -10,7 +10,8 @@
  * Expects env vars:
  *   ANTHROPIC_API_KEY - Anthropic API key
  *   ANTHROPIC_MODEL   - Optional; defaults to shared CI model in anthropic-config.mjs
- *   BUILD_DIFF        - Build output diff from diff-directories.js
+ *   BUILD_DIFF        - Build output diff from diff-directories.js (may be empty)
+ *   SOURCE_DIFF       - Git diff of source changes between base and PR (may be empty)
  *   PR_TITLE          - Pull request title
  *   PR_BODY           - Pull request body/description
  *   PR_FILES          - Newline-separated list of changed source file paths
@@ -18,10 +19,13 @@
  * Outputs to stdout a JSON object: { "severity": "major"|"minor"|"patch", "reasoning": "..." }
  */
 
+import { fileURLToPath } from 'node:url';
+
 import { resolveAnthropicModel } from './anthropic-config.mjs';
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-const MAX_DIFF_CHARS = 80_000;
+const MAX_BUILD_DIFF_CHARS = 80_000;
+const MAX_SOURCE_DIFF_CHARS = 80_000;
 
 const SYSTEM_PROMPT = `You are a semver classification expert for the duckduckgo/content-scope-scripts repository.
 
@@ -34,7 +38,9 @@ You receive a **build output diff** comparing built artifacts between the base b
 - "New Files" — built artifacts only in the PR build (the PR adds them)
 - Named groups (e.g. "Apple", "Windows", "Integration") — artifacts that exist in both but whose content differs
 
-You also receive the list of changed **source files** and the PR title/description for context.
+When the build output diff is empty, built artifacts are identical between base and PR. Do not infer semver impact from that alone — use the **source diff** and changed file list to classify the PR.
+
+You also receive a **source diff** (unified git diff between base and PR) and the list of changed **source files**, plus the PR title/description for context. Use the source diff to inspect API, schema, feature-bundle, and messaging contract changes even when build output is unchanged.
 
 ## Public API surfaces (changes here are semver-sensitive):
 
@@ -78,18 +84,33 @@ You also receive the list of changed **source files** and the PR title/descripti
 - No new message schema files added under \`injected/src/messages/\`
 - No changes to message schema shapes (field additions/removals/renames in \`.notify.json\`, \`.request.json\`, \`.subscribe.json\` files)
 - No new entries in \`platformSupport\` or \`platformSpecificFeatures\`
-- OR no build artifacts changed at all (docs/test/CI-only PRs)
+- OR source changes are limited to docs, tests, CI/tooling, or dependency updates with no semver-sensitive API changes (even when build output is unchanged)
 
 Always respond with valid JSON: { "severity": "major"|"minor"|"patch", "reasoning": "..." }
 The reasoning should be 2-3 concise sentences explaining the classification.`;
 
-function truncateDiff(diff) {
-    if (diff.length <= MAX_DIFF_CHARS) return diff;
-    return diff.slice(0, MAX_DIFF_CHARS) + '\n\n... [diff truncated at 80k chars] ...';
+function truncateDiff(diff, maxChars) {
+    if (!diff) return diff;
+    if (diff.length <= maxChars) return diff;
+    return diff.slice(0, maxChars) + '\n\n... [diff truncated] ...';
 }
 
-function buildUserPrompt({ buildDiff, title, body, files }) {
-    return `Classify this PR's semver impact based on build output changes.
+function formatBuildDiffSection(buildDiff) {
+    if (!buildDiff.trim()) {
+        return '(no build output artifacts changed — built outputs are identical between base and PR)';
+    }
+    return truncateDiff(buildDiff, MAX_BUILD_DIFF_CHARS);
+}
+
+function formatSourceDiffSection(sourceDiff) {
+    if (!sourceDiff.trim()) {
+        return '(no source changes detected)';
+    }
+    return truncateDiff(sourceDiff, MAX_SOURCE_DIFF_CHARS);
+}
+
+function buildUserPrompt({ buildDiff, sourceDiff, title, body, files }) {
+    return `Classify this PR's semver impact using both build output changes and source changes.
 
 ## PR Title
 ${title}
@@ -101,10 +122,15 @@ ${body || '(no description)'}
 ${files || '(not available)'}
 
 ## Build Output Diff
-${truncateDiff(buildDiff)}
+${formatBuildDiffSection(buildDiff)}
+
+## Source Diff
+${formatSourceDiffSection(sourceDiff)}
 
 Respond with JSON only: { "severity": "major"|"minor"|"patch", "reasoning": "..." }`;
 }
+
+export { buildUserPrompt, formatBuildDiffSection, formatSourceDiffSection };
 
 async function callAnthropic(systemPrompt, userPrompt, apiKey) {
     const response = await fetch(ANTHROPIC_API_URL, {
@@ -117,7 +143,6 @@ async function callAnthropic(systemPrompt, userPrompt, apiKey) {
         body: JSON.stringify({
             model: resolveAnthropicModel(),
             max_tokens: 512,
-            temperature: 0,
             system: systemPrompt,
             messages: [{ role: 'user', content: userPrompt }],
         }),
@@ -157,25 +182,18 @@ async function main() {
     }
 
     const buildDiff = process.env.BUILD_DIFF || '';
+    const sourceDiff = process.env.SOURCE_DIFF || '';
     const title = process.env.PR_TITLE || '';
     const body = process.env.PR_BODY || '';
     const files = process.env.PR_FILES || '';
 
-    if (!buildDiff) {
-        console.log(
-            JSON.stringify({
-                severity: 'patch',
-                reasoning: 'No build output artifacts changed. PR only affects tests, documentation, CI, or other non-shipped files.',
-            }),
-        );
-        return;
-    }
-
-    const userPrompt = buildUserPrompt({ buildDiff, title, body, files });
+    const userPrompt = buildUserPrompt({ buildDiff, sourceDiff, title, body, files });
     const rawResponse = await callAnthropic(SYSTEM_PROMPT, userPrompt, apiKey);
     const result = parseResponse(rawResponse);
 
     console.log(JSON.stringify(result));
 }
 
-main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    main();
+}
