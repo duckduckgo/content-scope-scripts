@@ -10,6 +10,10 @@ updates:
       open-pull-requests-limit: 20
       labels:
           - 'dependencies'
+      ignore:
+          # Git-tag semver comparison can propose downgrades (e.g. v0.30.0 -> v0.29.0).
+          - dependency-name: '@duckduckgo/design-tokens'
+            versions: ['< 0.30.0']
       groups:
           eslint:
               patterns:
