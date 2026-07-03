@@ -38,30 +38,35 @@ export const stepsConfig = {
         };
     },
     makeDefaultSingle: ({ t, globalState, advance, enableSystemValue }) => {
-        const { UIValues } = globalState;
+        const { UIValues, stepDefinitions } = globalState;
+        const autoAdvance = Boolean(
+            /** @type {import('../../types').MakeDefaultSingleStep} */ (stepDefinitions.makeDefaultSingle)?.autoAdvance,
+        );
         const isIdle = UIValues['default-browser'] === 'idle';
 
         return {
             variant: 'box',
             heading: {
-                title: isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title'),
+                title: autoAdvance || isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title'),
                 speechBubble: true,
             },
-            dismissButton: isIdle
-                ? {
-                      text: t('skipButton'),
-                      handler: advance,
-                  }
-                : null,
-            acceptButton: isIdle
-                ? {
-                      text: t('makeDefaultButton'),
-                      handler: () => enableSystemValue('default-browser'),
-                  }
-                : {
-                      text: t('nextButton'),
-                      handler: advance,
-                  },
+            dismissButton:
+                isIdle || autoAdvance
+                    ? {
+                          text: t('skipButton'),
+                          handler: advance,
+                      }
+                    : null,
+            acceptButton:
+                autoAdvance || isIdle
+                    ? {
+                          text: t('makeDefaultButton'),
+                          handler: () => enableSystemValue('default-browser'),
+                      }
+                    : {
+                          text: t('nextButton'),
+                          handler: advance,
+                      },
             content: <MakeDefaultStep />,
         };
     },
