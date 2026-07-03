@@ -65,6 +65,15 @@ export function mockTransport() {
                         };
                     }
 
+                    if (url.searchParams.get('autoAdvance') === 'true') {
+                        stepDefinitions.makeDefaultSingle = {
+                            id: 'makeDefaultSingle',
+                            kind: 'settings',
+                            rows: ['default-browser'],
+                            autoAdvance: true,
+                        };
+                    }
+
                     return Promise.resolve({
                         stepDefinitions,
                         exclude: [],
