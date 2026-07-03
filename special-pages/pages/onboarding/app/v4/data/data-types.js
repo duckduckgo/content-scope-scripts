@@ -20,7 +20,7 @@
  * @property {BubbleConfig} [bottomBubble] - Bottom speech bubble config (optional)
  * @property {{background?: import('preact').ComponentChild, foreground?: import('preact').ComponentChild}} [illustration] - Layered illustration behind/in front of the bottom bubble
  * @property {boolean} [showProgress] - Whether to show the progress indicator in the top bubble
- * @property {'narrow' | 'wide'} [bubbleWidth] - Bubble width mode (default: 'wide'). Only getStarted uses 'narrow'.
+ * @property {'narrow' | 'wide' | 'chromeExtension'} [bubbleWidth] - Bubble width mode (default: 'wide'). Only getStarted uses 'narrow' or 'chromeExtension'.
  * @property {string} [bounceKey] - Key that triggers a bounce animation when it changes. Steps that cycle through rows should include the active row.
  */
 
