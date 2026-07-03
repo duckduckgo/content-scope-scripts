@@ -89,6 +89,28 @@ describe('WebkitMessagingTransport', () => {
         expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({ after: 'nullify' });
     });
 
+    it('snapshot at config construction survives messageHandlers nullify before transport construction', () => {
+        env = setupWebkit();
+
+        // Bootstrap: config constructed early, snapshots handler refs.
+        const config = new WebkitMessagingConfig({ webkitMessageHandlerNames: ['contentScopeScripts'] });
+
+        // apiManipulation nullifies messageHandlers between config construction
+        // and lazy transport construction (the actual production bug).
+        env.nullifyMessageHandlers();
+
+        // Feature triggers Messaging construction later (on user action or native callback).
+        const transport = new WebkitMessagingTransport(
+            config,
+            new MessagingContext({ context: 'contentScopeScripts', featureName: 'webkit-transport-spec', env: 'development' }),
+        );
+        transport.wkSend('contentScopeScripts', { after: 'nullify-between' });
+
+        expect(env.postMessageSpies.contentScopeScripts).toHaveBeenCalledOnceWith({
+            after: 'nullify-between',
+        });
+    });
+
     it('throws MissingHandler when a handler was never registered', () => {
         env = setupWebkit();
         const transport = makeTransport();
