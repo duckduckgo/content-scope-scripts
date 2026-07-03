@@ -486,6 +486,16 @@ test.describe('Broker Protection communications', () => {
             await dbp.doesInputValueEqual('#birthYearNoValue', '1992');
         });
 
+        test('fillForm with a textarea', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-textarea.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#profile_url', 'https://www.veripages.com/profile/John-Smith-12345');
+        });
+
         test('fillForm with optional information', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
