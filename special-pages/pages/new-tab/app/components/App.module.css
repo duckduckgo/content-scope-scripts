@@ -50,6 +50,10 @@ body[data-animate-background="true"] {
 .layout {
     position: relative;
     z-index: 1;
+    /* Prevent clicking on background and dragging from scrolling horizontally in
+       WebKit. Need overflow: clip and not overflow-x: clip to prevent Customize
+       button outline rendering issue. */
+    overflow: clip;
 }
 
 .main {
