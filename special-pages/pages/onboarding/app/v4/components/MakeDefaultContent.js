@@ -32,12 +32,19 @@ export function MakeDefaultContent({ advance, onTitleComplete, updateSystemValue
     const globalState = useGlobalState();
     const hasTypingEffect = !!useTypingEffect();
 
+    // Gate all auto-advance behaviour behind the flag native supplies in the init response
+    const autoAdvance = Boolean(
+        /** @type {import('../../types').MakeDefaultSingleStep} */ (globalState.stepDefinitions.makeDefaultSingle)?.autoAdvance,
+    );
+
     // Skip button visibility: hidden while the native call is in flight or after it succeeds
     const isPending =
         globalState.status.kind === 'executing' &&
         globalState.status.action.kind === 'update-system-value' &&
         globalState.status.action.id === 'default-browser';
-    const showSkipButton = !isPending && globalState.UIValues['default-browser'] === 'idle';
+    const showSkipButton = !isPending && (autoAdvance || globalState.UIValues['default-browser'] === 'idle');
+    // Primary button never shows "Next" when auto-advancing - native's push message drives navigation.
+    const showMakeDefaultButton = autoAdvance || showSkipButton;
 
     // Title text swaps mid-bounce so it can't be derived from global state
     const [showSuccess, setShowSuccess] = useState(false);
@@ -69,6 +76,10 @@ export function MakeDefaultContent({ advance, onTitleComplete, updateSystemValue
         }
 
         updateSystemValue('default-browser', { enabled: true }, true);
+
+        // We don't know the outcome yet (waiting for onSetAsDefaultComplete), so skip the
+        // success bounce/title swap entirely - the title stays on protectionsActivated_title.
+        if (autoAdvance) return;
 
         // Fire-and-forget sequential title bounce (text swaps at midpoint)
         (async () => {
@@ -139,8 +150,12 @@ export function MakeDefaultContent({ advance, onTitleComplete, updateSystemValue
                             {t('skipButton')}
                         </Button>
                     )}
-                    <Button buttonRef={primaryButtonRef} disabled={isPending} onClick={showSkipButton ? enableDefaultBrowser : advance}>
-                        {showSkipButton ? t('makeDefaultButton') : t('nextButton')}
+                    <Button
+                        buttonRef={primaryButtonRef}
+                        disabled={isPending}
+                        onClick={showMakeDefaultButton ? enableDefaultBrowser : advance}
+                    >
+                        {showMakeDefaultButton ? t('makeDefaultButton') : t('nextButton')}
                     </Button>
                 </div>
             </div>

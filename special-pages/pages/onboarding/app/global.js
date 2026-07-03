@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { usePlatformName } from './shared/components/SettingsProvider.js';
 
 /**
@@ -44,6 +44,24 @@ export function reducer(state, action) {
             stepDefinitions: nextStepDefs,
             order: nextOrder,
             step: nextStepDefs[state.activeStep] ?? state.step,
+        };
+    }
+    if (action.kind === 'auto-advance') {
+        // Only meaningful while the make-default step is showing
+        if (state.activeStep !== 'makeDefaultSingle') return state;
+        const currentPageIndex = state.order.indexOf(state.activeStep);
+        const nextPageIndex = currentPageIndex + 1;
+        if (nextPageIndex >= state.order.length) return state;
+        return {
+            ...state,
+            status: { kind: 'idle' },
+            activeStep: state.order[nextPageIndex],
+            nextStep: state.order[nextPageIndex + 1],
+            activeRow: 0,
+            activeStepVisible: false,
+            exiting: false,
+            overlay: null,
+            step: state.stepDefinitions[state.order[nextPageIndex]],
         };
     }
     switch (state.status.kind) {
@@ -178,6 +196,25 @@ export function reducer(state, action) {
 }
 
 /**
+ * Notifies native that the current step has completed, and fires a `row_shown` telemetry
+ * event for the first row of the incoming settings step, if any.
+ *
+ * @param {GlobalState} state
+ * @param {import("./messages.js").OnboardingMessages} messaging
+ */
+function notifyStepAdvanced(state, messaging) {
+    const currentIndex = state.order.indexOf(state.activeStep);
+    const next = state.order[currentIndex + 1] ?? null;
+    messaging.stepCompleted({ id: state.activeStep, next });
+    if (next) {
+        const nextStepDef = state.stepDefinitions[next];
+        if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
+            messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
+        }
+    }
+}
+
+/**
  * Provides navigation functionality for the application.
  * @param {Object} props - The properties for the NavigationProvider component.
  * @param {import('./types').Step['id'][]} props.order - The order of screens to display
@@ -226,16 +263,10 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
              * Side effects that don't impact global state (advance to non-customize step, or other message kinds).
              */
             if (msg.kind === 'advance') {
-                const currentIndex = state.order.indexOf(state.activeStep);
-                const next = state.order[currentIndex + 1] ?? null;
-                messaging.stepCompleted({ id: state.activeStep, next });
-                // Fire row_shown for the first row of the incoming settings step
-                if (next) {
-                    const nextStepDef = state.stepDefinitions[next];
-                    if (nextStepDef?.kind === 'settings' && nextStepDef.rows[0]) {
-                        messaging.telemetryEvent({ attributes: { name: 'row_shown', value: nextStepDef.rows[0] } });
-                    }
-                }
+                notifyStepAdvanced(state, messaging);
+            }
+            if (msg.kind === 'auto-advance' && state.activeStep === 'makeDefaultSingle') {
+                notifyStepAdvanced(state, messaging);
             }
             if (msg.kind === 'show-overlay' && msg.overlay === 'dock-instructions') {
                 messaging.telemetryEvent({ attributes: { name: 'dock_instructions_shown' } });
@@ -263,6 +294,17 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
                 stepDefinitions: data.stepDefinitions,
                 exclude: /** @type {import('./types.js').ConfigUpdateEvent['exclude']} */ (data.exclude),
             });
+        });
+        return unsubscribe;
+    }, [messaging]);
+
+    // `proxy` is recreated whenever `state` changes; route through a ref so the
+    // subscription callback below always sees the latest `state` without re-subscribing.
+    const proxyRef = useRef(proxy);
+    proxyRef.current = proxy;
+    useEffect(() => {
+        const unsubscribe = messaging.onSetAsDefaultComplete(() => {
+            proxyRef.current({ kind: 'auto-advance' });
         });
         return unsubscribe;
     }, [messaging]);
