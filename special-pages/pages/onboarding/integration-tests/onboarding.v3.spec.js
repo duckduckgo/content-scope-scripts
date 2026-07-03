@@ -65,6 +65,81 @@ test.describe('onboarding v3', () => {
         });
     });
 
+    test.describe('Given autoAdvance is enabled on the make default step', () => {
+        test('Then Next never appears while waiting, and Skip remains visible', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    makeDefaultSingle: { autoAdvance: true },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
+
+            await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click();
+            await onboarding.mocks.waitForCallCount({ method: 'requestSetAsDefault', count: 1 });
+
+            await expect(page.getByRole('button', { name: 'Make DuckDuckGo Your Default' })).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Next' })).not.toBeVisible();
+            await expect(page.getByRole('button', { name: 'Skip' })).toBeVisible();
+        });
+
+        test('Then onSetAsDefaultComplete advances to the next step and fires stepCompleted', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    makeDefaultSingle: { autoAdvance: true },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
+
+            await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click();
+            await onboarding.mocks.waitForCallCount({ method: 'requestSetAsDefault', count: 1 });
+
+            await onboarding.pushSetAsDefaultComplete();
+
+            await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'makeDefaultSingle', next: 'systemSettings' });
+        });
+
+        test('Then onSetAsDefaultComplete is a no-op on other steps', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    makeDefaultSingle: { autoAdvance: true },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' });
+            await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 });
+
+            await onboarding.pushSetAsDefaultComplete();
+
+            await expect(page.getByText('Let’s get you set up!').nth(1)).toBeVisible();
+        });
+
+        test('Then Skip still advances to the next step', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: {
+                    makeDefaultSingle: { autoAdvance: true },
+                },
+                order: 'v3',
+            });
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
+
+            await onboarding.skippedCurrent();
+
+            await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 });
+            await onboarding.didFireStepCompleted({ id: 'makeDefaultSingle', next: 'systemSettings' });
+        });
+    });
+
     test.describe('Given I am on the system settings step', () => {
         test('Then I can turn on ad blocking (placebo variant)', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV3Page.create(page, workerInfo);

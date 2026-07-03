@@ -62,6 +62,14 @@ export class OnboardingPage {
     }
 
     /**
+     * Push an onSetAsDefaultComplete subscription event, simulating native returning to the
+     * foreground after the OS "set as default" flow.
+     */
+    async pushSetAsDefaultComplete() {
+        await this.mocks.simulateSubscriptionMessage('onSetAsDefaultComplete', {});
+    }
+
+    /**
      * Opens a page with optional parameters.
      * This method ensures that mocks are installed and routes are set up before navigating to the page.
      *
