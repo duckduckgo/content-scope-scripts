@@ -179,6 +179,16 @@ export class OnboardingMessages {
     }
 
     /**
+     * Subscribe to native's signal that the user has finished the Set Default OS flow.
+     * Sent at most once per requestSetAsDefault, when the browser returns to the foreground.
+     * @param {() => void} callback
+     * @returns {() => void} unsubscribe
+     */
+    onSetAsDefaultComplete(callback) {
+        return this.messaging.subscribe('onSetAsDefaultComplete', callback);
+    }
+
+    /**
      * Sent when the user wants to enable or disable ad blocking.
      *
      * @param {import('./types').BooleanSystemValue} params

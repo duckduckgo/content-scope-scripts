@@ -36,7 +36,7 @@ import { useContext } from 'preact/hooks';
  * @typedef {{ kind: 'info'; id: 'getStarted' }} GetStartedStep
  * @typedef {{ kind: 'settings'; id: 'systemSettings'; rows: SystemValueId[]; }} SystemSettingsStep
  * @typedef {{ kind: 'settings'; id: 'customize'; rows: SystemValueId[]; }} CustomizeStep
- * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
+ * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; autoAdvance?: boolean }} MakeDefaultSingleStep
  * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; variant?: 'ad-free' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'addressBarMode' }} AddressBarModeStep
  */
@@ -100,6 +100,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  *   | ShowOverlayEvent
  *   | DismissOverlayEvent
  *   | ConfigUpdateEvent
+ *   | AutoAdvanceEvent
  *   | TelemetryEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
@@ -114,6 +115,7 @@ export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
  * @typedef {{ kind: "show-overlay"; overlay: OverlayId }} ShowOverlayEvent
  * @typedef {{ kind: "dismiss-overlay" }} DismissOverlayEvent
  * @typedef {{ kind: "config-update"; stepDefinitions?: Record<string, any>; exclude?: Step['id'][] }} ConfigUpdateEvent
+ * @typedef {{ kind: "auto-advance" }} AutoAdvanceEvent
  * @typedef {{ kind: "telemetry"; attributes: import('../types/onboarding.ts').TelemetryEvent['attributes'] }} TelemetryEvent
  */
 
