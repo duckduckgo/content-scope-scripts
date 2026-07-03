@@ -211,6 +211,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             'youtube-ad-blocking': 'idle',
             'address-bar-mode': 'idle',
             'dock-instructions': 'idle',
+            'chrome-extension-install': 'idle',
         },
     });
 
@@ -251,6 +252,9 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             }
             if (msg.kind === 'dismiss') {
                 messaging.dismissToAddressBar();
+            }
+            if (msg.kind === 'request-chrome-extension') {
+                messaging.requestChromeExtensionInstall();
             }
         },
         [state, messaging],

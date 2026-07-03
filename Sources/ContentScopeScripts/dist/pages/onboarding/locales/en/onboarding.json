@@ -466,11 +466,11 @@
     "note": "Page title for the first step in the v4 onboarding process"
   },
   "getStarted_title_v4": {
-    "title": "Hi there!{paragraph}Ready for a faster browser{newline}that keeps you protected?",
-    "note": "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+    "title": "Hi there!{paragraph}Ready for a faster browser that protects you and lets you decide when and how to use AI?",
+    "note": "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. `{newline}` may be inserted to adjust line placement for visual balance and readability."
   },
   "getStartedButton_v4": {
-    "title": "Let’s do it!",
+    "title": "Start browser setup",
     "note": "Button label prompting user to start the v4 onboarding process."
   },
   "makeDefaultAccept_title_v4": {
@@ -484,5 +484,13 @@
   "dockInstructions_body": {
     "title": "Hold control and click the DuckDuckGo app icon, then choose <strong>Options</strong> > <strong>Keep in Dock</strong>.",
     "note": "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
+  },
+  "getStarted_chromeExtension_label": {
+    "title": "Also install our Chrome search extension",
+    "note": "Label for the checkbox on the getStarted step that lets users opt in to installing the DuckDuckGo Chrome search extension."
+  },
+  "getStarted_chromeExtension_tooltip": {
+    "title": "Set DuckDuckGo as your default search engine in Chrome to search online without being tracked.",
+    "note": "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
   }
 }

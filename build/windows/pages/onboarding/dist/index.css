@@ -4004,6 +4004,94 @@ h2 {
 .GetStartedContent_revealable {
   transition: opacity 0.3s ease-in-out;
 }
+.GetStartedContent_checkboxRow {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(8 * var(--px-in-rem));
+  justify-content: center;
+  align-self: stretch;
+}
+.GetStartedContent_checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(8 * var(--px-in-rem));
+  cursor: pointer;
+}
+.GetStartedContent_checkbox {
+  position: relative;
+  width: calc(16 * var(--px-in-rem));
+  height: calc(16 * var(--px-in-rem));
+  flex-shrink: 0;
+  border: 1px solid var(--ds-control-primary-border-color);
+  border-radius: calc(4 * var(--px-in-rem));
+  background: var(--ds-surface-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+.GetStartedContent_checkbox.GetStartedContent_checked {
+  background: var(--ds-accent-primary);
+  border-color: var(--ds-accent-primary);
+}
+.GetStartedContent_checkboxInput {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.GetStartedContent_checkmark {
+  width: calc(12 * var(--px-in-rem));
+  height: calc(12 * var(--px-in-rem));
+  color: var(--ds-accent-primary-content-color);
+}
+.GetStartedContent_checkboxText {
+  font-family: var(--font-product);
+  font-size: calc(14 * var(--px-in-rem));
+  font-weight: 400;
+  line-height: calc(16 * var(--px-in-rem));
+  color: var(--ds-text-primary);
+  padding-top: 1px;
+}
+.GetStartedContent_infoIconWrapper {
+  position: relative;
+  flex-shrink: 0;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.GetStartedContent_infoIcon {
+  width: calc(16 * var(--px-in-rem));
+  height: calc(16 * var(--px-in-rem));
+  color: var(--ds-accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.GetStartedContent_tooltip {
+  position: absolute;
+  bottom: calc(100% + 6 * var(--px-in-rem));
+  right: 0;
+  width: calc(182 * var(--px-in-rem));
+  padding: calc(2 * var(--px-in-rem)) calc(6 * var(--px-in-rem));
+  border-radius: calc(2 * var(--px-in-rem));
+  border: 1px solid var(--ds-control-primary-border-color);
+  background: var(--ds-surface-primary);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.24);
+  font-family: var(--font-product);
+  font-size: calc(10 * var(--px-in-rem));
+  font-weight: 500;
+  line-height: calc(14 * var(--px-in-rem));
+  letter-spacing: calc(0.06 * var(--px-in-rem));
+  color: var(--ds-text-primary);
+  white-space: normal;
+  overflow-wrap: break-word;
+  z-index: 10;
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .GetStartedContent_root {
     animation: none;
@@ -4122,6 +4210,9 @@ h2 {
 }
 .SingleStep_layout.SingleStep_narrow {
   --bubble-width: 349px;
+}
+.SingleStep_layout.SingleStep_chromeExtension {
+  --bubble-width: 397px;
 }
 .SingleStep_layout.SingleStep_hasTop {
   --bubble-height: var(--bubble-top-height);

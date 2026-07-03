@@ -173,23 +173,23 @@
     };
   }
   function q(n3, u4, t4, i5, r4, o4, e4, f4, c4, a4) {
-    var s4, h5, p5, v4, y5, d5, _5, k5, x5, M3, $3, I2, P4, A5, H3, T5 = u4.type;
+    var s4, h5, p5, v4, y5, d5, _5, k4, x5, M3, $3, I2, P4, A5, H3, T6 = u4.type;
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (s4 = l.__b) && s4(u4);
-    n: if ("function" == typeof T5) try {
-      if (k5 = u4.props, x5 = T5.prototype && T5.prototype.render, M3 = (s4 = T5.contextType) && i5[s4.__c], $3 = s4 ? M3 ? M3.props.value : s4.__ : i5, t4.__c ? _5 = (h5 = u4.__c = t4.__c).__ = h5.__E : (x5 ? u4.__c = h5 = new T5(k5, $3) : (u4.__c = h5 = new C(k5, $3), h5.constructor = T5, h5.render = Q), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), x5 && null == h5.__s && (h5.__s = h5.state), x5 && null != T5.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = m({}, h5.__s)), m(h5.__s, T5.getDerivedStateFromProps(k5, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) x5 && null == T5.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), x5 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
+    n: if ("function" == typeof T6) try {
+      if (k4 = u4.props, x5 = T6.prototype && T6.prototype.render, M3 = (s4 = T6.contextType) && i5[s4.__c], $3 = s4 ? M3 ? M3.props.value : s4.__ : i5, t4.__c ? _5 = (h5 = u4.__c = t4.__c).__ = h5.__E : (x5 ? u4.__c = h5 = new T6(k4, $3) : (u4.__c = h5 = new C(k4, $3), h5.constructor = T6, h5.render = Q), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), x5 && null == h5.__s && (h5.__s = h5.state), x5 && null != T6.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = m({}, h5.__s)), m(h5.__s, T6.getDerivedStateFromProps(k4, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) x5 && null == T6.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), x5 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
       else {
-        if (x5 && null == T5.getDerivedStateFromProps && k5 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(k5, $3), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(k5, h5.__s, $3)) {
-          u4.__v != t4.__v && (h5.props = k5, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
+        if (x5 && null == T6.getDerivedStateFromProps && k4 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(k4, $3), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(k4, h5.__s, $3)) {
+          u4.__v != t4.__v && (h5.props = k4, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
             n4 && (n4.__ = u4);
           }), w.push.apply(h5.__h, h5._sb), h5._sb = [], h5.__h.length && e4.push(h5);
           break n;
         }
-        null != h5.componentWillUpdate && h5.componentWillUpdate(k5, h5.__s, $3), x5 && null != h5.componentDidUpdate && h5.__h.push(function() {
+        null != h5.componentWillUpdate && h5.componentWillUpdate(k4, h5.__s, $3), x5 && null != h5.componentDidUpdate && h5.__h.push(function() {
           h5.componentDidUpdate(v4, y5, d5);
         });
       }
-      if (h5.context = $3, h5.props = k5, h5.__P = n3, h5.__e = false, I2 = l.__r, P4 = 0, x5) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), s4 = h5.render(h5.props, h5.state, h5.context), w.push.apply(h5.__h, h5._sb), h5._sb = [];
+      if (h5.context = $3, h5.props = k4, h5.__P = n3, h5.__e = false, I2 = l.__r, P4 = 0, x5) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), s4 = h5.render(h5.props, h5.state, h5.context), w.push.apply(h5.__h, h5._sb), h5._sb = [];
       else do {
         h5.__d = false, I2 && I2(u4), s4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
       } while (h5.__d && ++P4 < 25);
@@ -227,7 +227,7 @@
     return "object" != typeof n3 || null == n3 || n3.__b > 0 ? n3 : g(n3) ? n3.map(E) : void 0 !== n3.constructor ? null : m({}, n3);
   }
   function G(u4, t4, i5, r4, o4, e4, f4, c4, a4) {
-    var s4, h5, p5, v4, y5, w5, _5, m5 = i5.props || d, k5 = t4.props, x5 = t4.type;
+    var s4, h5, p5, v4, y5, w5, _5, m5 = i5.props || d, k4 = t4.props, x5 = t4.type;
     if ("svg" == x5 ? o4 = "http://www.w3.org/2000/svg" : "math" == x5 ? o4 = "http://www.w3.org/1998/Math/MathML" : o4 || (o4 = "http://www.w3.org/1999/xhtml"), null != e4) {
       for (s4 = 0; s4 < e4.length; s4++) if ((y5 = e4[s4]) && "setAttribute" in y5 == !!x5 && (x5 ? y5.localName == x5 : 3 == y5.nodeType)) {
         u4 = y5, e4[s4] = null;
@@ -235,14 +235,14 @@
       }
     }
     if (null == u4) {
-      if (null == x5) return document.createTextNode(k5);
-      u4 = document.createElementNS(o4, x5, k5.is && k5), c4 && (l.__m && l.__m(t4, e4), c4 = false), e4 = null;
+      if (null == x5) return document.createTextNode(k4);
+      u4 = document.createElementNS(o4, x5, k4.is && k4), c4 && (l.__m && l.__m(t4, e4), c4 = false), e4 = null;
     }
-    if (null == x5) m5 === k5 || c4 && u4.data == k5 || (u4.data = k5);
+    if (null == x5) m5 === k4 || c4 && u4.data == k4 || (u4.data = k4);
     else {
-      if (e4 = "textarea" == x5 && null != k5.defaultValue ? null : e4 && n.call(u4.childNodes), !c4 && null != e4) for (m5 = {}, s4 = 0; s4 < u4.attributes.length; s4++) m5[(y5 = u4.attributes[s4]).name] = y5.value;
-      for (s4 in m5) y5 = m5[s4], "dangerouslySetInnerHTML" == s4 ? p5 = y5 : "children" == s4 || s4 in k5 || "value" == s4 && "defaultValue" in k5 || "checked" == s4 && "defaultChecked" in k5 || N(u4, s4, null, y5, o4);
-      for (s4 in k5) y5 = k5[s4], "children" == s4 ? v4 = y5 : "dangerouslySetInnerHTML" == s4 ? h5 = y5 : "value" == s4 ? w5 = y5 : "checked" == s4 ? _5 = y5 : c4 && "function" != typeof y5 || m5[s4] === y5 || N(u4, s4, y5, m5[s4], o4);
+      if (e4 = "textarea" == x5 && null != k4.defaultValue ? null : e4 && n.call(u4.childNodes), !c4 && null != e4) for (m5 = {}, s4 = 0; s4 < u4.attributes.length; s4++) m5[(y5 = u4.attributes[s4]).name] = y5.value;
+      for (s4 in m5) y5 = m5[s4], "dangerouslySetInnerHTML" == s4 ? p5 = y5 : "children" == s4 || s4 in k4 || "value" == s4 && "defaultValue" in k4 || "checked" == s4 && "defaultChecked" in k4 || N(u4, s4, null, y5, o4);
+      for (s4 in k4) y5 = k4[s4], "children" == s4 ? v4 = y5 : "dangerouslySetInnerHTML" == s4 ? h5 = y5 : "value" == s4 ? w5 = y5 : "checked" == s4 ? _5 = y5 : c4 && "function" != typeof y5 || m5[s4] === y5 || N(u4, s4, y5, m5[s4], o4);
       if (h5) c4 || p5 && (h5.__html == p5.__html || h5.__html == u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
       else if (p5 && (u4.innerHTML = ""), L("template" == t4.type ? u4.content : u4, g(v4) ? v4 : [v4], t4, i5, r4, "foreignObject" == x5 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && $(i5, 0), c4, a4), null != e4) for (s4 = e4.length; s4--; ) b(e4[s4]);
       c4 && "textarea" != x5 || (s4 = "value", "progress" == x5 && null == w5 ? u4.removeAttribute("value") : null != w5 && (w5 !== u4[s4] || "progress" == x5 && !w5 || "option" == x5 && w5 != m5[s4]) && N(u4, s4, w5, m5[s4], o4), s4 = "checked", null != _5 && _5 != u4[s4] && N(u4, s4, _5, m5[s4], o4));
@@ -596,8 +596,8 @@
     if (!(s3 > 1)) {
       var i5, t4 = false;
       !(function() {
-        var i6 = d3;
-        d3 = void 0;
+        var i6 = c3;
+        c3 = void 0;
         while (void 0 !== i6) {
           if (i6.S.v === i6.v) i6.S.i = i6.i;
           i6 = i6.o;
@@ -715,14 +715,11 @@
     i5.s = n3;
   }
   function p3(i5, t4) {
-    l3.call(this, void 0);
+    l3.call(this, void 0, t4);
     this.x = i5;
     this.s = void 0;
-    this.g = c3 - 1;
+    this.g = d3 - 1;
     this.f = 4;
-    this.W = null == t4 ? void 0 : t4.watched;
-    this.Z = null == t4 ? void 0 : t4.unwatched;
-    this.name = null == t4 ? void 0 : t4.name;
   }
   function g3(i5, t4) {
     return new p3(i5, t4);
@@ -770,7 +767,7 @@
     this.name = null == t4 ? void 0 : t4.name;
     if (f3) f3.push(this);
   }
-  function C3(i5, t4) {
+  function j3(i5, t4) {
     var n3 = new E2(i5, t4);
     try {
       n3.c();
@@ -782,7 +779,7 @@
     r4[Symbol.dispose] = r4;
     return r4;
   }
-  var i4, r3, f3, h3, s3, v3, u3, e3, d3, c3;
+  var i4, r3, f3, h3, s3, v3, u3, e3, c3, d3;
   var init_signals_core_module = __esm({
     "../node_modules/@preact/signals-core/dist/signals-core.module.js"() {
       i4 = /* @__PURE__ */ Symbol.for("preact-signals");
@@ -792,8 +789,8 @@
       v3 = 0;
       u3 = 0;
       e3 = 0;
-      d3 = void 0;
-      c3 = 0;
+      c3 = void 0;
+      d3 = 0;
       l3.prototype.brand = i4;
       l3.prototype.h = function() {
         return true;
@@ -833,14 +830,11 @@
       };
       l3.prototype.subscribe = function(i5) {
         var t4 = this;
-        return C3(function() {
-          var n3 = t4.value, o4 = r3;
-          r3 = void 0;
-          try {
-            i5(n3);
-          } finally {
-            r3 = o4;
-          }
+        return j3(function() {
+          var n3 = t4.value;
+          o3(function() {
+            return i5(n3);
+          });
         }, { name: "sub" });
       };
       l3.prototype.valueOf = function() {
@@ -853,13 +847,10 @@
         return this.value;
       };
       l3.prototype.peek = function() {
-        var i5 = r3;
-        r3 = void 0;
-        try {
-          return this.value;
-        } finally {
-          r3 = i5;
-        }
+        var i5 = this;
+        return o3(function() {
+          return i5.value;
+        });
       };
       Object.defineProperty(l3.prototype, "value", { get: function() {
         var i5 = a3(this);
@@ -872,13 +863,13 @@
             if (0 !== s3 && 0 === v3) {
               if (i6.l !== e3) {
                 i6.l = e3;
-                d3 = { S: i6, v: i6.v, i: i6.i, o: d3 };
+                c3 = { S: i6, v: i6.v, i: i6.i, o: c3 };
               }
             }
           })(this);
           this.v = i5;
           this.i++;
-          c3++;
+          d3++;
           s3++;
           try {
             for (var n3 = this.t; void 0 !== n3; n3 = n3.x) n3.t.N();
@@ -893,8 +884,8 @@
         if (1 & this.f) return false;
         if (32 == (36 & this.f)) return true;
         this.f &= -5;
-        if (this.g === c3) return true;
-        this.g = c3;
+        if (this.g === d3) return true;
+        this.g = d3;
         this.f |= 1;
         if (this.i > 0 && !w3(this)) {
           this.f &= -2;
@@ -1003,22 +994,22 @@
     h4 = i5 && i5.S();
   }
   function y4(i5) {
-    var n3 = this, t4 = i5.data, e4 = useSignal(t4);
-    e4.value = t4;
-    var f4 = T2(function() {
+    var n3 = this, t4 = i5.data, f4 = useSignal(t4);
+    f4.value = t4;
+    var e4 = T2(function() {
       var i6 = n3, t5 = n3.__v;
       while (t5 = t5.__) if (t5.__c) {
         t5.__c.__$f |= 4;
         break;
       }
       var o4 = g3(function() {
-        var i7 = e4.value.value;
+        var i7 = f4.value.value;
         return 0 === i7 ? 0 : true === i7 ? "" : i7 || "";
-      }), f5 = g3(function() {
+      }), e5 = g3(function() {
         return !Array.isArray(o4.value) && !t(o4.value);
-      }), a5 = C3(function() {
+      }), a5 = j3(function() {
         this.N = F2;
-        if (f5.value) {
+        if (e5.value) {
           var n4 = o4.value;
           if (i6.__v && i6.__v.__e && 3 === i6.__v.__e.nodeType) i6.__v.__e.data = n4;
         }
@@ -1027,24 +1018,24 @@
         a5();
         v5.call(this);
       };
-      return [f5, o4];
-    }, []), a4 = f4[0], v4 = f4[1];
+      return [e5, o4];
+    }, []), a4 = e4[0], v4 = e4[1];
     return a4.value ? v4.peek() : v4.value;
   }
   function w4(i5, n3, r4, t4) {
-    var o4 = n3 in i5 && void 0 === i5.ownerSVGElement, e4 = y3(r4), f4 = r4.peek();
+    var o4 = n3 in i5 && void 0 === i5.ownerSVGElement, f4 = y3(r4);
     return { o: function(i6, n4) {
-      e4.value = i6;
-      f4 = i6.peek();
-    }, d: C3(function() {
+      f4.value = i6;
+      t4 = n4;
+    }, d: j3(function() {
       this.N = F2;
-      var r5 = e4.value.value;
-      if (f4 !== r5) {
-        f4 = void 0;
+      var r5 = f4.value.value;
+      if (t4[n3] !== r5) {
+        t4[n3] = r5;
         if (o4) i5[n3] = r5;
         else if (null != r5 && (false !== r5 || "-" === n3[4])) i5.setAttribute(n3, r5);
         else i5.removeAttribute(n3);
-      } else f4 = void 0;
+      }
     }) };
   }
   function useSignal(i5, n3) {
@@ -1068,8 +1059,8 @@
       while (i5 = m4.shift()) l4.call(i5);
     });
   }
-  function T3() {
-    if (1 === m4.push(this)) (l.requestAnimationFrame || k4)(A3);
+  function T4() {
+    if (1 === m4.push(this)) (l.requestAnimationFrame || k3)(A3);
   }
   function x4() {
     n2(function() {
@@ -1084,13 +1075,13 @@
     var r4 = A2(i5);
     r4.current = i5;
     y2(function() {
-      return C3(function() {
-        this.N = T3;
+      return j3(function() {
+        this.N = T4;
         return r4.current();
       }, n3);
     }, []);
   }
-  var l4, d4, h4, p4, m4, _4, k4, q3;
+  var l4, d4, h4, p4, m4, _4, k3, q3;
   var init_signals_module = __esm({
     "../node_modules/@preact/signals/dist/signals.module.js"() {
       init_preact_module();
@@ -1100,7 +1091,7 @@
       p4 = "undefined" != typeof window && !!window.__PREACT_SIGNALS_DEVTOOLS__;
       m4 = [];
       _4 = [];
-      C3(function() {
+      j3(function() {
         l4 = this.N;
       })();
       y4.displayName = "ReactiveTextNode";
@@ -1114,11 +1105,11 @@
         if ("string" == typeof n3.type) {
           var r4, t4 = n3.props;
           for (var o4 in t4) if ("children" !== o4) {
-            var e4 = t4[o4];
-            if (e4 instanceof l3) {
+            var f4 = t4[o4];
+            if (f4 instanceof l3) {
               if (!r4) n3.__np = r4 = {};
-              r4[o4] = e4;
-              t4[o4] = e4.peek();
+              r4[o4] = f4;
+              t4[o4] = f4.peek();
             }
           }
         }
@@ -1133,7 +1124,7 @@
             o4.__$f &= -2;
             if (void 0 === (r4 = o4.__$u)) o4.__$u = r4 = (function(i6, n4) {
               var r5;
-              C3(function() {
+              j3(function() {
                 r5 = this;
               }, { name: n4 });
               r5.c = i6;
@@ -1161,23 +1152,23 @@
         if ("string" == typeof n3.type && (r4 = n3.__e)) {
           var t4 = n3.__np, o4 = n3.props;
           if (t4) {
-            var e4 = r4.U;
-            if (e4) for (var f4 in e4) {
-              var u4 = e4[f4];
-              if (void 0 !== u4 && !(f4 in t4)) {
+            var f4 = r4.U;
+            if (f4) for (var e4 in f4) {
+              var u4 = f4[e4];
+              if (void 0 !== u4 && !(e4 in t4)) {
                 u4.d();
-                e4[f4] = void 0;
+                f4[e4] = void 0;
               }
             }
             else {
-              e4 = {};
-              r4.U = e4;
+              f4 = {};
+              r4.U = f4;
             }
             for (var a4 in t4) {
-              var c4 = e4[a4], v4 = t4[a4];
+              var c4 = f4[a4], v4 = t4[a4];
               if (void 0 === c4) {
-                c4 = w4(r4, a4, v4);
-                e4[a4] = c4;
+                c4 = w4(r4, a4, v4, o4);
+                f4[a4] = c4;
               } else c4.o(v4, o4);
             }
           }
@@ -1192,15 +1183,15 @@
             if (t4) {
               r4.U = void 0;
               for (var o4 in t4) {
-                var e4 = t4[o4];
-                if (e4) e4.d();
+                var f4 = t4[o4];
+                if (f4) f4.d();
               }
             }
           }
-          var f4 = n3.__np;
-          if (f4) {
+          var e4 = n3.__np;
+          if (e4) {
             var u4 = n3.props;
-            for (var a4 in f4) u4[a4] = f4[a4];
+            for (var a4 in e4) u4[a4] = e4[a4];
           }
           n3.__np = void 0;
         } else {
@@ -1224,18 +1215,18 @@
         var r4 = this.__$u, t4 = r4 && void 0 !== r4.s;
         for (var o4 in n3) return true;
         if (this.__f || "boolean" == typeof this.u && true === this.u) {
-          var e4 = 2 & this.__$f;
-          if (!(t4 || e4 || 4 & this.__$f)) return true;
+          var f4 = 2 & this.__$f;
+          if (!(t4 || f4 || 4 & this.__$f)) return true;
           if (1 & this.__$f) return true;
         } else {
           if (!(t4 || 4 & this.__$f)) return true;
           if (3 & this.__$f) return true;
         }
-        for (var f4 in i5) if ("__source" !== f4 && i5[f4] !== this.props[f4]) return true;
+        for (var e4 in i5) if ("__source" !== e4 && i5[e4] !== this.props[e4]) return true;
         for (var u4 in this.props) if (!(u4 in i5)) return true;
         return false;
       };
-      k4 = "undefined" == typeof requestAnimationFrame ? setTimeout : function(i5) {
+      k3 = "undefined" == typeof requestAnimationFrame ? setTimeout : function(i5) {
         var n3 = function() {
           clearTimeout(r4);
           cancelAnimationFrame(t4);
@@ -1253,7 +1244,7 @@
   // pages/new-tab/app/widget-list/widget-config.provider.js
   function WidgetConfigProvider(props) {
     const currentValues = useSignal(props.widgetConfigs);
-    C3(() => {
+    j3(() => {
       const unsub = props.api.onData((widgetConfig) => {
         currentValues.value = widgetConfig.data;
       });
@@ -2308,7 +2299,7 @@
   function P3() {
     this.__u = 0, this.o = null, this.__b = null;
   }
-  function j3(n3) {
+  function j4(n3) {
     var t4 = n3.__ && n3.__.__c;
     return t4 && t4.__a && t4.__a(n3);
   }
@@ -2353,7 +2344,7 @@
     var r4 = k(Y, { __v: n3, h: e4 });
     return r4.containerInfo = e4, r4;
   }
-  var T4, A4, O3, U2, H2, q4, G2, J2, K2, Q2, X2, en, rn, un, on, ln, cn;
+  var T5, A4, O2, U2, H2, q4, G2, J2, K2, Q2, X2, en, rn, un, on, ln, cn;
   var init_compat_module = __esm({
     "../node_modules/preact/compat/dist/compat.module.js"() {
       init_preact_module();
@@ -2363,17 +2354,17 @@
       (M2.prototype = new C()).isPureReactComponent = true, M2.prototype.shouldComponentUpdate = function(n3, t4) {
         return E3(this.props, n3) || E3(this.state, t4);
       };
-      T4 = l.__b;
+      T5 = l.__b;
       l.__b = function(n3) {
-        n3.type && n3.type.__f && n3.ref && (n3.props.ref = n3.ref, n3.ref = null), T4 && T4(n3);
+        n3.type && n3.type.__f && n3.ref && (n3.props.ref = n3.ref, n3.ref = null), T5 && T5(n3);
       };
       A4 = "undefined" != typeof Symbol && Symbol.for && /* @__PURE__ */ Symbol.for("react.forward_ref") || 3911;
-      O3 = l.__e;
+      O2 = l.__e;
       l.__e = function(n3, t4, e4, r4) {
         if (n3.then) {
           for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k), u4.__c(n3, t4);
         }
-        O3(n3, t4, e4, r4);
+        O2(n3, t4, e4, r4);
       };
       U2 = l.unmount;
       l.unmount = function(n3) {
@@ -2382,7 +2373,7 @@
       }, (P3.prototype = new C()).__c = function(n3, t4) {
         var e4 = t4.__c, r4 = this;
         null == r4.o && (r4.o = []), r4.o.push(e4);
-        var u4 = j3(r4.__v), o4 = false, i5 = function() {
+        var u4 = j4(r4.__v), o4 = false, i5 = function() {
           o4 || r4.__z || (o4 = true, e4.__R = null, u4 ? u4(c4) : c4());
         };
         e4.__R = i5;
@@ -2420,7 +2411,7 @@
         }
       };
       (B3.prototype = new C()).__a = function(n3) {
-        var t4 = this, e4 = j3(t4.__v), r4 = t4.l.get(n3);
+        var t4 = this, e4 = j4(t4.__v), r4 = t4.l.get(n3);
         return r4[0]++, function(u4) {
           var o4 = function() {
             t4.props.revealOrder ? (r4.push(u4), H2(t4, n3, r4)) : u4();
@@ -4240,7 +4231,9 @@
         margin: 0,
         overflow: "visible",
         color: "inherit",
-        background: "transparent"
+        background: "transparent",
+        width: "auto",
+        height: "auto"
       };
     }
   });
@@ -16319,9 +16312,9 @@
                     var layerData;
                     var i5;
                     var len = layers.length;
-                    var j4;
+                    var j5;
                     var jLen;
-                    var k5;
+                    var k4;
                     var kLen;
                     for (i5 = 0; i5 < len; i5 += 1) {
                       layerData = layers[i5];
@@ -16330,17 +16323,17 @@
                         if (layerData.hasMask) {
                           var maskProps = layerData.masksProperties;
                           jLen = maskProps.length;
-                          for (j4 = 0; j4 < jLen; j4 += 1) {
-                            if (maskProps[j4].pt.k.i) {
-                              convertPathsToAbsoluteValues(maskProps[j4].pt.k);
+                          for (j5 = 0; j5 < jLen; j5 += 1) {
+                            if (maskProps[j5].pt.k.i) {
+                              convertPathsToAbsoluteValues(maskProps[j5].pt.k);
                             } else {
-                              kLen = maskProps[j4].pt.k.length;
-                              for (k5 = 0; k5 < kLen; k5 += 1) {
-                                if (maskProps[j4].pt.k[k5].s) {
-                                  convertPathsToAbsoluteValues(maskProps[j4].pt.k[k5].s[0]);
+                              kLen = maskProps[j5].pt.k.length;
+                              for (k4 = 0; k4 < kLen; k4 += 1) {
+                                if (maskProps[j5].pt.k[k4].s) {
+                                  convertPathsToAbsoluteValues(maskProps[j5].pt.k[k4].s[0]);
                                 }
-                                if (maskProps[j4].pt.k[k5].e) {
-                                  convertPathsToAbsoluteValues(maskProps[j4].pt.k[k5].e[0]);
+                                if (maskProps[j5].pt.k[k4].e) {
+                                  convertPathsToAbsoluteValues(maskProps[j5].pt.k[k4].e[0]);
                                 }
                               }
                             }
@@ -16394,7 +16387,7 @@
                   function completeShapes(arr) {
                     var i5;
                     var len = arr.length;
-                    var j4;
+                    var j5;
                     var jLen;
                     for (i5 = len - 1; i5 >= 0; i5 -= 1) {
                       if (arr[i5].ty === "sh") {
@@ -16402,12 +16395,12 @@
                           convertPathsToAbsoluteValues(arr[i5].ks.k);
                         } else {
                           jLen = arr[i5].ks.k.length;
-                          for (j4 = 0; j4 < jLen; j4 += 1) {
-                            if (arr[i5].ks.k[j4].s) {
-                              convertPathsToAbsoluteValues(arr[i5].ks.k[j4].s[0]);
+                          for (j5 = 0; j5 < jLen; j5 += 1) {
+                            if (arr[i5].ks.k[j5].s) {
+                              convertPathsToAbsoluteValues(arr[i5].ks.k[j5].s[0]);
                             }
-                            if (arr[i5].ks.k[j4].e) {
-                              convertPathsToAbsoluteValues(arr[i5].ks.k[j4].e[0]);
+                            if (arr[i5].ks.k[j5].e) {
+                              convertPathsToAbsoluteValues(arr[i5].ks.k[j5].e[0]);
                             }
                           }
                         }
@@ -16612,7 +16605,7 @@
                     function iterateShapes(shapes) {
                       var i5;
                       var len = shapes.length;
-                      var j4;
+                      var j5;
                       var jLen;
                       for (i5 = 0; i5 < len; i5 += 1) {
                         if (shapes[i5].ty === "gr") {
@@ -16620,18 +16613,18 @@
                         } else if (shapes[i5].ty === "fl" || shapes[i5].ty === "st") {
                           if (shapes[i5].c.k && shapes[i5].c.k[0].i) {
                             jLen = shapes[i5].c.k.length;
-                            for (j4 = 0; j4 < jLen; j4 += 1) {
-                              if (shapes[i5].c.k[j4].s) {
-                                shapes[i5].c.k[j4].s[0] /= 255;
-                                shapes[i5].c.k[j4].s[1] /= 255;
-                                shapes[i5].c.k[j4].s[2] /= 255;
-                                shapes[i5].c.k[j4].s[3] /= 255;
+                            for (j5 = 0; j5 < jLen; j5 += 1) {
+                              if (shapes[i5].c.k[j5].s) {
+                                shapes[i5].c.k[j5].s[0] /= 255;
+                                shapes[i5].c.k[j5].s[1] /= 255;
+                                shapes[i5].c.k[j5].s[2] /= 255;
+                                shapes[i5].c.k[j5].s[3] /= 255;
                               }
-                              if (shapes[i5].c.k[j4].e) {
-                                shapes[i5].c.k[j4].e[0] /= 255;
-                                shapes[i5].c.k[j4].e[1] /= 255;
-                                shapes[i5].c.k[j4].e[2] /= 255;
-                                shapes[i5].c.k[j4].e[3] /= 255;
+                              if (shapes[i5].c.k[j5].e) {
+                                shapes[i5].c.k[j5].e[0] /= 255;
+                                shapes[i5].c.k[j5].e[1] /= 255;
+                                shapes[i5].c.k[j5].e[2] /= 255;
+                                shapes[i5].c.k[j5].e[3] /= 255;
                               }
                             }
                           } else {
@@ -16672,7 +16665,7 @@
                     function completeClosingShapes(arr) {
                       var i5;
                       var len = arr.length;
-                      var j4;
+                      var j5;
                       var jLen;
                       for (i5 = len - 1; i5 >= 0; i5 -= 1) {
                         if (arr[i5].ty === "sh") {
@@ -16680,12 +16673,12 @@
                             arr[i5].ks.k.c = arr[i5].closed;
                           } else {
                             jLen = arr[i5].ks.k.length;
-                            for (j4 = 0; j4 < jLen; j4 += 1) {
-                              if (arr[i5].ks.k[j4].s) {
-                                arr[i5].ks.k[j4].s[0].c = arr[i5].closed;
+                            for (j5 = 0; j5 < jLen; j5 += 1) {
+                              if (arr[i5].ks.k[j5].s) {
+                                arr[i5].ks.k[j5].s[0].c = arr[i5].closed;
                               }
-                              if (arr[i5].ks.k[j4].e) {
-                                arr[i5].ks.k[j4].e[0].c = arr[i5].closed;
+                              if (arr[i5].ks.k[j5].e) {
+                                arr[i5].ks.k[j5].e[0].c = arr[i5].closed;
                               }
                             }
                           }
@@ -16698,26 +16691,26 @@
                       var layerData;
                       var i5;
                       var len = layers.length;
-                      var j4;
+                      var j5;
                       var jLen;
-                      var k5;
+                      var k4;
                       var kLen;
                       for (i5 = 0; i5 < len; i5 += 1) {
                         layerData = layers[i5];
                         if (layerData.hasMask) {
                           var maskProps = layerData.masksProperties;
                           jLen = maskProps.length;
-                          for (j4 = 0; j4 < jLen; j4 += 1) {
-                            if (maskProps[j4].pt.k.i) {
-                              maskProps[j4].pt.k.c = maskProps[j4].cl;
+                          for (j5 = 0; j5 < jLen; j5 += 1) {
+                            if (maskProps[j5].pt.k.i) {
+                              maskProps[j5].pt.k.c = maskProps[j5].cl;
                             } else {
-                              kLen = maskProps[j4].pt.k.length;
-                              for (k5 = 0; k5 < kLen; k5 += 1) {
-                                if (maskProps[j4].pt.k[k5].s) {
-                                  maskProps[j4].pt.k[k5].s[0].c = maskProps[j4].cl;
+                              kLen = maskProps[j5].pt.k.length;
+                              for (k4 = 0; k4 < kLen; k4 += 1) {
+                                if (maskProps[j5].pt.k[k4].s) {
+                                  maskProps[j5].pt.k[k4].s[0].c = maskProps[j5].cl;
                                 }
-                                if (maskProps[j4].pt.k[k5].e) {
-                                  maskProps[j4].pt.k[k5].e[0].c = maskProps[j4].cl;
+                                if (maskProps[j5].pt.k[k4].e) {
+                                  maskProps[j5].pt.k[k4].e[0].c = maskProps[j5].cl;
                                 }
                               }
                             }
@@ -17373,13 +17366,13 @@
           var i5;
           var len = layers.length;
           var newLayers = data2.layers;
-          var j4;
+          var j5;
           var jLen = newLayers.length;
-          for (j4 = 0; j4 < jLen; j4 += 1) {
+          for (j5 = 0; j5 < jLen; j5 += 1) {
             i5 = 0;
             while (i5 < len) {
-              if (layers[i5].id === newLayers[j4].id) {
-                layers[i5] = newLayers[j4];
+              if (layers[i5].id === newLayers[j5].id) {
+                layers[i5] = newLayers[j5];
                 break;
               }
               i5 += 1;
@@ -18335,7 +18328,7 @@
           var getBezierLength = /* @__PURE__ */ (function() {
             return function(pt1, pt2, pt3, pt4) {
               var curveSegments = getDefaultCurveSegments();
-              var k5;
+              var k4;
               var i5;
               var len;
               var ptCoord;
@@ -18346,8 +18339,8 @@
               var lastPoint = [];
               var lengthData = bezierLengthPool.newElement();
               len = pt3.length;
-              for (k5 = 0; k5 < curveSegments; k5 += 1) {
-                perc = k5 / (curveSegments - 1);
+              for (k4 = 0; k4 < curveSegments; k4 += 1) {
+                perc = k4 / (curveSegments - 1);
                 ptDistance = 0;
                 for (i5 = 0; i5 < len; i5 += 1) {
                   ptCoord = bmPow(1 - perc, 3) * pt1[i5] + 3 * bmPow(1 - perc, 2) * perc * pt3[i5] + 3 * (1 - perc) * bmPow(perc, 2) * pt4[i5] + bmPow(perc, 3) * pt2[i5];
@@ -18361,8 +18354,8 @@
                   ptDistance = bmSqrt(ptDistance);
                   addedLength += ptDistance;
                 }
-                lengthData.percents[k5] = perc;
-                lengthData.lengths[k5] = addedLength;
+                lengthData.percents[k4] = perc;
+                lengthData.lengths[k4] = addedLength;
               }
               lengthData.addedLength = addedLength;
               return lengthData;
@@ -18403,7 +18396,7 @@
               var bezierName = (pt1[0] + "_" + pt1[1] + "_" + pt2[0] + "_" + pt2[1] + "_" + pt3[0] + "_" + pt3[1] + "_" + pt4[0] + "_" + pt4[1]).replace(/\./g, "p");
               if (!storedData[bezierName]) {
                 var curveSegments = getDefaultCurveSegments();
-                var k5;
+                var k4;
                 var i5;
                 var len;
                 var ptCoord;
@@ -18417,9 +18410,9 @@
                 }
                 var bezierData = new BezierData(curveSegments);
                 len = pt3.length;
-                for (k5 = 0; k5 < curveSegments; k5 += 1) {
+                for (k4 = 0; k4 < curveSegments; k4 += 1) {
                   point = createSizedArray(len);
-                  perc = k5 / (curveSegments - 1);
+                  perc = k4 / (curveSegments - 1);
                   ptDistance = 0;
                   for (i5 = 0; i5 < len; i5 += 1) {
                     ptCoord = bmPow(1 - perc, 3) * pt1[i5] + 3 * bmPow(1 - perc, 2) * perc * (pt1[i5] + pt3[i5]) + 3 * (1 - perc) * bmPow(perc, 2) * (pt2[i5] + pt4[i5]) + bmPow(perc, 3) * pt2[i5];
@@ -18430,7 +18423,7 @@
                   }
                   ptDistance = bmSqrt(ptDistance);
                   addedLength += ptDistance;
-                  bezierData.points[k5] = new PointData(ptDistance, point);
+                  bezierData.points[k4] = new PointData(ptDistance, point);
                   lastPoint = point;
                 }
                 bezierData.segmentLength = addedLength;
@@ -18559,11 +18552,11 @@
             }
           }
           keyframeMetadata = this.keyframesMetadata[i5] || {};
-          var k5;
+          var k4;
           var kLen;
           var perc;
           var jLen;
-          var j4;
+          var j5;
           var fnc;
           var nextKeyTime = nextKeyData.t - offsetTime;
           var keyTime = keyData.t - offsetTime;
@@ -18576,8 +18569,8 @@
             if (frameNum >= nextKeyTime || frameNum < keyTime) {
               var ind = frameNum >= nextKeyTime ? bezierData.points.length - 1 : 0;
               kLen = bezierData.points[ind].point.length;
-              for (k5 = 0; k5 < kLen; k5 += 1) {
-                newValue[k5] = bezierData.points[ind].point[k5];
+              for (k4 = 0; k4 < kLen; k4 += 1) {
+                newValue[k4] = bezierData.points[ind].point[k4];
               }
             } else {
               if (keyframeMetadata.__fnct) {
@@ -18590,33 +18583,33 @@
               var distanceInLine = bezierData.segmentLength * perc;
               var segmentPerc;
               var addedLength = caching.lastFrame < frameNum && caching._lastKeyframeIndex === i5 ? caching._lastAddedLength : 0;
-              j4 = caching.lastFrame < frameNum && caching._lastKeyframeIndex === i5 ? caching._lastPoint : 0;
+              j5 = caching.lastFrame < frameNum && caching._lastKeyframeIndex === i5 ? caching._lastPoint : 0;
               flag = true;
               jLen = bezierData.points.length;
               while (flag) {
-                addedLength += bezierData.points[j4].partialLength;
-                if (distanceInLine === 0 || perc === 0 || j4 === bezierData.points.length - 1) {
-                  kLen = bezierData.points[j4].point.length;
-                  for (k5 = 0; k5 < kLen; k5 += 1) {
-                    newValue[k5] = bezierData.points[j4].point[k5];
+                addedLength += bezierData.points[j5].partialLength;
+                if (distanceInLine === 0 || perc === 0 || j5 === bezierData.points.length - 1) {
+                  kLen = bezierData.points[j5].point.length;
+                  for (k4 = 0; k4 < kLen; k4 += 1) {
+                    newValue[k4] = bezierData.points[j5].point[k4];
                   }
                   break;
-                } else if (distanceInLine >= addedLength && distanceInLine < addedLength + bezierData.points[j4 + 1].partialLength) {
-                  segmentPerc = (distanceInLine - addedLength) / bezierData.points[j4 + 1].partialLength;
-                  kLen = bezierData.points[j4].point.length;
-                  for (k5 = 0; k5 < kLen; k5 += 1) {
-                    newValue[k5] = bezierData.points[j4].point[k5] + (bezierData.points[j4 + 1].point[k5] - bezierData.points[j4].point[k5]) * segmentPerc;
+                } else if (distanceInLine >= addedLength && distanceInLine < addedLength + bezierData.points[j5 + 1].partialLength) {
+                  segmentPerc = (distanceInLine - addedLength) / bezierData.points[j5 + 1].partialLength;
+                  kLen = bezierData.points[j5].point.length;
+                  for (k4 = 0; k4 < kLen; k4 += 1) {
+                    newValue[k4] = bezierData.points[j5].point[k4] + (bezierData.points[j5 + 1].point[k4] - bezierData.points[j5].point[k4]) * segmentPerc;
                   }
                   break;
                 }
-                if (j4 < jLen - 1) {
-                  j4 += 1;
+                if (j5 < jLen - 1) {
+                  j5 += 1;
                 } else {
                   flag = false;
                 }
               }
-              caching._lastPoint = j4;
-              caching._lastAddedLength = addedLength - bezierData.points[j4].partialLength;
+              caching._lastPoint = j5;
+              caching._lastAddedLength = addedLength - bezierData.points[j5].partialLength;
               caching._lastKeyframeIndex = i5;
             }
           } else {
@@ -19191,8 +19184,8 @@
             var keyPropS;
             var keyPropE;
             var isHold;
-            var j4;
-            var k5;
+            var j5;
+            var k4;
             var jLen;
             var kLen;
             var perc;
@@ -19249,14 +19242,14 @@
             jLen = previousValue._length;
             kLen = keyPropS.i[0].length;
             caching.lastIndex = iterationIndex;
-            for (j4 = 0; j4 < jLen; j4 += 1) {
-              for (k5 = 0; k5 < kLen; k5 += 1) {
-                vertexValue = isHold ? keyPropS.i[j4][k5] : keyPropS.i[j4][k5] + (keyPropE.i[j4][k5] - keyPropS.i[j4][k5]) * perc;
-                previousValue.i[j4][k5] = vertexValue;
-                vertexValue = isHold ? keyPropS.o[j4][k5] : keyPropS.o[j4][k5] + (keyPropE.o[j4][k5] - keyPropS.o[j4][k5]) * perc;
-                previousValue.o[j4][k5] = vertexValue;
-                vertexValue = isHold ? keyPropS.v[j4][k5] : keyPropS.v[j4][k5] + (keyPropE.v[j4][k5] - keyPropS.v[j4][k5]) * perc;
-                previousValue.v[j4][k5] = vertexValue;
+            for (j5 = 0; j5 < jLen; j5 += 1) {
+              for (k4 = 0; k4 < kLen; k4 += 1) {
+                vertexValue = isHold ? keyPropS.i[j5][k4] : keyPropS.i[j5][k4] + (keyPropE.i[j5][k4] - keyPropS.i[j5][k4]) * perc;
+                previousValue.i[j5][k4] = vertexValue;
+                vertexValue = isHold ? keyPropS.o[j5][k4] : keyPropS.o[j5][k4] + (keyPropE.o[j5][k4] - keyPropS.o[j5][k4]) * perc;
+                previousValue.o[j5][k4] = vertexValue;
+                vertexValue = isHold ? keyPropS.v[j5][k4] : keyPropS.v[j5][k4] + (keyPropE.v[j5][k4] - keyPropS.v[j5][k4]) * perc;
+                previousValue.v[j5][k4] = vertexValue;
               }
             }
           }
@@ -19745,7 +19738,7 @@
             }
             return this._t(sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1);
           }
-          function setTransform(a4, b4, c4, d5, e4, f4, g6, h5, i5, j4, k5, l5, m5, n3, o4, p5) {
+          function setTransform(a4, b4, c4, d5, e4, f4, g6, h5, i5, j5, k4, l5, m5, n3, o4, p5) {
             this.props[0] = a4;
             this.props[1] = b4;
             this.props[2] = c4;
@@ -19755,8 +19748,8 @@
             this.props[6] = g6;
             this.props[7] = h5;
             this.props[8] = i5;
-            this.props[9] = j4;
-            this.props[10] = k5;
+            this.props[9] = j5;
+            this.props[10] = k4;
             this.props[11] = l5;
             this.props[12] = m5;
             this.props[13] = n3;
@@ -20310,7 +20303,7 @@
           var shapePaths;
           var i5;
           var len = this.shapes.length;
-          var j4;
+          var j5;
           var jLen;
           var pathsData;
           var pathData;
@@ -20341,8 +20334,8 @@
                   totalShapeLength = shapeData.totalShapeLength;
                 } else {
                   pathsData = this.releasePathsData(shapeData.pathsData);
-                  for (j4 = 0; j4 < jLen; j4 += 1) {
-                    pathData = bez.getSegmentsLength(shapePaths.shapes[j4]);
+                  for (j5 = 0; j5 < jLen; j5 += 1) {
+                    pathData = bez.getSegmentsLength(shapePaths.shapes[j5]);
                     pathsData.push(pathData);
                     totalShapeLength += pathData.totalLength;
                   }
@@ -20369,9 +20362,9 @@
                   edges = [[shapeS, shapeE]];
                 }
                 jLen = edges.length;
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  shapeS = edges[j4][0];
-                  shapeE = edges[j4][1];
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  shapeS = edges[j5][0];
+                  shapeE = edges[j5][1];
                   segments.length = 0;
                   if (shapeE <= 1) {
                     segments.push({
@@ -20447,7 +20440,7 @@
           var shapePaths = shapeData.shape.paths.shapes;
           var i5;
           var len = shapeData.shape.paths._length;
-          var j4;
+          var j5;
           var jLen;
           var addedLength = 0;
           var currentLengthData;
@@ -20470,8 +20463,8 @@
             lengths = pathsData[i5].lengths;
             shapePath.c = shapePaths[i5].c;
             jLen = shapePaths[i5].c ? lengths.length : lengths.length + 1;
-            for (j4 = 1; j4 < jLen; j4 += 1) {
-              currentLengthData = lengths[j4 - 1];
+            for (j5 = 1; j5 < jLen; j5 += 1) {
+              currentLengthData = lengths[j5 - 1];
               if (addedLength + currentLengthData.addedLength < shapeSegment.s) {
                 addedLength += currentLengthData.addedLength;
                 shapePath.c = false;
@@ -20480,10 +20473,10 @@
                 break;
               } else {
                 if (shapeSegment.s <= addedLength && shapeSegment.e >= addedLength + currentLengthData.addedLength) {
-                  this.addSegment(shapePaths[i5].v[j4 - 1], shapePaths[i5].o[j4 - 1], shapePaths[i5].i[j4], shapePaths[i5].v[j4], shapePath, segmentCount, newShape);
+                  this.addSegment(shapePaths[i5].v[j5 - 1], shapePaths[i5].o[j5 - 1], shapePaths[i5].i[j5], shapePaths[i5].v[j5], shapePath, segmentCount, newShape);
                   newShape = false;
                 } else {
-                  segment = bez.getNewSegment(shapePaths[i5].v[j4 - 1], shapePaths[i5].v[j4], shapePaths[i5].o[j4 - 1], shapePaths[i5].i[j4], (shapeSegment.s - addedLength) / currentLengthData.addedLength, (shapeSegment.e - addedLength) / currentLengthData.addedLength, lengths[j4 - 1]);
+                  segment = bez.getNewSegment(shapePaths[i5].v[j5 - 1], shapePaths[i5].v[j5], shapePaths[i5].o[j5 - 1], shapePaths[i5].i[j5], (shapeSegment.s - addedLength) / currentLengthData.addedLength, (shapeSegment.e - addedLength) / currentLengthData.addedLength, lengths[j5 - 1]);
                   this.addSegmentFromArray(segment, shapePath, segmentCount, newShape);
                   newShape = false;
                   shapePath.c = false;
@@ -20493,14 +20486,14 @@
               }
             }
             if (shapePaths[i5].c && lengths.length) {
-              currentLengthData = lengths[j4 - 1];
+              currentLengthData = lengths[j5 - 1];
               if (addedLength <= shapeSegment.e) {
-                var segmentLength = lengths[j4 - 1].addedLength;
+                var segmentLength = lengths[j5 - 1].addedLength;
                 if (shapeSegment.s <= addedLength && shapeSegment.e >= addedLength + segmentLength) {
-                  this.addSegment(shapePaths[i5].v[j4 - 1], shapePaths[i5].o[j4 - 1], shapePaths[i5].i[0], shapePaths[i5].v[0], shapePath, segmentCount, newShape);
+                  this.addSegment(shapePaths[i5].v[j5 - 1], shapePaths[i5].o[j5 - 1], shapePaths[i5].i[0], shapePaths[i5].v[0], shapePath, segmentCount, newShape);
                   newShape = false;
                 } else {
-                  segment = bez.getNewSegment(shapePaths[i5].v[j4 - 1], shapePaths[i5].v[0], shapePaths[i5].o[j4 - 1], shapePaths[i5].i[0], (shapeSegment.s - addedLength) / segmentLength, (shapeSegment.e - addedLength) / segmentLength, lengths[j4 - 1]);
+                  segment = bez.getNewSegment(shapePaths[i5].v[j5 - 1], shapePaths[i5].v[0], shapePaths[i5].o[j5 - 1], shapePaths[i5].i[0], (shapeSegment.s - addedLength) / segmentLength, (shapeSegment.e - addedLength) / segmentLength, lengths[j5 - 1]);
                   this.addSegmentFromArray(segment, shapePath, segmentCount, newShape);
                   newShape = false;
                   shapePath.c = false;
@@ -20569,7 +20562,7 @@
           var shapePaths;
           var i5;
           var len = this.shapes.length;
-          var j4;
+          var j5;
           var jLen;
           var amount = this.amount.v;
           if (amount !== 0) {
@@ -20583,8 +20576,8 @@
                 shapeData.shape._mdf = true;
                 shapePaths = shapeData.shape.paths.shapes;
                 jLen = shapeData.shape.paths._length;
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  localShapeCollection.addShape(this.processPath(shapePaths[j4], amount));
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  localShapeCollection.addShape(this.processPath(shapePaths[j5], amount));
                 }
               }
               shapeData.shape.paths = shapeData.localShapeCollection;
@@ -21022,7 +21015,7 @@
             i5 = this.data.m === 1 ? 0 : this._currentCopies - 1;
             dir = this.data.m === 1 ? 1 : -1;
             cont = this._currentCopies;
-            var j4;
+            var j5;
             var jLen;
             while (cont) {
               items = this.elemsData[i5].it;
@@ -21038,14 +21031,14 @@
                 this.matrix.transform(rProps[0], rProps[1], rProps[2], rProps[3], rProps[4], rProps[5], rProps[6], rProps[7], rProps[8], rProps[9], rProps[10], rProps[11], rProps[12], rProps[13], rProps[14], rProps[15]);
                 this.matrix.transform(sProps[0], sProps[1], sProps[2], sProps[3], sProps[4], sProps[5], sProps[6], sProps[7], sProps[8], sProps[9], sProps[10], sProps[11], sProps[12], sProps[13], sProps[14], sProps[15]);
                 this.matrix.transform(pProps[0], pProps[1], pProps[2], pProps[3], pProps[4], pProps[5], pProps[6], pProps[7], pProps[8], pProps[9], pProps[10], pProps[11], pProps[12], pProps[13], pProps[14], pProps[15]);
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  itemsTransform[j4] = this.matrix.props[j4];
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  itemsTransform[j5] = this.matrix.props[j5];
                 }
                 this.matrix.reset();
               } else {
                 this.matrix.reset();
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  itemsTransform[j4] = this.matrix.props[j4];
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  itemsTransform[j5] = this.matrix.props[j5];
                 }
               }
               iteration += 1;
@@ -21146,7 +21139,7 @@
           var shapePaths;
           var i5;
           var len = this.shapes.length;
-          var j4;
+          var j5;
           var jLen;
           var rd = this.rd.v;
           if (rd !== 0) {
@@ -21160,8 +21153,8 @@
                 shapeData.shape._mdf = true;
                 shapePaths = shapeData.shape.paths.shapes;
                 jLen = shapeData.shape.paths._length;
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  localShapeCollection.addShape(this.processPath(shapePaths[j4], rd));
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  localShapeCollection.addShape(this.processPath(shapePaths[j5], rd));
                 }
               }
               shapeData.shape.paths = shapeData.localShapeCollection;
@@ -21439,7 +21432,7 @@
           var shapePaths;
           var i5;
           var len = this.shapes.length;
-          var j4;
+          var j5;
           var jLen;
           var amplitude = this.amplitude.v;
           var frequency = Math.max(0, Math.round(this.frequency.v));
@@ -21455,8 +21448,8 @@
                 shapeData.shape._mdf = true;
                 shapePaths = shapeData.shape.paths.shapes;
                 jLen = shapeData.shape.paths._length;
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  localShapeCollection.addShape(this.processPath(shapePaths[j4], amplitude, frequency, pointType));
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  localShapeCollection.addShape(this.processPath(shapePaths[j5], amplitude, frequency, pointType));
                 }
               }
               shapeData.shape.paths = shapeData.localShapeCollection;
@@ -21595,7 +21588,7 @@
             count -= 1;
           }
           var i5;
-          var j4;
+          var j5;
           var segment;
           var multiSegments = [];
           for (i5 = 0; i5 < count; i5 += 1) {
@@ -21615,8 +21608,8 @@
             var multiSegment = multiSegments[i5];
             if (lastSeg) lastPoint = joinLines(outputBezier, lastSeg, multiSegment[0], lineJoin, miterLimit);
             lastSeg = multiSegment[multiSegment.length - 1];
-            for (j4 = 0; j4 < multiSegment.length; j4 += 1) {
-              segment = multiSegment[j4];
+            for (j5 = 0; j5 < multiSegment.length; j5 += 1) {
+              segment = multiSegment[j5];
               if (lastPoint && pointEqual(segment.points[0], lastPoint)) {
                 outputBezier.setXYAt(segment.points[1][0], segment.points[1][1], "o", outputBezier.length() - 1);
               } else {
@@ -21633,7 +21626,7 @@
           var shapePaths;
           var i5;
           var len = this.shapes.length;
-          var j4;
+          var j5;
           var jLen;
           var amount = this.amount.v;
           var miterLimit = this.miterLimit.v;
@@ -21649,8 +21642,8 @@
                 shapeData.shape._mdf = true;
                 shapePaths = shapeData.shape.paths.shapes;
                 jLen = shapeData.shape.paths._length;
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  localShapeCollection.addShape(this.processPath(shapePaths[j4], amount, lineJoin, miterLimit));
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  localShapeCollection.addShape(this.processPath(shapePaths[j5], amount, lineJoin, miterLimit));
                 }
               }
               shapeData.shape.paths = shapeData.localShapeCollection;
@@ -21853,7 +21846,7 @@
             for (i5 = 0; i5 < len; i5 += 1) {
               var shouldLoadFont = true;
               var loadedSelector;
-              var j4;
+              var j5;
               fontArr[i5].loaded = false;
               fontArr[i5].monoCase = setUpNode(fontArr[i5].fFamily, "monospace");
               fontArr[i5].sansCase = setUpNode(fontArr[i5].fFamily, "sans-serif");
@@ -21876,8 +21869,8 @@
                 }
               } else if (fontArr[i5].fOrigin === "g" || fontArr[i5].origin === 1) {
                 loadedSelector = document.querySelectorAll('link[f-forigin="g"], link[f-origin="1"]');
-                for (j4 = 0; j4 < loadedSelector.length; j4 += 1) {
-                  if (loadedSelector[j4].href.indexOf(fontArr[i5].fPath) !== -1) {
+                for (j5 = 0; j5 < loadedSelector.length; j5 += 1) {
+                  if (loadedSelector[j5].href.indexOf(fontArr[i5].fPath) !== -1) {
                     shouldLoadFont = false;
                   }
                 }
@@ -21892,8 +21885,8 @@
                 }
               } else if (fontArr[i5].fOrigin === "t" || fontArr[i5].origin === 2) {
                 loadedSelector = document.querySelectorAll('script[f-forigin="t"], script[f-origin="2"]');
-                for (j4 = 0; j4 < loadedSelector.length; j4 += 1) {
-                  if (fontArr[i5].fPath === loadedSelector[j4].src) {
+                for (j5 = 0; j5 < loadedSelector.length; j5 += 1) {
+                  if (fontArr[i5].fPath === loadedSelector[j5].src) {
                     shouldLoadFont = false;
                   }
                 }
@@ -21925,17 +21918,17 @@
             }
             var i5;
             var len = chars.length;
-            var j4;
+            var j5;
             var jLen = this.chars.length;
             var found;
             for (i5 = 0; i5 < len; i5 += 1) {
-              j4 = 0;
+              j5 = 0;
               found = false;
-              while (j4 < jLen) {
-                if (this.chars[j4].style === chars[i5].style && this.chars[j4].fFamily === chars[i5].fFamily && this.chars[j4].ch === chars[i5].ch) {
+              while (j5 < jLen) {
+                if (this.chars[j5].style === chars[i5].style && this.chars[j5].fFamily === chars[i5].fFamily && this.chars[j5].ch === chars[i5].ch) {
                   found = true;
                 }
-                j4 += 1;
+                j5 += 1;
               }
               if (!found) {
                 this.chars.push(chars[i5]);
@@ -22549,16 +22542,16 @@
           this.completeLayers = false;
           var i5;
           var len = newLayers.length;
-          var j4;
+          var j5;
           var jLen = this.layers.length;
           for (i5 = 0; i5 < len; i5 += 1) {
-            j4 = 0;
-            while (j4 < jLen) {
-              if (this.layers[j4].id === newLayers[i5].id) {
-                this.layers[j4] = newLayers[i5];
+            j5 = 0;
+            while (j5 < jLen) {
+              if (this.layers[j5].id === newLayers[i5].id) {
+                this.layers[j5] = newLayers[i5];
                 break;
               }
-              j4 += 1;
+              j5 += 1;
             }
           }
         };
@@ -22802,7 +22795,7 @@
           var properties = this.masksProperties;
           var count = 0;
           var currentMasks = [];
-          var j4;
+          var j5;
           var jLen;
           var layerId = createElementID();
           var rect;
@@ -22869,8 +22862,8 @@
               if (properties[i5].mode === "i") {
                 jLen = currentMasks.length;
                 var g6 = createNS("g");
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  g6.appendChild(currentMasks[j4]);
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  g6.appendChild(currentMasks[j5]);
                 }
                 var mask2 = createNS("mask");
                 mask2.setAttribute("mask-type", "alpha");
@@ -23677,10 +23670,10 @@
           gfill.setAttribute("gradientUnits", "userSpaceOnUse");
           var stops = [];
           var stop;
-          var j4;
+          var j5;
           var jLen;
           jLen = data2.g.p * 4;
-          for (j4 = 0; j4 < jLen; j4 += 4) {
+          for (j5 = 0; j5 < jLen; j5 += 4) {
             stop = createNS("stop");
             gfill.appendChild(stop);
             stops.push(stop);
@@ -23692,7 +23685,7 @@
         SVGGradientFillStyleData.prototype.setGradientOpacity = function(data2, styleOb) {
           if (this.g._hasOpacity && !this.g._collapsable) {
             var stop;
-            var j4;
+            var j5;
             var jLen;
             var mask2 = createNS("mask");
             var maskElement = createNS("path");
@@ -23706,7 +23699,7 @@
             opFill.setAttribute("gradientUnits", "userSpaceOnUse");
             jLen = data2.g.k.k[0].s ? data2.g.k.k[0].s.length : data2.g.k.k.length;
             var stops = this.stops;
-            for (j4 = data2.g.p * 4; j4 < jLen; j4 += 2) {
+            for (j5 = data2.g.p * 4; j5 < jLen; j5 += 2) {
               stop = createNS("stop");
               stop.setAttribute("stop-color", "rgb(255,255,255)");
               opFill.appendChild(stop);
@@ -23809,7 +23802,7 @@
           function renderNoop() {
           }
           function renderPath(styleData, itemData, isFirstFrame) {
-            var j4;
+            var j5;
             var jLen;
             var pathStringTransformed;
             var redraw;
@@ -23820,25 +23813,25 @@
             var paths;
             var mat;
             var iterations;
-            var k5;
+            var k4;
             for (l5 = 0; l5 < lLen; l5 += 1) {
               redraw = itemData.sh._mdf || isFirstFrame;
               if (itemData.styles[l5].lvl < lvl) {
                 mat = _matrixHelper.reset();
                 iterations = lvl - itemData.styles[l5].lvl;
-                k5 = itemData.transformers.length - 1;
+                k4 = itemData.transformers.length - 1;
                 while (!redraw && iterations > 0) {
-                  redraw = itemData.transformers[k5].mProps._mdf || redraw;
+                  redraw = itemData.transformers[k4].mProps._mdf || redraw;
                   iterations -= 1;
-                  k5 -= 1;
+                  k4 -= 1;
                 }
                 if (redraw) {
                   iterations = lvl - itemData.styles[l5].lvl;
-                  k5 = itemData.transformers.length - 1;
+                  k4 = itemData.transformers.length - 1;
                   while (iterations > 0) {
-                    mat.multiply(itemData.transformers[k5].mProps.v);
+                    mat.multiply(itemData.transformers[k4].mProps.v);
                     iterations -= 1;
-                    k5 -= 1;
+                    k4 -= 1;
                   }
                 }
               } else {
@@ -23848,8 +23841,8 @@
               jLen = paths._length;
               if (redraw) {
                 pathStringTransformed = "";
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  pathNodes = paths.shapes[j4];
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  pathNodes = paths.shapes[j5];
                   if (pathNodes && pathNodes._length) {
                     pathStringTransformed += buildShapeString(pathNodes, pathNodes._length, pathNodes.c, mat);
                   }
@@ -24012,13 +24005,13 @@
           var i5;
           var len = this.shapes.length;
           var shape;
-          var j4;
+          var j5;
           var jLen = this.stylesList.length;
           var style;
           var tempShapes = [];
           var areAnimated = false;
-          for (j4 = 0; j4 < jLen; j4 += 1) {
-            style = this.stylesList[j4];
+          for (j5 = 0; j5 < jLen; j5 += 1) {
+            style = this.stylesList[j5];
             areAnimated = false;
             tempShapes.length = 0;
             for (i5 = 0; i5 < len; i5 += 1) {
@@ -24136,11 +24129,11 @@
         };
         SVGShapeElement.prototype.setElementStyles = function(elementData) {
           var arr = elementData.styles;
-          var j4;
+          var j5;
           var jLen = this.stylesList.length;
-          for (j4 = 0; j4 < jLen; j4 += 1) {
-            if (arr.indexOf(this.stylesList[j4]) === -1 && !this.stylesList[j4].closed) {
-              arr.push(this.stylesList[j4]);
+          for (j5 = 0; j5 < jLen; j5 += 1) {
+            if (arr.indexOf(this.stylesList[j5]) === -1 && !this.stylesList[j5].closed) {
+              arr.push(this.stylesList[j5]);
             }
           }
         };
@@ -24163,7 +24156,7 @@
           var ownTransformers = [].concat(transformers);
           var i5;
           var len = arr.length - 1;
-          var j4;
+          var j5;
           var jLen;
           var ownStyles = [];
           var ownModifiers = [];
@@ -24194,8 +24187,8 @@
                 itemsData[i5] = this.createGroupElement(arr[i5]);
               } else {
                 jLen = itemsData[i5].it.length;
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  itemsData[i5].prevViewData[j4] = itemsData[i5].it[j4];
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  itemsData[i5].prevViewData[j5] = itemsData[i5].it[j5];
                 }
               }
               this.searchShapes(arr[i5].it, itemsData[i5].it, itemsData[i5].prevViewData, itemsData[i5].gr, level + 1, ownTransformers, render);
@@ -24538,7 +24531,7 @@
           var lineWidths = [];
           var lineWidth = 0;
           var maxLineWidth = 0;
-          var j4;
+          var j5;
           var jLen;
           var fontData = fontManager.getFontByName(documentData.f);
           var charData;
@@ -24711,8 +24704,8 @@
           var based;
           var ind;
           var indexes = [];
-          for (j4 = 0; j4 < jLen; j4 += 1) {
-            animatorData = animators[j4];
+          for (j5 = 0; j5 < jLen; j5 += 1) {
+            animatorData = animators[j5];
             if (animatorData.a.sc) {
               documentData.strokeColorAnim = true;
             }
@@ -24726,7 +24719,7 @@
             based = animatorData.s.b;
             for (i5 = 0; i5 < len; i5 += 1) {
               letterData = letters[i5];
-              letterData.anIndexes[j4] = ind;
+              letterData.anIndexes[j5] = ind;
               if (based == 1 && letterData.val !== "" || based == 2 && letterData.val !== "" && letterData.val !== " " || based == 3 && (letterData.n || letterData.val == " " || i5 == len - 1) || based == 4 && (letterData.n || i5 == len - 1)) {
                 if (animatorData.s.rn === 1) {
                   indexes.push(ind);
@@ -24734,17 +24727,17 @@
                 ind += 1;
               }
             }
-            data2.a[j4].s.totalChars = ind;
+            data2.a[j5].s.totalChars = ind;
             var currentInd = -1;
             var newInd;
             if (animatorData.s.rn === 1) {
               for (i5 = 0; i5 < len; i5 += 1) {
                 letterData = letters[i5];
-                if (currentInd != letterData.anIndexes[j4]) {
-                  currentInd = letterData.anIndexes[j4];
+                if (currentInd != letterData.anIndexes[j5]) {
+                  currentInd = letterData.anIndexes[j5];
                   newInd = indexes.splice(Math.floor(Math.random() * indexes.length), 1)[0];
                 }
-                letterData.anIndexes[j4] = newInd;
+                letterData.anIndexes[j5] = newInd;
               }
             }
           }
@@ -25106,7 +25099,7 @@
           var firstLine = true;
           var animatorProps;
           var animatorSelector;
-          var j4;
+          var j5;
           var jLen;
           var letterValue;
           jLen = animators.length;
@@ -25123,7 +25116,7 @@
           var sc;
           var sw;
           var fc;
-          var k5;
+          var k4;
           var letterSw;
           var letterSc;
           var letterFc;
@@ -25148,14 +25141,14 @@
                 animatorJustifyOffset = 0;
                 isNewLine = true;
               } else {
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  animatorProps = animators[j4].a;
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  animatorProps = animators[j5].a;
                   if (animatorProps.t.propType) {
                     if (isNewLine && documentData.j === 2) {
                       animatorFirstCharOffset += animatorProps.t.v * justifyOffsetMult;
                     }
-                    animatorSelector = animators[j4].s;
-                    mult = animatorSelector.getMult(letters[i5].anIndexes[j4], textData.a[j4].s.totalChars);
+                    animatorSelector = animators[j5].s;
+                    mult = animatorSelector.getMult(letters[i5].anIndexes[j5], textData.a[j5].s.totalChars);
                     if (mult.length) {
                       animatorJustifyOffset += animatorProps.t.v * mult[0] * justifyOffsetMult;
                     } else {
@@ -25221,11 +25214,11 @@
                 }
                 currentLength += alignment[0] * letters[i5].an * 5e-3;
                 var animatorOffset = 0;
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  animatorProps = animators[j4].a;
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  animatorProps = animators[j5].a;
                   if (animatorProps.p.propType) {
-                    animatorSelector = animators[j4].s;
-                    mult = animatorSelector.getMult(letters[i5].anIndexes[j4], textData.a[j4].s.totalChars);
+                    animatorSelector = animators[j5].s;
+                    mult = animatorSelector.getMult(letters[i5].anIndexes[j5], textData.a[j5].s.totalChars);
                     if (mult.length) {
                       animatorOffset += animatorProps.p.v[0] * mult[0];
                     } else {
@@ -25233,8 +25226,8 @@
                     }
                   }
                   if (animatorProps.a.propType) {
-                    animatorSelector = animators[j4].s;
-                    mult = animatorSelector.getMult(letters[i5].anIndexes[j4], textData.a[j4].s.totalChars);
+                    animatorSelector = animators[j5].s;
+                    mult = animatorSelector.getMult(letters[i5].anIndexes[j5], textData.a[j5].s.totalChars);
                     if (mult.length) {
                       animatorOffset += animatorProps.a.v[0] * mult[0];
                     } else {
@@ -25287,11 +25280,11 @@
                 matrixHelper.translate(-offf, 0, 0);
                 matrixHelper.translate(-alignment[0] * letters[i5].an * 5e-3, -alignment[1] * yOff * 0.01, 0);
               }
-              for (j4 = 0; j4 < jLen; j4 += 1) {
-                animatorProps = animators[j4].a;
+              for (j5 = 0; j5 < jLen; j5 += 1) {
+                animatorProps = animators[j5].a;
                 if (animatorProps.t.propType) {
-                  animatorSelector = animators[j4].s;
-                  mult = animatorSelector.getMult(letters[i5].anIndexes[j4], textData.a[j4].s.totalChars);
+                  animatorSelector = animators[j5].s;
+                  mult = animatorSelector.getMult(letters[i5].anIndexes[j5], textData.a[j5].s.totalChars);
                   if (xPos !== 0 || documentData.j !== 0) {
                     if (this._hasMaskedPath) {
                       if (mult.length) {
@@ -25320,11 +25313,11 @@
               if (documentData.fillColorAnim && documentData.fc) {
                 fc = [documentData.fc[0], documentData.fc[1], documentData.fc[2]];
               }
-              for (j4 = 0; j4 < jLen; j4 += 1) {
-                animatorProps = animators[j4].a;
+              for (j5 = 0; j5 < jLen; j5 += 1) {
+                animatorProps = animators[j5].a;
                 if (animatorProps.a.propType) {
-                  animatorSelector = animators[j4].s;
-                  mult = animatorSelector.getMult(letters[i5].anIndexes[j4], textData.a[j4].s.totalChars);
+                  animatorSelector = animators[j5].s;
+                  mult = animatorSelector.getMult(letters[i5].anIndexes[j5], textData.a[j5].s.totalChars);
                   if (mult.length) {
                     matrixHelper.translate(-animatorProps.a.v[0] * mult[0], -animatorProps.a.v[1] * mult[1], animatorProps.a.v[2] * mult[2]);
                   } else {
@@ -25332,11 +25325,11 @@
                   }
                 }
               }
-              for (j4 = 0; j4 < jLen; j4 += 1) {
-                animatorProps = animators[j4].a;
+              for (j5 = 0; j5 < jLen; j5 += 1) {
+                animatorProps = animators[j5].a;
                 if (animatorProps.s.propType) {
-                  animatorSelector = animators[j4].s;
-                  mult = animatorSelector.getMult(letters[i5].anIndexes[j4], textData.a[j4].s.totalChars);
+                  animatorSelector = animators[j5].s;
+                  mult = animatorSelector.getMult(letters[i5].anIndexes[j5], textData.a[j5].s.totalChars);
                   if (mult.length) {
                     matrixHelper.scale(1 + (animatorProps.s.v[0] - 1) * mult[0], 1 + (animatorProps.s.v[1] - 1) * mult[1], 1);
                   } else {
@@ -25344,10 +25337,10 @@
                   }
                 }
               }
-              for (j4 = 0; j4 < jLen; j4 += 1) {
-                animatorProps = animators[j4].a;
-                animatorSelector = animators[j4].s;
-                mult = animatorSelector.getMult(letters[i5].anIndexes[j4], textData.a[j4].s.totalChars);
+              for (j5 = 0; j5 < jLen; j5 += 1) {
+                animatorProps = animators[j5].a;
+                animatorSelector = animators[j5].s;
+                mult = animatorSelector.getMult(letters[i5].anIndexes[j5], textData.a[j5].s.totalChars);
                 if (animatorProps.sk.propType) {
                   if (mult.length) {
                     matrixHelper.skewFromAxis(-animatorProps.sk.v * mult[0], animatorProps.sa.v * mult[1]);
@@ -25391,21 +25384,21 @@
                   }
                 }
                 if (documentData.strokeColorAnim && animatorProps.sc.propType) {
-                  for (k5 = 0; k5 < 3; k5 += 1) {
+                  for (k4 = 0; k4 < 3; k4 += 1) {
                     if (mult.length) {
-                      sc[k5] += (animatorProps.sc.v[k5] - sc[k5]) * mult[0];
+                      sc[k4] += (animatorProps.sc.v[k4] - sc[k4]) * mult[0];
                     } else {
-                      sc[k5] += (animatorProps.sc.v[k5] - sc[k5]) * mult;
+                      sc[k4] += (animatorProps.sc.v[k4] - sc[k4]) * mult;
                     }
                   }
                 }
                 if (documentData.fillColorAnim && documentData.fc) {
                   if (animatorProps.fc.propType) {
-                    for (k5 = 0; k5 < 3; k5 += 1) {
+                    for (k4 = 0; k4 < 3; k4 += 1) {
                       if (mult.length) {
-                        fc[k5] += (animatorProps.fc.v[k5] - fc[k5]) * mult[0];
+                        fc[k4] += (animatorProps.fc.v[k4] - fc[k4]) * mult[0];
                       } else {
-                        fc[k5] += (animatorProps.fc.v[k5] - fc[k5]) * mult;
+                        fc[k4] += (animatorProps.fc.v[k4] - fc[k4]) * mult;
                       }
                     }
                   }
@@ -25432,11 +25425,11 @@
                   }
                 }
               }
-              for (j4 = 0; j4 < jLen; j4 += 1) {
-                animatorProps = animators[j4].a;
+              for (j5 = 0; j5 < jLen; j5 += 1) {
+                animatorProps = animators[j5].a;
                 if (animatorProps.p.propType) {
-                  animatorSelector = animators[j4].s;
-                  mult = animatorSelector.getMult(letters[i5].anIndexes[j4], textData.a[j4].s.totalChars);
+                  animatorSelector = animators[j5].s;
+                  mult = animatorSelector.getMult(letters[i5].anIndexes[j5], textData.a[j5].s.totalChars);
                   if (this._hasMaskedPath) {
                     if (mult.length) {
                       matrixHelper.translate(0, animatorProps.p.v[1] * mult[0], -animatorProps.p.v[2] * mult[1]);
@@ -25550,13 +25543,13 @@
           this.prepareProperties(num, this.isInRange);
         };
         ITextElement.prototype.createPathShape = function(matrixHelper, shapes) {
-          var j4;
+          var j5;
           var jLen = shapes.length;
           var pathNodes;
           var shapeStr = "";
-          for (j4 = 0; j4 < jLen; j4 += 1) {
-            if (shapes[j4].ty === "sh") {
-              pathNodes = shapes[j4].ks.k;
+          for (j5 = 0; j5 < jLen; j5 += 1) {
+            if (shapes[j5].ty === "sh") {
+              pathNodes = shapes[j5].ks.k;
               shapeStr += buildShapeString(pathNodes, pathNodes.i.length, true, matrixHelper);
             }
           }
@@ -26472,13 +26465,13 @@
               data2 = this.viewData[i5].v;
               pt = transform2.applyToPointArray(data2.v[0][0], data2.v[0][1], 0);
               ctx.moveTo(pt[0], pt[1]);
-              var j4;
+              var j5;
               var jLen = data2._length;
-              for (j4 = 1; j4 < jLen; j4 += 1) {
-                pts = transform2.applyToTriplePoints(data2.o[j4 - 1], data2.i[j4], data2.v[j4]);
+              for (j5 = 1; j5 < jLen; j5 += 1) {
+                pts = transform2.applyToTriplePoints(data2.o[j5 - 1], data2.i[j5], data2.v[j5]);
                 ctx.bezierCurveTo(pts[0], pts[1], pts[2], pts[3], pts[4], pts[5]);
               }
-              pts = transform2.applyToTriplePoints(data2.o[j4 - 1], data2.i[0], data2.v[0]);
+              pts = transform2.applyToTriplePoints(data2.o[j5 - 1], data2.i[0], data2.v[0]);
               ctx.bezierCurveTo(pts[0], pts[1], pts[2], pts[3], pts[4], pts[5]);
             }
           }
@@ -26791,7 +26784,7 @@
         CVShapeElement.prototype.searchShapes = function(arr, itemsData, prevViewData, shouldRender, transforms) {
           var i5;
           var len = arr.length - 1;
-          var j4;
+          var j5;
           var jLen;
           var ownStyles = [];
           var ownModifiers = [];
@@ -26818,8 +26811,8 @@
                 itemsData[i5] = this.createGroupElement(arr[i5]);
               } else {
                 jLen = itemsData[i5].it.length;
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  itemsData[i5].prevViewData[j4] = itemsData[i5].it[j4];
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  itemsData[i5].prevViewData[j5] = itemsData[i5].it[j5];
                 }
               }
               this.searchShapes(arr[i5].it, itemsData[i5].it, itemsData[i5].prevViewData, shouldRender, ownTransforms);
@@ -26884,9 +26877,9 @@
         CVShapeElement.prototype.drawLayer = function() {
           var i5;
           var len = this.stylesList.length;
-          var j4;
+          var j5;
           var jLen;
-          var k5;
+          var k4;
           var kLen;
           var elems;
           var nodes;
@@ -26915,7 +26908,7 @@
               }
               renderer2.ctxTransform(currentStyle.preTransforms.finalTransform.props);
               jLen = elems.length;
-              for (j4 = 0; j4 < jLen; j4 += 1) {
+              for (j5 = 0; j5 < jLen; j5 += 1) {
                 if (type === "st" || type === "gs") {
                   ctx.beginPath();
                   if (currentStyle.da) {
@@ -26923,13 +26916,13 @@
                     ctx.lineDashOffset = currentStyle["do"];
                   }
                 }
-                nodes = elems[j4].trNodes;
+                nodes = elems[j5].trNodes;
                 kLen = nodes.length;
-                for (k5 = 0; k5 < kLen; k5 += 1) {
-                  if (nodes[k5].t === "m") {
-                    ctx.moveTo(nodes[k5].p[0], nodes[k5].p[1]);
-                  } else if (nodes[k5].t === "c") {
-                    ctx.bezierCurveTo(nodes[k5].pts[0], nodes[k5].pts[1], nodes[k5].pts[2], nodes[k5].pts[3], nodes[k5].pts[4], nodes[k5].pts[5]);
+                for (k4 = 0; k4 < kLen; k4 += 1) {
+                  if (nodes[k4].t === "m") {
+                    ctx.moveTo(nodes[k4].p[0], nodes[k4].p[1]);
+                  } else if (nodes[k4].t === "c") {
+                    ctx.bezierCurveTo(nodes[k4].pts[0], nodes[k4].pts[1], nodes[k4].pts[2], nodes[k4].pts[3], nodes[k4].pts[4], nodes[k4].pts[5]);
                   } else {
                     ctx.closePath();
                   }
@@ -26980,12 +26973,12 @@
             var paths = shape.paths;
             var i5;
             var len;
-            var j4;
+            var j5;
             var jLen = paths._length;
             shapeNodes.length = 0;
             var groupTransformMat = styledShape.transforms.finalTransform;
-            for (j4 = 0; j4 < jLen; j4 += 1) {
-              var pathNodes = paths.shapes[j4];
+            for (j5 = 0; j5 < jLen; j5 += 1) {
+              var pathNodes = paths.shapes[j5];
               if (pathNodes && pathNodes.v) {
                 len = pathNodes._length;
                 for (i5 = 1; i5 < len; i5 += 1) {
@@ -27147,10 +27140,10 @@
           len = documentData.finalText.length;
           var charData;
           var shapeData;
-          var k5;
+          var k4;
           var kLen;
           var shapes;
-          var j4;
+          var j5;
           var jLen;
           var pathNodes;
           var commands;
@@ -27179,18 +27172,18 @@
             }
             commands = createSizedArray(jLen - 1);
             var commandsCounter = 0;
-            for (j4 = 0; j4 < jLen; j4 += 1) {
-              if (shapes[j4].ty === "sh") {
-                kLen = shapes[j4].ks.k.i.length;
-                pathNodes = shapes[j4].ks.k;
+            for (j5 = 0; j5 < jLen; j5 += 1) {
+              if (shapes[j5].ty === "sh") {
+                kLen = shapes[j5].ks.k.i.length;
+                pathNodes = shapes[j5].ks.k;
                 pathArr = [];
-                for (k5 = 1; k5 < kLen; k5 += 1) {
-                  if (k5 === 1) {
+                for (k4 = 1; k4 < kLen; k4 += 1) {
+                  if (k4 === 1) {
                     pathArr.push(matrixHelper.applyToX(pathNodes.v[0][0], pathNodes.v[0][1], 0), matrixHelper.applyToY(pathNodes.v[0][0], pathNodes.v[0][1], 0));
                   }
-                  pathArr.push(matrixHelper.applyToX(pathNodes.o[k5 - 1][0], pathNodes.o[k5 - 1][1], 0), matrixHelper.applyToY(pathNodes.o[k5 - 1][0], pathNodes.o[k5 - 1][1], 0), matrixHelper.applyToX(pathNodes.i[k5][0], pathNodes.i[k5][1], 0), matrixHelper.applyToY(pathNodes.i[k5][0], pathNodes.i[k5][1], 0), matrixHelper.applyToX(pathNodes.v[k5][0], pathNodes.v[k5][1], 0), matrixHelper.applyToY(pathNodes.v[k5][0], pathNodes.v[k5][1], 0));
+                  pathArr.push(matrixHelper.applyToX(pathNodes.o[k4 - 1][0], pathNodes.o[k4 - 1][1], 0), matrixHelper.applyToY(pathNodes.o[k4 - 1][0], pathNodes.o[k4 - 1][1], 0), matrixHelper.applyToX(pathNodes.i[k4][0], pathNodes.i[k4][1], 0), matrixHelper.applyToY(pathNodes.i[k4][0], pathNodes.i[k4][1], 0), matrixHelper.applyToX(pathNodes.v[k4][0], pathNodes.v[k4][1], 0), matrixHelper.applyToY(pathNodes.v[k4][0], pathNodes.v[k4][1], 0));
                 }
-                pathArr.push(matrixHelper.applyToX(pathNodes.o[k5 - 1][0], pathNodes.o[k5 - 1][1], 0), matrixHelper.applyToY(pathNodes.o[k5 - 1][0], pathNodes.o[k5 - 1][1], 0), matrixHelper.applyToX(pathNodes.i[0][0], pathNodes.i[0][1], 0), matrixHelper.applyToY(pathNodes.i[0][0], pathNodes.i[0][1], 0), matrixHelper.applyToX(pathNodes.v[0][0], pathNodes.v[0][1], 0), matrixHelper.applyToY(pathNodes.v[0][0], pathNodes.v[0][1], 0));
+                pathArr.push(matrixHelper.applyToX(pathNodes.o[k4 - 1][0], pathNodes.o[k4 - 1][1], 0), matrixHelper.applyToY(pathNodes.o[k4 - 1][0], pathNodes.o[k4 - 1][1], 0), matrixHelper.applyToX(pathNodes.i[0][0], pathNodes.i[0][1], 0), matrixHelper.applyToY(pathNodes.i[0][0], pathNodes.i[0][1], 0), matrixHelper.applyToX(pathNodes.v[0][0], pathNodes.v[0][1], 0), matrixHelper.applyToY(pathNodes.v[0][0], pathNodes.v[0][1], 0));
                 commands[commandsCounter] = pathArr;
                 commandsCounter += 1;
               }
@@ -27221,9 +27214,9 @@
           }
           var i5;
           var len;
-          var j4;
+          var j5;
           var jLen;
-          var k5;
+          var k4;
           var kLen;
           var renderedLetters = this.textAnimator.renderedLetters;
           var letters = this.textProperty.currentData.l;
@@ -27256,12 +27249,12 @@
                 commands = this.textSpans[i5].elem;
                 jLen = commands.length;
                 this.globalData.canvasContext.beginPath();
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  pathArr = commands[j4];
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  pathArr = commands[j5];
                   kLen = pathArr.length;
                   this.globalData.canvasContext.moveTo(pathArr[0], pathArr[1]);
-                  for (k5 = 2; k5 < kLen; k5 += 6) {
-                    this.globalData.canvasContext.bezierCurveTo(pathArr[k5], pathArr[k5 + 1], pathArr[k5 + 2], pathArr[k5 + 3], pathArr[k5 + 4], pathArr[k5 + 5]);
+                  for (k4 = 2; k4 < kLen; k4 += 6) {
+                    this.globalData.canvasContext.bezierCurveTo(pathArr[k4], pathArr[k4 + 1], pathArr[k4 + 2], pathArr[k4 + 3], pathArr[k4 + 4], pathArr[k4 + 5]);
                   }
                 }
                 this.globalData.canvasContext.closePath();
@@ -27289,12 +27282,12 @@
                 commands = this.textSpans[i5].elem;
                 jLen = commands.length;
                 this.globalData.canvasContext.beginPath();
-                for (j4 = 0; j4 < jLen; j4 += 1) {
-                  pathArr = commands[j4];
+                for (j5 = 0; j5 < jLen; j5 += 1) {
+                  pathArr = commands[j5];
                   kLen = pathArr.length;
                   this.globalData.canvasContext.moveTo(pathArr[0], pathArr[1]);
-                  for (k5 = 2; k5 < kLen; k5 += 6) {
-                    this.globalData.canvasContext.bezierCurveTo(pathArr[k5], pathArr[k5 + 1], pathArr[k5 + 2], pathArr[k5 + 3], pathArr[k5 + 4], pathArr[k5 + 5]);
+                  for (k4 = 2; k4 < kLen; k4 += 6) {
+                    this.globalData.canvasContext.bezierCurveTo(pathArr[k4], pathArr[k4 + 1], pathArr[k4 + 2], pathArr[k4 + 3], pathArr[k4 + 4], pathArr[k4 + 5]);
                   }
                 }
                 this.globalData.canvasContext.closePath();
@@ -28793,13 +28786,13 @@
           var len = this.threeDElements.length;
           while (i5 < len) {
             if (pos <= this.threeDElements[i5].endPos) {
-              var j4 = this.threeDElements[i5].startPos;
+              var j5 = this.threeDElements[i5].startPos;
               var nextElement;
-              while (j4 < pos) {
-                if (this.elements[j4] && this.elements[j4].getBaseElement) {
-                  nextElement = this.elements[j4].getBaseElement();
+              while (j5 < pos) {
+                if (this.elements[j5] && this.elements[j5].getBaseElement) {
+                  nextElement = this.elements[j5].getBaseElement();
                 }
-                j4 += 1;
+                j5 += 1;
               }
               if (nextElement) {
                 this.threeDElements[i5].container.insertBefore(elem2, nextElement);
@@ -28942,13 +28935,13 @@
           }
         };
         HCompElement.prototype.addTo3dContainer = function(elem2, pos) {
-          var j4 = 0;
+          var j5 = 0;
           var nextElement;
-          while (j4 < pos) {
-            if (this.elements[j4] && this.elements[j4].getBaseElement) {
-              nextElement = this.elements[j4].getBaseElement();
+          while (j5 < pos) {
+            if (this.elements[j5] && this.elements[j5].getBaseElement) {
+              nextElement = this.elements[j5].getBaseElement();
             }
-            j4 += 1;
+            j5 += 1;
           }
           if (nextElement) {
             this.layerElement.insertBefore(elem2, nextElement);
@@ -29081,7 +29074,7 @@
           }
           math["seed" + rngname] = seedrandom;
           function ARC4(key2) {
-            var t4, keylen = key2.length, me = this, i5 = 0, j4 = me.i = me.j = 0, s4 = me.S = [];
+            var t4, keylen = key2.length, me = this, i5 = 0, j5 = me.i = me.j = 0, s4 = me.S = [];
             if (!keylen) {
               key2 = [keylen++];
             }
@@ -29089,17 +29082,17 @@
               s4[i5] = i5++;
             }
             for (i5 = 0; i5 < width2; i5++) {
-              s4[i5] = s4[j4 = mask2 & j4 + key2[i5 % keylen] + (t4 = s4[i5])];
-              s4[j4] = t4;
+              s4[i5] = s4[j5 = mask2 & j5 + key2[i5 % keylen] + (t4 = s4[i5])];
+              s4[j5] = t4;
             }
             me.g = function(count) {
-              var t5, r4 = 0, i6 = me.i, j5 = me.j, s5 = me.S;
+              var t5, r4 = 0, i6 = me.i, j6 = me.j, s5 = me.S;
               while (count--) {
                 t5 = s5[i6 = mask2 & i6 + 1];
-                r4 = r4 * width2 + s5[mask2 & (s5[i6] = s5[j5 = mask2 & j5 + t5]) + (s5[j5] = t5)];
+                r4 = r4 * width2 + s5[mask2 & (s5[i6] = s5[j6 = mask2 & j6 + t5]) + (s5[j6] = t5)];
               }
               me.i = i6;
-              me.j = j5;
+              me.j = j6;
               return r4;
             };
           }
@@ -29122,9 +29115,9 @@
             return result.length ? result : typ == "string" ? obj : obj + "\0";
           }
           function mixkey(seed, key2) {
-            var stringseed = seed + "", smear, j4 = 0;
-            while (j4 < stringseed.length) {
-              key2[mask2 & j4] = mask2 & (smear ^= key2[mask2 & j4] * 19) + stringseed.charCodeAt(j4++);
+            var stringseed = seed + "", smear, j5 = 0;
+            while (j5 < stringseed.length) {
+              key2[mask2 & j5] = mask2 & (smear ^= key2[mask2 & j5] * 19) + stringseed.charCodeAt(j5++);
             }
             return tostring(key2);
           }
@@ -29569,16 +29562,16 @@
             var active = !this.data || this.data.hd !== true;
             var wiggle = (function wiggle2(freq, amp) {
               var iWiggle;
-              var j4;
+              var j5;
               var lenWiggle = this.pv.length ? this.pv.length : 1;
               var addedAmps = createTypedArray("float32", lenWiggle);
               freq = 5;
               var iterations = Math.floor(time * freq);
               iWiggle = 0;
-              j4 = 0;
+              j5 = 0;
               while (iWiggle < iterations) {
-                for (j4 = 0; j4 < lenWiggle; j4 += 1) {
-                  addedAmps[j4] += -amp + amp * 2 * BMMath.random();
+                for (j5 = 0; j5 < lenWiggle; j5 += 1) {
+                  addedAmps[j5] += -amp + amp * 2 * BMMath.random();
                 }
                 iWiggle += 1;
               }
@@ -29586,8 +29579,8 @@
               var perc = periods - Math.floor(periods);
               var arr = createTypedArray("float32", lenWiggle);
               if (lenWiggle > 1) {
-                for (j4 = 0; j4 < lenWiggle; j4 += 1) {
-                  arr[j4] = this.pv[j4] + addedAmps[j4] + (-amp + amp * 2 * BMMath.random()) * perc;
+                for (j5 = 0; j5 < lenWiggle; j5 += 1) {
+                  arr[j5] = this.pv[j5] + addedAmps[j5] + (-amp + amp * 2 * BMMath.random()) * perc;
                 }
                 return arr;
               }
@@ -31295,7 +31288,7 @@
             var endFrame = currentTime + width2;
             var sampleFrequency = samples > 1 ? (endFrame - initFrame2) / (samples - 1) : 1;
             var i5 = 0;
-            var j4 = 0;
+            var j5 = 0;
             var value2;
             if (this.pv.length) {
               value2 = createTypedArray("float32", this.pv.length);
@@ -31306,8 +31299,8 @@
             while (i5 < samples) {
               sampleValue = this.getValueAtTime(initFrame2 + i5 * sampleFrequency);
               if (this.pv.length) {
-                for (j4 = 0; j4 < this.pv.length; j4 += 1) {
-                  value2[j4] += sampleValue[j4];
+                for (j5 = 0; j5 < this.pv.length; j5 += 1) {
+                  value2[j5] += sampleValue[j5];
                 }
               } else {
                 value2 += sampleValue;
@@ -31315,8 +31308,8 @@
               i5 += 1;
             }
             if (this.pv.length) {
-              for (j4 = 0; j4 < this.pv.length; j4 += 1) {
-                value2[j4] /= samples;
+              for (j5 = 0; j5 < this.pv.length; j5 += 1) {
+                value2[j5] /= samples;
               }
             } else {
               value2 /= samples;
@@ -31731,8 +31724,8 @@
                   var lineLength = l5 * (e4 - s4);
                   var segment = 1 + this.filterManager.effectElements[4].p.v * 2 * this.filterManager.effectElements[9].p.v * 0.01;
                   var units = Math.floor(lineLength / segment);
-                  var j4;
-                  for (j4 = 0; j4 < units; j4 += 1) {
+                  var j5;
+                  for (j5 = 0; j5 < units; j5 += 1) {
                     dasharrayValue += "1 " + this.filterManager.effectElements[4].p.v * 2 * this.filterManager.effectElements[9].p.v * 0.01 + " ";
                   }
                   dasharrayValue += "0 " + l5 * 10 + " 0 0";
