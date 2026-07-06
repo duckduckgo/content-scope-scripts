@@ -7,7 +7,7 @@
     align-items: center;
     background: none;
     border-radius: 100px;
-    border: 1px solid transparent;
+    border: 1px solid var(--ds-color-theme-surface-decoration-primary);
     color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
@@ -18,7 +18,6 @@
 
     &:hover {
         background: var(--ds-color-theme-control-fill-secondary);
-        border-color: transparent;
     }
 
     &:active {
@@ -32,7 +31,6 @@
 
 .reasoningButtonOpen {
     background: var(--ds-color-theme-control-fill-secondary);
-    border-color: transparent;
     color: var(--ds-color-theme-text-primary);
 
     &:hover {
