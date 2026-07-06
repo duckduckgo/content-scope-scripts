@@ -1,6 +1,10 @@
 import { h } from 'preact';
-import { CloseSmallIcon, CreateImageIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
+import { useContext } from 'preact/hooks';
+import { CloseSmallIcon, CreateImageIcon, CustomizeIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
+import { Switch } from '../../../../../../../shared/components/Switch/Switch.js';
+import { usePlatformName } from '../../../../settings.provider.js';
+import { CustomizerThemesContext } from '../../../../customizer/CustomizerProvider.js';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
@@ -29,9 +33,27 @@ import styles from './ToolsMenu.module.css';
  * @param {ToolId[]} props.tools - IDs of available tools to show in the menu
  * @param {ToolId|null} props.activeTool - Currently active tool id, or null
  * @param {(toolId: ToolId) => void} props.onToggle - Toggle a tool by id
+ * @param {boolean} [props.showCustomizeResponses] - Show the "Customize responses" action row
+ * @param {string} [props.customizeResponsesSubLabel] - Summary of the current customization; shown as the row description when set
+ * @param {boolean} [props.hasCustomization] - Whether responses have been customized; when true, the row shows an on/off toggle
+ * @param {boolean} [props.customizeResponsesActive] - Checked state of the customization toggle
+ * @param {(active: boolean) => void} [props.onSetCustomizeResponsesActive] - Apply/unapply the stored customization
+ * @param {() => void} [props.onOpenCustomizeResponses] - Open the Customize Responses modal
  */
-export function ToolsMenu({ tools, activeTool, onToggle }) {
+export function ToolsMenu({
+    tools,
+    activeTool,
+    onToggle,
+    showCustomizeResponses = false,
+    customizeResponsesSubLabel,
+    hasCustomization = false,
+    customizeResponsesActive = false,
+    onSetCustomizeResponsesActive,
+    onOpenCustomizeResponses,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const platformName = usePlatformName();
+    const { browser } = useContext(CustomizerThemesContext);
     const { isOpen: menuOpen, buttonRef, dropdownRef, dropdownPos, toggle: toggleMenu, close: closeMenu } = useDropdown({ align: 'left' });
 
     /** @param {ToolId} id @returns {ToolConfig|null} */
@@ -123,6 +145,30 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                             onSelect={() => onToggle(tool.id)}
                         />
                     ))}
+                    {showCustomizeResponses && (
+                        <DropdownItem
+                            key="customize-responses"
+                            role="menuitem"
+                            icon={<CustomizeIcon />}
+                            name={t('omnibar_customizeResponsesLabel')}
+                            description={customizeResponsesSubLabel || t('omnibar_customizeResponsesDescription')}
+                            trailingControl={
+                                hasCustomization ? (
+                                    <Switch
+                                        theme={browser?.value}
+                                        platformName={platformName}
+                                        size="small"
+                                        checked={customizeResponsesActive}
+                                        ariaLabel={t('omnibar_customizeResponsesToggleLabel')}
+                                        pending={false}
+                                        onChecked={() => onSetCustomizeResponsesActive?.(true)}
+                                        onUnchecked={() => onSetCustomizeResponsesActive?.(false)}
+                                    />
+                                ) : undefined
+                            }
+                            onSelect={() => onOpenCustomizeResponses?.()}
+                        />
+                    )}
                 </Dropdown>
             )}
         </div>

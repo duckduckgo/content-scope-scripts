@@ -58,6 +58,17 @@
     margin-left: auto;
 }
 
+.itemActive .trailingIcon {
+    color: var(--ds-color-theme-accent-content-primary);
+}
+
+.trailingControl {
+    align-items: center;
+    display: flex;
+    margin-left: auto;
+    padding-left: 8px;
+}
+
 .itemActive {
     background: var(--ds-color-theme-control-fill-primary);
     color: var(--ds-color-theme-text-primary);
