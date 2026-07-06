@@ -666,6 +666,18 @@ describe('Actions', () => {
             const result = resolveUrlFromDataSource(action, { link: 'not-a-url' });
             expect(result instanceof ErrorResponse).toBe(true);
         });
+
+        it('returns error when dataSource value is a non-http(s) scheme', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n5',
+                actionType: 'navigate',
+                dataSource: 'emailData',
+                url: 'link',
+            };
+            const result = resolveUrlFromDataSource(action, { link: 'javascript:alert(1)' });
+            expect(result instanceof ErrorResponse).toBe(true);
+        });
     });
 
     describe('click', () => {

@@ -6,8 +6,8 @@ import { ErrorResponse, SuccessResponse } from '../types.js';
  */
 const isValidUrl = (value) => {
     try {
-        new URL(value);
-        return true;
+        const { protocol } = new URL(value);
+        return protocol === 'http:' || protocol === 'https:';
     } catch (e) {
         return false;
     }
