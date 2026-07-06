@@ -17,20 +17,12 @@
     padding: 0 var(--sp-1) 0 var(--sp-2);
 
     &:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--ds-color-theme-control-fill-secondary);
         border-color: transparent;
-
-        [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.10);
-        }
     }
 
     &:active {
-        background: var(--color-black-at-18);
-
-        [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.14);
-        }
+        background: var(--ds-color-theme-control-fill-tertiary);
     }
 
     &:focus-visible {
@@ -39,29 +31,17 @@
 }
 
 .modelButtonOpen {
-    background: var(--color-black-at-18);
+    background: var(--ds-color-theme-control-fill-secondary);
     border-color: transparent;
     color: var(--ds-color-theme-text-primary);
 
     &:hover {
-        background: rgba(0, 0, 0, 0.20);
+        background: var(--ds-color-theme-control-fill-secondary);
         border-color: transparent;
     }
 
     &:active {
-        background: rgba(0, 0, 0, 0.22);
-    }
-
-    [data-theme="dark"] & {
-        background: var(--color-white-at-18);
-
-        &:hover {
-            background: rgba(255, 255, 255, 0.20);
-        }
-
-        &:active {
-            background: rgba(255, 255, 255, 0.22);
-        }
+        background: var(--ds-color-theme-control-fill-tertiary);
     }
 }
 
