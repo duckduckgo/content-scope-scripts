@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Set Customize Responses Active Action",
+  "description": "Sent when the user toggles the on/off switch on the 'Customize responses' Tools-menu row. Native persists the new active state for the current window's stored customization.",
+  "type": "object",
+  "required": [
+    "active"
+  ],
+  "properties": {
+    "active": {
+      "description": "Whether the stored customization should be applied.",
+      "type": "boolean"
+    }
+  }
+}

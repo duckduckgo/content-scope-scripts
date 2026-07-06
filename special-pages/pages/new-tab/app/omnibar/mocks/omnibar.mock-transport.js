@@ -161,6 +161,10 @@ export function omnibarMockTransport() {
         ],
         showViewAllAiChats: false,
         enableVoiceChatAccess: false,
+        enableCustomizeResponses: false,
+        customizeSubLabel: undefined,
+        hasCustomization: false,
+        customizationActive: false,
         enableAskAiSuggestion: true,
         enableAttachTabs: false,
         attachmentLimits: {
@@ -191,8 +195,14 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_setCustomizeResponsesActive': {
+                    config.customizationActive = msg.params.active;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
                 case 'omnibar_viewAllAIChats':
                 case 'omnibar_openAiChat':
+                case 'omnibar_openCustomizeResponses':
                 case 'omnibar_openSuggestion':
                 case 'omnibar_submitSearch':
                 case 'omnibar_submitChat':
@@ -244,6 +254,11 @@ export function omnibarMockTransport() {
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
+                    config.enableCustomizeResponses =
+                        parseBooleanQueryParam('omnibar.enableCustomizeResponses') ?? config.enableCustomizeResponses;
+                    config.customizeSubLabel = url.searchParams.get('omnibar.customizeSubLabel') ?? config.customizeSubLabel;
+                    config.hasCustomization = parseBooleanQueryParam('omnibar.hasCustomization') ?? config.hasCustomization;
+                    config.customizationActive = parseBooleanQueryParam('omnibar.customizationActive') ?? config.customizationActive;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
                     if (config.attachmentLimits) {

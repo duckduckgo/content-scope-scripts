@@ -14,6 +14,7 @@ import styles from './Dropdown.module.css';
  * @param {object} props
  * @param {import('preact').ComponentChildren} [props.icon]
  * @param {import('preact').ComponentChildren} [props.trailingIcon]
+ * @param {import('preact').ComponentChildren} [props.trailingControl] - interactive trailing element (e.g. a toggle); clicks are kept from triggering the row's `onSelect`.
  * @param {string} props.name
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
@@ -33,6 +34,7 @@ import styles from './Dropdown.module.css';
 export function DropdownItem({
     icon,
     trailingIcon,
+    trailingControl,
     name,
     description,
     isSelected = false,
@@ -83,6 +85,11 @@ export function DropdownItem({
             {trailingIcon && (
                 <span class={styles.trailingIcon} aria-hidden="true">
                     {trailingIcon}
+                </span>
+            )}
+            {trailingControl && (
+                <span class={styles.trailingControl} onClick={(e) => e.stopPropagation()}>
+                    {trailingControl}
                 </span>
             )}
         </li>

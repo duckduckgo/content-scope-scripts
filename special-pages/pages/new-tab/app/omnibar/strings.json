@@ -139,6 +139,18 @@
     "title": "Source answers from the web",
     "description": "Description for the Web Search tool shown in the tools menu dropdown."
   },
+  "omnibar_customizeResponsesLabel": {
+    "title": "Customize responses",
+    "description": "Label for the Customize Responses entry shown in the tools menu dropdown. Selecting it opens a modal to control how Duck.ai responds."
+  },
+  "omnibar_customizeResponsesDescription": {
+    "title": "Control tone, length, and more",
+    "description": "Description for the Customize Responses entry shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesToggleLabel": {
+    "title": "Apply response customization",
+    "description": "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
+  },
   "omnibar_imageGenerationWithAttachmentPlaceholder": {
     "title": "Describe changes based on the image",
     "description": "Placeholder text for the AI chat input when image generation mode is active and an image is attached."
