@@ -93,8 +93,8 @@
 }
 
 .modelOptionActive {
-    background: var(--ds-color-theme-accent-primary);
-    color: var(--ds-color-theme-accent-content-primary);
+    background: var(--ds-color-theme-control-fill-primary);
+    color: var(--ds-color-theme-text-primary);
 
     &::before {
         color: transparent;
@@ -109,7 +109,7 @@
 
 .modelOptionActive.modelOptionSelected {
     &::before {
-        color: var(--ds-color-theme-accent-content-primary);
+        color: var(--ds-color-theme-text-primary);
     }
 }
 

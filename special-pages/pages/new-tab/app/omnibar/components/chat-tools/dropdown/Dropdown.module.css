@@ -58,16 +58,12 @@
     margin-left: auto;
 }
 
-.itemActive .trailingIcon {
-    color: var(--ds-color-theme-accent-content-primary);
-}
-
 .itemActive {
-    background: var(--ds-color-theme-accent-primary);
-    color: var(--ds-color-theme-accent-content-primary);
+    background: var(--ds-color-theme-control-fill-primary);
+    color: var(--ds-color-theme-text-primary);
 
     .itemDescription {
-        color: var(--ds-color-theme-accent-content-secondary);
+        color: var(--ds-color-theme-text-secondary);
     }
 }
 
@@ -98,7 +94,7 @@
 }
 
 .itemActive.itemSelected .checkmark::before {
-    color: var(--ds-color-theme-accent-content-primary);
+    color: var(--ds-color-theme-text-primary);
 }
 
 .itemLabel {
