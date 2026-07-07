@@ -655,20 +655,7 @@ describe('WebDetection', () => {
             const originalDocument = globalThis.document;
             const originalGetComputedStyle = globalThis.getComputedStyle;
             globalThis.document = dom.window.document;
-
-            // Wrap getComputedStyle to return browser-like defaults (JSDOM returns "" for opacity)
-            const jsdomGetComputedStyle = dom.window.getComputedStyle;
-            globalThis.getComputedStyle = (el, pseudoElt) => {
-                const style = jsdomGetComputedStyle(el, pseudoElt);
-                return new Proxy(style, {
-                    get(target, prop) {
-                        const value = target[prop];
-                        // JSDOM returns "" for opacity, browsers return "1"
-                        if (prop === 'opacity' && value === '') return '1';
-                        return value;
-                    },
-                });
-            };
+            globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
 
             // Patch Element prototype to mock getBoundingClientRect based on selectors
             const ElementProto = dom.window.Element.prototype;
