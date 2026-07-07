@@ -10,6 +10,7 @@ import {
     HistoryIcon,
     SearchIcon,
     TabDesktopIcon,
+    TrashOutlineIcon,
 } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { getSuggestionSuffix, getSuggestionTitle, startsWithIgnoreCase } from '../utils';
@@ -78,7 +79,11 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
-    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
+    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, removeSuggestion } = useSearchFormContext();
+
+    // Only history entries can be deleted from the suggestion list.
+    // Other types (bookmarks, phrases, open tabs, etc.) are not user-deletable here.
+    const isDeletable = suggestion.kind === 'historyEntry';
 
     const title = getSuggestionTitle(suggestion, term);
     const suffix = getSuggestionSuffix(suggestion);
@@ -122,6 +127,25 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
             {suggestion.kind === 'openTab' && (
                 <span class={styles.badge}>
                     {t('omnibar_switchToTab')} <ArrowRightIcon />
+                </span>
+            )}
+            {/* Delete button: only shown for history entries, visible on row hover/selection.
+                Uses a <span role="button"> instead of <button> to avoid nesting a button inside the row button. */}
+            {isDeletable && (
+                <span
+                    role="button"
+                    tabIndex={-1}
+                    class={styles.deleteButton}
+                    aria-label={t('omnibar_removeSuggestion')}
+                    title={t('omnibar_removeSuggestion')}
+                    onClick={(e) => {
+                        // Prevent the row click from navigating to the suggestion
+                        e.stopPropagation();
+                        e.preventDefault();
+                        removeSuggestion(suggestion);
+                    }}
+                >
+                    <TrashOutlineIcon />
                 </span>
             )}
         </button>

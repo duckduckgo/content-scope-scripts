@@ -45,6 +45,10 @@
         .badge {
             background: var(--ds-color-theme-accent-secondary);
         }
+
+        .deleteButton {
+            opacity: 1;
+        }
     }
 
     &[aria-selected='true'] {
@@ -88,5 +92,29 @@
         height: 9px;
         margin: 0;
         width: 9px;
+    }
+}
+
+.deleteButton {
+    align-items: center;
+    background: none;
+    border: none;
+    color: currentColor;
+    cursor: pointer;
+    display: flex;
+    flex: none;
+    justify-content: center;
+    margin-left: auto;
+    opacity: 0;
+    padding: var(--sp-1);
+
+    svg {
+        height: 16px;
+        margin: 0;
+        width: 16px;
+    }
+
+    &:focus-visible {
+        opacity: 1;
     }
 }
