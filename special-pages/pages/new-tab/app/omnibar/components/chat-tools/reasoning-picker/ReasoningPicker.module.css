@@ -7,7 +7,7 @@
     align-items: center;
     background: none;
     border-radius: 100px;
-    border: 1px solid var(--ds-color-theme-surface-decoration-primary);
+    border: 1px solid transparent;
     color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
