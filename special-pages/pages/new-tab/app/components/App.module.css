@@ -27,6 +27,10 @@ body[data-animate-background="true"] {
     transition: background-color .3s;
 }
 
+body[data-rebrand="true"] {
+    /* NTP rebrand styles go here. */
+}
+
 :global(.layout-centered) {
     margin-inline: auto;
     width: 100%;

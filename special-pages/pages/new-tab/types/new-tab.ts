@@ -1153,6 +1153,9 @@ export interface NewTabPageSettings {
   adBlocking?: {
     state: "enabled" | "disabled";
   };
+  newTabPageRebranding?: {
+    state: "enabled" | "disabled";
+  };
 }
 export interface CustomizerData {
   background: BackgroundVariant;
