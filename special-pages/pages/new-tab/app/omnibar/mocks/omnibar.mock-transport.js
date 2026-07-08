@@ -183,6 +183,11 @@ export function omnibarMockTransport() {
     /** @type {Map<string, (d: any) => void>} */
     const subs = new Map();
 
+    // Track deleted chat IDs so re-fetches after deletion don't return them.
+    // In production, native handles this by deleting from storage before responding.
+    /** @type {Set<string>} */
+    const deletedChatIds = new Set();
+
     return new TestTransportConfig({
         notify(_msg) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
@@ -275,32 +280,45 @@ export function omnibarMockTransport() {
                 }
                 case 'omnibar_getAiChats': {
                     await new Promise((resolve) => setTimeout(resolve, 100));
-                    return getMockAiChats(msg.params.query);
+                    const result = getMockAiChats(msg.params.query);
+                    // Filter out chats that were deleted in this session
+                    result.chats = result.chats.filter((chat) => !deletedChatIds.has(chat.chatId));
+                    return result;
                 }
                 case 'omnibar_confirmDeleteAiChat': {
                     // Simulates the native confirmation dialog for deleting a chat.
-                    //
+
                     // In the real app, native shows a platform-native dialog (e.g., NSAlert on macOS)
                     // with the chat title and "Delete" / "Cancel" buttons. If the user confirms,
                     // native deletes the chat from all storage layers (native storage, sync, JS-layer)
                     // and responds with { action: "delete" }. If cancelled, responds with { action: "none" }.
-                    //
+
                     // In automated tests (Playwright): returns the mock response if set, otherwise
                     // defaults to { action: "delete" }. Override via:
                     //   window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat = { action: "none" }
                     // to test the cancel path.
-                    //
+
                     // In the dev server: shows a browser confirm() dialog as a stand-in for the
                     // native modal. Click OK to simulate "delete", Cancel to simulate "none".
+
+                    /** @type {{ action: string }} */
+                    let response;
+
                     if (window.__playwright_01?.mockResponses?.omnibar_confirmDeleteAiChat) {
-                        return window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat;
-                    }
-                    let action = 'delete';
-                    if (!window.__playwright_01) {
+                        response = /** @type {{ action: string }} */ (
+                            /** @type {unknown} */ (window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat)
+                        );
+                    } else if (!window.__playwright_01) {
                         const confirmed = window.confirm(`Delete "${msg.params.title}"?`);
-                        action = confirmed ? 'delete' : 'none';
+                        response = { action: confirmed ? 'delete' : 'none' };
+                    } else {
+                        response = { action: 'delete' };
                     }
-                    return { action };
+                    // Track deletion so re-fetches don't return this chat
+                    if (response.action === 'delete') {
+                        deletedChatIds.add(msg.params.chatId);
+                    }
+                    return response;
                 }
                 case 'omnibar_getOpenTabs': {
                     await new Promise((resolve) => setTimeout(resolve, 50));
