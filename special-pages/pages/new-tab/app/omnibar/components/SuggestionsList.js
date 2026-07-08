@@ -1,4 +1,5 @@
 import { Fragment, h } from 'preact';
+import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import {
     AiChatIcon,
@@ -14,6 +15,7 @@ import {
 } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { getSuggestionSuffix, getSuggestionTitle, startsWithIgnoreCase } from '../utils';
+import { OmnibarContext } from './OmnibarProvider';
 import { useSearchFormContext } from './SearchFormProvider';
 import { SuffixText } from './SuffixText';
 import styles from './SuggestionsList.module.css';
@@ -79,11 +81,12 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
+    const { state } = useContext(OmnibarContext);
     const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, removeSuggestion } = useSearchFormContext();
 
-    // Only history entries can be deleted from the suggestion list.
+    // Only history entries can be deleted, and only when the feature flag is enabled by native.
     // Other types (bookmarks, phrases, open tabs, etc.) are not user-deletable here.
-    const isDeletable = suggestion.kind === 'historyEntry';
+    const isDeletable = suggestion.kind === 'historyEntry' && state.config?.enableSearchSuggestionDeletion === true;
 
     const title = getSuggestionTitle(suggestion, term);
     const suffix = getSuggestionSuffix(suggestion);
@@ -138,6 +141,10 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
                     class={styles.deleteButton}
                     aria-label={t('omnibar_removeSuggestion')}
                     title={t('omnibar_removeSuggestion')}
+                    onMouseDown={(e) => {
+                        // Prevent focus from leaving the search input, which would close the dropdown
+                        e.preventDefault();
+                    }}
                     onClick={(e) => {
                         // Prevent the row click from navigating to the suggestion
                         e.stopPropagation();

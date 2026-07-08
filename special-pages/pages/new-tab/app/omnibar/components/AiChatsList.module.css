@@ -28,6 +28,7 @@
 
         .deleteButton {
             opacity: 1;
+            pointer-events: auto;
         }
     }
 
@@ -58,6 +59,7 @@
     margin-left: auto;
     opacity: 0;
     padding: var(--sp-1);
+    pointer-events: none;
 
     svg {
         height: 16px;
@@ -67,5 +69,6 @@
 
     &:focus-visible {
         opacity: 1;
+        pointer-events: auto;
     }
 }
