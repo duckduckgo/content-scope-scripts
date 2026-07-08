@@ -17,12 +17,13 @@ export const MAX_FILES = 3;
 const BYTES_PER_MB = 1024 * 1024;
 
 /**
- * @param {string[] | undefined} supportedFileTypes — MIME types the active model accepts.
- * @param {string|null|undefined} [tabId] - NTP tab the attachments are persisted under.
- * @param {number} [maxFiles] - Max file attachments, from backend `attachmentLimits`. Defaults to {@link MAX_FILES}.
- * @param {number} [maxFileSizeMB] - Max size of a single file in MB, from backend `attachmentLimits`. Omitted means no size cap.
+ * @param {object} params
+ * @param {string[]} [params.supportedFileTypes] - MIME types the active model accepts.
+ * @param {string|null|undefined} [params.tabId] - NTP tab the attachments are persisted under.
+ * @param {number} [params.maxFiles] - Max file attachments, from backend `attachmentLimits`. Defaults to {@link MAX_FILES}.
+ * @param {number} [params.maxFileSizeMB] - Max size of a single file in MB, from backend `attachmentLimits`. Omitted means no size cap.
  */
-export function useFileAttachments(supportedFileTypes, tabId, maxFiles = MAX_FILES, maxFileSizeMB) {
+export function useFileAttachments({ supportedFileTypes, tabId, maxFiles = MAX_FILES, maxFileSizeMB } = {}) {
     const [attachedFiles, setAttachedFiles] = useStateWithLocalPersistence(tabId);
     const [fileError, setFileError] = useState(/** @type {FileError|null} */ (null));
 

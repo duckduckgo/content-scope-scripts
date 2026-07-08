@@ -83,10 +83,11 @@ function normaliseImage(srcDataUrl, targetMime) {
 }
 
 /**
- * @param {string|null|undefined} [tabId] - NTP tab the attachments are persisted under.
- * @param {number} [maxImages] - Max images per submission, from backend `attachmentLimits`. Defaults to {@link MAX_IMAGES}.
+ * @param {object} params
+ * @param {string|null|undefined} [params.tabId] - NTP tab the attachments are persisted under.
+ * @param {number} [params.maxImages] - Max images per submission, from backend `attachmentLimits`. Defaults to {@link MAX_IMAGES}.
  */
-export function useImageAttachments(tabId, maxImages = MAX_IMAGES) {
+export function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
     const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = useState(/** @type {ImageError|null} */ (null));
 
