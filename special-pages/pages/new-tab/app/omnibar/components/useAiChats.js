@@ -31,6 +31,7 @@ export function getAiChatElementId(chatId) {
  *   | { type: 'selectViewAllChats', targetIndex: number }
  *   | { type: 'previousChat', itemCount: number }
  *   | { type: 'nextChat', itemCount: number }
+ *   | { type: 'removeChat', chatId: string }
  * )} Action
  */
 
@@ -88,6 +89,34 @@ function reducer(state, action) {
                 selectedIndex: nextIndex >= action.itemCount ? null : nextIndex,
             };
         }
+        case 'removeChat': {
+            const chats = state.chats.filter((chat) => chat.chatId !== action.chatId);
+
+            // Close the dropdown if no chats remain
+            if (chats.length === 0) {
+                return {
+                    ...state,
+                    chats,
+                    selectedIndex: null,
+                    chatsVisible: false,
+                };
+            }
+
+            // Adjust selection after removal
+            let selectedIndex = state.selectedIndex;
+
+            if (selectedIndex !== null) {
+                if (selectedIndex >= chats.length) {
+                    selectedIndex = chats.length - 1;
+                }
+            }
+
+            return {
+                ...state,
+                chats,
+                selectedIndex,
+            };
+        }
         default: {
             /** @type {never} */
             const _exhaustiveCheck = action;
@@ -109,7 +138,7 @@ const EMPTY_ARRAY = [];
  * @param {boolean} [params.showViewAllAiChats]
  */
 export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats = false }) {
-    const { getAiChats, onAiChats } = useContext(OmnibarContext);
+    const { getAiChats, onAiChats, confirmDeleteAiChat } = useContext(OmnibarContext);
 
     const [state, dispatch] = useReducer(reducer, {
         chats: [],
@@ -176,6 +205,24 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         dispatch({ type: 'showChats' });
     }, []);
 
+    /**
+     * Sends a confirmation request to native, which shows a platform dialog.
+     * If the user confirms, removes the chat from the list. If cancelled, no change.
+     * The chat stays in the list while the dialog is open (no optimistic removal).
+     * @todo jingram - add telemetry events once pixel names are confirmed
+     * @param {string} chatId
+     * @param {string} title - chat title, passed to native for the confirmation dialog message
+     */
+    const removeChat = async (chatId, title) => {
+        const response = await confirmDeleteAiChat(chatId, title);
+        if (response.action === 'delete') {
+            dispatch({ type: 'removeChat', chatId });
+            // Re-fetch from native to backfill the list. Native may have more chats
+            // than the displayed limit (e.g., 5 shown out of 6 total).
+            getAiChats(query);
+        }
+    };
+
     return {
         chats: chatsVisible ? state.chats : EMPTY_ARRAY,
         selectedChat,
@@ -187,5 +234,6 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         selectViewAllChats,
         hideChats,
         showChats,
+        removeChat,
     };
 }

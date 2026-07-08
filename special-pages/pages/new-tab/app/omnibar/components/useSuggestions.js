@@ -1,5 +1,5 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
-import { OmnibarContext } from './OmnibarProvider.js';
+import { OmnibarContext, useOmnibarService } from './OmnibarProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
@@ -35,6 +35,7 @@ import { OmnibarContext } from './OmnibarProvider.js';
  *   | { type: 'clearSelectedSuggestion' }
  *   | { type: 'previousSuggestion' }
  *   | { type: 'nextSuggestion' }
+ *   | { type: 'removeSuggestion', id: string }
  * )} Action
  */
 
@@ -114,6 +115,34 @@ function reducer(state, action) {
                 selectedIndex: nextIndex,
             };
         }
+        case 'removeSuggestion': {
+            const suggestions = state.suggestions.filter((s) => s.id !== action.id);
+
+            // Hide suggestions if none remain
+            if (suggestions.length === 0) {
+                return {
+                    ...state,
+                    suggestions,
+                    selectedIndex: null,
+                    suggestionsVisible: false,
+                };
+            }
+
+            // Adjust selection after removal
+            let selectedIndex = state.selectedIndex;
+
+            if (selectedIndex !== null) {
+                if (selectedIndex >= suggestions.length) {
+                    selectedIndex = suggestions.length - 1;
+                }
+            }
+
+            return {
+                ...state,
+                suggestions,
+                selectedIndex,
+            };
+        }
         default:
             throw new Error('Unknown action type');
     }
@@ -128,6 +157,7 @@ function reducer(state, action) {
  */
 export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
     const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
+    const service = useOmnibarService();
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
@@ -205,6 +235,21 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
         dispatch({ type: 'hideSuggestions' });
     };
 
+    /**
+     * Removes a suggestion from the list and notifies native to delete it from browsing history.
+     * The item is removed from the UI immediately (optimistic removal). On the next fetch
+     * cycle (keystroke or dropdown reopen), native returns the updated list without this item.
+     * @todo jingram - add telemetry event once pixel names are confirmed
+     * @type {(suggestion: SuggestionModel) => void}
+     */
+    const removeSuggestion = (suggestion) => {
+        dispatch({ type: 'removeSuggestion', id: suggestion.id });
+        // Only history entries have a URL. Notify native to remove it from browsing history.
+        if ('url' in suggestion && typeof suggestion.url === 'string') {
+            service?.removeSuggestion(suggestion.url);
+        }
+    };
+
     return {
         suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
         selectedSuggestion,
@@ -214,5 +259,6 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
         setSelectedSuggestion,
         clearSelectedSuggestion,
         hideSuggestions,
+        removeSuggestion,
     };
 }
