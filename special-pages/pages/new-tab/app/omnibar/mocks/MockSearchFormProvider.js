@@ -31,6 +31,7 @@ export function MockSearchFormProvider({ term, suggestions, selectedSuggestion: 
                 setSelectedSuggestion,
                 clearSelectedSuggestion: () => setSelectedSuggestion(null),
                 hideSuggestions: noop('hideSuggestions'),
+                removeSuggestion: noop('removeSuggestion'),
             }}
         >
             {children}

@@ -176,6 +176,8 @@ export function omnibarMockTransport() {
                 maxInputCharsWithAttachments: 30000,
             },
         },
+        enableAiChatDeletion: false,
+        enableSearchSuggestionDeletion: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -189,6 +191,14 @@ export function omnibarMockTransport() {
                 case 'omnibar_setConfig': {
                     Object.assign(config, msg.params);
                     subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'omnibar_removeSuggestion': {
+                    // Simulates native removing a history entry from browsing history.
+                    // The NTP has already removed the suggestion from the UI (optimistic removal).
+                    // In the real app, native deletes the URL via historyCoordinator.removeUrlEntry(url).
+                    // The next omnibar_getSuggestions fetch will return the updated list without this entry.
+                    console.log('Mock: removing suggestion from browsing history', msg.params.url);
                     break;
                 }
                 case 'omnibar_viewAllAIChats':
@@ -254,6 +264,9 @@ export function omnibarMockTransport() {
                         const fileMaxFileSizeMB = parseInt(url.searchParams.get('omnibar.fileMaxFileSizeMB') ?? '', 10);
                         if (fileMaxFileSizeMB > 0) config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
                     }
+                    config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
+                    config.enableSearchSuggestionDeletion =
+                        parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
@@ -263,6 +276,31 @@ export function omnibarMockTransport() {
                 case 'omnibar_getAiChats': {
                     await new Promise((resolve) => setTimeout(resolve, 100));
                     return getMockAiChats(msg.params.query);
+                }
+                case 'omnibar_confirmDeleteAiChat': {
+                    // Simulates the native confirmation dialog for deleting a chat.
+                    //
+                    // In the real app, native shows a platform-native dialog (e.g., NSAlert on macOS)
+                    // with the chat title and "Delete" / "Cancel" buttons. If the user confirms,
+                    // native deletes the chat from all storage layers (native storage, sync, JS-layer)
+                    // and responds with { action: "delete" }. If cancelled, responds with { action: "none" }.
+                    //
+                    // In automated tests (Playwright): returns the mock response if set, otherwise
+                    // defaults to { action: "delete" }. Override via:
+                    //   window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat = { action: "none" }
+                    // to test the cancel path.
+                    //
+                    // In the dev server: shows a browser confirm() dialog as a stand-in for the
+                    // native modal. Click OK to simulate "delete", Cancel to simulate "none".
+                    if (window.__playwright_01?.mockResponses?.omnibar_confirmDeleteAiChat) {
+                        return window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat;
+                    }
+                    let action = 'delete';
+                    if (!window.__playwright_01) {
+                        const confirmed = window.confirm(`Delete "${msg.params.title}"?`);
+                        action = confirmed ? 'delete' : 'none';
+                    }
+                    return { action };
                 }
                 case 'omnibar_getOpenTabs': {
                     await new Promise((resolve) => setTimeout(resolve, 50));
