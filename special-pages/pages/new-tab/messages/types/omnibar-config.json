@@ -200,6 +200,18 @@
       "description": "Show the paperclip entry point and accept `@` mentions for attaching open tabs as context to a Duck.ai submission. When true, the omnibar can call `omnibar_getOpenTabs` and `omnibar_getTabContent`.",
       "type": "boolean",
       "default": false
+    },
+    "enableAiChatDeletion": {
+      "title": "Enable AI Chat Deletion",
+      "description": "Show a delete button on recent AI chat suggestions. When true, clicking the button sends an omnibar_confirmDeleteAiChat request to native.",
+      "type": "boolean",
+      "default": false
+    },
+    "enableSearchSuggestionDeletion": {
+      "title": "Enable Search Suggestion Deletion",
+      "description": "Show a delete button on history entry suggestions. When true, clicking the button sends an omnibar_removeSuggestion notification to native.",
+      "type": "boolean",
+      "default": false
     }
   }
 }
