@@ -2604,4 +2604,198 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.voiceChatButton()).toHaveCount(0);
         });
     });
+
+    test.describe('deletion', () => {
+        test.describe('search suggestions', () => {
+            test('delete button only appears for historyEntry suggestions when enabled', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+
+                await ntp.openPage({
+                    additional: { omnibar: true, 'omnibar.enableSearchSuggestionDeletion': true },
+                });
+                await omnibar.ready();
+                await omnibar.searchInput().fill('pizza');
+                await omnibar.waitForSuggestions();
+
+                // History entry suggestions should show a delete button on hover
+                const historyEntry = omnibar.suggestions().filter({ hasText: 'Pizza Dough Calculator' });
+                await historyEntry.hover();
+                await expect(historyEntry.getByLabel('Remove from browsing history')).toBeVisible();
+
+                // Phrase suggestions should not have a delete button
+                const phraseSuggestion = omnibar.suggestions().first();
+                await phraseSuggestion.hover();
+                await expect(phraseSuggestion.getByLabel('Remove from browsing history')).toHaveCount(0);
+            });
+
+            test('delete button does NOT appear when feature flag is disabled', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+
+                await ntp.openPage({
+                    additional: { omnibar: true },
+                });
+                await omnibar.ready();
+                await omnibar.searchInput().fill('pizza');
+                await omnibar.waitForSuggestions();
+
+                const historyEntry = omnibar.suggestions().filter({ hasText: 'Pizza Dough Calculator' });
+                await historyEntry.hover();
+                await expect(historyEntry.getByLabel('Remove from browsing history')).toHaveCount(0);
+            });
+
+            test('clicking delete removes suggestion, sends notification, and does not navigate', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+
+                await ntp.openPage({
+                    additional: { omnibar: true, 'omnibar.enableSearchSuggestionDeletion': true },
+                });
+                await omnibar.ready();
+                await omnibar.searchInput().fill('pizza');
+                await omnibar.waitForSuggestions();
+
+                const countBefore = await omnibar.suggestions().count();
+                const historyEntry = omnibar.suggestions().filter({ hasText: 'Pizza Dough Calculator' });
+                await historyEntry.hover();
+                await historyEntry.getByLabel('Remove from browsing history').click();
+
+                // Suggestion should be removed from the list (optimistic)
+                await expect(omnibar.suggestions()).toHaveCount(countBefore - 1);
+                await expect(omnibar.suggestions().filter({ hasText: 'Pizza Dough Calculator' })).toHaveCount(0);
+
+                // Notification should be sent to native
+                await omnibar.expectMethodCalledWith('omnibar_removeSuggestion', {
+                    url: expect.stringContaining('Pizza%20Dough%20Calculator'),
+                });
+
+                // Should NOT have navigated to the suggestion
+                await omnibar.expectMethodNotCalled('omnibar_openSuggestion');
+            });
+        });
+
+        test.describe('AI chats', () => {
+            test('delete button appears on hover and clicking it does not open the chat', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+
+                await ntp.openPage({
+                    additional: {
+                        omnibar: true,
+                        'omnibar.enableAi': true,
+                        'omnibar.enableRecentAiChats': true,
+                        'omnibar.enableAiChatDeletion': true,
+                        'omnibar.mode': 'ai',
+                    },
+                });
+                await omnibar.ready();
+                await omnibar.focusChatInput();
+                await expect(omnibar.aiChats().first()).toBeVisible();
+
+                // Delete button should be visible on hover
+                await omnibar.aiChats().first().hover();
+                await expect(omnibar.aiChats().first().getByLabel('Delete this chat')).toBeVisible();
+
+                // Clicking delete should not open the chat
+                await omnibar.aiChats().first().getByLabel('Delete this chat').click();
+                await omnibar.expectMethodNotCalled('omnibar_openAiChat');
+            });
+
+            test('delete button does NOT appear when feature flag is disabled', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+
+                await ntp.openPage({
+                    additional: {
+                        omnibar: true,
+                        'omnibar.enableAi': true,
+                        'omnibar.enableRecentAiChats': true,
+                        'omnibar.mode': 'ai',
+                    },
+                });
+                await omnibar.ready();
+                await omnibar.focusChatInput();
+                await expect(omnibar.aiChats().first()).toBeVisible();
+
+                await omnibar.aiChats().first().hover();
+                await expect(omnibar.aiChats().first().getByLabel('Delete this chat')).toHaveCount(0);
+            });
+
+            test('clicking delete sends confirmation request and removes chat on confirm', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+
+                const firstChat = getMockAiChats().chats[0];
+
+                await ntp.openPage({
+                    additional: {
+                        omnibar: true,
+                        'omnibar.enableAi': true,
+                        'omnibar.enableRecentAiChats': true,
+                        'omnibar.enableAiChatDeletion': true,
+                        'omnibar.mode': 'ai',
+                    },
+                });
+                await omnibar.ready();
+                await omnibar.focusChatInput();
+
+                const countBefore = await omnibar.aiChats().count();
+                await omnibar.aiChats().first().hover();
+                await omnibar.aiChats().first().getByLabel('Delete this chat').click();
+
+                // Chat should be removed after mock confirms deletion
+                await expect(omnibar.aiChats()).toHaveCount(countBefore - 1);
+                await expect(omnibar.aiChats().filter({ hasText: firstChat.title })).toHaveCount(0);
+
+                // Confirmation request should have been sent with correct params
+                await omnibar.expectMethodCalledWith('omnibar_confirmDeleteAiChat', {
+                    chatId: firstChat.chatId,
+                    title: firstChat.title,
+                });
+            });
+
+            test('chat remains in list when deletion is cancelled', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+
+                const mockChats = getMockAiChats().chats;
+
+                await ntp.openPage({
+                    additional: {
+                        omnibar: true,
+                        'omnibar.enableAi': true,
+                        'omnibar.enableRecentAiChats': true,
+                        'omnibar.enableAiChatDeletion': true,
+                        'omnibar.mode': 'ai',
+                    },
+                });
+                await omnibar.ready();
+                await omnibar.focusChatInput();
+                await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+
+                // Override the mock response to simulate cancellation
+                await page.evaluate(() => {
+                    window.__playwright_01.mockResponses = {
+                        ...window.__playwright_01.mockResponses,
+                        // @ts-ignore
+                        omnibar_confirmDeleteAiChat: { action: 'none' },
+                    };
+                });
+
+                await omnibar.aiChats().first().hover();
+                await omnibar.aiChats().first().getByLabel('Delete this chat').click();
+
+                // Chat should still be in the list
+                await expect(omnibar.aiChats()).toHaveCount(mockChats.length);
+            });
+        });
+    });
 });
