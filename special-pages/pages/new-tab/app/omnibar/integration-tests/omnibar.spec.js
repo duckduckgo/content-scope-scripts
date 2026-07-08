@@ -2785,7 +2785,7 @@ test.describe('omnibar widget', () => {
                 await page.evaluate(() => {
                     window.__playwright_01.mockResponses = {
                         ...window.__playwright_01.mockResponses,
-                        // @ts-ignore
+                        // @ts-expect-error - mock response override for testing cancel path
                         omnibar_confirmDeleteAiChat: { action: 'none' },
                     };
                 });

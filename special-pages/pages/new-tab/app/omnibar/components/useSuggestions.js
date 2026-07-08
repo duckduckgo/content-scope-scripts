@@ -1,5 +1,6 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
 import { OmnibarContext, useOmnibarService } from './OmnibarProvider.js';
+import { useMessaging } from '../../types.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
@@ -158,6 +159,7 @@ function reducer(state, action) {
 export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
     const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
     const service = useOmnibarService();
+    const ntp = useMessaging();
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
@@ -239,11 +241,11 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
      * Removes a suggestion from the list and notifies native to delete it from browsing history.
      * The item is removed from the UI immediately (optimistic removal). On the next fetch
      * cycle (keystroke or dropdown reopen), native returns the updated list without this item.
-     * @todo jingram - add telemetry event once pixel names are confirmed
      * @type {(suggestion: SuggestionModel) => void}
      */
     const removeSuggestion = (suggestion) => {
         dispatch({ type: 'removeSuggestion', id: suggestion.id });
+        ntp.telemetryEvent({ attributes: { name: 'ntp_autocomplete_result_deleted' } });
         // Only history entries have a URL. Notify native to remove it from browsing history.
         if ('url' in suggestion && typeof suggestion.url === 'string') {
             service?.removeSuggestion(suggestion.url);
