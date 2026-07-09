@@ -61,9 +61,8 @@ export function click(action, userData, root = document) {
             });
         }
 
-        // Treat `multiple` as truthy rather than strictly `=== true`: native layers may
-        // serialize the JSON boolean as 1/0 (see failSilently, read the same way), and a
-        // strict comparison would silently fall back to a single click.
+        // Truthy vs. strict === true is intentional here in case the native layer converts
+        // a boolean into an integer.
         const loopLength = element.multiple ? elements.length : 1;
 
         for (let i = 0; i < loopLength; i++) {

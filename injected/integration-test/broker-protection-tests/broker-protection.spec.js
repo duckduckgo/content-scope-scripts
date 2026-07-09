@@ -549,9 +549,9 @@ test.describe('Broker Protection communications', () => {
         });
 
         test('click multiple targets when the multiple flag arrives as a number', async ({ page }, workerInfo) => {
-            // Native layers can serialize the JSON boolean `multiple: true` as `1`. Ensure a numeric
-            // truthy value still clicks every target (both `.view-more` links -> hash '#1-2'),
-            // rather than falling back to a single click.
+            // The native layer should pass booleans (like the click action's multiple: true) along as-is,
+            // but we've seen encoding bugs pass turn these into integers instead. This test checks that
+            // c-s-s will obey any truthy value.
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('click-multiple.html');
