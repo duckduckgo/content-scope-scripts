@@ -548,6 +548,20 @@ test.describe('Broker Protection communications', () => {
             await page.waitForURL((url) => url.hash === '#1-2', { timeout: 2000 });
         });
 
+        test('click multiple targets when the multiple flag arrives as a number', async ({ page }, workerInfo) => {
+            // Native layers can serialize the JSON boolean `multiple: true` as `1`. Ensure a numeric
+            // truthy value still clicks every target (both `.view-more` links -> hash '#1-2'),
+            // rather than falling back to a single click.
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('click-multiple.html');
+            await dbp.receivesAction('click-multiple-numeric-flag.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+
+            dbp.isSuccessMessage(response);
+            await page.waitForURL((url) => url.hash === '#1-2', { timeout: 2000 });
+        });
+
         test('conditional clicks - hard-coded success', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();

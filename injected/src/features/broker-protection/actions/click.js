@@ -61,7 +61,10 @@ export function click(action, userData, root = document) {
             });
         }
 
-        const loopLength = element.multiple && element.multiple === true ? elements.length : 1;
+        // Treat `multiple` as truthy rather than strictly `=== true`: native layers may
+        // serialize the JSON boolean as 1/0 (see failSilently, read the same way), and a
+        // strict comparison would silently fall back to a single click.
+        const loopLength = element.multiple ? elements.length : 1;
 
         for (let i = 0; i < loopLength; i++) {
             const elem = elements[i];
