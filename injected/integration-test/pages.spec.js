@@ -219,6 +219,15 @@ test.describe('Test integration pages', () => {
         );
     });
 
+    test('Fingerprinting Hardware (custom config)', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/fingerprinting-hardware/pages/fingerprinting-hardware-custom.html',
+            './integration-test/test-pages/fingerprinting-hardware/config/fingerprinting-hardware-custom.json',
+        );
+    });
+
     test('Fingerprinting Screen Size', async ({ page }, testInfo) => {
         await testPage(
             page,

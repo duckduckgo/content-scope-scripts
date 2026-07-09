@@ -18,7 +18,7 @@
     "pretest-unit": "npm run build-surrogates",
     "test-unit": "jasmine --config=unit-test/config.json",
     "test-unit-coverage": "c8 jasmine --config=unit-test/config.json",
-    "coverage-int": "COLLECT_COVERAGE=1 playwright test --project windows --grep-invert '@screenshots' --reporter list",
+    "coverage-int": "COLLECT_COVERAGE=1 playwright test --project windows --project apple --project apple-isolated --project android --project android-autofill-import --project chrome-mv3 --grep-invert '@screenshots' --reporter list",
     "coverage-report": "node scripts/merge-coverage.js",
     "pretest-int": "npm run build-surrogates",
     "test-int": "playwright test --grep-invert '@screenshots'",
