@@ -83,6 +83,7 @@ export function ToolsMenu({
 
     const resolvedTools = /** @type {ToolConfig[]} */ (tools.map(getToolConfig).filter(Boolean));
     const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
+    const customizeResponsesDisabled = activeTool === 'image-generation';
     const isToolsButtonCollapsed = Boolean(activeToolConfig) || customizeResponsesActive;
 
     /** @param {{ restoreFocus: boolean }} opts */
@@ -153,6 +154,7 @@ export function ToolsMenu({
                             icon={<CustomizeIcon />}
                             name={t('omnibar_customizeResponsesLabel')}
                             description={customizeResponsesSubLabel || t('omnibar_customizeResponsesDescription')}
+                            disabled={customizeResponsesDisabled}
                             trailingControl={
                                 hasCustomization ? (
                                     <Switch
@@ -162,6 +164,7 @@ export function ToolsMenu({
                                         checked={customizeResponsesActive}
                                         ariaLabel={t('omnibar_customizeResponsesToggleLabel')}
                                         pending={false}
+                                        inputProps={{ disabled: customizeResponsesDisabled }}
                                         onChecked={() => onSetCustomizeResponsesActive?.(true)}
                                         onUnchecked={() => onSetCustomizeResponsesActive?.(false)}
                                     />

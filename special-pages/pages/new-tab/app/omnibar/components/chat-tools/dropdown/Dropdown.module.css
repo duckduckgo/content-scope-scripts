@@ -108,6 +108,12 @@
     color: var(--ds-color-theme-text-primary);
 }
 
+.itemDisabled {
+    color: var(--ds-color-theme-text-tertiary);
+    cursor: default;
+    pointer-events: none;
+}
+
 .itemLabel {
     display: flex;
     flex: 1;

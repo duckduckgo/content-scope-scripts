@@ -254,11 +254,6 @@ export function omnibarMockTransport() {
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
-                    config.enableCustomizeResponses =
-                        parseBooleanQueryParam('omnibar.enableCustomizeResponses') ?? config.enableCustomizeResponses;
-                    config.customizeSubLabel = url.searchParams.get('omnibar.customizeSubLabel') ?? config.customizeSubLabel;
-                    config.hasCustomization = parseBooleanQueryParam('omnibar.hasCustomization') ?? config.hasCustomization;
-                    config.customizationActive = parseBooleanQueryParam('omnibar.customizationActive') ?? config.customizationActive;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
                     if (config.attachmentLimits) {
