@@ -18,6 +18,7 @@ import styles from './Dropdown.module.css';
  * @param {string} props.name
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
+ * @param {boolean} [props.disabled]
  * @param {'option' | 'menuitemcheckbox' | 'menuitemradio' | 'menuitem'} props.role
  * @param {() => void} props.onSelect
  * @param {boolean} [props.ariaChecked]
@@ -38,6 +39,7 @@ export function DropdownItem({
     name,
     description,
     isSelected = false,
+    disabled = false,
     role,
     ariaChecked,
     ariaSelected,
@@ -71,7 +73,8 @@ export function DropdownItem({
             aria-selected={ariaSelected}
             aria-haspopup={ariaHasPopup}
             aria-expanded={ariaExpanded}
-            class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected)}
+            aria-disabled={disabled || undefined}
+            class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected, disabled && styles.itemDisabled)}
             onMouseOver={onMouseOver}
             onMouseEnter={onHover}
             onClick={onClick}

@@ -8,7 +8,7 @@ import styles from './Dropdown.module.css';
  */
 
 /**
- * @typedef {{ isSelected?: boolean, ariaHasPopup?: boolean, onSelect?: () => void }} DropdownItemProps
+ * @typedef {{ isSelected?: boolean, ariaHasPopup?: boolean, disabled?: boolean, onSelect?: () => void }} DropdownItemProps
  */
 
 /**
@@ -58,12 +58,16 @@ export function Dropdown({
 }) {
     const items = toChildArray(children);
 
+    const isItemEnabled = (/** @type {import('preact').ComponentChild} */ child) => !getItemProps(child)?.disabled;
+
     const getInitialActiveIndex = () => {
         if (items.length === 0) return -1;
         if (multiSelect) return -1;
 
         const selected = items.findIndex((c) => getItemProps(c)?.isSelected);
-        return selected >= 0 ? selected : 0;
+        if (selected >= 0 && isItemEnabled(items[selected])) return selected;
+
+        return items.findIndex((c) => isItemEnabled(c));
     };
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
@@ -89,6 +93,7 @@ export function Dropdown({
 
     /** @param {number} index */
     const selectAt = (index) => {
+        if (!isItemEnabled(items[index])) return;
         getItemProps(items[index])?.onSelect?.();
     };
 
@@ -139,9 +144,10 @@ export function Dropdown({
         return cloneElement(/** @type {import('preact').VNode} */ (child), {
             id: getItemId(index),
             isActive: activeIndex === index,
-            onMouseOver: () => setActiveIndex(index),
+            onMouseOver: isItemEnabled(child) ? () => setActiveIndex(index) : undefined,
             onClick: (/** @type {MouseEvent} */ e) => {
                 e.stopPropagation();
+                if (!isItemEnabled(child)) return;
                 selectAt(index);
                 if (!getItemProps(child)?.ariaHasPopup) {
                     onClose({ restoreFocus: false });
