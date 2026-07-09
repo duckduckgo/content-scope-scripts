@@ -9,9 +9,10 @@ import styles from './ModelSelector.module.css';
  * @param {import('./useModelSelector').ModelSelectorState} props.selector
  * @param {import('../../../../../types/new-tab.js').AIModelItem|null} props.selectedModel
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.aiModelSections
+ * @param {() => void} props.onUpsell
  * @param {string} props.ariaLabel
  */
-export function ModelSelector({ selector, selectedModel, aiModelSections, ariaLabel }) {
+export function ModelSelector({ selector, selectedModel, aiModelSections, onUpsell, ariaLabel }) {
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
     /** @param {{ restoreFocus: boolean }} options */
     const handleClose = ({ restoreFocus }) => {
@@ -45,6 +46,7 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, ariaLa
                     dropdownPos={dropdownPos}
                     onClose={handleClose}
                     onSelect={selectModel}
+                    onUpsell={onUpsell}
                     ariaLabel={ariaLabel}
                 />
             )}

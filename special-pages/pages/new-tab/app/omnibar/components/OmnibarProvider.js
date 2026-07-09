@@ -79,6 +79,10 @@ export const OmnibarContext = createContext({
     viewAllAiChats: () => {
         throw new Error('must implement');
     },
+    /** @type {() => void} */
+    showSubscriptionUpsell: () => {
+        throw new Error('must implement');
+    },
     /** @type {() => Promise<GetOpenTabsResponse>} */
     getOpenTabs: () => {
         throw new Error('must implement');
@@ -231,6 +235,11 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {() => void} */
+    const showSubscriptionUpsell = useCallback(() => {
+        service.current?.showSubscriptionUpsell();
+    }, [service]);
+
     /** @type {() => Promise<GetOpenTabsResponse>} */
     const getOpenTabs = useCallback(() => {
         if (!service.current) throw new Error('Service not available');
@@ -264,6 +273,7 @@ export function OmnibarProvider(props) {
                 onAiChats,
                 openAiChat,
                 viewAllAiChats,
+                showSubscriptionUpsell,
                 getOpenTabs,
                 getTabContent,
             }}

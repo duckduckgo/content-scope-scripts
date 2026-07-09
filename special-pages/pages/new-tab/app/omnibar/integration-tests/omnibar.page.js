@@ -332,6 +332,11 @@ export class OmnibarPage {
         return this.modelDropdown().getByRole('option', { name: modelName });
     }
 
+    /** The "Try for free" upsell link shown above subscription-only models in the model selector. */
+    modelUpsellButton() {
+        return this.modelDropdown().getByRole('button', { name: 'Try for free' });
+    }
+
     toolsMenuButton() {
         return this.context().getByRole('button', { name: 'Tools' });
     }
