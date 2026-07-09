@@ -984,14 +984,7 @@ export interface TelemetryEventNotification {
   params: NTPTelemetryEvent;
 }
 export interface NTPTelemetryEvent {
-  attributes:
-    | StatsShowMore
-    | ExampleTelemetryEvent
-    | CustomizerDrawerState
-    | ChatDeleteButtonClicked
-    | ChatDeleteConfirmed
-    | ChatDeleteCancelled
-    | SearchSuggestionDeleted;
+  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1009,30 +1002,6 @@ export interface CustomizerDrawerState {
      */
     themeVariantPopoverWasOpen?: boolean;
   };
-}
-/**
- * Fired when the user clicks the delete button on a chat suggestion, before the native dialog opens.
- */
-export interface ChatDeleteButtonClicked {
-  name: "ntp_aichat_recent_chat_delete_button_clicked";
-}
-/**
- * Fired after the user confirms deletion in the native dialog.
- */
-export interface ChatDeleteConfirmed {
-  name: "ntp_aichat_recent_chat_delete_confirmed";
-}
-/**
- * Fired after the user cancels the native deletion dialog.
- */
-export interface ChatDeleteCancelled {
-  name: "ntp_aichat_recent_chat_delete_cancelled";
-}
-/**
- * Fired when the user clicks the delete button on a history entry suggestion.
- */
-export interface SearchSuggestionDeleted {
-  name: "ntp_autocomplete_result_deleted";
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"

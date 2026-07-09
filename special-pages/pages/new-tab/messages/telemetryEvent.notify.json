@@ -53,50 +53,6 @@
               }
             }
           }
-        },
-        {
-          "type": "object",
-          "title": "Chat Delete Button Clicked",
-          "description": "Fired when the user clicks the delete button on a chat suggestion, before the native dialog opens.",
-          "required": ["name"],
-          "properties": {
-            "name": {
-              "const": "ntp_aichat_recent_chat_delete_button_clicked"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "title": "Chat Delete Confirmed",
-          "description": "Fired after the user confirms deletion in the native dialog.",
-          "required": ["name"],
-          "properties": {
-            "name": {
-              "const": "ntp_aichat_recent_chat_delete_confirmed"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "title": "Chat Delete Cancelled",
-          "description": "Fired after the user cancels the native deletion dialog.",
-          "required": ["name"],
-          "properties": {
-            "name": {
-              "const": "ntp_aichat_recent_chat_delete_cancelled"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "title": "Search Suggestion Deleted",
-          "description": "Fired when the user clicks the delete button on a history entry suggestion.",
-          "required": ["name"],
-          "properties": {
-            "name": {
-              "const": "ntp_autocomplete_result_deleted"
-            }
-          }
         }
       ]
     }
