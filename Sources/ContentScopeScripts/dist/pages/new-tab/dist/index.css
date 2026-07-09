@@ -2523,10 +2523,7 @@ body[data-animate-background=true] {
 .BackgroundReceiver_root {
   position: fixed;
   z-index: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
   object-fit: cover;
@@ -4239,10 +4236,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   background: var(--ds-color-theme-control-fill-primary);
   border-radius: 99px;
   content: "";
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   position: absolute;
 }
 .TabSwitcher_tabLabel {

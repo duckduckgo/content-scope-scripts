@@ -6,9 +6,12 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __commonJS = (cb, mod) => function __require() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e4) {
+      throw mod = 0, e4;
+    }
   };
   var __copyProps = (to, from, except, desc) => {
     if (from && typeof from === "object" || typeof from === "function") {
@@ -26,7 +29,6 @@
     isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
     mod
   ));
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
   // ../node_modules/classnames/index.js
   var require_classnames = __commonJS({
@@ -3060,7 +3062,9 @@
   );
 
   // pages/history/app/history.range.service.js
-  var _HistoryRangeService = class _HistoryRangeService {
+  var HistoryRangeService = class _HistoryRangeService {
+    static REFRESH_EVENT = "refresh";
+    static DATA_EVENT = "data";
     index = 0;
     internal = new EventTarget();
     dataReadinessSignal = new EventTarget();
@@ -3128,9 +3132,6 @@
       return await this.history.messaging.request("deleteRange", { range });
     }
   };
-  __publicField(_HistoryRangeService, "REFRESH_EVENT", "refresh");
-  __publicField(_HistoryRangeService, "DATA_EVENT", "data");
-  var HistoryRangeService = _HistoryRangeService;
 
   // pages/new-tab/app/utils.js
   function viewTransition(fn) {
@@ -3141,7 +3142,10 @@
   }
 
   // pages/history/app/history.service.js
-  var _HistoryService = class _HistoryService {
+  var HistoryService = class _HistoryService {
+    static CHUNK_SIZE = 150;
+    static QUERY_EVENT = "query";
+    static QUERY_MORE_EVENT = "query-more";
     /**
      * @return {QueryData}
      */
@@ -3401,10 +3405,6 @@
       return { kind: resp.action };
     }
   };
-  __publicField(_HistoryService, "CHUNK_SIZE", 150);
-  __publicField(_HistoryService, "QUERY_EVENT", "query");
-  __publicField(_HistoryService, "QUERY_MORE_EVENT", "query-more");
-  var HistoryService = _HistoryService;
   function deleteByIndexes(old, indexes) {
     const inverted = indexes.sort((a4, b4) => b4 - a4);
     const removed = [];

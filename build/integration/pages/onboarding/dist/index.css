@@ -1450,10 +1450,7 @@ h2 {
 .Background_background {
   position: fixed;
   z-index: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -3056,10 +3053,7 @@ h2 {
 /* pages/onboarding/app/v4/components/Background.module.css */
 .Background_background2 {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   pointer-events: none;
   width: 100vw;
   height: 100vh;
@@ -3177,10 +3171,7 @@ h2 {
 }
 .Bubble_frame {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   background: var(--bubble-bg);
   border-radius: var(--sp-9);
   border: 1.5px solid var(--bubble-border);
@@ -3189,10 +3180,7 @@ h2 {
 .Bubble_container {
   overflow: hidden;
   position: absolute;
-  top: 1.5px;
-  right: 1.5px;
-  bottom: 1.5px;
-  left: 1.5px;
+  inset: 1.5px;
 }
 .Bubble_content {
   width: var(--bubble-width);

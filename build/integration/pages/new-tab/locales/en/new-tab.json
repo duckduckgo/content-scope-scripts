@@ -257,6 +257,10 @@
     "title": "Image is too large. Please use an image smaller than 10000×10000 pixels.",
     "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
   },
+  "omnibar_fileTooLargeError": {
+    "title": "File is too large. Please use a file smaller than {limit} MB.",
+    "description": "Error shown when a user tries to attach a file that exceeds the maximum allowed size. {limit} is the size limit in megabytes."
+  },
   "omnibar_imageProcessingError": {
     "title": "Failed to process image. Please try a different file.",
     "description": "Error shown when an attached image cannot be processed."

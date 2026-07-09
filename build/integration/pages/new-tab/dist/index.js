@@ -6,20 +6,25 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __typeError = (msg) => {
-    throw TypeError(msg);
-  };
-  var __defNormalProp = (obj, key2, value2) => key2 in obj ? __defProp(obj, key2, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj[key2] = value2;
   var __glob = (map) => (path) => {
     var fn = map[path];
     if (fn) return fn();
     throw new Error("Module not found in bundle: " + path);
   };
-  var __esm = (fn, res) => function __init() {
-    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  var __esm = (fn, res, err) => function __init() {
+    if (err) throw err[0];
+    try {
+      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+    } catch (e4) {
+      throw err = [e4], e4;
+    }
   };
   var __commonJS = (cb, mod2) => function __require() {
-    return mod2 || (0, cb[__getOwnPropNames(cb)[0]])((mod2 = { exports: {} }).exports, mod2), mod2.exports;
+    try {
+      return mod2 || (0, cb[__getOwnPropNames(cb)[0]])((mod2 = { exports: {} }).exports, mod2), mod2.exports;
+    } catch (e4) {
+      throw mod2 = 0, e4;
+    }
   };
   var __export = (target, all2) => {
     for (var name2 in all2)
@@ -41,19 +46,6 @@
     isNodeMode || !mod2 || !mod2.__esModule ? __defProp(target, "default", { value: mod2, enumerable: true }) : target,
     mod2
   ));
-  var __publicField = (obj, key2, value2) => __defNormalProp(obj, typeof key2 !== "symbol" ? key2 + "" : key2, value2);
-  var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-  var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-  var __privateAdd = (obj, member, value2) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
-  var __privateSet = (obj, member, value2, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value2) : member.set(obj, value2), value2);
-  var __privateWrapper = (obj, member, setter, getter) => ({
-    set _(value2) {
-      __privateSet(obj, member, value2, setter);
-    },
-    get _() {
-      return __privateGet(obj, member, getter);
-    }
-  });
 
   // ../node_modules/preact/dist/preact.module.js
   function m(n3, l5) {
@@ -8799,19 +8791,19 @@
   });
 
   // pages/new-tab/app/omnibar/omnibar.suggestions.service.js
-  var EVENT_DATA, _eventTarget, _lastFetchId, OmnibarSuggestionsService;
+  var EVENT_DATA, OmnibarSuggestionsService;
   var init_omnibar_suggestions_service = __esm({
     "pages/new-tab/app/omnibar/omnibar.suggestions.service.js"() {
       "use strict";
       EVENT_DATA = "data";
       OmnibarSuggestionsService = class {
+        #eventTarget = new EventTarget();
+        #lastFetchId = 0;
         /**
          * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
          * @internal
          */
         constructor(ntp) {
-          __privateAdd(this, _eventTarget, new EventTarget());
-          __privateAdd(this, _lastFetchId, 0);
           this.ntp = ntp;
         }
         /**
@@ -8819,11 +8811,11 @@
          * @returns {Promise<SuggestionsData>}
          */
         triggerFetch(term) {
-          const fetchId = ++__privateWrapper(this, _lastFetchId)._;
+          const fetchId = ++this.#lastFetchId;
           const fetch2 = async () => {
             const data2 = await this.ntp.messaging.request("omnibar_getSuggestions", { term });
-            if (fetchId === __privateGet(this, _lastFetchId)) {
-              __privateGet(this, _eventTarget).dispatchEvent(new CustomEvent(EVENT_DATA, { detail: { data: data2, term } }));
+            if (fetchId === this.#lastFetchId) {
+              this.#eventTarget.dispatchEvent(new CustomEvent(EVENT_DATA, { detail: { data: data2, term } }));
             }
             return data2;
           };
@@ -8835,39 +8827,37 @@
          */
         onData(cb) {
           const handler = (event) => cb(event.detail.data, event.detail.term);
-          __privateGet(this, _eventTarget).addEventListener(EVENT_DATA, handler);
-          return () => __privateGet(this, _eventTarget).removeEventListener(EVENT_DATA, handler);
+          this.#eventTarget.addEventListener(EVENT_DATA, handler);
+          return () => this.#eventTarget.removeEventListener(EVENT_DATA, handler);
         }
       };
-      _eventTarget = new WeakMap();
-      _lastFetchId = new WeakMap();
     }
   });
 
   // pages/new-tab/app/omnibar/omnibar.ai-chats.service.js
-  var EVENT_DATA2, _eventTarget2, _lastFetchId2, OmnibarAiChatsService;
+  var EVENT_DATA2, OmnibarAiChatsService;
   var init_omnibar_ai_chats_service = __esm({
     "pages/new-tab/app/omnibar/omnibar.ai-chats.service.js"() {
       "use strict";
       EVENT_DATA2 = "data";
       OmnibarAiChatsService = class {
+        #eventTarget = new EventTarget();
+        #lastFetchId = 0;
         /**
          * @param {import("../../src/index.js").NewTabPage} ntp
          * @internal
          */
         constructor(ntp) {
-          __privateAdd(this, _eventTarget2, new EventTarget());
-          __privateAdd(this, _lastFetchId2, 0);
           this.ntp = ntp;
         }
         /**
          * @param {string} query
          */
         async triggerFetch(query) {
-          const fetchId = ++__privateWrapper(this, _lastFetchId2)._;
+          const fetchId = ++this.#lastFetchId;
           const data2 = await this.ntp.messaging.request("omnibar_getAiChats", { query });
-          if (fetchId === __privateGet(this, _lastFetchId2)) {
-            __privateGet(this, _eventTarget2).dispatchEvent(new CustomEvent(EVENT_DATA2, { detail: { data: data2 } }));
+          if (fetchId === this.#lastFetchId) {
+            this.#eventTarget.dispatchEvent(new CustomEvent(EVENT_DATA2, { detail: { data: data2 } }));
           }
         }
         /**
@@ -8876,12 +8866,10 @@
          */
         onData(cb) {
           const handler = (event) => cb(event.detail.data);
-          __privateGet(this, _eventTarget2).addEventListener(EVENT_DATA2, handler);
-          return () => __privateGet(this, _eventTarget2).removeEventListener(EVENT_DATA2, handler);
+          this.#eventTarget.addEventListener(EVENT_DATA2, handler);
+          return () => this.#eventTarget.removeEventListener(EVENT_DATA2, handler);
         }
       };
-      _eventTarget2 = new WeakMap();
-      _lastFetchId2 = new WeakMap();
     }
   });
 
@@ -10642,6 +10630,11 @@
       "use strict";
       init_service();
       TabsService = class {
+        /** @type {Tabs} */
+        static DEFAULT = {
+          tabId: "unknown",
+          tabIds: ["unknown"]
+        };
         /**
          * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
          * @param {Tabs} tabs
@@ -10680,11 +10673,6 @@
           return this.tabsService.data;
         }
       };
-      /** @type {Tabs} */
-      __publicField(TabsService, "DEFAULT", {
-        tabId: "unknown",
-        tabIds: ["unknown"]
-      });
     }
   });
 
@@ -10731,15 +10719,13 @@
     if (input.trim().length < 1) return "";
     return input;
   }
-  var _values, PersistentValue;
+  var PersistentValue;
   var init_PersistentValue = __esm({
     "pages/new-tab/app/tabs/PersistentValue.js"() {
       "use strict";
       PersistentValue = class {
-        constructor() {
-          /** @type {Map<string, T>} */
-          __privateAdd(this, _values, /* @__PURE__ */ new Map());
-        }
+        /** @type {Map<string, T>} */
+        #values = /* @__PURE__ */ new Map();
         name() {
           return "PersistentValue";
         }
@@ -10752,7 +10738,7 @@
          */
         update({ id, value: value2 }) {
           if (string(id)) {
-            __privateGet(this, _values).set(id, value2);
+            this.#values.set(id, value2);
           }
         }
         /**
@@ -10762,8 +10748,8 @@
          * @param {T} args.value
          */
         updateAll({ value: value2 }) {
-          for (const [key2] of __privateGet(this, _values)) {
-            __privateGet(this, _values).set(key2, value2);
+          for (const [key2] of this.#values) {
+            this.#values.set(key2, value2);
           }
         }
         /**
@@ -10771,9 +10757,9 @@
          * @param {string[]} params.preserve
          */
         prune({ preserve }) {
-          for (const key2 of __privateGet(this, _values).keys()) {
+          for (const key2 of this.#values.keys()) {
             if (!preserve.includes(key2)) {
-              __privateGet(this, _values).delete(key2);
+              this.#values.delete(key2);
             }
           }
         }
@@ -10783,7 +10769,7 @@
          */
         remove({ id }) {
           if (string(id)) {
-            __privateGet(this, _values).delete(id);
+            this.#values.delete(id);
           }
         }
         /**
@@ -10792,18 +10778,17 @@
          */
         byId(id) {
           if (typeof id !== "string") return null;
-          const value2 = __privateGet(this, _values).get(id);
+          const value2 = this.#values.get(id);
           if (value2 === void 0) return null;
           return value2;
         }
         print() {
-          for (const [key2, value2] of __privateGet(this, _values)) {
+          for (const [key2, value2] of this.#values) {
             console.log(`key: ${key2}, value: ${value2}`);
           }
           console.log("--");
         }
       };
-      _values = new WeakMap();
     }
   });
 
@@ -11028,14 +11013,14 @@
       img.src = srcDataUrl;
     });
   }
-  function useImageAttachments(tabId) {
+  function useImageAttachments({ tabId, maxImages = MAX_IMAGES } = {}) {
     const [attachedImages, setAttachedImages] = useStateWithLocalPersistence(tabId);
     const [imageError, setImageError] = d2(
       /** @type {ImageError|null} */
       null
     );
-    const imageLimitExceeded = attachedImages.length > MAX_IMAGES;
-    const imageUploadDisabled = attachedImages.length >= MAX_IMAGES;
+    const imageLimitExceeded = attachedImages.length > maxImages;
+    const imageUploadDisabled = attachedImages.length >= maxImages;
     const clearAttachedImages = () => setAttachedImages([]);
     const clearImageError = () => setImageError(null);
     const processFiles = async (files) => {
@@ -11053,7 +11038,7 @@
         return true;
       });
       if (validFiles.length === 0) return;
-      const processLimit = MAX_IMAGES + 1 - attachedImages.length;
+      const processLimit = maxImages + 1 - attachedImages.length;
       const filesToProcess = processLimit > 0 ? validFiles.slice(0, processLimit) : [];
       if (filesToProcess.length === 0) return;
       const newImages = filesToProcess.map(async (file) => {
@@ -11130,7 +11115,8 @@
       imageLimitExceeded,
       imageError,
       clearImageError,
-      getImagesForSubmission
+      getImagesForSubmission,
+      maxImages
     };
   }
   function getImageErrorMessage(imageError, messages) {
@@ -11184,7 +11170,7 @@
       /** @type {Strings} */
       {}
     );
-    const { attachedImages, imageLimitExceeded, imageError, clearImageError } = state;
+    const { attachedImages, imageLimitExceeded, imageError, clearImageError, maxImages } = state;
     const hasVisibleImages = !!(supportsImageUpload && attachedImages.length > 0);
     const showImageWarning = !!(supportsImageUpload && imageLimitExceeded);
     const prevVisibleRef = A2(hasVisibleImages);
@@ -11202,7 +11188,7 @@
       }
     }, [showImageWarning]);
     if (!supportsImageUpload) return null;
-    const imageLimitWarning = t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) });
+    const imageLimitWarning = t4("omnibar_imageAttachmentLimitWarning", { limit: String(maxImages) });
     const imageErrorMessage = getImageErrorMessage(imageError, {
       imageTooLarge: t4("omnibar_imageTooLargeError"),
       processingFailed: t4("omnibar_imageProcessingError")
@@ -11274,8 +11260,12 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/file-attachment/useFileAttachments.js
-  function useFileAttachments(supportedFileTypes, tabId) {
+  function useFileAttachments({ supportedFileTypes, tabId, maxFiles = MAX_FILES, maxFileSizeMB } = {}) {
     const [attachedFiles, setAttachedFiles] = useStateWithLocalPersistence2(tabId);
+    const [fileError, setFileError] = d2(
+      /** @type {FileError|null} */
+      null
+    );
     const allowList = supportedFileTypes ?? [];
     const allowListKey = allowList.join("|");
     const [prevAllowListKey, setPrevAllowListKey] = d2(allowListKey);
@@ -11284,12 +11274,27 @@
       setAttachedFiles((prev) => prev.filter((f4) => allowList.includes(f4.mimeType)));
     }
     const fileUploadDisabled = allowList.length === 0;
-    const fileLimitExceeded = attachedFiles.length > MAX_FILES;
+    const fileLimitExceeded = attachedFiles.length > maxFiles;
     const clearAttachedFiles = () => setAttachedFiles([]);
+    const clearFileError = () => setFileError(null);
     const processFiles = async (files) => {
       if (files.length === 0) return;
+      setFileError(null);
       const existingNames = new Set(attachedFiles.map((file) => file.fileName));
-      const validFiles = files.map((file) => ({ file, mimeType: resolveFileMimeType(file, allowList) })).filter(({ file, mimeType }) => mimeType !== null && !existingNames.has(file.name));
+      const candidates = files.map((file) => ({ file, mimeType: resolveFileMimeType(file, allowList) })).filter(({ file, mimeType }) => mimeType !== null && !existingNames.has(file.name));
+      if (candidates.length === 0) return;
+      const maxBytes = maxFileSizeMB != null ? maxFileSizeMB * BYTES_PER_MB : null;
+      const tooLargeNames = [];
+      const validFiles = candidates.filter(({ file }) => {
+        if (maxBytes != null && file.size > maxBytes) {
+          tooLargeNames.push(file.name);
+          return false;
+        }
+        return true;
+      });
+      if (tooLargeNames.length > 0) {
+        setFileError({ type: "fileTooLarge", fileNames: tooLargeNames });
+      }
       if (validFiles.length === 0) return;
       const results = await Promise.allSettled(
         validFiles.map(({ file, mimeType }) => readFileAsBase64(
@@ -11321,7 +11326,11 @@
       clearAttachedFiles,
       fileUploadDisabled,
       fileLimitExceeded,
-      getFilesForSubmission
+      getFilesForSubmission,
+      fileError,
+      clearFileError,
+      maxFiles,
+      maxFileSizeMB
     };
   }
   async function readFileAsBase64(file, mimeType) {
@@ -11332,7 +11341,7 @@
     }
     return { data: result.slice(commaIndex + 1), fileName: file.name, mimeType };
   }
-  var useStateWithLocalPersistence2, MAX_FILES;
+  var useStateWithLocalPersistence2, MAX_FILES, BYTES_PER_MB;
   var init_useFileAttachments = __esm({
     "pages/new-tab/app/omnibar/components/chat-tools/file-attachment/useFileAttachments.js"() {
       "use strict";
@@ -11342,6 +11351,7 @@
       init_readFileAsDataUrl();
       ({ useStateWithLocalPersistence: useStateWithLocalPersistence2 } = FileAttachments);
       MAX_FILES = 3;
+      BYTES_PER_MB = 1024 * 1024;
     }
   });
 
@@ -12864,7 +12874,7 @@
         }
       );
       if (image && !file && fileInput.disabled) {
-        return /* @__PURE__ */ k(Tooltip, { content: t4("omnibar_imageAttachmentLimitWarning", { limit: String(MAX_IMAGES) }), position: "above" }, button);
+        return /* @__PURE__ */ k(Tooltip, { content: t4("omnibar_imageAttachmentLimitWarning", { limit: String(image.maxImages) }), position: "above" }, button);
       }
       return button;
     }
@@ -13059,7 +13069,6 @@
       init_fileChannels();
       init_TabPicker();
       init_Tooltip2();
-      init_useImageAttachments();
       init_ImageAttachment();
       init_AttachMenu();
     }
@@ -13519,6 +13528,8 @@
     );
     const platformName = usePlatformName();
     const { showChats, hideChats } = useAiChatsContext();
+    const { state } = x2(OmnibarContext);
+    const attachmentLimits = state.config?.attachmentLimits;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
@@ -13529,12 +13540,17 @@
     const hasVisibleImagesRef = A2(false);
     const submittingRef = A2(false);
     const [imageWarning, setImageWarning] = d2(false);
-    const imageState = useImageAttachments(tabId);
+    const imageState = useImageAttachments({ tabId, maxImages: attachmentLimits?.images?.maxPerTurn });
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages ? t4("omnibar_imageGenerationWithAttachmentPlaceholder") : t4("omnibar_imageGenerationPlaceholder");
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
-    const fileState = useFileAttachments(selectedModel?.supportedFileTypes, tabId);
+    const fileState = useFileAttachments({
+      supportedFileTypes: selectedModel?.supportedFileTypes,
+      tabId,
+      maxFiles: attachmentLimits?.files?.maxPerConversation,
+      maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB
+    });
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
     const tabAttachments = useTabAttachments(tabId);
@@ -13614,8 +13630,10 @@
       });
     };
     const fileWarning = canAttachFiles && fileState.fileLimitExceeded;
+    const fileError = canAttachFiles ? fileState.fileError : null;
     const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
-    const showFileWarning = fileWarning && !imageMessageShowing;
+    const showFileError = !!fileError && !imageMessageShowing;
+    const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
     const disabled = !query || imageWarning || fileWarning;
     const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
     const handleClickSubmit = (event) => {
@@ -13662,7 +13680,11 @@
           toolbarLeft: /* @__PURE__ */ k(S, null, (canAttachImages || canAttachFiles || canAttachTabs) && /* @__PURE__ */ k(
             AttachMenu,
             {
-              image: canAttachImages ? { processFiles: imageState.processFiles, disabled: imageState.imageUploadDisabled } : null,
+              image: canAttachImages ? {
+                processFiles: imageState.processFiles,
+                disabled: imageState.imageUploadDisabled,
+                maxImages: imageState.maxImages
+              } : null,
               file: canAttachFiles ? {
                 processFiles: fileState.processFiles,
                 disabled: fileState.fileUploadDisabled,
@@ -13709,7 +13731,8 @@
             onRemoveImage: imageState.handleRemoveImage
           }
         ),
-        showFileWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileAttachmentLimitWarning", { limit: String(MAX_FILES) })),
+        showFileError && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileTooLargeError", { limit: String(fileState.maxFileSizeMB ?? "") })),
+        showFileWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileAttachmentLimitWarning", { limit: String(fileState.maxFiles) })),
         /* @__PURE__ */ k(
           ImageAttachmentContent,
           {
@@ -33738,7 +33761,13 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/telemetry/telemetry.js
-  var _Telemetry = class _Telemetry {
+  var Telemetry = class _Telemetry {
+    static EVENT_REQUEST = "TELEMETRY_EVENT_REQUEST";
+    static EVENT_RESPONSE = "TELEMETRY_EVENT_RESPONSE";
+    static EVENT_SUBSCRIPTION = "TELEMETRY_EVENT_SUBSCRIPTION";
+    static EVENT_SUBSCRIPTION_DATA = "TELEMETRY_EVENT_SUBSCRIPTION_DATA";
+    static EVENT_NOTIFICATION = "TELEMETRY_EVENT_NOTIFICATION";
+    static EVENT_BROADCAST = "TELEMETRY_*";
     eventTarget = new EventTarget();
     /** @type {Record<string, unknown>[]} */
     eventStore = [];
@@ -33796,13 +33825,6 @@
       }
     }
   };
-  __publicField(_Telemetry, "EVENT_REQUEST", "TELEMETRY_EVENT_REQUEST");
-  __publicField(_Telemetry, "EVENT_RESPONSE", "TELEMETRY_EVENT_RESPONSE");
-  __publicField(_Telemetry, "EVENT_SUBSCRIPTION", "TELEMETRY_EVENT_SUBSCRIPTION");
-  __publicField(_Telemetry, "EVENT_SUBSCRIPTION_DATA", "TELEMETRY_EVENT_SUBSCRIPTION_DATA");
-  __publicField(_Telemetry, "EVENT_NOTIFICATION", "TELEMETRY_EVENT_NOTIFICATION");
-  __publicField(_Telemetry, "EVENT_BROADCAST", "TELEMETRY_*");
-  var Telemetry = _Telemetry;
   var MessagingObserver = class {
     /** @type {Map<string, number>} */
     observed = /* @__PURE__ */ new Map();
@@ -35312,6 +35334,10 @@
     omnibar_imageTooLargeError: {
       title: "Image is too large. Please use an image smaller than 10000\xD710000 pixels.",
       description: "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
+    },
+    omnibar_fileTooLargeError: {
+      title: "File is too large. Please use a file smaller than {limit} MB.",
+      description: "Error shown when a user tries to attach a file that exceeds the maximum allowed size. {limit} is the size limit in megabytes."
     },
     omnibar_imageProcessingError: {
       title: "Failed to process image. Please try a different file.",
@@ -40647,7 +40673,20 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
       showViewAllAiChats: false,
       enableVoiceChatAccess: false,
       enableAskAiSuggestion: true,
-      enableAttachTabs: false
+      enableAttachTabs: false,
+      attachmentLimits: {
+        files: {
+          maxPerConversation: 3,
+          maxFileSizeMB: 3,
+          maxTotalFileSizeBytes: 75 * 1024 * 1024,
+          maxPagesPerFile: 100
+        },
+        images: {
+          maxPerTurn: 3,
+          maxPerConversation: 10,
+          maxInputCharsWithAttachments: 3e4
+        }
+      }
     };
     const subs = /* @__PURE__ */ new Map();
     return new TestTransportConfig({
@@ -40722,6 +40761,14 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             config.enableVoiceChatAccess = parseBooleanQueryParam("omnibar.enableVoiceChatAccess") ?? config.enableVoiceChatAccess;
             config.enableAskAiSuggestion = parseBooleanQueryParam("omnibar.enableAskAiSuggestion") ?? config.enableAskAiSuggestion;
             config.enableAttachTabs = parseBooleanQueryParam("omnibar.enableAttachTabs") ?? config.enableAttachTabs;
+            if (config.attachmentLimits) {
+              const imageMaxPerTurn = parseInt(url5.searchParams.get("omnibar.imageMaxPerTurn") ?? "", 10);
+              if (imageMaxPerTurn > 0) config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
+              const fileMaxPerConversation = parseInt(url5.searchParams.get("omnibar.fileMaxPerConversation") ?? "", 10);
+              if (fileMaxPerConversation > 0) config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;
+              const fileMaxFileSizeMB = parseInt(url5.searchParams.get("omnibar.fileMaxFileSizeMB") ?? "", 10);
+              if (fileMaxFileSizeMB > 0) config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
+            }
             return config;
           }
           case "omnibar_getSuggestions": {
