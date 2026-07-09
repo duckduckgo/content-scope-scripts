@@ -85,11 +85,7 @@ body[data-animate-background="true"] {
 
 .mainScroller {
     &::-webkit-scrollbar {
-        width: var(--ntp-main-scroll-width);
-    }
-
-    &::-webkit-scrollbar-button {
-        display: none;
+        width: 8px;
     }
 
     &::-webkit-scrollbar-track {
@@ -97,7 +93,7 @@ body[data-animate-background="true"] {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: var(--ntp-scrollbar-thumb-color);
+        background: rgb(108, 108, 108);
         border-radius: 6px;
     }
 }
