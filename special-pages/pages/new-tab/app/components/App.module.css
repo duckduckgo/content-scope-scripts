@@ -84,8 +84,10 @@ body[data-animate-background="true"] {
 }
 
 .mainScroller {
+    scrollbar-color: var(--ntp-scrollbar-thumb-color) transparent;
+
     &::-webkit-scrollbar {
-        width: 4px;
+        width: var(--ntp-main-scroll-width);
     }
 
     &::-webkit-scrollbar-track {
@@ -93,8 +95,14 @@ body[data-animate-background="true"] {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: rgb(108, 108, 108);
+        background: var(--ntp-scrollbar-thumb-color);
         border-radius: 6px;
+    }
+}
+
+:root:has(body[data-platform-name="windows"]) {
+    .mainScroller {
+        scrollbar-width: var(--ntp-main-scroll-width);
     }
 }
 

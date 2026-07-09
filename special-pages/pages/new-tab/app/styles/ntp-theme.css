@@ -2,6 +2,7 @@
     --ntp-gap: 2rem;
     --ntp-drawer-width: calc(224 * var(--px-in-rem));
     --ntp-drawer-scroll-width: 12px;
+    --ntp-main-scroll-width: 12px;
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
 
     /* Mac/System/Callout */
@@ -46,6 +47,10 @@
     --ntp-surface-background-color: var(--ds-color-theme-tone-tint-primary);
 }
 
+[data-theme="light"] {
+    --ntp-scrollbar-thumb-color: var(--color-black-at-18);
+}
+
 [data-background-kind="color"],
 [data-background-kind="gradient"],
 [data-background-kind="userImage"] {
@@ -72,6 +77,7 @@
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: var(--color-blue-30);
+    --ntp-scrollbar-thumb-color: var(--color-white-at-18);
 }
 
 :root:has(body[data-platform-name="windows"]) {
@@ -89,4 +95,6 @@
     --title-3-em-font-size: 16px;
     --title-3-em-font-weight: 600;
     --title-3-em-line-height: 20px;
+
+    --ntp-main-scroll-width: 15px;
 }
