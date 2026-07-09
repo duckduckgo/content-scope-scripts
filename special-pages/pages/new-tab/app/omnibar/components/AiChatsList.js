@@ -48,7 +48,7 @@ export function AiChatsList({ className }) {
         <div role="listbox" id={aiChatsListId} data-omnibar-list class={cn(styles.list, className)}>
             {chats.map((chat) => {
                 return (
-                    <button
+                    <div
                         key={chat.chatId}
                         role="option"
                         id={getAiChatElementId(chat.chatId)}
@@ -58,7 +58,6 @@ export function AiChatsList({ className }) {
                         onMouseOver={() => setSelectedChat(chat)}
                         onMouseLeave={() => clearSelectedChat()}
                         onClick={(event) => {
-                            event.preventDefault();
                             openAiChat({
                                 chatId: chat.chatId,
                                 target: eventToTarget(event, platformName),
@@ -72,11 +71,9 @@ export function AiChatsList({ className }) {
                         {/* Delete button: visible on row hover/selection when enabled by native.
                             Uses the "fire" icon to match the DDG burn/delete metaphor.
                             Clicking sends a confirmation request to native, which shows a dialog.
-                            The chat is only removed from the list if the user confirms.
-                            Uses a <span role="button"> instead of <button> to avoid nesting a button inside the row button. */}
+                            The chat is only removed from the list if the user confirms. */}
                         {enableDeletion && (
-                            <span
-                                role="button"
+                            <button
                                 tabIndex={-1}
                                 class={styles.deleteButton}
                                 aria-label={t('omnibar_removeAiChat')}
@@ -88,14 +85,13 @@ export function AiChatsList({ className }) {
                                 onClick={(e) => {
                                     // Prevent the row click from opening the chat
                                     e.stopPropagation();
-                                    e.preventDefault();
                                     removeChat(chat.chatId, chat.title);
                                 }}
                             >
                                 <FireOutlineIcon />
-                            </span>
+                            </button>
                         )}
-                    </button>
+                    </div>
                 );
             })}
             {showViewAllAiChats && <AiChatsListFooter />}

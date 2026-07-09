@@ -92,7 +92,7 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
     const suffix = getSuggestionSuffix(suggestion);
 
     return (
-        <button
+        <div
             role="option"
             id={suggestion.id}
             class={styles.item}
@@ -101,7 +101,6 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
             onMouseOver={() => setSelectedSuggestion(suggestion)}
             onMouseLeave={() => clearSelectedSuggestion()}
             onClick={(event) => {
-                event.preventDefault();
                 if (suggestion.kind === 'aiChat') {
                     onSubmitChat({ chat: suggestion.chat, target: eventToTarget(event, platformName) });
                 } else {
@@ -132,11 +131,9 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
                     {t('omnibar_switchToTab')} <ArrowRightIcon />
                 </span>
             )}
-            {/* Delete button: only shown for history entries, visible on row hover/selection.
-                Uses a <span role="button"> instead of <button> to avoid nesting a button inside the row button. */}
+            {/* Delete button: only shown for history entries, visible on row hover/selection. */}
             {isDeletable && (
-                <span
-                    role="button"
+                <button
                     tabIndex={-1}
                     class={styles.deleteButton}
                     aria-label={t('omnibar_removeSuggestion')}
@@ -148,14 +145,13 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
                     onClick={(e) => {
                         // Prevent the row click from navigating to the suggestion
                         e.stopPropagation();
-                        e.preventDefault();
                         removeSuggestion(suggestion);
                     }}
                 >
                     <TrashOutlineIcon />
-                </span>
+                </button>
             )}
-        </button>
+        </div>
     );
 }
 
