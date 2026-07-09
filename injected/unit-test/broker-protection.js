@@ -632,6 +632,18 @@ describe('Actions', () => {
             expect(result).toBe(null);
         });
 
+        it('delegates to buildUrl when url is a non-http(s) absolute URL', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n2a',
+                actionType: 'navigate',
+                url: 'ftp://example.com/static',
+                dataSource: 'emailData',
+            };
+            const result = resolveUrlFromDataSource(action, {});
+            expect(result).toBe(null);
+        });
+
         it('delegates to buildUrl when dataSource is not set', () => {
             /** @type {PirAction} */
             const action = {
