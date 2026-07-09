@@ -1,6 +1,5 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
-import { OmnibarContext, useOmnibarService } from './OmnibarProvider.js';
-import { useMessaging } from '../../types.js';
+import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
@@ -163,9 +162,7 @@ function reducer(state, action) {
  * @param {boolean} [props.enableAskAiSuggestion]
  */
 export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
-    const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
-    const service = useOmnibarService();
-    const ntp = useMessaging();
+    const { onSuggestions, getSuggestions, removeSuggestion: notifyRemoveSuggestion } = useContext(OmnibarContext);
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
@@ -251,10 +248,9 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
      */
     const removeSuggestion = (suggestion) => {
         dispatch({ type: 'removeSuggestion', id: suggestion.id });
-        ntp.telemetryEvent({ attributes: { name: 'ntp_autocomplete_result_deleted' } });
         // Only history entries have a URL. Notify native to remove it from browsing history.
         if ('url' in suggestion && typeof suggestion.url === 'string') {
-            service?.removeSuggestion(suggestion.url);
+            notifyRemoveSuggestion(suggestion.url);
         }
     };
 

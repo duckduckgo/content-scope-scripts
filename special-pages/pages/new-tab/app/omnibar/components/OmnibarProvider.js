@@ -91,6 +91,10 @@ export const OmnibarContext = createContext({
     confirmDeleteAiChat: () => {
         throw new Error('must implement');
     },
+    /** @type {(url: string) => void} */
+    removeSuggestion: () => {
+        throw new Error('must implement');
+    },
 });
 
 export const OmnibarServiceContext = createContext(/** @type {OmnibarService|null} */ (null));
@@ -263,6 +267,17 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /**
+     * Tells native to remove a history entry from browsing history (fire-and-forget).
+     * @type {(url: string) => void}
+     */
+    const removeSuggestion = useCallback(
+        (url) => {
+            service.current?.removeSuggestion(url);
+        },
+        [service],
+    );
+
     return (
         <OmnibarContext.Provider
             value={{
@@ -284,6 +299,7 @@ export function OmnibarProvider(props) {
                 getOpenTabs,
                 getTabContent,
                 confirmDeleteAiChat,
+                removeSuggestion,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider.js';
-import { useMessaging } from '../../types.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
@@ -143,7 +142,6 @@ const EMPTY_ARRAY = [];
  */
 export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats = false }) {
     const { getAiChats, onAiChats, confirmDeleteAiChat } = useContext(OmnibarContext);
-    const ntp = useMessaging();
 
     const [state, dispatch] = useReducer(reducer, {
         chats: [],
@@ -218,19 +216,14 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
      * @param {string} title - chat title, passed to native for the confirmation dialog message
      */
     const removeChat = async (chatId, title) => {
-        ntp.telemetryEvent({ attributes: { name: 'ntp_aichat_recent_chat_delete_button_clicked' } });
-
         try {
             const response = await confirmDeleteAiChat(chatId, title);
 
             if (response.action === 'delete') {
                 dispatch({ type: 'removeChat', chatId });
-                ntp.telemetryEvent({ attributes: { name: 'ntp_aichat_recent_chat_delete_confirmed' } });
                 // Re-fetch from native to backfill the list. Native may have more chats
                 // than the displayed limit (e.g., 5 shown out of 6 total).
                 getAiChats(query);
-            } else {
-                ntp.telemetryEvent({ attributes: { name: 'ntp_aichat_recent_chat_delete_cancelled' } });
             }
         } catch {
             // If the confirmation request fails (e.g., native not responding),
