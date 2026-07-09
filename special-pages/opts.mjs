@@ -28,7 +28,8 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, config) {
         bundle: true,
         format: 'iife',
         sourcemap: nodeEnv === 'development',
-        target: 'safari14',
+        // esbuild 0.28+ errors on destructuring for safari14 (14.0 has a known engine bug; fixed in 14.1).
+        target: 'safari14.1',
         logOverride: { 'unsupported-css-nesting': 'silent' },
         loader: {
             '.js': 'jsx',
