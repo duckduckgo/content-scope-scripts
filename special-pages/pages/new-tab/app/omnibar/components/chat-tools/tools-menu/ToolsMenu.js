@@ -83,6 +83,7 @@ export function ToolsMenu({
 
     const resolvedTools = /** @type {ToolConfig[]} */ (tools.map(getToolConfig).filter(Boolean));
     const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
+    const isToolsButtonCollapsed = Boolean(activeToolConfig) || customizeResponsesActive;
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
@@ -106,7 +107,7 @@ export function ToolsMenu({
                 }}
             >
                 <ToolsIcon />
-                {!activeToolConfig && <span class={styles.toolsLabel}>{t('omnibar_toolsMenuLabel')}</span>}
+                {!isToolsButtonCollapsed && <span class={styles.toolsLabel}>{t('omnibar_toolsMenuLabel')}</span>}
             </button>
             {activeToolConfig && (
                 <button
