@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useContext } from 'preact/hooks';
+import cn from 'classnames';
 import { CloseSmallIcon, CreateImageIcon, CustomizeIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
 import { Switch } from '../../../../../../../shared/components/Switch/Switch.js';
@@ -98,7 +99,7 @@ export function ToolsMenu({
                 ref={buttonRef}
                 type="button"
                 tabIndex={0}
-                class={styles.toolsButton}
+                class={cn(styles.toolsButton, isToolsButtonCollapsed && styles.toolsButtonCollapsed)}
                 aria-label={t('omnibar_toolsMenuLabel')}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
