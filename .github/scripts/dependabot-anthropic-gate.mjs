@@ -389,6 +389,28 @@ export function isTrustedAutomationActor(user) {
     return TRUSTED_AUTOMATION_AUTHORS.has(user.login);
 }
 
+/**
+ * Normalises a GraphQL `Actor.login` to the REST `[bot]` convention.
+ *
+ * The REST APIs (`/pulls/{pr}/reviews`, `/issues/{pr}/comments`,
+ * `/pulls/{pr}/comments`) report App authors as `cursor[bot]`, and the entire
+ * trust model — `TRUSTED_AUTOMATION_AUTHORS`, `isTrustedAutomationActor` — keys
+ * off that suffixed form. The GraphQL `reviewThreads` feed instead reports the
+ * same App as the bare app slug (`cursor`, typename `Bot`). Without this
+ * normalisation, `isDependabotReviewerThread` rejects every Cursor-authored
+ * thread, the classifier resolves nothing, and unresolved low-risk lockfile
+ * comments keep otherwise-green Dependabot PRs `BLOCKED` on
+ * conversation-resolution branch protection even though auto-merge is armed.
+ */
+export function normalizeGraphqlActorLogin(author) {
+    const login = author?.login ?? '';
+    if (!login) return '';
+    if (author?.__typename === 'Bot' && !login.endsWith('[bot]')) {
+        return `${login}[bot]`;
+    }
+    return login;
+}
+
 export function sourceFromReview(review) {
     if (!isTrustedAutomationActor(review.user)) return null;
     return {
@@ -779,7 +801,7 @@ query($owner: String!, $repo: String!, $prNumber: Int!, $after: String) {
           isResolved
           comments(first: 50) {
             nodes {
-              author { login }
+              author { login __typename }
               body
               path
             }
@@ -806,7 +828,7 @@ async function fetchReviewThreads(owner, repo, prNumber, token) {
                 id: node.id,
                 isResolved: node.isResolved,
                 comments: (node.comments?.nodes ?? []).map((comment) => ({
-                    author: comment.author?.login ?? '',
+                    author: normalizeGraphqlActorLogin(comment.author),
                     body: comment.body ?? '',
                     path: comment.path ?? null,
                 })),
@@ -860,7 +882,6 @@ async function askAnthropicForCommentRisk({ apiKey, model, thread, pullRequest }
     const body = JSON.stringify({
         model,
         max_tokens: 400,
-        temperature: 0,
         system,
         tools: [SUBMIT_COMMENT_DECISION_TOOL],
         tool_choice: { type: 'tool', name: SUBMIT_COMMENT_DECISION_TOOL_NAME, disable_parallel_tool_use: true },
@@ -967,7 +988,6 @@ async function askAnthropic({ apiKey, model, evidence }) {
     const body = JSON.stringify({
         model,
         max_tokens: 800,
-        temperature: 0,
         system,
         tools: [SUBMIT_DECISION_TOOL],
         tool_choice: { type: 'tool', name: SUBMIT_DECISION_TOOL_NAME, disable_parallel_tool_use: true },

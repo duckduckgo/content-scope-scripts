@@ -195,4 +195,12 @@ export class OnboardingMessages {
     setDuckAiInAddressBar(params) {
         this.messaging.notify('setDuckAiInAddressBar', params);
     }
+
+    /**
+     * Sent when the user opts in to installing the Chrome search extension during onboarding.
+     * The UI advances immediately without waiting for the install to complete.
+     */
+    requestChromeExtensionInstall() {
+        this.messaging.notify('requestChromeExtensionInstall');
+    }
 }

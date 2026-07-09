@@ -51,12 +51,27 @@ jobs:
                   node base/.github/scripts/diff-directories.js base pr > /tmp/build_diff.txt
                   echo "Build diff size: $(wc -c < /tmp/build_diff.txt) bytes"
 
-            - name: Get PR source files
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  PR_NUMBER: ${{ github.event.pull_request.number }}
+            - name: Create source diff
               run: |
-                  gh pr view "$PR_NUMBER" --json files --jq '.files[].path' > /tmp/pr_files.txt 2>/dev/null || true
+                  BASE_SHA=$(git -C base rev-parse HEAD)
+                  if git -C pr cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+                      BASE_REF="$BASE_SHA"
+                  else
+                      git -C pr remote add base-checkout "$GITHUB_WORKSPACE/base" 2>/dev/null || \
+                        git -C pr remote set-url base-checkout "$GITHUB_WORKSPACE/base"
+                      git -C pr fetch --no-tags --depth=1 base-checkout "$BASE_SHA"
+                      BASE_REF=FETCH_HEAD
+                  fi
+
+                  git -C pr diff --name-only "$BASE_REF" HEAD > /tmp/pr_files.txt
+                  git -C pr diff "$BASE_REF" HEAD > /tmp/source_diff.txt
+                  echo "Changed files: $(wc -l < /tmp/pr_files.txt)"
+                  echo "Source diff size: $(wc -c < /tmp/source_diff.txt) bytes"
+
+                  if [[ -s /tmp/pr_files.txt && ! -s /tmp/source_diff.txt ]]; then
+                      echo "Error: PR has changed files but source diff is empty"
+                      exit 1
+                  fi
 
             - name: Run semver analysis
               id: analyse
@@ -66,6 +81,7 @@ jobs:
                   PR_BODY: ${{ github.event.pull_request.body }}
               run: |
                   export BUILD_DIFF="$(cat /tmp/build_diff.txt 2>/dev/null || echo '')"
+                  export SOURCE_DIFF="$(cat /tmp/source_diff.txt 2>/dev/null || echo '')"
                   export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
 
                   RESULT=$(node base/.github/scripts/semver-analysis.mjs)

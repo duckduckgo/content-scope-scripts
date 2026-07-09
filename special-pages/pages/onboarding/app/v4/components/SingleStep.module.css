@@ -7,6 +7,10 @@
         --bubble-width: 349px;
     }
 
+    &.chromeExtension {
+        --bubble-width: 397px;
+    }
+
     &.hasTop {
         --bubble-height: var(--bubble-top-height);
     }

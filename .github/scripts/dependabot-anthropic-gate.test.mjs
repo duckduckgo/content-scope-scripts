@@ -16,6 +16,7 @@ import {
     missingExpectedCheckNames,
     pendingExpectedCheckRuns,
     isTrustedAutomationActor,
+    normalizeGraphqlActorLogin,
     sourceFromReview,
     sourceFromComment,
     sourceFromInlineReviewComment,
@@ -353,6 +354,44 @@ describe('isTrustedAutomationActor', () => {
         assert.equal(isTrustedAutomationActor({ login: 'evil[bot]', type: 'Bot' }), false);
         assert.equal(isTrustedAutomationActor(null), false);
         assert.equal(isTrustedAutomationActor(undefined), false);
+    });
+});
+
+describe('normalizeGraphqlActorLogin', () => {
+    it('suffixes Bot actors with [bot] to match the REST convention', () => {
+        assert.equal(normalizeGraphqlActorLogin({ login: 'cursor', __typename: 'Bot' }), 'cursor[bot]');
+        assert.equal(normalizeGraphqlActorLogin({ login: 'dependabot', __typename: 'Bot' }), 'dependabot[bot]');
+    });
+
+    it('does not double-suffix logins already carrying [bot]', () => {
+        assert.equal(normalizeGraphqlActorLogin({ login: 'cursor[bot]', __typename: 'Bot' }), 'cursor[bot]');
+    });
+
+    it('leaves human (User) logins untouched', () => {
+        assert.equal(normalizeGraphqlActorLogin({ login: 'octocat', __typename: 'User' }), 'octocat');
+    });
+
+    it('returns empty string for missing authors', () => {
+        assert.equal(normalizeGraphqlActorLogin(null), '');
+        assert.equal(normalizeGraphqlActorLogin(undefined), '');
+        assert.equal(normalizeGraphqlActorLogin({ __typename: 'Bot' }), '');
+    });
+
+    it('keeps isDependabotReviewerThread matching for GraphQL-shaped Cursor threads', () => {
+        const dependabotRun = cursorAutomationRun('Cursor Automation: Review dependabot', 'bc-dep');
+        const webCompatRun = cursorAutomationRun('Cursor Automation: Web compat and sec', 'bc-sec');
+        const candidate = {
+            id: 'PRRT_graphql',
+            isResolved: false,
+            comments: [
+                {
+                    author: normalizeGraphqlActorLogin({ login: 'cursor', __typename: 'Bot' }),
+                    body: '<!-- CURSOR_AUTOMATION_ID: abc | RUN_ID: bc-dep -->\nUnrelated lockfile churn (low risk).',
+                    path: 'package-lock.json',
+                },
+            ],
+        };
+        assert.equal(isDependabotReviewerThread(candidate, { dependabotRun, webCompatRun }), true);
     });
 });
 
