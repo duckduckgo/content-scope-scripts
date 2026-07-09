@@ -128,6 +128,40 @@ test.describe('Broker Protection Captcha', () => {
                 await dbp.isCaptchaError();
             });
 
+            test('preserves the original format/header for a gif captcha already inlined as a data URL', async ({
+                createConfiguredDbp,
+            }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(imageCaptchaTargetPage);
+                await dbp.receivesInlineAction(createGetImageCaptchaInfoAction({ selector: '#gifCaptchaImage' }));
+                const successResponse = await dbp.getSuccessResponse();
+
+                // The src is already a base64 data URL, so it is returned as-is (not re-encoded), keeping
+                // its 'image/gif' header instead of being flattened to a single-frame jpeg.
+                expect(successResponse.siteKey).toMatch(/^data:image\/gif;base64,/);
+            });
+
+            test('preserves the original format/header for a url-hosted gif captcha', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(imageCaptchaTargetPage);
+                await dbp.receivesInlineAction(createGetImageCaptchaInfoAction({ selector: '#hostedGifCaptchaImage' }));
+                const successResponse = await dbp.getSuccessResponse();
+
+                // The src is a hosted URL, so the bytes are fetched and encoded — still preserving the
+                // 'image/gif' header rather than flattening to a single-frame jpeg.
+                expect(successResponse.siteKey).toMatch(/^data:image\/gif;base64,/);
+            });
+
+            test('returns an error response when a url-hosted captcha image cannot be fetched', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(imageCaptchaTargetPage);
+                await dbp.receivesInlineAction(createGetImageCaptchaInfoAction({ selector: '#missingHostedCaptchaImage' }));
+
+                // A non-ok fetch (404 here) must fail rather than base64-encoding the error body and
+                // sending non-image bytes to dbp-api as the siteKey.
+                await dbp.isCaptchaError();
+            });
+
             test('reports the requested alias type to the backend for an aliased image captcha', async ({ createConfiguredDbp }) => {
                 const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
                 await dbp.navigatesTo(imageCaptchaTargetPage);

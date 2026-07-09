@@ -34,7 +34,7 @@ export class ImageProvider {
         }
 
         if (isImgElement(captchaImageElement)) {
-            return imageToBase64(captchaImageElement);
+            return await imageToBase64(captchaImageElement);
         }
 
         return PirError.create(
