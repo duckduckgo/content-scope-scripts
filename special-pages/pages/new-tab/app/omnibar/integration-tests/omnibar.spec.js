@@ -2745,6 +2745,7 @@ test.describe('omnibar widget', () => {
                 });
                 await omnibar.ready();
                 await omnibar.focusChatInput();
+                await expect(omnibar.aiChats().first()).toBeVisible();
 
                 const countBefore = await omnibar.aiChats().count();
                 await omnibar.aiChats().first().hover();

@@ -203,13 +203,13 @@
     },
     "enableAiChatDeletion": {
       "title": "Enable AI Chat Deletion",
-      "description": "Show a delete button on recent AI chat suggestions. When true, clicking the button sends an omnibar_confirmDeleteAiChat request to native.",
+      "description": "Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.",
       "type": "boolean",
       "default": false
     },
     "enableSearchSuggestionDeletion": {
       "title": "Enable Search Suggestion Deletion",
-      "description": "Show a delete button on history entry suggestions. When true, clicking the button sends an omnibar_removeSuggestion notification to native.",
+      "description": "Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.",
       "type": "boolean",
       "default": false
     }

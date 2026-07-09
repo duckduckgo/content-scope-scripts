@@ -91,23 +91,26 @@ function reducer(state, action) {
             };
         }
         case 'removeChat': {
+            const removedIndex = state.chats.findIndex((chat) => chat.chatId === action.chatId);
             const chats = state.chats.filter((chat) => chat.chatId !== action.chatId);
 
-            // Close the dropdown if no chats remain
-            if (chats.length === 0) {
-                return {
-                    ...state,
-                    chats,
-                    selectedIndex: null,
-                    chatsVisible: false,
-                };
-            }
+            // Don't set chatsVisible to false here, even if the list is now empty.
+            // A re-fetch follows deletion and may backfill the list with more chats.
+            // The list component handles chats.length === 0 by returning null.
 
-            // Adjust selection after removal
+            // Adjust selection after removal:
+            // - If no chats remain, clear the selection
+            // - If the deleted chat was before the selected one, shift the index down
+            // - If the deleted chat was the selected one and it was the last item, move to the new last item
+            // - If the deleted chat was after the selected one, no change needed
             let selectedIndex = state.selectedIndex;
 
-            if (selectedIndex !== null) {
-                if (selectedIndex >= chats.length) {
+            if (chats.length === 0) {
+                selectedIndex = null;
+            } else if (selectedIndex !== null && removedIndex !== -1) {
+                if (removedIndex < selectedIndex) {
+                    selectedIndex = selectedIndex - 1;
+                } else if (selectedIndex >= chats.length) {
                     selectedIndex = chats.length - 1;
                 }
             }
@@ -217,16 +220,21 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
     const removeChat = async (chatId, title) => {
         ntp.telemetryEvent({ attributes: { name: 'ntp_aichat_recent_chat_delete_button_clicked' } });
 
-        const response = await confirmDeleteAiChat(chatId, title);
+        try {
+            const response = await confirmDeleteAiChat(chatId, title);
 
-        if (response.action === 'delete') {
-            dispatch({ type: 'removeChat', chatId });
-            ntp.telemetryEvent({ attributes: { name: 'ntp_aichat_recent_chat_delete_confirmed' } });
-            // Re-fetch from native to backfill the list. Native may have more chats
-            // than the displayed limit (e.g., 5 shown out of 6 total).
-            getAiChats(query);
-        } else {
-            ntp.telemetryEvent({ attributes: { name: 'ntp_aichat_recent_chat_delete_cancelled' } });
+            if (response.action === 'delete') {
+                dispatch({ type: 'removeChat', chatId });
+                ntp.telemetryEvent({ attributes: { name: 'ntp_aichat_recent_chat_delete_confirmed' } });
+                // Re-fetch from native to backfill the list. Native may have more chats
+                // than the displayed limit (e.g., 5 shown out of 6 total).
+                getAiChats(query);
+            } else {
+                ntp.telemetryEvent({ attributes: { name: 'ntp_aichat_recent_chat_delete_cancelled' } });
+            }
+        } catch {
+            // If the confirmation request fails (e.g., native not responding),
+            // the chat stays in the list since there was no optimistic removal.
         }
     };
 

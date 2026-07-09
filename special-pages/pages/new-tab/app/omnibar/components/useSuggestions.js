@@ -117,6 +117,7 @@ function reducer(state, action) {
             };
         }
         case 'removeSuggestion': {
+            const removedIndex = state.suggestions.findIndex((s) => s.id === action.id);
             const suggestions = state.suggestions.filter((s) => s.id !== action.id);
 
             // Hide suggestions if none remain
@@ -129,11 +130,16 @@ function reducer(state, action) {
                 };
             }
 
-            // Adjust selection after removal
+            // Adjust selection after removal:
+            // - If the deleted item was before the selected one, shift the index down
+            // - If the selected item was the last and is now out of bounds, move to the new last item
+            // - If the deleted item was after the selected one, no change needed
             let selectedIndex = state.selectedIndex;
 
-            if (selectedIndex !== null) {
-                if (selectedIndex >= suggestions.length) {
+            if (selectedIndex !== null && removedIndex !== -1) {
+                if (removedIndex < selectedIndex) {
+                    selectedIndex = selectedIndex - 1;
+                } else if (selectedIndex >= suggestions.length) {
                     selectedIndex = suggestions.length - 1;
                 }
             }

@@ -119,11 +119,11 @@ export type EnableAskDuckAiSuggestion = boolean;
  */
 export type EnableAttachTabs = boolean;
 /**
- * Show a delete button on recent AI chat suggestions. When true, clicking the button sends an omnibar_confirmDeleteAiChat request to native.
+ * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
  */
 export type EnableAIChatDeletion = boolean;
 /**
- * Show a delete button on history entry suggestions. When true, clicking the button sends an omnibar_removeSuggestion notification to native.
+ * Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.
  */
 export type EnableSearchSuggestionDeletion = boolean;
 export type Favicon = null | {
