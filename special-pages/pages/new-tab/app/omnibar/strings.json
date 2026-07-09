@@ -230,5 +230,33 @@
   "omnibar_removeAiChat": {
     "title": "Delete this chat",
     "description": "Accessible label and tooltip for the button that deletes a recent AI chat."
+  },
+  "omnibar_subscriberExclusive": {
+    "title": "Subscriber exclusive.",
+    "description": "Label shown above subscription-only AI models in the model selector, next to the 'Try for free' link."
+  },
+  "omnibar_tryForFree": {
+    "title": "Try for free",
+    "description": "Link text next to the 'Subscriber exclusive.' label that opens the subscription upsell when tapped."
+  },
+  "omnibar_reasoningTryForFree": {
+    "title": "Try for Free",
+    "description": "Badge text on a gated reasoning-effort option in the reasoning picker; tapping it opens the subscription upsell."
+  },
+  "omnibar_modelBadgeBeta": {
+    "title": "Beta",
+    "description": "Badge shown next to an AI model in the model selector that is in beta."
+  },
+  "omnibar_modelBadgePlus": {
+    "title": "Plus",
+    "description": "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
+  },
+  "omnibar_modelBadgePro": {
+    "title": "Pro",
+    "description": "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
+  },
+  "omnibar_modelBadgeInternal": {
+    "title": "Internal",
+    "description": "Badge shown next to an AI model in the model selector that is only available to internal users."
   }
 }

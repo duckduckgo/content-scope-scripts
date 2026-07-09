@@ -83,13 +83,17 @@ export type EnableAIChatTools = boolean;
  */
 export type SelectedModelID = string;
 /**
- * Stable server key for a reasoning-effort option on a reasoning-capable model.
+ * Stable server key for a reasoning-effort option on a reasoning-capable model (e.g. 'none', 'medium', 'extended'). Server-controlled and round-tripped on submit.
  */
-export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high";
+export type ReasoningEffort = string;
 /**
  * Identifier for an AI chat tool.
  */
 export type ToolId = "WebSearch";
+/**
+ * Stable server key for this reasoning-effort option; round-tripped on submit.
+ */
+export type ReasoningEffort1 = string;
 /**
  * Sections of AI models for the model selector.
  */
@@ -228,6 +232,7 @@ export interface NewTabMessages {
     | OmnibarRemoveSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
+    | OmnibarShowSubscriptionUpsellNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
     | OmnibarViewAllAIChatsNotification
@@ -736,9 +741,21 @@ export interface AIModelItem {
    */
   shortName: string;
   /**
+   * Optional short description shown beneath the model name in the selector.
+   */
+  description?: string;
+  /**
    * Whether the model is enabled and selectable
    */
   isEnabled: boolean;
+  /**
+   * Whether this model is in beta; drives a 'Beta' badge in the model selector.
+   */
+  isBeta?: boolean;
+  /**
+   * Access tiers that grant this model (e.g. 'internal', 'free', 'plus', 'pro'). Drives the tier badge (Plus/Pro/Internal) in the model selector.
+   */
+  accessTier?: string[];
   /**
    * Whether this model supports image attachments
    */
@@ -752,9 +769,27 @@ export interface AIModelItem {
    */
   supportedTools?: ToolId[];
   /**
-   * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
+   * Reasoning-effort options this model supports, each with localized copy and availability. Empty or omitted means the reasoning picker is hidden for this model.
    */
-  supportedReasoningEffort?: ReasoningEffort[];
+  reasoningEfforts?: ReasoningEffortOption[];
+}
+/**
+ * A reasoning-effort option for a reasoning-capable model, including its localized display copy and availability.
+ */
+export interface ReasoningEffortOption {
+  id: ReasoningEffort1;
+  /**
+   * Localized display name for this reasoning-effort option.
+   */
+  name: string;
+  /**
+   * Optional localized subtitle shown beneath the name.
+   */
+  description?: string;
+  /**
+   * Whether this option is selectable ('available') or gated behind a subscription upsell ('unavailable').
+   */
+  status: "available" | "unavailable";
 }
 /**
  * Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.
@@ -815,6 +850,17 @@ export interface SetCustomizeResponsesActiveAction {
    */
   active: boolean;
 }
+/**
+ * Generated from @see "../messages/omnibar_showSubscriptionUpsell.notify.json"
+ */
+export interface OmnibarShowSubscriptionUpsellNotification {
+  method: "omnibar_showSubscriptionUpsell";
+  params: ShowSubscriptionUpsellAction;
+}
+/**
+ * Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option).
+ */
+export interface ShowSubscriptionUpsellAction {}
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
  */

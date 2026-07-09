@@ -1,5 +1,7 @@
 import { h } from 'preact';
+import { useContext } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
+import { OmnibarContext } from '../../OmnibarProvider';
 import { useSelectedModel } from '../../useSelectedModel';
 import { useModelSelector } from './useModelSelector';
 import { ModelSelector } from './ModelSelector';
@@ -10,6 +12,7 @@ import { ModelSelector } from './ModelSelector';
 
 export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { showSubscriptionUpsell } = useContext(OmnibarContext);
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
 
     const selector = useModelSelector({
@@ -24,6 +27,7 @@ export function ModelSelectorTool() {
             selector={selector}
             selectedModel={selectedModel}
             aiModelSections={aiModelSections}
+            onUpsell={showSubscriptionUpsell}
             ariaLabel={t('omnibar_modelSelectorLabel')}
         />
     );

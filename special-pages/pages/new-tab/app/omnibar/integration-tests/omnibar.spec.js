@@ -1719,13 +1719,74 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test.describe('AI chat reasoning picker', () => {
-        test('picker is hidden when the selected model has no supportedReasoningEffort', async ({ page }, workerInfo) => {
+    test.describe('AI chat model selector', () => {
+        test('renders model descriptions and tier/beta badges', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // gpt-4o-mini in the mock has no supportedReasoningEffort
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+
+            // description under the model name
+            await expect(omnibar.modelOption('GPT-5 mini')).toContainText('Best for everyday use');
+            // beta badge (claude-3-5-haiku-latest has isBeta in the mock)
+            await expect(omnibar.modelOption('Claude 3.5 Haiku')).toContainText('Beta');
+            // tier badges on gated models
+            await expect(omnibar.modelOption('Claude Sonnet 4.5')).toContainText('Plus');
+            await expect(omnibar.modelOption('Claude Opus 4.6')).toContainText('Pro');
+        });
+
+        test('shows the subscriber-exclusive upsell and opens the subscription upsell on "Try for free"', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Default mock: the advanced section is entirely disabled, so it renders as an upsell section
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            await expect(omnibar.modelDropdown()).toContainText('Subscriber exclusive.');
+
+            await omnibar.modelUpsellButton().click();
+
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+        });
+
+        test('does not show the upsell when all models are available', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.subscription': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+            await expect(omnibar.modelUpsellButton()).toHaveCount(0);
+        });
+    });
+
+    test.describe('AI chat reasoning picker', () => {
+        test('picker is hidden when the selected model has no reasoningEfforts', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // gpt-4o-mini in the mock has no reasoningEfforts
             await ntp.openPage({
                 additional: {
                     omnibar: true,
@@ -1783,7 +1844,7 @@ test.describe('omnibar widget', () => {
 
             const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
             const last = calls[calls.length - 1];
-            expect(last?.payload?.params?.selectedReasoningEffort).toBe('low');
+            expect(last?.payload?.params?.selectedReasoningEffort).toBe('medium');
         });
 
         test('submit includes reasoningEffort for models that support it', async ({ page }, workerInfo) => {
@@ -1796,7 +1857,7 @@ test.describe('omnibar widget', () => {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-5-mini',
-                    'omnibar.selectedReasoningEffort': 'low',
+                    'omnibar.selectedReasoningEffort': 'medium',
                 },
             });
             await omnibar.ready();
@@ -1811,11 +1872,11 @@ test.describe('omnibar widget', () => {
                 chat: 'hello',
                 target: 'same-tab',
                 modelId: 'gpt-5-mini',
-                reasoningEffort: 'low',
+                reasoningEffort: 'medium',
             });
         });
 
-        test('submit omits reasoningEffort when the model has no supportedReasoningEffort', async ({ page }, workerInfo) => {
+        test('submit omits reasoningEffort when the model has no reasoningEfforts', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1825,7 +1886,7 @@ test.describe('omnibar widget', () => {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.selectedModelId': 'gpt-4o-mini',
-                    'omnibar.selectedReasoningEffort': 'low',
+                    'omnibar.selectedReasoningEffort': 'medium',
                 },
             });
             await omnibar.ready();
@@ -1841,21 +1902,19 @@ test.describe('omnibar widget', () => {
             expect(last?.payload?.params?.reasoningEffort).toBeUndefined();
         });
 
-        test('switching to a model with a different supportedReasoningEffort falls back to a valid default', async ({
-            page,
-        }, workerInfo) => {
+        test('switching to a model with different reasoningEfforts falls back to a valid default', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-opus-4-6 supports ['none', 'low', 'medium']; claude-haiku-4-5 only ['none', 'low']
+            // claude-opus-4-6 supports ['none', 'medium', 'extended']; gpt-5-mini only ['none', 'medium']
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
-                    'omnibar.selectedReasoningEffort': 'medium',
+                    'omnibar.selectedReasoningEffort': 'extended',
                 },
             });
             await omnibar.ready();
@@ -1864,16 +1923,16 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.modelSelectorButton().click();
-            await omnibar.modelOption('Claude Haiku 4.5').click();
+            await omnibar.modelOption('GPT-5 mini').click();
 
             await omnibar.chatInput().fill('hello');
             await omnibar.chatInput().press('Enter');
 
-            // 'medium' isn't in claude-haiku-4-5's list; effective value falls back to the first supported one
+            // 'extended' isn't in gpt-5-mini's list; effective value falls back to the first supported one
             await omnibar.expectMethodCalledWith('omnibar_submitChat', {
                 chat: 'hello',
                 target: 'same-tab',
-                modelId: 'claude-haiku-4-5',
+                modelId: 'gpt-5-mini',
                 reasoningEffort: 'none',
             });
         });
@@ -1883,14 +1942,14 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-opus-4-6 supports 'medium'; claude-haiku-4-5 does not
+            // claude-opus-4-6 supports 'extended'; gpt-5-mini does not
             await ntp.openPage({
                 additional: {
                     omnibar: true,
                     'omnibar.enableAiChatTools': 'true',
                     'omnibar.subscription': 'true',
                     'omnibar.selectedModelId': 'claude-opus-4-6',
-                    'omnibar.selectedReasoningEffort': 'medium',
+                    'omnibar.selectedReasoningEffort': 'extended',
                 },
             });
             await omnibar.ready();
@@ -1899,12 +1958,12 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.modelSelectorButton().click();
-            await omnibar.modelOption('Claude Haiku 4.5').click();
+            await omnibar.modelOption('GPT-5 mini').click();
 
             // Model change should carry a reconciled selectedReasoningEffort in the same config write
             const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
             const last = calls[calls.length - 1];
-            expect(last?.payload?.params?.selectedModelId).toBe('claude-haiku-4-5');
+            expect(last?.payload?.params?.selectedModelId).toBe('gpt-5-mini');
             expect(last?.payload?.params?.selectedReasoningEffort).toBe('none');
         });
 
@@ -1933,6 +1992,57 @@ test.describe('omnibar widget', () => {
             const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
             const last = calls[calls.length - 1];
             expect(last?.payload?.params?.selectedReasoningEffort).toBe('none');
+        });
+
+        test('renders a description under each reasoning-effort option', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'gpt-5-mini',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.reasoningPickerButton().click();
+            await expect(omnibar.reasoningOption('Fast Answers right away')).toBeVisible();
+            await expect(omnibar.reasoningOption('Reasoning Takes a moment to respond')).toBeVisible();
+        });
+
+        test('an unavailable reasoning-effort option shows "Try for Free" and opens the subscription upsell', async ({
+            page,
+        }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // claude-haiku-4-5 has an 'extended' reasoning effort with status 'unavailable' in the mock
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.reasoningPickerButton().click();
+            const gatedOption = omnibar.reasoningOption('Extended Reasoning Researches before responding');
+            await expect(gatedOption).toContainText('Try for Free');
+
+            await gatedOption.click();
+
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
         });
     });
 

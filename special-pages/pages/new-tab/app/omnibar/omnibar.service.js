@@ -106,11 +106,13 @@ export class OmnibarService {
     setSelectedModelId(selectedModelId) {
         this.configService.update((old) => {
             const nextModel = (old.aiModelSections ?? []).flatMap((section) => section.items).find((model) => model.id === selectedModelId);
-            const supportedEfforts = nextModel?.supportedReasoningEffort ?? [];
+            const availableEffortIds = (nextModel?.reasoningEfforts ?? [])
+                .filter((effort) => effort.status === 'available')
+                .map((effort) => effort.id);
 
             const currentEffort = old.selectedReasoningEffort;
             const nextEffort =
-                currentEffort && supportedEfforts.includes(currentEffort) ? currentEffort : (supportedEfforts[0] ?? undefined);
+                currentEffort && availableEffortIds.includes(currentEffort) ? currentEffort : (availableEffortIds[0] ?? undefined);
 
             return {
                 ...old,
@@ -225,6 +227,14 @@ export class OmnibarService {
      */
     setCustomizeResponsesActive(active) {
         this.ntp.messaging.notify('omnibar_setCustomizeResponsesActive', { active });
+    }
+
+    /**
+     * Ask native to present the subscription upsell (e.g. when the user taps
+     * "Try for free" on a gated model or reasoning-effort option).
+     */
+    showSubscriptionUpsell() {
+        this.ntp.messaging.notify('omnibar_showSubscriptionUpsell', {});
     }
 
     /**

@@ -8,27 +8,27 @@ import styles from './ReasoningPicker.module.css';
 /**
  * @typedef {import('../../../../../types/new-tab.js').ReasoningEffort} ReasoningEffort
  *
- * @typedef {'fast' | 'reasoning' | 'extendedReasoning'} ReasoningMode
- *
  * @typedef {import('preact').ComponentType<import('preact').JSX.SVGAttributes<SVGSVGElement>>} ReasoningEffortIconComponent
  *
- * @typedef {object} ReasoningEffortOption
+ * @typedef {object} ReasoningEffortOptionView
  * @property {ReasoningEffort} id - Server key; round-tripped on submit
- * @property {ReasoningMode} reasoningMode - Stable UX identity; used for deduping
  * @property {ReasoningEffortIconComponent} icon - Icon component rendered in the button and dropdown
- * @property {string} label - Localized label
- * @property {string} description - Localized description
+ * @property {string} name - Localized label
+ * @property {string} [description] - Localized description
+ * @property {'available' | 'unavailable'} status - Whether the option is selectable or gated behind an upsell
  */
 
 /**
  * @param {object} props
- * @param {ReasoningEffortOption[]} props.options
+ * @param {ReasoningEffortOptionView[]} props.options
  * @param {ReasoningEffort|null} props.selectedEffort
  * @param {(effort: ReasoningEffort) => void} props.onSelect
+ * @param {() => void} props.onUpsell
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
+ * @param {string} props.tryForFreeLabel
  */
-export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, buttonLabel }) {
+export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, tryForFreeLabel }) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
 
     /** @param {{ restoreFocus: boolean }} opts */
@@ -39,7 +39,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, 
 
     /** @param {ReasoningEffort} effort */
     const handleSelect = (effort) => {
-        const isSupported = options.some((option) => option.id === effort);
+        const isSupported = options.some((option) => option.id === effort && option.status === 'available');
         if (!isSupported) return;
         onSelect(effort);
     };
@@ -75,16 +75,18 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, ariaLabel, 
                 >
                     {options.map((option) => {
                         const OptionIcon = option.icon;
+                        const isUnavailable = option.status === 'unavailable';
                         return (
                             <DropdownItem
                                 key={option.id}
                                 role="option"
                                 icon={<OptionIcon />}
-                                name={option.label}
+                                name={option.name}
                                 description={option.description}
-                                isSelected={option.id === selectedEffort}
-                                ariaSelected={option.id === selectedEffort}
-                                onSelect={() => handleSelect(option.id)}
+                                isSelected={!isUnavailable && option.id === selectedEffort}
+                                ariaSelected={!isUnavailable && option.id === selectedEffort}
+                                trailingIcon={isUnavailable ? <span class={styles.tryForFreeBadge}>{tryForFreeLabel}</span> : undefined}
+                                onSelect={() => (isUnavailable ? onUpsell() : handleSelect(option.id))}
                             />
                         );
                     })}
