@@ -69,6 +69,13 @@
     padding-left: 8px;
 }
 
+/* Gated options (e.g. "Upgrade"): gray out the icon and label to signal they aren't selectable,
+   while keeping the trailing badge at full opacity. */
+.itemDimmed > svg,
+.itemDimmed .itemLabel {
+    opacity: 0.4;
+}
+
 .itemActive {
     background: var(--ds-color-theme-control-fill-primary);
     color: var(--ds-color-theme-text-primary);

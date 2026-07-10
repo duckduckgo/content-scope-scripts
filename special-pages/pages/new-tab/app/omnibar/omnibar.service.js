@@ -238,6 +238,26 @@ export class OmnibarService {
     }
 
     /**
+     * Ask native to present the subscription upgrade flow (e.g. when a subscriber
+     * taps "Upgrade" on a model or reasoning-effort option gated behind a higher tier).
+     */
+    showSubscriptionUpgrade() {
+        this.ntp.messaging.notify('omnibar_showSubscriptionUpgrade', {});
+    }
+
+    /**
+     * Route a gated item's upsell to the correct native flow.
+     * @param {'subscribe' | 'upgrade'} [type]
+     */
+    showUpsell(type) {
+        if (type === 'upgrade') {
+            this.showSubscriptionUpgrade();
+        } else {
+            this.showSubscriptionUpsell();
+        }
+    }
+
+    /**
      * Requests the list of open tabs available for attachment.
      * @returns {Promise<GetOpenTabsResponse>}
      */

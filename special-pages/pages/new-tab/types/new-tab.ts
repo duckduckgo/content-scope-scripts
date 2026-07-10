@@ -232,6 +232,7 @@ export interface NewTabMessages {
     | OmnibarRemoveSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
+    | OmnibarShowSubscriptionUpgradeNotification
     | OmnibarShowSubscriptionUpsellNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
@@ -772,6 +773,10 @@ export interface AIModelItem {
    * Reasoning-effort options this model supports, each with localized copy and availability. Empty or omitted means the reasoning picker is hidden for this model.
    */
   reasoningEfforts?: ReasoningEffortOption[];
+  /**
+   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models.
+   */
+  upsell?: "subscribe" | "upgrade";
 }
 /**
  * A reasoning-effort option for a reasoning-capable model, including its localized display copy and availability.
@@ -790,6 +795,10 @@ export interface ReasoningEffortOption {
    * Whether this option is selectable ('available') or gated behind a subscription upsell ('unavailable').
    */
   status: "available" | "unavailable";
+  /**
+   * For a gated ('unavailable') option, which upsell flow it leads to. Absent for available options.
+   */
+  upsell?: "subscribe" | "upgrade";
 }
 /**
  * Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.
@@ -850,6 +859,17 @@ export interface SetCustomizeResponsesActiveAction {
    */
   active: boolean;
 }
+/**
+ * Generated from @see "../messages/omnibar_showSubscriptionUpgrade.notify.json"
+ */
+export interface OmnibarShowSubscriptionUpgradeNotification {
+  method: "omnibar_showSubscriptionUpgrade";
+  params: ShowSubscriptionUpgradeAction;
+}
+/**
+ * Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier).
+ */
+export interface ShowSubscriptionUpgradeAction {}
 /**
  * Generated from @see "../messages/omnibar_showSubscriptionUpsell.notify.json"
  */

@@ -37,7 +37,7 @@ function getReasoningIcon(id) {
 
 export function ReasoningPickerTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { showSubscriptionUpsell } = useContext(OmnibarContext);
+    const { showUpsell } = useContext(OmnibarContext);
     const { reasoningEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
 
     const options = reasoningEfforts.map((effort) => ({
@@ -45,6 +45,7 @@ export function ReasoningPickerTool() {
         name: effort.name,
         description: effort.description,
         status: effort.status,
+        upsell: effort.upsell,
         icon: getReasoningIcon(effort.id),
     }));
 
@@ -59,10 +60,11 @@ export function ReasoningPickerTool() {
             options={options}
             selectedEffort={selectedEffort}
             onSelect={setSelectedReasoningEffort}
-            onUpsell={showSubscriptionUpsell}
+            onUpsell={showUpsell}
             ariaLabel={t('omnibar_reasoningPickerLabel')}
             buttonLabel={selectedOption?.name ?? t('omnibar_reasoningPickerLabel')}
             tryForFreeLabel={t('omnibar_reasoningTryForFree')}
+            upgradeLabel={t('omnibar_upgrade')}
         />
     );
 }

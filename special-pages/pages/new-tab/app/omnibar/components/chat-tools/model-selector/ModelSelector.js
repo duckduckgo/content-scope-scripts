@@ -9,7 +9,7 @@ import styles from './ModelSelector.module.css';
  * @param {import('./useModelSelector').ModelSelectorState} props.selector
  * @param {import('../../../../../types/new-tab.js').AIModelItem|null} props.selectedModel
  * @param {import('../../../../../types/new-tab.js').AIModelSections} props.aiModelSections
- * @param {() => void} props.onUpsell
+ * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} props.ariaLabel
  */
 export function ModelSelector({ selector, selectedModel, aiModelSections, onUpsell, ariaLabel }) {
