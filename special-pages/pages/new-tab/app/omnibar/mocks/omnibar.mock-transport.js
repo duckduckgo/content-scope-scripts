@@ -183,9 +183,7 @@ export function omnibarMockTransport() {
     /** @type {Map<string, (d: any) => void>} */
     const subs = new Map();
 
-    // Track deleted chat IDs so re-fetches after deletion don't return them.
-    // In production, native handles this by deleting from storage before responding.
-    /** @type {Set<string>} */
+    /** @type {Set<string>} Tracks deleted chats so re-fetches exclude them */
     const deletedChatIds = new Set();
 
     return new TestTransportConfig({
@@ -199,11 +197,7 @@ export function omnibarMockTransport() {
                     break;
                 }
                 case 'omnibar_removeSuggestion': {
-                    // Simulates native removing a history entry from browsing history.
-                    // The NTP has already removed the suggestion from the UI (optimistic removal).
-                    // In the real app, native deletes the URL via historyCoordinator.removeUrlEntry(url).
-                    // The next omnibar_getSuggestions fetch will return the updated list without this entry.
-                    console.log('Mock: removing suggestion from browsing history', msg.params.url);
+                    console.log('Mock: removing suggestion', msg.params.url);
                     break;
                 }
                 case 'omnibar_viewAllAIChats':
@@ -286,21 +280,7 @@ export function omnibarMockTransport() {
                     return result;
                 }
                 case 'omnibar_confirmDeleteAiChat': {
-                    // Simulates the native confirmation dialog for deleting a chat.
-
-                    // In the real app, native shows a platform-native dialog (e.g., NSAlert on macOS)
-                    // with the chat title and "Delete" / "Cancel" buttons. If the user confirms,
-                    // native deletes the chat from all storage layers (native storage, sync, JS-layer)
-                    // and responds with { action: "delete" }. If cancelled, responds with { action: "none" }.
-
-                    // In automated tests (Playwright): returns the mock response if set, otherwise
-                    // defaults to { action: "delete" }. Override via:
-                    //   window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat = { action: "none" }
-                    // to test the cancel path.
-
-                    // In the dev server: shows a browser confirm() dialog as a stand-in for the
-                    // native modal. Click OK to simulate "delete", Cancel to simulate "none".
-
+                    // Simulates the native confirmation dialog for deleting a chat
                     /** @type {{ action: string }} */
                     let response;
 

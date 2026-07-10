@@ -82,10 +82,8 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
     const platformName = usePlatformName();
 
     const { state } = useContext(OmnibarContext);
-    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, removeSuggestion } = useSearchFormContext();
+    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, removeHistorySuggestion } = useSearchFormContext();
 
-    // Only history entries can be deleted, and only when the feature flag is enabled by native.
-    // Other types (bookmarks, phrases, open tabs, etc.) are not user-deletable here.
     const isDeletable = suggestion.kind === 'historyEntry' && state.config?.enableSearchSuggestionDeletion === true;
 
     const title = getSuggestionTitle(suggestion, term);
@@ -131,7 +129,6 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
                     {t('omnibar_switchToTab')} <ArrowRightIcon />
                 </span>
             )}
-            {/* Delete button: only shown for history entries, visible on row hover/selection. */}
             {isDeletable && (
                 <button
                     tabIndex={-1}
@@ -145,7 +142,7 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
                     onClick={(e) => {
                         // Prevent the row click from navigating to the suggestion
                         e.stopPropagation();
-                        removeSuggestion(suggestion);
+                        removeHistorySuggestion(suggestion);
                     }}
                 >
                     <TrashOutlineIcon />

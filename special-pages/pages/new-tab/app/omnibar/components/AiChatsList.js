@@ -68,10 +68,6 @@ export function AiChatsList({ className }) {
                     >
                         <ChatIcon chat={chat} />
                         <span class={styles.title}>{chat.title}</span>
-                        {/* Delete button: visible on row hover/selection when enabled by native.
-                            Uses the "fire" icon to match the DDG burn/delete metaphor.
-                            Clicking sends a confirmation request to native, which shows a dialog.
-                            The chat is only removed from the list if the user confirms. */}
                         {enableDeletion && (
                             <button
                                 tabIndex={-1}

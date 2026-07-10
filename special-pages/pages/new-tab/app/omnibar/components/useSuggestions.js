@@ -119,7 +119,6 @@ function reducer(state, action) {
             const removedIndex = state.suggestions.findIndex((s) => s.id === action.id);
             const suggestions = state.suggestions.filter((s) => s.id !== action.id);
 
-            // Hide suggestions if none remain
             if (suggestions.length === 0) {
                 return {
                     ...state,
@@ -129,10 +128,6 @@ function reducer(state, action) {
                 };
             }
 
-            // Adjust selection after removal:
-            // - If the deleted item was before the selected one, shift the index down
-            // - If the selected item was the last and is now out of bounds, move to the new last item
-            // - If the deleted item was after the selected one, no change needed
             let selectedIndex = state.selectedIndex;
 
             if (selectedIndex !== null && removedIndex !== -1) {
@@ -240,18 +235,13 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
         dispatch({ type: 'hideSuggestions' });
     };
 
-    /**
-     * Removes a suggestion from the list and notifies native to delete it from browsing history.
-     * The item is removed from the UI immediately (optimistic removal). On the next fetch
-     * cycle (keystroke or dropdown reopen), native returns the updated list without this item.
-     * @type {(suggestion: SuggestionModel) => void}
-     */
-    const removeSuggestion = (suggestion) => {
-        dispatch({ type: 'removeSuggestion', id: suggestion.id });
-        // Only history entries have a URL. Notify native to remove it from browsing history.
-        if ('url' in suggestion && typeof suggestion.url === 'string') {
-            notifyRemoveSuggestion(suggestion.url);
+    /** @type {(suggestion: SuggestionModel) => void} */
+    const removeHistorySuggestion = (suggestion) => {
+        if (suggestion.kind !== 'historyEntry' || !('url' in suggestion) || typeof suggestion.url !== 'string') {
+            return;
         }
+        dispatch({ type: 'removeSuggestion', id: suggestion.id });
+        notifyRemoveSuggestion(suggestion.url);
     };
 
     return {
@@ -263,6 +253,6 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
         setSelectedSuggestion,
         clearSelectedSuggestion,
         hideSuggestions,
-        removeSuggestion,
+        removeHistorySuggestion,
     };
 }

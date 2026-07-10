@@ -93,15 +93,7 @@ function reducer(state, action) {
             const removedIndex = state.chats.findIndex((chat) => chat.chatId === action.chatId);
             const chats = state.chats.filter((chat) => chat.chatId !== action.chatId);
 
-            // Don't set chatsVisible to false here, even if the list is now empty.
-            // A re-fetch follows deletion and may backfill the list with more chats.
-            // The list component handles chats.length === 0 by returning null.
-
-            // Adjust selection after removal:
-            // - If no chats remain, clear the selection
-            // - If the deleted chat was before the selected one, shift the index down
-            // - If the deleted chat was the selected one and it was the last item, move to the new last item
-            // - If the deleted chat was after the selected one, no change needed
+            // Keep chatsVisible true so a re-fetch can backfill the list
             let selectedIndex = state.selectedIndex;
 
             if (chats.length === 0) {
@@ -209,25 +201,18 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
     }, []);
 
     /**
-     * Sends a confirmation request to native, which shows a platform dialog.
-     * If the user confirms, removes the chat from the list. If cancelled, no change.
-     * The chat stays in the list while the dialog is open (no optimistic removal).
      * @param {string} chatId
-     * @param {string} title - chat title, passed to native for the confirmation dialog message
+     * @param {string} title - displayed in the native confirmation dialog
      */
     const removeChat = async (chatId, title) => {
         try {
             const response = await confirmDeleteAiChat(chatId, title);
-
             if (response.action === 'delete') {
                 dispatch({ type: 'removeChat', chatId });
-                // Re-fetch from native to backfill the list. Native may have more chats
-                // than the displayed limit (e.g., 5 shown out of 6 total).
                 getAiChats(query);
             }
         } catch {
-            // If the confirmation request fails (e.g., native not responding),
-            // the chat stays in the list since there was no optimistic removal.
+            // Native dialog didn't complete; chat stays in the list
         }
     };
 
