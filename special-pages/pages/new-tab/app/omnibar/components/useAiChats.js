@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -134,6 +134,7 @@ const EMPTY_ARRAY = [];
  */
 export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats = false }) {
     const { getAiChats, onAiChats, confirmDeleteAiChat } = useContext(OmnibarContext);
+    const deletionInProgress = useRef(false);
 
     const [state, dispatch] = useReducer(reducer, {
         chats: [],
@@ -205,6 +206,7 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
      * @param {string} title - displayed in the native confirmation dialog
      */
     const removeChat = async (chatId, title) => {
+        deletionInProgress.current = true;
         try {
             const response = await confirmDeleteAiChat(chatId, title);
             if (response.action === 'delete') {
@@ -213,6 +215,8 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
             }
         } catch {
             // Native dialog didn't complete; chat stays in the list
+        } finally {
+            deletionInProgress.current = false;
         }
     };
 
@@ -228,5 +232,6 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         hideChats,
         showChats,
         removeChat,
+        deletionInProgress,
     };
 }
