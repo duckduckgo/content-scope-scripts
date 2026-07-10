@@ -13,7 +13,7 @@ import styles from './Dropdown.module.css';
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} [props.icon]
- * @param {import('preact').ComponentChildren} [props.trailingIcon]
+ * @param {import('preact').ComponentChildren} [props.trailingIcon] - Rendered after the label. Callers own its accessibility (mark decorative icons `aria-hidden`; leave meaningful ones, e.g. an "Upgrade" badge, exposed).
  * @param {string} props.name
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
@@ -82,11 +82,7 @@ export function DropdownItem({
                 <span class={styles.itemName}>{name}</span>
                 {description && <span class={styles.itemDescription}>{description}</span>}
             </div>
-            {trailingIcon && (
-                <span class={styles.trailingIcon} aria-hidden="true">
-                    {trailingIcon}
-                </span>
-            )}
+            {trailingIcon && <span class={styles.trailingIcon}>{trailingIcon}</span>}
         </li>
     );
 }

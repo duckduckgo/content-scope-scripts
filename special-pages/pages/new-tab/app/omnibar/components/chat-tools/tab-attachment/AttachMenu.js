@@ -238,7 +238,7 @@ function OpenDropdownBody({ attachEnabled, fileLabel, dropdownPos, dropdownRef, 
                     icon={<PageContentIcon />}
                     name={t('omnibar_attachPageContentLabel')}
                     trailingIcon={
-                        <span class={styles.submenuChevron}>
+                        <span class={styles.submenuChevron} aria-hidden="true">
                             <ChevronSmall />
                         </span>
                     }
