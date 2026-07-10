@@ -79,8 +79,8 @@ export const OmnibarContext = createContext({
     viewAllAiChats: () => {
         throw new Error('must implement');
     },
-    /** @type {() => void} */
-    showSubscriptionUpsell: () => {
+    /** @type {(type?: 'subscribe' | 'upgrade') => void} */
+    showUpsell: () => {
         throw new Error('must implement');
     },
     /** @type {() => Promise<GetOpenTabsResponse>} */
@@ -235,10 +235,13 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {() => void} */
-    const showSubscriptionUpsell = useCallback(() => {
-        service.current?.showSubscriptionUpsell();
-    }, [service]);
+    /** @type {(type?: 'subscribe' | 'upgrade') => void} */
+    const showUpsell = useCallback(
+        (type) => {
+            service.current?.showUpsell(type);
+        },
+        [service],
+    );
 
     /** @type {() => Promise<GetOpenTabsResponse>} */
     const getOpenTabs = useCallback(() => {
@@ -273,7 +276,7 @@ export function OmnibarProvider(props) {
                 onAiChats,
                 openAiChat,
                 viewAllAiChats,
-                showSubscriptionUpsell,
+                showUpsell,
                 getOpenTabs,
                 getTabContent,
             }}

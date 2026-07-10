@@ -38,9 +38,12 @@ const EXTENDED_EFFORT_UNAVAILABLE = {
     name: 'Extended Reasoning',
     description: 'Researches before responding',
     status: 'unavailable',
+    upsell: 'subscribe',
 };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, status: 'available' };
+const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade' };
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, status: 'available', upsell: undefined };
 
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
@@ -113,6 +116,8 @@ export function omnibarMockTransport() {
                         accessTier: ['free'],
                         supportsImageUpload: false,
                         supportedTools: [],
+                        // Demonstrates the 'upgrade' upsell (existing subscriber gated behind a higher tier).
+                        reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT, EXTENDED_EFFORT_UPGRADE],
                     },
                     {
                         id: 'claude-3-5-haiku-latest',
@@ -214,8 +219,15 @@ export function omnibarMockTransport() {
                 case 'omnibar_openSuggestion':
                 case 'omnibar_submitSearch':
                 case 'omnibar_submitChat':
-                case 'omnibar_showSubscriptionUpsell':
                     console.warn('notification (no-op in mock)', msg.method, msg.params);
+                    break;
+                case 'omnibar_showSubscriptionUpsell':
+                    // Placeholder until native ships the real flow.
+                    globalThis.alert?.('Show subscription upsell (Try for free)');
+                    break;
+                case 'omnibar_showSubscriptionUpgrade':
+                    // Placeholder until native ships the real flow.
+                    globalThis.alert?.('Show subscription upgrade (Upgrade)');
                     break;
                 default: {
                     console.warn('unhandled notification', msg);

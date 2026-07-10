@@ -34,7 +34,7 @@ function getRowBadgeLabel(model, t) {
  * @param {import('../useDropdown.js').DropdownPosition} props.dropdownPos
  * @param {(options: {restoreFocus: boolean}) => void} props.onClose
  * @param {(id: string) => void} props.onSelect
- * @param {() => void} props.onUpsell
+ * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
@@ -144,6 +144,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
         >
             {sections.map((section, sectionIndex) => {
                 const isUpsellSection = section.items.length > 0 && section.items.every((model) => !model.isEnabled);
+                const sectionUpsell = section.items.find((model) => model.upsell)?.upsell ?? 'subscribe';
                 return (
                     <Fragment key={sectionIndex}>
                         {isUpsellSection ? (
@@ -156,10 +157,10 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                         class={styles.modelUpsellCta}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            onUpsell();
+                                            onUpsell(sectionUpsell);
                                         }}
                                     >
-                                        {t('omnibar_tryForFree')}
+                                        {sectionUpsell === 'upgrade' ? t('omnibar_upgrade') : t('omnibar_tryForFree')}
                                     </button>
                                 </li>
                             </Fragment>

@@ -2044,6 +2044,35 @@ test.describe('omnibar widget', () => {
 
             await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
         });
+
+        test('an upgrade-gated reasoning-effort option shows "Upgrade" and opens the subscription upgrade', async ({
+            page,
+        }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Mistral Small 3 has an 'extended' reasoning effort with status 'unavailable' and upsell 'upgrade' in the mock
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'mistralai_Mistral-Small-24B-Instruct-2501',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.reasoningPickerButton().click();
+            const gatedOption = omnibar.reasoningOption('Extended Reasoning Researches before responding');
+            await expect(gatedOption).toContainText('Upgrade');
+
+            await gatedOption.click();
+
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+        });
     });
 
     test.describe('AI chat image attachments', () => {

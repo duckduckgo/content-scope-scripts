@@ -6,6 +6,11 @@
     "mode"
   ],
   "$defs": {
+    "UpsellType": {
+      "type": "string",
+      "description": "Which upsell flow a gated item leads to: 'subscribe' (non-subscribers, shown as 'Try for free') or 'upgrade' (existing subscribers who need a higher tier, shown as 'Upgrade').",
+      "enum": ["subscribe", "upgrade"]
+    },
     "AIModelSection": {
       "type": "object",
       "description": "A section of AI models with an optional header and a list of model items.",
@@ -43,6 +48,10 @@
           "description": "Whether this option is selectable ('available') or gated behind a subscription upsell ('unavailable').",
           "type": "string",
           "enum": ["available", "unavailable"]
+        },
+        "upsell": {
+          "description": "For a gated ('unavailable') option, which upsell flow it leads to. Absent for available options.",
+          "$ref": "#/$defs/UpsellType"
         }
       }
     },
@@ -98,6 +107,10 @@
           "description": "Reasoning-effort options this model supports, each with localized copy and availability. Empty or omitted means the reasoning picker is hidden for this model.",
           "type": "array",
           "items": { "$ref": "#/$defs/ReasoningEffortOption" }
+        },
+        "upsell": {
+          "description": "For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models.",
+          "$ref": "#/$defs/UpsellType"
         }
       }
     }

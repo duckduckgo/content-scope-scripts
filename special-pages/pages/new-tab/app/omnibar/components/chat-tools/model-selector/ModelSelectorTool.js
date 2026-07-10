@@ -12,7 +12,7 @@ import { ModelSelector } from './ModelSelector';
 
 export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { showSubscriptionUpsell } = useContext(OmnibarContext);
+    const { showUpsell } = useContext(OmnibarContext);
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
 
     const selector = useModelSelector({
@@ -27,7 +27,7 @@ export function ModelSelectorTool() {
             selector={selector}
             selectedModel={selectedModel}
             aiModelSections={aiModelSections}
-            onUpsell={showSubscriptionUpsell}
+            onUpsell={showUpsell}
             ariaLabel={t('omnibar_modelSelectorLabel')}
         />
     );

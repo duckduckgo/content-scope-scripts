@@ -377,6 +377,10 @@
     "title": "Try for free",
     "description": "Link text next to the 'Subscriber exclusive.' label that opens the subscription upsell when tapped."
   },
+  "omnibar_upgrade": {
+    "title": "Upgrade",
+    "description": "CTA shown on a model or reasoning-effort option gated behind a higher subscription tier; opens the upgrade flow when tapped."
+  },
   "omnibar_reasoningTryForFree": {
     "title": "Try for Free",
     "description": "Badge text on a gated reasoning-effort option in the reasoning picker; tapping it opens the subscription upsell."

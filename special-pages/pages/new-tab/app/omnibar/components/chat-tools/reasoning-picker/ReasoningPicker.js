@@ -16,6 +16,7 @@ import styles from './ReasoningPicker.module.css';
  * @property {string} name - Localized label
  * @property {string} [description] - Localized description
  * @property {'available' | 'unavailable'} status - Whether the option is selectable or gated behind an upsell
+ * @property {'subscribe' | 'upgrade'} [upsell] - For a gated option, which upsell flow to trigger
  */
 
 /**
@@ -23,12 +24,13 @@ import styles from './ReasoningPicker.module.css';
  * @param {ReasoningEffortOptionView[]} props.options
  * @param {ReasoningEffort|null} props.selectedEffort
  * @param {(effort: ReasoningEffort) => void} props.onSelect
- * @param {() => void} props.onUpsell
+ * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
  * @param {string} props.tryForFreeLabel
+ * @param {string} props.upgradeLabel
  */
-export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, tryForFreeLabel }) {
+export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, tryForFreeLabel, upgradeLabel }) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
 
     /** @param {{ restoreFocus: boolean }} opts */
@@ -76,6 +78,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                     {options.map((option) => {
                         const OptionIcon = option.icon;
                         const isUnavailable = option.status === 'unavailable';
+                        const badgeLabel = option.upsell === 'upgrade' ? upgradeLabel : tryForFreeLabel;
                         return (
                             <DropdownItem
                                 key={option.id}
@@ -85,8 +88,9 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                                 description={option.description}
                                 isSelected={!isUnavailable && option.id === selectedEffort}
                                 ariaSelected={!isUnavailable && option.id === selectedEffort}
-                                trailingIcon={isUnavailable ? <span class={styles.tryForFreeBadge}>{tryForFreeLabel}</span> : undefined}
-                                onSelect={() => (isUnavailable ? onUpsell() : handleSelect(option.id))}
+                                isDimmed={isUnavailable && option.upsell === 'upgrade'}
+                                trailingIcon={isUnavailable ? <span class={styles.tryForFreeBadge}>{badgeLabel}</span> : undefined}
+                                onSelect={() => (isUnavailable ? onUpsell(option.upsell) : handleSelect(option.id))}
                             />
                         );
                     })}
