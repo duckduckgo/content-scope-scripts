@@ -247,12 +247,29 @@ export function omnibarMockTransport() {
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
                     if (config.attachmentLimits) {
+                        const attachmentLimitsPartial = url.searchParams.get('omnibar.attachmentLimitsPartial');
+                        if (attachmentLimitsPartial === 'empty-sections') {
+                            config.attachmentLimits = { files: {}, images: {} };
+                        } else if (attachmentLimitsPartial === 'files-only') {
+                            config.attachmentLimits = { files: {} };
+                        } else if (attachmentLimitsPartial === 'images-only') {
+                            config.attachmentLimits = { images: {} };
+                        }
                         const imageMaxPerTurn = parseInt(url.searchParams.get('omnibar.imageMaxPerTurn') ?? '', 10);
-                        if (imageMaxPerTurn > 0) config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
+                        if (imageMaxPerTurn > 0) {
+                            config.attachmentLimits.images ??= {};
+                            config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
+                        }
                         const fileMaxPerConversation = parseInt(url.searchParams.get('omnibar.fileMaxPerConversation') ?? '', 10);
-                        if (fileMaxPerConversation > 0) config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;
+                        if (fileMaxPerConversation > 0) {
+                            config.attachmentLimits.files ??= {};
+                            config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;
+                        }
                         const fileMaxFileSizeMB = parseInt(url.searchParams.get('omnibar.fileMaxFileSizeMB') ?? '', 10);
-                        if (fileMaxFileSizeMB > 0) config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
+                        if (fileMaxFileSizeMB > 0) {
+                            config.attachmentLimits.files ??= {};
+                            config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
+                        }
                     }
                     return config;
                 }
