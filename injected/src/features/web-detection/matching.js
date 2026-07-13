@@ -56,6 +56,15 @@ const CONTENT_METADATA_SELECTORS = 'base,link,meta,script,style,template,title,d
 const CONTENT_MEDIA_SELECTORS = 'video,canvas,embed,object,audio,map,form,input,textarea,select,button,img,svg';
 
 /**
+ * Upper bound (in characters of raw text) above which `hasContent` skips the
+ * serialize+parse step. Captcha widgets carry very little text; only an overly
+ * broad selector would match a subtree larger than this, and re-serializing it
+ * on every poll tick would be a real perf cost. Such a subtree clearly holds
+ * content, so we treat it as present rather than pay to confirm.
+ */
+const CONTENT_TEXT_PARSE_LIMIT = 50000;
+
+/**
  * Layout-free content-presence check, modeled on element-hiding's
  * `isDomNodeEmpty`. Determines whether an element contains meaningful content
  * WITHOUT forcing layout on the live page: the element's markup is serialized
@@ -69,10 +78,28 @@ const CONTENT_MEDIA_SELECTORS = 'video,canvas,embed,object,audio,map,form,input,
  * image-size heuristic element-hiding uses), so it never triggers a forced
  * layout.
  *
+ * The check runs on a detached copy (via DOMParser) so `<script>`/`<style>`
+ * text can be stripped before deciding. The only guard in front of it is a
+ * size cap: an overly broad selector could match a huge subtree, and
+ * serializing that on every poll tick would be a real cost, so such a subtree
+ * (which clearly holds content) is reported present without parsing.
+ *
  * @param {Element} element
  * @returns {boolean}
  */
 function hasContent(element) {
+    // Only guard: never serialize+parse a pathologically large subtree on every
+    // poll tick (reachable only via an overly broad selector). textContent is a
+    // cheap, layout-free proxy for the serialized size; such a subtree clearly
+    // holds content.
+    if ((element.textContent || '').length > CONTENT_TEXT_PARSE_LIMIT) {
+        return true;
+    }
+
+    // Authoritative check on a detached copy - same approach as element-hiding's
+    // `isDomNodeEmpty` - so no live-page layout is forced. Re-parsing outerHTML
+    // re-roots `element` under <body>, so the queries below also count the
+    // element itself (eg an `iframe[src*=...]` selector match).
     if (!contentDomParser) {
         contentDomParser = new DOMParser();
     }
