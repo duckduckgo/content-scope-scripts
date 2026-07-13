@@ -159,7 +159,8 @@ function evaluateSingleTextCondition(condition) {
  * `selector` (disj): Array of CSS selectors (or string representing a single selector) - ANY selector matching = success.
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
  *
- * `visibility` [optional]: Whether the element must be 'visible', 'hidden', or 'any' (default).
+ * `visibility` [optional]: Whether the element must be 'visible', 'hidden', 'content'
+ *   (layout-free content-presence proxy, see hasContent), or 'any' (default).
  *
  * @param {ConditionTypes['element']} config
  * @returns {boolean}

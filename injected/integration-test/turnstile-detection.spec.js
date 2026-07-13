@@ -112,7 +112,9 @@ async function run(page, projectUse, visibility, html = HTML) {
     const collector = ResultsCollector.create(page, projectUse);
     collector.withMockResponse({ webDetectionAutoRun: null });
     await page.addInitScript(forcedLayoutProbe);
-    await collector.load(html, captchaConfig(visibility));
+    // load()'s configPath is typed `string` for the extension file-read path; non-extension
+    // platforms (used here) accept an inline config object, as pages.spec.js also does.
+    await collector.load(html, /** @type {any} */ (captchaConfig(visibility)));
 
     // Let the auto-run intervals (50ms) fire a few times across all frames.
     await page.waitForTimeout(400);
