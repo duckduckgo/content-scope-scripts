@@ -237,7 +237,7 @@ export function SignalStateProvider({ children }) {
                 // prettier-ignore
                 const nextVisibleRange = batched
                     ? all.slice(0, Math.max(service.INITIAL, Math.max(service.INITIAL, visible.length)))
-                    : all
+                    : all;
 
                 setVisibleRange(nextVisibleRange);
                 fillHoles();

@@ -183,7 +183,7 @@ function ImageCrossFade_({ src }) {
             // prettier-ignore
             const nextState = prev.value === states.idle
                 ? states.loadingFirst
-                : states.loading
+                : states.loading;
             return { ...prev, value: nextState };
         });
 
