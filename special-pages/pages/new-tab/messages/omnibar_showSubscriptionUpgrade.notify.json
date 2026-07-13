@@ -1,8 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Show Subscription Upgrade Action",
-  "description": "Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier).",
+  "description": "Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier). `source` identifies the originating picker so native can attribute the subscription funnel origin.",
   "type": "object",
   "additionalProperties": false,
-  "properties": {}
+  "required": ["source"],
+  "properties": {
+    "source": {
+      "$ref": "./types/omnibar-picker-source.json"
+    }
+  }
 }

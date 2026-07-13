@@ -25,13 +25,24 @@ import styles from './ReasoningPicker.module.css';
  * @param {ReasoningEffort|null} props.selectedEffort
  * @param {(effort: ReasoningEffort) => void} props.onSelect
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
+ * @param {() => void} [props.onOpen] - Called when the dropdown opens, to report a picker impression
  * @param {string} props.ariaLabel
  * @param {string} props.buttonLabel
  * @param {string} props.tryForFreeLabel
  * @param {string} props.upgradeLabel
  */
-export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, tryForFreeLabel, upgradeLabel }) {
-    const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
+export function ReasoningPicker({
+    options,
+    selectedEffort,
+    onSelect,
+    onUpsell,
+    onOpen,
+    ariaLabel,
+    buttonLabel,
+    tryForFreeLabel,
+    upgradeLabel,
+}) {
+    const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right', onOpen });
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {

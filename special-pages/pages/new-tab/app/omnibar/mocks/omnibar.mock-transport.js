@@ -219,6 +219,7 @@ export function omnibarMockTransport() {
                 case 'omnibar_openSuggestion':
                 case 'omnibar_submitSearch':
                 case 'omnibar_submitChat':
+                case 'telemetryEvent':
                     console.warn('notification (no-op in mock)', msg.method, msg.params);
                     break;
                 case 'omnibar_showSubscriptionUpsell':

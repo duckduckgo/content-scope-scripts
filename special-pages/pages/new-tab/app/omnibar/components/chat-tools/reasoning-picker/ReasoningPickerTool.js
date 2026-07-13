@@ -37,7 +37,7 @@ function getReasoningIcon(id) {
 
 export function ReasoningPickerTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { showUpsell } = useContext(OmnibarContext);
+    const { showUpsell, pickerShown, upsellShown } = useContext(OmnibarContext);
     const { reasoningEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
 
     const options = reasoningEfforts.map((effort) => ({
@@ -53,6 +53,9 @@ export function ReasoningPickerTool() {
         return null;
     }
 
+    // The upsell badge renders for any gated (unavailable) option.
+    const hasUpsell = options.some((option) => option.status === 'unavailable');
+
     const selectedOption = options.find((option) => option.id === selectedEffort);
 
     return (
@@ -60,7 +63,11 @@ export function ReasoningPickerTool() {
             options={options}
             selectedEffort={selectedEffort}
             onSelect={setSelectedReasoningEffort}
-            onUpsell={showUpsell}
+            onUpsell={(type) => showUpsell(type, 'reasoning')}
+            onOpen={() => {
+                pickerShown('reasoning');
+                if (hasUpsell) upsellShown('reasoning');
+            }}
             ariaLabel={t('omnibar_reasoningPickerLabel')}
             buttonLabel={selectedOption?.name ?? t('omnibar_reasoningPickerLabel')}
             tryForFreeLabel={t('omnibar_reasoningTryForFree')}

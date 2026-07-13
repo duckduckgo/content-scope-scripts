@@ -12,6 +12,7 @@ import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
  * @typedef {import("../../types/new-tab.js").SubmitChatAction} SubmitChatAction
  * @typedef {import("../../types/new-tab.js").GetOpenTabsResponse} GetOpenTabsResponse
  * @typedef {import("../../types/new-tab.js").PageContext} PageContext
+ * @typedef {import("../../types/new-tab.js").OmnibarPickerSource} OmnibarPickerSource
  */
 
 export class OmnibarService {
@@ -214,30 +215,52 @@ export class OmnibarService {
     }
 
     /**
+     * Report that the user opened a chat-tool picker (impression), via the shared
+     * `telemetryEvent` message. Native maps `picker` to the platform-specific
+     * subscription funnel origin and fires the picker-impression pixel.
+     * @param {OmnibarPickerSource} picker
+     */
+    pickerShown(picker) {
+        this.ntp.telemetryEvent({ attributes: { name: 'omnibar_picker', value: { picker } } });
+    }
+
+    /**
+     * Report that the conditional subscription upsell CTA became visible inside a picker
+     * (impression), via the shared `telemetryEvent` message.
+     * @param {OmnibarPickerSource} picker
+     */
+    upsellShown(picker) {
+        this.ntp.telemetryEvent({ attributes: { name: 'omnibar_upsell', value: { picker } } });
+    }
+
+    /**
      * Ask native to present the subscription upsell (e.g. when the user taps
      * "Try for free" on a gated model or reasoning-effort option).
+     * @param {OmnibarPickerSource} source - The picker the upsell was triggered from.
      */
-    showSubscriptionUpsell() {
-        this.ntp.messaging.notify('omnibar_showSubscriptionUpsell', {});
+    showSubscriptionUpsell(source) {
+        this.ntp.messaging.notify('omnibar_showSubscriptionUpsell', { source });
     }
 
     /**
      * Ask native to present the subscription upgrade flow (e.g. when a subscriber
      * taps "Upgrade" on a model or reasoning-effort option gated behind a higher tier).
+     * @param {OmnibarPickerSource} source - The picker the upgrade was triggered from.
      */
-    showSubscriptionUpgrade() {
-        this.ntp.messaging.notify('omnibar_showSubscriptionUpgrade', {});
+    showSubscriptionUpgrade(source) {
+        this.ntp.messaging.notify('omnibar_showSubscriptionUpgrade', { source });
     }
 
     /**
      * Route a gated item's upsell to the correct native flow.
-     * @param {'subscribe' | 'upgrade'} [type]
+     * @param {'subscribe' | 'upgrade' | undefined} type
+     * @param {OmnibarPickerSource} source - The picker the upsell was triggered from.
      */
-    showUpsell(type) {
+    showUpsell(type, source) {
         if (type === 'upgrade') {
-            this.showSubscriptionUpgrade();
+            this.showSubscriptionUpgrade(source);
         } else {
-            this.showSubscriptionUpsell();
+            this.showSubscriptionUpsell(source);
         }
     }
 

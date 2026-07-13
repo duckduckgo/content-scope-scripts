@@ -53,6 +53,48 @@
               }
             }
           }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Picker Shown",
+          "description": "Fired once when the user opens an omnibar chat-tool picker (impression). `picker` identifies which picker; native maps it to the platform-specific subscription funnel origin.",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "omnibar_picker"
+            },
+            "value": {
+              "type": "object",
+              "required": ["picker"],
+              "properties": {
+                "picker": {
+                  "type": "string",
+                  "enum": ["model", "reasoning"]
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Upsell Shown",
+          "description": "Fired once when the conditional subscription upsell CTA becomes visible inside an omnibar picker (impression). `picker` identifies which picker surfaced the upsell.",
+          "required": ["name", "value"],
+          "properties": {
+            "name": {
+              "const": "omnibar_upsell"
+            },
+            "value": {
+              "type": "object",
+              "required": ["picker"],
+              "properties": {
+                "picker": {
+                  "type": "string",
+                  "enum": ["model", "reasoning"]
+                }
+              }
+            }
+          }
         }
       ]
     }
