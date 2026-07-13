@@ -53,8 +53,9 @@ function computePosition(buttonRect, cbRect, align) {
  *
  * @param {object} [options]
  * @param {'left' | 'right'} [options.align] - Horizontal alignment of the dropdown relative to the button. Defaults to 'left'.
+ * @param {() => void} [options.onOpen] - Invoked once each time the dropdown transitions from closed to open. Used to report picker-impression telemetry.
  */
-export function useDropdown({ align = 'left' } = {}) {
+export function useDropdown({ align = 'left', onOpen } = {}) {
     const [isOpen, setIsOpen] = useState(false);
     const [dropdownPos, setDropdownPos] = useState(/** @type {DropdownPosition|null} */ (null));
     const buttonRef = useRef(/** @type {HTMLButtonElement|null} */ (null));
@@ -78,6 +79,7 @@ export function useDropdown({ align = 'left' } = {}) {
         const cbRect = cb?.getBoundingClientRect() ?? null;
         setDropdownPos(computePosition(rect, cbRect, align));
         setIsOpen(true);
+        onOpen?.();
 
         /** @param {MouseEvent} e */
         const handleClickOutside = (e) => {

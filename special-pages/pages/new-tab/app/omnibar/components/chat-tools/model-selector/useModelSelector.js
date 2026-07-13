@@ -10,9 +10,10 @@ import { useDropdown } from '../useDropdown';
  * @param {object} options
  * @param {AIModelItem[]} options.allModels
  * @param {(id: string) => void} [options.onModelChange] - Called when the user selects a model, to persist the choice
+ * @param {() => void} [options.onOpen] - Called when the dropdown opens, to report a picker impression
  */
-export function useModelSelector({ allModels, onModelChange }) {
-    const dropdown = useDropdown({ align: 'right' });
+export function useModelSelector({ allModels, onModelChange, onOpen }) {
+    const dropdown = useDropdown({ align: 'right', onOpen });
 
     /** @param {string} id */
     const selectModel = (id) => {

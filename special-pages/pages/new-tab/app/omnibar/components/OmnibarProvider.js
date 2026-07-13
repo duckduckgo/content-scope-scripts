@@ -14,6 +14,7 @@ import { OmnibarService } from '../omnibar.service.js';
  * @typedef {import('../../../types/new-tab.js').SubmitChatAction} SubmitChatAction
  * @typedef {import('../../../types/new-tab.js').GetOpenTabsResponse} GetOpenTabsResponse
  * @typedef {import('../../../types/new-tab.js').PageContext} PageContext
+ * @typedef {import('../../../types/new-tab.js').OmnibarPickerSource} OmnibarPickerSource
  * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State
  */
 
@@ -79,7 +80,15 @@ export const OmnibarContext = createContext({
     viewAllAiChats: () => {
         throw new Error('must implement');
     },
-    /** @type {(type?: 'subscribe' | 'upgrade') => void} */
+    /** @type {(picker: OmnibarPickerSource) => void} */
+    pickerShown: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(picker: OmnibarPickerSource) => void} */
+    upsellShown: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(type: 'subscribe' | 'upgrade' | undefined, source: OmnibarPickerSource) => void} */
     showUpsell: () => {
         throw new Error('must implement');
     },
@@ -235,10 +244,26 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {(type?: 'subscribe' | 'upgrade') => void} */
+    /** @type {(picker: OmnibarPickerSource) => void} */
+    const pickerShown = useCallback(
+        (picker) => {
+            service.current?.pickerShown(picker);
+        },
+        [service],
+    );
+
+    /** @type {(picker: OmnibarPickerSource) => void} */
+    const upsellShown = useCallback(
+        (picker) => {
+            service.current?.upsellShown(picker);
+        },
+        [service],
+    );
+
+    /** @type {(type: 'subscribe' | 'upgrade' | undefined, source: OmnibarPickerSource) => void} */
     const showUpsell = useCallback(
-        (type) => {
-            service.current?.showUpsell(type);
+        (type, source) => {
+            service.current?.showUpsell(type, source);
         },
         [service],
     );
@@ -276,6 +301,8 @@ export function OmnibarProvider(props) {
                 onAiChats,
                 openAiChat,
                 viewAllAiChats,
+                pickerShown,
+                upsellShown,
                 showUpsell,
                 getOpenTabs,
                 getTabContent,

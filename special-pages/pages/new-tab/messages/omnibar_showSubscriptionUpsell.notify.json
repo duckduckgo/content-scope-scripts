@@ -1,8 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Show Subscription Upsell Action",
-  "description": "Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option).",
+  "description": "Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option). `source` identifies the originating picker so native can attribute the subscription funnel origin.",
   "type": "object",
   "additionalProperties": false,
-  "properties": {}
+  "required": ["source"],
+  "properties": {
+    "source": {
+      "$ref": "./types/omnibar-picker-source.json"
+    }
+  }
 }

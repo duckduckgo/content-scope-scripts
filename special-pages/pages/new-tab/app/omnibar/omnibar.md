@@ -257,6 +257,41 @@ title: Omnibar Widget
 }
 ```
 
+### Picker impressions — `telemetryEvent`
+Impression telemetry is sent via the shared `telemetryEvent` notification (not a bespoke message), so native only needs to add a name case + pixel mapping. Fired once per open (closed→open transition). Native maps `value.picker` to the platform-specific subscription funnel origin and fires the impression pixel.
+
+- **Picker shown** — `{ attributes: { name: "omnibar_picker", value: { picker: "model" | "reasoning" } } }`, sent when the model or reasoning picker opens.
+- **Upsell shown** — `{ attributes: { name: "omnibar_upsell", value: { picker: "model" | "reasoning" } } }`, sent when the conditional subscription upsell CTA is visible on open (only when a gated option exists).
+
+Example payload:
+```json
+{
+   "attributes": { "name": "omnibar_picker", "value": { "picker": "model" } }
+}
+```
+
+### `omnibar_showSubscriptionUpsell`
+- {@link "NewTab Messages".OmnibarShowSubscriptionUpsellNotification}
+- Sent when the user taps "Try for free" on a subscription-gated model or reasoning-effort option.
+- requires `source` — `"model"` or `"reasoning"`, identifying the picker the upsell was triggered from. Native maps `source` to the subscription funnel origin (and infers `flow_type`); the frontend does not send origin or flow information.
+- example payload:
+```json
+{
+   "source": "model"
+}
+```
+
+### `omnibar_showSubscriptionUpgrade`
+- {@link "NewTab Messages".OmnibarShowSubscriptionUpgradeNotification}
+- Sent when a subscriber taps "Upgrade" on a model or reasoning-effort option gated behind a higher tier.
+- requires `source` — `"model"` or `"reasoning"`, identifying the picker the upgrade was triggered from. Native maps `source` to the subscription funnel origin; the frontend does not send origin or flow information.
+- example payload:
+```json
+{
+   "source": "reasoning"
+}
+```
+
 ## Suggestion Types
 
 The omnibar supports various types of suggestions:

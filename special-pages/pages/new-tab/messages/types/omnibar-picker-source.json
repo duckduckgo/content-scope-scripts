@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Omnibar Picker Source",
+  "description": "Identifies which omnibar chat-tool picker triggered a telemetry event. Native maps this lightweight identifier to a platform-specific subscription funnel origin.",
+  "type": "string",
+  "enum": ["model", "reasoning"]
+}

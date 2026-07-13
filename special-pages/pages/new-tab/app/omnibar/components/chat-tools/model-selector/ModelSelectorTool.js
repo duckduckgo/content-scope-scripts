@@ -12,12 +12,19 @@ import { ModelSelector } from './ModelSelector';
 
 export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { showUpsell } = useContext(OmnibarContext);
+    const { showUpsell, pickerShown, upsellShown } = useContext(OmnibarContext);
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
+
+    // The upsell CTA renders only for a fully-gated section (mirrors ModelDropdown's `isUpsellSection`).
+    const hasUpsell = aiModelSections.some((section) => section.items.length > 0 && section.items.every((model) => !model.isEnabled));
 
     const selector = useModelSelector({
         allModels,
         onModelChange: setSelectedModelId,
+        onOpen: () => {
+            pickerShown('model');
+            if (hasUpsell) upsellShown('model');
+        },
     });
 
     if (aiModelSections.length === 0) return null;
@@ -27,7 +34,7 @@ export function ModelSelectorTool() {
             selector={selector}
             selectedModel={selectedModel}
             aiModelSections={aiModelSections}
-            onUpsell={showUpsell}
+            onUpsell={(type) => showUpsell(type, 'model')}
             ariaLabel={t('omnibar_modelSelectorLabel')}
         />
     );

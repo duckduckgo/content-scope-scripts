@@ -122,6 +122,10 @@ export type EnableAskDuckAiSuggestion = boolean;
  * Show the paperclip entry point and accept `@` mentions for attaching open tabs as context to a Duck.ai submission. When true, the omnibar can call `omnibar_getOpenTabs` and `omnibar_getTabContent`.
  */
 export type EnableAttachTabs = boolean;
+/**
+ * Identifies which omnibar chat-tool picker triggered a telemetry event. Native maps this lightweight identifier to a platform-specific subscription funnel origin.
+ */
+export type OmnibarPickerSource = "model" | "reasoning";
 export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
@@ -746,9 +750,11 @@ export interface OmnibarShowSubscriptionUpgradeNotification {
   params: ShowSubscriptionUpgradeAction;
 }
 /**
- * Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier).
+ * Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier). `source` identifies the originating picker so native can attribute the subscription funnel origin.
  */
-export interface ShowSubscriptionUpgradeAction {}
+export interface ShowSubscriptionUpgradeAction {
+  source: OmnibarPickerSource;
+}
 /**
  * Generated from @see "../messages/omnibar_showSubscriptionUpsell.notify.json"
  */
@@ -757,9 +763,11 @@ export interface OmnibarShowSubscriptionUpsellNotification {
   params: ShowSubscriptionUpsellAction;
 }
 /**
- * Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option).
+ * Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option). `source` identifies the originating picker so native can attribute the subscription funnel origin.
  */
-export interface ShowSubscriptionUpsellAction {}
+export interface ShowSubscriptionUpsellAction {
+  source: OmnibarPickerSource;
+}
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
  */
@@ -978,7 +986,7 @@ export interface TelemetryEventNotification {
   params: NTPTelemetryEvent;
 }
 export interface NTPTelemetryEvent {
-  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState;
+  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState | OmnibarPickerShown | OmnibarUpsellShown;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -995,6 +1003,24 @@ export interface CustomizerDrawerState {
      * True if the theme variant popover was visible when the drawer was opened
      */
     themeVariantPopoverWasOpen?: boolean;
+  };
+}
+/**
+ * Fired once when the user opens an omnibar chat-tool picker (impression). `picker` identifies which picker; native maps it to the platform-specific subscription funnel origin.
+ */
+export interface OmnibarPickerShown {
+  name: "omnibar_picker";
+  value: {
+    picker: "model" | "reasoning";
+  };
+}
+/**
+ * Fired once when the conditional subscription upsell CTA becomes visible inside an omnibar picker (impression). `picker` identifies which picker surfaced the upsell.
+ */
+export interface OmnibarUpsellShown {
+  name: "omnibar_upsell";
+  value: {
+    picker: "model" | "reasoning";
   };
 }
 /**

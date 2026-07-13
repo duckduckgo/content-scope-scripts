@@ -1759,7 +1759,27 @@ test.describe('omnibar widget', () => {
 
             await omnibar.modelUpsellButton().click();
 
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            await omnibar.expectMethodCalledWith('omnibar_showSubscriptionUpsell', { source: 'model' });
+        });
+
+        test('fires model-picker and upsell impressions when the model selector is opened', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Default mock: the advanced section is entirely gated, so the upsell CTA is visible on open.
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.modelSelectorButton().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            const params = calls.map((call) => call.payload.params);
+            expect(params).toContainEqual({ attributes: { name: 'omnibar_picker', value: { picker: 'model' } } });
+            expect(params).toContainEqual({ attributes: { name: 'omnibar_upsell', value: { picker: 'model' } } });
         });
 
         test('does not show the upsell when all models are available', async ({ page }, workerInfo) => {
@@ -1777,6 +1797,12 @@ test.describe('omnibar widget', () => {
 
             await omnibar.modelSelectorButton().click();
             await expect(omnibar.modelUpsellButton()).toHaveCount(0);
+
+            // Picker impression still fires, but the upsell impression must not (no gated option visible).
+            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            const params = calls.map((call) => call.payload.params);
+            expect(params).toContainEqual({ attributes: { name: 'omnibar_picker', value: { picker: 'model' } } });
+            expect(params).not.toContainEqual({ attributes: { name: 'omnibar_upsell', value: { picker: 'model' } } });
         });
     });
 
@@ -2042,7 +2068,7 @@ test.describe('omnibar widget', () => {
 
             await gatedOption.click();
 
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            await omnibar.expectMethodCalledWith('omnibar_showSubscriptionUpsell', { source: 'reasoning' });
         });
 
         test('an upgrade-gated reasoning-effort option shows "Upgrade" and opens the subscription upgrade', async ({
@@ -2071,7 +2097,33 @@ test.describe('omnibar widget', () => {
 
             await gatedOption.click();
 
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            await omnibar.expectMethodCalledWith('omnibar_showSubscriptionUpgrade', { source: 'reasoning' });
+        });
+
+        test('fires reasoning-picker and upsell impressions when the reasoning picker is opened', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // claude-haiku-4-5 has a gated 'extended' effort, so the upsell CTA is visible on open.
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'claude-haiku-4-5',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            await omnibar.reasoningPickerButton().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            const params = calls.map((call) => call.payload.params);
+            expect(params).toContainEqual({ attributes: { name: 'omnibar_picker', value: { picker: 'reasoning' } } });
+            expect(params).toContainEqual({ attributes: { name: 'omnibar_upsell', value: { picker: 'reasoning' } } });
         });
     });
 
