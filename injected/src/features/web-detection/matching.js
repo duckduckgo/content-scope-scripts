@@ -52,7 +52,13 @@ let contentDomParser;
 /** Metadata elements that never count as visible content. */
 const CONTENT_METADATA_SELECTORS = 'base,link,meta,script,style,template,title,desc';
 
-/** Elements whose mere presence counts as meaningful (non-empty) content. */
+/**
+ * Elements whose mere presence counts as meaningful (non-empty) content.
+ * Note: any `img`/`svg` counts regardless of rendered size (this is layout-free,
+ * so unlike element-hiding's `isDomNodeEmpty` there is no >20px check). A tracking
+ * pixel inside a matched subtree would register - acceptable for the narrow,
+ * captcha-specific selectors this mode is intended for (see `hasContent`).
+ */
 const CONTENT_MEDIA_SELECTORS = 'video,canvas,embed,object,audio,map,form,input,textarea,select,button,img,svg';
 
 /**
@@ -83,6 +89,12 @@ const CONTENT_TEXT_PARSE_LIMIT = 50000;
  * size cap: an overly broad selector could match a huge subtree, and
  * serializing that on every poll tick would be a real cost, so such a subtree
  * (which clearly holds content) is reported present without parsing.
+ *
+ * Constraint for detector authors: `visibility: 'content'` is designed for
+ * narrow, widget-specific selectors (captcha containers/iframes). With a broad
+ * selector (eg `body`) two things degrade: a large text-heavy subtree trips the
+ * size cap and reports present without validating structure, and the per-tick
+ * serialize+parse becomes costly. Prefer targeted selectors when using this mode.
  *
  * @param {Element} element
  * @returns {boolean}
