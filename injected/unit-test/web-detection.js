@@ -654,7 +654,10 @@ describe('WebDetection', () => {
             const dom = new JSDOM(`<!DOCTYPE html><html><body>${html}</body></html>`);
             const originalDocument = globalThis.document;
             const originalGetComputedStyle = globalThis.getComputedStyle;
+            const originalDOMParser = globalThis.DOMParser;
             globalThis.document = dom.window.document;
+            // `content` visibility mode uses DOMParser; provide JSDOM's implementation.
+            globalThis.DOMParser = dom.window.DOMParser;
 
             // Wrap getComputedStyle to return browser-like defaults (JSDOM returns "" for opacity)
             const jsdomGetComputedStyle = dom.window.getComputedStyle;
@@ -693,6 +696,7 @@ describe('WebDetection', () => {
             } finally {
                 globalThis.document = originalDocument;
                 globalThis.getComputedStyle = originalGetComputedStyle;
+                globalThis.DOMParser = originalDOMParser;
                 ElementProto.getBoundingClientRect = originalGetBoundingClientRect;
             }
         }
@@ -923,6 +927,68 @@ describe('WebDetection', () => {
                 it('should not match when element does not exist', () => {
                     expect(
                         matchInDOM('<div class="other">content</div>', { element: { selector: '.overlay', visibility: 'visible' } }),
+                    ).toBe(false);
+                });
+            });
+
+            describe('visibility: content (layout-free)', () => {
+                it('should match when element has text content', () => {
+                    expect(
+                        matchInDOM('<div class="overlay">Verifying you are human</div>', {
+                            element: { selector: '.overlay', visibility: 'content' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('should match content-filled element even when display:none (unlike visible)', () => {
+                    expect(
+                        matchInDOM('<div class="overlay" style="display: none">challenge</div>', {
+                            element: { selector: '.overlay', visibility: 'content' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('should match when element contains a real (cross-origin) iframe', () => {
+                    expect(
+                        matchInDOM('<div class="overlay"><iframe src="https://challenges.cloudflare.com/cdn-cgi/challenge"></iframe></div>', {
+                            element: { selector: '.overlay', visibility: 'content' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('should match when element contains a form control', () => {
+                    expect(
+                        matchInDOM('<div class="overlay"><input type="checkbox"></div>', {
+                            element: { selector: '.overlay', visibility: 'content' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('should not match an empty element', () => {
+                    expect(
+                        matchInDOM('<div class="overlay">   </div>', { element: { selector: '.overlay', visibility: 'content' } }),
+                    ).toBe(false);
+                });
+
+                it('should not count about:blank iframes as content', () => {
+                    expect(
+                        matchInDOM('<div class="overlay"><iframe src="about:blank"></iframe></div>', {
+                            element: { selector: '.overlay', visibility: 'content' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should not count metadata-only content (script/style)', () => {
+                    expect(
+                        matchInDOM('<div class="overlay"><style>.x{color:red}</style><script>var a=1;</script></div>', {
+                            element: { selector: '.overlay', visibility: 'content' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should not match when element does not exist', () => {
+                    expect(
+                        matchInDOM('<div class="other">content</div>', { element: { selector: '.overlay', visibility: 'content' } }),
                     ).toBe(false);
                 });
             });

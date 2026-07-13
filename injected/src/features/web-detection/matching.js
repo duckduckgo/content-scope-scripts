@@ -22,7 +22,14 @@ function asArray(value, defaultValue = []) {
 }
 
 /**
- * Check if an element is visible
+ * Check if an element is visible.
+ *
+ * NOTE: this forces synchronous layout via getComputedStyle() and
+ * getBoundingClientRect(). Running it repeatedly early in the page lifecycle
+ * appears to perturb some anti-bot behavioral scoring (eg Cloudflare), so
+ * prefer the layout-free `hasContent` check where a content-presence proxy is
+ * sufficient. See `visibility: 'content'`.
+ *
  * @param {Element} element
  * @returns {boolean}
  */
@@ -37,6 +44,53 @@ function isVisible(element) {
         style.visibility !== 'hidden' &&
         parseFloat(style.opacity) > 0.05
     );
+}
+
+/** @type {DOMParser | undefined} Lazily constructed so importing this module never requires a DOM. */
+let contentDomParser;
+
+/** Metadata elements that never count as visible content. */
+const CONTENT_METADATA_SELECTORS = 'base,link,meta,script,style,template,title,desc';
+
+/** Elements whose mere presence counts as meaningful (non-empty) content. */
+const CONTENT_MEDIA_SELECTORS = 'video,canvas,embed,object,audio,map,form,input,textarea,select,button,img,svg';
+
+/**
+ * Layout-free content-presence check, modeled on element-hiding's
+ * `isDomNodeEmpty`. Determines whether an element contains meaningful content
+ * WITHOUT forcing layout on the live page: the element's markup is serialized
+ * and re-parsed into a detached document, and all inspection happens on that
+ * copy.
+ *
+ * This is a proxy for "is there something rendered here", NOT true visual
+ * visibility. Unlike `isVisible` it will treat a content-filled but
+ * display:none element as present. It intentionally avoids
+ * getComputedStyle()/getBoundingClientRect() on live nodes (including the
+ * image-size heuristic element-hiding uses), so it never triggers a forced
+ * layout.
+ *
+ * @param {Element} element
+ * @returns {boolean}
+ */
+function hasContent(element) {
+    if (!contentDomParser) {
+        contentDomParser = new DOMParser();
+    }
+    const parsed = contentDomParser.parseFromString(element.outerHTML, 'text/html').documentElement;
+    parsed.querySelectorAll(CONTENT_METADATA_SELECTORS).forEach((el) => el.remove());
+
+    // Text content (read on the detached copy, so no live-page layout).
+    if ((parsed.innerText || parsed.textContent || '').trim() !== '') {
+        return true;
+    }
+    // Embedded media / form controls count as content.
+    if (parsed.querySelector(CONTENT_MEDIA_SELECTORS) !== null) {
+        return true;
+    }
+    // A real (eg cross-origin Turnstile) iframe counts; about:blank does not.
+    return [...parsed.querySelectorAll('iframe')].some((frame) => {
+        return !frame.hidden && frame.src !== '' && frame.src !== 'about:blank';
+    });
 }
 
 /**
@@ -96,6 +150,10 @@ function evaluateSingleElementCondition(config) {
                 return true;
             }
             if (visibility === 'hidden' && !isVisible(element)) {
+                return true;
+            }
+            // layout-free content-presence proxy (see hasContent)
+            if (visibility === 'content' && hasContent(element)) {
                 return true;
             }
         }
