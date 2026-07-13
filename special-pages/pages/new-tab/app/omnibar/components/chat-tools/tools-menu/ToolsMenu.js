@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useContext } from 'preact/hooks';
 import cn from 'classnames';
-import { CloseSmallIcon, CreateImageIcon, CustomizeIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
+import { CloseSmallIcon, CreateImageIcon, GlassesIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
 import { Switch } from '../../../../../../../shared/components/Switch/Switch.js';
 import { usePlatformName } from '../../../../settings.provider.js';
@@ -153,7 +153,7 @@ export function ToolsMenu({
                         <DropdownItem
                             key="customize-responses"
                             role="menuitem"
-                            icon={<CustomizeIcon />}
+                            icon={<GlassesIcon />}
                             name={t('omnibar_customizeResponsesLabel')}
                             description={customizeResponsesSubLabel || t('omnibar_customizeResponsesDescription')}
                             disabled={customizeResponsesDisabled}
