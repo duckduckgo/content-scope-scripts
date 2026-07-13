@@ -302,7 +302,7 @@
     "description": "Description for the Web Search tool shown in the tools menu dropdown."
   },
   "omnibar_customizeResponsesLabel": {
-    "title": "Customize responses",
+    "title": "Customize Responses",
     "description": "Label for the Customize Responses entry shown in the tools menu dropdown. Selecting it opens a modal to control how Duck.ai responds."
   },
   "omnibar_customizeResponsesDescription": {
