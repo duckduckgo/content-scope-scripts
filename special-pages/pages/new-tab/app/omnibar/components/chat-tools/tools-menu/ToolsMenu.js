@@ -86,8 +86,7 @@ export function ToolsMenu({
     const resolvedTools = /** @type {ToolConfig[]} */ (tools.map(getToolConfig).filter(Boolean));
     const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
     const customizeResponsesDisabled = activeTool === 'image-generation';
-    const isToolsButtonCollapsed =
-        Boolean(activeToolConfig) || (customizeResponsesActive && hasCustomization);
+    const isToolsButtonCollapsed = Boolean(activeToolConfig) || (customizeResponsesActive && hasCustomization);
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
