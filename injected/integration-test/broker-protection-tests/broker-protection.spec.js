@@ -551,7 +551,7 @@ test.describe('Broker Protection communications', () => {
         test('click multiple targets when the multiple flag arrives as a number', async ({ page }, workerInfo) => {
             // The native layer should pass booleans (like the click action's multiple: true) along as-is,
             // but we've seen encoding bugs pass turn these into integers instead. This test checks that
-            // c-s-s will obey any truthy value.
+            // c-s-s will obey either a boolean (true) or an integer..
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('click-multiple.html');
