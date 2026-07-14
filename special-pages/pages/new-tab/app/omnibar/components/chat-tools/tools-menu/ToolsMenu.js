@@ -9,6 +9,7 @@ import { CustomizerThemesContext } from '../../../../customizer/CustomizerProvid
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
+import { DropdownSeparator } from '../dropdown/DropdownSeparator';
 import styles from './ToolsMenu.module.css';
 
 /**
@@ -149,6 +150,7 @@ export function ToolsMenu({
                             onSelect={() => onToggle(tool.id)}
                         />
                     ))}
+                    {showCustomizeResponses && resolvedTools.length > 0 && <DropdownSeparator />}
                     {showCustomizeResponses && (
                         <DropdownItem
                             key="customize-responses"

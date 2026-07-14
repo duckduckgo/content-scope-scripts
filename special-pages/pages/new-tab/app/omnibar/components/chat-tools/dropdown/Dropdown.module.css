@@ -114,6 +114,11 @@
     pointer-events: none;
 }
 
+.separator {
+    border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
+    margin: 4px 4px;
+}
+
 .itemLabel {
     display: flex;
     flex: 1;

@@ -26,7 +26,8 @@ function getItemProps(child) {
 /**
  * Shared dropdown panel for the chat-tools toolbar. Owns `activeIndex`, keyboard
  * navigation, aria-activedescendant, focus-on-open, and hover/leave tracking.
- * Children must be {@link DropdownItem} nodes; Dropdown injects `isActive`,
+ * Children must be {@link DropdownItem} nodes; {@link DropdownSeparator} may be used
+ * between groups. Dropdown injects `isActive`,
  * `id`, `onMouseOver`, and `onClick` via `cloneElement`, and invokes each
  * item's `onSelect` on click or Enter.
  *
@@ -60,25 +61,37 @@ export function Dropdown({
 
     const isItemEnabled = (/** @type {import('preact').ComponentChild} */ child) => !getItemProps(child)?.disabled;
 
+    /** @returns {number[]} */
+    const getNavigableIndices = () =>
+        items.map((child, index) => (getItemProps(child) === null ? -1 : index)).filter((index) => index >= 0);
+
+    const navigableIndices = getNavigableIndices();
+
     const getInitialActiveIndex = () => {
-        if (items.length === 0) return -1;
+        if (navigableIndices.length === 0) return -1;
         if (multiSelect) return -1;
 
         const selected = items.findIndex((c) => getItemProps(c)?.isSelected);
         if (selected >= 0 && isItemEnabled(items[selected])) return selected;
 
-        return items.findIndex((c) => isItemEnabled(c));
+        return navigableIndices[0];
     };
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
 
-    /** @param {number} nextIndex */
-    const focusIndex = (nextIndex) => {
-        if (items.length === 0) return;
-        if (nextIndex < 0) setActiveIndex(items.length - 1);
-        else if (nextIndex >= items.length) setActiveIndex(0);
-        else setActiveIndex(nextIndex);
+    /** @param {number} direction */
+    const focusNavigable = (direction) => {
+        if (navigableIndices.length === 0) return;
+
+        const currentPos = navigableIndices.indexOf(activeIndex);
+        const startPos = currentPos < 0 ? (direction >= 0 ? -1 : navigableIndices.length) : currentPos;
+        let nextPos = startPos + direction;
+
+        if (nextPos < 0) nextPos = navigableIndices.length - 1;
+        else if (nextPos >= navigableIndices.length) nextPos = 0;
+
+        setActiveIndex(navigableIndices[nextPos]);
     };
 
     useEffect(() => {
@@ -102,19 +115,19 @@ export function Dropdown({
         switch (e.key) {
             case 'ArrowDown':
                 e.preventDefault();
-                focusIndex(activeIndex + 1);
+                focusNavigable(1);
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                focusIndex(activeIndex - 1);
+                focusNavigable(-1);
                 break;
             case 'Home':
                 e.preventDefault();
-                focusIndex(0);
+                setActiveIndex(navigableIndices[0]);
                 break;
             case 'End':
                 e.preventDefault();
-                focusIndex(items.length - 1);
+                setActiveIndex(navigableIndices[navigableIndices.length - 1]);
                 break;
             case 'Enter':
             case ' ':
