@@ -2017,7 +2017,7 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.reasoningOption('Reasoning Takes a moment to respond')).toBeVisible();
         });
 
-        test('an unavailable reasoning-effort option shows "Try for Free" and opens the subscription upsell', async ({
+        test('an unavailable reasoning-effort option shows "Try for free" and opens the subscription upsell', async ({
             page,
         }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
@@ -2039,7 +2039,7 @@ test.describe('omnibar widget', () => {
 
             await omnibar.reasoningPickerButton().click();
             const gatedOption = omnibar.reasoningOption('Extended Reasoning Researches before responding');
-            await expect(gatedOption).toContainText('Try for Free');
+            await expect(gatedOption).toContainText('Try for free');
 
             await gatedOption.click();
 

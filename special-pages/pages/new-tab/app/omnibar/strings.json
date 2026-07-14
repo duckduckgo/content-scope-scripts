@@ -233,15 +233,11 @@
   },
   "omnibar_tryForFree": {
     "title": "Try for free",
-    "description": "Link text next to the subscriber-exclusive section header that opens the subscription upsell when tapped."
+    "description": "CTA on a subscription-gated model or reasoning-effort option that opens the subscription upsell when tapped."
   },
   "omnibar_upgrade": {
     "title": "Upgrade",
     "description": "CTA shown on a model or reasoning-effort option gated behind a higher subscription tier; opens the upgrade flow when tapped."
-  },
-  "omnibar_reasoningTryForFree": {
-    "title": "Try for Free",
-    "description": "Badge text on a gated reasoning-effort option in the reasoning picker; tapping it opens the subscription upsell."
   },
   "omnibar_modelBadgeBeta": {
     "title": "Beta",

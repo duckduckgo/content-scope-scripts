@@ -63,7 +63,7 @@ export function ReasoningPickerTool() {
             onUpsell={showUpsell}
             ariaLabel={t('omnibar_reasoningPickerLabel')}
             buttonLabel={selectedOption?.name ?? t('omnibar_reasoningPickerLabel')}
-            tryForFreeLabel={t('omnibar_reasoningTryForFree')}
+            tryForFreeLabel={t('omnibar_tryForFree')}
             upgradeLabel={t('omnibar_upgrade')}
         />
     );
