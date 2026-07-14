@@ -1,11 +1,8 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
 import cn from 'classnames';
-import { CloseSmallIcon, CreateImageIcon, GlassesIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
+import { CloseSmallIcon, CreateImageIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
-import { Switch } from '../../../../../../../shared/components/Switch/Switch.js';
-import { usePlatformName } from '../../../../settings.provider.js';
-import { CustomizerThemesContext } from '../../../../customizer/CustomizerProvider.js';
+import { useCustomizeResponsesItem } from './useCustomizeResponsesItem';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
@@ -21,9 +18,14 @@ import styles from './ToolsMenu.module.css';
  * @property {import('preact').ComponentChildren} icon - Icon component
  * @property {string} label - Display label
  * @property {string} description - Description shown in the menu dropdown
+ * @property {'menuitemcheckbox' | 'menuitem'} role - ARIA role for the row
+ * @property {() => void} onSelect - Invoked when the row is selected
+ * @property {boolean} [selected] - Checkbox state, for `menuitemcheckbox` rows
+ * @property {boolean} [disabled] - Whether the row is disabled
+ * @property {import('preact').ComponentChildren} [trailingControl] - Interactive trailing element (e.g. a toggle)
  */
 
-/** @typedef {'image-generation' | 'web-search'} ToolId */
+/** @typedef {'image-generation' | 'web-search' | 'customize-responses'} ToolId */
 
 /**
  * Tools menu for the AI chat toolbar. Contains a trigger button that opens a
@@ -34,27 +36,10 @@ import styles from './ToolsMenu.module.css';
  * @param {ToolId[]} props.tools - IDs of available tools to show in the menu
  * @param {ToolId|null} props.activeTool - Currently active tool id, or null
  * @param {(toolId: ToolId) => void} props.onToggle - Toggle a tool by id
- * @param {boolean} [props.showCustomizeResponses] - Show the "Customize responses" action row
- * @param {string} [props.customizeResponsesSubLabel] - Summary of the current customization; shown as the row description when set
- * @param {boolean} [props.hasCustomization] - Whether responses have been customized; when true, the row shows an on/off toggle
- * @param {boolean} [props.customizeResponsesActive] - Checked state of the customization toggle
- * @param {(active: boolean) => void} [props.onSetCustomizeResponsesActive] - Apply/unapply the stored customization
- * @param {() => void} [props.onOpenCustomizeResponses] - Open the Customize Responses modal
  */
-export function ToolsMenu({
-    tools,
-    activeTool,
-    onToggle,
-    showCustomizeResponses = false,
-    customizeResponsesSubLabel,
-    hasCustomization = false,
-    customizeResponsesActive = false,
-    onSetCustomizeResponsesActive,
-    onOpenCustomizeResponses,
-}) {
+export function ToolsMenu({ tools, activeTool, onToggle }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const platformName = usePlatformName();
-    const { browser } = useContext(CustomizerThemesContext);
+    const customizeResponses = useCustomizeResponsesItem({ activeTool });
     const { isOpen: menuOpen, buttonRef, dropdownRef, dropdownPos, toggle: toggleMenu, close: closeMenu } = useDropdown({ align: 'left' });
 
     /** @param {ToolId} id @returns {ToolConfig|null} */
@@ -63,12 +48,25 @@ export function ToolsMenu({
             case 'image-generation':
                 return {
                     id,
+                    role: 'menuitemcheckbox',
                     icon: <CreateImageIcon />,
                     label: t('omnibar_createImageLabel'),
                     description: t('omnibar_createImageDescription'),
+                    selected: activeTool === id,
+                    onSelect: () => onToggle(id),
                 };
             case 'web-search':
-                return { id, icon: <GlobeIcon />, label: t('omnibar_webSearchLabel'), description: t('omnibar_webSearchDescription') };
+                return {
+                    id,
+                    role: 'menuitemcheckbox',
+                    icon: <GlobeIcon />,
+                    label: t('omnibar_webSearchLabel'),
+                    description: t('omnibar_webSearchDescription'),
+                    selected: activeTool === id,
+                    onSelect: () => onToggle(id),
+                };
+            case 'customize-responses':
+                return customizeResponses.item;
             default: {
                 /**
                  * Exhaustiveness check — `never` means all ToolId cases are handled;
@@ -82,11 +80,10 @@ export function ToolsMenu({
         }
     };
 
-    const resolvedTools = /** @type {ToolConfig[]} */ (tools.map(getToolConfig).filter(Boolean));
+    const menuItemIds = [...tools, ...(customizeResponses.item ? [/** @type {const} */ ('customize-responses')] : [])];
+    const menuItems = /** @type {ToolConfig[]} */ (menuItemIds.map(getToolConfig).filter(Boolean));
     const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
-    const customizeResponsesDisabled = activeTool === 'image-generation';
-    const isToolsButtonCollapsed =
-        Boolean(activeToolConfig) || (customizeResponsesActive && hasCustomization);
+    const isToolsButtonCollapsed = Boolean(activeToolConfig) || customizeResponses.isApplied;
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
@@ -137,44 +134,20 @@ export function ToolsMenu({
                     onClose={handleClose}
                     idPrefix="tools-menu-item"
                 >
-                    {resolvedTools.map((tool) => (
+                    {menuItems.map((item) => (
                         <DropdownItem
-                            key={tool.id}
-                            role="menuitemcheckbox"
-                            icon={tool.icon}
-                            name={tool.label}
-                            description={tool.description}
-                            isSelected={activeTool === tool.id}
-                            ariaChecked={activeTool === tool.id}
-                            onSelect={() => onToggle(tool.id)}
+                            key={item.id}
+                            role={item.role}
+                            icon={item.icon}
+                            name={item.label}
+                            description={item.description}
+                            isSelected={item.selected}
+                            ariaChecked={item.role === 'menuitemcheckbox' ? Boolean(item.selected) : undefined}
+                            disabled={item.disabled}
+                            trailingControl={item.trailingControl}
+                            onSelect={item.onSelect}
                         />
                     ))}
-                    {showCustomizeResponses && (
-                        <DropdownItem
-                            key="customize-responses"
-                            role="menuitem"
-                            icon={<GlassesIcon />}
-                            name={t('omnibar_customizeResponsesLabel')}
-                            description={customizeResponsesSubLabel || t('omnibar_customizeResponsesDescription')}
-                            disabled={customizeResponsesDisabled}
-                            trailingControl={
-                                hasCustomization ? (
-                                    <Switch
-                                        theme={browser?.value}
-                                        platformName={platformName}
-                                        size="small"
-                                        checked={customizeResponsesActive}
-                                        ariaLabel={t('omnibar_customizeResponsesToggleLabel')}
-                                        pending={false}
-                                        inputProps={{ disabled: customizeResponsesDisabled }}
-                                        onChecked={() => onSetCustomizeResponsesActive?.(true)}
-                                        onUnchecked={() => onSetCustomizeResponsesActive?.(false)}
-                                    />
-                                ) : undefined
-                            }
-                            onSelect={() => onOpenCustomizeResponses?.()}
-                        />
-                    )}
                 </Dropdown>
             )}
         </div>

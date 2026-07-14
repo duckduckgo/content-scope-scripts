@@ -71,10 +71,6 @@ function OmnibarReadyState({ config, tabId }) {
         enableRecentAiChats = false,
         showViewAllAiChats = false,
         enableVoiceChatAccess = false,
-        enableCustomizeResponses = false,
-        customizeSubLabel,
-        hasCustomization = false,
-        customizationActive = false,
         enableAskAiSuggestion = true,
         enableAttachTabs = false,
         mode: defaultMode,
@@ -91,10 +87,6 @@ function OmnibarReadyState({ config, tabId }) {
             showViewAllAiChats={showViewAllAiChats}
             showCustomizePopover={showCustomizePopover}
             enableVoiceChatAccess={enableVoiceChatAccess}
-            enableCustomizeResponses={enableCustomizeResponses}
-            customizeSubLabel={customizeSubLabel}
-            hasCustomization={hasCustomization}
-            customizationActive={customizationActive}
             enableAskAiSuggestion={enableAskAiSuggestion}
             enableAttachTabs={enableAttachTabs}
             tabId={tabId}
