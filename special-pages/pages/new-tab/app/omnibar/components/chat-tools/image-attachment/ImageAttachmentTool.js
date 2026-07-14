@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact';
 import { useLayoutEffect, useRef } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
-import { MAX_IMAGES, getImageErrorMessage } from './useImageAttachments';
+import { getImageErrorMessage } from './useImageAttachments';
 import styles from './ImageAttachment.module.css';
 
 /**
@@ -18,7 +18,7 @@ import styles from './ImageAttachment.module.css';
  */
 export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleImagesChange, onImageWarningChange }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { attachedImages, imageLimitExceeded, imageError, clearImageError } = state;
+    const { attachedImages, imageLimitExceeded, imageError, clearImageError, maxImages } = state;
 
     const hasVisibleImages = !!(supportsImageUpload && attachedImages.length > 0);
     const showImageWarning = !!(supportsImageUpload && imageLimitExceeded);
@@ -44,7 +44,7 @@ export function ImageAttachmentContent({ state, supportsImageUpload, onVisibleIm
 
     if (!supportsImageUpload) return null;
 
-    const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) });
+    const imageLimitWarning = t('omnibar_imageAttachmentLimitWarning', { limit: String(maxImages) });
     const imageErrorMessage = getImageErrorMessage(imageError, {
         imageTooLarge: t('omnibar_imageTooLargeError'),
         processingFailed: t('omnibar_imageProcessingError'),

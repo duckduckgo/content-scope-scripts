@@ -61,7 +61,10 @@ export function click(action, userData, root = document) {
             });
         }
 
-        const loopLength = element.multiple && element.multiple === true ? elements.length : 1;
+        // "== true" is intentional here in case the native layer converts
+        // a boolean into an integer.
+        // eslint-disable-next-line eqeqeq
+        const loopLength = element.multiple == true ? elements.length : 1;
 
         for (let i = 0; i < loopLength; i++) {
             const elem = elements[i];

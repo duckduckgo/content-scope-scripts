@@ -451,6 +451,10 @@ export class OmnibarPage {
         return this.context().getByText(/You can only attach \d+ files at a time/);
     }
 
+    fileTooLargeWarning() {
+        return this.context().getByText(/File is too large/);
+    }
+
     imageLimitWarning() {
         return this.context().getByText(/You can only attach \d+ images at a time/);
     }

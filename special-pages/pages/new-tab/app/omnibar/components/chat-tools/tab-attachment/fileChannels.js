@@ -1,6 +1,6 @@
 /**
  * @typedef {typeof import('../../../strings.json')} Strings
- * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean }} ImageChannel
+ * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean, maxImages: number }} ImageChannel
  * @typedef {{ processFiles: (files: File[]) => Promise<void>, disabled: boolean, mimeTypes: string[] }} FileChannel
  * @typedef {{ label: string, accept: string, disabled: boolean, onChange: (event: Event) => Promise<void> }} ResolvedFileInput
  */

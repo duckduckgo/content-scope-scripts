@@ -362,6 +362,59 @@ test.describe('omnibar file attachment', () => {
         await expect(omnibar.chatSubmitButton()).toBeEnabled();
     });
 
+    test('the file cap follows the backend attachmentLimits config', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAiChatTools': 'true',
+                'omnibar.selectedModelId': 'claude-haiku-4-5',
+                // Backend-configured cap of two files (default is three).
+                'omnibar.fileMaxPerConversation': '2',
+            },
+        });
+        await omnibar.ready();
+
+        // Two files are within the configured cap — no warning.
+        await omnibar
+            .fileInput()
+            .setInputFiles(['a.pdf', 'b.pdf'].map((name) => ({ name, mimeType: 'application/pdf', buffer: PDF_BYTES })));
+        await expect(omnibar.fileChip()).toHaveCount(2);
+        await expect(omnibar.fileLimitWarning()).toHaveCount(0);
+
+        // A third file exceeds the configured cap of two → warning, and it names the configured limit.
+        await omnibar.fileInput().setInputFiles({ name: 'c.pdf', mimeType: 'application/pdf', buffer: PDF_BYTES });
+        await expect(omnibar.fileChip()).toHaveCount(3);
+        await expect(omnibar.context().getByText('You can only attach 2 files at a time.')).toBeVisible();
+    });
+
+    test('a file larger than the configured maxFileSizeMB is rejected with an error', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAiChatTools': 'true',
+                'omnibar.selectedModelId': 'claude-haiku-4-5',
+                // Backend-configured per-file cap of 1 MB.
+                'omnibar.fileMaxFileSizeMB': '1',
+            },
+        });
+        await omnibar.ready();
+
+        // A ~2 MB PDF exceeds the 1 MB cap → not attached, error shown.
+        const tooLarge = Buffer.alloc(2 * 1024 * 1024, 1);
+        await omnibar.fileInput().setInputFiles({ name: 'huge.pdf', mimeType: 'application/pdf', buffer: tooLarge });
+        await expect(omnibar.fileTooLargeWarning()).toBeVisible();
+        await expect(omnibar.fileChip()).toHaveCount(0);
+
+        // A small PDF under the cap still attaches and clears the error.
+        await omnibar.fileInput().setInputFiles({ name: 'small.pdf', mimeType: 'application/pdf', buffer: PDF_BYTES });
+        await expect(omnibar.fileChip()).toHaveCount(1);
+        await expect(omnibar.fileTooLargeWarning()).toHaveCount(0);
+    });
+
     test('switching to a model without file support clears attached files', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();

@@ -20,19 +20,11 @@
     white-space: nowrap;
 
     &:hover {
-        background: rgba(0, 0, 0, 0.06);
-
-        [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.06);
-        }
+        background: var(--ds-color-theme-control-fill-secondary);
     }
 
     &:active {
-        background: rgba(0, 0, 0, 0.10);
-
-        [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.10);
-        }
+        background: var(--ds-color-theme-control-fill-tertiary);
     }
 
     &:focus-visible {
@@ -46,7 +38,7 @@
 
 .activeToolChip {
     align-items: center;
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--ds-color-theme-control-fill-primary);
     border-radius: 16px;
     border: none;
     color: var(--ds-color-theme-text-primary);
@@ -58,24 +50,12 @@
     padding: 0 12px;
     white-space: nowrap;
 
-    [data-theme="dark"] & {
-        background: rgba(255, 255, 255, 0.06);
-    }
-
     &:hover {
-        background: rgba(0, 0, 0, 0.09);
-
-        [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.09);
-        }
+        background: var(--ds-color-theme-control-fill-secondary);
     }
 
     &:active {
-        background: rgba(0, 0, 0, 0.12);
-
-        [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.12);
-        }
+        background: var(--ds-color-theme-control-fill-tertiary);
     }
 
     &:focus-visible {
