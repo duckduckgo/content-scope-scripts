@@ -27,6 +27,7 @@ import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
 import { useActiveTools } from './chat-tools/useActiveTools';
+import { useCustomizeResponses } from './chat-tools/useCustomizeResponses';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
 import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
@@ -52,10 +53,6 @@ import { useTabAttachments } from './chat-tools/tab-attachment/useTabAttachments
  * @param {boolean} props.showViewAllAiChats
  * @param {boolean} props.showCustomizePopover
  * @param {boolean} [props.enableVoiceChatAccess]
- * @param {boolean} [props.enableCustomizeResponses]
- * @param {string} [props.customizeSubLabel]
- * @param {boolean} [props.hasCustomization]
- * @param {boolean} [props.customizationActive]
  * @param {boolean} [props.enableAskAiSuggestion]
  * @param {boolean} [props.enableAttachTabs]
  * @param {string|null|undefined} props.tabId
@@ -68,10 +65,6 @@ export function Omnibar({
     showViewAllAiChats = false,
     showCustomizePopover,
     enableVoiceChatAccess = false,
-    enableCustomizeResponses = false,
-    customizeSubLabel,
-    hasCustomization = false,
-    customizationActive = false,
     enableAskAiSuggestion = true,
     enableAttachTabs = false,
     tabId,
@@ -179,10 +172,6 @@ export function Omnibar({
                                         autoFocus={autoFocus}
                                         enableRecentAiChats={enableRecentAiChats}
                                         enableVoiceChatAccess={enableVoiceChatAccess}
-                                        enableCustomizeResponses={enableCustomizeResponses}
-                                        customizeSubLabel={customizeSubLabel}
-                                        hasCustomization={hasCustomization}
-                                        customizationActive={customizationActive}
                                         enableAttachTabs={enableAttachTabs}
                                         tabId={tabId}
                                         onChange={setQuery}
@@ -204,10 +193,6 @@ export function Omnibar({
  * @param {boolean} [props.autoFocus]
  * @param {boolean} props.enableRecentAiChats
  * @param {boolean} [props.enableVoiceChatAccess]
- * @param {boolean} [props.enableCustomizeResponses]
- * @param {string} [props.customizeSubLabel]
- * @param {boolean} [props.hasCustomization]
- * @param {boolean} [props.customizationActive]
  * @param {boolean} [props.enableAttachTabs]
  * @param {string|null|undefined} [props.tabId]
  * @param {(query: string) => void} props.onChange
@@ -218,10 +203,6 @@ function AiChatContent({
     autoFocus,
     enableRecentAiChats,
     enableVoiceChatAccess = false,
-    enableCustomizeResponses = false,
-    customizeSubLabel,
-    hasCustomization = false,
-    customizationActive = false,
     enableAttachTabs = false,
     tabId,
     onChange,
@@ -229,7 +210,7 @@ function AiChatContent({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { openCustomizeResponses, setCustomizeResponsesActive } = useContext(OmnibarContext);
+    const { showCustomizeResponses } = useCustomizeResponses();
     const { showChats, hideChats } = useAiChatsContext();
     const { state } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
@@ -443,18 +424,8 @@ function AiChatContent({
                                     isAttached={tabAttachments.isAttached}
                                 />
                             )}
-                            {(availableTools.length > 0 || enableCustomizeResponses) && (
-                                <ToolsMenu
-                                    tools={availableTools}
-                                    activeTool={activeTool}
-                                    onToggle={handleToggleTool}
-                                    showCustomizeResponses={enableCustomizeResponses}
-                                    customizeResponsesSubLabel={customizeSubLabel}
-                                    hasCustomization={hasCustomization}
-                                    customizeResponsesActive={customizationActive}
-                                    onSetCustomizeResponsesActive={setCustomizeResponsesActive}
-                                    onOpenCustomizeResponses={openCustomizeResponses}
-                                />
+                            {(availableTools.length > 0 || showCustomizeResponses) && (
+                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
                             )}
                         </Fragment>
                     }
