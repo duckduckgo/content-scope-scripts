@@ -151,7 +151,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                             <Fragment>
                                 <li role="separator" class={styles.modelSectionDivider} />
                                 <li role="presentation" class={styles.modelUpsellHeader}>
-                                    <span class={styles.modelUpsellText}>{t('omnibar_subscriberExclusive')}</span>
+                                    {section.header && <span class={styles.modelUpsellText}>{section.header}</span>}
                                     <button
                                         type="button"
                                         class={styles.modelUpsellCta}

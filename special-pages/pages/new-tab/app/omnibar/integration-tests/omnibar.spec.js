@@ -1755,7 +1755,8 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.modelSelectorButton().click();
-            await expect(omnibar.modelDropdown()).toContainText('Subscriber exclusive.');
+            // The gated section renders its native-provided header (not a hardcoded label).
+            await expect(omnibar.modelDropdown()).toContainText('Advanced Models - DuckDuckGo subscription');
 
             await omnibar.modelUpsellButton().click();
 

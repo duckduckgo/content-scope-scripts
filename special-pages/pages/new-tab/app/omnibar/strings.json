@@ -231,13 +231,9 @@
     "title": "Delete this chat",
     "description": "Accessible label and tooltip for the button that deletes a recent AI chat."
   },
-  "omnibar_subscriberExclusive": {
-    "title": "Subscriber exclusive.",
-    "description": "Label shown above subscription-only AI models in the model selector, next to the 'Try for free' link."
-  },
   "omnibar_tryForFree": {
     "title": "Try for free",
-    "description": "Link text next to the 'Subscriber exclusive.' label that opens the subscription upsell when tapped."
+    "description": "Link text next to the subscriber-exclusive section header that opens the subscription upsell when tapped."
   },
   "omnibar_upgrade": {
     "title": "Upgrade",
