@@ -950,9 +950,12 @@ describe('WebDetection', () => {
 
                 it('should match when element contains a real (cross-origin) iframe', () => {
                     expect(
-                        matchInDOM('<div class="overlay"><iframe src="https://challenges.cloudflare.com/cdn-cgi/challenge"></iframe></div>', {
-                            element: { selector: '.overlay', visibility: 'content' },
-                        }),
+                        matchInDOM(
+                            '<div class="overlay"><iframe src="https://challenges.cloudflare.com/cdn-cgi/challenge"></iframe></div>',
+                            {
+                                element: { selector: '.overlay', visibility: 'content' },
+                            },
+                        ),
                     ).toBe(true);
                 });
 
@@ -965,9 +968,9 @@ describe('WebDetection', () => {
                 });
 
                 it('should not match an empty element', () => {
-                    expect(
-                        matchInDOM('<div class="overlay">   </div>', { element: { selector: '.overlay', visibility: 'content' } }),
-                    ).toBe(false);
+                    expect(matchInDOM('<div class="overlay">   </div>', { element: { selector: '.overlay', visibility: 'content' } })).toBe(
+                        false,
+                    );
                 });
 
                 it('should not count about:blank iframes as content', () => {

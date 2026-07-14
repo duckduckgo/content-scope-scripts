@@ -33,7 +33,14 @@ function captchaConfig(visibility) {
                             recaptcha: element(['.g-recaptcha', "iframe[src*='recaptcha']", "iframe[title*='recaptcha' i]"]),
                             hcaptcha: element(['.h-captcha', "iframe[src*='hcaptcha.com']", "iframe[title*='hcaptcha' i]"]),
                             turnstile: element(['.cf-turnstile:not(#turnstile-wrapper)', '.cf-turnstile:not(#turnstile-wrapper) iframe']),
-                            cloudflare: element(['#challenge-form', '#cf-wrapper', '.cf-browser-verification', '#challenge-running', '#cf-challenge-running', '#challenge-stage']),
+                            cloudflare: element([
+                                '#challenge-form',
+                                '#cf-wrapper',
+                                '.cf-browser-verification',
+                                '#challenge-running',
+                                '#cf-challenge-running',
+                                '#challenge-stage',
+                            ]),
                         },
                     },
                 },
@@ -49,8 +56,8 @@ function captchaConfig(visibility) {
  * work done before the page is loaded).
  */
 function forcedLayoutProbe() {
-     
-    const CHALLENGE = '.cf-turnstile, .cf-turnstile iframe, #challenge-stage, #cf-wrapper, .cf-browser-verification, #challenge-running, #cf-challenge-running, #challenge-form, .g-recaptcha, .h-captcha';
+    const CHALLENGE =
+        '.cf-turnstile, .cf-turnstile iframe, #challenge-stage, #cf-wrapper, .cf-browser-verification, #challenge-running, #cf-challenge-running, #challenge-form, .g-recaptcha, .h-captcha';
     const w = /** @type {any} */ (window);
     w.__fl = { total: 0, challenge: 0, gbcr: 0, gcs: 0, firstReadyState: null, frame: window.top === window ? 'top' : 'sub' };
     const note = (el) => {
@@ -69,7 +76,7 @@ function forcedLayoutProbe() {
         return rawGBCR.apply(this, arguments);
     };
     const rawGCS = window.getComputedStyle;
-     
+
     window.getComputedStyle = function (el) {
         w.__fl.total++;
         w.__fl.gcs++;
@@ -140,7 +147,7 @@ test.describe('Turnstile detector regression', () => {
         // getComputedStyle()/getBoundingClientRect() on the challenge elements, forcing
         // synchronous layout. Contrast with the `content` test, which is 0.
         expect(fl.topChallenge).toBeGreaterThan(0);
-         
+
         console.log('[visible] forcedLayout=', JSON.stringify(fl.perFrame), 'detected=', detected);
     });
 
@@ -153,7 +160,7 @@ test.describe('Turnstile detector regression', () => {
 
         // No forced layout on challenge elements in any frame.
         expect(fl.totalChallenge).toBe(0);
-         
+
         console.log('[content] forcedLayout=', JSON.stringify(fl.perFrame), 'detected=', detected);
     });
 
@@ -172,7 +179,7 @@ test.describe('Turnstile detector regression', () => {
         const detected = autoRuns.filter((r) => r.detected === true).map((r) => r.id);
         for (const id of ALL) expect(detected).toContain(id);
         expect(fl.totalChallenge).toBe(0);
-         
+
         console.log('[content widgets] detected=', detected, 'forcedLayout=', JSON.stringify(fl.perFrame));
     });
 });
