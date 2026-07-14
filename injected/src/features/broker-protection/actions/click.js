@@ -61,9 +61,9 @@ export function click(action, userData, root = document) {
             });
         }
 
-        // Truthy vs. strict === true is intentional here in case the native layer converts
+        // "== true" is intentional here in case the native layer converts
         // a boolean into an integer.
-        const loopLength = element.multiple ? elements.length : 1;
+        const loopLength = element.multiple == true ? elements.length : 1;
 
         for (let i = 0; i < loopLength; i++) {
             const elem = elements[i];
