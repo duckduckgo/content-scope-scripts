@@ -12,7 +12,7 @@ export function useSelectedReasoningEffort() {
 
     /** @type {ReasoningEffortOption[]} */
     const reasoningEfforts = selectedModel?.reasoningEfforts ?? [];
-    const availableEffortIds = reasoningEfforts.filter((effort) => effort.status === 'available').map((effort) => effort.id);
+    const availableEffortIds = reasoningEfforts.filter((effort) => effort.isAvailable).map((effort) => effort.id);
 
     const persisted = state.config?.selectedReasoningEffort;
     const isPersistedAvailable = persisted != null && availableEffortIds.includes(persisted);

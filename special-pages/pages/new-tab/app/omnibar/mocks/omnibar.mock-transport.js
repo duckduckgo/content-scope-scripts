@@ -29,21 +29,21 @@ function parseReasoningEffortQueryParam(param) {
 }
 
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const FAST_EFFORT = { id: 'none', name: 'Fast', description: 'Answers right away', status: 'available' };
+const FAST_EFFORT = { id: 'none', name: 'Fast', description: 'Answers right away', isAvailable: true };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const REASONING_EFFORT = { id: 'medium', name: 'Reasoning', description: 'Takes a moment to respond', status: 'available' };
+const REASONING_EFFORT = { id: 'medium', name: 'Reasoning', description: 'Takes a moment to respond', isAvailable: true };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const EXTENDED_EFFORT_UNAVAILABLE = {
     id: 'extended',
     name: 'Extended Reasoning',
     description: 'Researches before responding',
-    status: 'unavailable',
+    isAvailable: false,
     upsell: 'subscribe',
 };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade' };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, status: 'available', upsell: undefined };
+const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: undefined };
 
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
@@ -63,7 +63,7 @@ export function omnibarMockTransport() {
                         shortName: '4o-mini',
                         description: 'Solid but uses limits faster',
                         isEnabled: true,
-                        accessTier: ['free'],
+                        accessTier: 'free',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                     },
@@ -73,7 +73,7 @@ export function omnibarMockTransport() {
                         shortName: 'GPT-5',
                         description: 'Best for everyday use',
                         isEnabled: true,
-                        accessTier: ['free'],
+                        accessTier: 'free',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                         reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT],
@@ -83,7 +83,7 @@ export function omnibarMockTransport() {
                         name: 'GPT-OSS 120B',
                         shortName: 'GPT-OSS',
                         isEnabled: true,
-                        accessTier: ['free'],
+                        accessTier: 'free',
                         supportsImageUpload: false,
                         supportedTools: [],
                     },
@@ -92,7 +92,7 @@ export function omnibarMockTransport() {
                         name: 'Llama 4 Scout',
                         shortName: 'Scout',
                         isEnabled: true,
-                        accessTier: ['free'],
+                        accessTier: 'free',
                         supportsImageUpload: false,
                         supportedTools: [],
                     },
@@ -102,7 +102,7 @@ export function omnibarMockTransport() {
                         shortName: 'Haiku 4.5',
                         description: 'Solid but uses limits faster',
                         isEnabled: true,
-                        accessTier: ['free'],
+                        accessTier: 'free',
                         supportsImageUpload: true,
                         supportedFileTypes: ['application/pdf'],
                         supportedTools: ['WebSearch'],
@@ -113,7 +113,7 @@ export function omnibarMockTransport() {
                         name: 'Mistral Small 3',
                         shortName: 'Mistral',
                         isEnabled: true,
-                        accessTier: ['free'],
+                        accessTier: 'free',
                         supportsImageUpload: false,
                         supportedTools: [],
                         // Demonstrates the 'upgrade' upsell (existing subscriber gated behind a higher tier).
@@ -124,8 +124,7 @@ export function omnibarMockTransport() {
                         name: 'Claude 3.5 Haiku',
                         shortName: 'Claude 3.5 Haiku',
                         isEnabled: true,
-                        isBeta: true,
-                        accessTier: ['free'],
+                        accessTier: 'free',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                     },
@@ -139,7 +138,7 @@ export function omnibarMockTransport() {
                         name: 'GPT-4o',
                         shortName: 'GPT-4o',
                         isEnabled: false,
-                        accessTier: ['plus'],
+                        accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                     },
@@ -148,7 +147,7 @@ export function omnibarMockTransport() {
                         name: 'GPT-5.2',
                         shortName: 'GPT-5.2',
                         isEnabled: false,
-                        accessTier: ['plus'],
+                        accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                         reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT, EXTENDED_EFFORT_AVAILABLE],
@@ -158,7 +157,7 @@ export function omnibarMockTransport() {
                         name: 'Claude Sonnet 4.5',
                         shortName: 'Sonnet 4.5',
                         isEnabled: false,
-                        accessTier: ['plus'],
+                        accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedFileTypes: ['application/pdf'],
                         supportedTools: ['WebSearch'],
@@ -169,7 +168,7 @@ export function omnibarMockTransport() {
                         name: 'Llama 4 Maverick',
                         shortName: 'Maverick',
                         isEnabled: false,
-                        accessTier: ['plus'],
+                        accessTier: 'plus',
                         supportsImageUpload: false,
                         supportedTools: [],
                     },
@@ -178,7 +177,7 @@ export function omnibarMockTransport() {
                         name: 'Claude Opus 4.6',
                         shortName: 'Opus 4.6',
                         isEnabled: false,
-                        accessTier: ['pro'],
+                        accessTier: 'pro',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                         reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT, EXTENDED_EFFORT_AVAILABLE],
@@ -188,7 +187,7 @@ export function omnibarMockTransport() {
                         name: 'Claude 4 Sonnet',
                         shortName: 'Claude 4 Sonnet',
                         isEnabled: false,
-                        accessTier: ['pro'],
+                        accessTier: 'pro',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                     },
@@ -303,7 +302,7 @@ export function omnibarMockTransport() {
                             items: section.items.map((item) => ({
                                 ...item,
                                 isEnabled: true,
-                                reasoningEfforts: item.reasoningEfforts?.map((effort) => ({ ...effort, status: 'available' })),
+                                reasoningEfforts: item.reasoningEfforts?.map((effort) => ({ ...effort, isAvailable: true })),
                             })),
                         }));
                     }

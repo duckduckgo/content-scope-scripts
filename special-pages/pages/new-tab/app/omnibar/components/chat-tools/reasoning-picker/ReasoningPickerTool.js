@@ -44,7 +44,7 @@ export function ReasoningPickerTool() {
         id: effort.id,
         name: effort.name,
         description: effort.description,
-        status: effort.status,
+        isAvailable: effort.isAvailable,
         upsell: effort.upsell,
         icon: getReasoningIcon(effort.id),
     }));

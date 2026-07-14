@@ -15,7 +15,7 @@ import styles from './ReasoningPicker.module.css';
  * @property {ReasoningEffortIconComponent} icon - Icon component rendered in the button and dropdown
  * @property {string} name - Localized label
  * @property {string} [description] - Localized description
- * @property {'available' | 'unavailable'} status - Whether the option is selectable or gated behind an upsell
+ * @property {boolean} isAvailable - Whether the option is selectable or gated behind an upsell
  * @property {'subscribe' | 'upgrade'} [upsell] - For a gated option, which upsell flow to trigger
  */
 
@@ -41,7 +41,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
 
     /** @param {ReasoningEffort} effort */
     const handleSelect = (effort) => {
-        const isSupported = options.some((option) => option.id === effort && option.status === 'available');
+        const isSupported = options.some((option) => option.id === effort && option.isAvailable);
         if (!isSupported) return;
         onSelect(effort);
     };
@@ -77,7 +77,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                 >
                     {options.map((option) => {
                         const OptionIcon = option.icon;
-                        const isUnavailable = option.status === 'unavailable';
+                        const isUnavailable = !option.isAvailable;
                         const badgeLabel = option.upsell === 'upgrade' ? upgradeLabel : tryForFreeLabel;
                         return (
                             <DropdownItem

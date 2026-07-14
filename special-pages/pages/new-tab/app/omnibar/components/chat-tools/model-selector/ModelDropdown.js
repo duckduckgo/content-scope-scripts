@@ -18,13 +18,16 @@ import { getModelIcon } from './Icons';
  * @returns {string | null}
  */
 function getRowBadgeLabel(model, t) {
-    const tiers = model.accessTier ?? [];
-    if (tiers.length === 1 && tiers[0] === 'internal') return t('omnibar_modelBadgeInternal');
-    if (model.isBeta) return t('omnibar_modelBadgeBeta');
-    if (tiers.includes('free')) return null;
-    if (tiers.includes('plus')) return t('omnibar_modelBadgePlus');
-    if (tiers.includes('pro')) return t('omnibar_modelBadgePro');
-    return null;
+    switch (model.accessTier) {
+        case 'internal':
+            return t('omnibar_modelBadgeInternal');
+        case 'plus':
+            return t('omnibar_modelBadgePlus');
+        case 'pro':
+            return t('omnibar_modelBadgePro');
+        default:
+            return null;
+    }
 }
 
 /**

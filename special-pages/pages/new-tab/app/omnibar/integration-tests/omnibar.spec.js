@@ -1720,7 +1720,7 @@ test.describe('omnibar widget', () => {
     });
 
     test.describe('AI chat model selector', () => {
-        test('renders model descriptions and tier/beta badges', async ({ page }, workerInfo) => {
+        test('renders model descriptions and tier badges', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
@@ -1735,8 +1735,6 @@ test.describe('omnibar widget', () => {
 
             // description under the model name
             await expect(omnibar.modelOption('GPT-5 mini')).toContainText('Best for everyday use');
-            // beta badge (claude-3-5-haiku-latest has isBeta in the mock)
-            await expect(omnibar.modelOption('Claude 3.5 Haiku')).toContainText('Beta');
             // tier badges on gated models
             await expect(omnibar.modelOption('Claude Sonnet 4.5')).toContainText('Plus');
             await expect(omnibar.modelOption('Claude Opus 4.6')).toContainText('Pro');
@@ -2024,7 +2022,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // claude-haiku-4-5 has an 'extended' reasoning effort with status 'unavailable' in the mock
+            // claude-haiku-4-5 has an 'extended' reasoning effort with isAvailable false in the mock
             await ntp.openPage({
                 additional: {
                     omnibar: true,
@@ -2053,7 +2051,7 @@ test.describe('omnibar widget', () => {
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
-            // Mistral Small 3 has an 'extended' reasoning effort with status 'unavailable' and upsell 'upgrade' in the mock
+            // Mistral Small 3 has an 'extended' reasoning effort with isAvailable false and upsell 'upgrade' in the mock
             await ntp.openPage({
                 additional: {
                     omnibar: true,

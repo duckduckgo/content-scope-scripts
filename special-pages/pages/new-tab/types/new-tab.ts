@@ -750,13 +750,9 @@ export interface AIModelItem {
    */
   isEnabled: boolean;
   /**
-   * Whether this model is in beta; drives a 'Beta' badge in the model selector.
+   * Access tier that grants this model (e.g. 'internal', 'free', 'plus', 'pro'). Drives the tier badge (Plus/Pro/Internal) in the model selector.
    */
-  isBeta?: boolean;
-  /**
-   * Access tiers that grant this model (e.g. 'internal', 'free', 'plus', 'pro'). Drives the tier badge (Plus/Pro/Internal) in the model selector.
-   */
-  accessTier?: string[];
+  accessTier?: string;
   /**
    * Whether this model supports image attachments
    */
@@ -792,11 +788,11 @@ export interface ReasoningEffortOption {
    */
   description?: string;
   /**
-   * Whether this option is selectable ('available') or gated behind a subscription upsell ('unavailable').
+   * Whether this option is selectable (true) or gated behind a subscription upsell (false).
    */
-  status: "available" | "unavailable";
+  isAvailable: boolean;
   /**
-   * For a gated ('unavailable') option, which upsell flow it leads to. Absent for available options.
+   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options.
    */
   upsell?: "subscribe" | "upgrade";
 }

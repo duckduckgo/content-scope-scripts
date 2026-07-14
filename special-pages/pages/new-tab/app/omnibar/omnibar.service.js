@@ -25,7 +25,11 @@ export class OmnibarService {
 
         /** @type {Service<OmnibarConfig>} */
         this.configService = new Service({
-            initial: () => ntp.messaging.request('omnibar_getConfig'),
+            initial: async () => {
+                const config = await ntp.messaging.request('omnibar_getConfig');
+                console.log('omnibar_getConfig response', config);
+                return config;
+            },
             subscribe: (cb) => ntp.messaging.subscribe('omnibar_onConfigUpdate', cb),
             persist: (data) => ntp.messaging.notify('omnibar_setConfig', data),
         });
@@ -107,7 +111,7 @@ export class OmnibarService {
         this.configService.update((old) => {
             const nextModel = (old.aiModelSections ?? []).flatMap((section) => section.items).find((model) => model.id === selectedModelId);
             const availableEffortIds = (nextModel?.reasoningEfforts ?? [])
-                .filter((effort) => effort.status === 'available')
+                .filter((effort) => effort.isAvailable)
                 .map((effort) => effort.id);
 
             const currentEffort = old.selectedReasoningEffort;
