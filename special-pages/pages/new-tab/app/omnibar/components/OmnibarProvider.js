@@ -87,6 +87,14 @@ export const OmnibarContext = createContext({
     getTabContent: () => {
         throw new Error('must implement');
     },
+    /** @type {(chatId: string, title: string) => Promise<import('../../../types/new-tab.js').ConfirmDeleteAIChatResponse>} */
+    confirmDeleteAiChat: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(url: string) => void} */
+    removeSuggestion: () => {
+        throw new Error('must implement');
+    },
 });
 
 export const OmnibarServiceContext = createContext(/** @type {OmnibarService|null} */ (null));
@@ -246,6 +254,30 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /**
+     * Asks native to show a confirmation dialog for deleting an AI chat.
+     * Returns the user's choice so the caller can decide whether to remove the chat from the UI.
+     * @type {(chatId: string, title: string) => Promise<import('../../../types/new-tab.js').ConfirmDeleteAIChatResponse>}
+     */
+    const confirmDeleteAiChat = useCallback(
+        (chatId, title) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.confirmDeleteAiChat(chatId, title);
+        },
+        [service],
+    );
+
+    /**
+     * Tells native to remove a history entry from browsing history (fire-and-forget).
+     * @type {(url: string) => void}
+     */
+    const removeSuggestion = useCallback(
+        (url) => {
+            service.current?.removeSuggestion(url);
+        },
+        [service],
+    );
+
     return (
         <OmnibarContext.Provider
             value={{
@@ -266,6 +298,8 @@ export function OmnibarProvider(props) {
                 viewAllAiChats,
                 getOpenTabs,
                 getTabContent,
+                confirmDeleteAiChat,
+                removeSuggestion,
             }}
         >
             <OmnibarServiceContext.Provider value={service.current}>{props.children}</OmnibarServiceContext.Provider>

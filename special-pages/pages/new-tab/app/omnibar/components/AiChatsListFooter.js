@@ -20,7 +20,7 @@ export function AiChatsListFooter() {
 
     return (
         <div class={styles.footer}>
-            <button
+            <div
                 role="option"
                 id={VIEW_ALL_CHATS_ELEMENT_ID}
                 class={styles.item}
@@ -29,7 +29,6 @@ export function AiChatsListFooter() {
                 onMouseOver={() => selectViewAllChats()}
                 onMouseLeave={() => clearSelectedChat()}
                 onClick={(event) => {
-                    event.preventDefault();
                     viewAllAiChats({
                         target: eventToTarget(event, platformName),
                     });
@@ -46,7 +45,7 @@ export function AiChatsListFooter() {
                         <span class={styles.footerArrow}>{'\u2192'}</span>
                     </span>
                 </span>
-            </button>
+            </div>
         </div>
     );
 }
