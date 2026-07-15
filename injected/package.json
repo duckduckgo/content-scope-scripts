@@ -48,7 +48,7 @@
     "@canvas/image-data": "^1.1.0",
     "@duckduckgo/privacy-reference-tests": "github:duckduckgo/privacy-reference-tests#c2b49fe7ce4a75404c6a79e4dd1053710a9869ee",
     "@fingerprintjs/fingerprintjs": "^5.2.0",
-    "@types/chrome": "^0.2.0",
+    "@types/chrome": "^0.2.1",
     "@types/jasmine": "^6.0.0",
     "@types/node": "^26.0.1",
     "@types/seedrandom": "^3.0.8",
@@ -57,6 +57,6 @@
     "jasmine": "^6.3.0",
     "jsdom": "^29.1.1",
     "monocart-coverage-reports": "^2.12.12",
-    "web-ext": "^10.2.0"
+    "web-ext": "^10.4.0"
   }
 }

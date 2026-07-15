@@ -1,3 +1,5 @@
-- macOS: Special Error Pages Rebranding UX (#2860)
-- build(deps-dev): bump eslint from 10.5.0 to 10.6.0 in the eslint group (#2857)
-- build(deps-dev): bump stylelint in the stylelint group (#2853)
+- build(deps-dev): bump @types/chrome in the typescript group (#2868)
+- build(deps): bump actions/checkout from 6 to 7 (#2795)
+- build(deps-dev): bump web-ext from 10.3.0 to 10.4.0 (#2814)
+- build(deps-dev): bump typescript-eslint from 8.62.0 to 8.62.1 (#2864)
+- Add a defensive fix for incorrectly encoded json (#2848)
