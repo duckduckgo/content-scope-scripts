@@ -240,3 +240,154 @@
 .buttonRow button {
     white-space: nowrap;
 }
+
+:global(body[data-rebrand="true"]) {
+    --next-steps-list-rebrand-illustration-size: calc(108 * var(--px-in-rem));
+    --next-steps-list-rebrand-tag-background-color: #FFD885; /* Pollen 30 */
+    --next-steps-list-rebrand-tag-text-color: #47210A; /* Pollen 90 */
+
+    .wrapper {
+        padding-top: var(--ds-space-x04);
+    }
+
+    .bubble {
+        left: var(--ds-space-x01);
+        top: var(--ds-space-x05);
+        z-index: 3;
+
+        svg {
+            display: none;
+        }
+
+        div {
+            background-color: var(--next-steps-list-rebrand-tag-background-color);
+            border-radius: var(--ds-radius-x06) var(--ds-radius-x01) var(--ds-radius-x06) var(--ds-radius-x01);
+            height: auto;
+            margin: 0;
+            padding: var(--ds-space-x1-5) var(--ds-space-x03-5);
+
+            h2 {
+                color: var(--next-steps-list-rebrand-tag-text-color);
+                font-family: var(--ds-font-family-product);
+                font-size: var(--small-label-font-size);
+                font-weight: var(--ds-font-weight-bold);
+                letter-spacing: var(--ds-font-label-01-letter-spacing);
+                line-height: normal;
+                text-align: center;
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    .cardContainer {
+        min-height: calc(140 * var(--px-in-rem));
+        padding-bottom: 0;
+    }
+
+    .card {
+        align-items: center;
+        background-color: var(--ds-color-theme-surface-secondary);
+        border: 1px solid var(--ds-color-theme-container-border-primary);
+        border-radius: var(--ds-radius-x06);
+        box-shadow: 0 1px 2px 0 var(--ds-color-theme-shadow-secondary);
+        display: grid;
+        gap: var(--ds-space-x04);
+        grid-template-columns: var(--next-steps-list-rebrand-illustration-size) minmax(0, 1fr);
+        min-height: calc(128 * var(--px-in-rem));
+        padding: var(--ds-space-x05) var(--ds-space-x05) var(--ds-space-x05) var(--ds-space-x10);
+    }
+
+    .cardContainer:has(.backCard) > .card:not(.backCard, .dismissing, .promoting) {
+        box-shadow: 0 2px 8px 0 var(--ds-color-theme-shadow-secondary);
+    }
+
+    .card.backCard {
+        display: none;
+    }
+
+    .dismissBtn {
+        background-color: var(--ds-color-theme-control-fill-primary);
+        border: 1px solid var(--ds-color-theme-container-border-primary);
+        border-radius: var(--ds-radius-full);
+        right: var(--ds-space-x03);
+        top: var(--ds-space-x03);
+    }
+
+    .imageContainer {
+        align-items: flex-start;
+        flex: initial;
+        height: var(--next-steps-list-rebrand-illustration-size);
+        justify-content: flex-start;
+        min-height: 0;
+        width: var(--next-steps-list-rebrand-illustration-size);
+    }
+
+    .image {
+        height: auto;
+        max-height: var(--next-steps-list-rebrand-illustration-size);
+        max-width: var(--next-steps-list-rebrand-illustration-size);
+        width: auto;
+    }
+
+    .content {
+        align-items: flex-start;
+        flex: initial;
+        gap: var(--ds-space-x02);
+        min-width: 0;
+        padding-right: var(--ds-space-x07);
+    }
+
+    .title {
+        font-family: var(--ds-font-family-product);
+        /* Closest available token to the 18px card title spec. */
+        font-size: var(--ds-font-button-label-01-size);
+        font-weight: var(--ds-font-weight-semibold);
+        letter-spacing: var(--ds-font-letter-spacing-normal);
+        line-height: var(--ds-font-body-md-line-height);
+    }
+
+    .description {
+        color: var(--ds-color-theme-text-secondary);
+        font-family: var(--ds-font-body-md-font-family);
+        font-size: var(--ds-font-body-md-size);
+        font-weight: var(--ds-font-weight-normal);
+        letter-spacing: var(--ds-font-body-md-letter-spacing);
+        line-height: var(--ds-font-body-sm-line-height);
+    }
+
+    .buttonRow {
+        flex-wrap: wrap;
+        gap: var(--ds-space-x04);
+        margin-top: var(--ds-space-x05);
+    }
+
+    .buttonRow .actionButton {
+        --button-shadow: none;
+        --button-shadow--active: none;
+        --button-shadow--hover: none;
+
+        border-radius: var(--ds-radius-full);
+        font-family: var(--ds-font-button-label-02-font-family);
+        font-size: var(--ds-font-button-label-02-size);
+        font-weight: var(--ds-font-button-label-02-weight);
+        height: var(--ds-space-x10);
+        letter-spacing: var(--ds-font-button-label-02-letter-spacing);
+        line-height: var(--ds-font-button-label-02-line-height);
+        min-height: var(--ds-space-x10);
+        padding: 0 var(--ds-space-x08);
+    }
+
+    .buttonRow .primaryButton {
+        --button-bg: var(--ds-color-theme-accent-primary);
+        --button-bg--active: var(--ds-color-theme-accent-tertiary);
+        --button-bg--hover: var(--ds-color-theme-accent-secondary);
+        --button-text: var(--ds-color-theme-accent-content-primary);
+    }
+
+    .buttonRow .secondaryButton {
+        --button-bg: var(--ds-color-theme-control-fill-primary);
+        --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
+        --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
+        --button-text: var(--ds-color-theme-text-primary);
+    }
+}

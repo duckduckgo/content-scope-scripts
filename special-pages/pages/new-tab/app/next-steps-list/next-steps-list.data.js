@@ -89,8 +89,17 @@ export const variants = {
  * Get the icon path for a given icon name and theme
  * @param {string} iconName - The base icon name (e.g., 'email-protection')
  * @param {'light' | 'dark'} theme - The current theme
+ * @param {boolean} isRebrandEnabled - Whether the NTP rebrand is enabled
  * @returns {string} The full path to the icon
  */
-export function getIconPath(iconName, theme) {
+export function getIconPath(iconName, theme, isRebrandEnabled = false) {
+    if (isRebrandEnabled && iconName === 'add-dock') {
+        return './icons/Dock-Add-Mac-96.svg';
+    }
+
+    if (isRebrandEnabled && iconName === 'import-passwords') {
+        return './icons/Passwords-Import-96.svg';
+    }
+
     return `./next-steps-list/${iconName}-${theme}.png`;
 }

@@ -5,6 +5,7 @@ import { NextStepsListCard } from './components/NextStepsListCard.js';
 import { variants, getIconPath } from './next-steps-list.data.js';
 import { useTypedTranslationWith } from '../types.js';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
+import { useNewTabPageRebranding, usePlatformName } from '../settings.provider.js';
 
 /**
  * @import enStrings from './strings.json';
@@ -41,6 +42,8 @@ export function NextStepsListConsumer() {
     const { state, action, dismiss } = useContext(NextStepsListContext);
     const { main: themeSignal } = useContext(CustomizerThemesContext);
     const theme = themeSignal.value;
+    const platformName = usePlatformName();
+    const useRebrandAssets = useNewTabPageRebranding() && platformName === 'macos';
 
     if (state.status === 'ready' && state.data.content && state.data.content.length > 0) {
         // Filter to only known IDs (skip unknown ones)
@@ -51,7 +54,7 @@ export function NextStepsListConsumer() {
 
         const displayedItemId = items[0].id;
         const { title, summary, actionText, icon } = variants[displayedItemId](t);
-        const iconPath = getIconPath(icon, theme);
+        const iconPath = getIconPath(icon, theme, useRebrandAssets);
 
         // Get the next card data if there is one (for the stacked card behind)
         let nextCard = null;
@@ -64,7 +67,7 @@ export function NextStepsListConsumer() {
                 description: nextVariant.summary,
                 primaryButtonText: nextVariant.actionText,
                 secondaryButtonText: t('nextStepsList_maybeLater'),
-                imageSrc: getIconPath(nextVariant.icon, theme),
+                imageSrc: getIconPath(nextVariant.icon, theme, useRebrandAssets),
             };
         }
 

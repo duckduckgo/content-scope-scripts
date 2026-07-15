@@ -29,12 +29,12 @@ import styles from './NextStepsListCard.module.css';
 function CardBody({ title, description, primaryButtonText, secondaryButtonText, imageSrc, onPrimaryClick, onSecondaryClick }) {
     const platformName = usePlatformName();
     const primaryButton = (
-        <Button variant="accentBrand" size="lg" onClick={onPrimaryClick}>
+        <Button className={cn(styles.actionButton, styles.primaryButton)} variant="accentBrand" size="lg" onClick={onPrimaryClick}>
             {primaryButtonText}
         </Button>
     );
     const secondaryButton = (
-        <Button variant="standard" size="lg" onClick={onSecondaryClick}>
+        <Button className={cn(styles.actionButton, styles.secondaryButton)} variant="standard" size="lg" onClick={onSecondaryClick}>
             {secondaryButtonText}
         </Button>
     );
