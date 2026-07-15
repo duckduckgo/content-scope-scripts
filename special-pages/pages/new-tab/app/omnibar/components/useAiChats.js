@@ -206,6 +206,7 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
      * @param {string} title - displayed in the native confirmation dialog
      */
     const removeChat = async (chatId, title) => {
+        if (deletionInProgress.current) return;
         deletionInProgress.current = true;
         try {
             const response = await confirmDeleteAiChat(chatId, title);
