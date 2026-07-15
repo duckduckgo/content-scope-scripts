@@ -3,6 +3,7 @@
   "title": "Set Customize Responses Active Action",
   "description": "Sent when the user toggles the on/off switch on the 'Customize responses' Tools-menu row. Native persists the new active state for the current window's stored customization.",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "active"
   ],

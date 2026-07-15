@@ -111,7 +111,7 @@ export type EnableWebSearch = boolean;
  */
 export type EnableVoiceChatAccess = boolean;
 /**
- * Show the 'Customize responses' entry in the AI chat Tools menu. Selecting it sends omnibar_openCustomizeResponses so native opens the Customize Responses modal.
+ * Show the 'Customize responses' entry in the AI chat Tools menu. Selecting it opens the Customize Responses modal.
  */
 export type EnableCustomizeResponses = boolean;
 /**
@@ -123,7 +123,7 @@ export type CustomizeResponsesSubLabel = string;
  */
 export type HasCustomization = boolean;
 /**
- * Whether the stored customization is currently applied. Drives the checked state of the toggle in the 'Customize responses' Tools-menu row; toggling it sends omnibar_setCustomizeResponsesActive.
+ * Whether the stored customization is currently applied. Drives the checked state of the toggle in the 'Customize responses' Tools-menu row.
  */
 export type CustomizationActive = boolean;
 /**

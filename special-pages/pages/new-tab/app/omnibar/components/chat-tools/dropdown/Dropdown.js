@@ -61,9 +61,20 @@ export function Dropdown({
 
     const isItemEnabled = (/** @type {import('preact').ComponentChild} */ child) => !getItemProps(child)?.disabled;
 
-    /** @returns {number[]} */
+    /**
+     * Indices keyboard navigation can land on: interactive, enabled rows only.
+     * Excludes non-item children like {@link DropdownSeparator} (no `onSelect`)
+     * and disabled rows, so arrow/Home/End never target a non-actionable element
+     * or point `aria-activedescendant` at a separator.
+     * @returns {number[]}
+     */
     const getNavigableIndices = () =>
-        items.map((child, index) => (getItemProps(child) === null ? -1 : index)).filter((index) => index >= 0);
+        items
+            .map((child, index) => {
+                const props = getItemProps(child);
+                return props && typeof props.onSelect === 'function' && !props.disabled ? index : -1;
+            })
+            .filter((index) => index >= 0);
 
     const navigableIndices = getNavigableIndices();
 
