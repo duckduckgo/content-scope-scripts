@@ -1983,6 +1983,24 @@
       }
     ));
   }
+  function FireOutlineIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M13.75 9.99999C13.75 7.6114 12.7665 5.86879 12.054 4.91918C11.8634 5.35713 11.3138 6.24999 10 6.24999C9.23524 6.24999 8.69912 5.91636 8.35681 5.53795C8.05115 5.20006 7.90223 4.83217 7.84424 4.6361L7.83374 4.59923C7.73724 4.23909 7.65821 3.86108 7.5813 3.52025C7.50214 3.16943 7.42248 2.8441 7.31921 2.54088C7.21055 2.22182 7.07987 1.93981 6.90686 1.69616C6.04176 3.51683 4.90473 4.74512 4.0083 5.8474C2.98036 7.11139 2.25 8.21978 2.25 9.99999C2.25 11.5453 3.17333 12.9549 4.62378 13.8314C4.5498 13.5538 4.50912 13.2661 4.50134 12.9761L4.5 12.8721C4.5 11.9152 5.02207 11.0884 5.60693 10.3995C6.18795 9.71517 6.95902 9.02869 7.55933 8.43175L7.58264 8.40978C7.8276 8.18966 8.20451 8.19696 8.44067 8.43175C9.05396 9.04158 9.81298 9.74213 10.3971 10.444C10.9724 11.1352 11.5 11.9641 11.5 12.8721L11.4987 12.9761C11.4909 13.2662 11.45 13.5538 11.376 13.8314C12.8265 12.9549 13.75 11.5454 13.75 9.99999ZM15 9.99999C15 12.8172 12.7588 15.0456 9.96423 15.7555L9.83069 15.7882C9.53379 15.858 9.22988 15.7033 9.11157 15.4222C8.99328 15.1411 9.09514 14.8155 9.35266 14.6521L9.40625 14.6168C9.93428 14.2555 10.2305 13.6503 10.249 12.9431L10.25 12.8721C10.25 12.4301 9.97904 11.8957 9.43628 11.2435C9.01978 10.7431 8.51533 10.2539 7.99817 9.74926C7.47734 10.2499 6.9792 10.7145 6.55981 11.2085C6.02662 11.8365 5.75 12.3731 5.75 12.8721L5.75098 12.9431C5.77015 13.6739 6.08576 14.2957 6.64722 14.6521C6.90474 14.8156 7.00661 15.1411 6.88831 15.4222C6.77369 15.6946 6.48489 15.8482 6.19702 15.7941L6.16907 15.7882C3.31282 15.1162 1 12.8618 1 9.99999C1 7.78021 1.95715 6.38859 3.03857 5.05883C4.11921 3.73004 5.30467 2.4733 6.10437 0.400015L6.11804 0.367423C6.19088 0.206365 6.32889 0.083099 6.49841 0.0292879C6.67923 -0.0281012 6.87633 -0.000258736 7.03418 0.104972L7.1084 0.155875C7.86401 0.688105 8.25594 1.41415 8.50244 2.13793C8.62834 2.5076 8.7199 2.88721 8.80066 3.24511C8.88367 3.61298 8.95333 3.94758 9.04126 4.27575L9.04895 4.30089C9.07357 4.37452 9.14524 4.54627 9.28381 4.69945C9.42588 4.85648 9.63979 4.99999 10 4.99999C10.3407 4.99999 10.5367 4.88856 10.66 4.77758C10.7966 4.65468 10.8764 4.50089 10.9197 4.39281L10.9323 4.35717C10.962 4.26293 10.9945 4.09424 11.0333 3.8789C11.0513 3.77918 11.073 3.65801 11.0959 3.56664C11.1047 3.5319 11.1268 3.44415 11.1708 3.35876C11.1841 3.33286 11.2534 3.19351 11.4126 3.0963C11.5104 3.03661 11.6525 2.98718 11.8207 3.00793C11.9625 3.02544 12.0692 3.08634 12.1396 3.14257L12.1676 3.16625L12.1681 3.16662L12.2168 3.21166C12.6011 3.5746 15 5.99558 15 9.99999Z"
+      }
+    ));
+  }
+  function TrashOutlineIcon(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M9.125 0C10.1605 2.41596e-08 11 0.839466 11 1.875V2H14.375L14.501 2.0127C14.7858 2.07098 15 2.32298 15 2.625C15 2.92702 14.7858 3.17902 14.501 3.2373L14.375 3.25H14V12.875C14 14.6009 12.6009 16 10.875 16H5.125C3.39911 16 2 14.6009 2 12.875V3.25H1.625C1.27982 3.25 1 2.97018 1 2.625C1 2.27982 1.27982 2 1.625 2H5V1.875C5 0.839466 5.83947 2.416e-08 6.875 0H9.125ZM3.25 3.25V12.875C3.25 13.9105 4.08947 14.75 5.125 14.75H10.875C11.9105 14.75 12.75 13.9105 12.75 12.875V3.25H3.25ZM5.625 5C5.97018 5 6.25 5.27982 6.25 5.625V12.375C6.25 12.7202 5.97018 13 5.625 13C5.27982 13 5 12.7202 5 12.375V5.625C5 5.27982 5.27982 5 5.625 5ZM10.375 5C10.7202 5 11 5.27982 11 5.625V12.375C11 12.7202 10.7202 13 10.375 13C10.0298 13 9.75 12.7202 9.75 12.375V5.625C9.75 5.27982 10.0298 5 10.375 5ZM6.875 1.25C6.52982 1.25 6.25 1.52982 6.25 1.875V2H9.75V1.875C9.75 1.52982 9.47018 1.25 9.125 1.25H6.875Z"
+      }
+    ));
+  }
   function LightThemeIcon(props) {
     return /* @__PURE__ */ k("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 17", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k(
       "path",
@@ -9069,6 +9087,27 @@
           const response = await this.ntp.messaging.request("omnibar_getTabContent", { tabId });
           return response?.pageContext ?? null;
         }
+        /**
+         * Tells native to remove a history entry from the user's browsing history.
+         * This is a fire-and-forget notification (no confirmation dialog needed).
+         * The NTP removes the suggestion from the UI immediately before calling this.
+         * @param {string} url - the URL of the history entry to remove
+         */
+        removeSuggestion(url8) {
+          this.ntp.messaging.notify("omnibar_removeSuggestion", { url: url8 });
+        }
+        /**
+         * Asks native to show a confirmation dialog for deleting an AI chat.
+         * Native shows the dialog and responds with the user's choice.
+         * If the user confirms, native handles the full deletion (storage, sync, tombstones).
+         * The NTP should only remove the chat from the UI after receiving { action: "delete" }.
+         * @param {string} chatId - unique identifier of the chat to delete
+         * @param {string} title - chat title, displayed in the native confirmation dialog
+         * @returns {Promise<ConfirmDeleteAIChatResponse>} "delete" if confirmed, "none" if cancelled
+         */
+        confirmDeleteAiChat(chatId, title) {
+          return this.ntp.messaging.request("omnibar_confirmDeleteAiChat", { chatId, title });
+        }
       };
     }
   });
@@ -9186,6 +9225,19 @@
       },
       [service]
     );
+    const confirmDeleteAiChat = q2(
+      (chatId, title) => {
+        if (!service.current) throw new Error("Service not available");
+        return service.current.confirmDeleteAiChat(chatId, title);
+      },
+      [service]
+    );
+    const removeSuggestion = q2(
+      (url8) => {
+        service.current?.removeSuggestion(url8);
+      },
+      [service]
+    );
     return /* @__PURE__ */ k(
       OmnibarContext.Provider,
       {
@@ -9206,7 +9258,9 @@
           openAiChat,
           viewAllAiChats,
           getOpenTabs,
-          getTabContent
+          getTabContent,
+          confirmDeleteAiChat,
+          removeSuggestion
         }
       },
       /* @__PURE__ */ k(OmnibarServiceContext.Provider, { value: service.current }, props.children)
@@ -9305,6 +9359,14 @@
         /** @type {(tabId: string) => Promise<PageContext | null>} */
         getTabContent: () => {
           throw new Error("must implement");
+        },
+        /** @type {(chatId: string, title: string) => Promise<import('../../../types/new-tab.js').ConfirmDeleteAIChatResponse>} */
+        confirmDeleteAiChat: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(url: string) => void} */
+        removeSuggestion: () => {
+          throw new Error("must implement");
         }
       });
       OmnibarServiceContext = X(
@@ -9385,6 +9447,25 @@
           selectedIndex: nextIndex >= action.itemCount ? null : nextIndex
         };
       }
+      case "removeChat": {
+        const removedIndex = state.chats.findIndex((chat) => chat.chatId === action.chatId);
+        const chats = state.chats.filter((chat) => chat.chatId !== action.chatId);
+        let selectedIndex = state.selectedIndex;
+        if (chats.length === 0) {
+          selectedIndex = null;
+        } else if (selectedIndex !== null && removedIndex !== -1) {
+          if (removedIndex < selectedIndex) {
+            selectedIndex = selectedIndex - 1;
+          } else if (selectedIndex >= chats.length) {
+            selectedIndex = chats.length - 1;
+          }
+        }
+        return {
+          ...state,
+          chats,
+          selectedIndex
+        };
+      }
       default: {
         const _exhaustiveCheck = action;
         console.warn("Unknown action type", _exhaustiveCheck);
@@ -9393,7 +9474,8 @@
     }
   }
   function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats = false }) {
-    const { getAiChats, onAiChats } = x2(OmnibarContext);
+    const { getAiChats, onAiChats, confirmDeleteAiChat } = x2(OmnibarContext);
+    const deletionInProgress = A2(false);
     const [state, dispatch] = h2(reducer2, {
       chats: [],
       selectedIndex: null,
@@ -9444,6 +9526,20 @@
     const showChats = q2(() => {
       dispatch({ type: "showChats" });
     }, []);
+    const removeChat = async (chatId, title) => {
+      if (deletionInProgress.current) return;
+      deletionInProgress.current = true;
+      try {
+        const response = await confirmDeleteAiChat(chatId, title);
+        if (response.action === "delete") {
+          dispatch({ type: "removeChat", chatId });
+          getAiChats(query);
+        }
+      } catch {
+      } finally {
+        deletionInProgress.current = false;
+      }
+    };
     return {
       chats: chatsVisible ? state.chats : EMPTY_ARRAY,
       selectedChat,
@@ -9454,7 +9550,9 @@
       clearSelectedChat,
       selectViewAllChats,
       hideChats,
-      showChats
+      showChats,
+      removeChat,
+      deletionInProgress
     };
   }
   var EMPTY_ARRAY;
@@ -9971,12 +10069,37 @@
           selectedIndex: nextIndex
         };
       }
+      case "removeSuggestion": {
+        const removedIndex = state.suggestions.findIndex((s4) => s4.id === action.id);
+        const suggestions2 = state.suggestions.filter((s4) => s4.id !== action.id);
+        if (suggestions2.length === 0) {
+          return {
+            ...state,
+            suggestions: suggestions2,
+            selectedIndex: null,
+            suggestionsVisible: false
+          };
+        }
+        let selectedIndex = state.selectedIndex;
+        if (selectedIndex !== null && removedIndex !== -1) {
+          if (removedIndex < selectedIndex) {
+            selectedIndex = selectedIndex - 1;
+          } else if (selectedIndex >= suggestions2.length) {
+            selectedIndex = suggestions2.length - 1;
+          }
+        }
+        return {
+          ...state,
+          suggestions: suggestions2,
+          selectedIndex
+        };
+      }
       default:
         throw new Error("Unknown action type");
     }
   }
   function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
-    const { onSuggestions, getSuggestions } = x2(OmnibarContext);
+    const { onSuggestions, getSuggestions, removeSuggestion: notifyRemoveSuggestion } = x2(OmnibarContext);
     const [state, dispatch] = h2(reducer3, initialState);
     y2(() => {
       return onSuggestions((data2, term2) => {
@@ -10040,6 +10163,13 @@
     const hideSuggestions = () => {
       dispatch({ type: "hideSuggestions" });
     };
+    const removeHistorySuggestion = (suggestion) => {
+      if (suggestion.kind !== "historyEntry" || !("url" in suggestion) || typeof suggestion.url !== "string") {
+        return;
+      }
+      dispatch({ type: "removeSuggestion", id: suggestion.id });
+      notifyRemoveSuggestion(suggestion.url);
+    };
     return {
       suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY2,
       selectedSuggestion,
@@ -10048,7 +10178,8 @@
       selectNextSuggestion,
       setSelectedSuggestion,
       clearSelectedSuggestion,
-      hideSuggestions
+      hideSuggestions,
+      removeHistorySuggestion
     };
   }
   var initialState, EMPTY_ARRAY2;
@@ -10329,6 +10460,7 @@
         item: "SuggestionsList_item",
         suffix: "SuggestionsList_suffix",
         badge: "SuggestionsList_badge",
+        deleteButton: "SuggestionsList_deleteButton",
         title: "SuggestionsList_title"
       };
     }
@@ -10364,11 +10496,13 @@
       {}
     );
     const platformName = usePlatformName();
-    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
+    const { state } = x2(OmnibarContext);
+    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, removeHistorySuggestion } = useSearchFormContext();
+    const isDeletable = suggestion.kind === "historyEntry" && state.config?.enableSearchSuggestionDeletion === true;
     const title = getSuggestionTitle(suggestion, term);
     const suffix = getSuggestionSuffix(suggestion);
     return /* @__PURE__ */ k(
-      "button",
+      "div",
       {
         role: "option",
         id: suggestion.id,
@@ -10378,7 +10512,6 @@
         onMouseOver: () => setSelectedSuggestion(suggestion),
         onMouseLeave: () => clearSelectedSuggestion(),
         onClick: (event) => {
-          event.preventDefault();
           if (suggestion.kind === "aiChat") {
             onSubmitChat({ chat: suggestion.chat, target: eventToTarget2(event, platformName) });
           } else {
@@ -10389,7 +10522,24 @@
       /* @__PURE__ */ k(SuggestionIcon, { suggestion }),
       /* @__PURE__ */ k("span", { class: SuggestionsList_default.title }, suggestion.kind === "aiChat" ? /* @__PURE__ */ k("b", null, title) : startsWithIgnoreCase(title, term) ? /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("b", null, title.slice(0, term.length)), title.slice(term.length)) : title),
       suffix && /* @__PURE__ */ k("span", { class: SuggestionsList_default.suffix }, /* @__PURE__ */ k(SuffixText, { suffix })),
-      suggestion.kind === "openTab" && /* @__PURE__ */ k("span", { class: SuggestionsList_default.badge }, t4("omnibar_switchToTab"), " ", /* @__PURE__ */ k(ArrowRightIcon, null))
+      suggestion.kind === "openTab" && /* @__PURE__ */ k("span", { class: SuggestionsList_default.badge }, t4("omnibar_switchToTab"), " ", /* @__PURE__ */ k(ArrowRightIcon, null)),
+      isDeletable && /* @__PURE__ */ k(
+        "button",
+        {
+          tabIndex: -1,
+          class: SuggestionsList_default.deleteButton,
+          "aria-label": t4("omnibar_removeSuggestion"),
+          title: t4("omnibar_removeSuggestion"),
+          onMouseDown: (e4) => {
+            e4.preventDefault();
+          },
+          onClick: (e4) => {
+            e4.stopPropagation();
+            removeHistorySuggestion(suggestion);
+          }
+        },
+        /* @__PURE__ */ k(TrashOutlineIcon, null)
+      )
     );
   }
   function SuggestionIcon({ suggestion }) {
@@ -10416,10 +10566,12 @@
     "pages/new-tab/app/omnibar/components/SuggestionsList.js"() {
       "use strict";
       init_preact_module();
+      init_hooks_module();
       init_handlers();
       init_Icons2();
       init_settings_provider();
       init_utils4();
+      init_OmnibarProvider();
       init_SearchFormProvider();
       init_SuffixText();
       init_SuggestionsList();
@@ -10454,7 +10606,7 @@
     );
     const { viewAllChatsSelected, selectViewAllChats, clearSelectedChat } = useAiChatsContext();
     return /* @__PURE__ */ k("div", { class: AiChatsListFooter_default.footer }, /* @__PURE__ */ k(
-      "button",
+      "div",
       {
         role: "option",
         id: VIEW_ALL_CHATS_ELEMENT_ID,
@@ -10464,7 +10616,6 @@
         onMouseOver: () => selectViewAllChats(),
         onMouseLeave: () => clearSelectedChat(),
         onClick: (event) => {
-          event.preventDefault();
           viewAllAiChats({
             target: eventToTarget2(event, platformName)
           });
@@ -10497,6 +10648,7 @@
       AiChatsList_default = {
         list: "AiChatsList_list",
         item: "AiChatsList_item",
+        deleteButton: "AiChatsList_deleteButton",
         title: "AiChatsList_title"
       };
     }
@@ -10504,15 +10656,20 @@
 
   // pages/new-tab/app/omnibar/components/AiChatsList.js
   function AiChatsList({ className }) {
-    const { openAiChat } = x2(OmnibarContext);
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { state, openAiChat } = x2(OmnibarContext);
     const platformName = usePlatformName();
-    const { chats, selectedChat, showViewAllAiChats, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    const enableDeletion = state.config?.enableAiChatDeletion === true;
+    const { chats, selectedChat, showViewAllAiChats, setSelectedChat, clearSelectedChat, removeChat, aiChatsListId } = useAiChatsContext();
     if (chats.length === 0) {
       return null;
     }
     return /* @__PURE__ */ k("div", { role: "listbox", id: aiChatsListId, "data-omnibar-list": true, class: (0, import_classnames10.default)(AiChatsList_default.list, className) }, chats.map((chat) => {
       return /* @__PURE__ */ k(
-        "button",
+        "div",
         {
           key: chat.chatId,
           role: "option",
@@ -10523,7 +10680,6 @@
           onMouseOver: () => setSelectedChat(chat),
           onMouseLeave: () => clearSelectedChat(),
           onClick: (event) => {
-            event.preventDefault();
             openAiChat({
               chatId: chat.chatId,
               target: eventToTarget2(event, platformName),
@@ -10533,7 +10689,24 @@
           }
         },
         /* @__PURE__ */ k(ChatIcon, { chat }),
-        /* @__PURE__ */ k("span", { class: AiChatsList_default.title }, chat.title)
+        /* @__PURE__ */ k("span", { class: AiChatsList_default.title }, chat.title),
+        enableDeletion && /* @__PURE__ */ k(
+          "button",
+          {
+            tabIndex: -1,
+            class: AiChatsList_default.deleteButton,
+            "aria-label": t4("omnibar_removeAiChat"),
+            title: t4("omnibar_removeAiChat"),
+            onMouseDown: (e4) => {
+              e4.preventDefault();
+            },
+            onClick: (e4) => {
+              e4.stopPropagation();
+              removeChat(chat.chatId, chat.title);
+            }
+          },
+          /* @__PURE__ */ k(FireOutlineIcon, null)
+        )
       );
     }), showViewAllAiChats && /* @__PURE__ */ k(AiChatsListFooter, null));
   }
@@ -10561,6 +10734,7 @@
       init_AiChatsProvider();
       init_useAiChats();
       init_AiChatsListFooter2();
+      init_types();
       init_AiChatsList();
       ICON_BY_MODEL = /* @__PURE__ */ new Map([
         ["voice-mode", VoiceIcon],
@@ -13527,7 +13701,7 @@
       {}
     );
     const platformName = usePlatformName();
-    const { showChats, hideChats } = useAiChatsContext();
+    const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
     const { state } = x2(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const { selectedModel } = useSelectedModel();
@@ -13660,6 +13834,9 @@
         },
         onBlurCapture: (event) => {
           if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
+            return;
+          }
+          if (deletionInProgress.current) {
             return;
           }
           hideChats();
@@ -35451,6 +35628,14 @@
       title: "Remove {title}",
       description: "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
     },
+    omnibar_removeSuggestion: {
+      title: "Remove from browsing history",
+      description: "Accessible label and tooltip for the button that removes a search suggestion from browsing history."
+    },
+    omnibar_removeAiChat: {
+      title: "Delete this chat",
+      description: "Accessible label and tooltip for the button that deletes a recent AI chat."
+    },
     nextStepsList_sectionTitle: {
       title: "Next Steps",
       note: "Text that goes in the Next Steps bubble label above the card"
@@ -39195,7 +39380,8 @@
           selectNextSuggestion: () => false,
           setSelectedSuggestion,
           clearSelectedSuggestion: () => setSelectedSuggestion(null),
-          hideSuggestions: noop("hideSuggestions")
+          hideSuggestions: noop("hideSuggestions"),
+          removeHistorySuggestion: noop("removeHistorySuggestion")
         }
       },
       children
@@ -40686,9 +40872,12 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
           maxPerConversation: 10,
           maxInputCharsWithAttachments: 3e4
         }
-      }
+      },
+      enableAiChatDeletion: false,
+      enableSearchSuggestionDeletion: false
     };
     const subs = /* @__PURE__ */ new Map();
+    const deletedChatIds = /* @__PURE__ */ new Set();
     return new TestTransportConfig({
       notify(_msg) {
         const msg = (
@@ -40699,6 +40888,10 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
           case "omnibar_setConfig": {
             Object.assign(config, msg.params);
             subs.get("omnibar_onConfigUpdate")?.(config);
+            break;
+          }
+          case "omnibar_removeSuggestion": {
+            console.log("Mock: removing suggestion", msg.params.url);
             break;
           }
           case "omnibar_viewAllAIChats":
@@ -40769,6 +40962,8 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
               const fileMaxFileSizeMB = parseInt(url5.searchParams.get("omnibar.fileMaxFileSizeMB") ?? "", 10);
               if (fileMaxFileSizeMB > 0) config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
             }
+            config.enableAiChatDeletion = parseBooleanQueryParam("omnibar.enableAiChatDeletion") ?? config.enableAiChatDeletion;
+            config.enableSearchSuggestionDeletion = parseBooleanQueryParam("omnibar.enableSearchSuggestionDeletion") ?? config.enableSearchSuggestionDeletion;
             return config;
           }
           case "omnibar_getSuggestions": {
@@ -40777,7 +40972,26 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
           }
           case "omnibar_getAiChats": {
             await new Promise((resolve) => setTimeout(resolve, 100));
-            return getMockAiChats(msg.params.query);
+            const result = getMockAiChats(msg.params.query);
+            result.chats = result.chats.filter((chat) => !deletedChatIds.has(chat.chatId));
+            return result;
+          }
+          case "omnibar_confirmDeleteAiChat": {
+            let response;
+            if (window.__playwright_01?.mockResponses?.omnibar_confirmDeleteAiChat) {
+              response = /** @type {{ action: string }} */
+              /** @type {unknown} */
+              window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat;
+            } else if (!window.__playwright_01) {
+              const confirmed = window.confirm(`Delete "${msg.params.title}"?`);
+              response = { action: confirmed ? "delete" : "none" };
+            } else {
+              response = { action: "delete" };
+            }
+            if (response.action === "delete") {
+              deletedChatIds.add(msg.params.chatId);
+            }
+            return response;
           }
           case "omnibar_getOpenTabs": {
             await new Promise((resolve) => setTimeout(resolve, 50));

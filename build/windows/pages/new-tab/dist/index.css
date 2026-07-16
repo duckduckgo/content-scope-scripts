@@ -4009,7 +4009,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .SuggestionsList_footer {
   display: flex;
   flex-direction: column;
-  padding: calc(3px + var(--sp-1));
+  padding: calc(3px + var(--sp-2));
 }
 .SuggestionsList_main + .SuggestionsList_footer {
   border-top: 1px solid var(--ds-color-theme-container-border-primary);
@@ -4017,7 +4017,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .SuggestionsList_item {
   align-items: center;
   background: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   border: none;
   color: var(--ds-color-theme-text-primary);
   cursor: pointer;
@@ -4025,7 +4025,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   height: var(--sp-8);
   justify-content: flex-start;
   text-align: left;
-  padding: 0 var(--sp-2) 0 0;
+  padding: 0 var(--sp-1) 0 0;
 }
 .SuggestionsList_item svg {
   flex: none;
@@ -4033,6 +4033,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 }
 .SuggestionsList_item[aria-selected=true],
 .SuggestionsList_item:active {
+  border-radius: var(--border-radius-lg);
   color: var(--ds-color-theme-accent-content-primary);
 }
 :is(.SuggestionsList_item[aria-selected=true], .SuggestionsList_item:active) .SuggestionsList_suffix {
@@ -4041,10 +4042,14 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 :is(.SuggestionsList_item[aria-selected=true], .SuggestionsList_item:active) .SuggestionsList_badge {
   background: var(--ds-color-theme-accent-secondary);
 }
+:is(.SuggestionsList_item[aria-selected=true], .SuggestionsList_item:active) .SuggestionsList_deleteButton {
+  opacity: 1;
+  pointer-events: auto;
+}
 .SuggestionsList_item[aria-selected=true] {
   background: var(--ds-color-theme-accent-primary);
 }
-.SuggestionsList_item:active {
+.SuggestionsList_item:active:not(:has(.SuggestionsList_deleteButton:active)) {
   background: var(--ds-color-theme-accent-secondary);
 }
 .SuggestionsList_title {
@@ -4078,6 +4083,39 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   margin: 0;
   width: 9px;
 }
+.SuggestionsList_deleteButton {
+  align-items: center;
+  background: transparent;
+  background-clip: content-box;
+  border-radius: 11px;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  height: var(--sp-8);
+  justify-content: center;
+  margin-left: auto;
+  opacity: 0;
+  padding: 2px;
+  pointer-events: none;
+  width: var(--sp-8);
+}
+.SuggestionsList_deleteButton svg {
+  height: 16px;
+  margin: 0;
+  width: 16px;
+}
+.SuggestionsList_deleteButton:hover {
+  background-color: var(--ds-color-theme-control-fill-primary);
+}
+.SuggestionsList_deleteButton:active {
+  background-color: var(--ds-color-theme-control-fill-secondary);
+}
+.SuggestionsList_deleteButton:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
 
 /* pages/new-tab/app/omnibar/components/AiChatsListFooter.module.css */
 .AiChatsListFooter_footer {
@@ -4088,7 +4126,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .AiChatsListFooter_item {
   align-items: center;
   background: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   border: none;
   color: var(--ds-color-theme-text-primary);
   cursor: pointer;
@@ -4104,6 +4142,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 }
 .AiChatsListFooter_item[aria-selected=true] {
   background: var(--ds-color-theme-accent-primary);
+  border-radius: var(--border-radius-lg);
   color: var(--ds-color-theme-accent-content-primary);
 }
 .AiChatsListFooter_item[aria-selected=true] .AiChatsListFooter_keyCharm {
@@ -4114,6 +4153,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 }
 .AiChatsListFooter_item:active {
   background: var(--ds-color-theme-accent-secondary);
+  border-radius: var(--border-radius-lg);
   color: var(--ds-color-theme-accent-content-primary);
 }
 .AiChatsListFooter_title {
@@ -4164,19 +4204,19 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   border-top: 1px solid var(--ds-color-theme-container-border-primary);
   display: flex;
   flex-direction: column;
-  padding: calc(3px + var(--sp-1));
+  padding: calc(3px + var(--sp-2));
 }
 .AiChatsList_item {
   align-items: center;
   background: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   border: none;
   color: var(--ds-color-theme-text-primary);
   cursor: pointer;
   display: flex;
   height: var(--sp-8);
   justify-content: flex-start;
-  padding: 0 var(--sp-2) 0 0;
+  padding: 0 var(--sp-1) 0 0;
 }
 .AiChatsList_item svg {
   flex: none;
@@ -4184,18 +4224,56 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 }
 .AiChatsList_item[aria-selected=true],
 .AiChatsList_item:active {
+  border-radius: var(--border-radius-lg);
   color: var(--ds-color-theme-accent-content-primary);
+}
+:is(.AiChatsList_item[aria-selected=true], .AiChatsList_item:active) .AiChatsList_deleteButton {
+  opacity: 1;
+  pointer-events: auto;
 }
 .AiChatsList_item[aria-selected=true] {
   background: var(--ds-color-theme-accent-primary);
 }
-.AiChatsList_item:active {
+.AiChatsList_item:active:not(:has(.AiChatsList_deleteButton:active)) {
   background: var(--ds-color-theme-accent-secondary);
 }
 .AiChatsList_title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.AiChatsList_deleteButton {
+  align-items: center;
+  background: transparent;
+  background-clip: content-box;
+  border-radius: 11px;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  height: var(--sp-8);
+  justify-content: center;
+  margin-left: auto;
+  opacity: 0;
+  padding: 2px;
+  pointer-events: none;
+  width: var(--sp-8);
+}
+.AiChatsList_deleteButton svg {
+  height: 16px;
+  margin: 0;
+  width: 16px;
+}
+.AiChatsList_deleteButton:hover {
+  background-color: var(--ds-color-theme-control-fill-primary);
+}
+.AiChatsList_deleteButton:active {
+  background-color: var(--ds-color-theme-control-fill-secondary);
+}
+.AiChatsList_deleteButton:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* pages/new-tab/app/omnibar/components/TabSwitcher.module.css */
