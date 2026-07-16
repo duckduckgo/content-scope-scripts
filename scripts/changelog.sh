@@ -14,16 +14,29 @@ set -euo pipefail
 #
 # The anchor is a lightweight `released/<version>` tag placed on the released
 # `main` commit by the release workflow (see .github/workflows/build.yml).
+#
+# The boundary MUST be the anchor paired with the *latest* semver release, not
+# merely the highest `released/*` tag that happens to exist. If a release tag
+# were shipped without its paired anchor, picking the highest existing anchor
+# would start the range from an older release and repeat already-shipped
+# commits. So we resolve the latest release version first, then require its
+# matching anchor; if it is absent we fall back to the (less precise)
+# date-based boundary rather than trust a mismatched older anchor.
 
-PREV_MAIN_ANCHOR=$(git tag -l 'released/*' | sort -V | tail -1)
+# Latest semver release tag (same selection as the release workflow).
+LATEST_RELEASE=$(git tag -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
 
-if [ -n "$PREV_MAIN_ANCHOR" ]; then
-    git log "${PREV_MAIN_ANCHOR}..main" --pretty='format:- %s'
+if [ -n "$LATEST_RELEASE" ] && git rev-parse -q --verify "refs/tags/released/${LATEST_RELEASE}" >/dev/null; then
+    git log "released/${LATEST_RELEASE}..main" --pretty='format:- %s'
 else
-    # Fallback for the first anchored release (no `released/*` tag exists yet).
-    # Uses the commit date of the newest release tag. NOTE: this is the legacy
-    # behaviour and can drop commits whose committer date precedes the release
-    # build commit; it is only a bootstrap path until the first anchor exists.
+    # No anchor paired with the latest release (bootstrap before anchors
+    # existed, or a missing pairing). Fall back to the commit date of the
+    # newest release tag. This is anchored to the correct (latest) release, so
+    # it will not replay commits from an older release; it can still drop
+    # commits whose committer date precedes the release build commit.
+    if [ -n "$LATEST_RELEASE" ]; then
+        echo "changelog.sh: no 'released/${LATEST_RELEASE}' anchor found; using date-based fallback" >&2
+    fi
     LAST_RELEASE_COMMIT=$(git rev-list --tags --max-count=1)
     git log main --since "$(git show -s --format=%ci "$LAST_RELEASE_COMMIT")" --pretty='format:- %s'
 fi
