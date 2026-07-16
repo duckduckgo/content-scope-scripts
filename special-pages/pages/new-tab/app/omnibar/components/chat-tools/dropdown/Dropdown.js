@@ -91,13 +91,14 @@ export function Dropdown({
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
 
-    /** @param {number} direction */
+    /** @param {'up' | 'down'} direction */
     const focusNavigable = (direction) => {
         if (navigableIndices.length === 0) return;
 
+        const step = direction === 'down' ? 1 : -1;
         const currentPos = navigableIndices.indexOf(activeIndex);
-        const startPos = currentPos < 0 ? (direction >= 0 ? -1 : navigableIndices.length) : currentPos;
-        let nextPos = startPos + direction;
+        const startPos = currentPos < 0 ? (step > 0 ? -1 : navigableIndices.length) : currentPos;
+        let nextPos = startPos + step;
 
         if (nextPos < 0) nextPos = navigableIndices.length - 1;
         else if (nextPos >= navigableIndices.length) nextPos = 0;
@@ -126,11 +127,11 @@ export function Dropdown({
         switch (e.key) {
             case 'ArrowDown':
                 e.preventDefault();
-                focusNavigable(1);
+                focusNavigable('down');
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                focusNavigable(-1);
+                focusNavigable('up');
                 break;
             case 'Home':
                 e.preventDefault();
