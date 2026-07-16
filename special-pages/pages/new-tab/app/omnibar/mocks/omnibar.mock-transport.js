@@ -203,6 +203,8 @@ export function omnibarMockTransport() {
                 case 'omnibar_setCustomizeResponsesActive': {
                     config.customizationActive = msg.params.active;
                     subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
                 case 'omnibar_removeSuggestion': {
                     console.log('Mock: removing suggestion', msg.params.url);
                     break;
