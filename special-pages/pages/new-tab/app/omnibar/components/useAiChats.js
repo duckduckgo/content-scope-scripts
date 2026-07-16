@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -31,6 +31,7 @@ export function getAiChatElementId(chatId) {
  *   | { type: 'selectViewAllChats', targetIndex: number }
  *   | { type: 'previousChat', itemCount: number }
  *   | { type: 'nextChat', itemCount: number }
+ *   | { type: 'removeChat', chatId: string }
  * )} Action
  */
 
@@ -88,6 +89,29 @@ function reducer(state, action) {
                 selectedIndex: nextIndex >= action.itemCount ? null : nextIndex,
             };
         }
+        case 'removeChat': {
+            const removedIndex = state.chats.findIndex((chat) => chat.chatId === action.chatId);
+            const chats = state.chats.filter((chat) => chat.chatId !== action.chatId);
+
+            // Keep chatsVisible true so a re-fetch can backfill the list
+            let selectedIndex = state.selectedIndex;
+
+            if (chats.length === 0) {
+                selectedIndex = null;
+            } else if (selectedIndex !== null && removedIndex !== -1) {
+                if (removedIndex < selectedIndex) {
+                    selectedIndex = selectedIndex - 1;
+                } else if (selectedIndex >= chats.length) {
+                    selectedIndex = chats.length - 1;
+                }
+            }
+
+            return {
+                ...state,
+                chats,
+                selectedIndex,
+            };
+        }
         default: {
             /** @type {never} */
             const _exhaustiveCheck = action;
@@ -109,7 +133,8 @@ const EMPTY_ARRAY = [];
  * @param {boolean} [params.showViewAllAiChats]
  */
 export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats = false }) {
-    const { getAiChats, onAiChats } = useContext(OmnibarContext);
+    const { getAiChats, onAiChats, confirmDeleteAiChat } = useContext(OmnibarContext);
+    const deletionInProgress = useRef(false);
 
     const [state, dispatch] = useReducer(reducer, {
         chats: [],
@@ -176,6 +201,26 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         dispatch({ type: 'showChats' });
     }, []);
 
+    /**
+     * @param {string} chatId
+     * @param {string} title - displayed in the native confirmation dialog
+     */
+    const removeChat = async (chatId, title) => {
+        if (deletionInProgress.current) return;
+        deletionInProgress.current = true;
+        try {
+            const response = await confirmDeleteAiChat(chatId, title);
+            if (response.action === 'delete') {
+                dispatch({ type: 'removeChat', chatId });
+                getAiChats(query);
+            }
+        } catch {
+            // Native dialog didn't complete; chat stays in the list
+        } finally {
+            deletionInProgress.current = false;
+        }
+    };
+
     return {
         chats: chatsVisible ? state.chats : EMPTY_ARRAY,
         selectedChat,
@@ -187,5 +232,7 @@ export function useAiChats({ query, initiallyVisible, enableRecentAiChats, showV
         selectViewAllChats,
         hideChats,
         showChats,
+        removeChat,
+        deletionInProgress,
     };
 }

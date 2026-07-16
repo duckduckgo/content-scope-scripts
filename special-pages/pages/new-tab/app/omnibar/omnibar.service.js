@@ -12,6 +12,7 @@ import { OmnibarAiChatsService } from './omnibar.ai-chats.service.js';
  * @typedef {import("../../types/new-tab.js").SubmitChatAction} SubmitChatAction
  * @typedef {import("../../types/new-tab.js").GetOpenTabsResponse} GetOpenTabsResponse
  * @typedef {import("../../types/new-tab.js").PageContext} PageContext
+ * @typedef {import("../../types/new-tab.js").ConfirmDeleteAIChatResponse} ConfirmDeleteAIChatResponse
  */
 
 export class OmnibarService {
@@ -242,5 +243,28 @@ export class OmnibarService {
     async getTabContent(tabId) {
         const response = await this.ntp.messaging.request('omnibar_getTabContent', { tabId });
         return response?.pageContext ?? null;
+    }
+
+    /**
+     * Tells native to remove a history entry from the user's browsing history.
+     * This is a fire-and-forget notification (no confirmation dialog needed).
+     * The NTP removes the suggestion from the UI immediately before calling this.
+     * @param {string} url - the URL of the history entry to remove
+     */
+    removeSuggestion(url) {
+        this.ntp.messaging.notify('omnibar_removeSuggestion', { url });
+    }
+
+    /**
+     * Asks native to show a confirmation dialog for deleting an AI chat.
+     * Native shows the dialog and responds with the user's choice.
+     * If the user confirms, native handles the full deletion (storage, sync, tombstones).
+     * The NTP should only remove the chat from the UI after receiving { action: "delete" }.
+     * @param {string} chatId - unique identifier of the chat to delete
+     * @param {string} title - chat title, displayed in the native confirmation dialog
+     * @returns {Promise<ConfirmDeleteAIChatResponse>} "delete" if confirmed, "none" if cancelled
+     */
+    confirmDeleteAiChat(chatId, title) {
+        return this.ntp.messaging.request('omnibar_confirmDeleteAiChat', { chatId, title });
     }
 }

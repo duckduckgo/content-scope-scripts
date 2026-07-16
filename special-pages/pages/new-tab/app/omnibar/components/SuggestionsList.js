@@ -1,4 +1,5 @@
 import { Fragment, h } from 'preact';
+import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import {
     AiChatIcon,
@@ -10,9 +11,11 @@ import {
     HistoryIcon,
     SearchIcon,
     TabDesktopIcon,
+    TrashOutlineIcon,
 } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { getSuggestionSuffix, getSuggestionTitle, startsWithIgnoreCase } from '../utils';
+import { OmnibarContext } from './OmnibarProvider';
 import { useSearchFormContext } from './SearchFormProvider';
 import { SuffixText } from './SuffixText';
 import styles from './SuggestionsList.module.css';
@@ -78,13 +81,16 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
-    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
+    const { state } = useContext(OmnibarContext);
+    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, removeHistorySuggestion } = useSearchFormContext();
+
+    const isDeletable = suggestion.kind === 'historyEntry' && state.config?.enableSearchSuggestionDeletion === true;
 
     const title = getSuggestionTitle(suggestion, term);
     const suffix = getSuggestionSuffix(suggestion);
 
     return (
-        <button
+        <div
             role="option"
             id={suggestion.id}
             class={styles.item}
@@ -93,7 +99,6 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
             onMouseOver={() => setSelectedSuggestion(suggestion)}
             onMouseLeave={() => clearSelectedSuggestion()}
             onClick={(event) => {
-                event.preventDefault();
                 if (suggestion.kind === 'aiChat') {
                     onSubmitChat({ chat: suggestion.chat, target: eventToTarget(event, platformName) });
                 } else {
@@ -124,7 +129,26 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
                     {t('omnibar_switchToTab')} <ArrowRightIcon />
                 </span>
             )}
-        </button>
+            {isDeletable && (
+                <button
+                    tabIndex={-1}
+                    class={styles.deleteButton}
+                    aria-label={t('omnibar_removeSuggestion')}
+                    title={t('omnibar_removeSuggestion')}
+                    onMouseDown={(e) => {
+                        // Prevent focus from leaving the search input, which would close the dropdown
+                        e.preventDefault();
+                    }}
+                    onClick={(e) => {
+                        // Prevent the row click from navigating to the suggestion
+                        e.stopPropagation();
+                        removeHistorySuggestion(suggestion);
+                    }}
+                >
+                    <TrashOutlineIcon />
+                </button>
+            )}
+        </div>
     );
 }
 

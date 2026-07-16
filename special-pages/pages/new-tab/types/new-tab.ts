@@ -134,6 +134,14 @@ export type EnableAskDuckAiSuggestion = boolean;
  * Show the paperclip entry point and accept `@` mentions for attaching open tabs as context to a Duck.ai submission. When true, the omnibar can call `omnibar_getOpenTabs` and `omnibar_getTabContent`.
  */
 export type EnableAttachTabs = boolean;
+/**
+ * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
+ */
+export type EnableAIChatDeletion = boolean;
+/**
+ * Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.
+ */
+export type EnableSearchSuggestionDeletion = boolean;
 export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
@@ -217,6 +225,7 @@ export interface NewTabMessages {
     | OmnibarOpenAiChatNotification
     | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
+    | OmnibarRemoveSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
     | OmnibarSubmitChatNotification
@@ -247,6 +256,7 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarConfirmDeleteAiChatRequest
     | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
     | OmnibarGetOpenTabsRequest
@@ -650,6 +660,22 @@ export interface InternalPageSuggestion {
   score: number;
 }
 /**
+ * Generated from @see "../messages/omnibar_removeSuggestion.notify.json"
+ */
+export interface OmnibarRemoveSuggestionNotification {
+  method: "omnibar_removeSuggestion";
+  params: RemoveSuggestion;
+}
+/**
+ * Notifies the native app to remove a history entry from the user's browsing history.
+ */
+export interface RemoveSuggestion {
+  /**
+   * The URL of the history entry to remove
+   */
+  url: string;
+}
+/**
  * Generated from @see "../messages/omnibar_setConfig.notify.json"
  */
 export interface OmnibarSetConfigNotification {
@@ -677,6 +703,8 @@ export interface OmnibarConfig {
   customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  enableAiChatDeletion?: EnableAIChatDeletion;
+  enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
 }
 /**
  * A section of AI models with an optional header and a list of model items.
@@ -1296,6 +1324,33 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_confirmDeleteAiChat.request.json"
+ */
+export interface OmnibarConfirmDeleteAiChatRequest {
+  method: "omnibar_confirmDeleteAiChat";
+  params: ConfirmDeleteAIChatParams;
+  result: ConfirmDeleteAIChatResponse;
+}
+/**
+ * Requests a native confirmation dialog for deleting an AI chat. Native shows the dialog and responds with the user's choice.
+ */
+export interface ConfirmDeleteAIChatParams {
+  /**
+   * Unique identifier of the chat to delete
+   */
+  chatId: string;
+  /**
+   * The chat title, displayed in the native confirmation dialog
+   */
+  title: string;
+}
+/**
+ * Response from native after the user interacts with the confirmation dialog.
+ */
+export interface ConfirmDeleteAIChatResponse {
+  action: "delete" | "none";
 }
 /**
  * Generated from @see "../messages/omnibar_getAiChats.request.json"

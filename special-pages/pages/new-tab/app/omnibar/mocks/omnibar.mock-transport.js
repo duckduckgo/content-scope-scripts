@@ -180,10 +180,15 @@ export function omnibarMockTransport() {
                 maxInputCharsWithAttachments: 30000,
             },
         },
+        enableAiChatDeletion: false,
+        enableSearchSuggestionDeletion: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
     const subs = new Map();
+
+    /** @type {Set<string>} Tracks deleted chats so re-fetches exclude them */
+    const deletedChatIds = new Set();
 
     return new TestTransportConfig({
         notify(_msg) {
@@ -198,6 +203,8 @@ export function omnibarMockTransport() {
                 case 'omnibar_setCustomizeResponsesActive': {
                     config.customizationActive = msg.params.active;
                     subs.get('omnibar_onConfigUpdate')?.(config);
+                case 'omnibar_removeSuggestion': {
+                    console.log('Mock: removing suggestion', msg.params.url);
                     break;
                 }
                 case 'omnibar_viewAllAIChats':
@@ -269,6 +276,9 @@ export function omnibarMockTransport() {
                         const fileMaxFileSizeMB = parseInt(url.searchParams.get('omnibar.fileMaxFileSizeMB') ?? '', 10);
                         if (fileMaxFileSizeMB > 0) config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
                     }
+                    config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
+                    config.enableSearchSuggestionDeletion =
+                        parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
@@ -277,7 +287,31 @@ export function omnibarMockTransport() {
                 }
                 case 'omnibar_getAiChats': {
                     await new Promise((resolve) => setTimeout(resolve, 100));
-                    return getMockAiChats(msg.params.query);
+                    const result = getMockAiChats(msg.params.query);
+                    // Filter out chats that were deleted in this session
+                    result.chats = result.chats.filter((chat) => !deletedChatIds.has(chat.chatId));
+                    return result;
+                }
+                case 'omnibar_confirmDeleteAiChat': {
+                    // Simulates the native confirmation dialog for deleting a chat
+                    /** @type {{ action: string }} */
+                    let response;
+
+                    if (window.__playwright_01?.mockResponses?.omnibar_confirmDeleteAiChat) {
+                        response = /** @type {{ action: string }} */ (
+                            /** @type {unknown} */ (window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat)
+                        );
+                    } else if (!window.__playwright_01) {
+                        const confirmed = window.confirm(`Delete "${msg.params.title}"?`);
+                        response = { action: confirmed ? 'delete' : 'none' };
+                    } else {
+                        response = { action: 'delete' };
+                    }
+                    // Track deletion so re-fetches don't return this chat
+                    if (response.action === 'delete') {
+                        deletedChatIds.add(msg.params.chatId);
+                    }
+                    return response;
                 }
                 case 'omnibar_getOpenTabs': {
                     await new Promise((resolve) => setTimeout(resolve, 50));

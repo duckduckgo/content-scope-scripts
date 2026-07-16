@@ -210,7 +210,7 @@ function AiChatContent({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { showChats, hideChats } = useAiChatsContext();
+    const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
     const { state } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
     const { selectedModel } = useSelectedModel();
@@ -381,6 +381,10 @@ function AiChatContent({
             }}
             onBlurCapture={(event) => {
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
+                    return;
+                }
+                // Don't hide the list while the native deletion dialog is open
+                if (deletionInProgress.current) {
                     return;
                 }
 
