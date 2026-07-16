@@ -210,5 +210,13 @@
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",
     "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
+  },
+  "omnibar_removeSuggestion": {
+    "title": "Remove from browsing history",
+    "description": "Accessible label and tooltip for the button that removes a search suggestion from browsing history."
+  },
+  "omnibar_removeAiChat": {
+    "title": "Delete this chat",
+    "description": "Accessible label and tooltip for the button that deletes a recent AI chat."
   }
 }

@@ -35,6 +35,7 @@ import { OmnibarContext } from './OmnibarProvider.js';
  *   | { type: 'clearSelectedSuggestion' }
  *   | { type: 'previousSuggestion' }
  *   | { type: 'nextSuggestion' }
+ *   | { type: 'removeSuggestion', id: string }
  * )} Action
  */
 
@@ -114,6 +115,35 @@ function reducer(state, action) {
                 selectedIndex: nextIndex,
             };
         }
+        case 'removeSuggestion': {
+            const removedIndex = state.suggestions.findIndex((s) => s.id === action.id);
+            const suggestions = state.suggestions.filter((s) => s.id !== action.id);
+
+            if (suggestions.length === 0) {
+                return {
+                    ...state,
+                    suggestions,
+                    selectedIndex: null,
+                    suggestionsVisible: false,
+                };
+            }
+
+            let selectedIndex = state.selectedIndex;
+
+            if (selectedIndex !== null && removedIndex !== -1) {
+                if (removedIndex < selectedIndex) {
+                    selectedIndex = selectedIndex - 1;
+                } else if (selectedIndex >= suggestions.length) {
+                    selectedIndex = suggestions.length - 1;
+                }
+            }
+
+            return {
+                ...state,
+                suggestions,
+                selectedIndex,
+            };
+        }
         default:
             throw new Error('Unknown action type');
     }
@@ -127,7 +157,7 @@ function reducer(state, action) {
  * @param {boolean} [props.enableAskAiSuggestion]
  */
 export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
-    const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
+    const { onSuggestions, getSuggestions, removeSuggestion: notifyRemoveSuggestion } = useContext(OmnibarContext);
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
@@ -205,6 +235,15 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
         dispatch({ type: 'hideSuggestions' });
     };
 
+    /** @type {(suggestion: SuggestionModel) => void} */
+    const removeHistorySuggestion = (suggestion) => {
+        if (suggestion.kind !== 'historyEntry' || !('url' in suggestion) || typeof suggestion.url !== 'string') {
+            return;
+        }
+        dispatch({ type: 'removeSuggestion', id: suggestion.id });
+        notifyRemoveSuggestion(suggestion.url);
+    };
+
     return {
         suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
         selectedSuggestion,
@@ -214,5 +253,6 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
         setSelectedSuggestion,
         clearSelectedSuggestion,
         hideSuggestions,
+        removeHistorySuggestion,
     };
 }
