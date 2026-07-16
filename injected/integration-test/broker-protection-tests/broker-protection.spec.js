@@ -201,10 +201,20 @@ test.describe('Broker Protection communications', () => {
                     identifier: baseURL + 'person/Smith-41043103849',
                     addresses: [
                         {
+                            number: '123',
+                            street: 'Main',
+                            type: 'St',
                             city: 'Orlando',
                             state: 'FL',
+                            zip: '81010',
+                            fullAddress: '123 Main St, Orlando, FL 81010',
+                            streetAddress: '123 Main St',
                         },
                     ],
+                    street: '123 Main St',
+                    city: 'Orlando',
+                    state: 'FL',
+                    zipCode: '81010',
                     relatives: [],
                 },
             ]);
