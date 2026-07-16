@@ -111,6 +111,22 @@ export type EnableWebSearch = boolean;
  */
 export type EnableVoiceChatAccess = boolean;
 /**
+ * Show the 'Customize responses' entry in the AI chat Tools menu. Selecting it opens the Customize Responses modal.
+ */
+export type EnableCustomizeResponses = boolean;
+/**
+ * Summary of the user's current response customization (e.g. 'Professional, Concise'), shown as the description under the 'Customize responses' Tools-menu row. Omitted when responses haven't been customized, in which case the default description is shown.
+ */
+export type CustomizeResponsesSubLabel = string;
+/**
+ * True once the user has customized their responses. Gates the on/off toggle shown alongside the 'Customize responses' Tools-menu row.
+ */
+export type HasCustomization = boolean;
+/**
+ * Whether the stored customization is currently applied. Drives the checked state of the toggle in the 'Customize responses' Tools-menu row.
+ */
+export type CustomizationActive = boolean;
+/**
  * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
  */
 export type EnableAskDuckAiSuggestion = boolean;
@@ -207,9 +223,11 @@ export interface NewTabMessages {
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
     | OmnibarOpenAiChatNotification
+    | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
     | OmnibarRemoveSuggestionNotification
     | OmnibarSetConfigNotification
+    | OmnibarSetCustomizeResponsesActiveNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
     | OmnibarViewAllAIChatsNotification
@@ -587,6 +605,17 @@ export interface OpenAIChatAction {
   isPinned: boolean;
 }
 /**
+ * Generated from @see "../messages/omnibar_openCustomizeResponses.notify.json"
+ */
+export interface OmnibarOpenCustomizeResponsesNotification {
+  method: "omnibar_openCustomizeResponses";
+  params: OpenCustomizeResponsesAction;
+}
+/**
+ * Sent when the user selects 'Customize responses' in the omnibar Tools menu. Native opens the Customize Responses modal for the active New Tab Page tab; no parameters are required.
+ */
+export interface OpenCustomizeResponsesAction {}
+/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -668,6 +697,10 @@ export interface OmnibarConfig {
   enableImageGeneration?: EnableImageGeneration;
   enableWebSearch?: EnableWebSearch;
   enableVoiceChatAccess?: EnableVoiceChatAccess;
+  enableCustomizeResponses?: EnableCustomizeResponses;
+  customizeSubLabel?: CustomizeResponsesSubLabel;
+  hasCustomization?: HasCustomization;
+  customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
   enableAiChatDeletion?: EnableAIChatDeletion;
@@ -765,6 +798,22 @@ export interface AttachmentLimits {
      */
     maxInputCharsWithAttachments: number;
   };
+}
+/**
+ * Generated from @see "../messages/omnibar_setCustomizeResponsesActive.notify.json"
+ */
+export interface OmnibarSetCustomizeResponsesActiveNotification {
+  method: "omnibar_setCustomizeResponsesActive";
+  params: SetCustomizeResponsesActiveAction;
+}
+/**
+ * Sent when the user toggles the on/off switch on the 'Customize responses' Tools-menu row. Native persists the new active state for the current window's stored customization.
+ */
+export interface SetCustomizeResponsesActiveAction {
+  /**
+   * Whether the stored customization should be applied.
+   */
+  active: boolean;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"

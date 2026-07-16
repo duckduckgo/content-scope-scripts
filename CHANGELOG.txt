@@ -1,2 +1,1 @@
-- Fix changelog generation dropping merge-queue commits (#2871)
-- build(deps-dev): bump the typescript group with 2 updates (#2873)
+- Add Customize Responses to NTP omnibar Tools menu (#2865)

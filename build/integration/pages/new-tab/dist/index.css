@@ -4823,6 +4823,15 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   display: flex;
   margin-left: auto;
 }
+.Dropdown_itemActive .Dropdown_trailingIcon {
+  color: var(--ds-color-theme-accent-content-primary);
+}
+.Dropdown_trailingControl {
+  align-items: center;
+  display: flex;
+  margin-left: auto;
+  padding-left: 8px;
+}
 .Dropdown_itemActive {
   background: var(--ds-color-theme-control-fill-primary);
   color: var(--ds-color-theme-text-primary);
@@ -4854,6 +4863,15 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 .Dropdown_itemActive.Dropdown_itemSelected .Dropdown_checkmark::before {
   color: var(--ds-color-theme-text-primary);
+}
+.Dropdown_itemDisabled {
+  color: var(--ds-color-theme-text-tertiary);
+  cursor: default;
+  pointer-events: none;
+}
+.Dropdown_separator {
+  border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
+  margin: 4px 4px;
 }
 .Dropdown_itemLabel {
   display: flex;
@@ -4953,6 +4971,14 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 .ToolsMenu_toolsButton:focus-visible {
   box-shadow: var(--focus-ring);
 }
+.ToolsMenu_toolsButtonCollapsed {
+  background: var(--ds-color-theme-control-fill-primary);
+  border-radius: 100%;
+  color: var(--ds-color-theme-icons-primary);
+  justify-content: center;
+  padding: 0;
+  width: var(--sp-7);
+}
 .ToolsMenu_toolsLabel {
   font-weight: 400;
 }
@@ -4981,6 +5007,200 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 .ToolsMenu_chipLabel {
   font-weight: 400;
+}
+
+/* shared/components/Switch/Switch.module.css */
+.Switch_label {
+  --switch-width: 40px;
+  --switch-height: 20px;
+  --switch-handle-size: 12px;
+  --switch-handle-offset: 4px;
+  --switch-checked-offset: translateX(calc(100% + 8px));
+  --track-border-radius: 11px;
+  --track-border: 1px solid var(--track-border-color);
+  --track-border-color: var(--ds-color-theme-control-border-secondary, var(--ds-color-theme-default-light-control-border-secondary));
+  --track-bg-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-light-control-fill-primary));
+  --switch-handle-color: var(--ds-color-theme-icons-secondary, var(--ds-color-theme-default-light-icons-secondary));
+  --track-border-color-hover: var(--ds-color-theme-control-border-tertiary, var(--ds-color-theme-default-light-control-border-tertiary));
+  --track-bg-color-hover: var(--ds-color-theme-control-fill-secondary, var(--ds-color-theme-default-light-control-fill-secondary));
+  --track-border-color-active: var(--ds-color-theme-control-border-quaternary, var(--ds-color-theme-default-light-control-border-quaternary));
+  --track-bg-color-active: var(--ds-color-theme-control-fill-tertiary, var(--ds-color-theme-default-light-control-fill-tertiary));
+  --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
+  --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
+  --switch-handle-color-checked: var(--ds-color-theme-accent-content-secondary, var(--ds-color-theme-default-light-accent-content-secondary));
+  --track-border-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
+  --track-bg-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
+  --track-border-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-light-accent-tertiary));
+  --track-bg-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-light-accent-tertiary));
+  vertical-align: top;
+  isolation: isolate;
+  align-items: flex-start;
+  max-inline-size: 100%;
+  display: inline-flex;
+  position: relative;
+}
+.Switch_label[data-theme=dark] {
+  --track-border-color: var(--ds-color-theme-control-border-secondary, var(--ds-color-theme-default-dark-control-border-secondary));
+  --track-bg-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-dark-control-fill-primary));
+  --switch-handle-color: var(--ds-color-theme-icons-secondary, var(--ds-color-theme-default-dark-icons-secondary));
+  --track-border-color-hover: var(--ds-color-theme-control-border-tertiary, var(--ds-color-theme-default-dark-control-border-tertiary));
+  --track-bg-color-hover: var(--ds-color-theme-control-fill-secondary, var(--ds-color-theme-default-dark-control-fill-secondary));
+  --track-border-color-active: var(--ds-color-theme-control-border-quaternary, var(--ds-color-theme-default-dark-control-border-quaternary));
+  --track-bg-color-active: var(--ds-color-theme-control-fill-tertiary, var(--ds-color-theme-default-dark-control-fill-tertiary));
+  --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
+  --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
+  --switch-handle-color-checked: var(--ds-color-theme-accent-content-secondary, var(--ds-color-theme-default-dark-accent-content-secondary));
+  --track-border-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
+  --track-bg-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
+  --track-border-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
+  --track-bg-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
+}
+.Switch_label[data-platform-name=macos] {
+  --switch-width: 26px;
+  --switch-height: 15px;
+  --switch-handle-size: 13px;
+  --switch-handle-offset: 1px;
+  --switch-checked-offset: translateX(calc(100% - 2px));
+  --track-border-radius: 10px;
+  --track-border: 0;
+  --track-bg-color: var(--color-black-at-9);
+  --switch-handle-color: var(--color-white-at-84);
+  --track-bg-color-hover: var(--track-bg-color);
+  --track-border-color-hover: var(--track-border-color);
+  --track-bg-color-checked-hover: var(--track-bg-color-checked);
+  --track-border-color-checked-hover: var(--track-border-color-checked);
+  --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
+  --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
+  --switch-handle-color-checked: white;
+  --track-bg-color-active: var(--track-bg-color);
+  --track-bg-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
+  --track-border-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
+}
+.Switch_label[data-platform-name=macos][data-size=medium] {
+  --switch-width: 32px;
+  --switch-height: 18px;
+  --switch-handle-size: 16px;
+}
+.Switch_label[data-platform-name=macos][data-theme=dark] {
+  --track-bg-color: var(--color-white-at-9);
+  --switch-handle-color: var(--color-white-at-84);
+  --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
+  --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
+  --track-bg-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
+  --track-border-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
+}
+.Switch_input {
+  box-sizing: border-box;
+  opacity: .0001;
+  z-index: 1;
+  cursor: default;
+  block-size: 100%;
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: initial;
+  -webkit-appearance: auto;
+  appearance: auto;
+  background-color: initial;
+}
+.Switch_input:hover + .Switch_switch:after {
+  background-color: var(--track-bg-color-hover);
+  border-color: var(--track-border-color-hover);
+}
+.Switch_input:active + .Switch_switch:after {
+  background-color: var(--track-bg-color-active);
+  border-color: var(--track-border-color-active);
+}
+.Switch_input:checked + .Switch_switch:before {
+  transform: var(--switch-checked-offset);
+  background-color: var(--switch-handle-color-checked);
+}
+[data-theme=dark][data-platform-name=macos] .Switch_input:checked + .Switch_switch:before {
+  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
+}
+.Switch_input:checked + .Switch_switch:after {
+  background: var(--track-bg-color-checked);
+  border-color: var(--track-border-color-checked);
+}
+[data-theme=dark][data-platform-name=macos] .Switch_input:checked + .Switch_switch:after {
+  box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
+}
+.Switch_input:checked:hover + .Switch_switch:after {
+  background-color: var(--track-bg-color-checked-hover);
+  border-color: var(--track-border-color-checked-hover);
+}
+.Switch_input:checked:active + .Switch_switch:after {
+  background-color: var(--track-bg-color-checked-active);
+  border-color: var(--track-border-color-checked-active);
+}
+.Switch_input[disabled] {
+  cursor: not-allowed;
+}
+.Switch_switch {
+  box-sizing: border-box;
+  inline-size: var(--switch-width);
+  margin: 0;
+  vertical-align: middle;
+  will-change: transform;
+  transition-delay: 0s;
+  transition-duration: 0.13s;
+  transition-property: background, border;
+  transition-timing-function: ease-in-out, ease-in-out;
+  block-size: var(--switch-height);
+  border-radius: 10px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: inline-block;
+  position: relative;
+  left: 0;
+  right: 0;
+}
+.Switch_switch:before {
+  content: "";
+  box-sizing: border-box;
+  inline-size: var(--switch-handle-size);
+  block-size: var(--switch-handle-size);
+  border-radius: 10px;
+  display: block;
+  position: absolute;
+  top: var(--switch-handle-offset);
+  left: var(--switch-handle-offset);
+  z-index: 1;
+  transition: all .3s;
+  background: var(--switch-handle-color);
+}
+[data-platform-name=macos] .Switch_switch:before {
+  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
+}
+[data-platform-name=macos][data-theme=dark] .Switch_switch:before {
+  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
+  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
+}
+.Switch_switch:after {
+  border-radius: var(--track-border-radius);
+  content: "";
+  margin: 0;
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translateX(0);
+  transition: all .3s;
+  border: var(--track-border);
+  background-color: var(--track-bg-color);
+}
+[data-platform-name=macos] .Switch_switch:after {
+  box-shadow: 0px 0.5px 1px 1px rgba(10, 15, 20, 0.04) inset, 0px 0px 0px 0.5px rgba(10, 15, 20, 0.12) inset;
+}
+[data-platform-name=macos][data-theme=dark] .Switch_switch:after {
+  box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
 }
 
 /* pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/AttachMenu.module.css */
@@ -7070,200 +7290,6 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 [data-theme=dark] .ThemeSection_swatch[data-variant=desert] .ThemeSection_swatchAccent {
   background: var(--ds-color-theme-desert-dark-accent-primary);
-}
-
-/* shared/components/Switch/Switch.module.css */
-.Switch_label {
-  --switch-width: 40px;
-  --switch-height: 20px;
-  --switch-handle-size: 12px;
-  --switch-handle-offset: 4px;
-  --switch-checked-offset: translateX(calc(100% + 8px));
-  --track-border-radius: 11px;
-  --track-border: 1px solid var(--track-border-color);
-  --track-border-color: var(--ds-color-theme-control-border-secondary, var(--ds-color-theme-default-light-control-border-secondary));
-  --track-bg-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-light-control-fill-primary));
-  --switch-handle-color: var(--ds-color-theme-icons-secondary, var(--ds-color-theme-default-light-icons-secondary));
-  --track-border-color-hover: var(--ds-color-theme-control-border-tertiary, var(--ds-color-theme-default-light-control-border-tertiary));
-  --track-bg-color-hover: var(--ds-color-theme-control-fill-secondary, var(--ds-color-theme-default-light-control-fill-secondary));
-  --track-border-color-active: var(--ds-color-theme-control-border-quaternary, var(--ds-color-theme-default-light-control-border-quaternary));
-  --track-bg-color-active: var(--ds-color-theme-control-fill-tertiary, var(--ds-color-theme-default-light-control-fill-tertiary));
-  --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
-  --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
-  --switch-handle-color-checked: var(--ds-color-theme-accent-content-secondary, var(--ds-color-theme-default-light-accent-content-secondary));
-  --track-border-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
-  --track-bg-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
-  --track-border-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-light-accent-tertiary));
-  --track-bg-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-light-accent-tertiary));
-  vertical-align: top;
-  isolation: isolate;
-  align-items: flex-start;
-  max-inline-size: 100%;
-  display: inline-flex;
-  position: relative;
-}
-.Switch_label[data-theme=dark] {
-  --track-border-color: var(--ds-color-theme-control-border-secondary, var(--ds-color-theme-default-dark-control-border-secondary));
-  --track-bg-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-dark-control-fill-primary));
-  --switch-handle-color: var(--ds-color-theme-icons-secondary, var(--ds-color-theme-default-dark-icons-secondary));
-  --track-border-color-hover: var(--ds-color-theme-control-border-tertiary, var(--ds-color-theme-default-dark-control-border-tertiary));
-  --track-bg-color-hover: var(--ds-color-theme-control-fill-secondary, var(--ds-color-theme-default-dark-control-fill-secondary));
-  --track-border-color-active: var(--ds-color-theme-control-border-quaternary, var(--ds-color-theme-default-dark-control-border-quaternary));
-  --track-bg-color-active: var(--ds-color-theme-control-fill-tertiary, var(--ds-color-theme-default-dark-control-fill-tertiary));
-  --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
-  --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
-  --switch-handle-color-checked: var(--ds-color-theme-accent-content-secondary, var(--ds-color-theme-default-dark-accent-content-secondary));
-  --track-border-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
-  --track-bg-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
-  --track-border-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
-  --track-bg-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
-}
-.Switch_label[data-platform-name=macos] {
-  --switch-width: 26px;
-  --switch-height: 15px;
-  --switch-handle-size: 13px;
-  --switch-handle-offset: 1px;
-  --switch-checked-offset: translateX(calc(100% - 2px));
-  --track-border-radius: 10px;
-  --track-border: 0;
-  --track-bg-color: var(--color-black-at-9);
-  --switch-handle-color: var(--color-white-at-84);
-  --track-bg-color-hover: var(--track-bg-color);
-  --track-border-color-hover: var(--track-border-color);
-  --track-bg-color-checked-hover: var(--track-bg-color-checked);
-  --track-border-color-checked-hover: var(--track-border-color-checked);
-  --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
-  --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
-  --switch-handle-color-checked: white;
-  --track-bg-color-active: var(--track-bg-color);
-  --track-bg-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
-  --track-border-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
-}
-.Switch_label[data-platform-name=macos][data-size=medium] {
-  --switch-width: 32px;
-  --switch-height: 18px;
-  --switch-handle-size: 16px;
-}
-.Switch_label[data-platform-name=macos][data-theme=dark] {
-  --track-bg-color: var(--color-white-at-9);
-  --switch-handle-color: var(--color-white-at-84);
-  --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
-  --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
-  --track-bg-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
-  --track-border-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
-}
-.Switch_input {
-  box-sizing: border-box;
-  opacity: .0001;
-  z-index: 1;
-  cursor: default;
-  block-size: 100%;
-  inline-size: 100%;
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: initial;
-  -webkit-appearance: auto;
-  appearance: auto;
-  background-color: initial;
-}
-.Switch_input:hover + .Switch_switch:after {
-  background-color: var(--track-bg-color-hover);
-  border-color: var(--track-border-color-hover);
-}
-.Switch_input:active + .Switch_switch:after {
-  background-color: var(--track-bg-color-active);
-  border-color: var(--track-border-color-active);
-}
-.Switch_input:checked + .Switch_switch:before {
-  transform: var(--switch-checked-offset);
-  background-color: var(--switch-handle-color-checked);
-}
-[data-theme=dark][data-platform-name=macos] .Switch_input:checked + .Switch_switch:before {
-  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
-  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
-}
-.Switch_input:checked + .Switch_switch:after {
-  background: var(--track-bg-color-checked);
-  border-color: var(--track-border-color-checked);
-}
-[data-theme=dark][data-platform-name=macos] .Switch_input:checked + .Switch_switch:after {
-  box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
-}
-.Switch_input:checked:hover + .Switch_switch:after {
-  background-color: var(--track-bg-color-checked-hover);
-  border-color: var(--track-border-color-checked-hover);
-}
-.Switch_input:checked:active + .Switch_switch:after {
-  background-color: var(--track-bg-color-checked-active);
-  border-color: var(--track-border-color-checked-active);
-}
-.Switch_input[disabled] {
-  cursor: not-allowed;
-}
-.Switch_switch {
-  box-sizing: border-box;
-  inline-size: var(--switch-width);
-  margin: 0;
-  vertical-align: middle;
-  will-change: transform;
-  transition-delay: 0s;
-  transition-duration: 0.13s;
-  transition-property: background, border;
-  transition-timing-function: ease-in-out, ease-in-out;
-  block-size: var(--switch-height);
-  border-radius: 10px;
-  flex-grow: 0;
-  flex-shrink: 0;
-  display: inline-block;
-  position: relative;
-  left: 0;
-  right: 0;
-}
-.Switch_switch:before {
-  content: "";
-  box-sizing: border-box;
-  inline-size: var(--switch-handle-size);
-  block-size: var(--switch-handle-size);
-  border-radius: 10px;
-  display: block;
-  position: absolute;
-  top: var(--switch-handle-offset);
-  left: var(--switch-handle-offset);
-  z-index: 1;
-  transition: all .3s;
-  background: var(--switch-handle-color);
-}
-[data-platform-name=macos] .Switch_switch:before {
-  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
-  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
-}
-[data-platform-name=macos][data-theme=dark] .Switch_switch:before {
-  box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
-  filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.10)) drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.05));
-}
-.Switch_switch:after {
-  border-radius: var(--track-border-radius);
-  content: "";
-  margin: 0;
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  transform: translateX(0);
-  transition: all .3s;
-  border: var(--track-border);
-  background-color: var(--track-bg-color);
-}
-[data-platform-name=macos] .Switch_switch:after {
-  box-shadow: 0px 0.5px 1px 1px rgba(10, 15, 20, 0.04) inset, 0px 0px 0px 0.5px rgba(10, 15, 20, 0.12) inset;
-}
-[data-platform-name=macos][data-theme=dark] .Switch_switch:after {
-  box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
 }
 
 /* pages/new-tab/app/customizer/components/VisibilityMenu.module.css */

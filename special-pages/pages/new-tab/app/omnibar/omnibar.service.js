@@ -213,6 +213,21 @@ export class OmnibarService {
     }
 
     /**
+     * Notify native to open the Customize Responses modal for the active tab.
+     */
+    openCustomizeResponses() {
+        this.ntp.messaging.notify('omnibar_openCustomizeResponses', {});
+    }
+
+    /**
+     * Notify native to apply or unapply the stored response customization.
+     * @param {boolean} active
+     */
+    setCustomizeResponsesActive(active) {
+        this.ntp.messaging.notify('omnibar_setCustomizeResponsesActive', { active });
+    }
+
+    /**
      * Requests the list of open tabs available for attachment.
      * @returns {Promise<GetOpenTabsResponse>}
      */
