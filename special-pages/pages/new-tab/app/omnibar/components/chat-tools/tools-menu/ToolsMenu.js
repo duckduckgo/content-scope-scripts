@@ -32,7 +32,7 @@ import styles from './ToolsMenu.module.css';
  * Tools menu for the AI chat toolbar. Contains a trigger button that opens a
  * dropdown of menu rows; when a row is active, a chip is shown next to the
  * button. This component only renders — the menu view model is built by
- * {@link import('./useToolsMenuItems').useToolsMenuItems}.
+ * {@link import('./useToolsMenu').useToolsMenu}.
  *
  * @param {object} props
  * @param {ToolConfig[]} props.items - Complete, ordered list of menu rows

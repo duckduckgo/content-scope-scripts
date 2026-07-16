@@ -22,7 +22,7 @@ import { useCustomizeResponsesItem } from './useCustomizeResponsesItem';
  * @param {(toolId: ToolId) => void} params.onToggle - Toggle a tool by id
  * @returns {{ items: ToolConfig[], activeItem: ToolConfig|null, isCollapsed: boolean }}
  */
-export function useToolsMenuItems({ tools, activeTool, onToggle }) {
+export function useToolsMenu({ tools, activeTool, onToggle }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const customizeResponses = useCustomizeResponsesItem({ activeTool });
 
