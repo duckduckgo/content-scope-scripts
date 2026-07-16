@@ -281,7 +281,7 @@
 
     .cardContainer {
         min-height: calc(140 * var(--px-in-rem));
-        padding-bottom: 0;
+        padding-bottom: var(--ds-space-x02);
     }
 
     .card {
@@ -299,7 +299,11 @@
     }
 
     .card.backCard {
-        display: none;
+        left: var(--ds-space-x06);
+        opacity: 1;
+        right: var(--ds-space-x06);
+        top: var(--ds-space-x02);
+        transform: none;
     }
 
     .dismissBtn {
@@ -330,7 +334,6 @@
     }
 
     .imageContainer {
-        /* Cap at the rebrand size; min-width: 0 lets flex shrink it on narrow viewports. */
         max-width: var(--next-steps-list-rebrand-illustration-size);
         min-height: 0;
         min-width: 0;
