@@ -24,7 +24,10 @@ set -euo pipefail
 # date-based boundary rather than trust a mismatched older anchor.
 
 # Latest semver release tag (same selection as the release workflow).
-LATEST_RELEASE=$(git tag -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+# `|| true` keeps `set -o pipefail` from aborting the script when `grep` finds
+# no semver tags (exit 1); in that case LATEST_RELEASE is empty and we fall
+# through to the date-based branch below.
+LATEST_RELEASE=$(git tag -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
 
 if [ -n "$LATEST_RELEASE" ] && git rev-parse -q --verify "refs/tags/released/${LATEST_RELEASE}" >/dev/null; then
     git log "released/${LATEST_RELEASE}..main" --pretty='format:- %s'
