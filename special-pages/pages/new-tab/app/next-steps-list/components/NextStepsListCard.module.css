@@ -285,16 +285,13 @@
     }
 
     .card {
-        align-items: center;
-        background-color: var(--ds-color-theme-surface-secondary);
         border: 1px solid var(--ds-color-theme-container-border-primary);
         border-radius: var(--ds-radius-x06);
         box-shadow: 0 1px 2px 0 var(--ds-color-theme-shadow-secondary);
-        display: grid;
         gap: var(--ds-space-x04);
-        grid-template-columns: var(--next-steps-list-rebrand-illustration-size) minmax(0, 1fr);
         min-height: calc(128 * var(--px-in-rem));
-        padding: var(--ds-space-x05) var(--ds-space-x05) var(--ds-space-x05) var(--ds-space-x10);
+        padding: var(--ds-space-x05);
+        padding-left: clamp(var(--ds-space-x05), 6vw, var(--ds-space-x10));
     }
 
     .cardContainer:has(.backCard) > .card:not(.backCard, .dismissing, .promoting) {
@@ -306,33 +303,48 @@
     }
 
     .dismissBtn {
-        background-color: var(--ds-color-theme-control-fill-primary);
-        border: 1px solid var(--ds-color-theme-container-border-primary);
-        border-radius: var(--ds-radius-full);
-        right: var(--ds-space-x03);
+        border: 1px solid var(--color-black-at-9);
+        color: var(--color-black-at-60);
+        height: var(--ds-space-x06);
+        right: var(--ds-space-x03-5);
         top: var(--ds-space-x03);
+        width: var(--ds-space-x06);
+
+        svg {
+            height: var(--ds-space-x04);
+            width: var(--ds-space-x04);
+        }
+
+        &:hover:not(:disabled) {
+            background-color: var(--ds-color-theme-control-fill-secondary);
+        }
+
+        &:active:not(:disabled) {
+            background-color: var(--ds-color-theme-control-fill-tertiary);
+        }
+
+        :global([data-theme="dark"]) & {
+            border-color: var(--color-white-at-9);
+            color: var(--color-white-at-60);
+        }
     }
 
     .imageContainer {
-        align-items: flex-start;
-        flex: initial;
-        height: var(--next-steps-list-rebrand-illustration-size);
-        justify-content: flex-start;
+        /* Cap at the rebrand size; min-width: 0 lets flex shrink it on narrow viewports. */
+        max-width: var(--next-steps-list-rebrand-illustration-size);
         min-height: 0;
-        width: var(--next-steps-list-rebrand-illustration-size);
+        min-width: 0;
     }
 
     .image {
         height: auto;
         max-height: var(--next-steps-list-rebrand-illustration-size);
-        max-width: var(--next-steps-list-rebrand-illustration-size);
         width: auto;
     }
 
     .content {
         align-items: flex-start;
-        flex: initial;
-        gap: var(--ds-space-x02);
+        justify-content: center;
         min-width: 0;
         padding-right: var(--ds-space-x07);
     }
@@ -347,7 +359,6 @@
     }
 
     .description {
-        color: var(--ds-color-theme-text-secondary);
         font-family: var(--ds-font-body-md-font-family);
         font-size: var(--ds-font-body-md-size);
         font-weight: var(--ds-font-weight-normal);
@@ -356,9 +367,8 @@
     }
 
     .buttonRow {
-        flex-wrap: wrap;
-        gap: var(--ds-space-x04);
-        margin-top: var(--ds-space-x05);
+        align-items: center;
+        margin-top: var(--ds-space-x04);
     }
 
     .buttonRow .actionButton {
@@ -367,14 +377,14 @@
         --button-shadow--hover: none;
 
         border-radius: var(--ds-radius-full);
-        font-family: var(--ds-font-button-label-02-font-family);
-        font-size: var(--ds-font-button-label-02-size);
-        font-weight: var(--ds-font-button-label-02-weight);
-        height: var(--ds-space-x10);
-        letter-spacing: var(--ds-font-button-label-02-letter-spacing);
-        line-height: var(--ds-font-button-label-02-line-height);
-        min-height: var(--ds-space-x10);
-        padding: 0 var(--ds-space-x08);
+        font-family: var(--ds-font-button-label-03-font-family);
+        font-size: var(--ds-font-button-label-03-size);
+        font-weight: var(--ds-font-weight-normal);
+        height: var(--ds-space-x08);
+        letter-spacing: var(--ds-font-button-label-03-letter-spacing);
+        line-height: normal;
+        min-height: var(--ds-space-x08);
+        padding: 0 var(--ds-space-x04);
     }
 
     .buttonRow .primaryButton {
