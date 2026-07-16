@@ -1,8 +1,7 @@
 import { h } from 'preact';
 import cn from 'classnames';
-import { CloseSmallIcon, CreateImageIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
+import { CloseSmallIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
-import { useCustomizeResponsesItem } from './useCustomizeResponsesItem';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
@@ -30,61 +29,18 @@ import styles from './ToolsMenu.module.css';
 
 /**
  * Tools menu for the AI chat toolbar. Contains a trigger button that opens a
- * dropdown letting the user activate tools like "Create Image" and "Web Search".
- * When a tool is active, a chip is shown next to the button.
+ * dropdown of menu rows; when a row is active, a chip is shown next to the
+ * button. This component only renders — the menu view model is built by
+ * {@link import('./useToolsMenuItems').useToolsMenuItems}.
  *
  * @param {object} props
- * @param {ToolId[]} props.tools - IDs of available tools to show in the menu
- * @param {ToolId|null} props.activeTool - Currently active tool id, or null
- * @param {(toolId: ToolId) => void} props.onToggle - Toggle a tool by id
+ * @param {ToolConfig[]} props.items - Complete, ordered list of menu rows
+ * @param {ToolConfig|null} props.activeItem - Active row backing the collapsed chip, or null
+ * @param {boolean} props.isCollapsed - Whether the trigger renders icon-only
  */
-export function ToolsMenu({ tools, activeTool, onToggle }) {
+export function ToolsMenu({ items, activeItem, isCollapsed }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const customizeResponses = useCustomizeResponsesItem({ activeTool });
     const { isOpen: menuOpen, buttonRef, dropdownRef, dropdownPos, toggle: toggleMenu, close: closeMenu } = useDropdown({ align: 'left' });
-
-    /** @param {ToolId} id @returns {ToolConfig|null} */
-    const getToolConfig = (id) => {
-        switch (id) {
-            case 'image-generation':
-                return {
-                    id,
-                    role: 'menuitemcheckbox',
-                    icon: <CreateImageIcon />,
-                    label: t('omnibar_createImageLabel'),
-                    description: t('omnibar_createImageDescription'),
-                    selected: activeTool === id,
-                    onSelect: () => onToggle(id),
-                };
-            case 'web-search':
-                return {
-                    id,
-                    role: 'menuitemcheckbox',
-                    icon: <GlobeIcon />,
-                    label: t('omnibar_webSearchLabel'),
-                    description: t('omnibar_webSearchDescription'),
-                    selected: activeTool === id,
-                    onSelect: () => onToggle(id),
-                };
-            case 'customize-responses':
-                return customizeResponses.item;
-            default: {
-                /**
-                 * Exhaustiveness check — `never` means all ToolId cases are handled;
-                 * adding a new one without a case will cause a type error here.
-                 * @type {never}
-                 */
-                const _exhaustiveCheck = id;
-                console.error(`Unknown tool id: ${_exhaustiveCheck}`);
-                return null;
-            }
-        }
-    };
-
-    const menuItemIds = [...tools, ...(customizeResponses.item ? [/** @type {const} */ ('customize-responses')] : [])];
-    const menuItems = /** @type {ToolConfig[]} */ (menuItemIds.map(getToolConfig).filter(Boolean));
-    const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
-    const isToolsButtonCollapsed = Boolean(activeToolConfig) || customizeResponses.isApplied;
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
@@ -98,7 +54,7 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                 ref={buttonRef}
                 type="button"
                 tabIndex={0}
-                class={cn(styles.toolsButton, isToolsButtonCollapsed && styles.toolsButtonCollapsed)}
+                class={cn(styles.toolsButton, isCollapsed && styles.toolsButtonCollapsed)}
                 aria-label={t('omnibar_toolsMenuLabel')}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
@@ -108,21 +64,21 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                 }}
             >
                 <ToolsIcon />
-                {!isToolsButtonCollapsed && <span class={styles.toolsLabel}>{t('omnibar_toolsMenuLabel')}</span>}
+                {!isCollapsed && <span class={styles.toolsLabel}>{t('omnibar_toolsMenuLabel')}</span>}
             </button>
-            {activeToolConfig && (
+            {activeItem && (
                 <button
                     type="button"
                     tabIndex={0}
                     class={styles.activeToolChip}
-                    aria-label={activeToolConfig.label}
+                    aria-label={activeItem.label}
                     onClick={(e) => {
                         e.stopPropagation();
-                        onToggle(activeToolConfig.id);
+                        activeItem.onSelect();
                     }}
                 >
-                    {activeToolConfig.icon}
-                    <span class={styles.chipLabel}>{activeToolConfig.label}</span>
+                    {activeItem.icon}
+                    <span class={styles.chipLabel}>{activeItem.label}</span>
                     <CloseSmallIcon width="12" height="12" />
                 </button>
             )}
@@ -135,7 +91,7 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                     onClose={handleClose}
                     idPrefix="tools-menu-item"
                 >
-                    {menuItems.map((item, index) => {
+                    {items.map((item, index) => {
                         const dropdownItem = (
                             <DropdownItem
                                 key={item.id}

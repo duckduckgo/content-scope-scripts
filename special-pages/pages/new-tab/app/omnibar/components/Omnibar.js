@@ -26,8 +26,8 @@ import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
+import { useToolsMenuItems } from './chat-tools/tools-menu/useToolsMenuItems';
 import { useActiveTools } from './chat-tools/useActiveTools';
-import { useCustomizeResponses } from './chat-tools/useCustomizeResponses';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
 import { AttachMenu } from './chat-tools/tab-attachment/AttachMenu';
@@ -210,7 +210,6 @@ function AiChatContent({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { showCustomizeResponses } = useCustomizeResponses();
     const { showChats, hideChats } = useAiChatsContext();
     const { state } = useContext(OmnibarContext);
     const attachmentLimits = state.config?.attachmentLimits;
@@ -269,6 +268,8 @@ function AiChatContent({
 
         setActiveTool(nextTool);
     };
+
+    const toolsMenu = useToolsMenuItems({ tools: availableTools, activeTool, onToggle: handleToggleTool });
 
     /** @type {(query: string, caret?: number) => void} */
     const handleChange = (value, caret) => {
@@ -424,8 +425,8 @@ function AiChatContent({
                                     isAttached={tabAttachments.isAttached}
                                 />
                             )}
-                            {(availableTools.length > 0 || showCustomizeResponses) && (
-                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
+                            {toolsMenu.items.length > 0 && (
+                                <ToolsMenu items={toolsMenu.items} activeItem={toolsMenu.activeItem} isCollapsed={toolsMenu.isCollapsed} />
                             )}
                         </Fragment>
                     }
