@@ -26,6 +26,7 @@ import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
+import { useToolsMenu } from './chat-tools/tools-menu/useToolsMenu';
 import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
@@ -268,6 +269,8 @@ function AiChatContent({
         setActiveTool(nextTool);
     };
 
+    const toolsMenu = useToolsMenu({ tools: availableTools, activeTool, onToggle: handleToggleTool });
+
     /** @type {(query: string, caret?: number) => void} */
     const handleChange = (value, caret) => {
         onChange(value);
@@ -426,8 +429,8 @@ function AiChatContent({
                                     isAttached={tabAttachments.isAttached}
                                 />
                             )}
-                            {availableTools.length > 0 && (
-                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
+                            {toolsMenu.items.length > 0 && (
+                                <ToolsMenu items={toolsMenu.items} activeItem={toolsMenu.activeItem} isCollapsed={toolsMenu.isCollapsed} />
                             )}
                         </Fragment>
                     }

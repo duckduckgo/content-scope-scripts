@@ -189,6 +189,29 @@
       "type": "boolean",
       "default": false
     },
+    "enableCustomizeResponses": {
+      "title": "Enable Customize Responses",
+      "description": "Show the 'Customize responses' entry in the AI chat Tools menu. Selecting it opens the Customize Responses modal.",
+      "type": "boolean",
+      "default": false
+    },
+    "customizeSubLabel": {
+      "title": "Customize Responses Sub-label",
+      "description": "Summary of the user's current response customization (e.g. 'Professional, Concise'), shown as the description under the 'Customize responses' Tools-menu row. Omitted when responses haven't been customized, in which case the default description is shown.",
+      "type": "string"
+    },
+    "hasCustomization": {
+      "title": "Has Customization",
+      "description": "True once the user has customized their responses. Gates the on/off toggle shown alongside the 'Customize responses' Tools-menu row.",
+      "type": "boolean",
+      "default": false
+    },
+    "customizationActive": {
+      "title": "Customization Active",
+      "description": "Whether the stored customization is currently applied. Drives the checked state of the toggle in the 'Customize responses' Tools-menu row.",
+      "type": "boolean",
+      "default": false
+    },
     "enableAskAiSuggestion": {
       "title": "Enable Ask Duck.ai Suggestion",
       "description": "Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.",

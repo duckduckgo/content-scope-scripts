@@ -1,9 +1,11 @@
 import { h } from 'preact';
-import { CloseSmallIcon, CreateImageIcon, GlobeIcon, ToolsIcon } from '../../../../components/Icons';
+import cn from 'classnames';
+import { CloseSmallIcon, ToolsIcon } from '../../../../components/Icons';
 import { useTypedTranslationWith } from '../../../../types';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
+import { DropdownSeparator } from '../dropdown/DropdownSeparator';
 import styles from './ToolsMenu.module.css';
 
 /**
@@ -16,51 +18,30 @@ import styles from './ToolsMenu.module.css';
  * @property {import('preact').ComponentChildren} icon - Icon component
  * @property {string} label - Display label
  * @property {string} description - Description shown in the menu dropdown
+ * @property {'menuitemcheckbox' | 'menuitem'} role - ARIA role for the row
+ * @property {() => void} onSelect - Invoked when the row is selected
+ * @property {boolean} [selected] - Checkbox state, for `menuitemcheckbox` rows
+ * @property {boolean} [disabled] - Whether the row is disabled
+ * @property {boolean} [separatorBefore] - Render a divider above this row
+ * @property {import('preact').ComponentChildren} [trailingControl] - Interactive trailing element (e.g. a toggle)
  */
 
-/** @typedef {'image-generation' | 'web-search'} ToolId */
+/** @typedef {'image-generation' | 'web-search' | 'customize-responses'} ToolId */
 
 /**
  * Tools menu for the AI chat toolbar. Contains a trigger button that opens a
- * dropdown letting the user activate tools like "Create Image" and "Web Search".
- * When a tool is active, a chip is shown next to the button.
+ * dropdown of menu rows; when a row is active, a chip is shown next to the
+ * button. This component only renders — the menu view model is built by
+ * {@link import('./useToolsMenu').useToolsMenu}.
  *
  * @param {object} props
- * @param {ToolId[]} props.tools - IDs of available tools to show in the menu
- * @param {ToolId|null} props.activeTool - Currently active tool id, or null
- * @param {(toolId: ToolId) => void} props.onToggle - Toggle a tool by id
+ * @param {ToolConfig[]} props.items - Complete, ordered list of menu rows
+ * @param {ToolConfig|null} props.activeItem - Active row backing the collapsed chip, or null
+ * @param {boolean} props.isCollapsed - Whether the trigger renders icon-only
  */
-export function ToolsMenu({ tools, activeTool, onToggle }) {
+export function ToolsMenu({ items, activeItem, isCollapsed }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { isOpen: menuOpen, buttonRef, dropdownRef, dropdownPos, toggle: toggleMenu, close: closeMenu } = useDropdown({ align: 'left' });
-
-    /** @param {ToolId} id @returns {ToolConfig|null} */
-    const getToolConfig = (id) => {
-        switch (id) {
-            case 'image-generation':
-                return {
-                    id,
-                    icon: <CreateImageIcon />,
-                    label: t('omnibar_createImageLabel'),
-                    description: t('omnibar_createImageDescription'),
-                };
-            case 'web-search':
-                return { id, icon: <GlobeIcon />, label: t('omnibar_webSearchLabel'), description: t('omnibar_webSearchDescription') };
-            default: {
-                /**
-                 * Exhaustiveness check — `never` means all ToolId cases are handled;
-                 * adding a new one without a case will cause a type error here.
-                 * @type {never}
-                 */
-                const _exhaustiveCheck = id;
-                console.error(`Unknown tool id: ${_exhaustiveCheck}`);
-                return null;
-            }
-        }
-    };
-
-    const resolvedTools = /** @type {ToolConfig[]} */ (tools.map(getToolConfig).filter(Boolean));
-    const activeToolConfig = activeTool ? getToolConfig(activeTool) : null;
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
@@ -74,7 +55,7 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                 ref={buttonRef}
                 type="button"
                 tabIndex={0}
-                class={styles.toolsButton}
+                class={cn(styles.toolsButton, isCollapsed && styles.toolsButtonCollapsed)}
                 aria-label={t('omnibar_toolsMenuLabel')}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
@@ -84,21 +65,21 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                 }}
             >
                 <ToolsIcon />
-                {!activeToolConfig && <span class={styles.toolsLabel}>{t('omnibar_toolsMenuLabel')}</span>}
+                {!isCollapsed && <span class={styles.toolsLabel}>{t('omnibar_toolsMenuLabel')}</span>}
             </button>
-            {activeToolConfig && (
+            {activeItem && (
                 <button
                     type="button"
                     tabIndex={0}
                     class={styles.activeToolChip}
-                    aria-label={activeToolConfig.label}
+                    aria-label={activeItem.label}
                     onClick={(e) => {
                         e.stopPropagation();
-                        onToggle(activeToolConfig.id);
+                        activeItem.onSelect();
                     }}
                 >
-                    {activeToolConfig.icon}
-                    <span class={styles.chipLabel}>{activeToolConfig.label}</span>
+                    {activeItem.icon}
+                    <span class={styles.chipLabel}>{activeItem.label}</span>
                     <CloseSmallIcon width="12" height="12" />
                 </button>
             )}
@@ -111,18 +92,23 @@ export function ToolsMenu({ tools, activeTool, onToggle }) {
                     onClose={handleClose}
                     idPrefix="tools-menu-item"
                 >
-                    {resolvedTools.map((tool) => (
-                        <DropdownItem
-                            key={tool.id}
-                            role="menuitemcheckbox"
-                            icon={tool.icon}
-                            name={tool.label}
-                            description={tool.description}
-                            isSelected={activeTool === tool.id}
-                            ariaChecked={activeTool === tool.id}
-                            onSelect={() => onToggle(tool.id)}
-                        />
-                    ))}
+                    {items.map((item) => {
+                        const dropdownItem = (
+                            <DropdownItem
+                                key={item.id}
+                                role={item.role}
+                                icon={item.icon}
+                                name={item.label}
+                                description={item.description}
+                                isSelected={item.selected}
+                                ariaChecked={item.role === 'menuitemcheckbox' ? Boolean(item.selected) : undefined}
+                                disabled={item.disabled}
+                                trailingControl={item.trailingControl}
+                                onSelect={item.onSelect}
+                            />
+                        );
+                        return item.separatorBefore ? [<DropdownSeparator key={`${item.id}-separator`} />, dropdownItem] : dropdownItem;
+                    })}
                 </Dropdown>
             )}
         </div>
