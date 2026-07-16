@@ -1,0 +1,33 @@
+{
+  "state": {
+    "action": {
+      "actionType": "extract",
+      "selector": ".result-full-info",
+      "profile": {
+        "name": {
+          "selector": ".result-full-person-name"
+        },
+        "age": {
+          "selector": ".result-full-person-age span"
+        },
+        "addressFull": {
+          "selector": ".//p[normalize-space()='Current Address:']/following-sibling::div//p[@itemprop='address']/a/span"
+        }
+      }
+    },
+    "data": {
+      "userProfile": {
+        "firstName": "John",
+        "middleName": "A",
+        "lastName": "Anderson",
+        "age": "74",
+        "addresses": [
+          {
+            "city": "Marysville",
+            "state": "WA"
+          }
+        ]
+      }
+    }
+  }
+}

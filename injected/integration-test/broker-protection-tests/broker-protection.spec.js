@@ -210,6 +210,42 @@ test.describe('Broker Protection communications', () => {
             ]);
         });
 
+        test('extracts the current full address from PeopleSearchNow-style markup', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-peoplesearchnow.html');
+            await dbp.receivesAction('extract-peoplesearchnow.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John A Anderson',
+                    age: '74',
+                    alternativeNames: [],
+                    addresses: [
+                        {
+                            number: '123',
+                            street: 'Example',
+                            type: 'Dr',
+                            suffix: 'NE',
+                            city: 'Marysville',
+                            state: 'WA',
+                            zip: '98270',
+                            plus4: '6529',
+                            fullAddress: '123 Example Dr NE; Marysville, WA 98270-6529',
+                            streetAddress: '123 Example Dr NE',
+                        },
+                    ],
+                    street: '123 Example Dr NE',
+                    city: 'Marysville',
+                    state: 'WA',
+                    zipCode: '98270',
+                    phoneNumbers: [],
+                    relatives: [],
+                },
+            ]);
+        });
+
         test('extract with regex afterText / beforeText / separator (case-insensitive)', async ({ page, baseURL }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
