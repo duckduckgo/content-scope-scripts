@@ -379,6 +379,9 @@ export function scrapedDataMatchesUserData(userData, scrapedData) {
  */
 export function aggregateFields(profile) {
     // addresses
+    // A singular full address is the strongest "current address" signal. If a broker exposes only
+    // a list, its first item is treated as current because extractors preserve page order.
+    const currentAddress = profile.addressFull?.[0] || profile.addressFullList?.[0];
     const combinedAddresses = [
         ...(profile.addressCityState || []),
         ...(profile.addressCityStateList || []),
@@ -404,6 +407,14 @@ export function aggregateFields(profile) {
         alternativeNames,
         age: profile.age,
         addresses,
+        ...(currentAddress
+            ? {
+                  city: currentAddress.city,
+                  state: currentAddress.state,
+                  ...(currentAddress.streetAddress ? { street: currentAddress.streetAddress } : {}),
+                  ...(currentAddress.zip ? { zipCode: currentAddress.zip } : {}),
+              }
+            : {}),
         phoneNumbers,
         relatives,
         ...profile.profileUrl,

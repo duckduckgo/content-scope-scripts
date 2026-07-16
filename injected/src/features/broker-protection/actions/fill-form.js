@@ -36,7 +36,12 @@ export function fillForm(action, userData, root = document) {
 /**
  * Try to fill form elements. Collecting results + warnings for reporting.
  * @param {HTMLElement} root
- * @param {{selector: string; type: string; min?: string; max?: string;}[]} elements
+ * @param {{
+ *   selector: string;
+ *   type: string;
+ *   min?: string;
+ *   max?: string;
+ * }[]} elements
  * @param {Record<string, any>} data
  * @return {({result: true} | {result: false; error: string})[]}
  */
@@ -78,6 +83,10 @@ export function fillMany(root, elements, data) {
             results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()));
         } else if (element.type === '$generated_street_address$') {
             results.push(setValueForInput(inputElem, generateStreetAddress()));
+        } else if (element.type === 'street') {
+            results.push(setValueForInput(inputElem, data.street || generateStreetAddress()));
+        } else if (element.type === 'zipCode') {
+            results.push(setValueForInput(inputElem, data.zipCode || generateZipCode()));
 
             // This is a composite of existing (but separate) city and state fields
         } else if (element.type === 'cityState') {

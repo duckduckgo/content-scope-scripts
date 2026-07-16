@@ -147,9 +147,31 @@ describe('create profiles from extracted data', () => {
                 elements: [{ innerText: '123 fake street,\nDallas, TX 75215' }, { innerText: '123 fake street,\nMiami, FL 75215' }],
                 expected: {
                     addresses: [
-                        { city: 'Miami', state: 'FL' },
-                        { city: 'Dallas', state: 'TX' },
+                        {
+                            number: '123',
+                            street: 'fake',
+                            type: 'St',
+                            city: 'Miami',
+                            state: 'FL',
+                            zip: '75215',
+                            fullAddress: '123 fake street,\nMiami, FL 75215',
+                            streetAddress: '123 fake St',
+                        },
+                        {
+                            number: '123',
+                            street: 'fake',
+                            type: 'St',
+                            city: 'Dallas',
+                            state: 'TX',
+                            zip: '75215',
+                            fullAddress: '123 fake street,\nDallas, TX 75215',
+                            streetAddress: '123 fake St',
+                        },
                     ],
+                    street: '123 fake St',
+                    city: 'Dallas',
+                    state: 'TX',
+                    zipCode: '75215',
                 },
             },
         ];
@@ -159,7 +181,51 @@ describe('create profiles from extracted data', () => {
             const profile = createProfile(select, ROOT, /** @type {any} */ (elementExample.selectors));
             const aggregated = aggregateFields(profile);
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses);
+            // The first address in page order is treated as current even though the addresses list
+            // is sorted for stable output (Miami appears before Dallas above).
+            expect(aggregated.street).toEqual(elementExample.expected.street);
+            expect(aggregated.city).toEqual(elementExample.expected.city);
+            expect(aggregated.state).toEqual(elementExample.expected.state);
+            expect(aggregated.zipCode).toEqual(elementExample.expected.zipCode);
         }
+    });
+
+    it('retains every structured component returned for a full address', () => {
+        const select = () => [{ innerText: '42 W Main St Apt 7,\nAustin, TX 78701-1234' }];
+        const profile = createProfile(select, ROOT, {
+            addressFull: {
+                selector: 'example',
+            },
+        });
+
+        expect(profile.addressFull).toEqual([
+            {
+                number: '42',
+                prefix: 'W',
+                street: 'Main',
+                type: 'St',
+                sec_unit_type: 'Apt',
+                sec_unit_num: '7',
+                city: 'Austin',
+                state: 'TX',
+                zip: '78701',
+                plus4: '1234',
+                fullAddress: '42 W Main St Apt 7,\nAustin, TX 78701-1234',
+                streetAddress: '42 W Main St Apt 7',
+            },
+        ]);
+    });
+
+    it('flattens the singular current address ahead of address history', () => {
+        const aggregated = aggregateFields({
+            addressFull: [{ streetAddress: '1 Current St', city: 'Boston', state: 'MA', zip: '02108' }],
+            addressFullList: [{ streetAddress: '2 Previous St', city: 'Salem', state: 'MA', zip: '01970' }],
+        });
+
+        expect(aggregated.street).toBe('1 Current St');
+        expect(aggregated.city).toBe('Boston');
+        expect(aggregated.state).toBe('MA');
+        expect(aggregated.zipCode).toBe('02108');
     });
 
     it('should exclude common prefixes/suffixes https://app.asana.com/0/0/1206808591178551/f', () => {
