@@ -85,6 +85,19 @@ export const variants = {
     }),
 };
 
+/** @type {Readonly<Record<string, string>>} */
+const rebrandIconPaths = {
+    'add-dock': './icons/Dock-Add-Mac-96.svg',
+    'pin-taskbar': './icons/Dock-Add-Windows-96.svg',
+    'customize-ntp': './icons/Browser-Redesign-96.svg',
+    'duck-player': './icons/YouTube-Clean-96.svg',
+    'email-protection': './icons/Email-Protection-96.svg',
+    'import-passwords': './icons/Passwords-Import-96.svg',
+    'set-default': './icons/Default-App-96.svg',
+    subscription: './icons/Desktop-Mobile-Subscription-96.svg',
+    sync: './icons/Sync-96.svg',
+};
+
 /**
  * Get the icon path for a given icon name and theme
  * @param {string} iconName - The base icon name (e.g., 'email-protection')
@@ -93,12 +106,8 @@ export const variants = {
  * @returns {string} The full path to the icon
  */
 export function getIconPath(iconName, theme, isRebrandEnabled = false) {
-    if (isRebrandEnabled && iconName === 'add-dock') {
-        return './icons/Dock-Add-Mac-96.svg';
-    }
-
-    if (isRebrandEnabled && iconName === 'import-passwords') {
-        return './icons/Passwords-Import-96.svg';
+    if (isRebrandEnabled && rebrandIconPaths[iconName]) {
+        return rebrandIconPaths[iconName];
     }
 
     return `./next-steps-list/${iconName}-${theme}.png`;
