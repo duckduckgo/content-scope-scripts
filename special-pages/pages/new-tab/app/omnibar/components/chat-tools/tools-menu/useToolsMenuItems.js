@@ -69,7 +69,8 @@ export function useToolsMenuItems({ tools, activeTool, onToggle }) {
     /** @type {ToolConfig[]} */
     const items = [...toolItems];
     if (customizeResponses.item) {
-        items.push(customizeResponses.item);
+        // Divider only when tool rows sit above the "Customize responses" row.
+        items.push({ ...customizeResponses.item, separatorBefore: toolItems.length > 0 });
     }
 
     const activeItem = activeTool ? (getToolConfig(activeTool) ?? null) : null;

@@ -22,6 +22,7 @@ import styles from './ToolsMenu.module.css';
  * @property {() => void} onSelect - Invoked when the row is selected
  * @property {boolean} [selected] - Checkbox state, for `menuitemcheckbox` rows
  * @property {boolean} [disabled] - Whether the row is disabled
+ * @property {boolean} [separatorBefore] - Render a divider above this row
  * @property {import('preact').ComponentChildren} [trailingControl] - Interactive trailing element (e.g. a toggle)
  */
 
@@ -91,7 +92,7 @@ export function ToolsMenu({ items, activeItem, isCollapsed }) {
                     onClose={handleClose}
                     idPrefix="tools-menu-item"
                 >
-                    {items.map((item, index) => {
+                    {items.map((item) => {
                         const dropdownItem = (
                             <DropdownItem
                                 key={item.id}
@@ -106,10 +107,7 @@ export function ToolsMenu({ items, activeItem, isCollapsed }) {
                                 onSelect={item.onSelect}
                             />
                         );
-                        if (item.id === 'customize-responses' && index > 0) {
-                            return [<DropdownSeparator key={`${item.id}-separator`} />, dropdownItem];
-                        }
-                        return dropdownItem;
+                        return item.separatorBefore ? [<DropdownSeparator key={`${item.id}-separator`} />, dropdownItem] : dropdownItem;
                     })}
                 </Dropdown>
             )}
