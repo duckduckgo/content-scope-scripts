@@ -93,15 +93,20 @@ export function Dropdown({
 
     /** @param {'up' | 'down'} direction */
     const focusNavigable = (direction) => {
-        if (navigableIndices.length === 0) return;
+        const count = navigableIndices.length;
+        if (count === 0) return;
 
         const step = direction === 'down' ? 1 : -1;
         const currentPos = navigableIndices.indexOf(activeIndex);
-        const startPos = currentPos < 0 ? (step > 0 ? -1 : navigableIndices.length) : currentPos;
-        let nextPos = startPos + step;
 
-        if (nextPos < 0) nextPos = navigableIndices.length - 1;
-        else if (nextPos >= navigableIndices.length) nextPos = 0;
+        let nextPos;
+        if (currentPos >= 0) {
+            // Step from the current row, wrapping around either end.
+            nextPos = (currentPos + step + count) % count;
+        } else {
+            // No row highlighted yet: enter from the top or bottom.
+            nextPos = direction === 'down' ? 0 : count - 1;
+        }
 
         setActiveIndex(navigableIndices[nextPos]);
     };
