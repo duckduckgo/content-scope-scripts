@@ -140,3 +140,14 @@ jobs:
                   prerelease: false
                   tag_name: ${{ steps.version.outputs.version }}
                   target_commitish: 'releases'
+
+            - name: Anchor released main commit
+              run: |
+                  # Record the exact `main` commit that was released so the next
+                  # release computes its changelog by ancestry (main-anchored
+                  # range) instead of by the release build commit's date. See
+                  # scripts/changelog.sh for why the date-based boundary is unsafe.
+                  MAIN_SHA=$(git rev-parse main)
+                  echo "Anchoring release ${{ steps.version.outputs.version }} at main $MAIN_SHA"
+                  git tag "released/${{ steps.version.outputs.version }}" "$MAIN_SHA"
+                  git push origin "released/${{ steps.version.outputs.version }}"
