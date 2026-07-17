@@ -746,9 +746,9 @@ export interface AIModelItem {
    */
   description?: string;
   /**
-   * Whether the model is enabled and selectable
+   * Whether the model is available and selectable
    */
-  isEnabled: boolean;
+  isAvailable: boolean;
   /**
    * Access tier that grants this model (e.g. 'internal', 'free', 'plus', 'pro'). Drives the tier badge (Plus/Pro/Internal) in the model selector.
    */

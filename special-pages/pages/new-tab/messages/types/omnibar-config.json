@@ -106,7 +106,7 @@
     "AIModelItem": {
       "type": "object",
       "description": "An individual AI model available for selection.",
-      "required": ["id", "name", "shortName", "isEnabled", "supportsImageUpload"],
+      "required": ["id", "name", "shortName", "isAvailable", "supportsImageUpload"],
       "properties": {
         "id": {
           "description": "Model identifier",
@@ -124,8 +124,8 @@
           "description": "Optional short description shown beneath the model name in the selector.",
           "type": "string"
         },
-        "isEnabled": {
-          "description": "Whether the model is enabled and selectable",
+        "isAvailable": {
+          "description": "Whether the model is available and selectable",
           "type": "boolean"
         },
         "accessTier": {

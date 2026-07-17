@@ -52,7 +52,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
          * @param {number} index
          */
         (indices, model, index) => {
-            if (model.isEnabled) indices.push(index);
+            if (model.isAvailable) indices.push(index);
             return indices;
         },
         [],
@@ -61,7 +61,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     const getInitialActiveIndex = () => {
         if (enabledModelIndices.length === 0) return -1;
 
-        const selectedIndex = selectedModelId ? allModels.findIndex((model) => model.id === selectedModelId && model.isEnabled) : -1;
+        const selectedIndex = selectedModelId ? allModels.findIndex((model) => model.id === selectedModelId && model.isAvailable) : -1;
         return selectedIndex >= 0 ? selectedIndex : enabledModelIndices[0];
     };
 
@@ -146,7 +146,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             onMouseLeave={clearActiveIndex}
         >
             {sections.map((section, sectionIndex) => {
-                const isUpsellSection = section.items.length > 0 && section.items.every((model) => !model.isEnabled);
+                const isUpsellSection = section.items.length > 0 && section.items.every((model) => !model.isAvailable);
                 const sectionUpsell = section.items.find((model) => model.upsell)?.upsell ?? 'subscribe';
                 return (
                     <Fragment key={sectionIndex}>
@@ -186,17 +186,17 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                     key={model.id}
                                     id={getOptionId(optionIndex)}
                                     role="option"
-                                    aria-selected={model.isEnabled ? model.id === selectedModelId : undefined}
-                                    aria-disabled={!model.isEnabled || undefined}
+                                    aria-selected={model.isAvailable ? model.id === selectedModelId : undefined}
+                                    aria-disabled={!model.isAvailable || undefined}
                                     class={cn(
                                         styles.modelOption,
-                                        model.isEnabled && activeIndex === optionIndex && styles.modelOptionActive,
-                                        !model.isEnabled && styles.modelOptionDisabled,
-                                        model.isEnabled && model.id === selectedModelId && styles.modelOptionSelected,
+                                        model.isAvailable && activeIndex === optionIndex && styles.modelOptionActive,
+                                        !model.isAvailable && styles.modelOptionDisabled,
+                                        model.isAvailable && model.id === selectedModelId && styles.modelOptionSelected,
                                     )}
-                                    onMouseOver={model.isEnabled ? () => setActiveIndex(optionIndex) : undefined}
+                                    onMouseOver={model.isAvailable ? () => setActiveIndex(optionIndex) : undefined}
                                     onClick={
-                                        model.isEnabled
+                                        model.isAvailable
                                             ? (e) => {
                                                   e.stopPropagation();
                                                   onSelect(model.id);
