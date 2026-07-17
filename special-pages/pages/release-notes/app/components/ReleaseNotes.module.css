@@ -201,6 +201,11 @@
     border-bottom: 1px solid transparent;
     width: fit-content;
     text-decoration: none;
+    color: var(--ds-color-theme-default-light-accent-text-primary);
+
+    [data-theme="dark"] & {
+        color: var(--ds-color-theme-default-dark-accent-text-primary);
+    }
 
     &:hover {
         border-bottom-color: currentColor;
