@@ -43,4 +43,4 @@ coverage/
 
 # Local-only agent memory (not shared with the team)
 AGENTS.local.md
-.cursor/hooks/state/
+.cursor
