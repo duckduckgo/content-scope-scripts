@@ -100,6 +100,12 @@ const CONTENT_TEXT_PARSE_LIMIT = 50000;
  * @returns {boolean}
  */
 function hasContent(element) {
+    // Fast path: skip the serialize+parse work for off-screen elements.
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) {
+        return false;
+    }
+
     // Only guard: never serialize+parse a pathologically large subtree on every
     // poll tick (reachable only via an overly broad selector). textContent is a
     // cheap, layout-free proxy for the serialized size; such a subtree clearly
