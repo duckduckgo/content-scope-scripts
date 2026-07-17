@@ -3,7 +3,10 @@
     backdrop-filter: blur(48px);
     border: 1px solid var(--ds-color-theme-container-border-primary);
     padding: var(--sp-6);
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--ds-radius-x06);
+    box-shadow: 0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+        0 1px 6px 0 var(--ds-color-theme-shadow-primary),
+        0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
     display: grid;
     align-items: start;
     grid-template-columns: auto;
@@ -24,12 +27,14 @@
 .body {
     display: flex;
     flex-direction: column;
+    overflow: visible;
 }
 
 .switcher {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    border-radius: 6px;
+    border-radius: var(--ds-radius-full);
+    padding: 1px;
 
     --border-color: rgba(0, 0, 0, 0.09);
     --background: rgba(0, 0, 0, 0.06);
@@ -44,7 +49,7 @@
 }
 
 .block {
-    margin-top: 16px;
+    margin-top: var(--sp-6);
 }
 
 /* @todo legacyProtections: Remove once all platforms support the new UI */
@@ -56,12 +61,16 @@
     color: var(--ds-color-theme-text-secondary);
 }
 
-.feed {}
+.feed {
+    margin-top: var(--sp-6);
+    overflow: visible;
+}
 
 .button {
     color: var(--ds-color-theme-text-primary);
-    border-radius: 5px;
+    border-radius: var(--ds-radius-full);
     background: transparent;
+    font-weight: 400;
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
@@ -74,6 +83,8 @@
         background: transparent;
         border: 0;
         height: 26px;
+        font-size: var(--body-font-size);
+        line-height: 14px;
     }
     .active {
         position: relative;
@@ -99,15 +110,15 @@
 }
 
 [data-platform-name="macos"] {
-    .switcher {}
     .button {
         background: transparent;
-        border: 0.5px solid transparent;
-        height: 22px;
-
+        border: 0;
+        height: 24px;
+        font-size: var(--small-label-font-size);
+        line-height: var(--small-label-line-height);
     }
     .active {
-        border: 0.5px solid rgba(0, 0, 0, 0.10);
+        border: 0;
         background: #FFF;
 
         &:not(:focus-visible) {

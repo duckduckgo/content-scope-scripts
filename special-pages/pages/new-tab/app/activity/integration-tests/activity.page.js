@@ -190,6 +190,22 @@ export class ActivityPage {
             },
         });
     }
+
+    /**
+     * New UI (non-legacy) burn control uses TrashIcon.
+     */
+    async burnControlUsesTrashIcon() {
+        const burnButton = this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' });
+        await expect(burnButton.getByTestId('TrashIcon')).toBeVisible();
+    }
+
+    /**
+     * Windows remove control uses Cross icon.
+     */
+    async removeControlUsesCrossIcon() {
+        const removeButton = this.context().getByRole('button', { name: 'Remove example.com from history' });
+        await expect(removeButton.getByTestId('CrossIcon')).toBeVisible();
+    }
     async opensLinkFromTitle() {
         const { page } = this;
         await page.getByText('example.com').click();

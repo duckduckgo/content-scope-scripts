@@ -81,7 +81,7 @@
 
 .pill {
     height: calc(26 * var(--px-in-rem));
-    border-radius: 9999px;
+    border-radius: var(--ds-radius-full);
     padding-left: 8px;
     padding-right: 11px;
     font-size: var(--callout-font-size);
@@ -111,6 +111,20 @@
     &:active {
         background-color: var(--ds-color-theme-control-fill-tertiary);
         border-color: var(--ds-color-theme-control-border-tertiary);
+    }
+}
+
+.pill.statsPill {
+    border-color: var(--ds-color-theme-container-border-secondary);
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-primary);
+        border-color: var(--ds-color-theme-container-border-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+        border-color: var(--ds-color-theme-container-border-secondary);
     }
 }
 

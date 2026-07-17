@@ -7,7 +7,7 @@ import { FaviconWithState } from '../../../../../shared/components/FaviconWithSt
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
 import { Fire as FireIconLegacy } from '../../components/icons/Fire.js';
-import { Cross, FireIcon } from '../../components/Icons.js';
+import { Cross, TrashIcon } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
@@ -121,6 +121,7 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
     const secondaryTitle = canBurn
         ? t('activity_burn', { domain: title })
         : t('activity_itemRemove', { domain: title });
+
     return (
         <div className={styles.controls}>
             <button
@@ -142,7 +143,7 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
             >
                 {/* @todo legacyProtections: Remove legacy check once all
                 platforms are ready for the new Protections Report */}
-                {canBurn ? shouldDisplayLegacyActivity ? <FireIconLegacy /> : <FireIcon /> : <Cross />}
+                {canBurn ? shouldDisplayLegacyActivity ? <FireIconLegacy /> : <TrashIcon /> : <Cross />}
             </button>
         </div>
     );

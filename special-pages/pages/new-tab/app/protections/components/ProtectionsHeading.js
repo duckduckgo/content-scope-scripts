@@ -75,7 +75,7 @@ export function ProtectionsHeading({
         <div class={styles.heading} data-testid="ProtectionsHeading" ref={headingRef}>
             <div class={cn(styles.control, animatedTrackersBlocked === 0 && styles.noTrackers)}>
                 <span class={styles.headingIcon}>
-                    <img src={'./icons/Shield-Check-Color-16.svg'} alt="Privacy Shield" />
+                    <img src={'./icons/Shield-Color-16.svg'} alt="Privacy Shield" />
                 </span>
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
 
@@ -113,7 +113,7 @@ export function ProtectionsHeading({
                 enabled AND both `animatedTrackersBlocked` and
                 `totalCookiePopUpsBlocked` are at least 1 */}
                 {isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && (
-                    <div class={cn(styles.counter, styles.cookiePopUpsCounter)}>
+                    <div class={styles.counter}>
                         <h3 class={styles.title}>
                             {formatter.format(animatedCookiePopUpsBlocked)} <span>{cookiePopUpsBlockedHeading}</span>
                         </h3>
