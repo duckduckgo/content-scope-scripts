@@ -10095,6 +10095,29 @@
     const rect = element.getBoundingClientRect();
     return rect.width > 0.5 && rect.height > 0.5 && style.display !== "none" && style.visibility !== "hidden" && parseFloat(style.opacity) > 0.05;
   }
+  var contentDomParser;
+  var CONTENT_METADATA_SELECTORS = "base,link,meta,script,style,template,title,desc";
+  var CONTENT_MEDIA_SELECTORS = "video,canvas,embed,object,audio,map,form,input,textarea,select,button,img,svg";
+  var CONTENT_TEXT_PARSE_LIMIT = 5e4;
+  function hasContent(element) {
+    if ((element.textContent || "").length > CONTENT_TEXT_PARSE_LIMIT) {
+      return true;
+    }
+    if (!contentDomParser) {
+      contentDomParser = new DOMParser();
+    }
+    const parsed = contentDomParser.parseFromString(element.outerHTML, "text/html").documentElement;
+    parsed.querySelectorAll(CONTENT_METADATA_SELECTORS).forEach((el) => el.remove());
+    if ((parsed.innerText || parsed.textContent || "").trim() !== "") {
+      return true;
+    }
+    if (parsed.querySelector(CONTENT_MEDIA_SELECTORS) !== null) {
+      return true;
+    }
+    return [...parsed.querySelectorAll("iframe")].some((frame) => {
+      return !frame.hidden && frame.src !== "" && frame.src !== "about:blank";
+    });
+  }
   function evaluateSingleTextCondition(condition) {
     const patterns = asArray(condition.pattern);
     const selectors = asArray(condition.selector, ["body"]);
@@ -10120,6 +10143,9 @@
           return true;
         }
         if (visibility === "hidden" && !isVisible(element)) {
+          return true;
+        }
+        if (visibility === "content" && hasContent(element)) {
           return true;
         }
       }
