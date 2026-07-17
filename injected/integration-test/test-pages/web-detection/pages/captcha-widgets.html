@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Captcha widgets</title>
+</head>
+<!--
+  Regression fixture hosting one of each captcha widget the production `captcha`
+  detectors match (reCAPTCHA, hCaptcha, Turnstile, and a Cloudflare challenge
+  container). Used to confirm the layout-free `content` visibility mode still
+  detects every widget type that `visible` does, without forcing layout.
+  Each widget carries meaningful content (a real-src iframe or text) so it is a
+  legitimate positive for both modes.
+-->
+<body>
+    <!-- reCAPTCHA: matches `.g-recaptcha` and `iframe[src*='recaptcha']` -->
+    <div class="g-recaptcha">
+        <iframe title="reCAPTCHA" src="https://www.google.com/recaptcha/api2/anchor?ar=1&k=fixture" style="width:304px;height:78px;"></iframe>
+    </div>
+
+    <!-- hCaptcha: matches `.h-captcha` and `iframe[src*='hcaptcha.com']` -->
+    <div class="h-captcha">
+        <iframe title="Widget containing checkbox for hCaptcha security challenge" src="https://newassets.hcaptcha.com/captcha/v1/fixture/static/hcaptcha.html" style="width:303px;height:78px;"></iframe>
+    </div>
+
+    <!-- Turnstile: matches `.cf-turnstile:not(#turnstile-wrapper)` (+ its iframe) -->
+    <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA">
+        <iframe title="Widget containing a Cloudflare security challenge" src="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/turnstile/if/ov2/av0/rc/fixture" style="width:300px;height:65px;"></iframe>
+    </div>
+
+    <!-- Cloudflare challenge container: matches `#cf-wrapper` / `#challenge-stage` -->
+    <div id="cf-wrapper">
+        <div id="challenge-stage">
+            <h2>Checking your browser</h2>
+        </div>
+    </div>
+</body>
+</html>
