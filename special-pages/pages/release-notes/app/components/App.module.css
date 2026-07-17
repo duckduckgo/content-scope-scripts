@@ -9,16 +9,40 @@ body {
 }
 
 .main {
+    /* Release Notes accent palette (this page only): links use
+       accent-text-primary; buttons use accent-primary + accent-content-primary. */
+    --ds-color-theme-accent-primary: #1074cc;
+    --ds-color-theme-accent-secondary: #045eb2;
+    --ds-color-theme-accent-tertiary: #034180;
+    --ds-color-theme-accent-content-primary: #ffffff;
+    --ds-color-theme-accent-text-primary: #1074cc;
+
     padding: var(--sp-6) var(--sp-5);
     position: relative;
     display: grid;
     gap: var(--sp-8);
 }
 
-/* macOS: pill-shaped buttons. Attribute chain reaches specificity 0-3-1 to beat
-   the shared `.button.lg` rule (0-3-0) without !important. */
-[data-platform-name="macos"] .main[data-theme] button {
+.main[data-theme="dark"] {
+    --ds-color-theme-accent-primary: #75b6eb;
+    --ds-color-theme-accent-secondary: #4397e0;
+    --ds-color-theme-accent-tertiary: #1074cc;
+    --ds-color-theme-accent-content-primary: #242323;
+    --ds-color-theme-accent-text-primary: #75b6eb;
+}
+
+/* Pill radius + recolor accentBrand buttons to the palette above.
+   `button[class]` (0-4-1) beats the shared dark-mode --button-text override
+   (0-4-0), which would otherwise win over a plain 0-3-1 selector. */
+[data-platform-name="macos"] .main[data-theme] button[class] {
     border-radius: var(--border-radius-pill);
+
+    --button-text: var(--ds-color-theme-accent-content-primary);
+    --button-text--active: var(--ds-color-theme-accent-content-primary);
+    --button-bg: var(--ds-color-theme-accent-primary);
+    --button-bg--hover: var(--ds-color-theme-accent-secondary);
+    --button-bg--focus: var(--ds-color-theme-accent-primary);
+    --button-bg--active: var(--ds-color-theme-accent-tertiary);
 }
 
 .header {
