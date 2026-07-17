@@ -14,9 +14,11 @@ import styles from './Dropdown.module.css';
  * @param {object} props
  * @param {import('preact').ComponentChildren} [props.icon]
  * @param {import('preact').ComponentChildren} [props.trailingIcon]
+ * @param {import('preact').ComponentChildren} [props.trailingControl] - interactive trailing element (e.g. a toggle); clicks are kept from triggering the row's `onSelect`.
  * @param {string} props.name
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
+ * @param {boolean} [props.disabled]
  * @param {'option' | 'menuitemcheckbox' | 'menuitemradio' | 'menuitem'} props.role
  * @param {() => void} props.onSelect
  * @param {boolean} [props.ariaChecked]
@@ -33,9 +35,11 @@ import styles from './Dropdown.module.css';
 export function DropdownItem({
     icon,
     trailingIcon,
+    trailingControl,
     name,
     description,
     isSelected = false,
+    disabled = false,
     role,
     ariaChecked,
     ariaSelected,
@@ -69,7 +73,8 @@ export function DropdownItem({
             aria-selected={ariaSelected}
             aria-haspopup={ariaHasPopup}
             aria-expanded={ariaExpanded}
-            class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected)}
+            aria-disabled={disabled || undefined}
+            class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected, disabled && styles.itemDisabled)}
             onMouseOver={onMouseOver}
             onMouseEnter={onHover}
             onClick={onClick}
@@ -83,6 +88,11 @@ export function DropdownItem({
             {trailingIcon && (
                 <span class={styles.trailingIcon} aria-hidden="true">
                     {trailingIcon}
+                </span>
+            )}
+            {trailingControl && (
+                <span class={styles.trailingControl} onClick={(e) => e.stopPropagation()}>
+                    {trailingControl}
                 </span>
             )}
         </li>
