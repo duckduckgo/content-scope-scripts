@@ -15,11 +15,10 @@ body {
     gap: var(--sp-8);
 }
 
-/* Release notes uses fully-rounded (pill) buttons on every platform. This
-   overrides the shared Button's per-platform radius (up to specificity 0-3-0,
-   e.g. macOS `.button.lg`), so !important is required to win reliably. */
-.main button {
-    border-radius: 999px !important;
+/* macOS: pill-shaped buttons. Attribute chain reaches specificity 0-3-1 to beat
+   the shared `.button.lg` rule (0-3-0) without !important. */
+[data-platform-name="macos"] .main[data-theme] button {
+    border-radius: var(--border-radius-pill);
 }
 
 .header {
