@@ -113,9 +113,11 @@ See [`guides/debugging.md`](guides/debugging.md) for debugging resources includi
 - Prefer design tokens over hardcoded colors/radii/typography; avoid redundant CSS when base classes or inheritance already set `font-family`, `color`, or `font-weight` (use NTP typography tokens such as `--small-label-*` when applicable). Skip Figma paste of `SF Pro`, `letter-spacing`, and `font-feature-settings` unless there is a clear visual need or matching token.
 - Prefer applying existing `--ds-radius-*` tokens directly (do not invent aliases like `--border-radius-lg`).
 - Design-to-code should adapt into existing Preact + CSS modules; do not modify the Figma file unless explicitly asked.
+- PR titles/descriptions should stay short and high-level (what changed + how to test); avoid long/prolix writeups that narrate implementation details from the diff.
 
 ## Learned Workspace Facts
 
 - New Tab local mock URL params: `stats=many` for a long privacy-stats list (Show More), `protections.feed=privacy-stats|activity`, `activity=empty` for no-recent-activity, `rmf=<id>` for Remote Messaging Framework, repeatable `next-steps-list=<id>`, plus `rebrand=disabled` and `platform=macos|windows` as needed.
 - Common Figma → repo token mappings for NTP: `--ds-text-primary` → `--ds-color-theme-text-primary`; `--ds-tone-brighten-primary` → `--ds-color-theme-tone-tint-primary` or `--ntp-surface-background-color`; `--ds-container-secondary-border-color` → `--ds-color-theme-container-border-secondary`; card/widget radius often `--ds-radius-x06`; pill / 100% radius → `--ds-radius-full`.
 - Activity burn control icons: Trash on non-Windows; Cross/X on Windows.
+- Next Steps List stacked cards: hide content of cards behind the front card; reveal the next card’s content only after the front card is dismissed.

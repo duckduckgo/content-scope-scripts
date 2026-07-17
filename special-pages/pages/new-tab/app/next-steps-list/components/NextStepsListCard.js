@@ -108,7 +108,7 @@ function NextStepsListBubbleHeader() {
  * @property {string} primaryButtonText - Text for the primary action button
  * @property {string} secondaryButtonText - Text for the secondary button
  * @property {string} [imageSrc] - Optional image source
- * @property {CardContent | null} [nextCard] - The next card to show behind (stacked)
+ * @property {CardContent | null} [nextCard] - Next card used for the peek shell + promote-on-dismiss animation
  * @property {() => void} [onPrimaryAction] - Handler for primary button click
  * @property {() => void} [onSecondaryAction] - Handler for secondary button click
  */
@@ -168,19 +168,8 @@ export function NextStepsListCard({
         <div class={styles.wrapper}>
             <NextStepsListBubbleHeader />
             <div class={styles.cardContainer}>
-                {/* Back card (peek card) - shows next step behind current card */}
-                {/* During transition, this is the "third" card being revealed */}
-                {nextCard && (
-                    <div class={cn(styles.card, styles.backCard)} aria-hidden="true">
-                        <CardBody
-                            title={nextCard.title}
-                            description={nextCard.description}
-                            primaryButtonText={nextCard.primaryButtonText}
-                            secondaryButtonText={nextCard.secondaryButtonText}
-                            imageSrc={nextCard.imageSrc}
-                        />
-                    </div>
-                )}
+                {/* Peek shell only — no content. Real content appears when this card is promoted. */}
+                {nextCard && <div class={cn(styles.card, styles.backCard)} aria-hidden="true" />}
                 {/* Promoting card - the back card animating to front position */}
                 {promotingCard && (
                     <div key={`promoting-${promotingCard.itemId}`} class={cn(styles.card, styles.promoting)}>
