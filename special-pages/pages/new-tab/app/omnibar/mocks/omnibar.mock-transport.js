@@ -316,6 +316,22 @@ export function omnibarMockTransport() {
                             ),
                         }));
                     }
+                    if (parseBooleanQueryParam('omnibar.multipleModelUpsells') === true) {
+                        config.aiModelSections = config.aiModelSections?.flatMap((section) => {
+                            if (!section.items.every((model) => !model.isAvailable)) return [section];
+
+                            const midpoint = Math.ceil(section.items.length / 2);
+                            return [
+                                { ...section, items: section.items.slice(0, midpoint) },
+                                {
+                                    header: 'Pro Models - DuckDuckGo subscription',
+                                    items: section.items
+                                        .slice(midpoint)
+                                        .map((item, index) => (index === 0 ? { ...item, upsell: /** @type {const} */ ('upgrade') } : item)),
+                                },
+                            ];
+                        });
+                    }
                     config.selectedReasoningEffort =
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;

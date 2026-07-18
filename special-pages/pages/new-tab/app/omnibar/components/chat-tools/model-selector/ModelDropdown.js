@@ -57,13 +57,10 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
         },
         [],
     );
-    const upsellSectionIndex = sections.findIndex(
-        (section) => section.items.length > 0 && section.items.every((model) => !model.isAvailable),
-    );
-    const upsellSection = sections[upsellSectionIndex];
-    const upsellIndex = upsellSectionIndex >= 0 ? allModels.length : -1;
-    const upsellOptionId = `model-upsell-${upsellSectionIndex}`;
-    if (upsellIndex >= 0) enabledModelIndices.push(upsellIndex);
+    const upsellSections = sections
+        .map((section, sectionIndex) => ({ section, sectionIndex }))
+        .filter(({ section }) => section.items.length > 0 && section.items.every((model) => !model.isAvailable));
+    enabledModelIndices.push(...upsellSections.map((_, index) => allModels.length + index));
 
     const getInitialActiveIndex = () => {
         if (enabledModelIndices.length === 0) return -1;
@@ -74,6 +71,15 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
+
+    /**
+     * @param {'subscribe' | 'upgrade'} type
+     * @param {boolean} restoreFocus
+     */
+    const activateUpsell = (type, restoreFocus) => {
+        onUpsell(type);
+        onClose({ restoreFocus });
+    };
 
     /**
      * @param {number} nextEnabledPosition
@@ -102,7 +108,8 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
      * @param {number} index
      */
     const getOptionId = (index) => {
-        if (index === upsellIndex) return upsellOptionId;
+        const upsellSection = upsellSections[index - allModels.length];
+        if (upsellSection) return `model-upsell-${upsellSection.sectionIndex}`;
         return `model-option-${allModels[index]?.id ?? index}`;
     };
 
@@ -128,8 +135,9 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             case 'Enter':
             case ' ':
                 e.preventDefault();
-                if (activeIndex === upsellIndex) {
-                    onUpsell(upsellSection?.items.find((model) => model.upsell)?.upsell ?? 'subscribe');
+                if (activeIndex >= allModels.length) {
+                    const upsellSection = upsellSections[activeIndex - allModels.length]?.section;
+                    activateUpsell(upsellSection?.items.find((model) => model.upsell)?.upsell ?? 'subscribe', true);
                 } else if (activeIndex >= 0 && activeIndex < allModels.length) {
                     onSelect(allModels[activeIndex].id);
                     onClose({ restoreFocus: true });
@@ -160,25 +168,24 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             {sections.map((section, sectionIndex) => {
                 const isUpsellSection = section.items.length > 0 && section.items.every((model) => !model.isAvailable);
                 const sectionUpsell = section.items.find((model) => model.upsell)?.upsell ?? 'subscribe';
+                const upsellIndex = allModels.length + upsellSections.findIndex((entry) => entry.sectionIndex === sectionIndex);
                 return (
                     <Fragment key={sectionIndex}>
                         {isUpsellSection ? (
                             <Fragment>
                                 <li role="separator" class={styles.modelSectionDivider} />
                                 <li
-                                    id={upsellOptionId}
-                                    role="presentation"
-                                    class={cn(
-                                        styles.modelUpsellHeader,
-                                        section === upsellSection && activeIndex === upsellIndex && styles.modelUpsellHeaderActive,
-                                    )}
+                                    id={`model-upsell-${sectionIndex}`}
+                                    role="option"
+                                    aria-selected={false}
+                                    class={cn(styles.modelUpsellHeader, activeIndex === upsellIndex && styles.modelUpsellHeaderActive)}
                                     onMouseOver={() => setActiveIndex(upsellIndex)}
-                                    onClick={() => onUpsell(sectionUpsell)}
+                                    onClick={() => activateUpsell(sectionUpsell, false)}
                                 >
                                     {section.header && <span class={styles.modelUpsellText}>{section.header}</span>}
-                                    <button type="button" class={styles.modelUpsellCta}>
+                                    <span class={styles.modelUpsellCta}>
                                         {sectionUpsell === 'upgrade' ? t('omnibar_upgrade') : t('omnibar_tryForFree')}
-                                    </button>
+                                    </span>
                                 </li>
                             </Fragment>
                         ) : (

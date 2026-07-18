@@ -1756,9 +1756,12 @@ test.describe('omnibar widget', () => {
             // The gated section renders its native-provided header (not a hardcoded label).
             await expect(omnibar.modelDropdown()).toContainText('Advanced Models - DuckDuckGo subscription');
 
-            await omnibar.modelUpsellButton().click();
+            const upsellRow = omnibar.modelUpsellRow();
+            await expect(upsellRow).toHaveAttribute('role', 'option');
+            await omnibar.modelUpsellCta().click();
 
             await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
         test('supports pointer and keyboard navigation on the model Upgrade row', async ({ page }, workerInfo) => {
@@ -1794,9 +1797,56 @@ test.describe('omnibar widget', () => {
 
             await page.keyboard.press('Enter');
             await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            await expect(dropdown).toHaveCount(0);
 
+            await omnibar.modelSelectorButton().click();
+            await page.keyboard.press('End');
             await page.keyboard.press(' ');
             await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 2 });
+            await expect(dropdown).toHaveCount(0);
+        });
+
+        test('navigates multiple model upsell rows independently', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.multipleModelUpsells': 'true',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            const dropdown = omnibar.modelDropdown();
+            const tryForFreeRow = omnibar.modelUpsellRow();
+            const upgradeRow = omnibar.modelUpsellRow('Upgrade');
+            await expect(tryForFreeRow).toHaveAttribute('id', 'model-upsell-1');
+            await expect(upgradeRow).toHaveAttribute('id', 'model-upsell-2');
+
+            await upgradeRow.hover();
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-2');
+
+            await page.keyboard.press('Home');
+            await page.keyboard.press('End');
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-2');
+            await page.keyboard.press('Enter');
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            await expect(dropdown).toHaveCount(0);
+
+            await omnibar.modelSelectorButton().click();
+            await page.keyboard.press('End');
+            await page.keyboard.press('ArrowUp');
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
+            await page.keyboard.press('Enter');
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            await expect(dropdown).toHaveCount(0);
         });
 
         test('does not show the upsell when all models are available', async ({ page }, workerInfo) => {
@@ -1813,7 +1863,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.modelSelectorButton().click();
-            await expect(omnibar.modelUpsellButton()).toHaveCount(0);
+            await expect(omnibar.modelUpsellCta()).toHaveCount(0);
         });
     });
 

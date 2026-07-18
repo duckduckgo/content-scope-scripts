@@ -333,19 +333,19 @@ export class OmnibarPage {
     }
 
     /**
-     * The upsell button shown above subscription-only models in the model selector.
+     * The upsell CTA shown above subscription-only models in the model selector.
      * @param {'Try for free' | 'Upgrade'} [label]
      */
-    modelUpsellButton(label = 'Try for free') {
-        return this.modelDropdown().getByRole('button', { name: label });
+    modelUpsellCta(label = 'Try for free') {
+        return this.modelDropdown().getByText(label, { exact: true });
     }
 
     /**
-     * The actionable row containing the model upsell button.
+     * The actionable row containing the model upsell CTA.
      * @param {'Try for free' | 'Upgrade'} [label]
      */
     modelUpsellRow(label = 'Try for free') {
-        return this.modelUpsellButton(label).locator('..');
+        return this.modelUpsellCta(label).locator('..');
     }
 
     toolsMenuButton() {
