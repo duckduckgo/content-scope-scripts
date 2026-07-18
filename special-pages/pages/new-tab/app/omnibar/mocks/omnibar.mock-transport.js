@@ -306,6 +306,16 @@ export function omnibarMockTransport() {
                             })),
                         }));
                     }
+                    if (url.searchParams.get('omnibar.modelUpsell') === 'upgrade') {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            ...section,
+                            items: section.items.map((item, index) =>
+                                index === 0 && section.items.every((model) => !model.isAvailable)
+                                    ? { ...item, upsell: /** @type {const} */ ('upgrade') }
+                                    : item,
+                            ),
+                        }));
+                    }
                     config.selectedReasoningEffort =
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
                     config.showViewAllAiChats = parseBooleanQueryParam('omnibar.showViewAllAiChats') ?? config.showViewAllAiChats;

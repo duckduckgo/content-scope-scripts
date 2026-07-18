@@ -57,6 +57,13 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
         },
         [],
     );
+    const upsellSectionIndex = sections.findIndex(
+        (section) => section.items.length > 0 && section.items.every((model) => !model.isAvailable),
+    );
+    const upsellSection = sections[upsellSectionIndex];
+    const upsellIndex = upsellSectionIndex >= 0 ? allModels.length : -1;
+    const upsellOptionId = `model-upsell-${upsellSectionIndex}`;
+    if (upsellIndex >= 0) enabledModelIndices.push(upsellIndex);
 
     const getInitialActiveIndex = () => {
         if (enabledModelIndices.length === 0) return -1;
@@ -94,7 +101,10 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     /**
      * @param {number} index
      */
-    const getOptionId = (index) => `model-option-${allModels[index]?.id ?? index}`;
+    const getOptionId = (index) => {
+        if (index === upsellIndex) return upsellOptionId;
+        return `model-option-${allModels[index]?.id ?? index}`;
+    };
 
     /** @type {(e: KeyboardEvent) => void} */
     const handleKeyDown = (e) => {
@@ -118,7 +128,9 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
             case 'Enter':
             case ' ':
                 e.preventDefault();
-                if (activeIndex >= 0 && activeIndex < allModels.length) {
+                if (activeIndex === upsellIndex) {
+                    onUpsell(upsellSection?.items.find((model) => model.upsell)?.upsell ?? 'subscribe');
+                } else if (activeIndex >= 0 && activeIndex < allModels.length) {
                     onSelect(allModels[activeIndex].id);
                     onClose({ restoreFocus: true });
                 }
@@ -153,16 +165,18 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                         {isUpsellSection ? (
                             <Fragment>
                                 <li role="separator" class={styles.modelSectionDivider} />
-                                <li role="presentation" class={styles.modelUpsellHeader}>
+                                <li
+                                    id={upsellOptionId}
+                                    role="presentation"
+                                    class={cn(
+                                        styles.modelUpsellHeader,
+                                        section === upsellSection && activeIndex === upsellIndex && styles.modelUpsellHeaderActive,
+                                    )}
+                                    onMouseOver={() => setActiveIndex(upsellIndex)}
+                                    onClick={() => onUpsell(sectionUpsell)}
+                                >
                                     {section.header && <span class={styles.modelUpsellText}>{section.header}</span>}
-                                    <button
-                                        type="button"
-                                        class={styles.modelUpsellCta}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onUpsell(sectionUpsell);
-                                        }}
-                                    >
+                                    <button type="button" class={styles.modelUpsellCta}>
                                         {sectionUpsell === 'upgrade' ? t('omnibar_upgrade') : t('omnibar_tryForFree')}
                                     </button>
                                 </li>

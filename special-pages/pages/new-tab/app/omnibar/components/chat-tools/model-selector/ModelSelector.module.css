@@ -186,12 +186,17 @@
 .modelUpsellHeader {
     align-items: center;
     color: var(--ds-color-theme-text-primary);
-    cursor: default;
+    cursor: pointer;
     display: flex;
     font-size: 13px;
     gap: var(--sp-1);
     padding: var(--sp-1) var(--sp-4) var(--sp-1) var(--sp-4);
     white-space: nowrap;
+}
+
+.modelUpsellHeaderActive {
+    background: var(--ds-color-theme-control-fill-primary);
+    border-radius: var(--border-radius-xs);
 }
 
 .modelUpsellCta {

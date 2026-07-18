@@ -1761,6 +1761,44 @@ test.describe('omnibar widget', () => {
             await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
         });
 
+        test('supports pointer and keyboard navigation on the model Upgrade row', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.modelUpsell': 'upgrade',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            const dropdown = omnibar.modelDropdown();
+            const upgradeRow = omnibar.modelUpsellRow('Upgrade');
+            const inactiveBackground = await upgradeRow.evaluate((element) => getComputedStyle(element).backgroundColor);
+
+            await upgradeRow.hover();
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
+            const activeBackground = await upgradeRow.evaluate((element) => getComputedStyle(element).backgroundColor);
+            expect(activeBackground).not.toBe(inactiveBackground);
+
+            await page.keyboard.press('Home');
+            await page.keyboard.press('End');
+            await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
+
+            await page.keyboard.press('Enter');
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+
+            await page.keyboard.press(' ');
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 2 });
+        });
+
         test('does not show the upsell when all models are available', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

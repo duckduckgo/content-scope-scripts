@@ -332,9 +332,20 @@ export class OmnibarPage {
         return this.modelDropdown().getByRole('option', { name: modelName });
     }
 
-    /** The "Try for free" upsell link shown above subscription-only models in the model selector. */
-    modelUpsellButton() {
-        return this.modelDropdown().getByRole('button', { name: 'Try for free' });
+    /**
+     * The upsell button shown above subscription-only models in the model selector.
+     * @param {'Try for free' | 'Upgrade'} [label]
+     */
+    modelUpsellButton(label = 'Try for free') {
+        return this.modelDropdown().getByRole('button', { name: label });
+    }
+
+    /**
+     * The actionable row containing the model upsell button.
+     * @param {'Try for free' | 'Upgrade'} [label]
+     */
+    modelUpsellRow(label = 'Try for free') {
+        return this.modelUpsellButton(label).locator('..');
     }
 
     toolsMenuButton() {
