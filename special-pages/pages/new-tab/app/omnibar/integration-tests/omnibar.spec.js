@@ -1800,6 +1800,7 @@ test.describe('omnibar widget', () => {
             await expect(dropdown).toHaveCount(0);
 
             await omnibar.modelSelectorButton().click();
+            await expect(dropdown).toBeFocused();
             await page.keyboard.press('End');
             await page.keyboard.press(' ');
             await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 2 });
@@ -1841,6 +1842,7 @@ test.describe('omnibar widget', () => {
             await expect(dropdown).toHaveCount(0);
 
             await omnibar.modelSelectorButton().click();
+            await expect(dropdown).toBeFocused();
             await page.keyboard.press('End');
             await page.keyboard.press('ArrowUp');
             await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
