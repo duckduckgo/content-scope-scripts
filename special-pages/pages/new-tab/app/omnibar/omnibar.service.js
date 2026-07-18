@@ -27,7 +27,6 @@ export class OmnibarService {
         this.configService = new Service({
             initial: async () => {
                 const config = await ntp.messaging.request('omnibar_getConfig');
-                console.log('omnibar_getConfig response', config);
                 return config;
             },
             subscribe: (cb) => ntp.messaging.subscribe('omnibar_onConfigUpdate', cb),
