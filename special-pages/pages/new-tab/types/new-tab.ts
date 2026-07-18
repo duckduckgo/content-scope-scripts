@@ -752,7 +752,7 @@ export interface AIModelItem {
   /**
    * Access tier that grants this model (e.g. 'internal', 'free', 'plus', 'pro'). Drives the tier badge (Plus/Pro/Internal) in the model selector.
    */
-  accessTier?: string;
+  accessTier?: "internal" | "free" | "plus" | "pro";
   /**
    * Whether this model supports image attachments
    */

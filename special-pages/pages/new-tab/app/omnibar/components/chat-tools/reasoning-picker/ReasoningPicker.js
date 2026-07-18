@@ -77,7 +77,6 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                 >
                     {options.map((option) => {
                         const OptionIcon = option.icon;
-                        const isUnavailable = !option.isAvailable;
                         const badgeLabel = option.upsell === 'upgrade' ? upgradeLabel : tryForFreeLabel;
                         return (
                             <DropdownItem
@@ -86,11 +85,11 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                                 icon={<OptionIcon />}
                                 name={option.name}
                                 description={option.description}
-                                isSelected={!isUnavailable && option.id === selectedEffort}
-                                ariaSelected={!isUnavailable && option.id === selectedEffort}
-                                isDimmed={isUnavailable && option.upsell === 'upgrade'}
-                                trailingIcon={isUnavailable ? <span class={styles.tryForFreeBadge}>{badgeLabel}</span> : undefined}
-                                onSelect={() => (isUnavailable ? onUpsell(option.upsell) : handleSelect(option.id))}
+                                isSelected={option.isAvailable && option.id === selectedEffort}
+                                ariaSelected={option.isAvailable && option.id === selectedEffort}
+                                isDimmed={!option.isAvailable && option.upsell === 'upgrade'}
+                                trailingIcon={!option.isAvailable ? <span class={styles.tryForFreeBadge}>{badgeLabel}</span> : undefined}
+                                onSelect={() => (option.isAvailable ? handleSelect(option.id) : onUpsell(option.upsell))}
                             />
                         );
                     })}
