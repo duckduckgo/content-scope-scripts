@@ -11,11 +11,11 @@ body {
 .main {
     /* Release Notes accent palette (this page only): links use
        accent-text-primary; buttons use accent-primary + accent-content-primary. */
-    --ds-color-theme-accent-primary: #1074cc;
-    --ds-color-theme-accent-secondary: #045eb2;
-    --ds-color-theme-accent-tertiary: #034180;
-    --ds-color-theme-accent-content-primary: #ffffff;
-    --ds-color-theme-accent-text-primary: #1074cc;
+    --theme-accent-primary: #1074cc;
+    --theme-accent-secondary: #045eb2;
+    --theme-accent-tertiary: #034180;
+    --theme-accent-content-primary: #ffffff;
+    --theme-accent-text-primary: #1074cc;
 
     padding: var(--sp-6) var(--sp-5);
     position: relative;
@@ -24,11 +24,11 @@ body {
 }
 
 .main[data-theme="dark"] {
-    --ds-color-theme-accent-primary: #75b6eb;
-    --ds-color-theme-accent-secondary: #4397e0;
-    --ds-color-theme-accent-tertiary: #1074cc;
-    --ds-color-theme-accent-content-primary: #242323;
-    --ds-color-theme-accent-text-primary: #75b6eb;
+    --theme-accent-primary: #75b6eb;
+    --theme-accent-secondary: #4397e0;
+    --theme-accent-tertiary: #1074cc;
+    --theme-accent-content-primary: #242323;
+    --theme-accent-text-primary: #75b6eb;
 }
 
 /* Pill radius + recolor accentBrand buttons to the palette above.
@@ -37,12 +37,12 @@ body {
 [data-platform-name="macos"] .main[data-theme] button[class] {
     border-radius: var(--border-radius-pill);
 
-    --button-text: var(--ds-color-theme-accent-content-primary);
-    --button-text--active: var(--ds-color-theme-accent-content-primary);
-    --button-bg: var(--ds-color-theme-accent-primary);
-    --button-bg--hover: var(--ds-color-theme-accent-secondary);
-    --button-bg--focus: var(--ds-color-theme-accent-primary);
-    --button-bg--active: var(--ds-color-theme-accent-tertiary);
+    --button-text: var(--theme-accent-content-primary);
+    --button-text--active: var(--theme-accent-content-primary);
+    --button-bg: var(--theme-accent-primary);
+    --button-bg--hover: var(--theme-accent-secondary);
+    --button-bg--focus: var(--theme-accent-primary);
+    --button-bg--active: var(--theme-accent-tertiary);
 }
 
 .header {

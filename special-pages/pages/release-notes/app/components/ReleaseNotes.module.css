@@ -201,7 +201,7 @@
     border-bottom: 1px solid transparent;
     width: fit-content;
     text-decoration: none;
-    color: var(--ds-color-theme-accent-text-primary);
+    color: var(--theme-accent-text-primary);
 
     &:hover {
         border-bottom-color: currentColor;
