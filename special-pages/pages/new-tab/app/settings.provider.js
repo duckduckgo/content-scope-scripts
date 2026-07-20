@@ -35,3 +35,11 @@ export function useAdBlocking() {
     const settings = useContext(SettingsContext).settings;
     return settings.adBlocking.state === 'enabled';
 }
+
+/**
+ * @returns {boolean}
+ */
+export function useNewTabPageRebranding() {
+    const settings = useContext(SettingsContext).settings;
+    return settings.newTabPageRebranding.state === 'enabled';
+}
