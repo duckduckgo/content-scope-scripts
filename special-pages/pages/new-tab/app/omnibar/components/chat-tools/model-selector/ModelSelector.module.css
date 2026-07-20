@@ -165,6 +165,20 @@
     pointer-events: none;
 }
 
+/* Subscription-gated rows in an all-disabled (upsell) section: dimmed like a
+   disabled row, but interactive — hovering highlights and clicking triggers
+   the same upsell as the section's CTA above them. */
+.modelOptionUpsell {
+    color: var(--ds-color-theme-text-tertiary);
+    cursor: pointer;
+}
+
+/* Keep the row grayed on hover; the highlight background still comes from
+   .modelOptionActive (compound selector wins over .modelOptionActive's color). */
+.modelOptionUpsell.modelOptionActive {
+    color: var(--ds-color-theme-text-tertiary);
+}
+
 .modelSectionDivider {
     border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
     margin: var(--sp-1) var(--sp-4);

@@ -202,27 +202,37 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                             const Icon = getModelIcon(model.id);
                             const optionIndex = optionIndexById.get(model.id) ?? -1;
                             const badgeLabel = getRowBadgeLabel(model, t);
+                            // Rows in an all-disabled section act as extra triggers for the
+                            // section's upsell CTA: dimmed, but hoverable and clickable.
+                            const isUpsellRow = !model.isAvailable && isUpsellSection;
+                            const isInteractive = model.isAvailable || isUpsellRow;
                             return (
                                 <li
                                     key={model.id}
                                     id={getOptionId(optionIndex)}
                                     role="option"
-                                    aria-selected={model.isAvailable ? model.id === selectedModelId : undefined}
-                                    aria-disabled={!model.isAvailable || undefined}
+                                    aria-selected={model.isAvailable ? model.id === selectedModelId : isUpsellRow ? false : undefined}
+                                    aria-disabled={(!model.isAvailable && !isUpsellRow) || undefined}
                                     class={cn(
                                         styles.modelOption,
-                                        model.isAvailable && activeIndex === optionIndex && styles.modelOptionActive,
-                                        !model.isAvailable && styles.modelOptionDisabled,
+                                        isInteractive && activeIndex === optionIndex && styles.modelOptionActive,
+                                        isUpsellRow && styles.modelOptionUpsell,
+                                        !model.isAvailable && !isUpsellRow && styles.modelOptionDisabled,
                                         model.isAvailable && model.id === selectedModelId && styles.modelOptionSelected,
                                     )}
-                                    onMouseOver={model.isAvailable ? () => setActiveIndex(optionIndex) : undefined}
+                                    onMouseOver={isInteractive ? () => setActiveIndex(optionIndex) : undefined}
                                     onClick={
                                         model.isAvailable
                                             ? (e) => {
                                                   e.stopPropagation();
                                                   onSelect(model.id);
                                               }
-                                            : undefined
+                                            : isUpsellRow
+                                              ? (e) => {
+                                                    e.stopPropagation();
+                                                    activateUpsell(sectionUpsell, false);
+                                                }
+                                              : undefined
                                     }
                                 >
                                     {Icon && <Icon />}

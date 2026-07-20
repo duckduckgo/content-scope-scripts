@@ -1764,6 +1764,34 @@ test.describe('omnibar widget', () => {
             await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
+        test('clicking a subscription-gated model row opens the same upsell as its CTA', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Default mock: the advanced section is entirely disabled, so it renders as an upsell section.
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            // A disabled, subscription-gated model row (Plus badge) inside the all-disabled section.
+            const gatedModel = omnibar.modelOption('Claude Sonnet 4.5');
+            const inactiveBackground = await gatedModel.evaluate((element) => getComputedStyle(element).backgroundColor);
+
+            // Grayed but interactive: hovering shows the highlight background.
+            await gatedModel.hover();
+            const activeBackground = await gatedModel.evaluate((element) => getComputedStyle(element).backgroundColor);
+            expect(activeBackground).not.toBe(inactiveBackground);
+
+            // Clicking the row triggers the same upsell as the section's "Try for free" CTA.
+            await gatedModel.click();
+            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            await expect(omnibar.modelDropdown()).toHaveCount(0);
+        });
+
         test('supports pointer and keyboard navigation on the model Upgrade row', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
