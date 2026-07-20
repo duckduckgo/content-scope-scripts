@@ -111,6 +111,10 @@
     line-height: 16px;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    [data-platform='windows'] & {
+        line-height: 18px;
+    }
 }
 
 .modelOptionDescription {
