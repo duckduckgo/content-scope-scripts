@@ -19,10 +19,31 @@ body {
   margin: var(--sp-6) 0 var(--sp-8);
 }
 .App_main {
+  --theme-accent-primary: #1074cc;
+  --theme-accent-secondary: #045eb2;
+  --theme-accent-tertiary: #034180;
+  --theme-accent-content-primary: #ffffff;
+  --theme-accent-text-primary: #1074cc;
   padding: var(--sp-6) var(--sp-5);
   position: relative;
   display: grid;
   gap: var(--sp-8);
+}
+.App_main[data-theme=dark] {
+  --theme-accent-primary: #75b6eb;
+  --theme-accent-secondary: #4397e0;
+  --theme-accent-tertiary: #1074cc;
+  --theme-accent-content-primary: #242323;
+  --theme-accent-text-primary: #75b6eb;
+}
+[data-platform-name=macos] .App_main[data-theme] button[class] {
+  border-radius: var(--border-radius-full);
+  --button-text: var(--theme-accent-content-primary);
+  --button-text--active: var(--theme-accent-content-primary);
+  --button-bg: var(--theme-accent-primary);
+  --button-bg--hover: var(--theme-accent-secondary);
+  --button-bg--focus: var(--theme-accent-primary);
+  --button-bg--active: var(--theme-accent-tertiary);
 }
 .App_header {
   max-width: var(--sp-320);
@@ -707,6 +728,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   border-bottom: 1px solid transparent;
   width: fit-content;
   text-decoration: none;
+  color: var(--theme-accent-text-primary);
 }
 .ReleaseNotes_updatesLink:hover {
   border-bottom-color: currentColor;
@@ -2101,6 +2123,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   --border-radius-md: 8px;
   --border-radius-sm: 6px;
   --border-radius-xs: 4px;
+  --border-radius-full: 999px;
   --macos-text-primary: var(--color-black-at-84);
   --ios-content-max-width: calc(794 * var(--px-in-rem));
 }

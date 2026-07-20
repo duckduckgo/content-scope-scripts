@@ -1361,6 +1361,7 @@
   --border-radius-md: 8px;
   --border-radius-sm: 6px;
   --border-radius-xs: 4px;
+  --border-radius-full: 999px;
   --macos-text-primary: var(--color-black-at-84);
   --ios-content-max-width: calc(794 * var(--px-in-rem));
 }

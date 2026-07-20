@@ -1,1 +1,2 @@
-- Add New Tab rebrand feature flag wiring (#2844)
+- macOS: Release Notes Rebranding UX (#2878)
+- build(deps-dev): bump typedoc in the typescript group (#2880)
