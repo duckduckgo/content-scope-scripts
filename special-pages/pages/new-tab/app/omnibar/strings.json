@@ -95,6 +95,10 @@
     "title": "Image is too large. Please use an image smaller than 10000×10000 pixels.",
     "description": "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
   },
+  "omnibar_fileTooLargeError": {
+    "title": "File is too large. Please use a file smaller than {limit} MB.",
+    "description": "Error shown when a user tries to attach a file that exceeds the maximum allowed size. {limit} is the size limit in megabytes."
+  },
   "omnibar_imageProcessingError": {
     "title": "Failed to process image. Please try a different file.",
     "description": "Error shown when an attached image cannot be processed."
@@ -134,6 +138,18 @@
   "omnibar_webSearchDescription": {
     "title": "Source answers from the web",
     "description": "Description for the Web Search tool shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesLabel": {
+    "title": "Customize Responses",
+    "description": "Label for the Customize Responses entry shown in the tools menu dropdown. Selecting it opens a modal to control how Duck.ai responds."
+  },
+  "omnibar_customizeResponsesDescription": {
+    "title": "Control tone, length, and more",
+    "description": "Description for the Customize Responses entry shown in the tools menu dropdown."
+  },
+  "omnibar_customizeResponsesToggleLabel": {
+    "title": "Apply response customization",
+    "description": "Accessible label for the on/off toggle that applies or unapplies the saved response customization, shown on the Customize Responses tools menu row."
   },
   "omnibar_imageGenerationWithAttachmentPlaceholder": {
     "title": "Describe changes based on the image",
@@ -206,5 +222,13 @@
   "omnibar_removeAttachedTabLabel": {
     "title": "Remove {title}",
     "description": "Accessible label for the close button on an attached-tab chip. {title} is the tab title."
+  },
+  "omnibar_removeSuggestion": {
+    "title": "Remove from browsing history",
+    "description": "Accessible label and tooltip for the button that removes a search suggestion from browsing history."
+  },
+  "omnibar_removeAiChat": {
+    "title": "Delete this chat",
+    "description": "Accessible label and tooltip for the button that deletes a recent AI chat."
   }
 }

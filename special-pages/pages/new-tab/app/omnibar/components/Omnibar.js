@@ -21,11 +21,12 @@ import { useDrawerControls, useDrawerEventListeners } from '../../components/Dra
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ImageAttachmentContent } from './chat-tools/image-attachment/ImageAttachmentTool';
 import { useImageAttachments } from './chat-tools/image-attachment/useImageAttachments';
-import { MAX_FILES, useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
+import { useFileAttachments } from './chat-tools/file-attachment/useFileAttachments';
 import { AttachmentChips } from './chat-tools/attachments/AttachmentChips';
 import { ModelSelectorTool } from './chat-tools/model-selector/ModelSelectorTool';
 import { ReasoningPickerTool } from './chat-tools/reasoning-picker/ReasoningPickerTool';
 import { ToolsMenu } from './chat-tools/tools-menu/ToolsMenu';
+import { useToolsMenu } from './chat-tools/tools-menu/useToolsMenu';
 import { useActiveTools } from './chat-tools/useActiveTools';
 import { useSelectedModel } from './useSelectedModel';
 import { useSelectedReasoningEffort } from './useSelectedReasoningEffort';
@@ -209,15 +210,18 @@ function AiChatContent({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
-    const { showChats, hideChats } = useAiChatsContext();
+    const { showChats, hideChats, deletionInProgress } = useAiChatsContext();
+    const { state } = useContext(OmnibarContext);
+    const attachmentLimits = state.config?.attachmentLimits;
     const { selectedModel } = useSelectedModel();
     const { selectedEffort } = useSelectedReasoningEffort();
     const { activeTool, availableTools, imageGenerationActive, webSearchActive, setActiveTool } = useActiveTools();
+
     const containerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const hasVisibleImagesRef = useRef(false);
     const submittingRef = useRef(false);
     const [imageWarning, setImageWarning] = useState(false);
-    const imageState = useImageAttachments(tabId);
+    const imageState = useImageAttachments({ tabId, maxImages: attachmentLimits?.images?.maxPerTurn });
 
     const hasAttachedImages = imageState.attachedImages.length > 0;
     const imageGenerationPlaceholder = hasAttachedImages
@@ -226,7 +230,12 @@ function AiChatContent({
     const selectedModelSupportsImages = selectedModel?.supportsImageUpload ?? false;
     const canAttachImages = selectedModelSupportsImages || imageGenerationActive;
 
-    const fileState = useFileAttachments(selectedModel?.supportedFileTypes, tabId);
+    const fileState = useFileAttachments({
+        supportedFileTypes: selectedModel?.supportedFileTypes,
+        tabId,
+        maxFiles: attachmentLimits?.files?.maxPerConversation,
+        maxFileSizeMB: attachmentLimits?.files?.maxFileSizeMB,
+    });
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
@@ -259,6 +268,8 @@ function AiChatContent({
 
         setActiveTool(nextTool);
     };
+
+    const toolsMenu = useToolsMenu({ tools: availableTools, activeTool, onToggle: handleToggleTool });
 
     /** @type {(query: string, caret?: number) => void} */
     const handleChange = (value, caret) => {
@@ -322,9 +333,11 @@ function AiChatContent({
     };
 
     const fileWarning = canAttachFiles && fileState.fileLimitExceeded;
+    const fileError = canAttachFiles ? fileState.fileError : null;
 
     const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
-    const showFileWarning = fileWarning && !imageMessageShowing;
+    const showFileError = !!fileError && !imageMessageShowing;
+    const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
     const disabled = !query || imageWarning || fileWarning;
 
     const isVoiceChatMode =
@@ -370,6 +383,10 @@ function AiChatContent({
                 if (event.relatedTarget instanceof Element && containerRef.current?.contains(event.relatedTarget)) {
                     return;
                 }
+                // Don't hide the list while the native deletion dialog is open
+                if (deletionInProgress.current) {
+                    return;
+                }
 
                 hideChats();
             }}
@@ -391,7 +408,11 @@ function AiChatContent({
                                 <AttachMenu
                                     image={
                                         canAttachImages
-                                            ? { processFiles: imageState.processFiles, disabled: imageState.imageUploadDisabled }
+                                            ? {
+                                                  processFiles: imageState.processFiles,
+                                                  disabled: imageState.imageUploadDisabled,
+                                                  maxImages: imageState.maxImages,
+                                              }
                                             : null
                                     }
                                     file={
@@ -408,8 +429,8 @@ function AiChatContent({
                                     isAttached={tabAttachments.isAttached}
                                 />
                             )}
-                            {availableTools.length > 0 && (
-                                <ToolsMenu tools={availableTools} activeTool={activeTool} onToggle={handleToggleTool} />
+                            {toolsMenu.items.length > 0 && (
+                                <ToolsMenu items={toolsMenu.items} activeItem={toolsMenu.activeItem} isCollapsed={toolsMenu.isCollapsed} />
                             )}
                         </Fragment>
                     }
@@ -456,9 +477,14 @@ function AiChatContent({
                         onRemoveFile={fileState.handleRemoveFile}
                         onRemoveImage={imageState.handleRemoveImage}
                     />
+                    {showFileError && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_fileTooLargeError', { limit: String(fileState.maxFileSizeMB ?? '') })}
+                        </p>
+                    )}
                     {showFileWarning && (
                         <p class={styles.attachmentWarning} role="alert">
-                            {t('omnibar_fileAttachmentLimitWarning', { limit: String(MAX_FILES) })}
+                            {t('omnibar_fileAttachmentLimitWarning', { limit: String(fileState.maxFiles) })}
                         </p>
                     )}
                     <ImageAttachmentContent

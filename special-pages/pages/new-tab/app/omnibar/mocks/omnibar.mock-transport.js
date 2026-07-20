@@ -161,12 +161,34 @@ export function omnibarMockTransport() {
         ],
         showViewAllAiChats: false,
         enableVoiceChatAccess: false,
+        enableCustomizeResponses: false,
+        customizeSubLabel: undefined,
+        hasCustomization: false,
+        customizationActive: false,
         enableAskAiSuggestion: true,
         enableAttachTabs: false,
+        attachmentLimits: {
+            files: {
+                maxPerConversation: 3,
+                maxFileSizeMB: 3,
+                maxTotalFileSizeBytes: 75 * 1024 * 1024,
+                maxPagesPerFile: 100,
+            },
+            images: {
+                maxPerTurn: 3,
+                maxPerConversation: 10,
+                maxInputCharsWithAttachments: 30000,
+            },
+        },
+        enableAiChatDeletion: false,
+        enableSearchSuggestionDeletion: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
     const subs = new Map();
+
+    /** @type {Set<string>} Tracks deleted chats so re-fetches exclude them */
+    const deletedChatIds = new Set();
 
     return new TestTransportConfig({
         notify(_msg) {
@@ -178,8 +200,18 @@ export function omnibarMockTransport() {
                     subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
+                case 'omnibar_setCustomizeResponsesActive': {
+                    config.customizationActive = msg.params.active;
+                    subs.get('omnibar_onConfigUpdate')?.(config);
+                    break;
+                }
+                case 'omnibar_removeSuggestion': {
+                    console.log('Mock: removing suggestion', msg.params.url);
+                    break;
+                }
                 case 'omnibar_viewAllAIChats':
                 case 'omnibar_openAiChat':
+                case 'omnibar_openCustomizeResponses':
                 case 'omnibar_openSuggestion':
                 case 'omnibar_submitSearch':
                 case 'omnibar_submitChat':
@@ -233,6 +265,22 @@ export function omnibarMockTransport() {
                     config.enableVoiceChatAccess = parseBooleanQueryParam('omnibar.enableVoiceChatAccess') ?? config.enableVoiceChatAccess;
                     config.enableAskAiSuggestion = parseBooleanQueryParam('omnibar.enableAskAiSuggestion') ?? config.enableAskAiSuggestion;
                     config.enableAttachTabs = parseBooleanQueryParam('omnibar.enableAttachTabs') ?? config.enableAttachTabs;
+                    config.enableCustomizeResponses =
+                        parseBooleanQueryParam('omnibar.enableCustomizeResponses') ?? config.enableCustomizeResponses;
+                    config.customizeSubLabel = url.searchParams.get('omnibar.customizeSubLabel') ?? config.customizeSubLabel;
+                    config.hasCustomization = parseBooleanQueryParam('omnibar.hasCustomization') ?? config.hasCustomization;
+                    config.customizationActive = parseBooleanQueryParam('omnibar.customizationActive') ?? config.customizationActive;
+                    if (config.attachmentLimits) {
+                        const imageMaxPerTurn = parseInt(url.searchParams.get('omnibar.imageMaxPerTurn') ?? '', 10);
+                        if (imageMaxPerTurn > 0) config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
+                        const fileMaxPerConversation = parseInt(url.searchParams.get('omnibar.fileMaxPerConversation') ?? '', 10);
+                        if (fileMaxPerConversation > 0) config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;
+                        const fileMaxFileSizeMB = parseInt(url.searchParams.get('omnibar.fileMaxFileSizeMB') ?? '', 10);
+                        if (fileMaxFileSizeMB > 0) config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
+                    }
+                    config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
+                    config.enableSearchSuggestionDeletion =
+                        parseBooleanQueryParam('omnibar.enableSearchSuggestionDeletion') ?? config.enableSearchSuggestionDeletion;
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
@@ -241,7 +289,31 @@ export function omnibarMockTransport() {
                 }
                 case 'omnibar_getAiChats': {
                     await new Promise((resolve) => setTimeout(resolve, 100));
-                    return getMockAiChats(msg.params.query);
+                    const result = getMockAiChats(msg.params.query);
+                    // Filter out chats that were deleted in this session
+                    result.chats = result.chats.filter((chat) => !deletedChatIds.has(chat.chatId));
+                    return result;
+                }
+                case 'omnibar_confirmDeleteAiChat': {
+                    // Simulates the native confirmation dialog for deleting a chat
+                    /** @type {{ action: string }} */
+                    let response;
+
+                    if (window.__playwright_01?.mockResponses?.omnibar_confirmDeleteAiChat) {
+                        response = /** @type {{ action: string }} */ (
+                            /** @type {unknown} */ (window.__playwright_01.mockResponses.omnibar_confirmDeleteAiChat)
+                        );
+                    } else if (!window.__playwright_01) {
+                        const confirmed = window.confirm(`Delete "${msg.params.title}"?`);
+                        response = { action: confirmed ? 'delete' : 'none' };
+                    } else {
+                        response = { action: 'delete' };
+                    }
+                    // Track deletion so re-fetches don't return this chat
+                    if (response.action === 'delete') {
+                        deletedChatIds.add(msg.params.chatId);
+                    }
+                    return response;
                 }
                 case 'omnibar_getOpenTabs': {
                     await new Promise((resolve) => setTimeout(resolve, 50));

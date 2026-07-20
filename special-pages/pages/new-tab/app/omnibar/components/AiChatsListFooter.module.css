@@ -7,7 +7,7 @@
 .item {
     align-items: center;
     background: none;
-    border-radius: 4px;
+    border-radius: var(--border-radius-md);
     border: none;
     color: var(--ds-color-theme-text-primary);
     cursor: pointer;
@@ -24,6 +24,7 @@
 
     &[aria-selected="true"] {
         background: var(--ds-color-theme-accent-primary);
+        border-radius: var(--border-radius-lg);
         color: var(--ds-color-theme-accent-content-primary);
 
         .keyCharm {
@@ -37,6 +38,7 @@
 
     &:active {
         background: var(--ds-color-theme-accent-secondary);
+        border-radius: var(--border-radius-lg);
         color: var(--ds-color-theme-accent-content-primary);
     }
 }
