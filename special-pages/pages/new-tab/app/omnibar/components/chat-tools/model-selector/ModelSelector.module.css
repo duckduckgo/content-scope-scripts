@@ -208,7 +208,7 @@
     display: flex;
     font-size: 13px;
     gap: var(--sp-1);
-    padding: var(--sp-1) var(--sp-4) var(--sp-1) var(--sp-4);
+    padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-4);
     white-space: nowrap;
 }
 
