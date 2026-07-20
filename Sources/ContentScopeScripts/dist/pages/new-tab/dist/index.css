@@ -2333,6 +2333,8 @@ body:has([data-reset-layout=true]) .App_tube {
 body[data-animate-background=true] {
   transition: background-color .3s;
 }
+body[data-rebrand=true] {
+}
 .layout-centered {
   margin-inline: auto;
   width: 100%;

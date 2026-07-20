@@ -614,6 +614,10 @@ export function initialSetup(url) {
         settings.adBlocking = { state: 'enabled' };
     }
 
+    if (url.searchParams.get('rebrand') === 'enabled') {
+        settings.newTabPageRebranding = { state: 'enabled' };
+    }
+
     if (url.searchParams.has('tabs')) {
         initial.tabs = { tabId: '01', tabIds: ['01'] };
     }

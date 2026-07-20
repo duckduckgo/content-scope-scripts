@@ -1,2 +1,1 @@
-- hasContent for captcha detection  (#2861)
-- Add nested Bugbot rule to keep web-detection captcha matching layout-free (#2875)
+- Add New Tab rebrand feature flag wiring (#2844)

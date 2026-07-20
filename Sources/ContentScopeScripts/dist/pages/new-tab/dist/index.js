@@ -36310,15 +36310,18 @@
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {{state: 'enabled' | 'disabled', autoOpen: boolean}} [params.customizerDrawer]
      * @param {{state: 'enabled' | 'disabled'}} [params.adBlocking]
+     * @param {{state: 'enabled' | 'disabled'}} [params.newTabPageRebranding]
      */
     constructor({
       platform = { name: detectPlatform() },
       customizerDrawer = { state: "enabled", autoOpen: false },
-      adBlocking = { state: "disabled" }
+      adBlocking = { state: "disabled" },
+      newTabPageRebranding = { state: "disabled" }
     }) {
       this.platform = platform;
       this.customizerDrawer = customizerDrawer;
       this.adBlocking = adBlocking;
+      this.newTabPageRebranding = newTabPageRebranding;
     }
     withPlatformName(name2) {
       const valid = ["windows", "macos"];
@@ -36340,7 +36343,7 @@
      */
     withFeatureState(named, settings) {
       if (!settings) return this;
-      const valid = ["customizerDrawer", "adBlocking"];
+      const valid = ["customizerDrawer", "adBlocking", "newTabPageRebranding"];
       if (!valid.includes(named)) {
         console.warn(`Excluding invalid feature key ${named}`);
         return this;
@@ -39356,7 +39359,7 @@
     }
     const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
     const strings = await getStrings(environment);
-    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("customizerDrawer", init2.settings?.customizerDrawer).withFeatureState("adBlocking", init2.settings?.adBlocking);
+    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("customizerDrawer", init2.settings?.customizerDrawer).withFeatureState("adBlocking", init2.settings?.adBlocking).withFeatureState("newTabPageRebranding", init2.settings?.newTabPageRebranding);
     if (!window.__playwright_01) {
       console.log("environment:", environment);
       console.log("settings:", settings);
@@ -39422,6 +39425,7 @@
     document.body.dataset.platformName = settings.platform.name;
     document.body.dataset.display = environment.display;
     document.body.dataset.animation = environment.urlParams.get("animation") || "";
+    document.body.dataset.rebrand = settings.newTabPageRebranding.state === "enabled" ? "true" : "false";
   }
   async function resolveEntryPoints(widgets, didCatch) {
     try {
