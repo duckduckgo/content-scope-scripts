@@ -128,6 +128,15 @@ export function omnibarMockTransport() {
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                     },
+                    {
+                        id: 'tinfoil/gemma4-31b',
+                        name: 'Gemma 4 31B',
+                        shortName: 'Gemma',
+                        isAvailable: true,
+                        accessTier: 'free',
+                        supportsImageUpload: false,
+                        supportedTools: [],
+                    },
                 ],
             },
             {
