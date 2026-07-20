@@ -51,6 +51,11 @@
     }
 }
 
+.dropdown.roomy .item {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
 .trailingIcon {
     align-items: center;
     color: var(--ds-color-theme-icons-secondary);

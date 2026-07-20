@@ -3,6 +3,7 @@ import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
+import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ReasoningPicker.module.css';
 
 /**
@@ -74,6 +75,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                     position={dropdownPos}
                     onClose={handleClose}
                     idPrefix="reasoning-option"
+                    className={dropdownStyles.roomy}
                 >
                     {options.map((option) => {
                         const OptionIcon = option.icon;
