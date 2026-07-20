@@ -87,7 +87,7 @@ export const OmnibarContext = createContext({
     setCustomizeResponsesActive: () => {
         throw new Error('must implement');
     },
-    /** @type {(type?: 'subscribe' | 'upgrade') => void} */
+    /** @type {(type: 'subscribe' | 'upgrade' | undefined, source: 'model' | 'reasoning') => void} */
     showUpsell: () => {
         throw new Error('must implement');
     },
@@ -264,10 +264,10 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {(type?: 'subscribe' | 'upgrade') => void} */
+    /** @type {(type: 'subscribe' | 'upgrade' | undefined, source: 'model' | 'reasoning') => void} */
     const showUpsell = useCallback(
-        (type) => {
-            service.current?.showUpsell(type);
+        (type, source) => {
+            service.current?.showUpsell(type, source);
         },
         [service],
     );

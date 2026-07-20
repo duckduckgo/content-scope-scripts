@@ -263,11 +263,11 @@ export function omnibarMockTransport() {
                     break;
                 case 'omnibar_showSubscriptionUpsell':
                     // Placeholder until native ships the real flow.
-                    globalThis.alert?.('Show subscription upsell (Try for free)');
+                    globalThis.alert?.(`Show subscription upsell (Try for free) — source: ${msg.params?.source}`);
                     break;
                 case 'omnibar_showSubscriptionUpgrade':
                     // Placeholder until native ships the real flow.
-                    globalThis.alert?.('Show subscription upgrade (Upgrade)');
+                    globalThis.alert?.(`Show subscription upgrade (Upgrade) — source: ${msg.params?.source}`);
                     break;
                 default: {
                     console.warn('unhandled notification', msg);

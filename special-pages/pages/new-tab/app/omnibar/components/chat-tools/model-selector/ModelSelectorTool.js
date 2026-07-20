@@ -27,7 +27,7 @@ export function ModelSelectorTool() {
             selector={selector}
             selectedModel={selectedModel}
             aiModelSections={aiModelSections}
-            onUpsell={showUpsell}
+            onUpsell={(type) => showUpsell(type, 'model')}
             ariaLabel={t('omnibar_modelSelectorLabel')}
         />
     );

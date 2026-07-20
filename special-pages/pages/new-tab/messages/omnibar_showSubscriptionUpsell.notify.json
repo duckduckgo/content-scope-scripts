@@ -4,5 +4,12 @@
   "description": "Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option).",
   "type": "object",
   "additionalProperties": false,
-  "properties": {}
+  "required": ["source"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "enum": ["model", "reasoning"],
+      "description": "Which omnibar picker triggered the upsell."
+    }
+  }
 }

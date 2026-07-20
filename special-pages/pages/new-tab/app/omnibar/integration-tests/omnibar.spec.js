@@ -1760,7 +1760,8 @@ test.describe('omnibar widget', () => {
             await expect(upsellRow).toHaveAttribute('role', 'option');
             await omnibar.modelUpsellCta().click();
 
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
             await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
@@ -1788,7 +1789,8 @@ test.describe('omnibar widget', () => {
 
             // Clicking the row triggers the same upsell as the section's "Try for free" CTA.
             await gatedModel.click();
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
             await expect(omnibar.modelDropdown()).toHaveCount(0);
         });
 
@@ -1824,14 +1826,16 @@ test.describe('omnibar widget', () => {
             await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
 
             await page.keyboard.press('Enter');
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            const upgradeCalls1 = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            expect(upgradeCalls1.at(-1)?.payload.params).toEqual({ source: 'model' });
             await expect(dropdown).toHaveCount(0);
 
             await omnibar.modelSelectorButton().click();
             await expect(dropdown).toBeFocused();
             await page.keyboard.press('End');
             await page.keyboard.press(' ');
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 2 });
+            const upgradeCalls2 = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 2 });
+            expect(upgradeCalls2.at(-1)?.payload.params).toEqual({ source: 'model' });
             await expect(dropdown).toHaveCount(0);
         });
 
@@ -1866,7 +1870,8 @@ test.describe('omnibar widget', () => {
             await page.keyboard.press('End');
             await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-2');
             await page.keyboard.press('Enter');
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            const upgradeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            expect(upgradeCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
             await expect(dropdown).toHaveCount(0);
 
             await omnibar.modelSelectorButton().click();
@@ -1875,7 +1880,8 @@ test.describe('omnibar widget', () => {
             await page.keyboard.press('ArrowUp');
             await expect(dropdown).toHaveAttribute('aria-activedescendant', 'model-upsell-1');
             await page.keyboard.press('Enter');
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'model' });
             await expect(dropdown).toHaveCount(0);
         });
 
@@ -2159,7 +2165,8 @@ test.describe('omnibar widget', () => {
 
             await gatedOption.click();
 
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            const upsellCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpsell', count: 1 });
+            expect(upsellCalls.at(-1)?.payload.params).toEqual({ source: 'reasoning' });
         });
 
         test('an upgrade-gated reasoning-effort option shows "Upgrade" and opens the subscription upgrade', async ({
@@ -2188,7 +2195,8 @@ test.describe('omnibar widget', () => {
 
             await gatedOption.click();
 
-            await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            const upgradeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
+            expect(upgradeCalls.at(-1)?.payload.params).toEqual({ source: 'reasoning' });
         });
     });
 

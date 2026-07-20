@@ -235,28 +235,31 @@ export class OmnibarService {
     /**
      * Ask native to present the subscription upsell (e.g. when the user taps
      * "Try for free" on a gated model or reasoning-effort option).
+     * @param {'model' | 'reasoning'} source - Which picker triggered the upsell.
      */
-    showSubscriptionUpsell() {
-        this.ntp.messaging.notify('omnibar_showSubscriptionUpsell', {});
+    showSubscriptionUpsell(source) {
+        this.ntp.messaging.notify('omnibar_showSubscriptionUpsell', { source });
     }
 
     /**
      * Ask native to present the subscription upgrade flow (e.g. when a subscriber
      * taps "Upgrade" on a model or reasoning-effort option gated behind a higher tier).
+     * @param {'model' | 'reasoning'} source - Which picker triggered the upgrade.
      */
-    showSubscriptionUpgrade() {
-        this.ntp.messaging.notify('omnibar_showSubscriptionUpgrade', {});
+    showSubscriptionUpgrade(source) {
+        this.ntp.messaging.notify('omnibar_showSubscriptionUpgrade', { source });
     }
 
     /**
      * Route a gated item's upsell to the correct native flow.
-     * @param {'subscribe' | 'upgrade'} [type]
+     * @param {'subscribe' | 'upgrade' | undefined} type
+     * @param {'model' | 'reasoning'} source - Which picker triggered the upsell.
      */
-    showUpsell(type) {
+    showUpsell(type, source) {
         if (type === 'upgrade') {
-            this.showSubscriptionUpgrade();
+            this.showSubscriptionUpgrade(source);
         } else {
-            this.showSubscriptionUpsell();
+            this.showSubscriptionUpsell(source);
         }
     }
 

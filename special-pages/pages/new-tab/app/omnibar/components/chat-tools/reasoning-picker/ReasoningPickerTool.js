@@ -60,7 +60,7 @@ export function ReasoningPickerTool() {
             options={options}
             selectedEffort={selectedEffort}
             onSelect={setSelectedReasoningEffort}
-            onUpsell={showUpsell}
+            onUpsell={(type) => showUpsell(type, 'reasoning')}
             ariaLabel={t('omnibar_reasoningPickerLabel')}
             buttonLabel={selectedOption?.name ?? t('omnibar_reasoningPickerLabel')}
             tryForFreeLabel={t('omnibar_tryForFree')}

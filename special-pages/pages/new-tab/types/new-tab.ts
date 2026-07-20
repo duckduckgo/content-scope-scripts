@@ -865,7 +865,12 @@ export interface OmnibarShowSubscriptionUpgradeNotification {
 /**
  * Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier).
  */
-export interface ShowSubscriptionUpgradeAction {}
+export interface ShowSubscriptionUpgradeAction {
+  /**
+   * Which omnibar picker triggered the upsell.
+   */
+  source: "model" | "reasoning";
+}
 /**
  * Generated from @see "../messages/omnibar_showSubscriptionUpsell.notify.json"
  */
@@ -876,7 +881,12 @@ export interface OmnibarShowSubscriptionUpsellNotification {
 /**
  * Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option).
  */
-export interface ShowSubscriptionUpsellAction {}
+export interface ShowSubscriptionUpsellAction {
+  /**
+   * Which omnibar picker triggered the upsell.
+   */
+  source: "model" | "reasoning";
+}
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
  */
