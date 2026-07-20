@@ -1105,7 +1105,16 @@ export interface TelemetryEventNotification {
   params: NTPTelemetryEvent;
 }
 export interface NTPTelemetryEvent {
-  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState;
+  attributes:
+    | StatsShowMore
+    | ExampleTelemetryEvent
+    | CustomizerDrawerState
+    | OmnibarModelPickerShown
+    | OmnibarModelPickerTryForFreeShown
+    | OmnibarModelPickerUpgradeShown
+    | OmnibarReasoningPickerShown
+    | OmnibarReasoningPickerTryForFreeShown
+    | OmnibarReasoningPickerUpgradeShown;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1123,6 +1132,24 @@ export interface CustomizerDrawerState {
      */
     themeVariantPopoverWasOpen?: boolean;
   };
+}
+export interface OmnibarModelPickerShown {
+  name: "omnibar_model_picker_shown";
+}
+export interface OmnibarModelPickerTryForFreeShown {
+  name: "omnibar_model_picker_tryforfree_shown";
+}
+export interface OmnibarModelPickerUpgradeShown {
+  name: "omnibar_model_picker_upgrade_shown";
+}
+export interface OmnibarReasoningPickerShown {
+  name: "omnibar_reasoning_picker_shown";
+}
+export interface OmnibarReasoningPickerTryForFreeShown {
+  name: "omnibar_reasoning_picker_tryforfree_shown";
+}
+export interface OmnibarReasoningPickerUpgradeShown {
+  name: "omnibar_reasoning_picker_upgrade_shown";
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"

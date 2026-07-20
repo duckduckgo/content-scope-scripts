@@ -1,6 +1,8 @@
 import { h } from 'preact';
+import { useEffect, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
+import { useMessaging } from '../../../../types.js';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
 import dropdownStyles from '../dropdown/Dropdown.module.css';
@@ -33,6 +35,28 @@ import styles from './ReasoningPicker.module.css';
  */
 export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, tryForFreeLabel, upgradeLabel }) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
+    const ntp = useMessaging();
+    const shownRef = useRef(false);
+
+    // Impression telemetry: fire once each time the picker opens, plus the CTA(s) it shows.
+    useEffect(() => {
+        if (!isOpen) {
+            shownRef.current = false;
+            return;
+        }
+        if (shownRef.current) return;
+        shownRef.current = true;
+
+        ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_shown' } });
+
+        const gated = options.filter((option) => !option.isAvailable);
+        if (gated.some((option) => option.upsell !== 'upgrade')) {
+            ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_tryforfree_shown' } });
+        }
+        if (gated.some((option) => option.upsell === 'upgrade')) {
+            ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_upgrade_shown' } });
+        }
+    }, [isOpen, options, ntp]);
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {

@@ -1901,6 +1901,62 @@ test.describe('omnibar widget', () => {
             await omnibar.modelSelectorButton().click();
             await expect(omnibar.modelUpsellCta()).toHaveCount(0);
         });
+
+        test('fires model picker telemetry with the try-for-free CTA on open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Default mock: the advanced section is gated behind a subscription (Try for free).
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            const names = calls.map((call) => call.payload.params.attributes.name);
+            expect(names).toEqual(['omnibar_model_picker_shown', 'omnibar_model_picker_tryforfree_shown']);
+        });
+
+        test('fires model picker telemetry with the upgrade CTA on open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.modelUpsell': 'upgrade' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            const names = calls.map((call) => call.payload.params.attributes.name);
+            expect(names).toEqual(['omnibar_model_picker_shown', 'omnibar_model_picker_upgrade_shown']);
+        });
+
+        test('fires only the model picker shown event when no models are gated', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.subscription': 'true' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.modelSelectorButton().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+            const names = calls.map((call) => call.payload.params.attributes.name);
+            expect(names).toEqual(['omnibar_model_picker_shown']);
+        });
     });
 
     test.describe('AI chat reasoning picker', () => {
@@ -2197,6 +2253,50 @@ test.describe('omnibar widget', () => {
 
             const upgradeCalls = await ntp.mocks.waitForCallCount({ method: 'omnibar_showSubscriptionUpgrade', count: 1 });
             expect(upgradeCalls.at(-1)?.payload.params).toEqual({ source: 'reasoning' });
+        });
+
+        test('fires reasoning picker telemetry with the try-for-free CTA on open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // claude-haiku-4-5 has a gated 'extended' effort behind a subscription (Try for free).
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            const names = calls.map((call) => call.payload.params.attributes.name);
+            expect(names).toEqual(['omnibar_reasoning_picker_shown', 'omnibar_reasoning_picker_tryforfree_shown']);
+        });
+
+        test('fires reasoning picker telemetry with the upgrade CTA on open', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Mistral Small 3 has a gated 'extended' effort behind a tier upgrade.
+            await ntp.openPage({
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.selectedModelId': 'mistralai_Mistral-Small-24B-Instruct-2501',
+                },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+            await omnibar.reasoningPickerButton().click();
+
+            const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+            const names = calls.map((call) => call.payload.params.attributes.name);
+            expect(names).toEqual(['omnibar_reasoning_picker_shown', 'omnibar_reasoning_picker_upgrade_shown']);
         });
     });
 

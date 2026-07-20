@@ -53,6 +53,66 @@
               }
             }
           }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Model Picker Shown",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_model_picker_shown"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Model Picker Try For Free Shown",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_model_picker_tryforfree_shown"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Model Picker Upgrade Shown",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_model_picker_upgrade_shown"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Reasoning Picker Shown",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_reasoning_picker_shown"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Reasoning Picker Try For Free Shown",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_reasoning_picker_tryforfree_shown"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "Omnibar Reasoning Picker Upgrade Shown",
+          "required": ["name"],
+          "properties": {
+            "name": {
+              "const": "omnibar_reasoning_picker_upgrade_shown"
+            }
+          }
         }
       ]
     }
