@@ -238,16 +238,12 @@
 
 :global(body[data-rebrand="true"]) {
     --next-steps-list-rebrand-illustration-size: calc(108 * var(--px-in-rem));
-    --next-steps-list-rebrand-tag-background-color: #FFD885; /* Pollen 30 */
-    --next-steps-list-rebrand-tag-text-color: #47210A; /* Pollen 90 */
-
-    .wrapper {
-        padding-top: var(--ds-space-x04);
-    }
+    --next-steps-list-rebrand-tag-background-color: var(--ds-next-steps-badge-background);
+    --next-steps-list-rebrand-tag-text-color: var(--ds-next-steps-badge-color);
 
     .bubble {
         left: var(--ds-space-x01);
-        top: var(--ds-space-x05);
+        top: var(--ds-space-x01);
         z-index: 3;
 
         svg {
