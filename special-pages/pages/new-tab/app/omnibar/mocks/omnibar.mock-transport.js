@@ -29,14 +29,14 @@ function parseReasoningEffortQueryParam(param) {
 }
 
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const FAST_EFFORT = { id: 'none', name: 'Fast', description: 'Answers right away', isAvailable: true };
+const FAST_EFFORT = { id: 'none', name: 'Fast', description: 'Answers quickly', isAvailable: true };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
-const REASONING_EFFORT = { id: 'medium', name: 'Reasoning', description: 'Takes a moment to respond', isAvailable: true };
+const REASONING_EFFORT = { id: 'medium', name: 'Reasoning', description: 'For complex tasks', isAvailable: true };
 /** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
 const EXTENDED_EFFORT_UNAVAILABLE = {
     id: 'extended',
     name: 'Extended Reasoning',
-    description: 'Researches before responding',
+    description: 'For analytical tasks',
     isAvailable: false,
     upsell: 'subscribe',
 };

@@ -51,9 +51,8 @@
     }
 }
 
-.dropdown.roomy .item {
-    padding-left: 14px;
-    padding-right: 14px;
+.dropdown.roomy  {
+    min-width: 300px;
 }
 
 .trailingIcon {
