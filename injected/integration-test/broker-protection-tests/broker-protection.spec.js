@@ -201,14 +201,11 @@ test.describe('Broker Protection communications', () => {
                     identifier: baseURL + 'person/Smith-41043103849',
                     addresses: [
                         {
-                            number: '123',
-                            street: 'Main',
-                            type: 'St',
+                            streetAddress: '123 Main St',
                             city: 'Orlando',
                             state: 'FL',
                             zip: '81010',
                             fullAddress: '123 Main St, Orlando, FL 81010',
-                            streetAddress: '123 Main St',
                         },
                     ],
                     street: '123 Main St',
@@ -220,11 +217,11 @@ test.describe('Broker Protection communications', () => {
             ]);
         });
 
-        test('extracts the current full address from PeopleSearchNow-style markup', async ({ page }, workerInfo) => {
+        test('extracts the current full address and its components, excluding address history', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
-            await dbp.navigatesTo('results-peoplesearchnow.html');
-            await dbp.receivesAction('extract-peoplesearchnow.json');
+            await dbp.navigatesTo('results-current-address.html');
+            await dbp.receivesAction('extract-current-address.json');
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
@@ -234,16 +231,11 @@ test.describe('Broker Protection communications', () => {
                     alternativeNames: [],
                     addresses: [
                         {
-                            number: '123',
-                            street: 'Example',
-                            type: 'Dr',
-                            suffix: 'NE',
+                            streetAddress: '123 Example Dr NE',
                             city: 'Marysville',
                             state: 'WA',
                             zip: '98270',
-                            plus4: '6529',
                             fullAddress: '123 Example Dr NE; Marysville, WA 98270-6529',
-                            streetAddress: '123 Example Dr NE',
                         },
                     ],
                     street: '123 Example Dr NE',
@@ -493,6 +485,24 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             await dbp.isFormFilled();
+        });
+
+        test('fillForm fills an opt-out form with the extracted address components', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('optout-form.html');
+            await dbp.receivesAction('fill-form-address.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+
+            await dbp.doesInputValueEqual('#subject-firstname', 'John');
+            await dbp.doesInputValueEqual('#subject-lastname', 'Anderson');
+            // middleName is treated as optional and left blank by design, even when present in the data.
+            await dbp.doesInputValueEqual('#subject-middlename', '');
+            await dbp.doesInputValueEqual('#subject-streetaddress', '123 Example Dr NE');
+            await dbp.doesInputValueEqual('#subject-city', 'Marysville');
+            await dbp.doesInputValueEqual('#subject-state', 'WA');
+            await dbp.doesInputValueEqual('#subject-zipcode', '98270');
         });
 
         test('fillForm with full state', async ({ page }, workerInfo) => {

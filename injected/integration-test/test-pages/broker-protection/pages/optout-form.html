@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Broker Protection - Opt Out</title>
+    <link rel="stylesheet" href="../../shared/style.css" />
+  </head>
+  <body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Broker Protection]</a></p>
+
+    <form method="POST" action="/opt-out/validate-record-info" id="removalForm">
+      <div class="form-group">
+        <label for="subject-firstname">First Name</label>
+        <input type="text" id="subject-firstname" name="subject-firstname" />
+      </div>
+      <div class="form-group">
+        <label for="subject-middlename">Middle Name</label>
+        <input type="text" id="subject-middlename" name="subject-middlename" />
+      </div>
+      <div class="form-group">
+        <label for="subject-lastname">Last Name</label>
+        <input type="text" id="subject-lastname" name="subject-lastname" />
+      </div>
+      <div class="form-group">
+        <label for="subject-streetaddress">Street Address</label>
+        <input type="text" id="subject-streetaddress" name="subject-streetaddress" />
+      </div>
+      <div class="form-group">
+        <label for="subject-city">City</label>
+        <input type="text" id="subject-city" name="subject-city" />
+      </div>
+      <div class="form-group">
+        <label for="subject-state">State</label>
+        <select name="subject-state" id="subject-state">
+          <option value=""></option>
+          <option value="AZ">Arizona</option>
+          <option value="CA">California</option>
+          <option value="FL">Florida</option>
+          <option value="IL">Illinois</option>
+          <option value="NV">Nevada</option>
+          <option value="NY">New York</option>
+          <option value="TX">Texas</option>
+          <option value="WA">Washington</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="subject-zipcode">Zip Code</label>
+        <input type="text" id="subject-zipcode" name="subject-zipcode" />
+      </div>
+    </form>
+  </body>
+</html>

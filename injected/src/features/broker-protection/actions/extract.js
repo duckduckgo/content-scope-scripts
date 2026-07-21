@@ -388,6 +388,9 @@ export function aggregateFields(profile) {
         ...(profile.addressFullList || []),
         ...(profile.addressFull || []),
     ];
+    // Deduped to one entry per city/state: this list is used for matching the user against a
+    // profile, which is a city/state-level comparison. The current address (with its street/zip) is
+    // flattened separately below, so collapsing same-city history here doesn't lose what fills a form.
     const addressMap = new Map(combinedAddresses.map((addr) => [`${addr.city},${addr.state}`, addr]));
     const addresses = sortAddressesByStateAndCity([...addressMap.values()]);
 

@@ -1,0 +1,50 @@
+{
+  "state": {
+    "action": {
+      "actionType": "fillForm",
+      "id": "opt-out-address",
+      "selector": "#removalForm",
+      "elements": [
+        {
+          "type": "firstName",
+          "selector": "#subject-firstname"
+        },
+        {
+          "type": "middleName",
+          "selector": "#subject-middlename"
+        },
+        {
+          "type": "lastName",
+          "selector": "#subject-lastname"
+        },
+        {
+          "type": "street",
+          "selector": "#subject-streetaddress"
+        },
+        {
+          "type": "city",
+          "selector": "#subject-city"
+        },
+        {
+          "type": "state",
+          "selector": "#subject-state"
+        },
+        {
+          "type": "zipCode",
+          "selector": "#subject-zipcode"
+        }
+      ]
+    },
+    "data": {
+      "extractedProfile": {
+        "firstName": "John",
+        "middleName": "A",
+        "lastName": "Anderson",
+        "street": "123 Example Dr NE",
+        "city": "Marysville",
+        "state": "WA",
+        "zipCode": "98270"
+      }
+    }
+  }
+}

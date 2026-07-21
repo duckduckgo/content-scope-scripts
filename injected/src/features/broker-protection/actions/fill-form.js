@@ -83,6 +83,10 @@ export function fillMany(root, elements, data) {
             results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()));
         } else if (element.type === '$generated_street_address$') {
             results.push(setValueForInput(inputElem, generateStreetAddress()));
+
+            // The extracted street/zip when we have them (needed to match the broker's specific
+            // record), falling back to a generated value like the `$generated_*$` types so a required
+            // field is still filled and the opt-out isn't blocked when extraction came up empty.
         } else if (element.type === 'street') {
             results.push(setValueForInput(inputElem, data.street || generateStreetAddress()));
         } else if (element.type === 'zipCode') {

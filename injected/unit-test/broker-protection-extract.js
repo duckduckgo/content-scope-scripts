@@ -148,24 +148,18 @@ describe('create profiles from extracted data', () => {
                 expected: {
                     addresses: [
                         {
-                            number: '123',
-                            street: 'fake',
-                            type: 'St',
+                            streetAddress: '123 fake St',
                             city: 'Miami',
                             state: 'FL',
                             zip: '75215',
-                            fullAddress: '123 fake street,\nMiami, FL 75215',
-                            streetAddress: '123 fake St',
+                            fullAddress: '123 fake street, Miami, FL 75215',
                         },
                         {
-                            number: '123',
-                            street: 'fake',
-                            type: 'St',
+                            streetAddress: '123 fake St',
                             city: 'Dallas',
                             state: 'TX',
                             zip: '75215',
-                            fullAddress: '123 fake street,\nDallas, TX 75215',
-                            streetAddress: '123 fake St',
+                            fullAddress: '123 fake street, Dallas, TX 75215',
                         },
                     ],
                     street: '123 fake St',
@@ -190,7 +184,9 @@ describe('create profiles from extracted data', () => {
         }
     });
 
-    it('retains every structured component returned for a full address', () => {
+    it('parses the street/city/state/zip and keeps the original text for a full address', () => {
+        // The street line and city/state line arrive on separate lines; the newline is collapsed so
+        // the address parses as one string and `fullAddress` reads back as a single line.
         const select = () => [{ innerText: '42 W Main St Apt 7,\nAustin, TX 78701-1234' }];
         const profile = createProfile(select, ROOT, {
             addressFull: {
@@ -200,20 +196,56 @@ describe('create profiles from extracted data', () => {
 
         expect(profile.addressFull).toEqual([
             {
-                number: '42',
-                prefix: 'W',
-                street: 'Main',
-                type: 'St',
-                sec_unit_type: 'Apt',
-                sec_unit_num: '7',
+                streetAddress: '42 W Main St Apt 7',
                 city: 'Austin',
                 state: 'TX',
                 zip: '78701',
-                plus4: '1234',
-                fullAddress: '42 W Main St Apt 7,\nAustin, TX 78701-1234',
-                streetAddress: '42 W Main St Apt 7',
+                fullAddress: '42 W Main St Apt 7, Austin, TX 78701-1234',
             },
         ]);
+    });
+
+    it('keeps a secondary unit in the parsed street address', () => {
+        const select = () => [{ innerText: '2600 Arville St, Apt A7; Las Vegas, NV 89102-5739' }];
+        const profile = createProfile(select, ROOT, { addressFull: { selector: 'example' } });
+
+        expect(profile.addressFull).toEqual([
+            {
+                streetAddress: '2600 Arville St Apt A7',
+                city: 'Las Vegas',
+                state: 'NV',
+                zip: '89102',
+                fullAddress: '2600 Arville St, Apt A7; Las Vegas, NV 89102-5739',
+            },
+        ]);
+    });
+
+    it('splits a delimited list of full addresses without breaking each street/city line', () => {
+        const select = () => [{ innerText: '123 Main St, Boston, MA 02108 • 456 Oak Ave, Miami, FL 33101' }];
+        const profile = createProfile(select, ROOT, { addressFullList: { selector: 'example' } });
+
+        expect(profile.addressFullList).toEqual([
+            { streetAddress: '123 Main St', city: 'Boston', state: 'MA', zip: '02108', fullAddress: '123 Main St, Boston, MA 02108' },
+            { streetAddress: '456 Oak Ave', city: 'Miami', state: 'FL', zip: '33101', fullAddress: '456 Oak Ave, Miami, FL 33101' },
+        ]);
+    });
+
+    it('collapses same city/state history to one entry but anchors the current address to page order', () => {
+        const aggregated = aggregateFields({
+            addressFullList: [
+                { streetAddress: '1 First St', city: 'Reno', state: 'NV', zip: '89501', fullAddress: '1 First St, Reno, NV 89501' },
+                { streetAddress: '2 Second St', city: 'Reno', state: 'NV', zip: '89502', fullAddress: '2 Second St, Reno, NV 89502' },
+            ],
+        });
+
+        // Two distinct streets in the same city/state collapse to a single representative entry: this
+        // list is only a city/state-level match aid, so the loss of street granularity is acceptable.
+        expect(aggregated.addresses).toEqual([
+            { streetAddress: '2 Second St', city: 'Reno', state: 'NV', zip: '89502', fullAddress: '2 Second St, Reno, NV 89502' },
+        ]);
+        // The address that actually fills the form is taken from page order, not the deduped list.
+        expect(aggregated.street).toBe('1 First St');
+        expect(aggregated.zipCode).toBe('89501');
     });
 
     it('flattens the singular current address ahead of address history', () => {

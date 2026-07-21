@@ -3,8 +3,8 @@ import parseAddress from 'parse-address';
 import { states } from '../comparisons/constants.js';
 
 /**
- * The components returned by parse-address for a street address. Depending on the input, the
- * parser may omit any optional component and may also return intersection-specific fields.
+ * The street-line components returned by `parse-address`. Any of them may be absent depending on the
+ * input; only the ones needed to rebuild the street line are typed here.
  *
  * @typedef {Object} ParsedAddress
  * @property {string} [number]
@@ -17,7 +17,19 @@ import { states } from '../comparisons/constants.js';
  * @property {string} [city]
  * @property {string|null} [state]
  * @property {string} [zip]
- * @property {string} [plus4]
+ */
+
+/**
+ * A postal address parsed from a single combined string. The original text is kept as `fullAddress`
+ * next to the components an opt-out form needs, so the form can be filled with the same street/zip
+ * the broker displays.
+ *
+ * @typedef {Object} FullAddress
+ * @property {string|null} streetAddress
+ * @property {string} city
+ * @property {string|null} state
+ * @property {string|null} zip
+ * @property {string} fullAddress
  */
 
 /**
@@ -97,56 +109,63 @@ export function cityStatePartToCombo({ city, state }) {
 }
 
 /**
+ * Extract full postal addresses, keeping the broker's original text next to the parsed
+ * street/city/state/zip so an opt-out form can be filled with the same values it displays.
+ *
  * @param {import('../actions/extract.js').Select} select
  * @param {import('../actions/extract.js').ElementLike} root
  * @param {import('../actions/extract.js').TextFieldSpec} spec
- * @return {(ParsedAddress & { city: string, state: string|null, fullAddress: string, streetAddress: string|null })[]}
+ * @return {FullAddress[]}
  */
 export function extractAddressFull(select, root, spec) {
     return (
         selectStrings(select, root, spec)
-            .flatMap((str) => fullAddressStrings(str, spec.separator))
-            .map((fullAddress) => ({
-                fullAddress,
-                parsed: /** @type {ParsedAddress} */ (parseAddress.parseLocation(fullAddress.replace(/\s+/g, ' ')) || {}),
-            }))
+            .flatMap((str) => addressStrings(str, spec.separator))
+            .map((fullAddress) => ({ fullAddress, parsed: /** @type {ParsedAddress} */ (parseAddress.parseLocation(fullAddress) || {}) }))
             // at least 'city' is required.
             .filter(({ parsed }) => Boolean(parsed.city))
-            .map(({ fullAddress, parsed }) => {
-                return {
-                    ...parsed,
-                    city: /** @type {string} */ (parsed.city),
-                    state: parsed.state || null,
-                    fullAddress,
-                    streetAddress: formatStreetAddress(parsed),
-                };
-            })
+            .map(({ fullAddress, parsed }) => ({
+                streetAddress: formatStreetAddress(parsed),
+                city: /** @type {string} */ (parsed.city),
+                state: parsed.state || null,
+                zip: parsed.zip || null,
+                fullAddress,
+            }))
     );
 }
 
 /**
- * Split address lists without losing the first line break, which conventionally separates a street
- * line from its city/state line. Protecting and restoring it keeps the original address text while
- * preserving the extractor's existing list-splitting behaviour.
+ * A newline conventionally separates an address's street line from its city/state line, so it is
+ * treated as intra-address whitespace. This is the default list delimiter for addresses with the
+ * newline removed, so a multi-line single address is not split apart. A configured `separator`
+ * still overrides it.
+ * @type {RegExp}
+ */
+const ADDRESS_LIST_SEPARATOR = /[|•·]/;
+
+/**
+ * Split a selected string into individual address strings, then collapse each one's internal
+ * whitespace (including the street/city newline) to single spaces so it parses as one line and its
+ * `fullAddress` reads back cleanly. Splitting happens first so a configured newline `separator` or
+ * the default delimiters still divide a list of addresses.
  *
  * @param {string} value
  * @param {string} [separator]
  * @return {string[]}
  */
-function fullAddressStrings(value, separator) {
-    const lineBreakMarker = '\uE000';
-    const protectedValue = value.replace('\n', lineBreakMarker);
-    return stringToList(protectedValue, separator).map((address) => address.replace(lineBreakMarker, '\n'));
+function addressStrings(value, separator) {
+    return stringToList(value, separator ?? ADDRESS_LIST_SEPARATOR).map((address) => address.replace(/\s+/g, ' '));
 }
 
 /**
  * Reassemble the parsed street-line components into the value an opt-out street-address input
- * expects. The original unparsed value remains available separately as `fullAddress`.
+ * expects. Uses `parse-address`'s normalised tokens (e.g. "Street" becomes "St"), which match how
+ * brokers store the record; the broker's verbatim text remains available separately as `fullAddress`.
  *
  * @param {ParsedAddress} address
  * @return {string|null}
  */
-export function formatStreetAddress(address) {
+function formatStreetAddress(address) {
     const unit = [address.sec_unit_type, address.sec_unit_num].filter(Boolean).join(' ');
     const streetAddress = [address.number, address.prefix, address.street, address.type, address.suffix, unit].filter(Boolean).join(' ');
     return streetAddress || null;
