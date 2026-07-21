@@ -38,10 +38,11 @@ function getRowBadgeLabel(model, t) {
  * @param {(options: {restoreFocus: boolean}) => void} props.onClose
  * @param {(id: string) => void} props.onSelect
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
+ * @param {string} [props.className] - Extra class(es) for the dropdown root.
  * @param {string} props.ariaLabel
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
-export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, onUpsell, ariaLabel, dropdownRef }) {
+export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, onUpsell, className, ariaLabel, dropdownRef }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
@@ -156,7 +157,7 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
     return (
         <ul
             ref={dropdownRef}
-            class={styles.modelDropdown}
+            class={cn(styles.modelDropdown, className)}
             tabIndex={-1}
             role="listbox"
             aria-label={ariaLabel}

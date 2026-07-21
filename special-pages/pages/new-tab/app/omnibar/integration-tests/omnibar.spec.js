@@ -1957,6 +1957,40 @@ test.describe('omnibar widget', () => {
             const names = calls.map((call) => call.payload.params.attributes.name);
             expect(names).toEqual(['omnibar_model_picker_shown']);
         });
+
+        test('mutes the upsell CTA color after it has been shown 4 times', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // Default mock: the advanced section is gated behind a subscription (Try for free).
+            await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true' } });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            /** @param {import('@playwright/test').Locator} cta */
+            const backgroundOf = (cta) => cta.evaluate((el) => getComputedStyle(el).backgroundColor);
+
+            // Views 1–4 keep the yellow color.
+            let yellowBackground = '';
+            for (let view = 1; view <= 4; view++) {
+                await omnibar.modelSelectorButton().click();
+                await expect(omnibar.modelUpsellCta()).toBeVisible();
+                const background = await backgroundOf(omnibar.modelUpsellCta());
+                if (view === 1) yellowBackground = background;
+                expect(background).toBe(yellowBackground);
+                await omnibar.modelDropdown().press('Escape');
+                await expect(omnibar.modelDropdown()).toHaveCount(0);
+            }
+
+            // 5th view: the color is muted (different from the yellow CTA).
+            await omnibar.modelSelectorButton().click();
+            await expect(omnibar.modelUpsellCta()).toBeVisible();
+            const mutedBackground = await backgroundOf(omnibar.modelUpsellCta());
+            expect(mutedBackground).not.toBe(yellowBackground);
+        });
     });
 
     test.describe('AI chat reasoning picker', () => {
@@ -2297,6 +2331,46 @@ test.describe('omnibar widget', () => {
             const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
             const names = calls.map((call) => call.payload.params.attributes.name);
             expect(names).toEqual(['omnibar_reasoning_picker_shown', 'omnibar_reasoning_picker_upgrade_shown']);
+        });
+
+        test('mutes the reasoning CTA once the combined picker count reaches 4', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+
+            // claude-haiku-4-5 gives a gated reasoning option (Try for free); the model picker's
+            // advanced section is gated too, so both pickers share the combined impression count.
+            await ntp.openPage({
+                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
+            });
+            await omnibar.ready();
+
+            await omnibar.aiTab().click();
+            await omnibar.expectMode('ai');
+
+            /** @param {import('@playwright/test').Locator} cta */
+            const backgroundOf = (cta) => cta.evaluate((el) => getComputedStyle(el).backgroundColor);
+
+            // Two model-picker views + two reasoning-picker views = 4 combined impressions.
+            let reasoningYellow = '';
+            for (let view = 1; view <= 2; view++) {
+                await omnibar.modelSelectorButton().click();
+                await expect(omnibar.modelUpsellCta()).toBeVisible();
+                await omnibar.modelDropdown().press('Escape');
+                await expect(omnibar.modelDropdown()).toHaveCount(0);
+
+                await omnibar.reasoningPickerButton().click();
+                await expect(omnibar.reasoningUpsellBadge()).toBeVisible();
+                reasoningYellow = await backgroundOf(omnibar.reasoningUpsellBadge());
+                await omnibar.reasoningDropdown().press('Escape');
+                await expect(omnibar.reasoningDropdown()).toHaveCount(0);
+            }
+
+            // 5th combined view (reasoning picker): the badge color is muted.
+            await omnibar.reasoningPickerButton().click();
+            await expect(omnibar.reasoningUpsellBadge()).toBeVisible();
+            const mutedBackground = await backgroundOf(omnibar.reasoningUpsellBadge());
+            expect(mutedBackground).not.toBe(reasoningYellow);
         });
     });
 

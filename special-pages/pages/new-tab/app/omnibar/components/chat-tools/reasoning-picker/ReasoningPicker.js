@@ -1,10 +1,11 @@
 import { h } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useMemo, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useDropdown } from '../useDropdown';
 import { useMessaging } from '../../../../types.js';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
+import { isUpsellMuted, recordUpsellImpression } from '../upsellImpressions.js';
 import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ReasoningPicker.module.css';
 
@@ -38,6 +39,18 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
     const ntp = useMessaging();
     const shownRef = useRef(false);
 
+    const gated = useMemo(() => options.filter((option) => !option.isAvailable), [options]);
+
+    // Mute the yellow CTA once it has been seen enough times (combined count across both
+    // pickers). Freeze the decision for the duration of each open: capture it on the render
+    // that opens the picker, before this open's impression is recorded below.
+    const wasOpenRef = useRef(false);
+    const upsellMutedRef = useRef(false);
+    if (isOpen && !wasOpenRef.current) {
+        upsellMutedRef.current = gated.length > 0 && isUpsellMuted();
+    }
+    wasOpenRef.current = isOpen;
+
     // Impression telemetry: fire once each time the picker opens, plus the CTA(s) it shows.
     useEffect(() => {
         if (!isOpen) {
@@ -49,14 +62,16 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
 
         ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_shown' } });
 
-        const gated = options.filter((option) => !option.isAvailable);
+        if (gated.length > 0) {
+            recordUpsellImpression();
+        }
         if (gated.some((option) => option.upsell !== 'upgrade')) {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_tryforfree_shown' } });
         }
         if (gated.some((option) => option.upsell === 'upgrade')) {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_upgrade_shown' } });
         }
-    }, [isOpen, options, ntp]);
+    }, [isOpen, gated, ntp]);
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
@@ -99,7 +114,7 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                     position={dropdownPos}
                     onClose={handleClose}
                     idPrefix="reasoning-option"
-                    className={dropdownStyles.roomy}
+                    className={cn(dropdownStyles.roomy, upsellMutedRef.current && styles.upsellMuted)}
                 >
                     {options.map((option) => {
                         const OptionIcon = option.icon;

@@ -1,9 +1,10 @@
 import { h } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useMemo, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { ChevronSmall } from '../../../../components/Icons';
 import { useMessaging } from '../../../../types.js';
 import { ModelDropdown } from './ModelDropdown';
+import { isUpsellMuted, recordUpsellImpression } from '../upsellImpressions.js';
 import styles from './ModelSelector.module.css';
 
 /**
@@ -18,6 +19,27 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
     const { modelButtonRef, modelDropdownOpen, dropdownPos, dropdownRef, toggleDropdown, closeDropdown, selectModel } = selector;
     const ntp = useMessaging();
     const shownRef = useRef(false);
+
+    // The upsell CTA(s) the dropdown would show: one entry per all-gated section.
+    const upsellCtas = useMemo(
+        () =>
+            new Set(
+                aiModelSections
+                    .filter((section) => section.items.length > 0 && section.items.every((model) => !model.isAvailable))
+                    .map((section) => section.items.find((model) => model.upsell)?.upsell ?? 'subscribe'),
+            ),
+        [aiModelSections],
+    );
+
+    // Mute the yellow CTA once it has been seen enough times (combined count across both
+    // pickers). Freeze the decision for the duration of each open: capture it on the render
+    // that opens the dropdown, before this open's impression is recorded below.
+    const wasOpenRef = useRef(false);
+    const upsellMutedRef = useRef(false);
+    if (modelDropdownOpen && !wasOpenRef.current) {
+        upsellMutedRef.current = upsellCtas.size > 0 && isUpsellMuted();
+    }
+    wasOpenRef.current = modelDropdownOpen;
 
     /** @param {{ restoreFocus: boolean }} options */
     const handleClose = ({ restoreFocus }) => {
@@ -36,18 +58,16 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
 
         ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_shown' } });
 
-        const upsellCtas = new Set(
-            aiModelSections
-                .filter((section) => section.items.length > 0 && section.items.every((model) => !model.isAvailable))
-                .map((section) => section.items.find((model) => model.upsell)?.upsell ?? 'subscribe'),
-        );
+        if (upsellCtas.size > 0) {
+            recordUpsellImpression();
+        }
         if (upsellCtas.has('subscribe')) {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_tryforfree_shown' } });
         }
         if (upsellCtas.has('upgrade')) {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_upgrade_shown' } });
         }
-    }, [modelDropdownOpen, aiModelSections, ntp]);
+    }, [modelDropdownOpen, upsellCtas, ntp]);
 
     return (
         <div class={styles.modelSelector}>
@@ -76,6 +96,7 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
                     onClose={handleClose}
                     onSelect={selectModel}
                     onUpsell={onUpsell}
+                    className={upsellMutedRef.current ? styles.upsellMuted : undefined}
                     ariaLabel={ariaLabel}
                 />
             )}

@@ -233,3 +233,9 @@
     text-transform: uppercase;
     white-space: nowrap;
 }
+
+/* Mute the upsell CTA color once the user has seen it enough times. */
+.upsellMuted .modelUpsellCta {
+    background: var(--ds-color-theme-control-fill-primary);
+    color: var(--ds-color-theme-text-primary);
+}

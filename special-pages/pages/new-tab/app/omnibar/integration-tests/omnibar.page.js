@@ -387,6 +387,14 @@ export class OmnibarPage {
         return this.reasoningDropdown().getByRole('option', { name: optionName });
     }
 
+    /**
+     * The upsell badge shown on a gated reasoning-effort option.
+     * @param {'Try for free' | 'Upgrade'} [label]
+     */
+    reasoningUpsellBadge(label = 'Try for free') {
+        return this.reasoningDropdown().getByText(label, { exact: true });
+    }
+
     // --- Attachments (paperclip menu, tab/file chips, @-mention picker) ---
 
     /** Paperclip entry point rendered as a dropdown when tabs are enabled. */
