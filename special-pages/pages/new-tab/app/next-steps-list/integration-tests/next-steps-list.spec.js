@@ -90,4 +90,28 @@ test.describe('newtab NextStepsList widget', () => {
         await expect(img).toBeVisible();
         await expect(img).toHaveAttribute('src', /email-protection/);
     });
+
+    // Rebrand artwork is platform-specific for the dock/taskbar step: the correct
+    // Mac vs Windows asset is selected via the variant ID (native sends the
+    // platform-appropriate one), not via a platform check in the component. These
+    // guard against regressing back to a macOS-only gate on the rebrand icons.
+    test('uses Windows rebrand icon for the taskbar variant', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ nextStepsList: 'pinAppToTaskbarWindows', additional: { rebrand: 'enabled' }, platformName: 'windows' });
+
+        const img = page.locator('[data-entry-point="nextStepsList"] img');
+        await expect(img).toBeVisible();
+        await expect(img).toHaveAttribute('src', /Dock-Add-Windows/);
+    });
+
+    test('uses Mac rebrand icon for the dock variant', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ nextStepsList: 'addAppToDockMac', additional: { rebrand: 'enabled' }, platformName: 'macos' });
+
+        const img = page.locator('[data-entry-point="nextStepsList"] img');
+        await expect(img).toBeVisible();
+        await expect(img).toHaveAttribute('src', /Dock-Add-Mac/);
+    });
 });

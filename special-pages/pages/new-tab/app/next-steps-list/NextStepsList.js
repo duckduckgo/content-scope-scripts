@@ -5,7 +5,7 @@ import { NextStepsListCard } from './components/NextStepsListCard.js';
 import { variants, getIconPath } from './next-steps-list.data.js';
 import { useTypedTranslationWith } from '../types.js';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
-import { useNewTabPageRebranding, usePlatformName } from '../settings.provider.js';
+import { useNewTabPageRebranding } from '../settings.provider.js';
 
 /**
  * @import enStrings from './strings.json';
@@ -42,8 +42,7 @@ export function NextStepsListConsumer() {
     const { state, action, dismiss } = useContext(NextStepsListContext);
     const { main: themeSignal } = useContext(CustomizerThemesContext);
     const theme = themeSignal.value;
-    const platformName = usePlatformName();
-    const useRebrandAssets = useNewTabPageRebranding() && platformName === 'macos';
+    const useRebrandAssets = useNewTabPageRebranding();
 
     if (state.status === 'ready' && state.data.content && state.data.content.length > 0) {
         // Filter to only known IDs (skip unknown ones)
