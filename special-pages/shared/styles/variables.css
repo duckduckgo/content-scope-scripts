@@ -137,6 +137,7 @@
     --border-radius-md: 8px;
     --border-radius-sm: 6px;
     --border-radius-xs: 4px;
+    --border-radius-full: 999px;
 
     @media (prefers-color-scheme: dark) {
         --theme-background-color: var(--color-gray-95);

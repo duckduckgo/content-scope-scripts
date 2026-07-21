@@ -57,19 +57,11 @@
     padding: 0 6px;
 
     &:hover {
-        background: var(--color-black-at-6);
-
-        [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.10);
-        }
+        background: var(--ds-color-theme-control-fill-secondary);
     }
 
     &:active {
-        background: var(--color-black-at-12);
-
-        [data-theme="dark"] & {
-            background: rgba(255, 255, 255, 0.14);
-        }
+        background: var(--ds-color-theme-control-fill-tertiary);
     }
 
     &:focus-visible {

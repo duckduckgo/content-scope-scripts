@@ -111,6 +111,22 @@ export type EnableWebSearch = boolean;
  */
 export type EnableVoiceChatAccess = boolean;
 /**
+ * Show the 'Customize responses' entry in the AI chat Tools menu. Selecting it opens the Customize Responses modal.
+ */
+export type EnableCustomizeResponses = boolean;
+/**
+ * Summary of the user's current response customization (e.g. 'Professional, Concise'), shown as the description under the 'Customize responses' Tools-menu row. Omitted when responses haven't been customized, in which case the default description is shown.
+ */
+export type CustomizeResponsesSubLabel = string;
+/**
+ * True once the user has customized their responses. Gates the on/off toggle shown alongside the 'Customize responses' Tools-menu row.
+ */
+export type HasCustomization = boolean;
+/**
+ * Whether the stored customization is currently applied. Drives the checked state of the toggle in the 'Customize responses' Tools-menu row.
+ */
+export type CustomizationActive = boolean;
+/**
  * Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.
  */
 export type EnableAskDuckAiSuggestion = boolean;
@@ -118,6 +134,14 @@ export type EnableAskDuckAiSuggestion = boolean;
  * Show the paperclip entry point and accept `@` mentions for attaching open tabs as context to a Duck.ai submission. When true, the omnibar can call `omnibar_getOpenTabs` and `omnibar_getTabContent`.
  */
 export type EnableAttachTabs = boolean;
+/**
+ * Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.
+ */
+export type EnableAIChatDeletion = boolean;
+/**
+ * Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.
+ */
+export type EnableSearchSuggestionDeletion = boolean;
 export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
@@ -199,8 +223,11 @@ export interface NewTabMessages {
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
     | OmnibarOpenAiChatNotification
+    | OmnibarOpenCustomizeResponsesNotification
     | OmnibarOpenSuggestionNotification
+    | OmnibarRemoveSuggestionNotification
     | OmnibarSetConfigNotification
+    | OmnibarSetCustomizeResponsesActiveNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
     | OmnibarViewAllAIChatsNotification
@@ -229,6 +256,7 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarConfirmDeleteAiChatRequest
     | OmnibarGetAiChatsRequest
     | OmnibarGetConfigRequest
     | OmnibarGetOpenTabsRequest
@@ -577,6 +605,17 @@ export interface OpenAIChatAction {
   isPinned: boolean;
 }
 /**
+ * Generated from @see "../messages/omnibar_openCustomizeResponses.notify.json"
+ */
+export interface OmnibarOpenCustomizeResponsesNotification {
+  method: "omnibar_openCustomizeResponses";
+  params: OpenCustomizeResponsesAction;
+}
+/**
+ * Sent when the user selects 'Customize responses' in the omnibar Tools menu. Native opens the Customize Responses modal for the active New Tab Page tab; no parameters are required.
+ */
+export interface OpenCustomizeResponsesAction {}
+/**
  * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
 export interface OmnibarOpenSuggestionNotification {
@@ -621,6 +660,22 @@ export interface InternalPageSuggestion {
   score: number;
 }
 /**
+ * Generated from @see "../messages/omnibar_removeSuggestion.notify.json"
+ */
+export interface OmnibarRemoveSuggestionNotification {
+  method: "omnibar_removeSuggestion";
+  params: RemoveSuggestion;
+}
+/**
+ * Notifies the native app to remove a history entry from the user's browsing history.
+ */
+export interface RemoveSuggestion {
+  /**
+   * The URL of the history entry to remove
+   */
+  url: string;
+}
+/**
  * Generated from @see "../messages/omnibar_setConfig.notify.json"
  */
 export interface OmnibarSetConfigNotification {
@@ -637,12 +692,19 @@ export interface OmnibarConfig {
   selectedModelId?: SelectedModelID;
   selectedReasoningEffort?: ReasoningEffort;
   aiModelSections?: AIModelSections;
+  attachmentLimits?: AttachmentLimits;
   showViewAllAiChats?: ShowViewAllAIChats;
   enableImageGeneration?: EnableImageGeneration;
   enableWebSearch?: EnableWebSearch;
   enableVoiceChatAccess?: EnableVoiceChatAccess;
+  enableCustomizeResponses?: EnableCustomizeResponses;
+  customizeSubLabel?: CustomizeResponsesSubLabel;
+  hasCustomization?: HasCustomization;
+  customizationActive?: CustomizationActive;
   enableAskAiSuggestion?: EnableAskDuckAiSuggestion;
   enableAttachTabs?: EnableAttachTabs;
+  enableAiChatDeletion?: EnableAIChatDeletion;
+  enableSearchSuggestionDeletion?: EnableSearchSuggestionDeletion;
 }
 /**
  * A section of AI models with an optional header and a list of model items.
@@ -693,6 +755,65 @@ export interface AIModelItem {
    * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
    */
   supportedReasoningEffort?: ReasoningEffort[];
+}
+/**
+ * Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.
+ */
+export interface AttachmentLimits {
+  /**
+   * Limits for file attachments (e.g. PDFs).
+   */
+  files: {
+    /**
+     * Maximum number of file attachments allowed.
+     */
+    maxPerConversation: number;
+    /**
+     * Maximum size of a single file attachment, in megabytes.
+     */
+    maxFileSizeMB: number;
+    /**
+     * Maximum combined size of all file attachments, in bytes.
+     */
+    maxTotalFileSizeBytes: number;
+    /**
+     * Maximum number of pages allowed in a single file (e.g. PDF). Not enforced web-side.
+     */
+    maxPagesPerFile: number;
+  };
+  /**
+   * Limits for image attachments.
+   */
+  images: {
+    /**
+     * Maximum number of images allowed in a single submission.
+     */
+    maxPerTurn: number;
+    /**
+     * Maximum number of images allowed across an entire conversation.
+     */
+    maxPerConversation: number;
+    /**
+     * Maximum prompt length (characters) when attachments are present. Not enforced web-side.
+     */
+    maxInputCharsWithAttachments: number;
+  };
+}
+/**
+ * Generated from @see "../messages/omnibar_setCustomizeResponsesActive.notify.json"
+ */
+export interface OmnibarSetCustomizeResponsesActiveNotification {
+  method: "omnibar_setCustomizeResponsesActive";
+  params: SetCustomizeResponsesActiveAction;
+}
+/**
+ * Sent when the user toggles the on/off switch on the 'Customize responses' Tools-menu row. Native persists the new active state for the current window's stored customization.
+ */
+export interface SetCustomizeResponsesActiveAction {
+  /**
+   * Whether the stored customization should be applied.
+   */
+  active: boolean;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -1206,6 +1327,33 @@ export interface NextStepsGetDataRequest {
 }
 export interface NextStepsData {
   content: null | NextStepsCards;
+}
+/**
+ * Generated from @see "../messages/omnibar_confirmDeleteAiChat.request.json"
+ */
+export interface OmnibarConfirmDeleteAiChatRequest {
+  method: "omnibar_confirmDeleteAiChat";
+  params: ConfirmDeleteAIChatParams;
+  result: ConfirmDeleteAIChatResponse;
+}
+/**
+ * Requests a native confirmation dialog for deleting an AI chat. Native shows the dialog and responds with the user's choice.
+ */
+export interface ConfirmDeleteAIChatParams {
+  /**
+   * Unique identifier of the chat to delete
+   */
+  chatId: string;
+  /**
+   * The chat title, displayed in the native confirmation dialog
+   */
+  title: string;
+}
+/**
+ * Response from native after the user interacts with the confirmation dialog.
+ */
+export interface ConfirmDeleteAIChatResponse {
+  action: "delete" | "none";
 }
 /**
  * Generated from @see "../messages/omnibar_getAiChats.request.json"

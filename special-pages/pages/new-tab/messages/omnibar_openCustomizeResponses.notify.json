@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Open Customize Responses Action",
+  "description": "Sent when the user selects 'Customize responses' in the omnibar Tools menu. Native opens the Customize Responses modal for the active New Tab Page tab; no parameters are required.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {}
+}
