@@ -8,7 +8,7 @@ import styles from './Dropdown.module.css';
  */
 
 /**
- * @typedef {{ isSelected?: boolean, ariaHasPopup?: boolean, onSelect?: () => void }} DropdownItemProps
+ * @typedef {{ isSelected?: boolean, ariaHasPopup?: boolean, disabled?: boolean, onSelect?: () => void }} DropdownItemProps
  */
 
 /**
@@ -26,7 +26,8 @@ function getItemProps(child) {
 /**
  * Shared dropdown panel for the chat-tools toolbar. Owns `activeIndex`, keyboard
  * navigation, aria-activedescendant, focus-on-open, and hover/leave tracking.
- * Children must be {@link DropdownItem} nodes; Dropdown injects `isActive`,
+ * Children must be {@link DropdownItem} nodes; {@link DropdownSeparator} may be used
+ * between groups. Dropdown injects `isActive`,
  * `id`, `onMouseOver`, and `onClick` via `cloneElement`, and invokes each
  * item's `onSelect` on click or Enter.
  *
@@ -58,23 +59,56 @@ export function Dropdown({
 }) {
     const items = toChildArray(children);
 
+    const isItemEnabled = (/** @type {import('preact').ComponentChild} */ child) => !getItemProps(child)?.disabled;
+
+    /**
+     * Indices keyboard navigation can land on: interactive, enabled rows only.
+     * Excludes non-item children like {@link DropdownSeparator} (no `onSelect`)
+     * and disabled rows, so arrow/Home/End never target a non-actionable element
+     * or point `aria-activedescendant` at a separator.
+     * @returns {number[]}
+     */
+    const getNavigableIndices = () =>
+        items
+            .map((child, index) => {
+                const props = getItemProps(child);
+                return props && typeof props.onSelect === 'function' && !props.disabled ? index : -1;
+            })
+            .filter((index) => index >= 0);
+
+    const navigableIndices = getNavigableIndices();
+
     const getInitialActiveIndex = () => {
-        if (items.length === 0) return -1;
+        if (navigableIndices.length === 0) return -1;
         if (multiSelect) return -1;
 
         const selected = items.findIndex((c) => getItemProps(c)?.isSelected);
-        return selected >= 0 ? selected : 0;
+        if (selected >= 0 && isItemEnabled(items[selected])) return selected;
+
+        return navigableIndices[0];
     };
 
     const [activeIndex, setActiveIndex] = useState(getInitialActiveIndex);
     const clearActiveIndex = () => setActiveIndex(-1);
 
-    /** @param {number} nextIndex */
-    const focusIndex = (nextIndex) => {
-        if (items.length === 0) return;
-        if (nextIndex < 0) setActiveIndex(items.length - 1);
-        else if (nextIndex >= items.length) setActiveIndex(0);
-        else setActiveIndex(nextIndex);
+    /** @param {'up' | 'down'} direction */
+    const focusNavigable = (direction) => {
+        const count = navigableIndices.length;
+        if (count === 0) return;
+
+        const step = direction === 'down' ? 1 : -1;
+        const currentPos = navigableIndices.indexOf(activeIndex);
+
+        let nextPos;
+        if (currentPos >= 0) {
+            // Step from the current row, wrapping around either end.
+            nextPos = (currentPos + step + count) % count;
+        } else {
+            // No row highlighted yet: enter from the top or bottom.
+            nextPos = direction === 'down' ? 0 : count - 1;
+        }
+
+        setActiveIndex(navigableIndices[nextPos]);
     };
 
     useEffect(() => {
@@ -89,6 +123,7 @@ export function Dropdown({
 
     /** @param {number} index */
     const selectAt = (index) => {
+        if (!isItemEnabled(items[index])) return;
         getItemProps(items[index])?.onSelect?.();
     };
 
@@ -97,19 +132,19 @@ export function Dropdown({
         switch (e.key) {
             case 'ArrowDown':
                 e.preventDefault();
-                focusIndex(activeIndex + 1);
+                focusNavigable('down');
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                focusIndex(activeIndex - 1);
+                focusNavigable('up');
                 break;
             case 'Home':
                 e.preventDefault();
-                focusIndex(0);
+                setActiveIndex(navigableIndices[0]);
                 break;
             case 'End':
                 e.preventDefault();
-                focusIndex(items.length - 1);
+                setActiveIndex(navigableIndices[navigableIndices.length - 1]);
                 break;
             case 'Enter':
             case ' ':
@@ -139,9 +174,10 @@ export function Dropdown({
         return cloneElement(/** @type {import('preact').VNode} */ (child), {
             id: getItemId(index),
             isActive: activeIndex === index,
-            onMouseOver: () => setActiveIndex(index),
+            onMouseOver: isItemEnabled(child) ? () => setActiveIndex(index) : undefined,
             onClick: (/** @type {MouseEvent} */ e) => {
                 e.stopPropagation();
+                if (!isItemEnabled(child)) return;
                 selectAt(index);
                 if (!getItemProps(child)?.ariaHasPopup) {
                     onClose({ restoreFocus: false });

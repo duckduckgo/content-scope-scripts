@@ -85,6 +85,37 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-search-long-suggestion.png', { maxDiffPixels });
         });
 
+        test('search suggestion with delete button', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { 'omnibar.enableSearchSuggestionDeletion': 'true' } });
+            await omnibar.ready();
+            await omnibar.searchInput().fill('pizza');
+            await omnibar.waitForSuggestions();
+            const historyEntry = omnibar.suggestions().filter({ hasText: 'Pizza Dough Calculator' });
+            await historyEntry.hover();
+            await expect(page).toHaveScreenshot('omnibar-search-suggestion-delete.png', { maxDiffPixels });
+        });
+
+        test('ai chat with delete button', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const omnibar = new OmnibarPage(ntp);
+            await ntp.reducedMotion();
+            await ntp.openPage({
+                additional: {
+                    'omnibar.mode': 'ai',
+                    'omnibar.enableRecentAiChats': 'true',
+                    'omnibar.enableAiChatDeletion': 'true',
+                },
+            });
+            await omnibar.ready();
+            await omnibar.focusChatInput();
+            await expect(omnibar.aiChats().first()).toBeVisible();
+            await omnibar.aiChats().first().hover();
+            await expect(page).toHaveScreenshot('omnibar-ai-chat-delete.png', { maxDiffPixels });
+        });
+
         test('ai rest', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);

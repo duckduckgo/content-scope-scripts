@@ -9,7 +9,6 @@ import { DropdownItem } from '../dropdown/DropdownItem';
 import { resolveFileInput } from './fileChannels';
 import { TabPicker } from './TabPicker';
 import { Tooltip } from '../../Tooltip';
-import { MAX_IMAGES } from '../image-attachment/useImageAttachments';
 import imageStyles from '../image-attachment/ImageAttachment.module.css';
 import styles from './AttachMenu.module.css';
 
@@ -49,7 +48,7 @@ export function AttachMenu({ image, file, tabsEnabled, onToggleTab, isAttached }
         // Image-only: a disabled button means the image limit is reached — show its warning tooltip.
         if (image && !file && fileInput.disabled) {
             return (
-                <Tooltip content={t('omnibar_imageAttachmentLimitWarning', { limit: String(MAX_IMAGES) })} position="above">
+                <Tooltip content={t('omnibar_imageAttachmentLimitWarning', { limit: String(image.maxImages) })} position="above">
                     {button}
                 </Tooltip>
             );

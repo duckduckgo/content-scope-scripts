@@ -1,10 +1,8 @@
 .dropdown {
-    background: rgb(249, 249, 249);
+    background: var(--ds-color-theme-surface-tertiary);
     border-radius: 6px;
-    box-shadow:
-        0 0 0 0.5px rgba(0, 0, 0, 0.2),
-        0 10px 24px rgba(0, 0, 0, 0.32),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--ds-color-theme-container-border-secondary);
+    box-shadow: 0 10px 24px var(--ds-color-theme-shadow-primary);
     list-style: none;
     margin: 0;
     min-width: 245px;
@@ -15,15 +13,6 @@
 
     &:focus-visible {
         outline: none;
-    }
-
-    [data-theme="dark"] & {
-        backdrop-filter: blur(76px);
-        background: rgba(30, 30, 30, 0.88);
-        box-shadow:
-            0 0 0 0.5px var(--color-white-at-15),
-            0 10px 24px var(--color-black-at-40),
-            inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     }
 }
 
@@ -73,12 +62,19 @@
     color: var(--ds-color-theme-accent-content-primary);
 }
 
+.trailingControl {
+    align-items: center;
+    display: flex;
+    margin-left: auto;
+    padding-left: 8px;
+}
+
 .itemActive {
-    background: var(--ds-color-theme-accent-primary);
-    color: var(--ds-color-theme-accent-content-primary);
+    background: var(--ds-color-theme-control-fill-primary);
+    color: var(--ds-color-theme-text-primary);
 
     .itemDescription {
-        color: var(--ds-color-theme-accent-content-secondary);
+        color: var(--ds-color-theme-text-secondary);
     }
 }
 
@@ -109,7 +105,18 @@
 }
 
 .itemActive.itemSelected .checkmark::before {
-    color: var(--ds-color-theme-accent-content-primary);
+    color: var(--ds-color-theme-text-primary);
+}
+
+.itemDisabled {
+    color: var(--ds-color-theme-text-tertiary);
+    cursor: default;
+    pointer-events: none;
+}
+
+.separator {
+    border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
+    margin: 4px 4px;
 }
 
 .itemLabel {

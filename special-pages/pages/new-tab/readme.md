@@ -114,6 +114,14 @@
    - `true` - Opens customizer automatically
    - `false` - Does not open customizer automatically
 
+ ### New Tab Page Rebrand
+ - **Purpose**: Controls the New Tab Page rebrand feature flag in the mock transport (sets `body[data-rebrand]`)
+ - **Parameter**: `rebrand`
+ - **Example**: `?rebrand=enabled`
+ - **Options**:
+   - `enabled` - Turns on New Tab Page rebranding
+   - `disabled` - Turns off New Tab Page rebranding (default)
+
  ### RMF (Remote Messaging Framework)
  - **Purpose**: Controls Remote Messaging Framework dialog
  - **Parameter**: `rmf`

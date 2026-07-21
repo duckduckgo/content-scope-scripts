@@ -6,6 +6,55 @@
     "mode"
   ],
   "$defs": {
+    "AttachmentLimits": {
+      "type": "object",
+      "description": "Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.",
+      "required": ["files", "images"],
+      "properties": {
+        "files": {
+          "description": "Limits for file attachments (e.g. PDFs).",
+          "type": "object",
+          "required": ["maxPerConversation", "maxFileSizeMB", "maxTotalFileSizeBytes", "maxPagesPerFile"],
+          "properties": {
+            "maxPerConversation": {
+              "description": "Maximum number of file attachments allowed.",
+              "type": "integer"
+            },
+            "maxFileSizeMB": {
+              "description": "Maximum size of a single file attachment, in megabytes.",
+              "type": "integer"
+            },
+            "maxTotalFileSizeBytes": {
+              "description": "Maximum combined size of all file attachments, in bytes.",
+              "type": "integer"
+            },
+            "maxPagesPerFile": {
+              "description": "Maximum number of pages allowed in a single file (e.g. PDF). Not enforced web-side.",
+              "type": "integer"
+            }
+          }
+        },
+        "images": {
+          "description": "Limits for image attachments.",
+          "type": "object",
+          "required": ["maxPerTurn", "maxPerConversation", "maxInputCharsWithAttachments"],
+          "properties": {
+            "maxPerTurn": {
+              "description": "Maximum number of images allowed in a single submission.",
+              "type": "integer"
+            },
+            "maxPerConversation": {
+              "description": "Maximum number of images allowed across an entire conversation.",
+              "type": "integer"
+            },
+            "maxInputCharsWithAttachments": {
+              "description": "Maximum prompt length (characters) when attachments are present. Not enforced web-side.",
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
     "AIModelSection": {
       "type": "object",
       "description": "A section of AI models with an optional header and a list of model items.",
@@ -112,6 +161,10 @@
       "type": "array",
       "items": { "$ref": "#/$defs/AIModelSection" }
     },
+    "attachmentLimits": {
+      "title": "Attachment Limits",
+      "$ref": "#/$defs/AttachmentLimits"
+    },
     "showViewAllAiChats": {
       "title": "Show View All AI Chats",
       "description": "When enabled, shows a 'View all chats' link at the bottom of the recent AI chats list",
@@ -136,6 +189,29 @@
       "type": "boolean",
       "default": false
     },
+    "enableCustomizeResponses": {
+      "title": "Enable Customize Responses",
+      "description": "Show the 'Customize responses' entry in the AI chat Tools menu. Selecting it opens the Customize Responses modal.",
+      "type": "boolean",
+      "default": false
+    },
+    "customizeSubLabel": {
+      "title": "Customize Responses Sub-label",
+      "description": "Summary of the user's current response customization (e.g. 'Professional, Concise'), shown as the description under the 'Customize responses' Tools-menu row. Omitted when responses haven't been customized, in which case the default description is shown.",
+      "type": "string"
+    },
+    "hasCustomization": {
+      "title": "Has Customization",
+      "description": "True once the user has customized their responses. Gates the on/off toggle shown alongside the 'Customize responses' Tools-menu row.",
+      "type": "boolean",
+      "default": false
+    },
+    "customizationActive": {
+      "title": "Customization Active",
+      "description": "Whether the stored customization is currently applied. Drives the checked state of the toggle in the 'Customize responses' Tools-menu row.",
+      "type": "boolean",
+      "default": false
+    },
     "enableAskAiSuggestion": {
       "title": "Enable Ask Duck.ai Suggestion",
       "description": "Controls whether the inline 'Ask Duck.ai: <query>' suggestion is rendered in the omnibar dropdown. Missing/undefined is treated as true for backward compatibility. Does not affect the Duck.ai mode pill or any other AI affordance — those remain governed by enableAi.",
@@ -145,6 +221,18 @@
     "enableAttachTabs": {
       "title": "Enable Attach Tabs",
       "description": "Show the paperclip entry point and accept `@` mentions for attaching open tabs as context to a Duck.ai submission. When true, the omnibar can call `omnibar_getOpenTabs` and `omnibar_getTabContent`.",
+      "type": "boolean",
+      "default": false
+    },
+    "enableAiChatDeletion": {
+      "title": "Enable AI Chat Deletion",
+      "description": "Show a delete button on recent AI chat suggestions. When true, clicking the button prompts a native confirmation dialog before deleting the chat.",
+      "type": "boolean",
+      "default": false
+    },
+    "enableSearchSuggestionDeletion": {
+      "title": "Enable Search Suggestion Deletion",
+      "description": "Show a delete button on history entry suggestions. When true, clicking the button removes the entry from browsing history.",
       "type": "boolean",
       "default": false
     }

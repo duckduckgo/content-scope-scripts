@@ -20,7 +20,7 @@ jobs:
         timeout-minutes: 10
         runs-on: macos-14
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
             - name: Use Node.js
               uses: actions/setup-node@v6
               with:

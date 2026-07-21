@@ -2,13 +2,18 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ChatBubbleIcon, ImageIcon, PinIcon, VoiceIcon } from '../../components/Icons';
+import { ChatBubbleIcon, FireOutlineIcon, ImageIcon, PinIcon, VoiceIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { OmnibarContext } from './OmnibarProvider';
 import { useAiChatsContext } from './AiChatsProvider';
 import { getAiChatElementId } from './useAiChats';
 import { AiChatsListFooter } from './AiChatsListFooter';
+import { useTypedTranslationWith } from '../../types';
 import styles from './AiChatsList.module.css';
+
+/**
+ * @typedef {import('../strings.json')} Strings
+ */
 
 /**
  * @typedef {import('../../../types/new-tab.js').AiChat} AiChat
@@ -29,9 +34,11 @@ const ICON_BY_MODEL = new Map([
  * @param {string} [props.className]
  */
 export function AiChatsList({ className }) {
-    const { openAiChat } = useContext(OmnibarContext);
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { state, openAiChat } = useContext(OmnibarContext);
     const platformName = usePlatformName();
-    const { chats, selectedChat, showViewAllAiChats, setSelectedChat, clearSelectedChat, aiChatsListId } = useAiChatsContext();
+    const enableDeletion = state.config?.enableAiChatDeletion === true;
+    const { chats, selectedChat, showViewAllAiChats, setSelectedChat, clearSelectedChat, removeChat, aiChatsListId } = useAiChatsContext();
 
     if (chats.length === 0) {
         return null;
@@ -41,7 +48,7 @@ export function AiChatsList({ className }) {
         <div role="listbox" id={aiChatsListId} data-omnibar-list class={cn(styles.list, className)}>
             {chats.map((chat) => {
                 return (
-                    <button
+                    <div
                         key={chat.chatId}
                         role="option"
                         id={getAiChatElementId(chat.chatId)}
@@ -51,7 +58,6 @@ export function AiChatsList({ className }) {
                         onMouseOver={() => setSelectedChat(chat)}
                         onMouseLeave={() => clearSelectedChat()}
                         onClick={(event) => {
-                            event.preventDefault();
                             openAiChat({
                                 chatId: chat.chatId,
                                 target: eventToTarget(event, platformName),
@@ -62,7 +68,26 @@ export function AiChatsList({ className }) {
                     >
                         <ChatIcon chat={chat} />
                         <span class={styles.title}>{chat.title}</span>
-                    </button>
+                        {enableDeletion && (
+                            <button
+                                tabIndex={-1}
+                                class={styles.deleteButton}
+                                aria-label={t('omnibar_removeAiChat')}
+                                title={t('omnibar_removeAiChat')}
+                                onMouseDown={(e) => {
+                                    // Prevent focus from leaving the chat input, which would close the dropdown
+                                    e.preventDefault();
+                                }}
+                                onClick={(e) => {
+                                    // Prevent the row click from opening the chat
+                                    e.stopPropagation();
+                                    removeChat(chat.chatId, chat.title);
+                                }}
+                            >
+                                <FireOutlineIcon />
+                            </button>
+                        )}
+                    </div>
                 );
             })}
             {showViewAllAiChats && <AiChatsListFooter />}
