@@ -81,7 +81,7 @@
 
 .pill {
     height: calc(26 * var(--px-in-rem));
-    border-radius: var(--ds-radius-full);
+    border-radius: 9999px;
     padding-left: 8px;
     padding-right: 11px;
     font-size: var(--callout-font-size);
@@ -89,6 +89,26 @@
     line-height: var(--callout-line-height);
     border: 1px solid var(--ds-color-theme-container-border-primary);
     color: var(--ds-color-theme-text-secondary);
+}
+
+/*
+ * NTP rebrand variant for the stats "Show more/less" pill. Only applied when the
+ * caller opts in via `variant="stats"`, which is itself gated on the rebrand
+ * feature flag, so nothing changes when the flag is OFF.
+ */
+.pill.statsPill {
+    border-radius: var(--ds-radius-full);
+    border-color: var(--ds-color-theme-container-border-secondary);
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-primary);
+        border-color: var(--ds-color-theme-container-border-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+        border-color: var(--ds-color-theme-container-border-secondary);
+    }
 }
 
 .fill {
@@ -111,20 +131,6 @@
     &:active {
         background-color: var(--ds-color-theme-control-fill-tertiary);
         border-color: var(--ds-color-theme-control-border-tertiary);
-    }
-}
-
-.pill.statsPill {
-    border-color: var(--ds-color-theme-container-border-secondary);
-
-    &:hover {
-        background-color: var(--ds-color-theme-control-fill-primary);
-        border-color: var(--ds-color-theme-container-border-secondary);
-    }
-
-    &:active {
-        background-color: var(--ds-color-theme-control-fill-secondary);
-        border-color: var(--ds-color-theme-container-border-secondary);
     }
 }
 
