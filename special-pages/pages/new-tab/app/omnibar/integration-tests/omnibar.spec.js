@@ -2019,7 +2019,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.reasoningPickerButton().click();
-            await omnibar.reasoningOption('Reasoning Takes a moment to respond').click();
+            await omnibar.reasoningOption('For complex tasks').click();
 
             const calls = await ntp.mocks.waitForCallCount({ method: 'omnibar_setConfig', count: 1 });
             const last = calls[calls.length - 1];
@@ -2191,8 +2191,8 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.reasoningPickerButton().click();
-            await expect(omnibar.reasoningOption('Fast Answers right away')).toBeVisible();
-            await expect(omnibar.reasoningOption('Reasoning Takes a moment to respond')).toBeVisible();
+            await expect(omnibar.reasoningOption('Answers quickly')).toBeVisible();
+            await expect(omnibar.reasoningOption('For complex tasks')).toBeVisible();
         });
 
         test('an unavailable reasoning-effort option shows "Try for free" and opens the subscription upsell', async ({
@@ -2216,7 +2216,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.reasoningPickerButton().click();
-            const gatedOption = omnibar.reasoningOption('Extended Reasoning Researches before responding');
+            const gatedOption = omnibar.reasoningOption('For analytical tasks');
             await expect(gatedOption).toContainText('Try for free');
 
             await gatedOption.click();
@@ -2246,7 +2246,7 @@ test.describe('omnibar widget', () => {
             await omnibar.expectMode('ai');
 
             await omnibar.reasoningPickerButton().click();
-            const gatedOption = omnibar.reasoningOption('Extended Reasoning Researches before responding');
+            const gatedOption = omnibar.reasoningOption('For analytical tasks');
             await expect(gatedOption).toContainText('Upgrade');
 
             await gatedOption.click();
