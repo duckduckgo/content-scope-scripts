@@ -226,7 +226,7 @@ test.describe('Broker Protection communications', () => {
             dbp.isSuccessMessage(response);
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
-                    name: 'John A Anderson',
+                    name: 'John A Smith',
                     age: '74',
                     alternativeNames: [],
                     addresses: [
@@ -496,7 +496,7 @@ test.describe('Broker Protection communications', () => {
             dbp.isSuccessMessage(response);
 
             await dbp.doesInputValueEqual('#subject-firstname', 'John');
-            await dbp.doesInputValueEqual('#subject-lastname', 'Anderson');
+            await dbp.doesInputValueEqual('#subject-lastname', 'Smith');
             // middleName is treated as optional and left blank by design, even when present in the data.
             await dbp.doesInputValueEqual('#subject-middlename', '');
             await dbp.doesInputValueEqual('#subject-streetaddress', '123 Example Dr NE');

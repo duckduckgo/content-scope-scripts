@@ -1,11 +1,16 @@
 <!doctype html>
 <html lang="en">
   <body>
+    <!--
+      Trimmed subset of a real PeopleSearchNow profile page. The current address and the address
+      history sit in sibling blocks distinguished only by their "Current Address:" / "Used to Live:"
+      titles, so the extractor must anchor on the title to pick the current address and skip history.
+    -->
     <div class="result-full-info" itemscope itemtype="https://schema.org/Person">
       <div class="result-full-info-block">
         <div class="result-full-person-info">
           <div class="result-full-person-fio">
-            <h1 class="result-full-person-name" itemprop="name">John A Anderson</h1>
+            <h1 class="result-full-person-name" itemprop="name">John A Smith</h1>
             <p class="result-full-person-age">Approximate Age: <span>74</span></p>
           </div>
         </div>
@@ -30,12 +35,12 @@
         <p class="result-full-info-title address">Used to Live:</p>
         <div class="result-full-info-content">
           <p itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
-            <a href="/address/456-previous-rd_anderson-island-wa">
-              <span>456 Previous Rd; Anderson Island, WA 98303-9606</span>
+            <a href="/address/456-previous-rd_kirkland-wa">
+              <span>456 Previous Rd; Kirkland, WA 98033-1234</span>
             </a>
-            <span hidden itemprop="addressLocality">Anderson Island</span>
+            <span hidden itemprop="addressLocality">Kirkland</span>
             <span hidden itemprop="addressRegion">WA</span>
-            <span hidden itemprop="postalCode">98303</span>
+            <span hidden itemprop="postalCode">98033</span>
             <span hidden itemprop="streetAddress">456 Previous Rd</span>
           </p>
         </div>
