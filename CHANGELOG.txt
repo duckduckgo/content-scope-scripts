@@ -1,2 +1,4 @@
-- macOS: Release Notes Rebranding UX (#2878)
-- build(deps-dev): bump typedoc in the typescript group (#2880)
+- History: Updates Icons on macOS (#2886)
+- build(deps): bump @rive-app/canvas-single from 2.38.3 to 2.38.4 (#2874)
+- build(deps): bump @preact/signals from 2.9.2 to 2.9.3 (#2884)
+- build(deps-dev): bump typescript-eslint from 8.62.1 to 8.63.0 (#2883)
