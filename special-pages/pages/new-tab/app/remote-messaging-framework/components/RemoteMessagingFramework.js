@@ -20,12 +20,14 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
     const isRebrandEnabled = useNewTabPageRebranding();
+    const showIcon = messageType !== 'small' && Boolean(message.icon);
+    const iconSrc = showIcon ? (isRebrandEnabled ? `./icons/rebrand/${message.icon}-96.svg` : `./icons/${message.icon}-96.svg`) : undefined;
 
     return (
-        <div id={id} class={cn(styles.root, messageType !== 'small' && message.icon && isRebrandEnabled && styles.icon)}>
-            {messageType !== 'small' && message.icon && isRebrandEnabled && (
+        <div id={id} class={cn(styles.root, showIcon && styles.icon)}>
+            {showIcon && iconSrc && (
                 <span class={styles.iconBlock}>
-                    <img src={`./icons/${message.icon}-96.svg`} alt="" />
+                    <img src={iconSrc} alt="" />
                 </span>
             )}
             <div class={styles.content}>
