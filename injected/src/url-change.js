@@ -1,5 +1,7 @@
 import { DDGProxy, DDGReflect, isBeingFramed } from './utils.js';
 import ContentFeature from './content-feature.js';
+// eslint-disable-next-line no-redeclare
+import { addEventListener, CustomEvent, dispatchEvent } from './captured-globals.js';
 
 /**
  * @typedef {'push' | 'replace' | 'reload' | 'traverse' | 'unknown'} NavigationType
@@ -20,16 +22,62 @@ import ContentFeature from './content-feature.js';
  */
 
 const urlChangeListeners = new Set();
+let urlChangesStarted = false;
+
+const URL_CHANGED_BRIDGE_EVENT = 'URL_CHANGED';
 
 /**
  * Register a listener to be called when the URL changes.
  * @param {URLChangeListener} listener - Callback function that receives the navigation type
  */
 export function registerForURLChanges(listener) {
-    if (urlChangeListeners.size === 0) {
+    if (!urlChangesStarted) {
+        urlChangesStarted = true;
         listenForURLChanges();
     }
     urlChangeListeners.add(listener);
+}
+
+/**
+ * @returns {boolean} true if the Navigation API is supported
+ */
+export function hasNavigationAPI() {
+    /** @type {any} */
+    const nav = /** @type {any} */ (globalThis).navigation;
+    return !!(nav && 'addEventListener' in nav);
+}
+
+/**
+ * Broadcast URL changes from the page world to the isolated world via a CustomEvent.
+ * Called in the page world when the Navigation API is unavailable and a message bridge
+ * is active, so that features running in the isolated world can react to URL changes.
+ *
+ * @param {string} messageSecret
+ */
+export function broadcastURLChangesToIsolatedWorld(messageSecret) {
+    registerForURLChanges((navigationType) => {
+        const event = new CustomEvent(`${URL_CHANGED_BRIDGE_EVENT}-${messageSecret}`, {
+            detail: { navigationType },
+        });
+        dispatchEvent?.(event);
+    });
+}
+
+/**
+ * Listen for URL change broadcasts from the page world.
+ * Called in the isolated world when the Navigation API is unavailable, to receive
+ * URL change events forwarded by the page world via {@link broadcastURLChangesToIsolatedWorld}.
+ *
+ * Must be called before any feature calls {@link registerForURLChanges} to prevent
+ * the isolated world from setting up its own (non-functional) History API listeners.
+ *
+ * @param {string} messageSecret
+ */
+export function listenForBroadcastedURLChanges(messageSecret) {
+    urlChangesStarted = true;
+    addEventListener?.(`${URL_CHANGED_BRIDGE_EVENT}-${messageSecret}`, (event) => {
+        handleURLChange(/** @type {CustomEvent<{navigationType: NavigationType}>} */ (event).detail.navigationType);
+    });
 }
 
 /**
