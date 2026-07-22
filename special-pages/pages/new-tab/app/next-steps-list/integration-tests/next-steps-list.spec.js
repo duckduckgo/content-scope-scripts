@@ -114,4 +114,19 @@ test.describe('newtab NextStepsList widget', () => {
         await expect(img).toBeVisible();
         await expect(img).toHaveAttribute('src', /Dock-Add-Mac/);
     });
+
+    // The empty "peek" shell behind the front card is a rebrand-only treatment. With rebrand
+    // disabled the stacked back card must still render the next step's content (see the
+    // "shows stacked cards" test above); this guards against the empty shell leaking to every user.
+    test('rebrand: back card is an empty peek shell without next step content', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ nextStepsList: ['emailProtection', 'duckplayer', 'defaultApp'], additional: { rebrand: 'enabled' } });
+
+        // Front card still renders its content
+        await page.getByText('Protect Your Email Address and Block Trackers').waitFor();
+
+        // The next step's content is not rendered in the peek shell under rebrand
+        await expect(page.getByText('YouTube with Fewer Ads')).not.toBeVisible();
+    });
 });

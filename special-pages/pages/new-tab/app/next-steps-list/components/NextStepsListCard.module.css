@@ -79,7 +79,8 @@
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.32), 0 2px 6px 0 rgba(0, 0, 0, 0.24);
 }
 
-/* Empty peek shell behind the front card (no inner content) */
+/* Back card (peek) behind the front card — shows the next step's content (non-rebrand);
+   the rebrand override below turns it into an empty border/background shell. */
 .card.backCard {
     position: absolute;
     top: calc(12 * var(--px-in-rem));
@@ -91,6 +92,8 @@
     /* Slightly scaled and dimmed to emphasize it's in the background */
     transform: scale(0.97);
     opacity: 0.85;
+    /* Clip content when the back card's translated text is taller than the front card */
+    overflow: hidden;
     /* Avoid cardFadeIn — its keyframes override transform/opacity and hide the peek */
     animation: none;
 }
