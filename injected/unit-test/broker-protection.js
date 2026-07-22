@@ -5,6 +5,8 @@ import { stringToList } from '../src/features/broker-protection/actions/extract.
 import { extractName } from '../src/features/broker-protection/extractors/name.js';
 import { addressMatch } from '../src/features/broker-protection/comparisons/address.js';
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js';
+import { resolveUrlFromDataSource } from '../src/features/broker-protection/actions/resolve-url-from-data-source.js';
+import { ErrorResponse, SuccessResponse } from '../src/features/broker-protection/types.js';
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js';
 import { names } from '../src/features/broker-protection/comparisons/constants.js';
 import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils/utils.js';
@@ -12,6 +14,10 @@ import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
 import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
 import { isElementType } from '../src/features/broker-protection/captcha-services/utils/element.js';
+
+/**
+ * @typedef {import('../src/features/broker-protection/types.js').PirAction} PirAction
+ */
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -597,6 +603,92 @@ describe('Actions', () => {
                     },
                 ),
             );
+        });
+    });
+
+    describe('navigate', () => {
+        it('resolves url from dataSource when url is a key name', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n1',
+                actionType: 'navigate',
+                dataSource: 'emailData',
+                url: 'link',
+            };
+            const result = resolveUrlFromDataSource(action, { link: 'https://example.com/verify/abc' });
+            expect(result instanceof SuccessResponse).toBe(true);
+            expect(/** @type {SuccessResponse} */ (result).success.response.url).toBe('https://example.com/verify/abc');
+        });
+
+        it('delegates to buildUrl when url is already a full URL', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n2',
+                actionType: 'navigate',
+                url: 'https://example.com/static',
+                dataSource: 'emailData',
+            };
+            const result = resolveUrlFromDataSource(action, {});
+            expect(result).toBe(null);
+        });
+
+        it('delegates to buildUrl when url is a non-http(s) absolute URL', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n2a',
+                actionType: 'navigate',
+                url: 'ftp://example.com/static',
+                dataSource: 'emailData',
+            };
+            const result = resolveUrlFromDataSource(action, {});
+            expect(result).toBe(null);
+        });
+
+        it('delegates to buildUrl when dataSource is not set', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n2b',
+                actionType: 'navigate',
+                url: 'link',
+            };
+            const result = resolveUrlFromDataSource(action, { link: 'https://example.com' });
+            expect(result).toBe(null);
+        });
+
+        it('returns error when dataSource key is missing from userData', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n3',
+                actionType: 'navigate',
+                dataSource: 'emailData',
+                url: 'missing',
+            };
+            const result = resolveUrlFromDataSource(action, { link: 'https://example.com' });
+            expect(result instanceof ErrorResponse).toBe(true);
+        });
+
+        it('returns error when dataSource value is not a valid url', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n4',
+                actionType: 'navigate',
+                dataSource: 'emailData',
+                url: 'link',
+            };
+            const result = resolveUrlFromDataSource(action, { link: 'not-a-url' });
+            expect(result instanceof ErrorResponse).toBe(true);
+        });
+
+        it('returns error when dataSource value is a non-http(s) scheme', () => {
+            /** @type {PirAction} */
+            const action = {
+                id: 'n5',
+                actionType: 'navigate',
+                dataSource: 'emailData',
+                url: 'link',
+            };
+            const result = resolveUrlFromDataSource(action, { link: 'javascript:alert(1)' });
+            expect(result instanceof ErrorResponse).toBe(true);
         });
     });
 
