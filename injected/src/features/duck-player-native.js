@@ -25,10 +25,13 @@ import { Logger } from './duckplayer/util.js';
 
 export class DuckPlayerNativeFeature extends ContentFeature {
     /** @type {DuckPlayerNativeSubFeature | null} */
-    currentPage;
+    currentPage = null;
     /** @type {TranslationFn} */
-    t;
+    t = /** @type {TranslationFn} */ (() => '');
 
+    /**
+     * @param {{locale?: string, language?: string}} [args]
+     */
     async init(args) {
         /**
          * This feature never operates in a frame
@@ -41,7 +44,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             return;
         }
 
-        const locale = args?.locale || args?.language || 'en';
+        const locale = (args && (args.locale ?? args.language)) ?? 'en';
         const env = new Environment({
             debug: this.isDebug,
             injectName: import.meta.injectName,
@@ -50,7 +53,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         });
 
         // Translation function to be used by view components
-        this.t = (key) => env.strings('native.json')[key];
+        this.t = (key) => env.strings('native.json')[key] ?? '';
 
         const messages = new DuckPlayerNativeMessages(this.messaging, env);
         messages.subscribeToURLChange(({ pageType }) => {
