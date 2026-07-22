@@ -2,6 +2,7 @@ import { Mocks } from '../../../shared/mocks.js';
 import { expect } from '@playwright/test';
 import { join } from 'node:path';
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
+import { withExpectedFailure } from 'injected/integration-test/shared.mjs';
 
 const MOCK_VIDEO_ID = 'VIDEO_ID';
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube';
@@ -104,7 +105,13 @@ export class DuckPlayerPage {
      */
     async openPage(urlParams) {
         const url = 'https://www.youtube-nocookie.com' + '?' + urlParams.toString();
-        await this.mocks.install();
+        // Duck player intentionally triggers `duck://` protocol navigations
+        // as part of its assertions, which Chromium reports as "Failed to
+        // load resource" console errors. Drop those from the forwarded
+        // console output so they don't pollute the test log. Other special
+        // pages keep the default (no filtering) so real resource failures
+        // remain visible.
+        await this.mocks.install({ filterResourceErrors: true });
         await this.installYoutubeMocks(urlParams);
         // construct the final url
         await this.page.goto(url);
@@ -386,13 +393,8 @@ export class DuckPlayerPage {
     async opensInYoutube() {
         await this.build.switch({
             windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        resolve(f.url());
-                    });
-                });
-                await this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
-                expect(await failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID');
+                const url = await withExpectedFailure(this.page, () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click());
+                expect(url).toEqual('duck://player/openInYoutube?v=VIDEO_ID');
             },
             apple: async () => {
                 const nextNavigation = new Promise((resolve) => {
@@ -410,13 +412,8 @@ export class DuckPlayerPage {
         const action = () => this.page.frameLocator('#player').getByRole('link', { name: 'Watch on YouTube' }).click();
         await this.build.switch({
             windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        resolve(f.url());
-                    });
-                });
-                await action();
-                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+                const url = await withExpectedFailure(this.page, action);
+                expect(url).toEqual(`duck://player/openInYoutube?v=${videoID}`);
             },
             apple: async () => {
                 if (this.platform.name === 'ios') {
@@ -428,14 +425,8 @@ export class DuckPlayerPage {
                 await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
             },
             android: async () => {
-                // const failure = new Promise(resolve => {
-                //     this.page.context().on('requestfailed', f => {
-                //         resolve(f.url())
-                //     })
-                // })
                 // todo: why does this not work on android?
                 await action();
-                // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
             },
         });
     }
@@ -444,13 +435,8 @@ export class DuckPlayerPage {
         const action = () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
         await this.build.switch({
             windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        resolve(f.url());
-                    });
-                });
-                await action();
-                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+                const url = await withExpectedFailure(this.page, action);
+                expect(url).toEqual(`duck://player/openInYoutube?v=${videoID}`);
             },
             apple: async () => {
                 if (this.platform.name === 'ios') {
@@ -462,14 +448,8 @@ export class DuckPlayerPage {
                 await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
             },
             android: async () => {
-                // const failure = new Promise(resolve => {
-                //     this.page.context().on('requestfailed', f => {
-                //         resolve(f.url())
-                //     })
-                // })
                 // todo: why does this not work on android?
                 await action();
-                // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
             },
         });
     }

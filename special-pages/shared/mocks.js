@@ -7,6 +7,7 @@ import {
     simulateSubscriptionMessage,
     waitForCallCount,
 } from '@duckduckgo/messaging/lib/test-utils.mjs';
+import { forwardConsole } from 'injected/integration-test/shared.mjs';
 
 export class Mocks {
     /**
@@ -29,12 +30,16 @@ export class Mocks {
     }
 
     /**
+     * @param {{ filterResourceErrors?: boolean }} [options]
+     *  - `filterResourceErrors`: drop the browser's "Failed to load resource"
+     *    console messages from forwarded output. Only set this where
+     *    resource failures are *expected* (e.g. duckplayer asserting on
+     *    `duck://` protocol 404s); leaving it off elsewhere keeps real
+     *    resource load failures visible in test logs.
      * @returns {Promise<void|*|string>}
      */
-    async install() {
-        this.page.on('console', (msg) => {
-            console.log('->', msg.type(), msg.text());
-        });
+    async install({ filterResourceErrors = false } = {}) {
+        forwardConsole(this.page, { filterResourceErrors });
         await this.installMessagingMocks();
     }
 
