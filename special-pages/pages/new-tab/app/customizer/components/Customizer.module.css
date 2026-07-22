@@ -43,6 +43,38 @@
     }
 }
 
+[data-rebrand="true"] .customizeButton {
+    backdrop-filter: none;
+    background-color: var(--ds-color-theme-control-fill-primary);
+    border: none;
+    border-radius: var(--ds-radius-x06);
+    padding: var(--ds-space-x02) var(--ds-space-x04);
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-tertiary);
+    }
+
+    @media screen and (max-width: 800px) {
+        padding: var(--ds-space-x02);
+    }
+}
+
+[data-rebrand="true"][data-platform-name="windows"] .customizeButton {
+    background-color: transparent;
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+    }
+}
+
 .popover {
     --popover-offset-x: -10px;
     --popover-offset-y: -3px;
