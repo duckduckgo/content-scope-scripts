@@ -1,7 +1,18 @@
 import ContentFeature from '../content-feature';
 import { DDGReflect } from '../utils';
 
+/**
+ * @typedef {import('../content-scope-features.js').LoadArgs} LoadArgs
+ * @typedef {import('../features.js').FeatureMap} FeatureMap
+ */
+
 export default class UaChBrands extends ContentFeature {
+    /**
+     * @param {keyof FeatureMap} featureName
+     * @param {{ trackerLookup?: unknown; injectName?: string }} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {LoadArgs} args
+     */
     constructor(featureName, importConfig, features, args) {
         super(featureName, importConfig, features, args);
 
@@ -99,17 +110,24 @@ export default class UaChBrands extends ContentFeature {
             // while preserving dynamic `this` (userAgentData) for DDGReflect.apply.
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const featureInstance = this;
-            this.wrapMethod(proto, 'getHighEntropyValues', async function (originalFn, ...args) {
+            /**
+             * @this {object}
+             * @param {Function} originalFn
+             * @param {unknown[]} args
+             */
+            const wrapper = async function (originalFn, ...args) {
                 const originalResult = await DDGReflect.apply(originalFn, this, args);
+                /** @type {Record<string, unknown>} */
                 const modifiedResult = {};
 
                 for (const [key, value] of Object.entries(originalResult)) {
                     let result = value;
 
-                    if (key === 'brands' && args[0]?.includes('brands')) {
+                    const hints = Array.isArray(args[0]) ? args[0] : [];
+                    if (key === 'brands' && hints.includes('brands')) {
                         result = newBrands;
                     }
-                    if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
+                    if (key === 'fullVersionList' && hints.includes('fullVersionList') && value) {
                         const targetBrand = featureInstance.getBrandOverride();
                         result = featureInstance.applyBrandMutationsToList(value, targetBrand);
                     }
@@ -118,7 +136,8 @@ export default class UaChBrands extends ContentFeature {
                 }
 
                 return modifiedResult;
-            });
+            };
+            this.wrapMethod(proto, 'getHighEntropyValues', wrapper);
         }
     }
 }
