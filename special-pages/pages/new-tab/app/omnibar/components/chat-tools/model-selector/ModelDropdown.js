@@ -2,6 +2,7 @@ import { Fragment, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../../../../types';
+import { getUpsellCtaLabel } from '../../../utils.js';
 import styles from './ModelSelector.module.css';
 import { getModelIcon } from './Icons';
 
@@ -40,9 +41,21 @@ function getRowBadgeLabel(model, t) {
  * @param {(type?: 'subscribe' | 'upgrade') => void} props.onUpsell
  * @param {string} [props.className] - Extra class(es) for the dropdown root.
  * @param {string} props.ariaLabel
+ * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell shows "Upgrade" instead of "Try for free".
  * @param {import('preact').RefObject<HTMLUListElement>} [props.dropdownRef]
  */
-export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose, onSelect, onUpsell, className, ariaLabel, dropdownRef }) {
+export function ModelDropdown({
+    sections,
+    selectedModelId,
+    dropdownPos,
+    onClose,
+    onSelect,
+    onUpsell,
+    className,
+    ariaLabel,
+    isEligibleForFreeTrial,
+    dropdownRef,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const allModels = sections.flatMap((section) => section.items);
     const optionIndexById = new Map(allModels.map((model, index) => [model.id, index]));
@@ -185,7 +198,9 @@ export function ModelDropdown({ sections, selectedModelId, dropdownPos, onClose,
                                 >
                                     {section.header && <span class={styles.modelUpsellText}>{section.header}</span>}
                                     <span class={styles.modelUpsellCta}>
-                                        {sectionUpsell === 'upgrade' ? t('omnibar_upgrade') : t('omnibar_tryForFree')}
+                                        {getUpsellCtaLabel(sectionUpsell, isEligibleForFreeTrial) === 'upgrade'
+                                            ? t('omnibar_upgrade')
+                                            : t('omnibar_tryForFree')}
                                     </span>
                                 </li>
                             </Fragment>

@@ -49,6 +49,7 @@ export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
     const config = {
         mode: 'search',
+        isEligibleForFreeTrial: true,
         enableAi: true,
         showAiSetting: true,
         showCustomizePopover: false,
@@ -297,6 +298,8 @@ export function omnibarMockTransport() {
                     if (modeOverride === 'search' || modeOverride === 'ai') {
                         config.mode = modeOverride;
                     }
+                    config.isEligibleForFreeTrial =
+                        parseBooleanQueryParam('omnibar.isEligibleForFreeTrial') ?? config.isEligibleForFreeTrial;
                     config.enableAi = parseBooleanQueryParam('omnibar.enableAi') ?? config.enableAi;
                     config.showAiSetting = parseBooleanQueryParam('omnibar.showAiSetting') ?? config.showAiSetting;
                     config.showCustomizePopover = parseBooleanQueryParam('omnibar.showCustomizePopover') ?? config.showCustomizePopover;

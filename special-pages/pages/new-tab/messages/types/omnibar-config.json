@@ -165,6 +165,12 @@
       "type": "string",
       "enum": ["search", "ai"]
     },
+    "isEligibleForFreeTrial": {
+      "title": "Is Eligible For Free Trial",
+      "description": "Whether the user is eligible for a free trial. When false, gated 'subscribe' upsells show 'Upgrade' instead of 'Try for free'. Missing/undefined is treated as true for backward compatibility.",
+      "type": "boolean",
+      "default": true
+    },
     "enableAi": {
       "title": "Enable Duck.ai",
       "type": "boolean",

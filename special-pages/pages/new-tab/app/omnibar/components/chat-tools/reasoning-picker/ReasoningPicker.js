@@ -6,6 +6,7 @@ import { useMessaging } from '../../../../types.js';
 import { Dropdown } from '../dropdown/Dropdown';
 import { DropdownItem } from '../dropdown/DropdownItem';
 import { isUpsellMuted, recordUpsellImpression } from '../upsellImpressions.js';
+import { getUpsellCtaLabel } from '../../../utils.js';
 import dropdownStyles from '../dropdown/Dropdown.module.css';
 import styles from './ReasoningPicker.module.css';
 
@@ -33,8 +34,19 @@ import styles from './ReasoningPicker.module.css';
  * @param {string} props.buttonLabel
  * @param {string} props.tryForFreeLabel
  * @param {string} props.upgradeLabel
+ * @param {boolean} props.isEligibleForFreeTrial - When false, a 'subscribe' upsell shows the upgrade label instead of "Try for free".
  */
-export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, ariaLabel, buttonLabel, tryForFreeLabel, upgradeLabel }) {
+export function ReasoningPicker({
+    options,
+    selectedEffort,
+    onSelect,
+    onUpsell,
+    ariaLabel,
+    buttonLabel,
+    tryForFreeLabel,
+    upgradeLabel,
+    isEligibleForFreeTrial,
+}) {
     const { isOpen, dropdownPos, buttonRef, dropdownRef, toggle, close } = useDropdown({ align: 'right' });
     const ntp = useMessaging();
     const shownRef = useRef(false);
@@ -65,13 +77,16 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
         if (gated.length > 0) {
             recordUpsellImpression();
         }
-        if (gated.some((option) => option.upsell !== 'upgrade')) {
+        // Report the CTA label that is actually shown, which is eligibility-aware
+        // (a 'subscribe' upsell reads as "Upgrade" for free-trial-ineligible users).
+        const gatedLabels = gated.map((option) => getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial));
+        if (gatedLabels.includes('tryForFree')) {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_tryforfree_shown' } });
         }
-        if (gated.some((option) => option.upsell === 'upgrade')) {
+        if (gatedLabels.includes('upgrade')) {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_upgrade_shown' } });
         }
-    }, [isOpen, gated, ntp]);
+    }, [isOpen, gated, ntp, isEligibleForFreeTrial]);
 
     /** @param {{ restoreFocus: boolean }} opts */
     const handleClose = ({ restoreFocus }) => {
@@ -118,7 +133,8 @@ export function ReasoningPicker({ options, selectedEffort, onSelect, onUpsell, a
                 >
                     {options.map((option) => {
                         const OptionIcon = option.icon;
-                        const badgeLabel = option.upsell === 'upgrade' ? upgradeLabel : tryForFreeLabel;
+                        const badgeLabel =
+                            getUpsellCtaLabel(option.upsell, isEligibleForFreeTrial) === 'upgrade' ? upgradeLabel : tryForFreeLabel;
                         return (
                             <DropdownItem
                                 key={option.id}

@@ -67,6 +67,10 @@ export type Suggestion =
   | HistoryEntrySuggestion
   | InternalPageSuggestion;
 export type OmnibarMode = "search" | "ai";
+/**
+ * Whether the user is eligible for a free trial. When false, gated 'subscribe' upsells show 'Upgrade' instead of 'Try for free'. Missing/undefined is treated as true for backward compatibility.
+ */
+export type IsEligibleForFreeTrial = boolean;
 export type EnableDuckAi = boolean;
 export type ShowDuckAiSetting = boolean;
 /**
@@ -690,6 +694,7 @@ export interface OmnibarSetConfigNotification {
 }
 export interface OmnibarConfig {
   mode: OmnibarMode;
+  isEligibleForFreeTrial?: IsEligibleForFreeTrial;
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;

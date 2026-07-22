@@ -37,8 +37,9 @@ function getReasoningIcon(id) {
 
 export function ReasoningPickerTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { showUpsell } = useContext(OmnibarContext);
+    const { state, showUpsell } = useContext(OmnibarContext);
     const { reasoningEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
+    const isEligibleForFreeTrial = state.config?.isEligibleForFreeTrial !== false;
 
     const options = reasoningEfforts.map((effort) => ({
         id: effort.id,
@@ -65,6 +66,7 @@ export function ReasoningPickerTool() {
             buttonLabel={selectedOption?.name ?? t('omnibar_reasoningPickerLabel')}
             tryForFreeLabel={t('omnibar_tryForFree')}
             upgradeLabel={t('omnibar_upgrade')}
+            isEligibleForFreeTrial={isEligibleForFreeTrial}
         />
     );
 }

@@ -12,8 +12,9 @@ import { ModelSelector } from './ModelSelector';
 
 export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { showUpsell } = useContext(OmnibarContext);
+    const { state, showUpsell } = useContext(OmnibarContext);
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
+    const isEligibleForFreeTrial = state.config?.isEligibleForFreeTrial !== false;
 
     const selector = useModelSelector({
         allModels,
@@ -29,6 +30,7 @@ export function ModelSelectorTool() {
             aiModelSections={aiModelSections}
             onUpsell={(type) => showUpsell(type, 'model')}
             ariaLabel={t('omnibar_modelSelectorLabel')}
+            isEligibleForFreeTrial={isEligibleForFreeTrial}
         />
     );
 }
