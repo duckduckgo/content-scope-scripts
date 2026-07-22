@@ -97,6 +97,18 @@
         --switch-handle-size: 16px;
     }
 
+    /* Windows rebrand medium — Figma 26062:35898 */
+    :global([data-rebrand="true"]) &[data-platform-name="windows"][data-size="medium"] {
+        --switch-width: 32px;
+        --switch-height: 16px;
+        --switch-handle-size: 10px;
+        --switch-handle-offset: 3px;
+        --switch-checked-offset: translateX(calc(100% + 6px));
+        --track-border-radius: var(--ds-radius-x02);
+        --track-border: 0;
+        --switch-handle-color-checked: white;
+    }
+
     &[data-platform-name="macos"][data-theme="dark"] {
         /* Off state - use system colors */
         --track-bg-color: var(--color-white-at-9);
@@ -216,6 +228,10 @@
         z-index: 1;
         transition: all .3s;
         background: var(--switch-handle-color);
+    }
+
+    :global([data-rebrand="true"]) [data-platform-name="windows"][data-size="medium"] &:before {
+        border: 1px solid var(--ds-color-theme-surface-decoration-secondary);
     }
 
     [data-platform-name="macos"] &:before {

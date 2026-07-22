@@ -84,6 +84,52 @@
     visibility: hidden;
 }
 
+[data-rebrand="true"] {
+    .root {
+        gap: var(--ds-space-x04);
+    }
+
+    .segmentedControl {
+        border-radius: var(--ds-radius-x06);
+    }
+
+    .segment {
+        flex: 1 0 0;
+        gap: var(--ds-space-x01);
+        border-radius: var(--ds-radius-x06);
+        padding-inline: var(--ds-space-x03);
+    }
+
+    .variantGrid {
+        gap: var(--ds-space-x03);
+    }
+
+    .variantButton {
+        border-radius: var(--ds-radius-x02);
+
+        &[aria-checked="true"]::after {
+            border-radius: calc(var(--ds-radius-x02) + var(--selection-ring-offset));
+        }
+    }
+
+    .swatch,
+    .swatchBackdrop {
+        border-radius: var(--ds-radius-x02);
+    }
+}
+
+[data-rebrand="true"][data-platform-name="macos"] {
+    .segment[aria-checked="true"]:not(:focus-visible) {
+        /* Mac/Control/Standard */
+        box-shadow:
+            0 0.5px 0 0 rgba(255, 255, 255, 0.2) inset,
+            0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+            0 0 0 0.5px rgba(0, 0, 0, 0.1),
+            0 0 1px 0 rgba(0, 0, 0, 0.05),
+            0 1px 1px 0 rgba(0, 0, 0, 0.2);
+    }
+}
+
 .variantGrid {
     display: flex;
     flex-wrap: wrap;
