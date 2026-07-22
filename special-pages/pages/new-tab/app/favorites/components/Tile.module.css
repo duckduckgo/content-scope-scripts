@@ -158,11 +158,11 @@
         box-sizing: border-box;
         width: var(--icon-width);
         height: var(--icon-width);
-        padding: var(--sp-4);
+        padding: var(--ds-space-x04);
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        border-radius: calc(16 * var(--px-in-rem));
+        border-radius: var(--ds-radius-x04);
         box-shadow:
             0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
             0 1px 6px 0 var(--ds-color-theme-shadow-primary),
