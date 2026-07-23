@@ -304,8 +304,8 @@
     }
 
     .dismissBtn {
-        border: 1px solid var(--color-black-at-9);
-        color: var(--color-black-at-60);
+        border: 1px solid var(--ds-ntp-dismiss-btn-light-border);
+        color: var(--ds-ntp-dismiss-btn-light-color);
         height: var(--ds-space-x06);
         right: var(--ds-space-x03-5);
         top: var(--ds-space-x03);
@@ -325,8 +325,8 @@
         }
 
         :global([data-theme="dark"]) & {
-            border-color: var(--color-white-at-9);
-            color: var(--color-white-at-60);
+            border-color: var(--ds-ntp-dismiss-btn-dark-border);
+            color: var(--ds-ntp-dismiss-btn-dark-color);
         }
     }
 
