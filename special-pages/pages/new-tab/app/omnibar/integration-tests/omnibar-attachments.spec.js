@@ -101,9 +101,7 @@ test.describe('omnibar tab attachment', () => {
         expect(params.pageContext?.map((c) => c.tabId).sort()).toEqual(['tab-1', 'tab-2']);
     });
 
-    test('tabs over the configured cap warn (naming the limit), block submit, and recover on removal', async ({
-        page,
-    }, workerInfo) => {
+    test('tabs over the configured cap warn (naming the limit), block submit, and recover on removal', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({
