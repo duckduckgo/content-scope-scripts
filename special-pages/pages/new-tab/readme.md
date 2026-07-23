@@ -296,6 +296,12 @@
  - **Example**: `?omnibar.selectedModelId=claude-haiku-4-5`
  - **Options**: Any model ID from the `aiModelSections` config
 
+### Max Attached Tabs
+ - **Purpose**: Overrides the cap on how many open tabs can be attached as context (defaults to 3). Attaching more shows the over-limit warning and blocks submit until one is removed.
+ - **Parameter**: `omnibar.tabMaxAttached`
+ - **Example**: `?omnibar.tabMaxAttached=1`
+ - **Options**: Any positive integer
+
 ### Subscription (simulate subscribed user)
  - **Purpose**: Flips `isEnabled: true` on every AI model in the mock, unlocking the "Advanced Models - DuckDuckGo subscription" section. Lets tests pick subscription-tier models (e.g. Opus 4.6, GPT-5.2) as `selectedModelId`.
  - **Parameter**: `omnibar.subscription`

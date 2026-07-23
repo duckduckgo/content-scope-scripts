@@ -69,13 +69,16 @@ export function useTabAttachments(tabId, maxTabs = MAX_TABS) {
 
     /**
      * Extracts page content for each attached tab in parallel; drops failures.
+     * Iterates `attachedTabs` (open tabs only), NOT `attachedEntries`, so submission uses the exact
+     * same set the limit and the chips are computed from. Otherwise a closed-but-still-persisted
+     * entry could ship a context that isn't counted against the cap.
      * @returns {Promise<PageContext[] | null>}
      */
     const getTabsForSubmission = useCallback(async () => {
-        if (attachedEntries.length === 0) return null;
+        if (attachedTabs.length === 0) return null;
 
         const results = await Promise.all(
-            attachedEntries.map(async ({ tabId: id }) => {
+            attachedTabs.map(async ({ tabId: id }) => {
                 try {
                     const pageContext = await getTabContent(id);
                     return pageContext === null ? null : /** @type {PageContext} */ ({ ...pageContext, tabId: id });
@@ -88,7 +91,7 @@ export function useTabAttachments(tabId, maxTabs = MAX_TABS) {
 
         const ready = /** @type {PageContext[]} */ (results.filter((ctx) => ctx !== null));
         return ready.length > 0 ? ready : null;
-    }, [attachedEntries, getTabContent]);
+    }, [attachedTabs, getTabContent]);
 
     const state = useMemo(
         () => ({

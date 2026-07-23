@@ -372,7 +372,7 @@ function AiChatContent({
         <div
             ref={containerRef}
             class={styles.aiChatContent}
-            data-attachment-warning={imageWarning || fileWarning || undefined}
+            data-attachment-warning={imageWarning || fileWarning || tabWarning || undefined}
             onFocusCapture={(event) => {
                 if (
                     event.target instanceof HTMLTextAreaElement &&
