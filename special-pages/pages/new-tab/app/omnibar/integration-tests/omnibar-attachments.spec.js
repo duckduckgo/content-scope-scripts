@@ -101,6 +101,43 @@ test.describe('omnibar tab attachment', () => {
         expect(params.pageContext?.map((c) => c.tabId).sort()).toEqual(['tab-1', 'tab-2']);
     });
 
+    test('tabs over the configured cap warn (naming the limit), block submit, and recover on removal', async ({
+        page,
+    }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAttachTabs': 'true',
+                'omnibar.selectedModelId': 'openai_gpt-oss-120b',
+                // Backend-configured cap of one tab (default is three). A cap of one keeps the
+                // picker interactions to two attaches — reopening the picker per attach is slow,
+                // so more attaches make the test flaky under parallel load.
+                'omnibar.tabMaxAttached': '1',
+            },
+        });
+        await omnibar.ready();
+
+        // One tab is within the configured cap — no warning.
+        await omnibar.attachTab('Starbucks Coffee Company');
+        await expect(omnibar.tabChip()).toHaveCount(1);
+        await expect(omnibar.tabLimitWarning()).toHaveCount(0);
+
+        // A second tab exceeds the cap → kept, but warns (naming the configured limit) and blocks submit.
+        await omnibar.attachTab('MacBook Neo - Apple');
+        await expect(omnibar.tabChip()).toHaveCount(2);
+        await expect(omnibar.context().getByText('You can only attach 1 tabs at a time.')).toBeVisible();
+        await omnibar.types({ mode: 'ai', value: 'summarize these' });
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+
+        // Removing the excess tab clears the warning and re-enables submit.
+        await omnibar.removeTabButton('MacBook Neo - Apple').click();
+        await expect(omnibar.tabChip()).toHaveCount(1);
+        await expect(omnibar.tabLimitWarning()).toHaveCount(0);
+        await expect(omnibar.chatSubmitButton()).toBeEnabled();
+    });
+
     test('removing a chip drops its context from the next submit', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
