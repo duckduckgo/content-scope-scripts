@@ -91,6 +91,26 @@
     color: var(--ds-color-theme-text-secondary);
 }
 
+/*
+ * NTP rebrand "Show more/less" pill. Used across NTP widgets (Privacy Stats,
+ * Favorites, …). Callers opt in via `variant="rebrand"`, typically gated on
+ * the rebrand feature flag, so nothing changes when the flag is OFF.
+ */
+.pill.rebrandPill {
+    border-radius: var(--ds-radius-full);
+    border-color: var(--ds-color-theme-container-border-secondary);
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-primary);
+        border-color: var(--ds-color-theme-container-border-secondary);
+    }
+
+    &:active {
+        background-color: var(--ds-color-theme-control-fill-secondary);
+        border-color: var(--ds-color-theme-container-border-secondary);
+    }
+}
+
 .fill {
     backdrop-filter: blur(48px);
     background-color: var(--ntp-surface-background-color);

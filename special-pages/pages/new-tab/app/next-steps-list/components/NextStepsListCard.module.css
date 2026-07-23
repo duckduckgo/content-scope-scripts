@@ -79,7 +79,8 @@
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.32), 0 2px 6px 0 rgba(0, 0, 0, 0.24);
 }
 
-/* Back card (peek card) - positioned behind the main card */
+/* Back card (peek) behind the front card — shows the next step's content (non-rebrand);
+   the rebrand override below turns it into an empty border/background shell. */
 .card.backCard {
     position: absolute;
     top: calc(12 * var(--px-in-rem));
@@ -91,12 +92,9 @@
     /* Slightly scaled and dimmed to emphasize it's in the background */
     transform: scale(0.97);
     opacity: 0.85;
-    /* Clip content when back card's translated text is taller than the front card */
+    /* Clip content when the back card's translated text is taller than the front card */
     overflow: hidden;
-    /* Disable the cardFadeIn animation — its keyframes override transform/opacity,
-       hiding the stacked visual until the animation ends. After a dismiss Preact
-       reuses this DOM element so the animation never replays, which means stacking
-       only becomes visible after the first dismiss. */
+    /* Avoid cardFadeIn — its keyframes override transform/opacity and hide the peek */
     animation: none;
 }
 
@@ -239,4 +237,167 @@
 
 .buttonRow button {
     white-space: nowrap;
+}
+
+:global(body[data-rebrand="true"]) {
+    --next-steps-list-rebrand-illustration-size: calc(108 * var(--px-in-rem));
+    --next-steps-list-rebrand-tag-background-color: var(--ds-next-steps-badge-background);
+    --next-steps-list-rebrand-tag-text-color: var(--ds-next-steps-badge-color);
+
+    .bubble {
+        left: var(--ds-space-x01);
+        top: var(--ds-space-x01);
+        z-index: 3;
+
+        svg {
+            display: none;
+        }
+
+        div {
+            background-color: var(--next-steps-list-rebrand-tag-background-color);
+            border-radius: var(--ds-radius-x06) var(--ds-radius-x01) var(--ds-radius-x06) var(--ds-radius-x01);
+            height: auto;
+            margin: 0;
+            padding: var(--ds-space-x1-5) var(--ds-space-x03-5);
+
+            h2 {
+                color: var(--next-steps-list-rebrand-tag-text-color);
+                font-family: var(--ds-font-family-product);
+                font-size: var(--small-label-font-size);
+                font-weight: var(--ds-font-weight-bold);
+                letter-spacing: var(--ds-font-label-01-letter-spacing);
+                line-height: normal;
+                text-align: center;
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    .cardContainer {
+        min-height: calc(140 * var(--px-in-rem));
+        padding-bottom: var(--ds-space-x02);
+    }
+
+    .card {
+        border: 1px solid var(--ds-color-theme-container-border-primary);
+        border-radius: var(--ds-radius-x06);
+        box-shadow: 0 1px 2px 0 var(--ds-color-theme-shadow-secondary);
+        gap: var(--ds-space-x04);
+        min-height: calc(128 * var(--px-in-rem));
+        padding: var(--ds-space-x05);
+        padding-left: clamp(var(--ds-space-x05), 6vw, var(--ds-space-x10));
+    }
+
+    .cardContainer:has(.backCard) > .card:not(.backCard, .dismissing, .promoting) {
+        box-shadow: 0 2px 8px 0 var(--ds-color-theme-shadow-secondary);
+    }
+
+    .card.backCard {
+        /* Match front-card chrome so the peek is only border/background */
+        left: var(--ds-space-x06);
+        min-height: 0;
+        opacity: 1;
+        padding: 0;
+        right: var(--ds-space-x06);
+        top: var(--ds-space-x02);
+        transform: none;
+    }
+
+    .dismissBtn {
+        border: 1px solid var(--ds-ntp-dismiss-btn-light-border);
+        color: var(--ds-ntp-dismiss-btn-light-color);
+        height: var(--ds-space-x06);
+        right: var(--ds-space-x03-5);
+        top: var(--ds-space-x03);
+        width: var(--ds-space-x06);
+
+        svg {
+            height: var(--ds-space-x04);
+            width: var(--ds-space-x04);
+        }
+
+        &:hover:not(:disabled) {
+            background-color: var(--ds-color-theme-control-fill-secondary);
+        }
+
+        &:active:not(:disabled) {
+            background-color: var(--ds-color-theme-control-fill-tertiary);
+        }
+
+        :global([data-theme="dark"]) & {
+            border-color: var(--ds-ntp-dismiss-btn-dark-border);
+            color: var(--ds-ntp-dismiss-btn-dark-color);
+        }
+    }
+
+    .imageContainer {
+        max-width: var(--next-steps-list-rebrand-illustration-size);
+        min-height: 0;
+        min-width: 0;
+    }
+
+    .image {
+        height: auto;
+        max-height: var(--next-steps-list-rebrand-illustration-size);
+        width: auto;
+    }
+
+    .content {
+        align-items: flex-start;
+        justify-content: center;
+        min-width: 0;
+        padding-right: var(--ds-space-x07);
+    }
+
+    .title {
+        font-family: var(--ds-font-family-product);
+        /* Closest available token to the 18px card title spec. */
+        font-size: var(--ds-font-button-label-01-size);
+        font-weight: var(--ds-font-weight-semibold);
+        letter-spacing: var(--ds-font-letter-spacing-normal);
+        line-height: var(--ds-font-body-md-line-height);
+    }
+
+    .description {
+        font-family: var(--ds-font-body-md-font-family);
+        font-size: var(--ds-font-body-md-size);
+        font-weight: var(--ds-font-weight-normal);
+        letter-spacing: var(--ds-font-body-md-letter-spacing);
+        line-height: var(--ds-font-body-sm-line-height);
+    }
+
+    .buttonRow {
+        align-items: center;
+        margin-top: var(--ds-space-x04);
+    }
+
+    .buttonRow .actionButton {
+        --button-shadow: none;
+        --button-shadow--active: none;
+        --button-shadow--hover: none;
+
+        border-radius: var(--ds-radius-full);
+        font-family: var(--ds-font-button-label-03-font-family);
+        font-size: var(--ds-font-button-label-03-size);
+        font-weight: var(--ds-font-weight-normal);
+        height: var(--ds-space-x08);
+        letter-spacing: var(--ds-font-button-label-03-letter-spacing);
+        line-height: normal;
+        min-height: var(--ds-space-x08);
+        padding: 0 var(--ds-space-x04);
+    }
+
+    .buttonRow .primaryButton {
+        --button-bg: var(--ds-color-theme-accent-primary);
+        --button-bg--active: var(--ds-color-theme-accent-tertiary);
+        --button-bg--hover: var(--ds-color-theme-accent-secondary);
+        --button-text: var(--ds-color-theme-accent-content-primary);
+    }
+
+    .buttonRow .secondaryButton {
+        --button-bg: var(--ds-color-theme-control-fill-primary);
+        --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
+        --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
+        --button-text: var(--ds-color-theme-text-primary);
+    }
 }

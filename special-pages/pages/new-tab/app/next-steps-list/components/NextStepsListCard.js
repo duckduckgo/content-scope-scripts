@@ -3,7 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import cn from 'classnames';
 import { Button } from '../../../../../shared/components/Button/Button.js';
 import { DismissButton } from '../../components/DismissButton';
-import { usePlatformName } from '../../settings.provider.js';
+import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider.js';
 import { useTypedTranslationWith } from '../../types.js';
 import styles from './NextStepsListCard.module.css';
 
@@ -29,12 +29,12 @@ import styles from './NextStepsListCard.module.css';
 function CardBody({ title, description, primaryButtonText, secondaryButtonText, imageSrc, onPrimaryClick, onSecondaryClick }) {
     const platformName = usePlatformName();
     const primaryButton = (
-        <Button variant="accentBrand" size="lg" onClick={onPrimaryClick}>
+        <Button className={cn(styles.actionButton, styles.primaryButton)} variant="accentBrand" size="lg" onClick={onPrimaryClick}>
             {primaryButtonText}
         </Button>
     );
     const secondaryButton = (
-        <Button variant="standard" size="lg" onClick={onSecondaryClick}>
+        <Button className={cn(styles.actionButton, styles.secondaryButton)} variant="standard" size="lg" onClick={onSecondaryClick}>
             {secondaryButtonText}
         </Button>
     );
@@ -108,7 +108,7 @@ function NextStepsListBubbleHeader() {
  * @property {string} primaryButtonText - Text for the primary action button
  * @property {string} secondaryButtonText - Text for the secondary button
  * @property {string} [imageSrc] - Optional image source
- * @property {CardContent | null} [nextCard] - The next card to show behind (stacked)
+ * @property {CardContent | null} [nextCard] - Next card used for the peek shell + promote-on-dismiss animation
  * @property {() => void} [onPrimaryAction] - Handler for primary button click
  * @property {() => void} [onSecondaryAction] - Handler for secondary button click
  */
@@ -128,6 +128,7 @@ export function NextStepsListCard({
     onPrimaryAction,
     onSecondaryAction,
 }) {
+    const isRebrand = useNewTabPageRebranding();
     const [dismissingCard, setDismissingCard] = useState(/** @type {CardContent | null} */ (null));
     // Track the previous next card for the "third card" animation
     const [promotingCard, setPromotingCard] = useState(/** @type {CardContent | null} */ (null));
@@ -168,19 +169,22 @@ export function NextStepsListCard({
         <div class={styles.wrapper}>
             <NextStepsListBubbleHeader />
             <div class={styles.cardContainer}>
-                {/* Back card (peek card) - shows next step behind current card */}
-                {/* During transition, this is the "third" card being revealed */}
-                {nextCard && (
-                    <div class={cn(styles.card, styles.backCard)} aria-hidden="true">
-                        <CardBody
-                            title={nextCard.title}
-                            description={nextCard.description}
-                            primaryButtonText={nextCard.primaryButtonText}
-                            secondaryButtonText={nextCard.secondaryButtonText}
-                            imageSrc={nextCard.imageSrc}
-                        />
-                    </div>
-                )}
+                {/* Back card (peek) behind the front card. Rebrand shows an empty shell (content
+                    appears once promoted); pre-rebrand keeps the next step's illustration and copy. */}
+                {nextCard &&
+                    (isRebrand ? (
+                        <div class={cn(styles.card, styles.backCard)} aria-hidden="true" />
+                    ) : (
+                        <div class={cn(styles.card, styles.backCard)} aria-hidden="true">
+                            <CardBody
+                                title={nextCard.title}
+                                description={nextCard.description}
+                                primaryButtonText={nextCard.primaryButtonText}
+                                secondaryButtonText={nextCard.secondaryButtonText}
+                                imageSrc={nextCard.imageSrc}
+                            />
+                        </div>
+                    ))}
                 {/* Promoting card - the back card animating to front position */}
                 {promotingCard && (
                     <div key={`promoting-${promotingCard.itemId}`} class={cn(styles.card, styles.promoting)}>

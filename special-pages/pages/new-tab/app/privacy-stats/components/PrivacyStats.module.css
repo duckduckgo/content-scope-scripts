@@ -219,3 +219,116 @@
         background: var(--color-white-at-9);
     }
 }
+
+/*
+ * NTP rebrand styling for the stats heading + tracker list. Scoped to
+ * body[data-rebrand="true"] so that with the rebrand feature flag OFF the
+ * list and heading render exactly as they did before the rebrand.
+ * @todo rebrand: fold these into the base rules once the rebrand ships to all
+ * platforms and the flag is retired.
+ */
+:global(body[data-rebrand="true"]) {
+    .control {
+        margin-bottom: 20px;
+        gap: var(--ds-space-x02);
+    }
+
+    .cookiePopUpsCounter {
+        margin-left: 0;
+    }
+
+    .headingIcon {
+        width: 16px;
+        height: 16px;
+        justify-content: flex-start;
+        padding-top: 0;
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    }
+
+    .caption {
+        color: var(--ds-color-theme-text-primary);
+        margin-right: 0;
+    }
+
+    .infoIcon {
+        margin-top: 0;
+    }
+
+    .counterContainer {
+        gap: var(--sp-6);
+        align-items: flex-start;
+        padding: 0;
+    }
+
+    .counter {
+        gap: 8px;
+        width: auto;
+        padding-right: 0;
+        flex: 1 1 0;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .title {
+        line-height: 26px;
+
+        & span {
+            font-weight: 400;
+            line-height: var(--ds-font-body-md-line-height);
+            margin-top: var(--ds-space-x02-5);
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    }
+
+    .noRecentTitle {
+        line-height: var(--ds-font-body-md-line-height);
+    }
+
+    .list {
+        overflow: visible;
+
+        &:not(:empty) {
+            margin-top: 0;
+        }
+    }
+
+    .row {
+        row-gap: var(--sp-2);
+        column-gap: var(--sp-3);
+        grid-template-columns: minmax(0, calc(28% + var(--sp-3))) 48px minmax(0, 1fr);
+    }
+
+    .otherTrackersRow {
+        padding-left: 0;
+    }
+
+    .company {
+        padding-left: var(--sp-3);
+    }
+
+    .name {
+        color: var(--ds-color-theme-text-primary);
+    }
+
+    .count {
+        font-feature-settings: 'case' on;
+        font-size: var(--body-font-size);
+        font-weight: var(--body-font-weight);
+        line-height: 13px;
+    }
+
+    .bar {
+        height: calc(16 * var(--px-in-rem));
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    .fill {
+        height: calc(16 * var(--px-in-rem));
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+}

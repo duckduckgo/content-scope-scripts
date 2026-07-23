@@ -56,8 +56,6 @@
     color: var(--ds-color-theme-text-secondary);
 }
 
-.feed {}
-
 .button {
     color: var(--ds-color-theme-text-primary);
     border-radius: 5px;
@@ -99,7 +97,6 @@
 }
 
 [data-platform-name="macos"] {
-    .switcher {}
     .button {
         background: transparent;
         border: 0.5px solid transparent;
@@ -118,5 +115,65 @@
         [data-theme="dark"] & {
             background: rgba(255, 255, 255, 0.25);
         }
+    }
+}
+
+/*
+ * NTP rebrand styling for the Protections Report. Scoped to
+ * body[data-rebrand="true"] so that with the rebrand feature flag OFF the
+ * widget renders exactly as it did before the rebrand.
+ * @todo rebrand: fold these into the base rules once the rebrand ships to all
+ * platforms and the flag is retired.
+ */
+:global(body[data-rebrand="true"]) {
+    .root {
+        border-radius: var(--ds-radius-x06);
+        box-shadow:
+            0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+            0 1px 6px 0 var(--ds-color-theme-shadow-primary),
+            0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
+    }
+
+    .body {
+        overflow: visible;
+    }
+
+    .switcher {
+        border-radius: var(--ds-radius-full);
+        padding: var(--ds-space-x-5);
+    }
+
+    .block {
+        margin-top: var(--sp-6);
+    }
+
+    .feed {
+        margin-top: var(--sp-6);
+        overflow: visible;
+    }
+
+    .button {
+        border-radius: var(--ds-radius-full);
+        font-weight: 400;
+    }
+}
+
+:global(body[data-rebrand="true"][data-platform-name="windows"]) {
+    .button {
+        font-size: var(--body-font-size);
+        line-height: 14px;
+    }
+}
+
+:global(body[data-rebrand="true"][data-platform-name="macos"]) {
+    .button {
+        border: 0;
+        height: 24px;
+        font-size: var(--small-label-font-size);
+        line-height: var(--small-label-line-height);
+    }
+
+    .active {
+        border: 0;
     }
 }

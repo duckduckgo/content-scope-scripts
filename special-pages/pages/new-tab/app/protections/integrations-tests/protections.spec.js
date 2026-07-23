@@ -88,6 +88,16 @@ test.describe('protections report', () => {
         await protections.hidesCookiePopupStatsWhenZero();
     });
 
+    test('shows no recent activity state when trackers are zero', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'protections.feed': 'activity', activity: 'empty', cpm: 'true' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.displaysNoRecentState();
+    });
+
     test('displays info tooltip', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
@@ -107,5 +117,15 @@ test.describe('protections report', () => {
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
         await protections.scrollsToProtectionsHeading();
+    });
+
+    test('toggles collapsed/expanded from heading button', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.togglesCollapsedState();
     });
 });

@@ -2,6 +2,7 @@ import { customizerExamples } from '../customizer/components/Customizer.examples
 import { favoritesExamples } from '../favorites/components/Favorites.examples.js';
 import { freemiumPIRBannerExamples } from '../freemium-pir-banner/components/FreemiumPIRBanner.examples.js';
 import { nextStepsExamples, otherNextStepsExamples } from '../next-steps/components/NextSteps.examples.js';
+import { nextStepsListExamples, otherNextStepsListExamples } from '../next-steps-list/components/NextStepsListCard.examples.js';
 import { otherPrivacyStatsExamples, privacyStatsExamples } from '../privacy-stats/components/PrivacyStats.examples.js';
 import { otherRMFExamples, RMFExamples } from '../remote-messaging-framework/components/RMF.examples.js';
 import { updateNotificationExamples } from '../update-notification/components/UpdateNotification.examples.js';
@@ -15,6 +16,7 @@ export const mainExamples = {
     ...favoritesExamples,
     ...freemiumPIRBannerExamples,
     ...nextStepsExamples,
+    ...nextStepsListExamples,
     ...privacyStatsExamples,
     ...RMFExamples,
     ...subscriptionWinBackBannerExamples,
@@ -23,6 +25,7 @@ export const mainExamples = {
 
 export const otherExamples = {
     ...otherNextStepsExamples,
+    ...otherNextStepsListExamples,
     ...otherPrivacyStatsExamples,
     ...otherRMFExamples,
     ...customizerExamples,
