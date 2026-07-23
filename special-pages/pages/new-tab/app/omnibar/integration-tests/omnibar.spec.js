@@ -2333,13 +2333,14 @@ test.describe('omnibar widget', () => {
             expect(names).toEqual(['omnibar_reasoning_picker_shown', 'omnibar_reasoning_picker_upgrade_shown']);
         });
 
-        test('mutes the reasoning CTA once the combined picker count reaches 4', async ({ page }, workerInfo) => {
+        test('mutes each picker CTA on its own count once it reaches 4', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
 
             // claude-haiku-4-5 gives a gated reasoning option (Try for free); the model picker's
-            // advanced section is gated too, so both pickers share the combined impression count.
+            // advanced section is gated too. Each picker tracks its own impression count, so muting
+            // one does not affect the other.
             await ntp.openPage({
                 additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.selectedModelId': 'claude-haiku-4-5' },
             });
@@ -2351,14 +2352,9 @@ test.describe('omnibar widget', () => {
             /** @param {import('@playwright/test').Locator} cta */
             const backgroundOf = (cta) => cta.evaluate((el) => getComputedStyle(el).backgroundColor);
 
-            // Two model-picker views + two reasoning-picker views = 4 combined impressions.
+            // Four reasoning-picker views reach the reasoning picker's own threshold.
             let reasoningYellow = '';
-            for (let view = 1; view <= 2; view++) {
-                await omnibar.modelSelectorButton().click();
-                await expect(omnibar.modelUpsellCta()).toBeVisible();
-                await omnibar.modelDropdown().press('Escape');
-                await expect(omnibar.modelDropdown()).toHaveCount(0);
-
+            for (let view = 1; view <= 4; view++) {
                 await omnibar.reasoningPickerButton().click();
                 await expect(omnibar.reasoningUpsellBadge()).toBeVisible();
                 reasoningYellow = await backgroundOf(omnibar.reasoningUpsellBadge());
@@ -2366,11 +2362,22 @@ test.describe('omnibar widget', () => {
                 await expect(omnibar.reasoningDropdown()).toHaveCount(0);
             }
 
-            // 5th combined view (reasoning picker): the badge color is muted.
+            // 5th reasoning view: the reasoning badge color is muted.
             await omnibar.reasoningPickerButton().click();
             await expect(omnibar.reasoningUpsellBadge()).toBeVisible();
-            const mutedBackground = await backgroundOf(omnibar.reasoningUpsellBadge());
-            expect(mutedBackground).not.toBe(reasoningYellow);
+            const mutedReasoning = await backgroundOf(omnibar.reasoningUpsellBadge());
+            expect(mutedReasoning).not.toBe(reasoningYellow);
+            await omnibar.reasoningDropdown().press('Escape');
+            await expect(omnibar.reasoningDropdown()).toHaveCount(0);
+
+            // The model picker keeps its own separate count: it was never opened, so its CTA
+            // is still yellow (un-muted) despite the reasoning picker being muted. Both CTAs
+            // share the same yellow, so the model CTA still matches the reasoning picker's yellow.
+            await omnibar.modelSelectorButton().click();
+            await expect(omnibar.modelUpsellCta()).toBeVisible();
+            const modelBackground = await backgroundOf(omnibar.modelUpsellCta());
+            expect(modelBackground).toBe(reasoningYellow);
+            expect(modelBackground).not.toBe(mutedReasoning);
         });
     });
 

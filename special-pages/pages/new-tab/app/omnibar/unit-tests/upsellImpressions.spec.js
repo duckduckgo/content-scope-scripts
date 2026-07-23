@@ -23,30 +23,46 @@ function installFakeLocalStorage(initial = {}) {
 
 test('count starts at zero and record() increments it', () => {
     installFakeLocalStorage();
-    equal(getUpsellImpressionCount(), 0);
-    recordUpsellImpression();
-    equal(getUpsellImpressionCount(), 1);
+    equal(getUpsellImpressionCount('model'), 0);
+    recordUpsellImpression('model');
+    equal(getUpsellImpressionCount('model'), 1);
+});
+
+test('each picker tracks its own count independently', () => {
+    installFakeLocalStorage();
+    recordUpsellImpression('model');
+    recordUpsellImpression('model');
+    recordUpsellImpression('reasoning');
+    equal(getUpsellImpressionCount('model'), 2);
+    equal(getUpsellImpressionCount('reasoning'), 1);
+});
+
+test('muting one picker does not mute the other', () => {
+    installFakeLocalStorage();
+    for (let view = 0; view < UPSELL_MUTE_THRESHOLD; view++) recordUpsellImpression('model');
+    equal(isUpsellMuted('model'), true);
+    equal(isUpsellMuted('reasoning'), false);
 });
 
 test('mutes only once the threshold has been reached', () => {
     installFakeLocalStorage();
     for (let view = 0; view < UPSELL_MUTE_THRESHOLD; view++) {
-        equal(isUpsellMuted(), false); // views 1..threshold stay un-muted
-        recordUpsellImpression();
+        equal(isUpsellMuted('reasoning'), false); // views 1..threshold stay un-muted
+        recordUpsellImpression('reasoning');
     }
-    equal(isUpsellMuted(), true); // the next view is muted
+    equal(isUpsellMuted('reasoning'), true); // the next view is muted
 });
 
 test('the stored count is capped at the threshold', () => {
     installFakeLocalStorage();
-    for (let view = 0; view < UPSELL_MUTE_THRESHOLD + 5; view++) recordUpsellImpression();
-    equal(getUpsellImpressionCount(), UPSELL_MUTE_THRESHOLD);
+    for (let view = 0; view < UPSELL_MUTE_THRESHOLD + 5; view++) recordUpsellImpression('model');
+    equal(getUpsellImpressionCount('model'), UPSELL_MUTE_THRESHOLD);
 });
 
 test('a malformed stored value is treated as zero', () => {
-    installFakeLocalStorage({ omnibar_upsell_impressions: 'not-a-number' });
-    equal(getUpsellImpressionCount(), 0);
-    equal(isUpsellMuted(), false);
+    installFakeLocalStorage({ omnibar_upsell_impressions_model: 'not-a-number' });
+    equal(getUpsellImpressionCount('model'), 0);
+    equal(isUpsellMuted('model'), false);
 });
 
 test('degrades to un-muted when localStorage is unavailable', () => {
@@ -58,7 +74,7 @@ test('degrades to un-muted when localStorage is unavailable', () => {
             throw new Error('unavailable');
         },
     });
-    equal(getUpsellImpressionCount(), 0);
-    equal(isUpsellMuted(), false);
-    recordUpsellImpression(); // must not throw
+    equal(getUpsellImpressionCount('model'), 0);
+    equal(isUpsellMuted('model'), false);
+    recordUpsellImpression('model'); // must not throw
 });

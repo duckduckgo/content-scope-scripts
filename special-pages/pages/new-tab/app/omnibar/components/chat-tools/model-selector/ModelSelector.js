@@ -34,13 +34,13 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
         [aiModelSections, isEligibleForFreeTrial],
     );
 
-    // Mute the yellow CTA once it has been seen enough times (combined count across both
-    // pickers). Freeze the decision for the duration of each open: capture it on the render
+    // Mute the yellow CTA once it has been seen enough times (this picker's own count).
+    // Freeze the decision for the duration of each open: capture it on the render
     // that opens the dropdown, before this open's impression is recorded below.
     const wasOpenRef = useRef(false);
     const upsellMutedRef = useRef(false);
     if (modelDropdownOpen && !wasOpenRef.current) {
-        upsellMutedRef.current = upsellCtas.size > 0 && isUpsellMuted();
+        upsellMutedRef.current = upsellCtas.size > 0 && isUpsellMuted('model');
     }
     wasOpenRef.current = modelDropdownOpen;
 
@@ -62,7 +62,7 @@ export function ModelSelector({ selector, selectedModel, aiModelSections, onUpse
         ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_shown' } });
 
         if (upsellCtas.size > 0) {
-            recordUpsellImpression();
+            recordUpsellImpression('model');
         }
         if (upsellCtas.has('tryForFree')) {
             ntp.telemetryEvent({ attributes: { name: 'omnibar_model_picker_tryforfree_shown' } });

@@ -1,14 +1,28 @@
-const STORAGE_KEY = 'omnibar_upsell_impressions';
+/**
+ * localStorage keys for the per-picker upsell impression counts. Each picker
+ * tracks its own count so muting one picker's CTA doesn't mute the other's.
+ * @type {Record<UpsellPicker, string>}
+ */
+const STORAGE_KEYS = {
+    model: 'omnibar_upsell_impressions_model',
+    reasoning: 'omnibar_upsell_impressions_reasoning',
+};
 export const UPSELL_MUTE_THRESHOLD = 4;
 
 /**
- * Reads how many times an upsell CTA has been shown. Combined count across both
- * pickers and both CTA types. Degrades to 0 if localStorage is unavailable.
+ * Which picker an impression count belongs to.
+ * @typedef {'model' | 'reasoning'} UpsellPicker
+ */
+
+/**
+ * Reads how many times the given picker's upsell CTA has been shown.
+ * Each picker keeps its own count. Degrades to 0 if localStorage is unavailable.
+ * @param {UpsellPicker} picker
  * @returns {number}
  */
-export function getUpsellImpressionCount() {
+export function getUpsellImpressionCount(picker) {
     try {
-        const n = parseInt(localStorage.getItem(STORAGE_KEY) ?? '', 10);
+        const n = parseInt(localStorage.getItem(STORAGE_KEYS[picker]) ?? '', 10);
         return Number.isFinite(n) && n > 0 ? n : 0;
     } catch {
         return 0;
@@ -16,20 +30,23 @@ export function getUpsellImpressionCount() {
 }
 
 /**
- * True once the CTA has been seen `UPSELL_MUTE_THRESHOLD` times (mute from the next view on).
+ * True once the given picker's CTA has been seen `UPSELL_MUTE_THRESHOLD` times
+ * (mute from the next view on).
+ * @param {UpsellPicker} picker
  * @returns {boolean}
  */
-export function isUpsellMuted() {
-    return getUpsellImpressionCount() >= UPSELL_MUTE_THRESHOLD;
+export function isUpsellMuted(picker) {
+    return getUpsellImpressionCount(picker) >= UPSELL_MUTE_THRESHOLD;
 }
 
 /**
- * Record one impression (capped so the value never grows unbounded).
+ * Record one impression for the given picker (capped so the value never grows unbounded).
+ * @param {UpsellPicker} picker
  */
-export function recordUpsellImpression() {
+export function recordUpsellImpression(picker) {
     try {
-        const next = Math.min(getUpsellImpressionCount() + 1, UPSELL_MUTE_THRESHOLD);
-        localStorage.setItem(STORAGE_KEY, String(next));
+        const next = Math.min(getUpsellImpressionCount(picker) + 1, UPSELL_MUTE_THRESHOLD);
+        localStorage.setItem(STORAGE_KEYS[picker], String(next));
     } catch {
         /* localStorage unavailable — silently skip; CTA stays yellow */
     }

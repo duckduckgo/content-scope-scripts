@@ -53,13 +53,13 @@ export function ReasoningPicker({
 
     const gated = useMemo(() => options.filter((option) => !option.isAvailable), [options]);
 
-    // Mute the yellow CTA once it has been seen enough times (combined count across both
-    // pickers). Freeze the decision for the duration of each open: capture it on the render
+    // Mute the yellow CTA once it has been seen enough times (this picker's own count).
+    // Freeze the decision for the duration of each open: capture it on the render
     // that opens the picker, before this open's impression is recorded below.
     const wasOpenRef = useRef(false);
     const upsellMutedRef = useRef(false);
     if (isOpen && !wasOpenRef.current) {
-        upsellMutedRef.current = gated.length > 0 && isUpsellMuted();
+        upsellMutedRef.current = gated.length > 0 && isUpsellMuted('reasoning');
     }
     wasOpenRef.current = isOpen;
 
@@ -75,7 +75,7 @@ export function ReasoningPicker({
         ntp.telemetryEvent({ attributes: { name: 'omnibar_reasoning_picker_shown' } });
 
         if (gated.length > 0) {
-            recordUpsellImpression();
+            recordUpsellImpression('reasoning');
         }
         // Report the CTA label that is actually shown, which is eligibility-aware
         // (a 'subscribe' upsell reads as "Upgrade" for free-trial-ineligible users).
