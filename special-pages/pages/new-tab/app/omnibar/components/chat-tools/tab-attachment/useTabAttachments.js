@@ -5,6 +5,8 @@ import { OpenTabsContext } from './OpenTabsProvider';
 
 const { useStateWithLocalPersistence } = TabAttachments;
 
+export const MAX_TABS = 3;
+
 /**
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
  * @typedef {import('../../../../../types/new-tab.js').PageContext} PageContext
@@ -14,8 +16,11 @@ const { useStateWithLocalPersistence } = TabAttachments;
  * @typedef {TabMetadata & { addedAtRelative: number }} AttachedTab
  */
 
-/** @param {string|null|undefined} tabId — NTP tab the attachments are persisted under. */
-export function useTabAttachments(tabId) {
+/**
+ * @param {string|null|undefined} tabId — NTP tab the attachments are persisted under.
+ * @param {number} [maxTabs] - Max attached tabs, from native `attachmentLimits.tabs.maxAttached`. Defaults to {@link MAX_TABS}.
+ */
+export function useTabAttachments(tabId, maxTabs = MAX_TABS) {
     const { getTabContent } = useContext(OmnibarContext);
     const { openTabs } = useContext(OpenTabsContext);
     const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence(tabId);
@@ -54,6 +59,10 @@ export function useTabAttachments(tabId) {
         [setAttachedEntries],
     );
 
+    // No hard cap on attaching tabs; exceeding maxTabs warns and blocks submit until removed —
+    // mirroring the file-attachment soft cap (`useFileAttachments`).
+    const tabLimitExceeded = attachedTabs.length > maxTabs;
+
     const clearAttachedTabs = useCallback(() => {
         setAttachedEntries([]);
     }, [setAttachedEntries]);
@@ -89,8 +98,10 @@ export function useTabAttachments(tabId) {
             toggleTab,
             clearAttachedTabs,
             getTabsForSubmission,
+            tabLimitExceeded,
+            maxTabs,
         }),
-        [attachedTabs, isAttached, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission],
+        [attachedTabs, isAttached, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission, tabLimitExceeded, maxTabs],
     );
 
     return state;

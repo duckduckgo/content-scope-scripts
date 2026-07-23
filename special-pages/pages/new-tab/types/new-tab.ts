@@ -757,13 +757,22 @@ export interface AIModelItem {
   supportedReasoningEffort?: ReasoningEffort[];
 }
 /**
- * Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.
+ * Limits the omnibar applies to attachments. `files` and `images` are backend-sourced and may be omitted (the omnibar falls back to its built-in defaults for whichever is absent). `tabs` is a hardcoded native cap and is always present.
  */
 export interface AttachmentLimits {
   /**
+   * Limits for attached open tabs.
+   */
+  tabs: {
+    /**
+     * Maximum number of open tabs that can be attached at once.
+     */
+    maxAttached: number;
+  };
+  /**
    * Limits for file attachments (e.g. PDFs).
    */
-  files: {
+  files?: {
     /**
      * Maximum number of file attachments allowed.
      */
@@ -784,7 +793,7 @@ export interface AttachmentLimits {
   /**
    * Limits for image attachments.
    */
-  images: {
+  images?: {
     /**
      * Maximum number of images allowed in a single submission.
      */

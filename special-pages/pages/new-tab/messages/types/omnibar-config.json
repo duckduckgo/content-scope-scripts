@@ -8,9 +8,20 @@
   "$defs": {
     "AttachmentLimits": {
       "type": "object",
-      "description": "Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.",
-      "required": ["files", "images"],
+      "description": "Limits the omnibar applies to attachments. `files` and `images` are backend-sourced and may be omitted (the omnibar falls back to its built-in defaults for whichever is absent). `tabs` is a hardcoded native cap and is always present.",
+      "required": ["tabs"],
       "properties": {
+        "tabs": {
+          "description": "Limits for attached open tabs.",
+          "type": "object",
+          "required": ["maxAttached"],
+          "properties": {
+            "maxAttached": {
+              "description": "Maximum number of open tabs that can be attached at once.",
+              "type": "integer"
+            }
+          }
+        },
         "files": {
           "description": "Limits for file attachments (e.g. PDFs).",
           "type": "object",

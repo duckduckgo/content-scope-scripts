@@ -239,7 +239,7 @@ function AiChatContent({
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
 
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
-    const tabAttachments = useTabAttachments(tabId);
+    const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
     const mention = useMentionPicker({
         enabled: canAttachTabs,
@@ -334,11 +334,14 @@ function AiChatContent({
 
     const fileWarning = canAttachFiles && fileState.fileLimitExceeded;
     const fileError = canAttachFiles ? fileState.fileError : null;
+    const tabWarning = canAttachTabs && tabAttachments.tabLimitExceeded;
 
     const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
     const showFileError = !!fileError && !imageMessageShowing;
     const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
-    const disabled = !query || imageWarning || fileWarning;
+    // Only one attachment message shows at a time; the tab warning falls last in precedence.
+    const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
+    const disabled = !query || imageWarning || fileWarning || tabWarning;
 
     const isVoiceChatMode =
         enableVoiceChatAccess &&
@@ -485,6 +488,11 @@ function AiChatContent({
                     {showFileWarning && (
                         <p class={styles.attachmentWarning} role="alert">
                             {t('omnibar_fileAttachmentLimitWarning', { limit: String(fileState.maxFiles) })}
+                        </p>
+                    )}
+                    {showTabWarning && (
+                        <p class={styles.attachmentWarning} role="alert">
+                            {t('omnibar_tabAttachmentLimitWarning', { limit: String(tabAttachments.maxTabs) })}
                         </p>
                     )}
                     <ImageAttachmentContent
