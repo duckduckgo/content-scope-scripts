@@ -199,10 +199,14 @@ test.describe('Broker Protection communications', () => {
                     phoneNumbers: ['97021405106'],
                     profileUrl: baseURL + 'person/Smith-41043103849',
                     identifier: baseURL + 'person/Smith-41043103849',
+                    // the bare addressCityState (`.i_home`) is subsumed by the richer addressFull
+                    // (`.i_room`), which now also carries street + zip
                     addresses: [
                         {
                             city: 'Orlando',
                             state: 'FL',
+                            street: '123 Main St',
+                            zip: '81010',
                         },
                     ],
                     relatives: [],
@@ -405,6 +409,101 @@ test.describe('Broker Protection communications', () => {
             });
         });
 
+        test('extracts full addresses (street + zip) and a bag field from CyberBackgroundChecks results', async ({
+            page,
+            baseURL,
+        }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('cyberbackgroundchecks-results.html');
+            await dbp.receivesAction('extract-cyberbackgroundchecks.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            const profileUrl = new URL('/detail/john-a-anderson/pidnqlplgxmyygxqmpqzxqb', baseURL).href;
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John A Anderson',
+                    alternativeNames: [],
+                    age: '72',
+                    addresses: [
+                        { city: 'Baytown', state: 'TX', street: '2323 Bay Hill Dr', zip: '77523' },
+                        { city: 'Livingston', state: 'TX', street: '11642 Us Highway 190 E', zip: '77351' },
+                        { city: 'Livingston', state: 'TX', street: '197 Carlisle Rd', zip: '77351' },
+                        { city: 'Livingston', state: 'TX', street: '11698 US Highway 190 E', zip: '77351' },
+                    ],
+                    phoneNumbers: [],
+                    relatives: [],
+                    // bag field: no dedicated extractor, forwarded verbatim (brackets and all)
+                    county: '[Harris County]',
+                    profileUrl,
+                    identifier: profileUrl,
+                },
+            ]);
+        });
+
+        test('extracts full addresses (street + zip) from the title attribute on FastPeopleSearch results', async ({
+            page,
+            baseURL,
+        }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('fastpeoplesearch-results.html');
+            await dbp.receivesAction('extract-fastpeoplesearch.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            const profileUrl = new URL('/john-anderson_id_G-5030876448756351759', baseURL).href;
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Anderson',
+                    alternativeNames: [],
+                    age: '72',
+                    addresses: [
+                        { city: 'Baytown', state: 'TX', street: '2323 Bay Hill Dr', zip: '77523' },
+                        { city: 'Baytown', state: 'TX', street: '1810 Bayou Breeze Dr', zip: '77523' },
+                        { city: 'Livingston', state: 'TX', street: '11642 Us Highway 190 E', zip: '77351' },
+                        { city: 'Livingston', state: 'TX', street: '197 Carlisle Rd', zip: '77351' },
+                        { city: 'Livingston', state: 'TX', street: '11698 US Highway 190 E', zip: '77351' },
+                    ],
+                    phoneNumbers: [],
+                    relatives: [],
+                    profileUrl,
+                    identifier: profileUrl,
+                },
+            ]);
+        });
+
+        test('extracts full addresses (street + zip) from the href slug on FastBackgroundCheck results', async ({
+            page,
+            baseURL,
+        }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('fastbackgroundcheck-results.html');
+            await dbp.receivesAction('extract-fastbackgroundcheck.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            const profileUrl = new URL('/people/john-anderson/id/f-2198722294100503984', baseURL).href;
+            // The address lives in the href slug; parse-address recovers it leniently — the leading
+            // number keeps a trailing "-" and city/state stay lowercase (addressFull never normalises).
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John B Anderson',
+                    alternativeNames: [],
+                    addresses: [
+                        { city: 'acworth', state: 'ga', street: '1591- oakmont Dr', zip: '30102' },
+                        { city: 'columbus', state: 'in', street: '3841- w carr-hill Rd', zip: '47201' },
+                        { city: 'derby', state: 'ks', street: '8330- s millsap Dr', zip: '67037' },
+                        { city: 'houston', state: 'tx', street: 'po box 75038', zip: '77234' },
+                        { city: 'manassas', state: 'va', street: '14155- walton Dr', zip: '20112' },
+                    ],
+                    phoneNumbers: [],
+                    relatives: [],
+                    profileUrl,
+                    identifier: profileUrl,
+                },
+            ]);
+        });
+
         test('returns an empty array when no profile selector matches but the no results selector is present', async ({
             page,
         }, workerInfo) => {
@@ -504,6 +603,36 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             await dbp.isFormFilled();
+        });
+
+        test('fillForm fills street/zip from an extracted profile (and an optional middleName when present)', async ({
+            page,
+        }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-extracted-address.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#user_street_address', '2323 Bay Hill Dr');
+            await dbp.doesInputValueEqual('#user_zip_code', '77523');
+            // middleName is optional but present, so it must be filled (previously it was skipped).
+            await dbp.doesInputValueEqual('#user_middle_name', 'A');
+        });
+
+        test('fillForm fills the CyberBackgroundChecks record suppression form (street/city/state)', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('cyberbackgroundchecks-form.html');
+            await dbp.receivesAction('fill-form-cyberbackgroundchecks.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#FirstName', 'John');
+            await dbp.doesInputValueEqual('#MiddleName', 'A');
+            await dbp.doesInputValueEqual('#LastName', 'Anderson');
+            await dbp.doesInputValueEqual('#StreetAddress', '2323 Bay Hill Dr');
+            await dbp.doesInputValueEqual('#City', 'Baytown');
+            await dbp.doesInputValueEqual('#State', 'TX');
         });
 
         test('click', async ({ page }, workerInfo) => {

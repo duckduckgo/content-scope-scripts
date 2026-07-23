@@ -2,7 +2,12 @@ import fc from 'fast-check';
 import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
 import { extractPhone } from '../src/features/broker-protection/extractors/phone.js';
 import { extractProfileUrl } from '../src/features/broker-protection/extractors/profile-url.js';
-import { cityStateCombosFromStrings, cityStatePartToCombo, normalizeState } from '../src/features/broker-protection/extractors/address.js';
+import {
+    cityStateCombosFromStrings,
+    cityStatePartToCombo,
+    extractAddressFull,
+    normalizeState,
+} from '../src/features/broker-protection/extractors/address.js';
 
 const ROOT = {};
 
@@ -60,6 +65,40 @@ describe('individual extractors', () => {
                 expect(profile?.identifier).toEqual(expected);
             });
         });
+    });
+});
+
+describe('extractAddressFull (street + zip capture)', () => {
+    /** Feed a single address string in as one element's text. */
+    const parse = (/** @type {string} */ str) => extractAddressFull(() => [{ innerText: str }], ROOT, {});
+
+    it('captures the composed street and 5-digit zip from a full address', () => {
+        expect(parse('1005 N Gravenstein Highway Sebastopol CA 95472')).toEqual([
+            { city: 'Sebastopol', state: 'CA', street: '1005 N Gravenstein Hwy', zip: '95472' },
+        ]);
+    });
+
+    it('includes an apt/unit component in the composed street', () => {
+        expect(parse('2323 Bay Hill Dr Apt 5, Baytown, TX 77523')).toEqual([
+            { city: 'Baytown', state: 'TX', street: '2323 Bay Hill Dr Apt 5', zip: '77523' },
+        ]);
+    });
+
+    it('keeps the 5-digit zip and ignores the +4 extension', () => {
+        expect(parse('2323 Bay Hill Dr, Baytown, TX 77523 0720')).toEqual([
+            { city: 'Baytown', state: 'TX', street: '2323 Bay Hill Dr', zip: '77523' },
+        ]);
+    });
+
+    it('omits the zip key entirely (not undefined) when there is no zip', () => {
+        const [addr] = parse('123 Main St, Dallas TX');
+        expect(addr).toEqual({ city: 'Dallas', state: 'TX', street: '123 Main St' });
+        expect(Object.prototype.hasOwnProperty.call(addr, 'zip')).toBe(false);
+    });
+
+    it('drops input that parse-address cannot resolve to a city', () => {
+        // "Baytown, TX" parses to a lone street with no city, so it is filtered out.
+        expect(parse('Baytown, TX')).toEqual([]);
     });
 });
 

@@ -75,6 +75,12 @@ import { extractProfileUrl, ProfileHashTransformer } from '../extractors/profile
  * field. `null` disables a field. This is the per-broker config the native layer sends; the field
  * keys are a contract with that config.
  *
+ * **Bag fields**: keys beyond the known ones listed below are still honoured. Any extra key with a
+ * `selector` is read with the generic text fallback ({@link extractDefault}) and forwarded verbatim
+ * onto the aggregated profile, so a simple new field needs no code change here. A key that is *meant*
+ * to be a known field but is misspelled falls into the same path — it silently becomes a bag value
+ * rather than the field it was intended to be (the same silence as when unknown keys were dropped).
+ *
  * @typedef {Object} ProfileSpec
  * @property {TextFieldSpec | null} [name]
  * @property {TextFieldSpec | null} [age]
@@ -213,6 +219,14 @@ const extractors = {
 };
 
 /**
+ * The set of output field names with a dedicated extractor — the single source of truth for what
+ * counts as a "known" field. Any profile-spec key outside this set is a bag field: read with the
+ * generic text fallback ({@link extractDefault}) and forwarded verbatim through {@link aggregateFields}.
+ * @type {Set<string>}
+ */
+export const KNOWN_PROFILE_FIELDS = new Set(Object.keys(extractors));
+
+/**
  * Produces structures like this:
  *
  * {
@@ -232,6 +246,10 @@ const extractors = {
  *   "profileUrl": "https://example.com/1234"
  * }
  *
+ * A field with no dedicated extractor (a "bag" field) is not dropped: as long as its spec has a
+ * `selector`, it's read with the generic text fallback ({@link extractDefault}) and carried through
+ * as a scalar (e.g. `"email": "john@example.com"`).
+ *
  * @param {Select} select - resolves a field's selector to elements within a scope (injectable for tests)
  * @param {ElementLike} root - the scope selectors are resolved within (a single profile element)
  * @param {ProfileSpec} profileSpec - the `profile` block of an extract action; `null` disables a field
@@ -241,10 +259,31 @@ export function createProfile(select, root, profileSpec) {
     const output = {};
     for (const [field, fieldSpec] of Object.entries(profileSpec)) {
         const extractField = extractors[field];
-        if (!extractField) continue;
-        output[field] = extractField(select, root, fieldSpec ?? {}) || null;
+        if (extractField) {
+            output[field] = extractField(select, root, fieldSpec ?? {}) || null;
+        } else if (fieldSpec && fieldSpec.selector) {
+            // A field with no dedicated extractor still gets read, provided it isn't disabled (`null`)
+            // and points somewhere (`selector`). Disabled or selector-less bag fields are skipped.
+            output[field] = extractDefault(select, root, fieldSpec);
+        }
     }
     return output;
+}
+
+/**
+ * Fallback extractor for a profile-spec field with no dedicated entry in {@link extractors}: read the
+ * first cleaned string honouring `selector`/`attribute`/`afterText`/`beforeText`, or `null` when
+ * nothing matches. **Scalar only** — list knobs (`findElements`/`separator`) are intentionally not
+ * honoured, because fillForm's `setValueForInput` can only fill a single string, so bag fields must
+ * be single text values. Never throws (`selectStrings` returns `[]` for a missing selector).
+ *
+ * @param {Select} select
+ * @param {ElementLike} root
+ * @param {TextFieldSpec} spec
+ * @return {string|null}
+ */
+function extractDefault(select, root, spec) {
+    return firstString(selectStrings(select, root, spec)) || null;
 }
 
 /**
@@ -385,8 +424,15 @@ export function aggregateFields(profile) {
         ...(profile.addressFullList || []),
         ...(profile.addressFull || []),
     ];
-    const addressMap = new Map(combinedAddresses.map((addr) => [`${addr.city},${addr.state}`, addr]));
-    const addresses = sortAddressesByStateAndCity([...addressMap.values()]);
+    // Key on the full city|state|street|zip so two addresses in the same city/state with different
+    // streets both survive; then drop any bare {city,state} entry that a richer sibling (same
+    // city/state, carrying a street or zip) already covers.
+    const addressMap = new Map(combinedAddresses.map((addr) => [addressDedupeKey(addr), addr]));
+    const uniqueAddresses = [...addressMap.values()];
+    const enrichedCityStates = new Set(uniqueAddresses.filter((addr) => addr.street || addr.zip).map((addr) => cityStateKey(addr)));
+    const addresses = sortAddressesByStateAndCity(
+        uniqueAddresses.filter((addr) => addr.street || addr.zip || !enrichedCityStates.has(cityStateKey(addr))),
+    );
 
     // phone
     const phoneArray = profile.phone || [];
@@ -399,7 +445,12 @@ export function aggregateFields(profile) {
     // aliases
     const alternativeNames = [...new Set(profile.alternativeNamesList)].sort();
 
+    // Bag fields: anything without a dedicated extractor is forwarded verbatim. Spread first so the
+    // known shape (and `identifier` from profileUrl) wins any naming collision.
+    const bagFields = Object.fromEntries(Object.entries(profile).filter(([key]) => !KNOWN_PROFILE_FIELDS.has(key)));
+
     return {
+        ...bagFields,
         name: profile.name,
         alternativeNames,
         age: profile.age,
@@ -408,6 +459,26 @@ export function aggregateFields(profile) {
         relatives,
         ...profile.profileUrl,
     };
+}
+
+/**
+ * Dedupe key for an address, lowercased across city|state|street|zip so entries differing only in
+ * street or zip are kept distinct.
+ * @param {import('../extractors/address.js').Address} addr
+ * @return {string}
+ */
+function addressDedupeKey(addr) {
+    return [addr.city, addr.state, addr.street, addr.zip].map((part) => (part ?? '').toLowerCase()).join('|');
+}
+
+/**
+ * Lowercased city|state key, used to decide whether a bare {city,state} address is subsumed by a
+ * richer sibling.
+ * @param {import('../extractors/address.js').Address} addr
+ * @return {string}
+ */
+function cityStateKey(addr) {
+    return [addr.city, addr.state].map((part) => (part ?? '').toLowerCase()).join('|');
 }
 
 /**

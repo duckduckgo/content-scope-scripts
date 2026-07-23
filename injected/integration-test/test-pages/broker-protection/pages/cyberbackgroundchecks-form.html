@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>CyberBackgroundChecks Record Suppression Form</title>
+    </head>
+    <body>
+        <!--
+            Trimmed subset of a real CyberBackgroundChecks "Record Suppression" opt-out form. Only the
+            fields we fill are kept, with their real ids/names. Note this form has Street/City/State
+            but no zip field. The `MiddleName` input exercises the optional-fill fix: it's present in
+            the data, so it must be filled (previously optional types were skipped even when present).
+        -->
+        <div class="card-body">
+            <h1 class="card-title text-warning">Record Suppression Form</h1>
+            <form id="contact-form" action="/optout/submitoptout" method="post">
+                <label for="FirstName">First Name</label>
+                <input class="form-control" id="FirstName" maxlength="50" name="FirstName" type="text" value="" />
+
+                <label for="MiddleName">Middle Name</label>
+                <input class="form-control" id="MiddleName" maxlength="50" name="MiddleName" type="text" value="" />
+
+                <label for="LastName">Last Name</label>
+                <input class="form-control" id="LastName" maxlength="50" name="LastName" type="text" value="" />
+
+                <label for="StreetAddress">Street Address</label>
+                <input
+                    class="form-control"
+                    id="StreetAddress"
+                    maxlength="50"
+                    name="StreetAddress"
+                    placeholder="Street Address"
+                    type="text"
+                    value=""
+                />
+
+                <label for="City">City</label>
+                <input class="form-control" id="City" maxlength="50" name="City" type="text" value="" />
+
+                <label for="State">State/Region</label>
+                <input class="form-control" id="State" maxlength="2" name="State" type="text" value="" />
+
+                <button type="submit" class="btn btn-warning btn-block">Submit</button>
+            </form>
+        </div>
+        <script>
+            document.getElementById('contact-form').onsubmit = (e) => e.preventDefault();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,27 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "3",
+            "selector": "#contact-form",
+            "elements": [
+                { "type": "firstName", "selector": "#FirstName" },
+                { "type": "middleName", "selector": "#MiddleName" },
+                { "type": "lastName", "selector": "#LastName" },
+                { "type": "street", "selector": "#StreetAddress" },
+                { "type": "city", "selector": "#City" },
+                { "type": "state", "selector": "#State" }
+            ]
+        },
+        "data": {
+            "extractedProfile": {
+                "firstName": "John",
+                "middleName": "A",
+                "lastName": "Anderson",
+                "street": "2323 Bay Hill Dr",
+                "city": "Baytown",
+                "state": "TX"
+            }
+        }
+    }
+}

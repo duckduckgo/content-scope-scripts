@@ -2,8 +2,11 @@ import { states } from './constants.js';
 import { matchingPair } from '../utils/utils.js';
 
 /**
- * @param {{city: string; state: string | null}[]} userAddresses
- * @param {{city: string; state: string | null}[]} foundAddresses
+ * Matching is city + state only; any `street`/`zip` on an {@link import('../extractors/address.js').Address}
+ * is ignored here (extract-and-forward, not a match key).
+ *
+ * @param {import('../extractors/address.js').Address[]} userAddresses
+ * @param {import('../extractors/address.js').Address[]} foundAddresses
  * @return {boolean}
  */
 export function addressMatch(userAddresses, foundAddresses) {

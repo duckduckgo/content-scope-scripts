@@ -112,24 +112,32 @@ export function fillMany(root, elements, data) {
 
             results.push(setValueForInput(inputElem, stateFull));
         } else {
-            if (isElementTypeOptional(element.type)) {
-                continue;
-            }
-            if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
+            const optional = isElementTypeOptional(element.type);
+            const present = Object.prototype.hasOwnProperty.call(data, element.type);
+            const value = present ? data[element.type] : undefined;
+
+            // Optional means "fill when present, skip quietly when missing/falsy" — so the data
+            // lookup has to come first. (Previously the optional check short-circuited above the
+            // lookup, which meant optional fields like middleName were never filled even when the
+            // data had them.)
+            if (!present || !value) {
+                if (optional) {
+                    continue;
+                }
+                if (!present) {
+                    results.push({
+                        result: false,
+                        error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`,
+                    });
+                    continue;
+                }
                 results.push({
                     result: false,
-                    error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`,
+                    error: `data contained the key '${element.type}', but it wasn't something we can fill: ${value}`,
                 });
                 continue;
             }
-            if (!data[element.type]) {
-                results.push({
-                    result: false,
-                    error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}`,
-                });
-                continue;
-            }
-            results.push(setValueForInput(inputElem, data[element.type]));
+            results.push(setValueForInput(inputElem, value));
         }
     }
 

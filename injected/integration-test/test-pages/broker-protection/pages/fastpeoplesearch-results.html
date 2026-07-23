@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+    <head>
+        <title>FastPeopleSearch results</title>
+    </head>
+    <body>
+        <!--
+            Trimmed subset of a real FastPeopleSearch results card. The Past Addresses links only show
+            "City, ST" as their text, but each carries the full "street, city ST zip" in its `title`
+            attribute. Reading that title with `attribute: "title"` + `afterText` isolates a full
+            address string, so `addressFullList` captures street + zip. The `a[href^="/address/"]`
+            selector keeps the address links distinct from the Relatives links below.
+        -->
+        <div class="card" id="G-5030876448756351759">
+            <div class="card-block">
+                <h3 class="card-title">
+                    <a href="/john-anderson_id_G-5030876448756351759"
+                        ><span class="larger">John Anderson</span>
+                        <br /><span class="grey">Age 72 • Baytown, TX</span>
+                    </a>
+                </h3>
+
+                <div>
+                    <h4>Past Addresses:</h4>
+                    <a
+                        href="/address/2323-bay-hill-dr_baytown-tx-77523"
+                        title="Property Details and People Search for the address 2323 Bay Hill Dr, Baytown TX 77523"
+                        >Baytown, TX</a
+                    >
+                    •
+                    <a
+                        href="/address/11642-us-highway-190-e_livingston-tx-77351"
+                        title="Property Details and People Search for the address 11642 Us Highway 190 E, Livingston TX 77351"
+                        >Livingston, TX</a
+                    >
+                    •
+                    <a
+                        href="/address/197-carlisle-rd_livingston-tx-77351"
+                        title="Property Details and People Search for the address 197 Carlisle RD, Livingston TX 77351"
+                        >Livingston, TX</a
+                    >
+                    •
+                    <a
+                        href="/address/11698-us-highway-190-e_livingston-tx-77351"
+                        title="Property Details and People Search for the address 11698 US Highway 190 E, Livingston TX 77351"
+                        >Livingston, TX</a
+                    >
+                    •
+                    <a
+                        href="/address/1810-bayou-breeze-dr_baytown-tx-77523"
+                        title="Property Details and People Search for the address 1810 Bayou Breeze Dr, Baytown TX 77523"
+                        >Baytown, TX</a
+                    >
+                </div>
+
+                <div>
+                    <h4>Relatives:</h4>
+                    <a href="/nancy-anderson_id_G-7665230363810962207" title="Person details for Nancy Anderson">Nancy Anderson</a>
+                    •
+                    <a href="/aurora-anderson_id_G4024289988953193416" title="Person details for Aurora Anderson">Aurora Anderson</a>
+                </div>
+
+                <a class="btn btn-primary link-to-details" href="/john-anderson_id_G-5030876448756351759">View Free Details</a>
+            </div>
+        </div>
+    </body>
+</html>

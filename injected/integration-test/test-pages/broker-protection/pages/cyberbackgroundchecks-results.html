@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+    <head>
+        <title>CyberBackgroundChecks search results</title>
+    </head>
+    <body>
+        <!--
+            Trimmed subset of a real CyberBackgroundChecks search-results card. Full "street, city,
+            state zip" addresses appear as the text of `a.address` links (current under
+            `.address-current`, prior under `.address-previous`), so `addressFull`/`addressFullList`
+            capture street + zip, not just city/state. `.county` is an example bag field: it has no
+            dedicated extractor but a plain selector, so it's read with the generic text fallback and
+            forwarded verbatim.
+        -->
+        <div class="card card-hover">
+            <div class="card-header bg-white">
+                <h2 class="mb-0">
+                    <span class="name-given">John A Anderson</span>
+                    <span class="age-label text-secondary">Age: </span>
+                    <span class="age">72</span>
+                </h2>
+            </div>
+            <div class="card-body pt-3 pb-0">
+                <div class="col-md-12 text-secondary">
+                    <span class="address-current-label">Lives at</span>
+                    <p class="address-current max-lines-1 d-inline">
+                        <a class="address" href="/address/2323-bay-hill-dr/baytown/tx">2323 Bay Hill Dr, Baytown, TX 77523 0720</a>
+                        <small class="text-muted county">[Harris County]</small>
+                    </p>
+                </div>
+                <div class="col-md-12 mb-2 text-secondary">
+                    <span class="address-previous-label">Used to live</span>
+                    <p class="mb-0 address-previous max-lines-1">
+                        <a class="address" href="/address/11642-us-highway-190-e/livingston/tx"
+                            >11642 Us Highway 190 E, Livingston, TX 77351 4295</a
+                        >
+                        <small class="text-muted county">[Polk County]</small>
+                    </p>
+                    <p class="mb-0 address-previous max-lines-1">
+                        <a class="address" href="/address/197-carlisle-rd/livingston/tx">197 Carlisle RD, Livingston, TX 77351 4961</a>
+                        <small class="text-muted county">[Polk County]</small>
+                    </p>
+                    <p class="mb-0 address-previous max-lines-1">
+                        <a class="address" href="/address/11698-us-highway-190-e/livingston/tx"
+                            >11698 US Highway 190 E, Livingston, TX 77351 4295</a
+                        >
+                        <small class="text-muted county">[Polk County]</small>
+                    </p>
+                </div>
+                <div class="col-md-6 mt-1 mb-3">
+                    <a class="btn btn-primary btn-block" href="/detail/john-a-anderson/pidnqlplgxmyygxqmpqzxqb"> VIEW DETAILS </a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

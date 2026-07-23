@@ -1,0 +1,27 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "selector": ".card",
+            "profile": {
+                "name": { "selector": ".larger" },
+                "age": { "selector": ".grey" },
+                "addressFullList": {
+                    "selector": "a[href^='/address/']",
+                    "findElements": true,
+                    "attribute": "title",
+                    "afterText": "for the address "
+                },
+                "profileUrl": { "selector": ".link-to-details" }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Anderson",
+                "age": "72",
+                "addresses": [{ "city": "Baytown", "state": "TX" }]
+            }
+        }
+    }
+}

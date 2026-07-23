@@ -2,6 +2,7 @@ import {
     aggregateFields,
     createProfile,
     parseRegexFromString,
+    scrapedDataMatchesUserData,
     stringsFromElements,
 } from '../src/features/broker-protection/actions/extract.js';
 import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
@@ -146,9 +147,10 @@ describe('create profiles from extracted data', () => {
                 },
                 elements: [{ innerText: '123 fake street,\nDallas, TX 75215' }, { innerText: '123 fake street,\nMiami, FL 75215' }],
                 expected: {
+                    // addressFull now also captures street + zip alongside city/state
                     addresses: [
-                        { city: 'Miami', state: 'FL' },
-                        { city: 'Dallas', state: 'TX' },
+                        { city: 'Miami', state: 'FL', street: '123 fake St', zip: '75215' },
+                        { city: 'Dallas', state: 'TX', street: '123 fake St', zip: '75215' },
                     ],
                 },
             },
@@ -585,6 +587,106 @@ describe('create profiles from extracted data', () => {
                     { city: 'Reno', state: null },
                 ],
             });
+        });
+    });
+
+    describe('bag fields (fallback text extraction)', () => {
+        it('reads an unknown field with a plain selector as a scalar string', () => {
+            const select = (_root, selector) => (selector === '.email' ? [{ innerText: 'john@example.com' }] : []);
+            const profile = createProfile(select, ROOT, /** @type {any} */ ({ email: { selector: '.email' } }));
+            expect(profile).toEqual({ email: 'john@example.com' });
+        });
+
+        it('honours attribute/afterText/beforeText on a bag field', () => {
+            const el = fakeElement({ 'data-ref': 'ref: ABC123 (internal)' });
+            const profile = createProfile(
+                () => [el],
+                ROOT,
+                /** @type {any} */ ({
+                    reference: { selector: '.ref', attribute: 'data-ref', afterText: 'ref: ', beforeText: ' (' },
+                }),
+            );
+            expect(profile).toEqual({ reference: 'ABC123' });
+        });
+
+        it('yields null for a bag field whose selector matches nothing', () => {
+            const profile = createProfile(() => [], ROOT, /** @type {any} */ ({ email: { selector: '.email' } }));
+            expect(profile).toEqual({ email: null });
+        });
+
+        it('omits a disabled (null) bag field', () => {
+            const profile = createProfile(() => [{ innerText: 'ignored' }], ROOT, /** @type {any} */ ({ email: null }));
+            expect(profile).toEqual({});
+        });
+
+        it('omits a bag field that has no selector', () => {
+            const profile = createProfile(() => [{ innerText: 'ignored' }], ROOT, /** @type {any} */ ({ email: { afterText: 'x' } }));
+            expect(profile).toEqual({});
+        });
+    });
+
+    describe('aggregateFields bag forwarding', () => {
+        it('forwards unknown (bag) fields verbatim onto the aggregated profile', () => {
+            const aggregated = aggregateFields({ name: 'John Smith', email: 'john@example.com', county: '[Cook County]' });
+            expect(aggregated.email).toBe('john@example.com');
+            expect(aggregated.county).toBe('[Cook County]');
+            expect(aggregated.name).toBe('John Smith');
+        });
+
+        it('lets the known output shape win a collision with a bag key', () => {
+            // "addresses"/"relatives" are output-only keys; a stray bag field of the same name must not
+            // shadow them.
+            const aggregated = aggregateFields({ name: 'John Smith', addresses: 'stray', relatives: 'stray' });
+            expect(aggregated.addresses).toEqual([]);
+            expect(aggregated.relatives).toEqual([]);
+        });
+
+        it('lets identifier from profileUrl win a bag collision', () => {
+            const aggregated = aggregateFields({
+                name: 'John Smith',
+                identifier: 'bag-id',
+                profileUrl: { profileUrl: 'https://example.com/p', identifier: 'real-id' },
+            });
+            expect(aggregated.identifier).toBe('real-id');
+        });
+    });
+
+    describe('aggregateFields address dedupe (street/zip aware)', () => {
+        it('keeps two same-city/state addresses that differ by street', () => {
+            const aggregated = aggregateFields({
+                addressFullList: [
+                    { city: 'Livingston', state: 'TX', street: '11642 Us Highway 190 E', zip: '77351' },
+                    { city: 'Livingston', state: 'TX', street: '197 Carlisle Rd', zip: '77351' },
+                ],
+            });
+            expect(aggregated.addresses).toEqual([
+                { city: 'Livingston', state: 'TX', street: '11642 Us Highway 190 E', zip: '77351' },
+                { city: 'Livingston', state: 'TX', street: '197 Carlisle Rd', zip: '77351' },
+            ]);
+        });
+
+        it('drops a bare {city,state} entry subsumed by a richer sibling', () => {
+            const aggregated = aggregateFields({
+                addressCityStateList: [{ city: 'Baytown', state: 'TX' }],
+                addressFullList: [{ city: 'Baytown', state: 'TX', street: '2323 Bay Hill Dr', zip: '77523' }],
+            });
+            expect(aggregated.addresses).toEqual([{ city: 'Baytown', state: 'TX', street: '2323 Bay Hill Dr', zip: '77523' }]);
+        });
+
+        it('keeps a bare {city,state} entry that has no richer sibling', () => {
+            const aggregated = aggregateFields({ addressCityStateList: [{ city: 'Reno', state: 'NV' }] });
+            expect(aggregated.addresses).toEqual([{ city: 'Reno', state: 'NV' }]);
+        });
+    });
+
+    describe('scrapedDataMatchesUserData ignores bag fields', () => {
+        const userData = { firstName: 'John', lastName: 'Smith', age: '38', addresses: [{ city: 'Chicago', state: 'IL' }] };
+
+        it('a bag field changes neither the match result nor the score', () => {
+            const base = { name: 'John Smith', age: '38', addressCityStateList: [{ city: 'Chicago', state: 'IL' }] };
+            const withBag = { ...base, email: 'john@example.com', county: '[Cook County]' };
+            expect(scrapedDataMatchesUserData(userData, withBag)).toEqual(scrapedDataMatchesUserData(userData, base));
+            expect(scrapedDataMatchesUserData(userData, withBag).result).toBe(true);
         });
     });
 

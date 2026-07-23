@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+    <head>
+        <title>FastBackgroundCheck results</title>
+    </head>
+    <body>
+        <!--
+            Trimmed subset of a real FastBackgroundCheck results item. The Past Addresses links show
+            only "City, ST" as text; the full address lives in the href *slug*
+            (e.g. /address/14155-walton-dr/manassas-va-20112). Reading `attribute: "href"` +
+            `afterText: "/address/"` feeds that slug to parse-address, which recovers street/city/state/zip.
+            parse-address handles the slug leniently — the leading number keeps a trailing "-" and the
+            city/state come out lowercase (they're never normalised on the addressFull path) — so the
+            captured street reads e.g. "14155- walton Dr". The name is trimmed of its "Jr" suffix so it
+            matches the user profile via first/last (suffix isn't passed to the name matcher).
+        -->
+        <ul>
+            <li class="person-container" data-details="/people/john-anderson/id/f-2198722294100503984">
+                <h2>
+                    <a href="/people/john-anderson/id/f-2198722294100503984" title="Public records report for John B Anderson">
+                        <span class="text-xl">John B Anderson</span>
+                        <br /><span class="text-base">Snohomish, WA</span> • <span class="text-base">Age 76</span>
+                    </a>
+                </h2>
+
+                <div class="text-base">
+                    <h3 class="inline">Past Addresses:</h3>
+                    <a href="/address/14155-walton-dr/manassas-va-20112" title="">Manassas, VA</a> •
+                    <a href="/address/8330-s-millsap-dr/derby-ks-67037" title="">Derby, KS</a> •
+                    <a href="/address/po-box-75038/houston-tx-77234" title="">Houston, TX</a> •
+                    <a href="/address/3841-w-carr-hill-rd/columbus-in-47201" title="">Columbus, IN</a> •
+                    <a href="/address/1591-oakmont-dr/acworth-ga-30102" title="">Acworth, GA</a>
+                </div>
+
+                <div class="text-base">
+                    <h3 class="inline">Relatives:</h3>
+                    <a href="/people/anthony-anderson/id/f3270239040482498183" title="">Anthony Anderson</a>,
+                    <a href="/people/cynthia-singleton/id/f2563044773049585208" title="">Cynthia Singleton</a>
+                </div>
+
+                <a href="/people/john-anderson/id/f-2198722294100503984" class="free-records">Free Public Records →</a>
+            </li>
+        </ul>
+    </body>
+</html>

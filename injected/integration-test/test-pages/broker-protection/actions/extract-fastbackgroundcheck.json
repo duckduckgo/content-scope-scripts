@@ -1,0 +1,25 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "selector": ".person-container",
+            "profile": {
+                "name": { "selector": ".text-xl" },
+                "addressFullList": {
+                    "selector": "a[href^='/address/']",
+                    "findElements": true,
+                    "attribute": "href",
+                    "afterText": "/address/"
+                },
+                "profileUrl": { "selector": "h2 a" }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Anderson",
+                "addresses": [{ "city": "Manassas", "state": "VA" }]
+            }
+        }
+    }
+}

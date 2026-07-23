@@ -9,6 +9,14 @@ import { states } from '../comparisons/constants.js';
  */
 
 /**
+ * A scraped address. `city` is always present; `state` is `null` when the page shows no state.
+ * `street` and `zip` are optional and, by convention, **omitted entirely** when unavailable rather
+ * than emitted as `undefined` (see the conditional spread in {@link extractAddressFull}). Only
+ * {@link extractAddressFull} produces `street`/`zip`; the city/state extractors never do.
+ * @typedef {{city: string, state: string|null, street?: string, zip?: string}} Address
+ */
+
+/**
  * Extract city/state combos from one of the two shapes a {@link import('../actions/extract.js').CityStateSpec} can take:
  * - combined: `selector` resolves to "City, ST" text (optionally a delimited list)
  * - nested: `selector` resolves to each result row, with `city` (and optional `state`) sub-selectors
@@ -79,10 +87,15 @@ export function cityStatePartToCombo({ city, state }) {
 }
 
 /**
+ * Parse full "123 Main St, City, ST 12345" strings into structured addresses, capturing `street`
+ * and `zip` when parse-address finds them. `city` is required (entries without one are dropped);
+ * `state` becomes `null` when absent. `street` and `zip` keys are omitted entirely when the parse
+ * yields nothing for them, per the {@link Address} convention.
+ *
  * @param {import('../actions/extract.js').Select} select
  * @param {import('../actions/extract.js').ElementLike} root
  * @param {import('../actions/extract.js').TextFieldSpec} spec
- * @return {{ city: string, state: string|null }[]}
+ * @return {Address[]}
  */
 export function extractAddressFull(select, root, spec) {
     return (
@@ -93,7 +106,17 @@ export function extractAddressFull(select, root, spec) {
             // at least 'city' is required.
             .filter((parsed) => Boolean(parsed?.city))
             .map((addr) => {
-                return { city: addr.city, state: addr.state || null };
+                // Compose the street from every pre-city component parse-address exposes, including any
+                // apt/unit (`sec_unit_*`). Ignore `plus4` on the zip — the 5-digit zip is enough.
+                const street = [addr.number, addr.prefix, addr.street, addr.type, addr.suffix, addr.sec_unit_type, addr.sec_unit_num]
+                    .filter(Boolean)
+                    .join(' ');
+                return {
+                    city: addr.city,
+                    state: addr.state || null,
+                    ...(street ? { street } : {}),
+                    ...(addr.zip ? { zip: addr.zip } : {}),
+                };
             })
     );
 }
