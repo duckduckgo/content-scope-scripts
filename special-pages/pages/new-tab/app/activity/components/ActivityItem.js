@@ -161,6 +161,7 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
  * @param {boolean} props.isRebrand
  */
 function renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand }) {
+    // On Windows, canBurn is always false (burn unavailable), so isRebrand → TrashIcon is macOS-only.
     if (!canBurn) return <Cross />;
     if (shouldDisplayLegacyActivity) return <FireIconLegacy />;
     if (isRebrand) return <TrashIcon />;

@@ -193,8 +193,8 @@ function PillShowMoreLess({ expansion }) {
             <ShowHideButtonPill
                 onClick={toggleListExpansion}
                 label={undefined}
-                fill={!isRebrand}
-                variant={isRebrand ? 'stats' : 'default'}
+                fill={false}
+                variant={isRebrand ? 'rebrand' : 'default'}
                 text={expansion === 'collapsed' ? t('ntp_show_more') : t('ntp_show_less')}
                 buttonAttrs={{
                     'aria-expanded': expansion === 'expanded',

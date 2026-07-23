@@ -1,6 +1,6 @@
 @import url("../../../../shared/styles/variables.css");
 @import url("../../../../shared/styles/theme-mappings.css");
-@import url("@duckduckgo/design-tokens/build/desktop-browsers/next-steps-badge.css");
+@import url("@duckduckgo/design-tokens/build/desktop-browsers/ntp.css");
 @import url("../styles/base.css");
 @import url("../styles/ntp-theme.css");
 

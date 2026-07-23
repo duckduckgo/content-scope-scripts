@@ -140,7 +140,7 @@
 
     .switcher {
         border-radius: var(--ds-radius-full);
-        padding: 1px;
+        padding: var(--ds-space-x-5);
     }
 
     .block {

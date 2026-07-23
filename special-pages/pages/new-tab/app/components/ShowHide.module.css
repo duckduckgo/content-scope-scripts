@@ -92,11 +92,11 @@
 }
 
 /*
- * NTP rebrand variant for the stats "Show more/less" pill. Only applied when the
- * caller opts in via `variant="stats"`, which is itself gated on the rebrand
- * feature flag, so nothing changes when the flag is OFF.
+ * NTP rebrand "Show more/less" pill. Used across NTP widgets (Privacy Stats,
+ * Favorites, …). Callers opt in via `variant="rebrand"`, typically gated on
+ * the rebrand feature flag, so nothing changes when the flag is OFF.
  */
-.pill.statsPill {
+.pill.rebrandPill {
     border-radius: var(--ds-radius-full);
     border-color: var(--ds-color-theme-container-border-secondary);
 

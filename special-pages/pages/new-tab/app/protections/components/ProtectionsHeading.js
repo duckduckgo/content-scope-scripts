@@ -115,7 +115,7 @@ export function ProtectionsHeading({
                 enabled AND both `animatedTrackersBlocked` and
                 `totalCookiePopUpsBlocked` are at least 1 */}
                 {isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && (
-                    <div class={isRebrand ? styles.counter : cn(styles.counter, styles.cookiePopUpsCounter)}>
+                    <div class={cn(styles.counter, styles.cookiePopUpsCounter)}>
                         <h3 class={styles.title}>
                             {formatter.format(animatedCookiePopUpsBlocked)} <span>{cookiePopUpsBlockedHeading}</span>
                         </h3>
