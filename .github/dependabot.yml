@@ -10,6 +10,13 @@ updates:
       open-pull-requests-limit: 20
       labels:
           - 'dependencies'
+      ignore:
+          # TypeScript 7 requires ecosystem updates first:
+          # - typedoc@0.28.x peers cap at <7.0.0 and crash at runtime (TypeStrong/typedoc#3098)
+          # - typescript-eslint@8.63.x peers cap at <6.1.0 and crashes ESLint at import time
+          # - npm ci fails with ERESOLVE before CI can run
+          - dependency-name: 'typescript'
+            update-types: ['version-update:semver-major']
       groups:
           eslint:
               patterns:
