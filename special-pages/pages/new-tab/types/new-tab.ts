@@ -67,6 +67,10 @@ export type Suggestion =
   | HistoryEntrySuggestion
   | InternalPageSuggestion;
 export type OmnibarMode = "search" | "ai";
+/**
+ * Whether the user is eligible for a free trial. When false, gated 'subscribe' upsells show 'Upgrade' instead of 'Try for free'. Missing/undefined is treated as true for backward compatibility.
+ */
+export type IsEligibleForFreeTrial = boolean;
 export type EnableDuckAi = boolean;
 export type ShowDuckAiSetting = boolean;
 /**
@@ -83,13 +87,17 @@ export type EnableAIChatTools = boolean;
  */
 export type SelectedModelID = string;
 /**
- * Stable server key for a reasoning-effort option on a reasoning-capable model.
+ * Stable server key for a reasoning-effort option on a reasoning-capable model (e.g. 'none', 'medium', 'extended'). Server-controlled and round-tripped on submit.
  */
-export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high";
+export type ReasoningEffort = string;
 /**
  * Identifier for an AI chat tool.
  */
 export type ToolId = "WebSearch";
+/**
+ * Stable server key for this reasoning-effort option; round-tripped on submit.
+ */
+export type ReasoningEffort1 = string;
 /**
  * Sections of AI models for the model selector.
  */
@@ -228,6 +236,8 @@ export interface NewTabMessages {
     | OmnibarRemoveSuggestionNotification
     | OmnibarSetConfigNotification
     | OmnibarSetCustomizeResponsesActiveNotification
+    | OmnibarShowSubscriptionUpgradeNotification
+    | OmnibarShowSubscriptionUpsellNotification
     | OmnibarSubmitChatNotification
     | OmnibarSubmitSearchNotification
     | OmnibarViewAllAIChatsNotification
@@ -684,6 +694,7 @@ export interface OmnibarSetConfigNotification {
 }
 export interface OmnibarConfig {
   mode: OmnibarMode;
+  isEligibleForFreeTrial?: IsEligibleForFreeTrial;
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
   showCustomizePopover?: ShowCustomizePopover;
@@ -736,9 +747,17 @@ export interface AIModelItem {
    */
   shortName: string;
   /**
-   * Whether the model is enabled and selectable
+   * Optional short description shown beneath the model name in the selector.
    */
-  isEnabled: boolean;
+  description?: string;
+  /**
+   * Whether the model is available and selectable
+   */
+  isAvailable: boolean;
+  /**
+   * Access tier that grants this model (e.g. 'internal', 'free', 'plus', 'pro'). Drives the tier badge (Plus/Pro/Internal) in the model selector.
+   */
+  accessTier?: "internal" | "free" | "plus" | "pro";
   /**
    * Whether this model supports image attachments
    */
@@ -752,9 +771,35 @@ export interface AIModelItem {
    */
   supportedTools?: ToolId[];
   /**
-   * Reasoning-effort keys this model supports. Empty or omitted means the reasoning picker is hidden for this model.
+   * Reasoning-effort options this model supports, each with localized copy and availability. Empty or omitted means the reasoning picker is hidden for this model.
    */
-  supportedReasoningEffort?: ReasoningEffort[];
+  reasoningEfforts?: ReasoningEffortOption[];
+  /**
+   * For a gated (disabled) model, which upsell flow it leads to. Absent for enabled models.
+   */
+  upsell?: "subscribe" | "upgrade";
+}
+/**
+ * A reasoning-effort option for a reasoning-capable model, including its localized display copy and availability.
+ */
+export interface ReasoningEffortOption {
+  id: ReasoningEffort1;
+  /**
+   * Localized display name for this reasoning-effort option.
+   */
+  name: string;
+  /**
+   * Optional localized subtitle shown beneath the name.
+   */
+  description?: string;
+  /**
+   * Whether this option is selectable (true) or gated behind a subscription upsell (false).
+   */
+  isAvailable: boolean;
+  /**
+   * For a gated (isAvailable: false) option, which upsell flow it leads to. Absent for available options.
+   */
+  upsell?: "subscribe" | "upgrade";
 }
 /**
  * Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.
@@ -814,6 +859,38 @@ export interface SetCustomizeResponsesActiveAction {
    * Whether the stored customization should be applied.
    */
   active: boolean;
+}
+/**
+ * Generated from @see "../messages/omnibar_showSubscriptionUpgrade.notify.json"
+ */
+export interface OmnibarShowSubscriptionUpgradeNotification {
+  method: "omnibar_showSubscriptionUpgrade";
+  params: ShowSubscriptionUpgradeAction;
+}
+/**
+ * Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier).
+ */
+export interface ShowSubscriptionUpgradeAction {
+  /**
+   * Which omnibar picker triggered the upsell.
+   */
+  source: "model" | "reasoning";
+}
+/**
+ * Generated from @see "../messages/omnibar_showSubscriptionUpsell.notify.json"
+ */
+export interface OmnibarShowSubscriptionUpsellNotification {
+  method: "omnibar_showSubscriptionUpsell";
+  params: ShowSubscriptionUpsellAction;
+}
+/**
+ * Ask native to present the subscription upsell (e.g. when the user taps 'Try for free' on a gated model or reasoning-effort option).
+ */
+export interface ShowSubscriptionUpsellAction {
+  /**
+   * Which omnibar picker triggered the upsell.
+   */
+  source: "model" | "reasoning";
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"
@@ -1033,7 +1110,16 @@ export interface TelemetryEventNotification {
   params: NTPTelemetryEvent;
 }
 export interface NTPTelemetryEvent {
-  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState;
+  attributes:
+    | StatsShowMore
+    | ExampleTelemetryEvent
+    | CustomizerDrawerState
+    | OmnibarModelPickerShown
+    | OmnibarModelPickerTryForFreeShown
+    | OmnibarModelPickerUpgradeShown
+    | OmnibarReasoningPickerShown
+    | OmnibarReasoningPickerTryForFreeShown
+    | OmnibarReasoningPickerUpgradeShown;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -1051,6 +1137,24 @@ export interface CustomizerDrawerState {
      */
     themeVariantPopoverWasOpen?: boolean;
   };
+}
+export interface OmnibarModelPickerShown {
+  name: "omnibar_model_picker_shown";
+}
+export interface OmnibarModelPickerTryForFreeShown {
+  name: "omnibar_model_picker_tryforfree_shown";
+}
+export interface OmnibarModelPickerUpgradeShown {
+  name: "omnibar_model_picker_upgrade_shown";
+}
+export interface OmnibarReasoningPickerShown {
+  name: "omnibar_reasoning_picker_shown";
+}
+export interface OmnibarReasoningPickerTryForFreeShown {
+  name: "omnibar_reasoning_picker_tryforfree_shown";
+}
+export interface OmnibarReasoningPickerUpgradeShown {
+  name: "omnibar_reasoning_picker_upgrade_shown";
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"

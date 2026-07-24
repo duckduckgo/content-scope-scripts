@@ -81,15 +81,61 @@
     white-space: nowrap;
 
     &::before {
+        align-self: flex-start;
         color: transparent;
         content: '\2713';
         flex-shrink: 0;
         font-size: 13px;
         margin-right: -5px;
 		font-weight: 700;
+        margin-top: 2px;
         width: var(--sp-4);
     }
 
+    & > svg {
+        align-self: flex-start;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+}
+
+.modelOptionLabel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.modelOptionName {
+    line-height: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    [data-platform='windows'] & {
+        line-height: 18px;
+    }
+}
+
+.modelOptionDescription {
+    color: var(--ds-color-theme-text-secondary);
+    font-size: 12px;
+    line-height: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.modelOptionBadge {
+    align-self: center;
+    color: var(--ds-color-theme-text-tertiary);
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12px;
+    margin-left: auto;
+    padding-left: var(--sp-2);
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .modelOptionActive {
@@ -119,6 +165,20 @@
     pointer-events: none;
 }
 
+/* Subscription-gated rows in an all-disabled (upsell) section: dimmed like a
+   disabled row, but interactive — hovering highlights and clicking triggers
+   the same upsell as the section's CTA above them. */
+.modelOptionUpsell {
+    color: var(--ds-color-theme-text-tertiary);
+    cursor: pointer;
+}
+
+/* Keep the row grayed on hover; the highlight background still comes from
+   .modelOptionActive (compound selector wins over .modelOptionActive's color). */
+.modelOptionUpsell.modelOptionActive {
+    color: var(--ds-color-theme-text-tertiary);
+}
+
 .modelSectionDivider {
     border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
     margin: var(--sp-1) var(--sp-4);
@@ -139,4 +199,43 @@
         flex-shrink: 0;
         width: var(--sp-4);
     }
+}
+
+.modelUpsellHeader {
+    align-items: center;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    font-size: 13px;
+    gap: var(--sp-1);
+    padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-4);
+    white-space: nowrap;
+}
+
+.modelUpsellHeaderActive {
+    background: var(--ds-color-theme-control-fill-primary);
+    border-radius: var(--border-radius-xs);
+}
+
+.modelUpsellCta {
+    align-items: center;
+    background: var(--ds-color-pollen-30, #ffd885);
+    border-radius: 24px;
+    color: var(--ds-color-black-at-84, rgba(0, 0, 0, 0.84));
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 11px;
+    font-weight: 700;
+    height: 20px;
+    letter-spacing: -0.2px;
+    margin-left: auto;
+    padding: 0 var(--sp-2);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Mute the upsell CTA color once the user has seen it enough times. */
+.upsellMuted .modelUpsellCta {
+    background: var(--ds-color-theme-control-fill-primary);
+    color: var(--ds-color-theme-text-primary);
 }

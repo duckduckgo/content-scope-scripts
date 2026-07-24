@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Show Subscription Upgrade Action",
+  "description": "Ask native to present the subscription upgrade flow (e.g. when a subscriber taps 'Upgrade' on a model or reasoning-effort option gated behind a higher tier).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "enum": ["model", "reasoning"],
+      "description": "Which omnibar picker triggered the upsell."
+    }
+  }
+}

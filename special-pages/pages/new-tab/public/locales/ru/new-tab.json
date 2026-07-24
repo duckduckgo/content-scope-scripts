@@ -376,6 +376,30 @@
     "title" : "Удалить этот чат",
     "description" : "Accessible label and tooltip for the button that deletes a recent AI chat."
   },
+  "omnibar_tryForFree" : {
+    "title" : "Попробовать бесплатно",
+    "description" : "CTA on a subscription-gated model or reasoning-effort option that opens the subscription upsell when tapped."
+  },
+  "omnibar_upgrade" : {
+    "title" : "Повысить тариф",
+    "description" : "CTA shown on a model or reasoning-effort option gated behind a higher subscription tier; opens the upgrade flow when tapped."
+  },
+  "omnibar_modelBadgeBeta" : {
+    "title" : "Beta",
+    "description" : "Badge shown next to an AI model in the model selector that is in beta."
+  },
+  "omnibar_modelBadgePlus" : {
+    "title" : "Plus",
+    "description" : "Badge shown next to an AI model in the model selector that requires a Plus subscription tier."
+  },
+  "omnibar_modelBadgePro" : {
+    "title" : "Pro",
+    "description" : "Badge shown next to an AI model in the model selector that requires a Pro subscription tier."
+  },
+  "omnibar_modelBadgeInternal" : {
+    "title" : "Внутренний",
+    "description" : "Badge shown next to an AI model in the model selector that is only available to internal users."
+  },
   "nextStepsList_sectionTitle" : {
     "title" : "Дальнейшие шаги",
     "note" : "Text that goes in the Next Steps bubble label above the card"

@@ -10,6 +10,7 @@ import {
     formatURLForTerm,
     getDuckDuckGoSearchQuery,
     startsWithIgnoreCase,
+    getUpsellCtaLabel,
 } from '../utils.js';
 
 /**
@@ -581,5 +582,25 @@ test.describe('startsWithIgnoreCase', () => {
         equal(startsWithIgnoreCase('!@#Test', '!@#'), true);
         equal(startsWithIgnoreCase('Test!', 'test!'), true);
         equal(startsWithIgnoreCase('Test!', 'Test!@#'), false);
+    });
+});
+
+test.describe('getUpsellCtaLabel', () => {
+    test('returns "tryForFree" for a subscribe upsell when eligible for a free trial', () => {
+        equal(getUpsellCtaLabel('subscribe', true), 'tryForFree');
+    });
+
+    test('returns "upgrade" for a subscribe upsell when not eligible for a free trial', () => {
+        equal(getUpsellCtaLabel('subscribe', false), 'upgrade');
+    });
+
+    test('returns "upgrade" for an upgrade upsell regardless of eligibility', () => {
+        equal(getUpsellCtaLabel('upgrade', true), 'upgrade');
+        equal(getUpsellCtaLabel('upgrade', false), 'upgrade');
+    });
+
+    test('treats an undefined upsell like subscribe', () => {
+        equal(getUpsellCtaLabel(undefined, true), 'tryForFree');
+        equal(getUpsellCtaLabel(undefined, false), 'upgrade');
     });
 });

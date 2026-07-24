@@ -332,6 +332,22 @@ export class OmnibarPage {
         return this.modelDropdown().getByRole('option', { name: modelName });
     }
 
+    /**
+     * The upsell CTA shown above subscription-only models in the model selector.
+     * @param {'Try for free' | 'Upgrade'} [label]
+     */
+    modelUpsellCta(label = 'Try for free') {
+        return this.modelDropdown().getByText(label, { exact: true });
+    }
+
+    /**
+     * The actionable row containing the model upsell CTA.
+     * @param {'Try for free' | 'Upgrade'} [label]
+     */
+    modelUpsellRow(label = 'Try for free') {
+        return this.modelUpsellCta(label).locator('..');
+    }
+
     toolsMenuButton() {
         return this.context().getByRole('button', { name: 'Tools' });
     }
@@ -369,6 +385,14 @@ export class OmnibarPage {
      */
     reasoningOption(optionName) {
         return this.reasoningDropdown().getByRole('option', { name: optionName });
+    }
+
+    /**
+     * The upsell badge shown on a gated reasoning-effort option.
+     * @param {'Try for free' | 'Upgrade'} [label]
+     */
+    reasoningUpsellBadge(label = 'Try for free') {
+        return this.reasoningDropdown().getByText(label, { exact: true });
     }
 
     // --- Attachments (paperclip menu, tab/file chips, @-mention picker) ---

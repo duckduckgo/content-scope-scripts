@@ -99,6 +99,10 @@ export function OSSIcon(props) {
  * Returns the appropriate model icon component for a given model ID,
  * using the same provider-matching logic as apple-browsers'
  * AIChatModel.ModelProvider.from(id:providerString:).
+ *
+ * Native maps the `tinfoil` provider (which hosts open models such as
+ * gpt-oss and Gemma) to the OSS icon via the provider string. We only
+ * receive the model ID here, so we detect the `tinfoil` id prefix instead.
  * @param {string} modelId
  * @returns {import('preact').ComponentType<import('preact').JSX.SVGAttributes<SVGSVGElement>> | null}
  */
@@ -107,7 +111,7 @@ export function getModelIcon(modelId) {
 
     if (normalizedModelId.startsWith('meta-llama')) return LlamaIcon;
     if (normalizedModelId.startsWith('mistral')) return MistralIcon;
-    if (normalizedModelId.includes('gpt-oss')) return OSSIcon;
+    if (normalizedModelId.includes('gpt-oss') || normalizedModelId.startsWith('tinfoil')) return OSSIcon;
     if (normalizedModelId.startsWith('claude')) return ClaudeIcon;
     if (normalizedModelId.startsWith('gpt') || normalizedModelId.startsWith('openai')) return OpenAIIcon;
     return null;
