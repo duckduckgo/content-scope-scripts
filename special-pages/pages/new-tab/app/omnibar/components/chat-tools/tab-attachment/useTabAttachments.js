@@ -5,6 +5,8 @@ import { OpenTabsContext } from './OpenTabsProvider';
 
 const { useStateWithLocalPersistence } = TabAttachments;
 
+export const MAX_TABS = 3;
+
 /**
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
  * @typedef {import('../../../../../types/new-tab.js').PageContext} PageContext
@@ -14,8 +16,11 @@ const { useStateWithLocalPersistence } = TabAttachments;
  * @typedef {TabMetadata & { addedAtRelative: number }} AttachedTab
  */
 
-/** @param {string|null|undefined} tabId — NTP tab the attachments are persisted under. */
-export function useTabAttachments(tabId) {
+/**
+ * @param {string|null|undefined} tabId — NTP tab the attachments are persisted under.
+ * @param {number} [maxTabs] - Max attached tabs, from native `attachmentLimits.tabs.maxAttached`. Defaults to {@link MAX_TABS}.
+ */
+export function useTabAttachments(tabId, maxTabs = MAX_TABS) {
     const { getTabContent } = useContext(OmnibarContext);
     const { openTabs } = useContext(OpenTabsContext);
     const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence(tabId);
@@ -54,19 +59,26 @@ export function useTabAttachments(tabId) {
         [setAttachedEntries],
     );
 
+    // No hard cap on attaching tabs; exceeding maxTabs warns and blocks submit until removed —
+    // mirroring the file-attachment soft cap (`useFileAttachments`).
+    const tabLimitExceeded = attachedTabs.length > maxTabs;
+
     const clearAttachedTabs = useCallback(() => {
         setAttachedEntries([]);
     }, [setAttachedEntries]);
 
     /**
      * Extracts page content for each attached tab in parallel; drops failures.
+     * Iterates `attachedTabs` (open tabs only), NOT `attachedEntries`, so submission uses the exact
+     * same set the limit and the chips are computed from. Otherwise a closed-but-still-persisted
+     * entry could ship a context that isn't counted against the cap.
      * @returns {Promise<PageContext[] | null>}
      */
     const getTabsForSubmission = useCallback(async () => {
-        if (attachedEntries.length === 0) return null;
+        if (attachedTabs.length === 0) return null;
 
         const results = await Promise.all(
-            attachedEntries.map(async ({ tabId: id }) => {
+            attachedTabs.map(async ({ tabId: id }) => {
                 try {
                     const pageContext = await getTabContent(id);
                     return pageContext === null ? null : /** @type {PageContext} */ ({ ...pageContext, tabId: id });
@@ -79,7 +91,7 @@ export function useTabAttachments(tabId) {
 
         const ready = /** @type {PageContext[]} */ (results.filter((ctx) => ctx !== null));
         return ready.length > 0 ? ready : null;
-    }, [attachedEntries, getTabContent]);
+    }, [attachedTabs, getTabContent]);
 
     const state = useMemo(
         () => ({
@@ -89,8 +101,10 @@ export function useTabAttachments(tabId) {
             toggleTab,
             clearAttachedTabs,
             getTabsForSubmission,
+            tabLimitExceeded,
+            maxTabs,
         }),
-        [attachedTabs, isAttached, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission],
+        [attachedTabs, isAttached, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission, tabLimitExceeded, maxTabs],
     );
 
     return state;

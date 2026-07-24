@@ -447,6 +447,10 @@ export class OmnibarPage {
         return this.attachmentChips().locator('button[aria-label="Remove image"]');
     }
 
+    tabLimitWarning() {
+        return this.context().getByText(/You can only attach \d+ tabs at a time/);
+    }
+
     fileLimitWarning() {
         return this.context().getByText(/You can only attach \d+ files at a time/);
     }
