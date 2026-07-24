@@ -192,11 +192,20 @@ export class ActivityPage {
     }
 
     /**
-     * New UI (non-legacy) burn control uses TrashIcon.
+     * New UI (non-legacy) burn control uses TrashIcon when the rebrand flag is on.
      */
     async burnControlUsesTrashIcon() {
         const burnButton = this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' });
         await expect(burnButton.getByTestId('TrashIcon')).toBeVisible();
+    }
+
+    /**
+     * New UI (non-legacy) burn control falls back to FireIcon when the rebrand flag is off.
+     */
+    async burnControlUsesFireIcon() {
+        const burnButton = this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' });
+        await expect(burnButton.getByTestId('FireIcon')).toBeVisible();
+        await expect(burnButton.getByTestId('TrashIcon')).not.toBeVisible();
     }
 
     /**

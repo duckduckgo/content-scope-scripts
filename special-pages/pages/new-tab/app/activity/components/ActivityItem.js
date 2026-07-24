@@ -7,7 +7,8 @@ import { FaviconWithState } from '../../../../../shared/components/FaviconWithSt
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
 import { Fire as FireIconLegacy } from '../../components/icons/Fire.js';
-import { Cross, TrashIcon } from '../../components/Icons.js';
+import { Cross, FireIcon, TrashIcon } from '../../components/Icons.js';
+import { useNewTabPageRebranding } from '../../settings.provider.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
@@ -111,6 +112,7 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
     const favorite = useComputed(() => activity.value.favorites[url]);
+    const isRebrand = useNewTabPageRebranding();
 
     // prettier-ignore
     const favoriteTitle = favorite.value
@@ -141,10 +143,26 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
                 value={url}
                 type="button"
             >
-                {/* @todo legacyProtections: Remove legacy check once all
-                platforms are ready for the new Protections Report */}
-                {canBurn ? shouldDisplayLegacyActivity ? <FireIconLegacy /> : <TrashIcon /> : <Cross />}
+                {renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand })}
             </button>
         </div>
     );
+}
+
+/**
+ * Picks the glyph for the secondary control: a Cross when the item can only be
+ * removed, otherwise the burn glyph for the current UI generation.
+ *
+ * @todo legacyProtections: Remove the legacy branch once all platforms are
+ * ready for the new Protections Report.
+ * @param {object} props
+ * @param {boolean} props.canBurn
+ * @param {boolean} props.shouldDisplayLegacyActivity
+ * @param {boolean} props.isRebrand
+ */
+function renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand }) {
+    if (!canBurn) return <Cross />;
+    if (shouldDisplayLegacyActivity) return <FireIconLegacy />;
+    if (isRebrand) return <TrashIcon />;
+    return <FireIcon />;
 }

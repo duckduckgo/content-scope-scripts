@@ -3,10 +3,7 @@
     backdrop-filter: blur(48px);
     border: 1px solid var(--ds-color-theme-container-border-primary);
     padding: var(--sp-6);
-    border-radius: var(--ds-radius-x06);
-    box-shadow: 0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
-        0 1px 6px 0 var(--ds-color-theme-shadow-primary),
-        0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
+    border-radius: var(--border-radius-lg);
     display: grid;
     align-items: start;
     grid-template-columns: auto;
@@ -27,14 +24,12 @@
 .body {
     display: flex;
     flex-direction: column;
-    overflow: visible;
 }
 
 .switcher {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    border-radius: var(--ds-radius-full);
-    padding: 1px;
+    border-radius: 6px;
 
     --border-color: rgba(0, 0, 0, 0.09);
     --background: rgba(0, 0, 0, 0.06);
@@ -49,7 +44,7 @@
 }
 
 .block {
-    margin-top: var(--sp-6);
+    margin-top: 16px;
 }
 
 /* @todo legacyProtections: Remove once all platforms support the new UI */
@@ -61,16 +56,10 @@
     color: var(--ds-color-theme-text-secondary);
 }
 
-.feed {
-    margin-top: var(--sp-6);
-    overflow: visible;
-}
-
 .button {
     color: var(--ds-color-theme-text-primary);
-    border-radius: var(--ds-radius-full);
+    border-radius: 5px;
     background: transparent;
-    font-weight: 400;
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
@@ -83,8 +72,6 @@
         background: transparent;
         border: 0;
         height: 26px;
-        font-size: var(--body-font-size);
-        line-height: 14px;
     }
     .active {
         position: relative;
@@ -112,13 +99,12 @@
 [data-platform-name="macos"] {
     .button {
         background: transparent;
-        border: 0;
-        height: 24px;
-        font-size: var(--small-label-font-size);
-        line-height: var(--small-label-line-height);
+        border: 0.5px solid transparent;
+        height: 22px;
+
     }
     .active {
-        border: 0;
+        border: 0.5px solid rgba(0, 0, 0, 0.10);
         background: #FFF;
 
         &:not(:focus-visible) {
@@ -129,5 +115,65 @@
         [data-theme="dark"] & {
             background: rgba(255, 255, 255, 0.25);
         }
+    }
+}
+
+/*
+ * NTP rebrand styling for the Protections Report. Scoped to
+ * body[data-rebrand="true"] so that with the rebrand feature flag OFF the
+ * widget renders exactly as it did before the rebrand.
+ * @todo rebrand: fold these into the base rules once the rebrand ships to all
+ * platforms and the flag is retired.
+ */
+:global(body[data-rebrand="true"]) {
+    .root {
+        border-radius: var(--ds-radius-x06);
+        box-shadow:
+            0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+            0 1px 6px 0 var(--ds-color-theme-shadow-primary),
+            0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
+    }
+
+    .body {
+        overflow: visible;
+    }
+
+    .switcher {
+        border-radius: var(--ds-radius-full);
+        padding: 1px;
+    }
+
+    .block {
+        margin-top: var(--sp-6);
+    }
+
+    .feed {
+        margin-top: var(--sp-6);
+        overflow: visible;
+    }
+
+    .button {
+        border-radius: var(--ds-radius-full);
+        font-weight: 400;
+    }
+}
+
+:global(body[data-rebrand="true"][data-platform-name="windows"]) {
+    .button {
+        font-size: var(--body-font-size);
+        line-height: 14px;
+    }
+}
+
+:global(body[data-rebrand="true"][data-platform-name="macos"]) {
+    .button {
+        border: 0;
+        height: 24px;
+        font-size: var(--small-label-font-size);
+        line-height: var(--small-label-line-height);
+    }
+
+    .active {
+        border: 0;
     }
 }
