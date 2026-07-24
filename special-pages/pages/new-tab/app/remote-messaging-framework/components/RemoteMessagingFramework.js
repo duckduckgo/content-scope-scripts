@@ -5,7 +5,7 @@ import { useContext } from 'preact/hooks';
 import { RMFContext } from '../RMFProvider.js';
 import { DismissButton } from '../../components/DismissButton';
 import { Button } from '../../../../../shared/components/Button/Button';
-import { usePlatformName } from '../../settings.provider';
+import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
 
 /**
  * @import { RMFMessage } from "../../../types/new-tab"
@@ -19,12 +19,15 @@ import { usePlatformName } from '../../settings.provider';
 export function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
+    const isRebrandEnabled = useNewTabPageRebranding();
+    const showIcon = messageType !== 'small' && Boolean(message.icon);
+    const iconSrc = showIcon ? (isRebrandEnabled ? `./icons/rebrand/${message.icon}-96.svg` : `./icons/${message.icon}-96.svg`) : undefined;
 
     return (
-        <div id={id} class={cn(styles.root, messageType !== 'small' && message.icon && styles.icon)}>
-            {messageType !== 'small' && message.icon && (
+        <div id={id} class={cn(styles.root, showIcon && styles.icon)}>
+            {showIcon && iconSrc && (
                 <span class={styles.iconBlock}>
-                    <img src={`./icons/${message.icon}-96.svg`} alt="" />
+                    <img src={iconSrc} alt="" />
                 </span>
             )}
             <div class={styles.content}>

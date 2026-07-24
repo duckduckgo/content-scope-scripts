@@ -189,6 +189,7 @@ export type RMFIcon =
   | "DuckAi"
   | "PIR"
   | "Preview"
+  | "PrivacyPro"
   | "Radar"
   | "RadarCheckGreen"
   | "RadarCheckPurple"
