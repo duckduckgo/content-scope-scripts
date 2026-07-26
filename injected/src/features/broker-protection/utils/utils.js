@@ -211,7 +211,7 @@ export function cleanArray(input, prev = []) {
 /**
  * Determines whether the given input is a non-empty string.
  *
- * @param {any} [input] - The input to be checked.
+ * @param {unknown} [input] - The input to be checked.
  * @return {boolean} - True if the input is a non-empty string, false otherwise.
  */
 export function nonEmptyString(input) {
