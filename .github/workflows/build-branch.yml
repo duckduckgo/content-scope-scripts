@@ -6,13 +6,14 @@ on:
             - main
             - releases
             - 'pr-releases/**'
+    pull_request:
+        types: [opened, reopened]
     delete:
 
 permissions: write-all
 
 jobs:
     build:
-        # Only run on push events (not delete)
         if: github.event_name == 'push'
         runs-on: ubuntu-latest
 
@@ -48,7 +49,6 @@ jobs:
               run: npm run docs-preview
 
             - name: Create and push build branch
-              id: create_branch
               env:
                   SOURCE_BRANCH: ${{ github.ref_name }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,32 +88,69 @@ jobs:
 
                   push_build_branch
 
-                  echo "BUILD_BRANCH=${BUILD_BRANCH}" >> $GITHUB_ENV
-                  echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+    comment:
+        needs: [build]
+        if: always() && !cancelled() && github.event_name != 'delete'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Resolve build branch
+              id: resolve
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  EVENT_NAME: ${{ github.event_name }}
+                  HEAD_REF: ${{ github.event.pull_request.head.ref }}
+                  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+                  REF_NAME: ${{ github.ref_name }}
+                  PUSH_SHA: ${{ github.sha }}
+              run: |
+                  if [ "$EVENT_NAME" = "pull_request" ]; then
+                      SOURCE_BRANCH="$HEAD_REF"
+                      SOURCE_HEAD_SHA="$PR_HEAD_SHA"
+                  else
+                      SOURCE_BRANCH="$REF_NAME"
+                      SOURCE_HEAD_SHA="$PUSH_SHA"
+                  fi
+                  BUILD_BRANCH="pr-releases/${SOURCE_BRANCH}"
+
+                  COMMIT_HASH=$(git ls-remote "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" "refs/heads/${BUILD_BRANCH}" | cut -f1)
+
+                  if [ -z "$COMMIT_HASH" ]; then
+                      echo "Build branch ${BUILD_BRANCH} not found"
+                      echo "preview_state=missing" >> "$GITHUB_OUTPUT"
+                      echo "build_branch=${BUILD_BRANCH}" >> "$GITHUB_OUTPUT"
+                      echo "source_branch=${SOURCE_BRANCH}" >> "$GITHUB_OUTPUT"
+                      echo "source_head_sha=${SOURCE_HEAD_SHA}" >> "$GITHUB_OUTPUT"
+                  else
+                      echo "build_branch=${BUILD_BRANCH}" >> "$GITHUB_OUTPUT"
+                      echo "commit_hash=${COMMIT_HASH}" >> "$GITHUB_OUTPUT"
+                      echo "source_branch=${SOURCE_BRANCH}" >> "$GITHUB_OUTPUT"
+                      echo "source_head_sha=${SOURCE_HEAD_SHA}" >> "$GITHUB_OUTPUT"
+                  fi
 
             - name: Comment on associated PR
+              if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
               uses: actions/github-script@v9
               env:
-                  BUILD_BRANCH: ${{ env.BUILD_BRANCH }}
-                  COMMIT_HASH: ${{ env.COMMIT_HASH }}
-                  SOURCE_BRANCH: ${{ github.ref_name }}
+                  BUILD_BRANCH: ${{ steps.resolve.outputs.build_branch }}
+                  BUILD_RESULT: ${{ needs.build.result }}
+                  COMMIT_HASH: ${{ steps.resolve.outputs.commit_hash }}
+                  PREVIEW_STATE: ${{ steps.resolve.outputs.preview_state }}
+                  SOURCE_BRANCH: ${{ steps.resolve.outputs.source_branch }}
+                  SOURCE_HEAD_SHA: ${{ steps.resolve.outputs.source_head_sha }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const buildBranch = process.env.BUILD_BRANCH;
+                      const buildResult = process.env.BUILD_RESULT;
                       const commitHash = process.env.COMMIT_HASH;
+                      let buildParent = '';
+                      let previewState = process.env.PREVIEW_STATE;
                       const sourceBranch = process.env.SOURCE_BRANCH;
+                      const sourceHeadSha = process.env.SOURCE_HEAD_SHA;
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${buildBranch}`;
-                      const commitUrl = `${repoUrl}/commit/${commitHash}`;
-                      const previewBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}`;
-                      const docsIndexUrl = `${previewBaseUrl}/docs/index.html`;
-                      const staticPagesIndexUrl = `${previewBaseUrl}/build/integration/pages/index.html`;
-                      const integrationPagesIndexUrl = `${previewBaseUrl}/injected/integration-test/test-pages/index.html`;
-                      const qrUrl = (targetUrl) => `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(targetUrl)}`;
-                      const docsQrUrl = qrUrl(docsIndexUrl);
-                      const staticPagesQrUrl = qrUrl(staticPagesIndexUrl);
-                      const integrationPagesQrUrl = qrUrl(integrationPagesIndexUrl);
+                      const commitUrl = commitHash ? `${repoUrl}/commit/${commitHash}` : '';
+                      const sourceHeadUrl = `${repoUrl}/commit/${sourceHeadSha}`;
 
                       const lastUpdated = (new Date()).toLocaleString('en-US', {
                           dateStyle: 'long',
@@ -122,83 +159,147 @@ jobs:
 
                       const marker = '<!-- BUILD_BRANCH_COMMENT -->';
 
-                      const commentBody = [
-                          marker,
-                          `### Build Branch`,
-                          ``,
-                          `| | |`,
-                          `|---|---|`,
-                          `| **Branch** | [\`${buildBranch}\`](${branchUrl}) |`,
-                          `| **Commit** | [\`${commitHash.slice(0, 10)}\`](${commitUrl}) |`,
-                          `| **Updated** | ${lastUpdated} |`,
-                          ``,
-                          `#### Static preview entry points`,
-                          ``,
-                          `- Docs: [docs/index.html](${docsIndexUrl})`,
-                          `- Static pages: [build/integration/pages/index.html](${staticPagesIndexUrl})`,
-                          `- Integration pages: [injected/integration-test/test-pages/index.html](${integrationPagesIndexUrl})`,
-                          ``,
-                          `<details>`,
-                          `<summary>QR codes (mobile preview)</summary>`,
-                          ``,
-                          `| Entry point | QR code |`,
-                          `|---|---|`,
-                          `| [Docs](${docsIndexUrl}) | ![QR for docs preview](${docsQrUrl}) |`,
-                          `| [Static pages](${staticPagesIndexUrl}) | ![QR for static pages preview](${staticPagesQrUrl}) |`,
-                          `| [Integration pages](${integrationPagesIndexUrl}) | ![QR for integration pages preview](${integrationPagesQrUrl}) |`,
-                          ``,
-                          `</details>`,
-                          ``,
-                          `#### Integration commands`,
-                          ``,
-                          `**npm** (Android / Extension):`,
-                          '```',
-                          `npm i github:duckduckgo/content-scope-scripts#${buildBranch}`,
-                          '```',
-                          ``,
-                          `**Swift Package Manager** (Apple):`,
-                          '```swift',
-                          `.package(url: "https://github.com/duckduckgo/content-scope-scripts.git", branch: "${buildBranch}")`,
-                          '```',
-                          ``,
-                          `**git submodule** (Windows):`,
-                          '```sh',
-                          `git -C submodules/content-scope-scripts fetch origin ${buildBranch}`,
-                          `git -C submodules/content-scope-scripts checkout origin/${buildBranch}`,
-                          '```',
-                          ``,
-                          `<details>`,
-                          `<summary>Pin to exact commit</summary>`,
-                          ``,
-                          `**npm** (Android / Extension):`,
-                          '```',
-                          `npm i github:duckduckgo/content-scope-scripts#${commitHash}`,
-                          '```',
-                          ``,
-                          `**Swift Package Manager** (Apple):`,
-                          '```swift',
-                          `.package(url: "https://github.com/duckduckgo/content-scope-scripts.git", revision: "${commitHash}")`,
-                          '```',
-                          ``,
-                          `**git submodule** (Windows):`,
-                          '```sh',
-                          `git -C submodules/content-scope-scripts fetch origin ${buildBranch}`,
-                          `git -C submodules/content-scope-scripts checkout ${commitHash}`,
-                          '```',
-                          ``,
-                          `</details>`,
-                      ].join('\n');
+                      if (commitHash) {
+                          const { data: buildCommit } = await github.rest.repos.getCommit({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              ref: commitHash,
+                          });
+                          buildParent = buildCommit.parents[0]?.sha || '';
+                          previewState = buildParent === sourceHeadSha ? 'ready' : 'stale';
 
-                      // Find open PRs for this branch
-                      const { data: prs } = await github.rest.pulls.list({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          head: `${context.repo.owner}:${sourceBranch}`,
-                          state: 'open',
-                      });
+                          if (previewState === 'stale') {
+                              console.log(`Build branch ${buildBranch} is stale: parent ${buildParent} does not match source head ${sourceHeadSha}`);
+                          }
+                      }
+
+                      const buildParentUrl = buildParent ? `${repoUrl}/commit/${buildParent}` : '';
+
+                      let commentBody;
+
+                      if (previewState === 'ready') {
+                          const previewBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}`;
+                          const docsIndexUrl = `${previewBaseUrl}/docs/index.html`;
+                          const staticPagesIndexUrl = `${previewBaseUrl}/build/integration/pages/index.html`;
+                          const integrationPagesIndexUrl = `${previewBaseUrl}/injected/integration-test/test-pages/index.html`;
+                          const qrUrl = (targetUrl) => `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(targetUrl)}`;
+                          const docsQrUrl = qrUrl(docsIndexUrl);
+                          const staticPagesQrUrl = qrUrl(staticPagesIndexUrl);
+                          const integrationPagesQrUrl = qrUrl(integrationPagesIndexUrl);
+
+                          commentBody = [
+                              marker,
+                              `### Build Branch`,
+                              ``,
+                              `| | |`,
+                              `|---|---|`,
+                              `| **Branch** | [\`${buildBranch}\`](${branchUrl}) |`,
+                              `| **Commit** | [\`${commitHash.slice(0, 10)}\`](${commitUrl}) |`,
+                              `| **Updated** | ${lastUpdated} |`,
+                              ``,
+                              `#### Static preview entry points`,
+                              ``,
+                              `- Docs: [docs/index.html](${docsIndexUrl})`,
+                              `- Static pages: [build/integration/pages/index.html](${staticPagesIndexUrl})`,
+                              `- Integration pages: [injected/integration-test/test-pages/index.html](${integrationPagesIndexUrl})`,
+                              ``,
+                              `<details>`,
+                              `<summary>QR codes (mobile preview)</summary>`,
+                              ``,
+                              `| Entry point | QR code |`,
+                              `|---|---|`,
+                              `| [Docs](${docsIndexUrl}) | ![QR for docs preview](${docsQrUrl}) |`,
+                              `| [Static pages](${staticPagesIndexUrl}) | ![QR for static pages preview](${staticPagesQrUrl}) |`,
+                              `| [Integration pages](${integrationPagesIndexUrl}) | ![QR for integration pages preview](${integrationPagesQrUrl}) |`,
+                              ``,
+                              `</details>`,
+                              ``,
+                              `#### Integration commands`,
+                              ``,
+                              `**npm** (Android / Extension):`,
+                              '```',
+                              `npm i github:duckduckgo/content-scope-scripts#${buildBranch}`,
+                              '```',
+                              ``,
+                              `**Swift Package Manager** (Apple):`,
+                              '```swift',
+                              `.package(url: "https://github.com/duckduckgo/content-scope-scripts.git", branch: "${buildBranch}")`,
+                              '```',
+                              ``,
+                              `**git submodule** (Windows):`,
+                              '```sh',
+                              `git -C submodules/content-scope-scripts fetch origin ${buildBranch}`,
+                              `git -C submodules/content-scope-scripts checkout origin/${buildBranch}`,
+                              '```',
+                              ``,
+                              `<details>`,
+                              `<summary>Pin to exact commit</summary>`,
+                              ``,
+                              `**npm** (Android / Extension):`,
+                              '```',
+                              `npm i github:duckduckgo/content-scope-scripts#${commitHash}`,
+                              '```',
+                              ``,
+                              `**Swift Package Manager** (Apple):`,
+                              '```swift',
+                              `.package(url: "https://github.com/duckduckgo/content-scope-scripts.git", revision: "${commitHash}")`,
+                              '```',
+                              ``,
+                              `**git submodule** (Windows):`,
+                              '```sh',
+                              `git -C submodules/content-scope-scripts fetch origin ${buildBranch}`,
+                              `git -C submodules/content-scope-scripts checkout ${commitHash}`,
+                              '```',
+                              ``,
+                              `</details>`,
+                          ].join('\n');
+                      } else {
+                          const buildBranchStatus = previewState === 'missing'
+                              ? `\`${buildBranch}\` not found`
+                              : `[\`${buildBranch}\`](${branchUrl})`;
+                          const buildCommitStatus = commitHash
+                              ? `[\`${commitHash.slice(0, 10)}\`](${commitUrl})`
+                              : 'N/A';
+                          const buildParentStatus = buildParent
+                              ? `[\`${buildParent.slice(0, 10)}\`](${buildParentUrl})`
+                              : 'N/A';
+
+                          commentBody = [
+                              marker,
+                              `### Build Branch`,
+                              ``,
+                              `> [!WARNING]`,
+                              `> No current build preview is available for this PR.`,
+                              ``,
+                              `| | |`,
+                              `|---|---|`,
+                              `| **Source branch** | \`${sourceBranch}\` |`,
+                              `| **Source commit** | [\`${sourceHeadSha.slice(0, 10)}\`](${sourceHeadUrl}) |`,
+                              `| **Build branch** | ${buildBranchStatus} |`,
+                              `| **Build commit** | ${buildCommitStatus} |`,
+                              `| **Build parent** | ${buildParentStatus} |`,
+                              `| **Build job result** | \`${buildResult}\` |`,
+                              `| **Updated** | ${lastUpdated} |`,
+                              ``,
+                              `Push the source branch again after fixing the build to publish a fresh preview.`,
+                          ].join('\n');
+                      }
+
+                      // For pull_request events we already know the PR; for push, search.
+                      let prs;
+                      if (context.eventName === 'pull_request') {
+                          prs = [{ number: context.payload.pull_request.number }];
+                      } else {
+                          const { data } = await github.rest.pulls.list({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              head: `${context.repo.owner}:${sourceBranch}`,
+                              state: 'open',
+                          });
+                          prs = data;
+                      }
 
                       for (const pr of prs) {
-                          // Find existing bot comment by marker
                           const { data: comments } = await github.rest.issues.listComments({
                               owner: context.repo.owner,
                               repo: context.repo.repo,
