@@ -1,13 +1,13 @@
 /**
- * @param userAge
- * @param ageFound
- * @return {boolean}
+ * @param {string | number} userAge
+ * @param {string | number} ageFound
+ * @returns {boolean}
  */
 export function isSameAge(userAge, ageFound) {
     // variance allows for +/- 1 on the data broker and +/- 1 based on the only having a birth year
     const ageVariance = 2;
-    userAge = parseInt(userAge);
-    ageFound = parseInt(ageFound);
+    userAge = parseInt(String(userAge), 10);
+    ageFound = parseInt(String(ageFound), 10);
 
     if (isNaN(ageFound)) {
         return false;
