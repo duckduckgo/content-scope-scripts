@@ -131,28 +131,31 @@ export class ErrorResponse {
 }
 
 /**
+ * @template [T=unknown]
  * @typedef {object} SuccessResponseInterface
  * @property {PirAction['id']} actionID
  * @property {PirAction['actionType']} actionType
- * @property {any} response
+ * @property {T} response
  * @property {import("./actions/extract").Action[]} [next]
  * @property {Record<string, any>} [meta] - optional meta data
  */
 
 /**
  * Represents success, `response` can contain other complex types
+ * @template [T=unknown]
  */
 export class SuccessResponse {
     /**
-     * @param {SuccessResponseInterface} params
+     * @param {SuccessResponseInterface<T>} params
      */
     constructor(params) {
         this.success = params;
     }
 
     /**
-     * @param {SuccessResponseInterface} params
-     * @return {SuccessResponse}
+     * @template T
+     * @param {SuccessResponseInterface<T>} params
+     * @return {SuccessResponse<T>}
      * @static
      * @memberof SuccessResponse
      */
