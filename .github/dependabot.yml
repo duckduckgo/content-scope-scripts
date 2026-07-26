@@ -24,11 +24,6 @@ updates:
                   - 'typescript'
                   - '@types/*'
                   - '@typescript-eslint*'
-          rollup:
-              patterns:
-                  - '@rollup/*'
-                  - 'rollup-*'
-                  - 'rollup'
     - package-ecosystem: 'github-actions'
       directory: '/'
       schedule:
