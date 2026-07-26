@@ -389,6 +389,27 @@ test.describe('omnibar file attachment', () => {
         await expect(omnibar.context().getByText('You can only attach 2 files at a time.')).toBeVisible();
     });
 
+    test('a partial attachmentLimits payload falls back to default file cap without crashing', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAiChatTools': 'true',
+                'omnibar.selectedModelId': 'claude-haiku-4-5',
+                // Simulates a malformed backend payload: present attachmentLimits but empty sections.
+                'omnibar.attachmentLimitsPartial': 'empty-sections',
+            },
+        });
+        await omnibar.ready();
+
+        await omnibar
+            .fileInput()
+            .setInputFiles(['a.pdf', 'b.pdf', 'c.pdf', 'd.pdf'].map((name) => ({ name, mimeType: 'application/pdf', buffer: PDF_BYTES })));
+        await expect(omnibar.fileChip()).toHaveCount(4);
+        await expect(omnibar.context().getByText('You can only attach 3 files at a time.')).toBeVisible();
+    });
+
     test('a file larger than the configured maxFileSizeMB is rejected with an error', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
@@ -431,6 +452,60 @@ test.describe('omnibar file attachment', () => {
 
         // GPT-4o mini declares no supportedFileTypes → the chip is dropped
         await expect(omnibar.attachmentChips()).toHaveCount(0);
+    });
+});
+
+test.describe('omnibar image attachment limits', () => {
+    test('the image cap follows the backend attachmentLimits config', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAiChatTools': 'true',
+                'omnibar.selectedModelId': 'gpt-4o-mini',
+                // Backend-configured cap of two images per turn (default is three).
+                'omnibar.imageMaxPerTurn': '2',
+            },
+        });
+        await omnibar.ready();
+
+        // Two images are within the configured cap — no warning.
+        await omnibar.fileInput().setInputFiles([
+            { name: 'a.png', mimeType: 'image/png', buffer: TINY_PNG },
+            { name: 'b.png', mimeType: 'image/png', buffer: TINY_PNG },
+        ]);
+        await expect(omnibar.imagePreviews()).toHaveCount(2);
+        await expect(omnibar.imageLimitWarning()).toHaveCount(0);
+
+        // A third image exceeds the configured cap of two → warning names the configured limit.
+        await omnibar.fileInput().setInputFiles({ name: 'c.png', mimeType: 'image/png', buffer: TINY_PNG });
+        await expect(omnibar.imagePreviews()).toHaveCount(3);
+        await expect(omnibar.context().getByText('You can only attach 2 images at a time.')).toBeVisible();
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+    });
+
+    test('a partial attachmentLimits payload falls back to default image cap without crashing', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAiChatTools': 'true',
+                'omnibar.selectedModelId': 'gpt-4o-mini',
+                'omnibar.attachmentLimitsPartial': 'empty-sections',
+            },
+        });
+        await omnibar.ready();
+
+        await omnibar.fileInput().setInputFiles([
+            { name: 'a.png', mimeType: 'image/png', buffer: TINY_PNG },
+            { name: 'b.png', mimeType: 'image/png', buffer: TINY_PNG },
+            { name: 'c.png', mimeType: 'image/png', buffer: TINY_PNG },
+            { name: 'd.png', mimeType: 'image/png', buffer: TINY_PNG },
+        ]);
+        await expect(omnibar.imagePreviews()).toHaveCount(4);
+        await expect(omnibar.context().getByText('You can only attach 3 images at a time.')).toBeVisible();
     });
 });
 
