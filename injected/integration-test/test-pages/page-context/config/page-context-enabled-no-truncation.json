@@ -1,0 +1,19 @@
+{
+    "features": {
+        "pageContext": {
+            "state": "enabled",
+            "settings": {
+                "subscribeToCollect": "enabled",
+                "subscribeToHashChange": "enabled",
+                "subscribeToPageShow": "enabled",
+                "subscribeToVisibilityChange": "enabled",
+                "maxContentLength": 999999999,
+                "maxTitleLength": 100,
+                "cacheExpiration": 30000,
+                "recheckLimit": 5,
+                "excludeSelectors": [".ad", ".sidebar", ".footer", ".nav", ".header"]
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}
