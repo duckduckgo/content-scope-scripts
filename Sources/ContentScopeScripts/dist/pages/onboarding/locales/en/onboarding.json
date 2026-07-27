@@ -470,7 +470,7 @@
     "note": "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. `{newline}` may be inserted to adjust line placement for visual balance and readability."
   },
   "getStartedButton_v4": {
-    "title": "Start browser setup",
+    "title": "Start Browser Setup",
     "note": "Button label prompting user to start the v4 onboarding process."
   },
   "makeDefaultAccept_title_v4": {

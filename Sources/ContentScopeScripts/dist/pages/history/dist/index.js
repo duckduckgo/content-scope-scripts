@@ -228,39 +228,39 @@
     };
   }
   function q(n3, u4, t4, i5, r4, o4, e4, f4, c4, a4) {
-    var s4, h5, p5, v4, y5, d5, _5, k4, x5, M3, $2, I2, P4, A5, H3, T6 = u4.type;
+    var s4, h5, p5, v4, y5, d5, _5, k4, x5, M3, $2, I2, P4, A5, H3, T6, j5 = u4.type;
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (s4 = l.__b) && s4(u4);
-    n: if ("function" == typeof T6) try {
-      if (k4 = u4.props, x5 = T6.prototype && T6.prototype.render, M3 = (s4 = T6.contextType) && i5[s4.__c], $2 = s4 ? M3 ? M3.props.value : s4.__ : i5, t4.__c ? _5 = (h5 = u4.__c = t4.__c).__ = h5.__E : (x5 ? u4.__c = h5 = new T6(k4, $2) : (u4.__c = h5 = new C(k4, $2), h5.constructor = T6, h5.render = Q), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), x5 && null == h5.__s && (h5.__s = h5.state), x5 && null != T6.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = m({}, h5.__s)), m(h5.__s, T6.getDerivedStateFromProps(k4, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) x5 && null == T6.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), x5 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
-      else {
-        if (x5 && null == T6.getDerivedStateFromProps && k4 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(k4, $2), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(k4, h5.__s, $2)) {
-          u4.__v != t4.__v && (h5.props = k4, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
-            n4 && (n4.__ = u4);
-          }), w.push.apply(h5.__h, h5._sb), h5._sb = [], h5.__h.length && e4.push(h5);
-          break n;
+    n: if ("function" == typeof j5) {
+      h5 = e4.length;
+      try {
+        if (x5 = u4.props, M3 = j5.prototype && j5.prototype.render, $2 = (s4 = j5.contextType) && i5[s4.__c], I2 = s4 ? $2 ? $2.props.value : s4.__ : i5, t4.__c ? k4 = (p5 = u4.__c = t4.__c).__ = p5.__E : (M3 ? u4.__c = p5 = new j5(x5, I2) : (u4.__c = p5 = new C(x5, I2), p5.constructor = j5, p5.render = Q), $2 && $2.sub(p5), p5.state || (p5.state = {}), p5.__n = i5, v4 = p5.__d = true, p5.__h = [], p5._sb = []), M3 && null == p5.__s && (p5.__s = p5.state), M3 && null != j5.getDerivedStateFromProps && (p5.__s == p5.state && (p5.__s = m({}, p5.__s)), m(p5.__s, j5.getDerivedStateFromProps(x5, p5.__s))), y5 = p5.props, d5 = p5.state, p5.__v = u4, v4) M3 && null == j5.getDerivedStateFromProps && null != p5.componentWillMount && p5.componentWillMount(), M3 && null != p5.componentDidMount && p5.__h.push(p5.componentDidMount);
+        else {
+          if (M3 && null == j5.getDerivedStateFromProps && x5 !== y5 && null != p5.componentWillReceiveProps && p5.componentWillReceiveProps(x5, I2), u4.__v == t4.__v || !p5.__e && null != p5.shouldComponentUpdate && false === p5.shouldComponentUpdate(x5, p5.__s, I2)) {
+            u4.__v != t4.__v && (p5.props = x5, p5.state = p5.__s, p5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
+              n4 && (n4.__ = u4);
+            }), w.push.apply(p5.__h, p5._sb), p5._sb = [], p5.__h.length && e4.push(p5);
+            break n;
+          }
+          null != p5.componentWillUpdate && p5.componentWillUpdate(x5, p5.__s, I2), M3 && null != p5.componentDidUpdate && p5.__h.push(function() {
+            p5.componentDidUpdate(y5, d5, _5);
+          });
         }
-        null != h5.componentWillUpdate && h5.componentWillUpdate(k4, h5.__s, $2), x5 && null != h5.componentDidUpdate && h5.__h.push(function() {
-          h5.componentDidUpdate(v4, y5, d5);
-        });
+        if (p5.context = I2, p5.props = x5, p5.__P = n3, p5.__e = false, P4 = l.__r, A5 = 0, M3) p5.state = p5.__s, p5.__d = false, P4 && P4(u4), s4 = p5.render(p5.props, p5.state, p5.context), w.push.apply(p5.__h, p5._sb), p5._sb = [];
+        else do {
+          p5.__d = false, P4 && P4(u4), s4 = p5.render(p5.props, p5.state, p5.context), p5.state = p5.__s;
+        } while (p5.__d && ++A5 < 25);
+        p5.state = p5.__s, null != p5.getChildContext && (i5 = m(m({}, i5), p5.getChildContext())), M3 && !v4 && null != p5.getSnapshotBeforeUpdate && (_5 = p5.getSnapshotBeforeUpdate(y5, d5)), H3 = null != s4 && s4.type === S && null == s4.key ? E(s4.props.children) : s4, f4 = L(n3, g(H3) ? H3 : [H3], u4, t4, i5, r4, o4, e4, f4, c4, a4), p5.base = u4.__e, u4.__u &= -161, p5.__h.length && e4.push(p5), k4 && (p5.__E = p5.__ = null);
+      } catch (n4) {
+        if (e4.length = h5, u4.__v = null, c4 || null != o4) {
+          if (n4.then) {
+            for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
+            null != o4 && (o4[o4.indexOf(f4)] = null), u4.__e = f4;
+          } else if (null != o4) for (T6 = o4.length; T6--; ) b(o4[T6]);
+        } else u4.__e = t4.__e;
+        null == u4.__k && (u4.__k = t4.__k || []), n4.then || B(u4), l.__e(n4, u4, t4);
       }
-      if (h5.context = $2, h5.props = k4, h5.__P = n3, h5.__e = false, I2 = l.__r, P4 = 0, x5) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), s4 = h5.render(h5.props, h5.state, h5.context), w.push.apply(h5.__h, h5._sb), h5._sb = [];
-      else do {
-        h5.__d = false, I2 && I2(u4), s4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
-      } while (h5.__d && ++P4 < 25);
-      h5.state = h5.__s, null != h5.getChildContext && (i5 = m(m({}, i5), h5.getChildContext())), x5 && !p5 && null != h5.getSnapshotBeforeUpdate && (d5 = h5.getSnapshotBeforeUpdate(v4, y5)), A5 = null != s4 && s4.type === S && null == s4.key ? E(s4.props.children) : s4, f4 = L(n3, g(A5) ? A5 : [A5], u4, t4, i5, r4, o4, e4, f4, c4, a4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), _5 && (h5.__E = h5.__ = null);
-    } catch (n4) {
-      if (u4.__v = null, c4 || null != o4) if (n4.then) {
-        for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
-        o4[o4.indexOf(f4)] = null, u4.__e = f4;
-      } else {
-        for (H3 = o4.length; H3--; ) b(o4[H3]);
-        B(u4);
-      }
-      else u4.__e = t4.__e, u4.__k = t4.__k, n4.then || B(u4);
-      l.__e(n4, u4, t4);
-    }
-    else null == o4 && u4.__v == t4.__v ? (u4.__k = t4.__k, u4.__e = t4.__e) : f4 = u4.__e = G(t4.__e, u4, t4, i5, r4, o4, e4, c4, a4);
+    } else null == o4 && u4.__v == t4.__v ? (u4.__k = t4.__k, u4.__e = t4.__e) : f4 = u4.__e = G(t4.__e, u4, t4, i5, r4, o4, e4, c4, a4);
     return (s4 = l.diffed) && s4(u4), 128 & u4.__u ? void 0 : f4;
   }
   function B(n3) {
@@ -322,7 +322,7 @@
       } catch (n4) {
         l.__e(n4, u4);
       }
-      i5.base = i5.__P = null;
+      i5.base = i5.__P = i5.__n = null;
     }
     if (i5 = n3.__k) for (r4 = 0; r4 < i5.length; r4++) i5[r4] && K(i5[r4], u4, t4 || "function" != typeof n3.type);
     t4 || b(n3.__e), n3.__c = n3.__ = n3.__e = void 0;
@@ -332,7 +332,7 @@
   }
   function R(u4, t4, i5) {
     var r4, o4, e4, f4;
-    t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), o4 = (r4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], q(t4, u4 = (!r4 && i5 || t4).__k = k(S, null, [u4]), o4 || d, d, t4.namespaceURI, !r4 && i5 ? [i5] : o4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !r4 && i5 ? i5 : o4 ? o4.__e : t4.firstChild, r4, f4), D(e4, u4, f4);
+    t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), o4 = (r4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], q(t4, u4 = (!r4 && i5 || t4).__k = k(S, null, [u4]), o4 || d, d, t4.namespaceURI, !r4 && i5 ? [i5] : o4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !r4 && i5 ? i5 : o4 ? o4.__e : t4.firstChild, r4, f4), D(e4, u4, f4), u4.props.children = null;
   }
   function X(n3) {
     function l5(n4) {
@@ -377,7 +377,7 @@
 
   // ../node_modules/preact/devtools/dist/devtools.module.js
   var i2;
-  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.2", l, { Fragment: S, Component: C });
+  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.7", l, { Fragment: S, Component: C });
 
   // ../messaging/lib/windows.js
   var WindowsMessagingTransport = class {
@@ -1664,36 +1664,35 @@
   var v2 = c2.diffed;
   var l2 = c2.__c;
   var m2 = c2.unmount;
-  var s2 = c2.__;
-  function p2(n3, t4) {
+  var p2 = c2.__;
+  function s2(n3, t4) {
     c2.__h && c2.__h(r2, n3, o2 || t4), o2 = 0;
     var u4 = r2.__H || (r2.__H = { __: [], __h: [] });
     return n3 >= u4.__.length && u4.__.push({}), u4.__[n3];
   }
   function d2(n3) {
-    return o2 = 1, h2(D2, n3);
+    return o2 = 1, y2(D2, n3);
   }
-  function h2(n3, u4, i5) {
-    var o4 = p2(t2++, 2);
+  function y2(n3, u4, i5) {
+    var o4 = s2(t2++, 2);
     if (o4.t = n3, !o4.__c && (o4.__ = [i5 ? i5(u4) : D2(void 0, u4), function(n4) {
       var t4 = o4.__N ? o4.__N[0] : o4.__[0], r4 = o4.t(t4, n4);
       t4 !== r4 && (o4.__N = [r4, o4.__[1]], o4.__c.setState({}));
     }], o4.__c = r2, !r2.__f)) {
       var f4 = function(n4, t4, r4) {
         if (!o4.__c.__H) return true;
-        var u5 = o4.__c.__H.__.filter(function(n5) {
-          return n5.__c;
-        });
-        if (u5.every(function(n5) {
-          return !n5.__N;
-        })) return !c4 || c4.call(this, n4, t4, r4);
-        var i6 = o4.__c.props !== n4;
-        return u5.some(function(n5) {
+        var u5 = false, i6 = o4.__c.props !== n4;
+        if (o4.__c.__H.__.some(function(n5) {
           if (n5.__N) {
+            u5 = true;
             var t5 = n5.__[0];
             n5.__ = n5.__N, n5.__N = void 0, t5 !== n5.__[0] && (i6 = true);
           }
-        }), c4 && c4.call(this, n4, t4, r4) || i6;
+        }), c4) {
+          var f5 = c4.call(this, n4, t4, r4);
+          return u5 ? f5 || i6 : f5;
+        }
+        return !u5 || i6;
       };
       r2.__f = true;
       var c4 = r2.shouldComponentUpdate, e4 = r2.componentWillUpdate;
@@ -1707,12 +1706,12 @@
     }
     return o4.__N || o4.__;
   }
-  function y2(n3, u4) {
-    var i5 = p2(t2++, 3);
+  function h2(n3, u4) {
+    var i5 = s2(t2++, 3);
     !c2.__s && C2(i5.__H, u4) && (i5.__ = n3, i5.u = u4, r2.__H.__h.push(i5));
   }
   function _2(n3, u4) {
-    var i5 = p2(t2++, 4);
+    var i5 = s2(t2++, 4);
     !c2.__s && C2(i5.__H, u4) && (i5.__ = n3, i5.u = u4, r2.__h.push(i5));
   }
   function A2(n3) {
@@ -1721,7 +1720,7 @@
     }, []);
   }
   function T2(n3, r4) {
-    var u4 = p2(t2++, 7);
+    var u4 = s2(t2++, 7);
     return C2(u4.__H, r4) && (u4.__ = n3(), u4.__H = r4, u4.__h = n3), u4.__;
   }
   function q2(n3, t4) {
@@ -1730,7 +1729,7 @@
     }, t4);
   }
   function x2(n3) {
-    var u4 = r2.context[n3.__c], i5 = p2(t2++, 9);
+    var u4 = r2.context[n3.__c], i5 = s2(t2++, 9);
     return i5.c = n3, u4 ? (null == i5.__ && (i5.__ = true, u4.sub(r2)), u4.props.value) : n3.__;
   }
   function j2() {
@@ -1746,7 +1745,7 @@
   c2.__b = function(n3) {
     r2 = null, e2 && e2(n3);
   }, c2.__ = function(n3, t4) {
-    n3 && t4.__k && t4.__k.__m && (n3.__m = t4.__k.__m), s2 && s2(n3, t4);
+    n3 && t4.__k && t4.__k.__m && (n3.__m = t4.__k.__m), p2 && p2(n3, t4);
   }, c2.__r = function(n3) {
     a2 && a2(n3), t2 = 0;
     var i5 = (r2 = n3.__c).__H;
@@ -1757,7 +1756,7 @@
     v2 && v2(n3);
     var t4 = n3.__c;
     t4 && t4.__H && (t4.__H.__h.length && (1 !== f2.push(t4) && i3 === c2.requestAnimationFrame || ((i3 = c2.requestAnimationFrame) || w2)(j2)), t4.__H.__.some(function(n4) {
-      n4.u && (n4.__H = n4.u), n4.u = void 0;
+      n4.u && (n4.__H = n4.u, n4.u = void 0);
     })), u2 = r2 = null;
   }, c2.__c = function(n3, t4) {
     t4.some(function(n4) {
@@ -1809,7 +1808,7 @@
   // shared/hooks/useMediaQuery.js
   function useMediaQuery(query) {
     const [matches, setMatches] = d2(() => window.matchMedia(query).matches);
-    y2(() => {
+    h2(() => {
       const mql = window.matchMedia(query);
       setMatches(mql.matches);
       const handler = () => setMatches(mql.matches);
@@ -1846,7 +1845,7 @@
   }) {
     const isDarkMode = useMediaQuery(THEME_QUERY);
     const [isReducedMotion, setReducedMotion] = d2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
-    y2(() => {
+    h2(() => {
       const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY);
       const listener = (e4) => setter(e4.matches);
       mediaQueryList.addEventListener("change", listener);
@@ -1877,7 +1876,7 @@
     );
   }
   function UpdateEnvironment({ search }) {
-    y2(() => {
+    h2(() => {
       const params = new URLSearchParams(search);
       if (params.has("reduced-motion")) {
         setTimeout(() => {
@@ -2551,7 +2550,7 @@
   function useSignalEffect(i5, n3) {
     var r4 = A2(i5);
     r4.current = i5;
-    y2(function() {
+    h2(function() {
       return j3(function() {
         this.N = T4;
         return r4.current();
@@ -3981,7 +3980,7 @@
   var O2 = l.__e;
   l.__e = function(n3, t4, e4, r4) {
     if (n3.then) {
-      for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k), u4.__c(n3, t4);
+      for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k || []), u4.__c(n3, t4);
     }
     O2(n3, t4, e4, r4);
   };
@@ -4388,7 +4387,7 @@
   function VirtualizedList({ items, heights, overscan, scrollingElement, onChange, renderItem }) {
     const { start, end } = useVisibleRows(items, heights, scrollingElement, overscan);
     const subset = items.slice(start, end + 1);
-    y2(() => {
+    h2(() => {
       onChange?.(end);
     }, [onChange, end]);
     return /* @__PURE__ */ k(S, null, subset.map((item, rowIndex) => {
@@ -4448,7 +4447,7 @@
         controller.abort();
       };
     }, [rows, heights, scrollerSelector]);
-    y2(() => {
+    h2(() => {
       let lastWindowHeight = window.innerHeight;
       function handler() {
         if (lastWindowHeight === window.innerHeight) return;
@@ -4517,7 +4516,7 @@
     const selected = useSelected();
     const selectionState = useSelectionState();
     const dispatch = useHistoryServiceDispatch();
-    y2(() => {
+    h2(() => {
       return selectionState.subscribe(({ lastAction, focusedIndex }) => {
         if (lastAction === "move-selection" || lastAction === "inc-or-dec-selected") {
           const match = document.querySelector(`[aria-selected][data-index="${focusedIndex}"]`);
@@ -4747,7 +4746,7 @@
   function useContextMenuForEntries() {
     const selected = useSelected();
     const dispatch = useHistoryServiceDispatch();
-    y2(() => {
+    h2(() => {
       function contextMenu(event) {
         const target = (
           /** @type {HTMLElement|null} */
@@ -4787,7 +4786,7 @@
   function useAuxClickHandler() {
     const platformName = usePlatformName();
     const dispatch = useHistoryServiceDispatch();
-    y2(() => {
+    h2(() => {
       const handleAuxClick = (event) => {
         const row = (
           /** @type {HTMLDivElement|null} */
@@ -4816,7 +4815,7 @@
   function useButtonClickHandler() {
     const historyServiceDispatch = useHistoryServiceDispatch();
     const selected = useSelected();
-    y2(() => {
+    h2(() => {
       function clickHandler(event) {
         if (!(event.target instanceof Element)) return;
         const btn = (
@@ -4874,7 +4873,7 @@
   function useLinkClickHandler() {
     const platformName = usePlatformName();
     const dispatch = useHistoryServiceDispatch();
-    y2(() => {
+    h2(() => {
       function dblClickHandler(event) {
         const url2 = closestUrl(event);
         if (url2) {
@@ -4952,7 +4951,7 @@
   function useSearchCommitForRange() {
     const dispatch = useHistoryServiceDispatch();
     const query = useQueryContext();
-    y2(() => {
+    h2(() => {
       let timer;
       let counter = 0;
       const sub = query.subscribe((nextQuery) => {
@@ -5103,7 +5102,7 @@
     useSearchCommitForRange();
     const clickAnywhere = useClickAnywhereElse();
     const { onClick, onKeyDown } = useRowInteractions(mainRef);
-    y2(() => {
+    h2(() => {
       const unsubscribe = query.subscribe(() => {
         mainRef.current?.scrollTo(0, 0);
       });
@@ -5207,7 +5206,7 @@
       /** @type {'light' | 'dark'} */
       darkModeMediaQuery.matches ? "dark" : "light"
     );
-    y2(() => {
+    h2(() => {
       const listener = (e4) => setSystemTheme(e4.matches ? "dark" : "light");
       darkModeMediaQuery.addEventListener("change", listener);
       return () => darkModeMediaQuery.removeEventListener("change", listener);
@@ -5225,7 +5224,7 @@
       /** @type {ThemeVariant | undefined} */
       void 0
     );
-    y2(() => {
+    h2(() => {
       const unsubscribe = history.onThemeUpdate((data) => {
         setExplicitTheme(data.theme);
         setExplicitThemeVariant(data.themeVariant);

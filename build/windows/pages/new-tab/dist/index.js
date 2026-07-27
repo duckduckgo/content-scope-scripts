@@ -165,39 +165,39 @@
     };
   }
   function q(n3, u4, t4, i5, r4, o4, e4, f4, c4, a4) {
-    var s4, h5, p5, v4, y5, d5, _5, k4, x5, M3, $3, I2, P4, A5, H3, T6 = u4.type;
+    var s4, h5, p5, v4, y5, d5, _5, k4, x5, M3, $3, I2, P4, A5, H3, T6, j5 = u4.type;
     if (void 0 !== u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (s4 = l.__b) && s4(u4);
-    n: if ("function" == typeof T6) try {
-      if (k4 = u4.props, x5 = T6.prototype && T6.prototype.render, M3 = (s4 = T6.contextType) && i5[s4.__c], $3 = s4 ? M3 ? M3.props.value : s4.__ : i5, t4.__c ? _5 = (h5 = u4.__c = t4.__c).__ = h5.__E : (x5 ? u4.__c = h5 = new T6(k4, $3) : (u4.__c = h5 = new C(k4, $3), h5.constructor = T6, h5.render = Q), M3 && M3.sub(h5), h5.state || (h5.state = {}), h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), x5 && null == h5.__s && (h5.__s = h5.state), x5 && null != T6.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = m({}, h5.__s)), m(h5.__s, T6.getDerivedStateFromProps(k4, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) x5 && null == T6.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), x5 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
-      else {
-        if (x5 && null == T6.getDerivedStateFromProps && k4 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(k4, $3), u4.__v == t4.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(k4, h5.__s, $3)) {
-          u4.__v != t4.__v && (h5.props = k4, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
-            n4 && (n4.__ = u4);
-          }), w.push.apply(h5.__h, h5._sb), h5._sb = [], h5.__h.length && e4.push(h5);
-          break n;
+    n: if ("function" == typeof j5) {
+      h5 = e4.length;
+      try {
+        if (x5 = u4.props, M3 = j5.prototype && j5.prototype.render, $3 = (s4 = j5.contextType) && i5[s4.__c], I2 = s4 ? $3 ? $3.props.value : s4.__ : i5, t4.__c ? k4 = (p5 = u4.__c = t4.__c).__ = p5.__E : (M3 ? u4.__c = p5 = new j5(x5, I2) : (u4.__c = p5 = new C(x5, I2), p5.constructor = j5, p5.render = Q), $3 && $3.sub(p5), p5.state || (p5.state = {}), p5.__n = i5, v4 = p5.__d = true, p5.__h = [], p5._sb = []), M3 && null == p5.__s && (p5.__s = p5.state), M3 && null != j5.getDerivedStateFromProps && (p5.__s == p5.state && (p5.__s = m({}, p5.__s)), m(p5.__s, j5.getDerivedStateFromProps(x5, p5.__s))), y5 = p5.props, d5 = p5.state, p5.__v = u4, v4) M3 && null == j5.getDerivedStateFromProps && null != p5.componentWillMount && p5.componentWillMount(), M3 && null != p5.componentDidMount && p5.__h.push(p5.componentDidMount);
+        else {
+          if (M3 && null == j5.getDerivedStateFromProps && x5 !== y5 && null != p5.componentWillReceiveProps && p5.componentWillReceiveProps(x5, I2), u4.__v == t4.__v || !p5.__e && null != p5.shouldComponentUpdate && false === p5.shouldComponentUpdate(x5, p5.__s, I2)) {
+            u4.__v != t4.__v && (p5.props = x5, p5.state = p5.__s, p5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
+              n4 && (n4.__ = u4);
+            }), w.push.apply(p5.__h, p5._sb), p5._sb = [], p5.__h.length && e4.push(p5);
+            break n;
+          }
+          null != p5.componentWillUpdate && p5.componentWillUpdate(x5, p5.__s, I2), M3 && null != p5.componentDidUpdate && p5.__h.push(function() {
+            p5.componentDidUpdate(y5, d5, _5);
+          });
         }
-        null != h5.componentWillUpdate && h5.componentWillUpdate(k4, h5.__s, $3), x5 && null != h5.componentDidUpdate && h5.__h.push(function() {
-          h5.componentDidUpdate(v4, y5, d5);
-        });
+        if (p5.context = I2, p5.props = x5, p5.__P = n3, p5.__e = false, P4 = l.__r, A5 = 0, M3) p5.state = p5.__s, p5.__d = false, P4 && P4(u4), s4 = p5.render(p5.props, p5.state, p5.context), w.push.apply(p5.__h, p5._sb), p5._sb = [];
+        else do {
+          p5.__d = false, P4 && P4(u4), s4 = p5.render(p5.props, p5.state, p5.context), p5.state = p5.__s;
+        } while (p5.__d && ++A5 < 25);
+        p5.state = p5.__s, null != p5.getChildContext && (i5 = m(m({}, i5), p5.getChildContext())), M3 && !v4 && null != p5.getSnapshotBeforeUpdate && (_5 = p5.getSnapshotBeforeUpdate(y5, d5)), H3 = null != s4 && s4.type === S && null == s4.key ? E(s4.props.children) : s4, f4 = L(n3, g(H3) ? H3 : [H3], u4, t4, i5, r4, o4, e4, f4, c4, a4), p5.base = u4.__e, u4.__u &= -161, p5.__h.length && e4.push(p5), k4 && (p5.__E = p5.__ = null);
+      } catch (n4) {
+        if (e4.length = h5, u4.__v = null, c4 || null != o4) {
+          if (n4.then) {
+            for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
+            null != o4 && (o4[o4.indexOf(f4)] = null), u4.__e = f4;
+          } else if (null != o4) for (T6 = o4.length; T6--; ) b(o4[T6]);
+        } else u4.__e = t4.__e;
+        null == u4.__k && (u4.__k = t4.__k || []), n4.then || B(u4), l.__e(n4, u4, t4);
       }
-      if (h5.context = $3, h5.props = k4, h5.__P = n3, h5.__e = false, I2 = l.__r, P4 = 0, x5) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), s4 = h5.render(h5.props, h5.state, h5.context), w.push.apply(h5.__h, h5._sb), h5._sb = [];
-      else do {
-        h5.__d = false, I2 && I2(u4), s4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
-      } while (h5.__d && ++P4 < 25);
-      h5.state = h5.__s, null != h5.getChildContext && (i5 = m(m({}, i5), h5.getChildContext())), x5 && !p5 && null != h5.getSnapshotBeforeUpdate && (d5 = h5.getSnapshotBeforeUpdate(v4, y5)), A5 = null != s4 && s4.type === S && null == s4.key ? E(s4.props.children) : s4, f4 = L(n3, g(A5) ? A5 : [A5], u4, t4, i5, r4, o4, e4, f4, c4, a4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), _5 && (h5.__E = h5.__ = null);
-    } catch (n4) {
-      if (u4.__v = null, c4 || null != o4) if (n4.then) {
-        for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
-        o4[o4.indexOf(f4)] = null, u4.__e = f4;
-      } else {
-        for (H3 = o4.length; H3--; ) b(o4[H3]);
-        B(u4);
-      }
-      else u4.__e = t4.__e, u4.__k = t4.__k, n4.then || B(u4);
-      l.__e(n4, u4, t4);
-    }
-    else null == o4 && u4.__v == t4.__v ? (u4.__k = t4.__k, u4.__e = t4.__e) : f4 = u4.__e = G(t4.__e, u4, t4, i5, r4, o4, e4, c4, a4);
+    } else null == o4 && u4.__v == t4.__v ? (u4.__k = t4.__k, u4.__e = t4.__e) : f4 = u4.__e = G(t4.__e, u4, t4, i5, r4, o4, e4, c4, a4);
     return (s4 = l.diffed) && s4(u4), 128 & u4.__u ? void 0 : f4;
   }
   function B(n3) {
@@ -259,7 +259,7 @@
       } catch (n4) {
         l.__e(n4, u4);
       }
-      i5.base = i5.__P = null;
+      i5.base = i5.__P = i5.__n = null;
     }
     if (i5 = n3.__k) for (r4 = 0; r4 < i5.length; r4++) i5[r4] && K(i5[r4], u4, t4 || "function" != typeof n3.type);
     t4 || b(n3.__e), n3.__c = n3.__ = n3.__e = void 0;
@@ -269,7 +269,7 @@
   }
   function R(u4, t4, i5) {
     var r4, o4, e4, f4;
-    t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), o4 = (r4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], q(t4, u4 = (!r4 && i5 || t4).__k = k(S, null, [u4]), o4 || d, d, t4.namespaceURI, !r4 && i5 ? [i5] : o4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !r4 && i5 ? i5 : o4 ? o4.__e : t4.firstChild, r4, f4), D(e4, u4, f4);
+    t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), o4 = (r4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], q(t4, u4 = (!r4 && i5 || t4).__k = k(S, null, [u4]), o4 || d, d, t4.namespaceURI, !r4 && i5 ? [i5] : o4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !r4 && i5 ? i5 : o4 ? o4.__e : t4.firstChild, r4, f4), D(e4, u4, f4), u4.props.children = null;
   }
   function W(l5, u4, t4) {
     var i5, r4, o4, e4, f4 = m({}, l5.props);
@@ -387,35 +387,34 @@
   });
 
   // ../node_modules/preact/hooks/dist/hooks.module.js
-  function p2(n3, t4) {
+  function s2(n3, t4) {
     c2.__h && c2.__h(r2, n3, o2 || t4), o2 = 0;
     var u4 = r2.__H || (r2.__H = { __: [], __h: [] });
     return n3 >= u4.__.length && u4.__.push({}), u4.__[n3];
   }
   function d2(n3) {
-    return o2 = 1, h2(D2, n3);
+    return o2 = 1, y2(D2, n3);
   }
-  function h2(n3, u4, i5) {
-    var o4 = p2(t2++, 2);
+  function y2(n3, u4, i5) {
+    var o4 = s2(t2++, 2);
     if (o4.t = n3, !o4.__c && (o4.__ = [i5 ? i5(u4) : D2(void 0, u4), function(n4) {
       var t4 = o4.__N ? o4.__N[0] : o4.__[0], r4 = o4.t(t4, n4);
       t4 !== r4 && (o4.__N = [r4, o4.__[1]], o4.__c.setState({}));
     }], o4.__c = r2, !r2.__f)) {
       var f4 = function(n4, t4, r4) {
         if (!o4.__c.__H) return true;
-        var u5 = o4.__c.__H.__.filter(function(n5) {
-          return n5.__c;
-        });
-        if (u5.every(function(n5) {
-          return !n5.__N;
-        })) return !c4 || c4.call(this, n4, t4, r4);
-        var i6 = o4.__c.props !== n4;
-        return u5.some(function(n5) {
+        var u5 = false, i6 = o4.__c.props !== n4;
+        if (o4.__c.__H.__.some(function(n5) {
           if (n5.__N) {
+            u5 = true;
             var t5 = n5.__[0];
             n5.__ = n5.__N, n5.__N = void 0, t5 !== n5.__[0] && (i6 = true);
           }
-        }), c4 && c4.call(this, n4, t4, r4) || i6;
+        }), c4) {
+          var f5 = c4.call(this, n4, t4, r4);
+          return u5 ? f5 || i6 : f5;
+        }
+        return !u5 || i6;
       };
       r2.__f = true;
       var c4 = r2.shouldComponentUpdate, e4 = r2.componentWillUpdate;
@@ -429,12 +428,12 @@
     }
     return o4.__N || o4.__;
   }
-  function y2(n3, u4) {
-    var i5 = p2(t2++, 3);
+  function h2(n3, u4) {
+    var i5 = s2(t2++, 3);
     !c2.__s && C2(i5.__H, u4) && (i5.__ = n3, i5.u = u4, r2.__H.__h.push(i5));
   }
   function _2(n3, u4) {
-    var i5 = p2(t2++, 4);
+    var i5 = s2(t2++, 4);
     !c2.__s && C2(i5.__H, u4) && (i5.__ = n3, i5.u = u4, r2.__h.push(i5));
   }
   function A2(n3) {
@@ -443,7 +442,7 @@
     }, []);
   }
   function T2(n3, r4) {
-    var u4 = p2(t2++, 7);
+    var u4 = s2(t2++, 7);
     return C2(u4.__H, r4) && (u4.__ = n3(), u4.__H = r4, u4.__h = n3), u4.__;
   }
   function q2(n3, t4) {
@@ -452,11 +451,11 @@
     }, t4);
   }
   function x2(n3) {
-    var u4 = r2.context[n3.__c], i5 = p2(t2++, 9);
+    var u4 = r2.context[n3.__c], i5 = s2(t2++, 9);
     return i5.c = n3, u4 ? (null == i5.__ && (i5.__ = true, u4.sub(r2)), u4.props.value) : n3.__;
   }
   function g2() {
-    var n3 = p2(t2++, 11);
+    var n3 = s2(t2++, 11);
     if (!n3.__) {
       for (var u4 = r2.__v; null !== u4 && !u4.__m && null !== u4.__; ) u4 = u4.__;
       var i5 = u4.__m || (u4.__m = [0, 0]);
@@ -496,7 +495,7 @@
   function D2(n3, t4) {
     return "function" == typeof t4 ? t4(n3) : t4;
   }
-  var t2, r2, u2, i3, o2, f2, c2, e2, a2, v2, l2, m2, s2, k2;
+  var t2, r2, u2, i3, o2, f2, c2, e2, a2, v2, l2, m2, p2, k2;
   var init_hooks_module = __esm({
     "../node_modules/preact/hooks/dist/hooks.module.js"() {
       init_preact_module();
@@ -508,11 +507,11 @@
       v2 = c2.diffed;
       l2 = c2.__c;
       m2 = c2.unmount;
-      s2 = c2.__;
+      p2 = c2.__;
       c2.__b = function(n3) {
         r2 = null, e2 && e2(n3);
       }, c2.__ = function(n3, t4) {
-        n3 && t4.__k && t4.__k.__m && (n3.__m = t4.__k.__m), s2 && s2(n3, t4);
+        n3 && t4.__k && t4.__k.__m && (n3.__m = t4.__k.__m), p2 && p2(n3, t4);
       }, c2.__r = function(n3) {
         a2 && a2(n3), t2 = 0;
         var i5 = (r2 = n3.__c).__H;
@@ -523,7 +522,7 @@
         v2 && v2(n3);
         var t4 = n3.__c;
         t4 && t4.__H && (t4.__H.__h.length && (1 !== f2.push(t4) && i3 === c2.requestAnimationFrame || ((i3 = c2.requestAnimationFrame) || w2)(j2)), t4.__H.__.some(function(n4) {
-          n4.u && (n4.__H = n4.u), n4.u = void 0;
+          n4.u && (n4.__H = n4.u, n4.u = void 0);
         })), u2 = r2 = null;
       }, c2.__c = function(n3, t4) {
         t4.some(function(n4) {
@@ -1071,7 +1070,7 @@
   function useSignalEffect(i5, n3) {
     var r4 = A2(i5);
     r4.current = i5;
-    y2(function() {
+    h2(function() {
       return j3(function() {
         this.N = T4;
         return r4.current();
@@ -1368,7 +1367,7 @@
   function Trans({ str, values: values2 }) {
     const ref = A2(null);
     const cleanups = A2([]);
-    y2(() => {
+    h2(() => {
       if (!ref.current) return;
       const curr = ref.current;
       const cleanupsCurr = cleanups.current;
@@ -2385,7 +2384,7 @@
       O2 = l.__e;
       l.__e = function(n3, t4, e4, r4) {
         if (n3.then) {
-          for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k), u4.__c(n3, t4);
+          for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k || []), u4.__c(n3, t4);
         }
         O2(n3, t4, e4, r4);
       };
@@ -2613,7 +2612,7 @@
       current: src,
       next: src
     });
-    y2(() => {
+    h2(() => {
       let img = new Image();
       let cancelled = false;
       setState((prev) => {
@@ -2731,7 +2730,7 @@
   // shared/hooks/useMediaQuery.js
   function useMediaQuery(query) {
     const [matches, setMatches] = d2(() => window.matchMedia(query).matches);
-    y2(() => {
+    h2(() => {
       const mql = window.matchMedia(query);
       setMatches(mql.matches);
       const handler = () => setMatches(mql.matches);
@@ -2758,7 +2757,7 @@
   }) {
     const isDarkMode = useMediaQuery(THEME_QUERY2);
     const [isReducedMotion, setReducedMotion] = d2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
-    y2(() => {
+    h2(() => {
       const mediaQueryList2 = window.matchMedia(REDUCED_MOTION_QUERY);
       const listener = (e4) => setter(e4.matches);
       mediaQueryList2.addEventListener("change", listener);
@@ -2789,7 +2788,7 @@
     );
   }
   function UpdateEnvironment({ search }) {
-    y2(() => {
+    h2(() => {
       const params = new URLSearchParams(search);
       if (params.has("reduced-motion")) {
         setTimeout(() => {
@@ -2901,7 +2900,7 @@
       };
     }, [isReducedMotion, initial]);
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       if (initial === "visible") {
         _open();
       }
@@ -3240,7 +3239,7 @@
       /** @type {HTMLDivElement|null} */
       null
     );
-    y2(() => {
+    h2(() => {
       popoverRef.current?.focus();
       const handleEscapeKey = (event) => {
         if (event.key === "Escape") {
@@ -3307,7 +3306,7 @@
   }
   function useContextMenu() {
     const messaging2 = useMessaging();
-    y2(() => {
+    h2(() => {
       function handler(e4) {
         if (e4.target instanceof HTMLInputElement || e4.target instanceof HTMLTextAreaElement) {
           return;
@@ -3363,14 +3362,14 @@
     return /* @__PURE__ */ k("div", { class: Customizer_default.lowerRightFixed }, children);
   }
   function useCustomizer({ title, id, icon, toggle, visibility, index: index2, enabled }) {
-    y2(() => {
+    h2(() => {
       const handler = (e4) => {
         e4.detail.register({ title, id, icon, toggle, visibility, index: index2, enabled });
       };
       window.addEventListener(OPEN_EVENT, handler);
       return () => window.removeEventListener(OPEN_EVENT, handler);
     }, [title, id, icon, toggle, visibility, index2, enabled]);
-    y2(() => {
+    h2(() => {
       window.dispatchEvent(new Event(UPDATE_EVENT));
       return () => {
         window.dispatchEvent(new Event(UPDATE_EVENT));
@@ -3770,7 +3769,7 @@
   }
   function useInitialDataAndConfig({ dispatch, service }) {
     const messaging2 = useMessaging();
-    y2(() => {
+    h2(() => {
       if (!service.current) return console.warn("missing service");
       const currentService = service.current;
       async function init2() {
@@ -3794,7 +3793,7 @@
   }
   function useInitialData({ dispatch, service }) {
     const messaging2 = useMessaging();
-    y2(() => {
+    h2(() => {
       if (!service.current) return console.warn("missing service");
       const currentService = service.current;
       async function init2() {
@@ -3817,7 +3816,7 @@
     }, []);
   }
   function useDataSubscription({ dispatch, service }) {
-    y2(() => {
+    h2(() => {
       if (!service.current) return console.warn("could not access service");
       const unsub = service.current.onData((evt) => {
         dispatch({ kind: "data", data: evt.data });
@@ -3828,7 +3827,7 @@
     }, [service, dispatch]);
   }
   function useConfigSubscription({ dispatch, service }) {
-    y2(() => {
+    h2(() => {
       if (!service.current) return console.warn("could not access service");
       const unsub2 = service.current.onConfig((data2) => {
         dispatch({ kind: "config", config: data2.data });
@@ -3859,7 +3858,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -3902,7 +3901,7 @@
       [service]
     );
     const faviconsRefreshedCount = useSignal(0);
-    y2(() => {
+    h2(() => {
       if (!service.current) return;
       return service.current.onFaviconsRefreshed(() => {
         faviconsRefreshedCount.value = faviconsRefreshedCount.value += 1;
@@ -3916,7 +3915,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new FavoritesService(ntp);
       service.current = stats;
       return () => {
@@ -6489,7 +6488,7 @@
     return /* @__PURE__ */ k(InstanceIdContext.Provider, { value: instanceId }, children);
   }
   function useGridState(favorites2, itemsDidReOrder, instanceId) {
-    y2(() => {
+    h2(() => {
       return combine(
         monitorForExternal({
           onDrop(payload) {
@@ -6575,7 +6574,7 @@
       /** @type {DNDState} */
       { type: "idle" }
     );
-    y2(() => {
+    h2(() => {
       const el = ref.current;
       if (!el) throw new Error("unreachable");
       let draggableCleanup = () => {
@@ -6779,7 +6778,7 @@
 
   // pages/new-tab/app/dropzone.js
   function useGlobalDropzone() {
-    y2(() => {
+    h2(() => {
       let safezones = [];
       const controller = new AbortController();
       window.addEventListener(
@@ -6832,7 +6831,7 @@
   }
   function useDropzoneSafeArea() {
     const ref = A2(null);
-    y2(() => {
+    h2(() => {
       const node = ref.current;
       if (!node) return;
       const evt = new CustomEvent(REGISTER_EVENT, { detail: { dropzone: node } });
@@ -7199,7 +7198,7 @@
     return "same-tab";
   }
   function useOnMiddleClick(ref, handler) {
-    y2(() => {
+    h2(() => {
       const element = ref.current;
       if (!element) return;
       const handleAuxClick = (event) => event.button === 1 && handler(event);
@@ -7220,7 +7219,7 @@
   function DocumentVisibilityProvider({ children }) {
     const initial = document.visibilityState;
     const [documentVisibility, setDocumentVisibility] = d2(initial);
-    y2(() => {
+    h2(() => {
       const handleVisibilityChange = () => {
         setDocumentVisibility(document.visibilityState);
       };
@@ -7334,7 +7333,7 @@
     const { onConfigChanged, state } = x2(FavoritesContext);
     const [expansion, setExpansion] = d2(state.config?.expansion || "collapsed");
     const { start: start2, end } = useVisibleRows(rows, rowHeight, safeAreaRef, expansion);
-    y2(() => {
+    h2(() => {
       return onConfigChanged((config) => {
         if (config.expansion === "expanded") {
           setTimeout(() => {
@@ -7407,7 +7406,7 @@
         controller.abort();
       };
     }, [rows.length, expansion]);
-    y2(() => {
+    h2(() => {
       let lastWindowHeight = window.innerHeight;
       function handler() {
         if (lastWindowHeight === window.innerHeight) return;
@@ -7420,7 +7419,7 @@
         return window.removeEventListener("resize", handler);
       };
     }, [rows.length]);
-    y2(() => {
+    h2(() => {
       if (!contentTubeRef.current) return;
       let lastHeight;
       let debounceTimer;
@@ -7727,7 +7726,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService2();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -7752,7 +7751,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new FreemiumPIRBannerService(ntp);
       service.current = stats;
       return () => {
@@ -7979,7 +7978,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService3();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -8007,7 +8006,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new NextStepsService(ntp);
       service.current = stats;
       return () => {
@@ -8411,7 +8410,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService4();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -8439,7 +8438,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new NextStepsListService(ntp);
       service.current = stats;
       return () => {
@@ -8556,7 +8555,7 @@
       /** @type {CardContent | null} */
       null
     );
-    y2(() => {
+    h2(() => {
       if (!dismissingCard) return;
       const timer2 = setTimeout(() => {
         setDismissingCard(null);
@@ -9143,7 +9142,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService5();
     useInitialDataAndConfig({ dispatch, service });
     useConfigSubscription({ dispatch, service });
@@ -9304,7 +9303,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const omnibar = new OmnibarService(ntp);
       service.current = omnibar;
       return () => {
@@ -9516,12 +9515,12 @@
   function useAiChats({ query, initiallyVisible, enableRecentAiChats, showViewAllAiChats = false }) {
     const { getAiChats, onAiChats, confirmDeleteAiChat } = x2(OmnibarContext);
     const deletionInProgress = A2(false);
-    const [state, dispatch] = h2(reducer2, {
+    const [state, dispatch] = y2(reducer2, {
       chats: [],
       selectedIndex: null,
       chatsVisible: Boolean(initiallyVisible)
     });
-    y2(() => {
+    h2(() => {
       if (!enableRecentAiChats) {
         dispatch({ type: "setChats", payload: [] });
         return;
@@ -9530,7 +9529,7 @@
         dispatch({ type: "setChats", payload: data2.chats });
       });
     }, [onAiChats, enableRecentAiChats]);
-    y2(() => {
+    h2(() => {
       if (!enableRecentAiChats) return;
       getAiChats(query);
     }, [getAiChats, query, enableRecentAiChats]);
@@ -9683,7 +9682,7 @@
       /** @type {HTMLFormElement|null} */
       null
     );
-    y2(() => {
+    h2(() => {
       if (autoFocus && textareaRef.current) {
         textareaRef.current.focus();
       }
@@ -10140,8 +10139,8 @@
   }
   function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
     const { onSuggestions, getSuggestions, removeSuggestion: notifyRemoveSuggestion } = x2(OmnibarContext);
-    const [state, dispatch] = h2(reducer3, initialState);
-    y2(() => {
+    const [state, dispatch] = y2(reducer3, initialState);
+    h2(() => {
       return onSuggestions((data2, term2) => {
         const suggestions2 = [
           ...data2.suggestions.topHits,
@@ -10364,7 +10363,7 @@
     const inputSuffix = getInputSuffix(term, selectedSuggestion);
     const inputSuffixText = useSuffixText(inputSuffix);
     const inputFont = platformName === "windows" ? "400 14px / 16px system-ui" : "500 13px / 16px system-ui";
-    y2(() => {
+    h2(() => {
       if (autoFocus && inputRef.current) {
         inputRef.current.focus();
       }
@@ -10893,7 +10892,7 @@
   // pages/new-tab/app/tabs/TabsProvider.js
   function TabsProvider({ children, service }) {
     const tabs = useSignal(service.snapshot());
-    y2(() => {
+    h2(() => {
       return service.onData(({ data: data2 }) => {
         tabs.value = data2;
       });
@@ -11013,7 +11012,7 @@
       new PersistentValue()
     ));
     const { all: all2 } = useTabState();
-    y2(() => {
+    h2(() => {
       return all2.subscribe((tabIds) => {
         value2?.prune({ preserve: tabIds });
       });
@@ -11026,7 +11025,7 @@
       new PersistentValue()
     ));
     const { all: all2 } = useTabState();
-    y2(() => {
+    h2(() => {
       return all2.subscribe((tabIds) => {
         value2?.prune({ preserve: tabIds });
       });
@@ -11044,7 +11043,7 @@
         new PersistentValue()
       ));
       const { all: all2 } = useTabState();
-      y2(() => {
+      h2(() => {
         return all2.subscribe((tabIds) => store.prune({ preserve: tabIds }));
       }, [all2, store]);
       return /* @__PURE__ */ k(Context.Provider, { value: store }, children);
@@ -11109,7 +11108,7 @@
       "Cannot use `useQueryWithPersistence` without Omnibar Service being ready."
     );
     const service = useOmnibarService();
-    y2(() => {
+    h2(() => {
       if (!service) return;
       return service.onConfig((v4) => {
         if (!tabId) return;
@@ -11989,7 +11988,7 @@
       /** @type {(() => void) | null} */
       null
     );
-    y2(() => {
+    h2(() => {
       return () => cleanupRef.current?.();
     }, []);
     const close = () => {
@@ -12180,7 +12179,7 @@
         setActiveIndex(enabledModelIndices[nextEnabledPosition]);
       }
     };
-    y2(() => {
+    h2(() => {
       const frameId = window.requestAnimationFrame(() => {
         dropdownRef?.current?.focus();
       });
@@ -12482,7 +12481,7 @@
       }
       setActiveIndex(navigableIndices[nextPos]);
     };
-    y2(() => {
+    h2(() => {
       const frameId = window.requestAnimationFrame(() => {
         dropdownRef.current?.focus();
       });
@@ -13164,7 +13163,7 @@
         console.error("omnibar_getOpenTabs failed", err);
       }
     }, [getOpenTabs, setOpenTabs]);
-    y2(() => {
+    h2(() => {
       if (!enabled) return;
       refetchTabs();
       const handler = () => {
@@ -13216,7 +13215,7 @@
       {}
     );
     const { openTabs, refetchTabs } = x2(OpenTabsContext);
-    y2(() => {
+    h2(() => {
       refetchTabs();
     }, [refetchTabs]);
     return /* @__PURE__ */ k(
@@ -13597,7 +13596,7 @@
     const [mentionQuery, setMentionQuery] = d2("");
     const pickerActive = enabled && anchor !== null;
     const { openTabs, refetchTabs } = x2(OpenTabsContext);
-    y2(() => {
+    h2(() => {
       if (pickerActive) refetchTabs();
     }, [pickerActive, refetchTabs]);
     const filtered = T2(() => filterTabs(openTabs, mentionQuery), [openTabs, mentionQuery]);
@@ -14461,7 +14460,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService6();
     useInitialDataAndConfig({ dispatch, service });
     useConfigSubscription({ dispatch, service });
@@ -14482,7 +14481,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new ProtectionsService(ntp);
       service.current = stats;
       return () => {
@@ -14805,7 +14804,7 @@
       );
       observerRef.current.observe(element);
     }, []);
-    y2(() => {
+    h2(() => {
       if (!elementRef) {
         setIsInViewport(true);
         return;
@@ -14835,7 +14834,7 @@
         }
       };
     }, []);
-    y2(() => {
+    h2(() => {
       let cancelAnimation = () => {
       };
       const shouldAnimate = document.visibilityState === "visible" && isInViewport;
@@ -14912,7 +14911,7 @@
     const totalCookiePopUpsBlocked = typeof totalCookiePopUpsBlockedValue === "number" && Number.isFinite(totalCookiePopUpsBlockedValue) ? Math.max(0, Math.floor(totalCookiePopUpsBlockedValue)) : 0;
     const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked, counterContainerRef);
     const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked, counterContainerRef);
-    y2(() => {
+    h2(() => {
       return ntp.messaging.subscribe("protections_scroll", () => {
         headingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
@@ -15346,7 +15345,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const batched = useBatchedActivityApi();
     const service = useService7(batched);
     useInitialData({ dispatch, service });
@@ -15358,7 +15357,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new BatchedActivityService(ntp, useBatched);
       service.current = stats;
       return () => {
@@ -16077,7 +16076,7 @@
       setVisibleRange(nextVisibleRange);
       fillHoles();
     }
-    y2(() => {
+    h2(() => {
       if (!service) return console.warn("could not access service");
       const src = (
         /** @type {import("./batched-activity.service.js").BatchedActivityService} */
@@ -16101,13 +16100,13 @@
         unsub();
       };
     }, [service, batched, activity, keys]);
-    y2(() => {
+    h2(() => {
       window.addEventListener("activity.next", showNextChunk);
       return () => {
         window.removeEventListener("activity.next", showNextChunk);
       };
     }, []);
-    y2(() => {
+    h2(() => {
       const handler = () => {
         if (document.visibilityState === "visible") {
           if (batched) {
@@ -32583,7 +32582,7 @@
       null
     );
     const json = x2(ActivityBurningSignalContext);
-    y2(() => {
+    h2(() => {
       if (!ref.current) return;
       let finished = false;
       let timer2 = null;
@@ -32679,7 +32678,7 @@
     return /* @__PURE__ */ k("div", { class: (0, import_classnames25.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ k(P3, { fallback: null }, /* @__PURE__ */ k(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ k(NullBurner, { url: url8, doneBurning }));
   }
   function NullBurner({ url: url8, doneBurning }) {
-    y2(() => doneBurning(url8), [url8]);
+    h2(() => doneBurning(url8), [url8]);
     return null;
   }
   var import_classnames25, BurnAnimationLazy;
@@ -32861,7 +32860,7 @@
       /** @type {HTMLDivElement|null} */
       null
     );
-    y2(() => {
+    h2(() => {
       const observer = new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting) {
           window.dispatchEvent(new Event("activity.next"));
@@ -33100,7 +33099,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService8();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -33112,7 +33111,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new PrivacyStatsService(ntp);
       service.current = stats;
       return () => {
@@ -33542,7 +33541,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService9();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -33574,7 +33573,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new RMFService(ntp);
       service.current = stats;
       return () => {
@@ -33755,7 +33754,7 @@
         config: null
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService10();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -33780,7 +33779,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new SubscriptionWinBackBannerService(ntp);
       service.current = stats;
       return () => {
@@ -33945,7 +33944,7 @@
         config: void 0
       }
     );
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const service = useService11(updateNotification);
     useDataSubscription({ dispatch, service });
     const dismiss = q2(() => {
@@ -33959,7 +33958,7 @@
       null
     );
     const ntp = useMessaging();
-    y2(() => {
+    h2(() => {
       const stats = new UpdateNotificationService(ntp, initial);
       service.current = stats;
       return () => {
@@ -34091,7 +34090,7 @@
   // ../node_modules/preact/devtools/dist/devtools.module.js
   init_preact_module();
   var i2;
-  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.2", l, { Fragment: S, Component: C });
+  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.29.7", l, { Fragment: S, Component: C });
 
   // pages/new-tab/src/index.js
   init_preact_module();
@@ -34353,7 +34352,7 @@
     return /* @__PURE__ */ k("div", { hidden: !isOpen }, /* @__PURE__ */ k("textarea", { style: { width: "100%" }, rows: 20, ref: textRef }));
   }
   function useEvents(ref, telemetry2) {
-    y2(() => {
+    h2(() => {
       if (!ref.current) return;
       const elem2 = ref.current;
       const pre = "```json\n";
@@ -36639,7 +36638,7 @@
       }
     );
     const [et] = d2(() => new EventTarget());
-    const [state, dispatch] = h2(reducer, initial);
+    const [state, dispatch] = y2(reducer, initial);
     const toggle = q2(() => {
       if (state.status !== "ready") return;
       const next = state.config.expansion === "expanded" ? (
@@ -37087,8 +37086,8 @@
         config: null
       }
     );
-    const [state, send] = h2(reducer, initial);
-    y2(() => {
+    const [state, send] = y2(reducer, initial);
+    h2(() => {
       if (!ticker) return;
       if (state.status === "ready") {
         const next = {
@@ -38859,7 +38858,7 @@
       /** @type {number | null | undefined} */
       null
     );
-    y2(() => {
+    h2(() => {
       if (interval === 0) return;
       const int = setInterval(() => signal.value += 1, interval);
       return () => clearInterval(int);
