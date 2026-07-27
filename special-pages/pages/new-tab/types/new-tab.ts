@@ -757,13 +757,13 @@ export interface AIModelItem {
   supportedReasoningEffort?: ReasoningEffort[];
 }
 /**
- * Limits the omnibar applies to attachments. `files` and `images` are backend-sourced and may be omitted (the omnibar falls back to its built-in defaults for whichever is absent). `tabs` is a hardcoded native cap and is always present.
+ * Limits the omnibar applies to attachments. All fields are optional. `files`/`images` are backend-sourced; the omnibar falls back to its built-in defaults for whichever is absent. `tabs` is a hardcoded native cap; when omitted (kill switch off) no tab limit is applied.
  */
 export interface AttachmentLimits {
   /**
-   * Limits for attached open tabs.
+   * Limits for attached open tabs. Omitted when the tab-limit kill switch is off, meaning no tab limit.
    */
-  tabs: {
+  tabs?: {
     /**
      * Maximum number of open tabs that can be attached at once.
      */

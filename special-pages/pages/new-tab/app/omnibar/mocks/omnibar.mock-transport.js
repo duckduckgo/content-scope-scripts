@@ -284,7 +284,8 @@ export function omnibarMockTransport() {
                         if (fileMaxFileSizeMB > 0 && config.attachmentLimits.files)
                             config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
                         const tabMaxAttached = parseInt(url.searchParams.get('omnibar.tabMaxAttached') ?? '', 10);
-                        if (tabMaxAttached > 0) config.attachmentLimits.tabs.maxAttached = tabMaxAttached;
+                        if (tabMaxAttached > 0 && config.attachmentLimits.tabs)
+                            config.attachmentLimits.tabs.maxAttached = tabMaxAttached;
                     }
                     config.enableAiChatDeletion = parseBooleanQueryParam('omnibar.enableAiChatDeletion') ?? config.enableAiChatDeletion;
                     config.enableSearchSuggestionDeletion =

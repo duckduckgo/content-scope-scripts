@@ -5,8 +5,6 @@ import { OpenTabsContext } from './OpenTabsProvider';
 
 const { useStateWithLocalPersistence } = TabAttachments;
 
-export const MAX_TABS = 3;
-
 /**
  * @typedef {import('../../../../../types/new-tab.js').TabMetadata} TabMetadata
  * @typedef {import('../../../../../types/new-tab.js').PageContext} PageContext
@@ -18,9 +16,9 @@ export const MAX_TABS = 3;
 
 /**
  * @param {string|null|undefined} tabId — NTP tab the attachments are persisted under.
- * @param {number} [maxTabs] - Max attached tabs, from native `attachmentLimits.tabs.maxAttached`. Defaults to {@link MAX_TABS}.
+ * @param {number} [maxTabs] - Max attached tabs, from native `attachmentLimits.tabs.maxAttached`. Absent means no limit (kill switch off).
  */
-export function useTabAttachments(tabId, maxTabs = MAX_TABS) {
+export function useTabAttachments(tabId, maxTabs = Number.POSITIVE_INFINITY) {
     const { getTabContent } = useContext(OmnibarContext);
     const { openTabs } = useContext(OpenTabsContext);
     const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence(tabId);
