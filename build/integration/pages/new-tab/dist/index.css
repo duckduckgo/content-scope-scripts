@@ -4726,13 +4726,54 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   white-space: nowrap;
 }
 .ModelSelector_modelOption::before {
+  align-self: flex-start;
   color: transparent;
   content: "\2713";
   flex-shrink: 0;
   font-size: 13px;
   margin-right: -5px;
   font-weight: 700;
+  margin-top: 2px;
   width: var(--sp-4);
+}
+.ModelSelector_modelOption > svg {
+  align-self: flex-start;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.ModelSelector_modelOptionLabel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.ModelSelector_modelOptionName {
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+[data-platform=windows] .ModelSelector_modelOptionName {
+  line-height: 18px;
+}
+.ModelSelector_modelOptionDescription {
+  color: var(--ds-color-theme-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ModelSelector_modelOptionBadge {
+  align-self: center;
+  color: var(--ds-color-theme-text-tertiary);
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12px;
+  margin-left: auto;
+  padding-left: var(--sp-2);
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 .ModelSelector_modelOptionActive {
   background: var(--ds-color-theme-control-fill-primary);
@@ -4752,6 +4793,13 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   cursor: default;
   pointer-events: none;
 }
+.ModelSelector_modelOptionUpsell {
+  color: var(--ds-color-theme-text-tertiary);
+  cursor: pointer;
+}
+.ModelSelector_modelOptionUpsell.ModelSelector_modelOptionActive {
+  color: var(--ds-color-theme-text-tertiary);
+}
 .ModelSelector_modelSectionDivider {
   border-top: 1px solid var(--ds-color-theme-surface-decoration-secondary);
   margin: var(--sp-1) var(--sp-4);
@@ -4770,6 +4818,40 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   content: "";
   flex-shrink: 0;
   width: var(--sp-4);
+}
+.ModelSelector_modelUpsellHeader {
+  align-items: center;
+  color: var(--ds-color-theme-text-primary);
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-4);
+  white-space: nowrap;
+}
+.ModelSelector_modelUpsellHeaderActive {
+  background: var(--ds-color-theme-control-fill-primary);
+  border-radius: var(--border-radius-xs);
+}
+.ModelSelector_modelUpsellCta {
+  align-items: center;
+  background: var(--ds-color-pollen-30, #ffd885);
+  border-radius: 24px;
+  color: var(--ds-color-black-at-84, rgba(0, 0, 0, 0.84));
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 700;
+  height: 20px;
+  letter-spacing: -0.2px;
+  margin-left: auto;
+  padding: 0 var(--sp-2);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ModelSelector_upsellMuted .ModelSelector_modelUpsellCta {
+  background: var(--ds-color-theme-control-fill-primary);
+  color: var(--ds-color-theme-text-primary);
 }
 
 /* pages/new-tab/app/omnibar/components/chat-tools/dropdown/Dropdown.module.css */
@@ -4820,6 +4902,9 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 .Dropdown_item > svg {
   flex-shrink: 0;
 }
+.Dropdown_dropdown.Dropdown_roomy {
+  min-width: 300px;
+}
 .Dropdown_trailingIcon {
   align-items: center;
   color: var(--ds-color-theme-icons-secondary);
@@ -4834,6 +4919,10 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   display: flex;
   margin-left: auto;
   padding-left: 8px;
+}
+.Dropdown_itemDimmed > svg,
+.Dropdown_itemDimmed .Dropdown_itemLabel {
+  opacity: 0.4;
 }
 .Dropdown_itemActive {
   background: var(--ds-color-theme-control-fill-primary);
@@ -4889,6 +4978,9 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   text-overflow: ellipsis;
   line-height: 16px;
 }
+[data-platform=windows] .Dropdown_itemName {
+  line-height: 18px;
+}
 .Dropdown_itemDescription {
   line-height: 16px;
   color: var(--ds-color-theme-text-secondary);
@@ -4942,6 +5034,24 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.ReasoningPicker_tryForFreeBadge {
+  align-items: center;
+  background: var(--ds-color-pollen-30, #ffd885);
+  border-radius: 24px;
+  color: var(--ds-color-black-at-84, rgba(0, 0, 0, 0.84));
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 700;
+  height: 20px;
+  letter-spacing: -0.2px;
+  padding: 0 var(--sp-2);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ReasoningPicker_upsellMuted .ReasoningPicker_tryForFreeBadge {
+  background: var(--ds-color-theme-control-fill-primary);
+  color: var(--ds-color-theme-text-primary);
 }
 
 /* pages/new-tab/app/omnibar/components/chat-tools/tools-menu/ToolsMenu.module.css */

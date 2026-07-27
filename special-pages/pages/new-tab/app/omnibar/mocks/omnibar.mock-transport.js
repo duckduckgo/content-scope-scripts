@@ -16,7 +16,7 @@ function parseBooleanQueryParam(param) {
 }
 
 /** @type {ReadonlyArray<import('../../../types/new-tab.ts').ReasoningEffort>} */
-const REASONING_EFFORTS = ['none', 'low', 'medium'];
+const REASONING_EFFORTS = ['none', 'medium', 'extended'];
 
 /**
  * Reads a URL query param as a ReasoningEffort. Returns null if absent or invalid.
@@ -28,10 +28,28 @@ function parseReasoningEffortQueryParam(param) {
     return REASONING_EFFORTS.find((effort) => effort === value) ?? null;
 }
 
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const FAST_EFFORT = { id: 'none', name: 'Fast', description: 'Answers quickly', isAvailable: true };
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const REASONING_EFFORT = { id: 'medium', name: 'Reasoning', description: 'For complex tasks', isAvailable: true };
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const EXTENDED_EFFORT_UNAVAILABLE = {
+    id: 'extended',
+    name: 'Extended Reasoning',
+    description: 'For analytical tasks',
+    isAvailable: false,
+    upsell: 'subscribe',
+};
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const EXTENDED_EFFORT_UPGRADE = { ...EXTENDED_EFFORT_UNAVAILABLE, upsell: 'upgrade' };
+/** @type {import('../../../types/new-tab.ts').ReasoningEffortOption} */
+const EXTENDED_EFFORT_AVAILABLE = { ...EXTENDED_EFFORT_UNAVAILABLE, isAvailable: true, upsell: undefined };
+
 export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
     const config = {
         mode: 'search',
+        isEligibleForFreeTrial: true,
         enableAi: true,
         showAiSetting: true,
         showCustomizePopover: false,
@@ -44,7 +62,9 @@ export function omnibarMockTransport() {
                         id: 'gpt-4o-mini',
                         name: 'GPT-4o mini',
                         shortName: '4o-mini',
-                        isEnabled: true,
+                        description: 'Solid but uses limits faster',
+                        isAvailable: true,
+                        accessTier: 'free',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                     },
@@ -52,16 +72,19 @@ export function omnibarMockTransport() {
                         id: 'gpt-5-mini',
                         name: 'GPT-5 mini',
                         shortName: 'GPT-5',
-                        isEnabled: true,
+                        description: 'Best for everyday use',
+                        isAvailable: true,
+                        accessTier: 'free',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
-                        supportedReasoningEffort: ['none', 'low'],
+                        reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT],
                     },
                     {
                         id: 'openai_gpt-oss-120b',
                         name: 'GPT-OSS 120B',
                         shortName: 'GPT-OSS',
-                        isEnabled: true,
+                        isAvailable: true,
+                        accessTier: 'free',
                         supportsImageUpload: false,
                         supportedTools: [],
                     },
@@ -69,7 +92,8 @@ export function omnibarMockTransport() {
                         id: 'meta-llama_Llama-4-Scout-17B-16E-Instruct',
                         name: 'Llama 4 Scout',
                         shortName: 'Scout',
-                        isEnabled: true,
+                        isAvailable: true,
+                        accessTier: 'free',
                         supportsImageUpload: false,
                         supportedTools: [],
                     },
@@ -77,27 +101,42 @@ export function omnibarMockTransport() {
                         id: 'claude-haiku-4-5',
                         name: 'Claude Haiku 4.5',
                         shortName: 'Haiku 4.5',
-                        isEnabled: true,
+                        description: 'Solid but uses limits faster',
+                        isAvailable: true,
+                        accessTier: 'free',
                         supportsImageUpload: true,
                         supportedFileTypes: ['application/pdf'],
                         supportedTools: ['WebSearch'],
-                        supportedReasoningEffort: ['none', 'low'],
+                        reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT, EXTENDED_EFFORT_UNAVAILABLE],
                     },
                     {
                         id: 'mistralai_Mistral-Small-24B-Instruct-2501',
                         name: 'Mistral Small 3',
                         shortName: 'Mistral',
-                        isEnabled: true,
+                        isAvailable: true,
+                        accessTier: 'free',
                         supportsImageUpload: false,
                         supportedTools: [],
+                        // Demonstrates the 'upgrade' upsell (existing subscriber gated behind a higher tier).
+                        reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT, EXTENDED_EFFORT_UPGRADE],
                     },
                     {
                         id: 'claude-3-5-haiku-latest',
                         name: 'Claude 3.5 Haiku',
                         shortName: 'Claude 3.5 Haiku',
-                        isEnabled: true,
+                        isAvailable: true,
+                        accessTier: 'free',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
+                    },
+                    {
+                        id: 'tinfoil/gemma4-31b',
+                        name: 'Gemma 4 31B',
+                        shortName: 'Gemma',
+                        isAvailable: true,
+                        accessTier: 'free',
+                        supportsImageUpload: false,
+                        supportedTools: [],
                     },
                 ],
             },
@@ -108,7 +147,8 @@ export function omnibarMockTransport() {
                         id: 'gpt-4o',
                         name: 'GPT-4o',
                         shortName: 'GPT-4o',
-                        isEnabled: false,
+                        isAvailable: false,
+                        accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                     },
@@ -116,26 +156,29 @@ export function omnibarMockTransport() {
                         id: 'gpt-5_2',
                         name: 'GPT-5.2',
                         shortName: 'GPT-5.2',
-                        isEnabled: false,
+                        isAvailable: false,
+                        accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
-                        supportedReasoningEffort: ['none', 'low', 'medium'],
+                        reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT, EXTENDED_EFFORT_AVAILABLE],
                     },
                     {
                         id: 'claude-sonnet-4-5',
                         name: 'Claude Sonnet 4.5',
                         shortName: 'Sonnet 4.5',
-                        isEnabled: false,
+                        isAvailable: false,
+                        accessTier: 'plus',
                         supportsImageUpload: true,
                         supportedFileTypes: ['application/pdf'],
                         supportedTools: ['WebSearch'],
-                        supportedReasoningEffort: ['none', 'low'],
+                        reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT],
                     },
                     {
                         id: 'meta-llama_Llama-4-Maverick-17B-128E-Instruct-FP8',
                         name: 'Llama 4 Maverick',
                         shortName: 'Maverick',
-                        isEnabled: false,
+                        isAvailable: false,
+                        accessTier: 'plus',
                         supportsImageUpload: false,
                         supportedTools: [],
                     },
@@ -143,16 +186,18 @@ export function omnibarMockTransport() {
                         id: 'claude-opus-4-6',
                         name: 'Claude Opus 4.6',
                         shortName: 'Opus 4.6',
-                        isEnabled: false,
+                        isAvailable: false,
+                        accessTier: 'pro',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
-                        supportedReasoningEffort: ['none', 'low', 'medium'],
+                        reasoningEfforts: [FAST_EFFORT, REASONING_EFFORT, EXTENDED_EFFORT_AVAILABLE],
                     },
                     {
                         id: 'claude-sonnet-4',
                         name: 'Claude 4 Sonnet',
                         shortName: 'Claude 4 Sonnet',
-                        isEnabled: false,
+                        isAvailable: false,
+                        accessTier: 'pro',
                         supportsImageUpload: true,
                         supportedTools: ['WebSearch'],
                     },
@@ -217,6 +262,14 @@ export function omnibarMockTransport() {
                 case 'omnibar_submitChat':
                     console.warn('notification (no-op in mock)', msg.method, msg.params);
                     break;
+                case 'omnibar_showSubscriptionUpsell':
+                    // Placeholder until native ships the real flow.
+                    globalThis.alert?.(`Show subscription upsell (Try for free) — source: ${msg.params?.source}`);
+                    break;
+                case 'omnibar_showSubscriptionUpgrade':
+                    // Placeholder until native ships the real flow.
+                    globalThis.alert?.(`Show subscription upgrade (Upgrade) — source: ${msg.params?.source}`);
+                    break;
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -245,6 +298,8 @@ export function omnibarMockTransport() {
                     if (modeOverride === 'search' || modeOverride === 'ai') {
                         config.mode = modeOverride;
                     }
+                    config.isEligibleForFreeTrial =
+                        parseBooleanQueryParam('omnibar.isEligibleForFreeTrial') ?? config.isEligibleForFreeTrial;
                     config.enableAi = parseBooleanQueryParam('omnibar.enableAi') ?? config.enableAi;
                     config.showAiSetting = parseBooleanQueryParam('omnibar.showAiSetting') ?? config.showAiSetting;
                     config.showCustomizePopover = parseBooleanQueryParam('omnibar.showCustomizePopover') ?? config.showCustomizePopover;
@@ -256,8 +311,38 @@ export function omnibarMockTransport() {
                     if (parseBooleanQueryParam('omnibar.subscription') === true) {
                         config.aiModelSections = config.aiModelSections?.map((section) => ({
                             ...section,
-                            items: section.items.map((item) => ({ ...item, isEnabled: true })),
+                            items: section.items.map((item) => ({
+                                ...item,
+                                isAvailable: true,
+                                reasoningEfforts: item.reasoningEfforts?.map((effort) => ({ ...effort, isAvailable: true })),
+                            })),
                         }));
+                    }
+                    if (url.searchParams.get('omnibar.modelUpsell') === 'upgrade') {
+                        config.aiModelSections = config.aiModelSections?.map((section) => ({
+                            ...section,
+                            items: section.items.map((item, index) =>
+                                index === 0 && section.items.every((model) => !model.isAvailable)
+                                    ? { ...item, upsell: /** @type {const} */ ('upgrade') }
+                                    : item,
+                            ),
+                        }));
+                    }
+                    if (parseBooleanQueryParam('omnibar.multipleModelUpsells') === true) {
+                        config.aiModelSections = config.aiModelSections?.flatMap((section) => {
+                            if (!section.items.every((model) => !model.isAvailable)) return [section];
+
+                            const midpoint = Math.ceil(section.items.length / 2);
+                            return [
+                                { ...section, items: section.items.slice(0, midpoint) },
+                                {
+                                    header: 'Pro Models - DuckDuckGo subscription',
+                                    items: section.items
+                                        .slice(midpoint)
+                                        .map((item, index) => (index === 0 ? { ...item, upsell: /** @type {const} */ ('upgrade') } : item)),
+                                },
+                            ];
+                        });
                     }
                     config.selectedReasoningEffort =
                         parseReasoningEffortQueryParam('omnibar.selectedReasoningEffort') ?? config.selectedReasoningEffort;
