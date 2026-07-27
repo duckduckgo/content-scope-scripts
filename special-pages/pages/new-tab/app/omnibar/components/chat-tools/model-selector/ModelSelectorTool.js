@@ -1,5 +1,7 @@
 import { h } from 'preact';
+import { useContext } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
+import { OmnibarContext } from '../../OmnibarProvider';
 import { useSelectedModel } from '../../useSelectedModel';
 import { useModelSelector } from './useModelSelector';
 import { ModelSelector } from './ModelSelector';
@@ -10,7 +12,9 @@ import { ModelSelector } from './ModelSelector';
 
 export function ModelSelectorTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { state, showUpsell } = useContext(OmnibarContext);
     const { selectedModel, aiModelSections, allModels, setSelectedModelId } = useSelectedModel();
+    const isEligibleForFreeTrial = state.config?.isEligibleForFreeTrial !== false;
 
     const selector = useModelSelector({
         allModels,
@@ -24,7 +28,9 @@ export function ModelSelectorTool() {
             selector={selector}
             selectedModel={selectedModel}
             aiModelSections={aiModelSections}
+            onUpsell={(type) => showUpsell(type, 'model')}
             ariaLabel={t('omnibar_modelSelectorLabel')}
+            isEligibleForFreeTrial={isEligibleForFreeTrial}
         />
     );
 }
