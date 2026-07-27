@@ -1629,7 +1629,12 @@ test.describe('omnibar widget', () => {
             await ntp.reducedMotion();
 
             await ntp.openPage({
-                additional: { omnibar: true, 'omnibar.enableAiChatTools': 'true', 'omnibar.enableCustomizeResponses': 'false' },
+                additional: {
+                    omnibar: true,
+                    'omnibar.enableAiChatTools': 'true',
+                    'omnibar.enableWebSearch': 'true',
+                    'omnibar.enableCustomizeResponses': 'false',
+                },
             });
             await omnibar.ready();
 
@@ -1638,6 +1643,7 @@ test.describe('omnibar widget', () => {
 
             await omnibar.toolsMenuButton().click();
             await expect(omnibar.customizeResponsesMenuItem()).toHaveCount(0);
+            await expect(omnibar.webSearchMenuItem()).toBeVisible();
         });
 
         test('shown when enableCustomizeResponses is true', async ({ page }, workerInfo) => {

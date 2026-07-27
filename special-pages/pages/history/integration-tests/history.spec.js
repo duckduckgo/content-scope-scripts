@@ -404,7 +404,7 @@ test.describe('history', () => {
     test.describe('sidebar icons', () => {
         test('uses default icons on non-macOS platforms', async ({ page }, workerInfo) => {
             const hp = HistoryTestPage.create(page, workerInfo).withEntries(100);
-            await hp.openPage();
+            await hp.openPage({ additional: { platform: 'windows' } });
             await hp.didMakeInitialQueries({ term: '' });
 
             await hp.expectSidebarIconSrc('Show all history', 'icons/all\\.svg');
