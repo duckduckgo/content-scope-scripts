@@ -1,0 +1,23 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "fill-extras-no-user-profile",
+            "selector": "#contact-form",
+            "dataSource": "extractedProfile",
+            "elements": [
+                { "type": "street", "selector": "#StreetAddress" },
+                { "type": "city", "selector": "#City" }
+            ]
+        },
+        "data": {
+            "extractedProfile": {
+                "name": "John Sample",
+                "addresses": [
+                    { "city": "Baytown", "state": "TX", "extras": { "street": "2323 Bay Hill Dr", "zip": "77523" } },
+                    { "city": "Livingston", "state": "TX", "extras": { "street": "197 Carlisle Rd", "zip": "77351" } }
+                ]
+            }
+        }
+    }
+}

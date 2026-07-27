@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Search results</title>
+    </head>
+    <body>
+        <!--
+            Exercises the link-text address shape: the full "street, city, state zip" is the visible
+            text of `a.address` links (current under `.address-current`, prior under
+            `.address-previous`), so addressFull recovers street + zip, not just city/state.
+        -->
+        <div class="card">
+            <div class="card-header">
+                <span class="name-given">John A Sample</span>
+                <span class="age">40</span>
+            </div>
+            <div class="card-body">
+                <p class="address-current">
+                    <a class="address" href="/address/1">2323 Bay Hill Dr, Baytown, TX 77523</a>
+                </p>
+                <p class="address-previous">
+                    <a class="address" href="/address/2">197 Carlisle Rd, Livingston, TX 77351</a>
+                </p>
+                <p class="address-previous">
+                    <a class="address" href="/address/3">455 Pine Grove Ln, Livingston, TX 77351</a>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

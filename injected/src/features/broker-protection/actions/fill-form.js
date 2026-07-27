@@ -2,14 +2,16 @@ import { getElement, generateRandomInt } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
 import { states } from '../comparisons/constants.js';
+import { sameCityState } from '../comparisons/address.js';
 
 /**
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
  * @param {Document | HTMLElement} root
+ * @param {Record<string, any> | null} [userProfile]
  * @return {import('../types.js').ActionResponse}
  */
-export function fillForm(action, userData, root = document) {
+export function fillForm(action, userData, root = document, userProfile = null) {
     const form = getElement(root, action.selector);
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' });
     if (!userData) return new ErrorResponse({ actionID: action.id, message: 'user data was absent' });
@@ -17,7 +19,7 @@ export function fillForm(action, userData, root = document) {
     // ensure the element is in the current viewport
     form.scrollIntoView?.();
 
-    const results = fillMany(form, action.elements, userData);
+    const results = fillMany(form, action.elements, userData, userProfile);
 
     const errors = results
         .filter((x) => x.result === false)
@@ -38,10 +40,15 @@ export function fillForm(action, userData, root = document) {
  * @param {HTMLElement} root
  * @param {{selector: string; type: string; min?: string; max?: string;}[]} elements
  * @param {Record<string, any>} data
+ * @param {Record<string, any> | null} [userProfile]
  * @return {({result: true} | {result: false; error: string})[]}
  */
-export function fillMany(root, elements, data) {
+export function fillMany(root, elements, data, userProfile = null) {
     const results = [];
+
+    /** @type {Record<string, any> | null} */
+    const address = selectAddress(data.addresses, userProfile?.addresses);
+    const extras = { ...data.extras, ...address?.extras };
 
     for (const element of elements) {
         const inputElem = getElement(root, element.selector);
@@ -78,27 +85,26 @@ export function fillMany(root, elements, data) {
             results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()));
         } else if (element.type === '$generated_street_address$') {
             results.push(setValueForInput(inputElem, generateStreetAddress()));
-
-            // This is a composite of existing (but separate) city and state fields
         } else if (element.type === 'cityState') {
-            if (!Object.prototype.hasOwnProperty.call(data, 'city') || !Object.prototype.hasOwnProperty.call(data, 'state')) {
+            const city = Object.prototype.hasOwnProperty.call(data, 'city') ? data.city : address?.city;
+            const state = Object.prototype.hasOwnProperty.call(data, 'state') ? data.state : address?.state;
+            if (!city || !state) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'`,
                 });
                 continue;
             }
-            results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
+            results.push(setValueForInput(inputElem, city + ', ' + state));
         } else if (element.type === 'fullState') {
-            if (!Object.prototype.hasOwnProperty.call(data, 'state')) {
+            const state = Object.prototype.hasOwnProperty.call(data, 'state') ? data.state : address?.state;
+            if (!state) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data didn't contain the key 'state'`,
                 });
                 continue;
             }
-
-            const state = data.state;
 
             if (!Object.prototype.hasOwnProperty.call(states, state)) {
                 results.push({
@@ -112,24 +118,21 @@ export function fillMany(root, elements, data) {
 
             results.push(setValueForInput(inputElem, stateFull));
         } else {
-            if (isElementTypeOptional(element.type)) {
-                continue;
-            }
-            if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
+            const value = lookupValue(element.type, data, address, extras);
+            if (!value) {
+                if (isElementTypeOptional(element.type)) {
+                    continue;
+                }
                 results.push({
                     result: false,
-                    error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`,
+                    error:
+                        value === undefined
+                            ? `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`
+                            : `data contained the key '${element.type}', but it wasn't something we can fill: ${value}`,
                 });
                 continue;
             }
-            if (!data[element.type]) {
-                results.push({
-                    result: false,
-                    error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}`,
-                });
-                continue;
-            }
-            results.push(setValueForInput(inputElem, data[element.type]));
+            results.push(setValueForInput(inputElem, value));
         }
     }
 
@@ -137,8 +140,40 @@ export function fillMany(root, elements, data) {
 }
 
 /**
- * Returns whether an element type is optional, allowing some checks to be skipped
+ * Resolve a form element's `type` against the fill sources, in precedence order:
+ * 1. a flat key on the profile (how `userProfile` data arrives)
+ * 2. the selected address's own `city`/`state` — schema fields, so not present in its extras
+ * 3. extras (profile-level, overlaid by address-level)
  *
+ * @param {string} type
+ * @param {Record<string, any>} data
+ * @param {Record<string, any> | null} address
+ * @param {Record<string, any>} extras
+ * @return {any}
+ */
+function lookupValue(type, data, address, extras) {
+    if (Object.prototype.hasOwnProperty.call(data, type)) return data[type];
+    if ((type === 'city' || type === 'state') && address?.[type]) return address[type];
+    if (Object.prototype.hasOwnProperty.call(extras, type)) return extras[type];
+    return undefined;
+}
+
+/**
+ * Pick the address to fill from: the first profile address whose city/state matches any of the
+ * user's addresses, otherwise the first profile address, otherwise `null` when there are none.
+ *
+ * @template {{city: string; state: string | null}} T
+ * @param {T[]} [profileAddresses]
+ * @param {{city: string; state: string | null}[]} [userAddresses]
+ * @return {T | null}
+ */
+export function selectAddress(profileAddresses, userAddresses) {
+    if (!profileAddresses || profileAddresses.length === 0) return null;
+    const matched = profileAddresses.find((address) => userAddresses?.some((user) => sameCityState(user, address)));
+    return matched ?? profileAddresses[0];
+}
+
+/**
  * @param { string } type
  * @returns Boolean
  */
