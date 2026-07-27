@@ -356,6 +356,14 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Web Search' });
     }
 
+    customizeResponsesMenuItem() {
+        return this.toolsMenu().getByRole('menuitem', { name: /Customize Responses/ });
+    }
+
+    customizeResponsesToggle() {
+        return this.toolsMenu().getByRole('switch', { name: 'Apply response customization' });
+    }
+
     reasoningPickerButton() {
         return this.context().getByRole('button', { name: 'Reasoning' });
     }

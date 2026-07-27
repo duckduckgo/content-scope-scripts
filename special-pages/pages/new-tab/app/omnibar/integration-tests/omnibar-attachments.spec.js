@@ -389,6 +389,33 @@ test.describe('omnibar file attachment', () => {
         await expect(omnibar.context().getByText('You can only attach 2 files at a time.')).toBeVisible();
     });
 
+    test('the image cap follows the backend attachmentLimits config', async ({ page }, workerInfo) => {
+        const { ntp, omnibar } = setup(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({
+            additional: {
+                'omnibar.mode': 'ai',
+                'omnibar.enableAiChatTools': 'true',
+                'omnibar.selectedModelId': 'claude-haiku-4-5',
+                // Backend-configured cap of two images per turn (default is three).
+                'omnibar.imageMaxPerTurn': '2',
+            },
+        });
+        await omnibar.ready();
+
+        await omnibar.fileInput().setInputFiles([
+            { name: 'a.png', mimeType: 'image/png', buffer: TINY_PNG },
+            { name: 'b.png', mimeType: 'image/png', buffer: TINY_PNG },
+        ]);
+        await expect(omnibar.imagePreviews()).toHaveCount(2);
+        await expect(omnibar.imageLimitWarning()).toHaveCount(0);
+
+        await omnibar.fileInput().setInputFiles({ name: 'c.png', mimeType: 'image/png', buffer: TINY_PNG });
+        await expect(omnibar.imagePreviews()).toHaveCount(3);
+        await expect(omnibar.context().getByText('You can only attach 2 images at a time.')).toBeVisible();
+        await expect(omnibar.chatSubmitButton()).toBeDisabled();
+    });
+
     test('a file larger than the configured maxFileSizeMB is rejected with an error', async ({ page }, workerInfo) => {
         const { ntp, omnibar } = setup(page, workerInfo);
         await ntp.reducedMotion();
