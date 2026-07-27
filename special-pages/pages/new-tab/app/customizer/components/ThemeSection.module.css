@@ -138,8 +138,8 @@
 }
 
 .variantButton {
-    --selection-ring-offset: 2px;
-    --selection-ring-width: 2px;
+    --selection-ring-offset: var(--ds-space-x-5);
+    --selection-ring-width: var(--ds-space-x-5);
 
     position: relative;
     width: var(--sp-12);

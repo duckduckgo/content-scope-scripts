@@ -309,8 +309,8 @@
     }
 
     .bgPanel {
-        --selection-ring-offset: 2px;
-        --selection-ring-width: 2px;
+        --selection-ring-offset: var(--ds-space-x-5);
+        --selection-ring-width: var(--ds-space-x-5);
 
         border-radius: var(--ds-radius-x01);
         box-shadow: none;
