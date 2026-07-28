@@ -88,6 +88,78 @@ test.describe('Video Player overlays', () => {
     });
 });
 
+const TINY_POSTER =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+test.describe('Video Player buffering feedback', () => {
+    test('shows the poster + spinner hold after opt-out until the first frame', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        // Given the buffering-feedback config gate is enabled
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        // And the player exposes a poster we can paint offline
+        await overlays.mobile.setVideoPoster(TINY_POSTER);
+
+        // When the user opts out of Duck Player
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.overlayIsRemoved();
+
+        // Then the hold covers the player with a poster and the spinner
+        await overlays.mobile.bufferingFeedbackShows();
+        await overlays.mobile.bufferingFeedbackHasPoster();
+
+        // And it clears once the video reaches its first frame
+        await overlays.mobile.firstFrameRenders();
+        await overlays.mobile.bufferingFeedbackIsRemoved();
+    });
+
+    test('dismisses the hold on tap without reaching the player', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+
+        await overlays.mobile.tapsBufferingFeedback();
+        await overlays.mobile.bufferingFeedbackIsRemoved();
+    });
+
+    test('removes the hold after the bounded timeout', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        // Fake timers from here so the 30s safety timeout is deterministic
+        await page.clock.install();
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+
+        await page.clock.fastForward(31000);
+        await overlays.mobile.bufferingFeedbackIsRemoved();
+    });
+
+    test('does not show the hold when the config gate is absent', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        // Default config has no bufferingFeedback gate
+        await overlays.withRemoteConfig();
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.overlayIsRemoved();
+        await overlays.mobile.bufferingFeedbackNeverShows();
+    });
+});
+
 /**
  * Use this test in `--headed` mode to cycle through every language
  */
