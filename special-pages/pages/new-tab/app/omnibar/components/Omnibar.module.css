@@ -153,3 +153,26 @@
     position: absolute;
     z-index: 2;
 }
+
+/*
+ * NTP rebrand styling for the omnibar. Scoped to body[data-rebrand="true"] so
+ * that with the rebrand feature flag OFF the omnibar renders exactly as it
+ * did before the rebrand.
+ * @todo rebrand: fold these into the base rules once the rebrand ships to all
+ * platforms and the flag is retired.
+ */
+:global(body[data-rebrand="true"]) {
+    /* Input-rest */
+    .popup {
+        border-radius: var(--ds-radius-x06);
+        box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.02), 0 2px 6px 0 rgba(0, 0, 0, 0.06), 0 0 0 1px var(--ds-color-theme-container-border-secondary);
+        outline: none;
+    }
+
+    /* Keep the rest-state radius when active: Focused, Attachment limit exceeded, Suggestions/AI chats list visible */
+    .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup,
+    .root:has([data-attachment-warning]) .popup,
+    .root:has([data-omnibar-list]) .popup {
+        border-radius: var(--ds-radius-x06);
+    }
+}

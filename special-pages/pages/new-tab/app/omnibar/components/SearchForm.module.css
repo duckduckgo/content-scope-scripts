@@ -93,3 +93,24 @@
         line-height: normal;
     }
 }
+
+/*
+ * NTP rebrand styling for the search input row. Scoped to body[data-rebrand='true']
+ * so that with the rebrand feature flag OFF the row renders exactly as it did before.
+ * .input is absolutely positioned over .form (ignoring .form's padding-box), so its
+ * own left padding must stay in sync with .form's so the (invisible) suffix text in
+ * .suffixSpacer lines up with the visible input text.
+ */
+:global(body[data-rebrand='true']) {
+    .form {
+        padding: 7px var(--sp-1) 7px var(--ds-space-x05);
+    }
+
+    .input {
+        padding: 7px calc(var(--sp-1) + var(--sp-8) + var(--sp-1)) 7px var(--ds-space-x05);
+    }
+
+    .closeButton {
+        border-radius: var(--ds-radius-full);
+    }
+}
