@@ -53,11 +53,27 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     }
 
     /**
-     * Swap the play logo for the buffering spinner. Used while the overlay is held
-     * on screen after opt-out, until the underlying video renders its first frame.
+     * Enter the buffering hold: drop the play logo, since Duck Player has been
+     * declined and the overlay is now only standing in for the player's own startup.
      */
     showLoadingState() {
-        this.container?.querySelector('.ddg-video-player-overlay')?.classList.add('loading');
+        this.overlay?.classList.add('loading');
+    }
+
+    showSpinner() {
+        this.overlay?.classList.add('spinning');
+    }
+
+    /**
+     * Withdraw the spinner but keep the poster, so a video that never arrives settles
+     * on a still frame instead of claiming to still be loading.
+     */
+    hideSpinner() {
+        this.overlay?.classList.remove('spinning');
+    }
+
+    get overlay() {
+        return this.container?.querySelector('.ddg-video-player-overlay');
     }
 
     /**
