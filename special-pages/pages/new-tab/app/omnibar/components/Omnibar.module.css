@@ -162,17 +162,19 @@
  * platforms and the flag is retired.
  */
 :global(body[data-rebrand="true"]) {
-    /* Input-rest */
-    .popup {
-        border-radius: var(--ds-radius-x06);
-        box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.02), 0 2px 6px 0 rgba(0, 0, 0, 0.06), 0 0 0 1px var(--ds-color-theme-container-border-secondary);
-        outline: none;
-    }
+    --omnibar-radius: var(--ds-radius-x06);
 
-    /* Keep the rest-state radius when active: Focused, Attachment limit exceeded, Suggestions/AI chats list visible */
+    /* Keep the same radius across Rest, Focused, Attachment limit exceeded, and Suggestions/AI chats list visible */
+    .popup,
     .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup,
     .root:has([data-attachment-warning]) .popup,
     .root:has([data-omnibar-list]) .popup {
-        border-radius: var(--ds-radius-x06);
+        border-radius: var(--omnibar-radius);
+    }
+
+    /* Rest */
+    .popup {
+        box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.02), 0 2px 6px 0 rgba(0, 0, 0, 0.06), 0 0 0 1px var(--ds-color-theme-container-border-secondary);
+        outline: none;
     }
 }
