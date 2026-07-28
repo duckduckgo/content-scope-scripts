@@ -19,6 +19,24 @@ export function generateZipCode() {
     return zipCode;
 }
 
+/**
+ * A random date of birth for someone who is `age` years old, in the `YYYY-MM-DD` format.
+ *
+ * @param {number} age
+ * @param {Date} [today]
+ * @return {string}
+ */
+export function generateDateOfBirth(age, today = new Date()) {
+    const dob = new Date(today.getFullYear() - age, today.getMonth(), today.getDate());
+    // If `today` is a leap day (Feb 29) then `dob` at this point is March 1. Go back to last day of prev month (Feb 28).
+    if (dob.getMonth() !== today.getMonth()) dob.setDate(0);
+    dob.setDate(dob.getDate() - generateRandomInt(0, 364));
+
+    const month = (dob.getMonth() + 1).toString().padStart(2, '0');
+    const day = dob.getDate().toString().padStart(2, '0');
+    return `${dob.getFullYear()}-${month}-${day}`;
+}
+
 export function generateStreetAddress() {
     const streetDigits = generateRandomInt(1, 5);
     const streetNumber = generateRandomInt(2, streetDigits * 1000);

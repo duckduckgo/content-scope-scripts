@@ -1,6 +1,6 @@
 import { getElement, generateRandomInt } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
-import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
+import { generatePhoneNumber, generateZipCode, generateStreetAddress, generateDateOfBirth } from './generators.js';
 import { states } from '../comparisons/constants.js';
 import { sameCityState } from '../comparisons/address.js';
 
@@ -85,6 +85,16 @@ export function fillMany(root, elements, data, userProfile = null) {
             results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()));
         } else if (element.type === '$generated_street_address$') {
             results.push(setValueForInput(inputElem, generateStreetAddress()));
+        } else if (element.type === '$generated_dob$') {
+            const age = parseInt(lookupValue('age', data, address, extras), 10);
+            if (!Number.isFinite(age) || age < 0) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data didn't contain an 'age' to generate a date of birth from`,
+                });
+                continue;
+            }
+            results.push(setValueForInput(inputElem, generateDateOfBirth(age)));
         } else if (element.type === 'cityState') {
             const city = Object.prototype.hasOwnProperty.call(data, 'city') ? data.city : address?.city;
             const state = Object.prototype.hasOwnProperty.call(data, 'state') ? data.state : address?.state;

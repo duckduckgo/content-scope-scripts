@@ -6,9 +6,7 @@
     </head>
     <body>
         <!--
-            A simplified version of the CyberBackgroundChecks opt-out form with plain text
-            Street/City/State inputs (and no zip field), for exercising the fillForm extras/address
-            path.
+            A simplified version of the CyberBackgroundChecks opt-out form.
         -->
         <div class="card-body">
             <h1 class="card-title">Record Suppression Form</h1>
@@ -21,6 +19,9 @@
 
                 <label for="LastName">Last Name</label>
                 <input class="form-control" id="LastName" maxlength="50" name="LastName" type="text" value="" />
+
+                <label for="Dob">Date of Birth</label>
+                <input class="form-control" id="Dob" name="Dob" type="date" value="" />
 
                 <label for="StreetAddress">Street Address</label>
                 <input class="form-control" id="StreetAddress" maxlength="50" name="StreetAddress" type="text" value="" />

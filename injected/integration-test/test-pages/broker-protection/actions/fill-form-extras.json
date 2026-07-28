@@ -20,7 +20,7 @@
                 "middleName": "Andrew",
                 "lastName": "Sample",
                 "name": "John Sample",
-                "addresses": [{ "city": "Baytown", "state": "TX", "extras": { "street": "2323 Bay Hill Dr", "zip": "77523" } }]
+                "addresses": [{ "city": "Baytown", "state": "TX", "extras": { "street": "100 Sample Dr", "zip": "77523" } }]
             },
             "userProfile": {
                 "firstName": "John",

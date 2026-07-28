@@ -441,9 +441,9 @@ test.describe('Broker Protection communications', () => {
                     name: 'John B Sample',
                     alternativeNames: [],
                     addresses: [
-                        { city: 'Acworth', state: 'GA', extras: { street: '1591 Oakmont Dr', zip: '30102' } },
+                        { city: 'Acworth', state: 'GA', extras: { street: '100 Sample Dr', zip: '30102' } },
                         { city: 'Dayton', state: 'OH', extras: { street: 'Po-Box 42', zip: '45402' } },
-                        { city: 'Franklin', state: 'TN', extras: { street: '250 Elm St', zip: '37064' } },
+                        { city: 'Franklin', state: 'TN', extras: { street: '250 Example St', zip: '37064' } },
                     ],
                     phoneNumbers: [],
                     relatives: [],
@@ -465,10 +465,10 @@ test.describe('Broker Protection communications', () => {
                     name: 'John Sample',
                     alternativeNames: [],
                     addresses: [
-                        { city: 'Baytown', state: 'TX', extras: { street: '2323 Bay Hill Dr', zip: '77523' } },
-                        { city: 'Baytown', state: 'TX', extras: { street: '1810 Bayou Breeze Dr', zip: '77523' } },
-                        { city: 'Livingston', state: 'TX', extras: { street: '197 Carlisle Rd', zip: '77351' } },
-                        { city: 'Livingston', state: 'TX', extras: { street: '455 Pine Grove Ln', zip: '77351' } },
+                        { city: 'Baytown', state: 'TX', extras: { street: '100 Sample Dr', zip: '77523' } },
+                        { city: 'Baytown', state: 'TX', extras: { street: '200 Sample Ct', zip: '77523' } },
+                        { city: 'Livingston', state: 'TX', extras: { street: '300 Example Rd', zip: '77351' } },
+                        { city: 'Livingston', state: 'TX', extras: { street: '400 Example Ln', zip: '77351' } },
                     ],
                     phoneNumbers: [],
                     relatives: [],
@@ -489,9 +489,9 @@ test.describe('Broker Protection communications', () => {
                     age: '40',
                     alternativeNames: [],
                     addresses: [
-                        { city: 'Baytown', state: 'TX', extras: { street: '2323 Bay Hill Dr', zip: '77523' } },
-                        { city: 'Livingston', state: 'TX', extras: { street: '197 Carlisle Rd', zip: '77351' } },
-                        { city: 'Livingston', state: 'TX', extras: { street: '455 Pine Grove Ln', zip: '77351' } },
+                        { city: 'Baytown', state: 'TX', extras: { street: '100 Sample Dr', zip: '77523' } },
+                        { city: 'Livingston', state: 'TX', extras: { street: '300 Example Rd', zip: '77351' } },
+                        { city: 'Livingston', state: 'TX', extras: { street: '400 Example Ln', zip: '77351' } },
                     ],
                     phoneNumbers: [],
                     relatives: [],
@@ -806,7 +806,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.doesInputValueEqual('#FirstName', 'John');
             await dbp.doesInputValueEqual('#MiddleName', 'Andrew');
             await dbp.doesInputValueEqual('#LastName', 'Sample');
-            await dbp.doesInputValueEqual('#StreetAddress', '2323 Bay Hill Dr');
+            await dbp.doesInputValueEqual('#StreetAddress', '100 Sample Dr');
             await dbp.doesInputValueEqual('#City', 'Baytown');
             await dbp.doesInputValueEqual('#State', 'TX');
         });
@@ -818,7 +818,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('fill-form-extras-address-selection.json');
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
-            await dbp.doesInputValueEqual('#StreetAddress', '197 Carlisle Rd');
+            await dbp.doesInputValueEqual('#StreetAddress', '300 Example Rd');
             await dbp.doesInputValueEqual('#City', 'Livingston');
             await dbp.doesInputValueEqual('#State', 'TX');
         });
@@ -830,7 +830,7 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('fill-form-extras-no-user-profile.json');
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
-            await dbp.doesInputValueEqual('#StreetAddress', '2323 Bay Hill Dr');
+            await dbp.doesInputValueEqual('#StreetAddress', '100 Sample Dr');
             await dbp.doesInputValueEqual('#City', 'Baytown');
         });
 
@@ -844,6 +844,29 @@ test.describe('Broker Protection communications', () => {
             // form; firstName confirms the other fields still fill.
             dbp.isSuccessMessage(response);
             await dbp.doesInputValueEqual('#FirstName', 'John');
+        });
+
+        test('fillForm generates a date of birth matching the extracted age', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('opt-out-form.html');
+            await dbp.receivesAction('fill-form-generated-dob.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.isDateOfBirthForAge('#Dob', 51);
+            await dbp.doesInputValueEqual('#StreetAddress', '100 Sample Dr');
+            await dbp.doesInputValueEqual('#City', 'Baytown');
+            await dbp.doesInputValueEqual('#State', 'TX');
+        });
+
+        test('fillForm errors when a generated date of birth has no age to work from', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('opt-out-form.html');
+            await dbp.receivesAction('fill-form-generated-dob-no-age.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isErrorMessage(response);
+            await dbp.doesInputValueEqual('#Dob', '');
         });
 
         test('fillForm errors when an element type is in neither known keys nor extras', async ({ page }, workerInfo) => {

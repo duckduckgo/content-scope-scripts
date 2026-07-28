@@ -2,14 +2,20 @@
     "state": {
         "action": {
             "actionType": "fillForm",
-            "id": "fill-extras-missing",
+            "id": "fill-generated-dob",
             "selector": "#contact-form",
             "dataSource": "extractedProfile",
-            "elements": [{ "type": "ssn", "selector": "#StreetAddress" }]
+            "elements": [
+                { "type": "$generated_dob$", "selector": ".//input[@id='Dob']" },
+                { "type": "street", "selector": ".//input[@id='StreetAddress']" },
+                { "type": "city", "selector": ".//input[@id='City']" },
+                { "type": "state", "selector": ".//input[@id='State']" }
+            ]
         },
         "data": {
             "extractedProfile": {
                 "name": "John Sample",
+                "age": "51",
                 "addresses": [
                     { "city": "Baytown", "state": "TX", "extras": { "street": "100 Sample Dr", "zip": "77523" } }
                 ]
