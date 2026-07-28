@@ -47,6 +47,9 @@ export class VideoOverlay {
     /** @type {boolean} */
     didAllowFirstVideo = false;
 
+    /** Poster last painted onto an overlay, reused (cache hit) behind the buffering spinner @type {string | null} */
+    posterSrc = null;
+
     /**
      * @param {object} options
      * @param {import("../duck-player.js").UserValues} options.userValues
@@ -377,6 +380,7 @@ export class VideoOverlay {
         if (!params) return;
 
         const imageUrl = this.environment.getLargeThumbnailSrc(params.id);
+        this.posterSrc = imageUrl;
         appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
     }
 
@@ -483,7 +487,9 @@ export class VideoOverlay {
         this.messages.sendPixel(pixel);
 
         if (!remember) {
-            return this.destroy();
+            this.destroy();
+            this.showBufferingFeedbackUntilFirstFrame();
+            return;
         }
 
         /** @type {import("../duck-player.js").UserValues} */
@@ -506,6 +512,102 @@ export class VideoOverlay {
         }
 
         this.destroy();
+        this.showBufferingFeedbackUntilFirstFrame();
+    }
+
+    /**
+     * After opt-out the <video> can take seconds to present its first frame (cold
+     * buffer), and YouTube paints nothing over the black player while a programmatic
+     * play() spins up. Cover the player with the video's poster and a YouTube-style
+     * spinner until the first frame lands, so the user never sees a dead black frame.
+     *
+     * Opt-in via remote config, following the videoDrawer gating pattern. Scoped to
+     * the mobile classic overlay; the drawer variant keeps its own thumbnail visible
+     * while it animates out.
+     */
+    showBufferingFeedbackUntilFirstFrame() {
+        if (this.settings.bufferingFeedback?.state !== 'enabled') return;
+        if (this.environment.layout !== 'mobile') return;
+        if (this.shouldShowDrawerVariant()) return;
+
+        const videoEl = /** @type {HTMLVideoElement | null} */ (document.querySelector(this.settings.selectors.videoElement));
+        const targetElement = document.querySelector(this.settings.selectors.videoElementContainer);
+        if (!videoEl?.isConnected || !targetElement) return;
+        if (document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) return;
+        const video = videoEl;
+
+        this.sideEffects.add('holding poster + spinner until first video frame', () => {
+            const overlay = /** @type {DDGVideoThumbnailOverlay} */ (
+                document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)
+            );
+            overlay.testMode = this.environment.isTestMode();
+            targetElement.appendChild(overlay);
+            overlay.setPosterCandidates(this.buildPosterCandidates(video));
+            overlay.showLoadingState();
+
+            let removed = false;
+            const onProgress = () => {
+                if (video.currentTime > 0 && !video.paused) remove();
+            };
+            function remove() {
+                if (removed) return;
+                removed = true;
+                clearTimeout(timer);
+                video.removeEventListener('playing', onProgress);
+                video.removeEventListener('timeupdate', onProgress);
+                overlay.remove();
+            }
+
+            // Remove as soon as a real frame is presented; fall back to playback
+            // progress events on engines without requestVideoFrameCallback.
+            if (typeof video.requestVideoFrameCallback === 'function') {
+                video.requestVideoFrameCallback(() => remove());
+            }
+            video.addEventListener('playing', onProgress);
+            video.addEventListener('timeupdate', onProgress);
+
+            // Never trap the user: bounded hold plus tap-to-dismiss. The dismissing
+            // tap must not reach YouTube's player underneath, which would treat a tap
+            // on the video surface as its own gesture.
+            const timer = setTimeout(remove, 30000);
+            for (const type of ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'mousedown', 'mouseup']) {
+                overlay.addEventListener(type, (e) => e.stopPropagation());
+            }
+            overlay.addEventListener(
+                'click',
+                (e) => {
+                    e.stopPropagation();
+                    remove();
+                },
+                { once: true },
+            );
+
+            return () => remove();
+        });
+    }
+
+    /**
+     * Poster URLs for the buffering hold, cheapest source first, so the spinner never
+     * sits on a black frame. A poster this session already painted is a cache hit;
+     * maxres often 404s, so hqdefault backs it up.
+     * @param {HTMLVideoElement} video
+     * @returns {string[]}
+     */
+    buildPosterCandidates(video) {
+        const candidates = [];
+        if (this.posterSrc) candidates.push(this.posterSrc);
+        if (video?.poster) candidates.push(video.poster);
+        const cued = document.querySelector('.ytp-cued-thumbnail-overlay-image, .ytp-cued-thumbnail-overlay');
+        if (cued) {
+            const match = getComputedStyle(cued).backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+            if (match?.[1]) candidates.push(match[1]);
+        }
+        const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
+        if (params) {
+            candidates.push(this.environment.getLargeThumbnailSrc(params.id));
+            candidates.push(new URL(`/vi/${params.id}/hqdefault.jpg`, 'https://i.ytimg.com').href);
+        }
+        return [...new Set(candidates.filter(Boolean))];
     }
 
     dismissOverlay() {

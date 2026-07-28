@@ -111,7 +111,13 @@ export default class DuckPlayerFeature extends ContentFeature {
 }
 
 /**
- * @typedef {Omit<import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']['youtube'], "state">} OverlaysFeatureSettings
+ * @typedef {import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']['youtube']} YouTubeOverlaySettings
+ */
+/**
+ * `bufferingFeedback` is not yet in the published privacy-configuration schema; it lands
+ * in a follow-up config PR (optional field, mirroring `videoDrawer`). Declared optional
+ * here so the client can gate on it ahead of that rollout.
+ * @typedef {Omit<YouTubeOverlaySettings, "state"> & { bufferingFeedback?: { state: YouTubeOverlaySettings['videoOverlays']['state'] } }} OverlaysFeatureSettings
  */
 
 // for docs generation

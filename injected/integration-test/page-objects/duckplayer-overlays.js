@@ -39,6 +39,7 @@ const configFiles = /** @type {const} */ ([
     'overlays.json',
     'overlays-live.json',
     'overlays-drawer.json',
+    'overlays-buffering-feedback.json',
     'disabled.json',
     'thumbnail-overlays-disabled.json',
     'click-interceptions-disabled.json',
@@ -574,6 +575,77 @@ class DuckplayerOverlaysMobile {
     async overlayIsRemoved() {
         const { page } = this.overlays;
         expect(await page.locator('ddg-video-overlay-mobile').count()).toBe(0);
+    }
+
+    /**
+     * The buffering hold: a thumbnail overlay in its loading state (poster + spinner)
+     * held over the player after opt-out, until the video presents its first frame.
+     */
+    async bufferingFeedbackShows() {
+        const { page } = this.overlays;
+        // The host fills the player; the inner overlay collapses to 0×0 because its
+        // children are absolutely positioned, so assert on the host and the spinner.
+        await page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'visible', timeout: 2000 });
+        await page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner').waitFor({ state: 'visible', timeout: 2000 });
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay')).toHaveClass(/loading/);
+    }
+
+    /**
+     * Assert a poster was painted behind the spinner (i.e. the spinner never sits on black).
+     */
+    async bufferingFeedbackHasPoster() {
+        const { page } = this.overlays;
+        await expect(async () => {
+            const backgroundImage = await page
+                .locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-bg')
+                .evaluate((el) => getComputedStyle(el).backgroundImage);
+            expect(backgroundImage).not.toBe('none');
+            expect(backgroundImage).toContain('url(');
+        }).toPass({ timeout: 2000 });
+    }
+
+    async bufferingFeedbackIsRemoved() {
+        const { page } = this.overlays;
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile')).toHaveCount(0, { timeout: 2000 });
+    }
+
+    async bufferingFeedbackNeverShows() {
+        const { page } = this.overlays;
+        // give the opt-out teardown a beat to (not) append the hold
+        await page.waitForTimeout(200);
+        expect(await page.locator('ddg-video-thumbnail-overlay-mobile').count()).toBe(0);
+    }
+
+    async tapsBufferingFeedback() {
+        const { page } = this.overlays;
+        // .bg fills the host, so a click here bubbles to the host's dismiss handler.
+        await page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-bg').click({ force: true });
+    }
+
+    /**
+     * Set a local poster on the <video> so the hold can paint it offline (the real
+     * i.ytimg.com thumbnails are unreachable from the test runner).
+     * @param {string} url
+     */
+    async setVideoPoster(url) {
+        const { page } = this.overlays;
+        await page.locator('#player video').evaluate((el, posterUrl) => {
+            /** @type {HTMLVideoElement} */ (el).poster = posterUrl;
+        }, url);
+    }
+
+    /**
+     * Simulate the underlying video reaching its first frame, which is what the hold
+     * waits for before removing itself.
+     */
+    async firstFrameRenders() {
+        const { page } = this.overlays;
+        await page.locator('#player video').evaluate((el) => {
+            const video = /** @type {HTMLVideoElement} */ (el);
+            Object.defineProperty(video, 'paused', { configurable: true, value: false });
+            Object.defineProperty(video, 'currentTime', { configurable: true, value: 1 });
+            video.dispatchEvent(new Event('timeupdate'));
+        });
     }
 
     async opensInfo() {
