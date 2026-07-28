@@ -252,6 +252,10 @@
     "title" : "Du kannst immer nur {limit} Dateien gleichzeitig anhängen.",
     "description" : "Warning shown when user attaches more files than the allowed maximum."
   },
+  "omnibar_tabAttachmentLimitWarning" : {
+    "title" : "Du kannst jeweils nur {limit} Tabs gleichzeitig anhängen.",
+    "description" : "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
   "omnibar_imageTooLargeError" : {
     "title" : "Das Bild ist zu groß. Bitte verwende ein Bild, das kleiner als 10000×10000 Pixel ist.",
     "description" : "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
