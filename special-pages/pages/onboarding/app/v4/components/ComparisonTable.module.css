@@ -116,6 +116,9 @@
 }
 
 .browserIconDuckDuckGo {
-    background-color: var(--ds-color-palette-red-50);
+    /* Hardcoded: --ds-color-palette-red-50 (legacy SERP palette) is no longer exported
+       by design-tokens desktop-browsers build (v0.31+). No current token matches this
+       exact value (closest is Mandarin 50, a different hex). Revisit if one is added. */
+    background-color: #de5833;
     background-image: url('../../../public/assets/img/icons/ddg.svg');
 }
