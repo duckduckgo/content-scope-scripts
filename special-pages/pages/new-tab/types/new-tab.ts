@@ -802,13 +802,22 @@ export interface ReasoningEffortOption {
   upsell?: "subscribe" | "upgrade";
 }
 /**
- * Limits the omnibar applies to image and file attachments. When omitted, the omnibar uses its built-in defaults.
+ * Limits the omnibar applies to attachments. All fields are optional. `files`/`images` are backend-sourced; the omnibar falls back to its built-in defaults for whichever is absent. `tabs` is a hardcoded native cap; when omitted (kill switch off) no tab limit is applied.
  */
 export interface AttachmentLimits {
   /**
+   * Limits for attached open tabs. Omitted when the tab-limit kill switch is off, meaning no tab limit.
+   */
+  tabs?: {
+    /**
+     * Maximum number of open tabs that can be attached at once.
+     */
+    maxAttached: number;
+  };
+  /**
    * Limits for file attachments (e.g. PDFs).
    */
-  files: {
+  files?: {
     /**
      * Maximum number of file attachments allowed.
      */
@@ -829,7 +838,7 @@ export interface AttachmentLimits {
   /**
    * Limits for image attachments.
    */
-  images: {
+  images?: {
     /**
      * Maximum number of images allowed in a single submission.
      */

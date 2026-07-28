@@ -252,6 +252,10 @@
     "title" : "Je kunt slechts {limit} bestanden tegelijk bijvoegen.",
     "description" : "Warning shown when user attaches more files than the allowed maximum."
   },
+  "omnibar_tabAttachmentLimitWarning" : {
+    "title" : "Je kunt slechts {limit} tabbladen tegelijk bijvoegen.",
+    "description" : "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
   "omnibar_imageTooLargeError" : {
     "title" : "De afbeelding is te groot. Gebruik een afbeelding kleiner dan 10.000×10.000 pixels.",
     "description" : "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."

@@ -252,6 +252,10 @@
     "title" : "Puoi allegare solo {limit} file alla volta.",
     "description" : "Warning shown when user attaches more files than the allowed maximum."
   },
+  "omnibar_tabAttachmentLimitWarning" : {
+    "title" : "Puoi allegare solo {limit} schede alla volta.",
+    "description" : "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
   "omnibar_imageTooLargeError" : {
     "title" : "L'immagine è troppo grande. Utilizza un'immagine di dimensioni inferiori a 10.000×10.000 pixel.",
     "description" : "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
