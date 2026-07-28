@@ -307,10 +307,6 @@
         padding-left: 0;
     }
 
-    .company {
-        padding-left: var(--sp-3);
-    }
-
     .name {
         color: var(--ds-color-theme-text-primary);
     }

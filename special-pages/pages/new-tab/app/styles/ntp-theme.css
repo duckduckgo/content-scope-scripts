@@ -64,6 +64,8 @@
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: #3A69EF;
+    --ntp-card-fill-rest: var(--color-white-at-30);
+    --ntp-card-border-rest: none;
 }
 
 [data-theme=dark] {
@@ -72,6 +74,8 @@
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: var(--color-blue-30);
+    --ntp-card-fill-rest: var(--color-black-at-18);
+    --ntp-card-border-rest: 0.5px solid var(--color-white-at-9);
 }
 
 :root:has(body[data-platform-name="windows"]) {
