@@ -130,20 +130,56 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.bufferingFeedbackIsRemoved();
     });
 
-    test('removes the hold after the bounded timeout', async ({ page }, workerInfo) => {
+    test('clears the hold when the player reports an error', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
         await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
 
-        // Fake timers from here so the 30s safety timeout is deterministic
-        await page.clock.install();
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.bufferingFeedbackShows();
 
-        await page.clock.fastForward(31000);
+        // No frame is coming, and YouTube's error UI is behind the poster
+        await overlays.mobile.videoErrors();
         await overlays.mobile.bufferingFeedbackIsRemoved();
+    });
+
+    test('follows the video element when the player swaps it mid-startup', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+
+        // The first-frame callback would otherwise be stranded on the old element
+        await overlays.mobile.swapsVideoElement();
+        await overlays.mobile.firstFrameRendersEventually();
+        await overlays.mobile.bufferingFeedbackIsRemoved();
+    });
+
+    test('withdraws the spinner but keeps the poster when no frame ever arrives', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+        await overlays.mobile.setVideoPoster(TINY_POSTER);
+
+        // Fake timers from here so the give-up point is deterministic
+        await page.clock.install();
+        await overlays.mobile.choosesWatchHere();
+
+        await page.clock.fastForward(1000);
+        await overlays.mobile.bufferingFeedbackShows();
+
+        await page.clock.fastForward(61000);
+        await overlays.mobile.spinnerIsWithdrawn();
+        // Never reveal the black frame the hold exists to cover
+        await overlays.mobile.bufferingFeedbackHasPoster();
     });
 
     test('does not show the hold when the config gate is absent', async ({ page }, workerInfo) => {

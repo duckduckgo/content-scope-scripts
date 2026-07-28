@@ -34,6 +34,12 @@ import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js'
 import { DDGVideoThumbnailOverlay } from './components/ddg-video-thumbnail-overlay-mobile.js';
 import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
 
+/** Grace period before the buffering spinner joins the poster */
+const SPINNER_DELAY_MS = 500;
+/** Point at which a still-frameless video is treated as never arriving */
+const SPINNER_GIVE_UP_MS = 60000;
+const VIDEO_SWAP_POLL_MS = 500;
+
 /**
  * Handle the switch between small & large overlays
  * + conduct any communications
@@ -516,10 +522,16 @@ export class VideoOverlay {
     }
 
     /**
-     * After opt-out the <video> can take seconds to present its first frame (cold
-     * buffer), and YouTube paints nothing over the black player while a programmatic
-     * play() spins up. Cover the player with the video's poster and a YouTube-style
-     * spinner until the first frame lands, so the user never sees a dead black frame.
+     * After opt-out the <video> can take many seconds to present its first frame, and
+     * YouTube paints nothing over the black player while it waits. Cover the player
+     * with the video's poster and a YouTube-style spinner until the first frame lands,
+     * so the user never sees a dead black frame.
+     *
+     * The wait is not ours to shorten: measurements on Android put it at ~19s for
+     * ad-eligible videos when ad blocking holds the ad request, and under 300ms
+     * otherwise. So the hold waits for as long as a frame is still plausibly coming
+     * rather than expiring on a timer, which would only ever fire in the cases where
+     * the poster is still needed.
      *
      * Opt-in via remote config, following the videoDrawer gating pattern. Scoped to
      * the mobile classic overlay; the drawer variant keeps its own thumbnail visible
@@ -534,42 +546,71 @@ export class VideoOverlay {
         const targetElement = document.querySelector(this.settings.selectors.videoElementContainer);
         if (!videoEl?.isConnected || !targetElement) return;
         if (document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) return;
-        const video = videoEl;
 
         this.sideEffects.add('holding poster + spinner until first video frame', () => {
-            const overlay = /** @type {DDGVideoThumbnailOverlay} */ (
-                document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)
-            );
+            const overlay = /** @type {DDGVideoThumbnailOverlay} */ (document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME));
             overlay.testMode = this.environment.isTestMode();
             targetElement.appendChild(overlay);
-            overlay.setPosterCandidates(this.buildPosterCandidates(video));
+            overlay.setPosterCandidates(this.buildPosterCandidates(videoEl));
             overlay.showLoadingState();
 
+            let video = videoEl;
             let removed = false;
+
+            // A video that starts promptly would show the spinner for a couple of
+            // frames, so let the poster stand alone for a beat first.
+            const spinnerTimer = setTimeout(() => overlay.showSpinner(), SPINNER_DELAY_MS);
+            // YouTube's player-level failures ("Video unavailable") never reach the
+            // media element, so stop claiming progress once a wait is this far gone.
+            const giveUpTimer = setTimeout(() => overlay.hideSpinner(), SPINNER_GIVE_UP_MS);
+
             const onProgress = () => {
                 if (video.currentTime > 0 && !video.paused) remove();
             };
+            const onFirstFrame = () => remove();
+
+            /** @param {HTMLVideoElement} el */
+            const listen = (el) => {
+                el.addEventListener('playing', onProgress);
+                el.addEventListener('timeupdate', onProgress);
+                // No frame is coming, and YouTube's error UI is behind our poster
+                el.addEventListener('error', onFirstFrame);
+                if (typeof el.requestVideoFrameCallback === 'function') {
+                    el.requestVideoFrameCallback(onFirstFrame);
+                }
+            };
+            /** @param {HTMLVideoElement} el */
+            const unlisten = (el) => {
+                el.removeEventListener('playing', onProgress);
+                el.removeEventListener('timeupdate', onProgress);
+                el.removeEventListener('error', onFirstFrame);
+            };
+
+            // YouTube can replace the media element mid-startup, stranding the
+            // first-frame callback on an element that will never present a frame.
+            const swapPoll = setInterval(() => {
+                const current = /** @type {HTMLVideoElement | null} */ (document.querySelector(this.settings.selectors.videoElement));
+                if (!current || current === video) return;
+                unlisten(video);
+                video = current;
+                listen(video);
+            }, VIDEO_SWAP_POLL_MS);
+
             function remove() {
                 if (removed) return;
                 removed = true;
-                clearTimeout(timer);
-                video.removeEventListener('playing', onProgress);
-                video.removeEventListener('timeupdate', onProgress);
+                clearTimeout(spinnerTimer);
+                clearTimeout(giveUpTimer);
+                clearInterval(swapPoll);
+                unlisten(video);
                 overlay.remove();
             }
 
-            // Remove as soon as a real frame is presented; fall back to playback
-            // progress events on engines without requestVideoFrameCallback.
-            if (typeof video.requestVideoFrameCallback === 'function') {
-                video.requestVideoFrameCallback(() => remove());
-            }
-            video.addEventListener('playing', onProgress);
-            video.addEventListener('timeupdate', onProgress);
+            listen(video);
 
-            // Never trap the user: bounded hold plus tap-to-dismiss. The dismissing
-            // tap must not reach YouTube's player underneath, which would treat a tap
-            // on the video surface as its own gesture.
-            const timer = setTimeout(remove, 30000);
+            // Never trap the user: tap dismisses. The dismissing tap must not reach
+            // YouTube's player underneath, which would treat a tap on the video
+            // surface as its own gesture.
             for (const type of ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'mousedown', 'mouseup']) {
                 overlay.addEventListener(type, (e) => e.stopPropagation());
             }

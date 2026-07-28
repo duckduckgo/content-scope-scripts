@@ -609,6 +609,16 @@ class DuckplayerOverlaysMobile {
         await expect(page.locator('ddg-video-thumbnail-overlay-mobile')).toHaveCount(0, { timeout: 2000 });
     }
 
+    /**
+     * The hold stays, minus the spinner, so a video that never arrives settles on a
+     * still poster rather than the black frame the hold exists to cover.
+     */
+    async spinnerIsWithdrawn() {
+        const { page } = this.overlays;
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner')).toBeHidden();
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile')).toHaveCount(1);
+    }
+
     async bufferingFeedbackNeverShows() {
         const { page } = this.overlays;
         // give the opt-out teardown a beat to (not) append the hold
@@ -646,6 +656,37 @@ class DuckplayerOverlaysMobile {
             Object.defineProperty(video, 'currentTime', { configurable: true, value: 1 });
             video.dispatchEvent(new Event('timeupdate'));
         });
+    }
+
+    /**
+     * Signal a first frame until the hold acts on it. After a swap the hold re-arms on
+     * a poll, so a single dispatch can arrive before it is listening.
+     */
+    async firstFrameRendersEventually() {
+        const { page } = this.overlays;
+        await expect(async () => {
+            await this.firstFrameRenders();
+            expect(await page.locator('ddg-video-thumbnail-overlay-mobile').count()).toBe(0);
+        }).toPass({ timeout: 5000 });
+    }
+
+    /**
+     * A fatal media error means no frame is ever coming.
+     */
+    async videoErrors() {
+        const { page } = this.overlays;
+        await page.locator('#player video').evaluate((el) => el.dispatchEvent(new Event('error')));
+    }
+
+    /**
+     * Replace the media element with a fresh one, as YouTube does mid-startup. The
+     * selector still matches, but the element the hold was watching is now detached.
+     * Deliberately source-less: a copied src would 404 and remove the hold via the
+     * error path, which would hide whether it re-armed at all.
+     */
+    async swapsVideoElement() {
+        const { page } = this.overlays;
+        await page.locator('#player video').evaluate((el) => el.replaceWith(document.createElement('video')));
     }
 
     async opensInfo() {
