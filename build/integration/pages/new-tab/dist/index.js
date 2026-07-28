@@ -13983,7 +13983,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/chat-tools/tab-attachment/useTabAttachments.js
-  function useTabAttachments(tabId) {
+  function useTabAttachments(tabId, maxTabs = Number.POSITIVE_INFINITY) {
     const { getTabContent } = x2(OmnibarContext);
     const { openTabs } = x2(OpenTabsContext);
     const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence4(tabId);
@@ -14017,13 +14017,14 @@
       },
       [setAttachedEntries]
     );
+    const tabLimitExceeded = attachedTabs.length > maxTabs;
     const clearAttachedTabs = q2(() => {
       setAttachedEntries([]);
     }, [setAttachedEntries]);
     const getTabsForSubmission = q2(async () => {
-      if (attachedEntries.length === 0) return null;
+      if (attachedTabs.length === 0) return null;
       const results = await Promise.all(
-        attachedEntries.map(async ({ tabId: id }) => {
+        attachedTabs.map(async ({ tabId: id }) => {
           try {
             const pageContext = await getTabContent(id);
             return pageContext === null ? null : (
@@ -14041,7 +14042,7 @@
         results.filter((ctx) => ctx !== null)
       );
       return ready.length > 0 ? ready : null;
-    }, [attachedEntries, getTabContent]);
+    }, [attachedTabs, getTabContent]);
     const state = T2(
       () => ({
         attachedTabs,
@@ -14049,9 +14050,11 @@
         removeTab,
         toggleTab,
         clearAttachedTabs,
-        getTabsForSubmission
+        getTabsForSubmission,
+        tabLimitExceeded,
+        maxTabs
       }),
-      [attachedTabs, isAttached, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission]
+      [attachedTabs, isAttached, removeTab, toggleTab, clearAttachedTabs, getTabsForSubmission, tabLimitExceeded, maxTabs]
     );
     return state;
   }
@@ -14210,7 +14213,7 @@
     });
     const canAttachFiles = !imageGenerationActive && (selectedModel?.supportedFileTypes?.length ?? 0) > 0;
     const canAttachTabs = enableAttachTabs && !imageGenerationActive;
-    const tabAttachments = useTabAttachments(tabId);
+    const tabAttachments = useTabAttachments(tabId, attachmentLimits?.tabs?.maxAttached);
     const textareaRef = A2(
       /** @type {HTMLTextAreaElement|null} */
       null
@@ -14289,10 +14292,12 @@
     };
     const fileWarning = canAttachFiles && fileState.fileLimitExceeded;
     const fileError = canAttachFiles ? fileState.fileError : null;
+    const tabWarning = canAttachTabs && tabAttachments.tabLimitExceeded;
     const imageMessageShowing = !!(canAttachImages && (imageState.imageLimitExceeded || imageState.imageError));
     const showFileError = !!fileError && !imageMessageShowing;
     const showFileWarning = fileWarning && !imageMessageShowing && !showFileError;
-    const disabled = !query || imageWarning || fileWarning;
+    const showTabWarning = tabWarning && !imageMessageShowing && !showFileError && !showFileWarning;
+    const disabled = !query || imageWarning || fileWarning || tabWarning;
     const isVoiceChatMode = enableVoiceChatAccess && !imageGenerationActive && !hasAttachedImages && fileState.attachedFiles.length === 0 && tabAttachments.attachedTabs.length === 0 && !query;
     const handleClickSubmit = (event) => {
       event.preventDefault();
@@ -14311,7 +14316,7 @@
       {
         ref: containerRef,
         class: Omnibar_default.aiChatContent,
-        "data-attachment-warning": imageWarning || fileWarning || void 0,
+        "data-attachment-warning": imageWarning || fileWarning || tabWarning || void 0,
         onFocusCapture: (event) => {
           if (event.target instanceof HTMLTextAreaElement && !hasVisibleImagesRef.current && !imageGenerationActive && !mention.pickerActive)
             showChats();
@@ -14394,6 +14399,7 @@
         ),
         showFileError && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileTooLargeError", { limit: String(fileState.maxFileSizeMB ?? "") })),
         showFileWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_fileAttachmentLimitWarning", { limit: String(fileState.maxFiles) })),
+        showTabWarning && /* @__PURE__ */ k("p", { class: Omnibar_default.attachmentWarning, role: "alert" }, t4("omnibar_tabAttachmentLimitWarning", { limit: String(tabAttachments.maxTabs) })),
         /* @__PURE__ */ k(
           ImageAttachmentContent,
           {
@@ -35957,6 +35963,10 @@
       title: "You can only attach {limit} files at a time.",
       description: "Warning shown when user attaches more files than the allowed maximum."
     },
+    omnibar_tabAttachmentLimitWarning: {
+      title: "You can only attach {limit} tabs at a time.",
+      description: "Warning shown when user attaches more open tabs than the allowed maximum."
+    },
     omnibar_imageTooLargeError: {
       title: "Image is too large. Please use an image smaller than 10000\xD710000 pixels.",
       description: "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
@@ -41389,6 +41399,9 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
       enableAskAiSuggestion: true,
       enableAttachTabs: false,
       attachmentLimits: {
+        tabs: {
+          maxAttached: 3
+        },
         files: {
           maxPerConversation: 3,
           maxFileSizeMB: 3,
@@ -41532,11 +41545,16 @@ This is placeholder content used by the NTP mock transport so the attach-tabs fe
             config.customizationActive = parseBooleanQueryParam("omnibar.customizationActive") ?? config.customizationActive;
             if (config.attachmentLimits) {
               const imageMaxPerTurn = parseInt(url5.searchParams.get("omnibar.imageMaxPerTurn") ?? "", 10);
-              if (imageMaxPerTurn > 0) config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
+              if (imageMaxPerTurn > 0 && config.attachmentLimits.images)
+                config.attachmentLimits.images.maxPerTurn = imageMaxPerTurn;
               const fileMaxPerConversation = parseInt(url5.searchParams.get("omnibar.fileMaxPerConversation") ?? "", 10);
-              if (fileMaxPerConversation > 0) config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;
+              if (fileMaxPerConversation > 0 && config.attachmentLimits.files)
+                config.attachmentLimits.files.maxPerConversation = fileMaxPerConversation;
               const fileMaxFileSizeMB = parseInt(url5.searchParams.get("omnibar.fileMaxFileSizeMB") ?? "", 10);
-              if (fileMaxFileSizeMB > 0) config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
+              if (fileMaxFileSizeMB > 0 && config.attachmentLimits.files)
+                config.attachmentLimits.files.maxFileSizeMB = fileMaxFileSizeMB;
+              const tabMaxAttached = parseInt(url5.searchParams.get("omnibar.tabMaxAttached") ?? "", 10);
+              if (tabMaxAttached > 0 && config.attachmentLimits.tabs) config.attachmentLimits.tabs.maxAttached = tabMaxAttached;
             }
             config.enableAiChatDeletion = parseBooleanQueryParam("omnibar.enableAiChatDeletion") ?? config.enableAiChatDeletion;
             config.enableSearchSuggestionDeletion = parseBooleanQueryParam("omnibar.enableSearchSuggestionDeletion") ?? config.enableSearchSuggestionDeletion;

@@ -1,1 +1,2 @@
-- NTP: omnibar model/reasoning selector descriptions, badges, and upsell (#2852)
+- NTP: Limit attached tabs to three in NTP omnibar (#2898)
+- build(deps-dev): bump typescript-eslint from 8.63.0 to 8.64.0 (#2913)

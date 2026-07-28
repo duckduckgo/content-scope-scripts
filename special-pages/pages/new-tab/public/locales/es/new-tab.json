@@ -252,6 +252,10 @@
     "title" : "Solo puedes adjuntar {limit} archivos a la vez.",
     "description" : "Warning shown when user attaches more files than the allowed maximum."
   },
+  "omnibar_tabAttachmentLimitWarning" : {
+    "title" : "Solo puedes adjuntar {limit} pestañas a la vez.",
+    "description" : "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
   "omnibar_imageTooLargeError" : {
     "title" : "La imagen es demasiado grande. Utiliza una imagen de menos de 10 000×10 000 píxeles.",
     "description" : "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."

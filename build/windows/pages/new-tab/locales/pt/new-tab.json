@@ -252,6 +252,10 @@
     "title" : "Só podes anexar {limit} ficheiros de cada vez.",
     "description" : "Warning shown when user attaches more files than the allowed maximum."
   },
+  "omnibar_tabAttachmentLimitWarning" : {
+    "title" : "Só podes anexar {limit} separadores de cada vez.",
+    "description" : "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
   "omnibar_imageTooLargeError" : {
     "title" : "A imagem é demasiado grande. Usa uma imagem menor que 10 000 × 10 000 píxeis.",
     "description" : "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."

@@ -252,6 +252,10 @@
     "title" : "Możesz dołączyć tylko {limit} plików naraz.",
     "description" : "Warning shown when user attaches more files than the allowed maximum."
   },
+  "omnibar_tabAttachmentLimitWarning" : {
+    "title" : "Jednocześnie możesz załączyć tylko następującą liczbę kart: {limit}.",
+    "description" : "Warning shown when user attaches more open tabs than the allowed maximum."
+  },
   "omnibar_imageTooLargeError" : {
     "title" : "Obraz jest zbyt duży. Użyj obrazu mniejszego niż 10000×10000 pikseli.",
     "description" : "Error shown when a user tries to attach an image that exceeds the maximum pixel dimensions."
