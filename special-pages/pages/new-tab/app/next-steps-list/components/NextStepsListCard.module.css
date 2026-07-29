@@ -393,18 +393,31 @@
         --button-bg--active: var(--ds-color-theme-accent-tertiary);
         --button-bg--hover: var(--ds-color-theme-accent-secondary);
         --button-text: var(--ds-color-theme-accent-content-primary);
-
-        background: var(--button-bg);
-        color: var(--button-text);
     }
 
     .buttonRow .actionButton.secondaryButton {
-        --button-bg: var(--ds-color-theme-control-raised-backdrop);
+        --button-bg: var(--ds-color-theme-control-fill-primary);
         --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
         --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
         --button-text: var(--ds-color-theme-text-primary);
+    }
 
-        background: var(--button-bg);
-        color: var(--button-text);
+    /* Windows Button.standard sets background-color/color longhands (ignores --button-*). */
+    :global([data-platform-name="windows"]) {
+        .buttonRow .actionButton.primaryButton,
+        .buttonRow .actionButton.secondaryButton {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+
+            &:hover:not(:disabled) {
+                background-color: var(--button-bg--hover, var(--button-bg));
+                color: var(--button-text--hover, var(--button-text));
+            }
+
+            &:active:not(:disabled) {
+                background-color: var(--button-bg--active, var(--button-bg));
+                color: var(--button-text--active, var(--button-text));
+            }
+        }
     }
 }
