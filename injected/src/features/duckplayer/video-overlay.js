@@ -596,13 +596,17 @@ export class VideoOverlay {
 
             let video = videoEl;
             let removed = false;
+            let gaveUp = false;
 
             // A video that starts promptly would show the spinner for a couple of
             // frames, so let the poster stand alone for a beat first.
             const spinnerTimer = setTimeout(() => overlay.showSpinner(), SPINNER_DELAY_MS);
             // YouTube's player-level failures ("Video unavailable") never reach the
             // media element, so stop claiming progress once a wait is this far gone.
-            const giveUpTimer = setTimeout(() => overlay.hideSpinner(), SPINNER_GIVE_UP_MS);
+            const giveUpTimer = setTimeout(() => {
+                gaveUp = true;
+                overlay.hideSpinner();
+            }, SPINNER_GIVE_UP_MS);
 
             const onProgress = () => {
                 if (video.currentTime > 0 && !video.paused) remove();
@@ -648,20 +652,19 @@ export class VideoOverlay {
 
             listen(video);
 
-            // Never trap the user: tap dismisses. The dismissing tap must not reach
-            // YouTube's player underneath, which would treat a tap on the video
-            // surface as its own gesture.
+            // Taps must not reach YouTube's player underneath, which would treat a tap
+            // on the video surface as its own gesture.
             for (const type of ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'mousedown', 'mouseup']) {
                 overlay.addEventListener(type, (e) => e.stopPropagation());
             }
-            overlay.addEventListener(
-                'click',
-                (e) => {
-                    e.stopPropagation();
-                    remove();
-                },
-                { once: true },
-            );
+            // Only dismiss once we have stopped claiming a frame is coming. Dismissing
+            // while the spinner runs would swap it for the player's own startup state,
+            // which is the black frame and play button the hold exists to cover, so the
+            // escape hatch belongs at the point where the wait has become hopeless.
+            overlay.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (gaveUp) remove();
+            });
 
             return () => remove();
         });

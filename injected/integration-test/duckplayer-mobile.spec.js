@@ -132,7 +132,7 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.bufferingFeedbackIsRemoved();
     });
 
-    test('dismisses the hold on tap without reaching the player', async ({ page }, workerInfo) => {
+    test('keeps the hold when tapped while a frame is still coming', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
         await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
@@ -141,6 +141,28 @@ test.describe('Video Player buffering feedback', () => {
 
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.bufferingFeedbackShows();
+
+        // Dismissing here would reveal the player's own startup state, which is what
+        // the hold covers, so the tap is swallowed and the spinner keeps running.
+        await overlays.mobile.tapsBufferingFeedback();
+        await overlays.mobile.bufferingFeedbackShows();
+    });
+
+    test('dismisses the hold on tap once the wait is hopeless', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+        await overlays.mobile.setVideoPoster(TINY_POSTER);
+
+        await page.clock.install();
+        await overlays.mobile.choosesWatchHere();
+        await page.clock.fastForward(1000);
+        await overlays.mobile.bufferingFeedbackShows();
+
+        await page.clock.fastForward(61000);
+        await overlays.mobile.spinnerIsWithdrawn();
 
         await overlays.mobile.tapsBufferingFeedback();
         await overlays.mobile.bufferingFeedbackIsRemoved();
@@ -205,8 +227,15 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
 
+        await page.clock.install();
         await overlays.mobile.choosesWatchHere();
+        await page.clock.fastForward(1000);
         await overlays.mobile.bufferingFeedbackShows();
+
+        // Taps only dismiss once the wait is hopeless, so that is the state where the
+        // hold has to be reachable: in fullscreen, YouTube's controls take the taps.
+        await page.clock.fastForward(61000);
+        await overlays.mobile.spinnerIsWithdrawn();
 
         test.skip(!(await overlays.mobile.playerEntersFullscreen()), 'browser refused fullscreen');
         await overlays.mobile.isNotFullscreen();
