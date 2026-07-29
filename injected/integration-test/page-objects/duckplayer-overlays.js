@@ -633,6 +633,62 @@ class DuckplayerOverlaysMobile {
     }
 
     /**
+     * Put the player into fullscreen the way YouTube does, from a real click so the
+     * request has the user activation the Fullscreen API demands.
+     * @returns {Promise<boolean>} whether the browser granted fullscreen
+     */
+    async playerEntersFullscreen() {
+        const { page } = this.overlays;
+        await page.evaluate(() => {
+            const button = document.createElement('button');
+            button.id = 'test-enter-fullscreen';
+            button.textContent = 'fullscreen';
+            button.style.cssText = 'position:fixed;top:0;left:0;z-index:2147483647';
+            button.addEventListener('click', () => {
+                const player = /** @type {HTMLElement} */ (document.querySelector('#player'));
+                Reflect.set(
+                    window,
+                    '__fullscreenGranted',
+                    player.requestFullscreen().then(
+                        () => true,
+                        () => false,
+                    ),
+                );
+            });
+            document.body.appendChild(button);
+        });
+        await page.locator('#test-enter-fullscreen').click();
+        const granted = await page.evaluate(() => Reflect.get(window, '__fullscreenGranted'));
+        await page.locator('#test-enter-fullscreen').evaluate((el) => el.remove());
+        return granted;
+    }
+
+    /**
+     * Our overlays cover the whole screen and stop being tappable once YouTube's
+     * player is fullscreen, so an overlay showing means fullscreen must not persist.
+     */
+    async isNotFullscreen() {
+        const { page } = this.overlays;
+        await expect(async () => {
+            expect(await page.evaluate(() => document.fullscreenElement === null)).toBe(true);
+        }).toPass({ timeout: 2000 });
+    }
+
+    async overlayIsStillPresented() {
+        const { page } = this.overlays;
+        await expect(page.locator('ddg-video-overlay-mobile')).toHaveCount(1);
+    }
+
+    /**
+     * With no overlay left to protect, fullscreen belongs to the user again.
+     */
+    async staysFullscreen() {
+        const { page } = this.overlays;
+        await page.waitForTimeout(200);
+        expect(await page.evaluate(() => document.fullscreenElement !== null)).toBe(true);
+    }
+
+    /**
      * Set a local poster on the <video> so the hold can paint it offline (the real
      * i.ytimg.com thumbnails are unreachable from the test runner).
      * @param {string} url

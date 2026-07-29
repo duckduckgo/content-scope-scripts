@@ -40,6 +40,13 @@ const SPINNER_DELAY_MS = 500;
 const SPINNER_GIVE_UP_MS = 60000;
 const VIDEO_SWAP_POLL_MS = 500;
 
+/** Every mobile overlay that covers the player, for presence checks */
+const OVERLAY_TAG_NAMES = [
+    DDGVideoOverlayMobile.CUSTOM_TAG_NAME,
+    DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME,
+    DDGVideoDrawerMobile.CUSTOM_TAG_NAME,
+].join(', ');
+
 /**
  * Handle the switch between small & large overlays
  * + conduct any communications
@@ -274,6 +281,8 @@ export class VideoOverlay {
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
             };
         });
+
+        this.keepOverlayOutOfFullscreen();
     }
 
     /**
@@ -323,6 +332,8 @@ export class VideoOverlay {
                 };
             },
         );
+
+        this.keepOverlayOutOfFullscreen();
     }
 
     /**
@@ -344,6 +355,35 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
             };
+        });
+    }
+
+    /**
+     * A scroll gesture on the watch page can put YouTube's player container into
+     * fullscreen. Our overlays are `position: absolute; inset: 0` inside
+     * `#movie_player`, so they stretch to the whole screen, and YouTube's
+     * `#player-control-container` — positioned outside `#movie_player`'s stacking
+     * context, so our z-index cannot reach it — then hit-tests above them. That
+     * leaves the overlay covering the screen while every tap lands on YouTube,
+     * with no browser chrome left to escape to. Leaving fullscreen puts the
+     * overlay back in the player box, where it can be used again.
+     *
+     * Call this after appending, so the initial check can see the overlay.
+     */
+    keepOverlayOutOfFullscreen() {
+        this.sideEffects.add('leaving fullscreen while an overlay is showing', () => {
+            const onChange = () => {
+                if (!document.fullscreenElement) return;
+                // The buffering hold removes itself without tearing down side effects,
+                // so check for a live overlay rather than assuming one is still up.
+                if (!document.querySelector(OVERLAY_TAG_NAMES)) return;
+                Promise.resolve(document.exitFullscreen?.()).catch(() => {});
+            };
+            document.addEventListener('fullscreenchange', onChange);
+            // The overlay can also be appended while already fullscreen, on a
+            // same-page navigation to the next video.
+            onChange();
+            return () => document.removeEventListener('fullscreenchange', onChange);
         });
     }
 
@@ -625,6 +665,8 @@ export class VideoOverlay {
 
             return () => remove();
         });
+
+        this.keepOverlayOutOfFullscreen();
     }
 
     /**

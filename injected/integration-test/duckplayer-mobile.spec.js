@@ -75,6 +75,22 @@ test.describe('Video Player overlays', () => {
         ]);
         await overlays.userSettingWasUpdatedTo('enabled');
     });
+    test('leaves fullscreen so the overlay stays usable', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig();
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        // YouTube's watch page can go fullscreen from a scroll gesture, which stretches
+        // the overlay over the whole screen and puts YouTube's controls above it.
+        test.skip(!(await overlays.mobile.playerEntersFullscreen()), 'browser refused fullscreen');
+        await overlays.mobile.isNotFullscreen();
+        await overlays.mobile.overlayIsStillPresented();
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.overlayIsRemoved();
+    });
+
     test('opens info', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
@@ -180,6 +196,39 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.spinnerIsWithdrawn();
         // Never reveal the black frame the hold exists to cover
         await overlays.mobile.bufferingFeedbackHasPoster();
+    });
+
+    test('leaves fullscreen so the hold stays dismissable', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+
+        test.skip(!(await overlays.mobile.playerEntersFullscreen()), 'browser refused fullscreen');
+        await overlays.mobile.isNotFullscreen();
+        await overlays.mobile.tapsBufferingFeedback();
+        await overlays.mobile.bufferingFeedbackIsRemoved();
+    });
+
+    test('stops blocking fullscreen once the hold has cleared', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+        await overlays.mobile.firstFrameRenders();
+        await overlays.mobile.bufferingFeedbackIsRemoved();
+
+        // Watching the video fullscreen is the point of opting out
+        test.skip(!(await overlays.mobile.playerEntersFullscreen()), 'browser refused fullscreen');
+        await overlays.mobile.staysFullscreen();
     });
 
     test('does not show the hold when the config gate is absent', async ({ page }, workerInfo) => {
