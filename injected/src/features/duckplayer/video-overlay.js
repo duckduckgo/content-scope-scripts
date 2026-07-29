@@ -40,6 +40,9 @@ const SPINNER_DELAY_MS = 500;
 const SPINNER_GIVE_UP_MS = 60000;
 const VIDEO_SWAP_POLL_MS = 500;
 
+const HOLD_SIDE_EFFECT = 'holding poster + spinner until first video frame';
+const FULLSCREEN_SIDE_EFFECT = 'leaving fullscreen while an overlay is showing';
+
 /** Every mobile overlay that covers the player, for presence checks */
 const OVERLAY_TAG_NAMES = [
     DDGVideoOverlayMobile.CUSTOM_TAG_NAME,
@@ -371,7 +374,7 @@ export class VideoOverlay {
      * Call this after appending, so the initial check can see the overlay.
      */
     keepOverlayOutOfFullscreen() {
-        this.sideEffects.add('leaving fullscreen while an overlay is showing', () => {
+        this.sideEffects.add(FULLSCREEN_SIDE_EFFECT, () => {
             const onChange = () => {
                 if (!document.fullscreenElement) return;
                 // The buffering hold removes itself without tearing down side effects,
@@ -587,7 +590,9 @@ export class VideoOverlay {
         if (!videoEl?.isConnected || !targetElement) return;
         if (document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) return;
 
-        this.sideEffects.add('holding poster + spinner until first video frame', () => {
+        const sideEffects = this.sideEffects;
+
+        sideEffects.add(HOLD_SIDE_EFFECT, () => {
             const overlay = /** @type {DDGVideoThumbnailOverlay} */ (document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME));
             overlay.testMode = this.environment.isTestMode();
             targetElement.appendChild(overlay);
@@ -648,6 +653,11 @@ export class VideoOverlay {
                 clearInterval(swapPoll);
                 unlisten(video);
                 overlay.remove();
+                // The hold outlives nothing: drop its own registration and the
+                // fullscreen guard it installed, rather than leaving them until the
+                // next navigation tears the whole feature down.
+                sideEffects.destroy(FULLSCREEN_SIDE_EFFECT);
+                sideEffects.destroy(HOLD_SIDE_EFFECT);
             }
 
             listen(video);

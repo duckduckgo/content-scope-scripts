@@ -86,9 +86,9 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
         const bg = this.container?.querySelector('.ddg-vpo-bg');
         if (!(bg instanceof HTMLElement)) return;
         const list = candidates.filter(Boolean);
-        const tryAt = (index) => {
-            if (index >= list.length) return;
+        const tryAt = (/** @type {number} */ index) => {
             const url = list[index];
+            if (!url) return;
             const img = new Image();
             img.onload = () => {
                 bg.style.backgroundImage = `url("${url}")`;
