@@ -34,11 +34,27 @@ import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js'
 import { DDGVideoThumbnailOverlay } from './components/ddg-video-thumbnail-overlay-mobile.js';
 import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
 
-/** Grace period before the buffering spinner joins the poster */
-const SPINNER_DELAY_MS = 500;
-/** Point at which a still-frameless video is treated as never arriving */
-const SPINNER_GIVE_UP_MS = 60000;
+/** Grace period before the buffering spinner joins the poster (fallback for bufferingFeedback.spinnerDelayMs) */
+const DEFAULT_SPINNER_DELAY_MS = 500;
+/** When a still-frameless video is treated as never arriving (fallback for bufferingFeedback.giveUpMs) */
+const DEFAULT_SPINNER_GIVE_UP_MS = 25000;
 const VIDEO_SWAP_POLL_MS = 500;
+
+/**
+ * Bucket a hold's lifetime for the removal pixel: enough to see the median and the tail
+ * without carrying a per-session timing fingerprint.
+ * @param {number} ms
+ * @returns {string}
+ */
+function bucketHoldDuration(ms) {
+    const seconds = ms / 1000;
+    if (seconds < 1) return '0-1';
+    if (seconds < 3) return '1-3';
+    if (seconds < 10) return '3-10';
+    if (seconds < 20) return '10-20';
+    if (seconds < 30) return '20-30';
+    return '30+';
+}
 
 const HOLD_SIDE_EFFECT = 'holding poster + spinner until first video frame';
 const FULLSCREEN_SIDE_EFFECT = 'leaving fullscreen while an overlay is showing';
@@ -63,8 +79,8 @@ export class VideoOverlay {
     /** @type {boolean} */
     didAllowFirstVideo = false;
 
-    /** Poster last painted onto an overlay, reused (cache hit) behind the buffering spinner @type {string | null} */
-    posterSrc = null;
+    /** Which mobile overlay was last appended, so the buffering hold can gate on what actually showed rather than on config @type {'classic' | 'drawer' | null} */
+    appendedMobileVariant = null;
 
     /**
      * @param {object} options
@@ -261,11 +277,19 @@ export class VideoOverlay {
     }
 
     /**
+     * Gates the buffering hold and the fullscreen exit that keeps it reachable: both ship together.
+     */
+    bufferingFeedbackEnabled() {
+        return this.settings.bufferingFeedback?.state === 'enabled';
+    }
+
+    /**
      * @param {Element} targetElement
      * @param {import("./util").VideoParams} params
      */
     appendMobileOverlay(targetElement, params) {
         this.messages.sendPixel(new Pixel({ name: 'overlay' }));
+        this.appendedMobileVariant = 'classic';
 
         this.sideEffects.add(`appending ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
             const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
@@ -295,6 +319,7 @@ export class VideoOverlay {
      */
     appendMobileDrawer(targetElement, drawerTargetElement, params) {
         this.messages.sendPixel(new Pixel({ name: 'overlay' }));
+        this.appendedMobileVariant = 'drawer';
 
         this.sideEffects.add(
             `appending ${DDGVideoDrawerMobile.CUSTOM_TAG_NAME} and ${DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME} to the page`,
@@ -374,6 +399,8 @@ export class VideoOverlay {
      * Call this after appending, so the initial check can see the overlay.
      */
     keepOverlayOutOfFullscreen() {
+        if (!this.bufferingFeedbackEnabled()) return;
+
         this.sideEffects.add(FULLSCREEN_SIDE_EFFECT, () => {
             const onChange = () => {
                 if (!document.fullscreenElement) return;
@@ -429,7 +456,6 @@ export class VideoOverlay {
         if (!params) return;
 
         const imageUrl = this.environment.getLargeThumbnailSrc(params.id);
-        this.posterSrc = imageUrl;
         appendImageAsBackground(overlayElement, '.ddg-vpo-bg', imageUrl);
     }
 
@@ -560,30 +586,33 @@ export class VideoOverlay {
             console.log('user values response:', updatedValues);
         }
 
+        // No buffering hold here, unlike the remember:false path above. Persisting the
+        // choice makes the native layer echo onUserValuesChanged back to this tab, which
+        // rebuilds the overlay controller and would tear a freshly-installed hold down
+        // mid-startup. Covering this path needs the hold to outlive that rebuild.
         this.destroy();
-        this.showBufferingFeedbackUntilFirstFrame();
     }
 
     /**
      * After opt-out the <video> can take many seconds to present its first frame, and
-     * YouTube paints nothing over the black player while it waits. Cover the player
-     * with the video's poster and a YouTube-style spinner until the first frame lands,
-     * so the user never sees a dead black frame.
+     * YouTube paints nothing over the black player while it waits. Cover the player with
+     * the video's poster and a YouTube-style spinner until the first frame lands.
      *
-     * The wait is not ours to shorten: measurements on Android put it at ~19s for
-     * ad-eligible videos when ad blocking holds the ad request, and under 300ms
-     * otherwise. So the hold waits for as long as a frame is still plausibly coming
-     * rather than expiring on a timer, which would only ever fire in the cases where
-     * the poster is still needed.
+     * The hold waits for as long as a frame is still plausibly coming rather than
+     * expiring on a fixed timer: the wait is dominated by the held ad request, so any
+     * timer short enough to help would fire in exactly the cases where the poster is
+     * still needed. giveUpMs only stops the spinner from claiming forever.
      *
-     * Opt-in via remote config, following the videoDrawer gating pattern. Scoped to
-     * the mobile classic overlay; the drawer variant keeps its own thumbnail visible
-     * while it animates out.
+     * Opt-in via remote config, following the videoDrawer gating pattern, and scoped to
+     * the mobile classic overlay; the drawer keeps its own thumbnail while animating out.
      */
     showBufferingFeedbackUntilFirstFrame() {
-        if (this.settings.bufferingFeedback?.state !== 'enabled') return;
+        if (!this.bufferingFeedbackEnabled()) return;
         if (this.environment.layout !== 'mobile') return;
-        if (this.shouldShowDrawerVariant()) return;
+        // Gate on what was actually appended, not config: the drawer keeps its own
+        // thumbnail while it animates out, but a config that asks for the drawer can
+        // still fall back to the classic overlay when its container is missing.
+        if (this.appendedMobileVariant === 'drawer') return;
 
         const videoEl = /** @type {HTMLVideoElement | null} */ (document.querySelector(this.settings.selectors.videoElement));
         const targetElement = document.querySelector(this.settings.selectors.videoElementContainer);
@@ -591,6 +620,8 @@ export class VideoOverlay {
         if (document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) return;
 
         const sideEffects = this.sideEffects;
+        const spinnerDelayMs = this.settings.bufferingFeedback?.spinnerDelayMs ?? DEFAULT_SPINNER_DELAY_MS;
+        const giveUpMs = this.settings.bufferingFeedback?.giveUpMs ?? DEFAULT_SPINNER_GIVE_UP_MS;
 
         sideEffects.add(HOLD_SIDE_EFFECT, () => {
             const overlay = /** @type {DDGVideoThumbnailOverlay} */ (document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME));
@@ -598,41 +629,54 @@ export class VideoOverlay {
             targetElement.appendChild(overlay);
             overlay.setPosterCandidates(this.buildPosterCandidates(videoEl));
             overlay.showLoadingState();
+            overlay.setLoadingLabel(mobileStrings(this.environment.strings('overlays.json')).bufferingLabel);
 
+            const startedAt = Date.now();
+            const messages = this.messages;
             let video = videoEl;
             let removed = false;
             let gaveUp = false;
+            let taps = 0;
 
             // A video that starts promptly would show the spinner for a couple of
             // frames, so let the poster stand alone for a beat first.
-            const spinnerTimer = setTimeout(() => overlay.showSpinner(), SPINNER_DELAY_MS);
+            const spinnerTimer = setTimeout(() => overlay.showSpinner(), spinnerDelayMs);
             // YouTube's player-level failures ("Video unavailable") never reach the
             // media element, so stop claiming progress once a wait is this far gone.
             const giveUpTimer = setTimeout(() => {
                 gaveUp = true;
                 overlay.hideSpinner();
-            }, SPINNER_GIVE_UP_MS);
+            }, giveUpMs);
 
             const onProgress = () => {
-                if (video.currentTime > 0 && !video.paused) remove();
+                if (video.currentTime > 0 && !video.paused) remove('frame');
             };
-            const onFirstFrame = () => remove();
+            const onFrame = () => remove('frame');
+            // No frame is coming, and YouTube's error UI is behind our poster
+            const onError = () => remove('error');
 
+            /** @type {number | null} */
+            let frameCallback = null;
             /** @param {HTMLVideoElement} el */
             const listen = (el) => {
                 el.addEventListener('playing', onProgress);
                 el.addEventListener('timeupdate', onProgress);
-                // No frame is coming, and YouTube's error UI is behind our poster
-                el.addEventListener('error', onFirstFrame);
+                el.addEventListener('error', onError);
                 if (typeof el.requestVideoFrameCallback === 'function') {
-                    el.requestVideoFrameCallback(onFirstFrame);
+                    frameCallback = el.requestVideoFrameCallback(onFrame);
                 }
             };
             /** @param {HTMLVideoElement} el */
             const unlisten = (el) => {
                 el.removeEventListener('playing', onProgress);
                 el.removeEventListener('timeupdate', onProgress);
-                el.removeEventListener('error', onFirstFrame);
+                el.removeEventListener('error', onError);
+                // Otherwise a frame from an element we stopped trusting (a mid-startup
+                // swap) can still tear the hold down, which is what the swap poll prevents.
+                if (frameCallback !== null && typeof el.cancelVideoFrameCallback === 'function') {
+                    el.cancelVideoFrameCallback(frameCallback);
+                    frameCallback = null;
+                }
             };
 
             // YouTube can replace the media element mid-startup, stranding the
@@ -645,7 +689,8 @@ export class VideoOverlay {
                 listen(video);
             }, VIDEO_SWAP_POLL_MS);
 
-            function remove() {
+            /** @param {"frame" | "error" | "gave_up" | "tap" | "torn_down"} reason */
+            function remove(reason) {
                 if (removed) return;
                 removed = true;
                 clearTimeout(spinnerTimer);
@@ -653,9 +698,11 @@ export class VideoOverlay {
                 clearInterval(swapPoll);
                 unlisten(video);
                 overlay.remove();
-                // The hold outlives nothing: drop its own registration and the
-                // fullscreen guard it installed, rather than leaving them until the
-                // next navigation tears the whole feature down.
+                messages.sendPixel(
+                    new Pixel({ name: 'buffering.hold_removed', reason, duration: bucketHoldDuration(Date.now() - startedAt) }),
+                );
+                // Drop the hold's own registration and its fullscreen guard now, not at
+                // the next navigation.
                 sideEffects.destroy(FULLSCREEN_SIDE_EFFECT);
                 sideEffects.destroy(HOLD_SIDE_EFFECT);
             }
@@ -667,43 +714,47 @@ export class VideoOverlay {
             for (const type of ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'mousedown', 'mouseup']) {
                 overlay.addEventListener(type, (e) => e.stopPropagation());
             }
-            // Only dismiss once we have stopped claiming a frame is coming. Dismissing
-            // while the spinner runs would swap it for the player's own startup state,
-            // which is the black frame and play button the hold exists to cover, so the
-            // escape hatch belongs at the point where the wait has become hopeless.
+            // A single tap while a frame is still plausibly coming is swallowed:
+            // dismissing then would reveal the player's own startup state, the black
+            // frame the hold exists to cover. But a second tap insists, and once the
+            // wait is hopeless any tap dismisses.
             overlay.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (gaveUp) remove();
+                taps += 1;
+                if (gaveUp) remove('gave_up');
+                else if (taps >= 2) remove('tap');
             });
 
-            return () => remove();
+            return () => remove('torn_down');
         });
 
         this.keepOverlayOutOfFullscreen();
     }
 
     /**
-     * Poster URLs for the buffering hold, cheapest source first, so the spinner never
-     * sits on a black frame. A poster this session already painted is a cache hit;
-     * maxres often 404s, so hqdefault backs it up.
+     * Poster candidates for the buffering hold, cheapest source first, so the spinner
+     * never sits on a black frame. Page-supplied posters are trusted and painted on
+     * load; the synthesised i.ytimg.com URLs are marked `verify` so the hold HEAD-checks
+     * them, because YouTube answers a missing thumbnail with a placeholder image under a
+     * 404 (maxres often 404s, so hqdefault backs it up).
      * @param {HTMLVideoElement} video
-     * @returns {string[]}
+     * @returns {{url: string, verify: boolean}[]}
      */
     buildPosterCandidates(video) {
+        /** @type {{url: string, verify: boolean}[]} */
         const candidates = [];
-        if (this.posterSrc) candidates.push(this.posterSrc);
-        if (video?.poster) candidates.push(video.poster);
+        if (video?.poster) candidates.push({ url: video.poster, verify: false });
         const cued = document.querySelector('.ytp-cued-thumbnail-overlay-image, .ytp-cued-thumbnail-overlay');
         if (cued) {
             const match = getComputedStyle(cued).backgroundImage.match(/url\(["']?(.*?)["']?\)/);
-            if (match?.[1]) candidates.push(match[1]);
+            if (match?.[1]) candidates.push({ url: match[1], verify: false });
         }
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
         if (params) {
-            candidates.push(this.environment.getLargeThumbnailSrc(params.id));
-            candidates.push(new URL(`/vi/${params.id}/hqdefault.jpg`, 'https://i.ytimg.com').href);
+            candidates.push({ url: this.environment.getLargeThumbnailSrc(params.id), verify: true });
+            candidates.push({ url: new URL(`/vi/${params.id}/hqdefault.jpg`, 'https://i.ytimg.com').href, verify: true });
         }
-        return [...new Set(candidates.filter(Boolean))];
+        return candidates;
     }
 
     dismissOverlay() {

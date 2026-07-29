@@ -106,8 +106,12 @@ export class SideEffects {
      * @param {string} [name]
      */
     destroy(name) {
-        const cleanups = name ? this._cleanups.filter((c) => c.name === name) : this._cleanups;
-        for (const cleanup of cleanups) {
+        const toRun = name ? this._cleanups.filter((c) => c.name === name) : this._cleanups;
+        // Detach before running: a cleanup can re-enter destroy() (the buffering hold
+        // tears down its own registrations from within its cleanup), and if these entries
+        // were still reachable the outer and inner passes would both run them.
+        this._cleanups = name ? this._cleanups.filter((c) => c.name !== name) : [];
+        for (const cleanup of toRun) {
             if (typeof cleanup.fn === 'function') {
                 try {
                     if (this.debug) {
@@ -120,11 +124,6 @@ export class SideEffects {
             } else {
                 throw new Error('invalid cleanup');
             }
-        }
-        if (name) {
-            this._cleanups = this._cleanups.filter((c) => c.name !== name);
-        } else {
-            this._cleanups = [];
         }
     }
 }

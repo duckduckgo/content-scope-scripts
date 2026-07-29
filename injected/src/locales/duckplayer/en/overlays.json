@@ -24,5 +24,9 @@
   "rememberLabel": {
     "title": "Remember my choice",
     "note": "Label text for an option to remember the user’s choice regarding the use of Duck Player."
+  },
+  "bufferingLabel": {
+    "title": "Loading video",
+    "note": "Screen-reader status announced while a video buffers after the user chooses to watch on YouTube instead of Duck Player."
   }
 }

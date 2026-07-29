@@ -37,6 +37,9 @@ const text = {
     rememberLabel: {
         title: 'Remember my choice',
     },
+    bufferingLabel: {
+        title: 'Loading video',
+    },
 };
 
 export const i18n = {
@@ -76,6 +79,7 @@ export function nl2br(text) {
  * @property {string | Template} buttonOptOut
  * @property {string | Template} buttonOpen
  * @property {string | Template} rememberLabel
+ * @property {string} bufferingLabel
  */
 
 /**
@@ -88,6 +92,7 @@ export const overlayCopyVariants = {
         buttonOptOut: i18n.t('videoButtonOptOut2'),
         buttonOpen: i18n.t('videoButtonOpen2'),
         rememberLabel: i18n.t('rememberLabel'),
+        bufferingLabel: i18n.t('bufferingLabel'),
     },
 };
 
@@ -102,5 +107,8 @@ export const mobileStrings = (lookup) => {
         buttonOptOut: lookup.videoButtonOptOut2 ?? '',
         buttonOpen: lookup.videoButtonOpen2 ?? '',
         rememberLabel: lookup.rememberLabel ?? '',
+        // Falls back to the bundled English rather than an empty live region until the
+        // per-locale string lands through the translation pipeline.
+        bufferingLabel: lookup.bufferingLabel ?? i18n.t('bufferingLabel'),
     };
 };

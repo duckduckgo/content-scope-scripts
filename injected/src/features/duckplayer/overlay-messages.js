@@ -166,7 +166,8 @@ export class Pixel {
      *   | {name: "play.use", remember: "0" | "1"}
      *   | {name: "play.use.thumbnail"}
      *   | {name: "play.do_not_use", remember: "0" | "1"}
-     *   | {name: "play.do_not_use.dismiss"}} input
+     *   | {name: "play.do_not_use.dismiss"}
+     *   | {name: "buffering.hold_removed", reason: "frame" | "error" | "gave_up" | "tap" | "torn_down", duration: string}} input
      */
     constructor(input) {
         this.input = input;
@@ -188,6 +189,8 @@ export class Pixel {
             }
             case 'play.do_not_use.dismiss':
                 return {};
+            case 'buffering.hold_removed':
+                return { reason: this.input.reason, duration: this.input.duration };
             default:
                 throw new Error('unreachable');
         }

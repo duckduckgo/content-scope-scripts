@@ -40,6 +40,8 @@ const configFiles = /** @type {const} */ ([
     'overlays-live.json',
     'overlays-drawer.json',
     'overlays-buffering-feedback.json',
+    'overlays-drawer-buffering-feedback.json',
+    'overlays-drawer-fallback-buffering-feedback.json',
     'disabled.json',
     'thumbnail-overlays-disabled.json',
     'click-interceptions-disabled.json',
@@ -604,9 +606,35 @@ class DuckplayerOverlaysMobile {
         }).toPass({ timeout: 2000 });
     }
 
+    /**
+     * Assert which poster won the candidate walk, by matching the painted URL.
+     * @param {RegExp} pattern
+     */
+    async bufferingFeedbackPosterMatches(pattern) {
+        const { page } = this.overlays;
+        await expect(async () => {
+            const backgroundImage = await page
+                .locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-bg')
+                .evaluate((el) => getComputedStyle(el).backgroundImage);
+            expect(backgroundImage).toMatch(pattern);
+        }).toPass({ timeout: 2000 });
+    }
+
     async bufferingFeedbackIsRemoved() {
         const { page } = this.overlays;
         await expect(page.locator('ddg-video-thumbnail-overlay-mobile')).toHaveCount(0, { timeout: 2000 });
+    }
+
+    /**
+     * The spinner and poster are decorative; the hold is announced through a
+     * visually-hidden live region instead.
+     * @param {string} label
+     */
+    async bufferingFeedbackAnnounces(label) {
+        const { page } = this.overlays;
+        const status = page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-status');
+        await expect(status).toHaveAttribute('role', 'status');
+        await expect(status).toHaveText(label, { timeout: 2000 });
     }
 
     /**
@@ -680,7 +708,8 @@ class DuckplayerOverlaysMobile {
     }
 
     /**
-     * With no overlay left to protect, fullscreen belongs to the user again.
+     * Fullscreen is left alone: either nothing is mounted that needs protecting, or
+     * the config gate is off.
      */
     async staysFullscreen() {
         const { page } = this.overlays;
