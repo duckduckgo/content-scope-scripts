@@ -241,8 +241,6 @@
 
 :global(body[data-rebrand="true"]) {
     --next-steps-list-rebrand-illustration-size: calc(108 * var(--px-in-rem));
-    --next-steps-list-rebrand-tag-background-color: var(--ds-ntp-next-steps-badge-background);
-    --next-steps-list-rebrand-tag-text-color: var(--ds-ntp-next-steps-badge-color);
 
     .bubble {
         left: var(--ds-space-x01);
@@ -254,14 +252,14 @@
         }
 
         div {
-            background-color: var(--next-steps-list-rebrand-tag-background-color);
+            background-color: var(--ds-ntp-next-steps-badge-background);
             border-radius: var(--ds-radius-x06) var(--ds-radius-x01) var(--ds-radius-x06) var(--ds-radius-x01);
             height: auto;
             margin: 0;
             padding: var(--ds-space-x1-5) var(--ds-space-x03-5);
 
             h2 {
-                color: var(--next-steps-list-rebrand-tag-text-color);
+                color: var(--ds-ntp-next-steps-badge-color);
                 font-family: var(--ds-font-family-product);
                 font-size: var(--small-label-font-size);
                 font-weight: var(--ds-font-weight-bold);
@@ -390,11 +388,14 @@
         padding: 0 var(--ds-space-x04);
     }
 
-    .buttonRow .primaryButton {
+    .buttonRow .actionButton.primaryButton {
         --button-bg: var(--ds-color-theme-accent-primary);
         --button-bg--active: var(--ds-color-theme-accent-tertiary);
         --button-bg--hover: var(--ds-color-theme-accent-secondary);
         --button-text: var(--ds-color-theme-accent-content-primary);
+
+        background: var(--button-bg);
+        color: var(--button-text);
     }
 
     .buttonRow .actionButton.secondaryButton {
