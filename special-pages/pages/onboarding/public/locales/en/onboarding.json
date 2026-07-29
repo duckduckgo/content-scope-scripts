@@ -473,6 +473,10 @@
     "title": "Start Browser Setup",
     "note": "Button label prompting user to start the v4 onboarding process."
   },
+  "getStartedButtonDefault_v4": {
+    "title": "Let’s get started!",
+    "note": "Button label prompting user to start the v4 onboarding process."
+  },
   "makeDefaultAccept_title_v4": {
     "title": "Excellent! Let’s move on.",
     "note": "Page title shown if a user chose to make DuckDuckGo their default browser in the v4 onboarding flow."

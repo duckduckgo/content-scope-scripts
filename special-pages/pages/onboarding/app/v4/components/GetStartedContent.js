@@ -66,7 +66,7 @@ export function GetStartedContent({ advance, onTitleComplete }) {
                 size="stretch"
                 onClick={handleAdvance}
             >
-                {t('getStartedButton_v4')}
+                {t(showChromeExtension ? 'getStartedButton_v4' : 'getStartedButtonDefault_v4')}
             </Button>
             {showChromeExtension && (
                 <ChromeExtensionCheckbox
