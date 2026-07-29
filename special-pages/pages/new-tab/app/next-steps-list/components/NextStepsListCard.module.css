@@ -241,8 +241,8 @@
 
 :global(body[data-rebrand="true"]) {
     --next-steps-list-rebrand-illustration-size: calc(108 * var(--px-in-rem));
-    --next-steps-list-rebrand-tag-background-color: var(--ds-next-steps-badge-background);
-    --next-steps-list-rebrand-tag-text-color: var(--ds-next-steps-badge-color);
+    --next-steps-list-rebrand-tag-background-color: var(--ds-ntp-next-steps-badge-background);
+    --next-steps-list-rebrand-tag-text-color: var(--ds-ntp-next-steps-badge-color);
 
     .bubble {
         left: var(--ds-space-x01);
@@ -279,7 +279,7 @@
     }
 
     .card {
-        background: var(--ntp-surface-background-color);
+        background: var(--ds-color-theme-tone-tint-primary);
         backdrop-filter: blur(48px);
         border: 1px solid var(--ds-color-theme-container-border-primary);
         border-radius: var(--ds-radius-x06);
@@ -391,20 +391,19 @@
     }
 
     .buttonRow .primaryButton {
-        --button-bg: var(--ntp-btn-rest);
-        --button-bg--active: var(--ntp-btn-active);
-        --button-bg--hover: var(--ntp-btn-hover);
+        --button-bg: var(--ds-color-theme-accent-primary);
+        --button-bg--active: var(--ds-color-theme-accent-tertiary);
+        --button-bg--hover: var(--ds-color-theme-accent-secondary);
         --button-text: var(--ds-color-theme-accent-content-primary);
     }
 
-    .buttonRow .secondaryButton {
-        --button-bg: var(--color-black-at-6);
+    .buttonRow .actionButton.secondaryButton {
+        --button-bg: var(--ds-color-theme-control-raised-backdrop);
         --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
         --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
         --button-text: var(--ds-color-theme-text-primary);
 
-        [data-theme="dark"] & {
-            --button-bg: var(--color-white-at-6);
-        }
+        background: var(--button-bg);
+        color: var(--button-text);
     }
 }
