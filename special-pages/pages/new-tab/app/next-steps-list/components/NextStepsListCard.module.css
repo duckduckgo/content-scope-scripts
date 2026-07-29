@@ -286,6 +286,10 @@
         min-height: calc(128 * var(--px-in-rem));
         padding: var(--ds-space-x05);
         padding-left: clamp(var(--ds-space-x05), 6vw, var(--ds-space-x10));
+
+        [data-theme=dark] & {
+            border-color: var(--color-white-at-3);
+        }
     }
 
     .cardContainer:has(.backCard) > .card:not(.backCard, .dismissing, .promoting) {
@@ -304,8 +308,10 @@
     }
 
     .dismissBtn {
-        border: 1px solid var(--ds-ntp-dismiss-btn-light-border);
-        color: var(--ds-ntp-dismiss-btn-light-color);
+        background: transparent;
+        border: 1px solid var(--ntp-btn-dismiss-border);
+        border-radius: var(--ds-radius-x06);
+        color: var(--ntp-btn-dismiss-color);
         height: var(--ds-space-x06);
         right: var(--ds-space-x03-5);
         top: var(--ds-space-x03);
@@ -317,16 +323,11 @@
         }
 
         &:hover:not(:disabled) {
-            background-color: var(--ds-color-theme-control-fill-secondary);
+            background-color: var(--ntp-btn-dismiss-hover);
         }
 
         &:active:not(:disabled) {
             background-color: var(--ds-color-theme-control-fill-tertiary);
-        }
-
-        :global([data-theme="dark"]) & {
-            border-color: var(--ds-ntp-dismiss-btn-dark-border);
-            color: var(--ds-ntp-dismiss-btn-dark-color);
         }
     }
 
@@ -388,16 +389,20 @@
     }
 
     .buttonRow .primaryButton {
-        --button-bg: var(--ds-color-theme-accent-primary);
-        --button-bg--active: var(--ds-color-theme-accent-tertiary);
-        --button-bg--hover: var(--ds-color-theme-accent-secondary);
+        --button-bg: var(--ntp-btn-rest);
+        --button-bg--active: var(--ntp-btn-active);
+        --button-bg--hover: var(--ntp-btn-hover);
         --button-text: var(--ds-color-theme-accent-content-primary);
     }
 
     .buttonRow .secondaryButton {
-        --button-bg: var(--ds-color-theme-control-fill-primary);
+        --button-bg: var(--color-black-at-6);
         --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
         --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
         --button-text: var(--ds-color-theme-text-primary);
+
+        [data-theme="dark"] & {
+            --button-bg: var(--color-white-at-6);
+        }
     }
 }

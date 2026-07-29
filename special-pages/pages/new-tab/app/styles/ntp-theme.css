@@ -64,8 +64,15 @@
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: #3A69EF;
-    --ntp-card-fill-rest: var(--color-white-at-30);
-    --ntp-card-border-rest: none;
+    --ntp-favicon-fill-rest: var(--color-white-at-30);
+    --ntp-favicon-border-rest: none;
+    /* Pondwater 60 */
+    --ntp-btn-rest: rgba(16, 116, 204, 1);
+    --ntp-btn-hover: #045EB2; /* Pondwater 70 */
+    --ntp-btn-active: #034180; /* Pondwater 80 */
+    --ntp-btn-dismiss-border: var(--color-black-at-9);
+    --ntp-btn-dismiss-color: var(--color-black-at-60);
+    --ntp-btn-dismiss-hover: var(--color-black-at-9);
 }
 
 [data-theme=dark] {
@@ -74,8 +81,14 @@
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: var(--color-blue-30);
-    --ntp-card-fill-rest: var(--color-black-at-18);
-    --ntp-card-border-rest: 0.5px solid var(--color-white-at-9);
+    --ntp-favicon-fill-rest: var(--color-black-at-18);
+    --ntp-favicon-border-rest: 0.5px solid var(--color-white-at-3);
+    --ntp-btn-rest: #75b6eb; /* Pondwater 40 */
+    --ntp-btn-hover: #4397E0; /* Pondwater 50 */
+    --ntp-btn-active: #1074CC; /* Pondwater 60 */
+    --ntp-btn-dismiss-border: var(--color-white-at-9);
+    --ntp-btn-dismiss-color: var(--color-white-at-60);
+    --ntp-btn-dismiss-hover: var(--color-white-at-18);
 }
 
 :root:has(body[data-platform-name="windows"]) {

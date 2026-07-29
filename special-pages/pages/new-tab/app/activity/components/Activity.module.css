@@ -74,8 +74,8 @@
     flex-shrink: 0;
     text-decoration: none;
     position: relative;
-    background: var(--ntp-card-fill-rest);
-    border: var(--ntp-card-border-rest);
+    background: var(--ntp-favicon-fill-rest);
+    border: var(--ntp-favicon-border-rest);
     transition: transform .2s;
 
     /* NTP Shadow Small */
