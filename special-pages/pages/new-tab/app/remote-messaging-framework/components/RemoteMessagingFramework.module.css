@@ -91,7 +91,7 @@
     .title {
         font-size: var(--ds-font-body-md-size);
         font-weight: var(--ds-font-weight-bold);
-        line-height: var(--ds-font-body-md-size);
+        line-height: var(--ds-font-body-md-line-height);
     }
 
     .description {
