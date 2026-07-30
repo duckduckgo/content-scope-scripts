@@ -68,3 +68,14 @@
         transition: none;
     }
 }
+
+/*
+ * NTP rebrand: selected tab uses text-primary, unselected uses text-secondary
+ * (icons inherit via currentColor). Scoped to body[data-rebrand="true"].
+ * @todo rebrand: fold into the base .tab rules once the rebrand ships to all
+ */
+:global(body[data-rebrand="true"]) {
+    .tab:not([aria-selected="true"]) {
+        color: var(--ds-color-theme-text-secondary);
+    }
+}
