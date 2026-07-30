@@ -105,16 +105,19 @@
     }
 
     .variantButton {
-        border-radius: var(--ds-radius-x02);
+        --selection-ring-offset: var(--ds-space-x-5);
+        --selection-ring-width: var(--ds-space-x-5);
+
+        border-radius: var(--ds-radius-x04);
 
         &[aria-checked="true"]::after {
-            border-radius: calc(var(--ds-radius-x02) + var(--selection-ring-offset));
+            border-radius: calc(var(--ds-radius-x04) + var(--selection-ring-offset));
         }
     }
 
     .swatch,
     .swatchBackdrop {
-        border-radius: var(--ds-radius-x02);
+        border-radius: var(--ds-radius-x04);
     }
 }
 
@@ -138,8 +141,8 @@
 }
 
 .variantButton {
-    --selection-ring-offset: var(--ds-space-x-5);
-    --selection-ring-width: var(--ds-space-x-5);
+    --selection-ring-offset: 2px;
+    --selection-ring-width: 2px;
 
     position: relative;
     width: var(--sp-12);
