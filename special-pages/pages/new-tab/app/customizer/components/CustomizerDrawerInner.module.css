@@ -325,17 +325,11 @@
                 content: "";
                 position: absolute;
                 inset: 0;
-                border-radius: inherit;
+                border-radius: calc(var(--ds-radius-x02) + var(--selection-ring-offset));
                 box-shadow:
-                    0 0 0 var(--selection-ring-offset) var(--color-white),
+                    0 0 0 var(--selection-ring-offset) var(--ds-color-theme-surface-secondary),
                     0 0 0 calc(var(--selection-ring-offset) + var(--selection-ring-width)) var(--ds-color-theme-accent-primary);
                 pointer-events: none;
-
-                [data-theme="dark"] & {
-                    box-shadow:
-                        0 0 0 var(--selection-ring-offset) var(--default-dark-background-color),
-                        0 0 0 calc(var(--selection-ring-offset) + var(--selection-ring-width)) var(--ds-color-theme-accent-primary);
-                }
             }
         }
     }
