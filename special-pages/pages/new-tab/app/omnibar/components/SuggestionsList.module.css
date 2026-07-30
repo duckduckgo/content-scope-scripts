@@ -33,16 +33,33 @@
         flex: none;
         margin: var(--sp-2);
         color: var(--ds-color-theme-text-secondary);
+        opacity: 0.56;
     }
 
-    &:hover:not([aria-selected='true']):not(:active) {
+    &:hover:not([aria-selected='true']):not(:active),
+    &[aria-selected='true'] {
         background: var(--ds-color-theme-control-fill-primary);
     }
 
     &[aria-selected='true'],
     &:active {
         border-radius: var(--border-radius-lg);
+
+        .deleteButton {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+
+    &[aria-selected='true'] {
+        svg {
+            opacity: 1;
+        }
+    }
+
+    &:active {
         color: var(--ds-color-theme-accent-content-primary);
+        background: var(--ds-color-theme-accent-secondary);
 
         svg {
             color: var(--ds-color-theme-accent-content-primary);
@@ -55,15 +72,6 @@
         .badge {
             background: var(--ds-color-theme-accent-secondary);
         }
-
-        .deleteButton {
-            opacity: 1;
-            pointer-events: auto;
-        }
-    }
-
-    &[aria-selected='true'] {
-        background: var(--ds-color-theme-accent-primary);
     }
 
     &:active:not(:has(.deleteButton:active)) {
