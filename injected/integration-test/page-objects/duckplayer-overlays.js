@@ -235,6 +235,28 @@ export class DuckplayerOverlays {
         });
     }
 
+    /**
+     * Answer the synthesised thumbnail URL so the overlay can paint without the real network.
+     * Must run before navigation, since the overlay requests it as soon as it appends.
+     */
+    async stubsThumbnail() {
+        await this.page.route('https://i.ytimg.com/**/maxresdefault.jpg', (route) => fulfillPoster(route, 200));
+    }
+
+    /**
+     * The overlay paints the video's thumbnail behind its content, and records the outcome so
+     * its scrim can lighten once a real image is there.
+     */
+    async overlayThumbnailIsPainted() {
+        await expect(async () => {
+            const backgroundImage = await this.page
+                .locator('ddg-video-overlay .ddg-vpo-bg')
+                .evaluate((el) => getComputedStyle(el).backgroundImage);
+            expect(backgroundImage).toContain('url(');
+        }).toPass({ timeout: 2000 });
+        await expect(this.page.locator('ddg-video-overlay .ddg-video-player-overlay')).toHaveAttribute('data-thumb-loaded', 'true');
+    }
+
     async overlayBlocksVideo() {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 });
         await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 });
@@ -282,9 +304,12 @@ export class DuckplayerOverlays {
         const { json = 'overlays.json', locale = 'en', bufferingFeedback, drawerContainer } = params;
 
         const config = loadConfig(json);
-        const youtube = config.features.duckPlayer.settings.overlays.youtube;
-        if (bufferingFeedback) youtube.bufferingFeedback = { state: 'enabled' };
-        if (drawerContainer) youtube.selectors.drawerContainer = drawerContainer;
+        // only reach in when asked to: the minimal configs have no overlays block at all
+        if (bufferingFeedback || drawerContainer) {
+            const youtube = config.features.duckPlayer.settings.overlays.youtube;
+            if (bufferingFeedback) youtube.bufferingFeedback = { state: 'enabled' };
+            if (drawerContainer) youtube.selectors.drawerContainer = drawerContainer;
+        }
 
         await this.collector.setup({ config, locale });
     }

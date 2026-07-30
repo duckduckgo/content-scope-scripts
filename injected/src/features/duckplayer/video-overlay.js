@@ -25,7 +25,8 @@
  *   - if the user previously clicked 'watch here + remember', just add the small dax
  *   - otherwise, stop the video playing + append our overlay
  */
-import { SideEffects, VideoParams, appendImageAsBackground } from './util.js';
+import { SideEffects, VideoParams } from './util.js';
+import { appendImageAsBackground } from './poster.js';
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js';
 import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 import { IconOverlay } from './icon-overlay.js';

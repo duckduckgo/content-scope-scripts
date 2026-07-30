@@ -87,6 +87,7 @@ const CORE_FILES = new Set([
     'injected/src/features/duckplayer/components/index.js',
     'injected/src/features/duckplayer/constants.js',
     'injected/src/features/duckplayer/overlays.js',
+    'injected/src/features/duckplayer/poster.js',
     'injected/src/features/duckplayer/text.js',
     'injected/src/features/fingerprinting-hardware.js',
     'injected/src/features/google-rejected.js',

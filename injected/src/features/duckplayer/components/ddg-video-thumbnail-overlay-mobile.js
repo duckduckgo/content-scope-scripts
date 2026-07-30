@@ -1,6 +1,6 @@
 import mobilecss from '../assets/mobile-video-thumbnail-overlay.css';
 import { createPolicy, html } from '../../../dom-utils.js';
-import { paintFirstUsablePoster } from '../util.js';
+import { paintFirstUsablePoster } from '../poster.js';
 
 /**
  * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
