@@ -163,6 +163,19 @@
  */
 :global(body[data-rebrand="true"]) {
     --omnibar-radius: var(--ds-radius-x06);
+    /* Figma ai-searchbox shadows — rest vs focused differ only by elevation, not a blue ring */
+    --omnibar-box-shadow-rest: 0 10px 20px 0 #00000005, 0 2px 6px 0 #0000000f, 0 0 0 1px #00000014;
+    --omnibar-box-shadow-focused: 0 8px 16px 0 #0000000f, 0 2px 6px 0 #0000000f, 0 0 0 1px #00000014;
+
+    /*
+     * Gap below omnibar should be 60px (padding-bottom: --sp-15). The legacy spacer
+     * is sized for Duck.ai (70px), so in Search mode ~30px of empty spacer sat above
+     * that padding and made the visual gap ~90px. Match spacer to the search box so
+     * the gap is just the padding. Duck.ai keeps the taller spacer; contents still overflow.
+     */
+    .root[data-mode="search"] .spacer {
+        height: calc(var(--sp-10) + 3px * 2);
+    }
 
     /* Keep the same radius across Rest, Focused, Attachment limit exceeded, and Suggestions/AI chats list visible */
     .popup,
@@ -174,7 +187,29 @@
 
     /* Rest */
     .popup {
-        box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.02), 0 2px 6px 0 rgba(0, 0, 0, 0.06), 0 0 0 1px var(--ds-color-theme-container-border-secondary);
+        box-shadow: var(--omnibar-box-shadow-rest);
         outline: none;
+    }
+
+    /* Typing / focused: shadow only — no blue border or accent glow (keyboard rings stay on controls via :focus-visible) */
+    .root:has(input:focus, textarea:focus) .popup {
+        box-shadow: var(--omnibar-box-shadow-focused);
+    }
+
+    .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .popup {
+        border: none;
+        box-shadow: var(--omnibar-box-shadow-focused);
+        margin: 3px; /* keep rest inset; legacy used margin:0 to make room for a 2px blue border */
+        outline: none;
+
+        .field {
+            margin: 0;
+        }
+
+        .aiChatsList {
+            margin-left: 0;
+            margin-right: 0;
+            margin-top: 0;
+        }
     }
 }
