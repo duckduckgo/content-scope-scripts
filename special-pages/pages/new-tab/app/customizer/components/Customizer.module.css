@@ -63,18 +63,6 @@
     }
 }
 
-[data-rebrand="true"][data-platform-name="windows"] .customizeButton {
-    background-color: transparent;
-
-    &:hover {
-        background-color: var(--ds-color-theme-control-fill-primary);
-    }
-
-    &:active {
-        background-color: var(--ds-color-theme-control-fill-secondary);
-    }
-}
-
 .popover {
     --popover-offset-x: -10px;
     --popover-offset-y: -3px;
