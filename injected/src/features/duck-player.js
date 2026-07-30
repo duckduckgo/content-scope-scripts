@@ -112,13 +112,8 @@ export default class DuckPlayerFeature extends ContentFeature {
 
 /**
  * @typedef {import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']['youtube']} YouTubeOverlaySettings
- */
-/**
- * `bufferingFeedback` is not yet in the published privacy-configuration schema; it lands
- * in a follow-up config PR (optional field, mirroring `videoDrawer`). Declared optional
- * here so the client can gate on it ahead of that rollout. `giveUpMs` and `spinnerDelayMs`
- * make the hold's timings remotely tunable.
- * @typedef {Omit<YouTubeOverlaySettings, "state"> & { bufferingFeedback?: { state: YouTubeOverlaySettings['videoOverlays']['state'], giveUpMs?: number, spinnerDelayMs?: number } }} OverlaysFeatureSettings
+ * @typedef {NonNullable<YouTubeOverlaySettings['videoDrawer']> & { spinnerDelayMs?: number, giveUpMs?: number }} BufferingFeedbackSettings
+ * @typedef {Omit<YouTubeOverlaySettings, 'state'> & { bufferingFeedback?: BufferingFeedbackSettings }} OverlaysFeatureSettings
  */
 
 // for docs generation

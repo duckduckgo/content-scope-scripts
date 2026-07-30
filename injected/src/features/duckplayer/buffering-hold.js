@@ -11,25 +11,29 @@
 /** Non-bubbling media events, so they are observed on the container in the capture phase */
 const MEDIA_EVENTS = ['playing', 'timeupdate', 'error'];
 
+const DEFAULT_SPINNER_DELAY_MS = 500;
+/** When a still-frameless video is treated as never arriving */
+const DEFAULT_GIVE_UP_MS = 25000;
+
 /**
  * @param {object} options
  * @param {Element} options.container - the player container the <video> lives in
  * @param {HTMLVideoElement} options.video
  * @param {{ showSpinner(): void, hideSpinner(): void, remove(): void,
  *           addEventListener: Element['addEventListener'] }} options.overlay
- * @param {{ spinnerDelayMs: number, giveUpMs: number }} options.timings
+ * @param {{ spinnerDelayMs?: number, giveUpMs?: number }} options.timings
  * @param {(reason: HoldRemovalReason, elapsedMs: number) => void} options.onReport
- * @param {() => void} options.onStopped
  * @param {() => number} [options.now]
  * @returns {{ stop: (reason: Exclude<HoldRemovalReason, 'gave_up'>) => void }}
  */
-export function holdUntilFirstFrame({ container, video, overlay, timings, onReport, onStopped, now = () => performance.now() }) {
+export function holdUntilFirstFrame({ container, video, overlay, timings, onReport, now = () => performance.now() }) {
+    const { spinnerDelayMs = DEFAULT_SPINNER_DELAY_MS, giveUpMs = DEFAULT_GIVE_UP_MS } = timings;
     const startedAt = now();
     let stopped = false;
     let gaveUp = false;
     let tapCount = 0;
 
-    const spinnerTimer = setTimeout(() => overlay.showSpinner(), timings.spinnerDelayMs);
+    const spinnerTimer = setTimeout(() => overlay.showSpinner(), spinnerDelayMs);
 
     // Player-level failures ("Video unavailable") never reach the media element, so only this timer ends a hopeless wait
     const giveUpTimer = setTimeout(() => {
@@ -37,7 +41,7 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
         overlay.hideSpinner();
         // report here rather than only at removal: a hold nobody taps would otherwise report on navigation alone
         onReport('gave_up', now() - startedAt);
-    }, timings.giveUpMs);
+    }, giveUpMs);
 
     /** @param {Event} e */
     const onMediaEvent = (e) => {
@@ -59,7 +63,6 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
         }
         overlay.remove();
         onReport(reason, now() - startedAt);
-        onStopped();
     };
 
     // Watching the container rather than the element survives YouTube swapping the <video> mid-startup

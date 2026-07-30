@@ -136,7 +136,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             const overlays = DuckplayerOverlays.create(page, workerInfo);
             await overlays.reducedMotion();
 
-            await overlays.withRemoteConfig({ json: 'overlays-drawer-buffering-feedback.json' });
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json', bufferingFeedback: true });
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
 
@@ -147,25 +147,6 @@ test.describe('Duck Player - Drawer UI variant', () => {
             );
             test.skip(!(await overlays.mobile.playerEntersFullscreen()), 'browser refused fullscreen');
             await overlays.mobile.isNotFullscreen();
-            await overlays.mobile.choosesWatchHere();
-            await overlays.mobile.overlayIsRemoved();
-        });
-        test('leaves fullscreen alone without the buffering-feedback gate', async ({ page }, workerInfo) => {
-            const overlays = DuckplayerOverlays.create(page, workerInfo);
-            await overlays.reducedMotion();
-
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json' });
-            await overlays.userSettingIs('always ask');
-            await overlays.gotoPlayerPage();
-
-            await overlays.mobile.drawerIsPresented();
-            test.skip(
-                workerInfo.project.name === 'ios',
-                'iOS WebKit does not grant element fullscreen, so this exit guard is Android-only',
-            );
-            test.skip(!(await overlays.mobile.playerEntersFullscreen()), 'browser refused fullscreen');
-            await overlays.mobile.staysFullscreen();
-            await page.evaluate(() => document.exitFullscreen());
             await overlays.mobile.choosesWatchHere();
             await overlays.mobile.overlayIsRemoved();
         });

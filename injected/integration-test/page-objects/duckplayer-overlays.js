@@ -39,9 +39,6 @@ const configFiles = /** @type {const} */ ([
     'overlays.json',
     'overlays-live.json',
     'overlays-drawer.json',
-    'overlays-buffering-feedback.json',
-    'overlays-drawer-buffering-feedback.json',
-    'overlays-drawer-fallback-buffering-feedback.json',
     'disabled.json',
     'thumbnail-overlays-disabled.json',
     'click-interceptions-disabled.json',
@@ -276,13 +273,20 @@ export class DuckplayerOverlays {
 
     /**
      * @param {object} [params]
-     * @param {configFiles[number]} [params.json="overlays"] - default is settings for localhost
+     * @param {ConfigFile} [params.json="overlays"] - default is settings for localhost
      * @param {string} [params.locale] - optional locale
+     * @param {boolean} [params.bufferingFeedback] - add the gate the published schema does not carry yet
+     * @param {string} [params.drawerContainer] - override the drawer container selector
      */
     async withRemoteConfig(params = {}) {
-        const { json = 'overlays.json', locale = 'en' } = params;
+        const { json = 'overlays.json', locale = 'en', bufferingFeedback, drawerContainer } = params;
 
-        await this.collector.setup({ config: loadConfig(json), locale });
+        const config = loadConfig(json);
+        const youtube = config.features.duckPlayer.settings.overlays.youtube;
+        if (bufferingFeedback) youtube.bufferingFeedback = { state: 'enabled' };
+        if (drawerContainer) youtube.selectors.drawerContainer = drawerContainer;
+
+        await this.collector.setup({ config, locale });
     }
 
     async serpProxyEnabled() {
@@ -780,18 +784,9 @@ class DuckplayerOverlaysMobile {
     }
 
     /**
-     * A fatal media error means no frame is ever coming.
-     */
-    async videoErrors() {
-        const { page } = this.overlays;
-        await page.locator('#player video').evaluate((el) => el.dispatchEvent(new Event('error')));
-    }
-
-    /**
-     * Replace the media element with a fresh one, as YouTube does mid-startup. The
-     * selector still matches, but the element the hold was watching is now detached.
-     * Deliberately source-less: a copied src would 404 and remove the hold via the
-     * error path, which would hide whether it re-armed at all.
+     * Replace the media element with a fresh one, as YouTube does mid-startup, leaving the
+     * element the hold started on detached. Deliberately source-less: a copied src would
+     * 404 and clear the hold through the error path, hiding whether the swap was followed.
      */
     async swapsVideoElement() {
         const { page } = this.overlays;
@@ -826,7 +821,7 @@ class DuckplayerOverlayPixels {
 }
 
 /**
- * @param {configFiles[number]} name
+ * @param {ConfigFile} name
  * @return {Record<string, any>}
  */
 function loadConfig(name) {

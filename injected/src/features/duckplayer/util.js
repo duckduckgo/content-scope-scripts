@@ -106,10 +106,8 @@ export class SideEffects {
      * @param {string} [name]
      */
     destroy(name) {
-        const toRun = name ? this._cleanups.filter((c) => c.name === name) : this._cleanups;
-        // detach before running, because a cleanup can re-enter destroy()
-        this._cleanups = name ? this._cleanups.filter((c) => c.name !== name) : [];
-        for (const cleanup of toRun) {
+        const cleanups = name ? this._cleanups.filter((c) => c.name === name) : this._cleanups;
+        for (const cleanup of cleanups) {
             if (typeof cleanup.fn === 'function') {
                 try {
                     if (this.debug) {
@@ -122,6 +120,11 @@ export class SideEffects {
             } else {
                 throw new Error('invalid cleanup');
             }
+        }
+        if (name) {
+            this._cleanups = this._cleanups.filter((c) => c.name !== name);
+        } else {
+            this._cleanups = [];
         }
     }
 }

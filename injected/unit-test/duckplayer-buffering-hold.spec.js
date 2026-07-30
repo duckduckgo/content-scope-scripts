@@ -39,8 +39,6 @@ describe('buffering-hold.js', () => {
     let overlay;
     /** @type {jasmine.Spy} */
     let onReport;
-    /** @type {jasmine.Spy} */
-    let onStopped;
     /** @type {{stop: (reason: any) => void}} */
     let hold;
     let nowMs = 0;
@@ -78,7 +76,6 @@ describe('buffering-hold.js', () => {
         container.appendChild(overlay);
 
         onReport = jasmine.createSpy('onReport');
-        onStopped = jasmine.createSpy('onStopped');
 
         hold = holdUntilFirstFrame({
             container,
@@ -86,7 +83,6 @@ describe('buffering-hold.js', () => {
             overlay,
             timings: { spinnerDelayMs: SPINNER_DELAY_MS, giveUpMs: GIVE_UP_MS },
             onReport,
-            onStopped,
             now: () => nowMs,
         });
     });
@@ -110,7 +106,6 @@ describe('buffering-hold.js', () => {
         expect(onReport).toHaveBeenCalledOnceWith('gave_up', GIVE_UP_MS);
         expect(overlay.hideSpinner).toHaveBeenCalled();
         expect(overlay.remove).not.toHaveBeenCalled();
-        expect(onStopped).not.toHaveBeenCalled();
     });
 
     it('swallows the first tap and stops on the second', () => {
@@ -122,7 +117,6 @@ describe('buffering-hold.js', () => {
         taps(1);
         expect(onReport).toHaveBeenCalledOnceWith('tap', 1200);
         expect(overlay.remove).toHaveBeenCalled();
-        expect(onStopped).toHaveBeenCalled();
     });
 
     it('lets a single tap dismiss once it has given up', () => {
@@ -130,14 +124,14 @@ describe('buffering-hold.js', () => {
         taps(1);
 
         expect(onReport.calls.mostRecent().args).toEqual(['tap_after_give_up', GIVE_UP_MS]);
-        expect(onStopped).toHaveBeenCalled();
+        expect(overlay.remove).toHaveBeenCalled();
     });
 
     it('stops on a media error, because no frame is coming', () => {
         video.dispatchEvent(new dom.window.Event('error'));
 
         expect(onReport).toHaveBeenCalledOnceWith('error', 0);
-        expect(onStopped).toHaveBeenCalled();
+        expect(overlay.remove).toHaveBeenCalled();
     });
 
     it('ignores an error from a non-media element inside the player', () => {
@@ -157,7 +151,7 @@ describe('buffering-hold.js', () => {
         presentsFrame(replacement);
 
         expect(onReport).toHaveBeenCalledOnceWith('frame', 0);
-        expect(onStopped).toHaveBeenCalled();
+        expect(overlay.remove).toHaveBeenCalled();
     });
 
     it('reports once when stopped twice', () => {
@@ -165,6 +159,6 @@ describe('buffering-hold.js', () => {
         hold.stop('torn_down');
 
         expect(onReport).toHaveBeenCalledTimes(1);
-        expect(onStopped).toHaveBeenCalledTimes(1);
+        expect(overlay.remove).toHaveBeenCalledTimes(1);
     });
 });

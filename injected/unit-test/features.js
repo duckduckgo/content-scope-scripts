@@ -79,11 +79,6 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/disabled.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays-drawer.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays.json'),
-        // Not legacy: these three use bufferingFeedback, which is not in the published
-        // schema yet. Drop them from this list once duckduckgo/privacy-configuration#5692 lands.
-        path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays-buffering-feedback.json'),
-        path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays-drawer-buffering-feedback.json'),
-        path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays-drawer-fallback-buffering-feedback.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/thumbnail-overlays-disabled.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/video-alt-selectors.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/video-overlays-disabled.json'),

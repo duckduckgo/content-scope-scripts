@@ -35,13 +35,6 @@ import { DDGVideoThumbnailOverlay } from './components/ddg-video-thumbnail-overl
 import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
 import { holdUntilFirstFrame } from './buffering-hold.js';
 
-const DEFAULT_SPINNER_DELAY_MS = 500;
-/** When a still-frameless video is treated as never arriving */
-const DEFAULT_SPINNER_GIVE_UP_MS = 25000;
-
-const HOLD_SIDE_EFFECT = 'holding poster + spinner until first video frame';
-const FULLSCREEN_SIDE_EFFECT = 'leaving fullscreen while an overlay is showing';
-
 /** Every mobile overlay that covers the player, for presence checks */
 const OVERLAY_SELECTOR = [
     DDGVideoOverlayMobile.CUSTOM_TAG_NAME,
@@ -382,7 +375,7 @@ export class VideoOverlay {
     keepOverlayOutOfFullscreen() {
         if (!this.bufferingFeedbackEnabled()) return;
 
-        this.sideEffects.add(FULLSCREEN_SIDE_EFFECT, () => {
+        this.sideEffects.add('leaving fullscreen while an overlay is showing', () => {
             const onChange = () => {
                 if (!document.fullscreenElement) return;
                 // the hold can remove itself while this listener is still registered
@@ -565,7 +558,6 @@ export class VideoOverlay {
             console.log('user values response:', updatedValues);
         }
 
-        // remembering the choice means no further Duck Player UI on this page, buffering hold included
         this.destroy();
     }
 
@@ -587,8 +579,9 @@ export class VideoOverlay {
         if (document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) return;
 
         const text = mobileStrings(this.environment.strings('overlays.json'));
+        const { spinnerDelayMs, giveUpMs } = this.settings.bufferingFeedback ?? {};
 
-        this.sideEffects.add(HOLD_SIDE_EFFECT, () => {
+        this.sideEffects.add('holding poster + spinner until first video frame', () => {
             const overlay = /** @type {DDGVideoThumbnailOverlay} */ (document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME));
             overlay.testMode = this.environment.isTestMode();
             container.appendChild(overlay);
@@ -600,19 +593,12 @@ export class VideoOverlay {
                 container,
                 video,
                 overlay,
-                timings: {
-                    spinnerDelayMs: this.settings.bufferingFeedback?.spinnerDelayMs ?? DEFAULT_SPINNER_DELAY_MS,
-                    giveUpMs: this.settings.bufferingFeedback?.giveUpMs ?? DEFAULT_SPINNER_GIVE_UP_MS,
-                },
+                timings: { spinnerDelayMs, giveUpMs },
                 onReport: (reason, elapsedMs) => {
                     // the spinner leaving is the moment taps start working, so say so rather than blanking the region
                     if (reason === 'gave_up') overlay.announce(text.bufferingStalledLabel);
                     const duration = String(Math.min(60, Math.round(elapsedMs / 1000)));
                     this.messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, duration }));
-                },
-                onStopped: () => {
-                    this.sideEffects.destroy(FULLSCREEN_SIDE_EFFECT);
-                    this.sideEffects.destroy(HOLD_SIDE_EFFECT);
                 },
             });
 

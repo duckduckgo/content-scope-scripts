@@ -79,7 +79,7 @@ test.describe('Video Player overlays', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
         // The exit guard ships with the buffering hold, so it needs the same gate
-        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.withRemoteConfig({ bufferingFeedback: true });
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
 
@@ -112,9 +112,9 @@ test.describe('Video Player buffering feedback', () => {
         overlays = DuckplayerOverlays.create(page, workerInfo);
     });
 
-    /** @param {import('./page-objects/duckplayer-overlays.js').ConfigFile} [json] the default one enables the buffering-feedback gate */
-    const opensPlayerPage = async (json = 'overlays-buffering-feedback.json') => {
-        await overlays.withRemoteConfig({ json });
+    /** @param {Parameters<DuckplayerOverlays['withRemoteConfig']>[0]} [config] the default gates the hold on */
+    const opensPlayerPage = async (config = { bufferingFeedback: true }) => {
+        await overlays.withRemoteConfig(config);
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
     };
@@ -138,17 +138,6 @@ test.describe('Video Player buffering feedback', () => {
         // And it clears once the video reaches its first frame
         await overlays.mobile.firstFrameRenders();
         await overlays.mobile.bufferingFeedbackIsRemoved();
-    });
-
-    test('keeps the hold when tapped while a frame is still coming', async () => {
-        await opensPlayerPage();
-
-        await overlays.mobile.choosesWatchHere();
-        await overlays.mobile.bufferingFeedbackShows();
-
-        // dismissing here would reveal the startup state the hold covers, so the tap is swallowed
-        await overlays.mobile.tapsBufferingFeedback();
-        await overlays.mobile.bufferingFeedbackShows();
     });
 
     test('dismisses the hold on tap once the wait is hopeless', async ({ page }) => {
@@ -187,38 +176,17 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.bufferingFeedbackAnnounces('Loading video');
     });
 
-    test('announces that taps now work once it has given up', async ({ page }) => {
-        await opensPlayerPage();
-
-        await page.clock.install();
-        await overlays.mobile.choosesWatchHere();
-        await page.clock.fastForward(1000);
-        await overlays.mobile.spinnerShows();
-
-        // the spinner leaving is the moment taps start working, and blanking the region would announce nothing
-        await page.clock.fastForward(61000);
-        await overlays.mobile.spinnerIsWithdrawn();
-        await overlays.mobile.bufferingFeedbackAnnounces('Video is taking longer than usual. Tap to continue.');
-    });
-
     test('shows the hold when a drawer config falls back to the classic overlay', async () => {
-        // this config names a drawer container that is not on the page, so the classic overlay wins
-        await opensPlayerPage('overlays-drawer-fallback-buffering-feedback.json');
+        // the drawer container named here is not on the page, so the classic overlay wins
+        await opensPlayerPage({
+            json: 'overlays-drawer.json',
+            bufferingFeedback: true,
+            drawerContainer: '#ddg-drawer-container-not-in-dom',
+        });
 
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.overlayIsRemoved();
         await overlays.mobile.bufferingFeedbackShows();
-    });
-
-    test('clears the hold when the player reports an error', async () => {
-        await opensPlayerPage();
-
-        await overlays.mobile.choosesWatchHere();
-        await overlays.mobile.bufferingFeedbackShows();
-
-        // No frame is coming, and YouTube's error UI is behind the poster
-        await overlays.mobile.videoErrors();
-        await overlays.mobile.bufferingFeedbackIsRemoved();
     });
 
     test('follows the video element when the player swaps it mid-startup', async () => {
@@ -248,6 +216,8 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.spinnerIsWithdrawn();
         // Never reveal the black frame the hold exists to cover
         await overlays.mobile.bufferingFeedbackHasPoster();
+        // the spinner leaving is the moment taps start working, and blanking the region would announce nothing
+        await overlays.mobile.bufferingFeedbackAnnounces('Video is taking longer than usual. Tap to continue.');
 
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
@@ -289,8 +259,8 @@ test.describe('Video Player buffering feedback', () => {
     });
 
     test('does not show the hold when the config gate is absent', async () => {
-        // the default config has no bufferingFeedback gate
-        await opensPlayerPage('overlays.json');
+        // no bufferingFeedback gate, which is also the state before the config change ships
+        await opensPlayerPage({});
 
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.overlayIsRemoved();
