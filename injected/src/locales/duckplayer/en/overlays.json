@@ -28,5 +28,9 @@
   "bufferingLabel": {
     "title": "Loading video",
     "note": "Screen-reader status announced while a video buffers after the user chooses to watch on YouTube instead of Duck Player."
+  },
+  "bufferingStalledLabel": {
+    "title": "Video is taking longer than usual. Tap to continue.",
+    "note": "Screen-reader status announced when a video has buffered for so long that the loading spinner is withdrawn and a tap will dismiss it."
   }
 }

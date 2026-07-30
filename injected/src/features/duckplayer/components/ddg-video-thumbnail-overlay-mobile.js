@@ -4,6 +4,7 @@ import { createPolicy, html } from '../../../dom-utils.js';
 /**
  * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
  * @typedef {TextVariants[keyof TextVariants]} Text
+ * @typedef {{url: string, source: 'page' | 'ytimg'}} PosterCandidate
  */
 
 /**
@@ -18,6 +19,8 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     testMode = false;
     /** @type {AbortController | null} */
     posterLoad = null;
+    /** @type {boolean} */
+    announced = false;
 
     connectedCallback() {
         this.createMarkupAndStyles();
@@ -68,20 +71,20 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     }
 
     /**
-     * Announce the hold through the visually-hidden live region. Deferred a frame: a
-     * region inserted already populated has no content change to announce.
-     * @param {string} label
+     * Announce through the visually-hidden live region.
+     * @param {string} text
      */
-    setLoadingLabel(label) {
+    announce(text) {
+        const write = () => {
+            const status = this.container?.querySelector('.ddg-vpo-status');
+            if (status instanceof HTMLElement) status.textContent = text;
+        };
+        // only the first write defers a frame: a region inserted already populated has no change to announce
+        if (this.announced) return write();
+        this.announced = true;
         requestAnimationFrame(() => {
-            if (this.isConnected) this.writeStatus(label);
+            if (this.isConnected) write();
         });
-    }
-
-    /** @param {string} text */
-    writeStatus(text) {
-        const status = this.container?.querySelector('.ddg-vpo-status');
-        if (status instanceof HTMLElement) status.textContent = text;
     }
 
     showSpinner() {
@@ -90,11 +93,10 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
 
     /**
      * Withdraw the spinner but keep the poster, so a video that never arrives settles on
-     * a still frame instead of claiming, in the live region too, to still be loading.
+     * a still frame instead of the black frame the hold exists to cover.
      */
     hideSpinner() {
         this.overlay?.classList.remove('spinning');
-        this.writeStatus('');
     }
 
     get overlay() {
@@ -103,23 +105,18 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
 
     /**
      * Paint a poster behind the spinner, trying each candidate until one displays.
-     * A `verify` candidate needs a HEAD check because YouTube answers a thumbnail a video
+     * An `ytimg` candidate needs a HEAD check because YouTube answers a thumbnail a video
      * does not have with a valid placeholder image under a 404, so its load event lies.
-     * @param {{url: string, verify: boolean}[]} candidates
+     * @param {PosterCandidate[]} candidates
      */
     setPosterCandidates(candidates) {
         const bg = this.container?.querySelector('.ddg-vpo-bg');
         if (!(bg instanceof HTMLElement)) return;
 
-        /** @type {{url: string, verify: boolean}[]} */
-        const list = [];
-        const seen = new Set();
-        for (const candidate of candidates) {
+        const list = candidates.flatMap((candidate) => {
             const url = safePosterUrl(candidate.url);
-            if (!url || seen.has(url)) continue;
-            seen.add(url);
-            list.push({ url, verify: candidate.verify });
-        }
+            return url ? [{ ...candidate, url }] : [];
+        });
         if (list.length === 0) return;
 
         const controller = new AbortController();
@@ -136,7 +133,7 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
             const candidate = list[index];
             if (!candidate) return;
 
-            if (candidate.verify) {
+            if (candidate.source === 'ytimg') {
                 let ok = false;
                 try {
                     ok = (await fetch(candidate.url, { method: 'HEAD', signal })).ok;

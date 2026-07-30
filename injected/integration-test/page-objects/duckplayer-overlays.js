@@ -49,6 +49,8 @@ const configFiles = /** @type {const} */ ([
     'video-alt-selectors.json',
 ]);
 
+/** @typedef {(typeof configFiles)[number]} ConfigFile */
+
 // fulfilled from here, not the test server: the hold takes https only and the pages are http
 const TINY_IMAGE = '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>';
 const STUB_POSTER_URL = 'https://duckduckgo.example/poster.svg';
@@ -598,15 +600,20 @@ class DuckplayerOverlaysMobile {
     }
 
     /**
-     * The buffering hold: a thumbnail overlay in its loading state (poster + spinner)
-     * held over the player after opt-out, until the video presents its first frame.
+     * The buffering hold: a thumbnail overlay in its loading state, held over the player
+     * after opt-out until the video presents its first frame. The spinner joins a beat
+     * later, so it is asserted separately by the tests that care about it.
      */
     async bufferingFeedbackShows() {
         const { page } = this.overlays;
         // the inner overlay collapses to 0×0 (absolutely positioned children), so assert on the host
         await page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'visible', timeout: 2000 });
-        await page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner').waitFor({ state: 'visible', timeout: 2000 });
         await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay')).toHaveClass(/loading/);
+    }
+
+    async spinnerShows() {
+        const { page } = this.overlays;
+        await page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner').waitFor({ state: 'visible', timeout: 2000 });
     }
 
     /**
@@ -735,25 +742,15 @@ class DuckplayerOverlaysMobile {
     }
 
     /**
-     * Set a poster on the <video> so the hold can paint it offline (the real i.ytimg.com
-     * thumbnails are unreachable from the test runner).
-     * @param {string} url
-     */
-    async setVideoPoster(url) {
-        const { page } = this.overlays;
-        await page.locator('#player video').evaluate((el, posterUrl) => {
-            /** @type {HTMLVideoElement} */ (el).poster = posterUrl;
-        }, url);
-    }
-
-    /**
      * Give the player the kind of poster the hold paints first: page-supplied, so it is
      * trusted on load and needs no round trip.
      */
     async stubsVideoPoster() {
         const { page } = this.overlays;
         await page.route(STUB_POSTER_URL, (route) => fulfillPoster(route, 200));
-        await this.setVideoPoster(STUB_POSTER_URL);
+        await page.locator('#player video').evaluate((el, posterUrl) => {
+            /** @type {HTMLVideoElement} */ (el).poster = posterUrl;
+        }, STUB_POSTER_URL);
     }
 
     /**
@@ -780,18 +777,6 @@ class DuckplayerOverlaysMobile {
             Object.defineProperty(video, 'currentTime', { configurable: true, value: 1 });
             video.dispatchEvent(new Event('timeupdate'));
         });
-    }
-
-    /**
-     * Signal a first frame until the hold acts on it. After a swap the hold re-arms on
-     * a poll, so a single dispatch can arrive before it is listening.
-     */
-    async firstFrameRendersEventually() {
-        const { page } = this.overlays;
-        await expect(async () => {
-            await this.firstFrameRenders();
-            expect(await page.locator('ddg-video-thumbnail-overlay-mobile').count()).toBe(0);
-        }).toPass({ timeout: 5000 });
     }
 
     /**

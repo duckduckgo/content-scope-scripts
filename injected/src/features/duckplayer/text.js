@@ -40,6 +40,9 @@ const text = {
     bufferingLabel: {
         title: 'Loading video',
     },
+    bufferingStalledLabel: {
+        title: 'Video is taking longer than usual. Tap to continue.',
+    },
 };
 
 export const i18n = {
@@ -80,6 +83,7 @@ export function nl2br(text) {
  * @property {string | Template} buttonOpen
  * @property {string | Template} rememberLabel
  * @property {string} bufferingLabel
+ * @property {string} bufferingStalledLabel
  */
 
 /**
@@ -93,6 +97,7 @@ export const overlayCopyVariants = {
         buttonOpen: i18n.t('videoButtonOpen2'),
         rememberLabel: i18n.t('rememberLabel'),
         bufferingLabel: i18n.t('bufferingLabel'),
+        bufferingStalledLabel: i18n.t('bufferingStalledLabel'),
     },
 };
 
@@ -109,5 +114,6 @@ export const mobileStrings = (lookup) => {
         rememberLabel: lookup.rememberLabel ?? '',
         // bundled English rather than an empty live region, until the locales land
         bufferingLabel: lookup.bufferingLabel ?? i18n.t('bufferingLabel'),
+        bufferingStalledLabel: lookup.bufferingStalledLabel ?? i18n.t('bufferingStalledLabel'),
     };
 };
