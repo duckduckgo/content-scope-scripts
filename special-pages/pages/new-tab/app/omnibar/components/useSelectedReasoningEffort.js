@@ -3,25 +3,23 @@ import { OmnibarContext } from './OmnibarProvider';
 import { useSelectedModel } from './useSelectedModel';
 
 /**
- * Runtime allowlist of reasoning-effort keys the web app knows how to render and submit.
- * Native may advertise new keys before web has strings/icons for them; filter them out so
- * unknown keys never surface in the UI or leak into `omnibar_submitChat` payloads.
- *
- * @type {ReadonlySet<import('../../../types/new-tab.js').ReasoningEffort>}
+ * @typedef {import('../../../types/new-tab.js').ReasoningEffortOption} ReasoningEffortOption
  */
-const KNOWN_REASONING_EFFORTS = new Set(['none', 'minimal', 'low', 'medium', 'high']);
 
 export function useSelectedReasoningEffort() {
     const { state, setSelectedReasoningEffort } = useContext(OmnibarContext);
     const { selectedModel } = useSelectedModel();
 
-    const supportedEfforts = (selectedModel?.supportedReasoningEffort ?? []).filter((effort) => KNOWN_REASONING_EFFORTS.has(effort));
+    /** @type {ReasoningEffortOption[]} */
+    const reasoningEfforts = selectedModel?.reasoningEfforts ?? [];
+    const availableEffortIds = reasoningEfforts.filter((effort) => effort.isAvailable).map((effort) => effort.id);
+
     const persisted = state.config?.selectedReasoningEffort;
-    const isPersistedSupported = persisted && supportedEfforts.includes(persisted);
+    const isPersistedAvailable = persisted != null && availableEffortIds.includes(persisted);
 
     /** @type {import('../../../types/new-tab.js').ReasoningEffort | null} */
-    const fallbackEffort = supportedEfforts[0] ?? null;
-    const selectedEffort = isPersistedSupported ? persisted : fallbackEffort;
+    const fallbackEffort = availableEffortIds[0] ?? null;
+    const selectedEffort = isPersistedAvailable ? persisted : fallbackEffort;
 
-    return { selectedEffort, supportedEfforts, setSelectedReasoningEffort };
+    return { selectedEffort, reasoningEfforts, setSelectedReasoningEffort };
 }

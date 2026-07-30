@@ -28,7 +28,8 @@ export function GetStartedContent({ advance, onTitleComplete }) {
 
     const showChromeExtension = /** @type {import('../../types').GetStartedStep} */ (step).options?.includes('chrome-extension-install');
 
-    const [title, body] = t('getStarted_title_v4', { newline: '\n' }).split('{paragraph}');
+    const [title, ...paragraphs] = t('getStarted_title_v4', { newline: '\n' }).split('{paragraph}');
+    const body = paragraphs.join('\n\n');
 
     function handleAdvance() {
         if (showChromeExtension && chromeExtensionChecked) {
@@ -65,7 +66,7 @@ export function GetStartedContent({ advance, onTitleComplete }) {
                 size="stretch"
                 onClick={handleAdvance}
             >
-                {t('getStartedButton_v4')}
+                {t(showChromeExtension ? 'getStartedButton_v4' : 'getStartedButtonDefault_v4')}
             </Button>
             {showChromeExtension && (
                 <ChromeExtensionCheckbox

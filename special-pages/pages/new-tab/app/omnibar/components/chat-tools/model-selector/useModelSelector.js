@@ -16,7 +16,7 @@ export function useModelSelector({ allModels, onModelChange }) {
 
     /** @param {string} id */
     const selectModel = (id) => {
-        if (!allModels.some((m) => m.id === id && m.isEnabled)) return;
+        if (!allModels.some((m) => m.id === id && m.isAvailable)) return;
         dropdown.close();
         onModelChange?.(id);
     };

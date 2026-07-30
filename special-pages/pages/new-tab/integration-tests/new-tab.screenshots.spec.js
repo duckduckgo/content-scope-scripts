@@ -468,7 +468,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const omnibar = new OmnibarPage(ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: attachmentsConfig });
+            // Raise the tab cap above the chip count so this stays a pure overflow test — 4 chips
+            // exceed the default cap of 3 and would otherwise render the over-limit warning chrome.
+            await ntp.openPage({ additional: { ...attachmentsConfig, 'omnibar.tabMaxAttached': '10' } });
             await omnibar.ready();
             // Enough wide tab chips to exceed the field width; they stay on one row and the
             // trailing chip is clipped at the scroll edge rather than wrapping to a new row.
