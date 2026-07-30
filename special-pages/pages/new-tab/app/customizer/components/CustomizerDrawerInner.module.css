@@ -312,7 +312,7 @@
         --selection-ring-offset: var(--ds-space-x-5);
         --selection-ring-width: var(--ds-space-x-5);
 
-        border-radius: var(--ds-radius-x01);
+        border-radius: var(--ds-radius-x02);
         box-shadow: none;
         border: 1px solid var(--ds-color-theme-container-border-primary);
         position: relative;
@@ -324,10 +324,18 @@
             &::after {
                 content: "";
                 position: absolute;
-                inset: calc(-1 * var(--selection-ring-offset));
-                border: var(--selection-ring-width) solid var(--ds-color-theme-accent-primary);
-                border-radius: calc(var(--ds-radius-x01) + var(--selection-ring-offset));
+                inset: 0;
+                border-radius: inherit;
+                box-shadow:
+                    0 0 0 var(--selection-ring-offset) var(--color-white),
+                    0 0 0 calc(var(--selection-ring-offset) + var(--selection-ring-width)) var(--ds-color-theme-accent-primary);
                 pointer-events: none;
+
+                [data-theme="dark"] & {
+                    box-shadow:
+                        0 0 0 var(--selection-ring-offset) var(--default-dark-background-color),
+                        0 0 0 calc(var(--selection-ring-offset) + var(--selection-ring-width)) var(--ds-color-theme-accent-primary);
+                }
             }
         }
     }
