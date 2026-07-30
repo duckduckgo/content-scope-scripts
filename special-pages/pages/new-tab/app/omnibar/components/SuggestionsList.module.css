@@ -32,12 +32,21 @@
     svg {
         flex: none;
         margin: var(--sp-2);
+        color: var(--ds-color-theme-text-secondary);
+    }
+
+    &:hover:not([aria-selected='true']):not(:active) {
+        background: var(--ds-color-theme-control-fill-primary);
     }
 
     &[aria-selected='true'],
     &:active {
         border-radius: var(--border-radius-lg);
         color: var(--ds-color-theme-accent-content-primary);
+
+        svg {
+            color: var(--ds-color-theme-accent-content-primary);
+        }
 
         .suffix {
             color: var(--ds-color-theme-accent-content-primary);
@@ -132,5 +141,17 @@
     &:focus-visible {
         opacity: 1;
         pointer-events: auto;
+    }
+}
+
+/*
+ * NTP rebrand: indent suggestion icons/text 4px so they align with the search
+ * input inset (--ds-space-x05). Scoped to body[data-rebrand="true"].
+ * @todo rebrand: fold into the base .main/.footer padding once the rebrand ships.
+ */
+:global(body[data-rebrand="true"]) {
+    .main,
+    .footer {
+        padding-left: calc(3px + var(--sp-2) + 4px);
     }
 }
