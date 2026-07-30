@@ -107,9 +107,7 @@ export class SideEffects {
      */
     destroy(name) {
         const toRun = name ? this._cleanups.filter((c) => c.name === name) : this._cleanups;
-        // Detach before running: a cleanup can re-enter destroy() (the buffering hold
-        // tears down its own registrations from within its cleanup), and if these entries
-        // were still reachable the outer and inner passes would both run them.
+        // detach before running, because a cleanup can re-enter destroy()
         this._cleanups = name ? this._cleanups.filter((c) => c.name !== name) : [];
         for (const cleanup of toRun) {
             if (typeof cleanup.fn === 'function') {

@@ -107,8 +107,7 @@ export const mobileStrings = (lookup) => {
         buttonOptOut: lookup.videoButtonOptOut2 ?? '',
         buttonOpen: lookup.videoButtonOpen2 ?? '',
         rememberLabel: lookup.rememberLabel ?? '',
-        // Falls back to the bundled English rather than an empty live region until the
-        // per-locale string lands through the translation pipeline.
+        // bundled English rather than an empty live region, until the locales land
         bufferingLabel: lookup.bufferingLabel ?? i18n.t('bufferingLabel'),
     };
 };

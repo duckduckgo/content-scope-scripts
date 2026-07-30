@@ -49,8 +49,7 @@ const configFiles = /** @type {const} */ ([
     'video-alt-selectors.json',
 ]);
 
-// Fulfilled from here rather than served by the test server, because the hold only accepts
-// https posters and the test pages are served over http.
+// fulfilled from here, not the test server: the hold takes https only and the pages are http
 const TINY_IMAGE = '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>';
 const STUB_POSTER_URL = 'https://duckduckgo.example/poster.svg';
 
@@ -604,8 +603,7 @@ class DuckplayerOverlaysMobile {
      */
     async bufferingFeedbackShows() {
         const { page } = this.overlays;
-        // The host fills the player; the inner overlay collapses to 0×0 because its
-        // children are absolutely positioned, so assert on the host and the spinner.
+        // the inner overlay collapses to 0×0 (absolutely positioned children), so assert on the host
         await page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'visible', timeout: 2000 });
         await page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner').waitFor({ state: 'visible', timeout: 2000 });
         await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay')).toHaveClass(/loading/);

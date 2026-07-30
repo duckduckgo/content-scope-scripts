@@ -83,8 +83,7 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
 
-        // YouTube's watch page can go fullscreen from a scroll gesture, which stretches
-        // the overlay over the whole screen and puts YouTube's controls above it.
+        // a scroll gesture on the watch page can go fullscreen, putting YouTube's controls above us
         test.skip(!(await overlays.mobile.playerEntersFullscreen()), 'browser refused fullscreen');
         await overlays.mobile.isNotFullscreen();
         await overlays.mobile.overlayIsStillPresented();
@@ -140,8 +139,7 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.bufferingFeedbackShows();
 
-        // Dismissing here would reveal the player's own startup state, which is what
-        // the hold covers, so the tap is swallowed and the spinner keeps running.
+        // dismissing here would reveal the startup state the hold covers, so the tap is swallowed
         await overlays.mobile.tapsBufferingFeedback();
         await overlays.mobile.bufferingFeedbackShows();
     });
@@ -197,8 +195,7 @@ test.describe('Video Player buffering feedback', () => {
     test('shows the hold when a drawer config falls back to the classic overlay', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
-        // This config asks for the drawer but names a container that is not on the page,
-        // so the classic overlay is appended instead — the variant the hold is scoped to.
+        // this config names a drawer container that is not on the page, so the classic overlay wins
         await overlays.withRemoteConfig({ json: 'overlays-drawer-fallback-buffering-feedback.json' });
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
@@ -259,8 +256,6 @@ test.describe('Video Player buffering feedback', () => {
         // Never reveal the black frame the hold exists to cover
         await overlays.mobile.bufferingFeedbackHasPoster();
 
-        // Reported at the give-up point, so expiries are countable without waiting for a
-        // teardown that may never send
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
             { pixelName: 'play.do_not_use', params: { remember: '0' } },
@@ -281,8 +276,7 @@ test.describe('Video Player buffering feedback', () => {
         await page.clock.fastForward(1000);
         await overlays.mobile.bufferingFeedbackShows();
 
-        // Taps only dismiss once the wait is hopeless, so that is the state where the
-        // hold has to be reachable: in fullscreen, YouTube's controls take the taps.
+        // taps only dismiss once the wait is hopeless, so that is the state that has to be reachable
         await page.clock.fastForward(61000);
         await overlays.mobile.spinnerIsWithdrawn();
 

@@ -68,12 +68,8 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     }
 
     /**
-     * Announce the hold to assistive technology through the visually-hidden live region;
-     * the poster and spinner are decorative and marked aria-hidden.
-     *
-     * Deferred a frame because a live region is announced when its contents change, so
-     * it has to reach the accessibility tree before the text lands in it; inserting it
-     * already populated tends to be silent.
+     * Announce the hold through the visually-hidden live region. Deferred a frame: a
+     * region inserted already populated has no content change to announce.
      * @param {string} label
      */
     setLoadingLabel(label) {
@@ -93,12 +89,11 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     }
 
     /**
-     * Withdraw the spinner but keep the poster, so a video that never arrives settles
-     * on a still frame instead of claiming to still be loading.
+     * Withdraw the spinner but keep the poster, so a video that never arrives settles on
+     * a still frame instead of claiming, in the live region too, to still be loading.
      */
     hideSpinner() {
         this.overlay?.classList.remove('spinning');
-        // Whatever happens next, the video is no longer loading
         this.writeStatus('');
     }
 
@@ -107,12 +102,9 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     }
 
     /**
-     * Paint a poster behind the spinner, trying each candidate in order until one
-     * displays, so the spinner never sits on black. A `verify` candidate is a
-     * synthesised i.ytimg.com URL: YouTube answers a thumbnail a video does not have
-     * with a valid placeholder image under a 404 status, so its load event fires on the
-     * placeholder and cannot be trusted; the HEAD status is the only reliable signal.
-     * Page-supplied candidates are painted on load, with no extra round trip.
+     * Paint a poster behind the spinner, trying each candidate until one displays.
+     * A `verify` candidate needs a HEAD check because YouTube answers a thumbnail a video
+     * does not have with a valid placeholder image under a 404, so its load event lies.
      * @param {{url: string, verify: boolean}[]} candidates
      */
     setPosterCandidates(candidates) {
@@ -123,8 +115,6 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
         const list = [];
         const seen = new Set();
         for (const candidate of candidates) {
-            // Normalising first makes the duplicates comparable: the page-supplied poster
-            // and the cued thumbnail are often the same image.
             const url = safePosterUrl(candidate.url);
             if (!url || seen.has(url)) continue;
             seen.add(url);
@@ -172,13 +162,10 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
 }
 
 /**
- * Normalise a poster URL and reject anything that cannot be trusted inside the CSS
- * url() it is interpolated into. One candidate is scraped from a computed style, so it
- * is page-controlled text. Returns the normalised href, or null to skip the candidate.
- *
- * https: only: normalising through new URL() percent-encodes the quote that would
- * otherwise close the url(), but that holds for hierarchical schemes alone. A data: URL
- * carries its payload verbatim, so a quote in one survives.
+ * Normalise a poster URL and reject anything that cannot be trusted inside the CSS url()
+ * it is interpolated into; one candidate is scraped from a computed style, so it is
+ * page-controlled text. https: only, because new URL() percent-encodes the closing quote
+ * for hierarchical schemes alone: a data: payload carries a quote through verbatim.
  * @param {string} url
  * @returns {string | null}
  */

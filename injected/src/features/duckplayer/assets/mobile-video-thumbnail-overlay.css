@@ -108,12 +108,7 @@
     background-repeat: no-repeat;
 }
 
-/*
- * Buffering spinner. Reproduces YouTube's own Material "linspin" indeterminate
- * spinner (four nested animations: linear outer spin, eased rotator, and two
- * arc halves that sweep) so it reads as the player's own buffering UI rather
- * than a foreign loader. Hidden until `.spinning` is set via showSpinner().
- */
+/* -- BUFFERING SPINNER, reproducing YouTube's Material "linspin" so it reads as the player's own */
 .ddg-vpo-spinner {
     --ddg-vpo-spinner-size: 48px;
     --ddg-vpo-spinner-border: 4px;

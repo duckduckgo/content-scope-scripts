@@ -276,9 +276,6 @@ export class VideoOverlay {
         return this.settings.videoDrawer?.state === 'enabled' && this.settings.selectors.drawerContainer;
     }
 
-    /**
-     * Gates the buffering hold and the fullscreen exit that keeps it reachable: both ship together.
-     */
     bufferingFeedbackEnabled() {
         return this.settings.bufferingFeedback?.state === 'enabled';
     }
@@ -404,14 +401,11 @@ export class VideoOverlay {
         this.sideEffects.add(FULLSCREEN_SIDE_EFFECT, () => {
             const onChange = () => {
                 if (!document.fullscreenElement) return;
-                // The buffering hold removes itself without tearing down side effects,
-                // so check for a live overlay rather than assuming one is still up.
+                // the hold can remove itself while this listener is still registered
                 if (!document.querySelector(OVERLAY_TAG_NAMES)) return;
                 Promise.resolve(document.exitFullscreen?.()).catch(() => {});
             };
             document.addEventListener('fullscreenchange', onChange);
-            // The overlay can also be appended while already fullscreen, on a
-            // same-page navigation to the next video.
             onChange();
             return () => document.removeEventListener('fullscreenchange', onChange);
         });
@@ -586,10 +580,8 @@ export class VideoOverlay {
             console.log('user values response:', updatedValues);
         }
 
-        // No buffering hold here, unlike the remember:false path above. Persisting the
-        // choice makes the native layer echo onUserValuesChanged back to this tab, which
-        // rebuilds the overlay controller and would tear a freshly-installed hold down
-        // mid-startup. Covering this path needs the hold to outlive that rebuild.
+        // no buffering hold here: persisting the choice echoes onUserValuesChanged back to
+        // this tab, and the rebuild that follows would tear a freshly-installed hold down
         this.destroy();
     }
 
@@ -597,21 +589,12 @@ export class VideoOverlay {
      * After opt-out the <video> can take many seconds to present its first frame, and
      * YouTube paints nothing over the black player while it waits. Cover the player with
      * the video's poster and a YouTube-style spinner until the first frame lands.
-     *
-     * The hold waits for as long as a frame is still plausibly coming rather than
-     * expiring on a fixed timer: the wait is dominated by the held ad request, so any
-     * timer short enough to help would fire in exactly the cases where the poster is
-     * still needed. giveUpMs only stops the spinner from claiming forever.
-     *
-     * Opt-in via remote config, following the videoDrawer gating pattern, and scoped to
-     * the mobile classic overlay; the drawer keeps its own thumbnail while animating out.
      */
     showBufferingFeedbackUntilFirstFrame() {
         if (!this.bufferingFeedbackEnabled()) return;
         if (this.environment.layout !== 'mobile') return;
-        // Gate on what was actually appended, not config: the drawer keeps its own
-        // thumbnail while it animates out, but a config that asks for the drawer can
-        // still fall back to the classic overlay when its container is missing.
+        // gate on what was appended, not config: a drawer config falls back to the classic
+        // overlay when its container is missing, and the drawer keeps its own thumbnail
         if (this.appendedMobileVariant === 'drawer') return;
 
         const videoEl = /** @type {HTMLVideoElement | null} */ (document.querySelector(this.settings.selectors.videoElement));
@@ -644,14 +627,9 @@ export class VideoOverlay {
                 messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, duration }));
             };
 
-            // A video that starts promptly would show the spinner for a couple of
-            // frames, so let the poster stand alone for a beat first.
             const spinnerTimer = setTimeout(() => overlay.showSpinner(), spinnerDelayMs);
-            // YouTube's player-level failures ("Video unavailable") never reach the
-            // media element, so stop claiming progress once a wait is this far gone.
-            // Reported here rather than at removal: this is the moment worth counting when
-            // tuning giveUpMs, and a hold that is never tapped only reports at the next
-            // navigation, where the send is not guaranteed to leave the page.
+            // YouTube's player-level failures ("Video unavailable") never reach the media element
+            // reported here, not at removal: a hold nobody taps would otherwise only report on navigation
             const giveUpTimer = setTimeout(() => {
                 gaveUp = true;
                 overlay.hideSpinner();
@@ -681,16 +659,14 @@ export class VideoOverlay {
                 el.removeEventListener('playing', onProgress);
                 el.removeEventListener('timeupdate', onProgress);
                 el.removeEventListener('error', onError);
-                // Otherwise a frame from an element we stopped trusting (a mid-startup
-                // swap) can still tear the hold down, which is what the swap poll prevents.
+                // otherwise a frame from an element we stopped trusting still tears the hold down
                 if (frameCallback !== null && typeof el.cancelVideoFrameCallback === 'function') {
                     el.cancelVideoFrameCallback(frameCallback);
                     frameCallback = null;
                 }
             };
 
-            // YouTube can replace the media element mid-startup, stranding the
-            // first-frame callback on an element that will never present a frame.
+            // YouTube can replace the media element mid-startup, stranding the first-frame callback
             const swapPoll = setInterval(() => {
                 const current = /** @type {HTMLVideoElement | null} */ (document.querySelector(this.settings.selectors.videoElement));
                 if (!current || current === video) return;
@@ -709,23 +685,18 @@ export class VideoOverlay {
                 unlisten(video);
                 overlay.remove();
                 sendHoldPixel(reason);
-                // Drop the hold's own registration and its fullscreen guard now, not at
-                // the next navigation.
                 sideEffects.destroy(FULLSCREEN_SIDE_EFFECT);
                 sideEffects.destroy(HOLD_SIDE_EFFECT);
             }
 
             listen(video);
 
-            // Taps must not reach YouTube's player underneath, which would treat a tap
-            // on the video surface as its own gesture.
+            // YouTube treats a tap on the video surface as its own gesture
             for (const type of ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'mousedown', 'mouseup']) {
                 overlay.addEventListener(type, (e) => e.stopPropagation());
             }
-            // A single tap while a frame is still plausibly coming is swallowed:
-            // dismissing then would reveal the player's own startup state, the black
-            // frame the hold exists to cover. But a second tap insists, and once the
-            // wait is hopeless any tap dismisses.
+            // swallow the first tap: dismissing while a frame is still coming reveals the
+            // black frame the hold exists to cover
             overlay.addEventListener('click', (e) => {
                 e.stopPropagation();
                 taps += 1;
