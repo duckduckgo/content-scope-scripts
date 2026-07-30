@@ -1,73 +1,86 @@
-/* eslint-disable promise/prefer-await-to-then */
+/**
+ * Paint the first candidate that resolves to a displayable image as `target`'s background,
+ * skipping any that do not. A `verify` candidate is HEAD-checked first, because YouTube
+ * answers a thumbnail a video does not have with a valid placeholder image under a 404,
+ * so its load event alone cannot tell the difference.
+ * @param {HTMLElement} target
+ * @param {{url: string, verify: boolean}[]} candidates - tried in order
+ * @param {{signal?: AbortSignal, onResult?: (paintedUrl: string | null) => void}} [options]
+ */
+export async function paintFirstUsablePoster(target, candidates, { signal, onResult } = {}) {
+    for (const candidate of candidates) {
+        const url = safePosterUrl(candidate.url);
+        if (!url) continue;
+        if (candidate.verify && !(await headIsOk(url, signal))) continue;
+        if (signal?.aborted) return;
+        if (!(await imageLoads(url))) continue;
+        if (signal?.aborted) return;
+
+        target.style.backgroundImage = `url("${url}")`;
+        target.style.backgroundSize = 'cover';
+        return onResult?.(url);
+    }
+    if (!signal?.aborted) onResult?.(null);
+}
 
 /**
- * Try to load an image first. If the status code is 2xx, then continue
- * to load
+ * @param {string} url
+ * @param {AbortSignal} [signal]
+ */
+async function headIsOk(url, signal) {
+    try {
+        return (await fetch(url, { method: 'HEAD', signal })).ok;
+    } catch {
+        return false;
+    }
+}
+
+/** @param {string} url */
+function imageLoads(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+    });
+}
+
+/**
+ * Normalise a poster URL and reject anything that cannot be trusted inside the CSS url()
+ * it is interpolated into; a candidate can be scraped from a computed style, so it is
+ * page-controlled text. https: only, because new URL() percent-encodes the closing quote
+ * for hierarchical schemes alone: a data: payload carries a quote through verbatim.
+ * @param {string} url
+ * @returns {string | null}
+ */
+function safePosterUrl(url) {
+    try {
+        const parsed = new URL(url, window.location.href);
+        if (parsed.protocol !== 'https:') return null;
+        return parsed.href;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Paint a single thumbnail, recording the outcome on `parent` for the overlay's own styling.
  * @param {HTMLElement} parent
  * @param {string} targetSelector
  * @param {string} imageUrl
  */
 export function appendImageAsBackground(parent, targetSelector, imageUrl) {
-    const canceled = false;
-
-    /**
-     * Make a HEAD request to see what the status of this image is, without
-     * having to fully download it.
-     *
-     * This is needed because YouTube returns a 404 + valid image file when there's no
-     * thumbnail and you can't tell the difference through the 'onload' event alone
-     */
-    fetch(imageUrl, { method: 'HEAD' })
-        .then((x) => {
-            const status = String(x.status);
-            if (canceled) return console.warn('not adding image, cancelled');
-            if (status.startsWith('2')) {
-                if (!canceled) {
-                    append();
-                } else {
-                    console.warn('ignoring cancelled load');
-                }
-            } else {
-                markError();
-            }
-        })
-        .catch(() => {
-            console.error('e from fetch');
-        });
-
-    /**
-     * If loading fails, mark the parent with data-attributes
-     */
-    function markError() {
-        parent.dataset.thumbLoaded = String(false);
-        parent.dataset.error = String(true);
+    const target = parent.querySelector(targetSelector);
+    if (!(target instanceof HTMLElement)) {
+        return console.warn('could not find child with selector', targetSelector, 'from', parent);
     }
-
-    /**
-     * If loading succeeds, try to append the image
-     */
-    function append() {
-        const targetElement = parent.querySelector(targetSelector);
-        if (!(targetElement instanceof HTMLElement)) {
-            return console.warn('could not find child with selector', targetSelector, 'from', parent);
-        }
-        parent.dataset.thumbLoaded = String(true);
-        parent.dataset.thumbSrc = imageUrl;
-        const img = new Image();
-        img.src = imageUrl;
-        img.onload = function () {
-            if (canceled) return console.warn('not adding image, cancelled');
-            targetElement.style.backgroundImage = `url(${imageUrl})`;
-            targetElement.style.backgroundSize = 'cover';
-        };
-        img.onerror = function () {
-            if (canceled) return console.warn('not calling markError, cancelled');
-            markError();
-            const targetElement = parent.querySelector(targetSelector);
-            if (!(targetElement instanceof HTMLElement)) return;
-            targetElement.style.backgroundImage = '';
-        };
-    }
+    void paintFirstUsablePoster(target, [{ url: imageUrl, verify: true }], {
+        onResult: (paintedUrl) => {
+            parent.dataset.thumbLoaded = String(Boolean(paintedUrl));
+            if (paintedUrl) parent.dataset.thumbSrc = paintedUrl;
+            else parent.dataset.error = String(true);
+        },
+    });
 }
 
 export class SideEffects {

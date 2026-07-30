@@ -1,5 +1,6 @@
 import mobilecss from '../assets/mobile-video-thumbnail-overlay.css';
 import { createPolicy, html } from '../../../dom-utils.js';
+import { paintFirstUsablePoster } from '../util.js';
 
 /**
  * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
@@ -19,6 +20,10 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     testMode = false;
     /** @type {AbortController | null} */
     posterLoad = null;
+
+    get overlay() {
+        return this.container?.querySelector('.ddg-video-player-overlay');
+    }
 
     connectedCallback() {
         this.createMarkupAndStyles();
@@ -59,10 +64,6 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
         `.toString();
     }
 
-    get overlay() {
-        return this.container?.querySelector('.ddg-video-player-overlay');
-    }
-
     /**
      * Enter the buffering hold: drop the play logo, since Duck Player has been
      * declined and the overlay is now only standing in for the player's own startup.
@@ -86,74 +87,19 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     }
 
     /**
-     * Paint a poster behind the spinner, trying each candidate until one displays.
-     * An `ytimg` candidate needs a HEAD check because YouTube answers a thumbnail a video
-     * does not have with a valid placeholder image under a 404, so its load event lies.
+     * Paint a poster behind the spinner, cancelling the walk if the overlay goes away first.
      * @param {PosterCandidate[]} candidates
      */
     setPosterCandidates(candidates) {
         const bg = this.container?.querySelector('.ddg-vpo-bg');
         if (!(bg instanceof HTMLElement)) return;
 
-        const list = candidates.flatMap((candidate) => {
-            const url = safePosterUrl(candidate.url);
-            return url ? [{ ...candidate, url }] : [];
-        });
-        if (list.length === 0) return;
-
         const controller = new AbortController();
         this.posterLoad = controller;
-        const { signal } = controller;
-
-        const paint = (/** @type {string} */ url) => {
-            bg.style.backgroundImage = `url("${url}")`;
-            bg.style.backgroundSize = 'cover';
-        };
-
-        const tryAt = async (/** @type {number} */ index) => {
-            if (signal.aborted) return;
-            const candidate = list[index];
-            if (!candidate) return;
-
-            if (candidate.source === 'ytimg') {
-                let ok = false;
-                try {
-                    ok = (await fetch(candidate.url, { method: 'HEAD', signal })).ok;
-                } catch {
-                    ok = false;
-                }
-                if (signal.aborted) return;
-                if (ok) return paint(candidate.url);
-                return tryAt(index + 1);
-            }
-
-            const img = new Image();
-            img.onload = () => {
-                if (!signal.aborted) paint(candidate.url);
-            };
-            img.onerror = () => {
-                if (!signal.aborted) void tryAt(index + 1);
-            };
-            img.src = candidate.url;
-        };
-        void tryAt(0);
-    }
-}
-
-/**
- * Normalise a poster URL and reject anything that cannot be trusted inside the CSS url()
- * it is interpolated into; one candidate is scraped from a computed style, so it is
- * page-controlled text. https: only, because new URL() percent-encodes the closing quote
- * for hierarchical schemes alone: a data: payload carries a quote through verbatim.
- * @param {string} url
- * @returns {string | null}
- */
-function safePosterUrl(url) {
-    try {
-        const parsed = new URL(url, window.location.href);
-        if (parsed.protocol !== 'https:') return null;
-        return parsed.href;
-    } catch {
-        return null;
+        void paintFirstUsablePoster(
+            bg,
+            candidates.map(({ url, source }) => ({ url, verify: source === 'ytimg' })),
+            { signal: controller.signal },
+        );
     }
 }
