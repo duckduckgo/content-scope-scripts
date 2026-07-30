@@ -572,7 +572,6 @@ export class VideoOverlay {
         if (!video?.isConnected || !container) return;
         if (document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) return;
 
-        const text = mobileStrings(this.environment.strings('overlays.json'));
         const { spinnerDelayMs, giveUpMs } = this.settings.bufferingFeedback ?? {};
 
         this.sideEffects.add('holding poster + spinner until first video frame', () => {
@@ -581,7 +580,6 @@ export class VideoOverlay {
             container.appendChild(overlay);
             overlay.setPosterCandidates(this.buildPosterCandidates(video));
             overlay.showLoadingState();
-            overlay.announce(text.bufferingLabel);
 
             const hold = holdUntilFirstFrame({
                 container,
@@ -589,8 +587,6 @@ export class VideoOverlay {
                 overlay,
                 timings: { spinnerDelayMs, giveUpMs },
                 onReport: (reason, elapsedMs) => {
-                    // the spinner leaving is the moment taps start working, so say so rather than blanking the region
-                    if (reason === 'gave_up') overlay.announce(text.bufferingStalledLabel);
                     const duration = String(Math.min(60, Math.round(elapsedMs / 1000)));
                     this.messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, duration }));
                 },

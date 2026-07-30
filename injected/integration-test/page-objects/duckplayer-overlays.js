@@ -612,7 +612,9 @@ class DuckplayerOverlaysMobile {
         const { page } = this.overlays;
         // the inner overlay collapses to 0×0 (absolutely positioned children), so assert on the host
         await page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'visible', timeout: 2000 });
-        await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay')).toHaveClass(/loading/);
+        const overlay = page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay');
+        await expect(overlay).toHaveClass(/loading/);
+        await expect(overlay).toHaveAttribute('aria-busy', 'true');
     }
 
     async spinnerShows() {
@@ -654,24 +656,14 @@ class DuckplayerOverlaysMobile {
     }
 
     /**
-     * The spinner and poster are decorative; the hold is announced through a
-     * visually-hidden live region instead.
-     * @param {string} label
-     */
-    async bufferingFeedbackAnnounces(label) {
-        const { page } = this.overlays;
-        const status = page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-status');
-        await expect(status).toHaveAttribute('role', 'status');
-        await expect(status).toHaveText(label, { timeout: 2000 });
-    }
-
-    /**
      * The hold stays, minus the spinner, so a video that never arrives settles on a
-     * still poster rather than the black frame the hold exists to cover.
+     * still poster rather than the black frame the hold exists to cover. It also stops
+     * reporting itself as busy, since nothing is loading any more.
      */
     async spinnerIsWithdrawn() {
         const { page } = this.overlays;
         await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner')).toBeHidden();
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay')).not.toHaveAttribute('aria-busy');
         await expect(page.locator('ddg-video-thumbnail-overlay-mobile')).toHaveCount(1);
     }
 

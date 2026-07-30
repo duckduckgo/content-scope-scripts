@@ -168,14 +168,6 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.bufferingFeedbackPosterMatches(/hqdefault/);
     });
 
-    test('announces the hold to a screen reader', async () => {
-        await opensPlayerPage();
-
-        await overlays.mobile.choosesWatchHere();
-        await overlays.mobile.bufferingFeedbackShows();
-        await overlays.mobile.bufferingFeedbackAnnounces('Loading video');
-    });
-
     test('shows the hold when a drawer config falls back to the classic overlay', async () => {
         // the drawer container named here is not on the page, so the classic overlay wins
         await opensPlayerPage({
@@ -216,8 +208,6 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.spinnerIsWithdrawn();
         // Never reveal the black frame the hold exists to cover
         await overlays.mobile.bufferingFeedbackHasPoster();
-        // the spinner leaving is the moment taps start working, and blanking the region would announce nothing
-        await overlays.mobile.bufferingFeedbackAnnounces('Video is taking longer than usual. Tap to continue.');
 
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },

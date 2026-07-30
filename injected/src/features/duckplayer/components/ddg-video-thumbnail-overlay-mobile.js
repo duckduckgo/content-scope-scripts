@@ -19,8 +19,6 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     testMode = false;
     /** @type {AbortController | null} */
     posterLoad = null;
-    /** @type {boolean} */
-    announced = false;
 
     connectedCallback() {
         this.createMarkupAndStyles();
@@ -49,7 +47,6 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
             <div class="ddg-video-player-overlay">
                 <div class="bg ddg-vpo-bg"></div>
                 <div class="logo"></div>
-                <div class="ddg-vpo-status" role="status"></div>
                 <div class="ddg-vpo-spinner" aria-hidden="true">
                     <div class="ddg-vpo-spinner__container">
                         <div class="ddg-vpo-spinner__rotator">
@@ -62,29 +59,17 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
         `.toString();
     }
 
+    get overlay() {
+        return this.container?.querySelector('.ddg-video-player-overlay');
+    }
+
     /**
      * Enter the buffering hold: drop the play logo, since Duck Player has been
      * declined and the overlay is now only standing in for the player's own startup.
      */
     showLoadingState() {
         this.overlay?.classList.add('loading');
-    }
-
-    /**
-     * Announce through the visually-hidden live region.
-     * @param {string} text
-     */
-    announce(text) {
-        const write = () => {
-            const status = this.container?.querySelector('.ddg-vpo-status');
-            if (status instanceof HTMLElement) status.textContent = text;
-        };
-        // only the first write defers a frame: a region inserted already populated has no change to announce
-        if (this.announced) return write();
-        this.announced = true;
-        requestAnimationFrame(() => {
-            if (this.isConnected) write();
-        });
+        this.overlay?.setAttribute('aria-busy', 'true');
     }
 
     showSpinner() {
@@ -97,10 +82,7 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
      */
     hideSpinner() {
         this.overlay?.classList.remove('spinning');
-    }
-
-    get overlay() {
-        return this.container?.querySelector('.ddg-video-player-overlay');
+        this.overlay?.removeAttribute('aria-busy');
     }
 
     /**
