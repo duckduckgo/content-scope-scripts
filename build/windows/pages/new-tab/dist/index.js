@@ -1202,7 +1202,7 @@
         i5(n3);
       });
       g4("__h", function(i5, n3, r4, t4) {
-        if (t4 < 3 || 9 === t4) n3.__$f |= 2;
+        if (t4 < 3) n3.__$f |= 2;
         i5(n3, r4, t4);
       });
       C.prototype.shouldComponentUpdate = function(i5, n3) {

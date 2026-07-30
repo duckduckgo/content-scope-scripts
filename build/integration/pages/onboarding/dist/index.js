@@ -27526,11 +27526,15 @@
       note: "Page title for the first step in the v4 onboarding process"
     },
     getStarted_title_v4: {
-      title: "Hi there!{paragraph}Ready for a faster browser that protects you and lets you decide when and how to use AI?",
-      note: "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. `{newline}` may be inserted to adjust line placement for visual balance and readability."
+      title: "Hi there.{paragraph}Ready for a faster browser that puts you in control?{paragraph}AI is always optional, and privacy protection is always on.",
+      note: "Introductory text when a user starts the v4 onboarding process. `{paragraph}` separates the title from each of the paragraphs that follow it. `{paragraph}` and `{newline}` should not be translated. `{newline}` may be inserted to adjust line placement for visual balance and readability."
     },
     getStartedButton_v4: {
       title: "Start Browser Setup",
+      note: "Button label prompting user to start the v4 onboarding process."
+    },
+    getStartedButtonDefault_v4: {
+      title: "Let\u2019s get started!",
       note: "Button label prompting user to start the v4 onboarding process."
     },
     makeDefaultAccept_title_v4: {
@@ -30763,7 +30767,8 @@
       /** @type {import('../../types').GetStartedStep} */
       step.options?.includes("chrome-extension-install")
     );
-    const [title, body] = t3("getStarted_title_v4", { newline: "\n" }).split("{paragraph}");
+    const [title, ...paragraphs] = t3("getStarted_title_v4", { newline: "\n" }).split("{paragraph}");
+    const body = paragraphs.join("\n\n");
     function handleAdvance() {
       if (showChromeExtension && chromeExtensionChecked) {
         dispatch({ kind: "request-chrome-extension" });
@@ -30793,7 +30798,7 @@
         size: "stretch",
         onClick: handleAdvance
       },
-      t3("getStartedButton_v4")
+      t3(showChromeExtension ? "getStartedButton_v4" : "getStartedButtonDefault_v4")
     ), showChromeExtension && /* @__PURE__ */ k(
       ChromeExtensionCheckbox,
       {

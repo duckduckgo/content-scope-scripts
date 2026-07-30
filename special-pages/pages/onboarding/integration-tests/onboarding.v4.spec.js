@@ -10,7 +10,7 @@ test.describe('onboarding v4', () => {
         });
         await onboarding.reducedMotion();
         await onboarding.openPage({ env: 'app', page: 'getStarted' });
-        await page.getByRole('button', { name: 'Start Browser Setup' }).click();
+        await page.getByRole('button', { name: 'Let’s get started!' }).click();
         await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
 
         await onboarding.didFireStepCompleted({ id: 'getStarted', next: 'makeDefaultSingle' });
@@ -338,7 +338,7 @@ test.describe('onboarding v4', () => {
 
         // Get started (welcome auto-advances after ~3.7s animation)
         await page.getByRole('heading', { name: 'Hi there' }).waitFor({ timeout: 5000 });
-        await page.getByRole('button', { name: 'Start Browser Setup' }).click();
+        await page.getByRole('button', { name: 'Let’s get started!' }).click();
 
         // Make default
         await page.getByRole('heading', { name: 'Protections activated' }).waitFor({ timeout: 1000 });
@@ -391,7 +391,7 @@ test.describe('onboarding v4', () => {
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
 
-            await page.getByRole('button', { name: 'Start Browser Setup' }).click();
+            await page.getByRole('button', { name: 'Let’s get started!' }).click();
 
             await onboarding.didFireTelemetryEvents([{ name: 'row_shown', value: 'dock-instructions' }]);
         });

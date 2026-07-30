@@ -4091,9 +4091,9 @@ h2 {
 
 /* pages/onboarding/app/v4/components/GetStartedAnimation.module.css */
 .GetStartedAnimation_root {
-  position: relative;
+  position: absolute;
   left: -138px;
-  top: 206px;
+  bottom: -192px;
 }
 .GetStartedAnimation_fadeOut {
   animation: GetStartedAnimation_fade-out 100ms cubic-bezier(0.66, 0, 0.34, 1) both;
