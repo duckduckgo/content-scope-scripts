@@ -174,8 +174,34 @@
             0 1px 6px 0 var(--ds-color-theme-shadow-primary),
             0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
 
+        /* Figma --ds-tone-brighten-secondary (white 60%). No --ds-color-theme-tone-tint-secondary in build. */
+        &:hover {
+            background: var(--color-white-at-60);
+        }
+
         [data-theme="dark"] & {
             border: 1px solid var(--color-white-at-3);
+
+            /* Figma dark hover = white 18% → control-fill-secondary */
+            &:hover {
+                background: var(--ds-color-theme-control-fill-secondary);
+            }
+        }
+
+        [data-background-kind="userImage"] & {
+            background: var(--ds-color-theme-tone-tint-primary);
+
+            &:hover {
+                background: var(--color-white-at-60);
+            }
+        }
+
+        [data-theme="dark"] [data-background-kind="userImage"] & {
+            background: var(--ds-color-theme-tone-tint-primary);
+
+            &:hover {
+                background: var(--ds-color-theme-control-fill-secondary);
+            }
         }
     }
 }
