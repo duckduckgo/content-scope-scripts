@@ -776,6 +776,31 @@ class DuckplayerOverlaysMobile {
     }
 
     /**
+     * A fatal media error means no frame is ever coming.
+     */
+    async videoErrors() {
+        const { page } = this.overlays;
+        await page.locator('#player video').evaluate((el) => el.dispatchEvent(new Event('error')));
+    }
+
+    /**
+     * Fail an image inside the player, as a blocked ad creative does. Its error reaches the
+     * container in the capture phase exactly like a media error, so the hold has to tell
+     * them apart. Resolves once the error has fired, so the assertion after it means something.
+     */
+    async imageInsidePlayerFails() {
+        const { page } = this.overlays;
+        await page.locator('#player .html5-video-player').evaluate((el) => {
+            return new Promise((resolve) => {
+                const img = document.createElement('img');
+                img.addEventListener('error', () => resolve(null), { once: true });
+                img.src = 'data:image/png;base64,not-a-real-png';
+                el.appendChild(img);
+            });
+        });
+    }
+
+    /**
      * Replace the media element with a fresh one, as YouTube does mid-startup, leaving the
      * element the hold started on detached. Deliberately source-less: a copied src would
      * 404 and clear the hold through the error path, hiding whether the swap was followed.

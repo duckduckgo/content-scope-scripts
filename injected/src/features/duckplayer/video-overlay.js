@@ -563,9 +563,6 @@ export class VideoOverlay {
      */
     showBufferingFeedbackUntilFirstFrame() {
         if (!this.bufferingFeedbackEnabled()) return;
-        if (this.environment.layout !== 'mobile') return;
-        // gate on what was appended, not config: a drawer config falls back to the classic
-        // overlay when its container is missing, and the drawer keeps its own thumbnail
         if (this.appendedMobileVariant === 'drawer') return;
 
         const video = /** @type {HTMLVideoElement | null} */ (document.querySelector(this.settings.selectors.videoElement));
@@ -600,9 +597,7 @@ export class VideoOverlay {
     }
 
     /**
-     * Poster candidates for the buffering hold, cheapest source first, so the spinner
-     * never sits on a black frame. Page-supplied posters need no round trip; maxres often
-     * 404s, so hqdefault backs it up.
+     * Poster candidates for the buffering hold, cheapest source first.
      * @param {HTMLVideoElement} video
      * @returns {import('./components/ddg-video-thumbnail-overlay-mobile.js').PosterCandidate[]}
      */

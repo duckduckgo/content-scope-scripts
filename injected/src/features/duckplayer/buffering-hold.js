@@ -23,12 +23,11 @@ const DEFAULT_GIVE_UP_MS = 25000;
  *           addEventListener: Element['addEventListener'] }} options.overlay
  * @param {{ spinnerDelayMs?: number, giveUpMs?: number }} options.timings
  * @param {(reason: HoldRemovalReason, elapsedMs: number) => void} options.onReport
- * @param {() => number} [options.now]
  * @returns {{ stop: (reason: Exclude<HoldRemovalReason, 'gave_up'>) => void }}
  */
-export function holdUntilFirstFrame({ container, video, overlay, timings, onReport, now = () => performance.now() }) {
+export function holdUntilFirstFrame({ container, video, overlay, timings, onReport }) {
     const { spinnerDelayMs = DEFAULT_SPINNER_DELAY_MS, giveUpMs = DEFAULT_GIVE_UP_MS } = timings;
-    const startedAt = now();
+    const startedAt = performance.now();
     let stopped = false;
     let gaveUp = false;
     let tapCount = 0;
@@ -40,7 +39,7 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
         gaveUp = true;
         overlay.hideSpinner();
         // report here rather than only at removal: a hold nobody taps would otherwise report on navigation alone
-        onReport('gave_up', now() - startedAt);
+        onReport('gave_up', performance.now() - startedAt);
     }, giveUpMs);
 
     /** @param {Event} e */
@@ -62,7 +61,7 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
             container.removeEventListener(type, onMediaEvent, { capture: true });
         }
         overlay.remove();
-        onReport(reason, now() - startedAt);
+        onReport(reason, performance.now() - startedAt);
     };
 
     // Watching the container rather than the element survives YouTube swapping the <video> mid-startup

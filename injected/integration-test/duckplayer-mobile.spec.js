@@ -140,6 +140,17 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.bufferingFeedbackIsRemoved();
     });
 
+    test('keeps the hold when tapped while a frame is still coming', async () => {
+        await opensPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+
+        // dismissing here would reveal the startup state the hold covers, so the first tap is swallowed
+        await overlays.mobile.tapsBufferingFeedback();
+        await overlays.mobile.bufferingFeedbackShows();
+    });
+
     test('dismisses the hold on tap once the wait is hopeless', async ({ page }) => {
         await opensPlayerPage();
 
@@ -178,6 +189,28 @@ test.describe('Video Player buffering feedback', () => {
 
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.overlayIsRemoved();
+        await overlays.mobile.bufferingFeedbackShows();
+    });
+
+    test('clears the hold when the player reports an error', async () => {
+        await opensPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+
+        // No frame is coming, and YouTube's error UI is behind the poster
+        await overlays.mobile.videoErrors();
+        await overlays.mobile.bufferingFeedbackIsRemoved();
+    });
+
+    test('keeps the hold when an image inside the player fails', async () => {
+        await opensPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+
+        // a blocked ad creative must not be mistaken for the video failing
+        await overlays.mobile.imageInsidePlayerFails();
         await overlays.mobile.bufferingFeedbackShows();
     });
 
