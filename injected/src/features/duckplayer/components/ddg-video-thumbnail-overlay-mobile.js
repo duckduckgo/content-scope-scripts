@@ -70,11 +70,22 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
     /**
      * Announce the hold to assistive technology through the visually-hidden live region;
      * the poster and spinner are decorative and marked aria-hidden.
+     *
+     * Deferred a frame because a live region is announced when its contents change, so
+     * it has to reach the accessibility tree before the text lands in it; inserting it
+     * already populated tends to be silent.
      * @param {string} label
      */
     setLoadingLabel(label) {
+        requestAnimationFrame(() => {
+            if (this.isConnected) this.writeStatus(label);
+        });
+    }
+
+    /** @param {string} text */
+    writeStatus(text) {
         const status = this.container?.querySelector('.ddg-vpo-status');
-        if (status instanceof HTMLElement) status.textContent = label;
+        if (status instanceof HTMLElement) status.textContent = text;
     }
 
     showSpinner() {
@@ -87,6 +98,8 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
      */
     hideSpinner() {
         this.overlay?.classList.remove('spinning');
+        // Whatever happens next, the video is no longer loading
+        this.writeStatus('');
     }
 
     get overlay() {
@@ -108,9 +121,14 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
 
         /** @type {{url: string, verify: boolean}[]} */
         const list = [];
+        const seen = new Set();
         for (const candidate of candidates) {
+            // Normalising first makes the duplicates comparable: the page-supplied poster
+            // and the cued thumbnail are often the same image.
             const url = safePosterUrl(candidate.url);
-            if (url) list.push({ url, verify: candidate.verify });
+            if (!url || seen.has(url)) continue;
+            seen.add(url);
+            list.push({ url, verify: candidate.verify });
         }
         if (list.length === 0) return;
 
@@ -157,13 +175,17 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
  * Normalise a poster URL and reject anything that cannot be trusted inside the CSS
  * url() it is interpolated into. One candidate is scraped from a computed style, so it
  * is page-controlled text. Returns the normalised href, or null to skip the candidate.
+ *
+ * https: only: normalising through new URL() percent-encodes the quote that would
+ * otherwise close the url(), but that holds for hierarchical schemes alone. A data: URL
+ * carries its payload verbatim, so a quote in one survives.
  * @param {string} url
  * @returns {string | null}
  */
 function safePosterUrl(url) {
     try {
         const parsed = new URL(url, window.location.href);
-        if (parsed.protocol !== 'https:' && parsed.protocol !== 'data:') return null;
+        if (parsed.protocol !== 'https:') return null;
         return parsed.href;
     } catch {
         return null;

@@ -167,7 +167,7 @@ export class Pixel {
      *   | {name: "play.use.thumbnail"}
      *   | {name: "play.do_not_use", remember: "0" | "1"}
      *   | {name: "play.do_not_use.dismiss"}
-     *   | {name: "buffering.hold_removed", reason: "frame" | "error" | "gave_up" | "tap" | "torn_down", duration: string}} input
+     *   | {name: "buffering.hold_removed", reason: "frame" | "error" | "gave_up" | "tap" | "tap_after_give_up" | "torn_down", duration: string}} input
      */
     constructor(input) {
         this.input = input;

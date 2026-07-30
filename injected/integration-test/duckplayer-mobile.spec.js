@@ -78,7 +78,8 @@ test.describe('Video Player overlays', () => {
     test('leaves fullscreen so the overlay stays usable', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
-        await overlays.withRemoteConfig();
+        // The exit guard ships with the buffering hold, so it needs the same gate
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
 
@@ -104,9 +105,6 @@ test.describe('Video Player overlays', () => {
     });
 });
 
-const TINY_POSTER =
-    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-
 test.describe('Video Player buffering feedback', () => {
     test('shows the poster + spinner hold after opt-out until the first frame', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
@@ -117,7 +115,7 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.gotoPlayerPage();
 
         // And the player exposes a poster we can paint offline
-        await overlays.mobile.setVideoPoster(TINY_POSTER);
+        await overlays.mobile.stubsVideoPoster();
 
         // When the user opts out of Duck Player
         await overlays.mobile.choosesWatchHere();
@@ -154,7 +152,6 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
-        await overlays.mobile.setVideoPoster(TINY_POSTER);
 
         await page.clock.install();
         await overlays.mobile.choosesWatchHere();
@@ -166,6 +163,49 @@ test.describe('Video Player buffering feedback', () => {
 
         await overlays.mobile.tapsBufferingFeedback();
         await overlays.mobile.bufferingFeedbackIsRemoved();
+    });
+
+    test('falls past a thumbnail YouTube answers with a 404 placeholder', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        // No page-supplied poster, so the hold walks the synthesised i.ytimg.com URLs
+        await overlays.mobile.stubsMissingMaxresThumbnail();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+
+        // maxres would have loaded: the placeholder under the 404 is a valid image
+        await overlays.mobile.bufferingFeedbackPosterMatches(/hqdefault/);
+    });
+
+    test('announces the hold to a screen reader', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.bufferingFeedbackShows();
+        await overlays.mobile.bufferingFeedbackAnnounces('Loading video');
+    });
+
+    test('shows the hold when a drawer config falls back to the classic overlay', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        // This config asks for the drawer but names a container that is not on the page,
+        // so the classic overlay is appended instead — the variant the hold is scoped to.
+        await overlays.withRemoteConfig({ json: 'overlays-drawer-fallback-buffering-feedback.json' });
+        await overlays.userSettingIs('always ask');
+        await overlays.gotoPlayerPage();
+
+        await overlays.mobile.choosesWatchHere();
+        await overlays.mobile.overlayIsRemoved();
+        await overlays.mobile.bufferingFeedbackShows();
     });
 
     test('clears the hold when the player reports an error', async ({ page }, workerInfo) => {
@@ -205,7 +245,7 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.withRemoteConfig({ json: 'overlays-buffering-feedback.json' });
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
-        await overlays.mobile.setVideoPoster(TINY_POSTER);
+        await overlays.mobile.stubsVideoPoster();
 
         // Fake timers from here so the give-up point is deterministic
         await page.clock.install();
@@ -218,6 +258,15 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.spinnerIsWithdrawn();
         // Never reveal the black frame the hold exists to cover
         await overlays.mobile.bufferingFeedbackHasPoster();
+
+        // Reported at the give-up point, so expiries are countable without waiting for a
+        // teardown that may never send
+        await overlays.pixels.sendsPixels([
+            { pixelName: 'overlay', params: {} },
+            { pixelName: 'play.do_not_use', params: { remember: '0' } },
+            // No duration assertion: the bucket reflects how far the fake clock jumped
+            { pixelName: 'buffering.hold_removed', params: { reason: 'gave_up' } },
+        ]);
     });
 
     test('leaves fullscreen so the hold stays dismissable', async ({ page }, workerInfo) => {

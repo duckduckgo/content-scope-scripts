@@ -631,21 +631,31 @@ export class VideoOverlay {
             overlay.showLoadingState();
             overlay.setLoadingLabel(mobileStrings(this.environment.strings('overlays.json')).bufferingLabel);
 
-            const startedAt = Date.now();
+            const startedAt = performance.now();
             const messages = this.messages;
             let video = videoEl;
             let removed = false;
             let gaveUp = false;
             let taps = 0;
 
+            /** @param {"frame" | "error" | "gave_up" | "tap" | "tap_after_give_up" | "torn_down"} reason */
+            const sendHoldPixel = (reason) => {
+                const duration = bucketHoldDuration(performance.now() - startedAt);
+                messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, duration }));
+            };
+
             // A video that starts promptly would show the spinner for a couple of
             // frames, so let the poster stand alone for a beat first.
             const spinnerTimer = setTimeout(() => overlay.showSpinner(), spinnerDelayMs);
             // YouTube's player-level failures ("Video unavailable") never reach the
             // media element, so stop claiming progress once a wait is this far gone.
+            // Reported here rather than at removal: this is the moment worth counting when
+            // tuning giveUpMs, and a hold that is never tapped only reports at the next
+            // navigation, where the send is not guaranteed to leave the page.
             const giveUpTimer = setTimeout(() => {
                 gaveUp = true;
                 overlay.hideSpinner();
+                sendHoldPixel('gave_up');
             }, giveUpMs);
 
             const onProgress = () => {
@@ -689,7 +699,7 @@ export class VideoOverlay {
                 listen(video);
             }, VIDEO_SWAP_POLL_MS);
 
-            /** @param {"frame" | "error" | "gave_up" | "tap" | "torn_down"} reason */
+            /** @param {"frame" | "error" | "tap" | "tap_after_give_up" | "torn_down"} reason */
             function remove(reason) {
                 if (removed) return;
                 removed = true;
@@ -698,9 +708,7 @@ export class VideoOverlay {
                 clearInterval(swapPoll);
                 unlisten(video);
                 overlay.remove();
-                messages.sendPixel(
-                    new Pixel({ name: 'buffering.hold_removed', reason, duration: bucketHoldDuration(Date.now() - startedAt) }),
-                );
+                sendHoldPixel(reason);
                 // Drop the hold's own registration and its fullscreen guard now, not at
                 // the next navigation.
                 sideEffects.destroy(FULLSCREEN_SIDE_EFFECT);
@@ -721,7 +729,7 @@ export class VideoOverlay {
             overlay.addEventListener('click', (e) => {
                 e.stopPropagation();
                 taps += 1;
-                if (gaveUp) remove('gave_up');
+                if (gaveUp) remove('tap_after_give_up');
                 else if (taps >= 2) remove('tap');
             });
 

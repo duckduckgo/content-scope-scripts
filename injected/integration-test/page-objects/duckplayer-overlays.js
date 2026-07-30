@@ -49,6 +49,25 @@ const configFiles = /** @type {const} */ ([
     'video-alt-selectors.json',
 ]);
 
+// Fulfilled from here rather than served by the test server, because the hold only accepts
+// https posters and the test pages are served over http.
+const TINY_IMAGE = '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>';
+const STUB_POSTER_URL = 'https://duckduckgo.example/poster.svg';
+
+/**
+ * @param {import("@playwright/test").Route} route
+ * @param {number} status
+ */
+function fulfillPoster(route, status) {
+    return route.fulfill({
+        status,
+        contentType: 'image/svg+xml',
+        body: TINY_IMAGE,
+        // The HEAD check is a fetch, so a cross-origin answer needs the header i.ytimg.com sends
+        headers: { 'access-control-allow-origin': '*' },
+    });
+}
+
 export class DuckplayerOverlays {
     overlaysPage = '/duckplayer/pages/overlays.html';
     playerPage = '/duckplayer/pages/player.html';
@@ -718,8 +737,8 @@ class DuckplayerOverlaysMobile {
     }
 
     /**
-     * Set a local poster on the <video> so the hold can paint it offline (the real
-     * i.ytimg.com thumbnails are unreachable from the test runner).
+     * Set a poster on the <video> so the hold can paint it offline (the real i.ytimg.com
+     * thumbnails are unreachable from the test runner).
      * @param {string} url
      */
     async setVideoPoster(url) {
@@ -727,6 +746,28 @@ class DuckplayerOverlaysMobile {
         await page.locator('#player video').evaluate((el, posterUrl) => {
             /** @type {HTMLVideoElement} */ (el).poster = posterUrl;
         }, url);
+    }
+
+    /**
+     * Give the player the kind of poster the hold paints first: page-supplied, so it is
+     * trusted on load and needs no round trip.
+     */
+    async stubsVideoPoster() {
+        const { page } = this.overlays;
+        await page.route(STUB_POSTER_URL, (route) => fulfillPoster(route, 200));
+        await this.setVideoPoster(STUB_POSTER_URL);
+    }
+
+    /**
+     * Answer the synthesised thumbnail URLs the way YouTube does. A video without a
+     * maxres thumbnail gets a valid placeholder image under a 404, so the image loads
+     * and only the status gives the miss away — the reason those candidates are
+     * HEAD-checked rather than trusted on load.
+     */
+    async stubsMissingMaxresThumbnail() {
+        const { page } = this.overlays;
+        await page.route('https://i.ytimg.com/**/maxresdefault.jpg', (route) => fulfillPoster(route, 404));
+        await page.route('https://i.ytimg.com/**/hqdefault.jpg', (route) => fulfillPoster(route, 200));
     }
 
     /**
