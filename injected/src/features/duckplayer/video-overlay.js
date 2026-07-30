@@ -370,6 +370,7 @@ export class VideoOverlay {
         if (!this.bufferingFeedbackEnabled()) return;
 
         this.sideEffects.add('leaving fullscreen while an overlay is showing', () => {
+            // unprefixed only: this ships to Android, where the WebView is Chromium
             const onChange = () => {
                 if (!document.fullscreenElement) return;
                 // the hold can remove itself while this listener is still registered
