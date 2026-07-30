@@ -100,20 +100,31 @@
         line-height: var(--ds-font-body-md-line-height);
     }
 
+    /* Color/size/hover/active live in DismissButton.module.css (shared with
+       Next Steps); only position differs per card. */
     .dismissBtn {
-        align-items: center;
-        border: 1px solid var(--ds-ntp-dismiss-btn-light-border);
-        border-radius: var(--ds-radius-x06);
-        display: flex;
-        gap: var(--ds-space-x02-5);
-        height: var(--ds-space-x06);
-        padding: var(--ds-space-x01);
         right: var(--ds-space-x1-5);
         top: var(--ds-space-x1-5);
-        width: var(--ds-space-x06);
+    }
 
-        :global([data-theme="dark"]) & {
-            border-color: var(--ds-ntp-dismiss-btn-dark-border);
+    /* Hover/active overrides for Button's macOS variants — see PR description
+       for why App.module.css can't set these via :global() class-name guesses.
+       Needs the .actionButton compound: Button.module.css's own default rule
+       for --button-bg--hover is equally specific, and a single-class selector
+       here loses that tie (silently falls back to the component's default). */
+    .actionButton.primaryButton {
+        --button-bg--hover: var(--ds-color-theme-accent-secondary);
+    }
+
+    .actionButton.secondaryButton {
+        --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
+        --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
+    }
+
+    /* Windows dark rest needs pinning to the NTP exact 6% spec (generic default is 12%). */
+    &:global([data-platform-name="windows"][data-theme="dark"]) {
+        .actionButton.secondaryButton {
+            background-color: var(--ds-ntp-dark-button-secondary-rest-background-color);
         }
     }
 }
