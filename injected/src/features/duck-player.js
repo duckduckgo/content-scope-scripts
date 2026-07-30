@@ -112,7 +112,7 @@ export default class DuckPlayerFeature extends ContentFeature {
 
 /**
  * @typedef {import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']['youtube']} YouTubeOverlaySettings
- * @typedef {NonNullable<YouTubeOverlaySettings['videoDrawer']> & { spinnerDelayMs?: number, giveUpMs?: number }} BufferingFeedbackSettings
+ * @typedef {{ state: import("@duckduckgo/privacy-configuration/schema/feature").FeatureState, spinnerDelayMs?: number, giveUpMs?: number }} BufferingFeedbackSettings
  * @typedef {Omit<YouTubeOverlaySettings, 'state'> & { bufferingFeedback?: BufferingFeedbackSettings }} OverlaysFeatureSettings
  */
 

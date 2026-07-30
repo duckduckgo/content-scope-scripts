@@ -361,16 +361,10 @@ export class VideoOverlay {
     }
 
     /**
-     * A scroll gesture on the watch page can put YouTube's player container into
-     * fullscreen. Our overlays are `position: absolute; inset: 0` inside
-     * `#movie_player`, so they stretch to the whole screen, and YouTube's
-     * `#player-control-container` — positioned outside `#movie_player`'s stacking
-     * context, so our z-index cannot reach it — then hit-tests above them. That
-     * leaves the overlay covering the screen while every tap lands on YouTube,
-     * with no browser chrome left to escape to. Leaving fullscreen puts the
-     * overlay back in the player box, where it can be used again.
-     *
-     * Call this after appending, so the initial check can see the overlay.
+     * A scroll gesture can fullscreen YouTube's player container. Our overlays sit inside
+     * `#movie_player` and stretch to the screen, but `#player-control-container` is outside
+     * that stacking context and hit-tests above them, so every tap lands on YouTube with no
+     * chrome left to escape to. Call this after appending, so the first check sees the overlay.
      */
     keepOverlayOutOfFullscreen() {
         if (!this.bufferingFeedbackEnabled()) return;
