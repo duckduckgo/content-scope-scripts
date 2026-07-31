@@ -70,7 +70,6 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
      */
     showLoadingState() {
         this.overlay?.classList.add('loading');
-        this.overlay?.setAttribute('aria-busy', 'true');
     }
 
     showSpinner() {
@@ -83,7 +82,6 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
      */
     hideSpinner() {
         this.overlay?.classList.remove('spinning');
-        this.overlay?.removeAttribute('aria-busy');
     }
 
     /**

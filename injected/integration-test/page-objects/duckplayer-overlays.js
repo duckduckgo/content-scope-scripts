@@ -637,9 +637,7 @@ class DuckplayerOverlaysMobile {
         const { page } = this.overlays;
         // the inner overlay collapses to 0×0 (absolutely positioned children), so assert on the host
         await page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'visible', timeout: 2000 });
-        const overlay = page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay');
-        await expect(overlay).toHaveClass(/loading/);
-        await expect(overlay).toHaveAttribute('aria-busy', 'true');
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay')).toHaveClass(/loading/);
     }
 
     async spinnerShows() {
@@ -682,13 +680,11 @@ class DuckplayerOverlaysMobile {
 
     /**
      * The hold stays, minus the spinner, so a video that never arrives settles on a
-     * still poster rather than the black frame the hold exists to cover. It also stops
-     * reporting itself as busy, since nothing is loading any more.
+     * still poster rather than the black frame the hold exists to cover.
      */
     async spinnerIsWithdrawn() {
         const { page } = this.overlays;
         await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner')).toBeHidden();
-        await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay')).not.toHaveAttribute('aria-busy');
         await expect(page.locator('ddg-video-thumbnail-overlay-mobile')).toHaveCount(1);
     }
 
