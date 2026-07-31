@@ -108,16 +108,21 @@
         --selection-ring-offset: var(--ds-space-x-5);
         --selection-ring-width: var(--ds-space-x-5);
 
-        border-radius: var(--ds-radius-x04);
+        /* 10px per design spec — no --ds-radius-x0* token matches (x02=8, x03=12) */
+        border-radius: 10px;
 
         &[aria-checked="true"]::after {
-            border-radius: calc(var(--ds-radius-x04) + var(--selection-ring-offset));
+            border-radius: calc(var(--ds-radius-x02) + var(--selection-ring-offset));
         }
     }
 
-    .swatch,
+    /* Same 10px as .variantButton above; kept as its own rule since .swatchBackdrop needs a different value. */
+    .swatch {
+        border-radius: 10px;
+    }
+
     .swatchBackdrop {
-        border-radius: var(--ds-radius-x04);
+        border-radius: var(--ds-radius-x02);
     }
 }
 
