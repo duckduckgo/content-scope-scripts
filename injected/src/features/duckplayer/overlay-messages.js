@@ -161,13 +161,15 @@ function assertCustomEvent(event) {
 
 /**
  * Coarse enough that a hold lifetime cannot carry a per-session timing fingerprint.
- * Boundaries are inclusive at the bottom: 5.0s falls in '5-10'.
+ * Boundaries are inclusive at the bottom: 5.0s falls in '5-10'. The first bucket sits
+ * under the spinner delay, so it isolates holds that cleared before anything was drawn.
  * @param {number} elapsedMs
- * @returns {'0-5' | '5-10' | '10-30' | '30+'}
+ * @returns {'0-1' | '1-5' | '5-10' | '10-30' | '30+'}
  */
 function holdDurationBucket(elapsedMs) {
     const seconds = elapsedMs / 1000;
-    if (seconds < 5) return '0-5';
+    if (seconds < 1) return '0-1';
+    if (seconds < 5) return '1-5';
     if (seconds < 10) return '5-10';
     if (seconds < 30) return '10-30';
     return '30+';
