@@ -185,6 +185,13 @@
         font-size: var(--body-font-size);
         line-height: 14px;
     }
+
+    /* Legacy underline indicator (base .active:after) — replaced by the
+       sliding .blob pill above, but not cleared by it since it's a separate
+       pseudo-element rule, not a property .active overrides. */
+    .active:after {
+        content: none;
+    }
 }
 
 :global(body[data-rebrand="true"][data-platform-name="macos"]) {
