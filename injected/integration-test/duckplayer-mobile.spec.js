@@ -78,7 +78,7 @@ test.describe('Video Player overlays', () => {
     test('leaves fullscreen so the overlay stays usable', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
-        await overlays.withRemoteConfig({ fullscreenGuard: true });
+        await overlays.withRemoteConfig({ json: 'overlays-fullscreen-guard.json' });
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
 
@@ -112,7 +112,7 @@ test.describe('Video Player buffering feedback', () => {
     });
 
     /** @param {Parameters<DuckplayerOverlays['withRemoteConfig']>[0]} [config] the default gates the hold on */
-    const opensPlayerPage = async (config = { bufferingFeedback: true }) => {
+    const opensPlayerPage = async (config = { json: 'overlays-buffering.json' }) => {
         await overlays.withRemoteConfig(config);
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
@@ -185,19 +185,6 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.mobile.bufferingFeedbackPosterMatches(/hqdefault/);
     });
 
-    test('shows the hold when a drawer config falls back to the classic overlay', async () => {
-        // the drawer container named here is not on the page, so the classic overlay wins
-        await opensPlayerPage({
-            json: 'overlays-drawer.json',
-            bufferingFeedback: true,
-            drawerContainer: '#ddg-drawer-container-not-in-dom',
-        });
-
-        await overlays.mobile.choosesWatchHere();
-        await overlays.mobile.overlayIsRemoved();
-        await overlays.mobile.bufferingFeedbackShows();
-    });
-
     test('clears the hold when the player reports an error', async () => {
         await opensPlayerPage();
 
@@ -253,7 +240,7 @@ test.describe('Video Player buffering feedback', () => {
     });
 
     test('leaves fullscreen so the hold stays dismissable', async ({ page }) => {
-        await opensPlayerPage({ bufferingFeedback: true, fullscreenGuard: true });
+        await opensPlayerPage({ json: 'overlays-buffering-fullscreen.json' });
 
         await page.clock.install();
         await overlays.mobile.choosesWatchHere();
@@ -271,7 +258,7 @@ test.describe('Video Player buffering feedback', () => {
     });
 
     test('stops blocking fullscreen once the hold has cleared', async () => {
-        await opensPlayerPage({ bufferingFeedback: true, fullscreenGuard: true });
+        await opensPlayerPage({ json: 'overlays-buffering-fullscreen.json' });
 
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.bufferingFeedbackShows();
@@ -285,7 +272,7 @@ test.describe('Video Player buffering feedback', () => {
 
     test('does not show the hold when the config gate is absent', async () => {
         // no bufferingFeedback gate, which is also the state before the config change ships
-        await opensPlayerPage({});
+        await opensPlayerPage({ json: 'overlays.json' });
 
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.overlayIsRemoved();

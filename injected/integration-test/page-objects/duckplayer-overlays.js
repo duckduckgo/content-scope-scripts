@@ -39,6 +39,9 @@ const configFiles = /** @type {const} */ ([
     'overlays.json',
     'overlays-live.json',
     'overlays-drawer.json',
+    'overlays-buffering.json',
+    'overlays-fullscreen-guard.json',
+    'overlays-buffering-fullscreen.json',
     'disabled.json',
     'thumbnail-overlays-disabled.json',
     'click-interceptions-disabled.json',
@@ -297,23 +300,11 @@ export class DuckplayerOverlays {
      * @param {object} [params]
      * @param {ConfigFile} [params.json="overlays"] - default is settings for localhost
      * @param {string} [params.locale] - optional locale
-     * @param {boolean} [params.bufferingFeedback] - enable the buffering hold gate
-     * @param {boolean} [params.fullscreenGuard] - enable the fullscreen exit gate
-     * @param {string} [params.drawerContainer] - override the drawer container selector
      */
     async withRemoteConfig(params = {}) {
-        const { json = 'overlays.json', locale = 'en', bufferingFeedback, fullscreenGuard, drawerContainer } = params;
+        const { json = 'overlays.json', locale = 'en' } = params;
 
-        const config = loadConfig(json);
-        // only reach in when asked to: the minimal configs have no overlays block at all
-        if (bufferingFeedback || fullscreenGuard || drawerContainer) {
-            const youtube = config.features.duckPlayer.settings.overlays.youtube;
-            if (bufferingFeedback) youtube.bufferingFeedback = { state: 'enabled' };
-            if (fullscreenGuard) youtube.fullscreenGuard = { state: 'enabled' };
-            if (drawerContainer) youtube.selectors.drawerContainer = drawerContainer;
-        }
-
-        await this.collector.setup({ config, locale });
+        await this.collector.setup({ config: loadConfig(json), locale });
     }
 
     async serpProxyEnabled() {
