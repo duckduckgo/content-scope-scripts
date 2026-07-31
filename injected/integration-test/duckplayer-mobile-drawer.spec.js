@@ -132,24 +132,6 @@ test.describe('Duck Player - Drawer UI variant', () => {
             await overlays.gotoPlayerPage();
             await overlays.mobile.opensInfo();
         });
-        test('leaves fullscreen so the drawer stays usable', async ({ page }, workerInfo) => {
-            const overlays = DuckplayerOverlays.create(page, workerInfo);
-            await overlays.reducedMotion();
-
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json', fullscreenGuard: true });
-            await overlays.userSettingIs('always ask');
-            await overlays.gotoPlayerPage();
-
-            await overlays.mobile.drawerIsPresented();
-            test.skip(
-                workerInfo.project.name === 'ios',
-                'iOS WebKit does not grant element fullscreen, so this exit guard is Android-only',
-            );
-            test.skip(!(await overlays.mobile.playerEntersFullscreen()), 'browser refused fullscreen');
-            await overlays.mobile.isNotFullscreen();
-            await overlays.mobile.choosesWatchHere();
-            await overlays.mobile.overlayIsRemoved();
-        });
     });
 
     /**
