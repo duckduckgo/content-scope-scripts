@@ -133,6 +133,23 @@ function hasContent(element) {
 }
 
 /**
+ * Read an element's text, optionally stripping text contained within
+ * descendants matching any of `excludeSelectors`.
+ *
+ * @param {Element} element
+ * @param {string[]} excludeSelectors
+ * @returns {string}
+ */
+function textOfElement(element, excludeSelectors) {
+    if (excludeSelectors.length === 0) {
+        return element.textContent || '';
+    }
+    const clone = /** @type {Element} */ (element.cloneNode(true));
+    clone.querySelectorAll(excludeSelectors.join(',')).forEach((el) => el.remove());
+    return clone.textContent || '';
+}
+
+/**
  * Evaluate text pattern match condition.
  *
  * `pattern` (disj): Array of regex patterns (or string representing a single pattern) - ANY pattern matching = success.
@@ -142,6 +159,10 @@ function hasContent(element) {
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
  *   Defaults to `body` if not provided.
  *
+ * `excludeSelector` (disj) [optional]: Array of CSS selectors (or a single selector). Text contained within any
+ *   descendant matching one of these selectors is stripped before pattern matching. Use this to match text
+ *   "unless it appears inside" certain elements (eg `script`, `style`, or a specific container).
+ *
  * The overall condition matches if ANY pattern matches text in ANY selected element.
  *
  * @param {ConditionTypes['text']} condition
@@ -150,6 +171,7 @@ function hasContent(element) {
 function evaluateSingleTextCondition(condition) {
     const patterns = asArray(condition.pattern);
     const selectors = asArray(condition.selector, ['body']);
+    const excludeSelectors = asArray(condition.excludeSelector);
 
     const patternComb = new RegExp(patterns.join('|'), 'i');
 
@@ -157,7 +179,7 @@ function evaluateSingleTextCondition(condition) {
     return selectors.some((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
-            if (patternComb.test(element.textContent || '')) {
+            if (patternComb.test(textOfElement(element, excludeSelectors))) {
                 return true;
             }
         }

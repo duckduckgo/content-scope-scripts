@@ -794,6 +794,70 @@ describe('WebDetection', () => {
                     }),
                 ).toBe(false);
             });
+
+            describe('excludeSelector', () => {
+                it('should not match when pattern only appears inside an excluded element', () => {
+                    expect(
+                        matchInDOM('<script>disable your adblocker</script><p>Welcome</p>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should still match when pattern appears in non-excluded text', () => {
+                    expect(
+                        matchInDOM('<script>disable your adblocker</script><p>Please disable your adblocker</p>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it("should preserve an element's own text while stripping a nested excluded element with the same text", () => {
+                    expect(
+                        matchInDOM('<div>disable your adblocker<script>disable your adblocker</script></div>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('should exclude arbitrary (class) selectors', () => {
+                    expect(
+                        matchInDOM('<div class="ad-meta">adblocker</div><p>Welcome</p>', {
+                            text: { pattern: 'adblocker', excludeSelector: '.ad-meta' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should support an array of exclude selectors', () => {
+                    expect(
+                        matchInDOM('<script>adblocker</script><style>adblocker</style><p>Welcome</p>', {
+                            text: { pattern: 'adblocker', excludeSelector: ['script', 'style'] },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should combine excludeSelector with a specific selector', () => {
+                    expect(
+                        matchInDOM('<div id="overlay">Please disable adblocker<script>adblocker</script></div>', {
+                            text: { pattern: 'adblocker', selector: '#overlay', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+
+                    expect(
+                        matchInDOM('<div id="overlay">Welcome<script>adblocker</script></div>', {
+                            text: { pattern: 'adblocker', selector: '#overlay', excludeSelector: 'script' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should behave unchanged when excludeSelector is omitted', () => {
+                    expect(
+                        matchInDOM('<script>disable your adblocker</script><p>Welcome</p>', {
+                            text: { pattern: 'adblocker' },
+                        }),
+                    ).toBe(true);
+                });
+            });
         });
 
         describe('element matching', () => {
