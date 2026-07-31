@@ -78,8 +78,7 @@ test.describe('Video Player overlays', () => {
     test('leaves fullscreen so the overlay stays usable', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 
-        // The exit guard ships with the buffering hold, so it needs the same gate
-        await overlays.withRemoteConfig({ bufferingFeedback: true });
+        await overlays.withRemoteConfig({ fullscreenGuard: true });
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
 
@@ -164,6 +163,13 @@ test.describe('Video Player buffering feedback', () => {
 
         await overlays.mobile.tapsBufferingFeedback();
         await overlays.mobile.bufferingFeedbackIsRemoved();
+
+        await overlays.pixels.sendsPixels([
+            { pixelName: 'overlay', params: {} },
+            { pixelName: 'play.do_not_use', params: { remember: '0' } },
+            // No duration assertion: it reflects how far the fake clock jumped
+            { pixelName: 'buffering.hold_removed', params: { reason: 'tap_after_timeout', timed_out: '1' } },
+        ]);
     });
 
     test('falls past a thumbnail YouTube answers with a 404 placeholder', async () => {
@@ -237,21 +243,17 @@ test.describe('Video Player buffering feedback', () => {
         await page.clock.fastForward(1000);
         await overlays.mobile.spinnerShows();
 
-        await page.clock.fastForward(61000);
+        await page.clock.fastForward(58000);
+        await overlays.mobile.spinnerShows();
+        await page.clock.fastForward(2000);
+
         await overlays.mobile.spinnerIsWithdrawn();
         // Never reveal the black frame the hold exists to cover
         await overlays.mobile.bufferingFeedbackHasPoster();
-
-        await overlays.pixels.sendsPixels([
-            { pixelName: 'overlay', params: {} },
-            { pixelName: 'play.do_not_use', params: { remember: '0' } },
-            // No duration assertion: it reflects how far the fake clock jumped
-            { pixelName: 'buffering.hold_removed', params: { reason: 'gave_up' } },
-        ]);
     });
 
     test('leaves fullscreen so the hold stays dismissable', async ({ page }) => {
-        await opensPlayerPage();
+        await opensPlayerPage({ bufferingFeedback: true, fullscreenGuard: true });
 
         await page.clock.install();
         await overlays.mobile.choosesWatchHere();
@@ -269,7 +271,7 @@ test.describe('Video Player buffering feedback', () => {
     });
 
     test('stops blocking fullscreen once the hold has cleared', async () => {
-        await opensPlayerPage();
+        await opensPlayerPage({ bufferingFeedback: true, fullscreenGuard: true });
 
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.bufferingFeedbackShows();

@@ -6,14 +6,14 @@
  * config or custom elements: the caller supplies the timings and receives the outcome.
  */
 
-/** @typedef {'frame' | 'error' | 'gave_up' | 'tap' | 'tap_after_give_up' | 'torn_down'} HoldRemovalReason */
+/** @typedef {'frame' | 'error' | 'tap_after_timeout' | 'torn_down'} HoldRemovalReason */
 
 /** Non-bubbling media events, so they are observed on the container in the capture phase */
 const MEDIA_EVENTS = ['playing', 'timeupdate', 'error'];
 
 const DEFAULT_SPINNER_DELAY_MS = 500;
 /** When a still-frameless video is treated as never arriving */
-const DEFAULT_SPINNER_TIMEOUT_MS = 25000;
+const DEFAULT_SPINNER_TIMEOUT_MS = 60000;
 
 /**
  * @param {object} options
@@ -22,15 +22,14 @@ const DEFAULT_SPINNER_TIMEOUT_MS = 25000;
  * @param {{ showSpinner(): void, hideSpinner(): void, remove(): void,
  *           addEventListener: Element['addEventListener'] }} options.overlay
  * @param {{ spinnerDelayMs?: number, spinnerTimeoutMs?: number }} options.timings
- * @param {(reason: HoldRemovalReason, elapsedMs: number) => void} options.onReport
- * @returns {{ stop: (reason: Exclude<HoldRemovalReason, 'gave_up'>) => void }}
+ * @param {(reason: HoldRemovalReason, elapsedMs: number, timedOut: boolean) => void} options.onReport
+ * @returns {{ stop: (reason: HoldRemovalReason) => void }}
  */
 export function holdUntilFirstFrame({ container, video, overlay, timings, onReport }) {
     const { spinnerDelayMs = DEFAULT_SPINNER_DELAY_MS, spinnerTimeoutMs = DEFAULT_SPINNER_TIMEOUT_MS } = timings;
     const startedAt = performance.now();
     let stopped = false;
     let timedOut = false;
-    let tapCount = 0;
 
     const spinnerDelayTimer = setTimeout(() => overlay.showSpinner(), spinnerDelayMs);
 
@@ -38,8 +37,6 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
     const spinnerTimeoutTimer = setTimeout(() => {
         timedOut = true;
         overlay.hideSpinner();
-        // report here rather than only at removal: a hold nobody taps would otherwise report on navigation alone
-        onReport('gave_up', performance.now() - startedAt);
     }, spinnerTimeoutMs);
 
     /** @param {Event} e */
@@ -51,7 +48,7 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
         if (el.currentTime > 0 && !el.paused) stop('frame');
     };
 
-    /** @param {Exclude<HoldRemovalReason, 'gave_up'>} reason */
+    /** @param {HoldRemovalReason} reason */
     const stop = (reason) => {
         if (stopped) return;
         stopped = true;
@@ -61,7 +58,7 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
             container.removeEventListener(type, onMediaEvent, { capture: true });
         }
         overlay.remove();
-        onReport(reason, performance.now() - startedAt);
+        onReport(reason, performance.now() - startedAt, timedOut);
     };
 
     // Watching the container rather than the element survives YouTube swapping the <video> mid-startup
@@ -81,11 +78,8 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
 
     overlay.addEventListener('click', (e) => {
         e.stopPropagation();
-        tapCount += 1;
-        // swallow the first tap: dismissing while a frame is still coming reveals the black frame the hold covers
-        // the second tap *ever* dismisses, deliberately not a double-tap window, so the escape stays findable minutes later
-        if (timedOut) stop('tap_after_give_up');
-        else if (tapCount >= 2) stop('tap');
+        // swallow the tap: dismissing while a frame is still coming reveals the black frame the hold covers
+        if (timedOut) stop('tap_after_timeout');
     });
 
     return { stop };

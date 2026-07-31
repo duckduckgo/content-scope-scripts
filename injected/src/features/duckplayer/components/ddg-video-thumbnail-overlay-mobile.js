@@ -5,7 +5,7 @@ import { paintFirstUsablePoster } from '../poster.js';
 /**
  * @typedef {ReturnType<import("../text").overlayCopyVariants>} TextVariants
  * @typedef {TextVariants[keyof TextVariants]} Text
- * @typedef {{url: string, source: 'page' | 'ytimg'}} PosterCandidate
+ * @typedef {import("../poster.js").PosterCandidate} PosterCandidate
  */
 
 /**

@@ -253,9 +253,12 @@ export class VideoOverlay {
         return this.settings.videoDrawer?.state === 'enabled' && this.settings.selectors.drawerContainer;
     }
 
-    /** Gates the buffering hold and the fullscreen exit that keeps it reachable: both ship together */
     bufferingFeedbackEnabled() {
         return this.settings.bufferingFeedback?.state === 'enabled';
+    }
+
+    fullscreenGuardEnabled() {
+        return this.settings.fullscreenGuard?.state === 'enabled';
     }
 
     /**
@@ -368,7 +371,7 @@ export class VideoOverlay {
      * chrome left to escape to. Call this after appending, so the first check sees the overlay.
      */
     keepOverlayOutOfFullscreen() {
-        if (!this.bufferingFeedbackEnabled()) return;
+        if (!this.fullscreenGuardEnabled()) return;
 
         this.sideEffects.add('leaving fullscreen while an overlay is showing', () => {
             // unprefixed only: this ships to Android, where the WebView is Chromium
@@ -585,9 +588,9 @@ export class VideoOverlay {
                 video,
                 overlay,
                 timings: { spinnerDelayMs, spinnerTimeoutMs },
-                onReport: (reason, elapsedMs) => {
+                onReport: (reason, elapsedMs, timedOut) => {
                     const duration = String(Math.min(60, Math.round(elapsedMs / 1000)));
-                    this.messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, duration }));
+                    this.messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, duration, timedOut }));
                 },
             });
 
@@ -600,10 +603,10 @@ export class VideoOverlay {
     /**
      * Poster candidates for the buffering hold, cheapest source first.
      * @param {HTMLVideoElement} video
-     * @returns {import('./components/ddg-video-thumbnail-overlay-mobile.js').PosterCandidate[]}
+     * @returns {import('./poster.js').PosterCandidate[]}
      */
     buildPosterCandidates(video) {
-        /** @type {import('./components/ddg-video-thumbnail-overlay-mobile.js').PosterCandidate[]} */
+        /** @type {import('./poster.js').PosterCandidate[]} */
         const candidates = [];
         if (video?.poster) candidates.push({ url: video.poster, source: 'page' });
         const cued = document.querySelector('.ytp-cued-thumbnail-overlay-image, .ytp-cued-thumbnail-overlay');

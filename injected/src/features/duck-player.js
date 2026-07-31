@@ -111,9 +111,12 @@ export default class DuckPlayerFeature extends ContentFeature {
 }
 
 /**
+ * `bufferingFeedback` and `fullscreenGuard` mirror the published schema locally; delete both once the
+ * `@duckduckgo/privacy-configuration` dependency is bumped past the config PR that carries them.
  * @typedef {import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']['youtube']} YouTubeOverlaySettings
  * @typedef {{ state: import("@duckduckgo/privacy-configuration/schema/feature").FeatureState, spinnerDelayMs?: number, spinnerTimeoutMs?: number }} BufferingFeedbackSettings
- * @typedef {Omit<YouTubeOverlaySettings, 'state'> & { bufferingFeedback?: BufferingFeedbackSettings }} OverlaysFeatureSettings
+ * @typedef {{ state: import("@duckduckgo/privacy-configuration/schema/feature").FeatureState }} FullscreenGuardSettings
+ * @typedef {Omit<YouTubeOverlaySettings, 'state'> & { bufferingFeedback?: BufferingFeedbackSettings, fullscreenGuard?: FullscreenGuardSettings }} OverlaysFeatureSettings
  */
 
 // for docs generation

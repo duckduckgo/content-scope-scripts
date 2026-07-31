@@ -5,32 +5,52 @@
  * resolve to a real image.
  */
 // eslint-disable-next-line no-redeclare
-import { URL } from '../../captured-globals.js';
+import { URL, fetch, Image } from '../../captured-globals.js';
+
+/** @typedef {{url: string, source: 'page' | 'ytimg'}} PosterCandidate */
 
 /**
  * Paint the first candidate that resolves to a displayable image as `target`'s background,
  * skipping any that do not. A `verify` candidate is HEAD-checked first, because YouTube
  * answers a thumbnail a video does not have with a valid placeholder image under a 404,
  * so its load event alone cannot tell the difference.
+ *
+ * Candidates are probed concurrently to overlap the network, but consumed in priority
+ * order, so a fast low-quality thumbnail cannot beat a slower preferred one.
  * @param {HTMLElement} target
- * @param {{url: string, verify: boolean}[]} candidates - tried in order
+ * @param {{url: string, verify: boolean}[]} candidates - preference order, best first
  * @param {{signal?: AbortSignal, onResult?: (paintedUrl: string | null) => void}} [options]
  * @returns {Promise<void>}
  */
 export async function paintFirstUsablePoster(target, candidates, { signal, onResult } = {}) {
-    for (const candidate of candidates) {
+    // .map() runs synchronously, so every probe is in flight before the first await below
+    const probes = candidates.map((candidate) => {
         const url = safePosterUrl(candidate.url);
+        return url ? probe(url, candidate.verify, signal) : Promise.resolve(null);
+    });
+
+    for (const pending of probes) {
+        const url = await pending;
+        if (signal?.aborted) return;
         if (!url) continue;
-        if (candidate.verify && !(await headIsOk(url, signal))) continue;
-        if (signal?.aborted) return;
-        if (!(await imageLoads(url))) continue;
-        if (signal?.aborted) return;
 
         target.style.backgroundImage = `url("${url}")`;
         target.style.backgroundSize = 'cover';
         return onResult?.(url);
     }
     if (!signal?.aborted) onResult?.(null);
+}
+
+/**
+ * @param {string} url
+ * @param {boolean} verify
+ * @param {AbortSignal} [signal]
+ * @returns {Promise<string | null>}
+ */
+async function probe(url, verify, signal) {
+    if (verify && !(await headIsOk(url, signal))) return null;
+    if (!(await imageLoads(url))) return null;
+    return url;
 }
 
 /**

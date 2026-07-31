@@ -136,7 +136,7 @@ test.describe('Duck Player - Drawer UI variant', () => {
             const overlays = DuckplayerOverlays.create(page, workerInfo);
             await overlays.reducedMotion();
 
-            await overlays.withRemoteConfig({ json: 'overlays-drawer.json', bufferingFeedback: true });
+            await overlays.withRemoteConfig({ json: 'overlays-drawer.json', fullscreenGuard: true });
             await overlays.userSettingIs('always ask');
             await overlays.gotoPlayerPage();
 
