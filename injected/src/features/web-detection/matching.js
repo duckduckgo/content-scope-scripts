@@ -134,18 +134,20 @@ function hasContent(element) {
 
 /**
  * Read an element's text, optionally stripping text contained within
- * descendants matching any of `excludeSelectors`.
+ * descendants matching `excludeSelectors`.
  *
  * @param {Element} element
- * @param {string[]} excludeSelectors
+ * @param {string} excludeSelector
  * @returns {string}
  */
-function textOfElement(element, excludeSelectors) {
-    if (excludeSelectors.length === 0) {
+function textOfElement(element, excludeSelector) {
+    // No exclusions, or none of the excluded selectors are present in this
+    // subtree: skip the clone and read the live text directly.
+    if (excludeSelector.length === 0 || element.querySelector(excludeSelector) === null) {
         return element.textContent || '';
     }
     const clone = /** @type {Element} */ (element.cloneNode(true));
-    clone.querySelectorAll(excludeSelectors.join(',')).forEach((el) => el.remove());
+    clone.querySelectorAll(excludeSelector).forEach((el) => el.remove());
     return clone.textContent || '';
 }
 
@@ -171,7 +173,8 @@ function textOfElement(element, excludeSelectors) {
 function evaluateSingleTextCondition(condition) {
     const patterns = asArray(condition.pattern);
     const selectors = asArray(condition.selector, ['body']);
-    const excludeSelectors = asArray(condition.excludeSelector);
+    // Pre-join once (not per matched element); '' means no exclusions.
+    const excludeComb = asArray(condition.excludeSelector).join(',');
 
     const patternComb = new RegExp(patterns.join('|'), 'i');
 
@@ -179,7 +182,7 @@ function evaluateSingleTextCondition(condition) {
     return selectors.some((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
-            if (patternComb.test(textOfElement(element, excludeSelectors))) {
+            if (patternComb.test(textOfElement(element, excludeComb))) {
                 return true;
             }
         }
