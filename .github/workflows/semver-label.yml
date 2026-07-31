@@ -79,12 +79,14 @@ jobs:
                   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
                   PR_TITLE: ${{ github.event.pull_request.title }}
                   PR_BODY: ${{ github.event.pull_request.body }}
+                  # Pass paths, not payloads — inline env vars hit Linux MAX_ARG_STRLEN (~128KiB)
+                  BUILD_DIFF_FILE: /tmp/build_diff.txt
+                  SOURCE_DIFF_FILE: /tmp/source_diff.txt
+                  PR_FILES_FILE: /tmp/pr_files.txt
               run: |
-                  export BUILD_DIFF="$(cat /tmp/build_diff.txt 2>/dev/null || echo '')"
-                  export SOURCE_DIFF="$(cat /tmp/source_diff.txt 2>/dev/null || echo '')"
-                  export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
-
-                  RESULT=$(node base/.github/scripts/semver-analysis.mjs)
+                  # Use the PR tree so this step stays paired with the workflow revision
+                  # that defines BUILD_DIFF_FILE / SOURCE_DIFF_FILE / PR_FILES_FILE.
+                  RESULT=$(node pr/.github/scripts/semver-analysis.mjs)
                   echo "Raw result: $RESULT"
 
                   SEVERITY=$(echo "$RESULT" | jq -r '.severity')

@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 
-import { buildUserPrompt, formatBuildDiffSection, formatSourceDiffSection } from './semver-analysis.mjs';
+import { buildUserPrompt, formatBuildDiffSection, formatSourceDiffSection, readInputFile } from './semver-analysis.mjs';
 
 test('formatBuildDiffSection explains when build output is unchanged', () => {
     assert.match(formatBuildDiffSection(''), /no build output artifacts changed/);
@@ -28,4 +31,16 @@ test('buildUserPrompt includes build and source diff sections', () => {
     assert.match(prompt, /Source Diff/);
     assert.match(prompt, /diff --git a\/\.github\/scripts\/foo\.mjs/);
     assert.match(prompt, /Changed Source Files/);
+});
+
+test('readInputFile returns file contents and tolerates missing paths', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'semver-analysis-'));
+    const filePath = join(dir, 'source.diff');
+    const payload = 'x'.repeat(200_000);
+    writeFileSync(filePath, payload, 'utf8');
+
+    assert.equal(readInputFile(filePath), payload);
+    assert.equal(readInputFile(join(dir, 'missing.diff')), '');
+    assert.equal(readInputFile(undefined), '');
+    assert.equal(readInputFile(''), '');
 });

@@ -8,17 +8,21 @@
  * diff-directories.js.
  *
  * Expects env vars:
- *   ANTHROPIC_API_KEY - Anthropic API key
- *   ANTHROPIC_MODEL   - Optional; defaults to shared CI model in anthropic-config.mjs
- *   BUILD_DIFF        - Build output diff from diff-directories.js (may be empty)
- *   SOURCE_DIFF       - Git diff of source changes between base and PR (may be empty)
- *   PR_TITLE          - Pull request title
- *   PR_BODY           - Pull request body/description
- *   PR_FILES          - Newline-separated list of changed source file paths
+ *   ANTHROPIC_API_KEY  - Anthropic API key
+ *   ANTHROPIC_MODEL    - Optional; defaults to shared CI model in anthropic-config.mjs
+ *   BUILD_DIFF_FILE    - Path to build output diff from diff-directories.js (may be empty/missing)
+ *   SOURCE_DIFF_FILE   - Path to git source diff between base and PR (may be empty/missing)
+ *   PR_FILES_FILE      - Path to newline-separated list of changed source file paths
+ *   PR_TITLE           - Pull request title
+ *   PR_BODY            - Pull request body/description
+ *
+ * Diffs are read from files (not inline env vars) to avoid Linux MAX_ARG_STRLEN
+ * (~128 KiB) failures when large PRs produce oversized unified diffs.
  *
  * Outputs to stdout a JSON object: { "severity": "major"|"minor"|"patch", "reasoning": "..." }
  */
 
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import { resolveAnthropicModel } from './anthropic-config.mjs';
@@ -130,7 +134,24 @@ ${formatSourceDiffSection(sourceDiff)}
 Respond with JSON only: { "severity": "major"|"minor"|"patch", "reasoning": "..." }`;
 }
 
-export { buildUserPrompt, formatBuildDiffSection, formatSourceDiffSection };
+/**
+ * Read a UTF-8 file for LLM input. Missing/unreadable paths yield ''.
+ * @param {string | undefined} filePath
+ * @returns {string}
+ */
+function readInputFile(filePath) {
+    if (!filePath) return '';
+    try {
+        return readFileSync(filePath, 'utf8');
+    } catch (err) {
+        if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
+            return '';
+        }
+        throw err;
+    }
+}
+
+export { buildUserPrompt, formatBuildDiffSection, formatSourceDiffSection, readInputFile };
 
 async function callAnthropic(systemPrompt, userPrompt, apiKey) {
     const response = await fetch(ANTHROPIC_API_URL, {
@@ -181,11 +202,11 @@ async function main() {
         process.exit(1);
     }
 
-    const buildDiff = process.env.BUILD_DIFF || '';
-    const sourceDiff = process.env.SOURCE_DIFF || '';
+    const buildDiff = readInputFile(process.env.BUILD_DIFF_FILE);
+    const sourceDiff = readInputFile(process.env.SOURCE_DIFF_FILE);
+    const files = readInputFile(process.env.PR_FILES_FILE);
     const title = process.env.PR_TITLE || '';
     const body = process.env.PR_BODY || '';
-    const files = process.env.PR_FILES || '';
 
     const userPrompt = buildUserPrompt({ buildDiff, sourceDiff, title, body, files });
     const rawResponse = await callAnthropic(SYSTEM_PROMPT, userPrompt, apiKey);
