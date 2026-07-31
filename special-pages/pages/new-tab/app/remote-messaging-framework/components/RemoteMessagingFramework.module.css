@@ -107,24 +107,22 @@
         top: var(--ds-space-x1-5);
     }
 
-    /* Hover/active overrides for Button's macOS variants — see PR description
-       for why App.module.css can't set these via :global() class-name guesses.
-       Needs the .actionButton compound: Button.module.css's own default rule
-       for --button-bg--hover is equally specific, and a single-class selector
-       here loses that tie (silently falls back to the component's default). */
-    .actionButton.primaryButton {
+    /* Pin --button-bg/--button-text here (DS tokens inherit from the nearest
+       [data-theme], unlike Button.module.css's macOS dark rule, which matches
+       any dark-theme ancestor). .btnRow/.btnBlock prefix needed to win the
+       specificity tie against Button's own .button.standard rule. */
+    .btnRow .actionButton.primaryButton {
+        --button-bg: var(--ds-color-theme-accent-primary);
         --button-bg--hover: var(--ds-color-theme-accent-secondary);
+        --button-bg--active: var(--ds-color-theme-accent-tertiary);
+        --button-text: var(--ds-color-theme-accent-content-primary);
     }
 
-    .actionButton.secondaryButton {
+    .btnRow .actionButton.secondaryButton,
+    .btnBlock .actionButton.secondaryButton {
+        --button-bg: var(--ds-color-theme-control-fill-primary);
         --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
         --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
-    }
-
-    /* Windows dark rest needs pinning to the NTP exact 6% spec (generic default is 12%). */
-    &:global([data-platform-name="windows"][data-theme="dark"]) {
-        .actionButton.secondaryButton {
-            background-color: var(--ds-ntp-dark-button-secondary-rest-background-color);
-        }
+        --button-text: var(--ds-color-theme-text-primary);
     }
 }
