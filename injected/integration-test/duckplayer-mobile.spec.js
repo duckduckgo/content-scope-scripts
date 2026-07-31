@@ -230,7 +230,7 @@ test.describe('Video Player buffering feedback', () => {
         await opensPlayerPage();
         await overlays.mobile.stubsVideoPoster();
 
-        // Fake timers from here so the give-up point is deterministic
+        // Fake timers from here so the spinner timeout is deterministic
         await page.clock.install();
         await overlays.mobile.choosesWatchHere();
 

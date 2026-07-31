@@ -2,7 +2,7 @@
  * @module Duck Player buffering hold
  *
  * The wait behind the poster + spinner overlay: watch the player for its first frame,
- * give up if none arrives, and decide when a tap may dismiss. Knows nothing about pixels,
+ * time out if none arrives, and decide when a tap may dismiss. Knows nothing about pixels,
  * config or custom elements: the caller supplies the timings and receives the outcome.
  */
 
@@ -13,7 +13,7 @@ const MEDIA_EVENTS = ['playing', 'timeupdate', 'error'];
 
 const DEFAULT_SPINNER_DELAY_MS = 500;
 /** When a still-frameless video is treated as never arriving */
-const DEFAULT_GIVE_UP_MS = 25000;
+const DEFAULT_SPINNER_TIMEOUT_MS = 25000;
 
 /**
  * @param {object} options
@@ -21,26 +21,26 @@ const DEFAULT_GIVE_UP_MS = 25000;
  * @param {HTMLVideoElement} options.video
  * @param {{ showSpinner(): void, hideSpinner(): void, remove(): void,
  *           addEventListener: Element['addEventListener'] }} options.overlay
- * @param {{ spinnerDelayMs?: number, giveUpMs?: number }} options.timings
+ * @param {{ spinnerDelayMs?: number, spinnerTimeoutMs?: number }} options.timings
  * @param {(reason: HoldRemovalReason, elapsedMs: number) => void} options.onReport
  * @returns {{ stop: (reason: Exclude<HoldRemovalReason, 'gave_up'>) => void }}
  */
 export function holdUntilFirstFrame({ container, video, overlay, timings, onReport }) {
-    const { spinnerDelayMs = DEFAULT_SPINNER_DELAY_MS, giveUpMs = DEFAULT_GIVE_UP_MS } = timings;
+    const { spinnerDelayMs = DEFAULT_SPINNER_DELAY_MS, spinnerTimeoutMs = DEFAULT_SPINNER_TIMEOUT_MS } = timings;
     const startedAt = performance.now();
     let stopped = false;
-    let gaveUp = false;
+    let timedOut = false;
     let tapCount = 0;
 
-    const spinnerTimer = setTimeout(() => overlay.showSpinner(), spinnerDelayMs);
+    const spinnerDelayTimer = setTimeout(() => overlay.showSpinner(), spinnerDelayMs);
 
     // Player-level failures ("Video unavailable") never reach the media element, so only this timer ends a hopeless wait
-    const giveUpTimer = setTimeout(() => {
-        gaveUp = true;
+    const spinnerTimeoutTimer = setTimeout(() => {
+        timedOut = true;
         overlay.hideSpinner();
         // report here rather than only at removal: a hold nobody taps would otherwise report on navigation alone
         onReport('gave_up', performance.now() - startedAt);
-    }, giveUpMs);
+    }, spinnerTimeoutMs);
 
     /** @param {Event} e */
     const onMediaEvent = (e) => {
@@ -55,8 +55,8 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
     const stop = (reason) => {
         if (stopped) return;
         stopped = true;
-        clearTimeout(spinnerTimer);
-        clearTimeout(giveUpTimer);
+        clearTimeout(spinnerDelayTimer);
+        clearTimeout(spinnerTimeoutTimer);
         for (const type of MEDIA_EVENTS) {
             container.removeEventListener(type, onMediaEvent, { capture: true });
         }
@@ -84,7 +84,7 @@ export function holdUntilFirstFrame({ container, video, overlay, timings, onRepo
         tapCount += 1;
         // swallow the first tap: dismissing while a frame is still coming reveals the black frame the hold covers
         // the second tap *ever* dismisses, deliberately not a double-tap window, so the escape stays findable minutes later
-        if (gaveUp) stop('tap_after_give_up');
+        if (timedOut) stop('tap_after_give_up');
         else if (tapCount >= 2) stop('tap');
     });
 

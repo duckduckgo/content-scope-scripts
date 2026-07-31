@@ -571,7 +571,7 @@ export class VideoOverlay {
         if (!video?.isConnected || !container) return;
         if (document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) return;
 
-        const { spinnerDelayMs, giveUpMs } = this.settings.bufferingFeedback ?? {};
+        const { spinnerDelayMs, spinnerTimeoutMs } = this.settings.bufferingFeedback ?? {};
 
         this.sideEffects.add('holding poster + spinner until first video frame', () => {
             const overlay = /** @type {DDGVideoThumbnailOverlay} */ (document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME));
@@ -584,7 +584,7 @@ export class VideoOverlay {
                 container,
                 video,
                 overlay,
-                timings: { spinnerDelayMs, giveUpMs },
+                timings: { spinnerDelayMs, spinnerTimeoutMs },
                 onReport: (reason, elapsedMs) => {
                     const duration = String(Math.min(60, Math.round(elapsedMs / 1000)));
                     this.messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, duration }));
