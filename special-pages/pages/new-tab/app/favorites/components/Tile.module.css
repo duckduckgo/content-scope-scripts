@@ -56,21 +56,18 @@
         }
     }
 
+    /* background omitted — --ntp-surface-background-color above already
+       covers userImage (ntp-theme.css). The former dark+userImage variant of
+       this rule is deleted, not merged: `[data-theme="dark"] [data-background-
+       kind="userImage"] &` was dead code (two attrs on the same <body>, but a
+       descendant selector needs two separate elements — never matched).
+       Pre-existing, not introduced here; dark+userImage border/hover still
+       incorrectly falls through to the light-styled rule below, unfixed. */
     [data-background-kind="userImage"] & {
         border: 1px solid var(--color-black-at-9);
-        background: var(--color-white-at-30);
 
         &:hover {
             background: var(--color-white-at-18);
-        }
-    }
-
-    [data-theme="dark"] [data-background-kind="userImage"] & {
-        border: 1px solid var(--color-white-at-9);
-        background: var(--color-black-at-18);
-
-        &:hover {
-            background: rgba(0, 0, 0, 0.24);
         }
     }
 
@@ -107,11 +104,10 @@
 .plus {
     outline: none;
     border: none;
-    color: var(--color-black-at-90);
-
-    [data-theme=dark] & {
-        color: var(--color-white-at-85);
-    }
+    /* ds-color-theme-text-primary tracks the local surface theme; the old
+       color-black-90/[data-theme=dark] override matched any dark ancestor,
+       not .draggable's actual (possibly light-tinted) background. */
+    color: var(--ds-color-theme-text-primary);
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
@@ -167,7 +163,10 @@
         justify-content: center;
         align-items: center;
         border-radius: var(--ds-radius-x04);
-        background: var(--ds-color-theme-tone-tint-primary);
+        /* ntp-surface-background-color is background-kind-aware (see
+           ntp-theme.css); tone-tint-primary wasn't, and went light on
+           dark+userImage, hiding the .plus icon above. */
+        background: var(--ntp-surface-background-color);
         backdrop-filter: none;
         box-shadow:
             0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
@@ -183,22 +182,6 @@
             border: 1px solid var(--color-white-at-3);
 
             /* Figma dark hover = white 18% → control-fill-secondary */
-            &:hover {
-                background: var(--ds-color-theme-control-fill-secondary);
-            }
-        }
-
-        [data-background-kind="userImage"] & {
-            background: var(--ds-color-theme-tone-tint-primary);
-
-            &:hover {
-                background: var(--color-white-at-60);
-            }
-        }
-
-        [data-theme="dark"] [data-background-kind="userImage"] & {
-            background: var(--ds-color-theme-tone-tint-primary);
-
             &:hover {
                 background: var(--ds-color-theme-control-fill-secondary);
             }
