@@ -277,7 +277,7 @@
     }
 
     .card {
-        background: var(--ds-color-theme-tone-tint-primary);
+        background: var(--ntp-surface-background-color);
         backdrop-filter: blur(48px);
         border: 1px solid var(--ds-color-theme-container-border-primary);
         border-radius: var(--ds-radius-x06);
