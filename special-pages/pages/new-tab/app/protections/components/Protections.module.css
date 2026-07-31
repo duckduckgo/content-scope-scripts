@@ -128,6 +128,7 @@
     .switcher {
         border-radius: var(--ds-radius-full);
         padding: var(--ds-space-x-5);
+        position: relative;
     }
 
     .block {
@@ -142,6 +143,40 @@
     .button {
         border-radius: var(--ds-radius-full);
         font-weight: 400;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Sliding pill, same mechanism as the omnibar's Search/Duck.ai
+       TabSwitcher (.blob in TabSwitcher.module.css): an absolutely
+       positioned element behind the buttons that translates based on
+       --tab-index, so switching feed animates instead of instantly
+       swapping which button has a background. */
+    .blob {
+        background-color: var(--ds-color-theme-control-raised-fill-primary);
+        border-radius: var(--ds-radius-full);
+        box-shadow: 0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset, 0 1px 4px 0 var(--ds-color-theme-shadow-secondary), 0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
+        height: calc(100% - var(--ds-space-x-5) * 2);
+        left: var(--ds-space-x-5);
+        position: absolute;
+        top: var(--ds-space-x-5);
+        transition: translate 200ms ease;
+        translate: calc(var(--tab-index) * 100%);
+        width: calc((100% - var(--ds-space-x-5) * 2) / var(--tab-count));
+        z-index: 0;
+
+        [data-theme="dark"] & {
+            box-shadow: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    .active {
+        background: transparent;
+        border: 0;
     }
 }
 
@@ -162,5 +197,9 @@
 
     .active {
         border: 0;
+
+        &:not(:focus-visible) {
+            box-shadow: none;
+        }
     }
 }
