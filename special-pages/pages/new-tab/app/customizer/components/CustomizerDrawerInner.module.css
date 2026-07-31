@@ -293,6 +293,7 @@
     }
 
     .borderedSection {
+        margin-top: var(--ds-space-x11);
         padding-top: var(--ds-space-x08);
     }
 
