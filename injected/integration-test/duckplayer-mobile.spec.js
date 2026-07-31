@@ -167,8 +167,8 @@ test.describe('Video Player buffering feedback', () => {
         await overlays.pixels.sendsPixels([
             { pixelName: 'overlay', params: {} },
             { pixelName: 'play.do_not_use', params: { remember: '0' } },
-            // No duration assertion: it reflects how far the fake clock jumped
-            { pixelName: 'buffering.hold_removed', params: { reason: 'tap_after_timeout', timed_out: '1' } },
+            // the clock jumped 62s, so the top bucket pins the bucketing as well as the reason
+            { pixelName: 'buffering.hold_removed', params: { reason: 'tap_after_timeout', duration: '30+', timed_out: '1' } },
         ]);
     });
 

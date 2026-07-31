@@ -159,6 +159,20 @@ function assertCustomEvent(event) {
     if (typeof detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string');
 }
 
+/**
+ * Coarse enough that a hold lifetime cannot carry a per-session timing fingerprint.
+ * Boundaries are inclusive at the bottom: 5.0s falls in '5-10'.
+ * @param {number} elapsedMs
+ * @returns {'0-5' | '5-10' | '10-30' | '30+'}
+ */
+function holdDurationBucket(elapsedMs) {
+    const seconds = elapsedMs / 1000;
+    if (seconds < 5) return '0-5';
+    if (seconds < 10) return '5-10';
+    if (seconds < 30) return '10-30';
+    return '30+';
+}
+
 export class Pixel {
     /**
      * A list of known pixels
@@ -167,7 +181,7 @@ export class Pixel {
      *   | {name: "play.use.thumbnail"}
      *   | {name: "play.do_not_use", remember: "0" | "1"}
      *   | {name: "play.do_not_use.dismiss"}
-     *   | {name: "buffering.hold_removed", reason: import('./buffering-hold.js').HoldRemovalReason, duration: string, timedOut: boolean}} input
+     *   | {name: "buffering.hold_removed", reason: import('./buffering-hold.js').HoldRemovalReason, elapsedMs: number, timedOut: boolean}} input
      */
     constructor(input) {
         this.input = input;
@@ -190,7 +204,11 @@ export class Pixel {
             case 'play.do_not_use.dismiss':
                 return {};
             case 'buffering.hold_removed':
-                return { reason: this.input.reason, duration: this.input.duration, timed_out: this.input.timedOut ? '1' : '0' };
+                return {
+                    reason: this.input.reason,
+                    duration: holdDurationBucket(this.input.elapsedMs),
+                    timed_out: this.input.timedOut ? '1' : '0',
+                };
             default:
                 throw new Error('unreachable');
         }

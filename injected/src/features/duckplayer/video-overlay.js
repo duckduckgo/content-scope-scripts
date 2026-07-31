@@ -589,8 +589,7 @@ export class VideoOverlay {
                 overlay,
                 timings: { spinnerDelayMs, spinnerTimeoutMs },
                 onReport: (reason, elapsedMs, timedOut) => {
-                    const duration = String(Math.min(60, Math.round(elapsedMs / 1000)));
-                    this.messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, duration, timedOut }));
+                    this.messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, elapsedMs, timedOut }));
                 },
             });
 
