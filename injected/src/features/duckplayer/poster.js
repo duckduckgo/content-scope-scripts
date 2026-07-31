@@ -5,7 +5,7 @@
  * resolve to a real image.
  */
 // eslint-disable-next-line no-redeclare
-import { URL, fetch, Image } from '../../captured-globals.js';
+import { URL } from '../../captured-globals.js';
 
 /** @typedef {{url: string, source: 'page' | 'ytimg'}} PosterCandidate */
 
