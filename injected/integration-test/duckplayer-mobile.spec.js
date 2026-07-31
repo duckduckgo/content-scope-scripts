@@ -111,8 +111,8 @@ test.describe('Video Player buffering feedback', () => {
         overlays = DuckplayerOverlays.create(page, workerInfo);
     });
 
-    /** @param {Parameters<DuckplayerOverlays['withRemoteConfig']>[0]} [config] the default gates the hold on */
-    const opensPlayerPage = async (config = { json: 'overlays-buffering.json' }) => {
+    /** @param {Parameters<DuckplayerOverlays['withRemoteConfig']>[0]} [config] the default is what Android ships: both gates on */
+    const opensPlayerPage = async (config = { json: 'overlays-buffering-fullscreen.json' }) => {
         await overlays.withRemoteConfig(config);
         await overlays.userSettingIs('always ask');
         await overlays.gotoPlayerPage();
@@ -240,7 +240,7 @@ test.describe('Video Player buffering feedback', () => {
     });
 
     test('leaves fullscreen so the hold stays dismissable', async ({ page }) => {
-        await opensPlayerPage({ json: 'overlays-buffering-fullscreen.json' });
+        await opensPlayerPage();
 
         await page.clock.install();
         await overlays.mobile.choosesWatchHere();
@@ -258,7 +258,7 @@ test.describe('Video Player buffering feedback', () => {
     });
 
     test('stops blocking fullscreen once the hold has cleared', async () => {
-        await opensPlayerPage({ json: 'overlays-buffering-fullscreen.json' });
+        await opensPlayerPage();
 
         await overlays.mobile.choosesWatchHere();
         await overlays.mobile.bufferingFeedbackShows();

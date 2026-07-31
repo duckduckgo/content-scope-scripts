@@ -39,7 +39,6 @@ const configFiles = /** @type {const} */ ([
     'overlays.json',
     'overlays-live.json',
     'overlays-drawer.json',
-    'overlays-buffering.json',
     'overlays-fullscreen-guard.json',
     'overlays-buffering-fullscreen.json',
     'disabled.json',
