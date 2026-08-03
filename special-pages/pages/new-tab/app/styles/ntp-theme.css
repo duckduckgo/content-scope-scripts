@@ -44,6 +44,11 @@
 [data-theme="light"],
 [data-theme="dark"] {
     --ntp-surface-background-color: var(--ds-color-theme-tone-tint-primary);
+    /* Must live under [data-theme]: --ds-color-theme-shadow-* are only mapped there. */
+    --ntp-card-shadow-rest:
+        0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+        0 1px 6px 0 var(--ds-color-theme-shadow-primary),
+        0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
 }
 
 [data-background-kind="color"],
@@ -78,6 +83,9 @@ body[data-rebrand="true"][data-background-kind="userImage"] {
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: #3A69EF;
+    --ntp-btn-dismiss-border: var(--ds-ntp-light-button-dismiss-rest-border-color);
+    --ntp-btn-dismiss-color: var(--ds-ntp-light-button-dismiss-rest-color);
+    --ntp-btn-dismiss-hover: var(--ds-ntp-light-button-dismiss-hover-background-color);
 }
 
 [data-theme=dark] {
@@ -86,6 +94,9 @@ body[data-rebrand="true"][data-background-kind="userImage"] {
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: var(--color-blue-30);
+    --ntp-btn-dismiss-border: var(--ds-ntp-dark-button-dismiss-rest-border-color);
+    --ntp-btn-dismiss-color: var(--ds-ntp-dark-button-dismiss-rest-color);
+    --ntp-btn-dismiss-hover: var(--ds-ntp-dark-button-dismiss-hover-background-color);
 }
 
 :root:has(body[data-platform-name="windows"]) {
