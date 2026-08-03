@@ -352,6 +352,22 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Tools' });
     }
 
+    chatToolbar() {
+        return this.context().getByTestId('omnibar-chat-toolbar');
+    }
+
+    /**
+     * Click the toolbar's own background, in the gap between two of its controls.
+     * @param {import('@playwright/test').Locator} left
+     * @param {import('@playwright/test').Locator} right
+     */
+    async clickToolbarGapBetween(left, right) {
+        const leftBox = await left.boundingBox();
+        const rightBox = await right.boundingBox();
+        if (!leftBox || !rightBox) throw new Error('Toolbar controls are not visible');
+        await this.page.mouse.click((leftBox.x + leftBox.width + rightBox.x) / 2, leftBox.y + leftBox.height / 2);
+    }
+
     toolsMenu() {
         return this.context().getByRole('menu', { name: 'Tools' });
     }
