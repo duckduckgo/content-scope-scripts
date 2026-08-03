@@ -857,6 +857,30 @@ describe('WebDetection', () => {
                         }),
                     ).toBe(true);
                 });
+
+                it('should skip a selected element that itself matches excludeSelector', () => {
+                    // Top selector lands on the excluded node - its text must not count.
+                    expect(
+                        matchInDOM('<div class="foo">please disable your adblocker</div>', {
+                            text: { pattern: 'adblocker', selector: 'div', excludeSelector: '.foo' },
+                        }),
+                    ).toBe(false);
+
+                    // Same selector and exclude (eg script + script) - skip the selected root.
+                    expect(
+                        matchInDOM('<script>please disable your adblocker</script><p>Welcome</p>', {
+                            text: { pattern: 'adblocker', selector: 'script', excludeSelector: 'script' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should still match a sibling selected element that does not match excludeSelector', () => {
+                    expect(
+                        matchInDOM('<div class="foo">adblocker</div><div>please disable your adblocker</div>', {
+                            text: { pattern: 'adblocker', selector: 'div', excludeSelector: '.foo' },
+                        }),
+                    ).toBe(true);
+                });
             });
 
             // These document the current (clone-based) behavior for tricky

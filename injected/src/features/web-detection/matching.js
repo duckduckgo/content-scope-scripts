@@ -134,7 +134,7 @@ function hasContent(element) {
 
 /**
  * Test whether `patternRe` matches within a run of text that is NOT inside any
- * descendant matching `excludeComb`.
+ * descendant matching `excludeSelectors`.
  *
  * This implements "match this text EXCEPT inside these selectors": excluded
  * elements act as BOUNDARIES between runs of included text - they are not
@@ -143,7 +143,7 @@ function hasContent(element) {
  * as `textContent` would, but the pattern can never match across an excluded
  * region.
  *
- * @param {Element} root - Element to search within (never treated as excluded itself).
+ * @param {Element} root - Element to search within
  * @param {RegExp} patternRe - Non-global regex (reused across segments).
  * @param {string} excludeSelectors - Combined exclude selector (`sel1,sel2,...`).
  * @returns {boolean}
@@ -186,11 +186,12 @@ function anyIncludedSegmentMatches(root, patternRe, excludeSelectors) {
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
  *   Defaults to `body` if not provided.
  *
- * `excludeSelector` (disj) [optional]: Array of CSS selectors (or a single selector). Text inside any descendant
- *   matching one of these selectors is EXCLUDED from matching. Excluded elements act as boundaries: the pattern
- *   can match a run of text on either side, but never a match that spans across an excluded region (so removing
- *   an excluded element never fuses its neighbours into a spurious match). Use this to match text "except inside"
- *   certain elements (eg `script`, `style`, or a specific container).
+ * `excludeSelector` (disj) [optional]: Array of CSS selectors (or a single selector). Text in any selected
+ *   element that itself matches, or in any descendant that matches, is EXCLUDED from matching. Excluded
+ *   descendants act as boundaries: the pattern can match a run of text on either side, but never a match
+ *   that spans across an excluded region (so removing an excluded element never fuses its neighbours into
+ *   a spurious match). Use this to match text "except inside" certain elements (eg `script`, `style`, or
+ *   a specific container) — including when the top selector itself lands on an excluded element.
  *
  * The overall condition matches if ANY pattern matches text in ANY selected element.
  *
@@ -209,6 +210,10 @@ function evaluateSingleTextCondition(condition) {
     return selectors.some((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
+            // Selected element itself matches an exclude selector - skip entirely.
+            if (excludeSelectors !== '' && element.matches(excludeSelectors)) {
+                continue;
+            }
             // Fast path: no exclusions, or none present in this subtree - test the
             // whole text directly (avoids the per-node walk).
             if (excludeSelectors === '' || element.querySelector(excludeSelectors) === null) {
