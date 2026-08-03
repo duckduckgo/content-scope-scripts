@@ -864,24 +864,43 @@ describe('WebDetection', () => {
             // intended, which are known false positives/negatives, and which
             // would flip if a "raw-first" negative filter were adopted.
             describe('edge cases and known limitations', () => {
-                it('BOUNDARY JOIN: removing a visually-empty excluded element joins the surrounding text (matches)', () => {
-                    // User visually reads "...adblocker" (the <script> renders nothing), so
-                    // matching here is intended. NOTE: a raw-first filter would turn this into
-                    // a false negative (raw text is "adblIGNOREocker").
+                it('BOUNDARY: an excluded element splits text runs, so a pattern cannot span across it', () => {
+                    // "please disable your adbl" | [script] | "ocker now" -> neither run contains
+                    // "adblocker". The excluded element is a boundary, not a deletion that fuses
+                    // its neighbours. (Trade-off: an invisible script splitting a real word is not
+                    // matched - acceptable, since "inside script" is treated as excluded.)
                     expect(
                         matchInDOM('<div>please disable your adbl<script>IGNORE</script>ocker now</div>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('BOUNDARY: excluding a VISIBLE element does not fuse unrelated words (no false positive)', () => {
+                    // User reads "ad, EU, block" - never a contiguous "adblock". Segments "ad" and
+                    // "block your access" are tested independently, so no spurious match.
+                    expect(
+                        matchInDOM('<div>ad<span class="region">, EU, </span>block your access</div>', {
+                            text: { pattern: 'adblock', excludeSelector: '.region' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('BOUNDARY: the run AFTER an excluded element is also tested', () => {
+                    // Segment before script is "" (empty); segment after is "please disable adblocker".
+                    expect(
+                        matchInDOM('<div><script>ignore</script>please disable adblocker</div>', {
                             text: { pattern: 'adblocker', excludeSelector: 'script' },
                         }),
                     ).toBe(true);
                 });
 
-                it('BOUNDARY JOIN (FALSE POSITIVE): excluding a VISIBLE element joins unrelated words', () => {
-                    // User actually reads "ad, EU, block" — never a contiguous "adblock" — but
-                    // stripping the visible span joins "ad" + "block". Known false positive of the
-                    // clone approach; a raw-first filter would (correctly) not match here.
+                it('BOUNDARY: non-excluded inline elements are joined within a single run', () => {
+                    // "disable " + "your" + " ad blocker" all form one run despite the <b>; the
+                    // trailing excluded <script> only bounds the end.
                     expect(
-                        matchInDOM('<div>ad<span class="region">, EU, </span>block your access</div>', {
-                            text: { pattern: 'adblock', excludeSelector: '.region' },
+                        matchInDOM('<div>disable <b>your</b> ad blocker<script>x</script></div>', {
+                            text: { pattern: 'your ad blocker', excludeSelector: 'script' },
                         }),
                     ).toBe(true);
                 });

@@ -133,22 +133,47 @@ function hasContent(element) {
 }
 
 /**
- * Read an element's text, optionally stripping text contained within
- * descendants matching `excludeSelectors`.
+ * Test whether `patternRe` matches within a run of text that is NOT inside any
+ * descendant matching `excludeComb`.
  *
- * @param {Element} element
- * @param {string} excludeSelector
- * @returns {string}
+ * This implements "match this text EXCEPT inside these selectors": excluded
+ * elements act as BOUNDARIES between runs of included text - they are not
+ * deleted (which would fuse their neighbours and create matches spanning the
+ * gap). Non-excluded text is concatenated across inline/block elements exactly
+ * as `textContent` would, but the pattern can never match across an excluded
+ * region.
+ *
+ * @param {Element} root - Element to search within (never treated as excluded itself).
+ * @param {RegExp} patternRe - Non-global regex (reused across segments).
+ * @param {string} excludeSelectors - Combined exclude selector (`sel1,sel2,...`).
+ * @returns {boolean}
  */
-function textOfElement(element, excludeSelector) {
-    // No exclusions, or none of the excluded selectors are present in this
-    // subtree: skip the clone and read the live text directly.
-    if (excludeSelector.length === 0 || element.querySelector(excludeSelector) === null) {
-        return element.textContent || '';
-    }
-    const clone = /** @type {Element} */ (element.cloneNode(true));
-    clone.querySelectorAll(excludeSelector).forEach((el) => el.remove());
-    return clone.textContent || '';
+function anyIncludedSegmentMatches(root, patternRe, excludeSelectors) {
+    let current = '';
+    let matched = false;
+    const flush = () => {
+        if (!matched && patternRe.test(current)) matched = true;
+        current = '';
+    };
+    /** @param {Node} node */
+    const visit = (node) => {
+        for (let child = node.firstChild; child; child = child.nextSibling) {
+            if (matched) return; // a prior segment already matched - stop early
+            if (child.nodeType === 3 /* TEXT_NODE */) {
+                current += /** @type {Text} */ (child).data;
+            } else if (child.nodeType === 1 /* ELEMENT_NODE */) {
+                if (/** @type {Element} */ (child).matches(excludeSelectors)) {
+                    // Excluded element: a boundary between included runs.
+                    flush();
+                } else {
+                    visit(child);
+                }
+            }
+        }
+    };
+    visit(root);
+    flush();
+    return matched;
 }
 
 /**
@@ -161,9 +186,11 @@ function textOfElement(element, excludeSelector) {
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
  *   Defaults to `body` if not provided.
  *
- * `excludeSelector` (disj) [optional]: Array of CSS selectors (or a single selector). Text contained within any
- *   descendant matching one of these selectors is stripped before pattern matching. Use this to match text
- *   "unless it appears inside" certain elements (eg `script`, `style`, or a specific container).
+ * `excludeSelector` (disj) [optional]: Array of CSS selectors (or a single selector). Text inside any descendant
+ *   matching one of these selectors is EXCLUDED from matching. Excluded elements act as boundaries: the pattern
+ *   can match a run of text on either side, but never a match that spans across an excluded region (so removing
+ *   an excluded element never fuses its neighbours into a spurious match). Use this to match text "except inside"
+ *   certain elements (eg `script`, `style`, or a specific container).
  *
  * The overall condition matches if ANY pattern matches text in ANY selected element.
  *
@@ -174,7 +201,7 @@ function evaluateSingleTextCondition(condition) {
     const patterns = asArray(condition.pattern);
     const selectors = asArray(condition.selector, ['body']);
     // Pre-join once (not per matched element); '' means no exclusions.
-    const excludeComb = asArray(condition.excludeSelector).join(',');
+    const excludeSelectors = asArray(condition.excludeSelector).join(',');
 
     const patternComb = new RegExp(patterns.join('|'), 'i');
 
@@ -182,7 +209,15 @@ function evaluateSingleTextCondition(condition) {
     return selectors.some((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
-            if (patternComb.test(textOfElement(element, excludeComb))) {
+            // Fast path: no exclusions, or none present in this subtree - test the
+            // whole text directly (avoids the per-node walk).
+            if (excludeSelectors === '' || element.querySelector(excludeSelectors) === null) {
+                if (patternComb.test(element.textContent || '')) {
+                    return true;
+                }
+                continue;
+            }
+            if (anyIncludedSegmentMatches(element, patternComb, excludeSelectors)) {
                 return true;
             }
         }
