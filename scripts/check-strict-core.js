@@ -89,6 +89,7 @@ const CORE_FILES = new Set([
     'injected/src/features/duckplayer/text.js',
     'injected/src/features/fingerprinting-hardware.js',
     'injected/src/features/google-rejected.js',
+    'injected/src/features/message-bridge/schema.js',
     'injected/src/features/page-observer.js',
     'injected/src/features/print.js',
     'injected/src/features/referrer.js',
