@@ -2,6 +2,7 @@ import { useCallback, useContext, useMemo } from 'preact/hooks';
 import { OmnibarContext } from '../../OmnibarProvider';
 import { TabAttachments } from '../../PersistentOmnibarValuesProvider';
 import { OpenTabsContext } from './OpenTabsProvider';
+import { isTabLimitExceeded, resolveAttachedTabs } from './tabAttachments.logic.js';
 
 const { useStateWithLocalPersistence } = TabAttachments;
 
@@ -24,12 +25,7 @@ export function useTabAttachments(tabId, maxTabs = Number.POSITIVE_INFINITY) {
     const [attachedEntries, setAttachedEntries] = useStateWithLocalPersistence(tabId);
 
     // Attached subset of the live open-tab list; a tab that has since closed just stops rendering.
-    const attachedTabs = useMemo(() => {
-        return attachedEntries.flatMap((entry) => {
-            const tab = openTabs.find((t) => t.tabId === entry.tabId);
-            return tab ? [/** @type {AttachedTab} */ ({ ...tab, addedAtRelative: entry.addedAtRelative })] : [];
-        });
-    }, [attachedEntries, openTabs]);
+    const attachedTabs = useMemo(() => resolveAttachedTabs(attachedEntries, openTabs), [attachedEntries, openTabs]);
 
     const isAttached = useCallback(
         /** @param {string} tabId */
@@ -59,7 +55,7 @@ export function useTabAttachments(tabId, maxTabs = Number.POSITIVE_INFINITY) {
 
     // No hard cap on attaching tabs; exceeding maxTabs warns and blocks submit until removed —
     // mirroring the file-attachment soft cap (`useFileAttachments`).
-    const tabLimitExceeded = attachedTabs.length > maxTabs;
+    const tabLimitExceeded = isTabLimitExceeded(attachedTabs.length, maxTabs);
 
     const clearAttachedTabs = useCallback(() => {
         setAttachedEntries([]);
