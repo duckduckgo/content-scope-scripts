@@ -33,9 +33,8 @@ export class OmnibarSuggestionsService {
     }
 
     /**
-     * Invalidates the in-flight fetch, if any, so its response is never dispatched.
-     * Without this, a response that lands after the user cleared the input would
-     * still be delivered and re-show suggestions for a term that's no longer there.
+     * Bumping the id orphans the in-flight fetch, so a response landing after the input
+     * was cleared or dismissed can't re-show suggestions for a term that's no longer there.
      */
     cancelFetch() {
         this.#lastFetchId++;

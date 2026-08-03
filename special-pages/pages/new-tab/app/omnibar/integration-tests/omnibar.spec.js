@@ -1064,12 +1064,11 @@ test.describe('omnibar widget', () => {
         await ntp.openPage({ additional: { omnibar: true, 'omnibar.suggestionsDelay': 1000 } });
         await omnibar.ready();
 
-        // Type a character and delete it before the response arrives
         await omnibar.searchInput().fill('p');
         await omnibar.expectMethodCallCount('omnibar_getSuggestions', 1);
         await omnibar.searchInput().fill('');
 
-        // Once the in-flight response lands it must be discarded, not shown for the deleted term
+        // Wait past the 1000ms delay, so the discarded response has definitely landed
         await page.waitForTimeout(1500);
         await omnibar.expectSuggestionsCount(0);
         await omnibar.expectInputValue('');
@@ -1087,7 +1086,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMethodCallCount('omnibar_getSuggestions', 1);
         await omnibar.searchInput().press('Escape');
 
-        // The dismissed list must stay dismissed when the in-flight response lands
+        // Wait past the 1000ms delay, so the discarded response has definitely landed
         await page.waitForTimeout(1500);
         await omnibar.expectSuggestionsCount(0);
     });
