@@ -33,14 +33,6 @@ export class OmnibarSuggestionsService {
     }
 
     /**
-     * Bumping the id orphans the in-flight fetch, so a response landing after the input
-     * was cleared or dismissed can't re-show suggestions for a term that's no longer there.
-     */
-    cancelFetch() {
-        this.#lastFetchId++;
-    }
-
-    /**
      * @param {(data: SuggestionsData, term: string) => void} cb
      * @returns {() => void}
      */

@@ -21,6 +21,7 @@ import { OmnibarContext } from './OmnibarProvider.js';
 /**
  * @typedef {{
  *   originalTerm: string | null,
+ *   pendingTerm: string | null,
  *   suggestions: SuggestionModel[],
  *   selectedIndex: number | null,
  *   suggestionsVisible: boolean
@@ -29,6 +30,7 @@ import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
  * @typedef {(
+ *   | { type: 'setPendingTerm', term: string }
  *   | { type: 'setSuggestions', term: string, suggestions: SuggestionModel[] }
  *   | { type: 'hideSuggestions' }
  *   | { type: 'setSelectedSuggestion', suggestion: SuggestionModel }
@@ -44,6 +46,7 @@ import { OmnibarContext } from './OmnibarProvider.js';
  */
 const initialState = {
     originalTerm: null,
+    pendingTerm: null,
     suggestions: [],
     selectedIndex: null,
     suggestionsVisible: true,
@@ -57,10 +60,20 @@ const EMPTY_ARRAY = [];
  */
 function reducer(state, action) {
     switch (action.type) {
+        case 'setPendingTerm':
+            return {
+                ...state,
+                pendingTerm: action.term,
+            };
+
         case 'setSuggestions':
+            if (state.pendingTerm !== action.term) {
+                return state;
+            }
             return {
                 ...state,
                 originalTerm: action.term,
+                pendingTerm: null,
                 suggestions: action.suggestions,
                 selectedIndex: null,
                 suggestionsVisible: true,
@@ -69,6 +82,7 @@ function reducer(state, action) {
         case 'hideSuggestions':
             return {
                 ...state,
+                pendingTerm: null,
                 suggestionsVisible: false,
             };
         case 'setSelectedSuggestion': {
@@ -157,7 +171,7 @@ function reducer(state, action) {
  * @param {boolean} [props.enableAskAiSuggestion]
  */
 export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
-    const { onSuggestions, getSuggestions, cancelSuggestions, removeSuggestion: notifyRemoveSuggestion } = useContext(OmnibarContext);
+    const { onSuggestions, getSuggestions, removeSuggestion: notifyRemoveSuggestion } = useContext(OmnibarContext);
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
@@ -191,12 +205,18 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
     const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
 
     /** @type {(term: string) => void} */
+    const requestSuggestions = (term) => {
+        dispatch({ type: 'setPendingTerm', term });
+        getSuggestions(term);
+    };
+
+    /** @type {(term: string) => void} */
     const updateSuggestions = (term) => {
         clearSelectedSuggestion();
         if (term.length === 0) {
             hideSuggestions();
         } else {
-            getSuggestions(term);
+            requestSuggestions(term);
         }
     };
 
@@ -232,7 +252,6 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
     };
 
     const hideSuggestions = () => {
-        cancelSuggestions();
         dispatch({ type: 'hideSuggestions' });
     };
 
