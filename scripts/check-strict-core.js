@@ -60,6 +60,7 @@ const CORE_FILES = new Set([
     'injected/src/features/broker-protection/comparisons/constants.js',
     'injected/src/features/broker-protection/comparisons/is-same-name.js',
     'injected/src/features/broker-protection/extractors/age.js',
+    'injected/src/features/broker-protection/extractors/extra.js',
     'injected/src/features/broker-protection/extractors/name.js',
     'injected/src/features/broker-protection/extractors/phone.js',
     'injected/src/features/broker-protection/extractors/profile-url.js',
