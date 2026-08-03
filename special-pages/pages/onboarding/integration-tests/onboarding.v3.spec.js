@@ -491,6 +491,32 @@ test.describe('onboarding v3', () => {
     });
 
     test.describe('Given I am on the duck player step', () => {
+        test('When I toggle duck player, then labels switch and no missing-input warning is logged', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV3Page.create(page, workerInfo);
+            onboarding.withInitData({
+                stepDefinitions: null,
+                order: 'v3',
+            });
+
+            const missingInputWarnings = [];
+            page.on('console', (message) => {
+                if (message.type() === 'warning' && message.text().includes('could not find input')) {
+                    missingInputWarnings.push(message.text());
+                }
+            });
+
+            await onboarding.reducedMotion();
+            await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
+
+            await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 3000 });
+            await expect(page.getByLabel('See Without Duck Player')).toBeVisible();
+            await page.getByLabel('See Without Duck Player').click();
+            await expect(page.getByLabel('See With Duck Player')).toBeVisible();
+            await page.getByLabel('See With Duck Player').click();
+            await expect(page.getByLabel('See Without Duck Player')).toBeVisible();
+            expect(missingInputWarnings).toEqual([]);
+        });
+
         test('When I click the toggle button, it sends a telemetryEvent', async ({ page }, workerInfo) => {
             const onboarding = OnboardingV3Page.create(page, workerInfo);
             onboarding.withInitData({
