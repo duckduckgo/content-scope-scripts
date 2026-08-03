@@ -157,7 +157,7 @@ function reducer(state, action) {
  * @param {boolean} [props.enableAskAiSuggestion]
  */
 export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion = true }) {
-    const { onSuggestions, getSuggestions, removeSuggestion: notifyRemoveSuggestion } = useContext(OmnibarContext);
+    const { onSuggestions, getSuggestions, cancelSuggestions, removeSuggestion: notifyRemoveSuggestion } = useContext(OmnibarContext);
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
@@ -232,6 +232,7 @@ export function useSuggestions({ term, setTerm, enableAi, enableAskAiSuggestion 
     };
 
     const hideSuggestions = () => {
+        cancelSuggestions();
         dispatch({ type: 'hideSuggestions' });
     };
 

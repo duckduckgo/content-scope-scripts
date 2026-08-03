@@ -147,6 +147,13 @@ export class OmnibarService {
     }
 
     /**
+     * Discard any in-flight suggestions fetch, so its response is not delivered to {@link onSuggestions}.
+     */
+    cancelSuggestions() {
+        this.suggestionsService.cancelFetch();
+    }
+
+    /**
      * Subscribe to suggestions updates. Returns a function to unsubscribe
      * @param {(data: SuggestionsData, term: string) => void} cb
      * @returns {() => void}

@@ -1055,6 +1055,43 @@ test.describe('omnibar widget', () => {
         await omnibar.expectSuggestionsCount(0);
     });
 
+    test('clearing input before suggestions arrive keeps them hidden', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        // Slow suggestions down, so the input can be cleared while the fetch is still in flight
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.suggestionsDelay': 1000 } });
+        await omnibar.ready();
+
+        // Type a character and delete it before the response arrives
+        await omnibar.searchInput().fill('p');
+        await omnibar.expectMethodCallCount('omnibar_getSuggestions', 1);
+        await omnibar.searchInput().fill('');
+
+        // Once the in-flight response lands it must be discarded, not shown for the deleted term
+        await page.waitForTimeout(1500);
+        await omnibar.expectSuggestionsCount(0);
+        await omnibar.expectInputValue('');
+    });
+
+    test('pressing ESC before suggestions arrive keeps them hidden', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.suggestionsDelay': 1000 } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.expectMethodCallCount('omnibar_getSuggestions', 1);
+        await omnibar.searchInput().press('Escape');
+
+        // The dismissed list must stay dismissed when the in-flight response lands
+        await page.waitForTimeout(1500);
+        await omnibar.expectSuggestionsCount(0);
+    });
+
     test('pressing ESC should hide suggestions while preserving input suggestion', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);

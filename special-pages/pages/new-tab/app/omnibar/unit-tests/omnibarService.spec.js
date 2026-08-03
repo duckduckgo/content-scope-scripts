@@ -38,6 +38,65 @@ const samplePageContext = {
     fullContentLength: 4200,
 };
 
+/**
+ * Fake NewTabPage whose `request` never settles on its own, so a test can decide
+ * exactly when an in-flight suggestions fetch resolves.
+ */
+function createDeferredNtp() {
+    /** @type {(value: any) => void} */
+    let resolveRequest = () => {};
+    const ntp = {
+        messaging: {
+            request() {
+                return new Promise((resolve) => {
+                    resolveRequest = resolve;
+                });
+            },
+            subscribe() {
+                return () => {};
+            },
+            notify() {},
+        },
+    };
+    return { ntp: /** @type {any} */ (ntp), resolveRequest: (/** @type {any} */ value) => resolveRequest(value) };
+}
+
+/** @type {import('../../../types/new-tab.js').SuggestionsData} */
+const sampleSuggestions = {
+    suggestions: { topHits: [], duckduckgoSuggestions: [{ kind: 'phrase', phrase: 'pizza dough' }], localSuggestions: [] },
+};
+
+test.describe('OmnibarService.cancelSuggestions', () => {
+    test('discards a response that arrives after cancelling', async () => {
+        const { ntp, resolveRequest } = createDeferredNtp();
+        const service = new OmnibarService(ntp);
+        const received = /** @type {string[]} */ ([]);
+        service.onSuggestions((_data, term) => received.push(term));
+
+        const pending = service.getSuggestions('pizza');
+        service.cancelSuggestions();
+        resolveRequest(sampleSuggestions);
+        await pending;
+
+        deepEqual(received, []);
+    });
+
+    test('delivers a fetch started after cancelling', async () => {
+        const { ntp, resolveRequest } = createDeferredNtp();
+        const service = new OmnibarService(ntp);
+        const received = /** @type {string[]} */ ([]);
+        service.onSuggestions((_data, term) => received.push(term));
+
+        service.getSuggestions('pizza');
+        service.cancelSuggestions();
+        const pending = service.getSuggestions('pizza dough');
+        resolveRequest(sampleSuggestions);
+        await pending;
+
+        deepEqual(received, ['pizza dough']);
+    });
+});
+
 test.describe('OmnibarService.getOpenTabs', () => {
     test('requests omnibar_getOpenTabs and returns the response', async () => {
         const tabs = [{ tabId: 'tab-1', title: 'Apple', url: 'https://apple.com', favicon: null }];

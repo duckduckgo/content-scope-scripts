@@ -39,6 +39,10 @@ export const OmnibarContext = createContext({
     getSuggestions: () => {
         throw new Error('must implement');
     },
+    /** @type {() => void} */
+    cancelSuggestions: () => {
+        throw new Error('must implement');
+    },
     /** @type {(cb: (data: SuggestionsData, term: string) => void) => (() => void)} */
     onSuggestions: () => {
         throw new Error('must implement');
@@ -184,6 +188,11 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {() => void} */
+    const cancelSuggestions = useCallback(() => {
+        service.current?.cancelSuggestions();
+    }, [service]);
+
     /** @type {(cb: (data: SuggestionsData, term: string) => void) => (() => void)} */
     const onSuggestions = useCallback(
         (cb) => {
@@ -321,6 +330,7 @@ export function OmnibarProvider(props) {
                 setSelectedModelId,
                 setSelectedReasoningEffort,
                 getSuggestions,
+                cancelSuggestions,
                 onSuggestions,
                 openSuggestion,
                 submitSearch,
