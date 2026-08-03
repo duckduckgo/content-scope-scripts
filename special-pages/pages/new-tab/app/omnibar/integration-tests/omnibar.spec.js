@@ -4,6 +4,8 @@ import { OmnibarPage } from './omnibar.page.js';
 import { CustomizerPage } from '../../customizer/integration-tests/customizer.page.js';
 import { getMockAiChats, mockAiChatsSearchTerm, mockAiChatTitleWithSearchTerm } from '../mocks/omnibar.mocks.js';
 
+const HELD_SUGGESTIONS_MS = 1000;
+
 test.describe('omnibar widget', () => {
     test('fetches config on load', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -1059,17 +1061,19 @@ test.describe('omnibar widget', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
+        await page.clock.install();
 
-        // Slow suggestions down, so the input can be cleared while the fetch is still in flight
-        await ntp.openPage({ additional: { omnibar: true, 'omnibar.suggestionsDelay': 1000 } });
-        await omnibar.ready();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.suggestionsDelay': HELD_SUGGESTIONS_MS } });
+        await omnibar.searchInput().waitFor({ state: 'visible' });
 
         await omnibar.searchInput().fill('p');
-        await omnibar.expectMethodCallCount('omnibar_getSuggestions', 1);
         await omnibar.searchInput().fill('');
 
-        // Wait past the 1000ms delay, so the discarded response has definitely landed
-        await page.waitForTimeout(1500);
+        // Release the held response, now that the term it was fetched for is gone.
+        await page.clock.fastForward(HELD_SUGGESTIONS_MS);
+
+        // The fetch did happen, but its response must not re-show suggestions for the deleted term.
+        await omnibar.expectMethodCallCount('omnibar_getSuggestions', 1);
         await omnibar.expectSuggestionsCount(0);
         await omnibar.expectInputValue('');
     });
@@ -1078,16 +1082,18 @@ test.describe('omnibar widget', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
+        await page.clock.install();
 
-        await ntp.openPage({ additional: { omnibar: true, 'omnibar.suggestionsDelay': 1000 } });
-        await omnibar.ready();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.suggestionsDelay': HELD_SUGGESTIONS_MS } });
+        await omnibar.searchInput().waitFor({ state: 'visible' });
 
         await omnibar.searchInput().fill('pizza');
-        await omnibar.expectMethodCallCount('omnibar_getSuggestions', 1);
         await omnibar.searchInput().press('Escape');
 
-        // Wait past the 1000ms delay, so the discarded response has definitely landed
-        await page.waitForTimeout(1500);
+        // Release the held response, now that the list has been dismissed.
+        await page.clock.fastForward(HELD_SUGGESTIONS_MS);
+
+        await omnibar.expectMethodCallCount('omnibar_getSuggestions', 1);
         await omnibar.expectSuggestionsCount(0);
     });
 
