@@ -95,7 +95,7 @@ function isXpath(selector) {
 
 /**
  * @param {Element|Node} element
- * @param selector
+ * @param {string} selector
  * @returns {HTMLElement[] | null}
  */
 function safeQuerySelectorAll(element, selector) {
@@ -110,7 +110,7 @@ function safeQuerySelectorAll(element, selector) {
 }
 /**
  * @param {Element|Node} element
- * @param selector
+ * @param {string} selector
  * @returns {HTMLElement | null}
  */
 function safeQuerySelector(element, selector) {
@@ -126,7 +126,7 @@ function safeQuerySelector(element, selector) {
 
 /**
  * @param {Node} element
- * @param selector
+ * @param {string} selector
  * @returns {HTMLElement | null}
  */
 function safeQuerySelectorXPath(element, selector) {
@@ -145,7 +145,7 @@ function safeQuerySelectorXPath(element, selector) {
 
 /**
  * @param {Element|Node} element
- * @param selector
+ * @param {string} selector
  * @returns {HTMLElement[] | null}
  */
 function safeQuerySelectorAllXpath(element, selector) {
@@ -222,36 +222,45 @@ export function nonEmptyString(input) {
 /**
  * Checks if two strings are a matching pair, ignoring case and leading/trailing white spaces.
  *
- * @param {any} a - The first string to compare.
- * @param {any} b - The second string to compare.
+ * @param {unknown} a - The first string to compare.
+ * @param {unknown} b - The second string to compare.
  * @return {boolean} - Returns true if the strings are a matching pair, false otherwise.
  */
 export function matchingPair(a, b) {
-    if (!nonEmptyString(a)) return false;
-    if (!nonEmptyString(b)) return false;
+    if (!nonEmptyString(a) || !nonEmptyString(b)) return false;
+    if (typeof a !== 'string' || typeof b !== 'string') return false;
     return a.toLowerCase().trim() === b.toLowerCase().trim();
 }
 
 /**
  * Sorts an array of addresses by state, then by city within the state.
  *
- * @param {any} addresses
- * @return {Array}
+ * @typedef {{ state: string, city: string }} AddressWithStateAndCity
+ * @param {AddressWithStateAndCity[]} addresses
+ * @return {AddressWithStateAndCity[]}
  */
 export function sortAddressesByStateAndCity(addresses) {
-    return addresses.sort((a, b) => {
-        if (a.state < b.state) {
-            return -1;
-        }
-        if (a.state > b.state) {
-            return 1;
-        }
-        return a.city.localeCompare(b.city);
-    });
+    return addresses.sort(
+        /**
+         * @param {AddressWithStateAndCity} a
+         * @param {AddressWithStateAndCity} b
+         */
+        (a, b) => {
+            if (a.state < b.state) {
+                return -1;
+            }
+            if (a.state > b.state) {
+                return 1;
+            }
+            return a.city.localeCompare(b.city);
+        },
+    );
 }
 
 /**
  * Returns a SHA-1 hash of the profile
+ * @param {object} profile
+ * @returns {Promise<string>}
  */
 export async function hashObject(profile) {
     const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)); // encode as (utf-8)
