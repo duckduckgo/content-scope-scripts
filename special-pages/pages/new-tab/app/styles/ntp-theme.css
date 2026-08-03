@@ -4,6 +4,12 @@
     --ntp-drawer-scroll-width: 12px;
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
 
+    /* Shared rebrand card elevation (Favorites / Protections / Next Steps). */
+    --ntp-card-shadow-rest:
+        0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+        0 1px 6px 0 var(--ds-color-theme-shadow-primary),
+        0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
+
     /* Mac/System/Callout */
     --callout-font-size: 12px;
     --callout-font-weight: 400;
