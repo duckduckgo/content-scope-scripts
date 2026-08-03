@@ -58,6 +58,20 @@
     }
 }
 
+/*
+ * NTP rebrand: darker veil for legibility on dark + custom background.
+ * data-rebrand and data-background-kind both live on <body>, so they must be
+ * compounded (no descendant combinator) to actually match; data-theme lives
+ * on a descendant (main/aside), which does need the descendant combinator.
+ */
+body[data-rebrand="true"][data-background-kind="color"],
+body[data-rebrand="true"][data-background-kind="gradient"],
+body[data-rebrand="true"][data-background-kind="userImage"] {
+    [data-theme="dark"] {
+        --ntp-surface-background-color: var(--color-black-at-50);
+    }
+}
+
 [data-theme=light] {
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
     --focus-ring-thin: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 1px  var(--color-white);
