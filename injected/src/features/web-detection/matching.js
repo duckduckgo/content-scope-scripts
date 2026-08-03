@@ -133,6 +133,42 @@ function hasContent(element) {
 }
 
 /**
+ * Value of `XPathResult.ORDERED_NODE_SNAPSHOT_TYPE`, inlined because the
+ * `XPathResult` global is not present in every environment this module runs in
+ * (eg unit tests provide `document` without the surrounding window). The value
+ * is fixed by the DOM spec.
+ *
+ * A snapshot (rather than an iterator) is required: `iterateNext()` throws
+ * `InvalidStateError` if the document mutates during iteration, and detectors
+ * run against live pages that mutate underneath them.
+ */
+const ORDERED_NODE_SNAPSHOT_TYPE = 7;
+
+/**
+ * Concatenate the text of every node selected by an XPath expression.
+ *
+ * Nodes are joined without a separator so the result is equivalent to
+ * `textContent` over the selected set: a pattern may span node boundaries, so
+ * `//div//text()` still matches "adblocker detected" in
+ * `<div>adblocker <b>detected</b></div>`.
+ *
+ * An invalid expression throws `SyntaxError`, which propagates and surfaces as
+ * `detected: 'error'` for the detector - the same behaviour as an invalid CSS
+ * selector passed to `querySelectorAll`.
+ *
+ * @param {string} expression
+ * @returns {string}
+ */
+function xpathText(expression) {
+    const snapshot = document.evaluate(expression, document, null, ORDERED_NODE_SNAPSHOT_TYPE, null);
+    let text = '';
+    for (let i = 0; i < snapshot.snapshotLength; i++) {
+        text += snapshot.snapshotItem(i)?.textContent || '';
+    }
+    return text;
+}
+
+/**
  * Evaluate text pattern match condition.
  *
  * `pattern` (disj): Array of regex patterns (or string representing a single pattern) - ANY pattern matching = success.
@@ -140,18 +176,32 @@ function hasContent(element) {
  *
  * `selector` (disj): Array of CSS selectors (or string representing a single selector) - ANY selector matching = success.
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
- *   Defaults to `body` if not provided.
+ *   Defaults to `body` when neither `selector` nor `xpath` is provided.
  *
- * The overall condition matches if ANY pattern matches text in ANY selected element.
+ * `xpath` (disj): Array of XPath expressions (or a single expression) - ANY expression matching = success.
+ *   Unlike `selector`, an expression may select text nodes and filter on ancestry, so it can exclude
+ *   text that is present in the DOM but never rendered - eg text inside `<script>`:
+ *   `//body//text()[not(ancestor::script)]`. The text of all nodes selected by one expression is
+ *   concatenated and matched as a whole.
+ *
+ * The overall condition matches if ANY pattern matches the text of ANY source (selected element or
+ * XPath expression).
  *
  * @param {ConditionTypes['text']} condition
  * @returns {boolean}
  */
 function evaluateSingleTextCondition(condition) {
     const patterns = asArray(condition.pattern);
-    const selectors = asArray(condition.selector, ['body']);
+    const xpaths = asArray(condition.xpath);
+    // `body` is only the implicit source when the condition names no source of its own
+    const selectors = asArray(condition.selector, xpaths.length > 0 ? [] : ['body']);
 
     const patternComb = new RegExp(patterns.join('|'), 'i');
+
+    // Disjunction: any expression whose selected text matches is success
+    if (xpaths.some((expression) => patternComb.test(xpathText(expression)))) {
+        return true;
+    }
 
     // Disjunction: any selector having a matching element is success
     return selectors.some((selector) => {

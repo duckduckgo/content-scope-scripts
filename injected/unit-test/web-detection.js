@@ -796,6 +796,91 @@ describe('WebDetection', () => {
             });
         });
 
+        describe('text matching with xpath', () => {
+            // Excludes text that is in the DOM but never rendered, so a pattern appearing only
+            // inside a <script> body does not match.
+            const RENDERED_TEXT =
+                '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]';
+
+            /**
+             * @param {string} html
+             * @returns {boolean}
+             */
+            function matchRenderedText(html) {
+                return matchInDOM(html, { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } });
+            }
+
+            it('should not match when the pattern is absent', () => {
+                expect(matchRenderedText('<p>Hello!</p>')).toBe(false);
+            });
+
+            it('should match text wrapped in elements', () => {
+                expect(matchRenderedText('<div class="wall"><p>adblocker detected</p></div>')).toBe(true);
+            });
+
+            it('should match bare text in body', () => {
+                expect(matchRenderedText('adblocker detected')).toBe(true);
+            });
+
+            it('should match bare text alongside a script without the pattern', () => {
+                expect(matchRenderedText(`adblocker detected<script>console.log('Hello!');</script>`)).toBe(true);
+            });
+
+            it('should not match when the pattern only appears inside a script', () => {
+                expect(matchRenderedText('<div><script>var msg = "adblocker detected"; showWall(msg);</script></div>')).toBe(false);
+            });
+
+            it('should match when the pattern appears in both a rendered subtree and a script', () => {
+                expect(
+                    matchRenderedText(
+                        '<div class="wall"><p>adblocker detected</p></div><script>var msg = "adblocker detected"; log(msg);</script>',
+                    ),
+                ).toBe(true);
+            });
+
+            it('should match bare text that is a sibling of a script containing the pattern', () => {
+                expect(matchRenderedText('adblocker detected<script>var msg = "adblocker detected"; log(msg);</script>')).toBe(true);
+            });
+
+            it('should match a pattern spanning inline element boundaries', () => {
+                // Text of all selected nodes is concatenated, so patterns are not confined to one text node
+                expect(matchRenderedText('<div>adblocker <b>detected</b></div>')).toBe(true);
+            });
+
+            it('should not match when the pattern only appears in a style element', () => {
+                expect(matchRenderedText('<style>/* adblocker detected */</style>')).toBe(false);
+            });
+
+            it('should support ancestry-based scoping', () => {
+                const match = { text: { pattern: 'adblocker', xpath: '//div[@id="wall"]//text()' } };
+                expect(matchInDOM('<div id="wall"><span>adblocker</span></div>', match)).toBe(true);
+                expect(matchInDOM('<div id="other"><span>adblocker</span></div>', match)).toBe(false);
+            });
+
+            it('should match if ANY expression matches (OR)', () => {
+                const match = { text: { pattern: 'adblocker', xpath: ['//div[@id="a"]//text()', '//div[@id="b"]//text()'] } };
+                expect(matchInDOM('<div id="a">adblocker</div><div id="b">other</div>', match)).toBe(true);
+                expect(matchInDOM('<div id="a">other</div><div id="b">adblocker</div>', match)).toBe(true);
+                expect(matchInDOM('<div id="a">other</div><div id="b">none</div>', match)).toBe(false);
+            });
+
+            it('should not fall back to body when only xpath is provided', () => {
+                // `body` is the implicit selector only when the condition names no source of its own
+                expect(matchInDOM('<p>adblocker detected</p>', { text: { pattern: 'adblocker', xpath: '//div//text()' } })).toBe(false);
+            });
+
+            it('should combine with selector as a disjunction', () => {
+                const match = { text: { pattern: 'adblocker', selector: '#viaSelector', xpath: '//div[@id="viaXpath"]//text()' } };
+                expect(matchInDOM('<div id="viaSelector">adblocker</div>', match)).toBe(true);
+                expect(matchInDOM('<div id="viaXpath">adblocker</div>', match)).toBe(true);
+                expect(matchInDOM('<div id="neither">adblocker</div>', match)).toBe(false);
+            });
+
+            it('should throw on an invalid expression, surfacing as a detector error', () => {
+                expect(() => matchInDOM('<p>adblocker</p>', { text: { pattern: 'adblocker', xpath: '//[bad' } })).toThrow();
+            });
+        });
+
         describe('element matching', () => {
             describe('visibility: any', () => {
                 it('should match when element exists', () => {
