@@ -19,7 +19,7 @@ permissions:
 jobs:
     update-pr-with-snapshots:
         name: Update PR With Snapshots
-        runs-on: macos-14
+        runs-on: macos-15
         steps:
             - uses: actions/checkout@v7
             - name: Checkout PR ${{ github.event.inputs.pr_number }}
