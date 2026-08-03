@@ -1,5 +1,6 @@
 @import url("../../../../shared/styles/variables.css");
 @import url("../../../../shared/styles/theme-mappings.css");
+@import url("@duckduckgo/design-tokens/build/desktop-browsers/ntp.css");
 @import url("../styles/base.css");
 @import url("../styles/ntp-theme.css");
 
@@ -25,10 +26,6 @@ body:has([data-reset-layout="true"]) .tube {
 }
 body[data-animate-background="true"] {
     transition: background-color .3s;
-}
-
-body[data-rebrand="true"] {
-    /* NTP rebrand styles go here. */
 }
 
 :global(.layout-centered) {
