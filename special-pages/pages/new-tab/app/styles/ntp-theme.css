@@ -44,6 +44,11 @@
 [data-theme="light"],
 [data-theme="dark"] {
     --ntp-surface-background-color: var(--ds-color-theme-tone-tint-primary);
+    /* Must live under [data-theme]: --ds-color-theme-shadow-* are only mapped there. */
+    --ntp-card-shadow-rest:
+        0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+        0 1px 6px 0 var(--ds-color-theme-shadow-primary),
+        0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
 }
 
 [data-background-kind="color"],
