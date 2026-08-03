@@ -1,7 +1,7 @@
 .root {
-    position: relative;
+    position: absolute;
     left: -138px;
-    top: 206px;
+    bottom: -192px;
 }
 
 .fadeOut {

@@ -465,11 +465,15 @@
     "note" : "Page title for the first step in the v4 onboarding process"
   },
   "getStarted_title_v4" : {
-    "title" : "Bonjour !{paragraph}Envie de profiter d'un navigateur plus rapide{newline}qui vous protège ?",
-    "note" : "Introductory text when a user starts the v4 onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+    "title" : "Bonjour.{paragraph}Envie de profiter d'un navigateur plus rapide qui vous donne le contrôle ?{paragraph}L'IA reste une option et la protection de la confidentialité reste activée.",
+    "note" : "Introductory text when a user starts the v4 onboarding process. `{paragraph}` separates the title from each of the paragraphs that follow it. `{paragraph}` and `{newline}` should not be translated. `{newline}` may be inserted to adjust line placement for visual balance and readability."
   },
   "getStartedButton_v4" : {
-    "title" : "C'est parti !",
+    "title" : "Lancer la configuration du navigateur",
+    "note" : "Button label prompting user to start the v4 onboarding process."
+  },
+  "getStartedButtonDefault_v4" : {
+    "title" : "Commençons !",
     "note" : "Button label prompting user to start the v4 onboarding process."
   },
   "makeDefaultAccept_title_v4" : {
@@ -483,5 +487,13 @@
   "dockInstructions_body" : {
     "title" : "Maintenez la touche Contrôle enfoncée et cliquez sur l'icône de l'application DuckDuckGo, puis choisissez <strong>Options</strong> &gt; <strong>Garder dans le Dock</strong>.",
     "note" : "Instruction for adding DuckDuckGo to macOS Dock. The <strong> tags render text in bold."
+  },
+  "getStarted_chromeExtension_label" : {
+    "title" : "Installez également notre extension de recherche pour Chrome",
+    "note" : "Label for the checkbox on the getStarted step that lets users opt in to installing the DuckDuckGo Chrome search extension."
+  },
+  "getStarted_chromeExtension_tooltip" : {
+    "title" : "Définissez DuckDuckGo comme moteur de recherche par défaut dans Chrome pour effectuer des recherches en ligne sans être suivi(e).",
+    "note" : "Tooltip text shown when hovering over the info icon next to the Chrome extension checkbox."
   }
 }

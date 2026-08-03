@@ -87,6 +87,10 @@ export const OmnibarContext = createContext({
     setCustomizeResponsesActive: () => {
         throw new Error('must implement');
     },
+    /** @type {(type: 'subscribe' | 'upgrade' | undefined, source: 'model' | 'reasoning') => void} */
+    showUpsell: () => {
+        throw new Error('must implement');
+    },
     /** @type {() => Promise<GetOpenTabsResponse>} */
     getOpenTabs: () => {
         throw new Error('must implement');
@@ -260,6 +264,14 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(type: 'subscribe' | 'upgrade' | undefined, source: 'model' | 'reasoning') => void} */
+    const showUpsell = useCallback(
+        (type, source) => {
+            service.current?.showUpsell(type, source);
+        },
+        [service],
+    );
+
     /** @type {() => Promise<GetOpenTabsResponse>} */
     const getOpenTabs = useCallback(() => {
         if (!service.current) throw new Error('Service not available');
@@ -319,6 +331,7 @@ export function OmnibarProvider(props) {
                 viewAllAiChats,
                 openCustomizeResponses,
                 setCustomizeResponsesActive,
+                showUpsell,
                 getOpenTabs,
                 getTabContent,
                 confirmDeleteAiChat,
