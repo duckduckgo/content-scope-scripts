@@ -100,6 +100,32 @@ export class OnboardingPage {
     }
 
     /**
+     * Records the largest vertical overflow of the document on any frame. Must be called before
+     * {@link openPage}, and read back with {@link maxDocumentOverflow}.
+     */
+    async trackDocumentOverflow() {
+        await this.page.addInitScript(() => {
+            const w = /** @type {any} */ (window);
+            w.maxDocumentOverflow = 0;
+            const measure = () => {
+                const html = document.documentElement;
+                if (html) {
+                    w.maxDocumentOverflow = Math.max(w.maxDocumentOverflow, html.scrollHeight - html.clientHeight);
+                }
+                requestAnimationFrame(measure);
+            };
+            requestAnimationFrame(measure);
+        });
+    }
+
+    /**
+     * @returns {Promise<number>} pixels of vertical overflow at the worst frame observed so far
+     */
+    async maxDocumentOverflow() {
+        return await this.page.evaluate(() => /** @type {any} */ (window).maxDocumentOverflow);
+    }
+
+    /**
      * We test the fully built artifacts, so for each test run we need to
      * select the correct HTML file.
      * @return {string}

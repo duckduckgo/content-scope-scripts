@@ -1018,4 +1018,25 @@ test.describe('onboarding v4', () => {
             expect(calls).toHaveLength(0);
         });
     });
+
+    test.describe('bubble layout', () => {
+        // The bubble heights feed --bubble-leading, which positions the step's in-flow content. If the
+        // first frame renders before those heights are known, the leading is pinned at its 40vh maximum
+        // and the content is pushed far enough down to overflow a short viewport. The resulting transient
+        // scrollbar resizes <html>, which surfaced as an uncaught "ResizeObserver loop completed with
+        // undelivered notifications" error on the Windows onboarding page.
+        test('does not overflow a short viewport while the getStarted step settles', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingV4Page.create(page, workerInfo);
+            onboarding.withInitData({ stepDefinitions: null, order: 'v4' });
+            await page.setViewportSize({ width: 1253, height: 688 });
+            await onboarding.reducedMotion();
+            await onboarding.trackDocumentOverflow();
+            await onboarding.openPage({ env: 'app', page: 'getStarted', debugState: false });
+
+            await page.getByRole('button', { name: 'Start Browser Setup' }).waitFor();
+            await page.waitForTimeout(500); // outlast the 67ms delay + 333ms `top` transition
+
+            expect(await onboarding.maxDocumentOverflow()).toBe(0);
+        });
+    });
 });
