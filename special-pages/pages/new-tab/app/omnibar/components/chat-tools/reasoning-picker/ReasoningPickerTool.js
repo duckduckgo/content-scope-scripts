@@ -1,5 +1,7 @@
 import { h } from 'preact';
+import { useContext } from 'preact/hooks';
 import { useTypedTranslationWith } from '../../../../types';
+import { OmnibarContext } from '../../OmnibarProvider';
 import { useSelectedReasoningEffort } from '../../useSelectedReasoningEffort';
 import { ExtendedReasoningIcon, FastReasoningIcon, ReasoningEffortIcon } from './Icons';
 import { ReasoningPicker } from './ReasoningPicker';
@@ -7,82 +9,48 @@ import { ReasoningPicker } from './ReasoningPicker';
 /**
  * @typedef {import('../../../strings.json')} Strings
  * @typedef {import('../../../../../types/new-tab.js').ReasoningEffort} ReasoningEffort
- * @typedef {import('./ReasoningPicker').ReasoningEffortOption} ReasoningEffortOption
+ * @typedef {import('./ReasoningPicker').ReasoningEffortIconComponent} ReasoningEffortIconComponent
  */
 
 /**
- * Builds the full display option (icon, label, description) for a given effort key.
+ * Maps a server-provided reasoning-effort id to its icon. Native controls the id set, so unknown
+ * ids fall back to the generic reasoning icon rather than dropping the option.
  *
- * Returns null for unknown keys: the type narrows to the schema's current values, but at runtime
- * native may introduce a new key before the web app has strings for it. Dropping it is safer than
- * rendering with the raw server string.
- *
- * @param {ReasoningEffort} key
- * @param {ReturnType<typeof useTypedTranslationWith<Strings>>['t']} t
- * @returns {ReasoningEffortOption|null}
+ * @param {ReasoningEffort} id
+ * @returns {ReasoningEffortIconComponent}
  */
-function getEffortOption(key, t) {
-    switch (key) {
+function getReasoningIcon(id) {
+    switch (id) {
         case 'none':
         case 'minimal':
-            return {
-                id: key,
-                reasoningMode: 'fast',
-                icon: FastReasoningIcon,
-                label: t('omnibar_reasoningEffortFastLabel'),
-                description: t('omnibar_reasoningEffortFastDescription'),
-            };
-        case 'low':
-            return {
-                id: key,
-                reasoningMode: 'reasoning',
-                icon: ReasoningEffortIcon,
-                label: t('omnibar_reasoningEffortReasoningLabel'),
-                description: t('omnibar_reasoningEffortReasoningDescription'),
-            };
-        case 'medium':
+            return FastReasoningIcon;
+        case 'extended':
         case 'high':
-            return {
-                id: key,
-                reasoningMode: 'extendedReasoning',
-                icon: ExtendedReasoningIcon,
-                label: t('omnibar_reasoningEffortExtendedReasoningLabel'),
-                description: t('omnibar_reasoningEffortExtendedReasoningDescription'),
-            };
-        default: {
-            /**
-             * Exhaustiveness check — `never` means all ReasoningEffort cases are handled;
-             * adding a new one without a case will cause a type error here.
-             * @type {never}
-             */
-            const _exhaustiveCheck = key;
-            console.error(`Unknown reasoning effort: ${_exhaustiveCheck}`);
-            return null;
-        }
+            return ExtendedReasoningIcon;
+        case 'low':
+        case 'medium':
+            return ReasoningEffortIcon;
+        default:
+            return ReasoningEffortIcon;
     }
 }
 
 export function ReasoningPickerTool() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const { supportedEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
+    const { state, showUpsell } = useContext(OmnibarContext);
+    const { reasoningEfforts, selectedEffort, setSelectedReasoningEffort } = useSelectedReasoningEffort();
+    const isEligibleForFreeTrial = state.config?.isEligibleForFreeTrial !== false;
 
-    const getOptions = () => {
-        const mapped = /** @type {ReasoningEffortOption[]} */ (supportedEfforts.map((key) => getEffortOption(key, t)).filter(Boolean));
-        const usedModes = new Set();
+    const options = reasoningEfforts.map((effort) => ({
+        id: effort.id,
+        name: effort.name,
+        description: effort.description,
+        isAvailable: effort.isAvailable,
+        upsell: effort.upsell,
+        icon: getReasoningIcon(effort.id),
+    }));
 
-        return mapped.filter((option) => {
-            if (usedModes.has(option.reasoningMode)) {
-                return false;
-            }
-            usedModes.add(option.reasoningMode);
-            return true;
-        });
-    };
-
-    const options = getOptions();
-    const hasMultipleOptions = options.length >= 2;
-
-    if (!hasMultipleOptions) {
+    if (options.length < 2) {
         return null;
     }
 
@@ -93,8 +61,12 @@ export function ReasoningPickerTool() {
             options={options}
             selectedEffort={selectedEffort}
             onSelect={setSelectedReasoningEffort}
+            onUpsell={(type) => showUpsell(type, 'reasoning')}
             ariaLabel={t('omnibar_reasoningPickerLabel')}
-            buttonLabel={selectedOption?.label ?? t('omnibar_reasoningPickerLabel')}
+            buttonLabel={selectedOption?.name ?? t('omnibar_reasoningPickerLabel')}
+            tryForFreeLabel={t('omnibar_tryForFree')}
+            upgradeLabel={t('omnibar_upgrade')}
+            isEligibleForFreeTrial={isEligibleForFreeTrial}
         />
     );
 }

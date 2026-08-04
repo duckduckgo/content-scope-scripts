@@ -3,7 +3,7 @@ import cn from 'classnames';
 import styles from './Sidebar.module.css';
 import AppStyles from './App.module.css';
 import { useComputed } from '@preact/signals';
-import { useTypedTranslation } from '../types.js';
+import { usePlatformName, useTypedTranslation } from '../types.js';
 import { Trash } from '../icons/Trash.js';
 import { useTypedTranslationWith } from '../../../new-tab/app/types.js';
 import { useQueryContext, useQueryDispatch } from '../global/Providers/QueryProvider.js';
@@ -29,6 +29,22 @@ const iconMap = {
     sunday: 'icons/day.svg',
     older: 'icons/older.svg',
     sites: 'icons/sites.svg',
+};
+
+/** @type {Record<RangeId, string>} */
+const rebrandingIconMap = {
+    all: 'icons/all-rebranding.svg',
+    today: 'icons/today-rebranding.svg',
+    yesterday: 'icons/yesterday-rebranding.svg',
+    monday: 'icons/day-rebranding.svg',
+    tuesday: 'icons/day-rebranding.svg',
+    wednesday: 'icons/day-rebranding.svg',
+    thursday: 'icons/day-rebranding.svg',
+    friday: 'icons/day-rebranding.svg',
+    saturday: 'icons/day-rebranding.svg',
+    sunday: 'icons/day-rebranding.svg',
+    older: 'icons/older-rebranding.svg',
+    sites: 'icons/sites-rebranding.svg',
 };
 
 /** @type {Record<RangeId, (t: (s: keyof json) => string) => string>} */
@@ -103,6 +119,8 @@ export function Sidebar({ ranges }) {
  */
 function Item({ current, range, onClick, onDelete, count }) {
     const { t } = useTypedTranslation();
+    const platformName = usePlatformName();
+    const icons = platformName === 'macos' ? rebrandingIconMap : iconMap;
     const { buttonLabel, linkLabel } = labels(range, t);
     const classNames = useComputed(() => {
         if (range === 'all' && current.value === null) {
@@ -123,7 +141,7 @@ function Item({ current, range, onClick, onDelete, count }) {
                 }}
             >
                 <span className={styles.icon}>
-                    <img src={iconMap[range]} />
+                    <img src={icons[range]} />
                 </span>
                 {titleMap[range](t)}
             </button>

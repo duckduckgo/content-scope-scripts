@@ -50,13 +50,13 @@
     "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@types/chrome": "^0.2.2",
     "@types/jasmine": "^6.0.0",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "@types/seedrandom": "^3.0.8",
     "c8": "^11.0.0",
-    "fast-check": "^4.8.0",
+    "fast-check": "^4.9.0",
     "jasmine": "^6.3.0",
     "jsdom": "^29.1.1",
     "monocart-coverage-reports": "^2.12.12",
-    "web-ext": "^10.4.0"
+    "web-ext": "^10.5.0"
   }
 }

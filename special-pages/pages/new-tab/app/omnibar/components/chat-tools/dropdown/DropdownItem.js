@@ -13,12 +13,13 @@ import styles from './Dropdown.module.css';
  *
  * @param {object} props
  * @param {import('preact').ComponentChildren} [props.icon]
- * @param {import('preact').ComponentChildren} [props.trailingIcon]
+ * @param {import('preact').ComponentChildren} [props.trailingIcon] - Rendered after the label. Callers own its accessibility (mark decorative icons `aria-hidden`; leave meaningful ones, e.g. an "Upgrade" badge, exposed).
  * @param {import('preact').ComponentChildren} [props.trailingControl] - interactive trailing element (e.g. a toggle); clicks are kept from triggering the row's `onSelect`.
  * @param {string} props.name
  * @param {string} [props.description]
  * @param {boolean} [props.isSelected]
  * @param {boolean} [props.disabled]
+ * @param {boolean} [props.isDimmed] - Grays the icon and label (e.g. gated options) while keeping the trailing badge legible
  * @param {'option' | 'menuitemcheckbox' | 'menuitemradio' | 'menuitem'} props.role
  * @param {() => void} props.onSelect
  * @param {boolean} [props.ariaChecked]
@@ -40,6 +41,7 @@ export function DropdownItem({
     description,
     isSelected = false,
     disabled = false,
+    isDimmed = false,
     role,
     ariaChecked,
     ariaSelected,
@@ -74,7 +76,13 @@ export function DropdownItem({
             aria-haspopup={ariaHasPopup}
             aria-expanded={ariaExpanded}
             aria-disabled={disabled || undefined}
-            class={cn(styles.item, isActive && styles.itemActive, isSelected && styles.itemSelected, disabled && styles.itemDisabled)}
+            class={cn(
+                styles.item,
+                isActive && styles.itemActive,
+                isSelected && styles.itemSelected,
+                isDimmed && styles.itemDimmed,
+                disabled && styles.itemDisabled,
+            )}
             onMouseOver={onMouseOver}
             onMouseEnter={onHover}
             onClick={onClick}
@@ -85,11 +93,7 @@ export function DropdownItem({
                 <span class={styles.itemName}>{name}</span>
                 {description && <span class={styles.itemDescription}>{description}</span>}
             </div>
-            {trailingIcon && (
-                <span class={styles.trailingIcon} aria-hidden="true">
-                    {trailingIcon}
-                </span>
-            )}
+            {trailingIcon && <span class={styles.trailingIcon}>{trailingIcon}</span>}
             {trailingControl && (
                 <span class={styles.trailingControl} onClick={(e) => e.stopPropagation()}>
                     {trailingControl}
