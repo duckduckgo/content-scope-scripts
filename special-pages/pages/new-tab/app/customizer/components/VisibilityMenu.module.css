@@ -47,3 +47,19 @@
     height: 1rem;
     display: flex;
 }
+
+[data-rebrand="true"] {
+    .embedded {
+        gap: var(--ds-space-x03);
+        font-weight: var(--body-font-weight);
+        line-height: var(--body-line-height);
+    }
+
+    .svg {
+        color: var(--ds-color-theme-icons-secondary);
+    }
+
+    .title {
+        color: var(--ds-color-theme-text-primary);
+    }
+}
