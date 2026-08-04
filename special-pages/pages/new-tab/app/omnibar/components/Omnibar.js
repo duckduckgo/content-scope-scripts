@@ -2,7 +2,7 @@ import { Fragment, h } from 'preact';
 import { useCallback, useContext, useRef, useState } from 'preact/hooks';
 import { ArrowRightIcon, LogoStacked, VoiceIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { usePlatformName } from '../../settings.provider';
+import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
 import aiChatFormStyles from './AiChatForm.module.css';
@@ -84,8 +84,10 @@ export function Omnibar({
      *    submit) and on every mode switch; instantiating the hook up here, in Omnibar's own
      *    render (which doesn't remount), keeps its document listeners attached once instead
      *    of tearing them down and re-adding them on every submit.
+     * `enabled: rebrand` skips listeners on legacy NTP (pill-ring CSS is rebrand-only).
      */
-    const { keyboardFocusWithinProps } = useKeyboardFocusWithin();
+    const rebrand = useNewTabPageRebranding();
+    const { keyboardFocusWithinProps } = useKeyboardFocusWithin({ enabled: rebrand });
 
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 

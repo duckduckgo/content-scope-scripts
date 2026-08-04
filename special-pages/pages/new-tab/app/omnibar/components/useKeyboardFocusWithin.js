@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 
+/** Stable empty props when the hook is disabled (no document listeners / no DOM attrs). */
+const EMPTY_PROPS = {};
+
 /**
  * Tracks whether focus is currently within a container AND arrived via keyboard (Tab),
  * as opposed to mouse/touch. Needed because native `:focus-visible` always matches on
@@ -11,20 +14,30 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
  * (`use-keyboard-focus-within.ts`, per Valerie) — ported here so both surfaces handle
  * this the same way.
  *
+ * Pass `enabled: false` to skip document listeners (legacy NTP when rebrand is off;
+ * pill-ring CSS is under `body[data-rebrand="true"]`).
+ *
+ * @param {{ enabled?: boolean }} [options]
  * @return {{
  *   isKeyboardFocusWithin: boolean,
  *   keyboardFocusWithinProps: {
  *     'data-keyboard-focus-within': true|undefined,
  *     onFocusCapture: (event: FocusEvent) => void,
  *     onBlurCapture: (event: FocusEvent) => void,
- *   }
+ *   } | Record<string, never>
  * }}
  */
-export function useKeyboardFocusWithin() {
+export function useKeyboardFocusWithin({ enabled = true } = {}) {
     const [isKeyboardFocusWithin, setIsKeyboardFocusWithin] = useState(false);
     const hadKeyboardNavigation = useRef(false);
 
     useEffect(() => {
+        if (!enabled) {
+            hadKeyboardNavigation.current = false;
+            setIsKeyboardFocusWithin(false);
+            return;
+        }
+
         /** @param {KeyboardEvent} event */
         const handleKeyDown = (event) => {
             if (event.key === 'Tab') {
@@ -47,7 +60,7 @@ export function useKeyboardFocusWithin() {
             document.removeEventListener('mousedown', handlePointerInput, true);
             document.removeEventListener('touchstart', handlePointerInput, true);
         };
-    }, []);
+    }, [enabled]);
 
     const handleFocusCapture = useCallback(() => {
         setIsKeyboardFocusWithin(hadKeyboardNavigation.current);
@@ -56,18 +69,24 @@ export function useKeyboardFocusWithin() {
     /** @param {FocusEvent} event */
     const handleBlurCapture = useCallback((event) => {
         const nextFocusedElement = event.relatedTarget;
-        if (!(nextFocusedElement instanceof Node) || !(event.currentTarget instanceof Node) || !event.currentTarget.contains(nextFocusedElement)) {
+        if (
+            !(nextFocusedElement instanceof Node) ||
+            !(event.currentTarget instanceof Node) ||
+            !event.currentTarget.contains(nextFocusedElement)
+        ) {
             hadKeyboardNavigation.current = false;
             setIsKeyboardFocusWithin(false);
         }
     }, []);
 
     return {
-        isKeyboardFocusWithin,
-        keyboardFocusWithinProps: {
-            'data-keyboard-focus-within': isKeyboardFocusWithin || undefined,
-            onFocusCapture: handleFocusCapture,
-            onBlurCapture: handleBlurCapture,
-        },
+        isKeyboardFocusWithin: enabled ? isKeyboardFocusWithin : false,
+        keyboardFocusWithinProps: enabled
+            ? {
+                  'data-keyboard-focus-within': isKeyboardFocusWithin || undefined,
+                  onFocusCapture: handleFocusCapture,
+                  onBlurCapture: handleBlurCapture,
+              }
+            : EMPTY_PROPS,
     };
 }
