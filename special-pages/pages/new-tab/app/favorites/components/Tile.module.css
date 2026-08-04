@@ -163,10 +163,7 @@ body[data-rebrand="true"] {
            dark+userImage, hiding the .plus icon above. */
         background: var(--ntp-surface-background-color);
         backdrop-filter: none;
-        box-shadow:
-            0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
-            0 1px 6px 0 var(--ds-color-theme-shadow-primary),
-            0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
+        box-shadow: var(--ntp-card-shadow-rest);
 
         /* Figma --ds-tone-brighten-secondary (white 60%). No --ds-color-theme-tone-tint-secondary in build. */
         &:hover {
