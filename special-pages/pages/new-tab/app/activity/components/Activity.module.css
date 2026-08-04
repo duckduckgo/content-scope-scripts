@@ -70,18 +70,18 @@
     margin: 3px;
     display: block;
     backdrop-filter: blur(24px);
-    border-radius: var(--border-radius-sm);
+    border-radius: var(--ds-radius-x02);
     flex-shrink: 0;
     text-decoration: none;
     position: relative;
-    background: var(--color-black-at-12);
+    background: var(--ntp-favicon-fill-rest);
+    border: var(--ntp-favicon-border-rest);
     transition: transform .2s;
 
-    background: rgba(255, 255, 255, 0.30);
+    /* NTP Shadow Small */
+    box-shadow: 0 0.25px 1px 0 rgba(0, 0, 0, 0.08), 0 1px 4px 0 rgba(0, 0, 0, 0.06), 0 0.5px 2px 0 rgba(0, 0, 0, 0.04);
 
     [data-theme="dark"] & {
-        border: 0.5px solid rgba(255, 255, 255, 0.09);
-        background: rgba(0, 0, 0, 0.18);
         box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.12), 0px 0px 1.5px 0px rgba(0, 0, 0, 0.16);
         backdrop-filter: blur(24px);
     }
