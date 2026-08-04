@@ -112,6 +112,10 @@
         padding: 7px calc(var(--ds-space-x01) + var(--ds-space-x08) + var(--ds-space-x01)) 7px var(--ds-space-x05);
     }
 
+    .suffix {
+        color: var(--ds-color-theme-accent-text-primary);
+    }
+
     .closeButton {
         border-radius: var(--ds-radius-full);
     }

@@ -163,9 +163,21 @@
  */
 :global(body[data-rebrand="true"]) {
     --omnibar-radius: var(--ds-radius-x06);
-    /* Figma ai-searchbox shadows — rest vs focused differ only by elevation, not a blue ring */
-    --omnibar-box-shadow-rest: 0 10px 20px 0 #00000005, 0 2px 6px 0 #0000000f, 0 0 0 1px #00000014;
-    --omnibar-box-shadow-focused: 0 8px 16px 0 #0000000f, 0 2px 6px 0 #0000000f, 0 0 0 1px #00000014;
+    --omnibar-border-color: var(--ds-color-theme-container-border-secondary);
+    /* Figma Input-rest / Input-focus: only the first elevation layer changes (0.02 → 0.06) */
+    --omnibar-box-shadow-rest:
+        0 10px 20px 0 rgba(0, 0, 0, 0.02),
+        0 2px 6px 0 rgba(0, 0, 0, 0.06),
+        0 0 0 1px var(--omnibar-border-color);
+    --omnibar-box-shadow-focused:
+        0 10px 20px 0 rgba(0, 0, 0, 0.06),
+        0 2px 6px 0 rgba(0, 0, 0, 0.06),
+        0 0 0 1px var(--omnibar-border-color);
+
+    /* Match Favorites/Stats/RMF card chrome: subtler white-at-3 border in dark */
+    :global([data-theme="dark"]) {
+        --omnibar-border-color: var(--ds-ntp-dark-card-border-color);
+    }
     /*
      * Keyboard-only focus ring, appended to the box-shadow list below rather than
      * replacing it. Transparent/zero-spread by default so it's always a valid shadow
@@ -196,8 +208,10 @@
         border-radius: var(--omnibar-radius);
     }
 
-    /* Rest */
-    .popup {
+    /* [data-theme] prefix beats legacy custom-bg glass fills on .popup */
+    :global([data-theme]) .popup {
+        background: var(--ds-color-theme-surface-tertiary);
+        backdrop-filter: none;
         box-shadow: var(--omnibar-box-shadow-rest);
         outline: none;
     }

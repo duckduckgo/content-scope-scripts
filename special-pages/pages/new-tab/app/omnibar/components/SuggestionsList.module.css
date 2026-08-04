@@ -63,48 +63,47 @@
 }
 
 /*
- * NTP rebrand: restyle suggestion item hover/selected/active states (grey
- * control-fill highlight instead of the legacy accent-primary blue, dimmed
- * icon by default). Scoped to body[data-rebrand="true"].
+ * NTP rebrand: accent-alt row highlight (vs legacy accent-primary), icons-primary
+ * icons, and rest text colors under highlight. Scoped to body[data-rebrand="true"].
+ * @todo rebrand: fold into the base rules once the rebrand ships.
  */
 :global(body[data-rebrand="true"]) {
     .item {
-        svg {
-            color: var(--ds-color-theme-text-secondary);
-            opacity: 0.56;
+        > svg {
+            color: var(--ds-color-theme-icons-primary);
+        }
+
+        /* Beat legacy accent-content (white-on-blue) on selected/active */
+        &:hover:not([aria-selected='true']):not(:active),
+        &[aria-selected='true'],
+        &:active {
+            color: var(--ds-color-theme-text-primary);
+
+            .suffix {
+                color: var(--ds-color-theme-text-tertiary);
+            }
         }
 
         &:hover:not([aria-selected='true']):not(:active),
         &[aria-selected='true'] {
-            background: var(--ds-color-theme-control-fill-primary);
-        }
-
-        &[aria-selected='true'] {
-            svg {
-                opacity: 1;
-            }
+            background: var(--ds-color-theme-accent-alt-primary);
         }
 
         &:active {
-            color: var(--ds-color-theme-accent-content-primary);
-            background: var(--ds-color-theme-accent-secondary);
-
-            svg {
-                color: var(--ds-color-theme-accent-content-primary);
-            }
-
-            .suffix {
-                color: var(--ds-color-theme-accent-content-primary);
-            }
-
             .badge {
-                background: var(--ds-color-theme-accent-secondary);
+                background: var(--ds-color-theme-accent-alt-secondary);
             }
         }
 
+        /* Background only here so a delete-button press doesn't restyle the row */
         &:active:not(:has(.deleteButton:active)) {
-            background: var(--ds-color-theme-accent-secondary);
+            background: var(--ds-color-theme-accent-alt-secondary);
         }
+    }
+
+    .main,
+    .footer {
+        padding-left: calc(3px + var(--sp-2) + 1px);
     }
 }
 
@@ -178,17 +177,5 @@
     &:focus-visible {
         opacity: 1;
         pointer-events: auto;
-    }
-}
-
-/*
- * NTP rebrand: indent suggestion icons/text 4px so they align with the search
- * input inset (--ds-space-x05). Scoped to body[data-rebrand="true"].
- * @todo rebrand: fold into the base .main/.footer padding once the rebrand ships.
- */
-:global(body[data-rebrand="true"]) {
-    .main,
-    .footer {
-        padding-left: calc(3px + var(--sp-2) + 4px);
     }
 }

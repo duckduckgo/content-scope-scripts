@@ -75,6 +75,11 @@
  * @todo rebrand: fold into the base .tab rules once the rebrand ships to all
  */
 :global(body[data-rebrand="true"]) {
+    .tabSwitcher {
+        background: var(--ds-color-theme-control-fill-primary);
+        backdrop-filter: none;
+    }
+
     .tab:not([aria-selected="true"]) {
         color: var(--ds-color-theme-text-secondary);
     }
