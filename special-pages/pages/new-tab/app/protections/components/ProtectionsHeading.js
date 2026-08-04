@@ -1,5 +1,6 @@
 import { useTypedTranslationWith, useMessaging } from '../../types.js';
 import styles from '../../privacy-stats/components/PrivacyStats.module.css';
+import { useNewTabPageRebranding } from '../../settings.provider.js';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
 import { h } from 'preact';
@@ -36,6 +37,7 @@ export function ProtectionsHeading({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const ntp = useMessaging();
+    const isRebrand = useNewTabPageRebranding();
     const locale = useLocale();
     const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const headingRef = useRef(/** @type {HTMLDivElement|null} */ (null));
@@ -75,7 +77,7 @@ export function ProtectionsHeading({
         <div class={styles.heading} data-testid="ProtectionsHeading" ref={headingRef}>
             <div class={cn(styles.control, animatedTrackersBlocked === 0 && styles.noTrackers)}>
                 <span class={styles.headingIcon}>
-                    <img src={'./icons/Shield-Check-Color-16.svg'} alt="Privacy Shield" />
+                    <img src={isRebrand ? './icons/Shield-Color-16.svg' : './icons/Shield-Check-Color-16.svg'} alt="Privacy Shield" />
                 </span>
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
 
