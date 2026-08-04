@@ -103,7 +103,7 @@
 
     .main,
     .footer {
-        padding-left: calc(3px + var(--sp-2) + 1px);
+        padding-left: var(--ds-space-x03);
     }
 }
 
