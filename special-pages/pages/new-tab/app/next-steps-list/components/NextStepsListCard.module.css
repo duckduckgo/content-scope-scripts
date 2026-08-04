@@ -2,6 +2,9 @@
     width: 100%;
     margin-bottom: var(--ntp-gap);
     position: relative;
+    /* Contain bubble/card z-indices so they don't stack above the omnibar listbox.
+       isolation on .cardContainer alone is not enough: .bubble is a sibling. */
+    isolation: isolate;
 }
 
 .bubble {
@@ -49,8 +52,6 @@
     min-height: calc(200 * var(--px-in-rem));
     /* Add padding at bottom to accommodate the back card peek */
     padding-bottom: calc(12 * var(--px-in-rem));
-    /* Contain child z-indices so they don't compete with the omnibar's stacking context */
-    isolation: isolate;
 }
 
 .card {
