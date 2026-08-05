@@ -254,6 +254,12 @@ body {
   top: 0;
   left: 0;
 }
+@media (min-height: 600px) and (min-width: 600px) {
+  [data-platform-name=macos] .App_main,
+  [data-platform-name=windows] .App_main {
+    padding-bottom: 20vh;
+  }
+}
 @media (max-height: 400px) {
   .App_main {
     padding-top: var(--sp-10);
