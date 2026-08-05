@@ -18,7 +18,7 @@ import { useNewTabPageRebranding } from '../../settings.provider';
 export function SubscriptionWinBackBanner({ message, action, dismiss }) {
     const isRebrandEnabled = useNewTabPageRebranding();
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    const iconSrc = isRebrandEnabled ? './icons/rebrand/Subscription-96.svg' : './icons/Subscription-Clock-96.svg';
+    const iconSrc = isRebrandEnabled ? './icons/rebrand/Subscription-Clock-96.svg' : './icons/Subscription-Clock-96.svg';
     return (
         <div id={message.id} class={cn(styles.root, styles.icon)}>
             <span class={styles.iconBlock}>
