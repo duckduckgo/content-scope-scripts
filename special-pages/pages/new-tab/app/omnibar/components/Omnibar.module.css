@@ -208,10 +208,8 @@
         border-radius: var(--omnibar-radius);
     }
 
-    /* [data-theme] prefix beats legacy custom-bg glass fills on .popup */
+    /* Rebrand shadow/outline only — background and backdrop-filter left to legacy rules */
     :global([data-theme]) .popup {
-        background: var(--ds-color-theme-surface-tertiary);
-        backdrop-filter: none;
         box-shadow: var(--omnibar-box-shadow-rest);
         outline: none;
     }
