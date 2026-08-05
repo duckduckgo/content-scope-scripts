@@ -84,7 +84,7 @@
     visibility: hidden;
 }
 
-[data-rebrand="true"] {
+:global(body[data-rebrand="true"]) {
     .root {
         gap: var(--ds-space-x04);
     }
@@ -126,7 +126,7 @@
     }
 }
 
-[data-rebrand="true"][data-platform-name="macos"] {
+:global(body[data-rebrand="true"][data-platform-name="macos"]) {
     .segment[aria-checked="true"]:not(:focus-visible) {
         /* Mac/Control/Standard */
         box-shadow:

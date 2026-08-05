@@ -43,7 +43,7 @@
     }
 }
 
-[data-rebrand="true"] .customizeButton {
+:global(body[data-rebrand="true"]) .customizeButton {
     backdrop-filter: none;
     background-color: var(--ds-color-theme-control-fill-primary);
     border: none;

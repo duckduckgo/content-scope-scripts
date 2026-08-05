@@ -262,7 +262,7 @@
     }
 }
 
-[data-rebrand="true"] {
+:global(body[data-rebrand="true"]) {
     .header h2 {
         margin: 0;
         font-size: var(--title-2-font-size);

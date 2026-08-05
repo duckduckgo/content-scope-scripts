@@ -162,26 +162,18 @@
  * platforms and the flag is retired.
  */
 :global(body[data-rebrand="true"]) {
-    --omnibar-radius: var(--ds-radius-x06);
-    --omnibar-border-color: var(--ds-color-theme-container-border-secondary);
-    /* Figma Input-rest / Input-focus: only the first elevation layer changes (0.02 → 0.06) */
-    --omnibar-box-shadow-rest:
-        0 10px 20px 0 rgba(0, 0, 0, 0.02),
-        0 2px 6px 0 rgba(0, 0, 0, 0.06),
-        0 0 0 1px var(--omnibar-border-color);
-    /* Match Favorites/Stats/RMF card chrome: subtler white-at-3 border in dark */
-    :global([data-theme="dark"]) {
-        --omnibar-border-color: var(--ds-ntp-dark-card-border-color);
-    }
-
     /*
      * Gap below omnibar should be 60px (padding-bottom: --sp-15). The legacy spacer
      * is sized for Duck.ai (70px), so in Search mode ~30px of empty spacer sat above
      * that padding and made the visual gap ~90px. Match spacer to the search box so
      * the gap is just the padding. Duck.ai keeps the taller spacer; contents still overflow.
      */
-    .root[data-mode="search"] .spacer {
-        height: calc(var(--sp-10) + 3px * 2);
+    .root {
+        --omnibar-radius: var(--ds-radius-x06);
+
+        &[data-mode="search"] .spacer {
+            height: calc(var(--sp-10) + 3px * 2); /* 3px = .popup margin (top + bottom) */
+        }
     }
 
     /* Keep the same radius across Rest, Focused, Attachment limit exceeded, and Suggestions/AI chats list visible */
@@ -192,10 +184,20 @@
         border-radius: var(--omnibar-radius);
     }
 
-    /* Rebrand shadow/outline only — background and backdrop-filter left to legacy rules */
+    /* Rebrand shadow/outline — background left to legacy rules */
     :global([data-theme]) .popup {
-        box-shadow: var(--omnibar-box-shadow-rest);
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.06),
+            0 0 0 1px var(--ds-color-theme-container-border-secondary);
         outline: none;
     }
 
+    /* Match Favorites/Stats/RMF card chrome: subtler white-at-3 border in dark */
+    :global([data-theme="dark"]) .popup {
+        box-shadow:
+            0 10px 20px 0 rgba(0, 0, 0, 0.02),
+            0 2px 6px 0 rgba(0, 0, 0, 0.06),
+            0 0 0 1px var(--ds-ntp-dark-card-border-color);
+    }
 }

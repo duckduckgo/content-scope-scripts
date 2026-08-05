@@ -26,15 +26,11 @@
     }
 }
 
-.iconWrapper,
-.text {
-    color: var(--ds-color-theme-text-primary);
-}
-
 .text {
     font-size: var(--small-label-font-size);
     font-weight: 400;
     line-height: 16px;
+    color: var(--color-white-at-84);
     white-space: nowrap;
 }
 
@@ -42,4 +38,19 @@
 [data-theme="light"] .tickPill {
     background-color: var(--color-black-at-1);
     border: 1px solid var(--color-black-at-9);
+}
+
+[data-theme="light"] .text {
+    color: var(--color-black-at-84);
+}
+
+[data-theme="light"] .iconWrapper {
+    color: var(--color-black-at-84);
+}
+
+:global(body[data-rebrand="true"]) {
+    .iconWrapper,
+    .text {
+        color: var(--ds-color-theme-text-primary);
+    }
 }

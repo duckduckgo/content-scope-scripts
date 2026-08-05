@@ -48,7 +48,7 @@
     display: flex;
 }
 
-[data-rebrand="true"] {
+:global(body[data-rebrand="true"]) {
     .embedded {
         gap: var(--ds-space-x03);
         font-weight: var(--body-font-weight);

@@ -29,6 +29,7 @@ export const ActivityItem = memo(
      * @param {string} props.etldPlusOne
      */
     function ActivityItem({ canBurn, documentVisibility, title, url, favoriteSrc, faviconMax, etldPlusOne, children }) {
+        const isRebrand = useNewTabPageRebranding();
         return (
             <li key={url} class={cn(styles.item)} data-testid="ActivityItem">
                 <div class={styles.heading}>
@@ -49,7 +50,7 @@ export const ActivityItem = memo(
                         </span>
                         {title}
                     </a>
-                    <Controls canBurn={canBurn} url={url} title={title} shouldDisplayLegacyActivity={false} />
+                    <Controls canBurn={canBurn} url={url} title={title} isRebrand={isRebrand} shouldDisplayLegacyActivity={false} />
                 </div>
                 <div class={styles.body}>{children}</div>
             </li>
@@ -70,6 +71,7 @@ export const ActivityItemLegacy = memo(
      * @param {string} props.etldPlusOne
      */
     function ActivityItem({ canBurn, documentVisibility, title, url, favoriteSrc, faviconMax, etldPlusOne, children }) {
+        const isRebrand = useNewTabPageRebranding();
         return (
             <li key={url} class={cn(stylesLegacy.item)} data-testid="ActivityItem">
                 <div class={stylesLegacy.heading}>
@@ -90,7 +92,7 @@ export const ActivityItemLegacy = memo(
                         </span>
                         {title}
                     </a>
-                    <Controls canBurn={canBurn} url={url} title={title} />
+                    <Controls canBurn={canBurn} url={url} title={title} isRebrand={isRebrand} />
                 </div>
                 <div class={stylesLegacy.body}>{children}</div>
             </li>
@@ -107,12 +109,12 @@ export const ActivityItemLegacy = memo(
  * @param {string} props.url - The unique URL identifier for the associated item.
  * @param {string} props.title - The title or domain name displayed in the button tooltips.
  * @param {boolean} [props.shouldDisplayLegacyActivity=true] - Indicates whether to show legacy icons. Optional, defaults to `true` for backwards compatibility
+ * @param {boolean} props.isRebrand
  */
-function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
+function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true, isRebrand }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
     const favorite = useComputed(() => activity.value.favorites[url]);
-    const isRebrand = useNewTabPageRebranding();
 
     // prettier-ignore
     const favoriteTitle = favorite.value
@@ -161,7 +163,7 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity = true }) {
  * @param {boolean} props.isRebrand
  */
 function renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand }) {
-    // On Windows, canBurn is always false (burn unavailable), so isRebrand → TrashIcon is macOS-only.
+    // canBurn is always false on Windows (burn unavailable there), so TrashIcon only appears on platforms where burn is enabled.
     if (!canBurn) return <Cross />;
     if (shouldDisplayLegacyActivity) return <FireIconLegacy />;
     if (isRebrand) return <TrashIcon />;
