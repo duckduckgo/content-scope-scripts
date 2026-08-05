@@ -136,7 +136,7 @@ export const stepsConfig = {
  * @typedef {object} RowData
  * @property {'one-time' | 'toggle'} kind
  * @property {import('../../types').SystemValueId} id
- * @property {typeof import('../../shared/components/ListItem').availableIcons[number]} icon
+ * @property {import('./data-types').RowIcon} icon
  * @property {string} title
  * @property {string} [secondaryText]
  * @property {string} acceptText

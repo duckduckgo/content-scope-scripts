@@ -6,7 +6,6 @@ test.describe('onboarding v4', () => {
         const onboarding = OnboardingV4Page.create(page, workerInfo);
         onboarding.withInitData({
             stepDefinitions: null,
-            order: 'v4',
         });
         await onboarding.reducedMotion();
         await onboarding.openPage({ env: 'app', page: 'getStarted' });
@@ -27,7 +26,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'placebo-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
@@ -42,7 +40,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'aggressive-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
@@ -57,7 +54,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' });
@@ -74,7 +70,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'placebo-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -91,7 +86,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'placebo-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -108,7 +102,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'aggressive-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -125,7 +118,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'aggressive-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -142,7 +134,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -159,7 +150,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock', 'import', 'youtube-ad-blocking'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -178,7 +168,6 @@ test.describe('onboarding v4', () => {
                         variant: 'ad-free',
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -201,7 +190,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -225,7 +213,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -239,7 +226,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -254,7 +240,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -293,7 +278,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'duckPlayerSingle' });
@@ -327,7 +311,6 @@ test.describe('onboarding v4', () => {
         const onboarding = OnboardingV4Page.create(page, workerInfo);
         onboarding.withInitData({
             stepDefinitions: null,
-            order: 'v4',
         });
         await onboarding.reducedMotion();
         await onboarding.darkMode();
@@ -385,7 +368,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
                 exclude: ['makeDefaultSingle'],
             });
             await onboarding.reducedMotion();
@@ -404,7 +386,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -424,7 +405,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -442,7 +422,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -461,7 +440,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -482,7 +460,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -501,7 +478,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -520,7 +496,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -540,7 +515,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -567,7 +541,6 @@ test.describe('onboarding v4', () => {
                         rows: ['dock-instructions', 'import'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -588,7 +561,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -601,7 +573,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -617,7 +588,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -631,7 +601,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'systemSettings' });
@@ -651,7 +620,6 @@ test.describe('onboarding v4', () => {
             onboarding.withMockData({
                 init: {
                     stepDefinitions: null,
-                    order: 'v4',
                 },
                 requestImport: { enabled: false },
             });
@@ -670,7 +638,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -681,7 +648,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -694,7 +660,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -708,7 +673,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -722,7 +686,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -737,7 +700,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -754,7 +716,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'customize' });
@@ -772,7 +733,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
@@ -787,7 +747,6 @@ test.describe('onboarding v4', () => {
             }, workerInfo) => {
                 const onboarding = OnboardingV4Page.create(page, workerInfo);
                 onboarding.withInitData({
-                    order: 'v4',
                     stepDefinitions: { systemSettings: { rows: ['dock', 'import', 'default-browser'] } },
                 });
                 await onboarding.reducedMotion();
@@ -948,7 +907,6 @@ test.describe('onboarding v4', () => {
             const onboarding = OnboardingV4Page.create(page, workerInfo);
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
@@ -963,7 +921,6 @@ test.describe('onboarding v4', () => {
                         options: ['chrome-extension-install'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
@@ -978,7 +935,6 @@ test.describe('onboarding v4', () => {
                         options: ['chrome-extension-install'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
@@ -1007,7 +963,6 @@ test.describe('onboarding v4', () => {
                         options: ['chrome-extension-install'],
                     },
                 },
-                order: 'v4',
             });
             await onboarding.reducedMotion();
             await onboarding.openPage({ env: 'app', page: 'getStarted' });
