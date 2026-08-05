@@ -101,10 +101,7 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
                 <Fragment>
                     <div class={cn(styles.switcher, styles.block)} role="tablist">
                         {isRebrandEnabled && (
-                            <div
-                                class={styles.blob}
-                                style={{ '--tab-count': 2, '--tab-index': feed === 'privacy-stats' ? 0 : 1 }}
-                            />
+                            <div class={styles.blob} style={{ '--tab-count': 2, '--tab-index': feed === 'privacy-stats' ? 0 : 1 }} />
                         )}
                         <button
                             type="button"
@@ -143,12 +140,16 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
 function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === 'collapsed';
     const showing = expansion === 'expanded';
+    const isRebrandEnabled = useNewTabPageRebranding();
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     return (
         <div class={styles.body} id={id} aria-hidden={hidden} aria-expanded={showing}>
             {expansion === 'expanded' && (
                 <Fragment>
                     <div class={cn(styles.switcher, styles.blockLegacy)} role="tablist">
+                        {isRebrandEnabled && (
+                            <div class={styles.blob} style={{ '--tab-count': 2, '--tab-index': feed === 'privacy-stats' ? 0 : 1 }} />
+                        )}
                         <button
                             type="button"
                             role="tab"
