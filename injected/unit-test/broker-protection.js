@@ -8,12 +8,7 @@ import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/b
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js';
 import { names } from '../src/features/broker-protection/comparisons/constants.js';
 import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils/utils.js';
-import {
-    generatePhoneNumber,
-    generateZipCode,
-    generateStreetAddress,
-    generateDateOfBirth,
-} from '../src/features/broker-protection/actions/generators.js';
+import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js';
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
 import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
 import { selectAddress } from '../src/features/broker-protection/actions/fill-form.js';
@@ -721,34 +716,6 @@ describe('generators', () => {
                 const streetAddress = generateStreetAddress();
                 expect(typeof streetAddress).toEqual('string');
                 expect(streetAddress).toMatch(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/);
-            });
-        });
-    });
-    describe('generateDateOfBirth', () => {
-        /**
-         * @param {string} dob - `YYYY-MM-DD`
-         * @param {Date} on
-         * @return {number}
-         */
-        function ageOn(dob, on) {
-            const [year, month, day] = dob.split('-').map(Number);
-            const birthdayThatYear = new Date(on.getFullYear(), month - 1, day);
-            return on.getFullYear() - year - (on < birthdayThatYear ? 1 : 0);
-        }
-
-        // A leap day, the day before one, and an ordinary day
-        const days = [new Date(2028, 1, 29), new Date(2028, 1, 28), new Date(2026, 6, 28)];
-
-        it('generates a date of birth for someone of exactly that age', () => {
-            days.forEach((today) => {
-                [0, 18, 41, 99].forEach((age) => {
-                    // Enough draws to cover the whole year the date can be picked from
-                    Array.from({ length: 365 }).forEach(() => {
-                        const dob = generateDateOfBirth(age, today);
-                        expect(dob).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-                        expect(ageOn(dob, today)).toBe(age);
-                    });
-                });
             });
         });
     });

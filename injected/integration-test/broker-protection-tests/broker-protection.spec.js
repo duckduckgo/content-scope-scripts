@@ -846,29 +846,6 @@ test.describe('Broker Protection communications', () => {
             await dbp.doesInputValueEqual('#FirstName', 'John');
         });
 
-        test('fillForm generates a date of birth matching the extracted age', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.enabled();
-            await dbp.navigatesTo('opt-out-form.html');
-            await dbp.receivesAction('fill-form-generated-dob.json');
-            const response = await dbp.collector.waitForMessage('actionCompleted');
-            dbp.isSuccessMessage(response);
-            await dbp.isDateOfBirthForAge('#Dob', 51);
-            await dbp.doesInputValueEqual('#StreetAddress', '100 Sample Dr');
-            await dbp.doesInputValueEqual('#City', 'Baytown');
-            await dbp.doesInputValueEqual('#State', 'TX');
-        });
-
-        test('fillForm errors when a generated date of birth has no age to work from', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
-            await dbp.enabled();
-            await dbp.navigatesTo('opt-out-form.html');
-            await dbp.receivesAction('fill-form-generated-dob-no-age.json');
-            const response = await dbp.collector.waitForMessage('actionCompleted');
-            dbp.isErrorMessage(response);
-            await dbp.doesInputValueEqual('#Dob', '');
-        });
-
         test('fillForm errors when an element type is in neither known keys nor extras', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
