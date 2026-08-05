@@ -57,11 +57,18 @@ export function fillMany(root, elements, data) {
         } else if (element.type === '$generated_zip_code$') {
             results.push(setValueForInput(inputElem, generateZipCode()));
         } else if (element.type === '$generated_dob$') {
+            if (!Object.prototype.hasOwnProperty.call(data, 'age')) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data didn't contain an 'age' to generate a date of birth from`,
+                });
+                continue;
+            }
             const age = parseInt(data.age, 10);
             if (!Number.isFinite(age) || age < 0) {
                 results.push({
                     result: false,
-                    error: `element found with selector '${element.selector}', but data didn't contain an 'age' to generate a date of birth from`,
+                    error: `element found with selector '${element.selector}', but data contained an 'age' that wasn't a positive number`,
                 });
                 continue;
             }
