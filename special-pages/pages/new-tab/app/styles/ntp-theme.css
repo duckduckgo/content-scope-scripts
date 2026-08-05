@@ -80,7 +80,7 @@ body[data-rebrand="true"][data-background-kind="color"],
 body[data-rebrand="true"][data-background-kind="gradient"],
 body[data-rebrand="true"][data-background-kind="userImage"] {
     [data-theme="dark"] {
-        --ntp-surface-background-color: var(--color-black-at-50);
+        --ntp-surface-background-color: var(--ds-color-black-at-50, rgba(0, 0, 0, 0.5));
     }
 }
 

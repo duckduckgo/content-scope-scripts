@@ -165,9 +165,10 @@ body[data-rebrand="true"] {
         backdrop-filter: none;
         box-shadow: var(--ntp-card-shadow-rest);
 
-        /* Figma --ds-tone-brighten-secondary (white 60%). No --ds-color-theme-tone-tint-secondary in build. */
+        /* Figma --ds-tone-brighten-secondary (white 60%). The fallback is
+           needed until desktop-browsers exports this palette token. */
         &:hover {
-            background: var(--color-white-at-60);
+            background: var(--ds-color-white-at-60, rgba(255, 255, 255, 0.6));
         }
 
         [data-theme="dark"] & {
