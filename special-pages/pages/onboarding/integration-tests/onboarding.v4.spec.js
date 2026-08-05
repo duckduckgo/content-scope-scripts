@@ -1033,7 +1033,7 @@ test.describe('onboarding v4', () => {
             await onboarding.trackDocumentOverflow();
             await onboarding.openPage({ env: 'app', page: 'getStarted', debugState: false });
 
-            await page.getByRole('button', { name: 'Start Browser Setup' }).waitFor();
+            await page.getByRole('button', { name: 'Let’s get started!' }).waitFor();
             await page.waitForTimeout(500); // outlast the 67ms delay + 333ms `top` transition
 
             expect(await onboarding.maxDocumentOverflow()).toBe(0);
