@@ -79,6 +79,18 @@
     }
 }
 
+:global(body[data-rebrand="true"]) {
+    --show-hide-icon-background: var(--ds-ntp-light-button-secondary-rest-background-color);
+
+    .iconBlock {
+        background-color: var(--show-hide-icon-background);
+    }
+}
+
+:global(body[data-rebrand="true"][data-theme="dark"]) {
+    --show-hide-icon-background: var(--ds-ntp-dark-button-secondary-rest-background-color);
+}
+
 .pill {
     height: calc(26 * var(--px-in-rem));
     border-radius: 9999px;
