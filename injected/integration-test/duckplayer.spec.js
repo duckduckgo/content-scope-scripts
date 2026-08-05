@@ -134,6 +134,19 @@ test.describe('Video Player overlays', () => {
         // Then the overlay shows and blocks the video from playing
         await overlays.overlayBlocksVideo();
     });
+    test('Overlay paints the video thumbnail behind it', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+
+        await overlays.withRemoteConfig();
+        await overlays.userSettingIs('always ask');
+
+        // routed before navigating, because the overlay fetches the thumbnail as it appends
+        await overlays.stubsThumbnail();
+        await overlays.gotoPlayerPage();
+
+        await overlays.overlayBlocksVideo();
+        await overlays.overlayThumbnailIsPainted();
+    });
     test('Overlay blocks video from playing (supporting DOM appearing over time)', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo);
 

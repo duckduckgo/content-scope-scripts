@@ -6157,50 +6157,6 @@
 
   // src/features/duckplayer/util.js
   init_define_import_meta_trackerLookup();
-  function appendImageAsBackground(parent, targetSelector, imageUrl) {
-    const canceled = false;
-    fetch(imageUrl, { method: "HEAD" }).then((x2) => {
-      const status = String(x2.status);
-      if (canceled) return console.warn("not adding image, cancelled");
-      if (status.startsWith("2")) {
-        if (!canceled) {
-          append();
-        } else {
-          console.warn("ignoring cancelled load");
-        }
-      } else {
-        markError();
-      }
-    }).catch(() => {
-      console.error("e from fetch");
-    });
-    function markError() {
-      parent.dataset.thumbLoaded = String(false);
-      parent.dataset.error = String(true);
-    }
-    function append() {
-      const targetElement = parent.querySelector(targetSelector);
-      if (!(targetElement instanceof HTMLElement)) {
-        return console.warn("could not find child with selector", targetSelector, "from", parent);
-      }
-      parent.dataset.thumbLoaded = String(true);
-      parent.dataset.thumbSrc = imageUrl;
-      const img = new Image();
-      img.src = imageUrl;
-      img.onload = function() {
-        if (canceled) return console.warn("not adding image, cancelled");
-        targetElement.style.backgroundImage = `url(${imageUrl})`;
-        targetElement.style.backgroundSize = "cover";
-      };
-      img.onerror = function() {
-        if (canceled) return console.warn("not calling markError, cancelled");
-        markError();
-        const targetElement2 = parent.querySelector(targetSelector);
-        if (!(targetElement2 instanceof HTMLElement)) return;
-        targetElement2.style.backgroundImage = "";
-      };
-    }
-  }
   var SideEffects = class {
     /**
      * @param {object} params
@@ -6654,6 +6610,66 @@
     return {
       createHTML: (s) => s
     };
+  }
+
+  // src/features/duckplayer/poster.js
+  init_define_import_meta_trackerLookup();
+  async function paintFirstUsablePoster(target, candidates, { signal, onResult } = {}) {
+    const probes = candidates.map((candidate) => {
+      const url = safePosterUrl(candidate.url);
+      return url ? probe(url, candidate.verify, signal) : Promise.resolve(null);
+    });
+    for (const pending of probes) {
+      const url = await pending;
+      if (signal?.aborted) return;
+      if (!url) continue;
+      target.style.backgroundImage = `url("${url}")`;
+      target.style.backgroundSize = "cover";
+      return onResult?.(url);
+    }
+    if (!signal?.aborted) onResult?.(null);
+  }
+  async function probe(url, verify, signal) {
+    if (verify && !await headIsOk(url, signal)) return null;
+    if (!await imageLoads(url)) return null;
+    return url;
+  }
+  async function headIsOk(url, signal) {
+    try {
+      return (await fetch(url, { method: "HEAD", signal })).ok;
+    } catch {
+      return false;
+    }
+  }
+  function imageLoads(url) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+  }
+  function safePosterUrl(url) {
+    try {
+      const parsed = new URL2(url, window.location.href);
+      if (parsed.protocol !== "https:") return null;
+      return parsed.href;
+    } catch {
+      return null;
+    }
+  }
+  function appendImageAsBackground(parent, targetSelector, imageUrl) {
+    const target = parent.querySelector(targetSelector);
+    if (!(target instanceof HTMLElement)) {
+      return console.warn("could not find child with selector", targetSelector, "from", parent);
+    }
+    void paintFirstUsablePoster(target, [{ url: imageUrl, verify: true }], {
+      onResult: (paintedUrl) => {
+        parent.dataset.thumbLoaded = String(Boolean(paintedUrl));
+        if (paintedUrl) parent.dataset.thumbSrc = paintedUrl;
+        else parent.dataset.error = String(true);
+      }
+    });
   }
 
   // src/features/duckplayer-native/overlays/thumbnail-overlay.js

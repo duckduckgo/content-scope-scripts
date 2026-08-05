@@ -1,3 +1,1 @@
-- Report onboarding bubble height before first paint (#2925)
-- Onboarding: remove the v3 flow and make v4 the default (#2924)
-- build(deps-dev): bump typescript-eslint from 8.64.0 to 8.65.0 (#2927)
+- Duck Player: Show spinner on ad-blocked videos (#2915)

@@ -25,7 +25,8 @@
  *   - if the user previously clicked 'watch here + remember', just add the small dax
  *   - otherwise, stop the video playing + append our overlay
  */
-import { SideEffects, VideoParams, appendImageAsBackground } from './util.js';
+import { SideEffects, VideoParams } from './util.js';
+import { appendImageAsBackground } from './poster.js';
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js';
 import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js';
 import { IconOverlay } from './icon-overlay.js';
@@ -33,6 +34,14 @@ import { mobileStrings } from './text.js';
 import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js';
 import { DDGVideoThumbnailOverlay } from './components/ddg-video-thumbnail-overlay-mobile.js';
 import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
+import { holdUntilFirstFrame } from './buffering-hold.js';
+
+/** Every mobile overlay that covers the player, for presence checks */
+const OVERLAY_SELECTOR = [
+    DDGVideoOverlayMobile.CUSTOM_TAG_NAME,
+    DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME,
+    DDGVideoDrawerMobile.CUSTOM_TAG_NAME,
+].join(', ');
 
 /**
  * Handle the switch between small & large overlays
@@ -46,6 +55,9 @@ export class VideoOverlay {
 
     /** @type {boolean} */
     didAllowFirstVideo = false;
+
+    /** @type {'classic' | 'drawer' | null} */
+    appendedMobileVariant = null;
 
     /**
      * @param {object} options
@@ -241,12 +253,21 @@ export class VideoOverlay {
         return this.settings.videoDrawer?.state === 'enabled' && this.settings.selectors.drawerContainer;
     }
 
+    bufferingFeedbackEnabled() {
+        return this.settings.bufferingFeedback?.state === 'enabled';
+    }
+
+    fullscreenGuardEnabled() {
+        return this.settings.fullscreenGuard?.state === 'enabled';
+    }
+
     /**
      * @param {Element} targetElement
      * @param {import("./util").VideoParams} params
      */
     appendMobileOverlay(targetElement, params) {
         this.messages.sendPixel(new Pixel({ name: 'overlay' }));
+        this.appendedMobileVariant = 'classic';
 
         this.sideEffects.add(`appending ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
             const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME));
@@ -265,6 +286,8 @@ export class VideoOverlay {
                 document.querySelector(DDGVideoOverlayMobile.CUSTOM_TAG_NAME)?.remove();
             };
         });
+
+        this.keepOverlayOutOfFullscreen();
     }
 
     /**
@@ -274,6 +297,7 @@ export class VideoOverlay {
      */
     appendMobileDrawer(targetElement, drawerTargetElement, params) {
         this.messages.sendPixel(new Pixel({ name: 'overlay' }));
+        this.appendedMobileVariant = 'drawer';
 
         this.sideEffects.add(
             `appending ${DDGVideoDrawerMobile.CUSTOM_TAG_NAME} and ${DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME} to the page`,
@@ -314,6 +338,8 @@ export class VideoOverlay {
                 };
             },
         );
+
+        this.keepOverlayOutOfFullscreen();
     }
 
     /**
@@ -335,6 +361,31 @@ export class VideoOverlay {
             return () => {
                 document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)?.remove();
             };
+        });
+    }
+
+    /**
+     * A scroll gesture can fullscreen YouTube's player container. Our overlays sit inside
+     * `#movie_player` and stretch to the screen, but `#player-control-container` is outside
+     * that stacking context and hit-tests above them, so every tap lands on YouTube with no
+     * chrome left to escape to. Call this after appending, so the first check sees the overlay.
+     */
+    keepOverlayOutOfFullscreen() {
+        if (!this.fullscreenGuardEnabled()) return;
+        // the unprefixed API below is Chromium-only, so config cannot turn this on for WebKit
+        if (this.environment.platform.name !== 'android') return;
+
+        this.sideEffects.add('leaving fullscreen while an overlay is showing', () => {
+            const onChange = () => {
+                if (!document.fullscreenElement) return;
+                // the hold can remove itself while this listener is still registered
+                if (!document.querySelector(OVERLAY_SELECTOR)) return;
+                Promise.resolve(document.exitFullscreen?.()).catch(() => {});
+            };
+            document.addEventListener('fullscreenchange', onChange);
+            // the overlay can also be appended while already fullscreen, on a same-page navigation
+            onChange();
+            return () => document.removeEventListener('fullscreenchange', onChange);
         });
     }
 
@@ -483,7 +534,9 @@ export class VideoOverlay {
         this.messages.sendPixel(pixel);
 
         if (!remember) {
-            return this.destroy();
+            this.destroy();
+            this.showBufferingFeedbackUntilFirstFrame();
+            return;
         }
 
         /** @type {import("../duck-player.js").UserValues} */
@@ -506,6 +559,67 @@ export class VideoOverlay {
         }
 
         this.destroy();
+    }
+
+    /**
+     * After opt-out the <video> can take many seconds to present its first frame, and
+     * YouTube paints nothing over the black player while it waits. Cover the player with
+     * the video's poster and a YouTube-style spinner until the first frame lands.
+     */
+    showBufferingFeedbackUntilFirstFrame() {
+        if (!this.bufferingFeedbackEnabled()) return;
+        if (this.appendedMobileVariant === 'drawer') return;
+
+        const video = /** @type {HTMLVideoElement | null} */ (document.querySelector(this.settings.selectors.videoElement));
+        const container = document.querySelector(this.settings.selectors.videoElementContainer);
+        if (!video?.isConnected || !container) return;
+        if (document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)) return;
+
+        const { spinnerDelayMs, spinnerTimeoutMs } = this.settings.bufferingFeedback ?? {};
+
+        this.sideEffects.add('holding poster + spinner until first video frame', () => {
+            const overlay = /** @type {DDGVideoThumbnailOverlay} */ (document.createElement(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME));
+            overlay.testMode = this.environment.isTestMode();
+            container.appendChild(overlay);
+            overlay.setPosterCandidates(this.buildPosterCandidates(video));
+            overlay.showLoadingState();
+
+            const hold = holdUntilFirstFrame({
+                container,
+                video,
+                overlay,
+                timings: { spinnerDelayMs, spinnerTimeoutMs },
+                onReport: (reason, elapsedMs, timedOut) => {
+                    this.messages.sendPixel(new Pixel({ name: 'buffering.hold_removed', reason, elapsedMs, timedOut }));
+                },
+            });
+
+            return () => hold.stop('torn_down');
+        });
+
+        this.keepOverlayOutOfFullscreen();
+    }
+
+    /**
+     * Poster candidates for the buffering hold, cheapest source first.
+     * @param {HTMLVideoElement} video
+     * @returns {import('./poster.js').PosterCandidate[]}
+     */
+    buildPosterCandidates(video) {
+        /** @type {import('./poster.js').PosterCandidate[]} */
+        const candidates = [];
+        if (video?.poster) candidates.push({ url: video.poster, source: 'page' });
+        const cued = document.querySelector('.ytp-cued-thumbnail-overlay-image, .ytp-cued-thumbnail-overlay');
+        if (cued) {
+            const match = getComputedStyle(cued).backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+            if (match?.[1]) candidates.push({ url: match[1], source: 'page' });
+        }
+        const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref());
+        if (params) {
+            candidates.push({ url: this.environment.getLargeThumbnailSrc(params.id), source: 'ytimg' });
+            candidates.push({ url: new URL(`/vi/${params.id}/hqdefault.jpg`, 'https://i.ytimg.com').href, source: 'ytimg' });
+        }
+        return candidates;
     }
 
     dismissOverlay() {
