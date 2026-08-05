@@ -372,9 +372,10 @@ export class VideoOverlay {
      */
     keepOverlayOutOfFullscreen() {
         if (!this.fullscreenGuardEnabled()) return;
+        // the unprefixed API below is Chromium-only, so config cannot turn this on for WebKit
+        if (this.environment.platform.name !== 'android') return;
 
         this.sideEffects.add('leaving fullscreen while an overlay is showing', () => {
-            // unprefixed only: this ships to Android, where the WebView is Chromium
             const onChange = () => {
                 if (!document.fullscreenElement) return;
                 // the hold can remove itself while this listener is still registered

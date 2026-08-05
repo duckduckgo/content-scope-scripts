@@ -48,6 +48,7 @@ export async function paintFirstUsablePoster(target, candidates, { signal, onRes
  * @returns {Promise<string | null>}
  */
 async function probe(url, verify, signal) {
+    // page fetch/Image on purpose: probes only decide which candidate wins, and safePosterUrl gates what gets painted
     if (verify && !(await headIsOk(url, signal))) return null;
     if (!(await imageLoads(url))) return null;
     return url;
