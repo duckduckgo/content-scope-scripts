@@ -1,0 +1,17 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "fill-generated-dob-no-age",
+            "selector": ".ahm",
+            "dataSource": "extractedProfile",
+            "elements": [{ "type": "$generated_dob$", "selector": "#user_dob" }]
+        },
+        "data": {
+            "extractedProfile": {
+                "firstName": "John",
+                "lastName": "Sample"
+            }
+        }
+    }
+}
