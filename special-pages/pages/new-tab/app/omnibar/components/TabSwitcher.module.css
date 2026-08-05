@@ -83,4 +83,18 @@
     .tab:not([aria-selected="true"]) {
         color: var(--ds-color-theme-text-secondary);
     }
+
+    .tab:hover:not([aria-selected="true"])::before {
+        content: none;
+    }
+
+    .tabLabel {
+        padding-top: 0;
+    }
+
+    .blob {
+        [data-theme="dark"] & {
+            box-shadow: none;
+        }
+    }
 }
