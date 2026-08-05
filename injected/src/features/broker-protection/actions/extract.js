@@ -1,4 +1,12 @@
-import { cleanArray, getElement, getElementMatches, getElements, sortAddressesByStateAndCity } from '../utils/utils.js'; // Assuming you have imported the address comparison function
+import {
+    cleanArray,
+    dedupeAddresses,
+    getElement,
+    getElementMatches,
+    getElements,
+    hasExtras,
+    sortAddressesByStateAndCity,
+} from '../utils/utils.js'; // Assuming you have imported the address comparison function
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js';
 import { isSameAge } from '../comparisons/is-same-age.js';
 import { isSameName } from '../comparisons/is-same-name.js';
@@ -432,55 +440,6 @@ export function aggregateFields(profile) {
     };
     if (hasExtras(profile)) output.extras = profile.extras;
     return output;
-}
-
-/**
- * Drop exact duplicates, plus any bare city/state pair that a richer version of the same city/state
- * already covers.
- *
- * e.g. [{Dallas, TX}, {Dallas, TX, 1 Main St}, {Dallas, TX, 2 Oak Ave}] -> [{Dallas, TX, 1 Main St}, {Dallas, TX, 2 Oak Ave}]
- *
- * @param {{city: string, state: string|null, extras?: ProfileExtras}[]} addresses
- * @return {{city: string, state: string|null, extras?: ProfileExtras}[]}
- */
-function dedupeAddresses(addresses) {
-    const cityStatesWithExtras = new Set(addresses.filter(hasExtras).map(cityStateKey));
-
-    const unique = new Map();
-    for (const address of addresses) {
-        if (!hasExtras(address) && cityStatesWithExtras.has(cityStateKey(address))) continue;
-        unique.set(addressDedupKey(address), address);
-    }
-    return [...unique.values()];
-}
-
-/**
- * @param {{extras?: ProfileExtras}} obj
- * @return {boolean}
- */
-function hasExtras(obj) {
-    return Object.keys(obj.extras ?? {}).length > 0;
-}
-
-/**
- * @param {{city: string, state: string|null}} addr
- * @return {string}
- */
-function cityStateKey(addr) {
-    return `${addr.city},${addr.state}`.toLowerCase();
-}
-
-/**
- * @param {{city: string, state: string|null, extras?: ProfileExtras}} addr
- * @return {string}
- */
-function addressDedupKey(addr) {
-    const extras = addr.extras ?? {};
-    const extrasKey = Object.keys(extras)
-        .sort()
-        .map((key) => `${key}=${extras[key]}`)
-        .join('&');
-    return `${cityStateKey(addr)}|${extrasKey}`;
 }
 
 /**
