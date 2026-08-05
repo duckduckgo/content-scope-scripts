@@ -229,7 +229,7 @@
  */
 :global(body[data-rebrand="true"]) {
     .control {
-        margin-bottom: 20px;
+        margin-bottom: var(--ds-space-x05);
         gap: var(--ds-space-x02);
     }
 
@@ -259,13 +259,13 @@
     }
 
     .counterContainer {
-        gap: var(--sp-6);
+        gap: var(--ds-space-x06);
         align-items: flex-start;
         padding: 0;
     }
 
     .counter {
-        gap: 8px;
+        gap: var(--ds-space-x02);
         width: auto;
         padding-right: 0;
         flex: 1 1 0;
@@ -298,9 +298,9 @@
     }
 
     .row {
-        row-gap: var(--sp-2);
-        column-gap: var(--sp-3);
-        grid-template-columns: minmax(0, calc(28% + var(--sp-3))) 48px minmax(0, 1fr);
+        row-gap: var(--ds-space-x02);
+        column-gap: var(--ds-space-x03);
+        grid-template-columns: minmax(0, calc(28% + var(--ds-space-x03))) var(--ds-space-x12) minmax(0, 1fr);
     }
 
     .otherTrackersRow {
