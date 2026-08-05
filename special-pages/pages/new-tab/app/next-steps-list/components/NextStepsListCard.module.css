@@ -84,7 +84,7 @@
    the rebrand override below turns it into an empty border/background shell. */
 .card.backCard {
     position: absolute;
-    top: calc(12 * var(--px-in-rem));
+    top: var(--ds-space-x03);
     left: 0;
     right: 0;
     bottom: 0;
