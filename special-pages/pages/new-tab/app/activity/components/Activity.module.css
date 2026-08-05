@@ -16,6 +16,10 @@
     }
 }
 
+:global(body[data-rebrand="true"]) .activity:not(:empty) {
+    margin-top: 0;
+}
+
 .block {
     margin-top: 24px;
 }

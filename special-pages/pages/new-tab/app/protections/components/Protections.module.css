@@ -141,7 +141,7 @@
     }
 
     .feed {
-        margin-top: var(--sp-6);
+        padding-top: var(--ds-space-x08);
         overflow: visible;
     }
 
