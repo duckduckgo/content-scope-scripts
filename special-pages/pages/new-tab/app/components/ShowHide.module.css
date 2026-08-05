@@ -82,13 +82,13 @@
 :global(body[data-rebrand="true"]) {
     --show-hide-icon-background: var(--ds-ntp-light-button-secondary-rest-background-color);
 
+    [data-theme="dark"] {
+        --show-hide-icon-background: var(--ds-ntp-dark-button-secondary-rest-background-color);
+    }
+
     .iconBlock {
         background-color: var(--show-hide-icon-background);
     }
-}
-
-:global(body[data-rebrand="true"][data-theme="dark"]) {
-    --show-hide-icon-background: var(--ds-ntp-dark-button-secondary-rest-background-color);
 }
 
 .pill {
