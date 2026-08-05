@@ -148,7 +148,7 @@
     }
 
     .block {
-        margin-top: var(--sp-6);
+        margin-top: var(--ds-space-x06);
     }
 
     .feed {
