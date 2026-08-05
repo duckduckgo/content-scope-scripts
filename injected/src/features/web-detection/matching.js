@@ -145,6 +145,43 @@ function hasContent(element) {
 const ORDERED_NODE_SNAPSHOT_TYPE = 7;
 
 /**
+ * Compiled XPath expressions, keyed by document and then by expression source.
+ *
+ * `document.evaluate()` re-parses the expression string on every call, and
+ * detectors re-evaluate their conditions on every poll tick against a fixed,
+ * config-supplied set of expressions. Compiling once removes that repeated parse.
+ *
+ * Keyed by document because an `XPathExpression` belongs to the document that
+ * created it.
+ *
+ * @type {WeakMap<Document, Map<string, XPathExpression>>}
+ */
+const compiledXPaths = new WeakMap();
+
+/**
+ * Compile an XPath expression, reusing a previously compiled one where possible.
+ *
+ * An invalid expression throws `SyntaxError` here rather than at evaluation time;
+ * either way it propagates to the caller and surfaces as `detected: 'error'`.
+ *
+ * @param {string} expression
+ * @returns {XPathExpression}
+ */
+function compileXPath(expression) {
+    let cache = compiledXPaths.get(document);
+    if (!cache) {
+        cache = new Map();
+        compiledXPaths.set(document, cache);
+    }
+    let compiled = cache.get(expression);
+    if (!compiled) {
+        compiled = document.createExpression(expression, null);
+        cache.set(expression, compiled);
+    }
+    return compiled;
+}
+
+/**
  * Concatenate the text of every node selected by an XPath expression.
  *
  * Nodes are joined without a separator so the result is equivalent to
@@ -160,7 +197,7 @@ const ORDERED_NODE_SNAPSHOT_TYPE = 7;
  * @returns {string}
  */
 function xpathText(expression) {
-    const snapshot = document.evaluate(expression, document, null, ORDERED_NODE_SNAPSHOT_TYPE, null);
+    const snapshot = compileXPath(expression).evaluate(document, ORDERED_NODE_SNAPSHOT_TYPE, null);
     let text = '';
     for (let i = 0; i < snapshot.snapshotLength; i++) {
         text += snapshot.snapshotItem(i)?.textContent || '';
@@ -198,13 +235,10 @@ function evaluateSingleTextCondition(condition) {
 
     const patternComb = new RegExp(patterns.join('|'), 'i');
 
-    // Disjunction: any expression whose selected text matches is success
-    if (xpaths.some((expression) => patternComb.test(xpathText(expression)))) {
-        return true;
-    }
-
-    // Disjunction: any selector having a matching element is success
-    return selectors.some((selector) => {
+    // Disjunction: any selector having a matching element is success.
+    // Checked before xpath because CSS matching avoids the per-call expression
+    // parse and snapshot allocation that `document.evaluate` requires.
+    const selectorMatch = selectors.some((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
             if (patternComb.test(element.textContent || '')) {
@@ -213,6 +247,12 @@ function evaluateSingleTextCondition(condition) {
         }
         return false;
     });
+    if (selectorMatch) {
+        return true;
+    }
+
+    // Disjunction: any expression whose selected text matches is success
+    return xpaths.some((expression) => patternComb.test(xpathText(expression)));
 }
 
 /**

@@ -876,6 +876,21 @@ describe('WebDetection', () => {
                 expect(matchInDOM('<div id="neither">adblocker</div>', match)).toBe(false);
             });
 
+            it('should see content added between evaluations', () => {
+                // Compiled expressions are reused across evaluations; the DOM they run against is not
+                const dom = new JSDOM('<!DOCTYPE html><html><body><p>Loading...</p></body></html>');
+                const originalDocument = globalThis.document;
+                globalThis.document = dom.window.document;
+                try {
+                    const match = { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } };
+                    expect(evaluateMatch(match)).toBe(false);
+                    dom.window.document.body.insertAdjacentHTML('beforeend', '<div class="wall">adblocker detected</div>');
+                    expect(evaluateMatch(match)).toBe(true);
+                } finally {
+                    globalThis.document = originalDocument;
+                }
+            });
+
             it('should throw on an invalid expression, surfacing as a detector error', () => {
                 expect(() => matchInDOM('<p>adblocker</p>', { text: { pattern: 'adblocker', xpath: '//[bad' } })).toThrow();
             });
