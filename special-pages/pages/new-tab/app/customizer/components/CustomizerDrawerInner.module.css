@@ -338,4 +338,15 @@
     .bgPanelEmpty {
         background-color: var(--ds-color-theme-control-fill-primary);
     }
+
+    /* Re-assert data-color-mode colors: icon must contrast against the swatch color,
+       not the app theme — these are fixed regardless of light/dark mode. */
+    .dynamicPickerIconColor {
+        &[data-color-mode="light"] {
+            color: var(--color-black-at-96);
+        }
+        &[data-color-mode="dark"] {
+            color: var(--color-white-at-96);
+        }
+    }
 }
