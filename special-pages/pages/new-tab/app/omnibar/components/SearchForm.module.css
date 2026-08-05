@@ -109,7 +109,8 @@
     }
 
     .input {
-        padding: 7px var(--ds-space-x10) 7px var(--ds-space-x05);
+        padding-block: 7px;
+        padding-inline: var(--ds-space-x05) var(--ds-space-x10);
     }
 
     .suffix {
