@@ -68,7 +68,7 @@ export function fillMany(root, elements, data) {
             if (!Number.isFinite(age) || age < 0) {
                 results.push({
                     result: false,
-                    error: `element found with selector '${element.selector}', but data contained an 'age' that wasn't a positive number`,
+                    error: `element found with selector '${element.selector}', but data contained an 'age' that wasn't a non-negative number`,
                 });
                 continue;
             }
