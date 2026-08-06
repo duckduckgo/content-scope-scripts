@@ -106,6 +106,26 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param {object} selectors
+     * @param {string} selectors.date - an `<input type="date">` filled with the default format
+     * @param {string} selectors.year - filled with `YYYY`
+     * @param {string} selectors.month - filled with `MM`
+     * @param {string} selectors.day - filled with `D`
+     * @param {string} selectors.us - filled with `MM/DD/YYYY`
+     * @param {number} age - the age the date of birth should imply as of today
+     * @return {Promise<void>}
+     */
+    async isDateOfBirthSplitAcrossFields(selectors, age) {
+        await this.isDateOfBirthForAge(selectors.date, age);
+
+        const [year, month, day] = (await this.getFormFieldValue(selectors.date)).split('-');
+        await this.doesInputValueEqual(selectors.year, year);
+        await this.doesInputValueEqual(selectors.month, month);
+        await this.doesInputValueEqual(selectors.day, String(Number(day)));
+        await this.doesInputValueEqual(selectors.us, `${month}/${day}/${year}`);
+    }
+
+    /**
      * @param {string} responseElementSelector
      * @return {Promise<void>}
      */

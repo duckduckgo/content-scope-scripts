@@ -1,6 +1,6 @@
 import { getElement, generateRandomInt } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
-import { generatePhoneNumber, generateZipCode, generateStreetAddress, generateDateOfBirth } from './generators.js';
+import { generatePhoneNumber, generateZipCode, generateStreetAddress, generateDateOfBirth, formatDateOfBirth } from './generators.js';
 import { states } from '../comparisons/constants.js';
 
 /**
@@ -36,12 +36,17 @@ export function fillForm(action, userData, root = document) {
 /**
  * Try to fill form elements. Collecting results + warnings for reporting.
  * @param {HTMLElement} root
- * @param {{selector: string; type: string; min?: string; max?: string;}[]} elements
+ * @param {{selector: string; type: string; min?: string; max?: string; format?: string;}[]} elements
  * @param {Record<string, any>} data
  * @return {({result: true} | {result: false; error: string})[]}
  */
 export function fillMany(root, elements, data) {
     const results = [];
+
+    // Generated once per form, so a form that splits the date of birth across separate year, month
+    // and day fields fills three parts of one date rather than parts of three different dates.
+    /** @type {string | null} */
+    let dateOfBirth = null;
 
     for (const element of elements) {
         const inputElem = getElement(root, element.selector);
@@ -57,22 +62,26 @@ export function fillMany(root, elements, data) {
         } else if (element.type === '$generated_zip_code$') {
             results.push(setValueForInput(inputElem, generateZipCode()));
         } else if (element.type === '$generated_dob$') {
-            if (!Object.prototype.hasOwnProperty.call(data, 'age')) {
-                results.push({
-                    result: false,
-                    error: `element found with selector '${element.selector}', but data didn't contain an 'age' to generate a date of birth from`,
-                });
-                continue;
+            if (dateOfBirth === null) {
+                if (!Object.prototype.hasOwnProperty.call(data, 'age')) {
+                    results.push({
+                        result: false,
+                        error: `element found with selector '${element.selector}', but data didn't contain an 'age' to generate a date of birth from`,
+                    });
+                    continue;
+                }
+                const age = parseInt(data.age, 10);
+                if (!Number.isFinite(age) || age < 0) {
+                    results.push({
+                        result: false,
+                        error: `element found with selector '${element.selector}', but data contained an 'age' that wasn't a non-negative number`,
+                    });
+                    continue;
+                }
+                dateOfBirth = generateDateOfBirth(age);
             }
-            const age = parseInt(data.age, 10);
-            if (!Number.isFinite(age) || age < 0) {
-                results.push({
-                    result: false,
-                    error: `element found with selector '${element.selector}', but data contained an 'age' that wasn't a non-negative number`,
-                });
-                continue;
-            }
-            results.push(setValueForInput(inputElem, generateDateOfBirth(age)));
+
+            results.push(setValueForInput(inputElem, formatDateOfBirth(dateOfBirth, element.format)));
         } else if (element.type === '$generated_random_number$') {
             if (!element.min || !element.max) {
                 results.push({
