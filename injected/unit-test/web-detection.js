@@ -794,6 +794,201 @@ describe('WebDetection', () => {
                     }),
                 ).toBe(false);
             });
+
+            describe('excludeSelector', () => {
+                it('should not match when pattern only appears inside an excluded element', () => {
+                    expect(
+                        matchInDOM('<script>disable your adblocker</script><p>Welcome</p>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should still match when pattern appears in non-excluded text', () => {
+                    expect(
+                        matchInDOM('<script>disable your adblocker</script><p>Please disable your adblocker</p>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it("should preserve an element's own text while stripping a nested excluded element with the same text", () => {
+                    expect(
+                        matchInDOM('<div>disable your adblocker<script>disable your adblocker</script></div>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('should exclude arbitrary (class) selectors', () => {
+                    expect(
+                        matchInDOM('<div class="ad-meta">adblocker</div><p>Welcome</p>', {
+                            text: { pattern: 'adblocker', excludeSelector: '.ad-meta' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should support an array of exclude selectors', () => {
+                    expect(
+                        matchInDOM('<script>adblocker</script><style>adblocker</style><p>Welcome</p>', {
+                            text: { pattern: 'adblocker', excludeSelector: ['script', 'style'] },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should combine excludeSelector with a specific selector', () => {
+                    expect(
+                        matchInDOM('<div id="overlay">Please disable adblocker<script>adblocker</script></div>', {
+                            text: { pattern: 'adblocker', selector: '#overlay', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+
+                    expect(
+                        matchInDOM('<div id="overlay">Welcome<script>adblocker</script></div>', {
+                            text: { pattern: 'adblocker', selector: '#overlay', excludeSelector: 'script' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should behave unchanged when excludeSelector is omitted', () => {
+                    expect(
+                        matchInDOM('<script>disable your adblocker</script><p>Welcome</p>', {
+                            text: { pattern: 'adblocker' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('should skip a selected element that itself matches excludeSelector', () => {
+                    // Top selector lands on the excluded node - its text must not count.
+                    expect(
+                        matchInDOM('<div class="foo">please disable your adblocker</div>', {
+                            text: { pattern: 'adblocker', selector: 'div', excludeSelector: '.foo' },
+                        }),
+                    ).toBe(false);
+
+                    // Same selector and exclude (eg script + script) - skip the selected root.
+                    expect(
+                        matchInDOM('<script>please disable your adblocker</script><p>Welcome</p>', {
+                            text: { pattern: 'adblocker', selector: 'script', excludeSelector: 'script' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('should still match a sibling selected element that does not match excludeSelector', () => {
+                    expect(
+                        matchInDOM('<div class="foo">adblocker</div><div>please disable your adblocker</div>', {
+                            text: { pattern: 'adblocker', selector: 'div', excludeSelector: '.foo' },
+                        }),
+                    ).toBe(true);
+                });
+            });
+
+            // These document the current (clone-based) behavior for tricky
+            // textContent/exclusion boundaries. Comments call out which are
+            // intended, which are known false positives/negatives, and which
+            // would flip if a "raw-first" negative filter were adopted.
+            describe('edge cases and known limitations', () => {
+                it('BOUNDARY: an excluded element splits text runs, so a pattern cannot span across it', () => {
+                    // "please disable your adbl" | [script] | "ocker now" -> neither run contains
+                    // "adblocker". The excluded element is a boundary, not a deletion that fuses
+                    // its neighbours. (Trade-off: an invisible script splitting a real word is not
+                    // matched - acceptable, since "inside script" is treated as excluded.)
+                    expect(
+                        matchInDOM('<div>please disable your adbl<script>IGNORE</script>ocker now</div>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('BOUNDARY: excluding a VISIBLE element does not fuse unrelated words (no false positive)', () => {
+                    // User reads "ad, EU, block" - never a contiguous "adblock". Segments "ad" and
+                    // "block your access" are tested independently, so no spurious match.
+                    expect(
+                        matchInDOM('<div>ad<span class="region">, EU, </span>block your access</div>', {
+                            text: { pattern: 'adblock', excludeSelector: '.region' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('BOUNDARY: the run AFTER an excluded element is also tested', () => {
+                    // Segment before script is "" (empty); segment after is "please disable adblocker".
+                    expect(
+                        matchInDOM('<div><script>ignore</script>please disable adblocker</div>', {
+                            text: { pattern: 'adblocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('BOUNDARY: non-excluded inline elements are joined within a single run', () => {
+                    // "disable " + "your" + " ad blocker" all form one run despite the <b>; the
+                    // trailing excluded <script> only bounds the end.
+                    expect(
+                        matchInDOM('<div>disable <b>your</b> ad blocker<script>x</script></div>', {
+                            text: { pattern: 'your ad blocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('CONCATENATION (FALSE POSITIVE): textContent inserts no whitespace between siblings', () => {
+                    // "nomad" + "block" -> "nomadblock" contains "adblock", though no such word is
+                    // visible. Inherent to textContent; unrelated to excludeSelector.
+                    expect(
+                        matchInDOM('<span>nomad</span><span>block party</span>', {
+                            text: { pattern: 'adblock' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('HIDDEN TEXT (FALSE POSITIVE): display:none text is not excluded by default', () => {
+                    // Text matching ignores visibility; hidden text still counts.
+                    expect(
+                        matchInDOM('<div style="display:none">please disable your adblocker</div>', {
+                            text: { pattern: 'adblocker' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('SUBSTRING (FALSE POSITIVE): pattern matches inside a larger word unless anchored', () => {
+                    expect(
+                        matchInDOM('<p>roadblock ahead</p>', {
+                            text: { pattern: 'block' },
+                        }),
+                    ).toBe(true);
+                    // Word-boundary anchoring fixes it.
+                    expect(
+                        matchInDOM('<p>roadblock ahead</p>', {
+                            text: { pattern: '\\bblock\\b' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('NO CROSS-ELEMENT JOIN: a pattern split across two separately-selected elements does not match', () => {
+                    // Each selected element is tested independently, so no spurious join.
+                    expect(
+                        matchInDOM('<div class="a">adbl</div><div class="a">ocker</div>', {
+                            text: { pattern: 'adblocker', selector: '.a' },
+                        }),
+                    ).toBe(false);
+                });
+
+                it('INLINE FORMATTING: emphasis/italics are transparent to matching', () => {
+                    // <i> is not excluded; textContent reads "disable your ad blocker".
+                    expect(
+                        matchInDOM('<div>disable your <i>ad blocker</i></div>', {
+                            text: { pattern: 'ad blocker', excludeSelector: 'script' },
+                        }),
+                    ).toBe(true);
+                });
+
+                it('TEMPLATE CONTENT: <template> text is excluded from textContent automatically', () => {
+                    // Template contents live in a separate fragment, so they never match.
+                    expect(
+                        matchInDOM('<template>please disable your adblocker</template><p>Welcome</p>', {
+                            text: { pattern: 'adblocker' },
+                        }),
+                    ).toBe(false);
+                });
+            });
         });
 
         describe('element matching', () => {

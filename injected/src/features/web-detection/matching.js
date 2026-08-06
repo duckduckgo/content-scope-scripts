@@ -133,6 +133,50 @@ function hasContent(element) {
 }
 
 /**
+ * Test whether `patternRe` matches within a run of text that is NOT inside any
+ * descendant matching `excludeSelectors`.
+ *
+ * This implements "match this text EXCEPT inside these selectors": excluded
+ * elements act as BOUNDARIES between runs of included text - they are not
+ * deleted (which would fuse their neighbours and create matches spanning the
+ * gap). Non-excluded text is concatenated across inline/block elements exactly
+ * as `textContent` would, but the pattern can never match across an excluded
+ * region.
+ *
+ * @param {Element} root - Element to search within
+ * @param {RegExp} patternRe - Non-global regex (reused across segments).
+ * @param {string} excludeSelectors - Combined exclude selector (`sel1,sel2,...`).
+ * @returns {boolean}
+ */
+function anyIncludedSegmentMatches(root, patternRe, excludeSelectors) {
+    let current = '';
+    let matched = false;
+    const flush = () => {
+        if (!matched && patternRe.test(current)) matched = true;
+        current = '';
+    };
+    /** @param {Node} node */
+    const visit = (node) => {
+        for (let child = node.firstChild; child; child = child.nextSibling) {
+            if (matched) return; // a prior segment already matched - stop early
+            if (child.nodeType === 3 /* TEXT_NODE */) {
+                current += /** @type {Text} */ (child).data;
+            } else if (child.nodeType === 1 /* ELEMENT_NODE */) {
+                if (/** @type {Element} */ (child).matches(excludeSelectors)) {
+                    // Excluded element: a boundary between included runs.
+                    flush();
+                } else {
+                    visit(child);
+                }
+            }
+        }
+    };
+    visit(root);
+    flush();
+    return matched;
+}
+
+/**
  * Evaluate text pattern match condition.
  *
  * `pattern` (disj): Array of regex patterns (or string representing a single pattern) - ANY pattern matching = success.
@@ -142,6 +186,13 @@ function hasContent(element) {
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
  *   Defaults to `body` if not provided.
  *
+ * `excludeSelector` (disj) [optional]: Array of CSS selectors (or a single selector). Text in any selected
+ *   element that itself matches, or in any descendant that matches, is EXCLUDED from matching. Excluded
+ *   descendants act as boundaries: the pattern can match a run of text on either side, but never a match
+ *   that spans across an excluded region (so removing an excluded element never fuses its neighbours into
+ *   a spurious match). Use this to match text "except inside" certain elements (eg `script`, `style`, or
+ *   a specific container) — including when the top selector itself lands on an excluded element.
+ *
  * The overall condition matches if ANY pattern matches text in ANY selected element.
  *
  * @param {ConditionTypes['text']} condition
@@ -150,6 +201,8 @@ function hasContent(element) {
 function evaluateSingleTextCondition(condition) {
     const patterns = asArray(condition.pattern);
     const selectors = asArray(condition.selector, ['body']);
+    // Pre-join once (not per matched element); '' means no exclusions.
+    const excludeSelectors = asArray(condition.excludeSelector).join(',');
 
     const patternComb = new RegExp(patterns.join('|'), 'i');
 
@@ -157,7 +210,19 @@ function evaluateSingleTextCondition(condition) {
     return selectors.some((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
-            if (patternComb.test(element.textContent || '')) {
+            // Selected element itself matches an exclude selector - skip entirely.
+            if (excludeSelectors !== '' && element.matches(excludeSelectors)) {
+                continue;
+            }
+            // Fast path: no exclusions, or none present in this subtree - test the
+            // whole text directly (avoids the per-node walk).
+            if (excludeSelectors === '' || element.querySelector(excludeSelectors) === null) {
+                if (patternComb.test(element.textContent || '')) {
+                    return true;
+                }
+                continue;
+            }
+            if (anyIncludedSegmentMatches(element, patternComb, excludeSelectors)) {
                 return true;
             }
         }
