@@ -1,0 +1,86 @@
+<!-- Stripped-down version of a real broker's opt-out page that renders one recaptcha per record -->
+<div id="page" class="relative bg-white flex flex-col flex-1 px-4 lg-up:px-0" data-logged-in="false">
+    <div id="page-container" class="flex flex-col flex-1 w-full mx-auto max-w-4xl my-8">
+        <h1 class="mb-8">Remove My Information</h1>
+        <div class="mb-8">You may opt-out and have your information removed from our property search at any time.</div>
+        <div class="font-semibold mb-2">Search Results:</div>
+        <ul id="people-search-results" class="grid">
+            <li class="flex sm-max:flex-col md:justify-between border-b last:border-b-0 py-7 gap-x-12 sm-max:gap-y-4 items-start md:items-center">
+                <div class="grid sm:grid-cols-3 w-full flex-1 gap-4">
+                    <div class="flex flex-col">
+                        <div class="!text-black-900 text-lg">James Daly</div>
+                        <div class="!leading-tight text-lg !text-black-900 my-1"></div>
+                    </div>
+                </div>
+                <form method="POST" action="">
+                    <input type="hidden" name="reportToken" value="3bbx-fpd0">
+                    <input type="hidden" name="name" value="James Daly">
+                    <input type="hidden" name="state" value="">
+                    <input type="hidden" class="captchaTokenInput" name="captchaToken" value="">
+                    <div class="g-recaptcha my-4" data-sitekey="test-site-key-0">
+                        <div style="width: 304px; height: 78px;">
+                            <div><iframe title="reCAPTCHA" width="304" height="78" role="presentation" name="a-bg3zx36trsq0" allow="private-token" frameborder="0" scrolling="no" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation" src="https://www.google.com/recaptcha/api2/anchor?ar=1&amp;k=test-site-key-0&amp;co=aHR0cHM6Ly9kYXNoYm9hcmQucHJvcGVydHlyZWNvcmQuY29tOjQ0Mw..&amp;hl=en&amp;v=w_Yb7dGGXaKesJ7BMiqFJqBG&amp;size=normal&amp;anchor-ms=20000&amp;execute-ms=30000&amp;cb=rooe1sd8p190"></iframe></div>
+                            <textarea id="g-recaptcha-response-0" name="g-recaptcha-response" class="g-recaptcha-response" style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="button button--primary button--md" id="opt-out-address" title="Request Opt Out">Remove My Info</button>
+                </form>
+            </li>
+            <li class="flex sm-max:flex-col md:justify-between border-b last:border-b-0 py-7 gap-x-12 sm-max:gap-y-4 items-start md:items-center">
+                <div class="grid sm:grid-cols-3 w-full flex-1 gap-4">
+                    <div class="flex flex-col">
+                        <div class="!text-black-900 text-lg">James A Daly</div>
+                        <div class="!leading-tight text-lg !text-black-900 my-1">Gilbert, AZ</div>
+                        <div class="text-lg">52 Years Old</div>
+                    </div>
+                    <div class="flex flex-col text-lg">
+                        <div class="text-xs">Locations Include</div>
+                        <div>Gilbert, AZ</div>
+                        <div>Chandler, AZ</div>
+                    </div>
+                </div>
+                <form method="POST" action="">
+                    <input type="hidden" name="reportToken" value="3bbx-fpd1">
+                    <input type="hidden" name="name" value="James A Daly">
+                    <input type="hidden" name="state" value="">
+                    <input type="hidden" class="captchaTokenInput" name="captchaToken" value="">
+                    <div class="g-recaptcha my-4" data-sitekey="test-site-key-1">
+                        <div style="width: 304px; height: 78px;">
+                            <div><iframe title="reCAPTCHA" width="304" height="78" role="presentation" name="a-bg3zx36trsq1" allow="private-token" frameborder="0" scrolling="no" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation" src="https://www.google.com/recaptcha/api2/anchor?ar=1&amp;k=test-site-key-1&amp;co=aHR0cHM6Ly9kYXNoYm9hcmQucHJvcGVydHlyZWNvcmQuY29tOjQ0Mw..&amp;hl=en&amp;v=w_Yb7dGGXaKesJ7BMiqFJqBG&amp;size=normal&amp;anchor-ms=20000&amp;execute-ms=30000&amp;cb=rooe1sd8p191"></iframe></div>
+                            <textarea id="g-recaptcha-response-1" name="g-recaptcha-response" class="g-recaptcha-response" style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="button button--primary button--md" id="opt-out-address" title="Request Opt Out">Remove My Info</button>
+                </form>
+            </li>
+            <li class="flex sm-max:flex-col md:justify-between border-b last:border-b-0 py-7 gap-x-12 sm-max:gap-y-4 items-start md:items-center">
+                <div class="grid sm:grid-cols-3 w-full flex-1 gap-4">
+                    <div class="flex flex-col">
+                        <div class="!text-black-900 text-lg">James W Daly</div>
+                        <div class="!leading-tight text-lg !text-black-900 my-1">Gilbert, AZ</div>
+                        <div class="text-lg">52 Years Old</div>
+                    </div>
+                    <div class="flex flex-col text-lg">
+                        <div class="text-xs">Locations Include</div>
+                        <div>Gilbert, AZ</div>
+                        <div>Chandler, AZ</div>
+                        <div>Apache Jct, AZ</div>
+                    </div>
+                </div>
+                <form method="POST" action="">
+                    <input type="hidden" name="reportToken" value="3bbx-fpd2">
+                    <input type="hidden" name="name" value="James W Daly">
+                    <input type="hidden" name="state" value="">
+                    <input type="hidden" class="captchaTokenInput" name="captchaToken" value="">
+                    <div class="g-recaptcha my-4" data-sitekey="test-site-key-2">
+                        <div style="width: 304px; height: 78px;">
+                            <div><iframe title="reCAPTCHA" width="304" height="78" role="presentation" name="a-bg3zx36trsq2" allow="private-token" frameborder="0" scrolling="no" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation" src="https://www.google.com/recaptcha/api2/anchor?ar=1&amp;k=test-site-key-2&amp;co=aHR0cHM6Ly9kYXNoYm9hcmQucHJvcGVydHlyZWNvcmQuY29tOjQ0Mw..&amp;hl=en&amp;v=w_Yb7dGGXaKesJ7BMiqFJqBG&amp;size=normal&amp;anchor-ms=20000&amp;execute-ms=30000&amp;cb=rooe1sd8p192"></iframe></div>
+                            <textarea id="g-recaptcha-response-2" name="g-recaptcha-response" class="g-recaptcha-response" style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="button button--primary button--md" id="opt-out-address" title="Request Opt Out">Remove My Info</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</div>

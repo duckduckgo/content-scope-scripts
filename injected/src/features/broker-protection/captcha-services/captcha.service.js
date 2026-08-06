@@ -3,6 +3,7 @@ import { removeUrlQueryParams } from '../utils/url.js';
 import { ErrorResponse, PirError, SuccessResponse } from '../types';
 import { getCaptchaProvider, getCaptchaSolveProvider } from './get-captcha-provider';
 import { captchaFactory } from './providers/registry.js';
+import { selectRootElement } from '../utils/select-root-element.js';
 import { getCaptchaInfo as getCaptchaInfoDeprecated, solveCaptcha as solveCaptchaDeprecated } from '../actions/captcha-deprecated';
 
 /**
@@ -22,6 +23,20 @@ const getCaptchaContainer = (root, selector) => {
     }
 
     return captchaContainer;
+};
+
+/**
+ * Resolves the root element to look for the captcha container in. When the action
+ * defines a `parent.profileMatch`, the search is scoped to the record container matching
+ * the user's profile — for brokers that render one captcha per record.
+ *
+ * @param {import('../types.js').PirAction} action
+ * @param {Record<string, any>|null} userData
+ * @param {Document | HTMLElement} root
+ * @returns {Document | HTMLElement | import('../types.js').PirError}
+ */
+const getCaptchaRoot = (action, userData, root) => {
+    return selectRootElement(action, userData ?? {}, root);
 };
 
 /**
@@ -50,10 +65,11 @@ export function getSupportingCodeToInject(action) {
  * Gets the captcha information to send to the backend
  *
  * @param {import('../types.js').PirAction} action
+ * @param {Record<string, any>|null} userData
  * @param {Document | HTMLElement} root
  * @return {Promise<import('../types.js').ActionResponse>}
  */
-export async function getCaptchaInfo(action, root = document) {
+export async function getCaptchaInfo(action, userData, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
     if (!captchaType) {
         // ensures backward compatibility with old actions
@@ -62,7 +78,12 @@ export async function getCaptchaInfo(action, root = document) {
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[getCaptchaInfo] captchaType: ${captchaType}` });
 
-    const captchaContainer = getCaptchaContainer(root, selector);
+    const captchaRoot = getCaptchaRoot(action, userData, root);
+    if (PirError.isError(captchaRoot)) {
+        return createError(captchaRoot.error.message);
+    }
+
+    const captchaContainer = getCaptchaContainer(captchaRoot, selector);
     if (PirError.isError(captchaContainer)) {
         return createError(captchaContainer.error.message);
     }
@@ -102,10 +123,11 @@ export async function getCaptchaInfo(action, root = document) {
  *
  * @param {import('../types.js').PirAction} action
  * @param {string} token
+ * @param {Record<string, any>|null} userData
  * @param {Document} root
  * @return {import('../types.js').ActionResponse}
  */
-export function solveCaptcha(action, token, root = document) {
+export function solveCaptcha(action, token, userData, root = document) {
     const { id: actionID, actionType, captchaType, selector } = action;
     if (!captchaType) {
         // ensures backward compatibility with old actions
@@ -114,7 +136,12 @@ export function solveCaptcha(action, token, root = document) {
 
     const createError = ErrorResponse.generateErrorResponseFunction({ actionID, context: `[solveCaptcha] captchaType: ${captchaType}` });
 
-    const captchaContainer = getCaptchaContainer(root, selector);
+    const captchaRoot = getCaptchaRoot(action, userData, root);
+    if (PirError.isError(captchaRoot)) {
+        return createError(captchaRoot.error.message);
+    }
+
+    const captchaContainer = getCaptchaContainer(captchaRoot, selector);
     if (PirError.isError(captchaContainer)) {
         return createError(captchaContainer.error.message);
     }

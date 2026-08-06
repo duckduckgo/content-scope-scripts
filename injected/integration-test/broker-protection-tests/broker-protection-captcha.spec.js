@@ -97,6 +97,95 @@ test.describe('Broker Protection Captcha', () => {
             });
         });
 
+        test.describe('with parent profileMatch', () => {
+            const parentTargetPage = 're-captcha-parent.html';
+
+            // one recaptcha per record — matches records by profile just like the click action
+            const parent = {
+                profileMatch: {
+                    selector: '#people-search-results li',
+                    profile: {
+                        name: { selector: ".//div[@class='!text-black-900 text-lg']" },
+                        age: { selector: ".//div[@class='text-lg']" },
+                        addressCityStateList: {
+                            selector: ".//div[@class='text-xs']/following-sibling::div",
+                            findElements: true,
+                        },
+                    },
+                },
+            };
+
+            // matches the third record on the page (James W Daly, 52, Gilbert AZ)
+            const userProfile = {
+                firstName: 'James',
+                middleName: 'William',
+                lastName: 'Daly',
+                age: '52',
+                addresses: [{ addressLine1: '123 Fake St', city: 'Gilbert', state: 'AZ' }],
+            };
+
+            // matches no records on the page
+            const nonMatchingUserProfile = {
+                firstName: 'Jane',
+                lastName: 'Doe',
+                age: '55',
+                addresses: [{ addressLine1: '1 Other Rd', city: 'Chicago', state: 'IL' }],
+            };
+
+            test('gets the captcha belonging to the record that matches the user profile', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(parentTargetPage);
+                await dbp.receivesInlineAction(createGetRecaptchaInfoAction({ parent }, { userProfile }));
+                const successResponse = await dbp.getSuccessResponse();
+
+                dbp.isCaptchaMatch(successResponse, {
+                    captchaType: 'recaptcha2',
+                    targetPage: parentTargetPage,
+                    siteKey: 'test-site-key-2',
+                });
+            });
+
+            test('gets the first captcha on the page when no parent is specified', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(parentTargetPage);
+                await dbp.receivesInlineAction(createGetRecaptchaInfoAction({}, { userProfile }));
+                const successResponse = await dbp.getSuccessResponse();
+
+                dbp.isCaptchaMatch(successResponse, {
+                    captchaType: 'recaptcha2',
+                    targetPage: parentTargetPage,
+                    siteKey: 'test-site-key-0',
+                });
+            });
+
+            test('returns an error response when no record matches the user profile', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(parentTargetPage);
+                await dbp.receivesInlineAction(createGetRecaptchaInfoAction({ parent }, { userProfile: nonMatchingUserProfile }));
+
+                await dbp.isCaptchaError();
+            });
+
+            test('solves only the captcha belonging to the record that matches the user profile', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(parentTargetPage);
+                await dbp.receivesInlineAction(createSolveRecaptchaAction({ parent }, { userProfile }));
+                await dbp.getSuccessResponse();
+
+                await dbp.isCaptchaTokenFilled('#g-recaptcha-response-2');
+                await dbp.doesInputValueEqual('#g-recaptcha-response-0', '');
+                await dbp.doesInputValueEqual('#g-recaptcha-response-1', '');
+            });
+
+            test('returns an error response when solving and no record matches the user profile', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(parentTargetPage);
+                await dbp.receivesInlineAction(createSolveRecaptchaAction({ parent }, { userProfile: nonMatchingUserProfile }));
+
+                await dbp.isCaptchaError();
+            });
+        });
+
         test('remove query params from captcha url', async ({ createConfiguredDbp }) => {
             const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
             await dbp.navigatesTo('re-captcha.html?fname=john&lname=smith');
