@@ -129,10 +129,6 @@
     .root {
         border-radius: var(--ds-radius-x06);
         box-shadow: var(--ntp-card-shadow-rest);
-
-        [data-theme=dark] & {
-            border-color: var(--ds-ntp-dark-card-border-color);
-        }
     }
 
     .body {
@@ -181,10 +177,6 @@
         width: calc((100% - var(--ds-space-x-5) * 2) / var(--tab-count));
         z-index: 0;
 
-        [data-theme="dark"] & {
-            box-shadow: none;
-        }
-
         @media (prefers-reduced-motion: reduce) {
             transition: none;
         }
@@ -193,6 +185,16 @@
     .active {
         background: transparent;
         border: 0;
+    }
+
+    [data-theme="dark"] {
+        .root {
+            border-color: var(--ds-ntp-dark-card-border-color);
+        }
+
+        .blob {
+            box-shadow: none;
+        }
     }
 }
 
