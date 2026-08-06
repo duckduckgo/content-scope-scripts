@@ -312,7 +312,6 @@
     }
 
     .count {
-        font-feature-settings: 'case' on;
         font-size: var(--body-font-size);
         font-weight: var(--body-font-weight);
         line-height: 13px;

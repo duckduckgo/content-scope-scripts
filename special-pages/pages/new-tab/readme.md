@@ -187,8 +187,8 @@
 
  ### Protections Feed
  - **Purpose**: Selects the initial Protections Report tab
- - **Parameter**: `protections-feed`
- - **Example**: `?protections-feed=activity`
+ - **Parameter**: `protections_feed`
+ - **Example**: `?protections_feed=activity`
  - **Options**:
    - `privacy-stats` - Displays the Summary tab (default)
    - `activity` - Displays the Details tab
@@ -211,7 +211,7 @@
 ### Cookie Popup Management (CPM)
  - **Purpose**: Simulates the native `totalCookiePopUpsBlocked` value returned by `protections_getData`, including schema compatibility and CPM availability states
  - **Parameter**: `cpm`
- - **Example**: `?cpm=true&protections-feed=activity`
+ - **Example**: `?cpm=true&protections_feed=activity`
  - **Options**:
    - Parameter omitted - Sets `totalCookiePopUpsBlocked` to `undefined` and renders the legacy Protections Report, simulating a native client that does not support the field
    - `true` - Sets a positive maximum cookie pop-up count and renders the new UI with the CPM counter
