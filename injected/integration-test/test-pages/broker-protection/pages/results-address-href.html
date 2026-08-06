@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Search results</title>
+    </head>
+    <body>
+        <!--
+            Exercises the href-slug address shape: the visible link text is only "City, ST", but the
+            full address lives in the href slug. `attribute: "href"` + `afterText` feeds that slug to
+            parse-address, which is lenient, so addressFull tidies the messy result best-effort.
+        -->
+        <ul>
+            <li class="person-container">
+                <h2>
+                    <a href="/people/john-sample/id/f-100">
+                        <span class="text-xl">John B Sample</span>
+                        <br /><span class="text-base">Acworth, GA</span> • <span class="text-base">Age 40</span>
+                    </a>
+                </h2>
+
+                <div class="text-base">
+                    <h3 class="inline">Past Addresses:</h3>
+                    <a href="/address/100-sample-dr/acworth-ga-30102" title="">Acworth, GA</a> •
+                    <a href="/address/55-old-mill-road/franklin-tn-37064" title="">Franklin, TN</a> •
+                    <a href="/address/1234-martin-luther-king-jr-blvd/new-york-ny-10003" title="">New York, NY</a> •
+                    <a href="/address/121-123-main-st/springfield-il-62704" title="">Springfield, IL</a> •
+                </div>
+
+                <div class="text-base">
+                    <h3 class="inline">Relatives:</h3>
+                    <a href="/people/robin-sample/id/f-200" title="">Robin Sample</a>
+                </div>
+            </li>
+        </ul>
+    </body>
+</html>

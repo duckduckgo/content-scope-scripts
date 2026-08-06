@@ -1,1 +1,2 @@
-- Support filling a generated date of birth (#2929)
+- Support extracting extras from profiles and addresses (#2907)
+- build(deps): bump @preact/signals from 2.9.4 to 2.10.0 (#2937)

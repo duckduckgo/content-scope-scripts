@@ -1,0 +1,29 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "fill-extras-address-selection",
+            "selector": "#contact-form",
+            "dataSource": "extractedProfile",
+            "elements": [
+                { "type": "street", "selector": "#StreetAddress" },
+                { "type": "city", "selector": "#City" },
+                { "type": "state", "selector": "#State" }
+            ]
+        },
+        "data": {
+            "extractedProfile": {
+                "name": "John Sample",
+                "addresses": [
+                    { "city": "Baytown", "state": "TX", "extras": { "street": "100 Sample Dr", "zip": "77523" } },
+                    { "city": "Livingston", "state": "TX", "extras": { "street": "300 Example Rd", "zip": "77351" } }
+                ]
+            },
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Sample",
+                "addresses": [{ "city": "Livingston", "state": "TX" }]
+            }
+        }
+    }
+}

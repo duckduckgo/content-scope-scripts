@@ -1,0 +1,25 @@
+{
+    "state": {
+        "action": {
+            "actionType": "extract",
+            "selector": ".card",
+            "profile": {
+                "name": { "selector": ".name-given" },
+                "age": { "selector": ".age" },
+                "addressFull": { "selector": ".address-current a.address" },
+                "addressFullList": {
+                    "selector": ".address-previous a.address",
+                    "findElements": true
+                }
+            }
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Sample",
+                "age": "40",
+                "addresses": [{ "city": "Baytown", "state": "TX" }]
+            }
+        }
+    }
+}
