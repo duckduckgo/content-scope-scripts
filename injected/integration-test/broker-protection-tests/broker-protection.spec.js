@@ -429,7 +429,7 @@ test.describe('Broker Protection communications', () => {
             dbp.isErrorMessage(response);
         });
 
-        test('extract recovers a full street address from an href slug', async ({ page }, workerInfo) => {
+        test('extract recovers a full street address from an href slug, de-slugging only the text parts', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
             await dbp.navigatesTo('results-address-href.html');
@@ -442,8 +442,9 @@ test.describe('Broker Protection communications', () => {
                     alternativeNames: [],
                     addresses: [
                         { city: 'Acworth', state: 'GA', extras: { street: '100 Sample Dr', zip: '30102' } },
-                        { city: 'Dayton', state: 'OH', extras: { street: 'Po-Box 42', zip: '45402' } },
-                        { city: 'Franklin', state: 'TN', extras: { street: '250 Example St', zip: '37064' } },
+                        { city: 'Springfield', state: 'IL', extras: { street: '121-123 Main St', zip: '62704' } },
+                        { city: 'New York', state: 'NY', extras: { street: '1234 Martin Luther King Jr Blvd', zip: '10003' } },
+                        { city: 'Franklin', state: 'TN', extras: { street: '55 Old Mill Rd', zip: '37064' } },
                     ],
                     phoneNumbers: [],
                     relatives: [],
@@ -465,6 +466,7 @@ test.describe('Broker Protection communications', () => {
                     name: 'John Sample',
                     alternativeNames: [],
                     addresses: [
+                        { city: 'Winston-Salem', state: 'NC', extras: { street: '500 Old Mill Rd', zip: '27101' } },
                         { city: 'Baytown', state: 'TX', extras: { street: '100 Sample Dr', zip: '77523' } },
                         { city: 'Baytown', state: 'TX', extras: { street: '200 Sample Ct', zip: '77523' } },
                         { city: 'Livingston', state: 'TX', extras: { street: '300 Example Rd', zip: '77351' } },

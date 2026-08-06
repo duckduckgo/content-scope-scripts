@@ -1,6 +1,7 @@
 import { firstString, selectStrings, stringToList } from '../actions/extract.js';
 import parseAddress from 'parse-address';
 import { states } from '../comparisons/constants.js';
+import { capitalize } from '../utils/utils.js';
 
 /**
  * City/state text read from separate elements, before normalisation. An empty string for either
@@ -89,6 +90,21 @@ export function cityStatePartToCombo({ city, state }) {
 const STREET_PARTS = ['number', 'prefix', 'street', 'type', 'suffix', 'sec_unit_type', 'sec_unit_num'];
 
 /**
+ * Clean up addresses that were parsed from a href attribute by removing hyphens from non-number fields.
+ *
+ * @param {Record<string, string>} parsed
+ * @return {Record<string, string>}
+ */
+function deslugParsedAddress(parsed) {
+    return Object.fromEntries(
+        Object.entries(parsed).map(([key, value]) => [
+            key,
+            key === 'number' || key === 'sec_unit_num' || key === 'zip' ? value : value.replace(/-/g, ' '),
+        ]),
+    );
+}
+
+/**
  * @param {import('../actions/extract.js').Select} select
  * @param {import('../actions/extract.js').ElementLike} root
  * @param {import('../actions/extract.js').TextFieldSpec} spec
@@ -99,12 +115,17 @@ export function extractAddressFull(select, root, spec) {
         selectStrings(select, root, spec)
             .map((str) => str.replace('\n', ' '))
             .flatMap((str) => stringToList(str, spec.separator))
-            .map((str) => parseAddress.parseLocation(str) || {})
+            .map((str) => {
+                const parsed = parseAddress.parseLocation(str) || {};
+                const isHref = spec.attribute === 'href';
+                const isSlug = !/\s/.test(str);
+                return isHref && isSlug ? deslugParsedAddress(parsed) : parsed;
+            })
             // at least 'city' is required.
             .filter((parsed) => Boolean(parsed?.city))
             .map((addr) => {
                 /** @type {Address} */
-                const address = { city: titleCase(addr.city), state: addr.state ? normalizeState(addr.state) : null };
+                const address = { city: capitalize(addr.city), state: addr.state ? normalizeState(addr.state) : null };
                 const extras = addressExtras(addr);
                 if (Object.keys(extras).length > 0) address.extras = extras;
                 return address;
@@ -119,7 +140,7 @@ export function extractAddressFull(select, root, spec) {
 function addressExtras(addr) {
     /** @type {ProfileExtras} */
     const extras = {};
-    const street = titleCase(
+    const street = capitalize(
         STREET_PARTS.map((part) => (addr[part] || '').replace(/[^a-z0-9]+$/i, ''))
             .filter(Boolean)
             .join(' '),
@@ -127,17 +148,6 @@ function addressExtras(addr) {
     if (street) extras.street = street;
     if (addr.zip) extras.zip = addr.zip;
     return extras;
-}
-
-/**
- * Not `capitalize` from build-url-transforms.js: that one splits on spaces only, which would leave
- * the second half of a hyphenated part lowercase ("po-box" -> "Po-box").
- *
- * @param {string} value
- * @return {string}
- */
-function titleCase(value) {
-    return value.replace(/[^\s-]+/g, (word) => word.charAt(0).toUpperCase() + word.slice(1));
 }
 
 /**

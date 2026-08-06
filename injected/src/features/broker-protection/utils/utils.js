@@ -224,6 +224,18 @@ export function nonEmptyString(input) {
 }
 
 /**
+ * Uppercases the first letter of each space-separated word, leaving the rest of each word as-is.
+ *
+ * @param {string} s
+ * @return {string}
+ */
+export function capitalize(s) {
+    const words = s.split(' ');
+    const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+    return capitalizedWords.join(' ');
+}
+
+/**
  * Checks if two strings are a matching pair, ignoring case and leading/trailing white spaces.
  *
  * @param {any} a - The first string to compare.
