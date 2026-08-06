@@ -172,7 +172,7 @@
         --omnibar-radius: var(--ds-radius-x06);
 
         &[data-mode="search"] .spacer {
-            height: calc(var(--sp-10) + 3px * 2); /* 3px = .popup margin (top + bottom) */
+            height: calc(var(--ds-space-x10) + 3px * 2); /* 3px = .popup margin (top + bottom) */
         }
     }
 
