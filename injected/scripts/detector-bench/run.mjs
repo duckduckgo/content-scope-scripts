@@ -12,7 +12,7 @@ import path from 'node:path';
 import { writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import minimist from 'minimist';
-import { chromium } from '@playwright/test';
+import { chromium, firefox, webkit } from '@playwright/test';
 import { resolveVariants, injectedRoot } from './bundle.mjs';
 import { collectFacts, benchmark } from './harness.mjs';
 import { summarise, formatFixture, formatSummary } from './report.mjs';
@@ -36,10 +36,16 @@ import { summarise, formatFixture, formatSummary } from './report.mjs';
  * @property {number} [minBatchMs]
  */
 
+/**
+ * DOM traversal primitives are engine-implemented, and web-detection ships to
+ * all three, so a result from one engine does not generalise.
+ */
+const BROWSER_TYPES = { chromium, firefox, webkit };
+
 const argv = minimist(process.argv.slice(2), {
-    string: ['spec', 'json', 'filter'],
+    string: ['spec', 'json', 'filter', 'browsers'],
     boolean: ['help'],
-    default: { minBatchMs: 2 },
+    default: { minBatchMs: 2, browsers: 'chromium' },
 });
 
 if (argv.help || !argv.spec) {
@@ -48,6 +54,7 @@ Detector performance benchmark
 
   --spec <path>       Spec module to run (required)
   --filter <text>     Only run fixtures whose name contains <text>
+  --browsers <list>   Comma-separated: chromium, firefox, webkit (default chromium)
   --iterations <n>    Samples per variant per fixture (spec value, else 15)
   --warmup <n>        Untimed sweeps before measuring (spec value, else 3)
   --minBatchMs <n>    Minimum duration of one timed batch (default 2)
@@ -80,18 +87,47 @@ for (const fixture of fixtures) {
     }
 }
 
+const browsers = String(argv.browsers)
+    .split(',')
+    .map((name) => name.trim())
+    .filter(Boolean);
+for (const name of browsers) {
+    if (!(name in BROWSER_TYPES)) {
+        console.error(`Unknown browser "${name}". Choose from: ${Object.keys(BROWSER_TYPES).join(', ')}`);
+        process.exit(1);
+    }
+}
+
 const { variants, cleanup } = await resolveVariants(spec.variants, spec.detectors, path.dirname(specPath));
 
 console.log(`spec:       ${path.relative(injectedRoot, specPath)}`);
 console.log(`fixtures:   ${fixtures.length}`);
+console.log(`browsers:   ${browsers.join(', ')}`);
 console.log(`variants:   ${variants.map((v) => `${v.name} [${v.code.key}]`).join(', ')}`);
 console.log(`sampling:   ${iterations} samples, ${warmup} warmup sweeps, >=${minBatchMs}ms per batch`);
 
-const browserInstance = await chromium.launch();
 /** @type {import('./report.mjs').FixtureReport[]} */
 const reports = [];
 
 try {
+    for (const browserName of browsers) {
+        console.log(`\n${'='.repeat(60)}\n== ${browserName}\n${'='.repeat(60)}`);
+        const browserInstance = await BROWSER_TYPES[browserName].launch();
+        try {
+            await runFixtures(browserInstance, browserName);
+        } finally {
+            await browserInstance.close();
+        }
+    }
+} finally {
+    cleanup();
+}
+
+/**
+ * @param {import('@playwright/test').Browser} browserInstance
+ * @param {string} browserName
+ */
+async function runFixtures(browserInstance, browserName) {
     for (const fixture of fixtures) {
         const page = await browserInstance.newPage();
         try {
@@ -124,6 +160,7 @@ try {
             });
 
             reports.push({
+                engine: browserName,
                 fixture: fixture.name,
                 facts,
                 variants: variants.map((variant) => {
@@ -145,9 +182,6 @@ try {
             await page.close();
         }
     }
-} finally {
-    await browserInstance.close();
-    cleanup();
 }
 
 console.log(formatSummary(reports));

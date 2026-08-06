@@ -47,6 +47,7 @@ function table(rows, indent = '  ') {
 /**
  * @typedef {object} FixtureReport
  * @property {string} fixture
+ * @property {string} [engine] - Browser the fixture was measured in
  * @property {{ elements: number, textNodes: number, chars: number }} facts
  * @property {Array<{
  *   name: string,
@@ -114,7 +115,7 @@ export function formatSummary(reports) {
     const failures = [];
     for (const report of reports) {
         for (const variant of report.variants) {
-            if (!variant.correct) failures.push(`${report.fixture} / ${variant.name}`);
+            if (!variant.correct) failures.push(`${report.engine ? `${report.engine} / ` : ''}${report.fixture} / ${variant.name}`);
         }
     }
 
