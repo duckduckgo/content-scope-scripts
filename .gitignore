@@ -30,6 +30,9 @@ injected/unit-test/fixtures/page-context/output/
 # Coverage output
 coverage/
 
+# Ad-hoc detector benchmark variants (throwaway matching.js implementations)
+injected/scripts/detector-bench/.bench-variants/
+
 # VS Code user config
 .vscode
 
