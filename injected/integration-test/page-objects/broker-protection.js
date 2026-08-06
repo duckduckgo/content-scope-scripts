@@ -91,6 +91,21 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param {string} selector - the selector for an `<input type="date">`
+     * @param {number} age - the age the filled date of birth should imply as of today
+     * @return {Promise<void>}
+     */
+    async isDateOfBirthForAge(selector, age) {
+        const value = await this.getFormFieldValue(selector);
+        expect(value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+        const [year, month, day] = value.split('-').map(Number);
+        const today = new Date();
+        const birthdayThisYear = new Date(today.getFullYear(), month - 1, day);
+        expect(today.getFullYear() - year - (today < birthdayThisYear ? 1 : 0)).toBe(age);
+    }
+
+    /**
      * @param {string} responseElementSelector
      * @return {Promise<void>}
      */

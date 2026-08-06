@@ -1,2 +1,1 @@
-- Special Error: Adjusting vertical alignment (#2935)
-- build(deps-dev): bump stylelint in the stylelint group (#2932)
+- Support filling a generated date of birth (#2929)
