@@ -1,0 +1,86 @@
+/**
+ * @module Duck Player buffering hold
+ *
+ * The wait behind the poster + spinner overlay: watch the player for its first frame,
+ * time out if none arrives, and decide when a tap may dismiss. Knows nothing about pixels,
+ * config or custom elements: the caller supplies the timings and receives the outcome.
+ */
+
+/** @typedef {'frame' | 'error' | 'tap_after_timeout' | 'torn_down'} HoldRemovalReason */
+
+/** Non-bubbling media events, so they are observed on the container in the capture phase */
+const MEDIA_EVENTS = ['playing', 'timeupdate', 'error'];
+
+const DEFAULT_SPINNER_DELAY_MS = 500;
+/** When a still-frameless video is treated as never arriving */
+const DEFAULT_SPINNER_TIMEOUT_MS = 60000;
+
+/**
+ * @param {object} options
+ * @param {Element} options.container - the player container the <video> lives in
+ * @param {HTMLVideoElement} options.video
+ * @param {{ showSpinner(): void, hideSpinner(): void, remove(): void,
+ *           addEventListener: Element['addEventListener'] }} options.overlay
+ * @param {{ spinnerDelayMs?: number, spinnerTimeoutMs?: number }} options.timings
+ * @param {(reason: HoldRemovalReason, elapsedMs: number, timedOut: boolean) => void} options.onReport
+ * @returns {{ stop: (reason: HoldRemovalReason) => void }}
+ */
+export function holdUntilFirstFrame({ container, video, overlay, timings, onReport }) {
+    const { spinnerDelayMs = DEFAULT_SPINNER_DELAY_MS, spinnerTimeoutMs = DEFAULT_SPINNER_TIMEOUT_MS } = timings;
+    const startedAt = performance.now();
+    let stopped = false;
+    let timedOut = false;
+
+    const spinnerDelayTimer = setTimeout(() => overlay.showSpinner(), spinnerDelayMs);
+
+    // Player-level failures ("Video unavailable") never reach the media element, so only this timer ends a hopeless wait
+    const spinnerTimeoutTimer = setTimeout(() => {
+        timedOut = true;
+        overlay.hideSpinner();
+    }, spinnerTimeoutMs);
+
+    /** @param {Event} e */
+    const onMediaEvent = (e) => {
+        const el = e.target;
+        // an <img> failing inside the player also reaches us in the capture phase
+        if (!(el instanceof HTMLVideoElement)) return;
+        if (e.type === 'error') return stop('error');
+        if (el.currentTime > 0 && !el.paused) stop('frame');
+    };
+
+    /** @param {HoldRemovalReason} reason */
+    const stop = (reason) => {
+        if (stopped) return;
+        stopped = true;
+        clearTimeout(spinnerDelayTimer);
+        clearTimeout(spinnerTimeoutTimer);
+        for (const type of MEDIA_EVENTS) {
+            container.removeEventListener(type, onMediaEvent, { capture: true });
+        }
+        overlay.remove();
+        onReport(reason, performance.now() - startedAt, timedOut);
+    };
+
+    // Watching the container rather than the element survives YouTube swapping the <video> mid-startup
+    for (const type of MEDIA_EVENTS) {
+        container.addEventListener(type, onMediaEvent, { capture: true });
+    }
+
+    if (typeof video.requestVideoFrameCallback === 'function') {
+        // a swapped-out element is detached, so it cannot be the one presenting a frame
+        video.requestVideoFrameCallback(() => {
+            if (video.isConnected) stop('frame');
+        });
+    }
+
+    // YouTube treats a tap on the video surface as its own gesture
+    overlay.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+    overlay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // swallow the tap: dismissing while a frame is still coming reveals the black frame the hold covers
+        if (timedOut) stop('tap_after_timeout');
+    });
+
+    return { stop };
+}

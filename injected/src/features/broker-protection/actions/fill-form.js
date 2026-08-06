@@ -1,6 +1,6 @@
 import { getElement, generateRandomInt } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
-import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
+import { generatePhoneNumber, generateZipCode, generateStreetAddress, generateDateOfBirth } from './generators.js';
 import { states } from '../comparisons/constants.js';
 import { sameCityState } from '../comparisons/address.js';
 
@@ -63,6 +63,23 @@ export function fillMany(root, elements, data, userProfile = null) {
             results.push(setValueForInput(inputElem, generatePhoneNumber()));
         } else if (element.type === '$generated_zip_code$') {
             results.push(setValueForInput(inputElem, generateZipCode()));
+        } else if (element.type === '$generated_dob$') {
+            if (!Object.prototype.hasOwnProperty.call(data, 'age')) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data didn't contain an 'age' to generate a date of birth from`,
+                });
+                continue;
+            }
+            const age = parseInt(data.age, 10);
+            if (!Number.isFinite(age) || age < 0) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data contained an 'age' that wasn't a non-negative number`,
+                });
+                continue;
+            }
+            results.push(setValueForInput(inputElem, generateDateOfBirth(age)));
         } else if (element.type === '$generated_random_number$') {
             if (!element.min || !element.max) {
                 results.push({

@@ -588,6 +588,27 @@ test.describe('Broker Protection communications', () => {
             await dbp.doesInputValueEqual('#profile_url', 'https://www.veripages.com/profile/John-Smith-12345');
         });
 
+        test('fillForm generates a date of birth matching the extracted age', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-generated-dob.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.isDateOfBirthForAge('#user_dob', 51);
+            await dbp.doesInputValueEqual('#user_first_name', 'John');
+        });
+
+        test('fillForm errors when a generated date of birth has no age to work from', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-generated-dob-no-age.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isErrorMessage(response);
+            await dbp.doesInputValueEqual('#user_dob', '');
+        });
+
         test('fillForm with optional information', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();
