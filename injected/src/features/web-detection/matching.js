@@ -187,8 +187,43 @@ const DEFAULT_CHUNK_SIZE = 8192;
 /** `chunkSize` divisor giving the default `chunkTail`. */
 const CHUNK_TAIL_RATIO = 16;
 
-/** Reused for the tail walk-back. Must stay free of `g`/`y` so `.test()` is stateless. */
-const WORD_CHARACTER = /\w/;
+/**
+ * How far the tail cut may walk back looking for a word boundary.
+ *
+ * The walk only has to escape the token the cut landed in, so this is a bound on word
+ * length rather than a tuning knob - past it there is no boundary to reach, only a hash,
+ * base64 or minified blob. The longest token in any shipped detector pattern is 16
+ * characters; 64 leaves room for compound words in the languages we match.
+ *
+ * Deliberately independent of `chunkTail`, which is sized for a different purpose (the
+ * longest match allowed to span a boundary). Deriving one from the other would make a
+ * config raising the tail silently multiply the cost of this scan.
+ */
+const MAX_WORD_LENGTH = 64;
+
+/**
+ * Whether a character code is a word character, matching `\w` exactly.
+ *
+ * `\w` is `[A-Za-z0-9_]`, verified equivalent to these ranges across every code unit.
+ * It is deliberately ASCII-only, and so is `\b` - both share the same definition, which
+ * is what keeps this consistent with the assertion it exists to protect, whatever the
+ * language of the text.
+ *
+ * The equivalence holds for every regex flag except `i` combined with `u`/`v`, where
+ * case folding pulls U+017F and U+212A into `\w`. Using character codes sidesteps that,
+ * along with the `g`/`y` statefulness that made the previous `RegExp.test` form fragile.
+ *
+ * @param {number} code
+ * @returns {boolean}
+ */
+function isWordCode(code) {
+    return (
+        (code >= 97 && code <= 122) || // a-z
+        (code >= 65 && code <= 90) || // A-Z
+        (code >= 48 && code <= 57) || // 0-9
+        code === 95 // _
+    );
+}
 
 /**
  * Resolve chunking configuration against the built-in defaults.
@@ -217,17 +252,17 @@ function resolveXPathConfig(config) {
 function retainTail(buffer, chunkTail) {
     let cut = buffer.length - chunkTail;
     if (cut <= 0) return buffer;
-    // Ceiling on the walk-back, so an unbroken run of word characters (a base64 payload, a
-    // minified blob) cannot grow the buffer without limit: retained text stays within
-    // 2 * chunkTail. Reaching it leaves position 0 mid-word, giving up the guarantee below
-    // for this flush - a hard memory bound is worth more than exact `\b` semantics inside a
-    // blob that a pattern is unlikely to match anyway.
-    const limit = Math.max(0, cut - chunkTail);
+    // Ceiling on the walk, so an unbroken run of word characters cannot grow the buffer
+    // without limit. Reaching it leaves position 0 mid-word, giving up the guarantee below
+    // for this flush - a hard bound is worth more than exact `\b` semantics inside a blob
+    // that a phrase pattern will not match anyway. Never more than `chunkTail`, so a tail
+    // of 0 still retains nothing.
+    const limit = Math.max(0, cut - Math.min(chunkTail, MAX_WORD_LENGTH));
     // Land the cut just after a non-word character, so position 0 is a real word boundary
     // rather than an artefact of where the chunk ended - otherwise a `\b`-prefixed pattern
     // asserts at position 0 of every chunk and matches mid-word. This only lengthens the
     // tail, so it introduces no false negative.
-    while (cut > limit && WORD_CHARACTER.test(buffer.charAt(cut - 1))) cut--;
+    while (cut > limit && isWordCode(buffer.charCodeAt(cut - 1))) cut--;
     return buffer.slice(cut);
 }
 

@@ -951,7 +951,7 @@ describe('WebDetection', () => {
                     expect(matchChunked(html, '\\badblocker', { chunkSize: 100, chunkTail: 9 })).toBe(true);
                 });
 
-                it('should cap the retained tail at twice chunkTail', () => {
+                it('should cap the walk-back at chunkTail when that is the smaller ceiling', () => {
                     // The node ends in an unbroken run of word characters, so the walk-back runs
                     // until it hits its ceiling. That fixes the retained text at exactly 2 * chunkTail.
                     const html = `<span>${'z'.repeat(75)}0123456789abcdefghijklmno</span><span>detected</span>`;
@@ -960,6 +960,18 @@ describe('WebDetection', () => {
                     expect(matchChunked(html, '56789abcdefghijklmnodetected', config)).toBe(true);
                     // Needs 21, one past the ceiling
                     expect(matchChunked(html, '456789abcdefghijklmnodetected', config)).toBe(false);
+                });
+
+                it('should cap the walk-back at the word-length limit for a large chunkTail', () => {
+                    // Same unbroken run, but a tail past the 64 character word-length ceiling, so
+                    // the walk stops there instead: 100 retained plus at most 64 walked back.
+                    const run = 'abcdefghij'.repeat(20);
+                    const html = `<span>${'z'.repeat(800)}${run}</span><span>detected</span>`;
+                    const config = { chunkSize: 1000, chunkTail: 100 };
+                    // Needs exactly the 164 retained characters
+                    expect(matchChunked(html, run.slice(36) + 'detected', config)).toBe(true);
+                    // Needs 165, one past the ceiling
+                    expect(matchChunked(html, run.slice(35) + 'detected', config)).toBe(false);
                 });
 
                 it('should honour chunkTail: 0 rather than promoting it to a floor', () => {
