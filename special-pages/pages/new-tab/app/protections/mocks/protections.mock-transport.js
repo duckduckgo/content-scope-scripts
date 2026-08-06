@@ -120,7 +120,7 @@ export function protectionsMockTransport() {
 
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
-                    if (url.searchParams.get('protections.feed') === 'activity') {
+                    if (url.searchParams.get('protections-feed') === 'activity') {
                         config.feed = 'activity';
                     }
 

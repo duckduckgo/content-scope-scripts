@@ -2,7 +2,7 @@ import { privacyStatsMocks } from '../mocks/privacy-stats.mocks.js';
 import { expect } from '@playwright/test';
 
 const defaultPageParams = {
-    'protections.feed': 'privacy-stats',
+    'protections-feed': 'privacy-stats',
 };
 
 export class PrivacyStatsPage {

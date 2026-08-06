@@ -33,7 +33,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+            await ntp.openPage({ additional: { 'protections-feed': 'activity' } });
             await ap.didRender();
             await expect(page).toHaveScreenshot('activity-default.png', { maxDiffPixels });
         });
@@ -42,7 +42,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { 'protections.feed': 'activity', activity: 'empty' } });
+            await ntp.openPage({ additional: { 'protections-feed': 'activity', activity: 'empty' } });
             await ap.ready();
             await expect(page).toHaveScreenshot('activity-empty.png', { maxDiffPixels });
         });
