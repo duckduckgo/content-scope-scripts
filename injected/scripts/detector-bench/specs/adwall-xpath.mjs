@@ -7,7 +7,10 @@
  * experiment files to go stale, so this keeps running and keeps meaning the same thing as
  * `matching.js` evolves.
  *
- * Six ways of writing one detector:
+ * SCOPE: how the detector is *written*. The chunking parameters are a different question
+ * with a different answer, and live in `specs/xpath-chunking.mjs`.
+ *
+ * Five ways of writing one detector:
  *
  * - `xpath`        rendered text via ancestor-axis predicates. The reference: correct on
  *                  every case, and the config this comparison is against.
@@ -20,9 +23,6 @@
  * - `self-axis`    exclusion checked against the immediate parent rather than the
  *                  ancestor chain. Looks cheaper and measures slower, and diverges in the
  *                  opposite direction from the one you would predict.
- * - `unchunked`    `chunkSize: 0`, so the whole selection is concatenated before testing.
- *                  What the implementation did before chunking, kept as the memory
- *                  comparison - run with `--memory` to see the difference.
  *
  * Three of those change behaviour and say so with `expectDivergence`. That is the point
  * of the spec rather than a defect in it: `gated` is around an order of magnitude faster
@@ -101,20 +101,6 @@ export default {
             name: 'self-axis',
             expectDivergence: true,
             detectors: detector({ pattern: PATTERNS, xpath: RENDERED_TEXT_SELF_AXIS }),
-        },
-        {
-            name: 'unchunked',
-            detectors: detector({ pattern: PATTERNS, xpath: RENDERED_TEXT, xpathConfig: { chunkSize: 0 } }),
-        },
-        // A swept parameter: one variant per value, so "does a larger tail cost more" is
-        // answered by the run rather than by three copies of this block. The tail is
-        // re-scanned by the next regex test and the cut walks backwards over it, so both
-        // halves of its cost scale with the value.
-        {
-            name: 'tail',
-            params: { chunkTail: [64, 512, 4096] },
-            detectors: ({ chunkTail }) =>
-                detector({ pattern: PATTERNS, xpath: RENDERED_TEXT, xpathConfig: { chunkSize: 8192, chunkTail } }),
         },
     ],
 };
