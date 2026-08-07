@@ -191,6 +191,8 @@ identical DOM shape - a timing difference between them then reflects the match, 
 - `articlePage` - shallow, mixed inline elements. The default "realistic page" shape.
 - `deeplyNested` - ancestor-axis predicates walk upward per text node, so depth costs what flat pages never reveal.
 - `manyTinyTextNodes` - isolates per-node overhead from character volume.
+- `elementHeavy` - many elements, no text. The only fixture that separates walking past nodes from selecting them, since everywhere else element count and text-node count rise together.
+- `nestedInline` - text at every level of the nesting rather than only the leaf, so depth multiplies text nodes. The shape real markup has, and the worst case for an ancestor-chain predicate.
 - `textHeavy` - the mirror: isolates character-proportional cost from per-node cost.
 - `unbrokenWordRuns` - the same volume as `textHeavy` with no word breaks, so a boundary scan runs to its ceiling on every flush instead of stopping at the first space.
 - `scriptHeavy` - large inline scripts with little rendered text. Pathological for anything reading `textContent` without excluding scripts.
@@ -249,7 +251,12 @@ tool to attribute one:
   scaling section. Flat means linear. Rising means worse than linear. Falling means a fixed
   overhead dominating at small sizes.
 - **Does depth matter?** `deeplyNested`. Ancestor-axis predicates re-walk the chain per text
-  node, which a flat page never shows.
+  node, which a flat page never shows. It holds characters constant across the sweep, so
+  anything that moves is depth.
+- **Is it nodes or characters?** `elementHeavy` has no text at all, so any time it records
+  is pure traversal. Measured for the shipped expression: roughly 60ns per element walked
+  past against 840ns per text node selected, so cost tracks the *selected* set far more
+  than the tree it came from - and depth multiplies the second figure.
 - **Is it the DOM work or the matching?** Vary the pattern set against a fixed fixture, or
   compare an implementation that skips the concatenation step.
 - **Is it memory?** See below. A variant that looks competitive on time can hold two orders
@@ -270,7 +277,15 @@ Two columns, and they are not interchangeable:
 
 Bounding peak memory is the entire reason chunking exists, so a comparison of a chunked
 against an unchunked strategy that reports only time is not answering the question. On a
-1M-character page the chunked path held 11k characters against concatenation's 1.00M.
+1M-character page the chunked path held 11k characters against concatenation's 1.00M, and
+at 5M characters 26k against 5.00M.
+
+The bound is `chunkSize + chunkTail + the longest single text node`, not `chunkSize +
+chunkTail`: a node is appended whole before the flush test runs. On pages whose text
+arrives in ordinary nodes that third term vanishes and the peak is flat at 9k characters
+whatever the page size, but a page holding its text in one huge node defeats the bound
+entirely. `text-heavy` sweeps that term directly - its `charsPerParagraph` *is* the node
+length - which is why the peak there rises with the page while `article-clean`'s does not.
 
 ## Conventions worth keeping
 
@@ -293,6 +308,18 @@ Two worked reversals, both of which read the opposite way before being measured:
   while the XPath concatenates across it, so `your adblocker <script>var a=1;</script>is on`
   matches the XPath and not the gate. If you gate, gate on a looser discriminator
   (`ad ?block`) than the final pattern.
+
+A third, where the same idea measured 12x slower and 4x faster depending on one detail:
+replacing XPath with a `TreeWalker` looks like a clear win, because `FILTER_REJECT` prunes
+excluded subtrees where `not(ancestor::script)` re-walks the chain per text node. With a JS
+`acceptNode` filter it is 8x-12x *slower* than XPath, because the filter is invoked for
+every node and crosses the JS/engine boundary each time, paying that everywhere to save a
+walk almost nowhere. With no filter at all - `SHOW_TEXT` alone, exclusions checked by
+walking parents of the nodes that survive - the same approach is 1.6x-4x *faster* than
+XPath on every node-heavy shape, losing only at depth 100 where the JS ancestor walk costs
+more than the engine's. The lesson generalises past this case: when comparing an
+engine-implemented loop against a JS one, the per-node boundary crossing dominates, so
+where the filtering happens matters more than what it filters.
 
 And one where reasoning got the *direction* wrong, not just the size: checking exclusions
 against the immediate parent (`//body//*[not(self::script)]/text()`) looks cheaper than
@@ -321,10 +348,20 @@ and expensive to lose quietly:
   Flushing on buffer length couples progress to the tail: once the tail is large the buffer
   never drops back below the threshold, so every subsequent node re-tests the whole buffer.
 - **`chunkSize: 0` disables chunking**, accumulating everything for a single test.
+- **`chunkTail` is the CPU knob, not `chunkSize`.** Sweeping `chunkSize` from 1024 to
+  262144 moves nothing outside noise, because the work it governs - one regex entry and one
+  cut per flush - is fixed cost against a scan that is proportional to characters. What
+  costs is the *fraction* of the page scanned twice, which is `chunkTail / chunkSize`. At a
+  fixed 8192 chunk, tails of 64 and 512 are indistinguishable, 4096 costs about 1.3x and
+  8192 about 1.7x. Keep the ratio at or below the default sixteenth; a tail approaching the
+  chunk size approaches scanning the page twice.
 - **The walk-back ceiling is `MAX_WORD_LENGTH`, deliberately independent of `chunkTail`.**
   Deriving one from the other would let a config raising the tail silently multiply the cost
-  of the scan. Empirically a tail of 64 and one of 512 are indistinguishable; 4096 costs
-  about 1.3x.
+  of the scan.
+- **Chunking is not a net CPU cost.** Against unchunked concatenation it measures within
+  noise on non-matching pages, and 1.3x-1.5x *faster* when the match is near the front of
+  the document, because a flush that matches returns without reading the rest. The saving
+  needs the match to be early: with the payload appended it is 1.0x.
 - **The start edge is fixable, the end edge is not.** The tail cut can be extended backwards
   so position 0 is a real word boundary rather than an artefact. The *end* of the buffer has
   no such fix: a trailing `\b` or lookahead sees an artificial end-of-string, and the only

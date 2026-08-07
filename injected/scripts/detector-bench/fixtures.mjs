@@ -69,6 +69,62 @@ export function deeplyNested({ rows = 500, depth = 30, append = '' }) {
 }
 
 /**
+ * Very many elements, almost no text. The counterpart to `manyTinyTextNodes`:
+ * that one holds many nodes the expression *selects*, this one holds many the
+ * engine must walk past to find the few it does.
+ *
+ * A text-node expression still pays for the element tree it traverses, and no
+ * fixture built around text volume can show that cost, because in all of them
+ * element count and text-node count rise together. Here they are separated.
+ *
+ * @param {{ blocks?: number, emptyPerBlock?: number, append?: string }} params
+ */
+export function elementHeavy({ blocks = 20000, emptyPerBlock = 8, append = '' }) {
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < blocks; i++) {
+        const block = document.createElement('div');
+        let html = '';
+        for (let j = 0; j < emptyPerBlock; j++) html += '<span class="marker"></span>';
+        block.innerHTML = html;
+        frag.appendChild(block);
+    }
+    document.body.appendChild(frag);
+    if (append) document.body.insertAdjacentHTML('beforeend', append);
+}
+
+/**
+ * Text fragmented across nested inline markup, with a text node at every level
+ * rather than only at the leaf.
+ *
+ * `deeplyNested` puts one text node at the bottom of each chain, so it prices
+ * depth alone. Real markup interleaves text with the nesting, which multiplies
+ * the two: an `ancestor::` predicate re-walks the chain for every text node, and
+ * here there are `depth` of them per chain rather than one. This is also the
+ * shape adwall copy actually has - a phrase broken across `<b>`/`<em>` - so it
+ * is the realistic worst case rather than a synthetic one.
+ *
+ * @param {{ blocks?: number, depth?: number, append?: string }} params
+ */
+export function nestedInline({ blocks = 5000, depth = 6, append = '' }) {
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < blocks; i++) {
+        const root = document.createElement('p');
+        /** @type {HTMLElement} */
+        let leaf = root;
+        for (let d = 0; d < depth; d++) {
+            leaf.appendChild(document.createTextNode('level ' + d + ' text '));
+            const child = document.createElement(d % 2 === 0 ? 'b' : 'em');
+            leaf.appendChild(child);
+            leaf = child;
+        }
+        leaf.textContent = 'innermost ' + i;
+        frag.appendChild(root);
+    }
+    document.body.appendChild(frag);
+    if (append) document.body.insertAdjacentHTML('beforeend', append);
+}
+
+/**
  * Very many very small text nodes. Isolates per-node overhead - snapshot
  * allocation and concatenation - from raw character volume.
  *
