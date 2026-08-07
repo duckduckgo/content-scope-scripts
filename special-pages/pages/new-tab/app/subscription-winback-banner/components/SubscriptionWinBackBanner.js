@@ -6,6 +6,7 @@ import styles from './SubscriptionWinBackBanner.module.css';
 import { SubscriptionWinBackBannerContext } from '../SubscriptionWinBackBannerProvider';
 import { useContext } from 'preact/hooks';
 import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
+import { useNewTabPageRebranding } from '../../settings.provider';
 
 /**
  * @typedef { import("../../../types/new-tab").SubscriptionWinBackBannerMessage} SubscriptionWinBackBannerMessage
@@ -15,11 +16,13 @@ import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils'
  * @param {(id: string) => void} props.action
  */
 export function SubscriptionWinBackBanner({ message, action, dismiss }) {
+    const isRebrandEnabled = useNewTabPageRebranding();
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
+    const iconSrc = isRebrandEnabled ? './icons/rebrand/Subscription-Clock-96.svg' : './icons/Subscription-Clock-96.svg';
     return (
         <div id={message.id} class={cn(styles.root, styles.icon)}>
             <span class={styles.iconBlock}>
-                <img aria-hidden="true" src={`./icons/Subscription-Clock-96.svg`} alt="" />
+                <img aria-hidden="true" src={iconSrc} alt="" />
             </span>
             <div class={styles.content}>
                 {message.titleText && <h2 class={styles.title}>{message.titleText}</h2>}

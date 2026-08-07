@@ -9,139 +9,152 @@
 /* ../node_modules/@duckduckgo/design-tokens/build/desktop-browsers/tokens.css */
 :root,
 :host {
-  --ds-color-palette-black: #000000;
-  --ds-color-palette-white: #ffffff;
-  --ds-color-palette-transparent: rgba(0, 0, 0, 0);
-  --ds-color-palette-gray-0: #fafafa;
-  --ds-color-palette-gray-10: #f5f5f5;
-  --ds-color-palette-gray-20: #eeeeee;
-  --ds-color-palette-gray-30: #dddddd;
-  --ds-color-palette-gray-40: #cccccc;
-  --ds-color-palette-gray-50: #aaaaaa;
-  --ds-color-palette-gray-60: #888888;
-  --ds-color-palette-gray-70: #666666;
-  --ds-color-palette-gray-80: #444444;
-  --ds-color-palette-gray-85: #333333;
-  --ds-color-palette-gray-90: #222222;
-  --ds-color-palette-gray-100: #111111;
-  --ds-color-palette-red-0: #ffd7cc;
-  --ds-color-palette-red-10: #f8bbaa;
-  --ds-color-palette-red-20: #f2a18a;
-  --ds-color-palette-red-30: #eb876c;
-  --ds-color-palette-red-40: #e46f4f;
-  --ds-color-palette-red-50: #de5833;
-  --ds-color-palette-red-60: #bc4423;
-  --ds-color-palette-red-70: #9a3216;
-  --ds-color-palette-red-80: #77230c;
-  --ds-color-palette-red-90: #551605;
-  --ds-color-palette-red-100: #330b01;
-  --ds-color-palette-red-alert-20: #ff545a;
-  --ds-color-palette-red-alert-30: #e04a4f;
-  --ds-color-palette-red-alert-40: #d1454a;
-  --ds-color-palette-red-alert-50: #eb102d;
-  --ds-color-palette-red-alert-60: #cf0e28;
-  --ds-color-palette-red-alert-70: #c10d25;
-  --ds-color-palette-blue-0: #ccdaff;
-  --ds-color-palette-blue-10: #adc2fc;
-  --ds-color-palette-blue-20: #8fabf9;
-  --ds-color-palette-blue-30: #7295f6;
-  --ds-color-palette-blue-40: #557ff3;
-  --ds-color-palette-blue-50: #3969ef;
-  --ds-color-palette-blue-60: #2b55ca;
-  --ds-color-palette-blue-70: #1e42a4;
-  --ds-color-palette-blue-80: #14307e;
-  --ds-color-palette-blue-90: #0b2059;
-  --ds-color-palette-blue-100: #051133;
-  --ds-color-palette-blue-0-transparency-01: rgba(204, 218, 255, 0.4);
-  --ds-color-palette-blue-0-transparency-02: rgba(204, 218, 255, 0.8);
-  --ds-color-palette-blue-30-transparency-01: rgba(114, 149, 246, 0.15);
-  --ds-color-palette-blue-30-transparency-02: rgba(114, 149, 246, 0.3);
-  --ds-color-palette-blue-30-transparency-03: rgba(114, 149, 246, 0.6);
-  --ds-color-palette-blue-30-transparency-04: rgba(114, 149, 246, 0.2);
-  --ds-color-palette-blue-50-transparency-01: rgba(57, 105, 239, 0.36);
-  --ds-color-palette-blue-50-transparency-02: rgba(57, 105, 239, 0.2);
-  --ds-color-palette-blue-hyperlink: #1a0dab;
-  --ds-color-palette-purple-0: #ece6ff;
-  --ds-color-palette-purple-10: #c7b9ee;
-  --ds-color-palette-purple-20: #a591dc;
-  --ds-color-palette-purple-30: #876ecb;
-  --ds-color-palette-purple-40: #6b4eba;
-  --ds-color-palette-purple-50: #5132a9;
-  --ds-color-palette-purple-60: #3e228c;
-  --ds-color-palette-purple-70: #2c146f;
-  --ds-color-palette-purple-80: #1d0a53;
-  --ds-color-palette-purple-90: #110336;
-  --ds-color-palette-purple-100: #070019;
-  --ds-color-palette-purple-hyperlink: #6c00a2;
-  --ds-color-palette-yellow-0: #fff7e0;
-  --ds-color-palette-yellow-10: #fff0c2;
-  --ds-color-palette-yellow-20: #ffe8a3;
-  --ds-color-palette-yellow-30: #ffde7a;
-  --ds-color-palette-yellow-40: #ffd65c;
-  --ds-color-palette-yellow-50: #ffcc33;
-  --ds-color-palette-yellow-60: #f9be1a;
-  --ds-color-palette-yellow-70: #e2a412;
-  --ds-color-palette-yellow-80: #c18010;
-  --ds-color-palette-yellow-90: #92540c;
-  --ds-color-palette-yellow-100: #5a2807;
-  --ds-color-palette-green-0: #d3ffcc;
-  --ds-color-palette-green-10: #b3f1aa;
-  --ds-color-palette-green-20: #96e38a;
-  --ds-color-palette-green-30: #7bd66d;
-  --ds-color-palette-green-40: #63c853;
-  --ds-color-palette-green-50: #4cba3c;
-  --ds-color-palette-green-60: #399f29;
-  --ds-color-palette-green-70: #288419;
-  --ds-color-palette-green-80: #1a690d;
-  --ds-color-palette-green-90: #0f4e05;
-  --ds-color-palette-green-100: #073300;
-  --ds-color-palette-green-alert-50: #21c000;
-  --ds-color-palette-shade-12: rgba(0, 0, 0, 0.12);
-  --ds-color-palette-shade-18: rgba(0, 0, 0, 0.18);
-  --ds-color-palette-shade-24: rgba(0, 0, 0, 0.24);
-  --ds-color-palette-shade-30: rgba(0, 0, 0, 0.3);
-  --ds-color-palette-shade-36: rgba(0, 0, 0, 0.36);
-  --ds-color-palette-shade-42: rgba(0, 0, 0, 0.42);
-  --ds-color-palette-shade-48: rgba(0, 0, 0, 0.48);
-  --ds-color-palette-shade-54: rgba(0, 0, 0, 0.54);
-  --ds-color-palette-shade-60: rgba(0, 0, 0, 0.6);
-  --ds-color-palette-shade-66: rgba(0, 0, 0, 0.66);
-  --ds-color-palette-shade-72: rgba(0, 0, 0, 0.72);
-  --ds-color-palette-shade-78: rgba(0, 0, 0, 0.78);
-  --ds-color-palette-shade-84: rgba(0, 0, 0, 0.84);
-  --ds-color-palette-shade-90: rgba(0, 0, 0, 0.9);
-  --ds-color-palette-shade-96: rgba(0, 0, 0, 0.96);
-  --ds-color-palette-shade-01: rgba(0, 0, 0, 0.01);
-  --ds-color-palette-shade-03: rgba(0, 0, 0, 0.03);
-  --ds-color-palette-shade-06: rgba(0, 0, 0, 0.06);
-  --ds-color-palette-shade-09: rgba(0, 0, 0, 0.09);
-  --ds-color-palette-red-shade-10: rgba(235, 16, 45, 0.1);
-  --ds-color-palette-red-shade-25: rgba(235, 16, 45, 0.25);
-  --ds-color-palette-red-tint-15: rgba(255, 84, 90, 0.15);
-  --ds-color-palette-red-tint-30: rgba(255, 84, 90, 0.3);
-  --ds-color-palette-blue-shade-40: rgba(204, 218, 255, 0.4);
-  --ds-color-palette-blue-shade-80: rgba(204, 218, 255, 0.8);
-  --ds-color-palette-blue-tint-15: rgba(114, 149, 246, 0.15);
-  --ds-color-palette-blue-tint-30: rgba(114, 149, 246, 0.3);
-  --ds-color-palette-tint-12: rgba(255, 255, 255, 0.12);
-  --ds-color-palette-tint-18: rgba(255, 255, 255, 0.18);
-  --ds-color-palette-tint-24: rgba(255, 255, 255, 0.24);
-  --ds-color-palette-tint-30: rgba(255, 255, 255, 0.3);
-  --ds-color-palette-tint-36: rgba(255, 255, 255, 0.36);
-  --ds-color-palette-tint-42: rgba(255, 255, 255, 0.42);
-  --ds-color-palette-tint-48: rgba(255, 255, 255, 0.48);
-  --ds-color-palette-tint-54: rgba(255, 255, 255, 0.54);
-  --ds-color-palette-tint-60: rgba(255, 255, 255, 0.6);
-  --ds-color-palette-tint-66: rgba(255, 255, 255, 0.66);
-  --ds-color-palette-tint-72: rgba(255, 255, 255, 0.72);
-  --ds-color-palette-tint-78: rgba(255, 255, 255, 0.78);
-  --ds-color-palette-tint-84: rgba(255, 255, 255, 0.84);
-  --ds-color-palette-tint-90: rgba(255, 255, 255, 0.9);
-  --ds-color-palette-tint-96: rgba(255, 255, 255, 0.96);
-  --ds-color-palette-tint-01: rgba(255, 255, 255, 0.01);
-  --ds-color-palette-tint-03: rgba(255, 255, 255, 0.03);
-  --ds-color-palette-tint-06: rgba(255, 255, 255, 0.06);
-  --ds-color-palette-tint-09: rgba(255, 255, 255, 0.09);
+  --ds-font-family-display:
+    "DuckSansDisplay",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    sans-serif;
+  --ds-font-family-product:
+    "DuckSansProduct",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    sans-serif;
+  --ds-font-family-monospace:
+    ui-monospace,
+    Menlo,
+    Monaco,
+    "Cascadia Mono",
+    "Segoe UI Mono",
+    "Roboto Mono",
+    "Oxygen Mono",
+    "Ubuntu Monospace",
+    "Source Code Pro",
+    "Fira Mono",
+    "Droid Sans Mono",
+    "Courier New",
+    monospace;
+  --ds-font-weight-normal: 400;
+  --ds-font-weight-semibold: 500;
+  --ds-font-weight-bold: 700;
+  --ds-font-letter-spacing-narrow: -1px;
+  --ds-font-letter-spacing-normal: 0;
+  --ds-font-letter-spacing-wide: 2px;
+  --ds-font-title-01-line-height: 64px;
+  --ds-font-title-01-size: 64px;
+  --ds-font-title-02-line-height: 52px;
+  --ds-font-title-02-size: 52px;
+  --ds-font-title-03-line-height: 44px;
+  --ds-font-title-03-size: 44px;
+  --ds-font-title-04-line-height: 40px;
+  --ds-font-title-04-size: 36px;
+  --ds-font-title-05-line-height: 32px;
+  --ds-font-title-05-size: 24px;
+  --ds-font-title-06-line-height: 28px;
+  --ds-font-title-06-size: 20px;
+  --ds-font-body-xxl-line-height: 32px;
+  --ds-font-body-xxl-size: 24px;
+  --ds-font-body-xl-line-height: 28px;
+  --ds-font-body-xl-size: 20px;
+  --ds-font-body-lg-line-height: 24px;
+  --ds-font-body-lg-size: 16px;
+  --ds-font-body-md-line-height: 20px;
+  --ds-font-body-md-size: 14px;
+  --ds-font-body-sm-line-height: 16px;
+  --ds-font-body-sm-size: 12px;
+  --ds-font-eyebrow-01-line-height: 20px;
+  --ds-font-eyebrow-01-size: 18px;
+  --ds-font-eyebrow-01-text-transform: uppercase;
+  --ds-font-eyebrow-02-line-height: 16px;
+  --ds-font-eyebrow-02-size: 14px;
+  --ds-font-eyebrow-02-text-transform: uppercase;
+  --ds-font-button-label-01-line-height: 20px;
+  --ds-font-button-label-01-size: 18px;
+  --ds-font-button-label-02-line-height: 16px;
+  --ds-font-button-label-02-size: 16px;
+  --ds-font-button-label-03-line-height: 16px;
+  --ds-font-button-label-03-size: 14px;
+  --ds-font-label-01-line-height: 12px;
+  --ds-font-label-01-size: 12px;
+  --ds-font-label-01-text-transform: uppercase;
+  --ds-font-caption-01-line-height: 16px;
+  --ds-font-caption-01-size: 13px;
+  --ds-radius-full: 999px;
+  --ds-radius-x01: 4px;
+  --ds-radius-x02: 8px;
+  --ds-radius-x03: 12px;
+  --ds-radius-x04: 16px;
+  --ds-radius-x05: 20px;
+  --ds-radius-x06: 24px;
+  --ds-radius-x07: 28px;
+  --ds-radius-x08: 32px;
+  --ds-radius-x09: 36px;
+  --ds-radius-x10: 40px;
+  --ds-radius-x11: 44px;
+  --ds-radius-x12: 48px;
+  --ds-space-x-5: 2px;
+  --ds-space-x01: 4px;
+  --ds-space-x1-5: 6px;
+  --ds-space-x02: 8px;
+  --ds-space-x02-5: 10px;
+  --ds-space-x03: 12px;
+  --ds-space-x03-5: 14px;
+  --ds-space-x04: 16px;
+  --ds-space-x04-5: 18px;
+  --ds-space-x05: 20px;
+  --ds-space-x06: 24px;
+  --ds-space-x07: 28px;
+  --ds-space-x08: 32px;
+  --ds-space-x09: 36px;
+  --ds-space-x10: 40px;
+  --ds-space-x11: 44px;
+  --ds-space-x12: 48px;
+  --ds-space-x13: 52px;
+  --ds-space-x14: 56px;
+  --ds-space-x15: 60px;
+  --ds-space-x16: 64px;
+  --ds-space-x17: 68px;
+  --ds-space-x18: 72px;
+  --ds-space-x20: 80px;
+  --ds-space-x22: 88px;
+  --ds-space-x24: 96px;
+  --ds-space-x32: 128px;
+  --ds-space-x40: 160px;
+  --ds-space-x48: 192px;
+  --ds-space-x56: 224px;
+  --ds-space-x64: 256px;
+  --ds-space-x72: 288px;
+  --ds-space-x80: 320px;
+  --ds-space-x90: 360px;
+  --ds-space-x96: 384px;
+  --ds-space-x100: 400px;
+  --ds-space-x110: 440px;
+  --ds-space-x130: 520px;
+  --ds-space-x175: 700px;
+  --ds-z-index-hidden: -999;
+  --ds-z-index-default: 1;
+  --ds-z-index-middle-raised: 50;
+  --ds-z-index-sticky: 55;
+  --ds-z-index-popover: 100;
+  --ds-z-index-side-menu: 200;
+  --ds-z-index-modal-backdrop: 300;
+  --ds-z-index-modal: 305;
+  --ds-z-index-alert: 400;
   --ds-color-theme-cool-gray-dark-accent-alt-content-primary: #eeeff7;
   --ds-color-theme-cool-gray-dark-accent-alt-content-secondary: rgba(238, 239, 247, 0.7);
   --ds-color-theme-cool-gray-dark-accent-alt-content-tertiary: rgba(238, 239, 247, 0.5);
@@ -294,12 +307,12 @@
   --ds-color-theme-default-dark-accent-content-primary: #051133;
   --ds-color-theme-default-dark-accent-content-secondary: rgba(5, 17, 51, 0.7);
   --ds-color-theme-default-dark-accent-content-tertiary: rgba(5, 17, 51, 0.5);
-  --ds-color-theme-default-dark-accent-glow-primary: rgba(114, 149, 246, 0.2);
-  --ds-color-theme-default-dark-accent-glow-secondary: rgba(114, 149, 246, 0.12);
-  --ds-color-theme-default-dark-accent-primary: #8fabf9;
+  --ds-color-theme-default-dark-accent-glow-primary: rgba(117, 182, 235, 0.2);
+  --ds-color-theme-default-dark-accent-glow-secondary: rgba(117, 182, 235, 0.12);
+  --ds-color-theme-default-dark-accent-primary: #75b6eb;
   --ds-color-theme-default-dark-accent-quaternary: #2b55ca;
-  --ds-color-theme-default-dark-accent-secondary: #7295f6;
-  --ds-color-theme-default-dark-accent-tertiary: #557ff3;
+  --ds-color-theme-default-dark-accent-secondary: #4397e0;
+  --ds-color-theme-default-dark-accent-tertiary: #1074cc;
   --ds-color-theme-default-dark-accent-text-primary: #adc2fc;
   --ds-color-theme-default-dark-accent-text-secondary: #8fabf9;
   --ds-color-theme-default-dark-accent-text-tertiary: #7295f6;
@@ -363,12 +376,12 @@
   --ds-color-theme-default-light-accent-content-primary: #ffffff;
   --ds-color-theme-default-light-accent-content-secondary: rgba(255, 255, 255, 0.7);
   --ds-color-theme-default-light-accent-content-tertiary: rgba(255, 255, 255, 0.5);
-  --ds-color-theme-default-light-accent-glow-primary: rgba(57, 105, 239, 0.2);
-  --ds-color-theme-default-light-accent-glow-secondary: rgba(57, 105, 239, 0.12);
-  --ds-color-theme-default-light-accent-primary: #3869ef;
+  --ds-color-theme-default-light-accent-glow-primary: rgba(16, 116, 204, 0.2);
+  --ds-color-theme-default-light-accent-glow-secondary: rgba(16, 116, 204, 0.12);
+  --ds-color-theme-default-light-accent-primary: #1074cc;
   --ds-color-theme-default-light-accent-quaternary: #14307e;
-  --ds-color-theme-default-light-accent-secondary: #2b55ca;
-  --ds-color-theme-default-light-accent-tertiary: #1e42a4;
+  --ds-color-theme-default-light-accent-secondary: #045eb2;
+  --ds-color-theme-default-light-accent-tertiary: #034180;
   --ds-color-theme-default-light-accent-text-primary: #3869ef;
   --ds-color-theme-default-light-accent-text-secondary: #2b55ca;
   --ds-color-theme-default-light-accent-text-tertiary: #1e42a4;
@@ -1246,6 +1259,60 @@
   --ds-color-theme-violet-light-text-tertiary: rgba(7, 5, 13, 0.36);
   --ds-color-theme-violet-light-tone-shade-primary: rgba(35, 20, 81, 0.06);
   --ds-color-theme-violet-light-tone-tint-primary: rgba(245, 245, 254, 0.56);
+  --ds-font-title-01-font-family: var(--ds-font-family-display);
+  --ds-font-title-01-letter-spacing: var(--ds-font-letter-spacing-narrow);
+  --ds-font-title-01-weight: var(--ds-font-weight-normal);
+  --ds-font-title-02-font-family: var(--ds-font-family-display);
+  --ds-font-title-02-letter-spacing: var(--ds-font-letter-spacing-narrow);
+  --ds-font-title-02-weight: var(--ds-font-weight-normal);
+  --ds-font-title-03-font-family: var(--ds-font-family-display);
+  --ds-font-title-03-letter-spacing: var(--ds-font-letter-spacing-narrow);
+  --ds-font-title-03-weight: var(--ds-font-weight-normal);
+  --ds-font-title-04-font-family: var(--ds-font-family-display);
+  --ds-font-title-04-letter-spacing: var(--ds-font-letter-spacing-narrow);
+  --ds-font-title-04-weight: var(--ds-font-weight-normal);
+  --ds-font-title-05-font-family: var(--ds-font-family-display);
+  --ds-font-title-05-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-title-05-weight: var(--ds-font-weight-normal);
+  --ds-font-title-06-font-family: var(--ds-font-family-display);
+  --ds-font-title-06-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-title-06-weight: var(--ds-font-weight-normal);
+  --ds-font-body-xxl-font-family: var(--ds-font-family-display);
+  --ds-font-body-xxl-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-xxl-weight: var(--ds-font-weight-normal);
+  --ds-font-body-xl-font-family: var(--ds-font-family-display);
+  --ds-font-body-xl-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-xl-weight: var(--ds-font-weight-normal);
+  --ds-font-body-lg-font-family: var(--ds-font-family-product);
+  --ds-font-body-lg-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-lg-weight: var(--ds-font-weight-normal);
+  --ds-font-body-md-font-family: var(--ds-font-family-product);
+  --ds-font-body-md-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-md-weight: var(--ds-font-weight-normal);
+  --ds-font-body-sm-font-family: var(--ds-font-family-product);
+  --ds-font-body-sm-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-sm-weight: var(--ds-font-weight-normal);
+  --ds-font-eyebrow-01-font-family: var(--ds-font-family-product);
+  --ds-font-eyebrow-01-letter-spacing: var(--ds-font-letter-spacing-wide);
+  --ds-font-eyebrow-01-weight: var(--ds-font-weight-semibold);
+  --ds-font-eyebrow-02-font-family: var(--ds-font-family-product);
+  --ds-font-eyebrow-02-letter-spacing: var(--ds-font-letter-spacing-wide);
+  --ds-font-eyebrow-02-weight: var(--ds-font-weight-semibold);
+  --ds-font-button-label-01-font-family: var(--ds-font-family-product);
+  --ds-font-button-label-01-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-button-label-01-weight: var(--ds-font-weight-semibold);
+  --ds-font-button-label-02-font-family: var(--ds-font-family-product);
+  --ds-font-button-label-02-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-button-label-02-weight: var(--ds-font-weight-bold);
+  --ds-font-button-label-03-font-family: var(--ds-font-family-product);
+  --ds-font-button-label-03-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-button-label-03-weight: var(--ds-font-weight-bold);
+  --ds-font-label-01-font-family: var(--ds-font-family-product);
+  --ds-font-label-01-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-label-01-weight: var(--ds-font-weight-bold);
+  --ds-font-caption-01-font-family: var(--ds-font-family-product);
+  --ds-font-caption-01-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-caption-01-weight: var(--ds-font-weight-normal);
 }
 
 /* shared/styles/design-tokens.css */

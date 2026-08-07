@@ -261,3 +261,92 @@
         outline: none;
     }
 }
+
+:global(body[data-rebrand="true"]) {
+    .header h2 {
+        margin: 0;
+        font-size: var(--title-2-font-size);
+        font-weight: var(--title-2-font-weight);
+        line-height: var(--title-2-line-height);
+        color: var(--ds-color-theme-text-primary);
+    }
+
+    .closeBtn {
+        background-color: var(--ds-color-theme-surface-decoration-primary);
+    }
+
+    .col {
+        padding-top: 0;
+    }
+
+    .sections {
+        grid-row-gap: 0;
+    }
+
+    .sectionTitle {
+        padding-top: var(--ds-space-x08);
+        color: var(--ds-color-theme-text-primary);
+    }
+
+    .sectionBody {
+        margin-top: var(--ds-space-x04);
+    }
+
+    .borderedSection {
+        margin-top: var(--ds-space-x11);
+        padding-top: var(--ds-space-x08);
+    }
+
+    .bgList {
+        gap: var(--ds-space-x03);
+    }
+
+    .bgListItem {
+        grid-row-gap: var(--ds-space-x1-5);
+
+        > span {
+            color: var(--ds-color-theme-text-primary);
+        }
+    }
+
+    .bgPanel {
+        --selection-ring-offset: var(--ds-space-x-5);
+        --selection-ring-width: var(--ds-space-x-5);
+
+        border-radius: var(--ds-radius-x02);
+        box-shadow: none;
+        border: 1px solid var(--ds-color-theme-container-border-primary);
+        position: relative;
+
+        &[aria-checked="true"],
+        &:focus-visible {
+            box-shadow: none;
+
+            &::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: calc(var(--ds-radius-x02) + var(--selection-ring-offset));
+                box-shadow:
+                    0 0 0 var(--selection-ring-offset) var(--ds-color-theme-surface-secondary),
+                    0 0 0 calc(var(--selection-ring-offset) + var(--selection-ring-width)) var(--ds-color-theme-accent-primary);
+                pointer-events: none;
+            }
+        }
+    }
+
+    .bgPanelEmpty {
+        background-color: var(--ds-color-theme-control-fill-primary);
+    }
+
+    /* Re-assert data-color-mode colors: icon must contrast against the swatch color,
+       not the app theme — these are fixed regardless of light/dark mode. */
+    .dynamicPickerIconColor {
+        &[data-color-mode="light"] {
+            color: var(--color-black-at-96);
+        }
+        &[data-color-mode="dark"] {
+            color: var(--color-white-at-96);
+        }
+    }
+}

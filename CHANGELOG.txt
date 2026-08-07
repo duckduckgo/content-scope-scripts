@@ -1,2 +1,1 @@
-- Add initial xpath support (#2930)
-- build(deps): bump @rive-app/canvas-single from 2.38.5 to 2.39.1 (#2940)
+- (feat)rebrand: NTP  (#2923)

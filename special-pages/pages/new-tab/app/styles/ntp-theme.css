@@ -41,9 +41,21 @@
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
 }
 
+body[data-rebrand="true"],
+body[data-rebrand="true"] [data-has-theme-variants="true"] {
+    --ntp-drawer-width: calc(264 * var(--px-in-rem));
+    --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
+}
+
 [data-theme="light"],
 [data-theme="dark"] {
     --ntp-surface-background-color: var(--ds-color-theme-tone-tint-primary);
+    /* Must live under [data-theme]: --ds-color-theme-shadow-* are only mapped there,
+       so defining this on :root made the whole shadow invalid. */
+    --ntp-card-shadow-rest:
+        0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+        0 1px 6px 0 var(--ds-color-theme-shadow-primary),
+        0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
 }
 
 [data-background-kind="color"],
@@ -58,12 +70,31 @@
     }
 }
 
+/*
+ * NTP rebrand: darker veil for legibility on dark + custom background.
+ * data-rebrand and data-background-kind both live on <body>, so they must be
+ * compounded (no descendant combinator) to actually match; data-theme lives
+ * on a descendant (main/aside), which does need the descendant combinator.
+ */
+body[data-rebrand="true"][data-background-kind="color"],
+body[data-rebrand="true"][data-background-kind="gradient"],
+body[data-rebrand="true"][data-background-kind="userImage"] {
+    [data-theme="dark"] {
+        --ntp-surface-background-color: var(--ds-color-black-at-50, rgba(0, 0, 0, 0.5));
+    }
+}
+
 [data-theme=light] {
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
     --focus-ring-thin: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 1px  var(--color-white);
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: #3A69EF;
+    --ntp-favicon-fill-rest: var(--color-white-at-30);
+    --ntp-favicon-border-rest: none;
+    --ntp-btn-dismiss-border: var(--ds-ntp-light-button-dismiss-rest-border-color);
+    --ntp-btn-dismiss-color: var(--ds-ntp-light-button-dismiss-rest-color);
+    --ntp-btn-dismiss-hover: var(--ds-ntp-light-button-dismiss-hover-background-color);
 }
 
 [data-theme=dark] {
@@ -72,6 +103,11 @@
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: var(--color-blue-30);
+    --ntp-favicon-fill-rest: var(--color-black-at-18);
+    --ntp-favicon-border-rest: 0.5px solid var(--color-white-at-3);
+    --ntp-btn-dismiss-border: var(--ds-ntp-dark-button-dismiss-rest-border-color);
+    --ntp-btn-dismiss-color: var(--ds-ntp-dark-button-dismiss-rest-color);
+    --ntp-btn-dismiss-hover: var(--ds-ntp-dark-button-dismiss-hover-background-color);
 }
 
 :root:has(body[data-platform-name="windows"]) {

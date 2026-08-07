@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useId } from 'preact/hooks';
 import { ShowHideBar, ShowHideButtonPill } from '../../components/ShowHideButton';
 import { useTypedTranslationWith } from '../../types';
+import { useNewTabPageRebranding } from '../../settings.provider';
 import { otherText } from '../nextsteps.data';
 import styles from './NextSteps.module.css';
 import { NextStepsCard } from './NextStepsCard';
@@ -27,6 +28,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
     const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
+    const isRebrand = useNewTabPageRebranding();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
 
     return (
@@ -44,6 +46,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
             {types.length > 2 && (
                 <ShowHideBar>
                     <ShowHideButtonPill
+                        variant={isRebrand ? 'rebrand' : 'default'}
                         buttonAttrs={{
                             'aria-expanded': expansion === 'expanded',
                             'aria-pressed': expansion === 'expanded',

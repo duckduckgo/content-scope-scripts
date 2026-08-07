@@ -1,139 +1,152 @@
 /* ../node_modules/@duckduckgo/design-tokens/build/desktop-browsers/tokens.css */
 :root,
 :host {
-  --ds-color-palette-black: #000000;
-  --ds-color-palette-white: #ffffff;
-  --ds-color-palette-transparent: rgba(0, 0, 0, 0);
-  --ds-color-palette-gray-0: #fafafa;
-  --ds-color-palette-gray-10: #f5f5f5;
-  --ds-color-palette-gray-20: #eeeeee;
-  --ds-color-palette-gray-30: #dddddd;
-  --ds-color-palette-gray-40: #cccccc;
-  --ds-color-palette-gray-50: #aaaaaa;
-  --ds-color-palette-gray-60: #888888;
-  --ds-color-palette-gray-70: #666666;
-  --ds-color-palette-gray-80: #444444;
-  --ds-color-palette-gray-85: #333333;
-  --ds-color-palette-gray-90: #222222;
-  --ds-color-palette-gray-100: #111111;
-  --ds-color-palette-red-0: #ffd7cc;
-  --ds-color-palette-red-10: #f8bbaa;
-  --ds-color-palette-red-20: #f2a18a;
-  --ds-color-palette-red-30: #eb876c;
-  --ds-color-palette-red-40: #e46f4f;
-  --ds-color-palette-red-50: #de5833;
-  --ds-color-palette-red-60: #bc4423;
-  --ds-color-palette-red-70: #9a3216;
-  --ds-color-palette-red-80: #77230c;
-  --ds-color-palette-red-90: #551605;
-  --ds-color-palette-red-100: #330b01;
-  --ds-color-palette-red-alert-20: #ff545a;
-  --ds-color-palette-red-alert-30: #e04a4f;
-  --ds-color-palette-red-alert-40: #d1454a;
-  --ds-color-palette-red-alert-50: #eb102d;
-  --ds-color-palette-red-alert-60: #cf0e28;
-  --ds-color-palette-red-alert-70: #c10d25;
-  --ds-color-palette-blue-0: #ccdaff;
-  --ds-color-palette-blue-10: #adc2fc;
-  --ds-color-palette-blue-20: #8fabf9;
-  --ds-color-palette-blue-30: #7295f6;
-  --ds-color-palette-blue-40: #557ff3;
-  --ds-color-palette-blue-50: #3969ef;
-  --ds-color-palette-blue-60: #2b55ca;
-  --ds-color-palette-blue-70: #1e42a4;
-  --ds-color-palette-blue-80: #14307e;
-  --ds-color-palette-blue-90: #0b2059;
-  --ds-color-palette-blue-100: #051133;
-  --ds-color-palette-blue-0-transparency-01: rgba(204, 218, 255, 0.4);
-  --ds-color-palette-blue-0-transparency-02: rgba(204, 218, 255, 0.8);
-  --ds-color-palette-blue-30-transparency-01: rgba(114, 149, 246, 0.15);
-  --ds-color-palette-blue-30-transparency-02: rgba(114, 149, 246, 0.3);
-  --ds-color-palette-blue-30-transparency-03: rgba(114, 149, 246, 0.6);
-  --ds-color-palette-blue-30-transparency-04: rgba(114, 149, 246, 0.2);
-  --ds-color-palette-blue-50-transparency-01: rgba(57, 105, 239, 0.36);
-  --ds-color-palette-blue-50-transparency-02: rgba(57, 105, 239, 0.2);
-  --ds-color-palette-blue-hyperlink: #1a0dab;
-  --ds-color-palette-purple-0: #ece6ff;
-  --ds-color-palette-purple-10: #c7b9ee;
-  --ds-color-palette-purple-20: #a591dc;
-  --ds-color-palette-purple-30: #876ecb;
-  --ds-color-palette-purple-40: #6b4eba;
-  --ds-color-palette-purple-50: #5132a9;
-  --ds-color-palette-purple-60: #3e228c;
-  --ds-color-palette-purple-70: #2c146f;
-  --ds-color-palette-purple-80: #1d0a53;
-  --ds-color-palette-purple-90: #110336;
-  --ds-color-palette-purple-100: #070019;
-  --ds-color-palette-purple-hyperlink: #6c00a2;
-  --ds-color-palette-yellow-0: #fff7e0;
-  --ds-color-palette-yellow-10: #fff0c2;
-  --ds-color-palette-yellow-20: #ffe8a3;
-  --ds-color-palette-yellow-30: #ffde7a;
-  --ds-color-palette-yellow-40: #ffd65c;
-  --ds-color-palette-yellow-50: #ffcc33;
-  --ds-color-palette-yellow-60: #f9be1a;
-  --ds-color-palette-yellow-70: #e2a412;
-  --ds-color-palette-yellow-80: #c18010;
-  --ds-color-palette-yellow-90: #92540c;
-  --ds-color-palette-yellow-100: #5a2807;
-  --ds-color-palette-green-0: #d3ffcc;
-  --ds-color-palette-green-10: #b3f1aa;
-  --ds-color-palette-green-20: #96e38a;
-  --ds-color-palette-green-30: #7bd66d;
-  --ds-color-palette-green-40: #63c853;
-  --ds-color-palette-green-50: #4cba3c;
-  --ds-color-palette-green-60: #399f29;
-  --ds-color-palette-green-70: #288419;
-  --ds-color-palette-green-80: #1a690d;
-  --ds-color-palette-green-90: #0f4e05;
-  --ds-color-palette-green-100: #073300;
-  --ds-color-palette-green-alert-50: #21c000;
-  --ds-color-palette-shade-12: rgba(0, 0, 0, 0.12);
-  --ds-color-palette-shade-18: rgba(0, 0, 0, 0.18);
-  --ds-color-palette-shade-24: rgba(0, 0, 0, 0.24);
-  --ds-color-palette-shade-30: rgba(0, 0, 0, 0.3);
-  --ds-color-palette-shade-36: rgba(0, 0, 0, 0.36);
-  --ds-color-palette-shade-42: rgba(0, 0, 0, 0.42);
-  --ds-color-palette-shade-48: rgba(0, 0, 0, 0.48);
-  --ds-color-palette-shade-54: rgba(0, 0, 0, 0.54);
-  --ds-color-palette-shade-60: rgba(0, 0, 0, 0.6);
-  --ds-color-palette-shade-66: rgba(0, 0, 0, 0.66);
-  --ds-color-palette-shade-72: rgba(0, 0, 0, 0.72);
-  --ds-color-palette-shade-78: rgba(0, 0, 0, 0.78);
-  --ds-color-palette-shade-84: rgba(0, 0, 0, 0.84);
-  --ds-color-palette-shade-90: rgba(0, 0, 0, 0.9);
-  --ds-color-palette-shade-96: rgba(0, 0, 0, 0.96);
-  --ds-color-palette-shade-01: rgba(0, 0, 0, 0.01);
-  --ds-color-palette-shade-03: rgba(0, 0, 0, 0.03);
-  --ds-color-palette-shade-06: rgba(0, 0, 0, 0.06);
-  --ds-color-palette-shade-09: rgba(0, 0, 0, 0.09);
-  --ds-color-palette-red-shade-10: rgba(235, 16, 45, 0.1);
-  --ds-color-palette-red-shade-25: rgba(235, 16, 45, 0.25);
-  --ds-color-palette-red-tint-15: rgba(255, 84, 90, 0.15);
-  --ds-color-palette-red-tint-30: rgba(255, 84, 90, 0.3);
-  --ds-color-palette-blue-shade-40: rgba(204, 218, 255, 0.4);
-  --ds-color-palette-blue-shade-80: rgba(204, 218, 255, 0.8);
-  --ds-color-palette-blue-tint-15: rgba(114, 149, 246, 0.15);
-  --ds-color-palette-blue-tint-30: rgba(114, 149, 246, 0.3);
-  --ds-color-palette-tint-12: rgba(255, 255, 255, 0.12);
-  --ds-color-palette-tint-18: rgba(255, 255, 255, 0.18);
-  --ds-color-palette-tint-24: rgba(255, 255, 255, 0.24);
-  --ds-color-palette-tint-30: rgba(255, 255, 255, 0.3);
-  --ds-color-palette-tint-36: rgba(255, 255, 255, 0.36);
-  --ds-color-palette-tint-42: rgba(255, 255, 255, 0.42);
-  --ds-color-palette-tint-48: rgba(255, 255, 255, 0.48);
-  --ds-color-palette-tint-54: rgba(255, 255, 255, 0.54);
-  --ds-color-palette-tint-60: rgba(255, 255, 255, 0.6);
-  --ds-color-palette-tint-66: rgba(255, 255, 255, 0.66);
-  --ds-color-palette-tint-72: rgba(255, 255, 255, 0.72);
-  --ds-color-palette-tint-78: rgba(255, 255, 255, 0.78);
-  --ds-color-palette-tint-84: rgba(255, 255, 255, 0.84);
-  --ds-color-palette-tint-90: rgba(255, 255, 255, 0.9);
-  --ds-color-palette-tint-96: rgba(255, 255, 255, 0.96);
-  --ds-color-palette-tint-01: rgba(255, 255, 255, 0.01);
-  --ds-color-palette-tint-03: rgba(255, 255, 255, 0.03);
-  --ds-color-palette-tint-06: rgba(255, 255, 255, 0.06);
-  --ds-color-palette-tint-09: rgba(255, 255, 255, 0.09);
+  --ds-font-family-display:
+    "DuckSansDisplay",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    sans-serif;
+  --ds-font-family-product:
+    "DuckSansProduct",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    sans-serif;
+  --ds-font-family-monospace:
+    ui-monospace,
+    Menlo,
+    Monaco,
+    "Cascadia Mono",
+    "Segoe UI Mono",
+    "Roboto Mono",
+    "Oxygen Mono",
+    "Ubuntu Monospace",
+    "Source Code Pro",
+    "Fira Mono",
+    "Droid Sans Mono",
+    "Courier New",
+    monospace;
+  --ds-font-weight-normal: 400;
+  --ds-font-weight-semibold: 500;
+  --ds-font-weight-bold: 700;
+  --ds-font-letter-spacing-narrow: -1px;
+  --ds-font-letter-spacing-normal: 0;
+  --ds-font-letter-spacing-wide: 2px;
+  --ds-font-title-01-line-height: 64px;
+  --ds-font-title-01-size: 64px;
+  --ds-font-title-02-line-height: 52px;
+  --ds-font-title-02-size: 52px;
+  --ds-font-title-03-line-height: 44px;
+  --ds-font-title-03-size: 44px;
+  --ds-font-title-04-line-height: 40px;
+  --ds-font-title-04-size: 36px;
+  --ds-font-title-05-line-height: 32px;
+  --ds-font-title-05-size: 24px;
+  --ds-font-title-06-line-height: 28px;
+  --ds-font-title-06-size: 20px;
+  --ds-font-body-xxl-line-height: 32px;
+  --ds-font-body-xxl-size: 24px;
+  --ds-font-body-xl-line-height: 28px;
+  --ds-font-body-xl-size: 20px;
+  --ds-font-body-lg-line-height: 24px;
+  --ds-font-body-lg-size: 16px;
+  --ds-font-body-md-line-height: 20px;
+  --ds-font-body-md-size: 14px;
+  --ds-font-body-sm-line-height: 16px;
+  --ds-font-body-sm-size: 12px;
+  --ds-font-eyebrow-01-line-height: 20px;
+  --ds-font-eyebrow-01-size: 18px;
+  --ds-font-eyebrow-01-text-transform: uppercase;
+  --ds-font-eyebrow-02-line-height: 16px;
+  --ds-font-eyebrow-02-size: 14px;
+  --ds-font-eyebrow-02-text-transform: uppercase;
+  --ds-font-button-label-01-line-height: 20px;
+  --ds-font-button-label-01-size: 18px;
+  --ds-font-button-label-02-line-height: 16px;
+  --ds-font-button-label-02-size: 16px;
+  --ds-font-button-label-03-line-height: 16px;
+  --ds-font-button-label-03-size: 14px;
+  --ds-font-label-01-line-height: 12px;
+  --ds-font-label-01-size: 12px;
+  --ds-font-label-01-text-transform: uppercase;
+  --ds-font-caption-01-line-height: 16px;
+  --ds-font-caption-01-size: 13px;
+  --ds-radius-full: 999px;
+  --ds-radius-x01: 4px;
+  --ds-radius-x02: 8px;
+  --ds-radius-x03: 12px;
+  --ds-radius-x04: 16px;
+  --ds-radius-x05: 20px;
+  --ds-radius-x06: 24px;
+  --ds-radius-x07: 28px;
+  --ds-radius-x08: 32px;
+  --ds-radius-x09: 36px;
+  --ds-radius-x10: 40px;
+  --ds-radius-x11: 44px;
+  --ds-radius-x12: 48px;
+  --ds-space-x-5: 2px;
+  --ds-space-x01: 4px;
+  --ds-space-x1-5: 6px;
+  --ds-space-x02: 8px;
+  --ds-space-x02-5: 10px;
+  --ds-space-x03: 12px;
+  --ds-space-x03-5: 14px;
+  --ds-space-x04: 16px;
+  --ds-space-x04-5: 18px;
+  --ds-space-x05: 20px;
+  --ds-space-x06: 24px;
+  --ds-space-x07: 28px;
+  --ds-space-x08: 32px;
+  --ds-space-x09: 36px;
+  --ds-space-x10: 40px;
+  --ds-space-x11: 44px;
+  --ds-space-x12: 48px;
+  --ds-space-x13: 52px;
+  --ds-space-x14: 56px;
+  --ds-space-x15: 60px;
+  --ds-space-x16: 64px;
+  --ds-space-x17: 68px;
+  --ds-space-x18: 72px;
+  --ds-space-x20: 80px;
+  --ds-space-x22: 88px;
+  --ds-space-x24: 96px;
+  --ds-space-x32: 128px;
+  --ds-space-x40: 160px;
+  --ds-space-x48: 192px;
+  --ds-space-x56: 224px;
+  --ds-space-x64: 256px;
+  --ds-space-x72: 288px;
+  --ds-space-x80: 320px;
+  --ds-space-x90: 360px;
+  --ds-space-x96: 384px;
+  --ds-space-x100: 400px;
+  --ds-space-x110: 440px;
+  --ds-space-x130: 520px;
+  --ds-space-x175: 700px;
+  --ds-z-index-hidden: -999;
+  --ds-z-index-default: 1;
+  --ds-z-index-middle-raised: 50;
+  --ds-z-index-sticky: 55;
+  --ds-z-index-popover: 100;
+  --ds-z-index-side-menu: 200;
+  --ds-z-index-modal-backdrop: 300;
+  --ds-z-index-modal: 305;
+  --ds-z-index-alert: 400;
   --ds-color-theme-cool-gray-dark-accent-alt-content-primary: #eeeff7;
   --ds-color-theme-cool-gray-dark-accent-alt-content-secondary: rgba(238, 239, 247, 0.7);
   --ds-color-theme-cool-gray-dark-accent-alt-content-tertiary: rgba(238, 239, 247, 0.5);
@@ -286,12 +299,12 @@
   --ds-color-theme-default-dark-accent-content-primary: #051133;
   --ds-color-theme-default-dark-accent-content-secondary: rgba(5, 17, 51, 0.7);
   --ds-color-theme-default-dark-accent-content-tertiary: rgba(5, 17, 51, 0.5);
-  --ds-color-theme-default-dark-accent-glow-primary: rgba(114, 149, 246, 0.2);
-  --ds-color-theme-default-dark-accent-glow-secondary: rgba(114, 149, 246, 0.12);
-  --ds-color-theme-default-dark-accent-primary: #8fabf9;
+  --ds-color-theme-default-dark-accent-glow-primary: rgba(117, 182, 235, 0.2);
+  --ds-color-theme-default-dark-accent-glow-secondary: rgba(117, 182, 235, 0.12);
+  --ds-color-theme-default-dark-accent-primary: #75b6eb;
   --ds-color-theme-default-dark-accent-quaternary: #2b55ca;
-  --ds-color-theme-default-dark-accent-secondary: #7295f6;
-  --ds-color-theme-default-dark-accent-tertiary: #557ff3;
+  --ds-color-theme-default-dark-accent-secondary: #4397e0;
+  --ds-color-theme-default-dark-accent-tertiary: #1074cc;
   --ds-color-theme-default-dark-accent-text-primary: #adc2fc;
   --ds-color-theme-default-dark-accent-text-secondary: #8fabf9;
   --ds-color-theme-default-dark-accent-text-tertiary: #7295f6;
@@ -355,12 +368,12 @@
   --ds-color-theme-default-light-accent-content-primary: #ffffff;
   --ds-color-theme-default-light-accent-content-secondary: rgba(255, 255, 255, 0.7);
   --ds-color-theme-default-light-accent-content-tertiary: rgba(255, 255, 255, 0.5);
-  --ds-color-theme-default-light-accent-glow-primary: rgba(57, 105, 239, 0.2);
-  --ds-color-theme-default-light-accent-glow-secondary: rgba(57, 105, 239, 0.12);
-  --ds-color-theme-default-light-accent-primary: #3869ef;
+  --ds-color-theme-default-light-accent-glow-primary: rgba(16, 116, 204, 0.2);
+  --ds-color-theme-default-light-accent-glow-secondary: rgba(16, 116, 204, 0.12);
+  --ds-color-theme-default-light-accent-primary: #1074cc;
   --ds-color-theme-default-light-accent-quaternary: #14307e;
-  --ds-color-theme-default-light-accent-secondary: #2b55ca;
-  --ds-color-theme-default-light-accent-tertiary: #1e42a4;
+  --ds-color-theme-default-light-accent-secondary: #045eb2;
+  --ds-color-theme-default-light-accent-tertiary: #034180;
   --ds-color-theme-default-light-accent-text-primary: #3869ef;
   --ds-color-theme-default-light-accent-text-secondary: #2b55ca;
   --ds-color-theme-default-light-accent-text-tertiary: #1e42a4;
@@ -1238,6 +1251,60 @@
   --ds-color-theme-violet-light-text-tertiary: rgba(7, 5, 13, 0.36);
   --ds-color-theme-violet-light-tone-shade-primary: rgba(35, 20, 81, 0.06);
   --ds-color-theme-violet-light-tone-tint-primary: rgba(245, 245, 254, 0.56);
+  --ds-font-title-01-font-family: var(--ds-font-family-display);
+  --ds-font-title-01-letter-spacing: var(--ds-font-letter-spacing-narrow);
+  --ds-font-title-01-weight: var(--ds-font-weight-normal);
+  --ds-font-title-02-font-family: var(--ds-font-family-display);
+  --ds-font-title-02-letter-spacing: var(--ds-font-letter-spacing-narrow);
+  --ds-font-title-02-weight: var(--ds-font-weight-normal);
+  --ds-font-title-03-font-family: var(--ds-font-family-display);
+  --ds-font-title-03-letter-spacing: var(--ds-font-letter-spacing-narrow);
+  --ds-font-title-03-weight: var(--ds-font-weight-normal);
+  --ds-font-title-04-font-family: var(--ds-font-family-display);
+  --ds-font-title-04-letter-spacing: var(--ds-font-letter-spacing-narrow);
+  --ds-font-title-04-weight: var(--ds-font-weight-normal);
+  --ds-font-title-05-font-family: var(--ds-font-family-display);
+  --ds-font-title-05-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-title-05-weight: var(--ds-font-weight-normal);
+  --ds-font-title-06-font-family: var(--ds-font-family-display);
+  --ds-font-title-06-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-title-06-weight: var(--ds-font-weight-normal);
+  --ds-font-body-xxl-font-family: var(--ds-font-family-display);
+  --ds-font-body-xxl-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-xxl-weight: var(--ds-font-weight-normal);
+  --ds-font-body-xl-font-family: var(--ds-font-family-display);
+  --ds-font-body-xl-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-xl-weight: var(--ds-font-weight-normal);
+  --ds-font-body-lg-font-family: var(--ds-font-family-product);
+  --ds-font-body-lg-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-lg-weight: var(--ds-font-weight-normal);
+  --ds-font-body-md-font-family: var(--ds-font-family-product);
+  --ds-font-body-md-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-md-weight: var(--ds-font-weight-normal);
+  --ds-font-body-sm-font-family: var(--ds-font-family-product);
+  --ds-font-body-sm-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-body-sm-weight: var(--ds-font-weight-normal);
+  --ds-font-eyebrow-01-font-family: var(--ds-font-family-product);
+  --ds-font-eyebrow-01-letter-spacing: var(--ds-font-letter-spacing-wide);
+  --ds-font-eyebrow-01-weight: var(--ds-font-weight-semibold);
+  --ds-font-eyebrow-02-font-family: var(--ds-font-family-product);
+  --ds-font-eyebrow-02-letter-spacing: var(--ds-font-letter-spacing-wide);
+  --ds-font-eyebrow-02-weight: var(--ds-font-weight-semibold);
+  --ds-font-button-label-01-font-family: var(--ds-font-family-product);
+  --ds-font-button-label-01-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-button-label-01-weight: var(--ds-font-weight-semibold);
+  --ds-font-button-label-02-font-family: var(--ds-font-family-product);
+  --ds-font-button-label-02-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-button-label-02-weight: var(--ds-font-weight-bold);
+  --ds-font-button-label-03-font-family: var(--ds-font-family-product);
+  --ds-font-button-label-03-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-button-label-03-weight: var(--ds-font-weight-bold);
+  --ds-font-label-01-font-family: var(--ds-font-family-product);
+  --ds-font-label-01-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-label-01-weight: var(--ds-font-weight-bold);
+  --ds-font-caption-01-font-family: var(--ds-font-family-product);
+  --ds-font-caption-01-letter-spacing: var(--ds-font-letter-spacing-normal);
+  --ds-font-caption-01-weight: var(--ds-font-weight-normal);
 }
 
 /* shared/styles/design-tokens.css */
@@ -2154,6 +2221,22 @@ body[data-theme-variant=desert] [data-theme=dark] {
   --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-dark-highlight-primary);
 }
 
+/* ../node_modules/@duckduckgo/design-tokens/build/desktop-browsers/ntp.css */
+:root,
+:host {
+  --ds-ntp-next-steps-badge-background: #ffd885;
+  --ds-ntp-next-steps-badge-color: #47210a;
+  --ds-ntp-light-button-secondary-rest-background-color: rgba(0, 0, 0, 0.06);
+  --ds-ntp-light-button-dismiss-rest-border-color: rgba(0, 0, 0, 0.09);
+  --ds-ntp-light-button-dismiss-rest-color: rgba(0, 0, 0, 0.6);
+  --ds-ntp-light-button-dismiss-hover-background-color: rgba(0, 0, 0, 0.09);
+  --ds-ntp-dark-card-border-color: rgba(255, 255, 255, 0.03);
+  --ds-ntp-dark-button-secondary-rest-background-color: rgba(255, 255, 255, 0.06);
+  --ds-ntp-dark-button-dismiss-rest-border-color: rgba(255, 255, 255, 0.09);
+  --ds-ntp-dark-button-dismiss-rest-color: rgba(255, 255, 255, 0.6);
+  --ds-ntp-dark-button-dismiss-hover-background-color: rgba(255, 255, 255, 0.18);
+}
+
 /* pages/new-tab/app/styles/base.css */
 *,
 *:after,
@@ -2277,9 +2360,18 @@ button {
   --ntp-drawer-width: calc(256 * var(--px-in-rem));
   --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
 }
+body[data-rebrand=true],
+body[data-rebrand=true] [data-has-theme-variants=true] {
+  --ntp-drawer-width: calc(264 * var(--px-in-rem));
+  --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
+}
 [data-theme=light],
 [data-theme=dark] {
   --ntp-surface-background-color: var(--ds-color-theme-tone-tint-primary);
+  --ntp-card-shadow-rest:
+    0 0.25px 1px 0 var(--ds-color-theme-shadow-secondary),
+    0 1px 6px 0 var(--ds-color-theme-shadow-primary),
+    0 1px 3px 0 var(--ds-color-theme-shadow-secondary);
 }
 :is([data-background-kind=color], [data-background-kind=gradient], [data-background-kind=userImage]) [data-theme=light] {
   --ntp-surface-background-color: var(--color-white-at-30);
@@ -2287,12 +2379,20 @@ button {
 :is([data-background-kind=color], [data-background-kind=gradient], [data-background-kind=userImage]) [data-theme=dark] {
   --ntp-surface-background-color: var(--color-black-at-18);
 }
+:is(body[data-rebrand=true][data-background-kind=color], body[data-rebrand=true][data-background-kind=gradient], body[data-rebrand=true][data-background-kind=userImage]) [data-theme=dark] {
+  --ntp-surface-background-color: var(--ds-color-black-at-50, rgba(0, 0, 0, 0.5));
+}
 [data-theme=light] {
   --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
   --focus-ring-thin: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 1px var(--color-white);
   --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
   --ntp-selection-color: var(--color-white);
   --ntp-selection-background-color: #3A69EF;
+  --ntp-favicon-fill-rest: var(--color-white-at-30);
+  --ntp-favicon-border-rest: none;
+  --ntp-btn-dismiss-border: var(--ds-ntp-light-button-dismiss-rest-border-color);
+  --ntp-btn-dismiss-color: var(--ds-ntp-light-button-dismiss-rest-color);
+  --ntp-btn-dismiss-hover: var(--ds-ntp-light-button-dismiss-hover-background-color);
 }
 [data-theme=dark] {
   --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-white);
@@ -2300,6 +2400,11 @@ button {
   --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
   --ntp-selection-color: var(--color-white);
   --ntp-selection-background-color: var(--color-blue-30);
+  --ntp-favicon-fill-rest: var(--color-black-at-18);
+  --ntp-favicon-border-rest: 0.5px solid var(--color-white-at-3);
+  --ntp-btn-dismiss-border: var(--ds-ntp-dark-button-dismiss-rest-border-color);
+  --ntp-btn-dismiss-color: var(--ds-ntp-dark-button-dismiss-rest-color);
+  --ntp-btn-dismiss-hover: var(--ds-ntp-dark-button-dismiss-hover-background-color);
 }
 :root:has(body[data-platform-name=windows]) {
   --body-font-size: 14px;
@@ -2334,7 +2439,13 @@ body:has([data-reset-layout=true]) .App_tube {
 body[data-animate-background=true] {
   transition: background-color .3s;
 }
-body[data-rebrand=true] {
+body[data-rebrand=true][data-platform-name=macos] {
+  --macos-control-accent-branded-background-rest: var(--macos-accent-color);
+  --macos-control-accent-branded-background-hover: var(--macos-accent-color-secondary);
+  --macos-control-accent-branded-background-pressed: var(--macos-accent-color-tertiary);
+  --macos-control-accent-branded-background-focus: var(--macos-accent-color);
+  --macos-control-standard-background-rest: var(--ds-ntp-light-button-secondary-rest-background-color);
+  --macos-control-standard-background-rest--dark: var(--ds-ntp-dark-button-secondary-rest-background-color);
 }
 .layout-centered {
   margin-inline: auto;
@@ -2489,6 +2600,25 @@ body[data-rebrand=true] {
     display: none;
   }
 }
+body[data-rebrand=true] .Customizer_customizeButton {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background-color: var(--ds-color-theme-control-fill-primary);
+  border: none;
+  border-radius: var(--ds-radius-x06);
+  padding: var(--ds-space-x02) var(--ds-space-x04);
+}
+body[data-rebrand=true] .Customizer_customizeButton:hover {
+  background-color: var(--ds-color-theme-control-fill-secondary);
+}
+body[data-rebrand=true] .Customizer_customizeButton:active {
+  background-color: var(--ds-color-theme-control-fill-tertiary);
+}
+@media screen and (max-width: 800px) {
+  body[data-rebrand=true] .Customizer_customizeButton {
+    padding: var(--ds-space-x02);
+  }
+}
 .Customizer_popover {
   --popover-offset-x: -10px;
   --popover-offset-y: -3px;
@@ -2582,6 +2712,24 @@ body[data-rebrand=true] {
 .DismissButton_btn:focus-visible {
   box-shadow: var(--focus-ring);
   outline: none;
+}
+body[data-rebrand=true] .DismissButton_btn {
+  background: transparent;
+  border: 1px solid var(--ntp-btn-dismiss-border);
+  border-radius: var(--ds-radius-x06);
+  color: var(--ntp-btn-dismiss-color);
+  height: var(--ds-space-x06);
+  width: var(--ds-space-x06);
+}
+body[data-rebrand=true] .DismissButton_btn svg {
+  height: var(--ds-space-x04);
+  width: var(--ds-space-x04);
+}
+body[data-rebrand=true] .DismissButton_btn:hover:not(:disabled) {
+  background-color: var(--ntp-btn-dismiss-hover);
+}
+body[data-rebrand=true] .DismissButton_btn:active:not(:disabled) {
+  background-color: var(--ds-color-theme-control-fill-tertiary);
 }
 
 /* pages/new-tab/app/components/NewBadge.module.css */
@@ -2798,6 +2946,15 @@ body[data-rebrand=true] {
 .ShowHide_round:focus-visible {
   box-shadow: var(--focus-ring);
 }
+body[data-rebrand=true] {
+  --show-hide-icon-background: var(--ds-ntp-light-button-secondary-rest-background-color);
+}
+body[data-rebrand=true] [data-theme=dark] {
+  --show-hide-icon-background: var(--ds-ntp-dark-button-secondary-rest-background-color);
+}
+body[data-rebrand=true] .ShowHide_iconBlock {
+  background-color: var(--show-hide-icon-background);
+}
 .ShowHide_pill {
   height: calc(26 * var(--px-in-rem));
   border-radius: 9999px;
@@ -2808,6 +2965,18 @@ body[data-rebrand=true] {
   line-height: var(--callout-line-height);
   border: 1px solid var(--ds-color-theme-container-border-primary);
   color: var(--ds-color-theme-text-secondary);
+}
+.ShowHide_pill.ShowHide_rebrandPill {
+  border-radius: var(--ds-radius-full);
+  border-color: var(--ds-color-theme-container-border-secondary);
+}
+.ShowHide_pill.ShowHide_rebrandPill:hover {
+  background-color: var(--ds-color-theme-control-fill-primary);
+  border-color: var(--ds-color-theme-container-border-secondary);
+}
+.ShowHide_pill.ShowHide_rebrandPill:active {
+  background-color: var(--ds-color-theme-control-fill-secondary);
+  border-color: var(--ds-color-theme-container-border-secondary);
 }
 .ShowHide_fill {
   -webkit-backdrop-filter: blur(48px);
@@ -2896,17 +3065,9 @@ body[data-rebrand=true] {
 }
 [data-background-kind=userImage] .Tile_draggable {
   border: 1px solid var(--color-black-at-9);
-  background: var(--color-white-at-30);
 }
 [data-background-kind=userImage] .Tile_draggable:hover {
   background: var(--color-white-at-18);
-}
-[data-theme=dark] [data-background-kind=userImage] .Tile_draggable {
-  border: 1px solid var(--color-white-at-9);
-  background: var(--color-black-at-18);
-}
-[data-theme=dark] [data-background-kind=userImage] .Tile_draggable:hover {
-  background: rgba(0, 0, 0, 0.24);
 }
 .Tile_draggable:active {
   transform: scale(0.95);
@@ -2936,10 +3097,7 @@ body[data-rebrand=true] {
 .Tile_plus {
   outline: none;
   border: none;
-  color: var(--color-black-at-90);
-}
-[data-theme=dark] .Tile_plus {
-  color: var(--color-white-at-85);
+  color: var(--ds-color-theme-text-primary);
 }
 .Tile_plus:focus-visible {
   box-shadow: var(--focus-ring);
@@ -2966,10 +3124,40 @@ body[data-rebrand=true] {
 [data-item-state=dragging] {
   opacity: 0.4;
 }
+body[data-rebrand=true] .Tile_icon {
+  margin-bottom: var(--ds-space-x02-5);
+}
+body[data-rebrand=true] .Tile_placeholder,
+body[data-rebrand=true] .Tile_draggable {
+  border-radius: var(--ds-radius-x04);
+}
+body[data-rebrand=true] .Tile_draggable {
+  display: flex;
+  box-sizing: border-box;
+  width: var(--icon-width);
+  height: var(--icon-width);
+  padding: var(--ds-space-x04);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--ntp-surface-background-color);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: var(--ntp-card-shadow-rest);
+}
+body[data-rebrand=true] .Tile_draggable:hover {
+  background: var(--ds-color-white-at-60, rgba(255, 255, 255, 0.6));
+}
+body[data-rebrand=true] [data-theme=dark] .Tile_draggable {
+  border: 1px solid var(--ds-ntp-dark-card-border-color);
+}
+body[data-rebrand=true] [data-theme=dark] .Tile_draggable:hover {
+  background: var(--ds-color-theme-control-fill-secondary);
+}
 
 /* shared/components/FaviconWithState.module.css */
 .FaviconWithState_favicon {
-  --border-radius: 8px;
+  --border-radius: var(--ds-radius-x02);
   display: block;
   background-repeat: no-repeat;
   background-size: contain;
@@ -3505,6 +3693,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   width: 100%;
   margin-bottom: var(--ntp-gap);
   position: relative;
+  isolation: isolate;
 }
 .NextStepsListCard_bubble {
   display: flex;
@@ -3544,7 +3733,6 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   position: relative;
   min-height: calc(200 * var(--px-in-rem));
   padding-bottom: calc(12 * var(--px-in-rem));
-  isolation: isolate;
 }
 .NextStepsListCard_card {
   background-color: var(--ds-color-theme-surface-secondary);
@@ -3569,7 +3757,7 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 }
 .NextStepsListCard_card.NextStepsListCard_backCard {
   position: absolute;
-  top: calc(12 * var(--px-in-rem));
+  top: var(--ds-space-x03);
   left: 0;
   right: 0;
   bottom: 0;
@@ -3695,6 +3883,158 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 .NextStepsListCard_buttonRow button {
   white-space: nowrap;
 }
+body[data-rebrand=true] {
+  --next-steps-list-rebrand-illustration-size: calc(108 * var(--px-in-rem));
+}
+body[data-rebrand=true] .NextStepsListCard_bubble {
+  left: var(--ds-space-x01);
+  top: var(--ds-space-x01);
+  z-index: 3;
+}
+body[data-rebrand=true] .NextStepsListCard_bubble svg {
+  display: none;
+}
+body[data-rebrand=true] .NextStepsListCard_bubble div {
+  background-color: var(--ds-ntp-next-steps-badge-background);
+  border-radius: var(--ds-radius-x06) var(--ds-radius-x01) var(--ds-radius-x06) var(--ds-radius-x01);
+  height: auto;
+  margin: 0;
+  padding: var(--ds-space-x1-5) var(--ds-space-x03-5);
+}
+body[data-rebrand=true] .NextStepsListCard_bubble div h2 {
+  color: var(--ds-ntp-next-steps-badge-color);
+  font-family: var(--ds-font-family-product);
+  font-size: var(--small-label-font-size);
+  font-weight: var(--ds-font-weight-bold);
+  letter-spacing: var(--ds-font-label-01-letter-spacing);
+  line-height: normal;
+  text-align: center;
+  text-transform: uppercase;
+}
+body[data-rebrand=true] .NextStepsListCard_cardContainer {
+  min-height: calc(140 * var(--px-in-rem));
+  padding-bottom: var(--ds-space-x02);
+}
+body[data-rebrand=true] .NextStepsListCard_card {
+  background: var(--ntp-surface-background-color);
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+  border: 1px solid var(--ds-color-theme-container-border-primary);
+  border-radius: var(--ds-radius-x06);
+  box-shadow: var(--ntp-card-shadow-rest);
+  gap: var(--ds-space-x04);
+  min-height: calc(128 * var(--px-in-rem));
+  padding: var(--ds-space-x05);
+  padding-left: clamp(var(--ds-space-x05), 6vw, var(--ds-space-x10));
+}
+[data-theme=dark] :is(body[data-rebrand=true] .NextStepsListCard_card) {
+  border-color: var(--ds-ntp-dark-card-border-color);
+}
+body[data-rebrand=true] .NextStepsListCard_cardContainer:has(.NextStepsListCard_backCard) > .NextStepsListCard_card:not(.NextStepsListCard_backCard, .NextStepsListCard_dismissing, .NextStepsListCard_promoting) {
+  box-shadow: 0 2px 8px 0 var(--ds-color-theme-shadow-secondary);
+}
+body[data-rebrand=true] .NextStepsListCard_card.NextStepsListCard_backCard {
+  left: var(--ds-space-x06);
+  min-height: 0;
+  opacity: 1;
+  padding: 0;
+  right: var(--ds-space-x06);
+  top: var(--ds-space-x02);
+  transform: none;
+}
+body[data-rebrand=true] .NextStepsListCard_dismissBtn {
+  background: transparent;
+  border: 1px solid var(--ntp-btn-dismiss-border);
+  border-radius: var(--ds-radius-x06);
+  color: var(--ntp-btn-dismiss-color);
+  height: var(--ds-space-x06);
+  right: var(--ds-space-x03-5);
+  top: var(--ds-space-x03);
+  width: var(--ds-space-x06);
+}
+body[data-rebrand=true] .NextStepsListCard_dismissBtn svg {
+  height: var(--ds-space-x04);
+  width: var(--ds-space-x04);
+}
+body[data-rebrand=true] .NextStepsListCard_dismissBtn:hover:not(:disabled) {
+  background-color: var(--ntp-btn-dismiss-hover);
+}
+body[data-rebrand=true] .NextStepsListCard_dismissBtn:active:not(:disabled) {
+  background-color: var(--ds-color-theme-control-fill-tertiary);
+}
+body[data-rebrand=true] .NextStepsListCard_imageContainer {
+  max-width: var(--next-steps-list-rebrand-illustration-size);
+  min-height: 0;
+  min-width: 0;
+}
+body[data-rebrand=true] .NextStepsListCard_image {
+  height: auto;
+  max-height: var(--next-steps-list-rebrand-illustration-size);
+  width: auto;
+}
+body[data-rebrand=true] .NextStepsListCard_content {
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 0;
+  padding-right: var(--ds-space-x07);
+}
+body[data-rebrand=true] .NextStepsListCard_title {
+  font-family: var(--ds-font-family-product);
+  font-size: var(--ds-font-button-label-01-size);
+  font-weight: var(--ds-font-weight-semibold);
+  letter-spacing: var(--ds-font-letter-spacing-normal);
+  line-height: var(--ds-font-body-md-line-height);
+}
+body[data-rebrand=true] .NextStepsListCard_description {
+  font-family: var(--ds-font-body-md-font-family);
+  font-size: var(--ds-font-body-md-size);
+  font-weight: var(--ds-font-weight-normal);
+  letter-spacing: var(--ds-font-body-md-letter-spacing);
+  line-height: var(--ds-font-body-sm-line-height);
+}
+body[data-rebrand=true] .NextStepsListCard_buttonRow {
+  align-items: center;
+  margin-top: var(--ds-space-x04);
+}
+body[data-rebrand=true] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton {
+  --button-shadow: none;
+  --button-shadow--active: none;
+  --button-shadow--hover: none;
+  border-radius: var(--ds-radius-full);
+  font-family: var(--ds-font-button-label-03-font-family);
+  font-size: var(--ds-font-button-label-03-size);
+  font-weight: var(--ds-font-weight-normal);
+  height: var(--ds-space-x08);
+  letter-spacing: var(--ds-font-button-label-03-letter-spacing);
+  line-height: normal;
+  min-height: var(--ds-space-x08);
+  padding: 0 var(--ds-space-x04);
+}
+body[data-rebrand=true] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton.NextStepsListCard_primaryButton {
+  --button-bg: var(--ds-color-theme-accent-primary);
+  --button-bg--active: var(--ds-color-theme-accent-tertiary);
+  --button-bg--hover: var(--ds-color-theme-accent-secondary);
+  --button-text: var(--ds-color-theme-accent-content-primary);
+}
+body[data-rebrand=true] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton.NextStepsListCard_secondaryButton {
+  --button-bg: var(--ds-color-theme-control-fill-primary);
+  --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
+  --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
+  --button-text: var(--ds-color-theme-text-primary);
+}
+body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton.NextStepsListCard_primaryButton,
+body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton.NextStepsListCard_secondaryButton {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+}
+:is(body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton.NextStepsListCard_primaryButton, body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton.NextStepsListCard_secondaryButton):hover:not(:disabled) {
+  background-color: var(--button-bg--hover, var(--button-bg));
+  color: var(--button-text--hover, var(--button-text));
+}
+:is(body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton.NextStepsListCard_primaryButton, body[data-rebrand=true][data-platform-name=windows] .NextStepsListCard_buttonRow .NextStepsListCard_actionButton.NextStepsListCard_secondaryButton):active:not(:disabled) {
+  background-color: var(--button-bg--active, var(--button-bg));
+  color: var(--button-text--active, var(--button-text));
+}
 
 /* pages/new-tab/app/omnibar/components/AiChatForm.module.css */
 .AiChatForm_form {
@@ -3793,6 +4133,12 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   to {
     opacity: 1;
   }
+}
+body[data-rebrand=true] .AiChatForm_textarea {
+  padding-left: var(--ds-space-x05);
+}
+body[data-rebrand=true] .AiChatForm_buttons {
+  padding-left: var(--ds-space-x05);
 }
 
 /* pages/new-tab/app/omnibar/components/Omnibar.module.css */
@@ -3918,6 +4264,31 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   position: absolute;
   z-index: 2;
 }
+body[data-rebrand=true] .Omnibar_root {
+  --omnibar-radius: var(--ds-radius-x06);
+}
+body[data-rebrand=true] .Omnibar_root[data-mode=search] .Omnibar_spacer {
+  height: calc(var(--ds-space-x10) + 3px * 2);
+}
+body[data-rebrand=true] .Omnibar_popup,
+body[data-rebrand=true] .Omnibar_root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown):not(:has([data-attachment-warning])) .Omnibar_popup,
+body[data-rebrand=true] .Omnibar_root:has([data-attachment-warning]) .Omnibar_popup,
+body[data-rebrand=true] .Omnibar_root:has([data-omnibar-list]) .Omnibar_popup {
+  border-radius: var(--omnibar-radius);
+}
+body[data-rebrand=true] [data-theme] .Omnibar_popup {
+  box-shadow:
+    0 10px 20px 0 rgba(0, 0, 0, 0.02),
+    0 2px 6px 0 rgba(0, 0, 0, 0.06),
+    0 0 0 1px var(--ds-color-theme-container-border-secondary);
+  outline: none;
+}
+body[data-rebrand=true] [data-theme=dark] .Omnibar_popup {
+  box-shadow:
+    0 10px 20px 0 rgba(0, 0, 0, 0.02),
+    0 2px 6px 0 rgba(0, 0, 0, 0.06),
+    0 0 0 1px var(--ds-ntp-dark-card-border-color);
+}
 
 /* pages/new-tab/app/omnibar/components/SearchForm.module.css */
 .SearchForm_form {
@@ -4000,6 +4371,19 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 [data-platform=windows] .SearchForm_input {
   line-height: normal;
 }
+body[data-rebrand=true] .SearchForm_form {
+  padding: 7px var(--ds-space-x01) 7px var(--ds-space-x05);
+}
+body[data-rebrand=true] .SearchForm_input {
+  padding-block: 7px;
+  padding-inline: var(--ds-space-x05) var(--ds-space-x10);
+}
+body[data-rebrand=true] .SearchForm_suffix {
+  color: var(--ds-color-theme-accent-text-primary);
+}
+body[data-rebrand=true] .SearchForm_closeButton {
+  border-radius: var(--ds-radius-full);
+}
 
 /* pages/new-tab/app/omnibar/components/SuggestionsList.module.css */
 .SuggestionsList_list {
@@ -4054,6 +4438,31 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 }
 .SuggestionsList_item:active:not(:has(.SuggestionsList_deleteButton:active)) {
   background: var(--ds-color-theme-accent-secondary);
+}
+body[data-rebrand=true] .SuggestionsList_item > svg {
+  color: var(--ds-color-theme-icons-primary);
+}
+body[data-rebrand=true] .SuggestionsList_item:hover:not([aria-selected=true], :active),
+body[data-rebrand=true] .SuggestionsList_item[aria-selected=true],
+body[data-rebrand=true] .SuggestionsList_item:active {
+  color: var(--ds-color-theme-text-primary);
+}
+:is(body[data-rebrand=true] .SuggestionsList_item:hover:not([aria-selected=true], :active), body[data-rebrand=true] .SuggestionsList_item[aria-selected=true], body[data-rebrand=true] .SuggestionsList_item:active) .SuggestionsList_suffix {
+  color: var(--ds-color-theme-text-tertiary);
+}
+body[data-rebrand=true] .SuggestionsList_item:hover:not([aria-selected=true], :active),
+body[data-rebrand=true] .SuggestionsList_item[aria-selected=true] {
+  background: var(--ds-color-theme-accent-alt-primary);
+}
+body[data-rebrand=true] .SuggestionsList_item:active .SuggestionsList_badge {
+  background: var(--ds-color-theme-accent-alt-secondary);
+}
+body[data-rebrand=true] .SuggestionsList_item:active:not(:has(.SuggestionsList_deleteButton:active)) {
+  background: var(--ds-color-theme-accent-alt-secondary);
+}
+body[data-rebrand=true] .SuggestionsList_main,
+body[data-rebrand=true] .SuggestionsList_footer {
+  padding-left: var(--ds-space-x03);
 }
 .SuggestionsList_title {
   flex: 0 1.5 auto;
@@ -4350,6 +4759,23 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   .TabSwitcher_blob {
     transition: none;
   }
+}
+body[data-rebrand=true] .TabSwitcher_tabSwitcher {
+  background: var(--ds-color-theme-control-fill-primary);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+body[data-rebrand=true] .TabSwitcher_tab:not([aria-selected=true]) {
+  color: var(--ds-color-theme-text-secondary);
+}
+body[data-rebrand=true] .TabSwitcher_tab:hover:not([aria-selected=true])::before {
+  content: none;
+}
+body[data-rebrand=true] .TabSwitcher_tabLabel {
+  padding-top: 0;
+}
+[data-theme=dark] :is(body[data-rebrand=true] .TabSwitcher_blob) {
+  box-shadow: none;
 }
 
 /* pages/new-tab/app/omnibar/components/chat-tools/image-attachment/ImageAttachment.module.css */
@@ -5184,7 +5610,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   --track-border-color-checked-hover: var(--track-border-color-checked);
   --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
   --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
-  --switch-handle-color-checked: white;
+  --switch-handle-color-checked: var(--color-white);
   --track-bg-color-active: var(--track-bg-color);
   --track-bg-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
   --track-border-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
@@ -5193,6 +5619,16 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   --switch-width: 32px;
   --switch-height: 18px;
   --switch-handle-size: 16px;
+}
+[data-rebrand=true] .Switch_label[data-platform-name=windows][data-size=medium] {
+  --switch-width: var(--ds-space-x08);
+  --switch-height: var(--ds-space-x04);
+  --switch-handle-size: var(--ds-space-x02-5);
+  --switch-handle-offset: 3px;
+  --switch-checked-offset: translateX(calc(100% + var(--ds-space-x1-5)));
+  --track-border-radius: var(--ds-radius-x02);
+  --track-border: 0;
+  --switch-handle-color-checked: var(--color-white);
 }
 .Switch_label[data-platform-name=macos][data-theme=dark] {
   --track-bg-color: var(--color-white-at-9);
@@ -5285,6 +5721,9 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   z-index: 1;
   transition: all .3s;
   background: var(--switch-handle-color);
+}
+[data-rebrand=true] [data-platform-name=windows][data-size=medium] .Switch_switch:before {
+  border: 1px solid var(--ds-color-theme-surface-decoration-secondary);
 }
 [data-platform-name=macos] .Switch_switch:before {
   box-shadow: 0px 1px 1px 0px rgba(255, 255, 255, 0.10) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.10) inset;
@@ -5505,8 +5944,6 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 .Protections_empty {
   color: var(--ds-color-theme-text-secondary);
 }
-.Protections_feed {
-}
 .Protections_button {
   color: var(--ds-color-theme-text-primary);
   border-radius: 5px;
@@ -5559,6 +5996,87 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 [data-theme=dark] :is([data-platform-name=macos] .Protections_active) {
   background: rgba(255, 255, 255, 0.25);
+}
+body[data-rebrand=true] .Protections_root {
+  border-radius: var(--ds-radius-x06);
+  box-shadow: var(--ntp-card-shadow-rest);
+}
+body[data-rebrand=true] .Protections_body {
+  overflow: visible;
+}
+body[data-rebrand=true] .Protections_switcher {
+  background: var(--ds-color-theme-control-fill-primary);
+  border: 1px solid var(--ds-color-theme-container-border-primary);
+  border-radius: var(--ds-radius-full);
+  padding: var(--ds-space-x-5);
+  position: relative;
+}
+body[data-rebrand=true] .Protections_block {
+  margin-top: var(--ds-space-x06);
+}
+body[data-rebrand=true] .Protections_feed {
+  padding-top: var(--ds-space-x08);
+  overflow: visible;
+}
+body[data-rebrand=true] .Protections_button {
+  border-radius: var(--ds-radius-full);
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+}
+body[data-rebrand=true] .Protections_blob {
+  background-color: var(--ds-color-theme-control-raised-fill-primary);
+  border-radius: var(--ds-radius-full);
+  box-shadow:
+    0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset,
+    0 1px 4px 0 var(--ds-color-theme-shadow-secondary),
+    0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
+  height: calc(100% - var(--ds-space-x-5) * 2);
+  left: var(--ds-space-x-5);
+  position: absolute;
+  top: var(--ds-space-x-5);
+  transition: translate 200ms ease;
+  translate: calc(var(--tab-index) * 100%);
+  width: calc((100% - var(--ds-space-x-5) * 2) / var(--tab-count));
+  z-index: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-rebrand=true] .Protections_blob {
+    transition: none;
+  }
+}
+body[data-rebrand=true] .Protections_active {
+  background: transparent;
+  border: 0;
+}
+body[data-rebrand=true] [data-theme=dark] .Protections_root {
+  border-color: var(--ds-ntp-dark-card-border-color);
+}
+body[data-rebrand=true] [data-theme=dark] .Protections_blob {
+  box-shadow: none;
+}
+body[data-rebrand=true]:not([data-background-kind=default]) .Protections_switcher {
+  -webkit-backdrop-filter: blur(48px);
+  backdrop-filter: blur(48px);
+}
+body[data-rebrand=true][data-platform-name=windows] .Protections_button {
+  font-size: var(--body-font-size);
+  line-height: 14px;
+}
+body[data-rebrand=true][data-platform-name=windows] .Protections_active:after {
+  content: none;
+}
+body[data-rebrand=true][data-platform-name=macos] .Protections_button {
+  border: 0;
+  height: 24px;
+  font-size: var(--small-label-font-size);
+  line-height: var(--small-label-line-height);
+}
+body[data-rebrand=true][data-platform-name=macos] .Protections_active {
+  border: 0;
+}
+body[data-rebrand=true][data-platform-name=macos] .Protections_active:not(:focus-visible) {
+  box-shadow: none;
 }
 
 /* pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css */
@@ -5746,6 +6264,86 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 [data-theme=dark] .PrivacyStats_fill {
   background: var(--color-white-at-9);
+}
+body[data-rebrand=true] .PrivacyStats_control {
+  margin-bottom: var(--ds-space-x05);
+  gap: var(--ds-space-x02);
+}
+body[data-rebrand=true] .PrivacyStats_cookiePopUpsCounter {
+  margin-left: 0;
+}
+body[data-rebrand=true] .PrivacyStats_headingIcon {
+  width: 16px;
+  height: 16px;
+  justify-content: flex-start;
+  padding-top: 0;
+}
+body[data-rebrand=true] .PrivacyStats_headingIcon img {
+  max-width: 100%;
+  max-height: 100%;
+}
+body[data-rebrand=true] .PrivacyStats_caption {
+  color: var(--ds-color-theme-text-primary);
+  margin-right: 0;
+}
+body[data-rebrand=true] .PrivacyStats_infoIcon {
+  margin-top: 0;
+}
+body[data-rebrand=true] .PrivacyStats_counterContainer {
+  gap: var(--ds-space-x06);
+  align-items: flex-start;
+  padding: 0;
+}
+body[data-rebrand=true] .PrivacyStats_counter {
+  gap: var(--ds-space-x02);
+  width: auto;
+  padding-right: 0;
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+body[data-rebrand=true] .PrivacyStats_title {
+  line-height: 26px;
+}
+body[data-rebrand=true] .PrivacyStats_title span {
+  font-weight: 400;
+  line-height: var(--ds-font-body-md-line-height);
+  margin-top: var(--ds-space-x02-5);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+body[data-rebrand=true] .PrivacyStats_noRecentTitle {
+  line-height: var(--ds-font-body-md-line-height);
+}
+body[data-rebrand=true] .PrivacyStats_list {
+  overflow: visible;
+}
+body[data-rebrand=true] .PrivacyStats_list:not(:empty) {
+  margin-top: 0;
+}
+body[data-rebrand=true] .PrivacyStats_row {
+  row-gap: var(--ds-space-x02);
+  column-gap: var(--ds-space-x03);
+  grid-template-columns: minmax(0, calc(28% + var(--ds-space-x03))) var(--ds-space-x12) minmax(0, 1fr);
+}
+body[data-rebrand=true] .PrivacyStats_otherTrackersRow {
+  padding-left: 0;
+}
+body[data-rebrand=true] .PrivacyStats_name {
+  color: var(--ds-color-theme-text-primary);
+}
+body[data-rebrand=true] .PrivacyStats_count {
+  font-size: var(--body-font-size);
+  font-weight: var(--body-font-weight);
+  line-height: var(--ds-font-body-md-line-height);
+}
+body[data-rebrand=true] .PrivacyStats_bar {
+  height: calc(16 * var(--px-in-rem));
+  background: var(--ds-color-theme-control-fill-primary);
+}
+body[data-rebrand=true] .PrivacyStats_fill {
+  height: calc(16 * var(--px-in-rem));
+  background: var(--ds-color-theme-control-fill-secondary);
 }
 
 /* pages/new-tab/app/components/Tooltip/Tooltip.module.css */
@@ -5946,6 +6544,9 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 .Activity_activity:not(:empty) {
   margin-top: 24px;
 }
+body[data-rebrand=true] .Activity_activity:not(:empty) {
+  margin-top: 0;
+}
 .Activity_block {
   margin-top: 24px;
 }
@@ -6011,6 +6612,15 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   top: 50%;
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
+}
+body[data-rebrand=true] .Activity_favicon {
+  background: var(--ntp-favicon-fill-rest);
+  border: var(--ntp-favicon-border-rest);
+  border-radius: var(--ds-radius-x02);
+  box-shadow:
+    0 0.25px 1px 0 rgba(0, 0, 0, 0.08),
+    0 1px 4px 0 rgba(0, 0, 0, 0.06),
+    0 0.5px 2px 0 rgba(0, 0, 0, 0.04);
 }
 .Activity_title {
   font-size: var(--title-3-em-font-size);
@@ -6472,7 +7082,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 8px 8px;
+  padding: 8px;
   border-radius: 1000px;
   background-color: var(--color-white-at-3);
   border: 1px solid var(--color-white-at-12);
@@ -6489,6 +7099,9 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   width: 12px;
   height: 12px;
 }
+.TickPill_iconWrapper svg path {
+  fill: currentColor;
+}
 .TickPill_text {
   font-size: var(--small-label-font-size);
   font-weight: 400;
@@ -6503,8 +7116,12 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 [data-theme=light] .TickPill_text {
   color: var(--color-black-at-84);
 }
-[data-theme=light] .TickPill_iconWrapper svg path {
-  fill: var(--color-black-at-84);
+[data-theme=light] .TickPill_iconWrapper {
+  color: var(--color-black-at-84);
+}
+body[data-rebrand=true] .TickPill_iconWrapper,
+body[data-rebrand=true] .TickPill_text {
+  color: var(--ds-color-theme-text-primary);
 }
 
 /* pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.module.css */
@@ -6577,6 +7194,44 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
     scale: 1;
   }
 }
+body[data-rebrand=true] .RemoteMessagingFramework_root {
+  border-radius: var(--ds-radius-x05);
+  box-shadow: var(--ntp-card-shadow-rest);
+  padding: var(--ds-space-x05) var(--ds-space-x10) var(--ds-space-x05) var(--ds-space-x04);
+}
+body[data-rebrand=true] .RemoteMessagingFramework_root.RemoteMessagingFramework_icon {
+  padding-left: var(--ds-space-x04);
+}
+body[data-rebrand=true] .RemoteMessagingFramework_title {
+  font-size: var(--ds-font-body-md-size);
+  font-weight: var(--ds-font-weight-bold);
+  line-height: var(--ds-font-body-md-line-height);
+}
+body[data-rebrand=true] .RemoteMessagingFramework_description {
+  font-size: var(--ds-font-body-md-size);
+  font-weight: var(--ds-font-weight-normal);
+  line-height: var(--ds-font-body-md-line-height);
+}
+body[data-rebrand=true] .RemoteMessagingFramework_dismissBtn {
+  right: var(--ds-space-x1-5);
+  top: var(--ds-space-x1-5);
+}
+body[data-rebrand=true] .RemoteMessagingFramework_btnRow .RemoteMessagingFramework_actionButton.RemoteMessagingFramework_primaryButton {
+  --button-bg: var(--ds-color-theme-accent-primary);
+  --button-bg--hover: var(--ds-color-theme-accent-secondary);
+  --button-bg--active: var(--ds-color-theme-accent-tertiary);
+  --button-text: var(--ds-color-theme-accent-content-primary);
+}
+body[data-rebrand=true] .RemoteMessagingFramework_btnRow .RemoteMessagingFramework_actionButton.RemoteMessagingFramework_secondaryButton,
+body[data-rebrand=true] .RemoteMessagingFramework_btnBlock .RemoteMessagingFramework_actionButton.RemoteMessagingFramework_secondaryButton {
+  --button-bg: var(--ds-color-theme-control-fill-primary);
+  --button-bg--hover: var(--ds-color-theme-control-fill-secondary);
+  --button-bg--active: var(--ds-color-theme-control-fill-tertiary);
+  --button-text: var(--ds-color-theme-text-primary);
+}
+body[data-rebrand=true] [data-theme=dark] .RemoteMessagingFramework_root {
+  border-color: var(--ds-ntp-dark-card-border-color);
+}
 
 /* pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.module.css */
 .FreemiumPIRBanner_root {
@@ -6647,6 +7302,28 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
     opacity: 1;
     scale: 1;
   }
+}
+body[data-rebrand=true] .FreemiumPIRBanner_root {
+  border-radius: var(--ds-radius-x05);
+  box-shadow: var(--ntp-card-shadow-rest);
+  padding: var(--ds-space-x05) var(--ds-space-x10) var(--ds-space-x05) var(--ds-space-x04);
+}
+body[data-rebrand=true] .FreemiumPIRBanner_root.FreemiumPIRBanner_icon {
+  padding-left: var(--ds-space-x04);
+}
+body[data-rebrand=true] .FreemiumPIRBanner_title {
+  font-size: var(--ds-font-body-md-size);
+  font-weight: var(--ds-font-weight-bold);
+  line-height: var(--ds-font-body-md-line-height);
+}
+body[data-rebrand=true] .FreemiumPIRBanner_description {
+  font-size: var(--ds-font-body-md-size);
+  font-weight: var(--ds-font-weight-normal);
+  line-height: var(--ds-font-body-md-line-height);
+}
+body[data-rebrand=true] .FreemiumPIRBanner_dismissBtn {
+  right: var(--ds-space-x1-5);
+  top: var(--ds-space-x1-5);
 }
 
 /* pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.module.css */
@@ -6982,6 +7659,71 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   box-shadow: var(--focus-ring);
   outline: none;
 }
+body[data-rebrand=true] .CustomizerDrawerInner_header h2 {
+  margin: 0;
+  font-size: var(--title-2-font-size);
+  font-weight: var(--title-2-font-weight);
+  line-height: var(--title-2-line-height);
+  color: var(--ds-color-theme-text-primary);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_closeBtn {
+  background-color: var(--ds-color-theme-surface-decoration-primary);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_col {
+  padding-top: 0;
+}
+body[data-rebrand=true] .CustomizerDrawerInner_sections {
+  grid-row-gap: 0;
+}
+body[data-rebrand=true] .CustomizerDrawerInner_sectionTitle {
+  padding-top: var(--ds-space-x08);
+  color: var(--ds-color-theme-text-primary);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_sectionBody {
+  margin-top: var(--ds-space-x04);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_borderedSection {
+  margin-top: var(--ds-space-x11);
+  padding-top: var(--ds-space-x08);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_bgList {
+  gap: var(--ds-space-x03);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_bgListItem {
+  grid-row-gap: var(--ds-space-x1-5);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_bgListItem > span {
+  color: var(--ds-color-theme-text-primary);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_bgPanel {
+  --selection-ring-offset: var(--ds-space-x-5);
+  --selection-ring-width: var(--ds-space-x-5);
+  border-radius: var(--ds-radius-x02);
+  box-shadow: none;
+  border: 1px solid var(--ds-color-theme-container-border-primary);
+  position: relative;
+}
+body[data-rebrand=true] .CustomizerDrawerInner_bgPanel[aria-checked=true],
+body[data-rebrand=true] .CustomizerDrawerInner_bgPanel:focus-visible {
+  box-shadow: none;
+}
+:is(body[data-rebrand=true] .CustomizerDrawerInner_bgPanel[aria-checked=true], body[data-rebrand=true] .CustomizerDrawerInner_bgPanel:focus-visible)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--ds-radius-x02) + var(--selection-ring-offset));
+  box-shadow: 0 0 0 var(--selection-ring-offset) var(--ds-color-theme-surface-secondary), 0 0 0 calc(var(--selection-ring-offset) + var(--selection-ring-width)) var(--ds-color-theme-accent-primary);
+  pointer-events: none;
+}
+body[data-rebrand=true] .CustomizerDrawerInner_bgPanelEmpty {
+  background-color: var(--ds-color-theme-control-fill-primary);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_dynamicPickerIconColor[data-color-mode=light] {
+  color: var(--color-black-at-96);
+}
+body[data-rebrand=true] .CustomizerDrawerInner_dynamicPickerIconColor[data-color-mode=dark] {
+  color: var(--color-white-at-96);
+}
 
 /* pages/new-tab/app/customizer/components/BrowserThemeSection.module.css */
 .BrowserThemeSection_themeList {
@@ -7128,6 +7870,45 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 .ThemeSection_segment[aria-checked=true] + .ThemeSection_separator,
 .ThemeSection_separator:has(+ .ThemeSection_segment[aria-checked=true]) {
   visibility: hidden;
+}
+body[data-rebrand=true] .ThemeSection_root {
+  gap: var(--ds-space-x04);
+}
+body[data-rebrand=true] .ThemeSection_segmentedControl {
+  border-radius: var(--ds-radius-x06);
+}
+body[data-rebrand=true] .ThemeSection_segment {
+  flex: 1 0 0;
+  gap: var(--ds-space-x01);
+  border-radius: var(--ds-radius-x06);
+  padding-inline: var(--ds-space-x03);
+}
+body[data-rebrand=true] .ThemeSection_variantGrid {
+  gap: var(--ds-space-x03);
+}
+body[data-rebrand=true] .ThemeSection_variantButton {
+  --selection-ring-offset: var(--ds-space-x-5);
+  --selection-ring-width: var(--ds-space-x-5);
+  --theme-swatch-outer-radius: 10px;
+  border-radius: var(--theme-swatch-outer-radius);
+}
+body[data-rebrand=true] .ThemeSection_variantButton[aria-checked=true]::after {
+  border-radius: calc(var(--theme-swatch-outer-radius) + var(--selection-ring-offset));
+}
+body[data-rebrand=true] .ThemeSection_variantButton .ThemeSection_swatch,
+body[data-rebrand=true] .ThemeSection_variantButton .ThemeSection_swatchBackdrop {
+  border-radius: var(--theme-swatch-outer-radius);
+}
+body[data-rebrand=true] .ThemeSection_swatchPrimary {
+  border-radius: var(--ds-radius-x02);
+}
+body[data-rebrand=true][data-platform-name=macos] .ThemeSection_segment[aria-checked=true]:not(:focus-visible) {
+  box-shadow:
+    0 0.5px 0 0 rgba(255, 255, 255, 0.2) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 0 0 0.5px rgba(0, 0, 0, 0.1),
+    0 0 1px 0 rgba(0, 0, 0, 0.05),
+    0 1px 1px 0 rgba(0, 0, 0, 0.2);
 }
 .ThemeSection_variantGrid {
   display: flex;
@@ -7445,6 +8226,17 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   width: 1rem;
   height: 1rem;
   display: flex;
+}
+body[data-rebrand=true] .VisibilityMenu_embedded {
+  gap: var(--ds-space-x03);
+  font-weight: var(--body-font-weight);
+  line-height: var(--body-line-height);
+}
+body[data-rebrand=true] .VisibilityMenu_svg {
+  color: var(--ds-color-theme-icons-secondary);
+}
+body[data-rebrand=true] .VisibilityMenu_title {
+  color: var(--ds-color-theme-text-primary);
 }
 
 /* pages/new-tab/app/components/Components.module.css */

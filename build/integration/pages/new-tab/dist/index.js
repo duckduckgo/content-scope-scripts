@@ -569,6 +569,10 @@
     const settings = x2(SettingsContext).settings;
     return settings.adBlocking.state === "enabled";
   }
+  function useNewTabPageRebranding() {
+    const settings = x2(SettingsContext).settings;
+    return settings.newTabPageRebranding.state === "enabled";
+  }
   var SettingsContext;
   var init_settings_provider = __esm({
     "pages/new-tab/app/settings.provider.js"() {
@@ -1552,7 +1556,7 @@
     )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Shield-16_svg__a" }, /* @__PURE__ */ k("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function Cross() {
-    return /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "data-testid": "CrossIcon" }, /* @__PURE__ */ k(
       "path",
       {
         d: "M11.4419 5.44194C11.686 5.19786 11.686 4.80214 11.4419 4.55806C11.1979 4.31398 10.8021 4.31398 10.5581 4.55806L8 7.11612L5.44194 4.55806C5.19786 4.31398 4.80214 4.31398 4.55806 4.55806C4.31398 4.80214 4.31398 5.19786 4.55806 5.44194L7.11612 8L4.55806 10.5581C4.31398 10.8021 4.31398 11.1979 4.55806 11.4419C4.80214 11.686 5.19786 11.686 5.44194 11.4419L8 8.88388L10.5581 11.4419C10.8021 11.686 11.1979 11.686 11.4419 11.4419C11.686 11.1979 11.686 10.8021 11.4419 10.5581L8.88388 8L11.4419 5.44194Z",
@@ -1988,11 +1992,33 @@
     ));
   }
   function FireIcon(props) {
-    return /* @__PURE__ */ k("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", class: Icons_default.fireIcon, ...props }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k(
+      "svg",
+      {
+        fill: "none",
+        width: "16",
+        height: "16",
+        viewBox: "0 0 16 16",
+        xmlns: "http://www.w3.org/2000/svg",
+        class: Icons_default.fireIcon,
+        ...props,
+        "data-testid": "FireIcon"
+      },
+      /* @__PURE__ */ k(
+        "path",
+        {
+          fill: "currentColor",
+          d: "M6.498.03a.63.63 0 0 1 .536.075l.074.05c.756.533 1.148 1.26 1.394 1.983.126.37.218.75.299 1.107.083.368.152.703.24 1.03l.008.026c.025.074.096.245.235.398.142.157.356.301.716.301.34 0 .537-.111.66-.222a1.05 1.05 0 0 0 .26-.385l.012-.036c.03-.094.063-.263.101-.478.018-.1.04-.221.063-.312.009-.035.03-.123.075-.208.013-.026.082-.166.242-.263a.63.63 0 0 1 .727.047l.028.023.049.046C12.6 3.575 15 5.996 15 10c0 2.516-1.796 4.569-4.16 5.477a.625.625 0 0 1-.698-.99c.395-.459.608-1.08.608-1.768 0-.565-.342-1.223-.981-1.996-.513-.62-1.139-1.225-1.77-1.846-.637.617-1.256 1.193-1.771 1.803-.63.747-.978 1.407-.978 2.039 0 .688.213 1.31.608 1.767a.625.625 0 0 1-.673 1l-.025-.009C2.796 14.57 1 12.516 1 10c0-2.22.957-3.611 2.039-4.941C4.119 3.73 5.305 2.473 6.104.4l.014-.033a.63.63 0 0 1 .38-.338Z"
+        }
+      )
+    );
+  }
+  function TrashIcon(props) {
+    return /* @__PURE__ */ k("svg", { fill: "none", width: "16", height: "16", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props, "data-testid": "TrashIcon" }, /* @__PURE__ */ k(
       "path",
       {
         fill: "currentColor",
-        d: "M6.498.03a.63.63 0 0 1 .536.075l.074.05c.756.533 1.148 1.26 1.394 1.983.126.37.218.75.299 1.107.083.368.152.703.24 1.03l.008.026c.025.074.096.245.235.398.142.157.356.301.716.301.34 0 .537-.111.66-.222a1.05 1.05 0 0 0 .26-.385l.012-.036c.03-.094.063-.263.101-.478.018-.1.04-.221.063-.312.009-.035.03-.123.075-.208.013-.026.082-.166.242-.263a.63.63 0 0 1 .727.047l.028.023.049.046C12.6 3.575 15 5.996 15 10c0 2.516-1.796 4.569-4.16 5.477a.625.625 0 0 1-.698-.99c.395-.459.608-1.08.608-1.768 0-.565-.342-1.223-.981-1.996-.513-.62-1.139-1.225-1.77-1.846-.637.617-1.256 1.193-1.771 1.803-.63.747-.978 1.407-.978 2.039 0 .688.213 1.31.608 1.767a.625.625 0 0 1-.673 1l-.025-.009C2.796 14.57 1 12.516 1 10c0-2.22.957-3.611 2.039-4.941C4.119 3.73 5.305 2.473 6.104.4l.014-.033a.63.63 0 0 1 .38-.338Z"
+        d: "M9.125 0C10.1605 2.41596e-08 11 0.839466 11 1.875V2H14.375L14.501 2.0127C14.7858 2.07098 15 2.32298 15 2.625C15 2.92702 14.7858 3.17902 14.501 3.2373L14.375 3.25H14V12.875C14 14.6009 12.6009 16 10.875 16H5.125C3.39911 16 2 14.6009 2 12.875V3.25H1.625C1.27982 3.25 1 2.97018 1 2.625C1 2.27982 1.27982 2 1.625 2H5V1.875C5 0.839466 5.83947 2.416e-08 6.875 0H9.125ZM3.25 3.25V12.875C3.25 13.9105 4.08947 14.75 5.125 14.75H10.875C11.9105 14.75 12.75 13.9105 12.75 12.875V3.25H3.25ZM5.625 5C5.97018 5 6.25 5.27982 6.25 5.625V12.375C6.25 12.7202 5.97018 13 5.625 13C5.27982 13 5 12.7202 5 12.375V5.625C5 5.27982 5.27982 5 5.625 5ZM10.375 5C10.7202 5 11 5.27982 11 5.625V12.375C11 12.7202 10.7202 13 10.375 13C10.0298 13 9.75 12.7202 9.75 12.375V5.625C9.75 5.27982 10.0298 5 10.375 5ZM6.875 1.25C6.52982 1.25 6.25 1.52982 6.25 1.875V2H9.75V1.875C9.75 1.52982 9.47018 1.25 9.125 1.25H6.875Z"
       }
     ));
   }
@@ -6737,6 +6763,7 @@
         iconBlock: "ShowHide_iconBlock",
         round: "ShowHide_round",
         pill: "ShowHide_pill",
+        rebrandPill: "ShowHide_rebrandPill",
         fill: "ShowHide_fill",
         hover: "ShowHide_hover",
         bar: "ShowHide_bar"
@@ -6748,14 +6775,14 @@
   function ShowHideButtonCircle({ label, onClick, buttonAttrs = {} }) {
     return /* @__PURE__ */ k("button", { ...buttonAttrs, class: (0, import_classnames3.default)(ShowHide_default.button, ShowHide_default.round), "aria-label": label, "data-toggle": "true", onClick }, /* @__PURE__ */ k("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ k(Chevron, null)));
   }
-  function ShowHideButtonPill({ label, onClick, text: text2, fill = true, buttonAttrs = {} }) {
+  function ShowHideButtonPill({ label, onClick, text: text2, fill = true, variant = "default", buttonAttrs = {} }) {
     const btnText = label ? /* @__PURE__ */ k("span", { "aria-hidden": "true" }, text2) : text2;
     return /* @__PURE__ */ k(
       "button",
       {
         ...buttonAttrs,
         "aria-label": label,
-        class: (0, import_classnames3.default)(ShowHide_default.button, ShowHide_default.hover, ShowHide_default.pill, fill && ShowHide_default.fill),
+        class: (0, import_classnames3.default)(ShowHide_default.button, ShowHide_default.hover, ShowHide_default.pill, fill && ShowHide_default.fill, variant === "rebrand" && ShowHide_default.rebrandPill),
         "data-toggle": "true",
         onClick
       },
@@ -7260,6 +7287,7 @@
     );
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
+    const isRebrand = useNewTabPageRebranding();
     const hiddenCount = expansion === "collapsed" ? favorites2.length - ROW_CAPACITY : 0;
     const rowHeight = ITEM_HEIGHT + ROW_GAP;
     const canToggleExpansion = favorites2.length >= ROW_CAPACITY;
@@ -7283,6 +7311,7 @@
     ), canToggleExpansion && /* @__PURE__ */ k(ShowHideBar, null, /* @__PURE__ */ k(
       ShowHideButtonPill,
       {
+        variant: isRebrand ? "rebrand" : "default",
         buttonAttrs: {
           "aria-expanded": expansion === "expanded",
           "aria-pressed": expansion === "expanded",
@@ -7836,8 +7865,10 @@
 
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
   function FreemiumPIRBanner({ message, action, dismiss }) {
+    const isRebrandEnabled = useNewTabPageRebranding();
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames7.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ k("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ k("img", { src: `./icons/PIR-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    const iconSrc = isRebrandEnabled ? "./icons/rebrand/PIR-96.svg" : "./icons/PIR-96.svg";
+    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames7.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ k("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ k("img", { src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
@@ -7858,6 +7889,7 @@
       init_FreemiumPIRBannerProvider();
       init_hooks_module();
       init_utils3();
+      init_settings_provider();
     }
   });
 
@@ -8218,10 +8250,12 @@
     );
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
+    const isRebrand = useNewTabPageRebranding();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
     return /* @__PURE__ */ k("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, types.length > 0 && /* @__PURE__ */ k(NextStepsBubbleHeader, null), /* @__PURE__ */ k("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ k(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ k(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ k(ShowHideBar, null, /* @__PURE__ */ k(
       ShowHideButtonPill,
       {
+        variant: isRebrand ? "rebrand" : "default",
         buttonAttrs: {
           "aria-expanded": expansion === "expanded",
           "aria-pressed": expansion === "expanded",
@@ -8263,6 +8297,7 @@
       init_hooks_module();
       init_ShowHideButton();
       init_types();
+      init_settings_provider();
       init_nextsteps_data();
       init_NextSteps();
       init_NextStepsCard();
@@ -8509,7 +8544,10 @@
         content: "NextStepsListCard_content",
         title: "NextStepsListCard_title",
         description: "NextStepsListCard_description",
-        buttonRow: "NextStepsListCard_buttonRow"
+        buttonRow: "NextStepsListCard_buttonRow",
+        actionButton: "NextStepsListCard_actionButton",
+        primaryButton: "NextStepsListCard_primaryButton",
+        secondaryButton: "NextStepsListCard_secondaryButton"
       };
     }
   });
@@ -8517,8 +8555,8 @@
   // pages/new-tab/app/next-steps-list/components/NextStepsListCard.js
   function CardBody({ title, description, primaryButtonText, secondaryButtonText, imageSrc, onPrimaryClick, onSecondaryClick }) {
     const platformName = usePlatformName();
-    const primaryButton = /* @__PURE__ */ k(Button, { variant: "accentBrand", size: "lg", onClick: onPrimaryClick }, primaryButtonText);
-    const secondaryButton = /* @__PURE__ */ k(Button, { variant: "standard", size: "lg", onClick: onSecondaryClick }, secondaryButtonText);
+    const primaryButton = /* @__PURE__ */ k(Button, { className: (0, import_classnames9.default)(NextStepsListCard_default.actionButton, NextStepsListCard_default.primaryButton), variant: "accentBrand", size: "lg", onClick: onPrimaryClick }, primaryButtonText);
+    const secondaryButton = /* @__PURE__ */ k(Button, { className: (0, import_classnames9.default)(NextStepsListCard_default.actionButton, NextStepsListCard_default.secondaryButton), variant: "standard", size: "lg", onClick: onSecondaryClick }, secondaryButtonText);
     return /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: NextStepsListCard_default.imageContainer }, imageSrc && /* @__PURE__ */ k("img", { src: imageSrc, alt: "", class: NextStepsListCard_default.image })), /* @__PURE__ */ k("div", { class: NextStepsListCard_default.content }, /* @__PURE__ */ k("h3", { class: NextStepsListCard_default.title }, title), /* @__PURE__ */ k("p", { class: NextStepsListCard_default.description }, description), /* @__PURE__ */ k("div", { class: NextStepsListCard_default.buttonRow }, platformName === "windows" ? /* @__PURE__ */ k(S, null, primaryButton, secondaryButton) : /* @__PURE__ */ k(S, null, secondaryButton, primaryButton))));
   }
   function NextStepsListBubbleHeader() {
@@ -8553,6 +8591,7 @@
     onPrimaryAction,
     onSecondaryAction
   }) {
+    const isRebrand = useNewTabPageRebranding();
     const [dismissingCard, setDismissingCard] = d2(
       /** @type {CardContent | null} */
       null
@@ -8584,7 +8623,7 @@
       onSecondaryAction?.();
     };
     const isTransitioning = !!dismissingCard;
-    return /* @__PURE__ */ k("div", { class: NextStepsListCard_default.wrapper }, /* @__PURE__ */ k(NextStepsListBubbleHeader, null), /* @__PURE__ */ k("div", { class: NextStepsListCard_default.cardContainer }, nextCard && /* @__PURE__ */ k("div", { class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.backCard), "aria-hidden": "true" }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: NextStepsListCard_default.wrapper }, /* @__PURE__ */ k(NextStepsListBubbleHeader, null), /* @__PURE__ */ k("div", { class: NextStepsListCard_default.cardContainer }, nextCard && (isRebrand ? /* @__PURE__ */ k("div", { class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.backCard), "aria-hidden": "true" }) : /* @__PURE__ */ k("div", { class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.backCard), "aria-hidden": "true" }, /* @__PURE__ */ k(
       CardBody,
       {
         title: nextCard.title,
@@ -8593,7 +8632,7 @@
         secondaryButtonText: nextCard.secondaryButtonText,
         imageSrc: nextCard.imageSrc
       }
-    )), promotingCard && /* @__PURE__ */ k("div", { key: `promoting-${promotingCard.itemId}`, class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.promoting) }, /* @__PURE__ */ k(
+    ))), promotingCard && /* @__PURE__ */ k("div", { key: `promoting-${promotingCard.itemId}`, class: (0, import_classnames9.default)(NextStepsListCard_default.card, NextStepsListCard_default.promoting) }, /* @__PURE__ */ k(
       CardBody,
       {
         title: promotingCard.title,
@@ -8651,10 +8690,13 @@
   });
 
   // pages/new-tab/app/next-steps-list/next-steps-list.data.js
-  function getIconPath(iconName, theme) {
+  function getIconPath(iconName, theme, isRebrandEnabled = false) {
+    if (isRebrandEnabled && rebrandIconPaths[iconName]) {
+      return rebrandIconPaths[iconName];
+    }
     return `./next-steps-list/${iconName}-${theme}.png`;
   }
-  var variants2;
+  var variants2, rebrandIconPaths;
   var init_next_steps_list_data = __esm({
     "pages/new-tab/app/next-steps-list/next-steps-list.data.js"() {
       "use strict";
@@ -8740,6 +8782,17 @@
           actionText: t4("nextStepsList_sync_actionText")
         })
       };
+      rebrandIconPaths = {
+        "add-dock": "./icons/Dock-Add-Mac-96.svg",
+        "pin-taskbar": "./icons/Dock-Add-Windows-96.svg",
+        "customize-ntp": "./icons/Browser-Redesign-96.svg",
+        "duck-player": "./icons/YouTube-Clean-96.svg",
+        "email-protection": "./icons/Email-Protection-96.svg",
+        "import-passwords": "./icons/Passwords-Import-96.svg",
+        "set-default": "./icons/Default-App-96.svg",
+        subscription: "./icons/Desktop-Mobile-Subscription-96.svg",
+        sync: "./icons/Sync-96.svg"
+      };
     }
   });
 
@@ -8755,12 +8808,13 @@
     const { state, action, dismiss } = x2(NextStepsListContext);
     const { main: themeSignal } = x2(CustomizerThemesContext);
     const theme = themeSignal.value;
+    const useRebrandAssets = useNewTabPageRebranding();
     if (state.status === "ready" && state.data.content && state.data.content.length > 0) {
       const items = state.data.content.filter((x5) => x5.id in variants2);
       if (items.length === 0) return null;
       const displayedItemId = items[0].id;
       const { title, summary, actionText, icon } = variants2[displayedItemId](t4);
-      const iconPath = getIconPath(icon, theme);
+      const iconPath = getIconPath(icon, theme, useRebrandAssets);
       let nextCard = null;
       if (items.length > 1) {
         const nextItemId = items[1].id;
@@ -8771,7 +8825,7 @@
           description: nextVariant.summary,
           primaryButtonText: nextVariant.actionText,
           secondaryButtonText: t4("nextStepsList_maybeLater"),
-          imageSrc: getIconPath(nextVariant.icon, theme)
+          imageSrc: getIconPath(nextVariant.icon, theme, useRebrandAssets)
         };
       }
       return /* @__PURE__ */ k(
@@ -8801,6 +8855,7 @@
       init_next_steps_list_data();
       init_types();
       init_CustomizerProvider();
+      init_settings_provider();
     }
   });
 
@@ -10834,6 +10889,50 @@
     }
   });
 
+  // pages/new-tab/app/components/icons/AiChat.js
+  function AiChat(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Ai-Chat-16_rebrand_svg__a)" }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M10.5403 12.5692L10.4934 12.5907C9.6837 12.9623 8.16978 13.3762 6.42936 13.7641C5.30934 14.0137 4.14545 14.2421 3.10482 14.4337L3.40227 14.0907C4.18342 13.19 3.95634 11.9224 3.18687 11.2407C1.96751 10.1603 1.25 8.70234 1.25 7.12499C1.25 4.01251 4.13201 1.24999 8 1.24999C11.868 1.24999 14.75 4.01251 14.75 7.12499C14.75 9.49669 13.1057 11.6389 10.5887 12.5516L10.5403 12.5692ZM11.0148 13.7267C9.12363 14.5947 4.47004 15.4766 1.81448 15.9327C1.15017 16.0467 0.722625 15.2726 1.16424 14.7634L2.45793 13.2717C2.73732 12.9495 2.67709 12.459 2.35792 12.1762C0.901524 10.8859 0 9.09919 0 7.12499C0 3.18996 3.58172 -4.76837e-06 8 -4.76837e-06C12.4183 -4.76837e-06 16 3.18996 16 7.12499C16 10.1101 13.9388 12.6665 11.0148 13.7267Z"
+      }
+    ), /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M7.61957 3.27117C7.71854 2.87527 8.28118 2.87527 8.38016 3.27117L8.59949 4.14851C8.89209 5.3189 9.80594 6.23276 10.9763 6.52535L11.8537 6.74469C12.2496 6.84367 12.2496 7.40631 11.8537 7.50528L10.9763 7.72462C9.80594 8.01722 8.89209 8.93107 8.59949 10.1015L8.38016 10.9788C8.28118 11.3747 7.71854 11.3747 7.61957 10.9788L7.40023 10.1015C7.10763 8.93107 6.19378 8.01722 5.02338 7.72462L4.14605 7.50528C3.75015 7.40631 3.75015 6.84367 4.14605 6.74469L5.02338 6.52536C6.19378 6.23276 7.10763 5.3189 7.40023 4.14851L7.61957 3.27117Z"
+      }
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Ai-Chat-16_rebrand_svg__a" }, /* @__PURE__ */ k("rect", { width: "16", height: "16", fill: "white" }))));
+  }
+  var init_AiChat = __esm({
+    "pages/new-tab/app/components/icons/AiChat.js"() {
+      "use strict";
+      init_preact_module();
+    }
+  });
+
+  // pages/new-tab/app/components/icons/SearchFind.js
+  function SearchFind(props) {
+    return /* @__PURE__ */ k("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ k("g", { "clip-path": "url(#Search-Find-16_svg__a)" }, /* @__PURE__ */ k(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M7 0C3.13401 0 0 3.13401 0 7C0 10.866 3.13401 14 7 14C8.70796 14 10.2731 13.3883 11.4882 12.372L14.9331 15.8169C15.1771 16.061 15.5729 16.061 15.8169 15.8169C16.061 15.5729 16.061 15.1771 15.8169 14.9331L12.372 11.4882C13.3883 10.2731 14 8.70796 14 7C14 3.13401 10.866 0 7 0ZM1.25 7C1.25 3.82436 3.82436 1.25 7 1.25C10.1756 1.25 12.75 3.82436 12.75 7C12.75 10.1756 10.1756 12.75 7 12.75C3.82436 12.75 1.25 10.1756 1.25 7Z"
+      }
+    )), /* @__PURE__ */ k("defs", null, /* @__PURE__ */ k("clipPath", { id: "Search-Find-16_svg__a" }, /* @__PURE__ */ k("rect", { width: "16", height: "16", fill: "white" }))));
+  }
+  var init_SearchFind = __esm({
+    "pages/new-tab/app/components/icons/SearchFind.js"() {
+      "use strict";
+      init_preact_module();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/TabSwitcher.module.css
   var TabSwitcher_default;
   var init_TabSwitcher = __esm({
@@ -10867,7 +10966,11 @@
     );
   }
   function TabIcon({ mode, selected }) {
+    const rebrand = useNewTabPageRebranding();
     const { main } = x2(CustomizerThemesContext);
+    if (rebrand) {
+      return mode === "search" ? /* @__PURE__ */ k(SearchFind, null) : /* @__PURE__ */ k(AiChat, null);
+    }
     if (mode === "search") {
       if (selected) return main.value === "light" ? /* @__PURE__ */ k(SearchColorIcon, null) : /* @__PURE__ */ k(SearchOnDarkColorIcon, null);
       return /* @__PURE__ */ k(SearchIcon, null);
@@ -10882,7 +10985,10 @@
       init_preact_module();
       init_hooks_module();
       init_Icons2();
+      init_AiChat();
+      init_SearchFind();
       init_CustomizerProvider();
+      init_settings_provider();
       init_types();
       init_TabSwitcher();
     }
@@ -14798,9 +14904,10 @@
         block: "Protections_block",
         blockLegacy: "Protections_blockLegacy",
         empty: "Protections_empty",
-        feed: "Protections_feed",
         button: "Protections_button",
-        active: "Protections_active"
+        active: "Protections_active",
+        feed: "Protections_feed",
+        blob: "Protections_blob"
       };
     }
   });
@@ -15143,6 +15250,7 @@
       {}
     );
     const ntp = useMessaging();
+    const isRebrand = useNewTabPageRebranding();
     const locale = useLocale();
     const formatter = T2(() => getLocalizedNumberFormatter(locale), [locale]);
     const headingRef = A2(
@@ -15166,7 +15274,7 @@
     const isCpmEnabled = totalCookiePopUpsBlockedValue !== void 0 && totalCookiePopUpsBlockedValue !== null;
     const trackersBlockedHeading = animatedTrackersBlocked === 1 ? t4("stats_countBlockedSingular") : t4("stats_countBlockedPlural");
     const cookiePopUpsBlockedHeading = animatedCookiePopUpsBlocked === 1 ? t4("stats_totalCookiePopUpsBlockedSingular") : t4("stats_totalCookiePopUpsBlockedPlural");
-    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames21.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading", ref: headingRef }, /* @__PURE__ */ k("div", { class: (0, import_classnames21.default)(PrivacyStats_default.control, animatedTrackersBlocked === 0 && PrivacyStats_default.noTrackers) }, /* @__PURE__ */ k("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ k("img", { src: isRebrand ? "./icons/Shield-Color-16.svg" : "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ k("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), /* @__PURE__ */ k(Tooltip2, { content: t4("stats_protectionsReportInfo") }, /* @__PURE__ */ k(InfoIcon, { class: PrivacyStats_default.infoIcon })), canExpand && /* @__PURE__ */ k("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ k(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -15185,6 +15293,7 @@
       "use strict";
       init_types();
       init_PrivacyStats();
+      init_settings_provider();
       init_ShowHideButton();
       import_classnames21 = __toESM(require_classnames(), 1);
       init_preact_module();
@@ -15321,34 +15430,62 @@
   function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === "collapsed";
     const showing = expansion === "expanded";
+    const isRebrandEnabled = useNewTabPageRebranding();
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames23.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames23.default)(Protections_default.switcher, Protections_default.block), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
       "button",
       {
+        type: "button",
+        role: "tab",
+        "aria-selected": feed === "privacy-stats",
         class: (0, import_classnames23.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ k("button", { class: (0, import_classnames23.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ k(
+      "button",
+      {
+        type: "button",
+        role: "tab",
+        "aria-selected": feed === "activity",
+        class: (0, import_classnames23.default)(Protections_default.button, feed === "activity" && Protections_default.active),
+        onClick: () => setFeed("activity")
+      },
+      t4("protections_activitySwitchTitle")
+    )), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
     const hidden = expansion === "collapsed";
     const showing = expansion === "expanded";
+    const isRebrandEnabled = useNewTabPageRebranding();
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames23.default)(Protections_default.switcher, Protections_default.blockLegacy) }, /* @__PURE__ */ k(
+    return /* @__PURE__ */ k("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ k(S, null, /* @__PURE__ */ k("div", { class: (0, import_classnames23.default)(Protections_default.switcher, Protections_default.blockLegacy), role: "tablist" }, isRebrandEnabled && /* @__PURE__ */ k("div", { class: Protections_default.blob, style: { "--tab-count": 2, "--tab-index": feed === "privacy-stats" ? 0 : 1 } }), /* @__PURE__ */ k(
       "button",
       {
+        type: "button",
+        role: "tab",
+        "aria-selected": feed === "privacy-stats",
         class: (0, import_classnames23.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ k("button", { class: (0, import_classnames23.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ k(
+      "button",
+      {
+        type: "button",
+        role: "tab",
+        "aria-selected": feed === "activity",
+        class: (0, import_classnames23.default)(Protections_default.button, feed === "activity" && Protections_default.active),
+        onClick: () => setFeed("activity")
+      },
+      t4("protections_activitySwitchTitle")
+    )), /* @__PURE__ */ k("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
     return /* @__PURE__ */ k("div", { class: (0, import_classnames23.default)(Protections_default.block, Protections_default.empty) }, children);
@@ -15367,6 +15504,7 @@
       init_ProtectionsHeading();
       init_types();
       init_ProtectionsHeadingLegacy();
+      init_settings_provider();
     }
   });
 
@@ -16404,7 +16542,7 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItem.js
-  function Controls({ canBurn, url: url8, title, shouldDisplayLegacyActivity = true }) {
+  function Controls({ canBurn, url: url8, title, shouldDisplayLegacyActivity = true, isRebrand }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
@@ -16433,8 +16571,14 @@
         value: url8,
         type: "button"
       },
-      canBurn ? shouldDisplayLegacyActivity ? /* @__PURE__ */ k(Fire, null) : /* @__PURE__ */ k(FireIcon, null) : /* @__PURE__ */ k(Cross, null)
+      renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand })
     ));
+  }
+  function renderSecondaryIcon({ canBurn, shouldDisplayLegacyActivity, isRebrand }) {
+    if (!canBurn) return /* @__PURE__ */ k(Cross, null);
+    if (shouldDisplayLegacyActivity) return /* @__PURE__ */ k(Fire, null);
+    if (isRebrand) return /* @__PURE__ */ k(TrashIcon, null);
+    return /* @__PURE__ */ k(FireIcon, null);
   }
   var import_classnames24, ActivityItem, ActivityItemLegacy;
   var init_ActivityItem = __esm({
@@ -16450,6 +16594,7 @@
       init_Star();
       init_Fire();
       init_Icons2();
+      init_settings_provider();
       init_hooks_module();
       init_compat_module();
       init_signals_module();
@@ -16469,6 +16614,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
+          const isRebrand = useNewTabPageRebranding();
           return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames24.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: Activity_default.heading }, /* @__PURE__ */ k("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
@@ -16481,7 +16627,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ k(Controls, { canBurn, url: url8, title, shouldDisplayLegacyActivity: false })), /* @__PURE__ */ k("div", { class: Activity_default.body }, children));
+          )), title), /* @__PURE__ */ k(Controls, { canBurn, url: url8, title, isRebrand, shouldDisplayLegacyActivity: false })), /* @__PURE__ */ k("div", { class: Activity_default.body }, children));
         }
       );
       ActivityItemLegacy = N2(
@@ -16497,6 +16643,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem3({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
+          const isRebrand = useNewTabPageRebranding();
           return /* @__PURE__ */ k("li", { key: url8, class: (0, import_classnames24.default)(ActivityLegacy_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ k("div", { class: ActivityLegacy_default.heading }, /* @__PURE__ */ k("a", { class: ActivityLegacy_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ k("span", { className: ActivityLegacy_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ k(
             FaviconWithState,
             {
@@ -16509,7 +16656,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ k(Controls, { canBurn, url: url8, title })), /* @__PURE__ */ k("div", { class: ActivityLegacy_default.body }, children));
+          )), title), /* @__PURE__ */ k(Controls, { canBurn, url: url8, title, isRebrand })), /* @__PURE__ */ k("div", { class: ActivityLegacy_default.body }, children));
         }
       );
     }
@@ -33538,6 +33685,7 @@
       {}
     );
     const { showLess, showMore } = useBodyExpansionApi();
+    const isRebrand = useNewTabPageRebranding();
     const toggleListExpansion = () => {
       if (expansion === "collapsed") {
         showMore();
@@ -33551,6 +33699,7 @@
         onClick: toggleListExpansion,
         label: void 0,
         fill: false,
+        variant: isRebrand ? "rebrand" : "default",
         text: expansion === "collapsed" ? t4("ntp_show_more") : t4("ntp_show_less"),
         buttonAttrs: {
           "aria-expanded": expansion === "expanded",
@@ -33582,6 +33731,7 @@
       init_privacy_stats_utils();
       init_CompanyIcon2();
       init_BodyExpansionProvider();
+      init_settings_provider();
       init_Protections2();
       init_utils3();
       init_EnvironmentProvider();
@@ -33714,7 +33864,10 @@
         description: "RemoteMessagingFramework_description",
         btnBlock: "RemoteMessagingFramework_btnBlock",
         btnRow: "RemoteMessagingFramework_btnRow",
-        dismissBtn: "RemoteMessagingFramework_dismissBtn"
+        dismissBtn: "RemoteMessagingFramework_dismissBtn",
+        actionButton: "RemoteMessagingFramework_actionButton",
+        primaryButton: "RemoteMessagingFramework_primaryButton",
+        secondaryButton: "RemoteMessagingFramework_secondaryButton"
       };
     }
   });
@@ -33867,10 +34020,35 @@
   });
 
   // pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js
+  function TwoActionButtons({ platform, id, message, primaryAction, secondaryAction }) {
+    const primaryBtn = primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames27.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.primaryButton), variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText);
+    const secondaryBtn = secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { className: (0, import_classnames27.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton), variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText);
+    return /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ k(S, null, primaryBtn, secondaryBtn) : /* @__PURE__ */ k(S, null, secondaryBtn, primaryBtn));
+  }
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames27.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ k(S, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ k(S, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ k(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ k(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ k(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    const isRebrandEnabled = useNewTabPageRebranding();
+    const showIcon = messageType !== "small" && Boolean(message.icon);
+    const iconSrc = showIcon ? isRebrandEnabled ? `./icons/rebrand/${message.icon}-96.svg` : `./icons/${message.icon}-96.svg` : void 0;
+    return /* @__PURE__ */ k("div", { id, class: (0, import_classnames27.default)(RemoteMessagingFramework_default.root, showIcon && RemoteMessagingFramework_default.icon) }, showIcon && iconSrc && /* @__PURE__ */ k("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ k("img", { src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ k("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ k("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ k(
+      TwoActionButtons,
+      {
+        platform,
+        id,
+        message,
+        primaryAction,
+        secondaryAction
+      }
+    )), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ k("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ k(
+      Button,
+      {
+        className: (0, import_classnames27.default)(RemoteMessagingFramework_default.actionButton, RemoteMessagingFramework_default.secondaryButton),
+        variant: "standard",
+        onClick: () => primaryAction(id)
+      },
+      message.primaryActionText
+    )), /* @__PURE__ */ k(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -34070,8 +34248,10 @@
 
   // pages/new-tab/app/subscription-winback-banner/components/SubscriptionWinBackBanner.js
   function SubscriptionWinBackBanner({ message, action, dismiss }) {
+    const isRebrandEnabled = useNewTabPageRebranding();
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames28.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: `./icons/Subscription-Clock-96.svg`, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    const iconSrc = isRebrandEnabled ? "./icons/rebrand/Subscription-Clock-96.svg" : "./icons/Subscription-Clock-96.svg";
+    return /* @__PURE__ */ k("div", { id: message.id, class: (0, import_classnames28.default)(SubscriptionWinBackBanner_default.root, SubscriptionWinBackBanner_default.icon) }, /* @__PURE__ */ k("span", { class: SubscriptionWinBackBanner_default.iconBlock }, /* @__PURE__ */ k("img", { "aria-hidden": "true", src: iconSrc, alt: "" })), /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.content }, message.titleText && /* @__PURE__ */ k("h2", { class: SubscriptionWinBackBanner_default.title }, message.titleText), /* @__PURE__ */ k("p", { class: SubscriptionWinBackBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ k("div", { class: SubscriptionWinBackBanner_default.btnBlock }, /* @__PURE__ */ k(Button, { size: "md", variant: "accent", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ k(DismissButton, { className: SubscriptionWinBackBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = x2(SubscriptionWinBackBannerContext);
@@ -34092,6 +34272,7 @@
       init_SubscriptionWinBackBannerProvider();
       init_hooks_module();
       init_utils3();
+      init_settings_provider();
     }
   });
 
@@ -37292,6 +37473,76 @@
     }
   };
 
+  // pages/new-tab/app/next-steps-list/components/NextStepsListCard.examples.js
+  init_preact_module();
+  init_hooks_module();
+  init_utils2();
+  init_types();
+  init_CustomizerProvider();
+  init_settings_provider();
+  init_next_steps_list_data();
+  init_NextStepsListCard2();
+  function NextStepsListExample({ type, nextType }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
+    const { main: themeSignal } = x2(CustomizerThemesContext);
+    const theme = themeSignal.value;
+    const isRebrandEnabled = useNewTabPageRebranding();
+    const variant = variants2[type](t4);
+    let nextCard = null;
+    if (nextType) {
+      const nextVariant = variants2[nextType](t4);
+      nextCard = {
+        itemId: nextVariant.id,
+        title: nextVariant.title,
+        description: nextVariant.summary,
+        primaryButtonText: nextVariant.actionText,
+        secondaryButtonText: t4("nextStepsList_maybeLater"),
+        imageSrc: getIconPath(nextVariant.icon, theme, isRebrandEnabled)
+      };
+    }
+    return /* @__PURE__ */ k(
+      NextStepsListCard,
+      {
+        itemId: variant.id,
+        title: variant.title,
+        description: variant.summary,
+        primaryButtonText: variant.actionText,
+        secondaryButtonText: t4("nextStepsList_maybeLater"),
+        imageSrc: getIconPath(variant.icon, theme, isRebrandEnabled),
+        nextCard,
+        onPrimaryAction: noop(`next-steps-list.action.${type}`),
+        onSecondaryAction: noop(`next-steps-list.dismiss.${type}`)
+      }
+    );
+  }
+  var allVariantIds = (
+    /** @type {NextStepsListVariantId[]} */
+    Object.keys(variants2)
+  );
+  var nextStepsListExamples = {
+    "next-steps-list.all": {
+      factory: () => /* @__PURE__ */ k(S, null, allVariantIds.map((type) => /* @__PURE__ */ k(NextStepsListExample, { key: type, type })))
+    },
+    "next-steps-list.stacked": {
+      factory: () => /* @__PURE__ */ k(NextStepsListExample, { type: "emailProtection", nextType: "duckplayer" })
+    },
+    "next-steps-list.stacked.three": {
+      // Peek only shows the immediate next card; useful for comparing front + back art.
+      factory: () => /* @__PURE__ */ k(NextStepsListExample, { type: "bringStuff", nextType: "sync" })
+    }
+  };
+  var otherNextStepsListExamples = Object.fromEntries(
+    allVariantIds.map((type) => [
+      `next-steps-list.${type}`,
+      {
+        factory: () => /* @__PURE__ */ k(NextStepsListExample, { type })
+      }
+    ])
+  );
+
   // pages/new-tab/app/privacy-stats/components/PrivacyStats.examples.js
   init_preact_module();
 
@@ -39995,6 +40246,7 @@
     ...favoritesExamples,
     ...freemiumPIRBannerExamples,
     ...nextStepsExamples,
+    ...nextStepsListExamples,
     ...privacyStatsExamples,
     ...RMFExamples,
     ...subscriptionWinBackBannerExamples,
@@ -40002,6 +40254,7 @@
   };
   var otherExamples = {
     ...otherNextStepsExamples,
+    ...otherNextStepsListExamples,
     ...otherPrivacyStatsExamples,
     ...otherRMFExamples,
     ...customizerExamples,
@@ -40915,7 +41168,7 @@
             }
             return Promise.resolve(dataset);
           case "protections_getConfig": {
-            if (url4.searchParams.get("protections.feed") === "activity") {
+            if (url4.searchParams.get("protections_feed") === "activity") {
               config.feed = "activity";
             }
             if (url4.searchParams.get("protections.burn") === "false") {
