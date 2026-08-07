@@ -2,9 +2,24 @@ import fc from 'fast-check';
 import { cleanArray } from '../src/features/broker-protection/utils/utils.js';
 import { extractPhone } from '../src/features/broker-protection/extractors/phone.js';
 import { extractProfileUrl } from '../src/features/broker-protection/extractors/profile-url.js';
-import { cityStateCombosFromStrings, cityStatePartToCombo, normalizeState } from '../src/features/broker-protection/extractors/address.js';
+import {
+    cityStateCombosFromStrings,
+    cityStatePartToCombo,
+    extractAddressFull,
+    extractCityState,
+    normalizeState,
+} from '../src/features/broker-protection/extractors/address.js';
 
 const ROOT = {};
+
+/**
+ * @param {Record<string, string|null>} attributes
+ * @param {Record<string, any>} [extras]
+ */
+const fakeElement = (attributes, extras = {}) => ({
+    getAttribute: (/** @type {string} */ name) => attributes[name] ?? null,
+    ...extras,
+});
 
 describe('individual extractors', () => {
     describe('extractPhone', () => {
@@ -59,6 +74,52 @@ describe('individual extractors', () => {
 
                 expect(profile?.identifier).toEqual(expected);
             });
+        });
+    });
+
+    describe('extractAddressFull', () => {
+        it('extracts street and zip from a plain full-address string', () => {
+            const select = () => [{ innerText: '2323 Bay Hill Dr, Baytown TX 77523' }];
+            expect(extractAddressFull(select, ROOT, { selector: '.address' })).toEqual([
+                { city: 'Baytown', state: 'TX', extras: { street: '2323 Bay Hill Dr', zip: '77523' } },
+            ]);
+        });
+
+        it('reads a full address out of a title attribute (afterText)', () => {
+            const select = () => [fakeElement({ title: 'the address 2323 Bay Hill Dr, Baytown TX 77523' })];
+            expect(extractAddressFull(select, ROOT, { selector: 'a', attribute: 'title', afterText: 'the address ' })).toEqual([
+                { city: 'Baytown', state: 'TX', extras: { street: '2323 Bay Hill Dr', zip: '77523' } },
+            ]);
+        });
+
+        it('tidies a messy href slug (lowercase city/state, hyphenated number) into cased output', () => {
+            const select = () => [fakeElement({ href: '/address/14155-walton-dr/manassas-va-20112' })];
+            expect(extractAddressFull(select, ROOT, { selector: 'a', attribute: 'href', afterText: 'address/' })).toEqual([
+                { city: 'Manassas', state: 'VA', extras: { street: '14155 Walton Dr', zip: '20112' } },
+            ]);
+        });
+
+        it('keeps punctuation inside a street part, trimming only what trails it', () => {
+            const select = () => [{ innerText: '1234-5 Elm Ave, Dallas, TX 75215' }];
+            expect(extractAddressFull(select, ROOT, { selector: '.address' })).toEqual([
+                { city: 'Dallas', state: 'TX', extras: { street: '1234-5 Elm Ave', zip: '75215' } },
+            ]);
+        });
+
+        it('omits an extras part parse-address did not find (zip absent → street only)', () => {
+            const select = () => [{ innerText: 'County Road, Dallas, TX' }];
+            expect(extractAddressFull(select, ROOT, { selector: '.address' })).toEqual([
+                { city: 'Dallas', state: 'TX', extras: { street: 'County Rd' } },
+            ]);
+        });
+    });
+
+    describe('extractCityState', () => {
+        it('yields plain {city, state} combos, never extras', () => {
+            const select = () => [{ innerText: 'Dallas, TX' }];
+            const combos = extractCityState(select, ROOT, { selector: '.loc' });
+            expect(combos).toEqual([{ city: 'Dallas', state: 'TX' }]);
+            expect('extras' in combos[0]).toBe(false);
         });
     });
 });

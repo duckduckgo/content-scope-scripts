@@ -1,0 +1,17 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "fill-optional-empty",
+            "selector": "#contact-form",
+            "dataSource": "extractedProfile",
+            "elements": [
+                { "type": "firstName", "selector": "#FirstName" },
+                { "type": "middleName", "selector": "#MiddleName" }
+            ]
+        },
+        "data": {
+            "extractedProfile": { "firstName": "John", "middleName": "" }
+        }
+    }
+}

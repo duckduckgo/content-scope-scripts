@@ -1,4 +1,8 @@
 /**
+ * @typedef {import('../actions/extract.js').ProfileExtras} ProfileExtras
+ */
+
+/**
  * Get a single element.
  *
  * @param {Node} doc
@@ -220,6 +224,18 @@ export function nonEmptyString(input) {
 }
 
 /**
+ * Uppercases the first letter of each space-separated word, leaving the rest of each word as-is.
+ *
+ * @param {string} s
+ * @return {string}
+ */
+export function capitalize(s) {
+    const words = s.split(' ');
+    const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+    return capitalizedWords.join(' ');
+}
+
+/**
  * Checks if two strings are a matching pair, ignoring case and leading/trailing white spaces.
  *
  * @param {any} a - The first string to compare.
@@ -248,6 +264,55 @@ export function sortAddressesByStateAndCity(addresses) {
         }
         return a.city.localeCompare(b.city);
     });
+}
+
+/**
+ * Drop exact duplicates, plus any bare city/state pair that a richer version of the same city/state
+ * already covers.
+ *
+ * e.g. [{Dallas, TX}, {Dallas, TX, 1 Main St}, {Dallas, TX, 2 Oak Ave}] -> [{Dallas, TX, 1 Main St}, {Dallas, TX, 2 Oak Ave}]
+ *
+ * @param {{city: string, state: string|null, extras?: ProfileExtras}[]} addresses
+ * @return {{city: string, state: string|null, extras?: ProfileExtras}[]}
+ */
+export function dedupeAddresses(addresses) {
+    const cityStatesWithExtras = new Set(addresses.filter(hasExtras).map(cityStateKey));
+
+    const unique = new Map();
+    for (const address of addresses) {
+        if (!hasExtras(address) && cityStatesWithExtras.has(cityStateKey(address))) continue;
+        unique.set(addressDedupKey(address), address);
+    }
+    return [...unique.values()];
+}
+
+/**
+ * @param {{extras?: ProfileExtras}} obj
+ * @return {boolean}
+ */
+export function hasExtras(obj) {
+    return Object.keys(obj.extras ?? {}).length > 0;
+}
+
+/**
+ * @param {{city: string, state: string|null}} addr
+ * @return {string}
+ */
+function cityStateKey(addr) {
+    return `${addr.city},${addr.state}`.toLowerCase();
+}
+
+/**
+ * @param {{city: string, state: string|null, extras?: ProfileExtras}} addr
+ * @return {string}
+ */
+function addressDedupKey(addr) {
+    const extras = addr.extras ?? {};
+    const extrasKey = Object.keys(extras)
+        .sort()
+        .map((key) => `${key}=${extras[key]}`)
+        .join('&');
+    return `${cityStateKey(addr)}|${extrasKey}`;
 }
 
 /**
