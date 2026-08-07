@@ -13,7 +13,7 @@
  * the harness's own bookkeeping.
  */
 import { JSDOM } from 'jsdom';
-import { collectFacts, collectResults, singleSweep } from '../../scripts/detector-bench/harness.mjs';
+import { collectFacts, collectResults, singleSweep } from '../../scripts/detector-bench/core/harness.mjs';
 
 /**
  * Install a jsdom document as the globals the harness functions expect, and return a

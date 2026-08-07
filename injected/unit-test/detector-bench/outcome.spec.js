@@ -8,7 +8,7 @@
  * fixtures the shipped baseline also fails - the experiment had found a pre-existing gap in
  * `matching.js` and was being blamed for it.
  */
-import { classify, deltaAgainst, decideOutcome } from '../../scripts/detector-bench/outcome.mjs';
+import { classify, deltaAgainst, decideOutcome } from '../../scripts/detector-bench/core/outcome.mjs';
 
 describe('detector-bench outcome', () => {
     describe('classify', () => {

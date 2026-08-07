@@ -4,7 +4,7 @@
  * A config spec: the implementation is whatever is in the working tree, and the thing
  * varied is `xpathConfig`. Questions about *how* to write the detector - gating, the
  * self-axis expression, body-only - are a different question and live in
- * `specs/adwall-xpath.mjs`. Questions about which buffer cut to use vary code rather than
+ * `specs/detector-design/adwall-xpath.mjs`. Questions about which buffer cut to use vary code rather than
  * config, so they live on the algorithm axis (`.bench-variants/tail-strategy.mjs`).
  *
  * Chunking exists to bound peak memory, and bounding it is not free. The added work is
@@ -30,10 +30,14 @@
  *
  * Run it with `--memory` for the heap column. That is the only memory figure available on
  * this axis, because the shipped implementation carries no instrumentation - for the
- * high-water buffer length itself, see `.bench-variants/chunking-memory.mjs`.
+ * high-water buffer length itself, point a spec's `implementation` at
+ * `lib/shipped-strategy.mjs`, which reports `peak buffer` - but note that measures the
+ * lib's rendition of the shipped scan rather than `matching.js`, so it is only meaningful
+ * while `npm run bench-drift-guard` passes.
  */
-import { articlePage, manyTinyTextNodes, scriptHeavy, textHeavy, unbrokenWordRuns } from '../fixtures.mjs';
-import { PATTERNS, RENDERED_TEXT, detector, at, payloadFixtures, payloadOnPage } from '../adwall.mjs';
+import { articlePage, manyTinyTextNodes, scriptHeavy, textHeavy, unbrokenWordRuns } from '../../page-gen/pages.mjs';
+import { RENDERED_TEXT } from '../../detectors/expressions.mjs';
+import { PATTERNS, detector, at, caseFixtures, caseOnPage } from '../../detectors/adwall.mjs';
 
 /**
  * @param {{ chunkSize: number, chunkTail?: number }} xpathConfig
@@ -91,16 +95,16 @@ export default {
         // Matching pages. Early match is where chunking wins outright; appended payloads are
         // the worst case for short-circuiting, since everything is scanned before the match.
         at('adwall-first', { html: ADWALL_FIRST, generate: articlePage, params: { rows: 20000 } }, true),
-        payloadOnPage('wrapped', { generate: articlePage, params: { rows: 20000 } }),
+        caseOnPage('wrapped', { generate: articlePage, params: { rows: 20000 } }),
         // Both straddle a boundary in a way a too-small tail could lose, at a size where
         // flushes actually happen.
-        payloadOnPage('splitInline', { generate: articlePage, params: { rows: 20000 } }),
-        payloadOnPage('boundary', { generate: articlePage, params: { rows: 20000 } }),
+        caseOnPage('splitInline', { generate: articlePage, params: { rows: 20000 } }),
+        caseOnPage('boundary', { generate: articlePage, params: { rows: 20000 } }),
 
         // The correctness matrix. These are far below one chunk, so they pin that chunking
         // changes nothing on small documents rather than exercising a flush - the flush path
         // at small chunk sizes is covered by `npm run bench-drift-guard`.
-        ...payloadFixtures(),
+        ...caseFixtures(),
     ],
 
     configs: [

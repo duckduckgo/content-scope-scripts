@@ -117,6 +117,7 @@ export function table(rows, indent = '  ') {
  * @typedef {object} FixtureReport
  * @property {string} fixture
  * @property {string} [engine]
+ * @property {'timing' | 'correctness' | 'both'} [purpose]
  * @property {{ group: string, param: string, value: number } | null} [scale]
  * @property {{ elements: number, textNodes: number, chars: number, renderedChars?: number }} facts
  * @property {{ clean: number, dirty: number, ratio: number } | null} [layoutCheck]
@@ -308,6 +309,80 @@ export function formatScaling(reports) {
     lines.push('', '  A flat ns/char column means cost grows linearly with text; a rising one means worse.');
 
     return lines.join('\n');
+}
+
+/**
+ * Score every variant against the fixture labels, as one number per variant.
+ *
+ * The per-fixture tables say what each variant did on each case; nothing said how a
+ * variant did *overall*. That is the missing half of "compare these approaches": a
+ * comparison needs cost and accuracy side by side, and reading accuracy off twenty
+ * fixture tables by hand is exactly the step that gets skipped.
+ *
+ * Fixtures marked `purpose: 'timing'` are excluded. Their only label is "no match
+ * anywhere" on a large generated page, which every variant satisfies trivially, so
+ * counting them would pad the denominator with free marks and drag every variant's score
+ * towards 100%. Excluding them also makes the figure identical under `--check-only`,
+ * which skips those fixtures entirely.
+ *
+ * Accuracy is against the fixture labels alone. It deliberately says nothing about
+ * whether a divergence was introduced or inherited - `formatSummary` owns that
+ * distinction, and it is the one that drives the exit code.
+ *
+ * @param {FixtureReport[]} reports
+ * @returns {string}
+ */
+export function formatAccuracy(reports) {
+    const scored = reports.filter((report) => report.purpose !== 'timing');
+    if (scored.length === 0) return '';
+
+    /** @type {Map<string, { engine?: string, name: string, cases: number, correct: number, fp: number, fn: number }>} */
+    const totals = new Map();
+
+    for (const report of scored) {
+        for (const variant of report.variants) {
+            // Engines are separate processes measuring separate pages, so a variant's score
+            // is per engine. Merging them would average over two different answers.
+            const key = `${report.engine ?? ''}\u0000${variant.name}`;
+            let row = totals.get(key);
+            if (!row) {
+                row = { engine: report.engine, name: variant.name, cases: 0, correct: 0, fp: 0, fn: 0 };
+                totals.set(key, row);
+            }
+            const cases = Object.keys(variant.expected).length;
+            row.cases += cases;
+            row.fp += variant.falsePositives.length;
+            row.fn += variant.falseNegatives.length;
+            row.correct += cases - variant.falsePositives.length - variant.falseNegatives.length;
+        }
+    }
+
+    const rows = [...totals.values()];
+    if (rows.length === 0) return '';
+
+    const anyEngine = rows.some((row) => row.engine);
+    const header = [...(anyEngine ? ['engine'] : []), 'variant', 'accuracy', 'correct', 'false pos', 'false neg'];
+    const body = rows.map((row) => [
+        ...(anyEngine ? [row.engine ?? ''] : []),
+        row.name,
+        row.cases > 0 ? `${((row.correct / row.cases) * 100).toFixed(0)}%` : '-',
+        `${row.correct}/${row.cases}`,
+        String(row.fp),
+        String(row.fn),
+    ]);
+
+    return [
+        '',
+        '='.repeat(60),
+        '== Detection accuracy',
+        '='.repeat(60),
+        '',
+        table([header, ...body]),
+        '',
+        `  Scored over ${scored.length} labelled fixture(s); \`purpose: 'timing'\` fixtures are excluded.`,
+        '  A faster variant with a lower score is not a win. See the behaviour summary below for',
+        '  whether a divergence was introduced or inherited.',
+    ].join('\n');
 }
 
 /**

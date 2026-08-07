@@ -72,6 +72,34 @@ export function assertFixturesLabelled(fixtures) {
 }
 
 /**
+ * Check that every detector a fixture labels actually exists in the config being run.
+ *
+ * A fixture's `expect` is keyed by `groupName.detectorId`, and nothing connected those
+ * strings to the parsed config. A typo - `adwalls.generic-en` for `adwalls.generic_en` -
+ * produced no error at all: the key is absent from the results, so it read as `undefined`
+ * against an expected `true`, and was counted as a false negative on every variant. The
+ * run then failed for a detection reason that was really a spelling mistake, which is the
+ * most expensive kind of wrong output this harness can produce.
+ *
+ * Checked against every variant rather than their union: a key only one variant defines
+ * is one the others can never satisfy, so the fixture would be permanently unpassable.
+ *
+ * @param {string} fixtureName
+ * @param {Record<string, boolean>} expect
+ * @param {Record<string, string[]>} detectorKeys - Variant name -> parsed `group.id` keys
+ */
+export function assertExpectKeysKnown(fixtureName, expect, detectorKeys) {
+    for (const [variantName, known] of Object.entries(detectorKeys)) {
+        const missing = Object.keys(expect).filter((key) => !known.includes(key));
+        if (missing.length === 0) continue;
+        throw new SpecError(
+            `Fixture "${fixtureName}" expects detector(s) [${missing.join(', ')}], which variant "${variantName}" does not define. ` +
+                `It parsed to: ${known.join(', ') || '(none)'}. Expect keys are \`groupName.detectorId\`.`,
+        );
+    }
+}
+
+/**
  * Expand fixture scale sweeps, and drop fixtures this run has no use for.
  *
  * `purpose` exists because `--check-only` is sold as seconds rather than minutes and was

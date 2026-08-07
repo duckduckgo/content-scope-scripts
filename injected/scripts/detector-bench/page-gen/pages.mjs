@@ -1,19 +1,30 @@
 /**
- * Reusable DOM generators for detector benchmarks.
+ * The catalogue of test pages, as generators rather than stored markup.
+ *
+ * Nothing here is a captured page. Each generator builds a DOM to order from its
+ * parameters, so a spec picks the *shape* it wants to measure against and then
+ * sizes it - `articlePage` at 2000 rows or at 100000, `deeplyNested` at depth 10
+ * or 100. That is what makes a scaling sweep possible at all, and it is why the
+ * pages are deterministic: no randomness anywhere, so two runs are comparable.
+ *
+ * Each shape exists to isolate one cost. See `README.md` in this directory for
+ * which to reach for, and their parameters.
  *
  * Every generator runs inside the page via Playwright, so each must be
- * self-contained: no imports, no closure over module scope. All output is
- * deterministic - no randomness - so runs are comparable.
+ * self-contained: no imports, no closure over module scope. For string-level
+ * inputs use `text-shapes.mjs`, which is Node-side and therefore unreachable
+ * from here.
  *
- * Each takes an `append` parameter holding the payload markup (an adwall, a
- * script decoy, and so on). Keeping the payload separate from the filler means
- * a matching and a non-matching fixture can share an identical DOM shape, so a
+ * Each takes an `append` parameter holding payload markup (an adwall, a script
+ * decoy, and so on). Keeping the payload separate from the filler means a
+ * matching and a non-matching fixture can share an identical DOM shape, so a
  * timing difference between them reflects the match, not the page.
  *
  * IMPORTANT: filler text must never contain a detector pattern. Accidentally
  * seeding the filler with the pattern makes a gated variant look useless,
  * because the gate passes on every page and never short-circuits. The runner's
- * correctness pass catches this, but it is easier to avoid than to debug.
+ * correctness pass catches this, and so does a unit test over every generator
+ * in this file, but it is easier to avoid than to debug.
  */
 
 /**

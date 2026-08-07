@@ -3,7 +3,7 @@
  * makes its numbers comparable at all. It takes an injectable clock, so all of this is
  * deterministic - none of these tests measure real time.
  */
-import { sample } from '../../scripts/detector-bench/measure.mjs';
+import { sample } from '../../scripts/detector-bench/core/measure.mjs';
 
 /**
  * A clock that advances by a fixed amount on every read, so batch sizing is predictable.

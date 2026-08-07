@@ -8,9 +8,10 @@ import {
     singleSweptParam,
     resolveLayoutModes,
     assertFixturesLabelled,
+    assertExpectKeysKnown,
     expandFixtures,
     buildVariants,
-} from '../../scripts/detector-bench/expand.mjs';
+} from '../../scripts/detector-bench/core/expand.mjs';
 
 describe('detector-bench expand', () => {
     describe('singleSweptParam', () => {
@@ -61,6 +62,45 @@ describe('detector-bench expand', () => {
                 /Fixture "unlabelled" has no `expect` labels/,
             );
             expect(() => assertFixturesLabelled([{ name: 'empty', expect: {} }])).toThrowError(SpecError, /has no `expect` labels/);
+        });
+    });
+
+    describe('assertExpectKeysKnown', () => {
+        it('accepts labels the config defines', () => {
+            expect(() => assertExpectKeysKnown('article', { 'adwalls.generic_en': true }, { xpath: ['adwalls.generic_en'] })).not.toThrow();
+        });
+
+        it('rejects a label naming a detector the config does not define', () => {
+            // The failure this exists for. Without it the key is simply absent from the
+            // results, reads as `undefined` against an expected `true`, and is counted as a
+            // false negative - so a spelling mistake fails the run as a detection bug.
+            expect(() => assertExpectKeysKnown('article', { 'adwalls.generic-en': true }, { xpath: ['adwalls.generic_en'] })).toThrowError(
+                SpecError,
+                /Fixture "article" expects detector\(s\) \[adwalls.generic-en\].*variant "xpath" does not define/,
+            );
+        });
+
+        it('names what the variant did parse, so the right key is obvious', () => {
+            expect(() => assertExpectKeysKnown('article', { wrong: true }, { xpath: ['adwalls.generic_en'] })).toThrowError(
+                /It parsed to: adwalls.generic_en/,
+            );
+        });
+
+        it('reports a variant that parsed nothing rather than printing an empty list', () => {
+            expect(() => assertExpectKeysKnown('article', { 'a.b': true }, { xpath: [] })).toThrowError(/It parsed to: \(none\)/);
+        });
+
+        it('checks every variant, not their union', () => {
+            // A key only one variant defines is one the others can never satisfy, so the
+            // fixture would be permanently unpassable rather than merely mislabelled.
+            expect(() => assertExpectKeysKnown('article', { 'a.b': true }, { first: ['a.b'], second: ['c.d'] })).toThrowError(
+                SpecError,
+                /variant "second" does not define/,
+            );
+        });
+
+        it('accepts a fixture labelling several detectors when all are defined', () => {
+            expect(() => assertExpectKeysKnown('article', { 'a.b': true, 'c.d': false }, { only: ['a.b', 'c.d', 'e.f'] })).not.toThrow();
         });
     });
 

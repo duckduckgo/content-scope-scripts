@@ -8,7 +8,7 @@
  * `matching.js` evolves.
  *
  * SCOPE: how the detector is *written*. The chunking parameters are a different question
- * with a different answer, and live in `specs/xpath-chunking.mjs`.
+ * with a different answer, and live in `specs/implementation/chunking.mjs`.
  *
  * Five ways of writing one detector:
  *
@@ -29,17 +29,9 @@
  * on a normal page and timing alone would have shipped it, so the run has to show what it
  * costs at the same time as what it saves.
  */
-import { articlePage, scriptHeavy, textHeavy } from '../fixtures.mjs';
-import {
-    PATTERNS,
-    GATE_PATTERNS,
-    RENDERED_TEXT,
-    RENDERED_TEXT_SELF_AXIS,
-    detector,
-    at,
-    payloadFixtures,
-    payloadOnPage,
-} from '../adwall.mjs';
+import { articlePage, scriptHeavy, textHeavy } from '../../page-gen/pages.mjs';
+import { RENDERED_TEXT, RENDERED_TEXT_SELF_AXIS, gatedOn } from '../../detectors/expressions.mjs';
+import { PATTERNS, GATE_PATTERNS, detector, at, caseFixtures, caseOnPage } from '../../detectors/adwall.mjs';
 
 export default {
     kind: 'config',
@@ -68,12 +60,12 @@ export default {
         },
 
         // A real match at realistic scale, rather than in an eight-element document.
-        payloadOnPage('wrapped', { generate: articlePage, params: { rows: 2000 } }),
-        payloadOnPage('boundary', { generate: articlePage, params: { rows: 2000 } }),
+        caseOnPage('wrapped', { generate: articlePage, params: { rows: 2000 } }),
+        caseOnPage('boundary', { generate: articlePage, params: { rows: 2000 } }),
 
         // The full correctness matrix, each payload on its own. Tiny and fast, and the
         // reason a divergence can be named rather than just counted.
-        ...payloadFixtures(),
+        ...caseFixtures(),
     ],
 
     configs: [
@@ -91,21 +83,11 @@ export default {
         {
             name: 'gated',
             expectDivergence: true,
-            detectors: detector({
-                all: [
-                    { pattern: PATTERNS, selector: 'body' },
-                    { pattern: PATTERNS, xpath: RENDERED_TEXT },
-                ],
-            }),
+            detectors: detector(gatedOn(PATTERNS, PATTERNS, RENDERED_TEXT)),
         },
         {
             name: 'loose-gated',
-            detectors: detector({
-                all: [
-                    { pattern: GATE_PATTERNS, selector: 'body' },
-                    { pattern: PATTERNS, xpath: RENDERED_TEXT },
-                ],
-            }),
+            detectors: detector(gatedOn(GATE_PATTERNS, PATTERNS, RENDERED_TEXT)),
         },
         {
             name: 'self-axis',

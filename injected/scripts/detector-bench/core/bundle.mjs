@@ -8,7 +8,7 @@ import * as esbuild from 'esbuild';
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 /** Root of the `injected` workspace in the current working tree. */
-export const injectedRoot = path.resolve(here, '..', '..');
+export const injectedRoot = path.resolve(here, '..', '..', '..');
 
 /** Root of the content-scope-scripts git repository. */
 export const repoRoot = path.resolve(injectedRoot, '..');
@@ -33,7 +33,7 @@ export const repoRoot = path.resolve(injectedRoot, '..');
  * @property {'working-tree' | 'worktree' | 'module'} [source]
  * @property {string} [ref] - Git ref, required for `source: 'worktree'`
  * @property {string} [path] - Module path, required for `source: 'module'`
- * @property {Record<string, Record<string, object>>} [detectors]
+ * @property {import('../run.mjs').Detectors} [detectors]
  * @property {boolean} [baseline] - Compare other variants against this one
  * @property {'warm' | 'dirty'} [layout] - Layout state the harness imposes before each sweep
  */

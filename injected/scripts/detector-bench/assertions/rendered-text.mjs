@@ -1,29 +1,43 @@
 /**
- * The adwall case matrix: the set of DOM shapes any rendered-text matching approach
- * has to get right.
+ * Assertion set: **does this approach match rendered text while excluding text that is
+ * in the DOM but never displayed?**
  *
- * This set exists because the same cases kept being re-derived by hand. It started as
- * the false positive that motivated the work - adwall copy appearing inside a
- * `<script>` body, `<script>{"text": "disable your adblocker"}</script>` - and grew
- * every time an approach turned out to differ on a case nobody had written down.
+ * That question is the accuracy standard a rendered-text matching approach is held to,
+ * and these are the DOM shapes that decide it. Any approach - a detector config, an
+ * experimental algorithm, the shipped implementation - can be run against this set and
+ * scored, which is what makes "how accurate was it" answerable rather than a judgement
+ * call.
  *
- * Deliberately pure data: markup, the answer, and why the case exists. No detector
- * names, no config, no fixture shape. `adwall.mjs` turns these into fixtures, and
- * `drift-guard.mjs` uses the same set to check the lib against the real implementation,
- * so both read from one definition of correct.
+ * The set exists because the same cases kept being re-derived by hand. It started as the
+ * false positive that motivated the work - adwall copy appearing inside a `<script>`
+ * body, `<script>{"text": "disable your adblocker"}</script>` - and grew every time an
+ * approach turned out to differ on a case nobody had written down. Add to it rather than
+ * re-deriving it.
  *
- * Every payload is a `<body>` fragment. Each either contains one of the shipped
- * `adwalls.generic_en` phrases as *rendered* text (`expected: true`) or contains it
- * only somewhere that is not rendered, or not at all (`expected: false`).
+ * Deliberately pure data: markup, the answer, and why the case exists. No detector names,
+ * no config, no fixture shape - `to-fixtures.mjs` supplies those, which is what lets one
+ * set serve any detector. `drift-guard.mjs` reads the same set to check the lib against
+ * the real implementation, so both work from one definition of correct.
  *
- * @typedef {object} Payload
+ * The phrases used are the shipped `adwalls.generic_en` ones, because they are real, but
+ * nothing here depends on that detector: the cases are about *where* text lives in the
+ * DOM, not what it says.
+ *
+ * Every case is a `<body>` fragment. Each either contains a phrase as *rendered* text
+ * (`expected: true`) or contains it only somewhere that is not rendered, or not at all
+ * (`expected: false`).
+ *
+ * @typedef {object} AssertionCase
  * @property {string} html - Body fragment
  * @property {boolean} expected - Whether rendered-text matching should report a match
  * @property {string} why - What this case is here to pin down
  */
 
-/** @type {Record<string, Payload>} */
-export const PAYLOADS = {
+/** What an approach must get right to pass this set. Shown in the accuracy summary. */
+export const QUESTION = 'match rendered text, excluding text present in the DOM but never displayed';
+
+/** @type {Record<string, AssertionCase>} */
+export const CASES = {
     absent: {
         html: '<p>Hello!</p>',
         expected: false,

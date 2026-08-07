@@ -6,7 +6,11 @@ description: Benchmark web-detection detector configurations and matching-algori
 # Detector Performance Benchmarking
 
 Measure what a detector config or a change to the matching code actually costs, on DOMs
-you control, with detection correctness enforced alongside timing.
+you control, with detection accuracy scored alongside timing.
+
+This file is the method: which question to ask, how to read the answer, and what has already
+been measured. For the layout of the directory - which file to edit for which kind of change -
+see [scripts/detector-bench/README.md](../../../injected/scripts/detector-bench/README.md).
 
 ## Which question are you asking?
 
@@ -30,6 +34,45 @@ so committing it would only preserve a snapshot that no longer runs.
 Do not use either for end-to-end page-load budgets. The harness measures `evaluateMatch` in
 isolation; it does not load the C-S-S bundle, apply remote config, or run the `setTimeout`
 schedule in `web-detection.js`.
+
+## Temporary or permanent?
+
+Most benchmarking is exploratory and should leave nothing behind. **Default to throwaway.**
+
+`scripts/detector-bench/.bench-variants/` is gitignored and is the right home for any of it:
+a throwaway spec, a config sweep testing a hunch, an experimental `evaluateMatch`. Nothing
+there needs a branch, a review or a cleanup pass, and a spec there is written exactly like a
+committed one - it just imports from `../` instead of `../../`.
+
+Answering "which of these five configurations is best" almost always means writing five
+configs into one throwaway spec, running it, and reporting the table. That is the normal
+workflow, and none of those five configs should be committed.
+
+Commit a spec only when the answer will still be worth having later, which in practice means
+one of two things:
+
+- **It guards a decision that shipped.** `specs/detector-design/` holds these: re-run when
+  that detector's config changes.
+- **It re-answers a question every time the code beneath it changes.**
+  `specs/implementation/` holds these: how cost scales with DOM shape, what each chunking
+  parameter buys.
+
+A spec that answered a question once, and whose answer is now written down, does not belong
+in `specs/`. Record the finding as prose - in this file, or the web-detection technical
+design - and delete the spec. A stale spec is worse than no spec: it still runs, still
+produces a confident table, and nobody knows whether anyone still believes it.
+
+Two things are worth promoting out of a throwaway run even when the spec is discarded:
+
+- **A case an approach got wrong** belongs in an assertion set, so every future approach is
+  measured against it. That is how the rendered-text set grew.
+- **A DOM shape no generator isolates** belongs in `page-gen/pages.mjs`, with a doc comment
+  saying which cost it isolates and which existing shape it is the counterpart to.
+
+Prefer `.bench-variants/` over a branch per idea. Most experiments are discarded, and
+branch-per-experiment conflicts with the repo's branch discipline, which is about shipping
+work rather than exploring. Reproducibility comes from the spec plus its implementation
+source, not from a branch.
 
 ## The rule that matters
 
@@ -60,7 +103,7 @@ detection when a phrase spans a `<script>` boundary. Timing alone would have shi
 From `injected/`:
 
 ```sh
-npm run bench-detectors -- --spec scripts/detector-bench/specs/adwall-xpath.mjs
+npm run bench-detectors -- --spec scripts/detector-bench/specs/detector-design/adwall-xpath.mjs
 npm run bench-drift-guard      # after touching lib/ or matching.js - see below
 ```
 
@@ -111,31 +154,51 @@ re-settle layout before each batch, outside the timed region. Skipping that made
 
 ## Writing a config spec
 
-Committed, and the usual starting point. See
-[specs/adwall-xpath.mjs](../../../injected/scripts/detector-bench/specs/adwall-xpath.mjs).
+The usual starting point. See
+[specs/detector-design/adwall-xpath.mjs](../../../injected/scripts/detector-bench/specs/detector-design/adwall-xpath.mjs).
 
 ```js
-import { articlePage } from '../fixtures.mjs';
-import { PATTERNS, GATE_PATTERNS, RENDERED_TEXT, detector, at, payloadFixtures } from '../adwall.mjs';
+import { articlePage } from '../../page-gen/pages.mjs';
+import { RENDERED_TEXT, gatedOn } from '../../detectors/expressions.mjs';
+import { PATTERNS, GATE_PATTERNS, detector, at, caseFixtures } from '../../detectors/adwall.mjs';
 
 export default {
     kind: 'config',
     fixtures: [
         { ...at('article-clean', { generate: articlePage }, false), scale: { rows: [2000, 20000] } },
-        ...payloadFixtures(),
+        ...caseFixtures(),
     ],
     configs: [
         { name: 'xpath', baseline: true, reference: true, detectors: detector({ pattern: PATTERNS, xpath: RENDERED_TEXT }) },
-        { name: 'loose-gated', detectors: detector({ all: [
-            { pattern: GATE_PATTERNS, selector: 'body' },
-            { pattern: PATTERNS, xpath: RENDERED_TEXT },
-        ] }) },
+        { name: 'loose-gated', detectors: detector(gatedOn(GATE_PATTERNS, PATTERNS, RENDERED_TEXT)) },
     ],
 };
 ```
 
 Configs use the same shape as `settings.detectors` in privacy-configuration, so a real
-config pastes straight in. Detector keys in `expect` are `groupName.detectorId`.
+config pastes straight in. Detector keys in `expect` are `groupName.detectorId`, and a key
+naming a detector the config does not define fails the run as a spec error rather than
+being scored as a false negative.
+
+**Write the config JSON by hand.** There is deliberately no builder API: the config shape is
+the shipped schema, and a builder would put a translation layer between what is benchmarked
+and what ships, needing mirroring on every schema change. What is provided instead is
+vocabulary — `detectors/expressions.mjs` for where to look (`RENDERED_TEXT`,
+`RENDERED_TEXT_SELF_AXIS`, `gatedOn`), and a preset such as `detectors/adwall.mjs` for one
+detector's key, patterns and bound assertion set. The `detectors` field is typed against
+`DetectorConfig` from privacy-configuration, so a malformed config is a lint failure.
+
+### Which comparison to set up
+
+Four shapes cover nearly everything. Each says what to hold fixed, because a comparison
+varying two things at once answers neither question.
+
+| Question | Shape | Hold fixed | The trap |
+|---|---|---|---|
+| Is this detector written the best way? | `kind: 'config'`, one config per phrasing of the same intent | Implementation, fixtures, patterns | Cheaper phrasings usually change behaviour. Declare with `expectDivergence: true` only after looking at the cost |
+| Is gating worth it? | Two configs: bare, and `gatedOn(...)` | Everything but the gate | The gate must be looser than the real patterns. Workload-dependent: ~12x faster on an article, ~24x slower on a script-heavy page |
+| What does this parameter buy? | One config with `params: { k: [...] }`, `detectors` a function of it | Every other parameter | One parameter at a time. Make the disabling value the baseline, so each ratio reads as "cost against not doing this at all" |
+| Is this code change faster? | `kind: 'algorithm'`, `implementations[]` | The config | Belongs in `.bench-variants/`. `source: 'worktree'` with a ref needs no files |
 
 **`baseline` and `reference` are different things.** `baseline` answers "faster or slower
 than what"; `reference` answers "different behaviour from what". Usually the same config,
@@ -183,11 +246,9 @@ export default {
 is created detached and removed afterwards, so nothing in your checkout is touched and
 there is no stashing; on a shallow clone you may need `git fetch origin <ref>` first.
 
-Prefer `.bench-variants/` over a branch per idea. Most experiments are discarded, and
-branch-per-experiment conflicts with the repo's branch discipline, which is about shipping
-work rather than exploring. Reproducibility comes from the spec plus the implementation
-source, not from a branch. Promote to a branch only when something is going to land, and
-re-benchmark it with `source: 'worktree'` against `main`.
+Promote to a branch only when something is going to land, and re-benchmark it with
+`source: 'worktree'` against `main`. See [Temporary or permanent?](#temporary-or-permanent)
+for why the default is to leave nothing behind.
 
 ### Use the lib rather than copying matching.js
 
@@ -217,7 +278,7 @@ export const { evaluateMatch } = createMatcher({
 A copy that has drifted does not announce itself - it makes every comparison built on it
 wrong in the same direction, and the timing tables still look plausible.
 
-`npm run bench-drift-guard` evaluates every payload in `payloads.mjs` under both the lib and
+`npm run bench-drift-guard` evaluates every case in `assertions/rendered-text.mjs` under both the lib and
 the real implementation, across six chunk configurations, and fails on any disagreement. It
 takes about two seconds. **Run it after changing either `lib/` or `matching.js`.**
 
@@ -229,9 +290,11 @@ likely to drift - never executes. A deliberately broken walk-back was caught onl
 ## Fixtures
 
 Use the generators in
-[fixtures.mjs](../../../injected/scripts/detector-bench/fixtures.mjs), each taking an
-`append` parameter for payload markup so a matching and a non-matching fixture can share an
+[page-gen/pages.mjs](../../../injected/scripts/detector-bench/page-gen/pages.mjs), each taking
+an `append` parameter for payload markup so a matching and a non-matching fixture can share an
 identical DOM shape - a timing difference between them then reflects the match, not the page.
+[page-gen/README.md](../../../injected/scripts/detector-bench/page-gen/README.md) is the full
+catalogue with parameters.
 
 - `articlePage` - shallow, mixed inline elements. The default "realistic page" shape.
 - `deeplyNested` - ancestor-axis predicates walk upward per text node, so depth costs what flat pages never reveal.
@@ -244,16 +307,17 @@ identical DOM shape - a timing difference between them then reflects the match, 
 
 Generators run inside the page, so each must be self-contained: no imports, no closure over
 module scope, no randomness. For string-level inputs use
-[text-shapes.mjs](../../../injected/scripts/detector-bench/text-shapes.mjs) instead
-(`prose`, `unbrokenWords`, `sparseBreaks`) - those are Node-side, which is precisely why a
-generator cannot call them.
+[page-gen/text-shapes.mjs](../../../injected/scripts/detector-bench/page-gen/text-shapes.mjs)
+instead (`prose`, `unbrokenWords`, `sparseBreaks`) - those are Node-side, which is precisely
+why a generator cannot call them.
 
 Pick sizes that bracket reality. A typical page is 2k-10k elements; 100k+ is a stress case,
 useful for making a difference visible but not representative.
 
 **Never let filler text contain a detector pattern.** If the filler matches, a gated
 variant's gate passes on every page and never short-circuits, making gating look useless.
-The correctness pass catches it, but it is easier to avoid than to debug.
+The correctness pass catches it, and so does a unit test over every generator, but a
+hand-written fixture can still trip it.
 
 ### `purpose`
 
@@ -261,28 +325,44 @@ The correctness pass catches it, but it is easier to avoid than to debug.
 `timing` fixtures; a full run times everything, since correctness fixtures are tiny.
 
 Mark the scaled `-clean` fixtures `timing`. Their only label is "no match anywhere", which the
-payload matrix establishes in milliseconds, so generating a 100k-row DOM to re-establish it was
+assertion set establishes in milliseconds, so generating a 100k-row DOM to re-establish it was
 the reason `--check-only` was minutes rather than seconds. It also made the fast iteration loop
 the slow one, which is the opposite of the flag's purpose.
 
-Leave `payloadOnPage(...)` fixtures as `both` - they are correctness cases at realistic scale.
+Leave `caseOnPage(...)` fixtures as `both` - they are correctness cases at realistic scale.
+
+`timing` fixtures are also excluded from the accuracy table, since a "no match" label on a
+generated page is a free mark for every variant. That keeps the accuracy figure identical
+between a full run and `--check-only`.
 
 **Skip rather than shrink.** Collapsing a scaled fixture to its smallest point under
 `--check-only` looks equivalent and is not: chunk flushes only happen above `chunkSize`
 characters, so shrinking would silently stop exercising the flush path, which is the fiddliest
 code in the matcher. A skipped fixture is visible in the header count; a shrunk one is not.
 
-### The payload matrix
+### Assertion sets
 
-[payloads.mjs](../../../injected/scripts/detector-bench/payloads.mjs) holds the cases any
-rendered-text approach has to get right, as markup plus the answer plus why the case exists.
-Use `payloadFixtures()` for all of them as minimal fixtures, or `payloadOnPage(name, page)`
-to append one to a generated page so a match is found at realistic scale.
+An assertion set is the answer key for one detection question: markup, the answer, and why the
+case exists.
+[assertions/rendered-text.mjs](../../../injected/scripts/detector-bench/assertions/rendered-text.mjs)
+is the one that exists, and its question is "does this approach match rendered text while
+excluding text that is in the DOM but never displayed".
 
-Add to it rather than re-deriving it. It exists because these cases kept being rewritten by
-hand, and it grew every time an approach turned out to differ on a case nobody had written
-down. `DISCRIMINATING_CASES` names the four that each have a plausible approach that
-measured well and failed there.
+A set names no detector.
+[assertions/to-fixtures.mjs](../../../injected/scripts/detector-bench/assertions/to-fixtures.mjs)
+binds one to a detector key, which is what lets the same cases score any text detector rather
+than only the one they grew up around. A preset does that binding for you: `caseFixtures()`
+gives every case as a minimal fixture, `caseOnPage(name, page)` appends one to a generated page
+so a match is found at realistic scale.
+
+Add to a set rather than re-deriving one. The rendered-text set exists because these cases kept
+being rewritten by hand, and it grew every time an approach turned out to differ on a case
+nobody had written down. `DISCRIMINATING_CASES` names the four that each have a plausible
+approach that measured well and failed there.
+
+Add a *new* set only for a genuinely different question - matching visible text rather than
+rendered text, say, where the correct answer for the same markup would differ. Not for a new
+detector.
 
 ## Reading the output
 
@@ -297,6 +377,21 @@ against the baseline implementation or the reference config, and on the algorith
 - **Check p95 against median.** A p95 several times the median means the measurement is noisy - raise `--iterations` or close other applications before trusting a small difference. Re-running an unchanged spec at 9 iterations on a busy machine moved medians by up to 22%.
 - **A speedup on a `CORRECTNESS FAIL` row is meaningless.** Fix the divergence, then measure.
 - **`PRE-EXISTING` is not a failure of the variant.** The baseline gets that fixture wrong too. Worth investigating as a gap in the shipped code, but it says nothing about the experiment.
+
+### The accuracy table
+
+After the per-fixture tables, one row per variant: cases correct out of total, with false
+positive and false negative counts. It is what makes "compare these approaches" a single run
+rather than a manual read of twenty tables, and it is the column to read *before* the timings.
+
+Two things it deliberately does not do. It scores against the fixture labels alone, saying
+nothing about whether a divergence was introduced or inherited - the behaviour summary below
+it owns that distinction, and that is the one driving the exit code. And it excludes
+`purpose: 'timing'` fixtures, whose single "no match" label every variant satisfies for free;
+counting them would drag every score towards 100% and make the figure differ between a full
+run and `--check-only`.
+
+A variant that is faster and scores lower has not won. Say which cases it lost, in words.
 
 Two things keep the numbers honest, both automatic: each sample times a batch of sweeps
 sized so the batch lasts at least `--minBatchMs`, which keeps sub-millisecond work
@@ -483,8 +578,8 @@ persuasive. Three layers, split by what each needs:
 
 | Layer | Where | Run by | Covers |
 |---|---|---|---|
-| Pure Node | `unit-test/detector-bench/{outcome,expand,report,measure}.spec.js` | `npm run test-unit` | The exit-code decision matrix, spec expansion and sweeps, `purpose` filtering, every formatter, and batch sizing / round-robin ordering against an injected clock |
-| jsdom | `unit-test/detector-bench/harness.spec.js` | `npm run test-unit` | `collectFacts`, `collectResults`, `singleSweep` - the in-page functions that need only a DOM |
+| Pure Node | `unit-test/detector-bench/{outcome,expand,report,measure,bundle,assertions}.spec.js` | `npm run test-unit` | The exit-code decision matrix, spec expansion and sweeps, `purpose` filtering, every formatter including accuracy, batch sizing / round-robin ordering against an injected clock, variant resolution and bundle caching, and the assertion-set-to-fixture join |
+| jsdom | `unit-test/detector-bench/{harness,page-gen}.spec.js` | `npm run test-unit` | `collectFacts`, `collectResults`, `singleSweep` - the in-page functions that need only a DOM - plus every page generator: that its parameters scale what they name, that it is deterministic, and that its filler matches no detector pattern |
 | Browser | `integration-test/detector-bench.spec.js` | `npm run test-bench` | Layout invalidation, the retained-heap blind spot, and `run.mjs` exit codes end to end |
 
 `npm run test-bench` uses its own `playwright-bench.config.js` and is **not** part of
@@ -501,7 +596,7 @@ rather than an error: the `padding-top` no-op, and a self-check whose clean base
 to zero so its ratio was `Infinity` and cleared every threshold. If you change the layout or
 memory paths, those are the tests to read first.
 
-`scripts/detector-bench/test-fixtures/` holds committed specs for the end-to-end exit-code
+`scripts/detector-bench/self-test/` holds committed specs for the end-to-end exit-code
 cases. They live there rather than in `.bench-variants/`, which is gitignored.
 
 ## After a run
