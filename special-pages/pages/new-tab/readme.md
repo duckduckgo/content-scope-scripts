@@ -318,6 +318,12 @@
    - `true`
    - `false`
 
+### Suggestions Delay
+ - **Purpose**: Overrides the simulated network delay before the mock responds to `omnibar_getSuggestions`.
+ - **Parameter**: `omnibar.suggestionsDelay`
+ - **Example**: `?omnibar.suggestionsDelay=1000`
+ - **Options**: Any positive integer (milliseconds)
+
 ### Subscription Win-back Banner
  - **Purpose**: Tests different win-back banner states
  - **Parameter**: `winback`

@@ -377,7 +377,8 @@ export function omnibarMockTransport() {
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
-                    await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate network delay
+                    const delay = parseInt(url.searchParams.get('omnibar.suggestionsDelay') ?? '', 10);
+                    await new Promise((resolve) => setTimeout(resolve, delay > 0 ? delay : 100)); // Simulate network delay
                     return getMockSuggestions(msg.params.term);
                 }
                 case 'omnibar_getAiChats': {
