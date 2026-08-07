@@ -10,27 +10,31 @@ const MOCK_SITE_KEY = '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn';
 /**
  * @param {object} params
  * @param {Omit<PirAction, 'id' | 'actionType'>} params.action
+ * @param {Record<string, any>} [params.data]
  */
-export function createGetCaptchaInfoAction({ action }) {
+export function createGetCaptchaInfoAction({ action, data }) {
     return createPirState({
         action: {
             id: '8324',
             actionType: 'getCaptchaInfo',
             ...action,
         },
+        ...(data && { data }),
     });
 }
 
 /**
  * @param {Partial<PirAction>} [actionOverrides]
+ * @param {Record<string, any>} [data]
  */
-export function createGetRecaptchaInfoAction(actionOverrides = {}) {
+export function createGetRecaptchaInfoAction(actionOverrides = {}, data) {
     return createGetCaptchaInfoAction({
         action: {
             captchaType: 'recaptcha2',
             selector: '.g-recaptcha',
             ...actionOverrides,
         },
+        data,
     });
 }
 
@@ -79,14 +83,16 @@ export function createSolveCaptchaAction({ action, data }) {
 
 /**
  * @param {Partial<PirAction>} [actionOverrides]
+ * @param {Record<string, any>} [data]
  */
-export function createSolveRecaptchaAction(actionOverrides = {}) {
+export function createSolveRecaptchaAction(actionOverrides = {}, data) {
     return createSolveCaptchaAction({
         action: {
             captchaType: 'recaptcha2',
             selector: '.g-recaptcha',
             ...actionOverrides,
         },
+        data,
     });
 }
 

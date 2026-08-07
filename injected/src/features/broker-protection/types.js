@@ -9,6 +9,7 @@
  * @property {string} id
  * @property {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate" | "condition" | "scroll"} actionType
  * @property {string} [selector]
+ * @property {{profileMatch?: Record<string, any>}} [parent] - scopes the action's selector to the record container matching the user's profile
  * @property {string} [captchaType]
  * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]
