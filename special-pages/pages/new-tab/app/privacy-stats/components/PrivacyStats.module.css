@@ -314,7 +314,7 @@
     .count {
         font-size: var(--body-font-size);
         font-weight: var(--body-font-weight);
-        line-height: 13px;
+        line-height: var(--ds-font-body-md-line-height);
     }
 
     .bar {
