@@ -1,12 +1,15 @@
 /**
- * In-page functions. These are serialised by Playwright and executed in the
- * browser, so each one must be entirely self-contained: no imports, no closure
- * over module scope.
+ * In-page functions. These are serialised by Playwright and executed in the browser, so
+ * each one must be entirely self-contained: no imports, no closure over module scope.
+ *
+ * The sampling loop is the exception, and deliberately so. It is injected separately as
+ * `window.__benchMeasure` (see `bundleMeasureCore` in `bundle.mjs`) rather than inlined
+ * here, so that the DOM path and the Node-side string path share one implementation.
  */
 
 /**
- * Describe the generated DOM, so timings can be read against the shape that
- * produced them.
+ * Describe the generated DOM, so timings can be read against the shape that produced
+ * them, and so a scaling run has a size to normalise against.
  *
  * @returns {{ elements: number, textNodes: number, chars: number }}
  */
@@ -22,35 +25,39 @@ export function collectFacts() {
 }
 
 /**
- * Check correctness, then time every variant against the current DOM.
+ * Evaluate every variant once and report what each detected.
  *
- * The timed unit is a full detection sweep: every detector in that variant's
- * config, evaluated once. That is the per-page-load cost the config imposes.
+ * Kept separate from timing because it is the only thing `--check-only` needs, and
+ * because it is the pass whose result decides whether the timings mean anything at all.
  *
- * Two measures guard against noise. Each sample times a batch of sweeps sized so
- * the batch lasts at least `minBatchMs`, which keeps sub-millisecond work
- * measurable. Samples are then collected round-robin across variants rather than
- * all-of-one-then-the-next, so CPU frequency drift hits every variant equally.
+ * `peakChars` is collected here rather than during sampling: a variant that reports its
+ * high-water buffer only needs to be observed once, and reading it here keeps the
+ * instrumentation out of the timed path entirely.
  *
  * @param {object} args
  * @param {string[]} args.variantNames
  * @param {Record<string, object>} args.detectorsByVariant
- * @param {number} args.iterations
- * @param {number} args.warmup
- * @param {number} args.minBatchMs
  * @returns {{
- *   correctness: Record<string, Record<string, boolean | 'error'>>,
- *   timings: Record<string, { samples: number[], batch: number }>,
- *   detectorKeys: Record<string, string[]>
+ *   results: Record<string, Record<string, boolean | 'error'>>,
+ *   detectorKeys: Record<string, string[]>,
+ *   peakChars: Record<string, number | null>
  * }}
  */
-export function benchmark({ variantNames, detectorsByVariant, iterations, warmup, minBatchMs }) {
-    const registry = /** @type {any} */ (window).__benchVariants;
+export function collectResults({ variantNames, detectorsByVariant }) {
+    const w = /** @type {any} */ (window);
+    const registry = w.__benchVariants;
 
-    /** Build the evaluator for one variant. */
-    function prepare(name) {
+    /** @type {Record<string, Record<string, boolean | 'error'>>} */
+    const results = {};
+    /** @type {Record<string, string[]>} */
+    const detectorKeys = {};
+    /** @type {Record<string, number | null>} */
+    const peakChars = {};
+
+    for (const name of variantNames) {
         const api = registry[name];
         const parsed = api.parseDetectors(detectorsByVariant[name]);
+
         /** @type {Array<[string, any]>} */
         const entries = [];
         for (const groupName of Object.keys(parsed)) {
@@ -61,25 +68,63 @@ export function benchmark({ variantNames, detectorsByVariant, iterations, warmup
         if (entries.length === 0) {
             throw new Error(`Variant "${name}" parsed to zero detectors - check group and detector names`);
         }
+
+        w.__benchPeakChars = 0;
+
+        /** @type {Record<string, boolean | 'error'>} */
+        const out = {};
+        for (const [key, config] of entries) {
+            try {
+                out[key] = api.evaluateMatch(config.match);
+            } catch {
+                out[key] = 'error';
+            }
+        }
+
+        results[name] = out;
+        detectorKeys[name] = entries.map(([key]) => key);
+        // Zero means the variant does not report it, since any real sweep touches text.
+        peakChars[name] = w.__benchPeakChars > 0 ? w.__benchPeakChars : null;
+    }
+
+    return { results, detectorKeys, peakChars };
+}
+
+/**
+ * Time every variant against the current DOM.
+ *
+ * The timed unit is a full detection sweep - every detector in that variant's config,
+ * evaluated once - which is the per-page-load cost that config imposes.
+ *
+ * @param {object} args
+ * @param {string[]} args.variantNames
+ * @param {Record<string, object>} args.detectorsByVariant
+ * @param {number} args.iterations
+ * @param {number} args.warmup
+ * @param {number} args.minBatchMs
+ * @returns {Record<string, { samples: number[], batch: number }>}
+ */
+export function benchmark({ variantNames, detectorsByVariant, iterations, warmup, minBatchMs }) {
+    const w = /** @type {any} */ (window);
+    const registry = w.__benchVariants;
+
+    const subjects = variantNames.map((name) => {
+        const api = registry[name];
+        const parsed = api.parseDetectors(detectorsByVariant[name]);
+        /** @type {any[]} */
+        const configs = [];
+        for (const groupName of Object.keys(parsed)) {
+            for (const detectorId of Object.keys(parsed[groupName])) {
+                configs.push(parsed[groupName][detectorId]);
+            }
+        }
         return {
-            keys: entries.map(([key]) => key),
-            results() {
-                /** @type {Record<string, boolean | 'error'>} */
-                const out = {};
-                for (const [key, config] of entries) {
-                    try {
-                        out[key] = api.evaluateMatch(config.match);
-                    } catch {
-                        out[key] = 'error';
-                    }
-                }
-                return out;
-            },
-            // Returns a value that is accumulated into a sink, so the engine
-            // cannot eliminate the calls as dead code.
+            name,
+            // Returns a value accumulated into a sink, so the engine cannot eliminate
+            // the calls as dead code.
             sweep() {
                 let acc = 0;
-                for (const [, config] of entries) {
+                for (const config of configs) {
                     try {
                         acc += api.evaluateMatch(config.match) ? 1 : 0;
                     } catch {
@@ -89,61 +134,39 @@ export function benchmark({ variantNames, detectorsByVariant, iterations, warmup
                 return acc;
             },
         };
-    }
+    });
 
-    const prepared = variantNames.map((name) => ({ name, ...prepare(name) }));
-
-    /** @type {Record<string, Record<string, boolean | 'error'>>} */
-    const correctness = {};
-    /** @type {Record<string, string[]>} */
-    const detectorKeys = {};
-    for (const variant of prepared) {
-        correctness[variant.name] = variant.results();
-        detectorKeys[variant.name] = variant.keys;
-    }
-
-    let sink = 0;
-
-    // Warm up every variant before any measurement, so JIT state is comparable.
-    for (const variant of prepared) {
-        for (let i = 0; i < warmup; i++) sink += variant.sweep();
-    }
-
-    // Size each variant's batch independently: a selector check can be 30000x
-    // faster than an XPath one, and both need to land above the clock's noise.
-    /** @type {Record<string, number>} */
-    const batches = {};
-    for (const variant of prepared) {
-        let batch = 1;
-        for (;;) {
-            const start = performance.now();
-            for (let i = 0; i < batch; i++) sink += variant.sweep();
-            if (performance.now() - start >= minBatchMs || batch >= 8192) break;
-            batch *= 2;
-        }
-        batches[variant.name] = batch;
-    }
-
-    /** @type {Record<string, number[]>} */
-    const samples = {};
-    for (const variant of prepared) samples[variant.name] = [];
-
-    for (let round = 0; round < iterations; round++) {
-        for (const variant of prepared) {
-            const batch = batches[variant.name];
-            const start = performance.now();
-            for (let i = 0; i < batch; i++) sink += variant.sweep();
-            samples[variant.name].push((performance.now() - start) / batch);
-        }
-    }
-
-    /** @type {any} */ (window).__benchSink = sink;
+    const { samples, batches, sink } = w.__benchMeasure.sample({ subjects, iterations, warmup, minBatchMs });
+    w.__benchSink = sink;
 
     /** @type {Record<string, { samples: number[], batch: number }>} */
     const timings = {};
-    for (const variant of prepared) {
-        timings[variant.name] = { samples: samples[variant.name], batch: batches[variant.name] };
+    for (const name of variantNames) {
+        timings[name] = { samples: samples[name], batch: batches[name] };
     }
+    return timings;
+}
 
-    return { correctness, timings, detectorKeys };
+/**
+ * Run one sweep of one variant, for a heap reading to be taken around.
+ *
+ * @param {{ variantName: string, detectors: object }} args
+ * @returns {number}
+ */
+export function singleSweep({ variantName, detectors }) {
+    const w = /** @type {any} */ (window);
+    const api = w.__benchVariants[variantName];
+    const parsed = api.parseDetectors(detectors);
+    let acc = 0;
+    for (const groupName of Object.keys(parsed)) {
+        for (const detectorId of Object.keys(parsed[groupName])) {
+            try {
+                acc += api.evaluateMatch(parsed[groupName][detectorId].match) ? 1 : 0;
+            } catch {
+                acc += 2;
+            }
+        }
+    }
+    w.__benchSink = (w.__benchSink ?? 0) + acc;
+    return acc;
 }
