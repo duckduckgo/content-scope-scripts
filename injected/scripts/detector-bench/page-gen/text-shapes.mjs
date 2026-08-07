@@ -1,13 +1,13 @@
 /**
  * Inputs for string-level subjects.
  *
- * Separate from `fixtures.mjs` because these are the opposite kind of thing. A fixture
+ * Separate from `pages.mjs` because these are the opposite kind of thing. A page
  * generator is serialised into the page and builds a DOM; these are plain Node-side
  * functions returning a string, for measuring a step that operates on text after the
  * DOM work is done - a buffer cut, a boundary scan, a regex test.
  *
  * Keeping them apart matters in one direction specifically: a fixture generator cannot
- * close over module scope, so it cannot call these. `unbrokenWordRuns` in `fixtures.mjs`
+ * close over module scope, so it cannot call these. `unbrokenWordRuns` in `pages.mjs`
  * inlines its own copy for exactly that reason.
  *
  * All output is deterministic, so runs are comparable.

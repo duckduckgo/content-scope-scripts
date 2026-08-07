@@ -10,7 +10,7 @@
  *                      configured detector cost, and what does gating trade away. A
  *                      behaviour change is a trade-off to weigh, not a failure.
  *
- *   npm run bench-detectors -- --spec scripts/detector-bench/specs/adwall-xpath.mjs
+ *   npm run bench-detectors -- --spec scripts/detector-bench/specs/detector-design/adwall-xpath.mjs
  *
  * See ../../../.agents/skills/detector-performance/SKILL.md
  */
@@ -19,11 +19,31 @@ import { writeFileSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import minimist from 'minimist';
 import { chromium, firefox, webkit } from '@playwright/test';
-import { resolveVariants, bundleMeasureCore, bundleLayoutCore, injectedRoot } from './bundle.mjs';
-import { collectFacts, collectResults, benchmark, singleSweep, checkLayoutInvalidation } from './harness.mjs';
-import { summarise, formatFixture, formatScaling, formatSummary, compareToStored } from './report.mjs';
-import { SpecError, assertFixturesLabelled, buildVariants, expandFixtures } from './expand.mjs';
-import { decideOutcome } from './outcome.mjs';
+import { resolveVariants, bundleMeasureCore, bundleLayoutCore, injectedRoot } from './core/bundle.mjs';
+import { collectFacts, collectResults, benchmark, singleSweep, checkLayoutInvalidation } from './core/harness.mjs';
+import { summarise, formatFixture, formatScaling, formatSummary, formatAccuracy, compareToStored } from './core/report.mjs';
+import { SpecError, assertFixturesLabelled, assertExpectKeysKnown, buildVariants, expandFixtures } from './core/expand.mjs';
+import { decideOutcome } from './core/outcome.mjs';
+
+/**
+ * A spec's detector config, typed against the shipped privacy-configuration schema.
+ *
+ * The point of the alias is that a spec's `detectors` is not "some object" - it is
+ * literally `settings.detectors` from privacy-configuration, so a config that measures
+ * well pastes straight into a real config with no translation. Typing it here means a
+ * malformed one is a lint failure naming the bad field, rather than a run that gets as
+ * far as "parsed to zero detectors".
+ *
+ * This is deliberately a type alias rather than a builder API. A builder would insert a
+ * layer between what is benchmarked and what ships, and would need mirroring on every
+ * schema change.
+ *
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').DetectorConfig} DetectorConfig
+ */
+
+/**
+ * @typedef {Record<string, Record<string, DetectorConfig>>} Detectors
+ */
 
 /**
  * @typedef {object} Fixture
@@ -61,7 +81,7 @@ import { decideOutcome } from './outcome.mjs';
  *
  * @typedef {object} ConfigVariant
  * @property {string} name
- * @property {Record<string, Record<string, object>> | ((params: any) => Record<string, Record<string, object>>)} detectors
+ * @property {Detectors | ((params: any) => Detectors)} detectors
  * @property {Record<string, number[]>} [params] - One param to sweep; `detectors` must then be a function
  * @property {boolean} [baseline]
  * @property {boolean} [reference]
@@ -73,7 +93,7 @@ import { decideOutcome } from './outcome.mjs';
  * @property {'algorithm' | 'config'} kind
  * @property {Fixture[]} fixtures
  * @property {Implementation[]} [implementations] - Algorithm specs
- * @property {Record<string, Record<string, object>>} [detectors] - Algorithm specs: the fixed config
+ * @property {Detectors} [detectors] - Algorithm specs: the fixed config
  * @property {ConfigVariant[]} [configs] - Config specs
  * @property {Implementation} [implementation] - Config specs: defaults to the working tree
  * @property {Array<'warm' | 'dirty'>} [layout] - Layout states to measure under; defaults to `['warm']`
@@ -252,7 +272,7 @@ console.log(
 );
 if (withMemory) console.log('memory:     retained heap read around one sweep per variant');
 
-/** @type {import('./report.mjs').FixtureReport[]} */
+/** @type {import('./core/report.mjs').FixtureReport[]} */
 let reports = [];
 
 /** Fixtures whose dirty-layout timings cannot be trusted. Fails the run; see below. */
@@ -269,17 +289,24 @@ try {
         console.log(run.output.join('\n'));
         reports = reports.concat(run.reports);
     }
+} catch (e) {
+    // A spec rejected mid-run - a fixture labelling an unknown detector, say. Same
+    // one-line failure as a spec rejected before the browsers launched.
+    if (!(e instanceof SpecError)) throw e;
+    console.error(e.message);
+    cleanup();
+    process.exit(1);
 } finally {
     cleanup();
 }
 
 /**
  * @param {string} browserName
- * @returns {Promise<{ engine: string, reports: import('./report.mjs').FixtureReport[], output: string[] }>}
+ * @returns {Promise<{ engine: string, reports: import('./core/report.mjs').FixtureReport[], output: string[] }>}
  */
 async function runBrowser(browserName) {
     const browserInstance = await BROWSER_TYPES[browserName].launch();
-    /** @type {import('./report.mjs').FixtureReport[]} */
+    /** @type {import('./core/report.mjs').FixtureReport[]} */
     const engineReports = [];
     /** @type {string[]} */
     const output = [];
@@ -319,11 +346,17 @@ async function runBrowser(browserName) {
                 // indistinguishable from a real null result.
                 const layoutCheck = anyDirtyLayout && !checkOnly ? await page.evaluate(checkLayoutInvalidation) : null;
 
-                const { results, peakChars } = await page.evaluate(collectResults, {
+                const { results, peakChars, detectorKeys } = await page.evaluate(collectResults, {
                     variantNames,
                     detectorsByVariant,
                     layoutByVariant,
                 });
+
+                // Before anything is timed: a fixture labelling a detector the config does
+                // not define would otherwise be scored as a detection failure rather than
+                // reported as the spec error it is. Thrown rather than exited, so the
+                // worktree cleanup in the caller's `finally` still runs.
+                assertExpectKeysKnown(fixture.name, fixture.expect, detectorKeys);
 
                 const timings = checkOnly
                     ? null
@@ -345,6 +378,9 @@ async function runBrowser(browserName) {
                 const report = {
                     engine: browserName,
                     fixture: fixture.name,
+                    // Carried through so the accuracy summary can exclude `timing` fixtures,
+                    // whose single "no match" label every variant satisfies for free.
+                    purpose: fixture.purpose ?? 'both',
                     scale: fixture.scale ?? null,
                     facts,
                     layoutCheck,
@@ -435,7 +471,7 @@ async function runBrowser(browserName) {
  * variants that report it.
  *
  * @param {import('@playwright/test').Page} page
- * @param {import('./bundle.mjs').ResolvedVariant[]} variantList
+ * @param {import('./core/bundle.mjs').ResolvedVariant[]} variantList
  * @returns {Promise<Record<string, number | null>>}
  */
 async function readMemory(page, variantList) {
@@ -468,6 +504,12 @@ if (!checkOnly) {
     const scaling = formatScaling(reports);
     if (scaling) console.log(scaling);
 }
+
+// Accuracy before behaviour, because "how well did each variant do" is the question a
+// comparison is run to answer, and the behaviour summary below refines it into "and was
+// that this variant's doing".
+const accuracy = formatAccuracy(reports);
+if (accuracy) console.log(accuracy);
 
 console.log(formatSummary(reports, axis));
 

@@ -11,29 +11,30 @@
  * Timing tables would still look plausible.
  *
  * The check is deliberately not a benchmark. No batching, no statistics, no timing:
- * every payload in `payloads.mjs` is evaluated once under each implementation and the
+ * every case in `assertions/rendered-text.mjs` is evaluated once under each implementation and the
  * booleans are compared. It runs in a few seconds, so run it after touching either
  * file.
  *
- * Chunking configs matter as much as the payloads. At the default 8192-character chunk
- * a small payload never reaches a flush, so the tail cut - the fiddliest part, and the
+ * Chunking configs matter as much as the cases. At the default 8192-character chunk
+ * a small case never reaches a flush, so the tail cut - the fiddliest part, and the
  * most likely to drift - is never executed. The configs below include chunk sizes small
- * enough to force flushes mid-payload, plus `chunkSize: 0` to cover the unchunked path.
+ * enough to force flushes mid-case, plus `chunkSize: 0` to cover the unchunked path.
  */
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
-import { resolveVariants } from './bundle.mjs';
-import { PAYLOADS } from './payloads.mjs';
-import { PATTERNS, RENDERED_TEXT, detector } from './adwall.mjs';
+import { resolveVariants } from './core/bundle.mjs';
+import { CASES } from './assertions/rendered-text.mjs';
+import { RENDERED_TEXT } from './detectors/expressions.mjs';
+import { PATTERNS, detector } from './detectors/adwall.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Chunking configurations to check every payload under.
+ * Chunking configurations to check every case under.
  *
  * The small sizes are the point: they force the flush-and-retain path to run inside a
- * payload only a few dozen characters long, including a boundary landing mid-phrase.
+ * case only a few dozen characters long, including a boundary landing mid-phrase.
  */
 const CHUNK_CONFIGS = [
     { label: 'default', xpathConfig: undefined },
@@ -77,9 +78,9 @@ function evaluateUnderEach({ names, match }) {
 const { variants, cleanup } = await resolveVariants(IMPLEMENTATIONS, detector({ pattern: PATTERNS, xpath: RENDERED_TEXT }), here);
 
 const names = variants.map((v) => v.name);
-const payloadNames = Object.keys(PAYLOADS);
+const caseNames = Object.keys(CASES);
 
-console.log(`drift guard: ${payloadNames.length} payloads x ${CHUNK_CONFIGS.length} chunk configs, comparing ${names.join(' vs ')}\n`);
+console.log(`drift guard: ${caseNames.length} cases x ${CHUNK_CONFIGS.length} chunk configs, comparing ${names.join(' vs ')}\n`);
 
 /** @type {string[]} */
 const failures = [];
@@ -91,9 +92,9 @@ const browserInstance = await chromium.launch();
 try {
     const page = await browserInstance.newPage();
 
-    for (const payloadName of payloadNames) {
-        const payload = PAYLOADS[payloadName];
-        await page.setContent(`<!DOCTYPE html><html><body>${payload.html}</body></html>`);
+    for (const caseName of caseNames) {
+        const assertionCase = CASES[caseName];
+        await page.setContent(`<!DOCTYPE html><html><body>${assertionCase.html}</body></html>`);
 
         // Bundles are attached per page load, and each assigns to window.__detectorBench;
         // move each aside under its name so both can coexist.
@@ -116,18 +117,18 @@ try {
             const values = names.map((name) => results[name]);
             const agreed = values.every((value) => value === values[0]);
             if (!agreed) {
-                failures.push(`${payloadName} [${label}]: ${names.map((n) => `${n}=${results[n]}`).join(', ')}`);
+                failures.push(`${caseName} [${label}]: ${names.map((n) => `${n}=${results[n]}`).join(', ')}`);
                 continue;
             }
 
             // Agreement is the contract this guard enforces. A shared disagreement with the
             // documented expectation is a separate finding: not drift, but either a real bug
-            // or a payload whose label is wrong. Reported apart so the two are not confused.
+            // or a case whose label is wrong. Reported apart so the two are not confused.
             // Only meaningful for configs that preserve semantics - a 4-character chunk
             // legitimately misses phrases that straddle a flush.
             const semanticsPreserving = label === 'default' || label === 'unchunked';
-            if (semanticsPreserving && values[0] !== payload.expected) {
-                labelMismatches.push(`${payloadName} [${label}]: both reported ${values[0]}, payload expects ${payload.expected}`);
+            if (semanticsPreserving && values[0] !== assertionCase.expected) {
+                labelMismatches.push(`${caseName} [${label}]: both reported ${values[0]}, case expects ${assertionCase.expected}`);
             }
         }
     }
@@ -141,9 +142,11 @@ try {
 console.log(`${checked} comparisons run.`);
 
 if (labelMismatches.length > 0) {
-    console.log(`\n${labelMismatches.length} payload label mismatch(es) - both implementations agree, but not with payloads.mjs:`);
+    console.log(
+        `\n${labelMismatches.length} case label mismatch(es) - both implementations agree, but not with assertions/rendered-text.mjs:`,
+    );
     for (const line of labelMismatches) console.log(`  - ${line}`);
-    console.log('\nThis is not drift. Either the shared behaviour is wrong, or the payload label is.');
+    console.log('\nThis is not drift. Either the shared behaviour is wrong, or the case label is.');
 }
 
 if (failures.length > 0) {
@@ -153,7 +156,7 @@ if (failures.length > 0) {
 }
 
 if (failures.length === 0 && labelMismatches.length === 0) {
-    console.log('\nThe lib and the shipped implementation agree on every payload and chunk config.');
+    console.log('\nThe lib and the shipped implementation agree on every case and chunk config.');
 }
 
 process.exit(failures.length > 0 || labelMismatches.length > 0 ? 1 : 0);

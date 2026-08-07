@@ -1,7 +1,7 @@
 /**
  * How does rendered-text matching scale with the *shape* of the DOM rather than its text?
  *
- * The chunked scan is proportional to characters and priced by `specs/xpath-chunking.mjs`.
+ * The chunked scan is proportional to characters and priced by `specs/implementation/chunking.mjs`.
  * Everything before it is proportional to nodes: the engine walks the tree, tests an
  * ancestor chain per candidate text node, and allocates a snapshot of the ones it selects.
  * That is the cost the chunking work never touched, and the one behind the standing review
@@ -25,7 +25,7 @@
  * - `self-axis`  exclusion against the immediate parent. It forces the engine to visit
  *                every element rather than selecting text nodes directly, so
  *                `element-heavy` is the fixture that should punish it hardest - and it
- *                false-negatives on text whose parent is `body` (see `adwall.mjs`)
+ *                false-negatives on text whose parent is `body` (see `detectors/expressions.mjs`)
  * - `body-only`  no XPath at all. The floor: one `textContent` read, no per-node work.
  *                It is the false positive this whole feature exists to remove, so it is
  *                here as a bound on what any node-walking approach could ever save
@@ -34,8 +34,9 @@
  * between characters and work, so on `element-heavy` it is nearly meaningless - compare
  * medians down the sweep against node counts in the fixture header instead.
  */
-import { articlePage, deeplyNested, elementHeavy, manyTinyTextNodes, nestedInline } from '../fixtures.mjs';
-import { PATTERNS, RENDERED_TEXT, RENDERED_TEXT_SELF_AXIS, detector, at, payloadFixtures, payloadOnPage } from '../adwall.mjs';
+import { articlePage, deeplyNested, elementHeavy, manyTinyTextNodes, nestedInline } from '../../page-gen/pages.mjs';
+import { RENDERED_TEXT, RENDERED_TEXT_SELF_AXIS } from '../../detectors/expressions.mjs';
+import { PATTERNS, detector, at, caseFixtures, caseOnPage } from '../../detectors/adwall.mjs';
 
 export default {
     kind: 'config',
@@ -77,8 +78,8 @@ export default {
         },
 
         // A match on a node-heavy page, so short-circuiting is exercised on this axis too.
-        payloadOnPage('splitInline', { generate: nestedInline, params: { blocks: 5000, depth: 6 } }),
-        ...payloadFixtures(),
+        caseOnPage('splitInline', { generate: nestedInline, params: { blocks: 5000, depth: 6 } }),
+        ...caseFixtures(),
     ],
 
     configs: [

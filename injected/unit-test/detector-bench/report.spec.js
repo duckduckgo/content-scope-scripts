@@ -12,8 +12,9 @@ import {
     relativeSpeed,
     formatFixture,
     formatSummary,
+    formatAccuracy,
     compareToStored,
-} from '../../scripts/detector-bench/report.mjs';
+} from '../../scripts/detector-bench/core/report.mjs';
 
 /**
  * @param {object} [overrides]
@@ -231,6 +232,77 @@ describe('detector-bench report', () => {
             );
             expect(rendered).toContain('vs reference');
             expect(rendered).toContain('+1 FN');
+        });
+    });
+
+    describe('formatAccuracy', () => {
+        /**
+         * A variant with a given tally against a fixture labelling `n` detectors.
+         *
+         * @param {string} name
+         * @param {number} labels
+         * @param {string[]} [fp]
+         * @param {string[]} [fn]
+         * @returns {any}
+         */
+        function scored(name, labels, fp = [], fn = []) {
+            /** @type {Record<string, boolean>} */
+            const expected = {};
+            for (let i = 0; i < labels; i++) expected[`g.d${i}`] = true;
+            return variant({ name, expected, falsePositives: fp, falseNegatives: fn, correct: fp.length + fn.length === 0 });
+        }
+
+        it('scores a variant that gets everything right at 100%', () => {
+            const out = formatAccuracy([report([scored('xpath', 2)]), report([scored('xpath', 3)])]);
+            expect(out).toContain('100%');
+            expect(out).toContain('5/5');
+        });
+
+        it('counts false positives and negatives separately, and against the total', () => {
+            const out = formatAccuracy([report([scored('body-only', 10, ['g.d0'], ['g.d1', 'g.d2'])])]);
+            // 10 labels, 3 wrong.
+            expect(out).toContain('7/10');
+            expect(out).toContain('70%');
+        });
+
+        it('sums a variant across fixtures rather than reporting the last one', () => {
+            const out = formatAccuracy([report([scored('v', 2)], { fixture: 'a' }), report([scored('v', 2, ['g.d0'])], { fixture: 'b' })]);
+            expect(out).toContain('3/4');
+        });
+
+        it("excludes fixtures marked purpose 'timing'", () => {
+            // Their only label is "no match" on a large generated page, which every variant
+            // satisfies for free. Counting them would drag every score towards 100% and make
+            // the figure differ between a full run and --check-only.
+            const out = formatAccuracy([
+                report([scored('v', 1, ['g.d0'])], { fixture: 'small', purpose: 'both' }),
+                report([scored('v', 99)], { fixture: 'huge-clean', purpose: 'timing' }),
+            ]);
+            expect(out).toContain('0/1');
+            expect(out).toContain('Scored over 1 labelled fixture(s)');
+        });
+
+        it('returns nothing when every fixture was timing-only', () => {
+            expect(formatAccuracy([report([scored('v', 1)], { purpose: 'timing' })])).toBe('');
+        });
+
+        it('keeps engines apart, since each measured its own page', () => {
+            const out = formatAccuracy([
+                report([scored('v', 2)], { engine: 'chromium' }),
+                report([scored('v', 2, ['g.d0'])], { engine: 'firefox' }),
+            ]);
+            expect(out).toContain('chromium');
+            expect(out).toContain('firefox');
+            expect(out).toContain('2/2');
+            expect(out).toContain('1/2');
+        });
+
+        it('omits the engine column entirely for a single-engine run', () => {
+            expect(formatAccuracy([report([scored('v', 1)])])).not.toContain('engine');
+        });
+
+        it('warns that a faster variant with a lower score is not a win', () => {
+            expect(formatAccuracy([report([scored('v', 1)])])).toContain('not a win');
         });
     });
 

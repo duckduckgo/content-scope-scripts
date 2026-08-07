@@ -15,8 +15,8 @@ export default tseslint.config(
             'injected/playwright-report/',
             'injected/integration-test/extension/contentScope.js',
             'injected/integration-test/test-pages/duckplayer/scripts/dist',
-            // Throwaway detector benchmark implementations, also gitignored. Ignored by
-            // default as a dot-directory, but not when eslint is given a path above them.
+            // Scratch space for detector benchmarking, also gitignored. Ignored by
+            // default as a dot-directory, but not when eslint is given a path above it.
             'injected/scripts/detector-bench/.bench-variants',
             'Sources/ContentScopeScripts/dist',
             'special-pages/pages/**/public',
@@ -113,7 +113,10 @@ export default tseslint.config(
         },
     },
     {
-        files: ['**/unit-test/*.js'],
+        // Recursive: specs are grouped into subdirectories (eg unit-test/detector-bench/),
+        // which a single-level glob silently excluded, so every spec in one reported
+        // `describe`/`it`/`expect` as undefined.
+        files: ['**/unit-test/**/*.js'],
         languageOptions: {
             globals: {
                 ...globals.jasmine,

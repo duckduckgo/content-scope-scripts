@@ -16,8 +16,8 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { bundleLayoutCore } from '../scripts/detector-bench/bundle.mjs';
-import { collectFacts, checkLayoutInvalidation } from '../scripts/detector-bench/harness.mjs';
+import { bundleLayoutCore } from '../scripts/detector-bench/core/bundle.mjs';
+import { collectFacts, checkLayoutInvalidation } from '../scripts/detector-bench/core/harness.mjs';
 
 const execFileAsync = promisify(execFile);
 const injectedRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -235,7 +235,7 @@ test.describe('run.mjs end to end', () => {
     }
 
     test('a failure the baseline shares exits 0 and is reported as pre-existing', async () => {
-        const { code, stdout } = await runBench(['--spec', 'scripts/detector-bench/test-fixtures/pre-existing.mjs']);
+        const { code, stdout } = await runBench(['--spec', 'scripts/detector-bench/self-test/pre-existing.mjs']);
 
         expect(stdout).toContain('pre-existing failure(s)');
         expect(stdout).toContain('PRE-EXISTING');
@@ -244,13 +244,13 @@ test.describe('run.mjs end to end', () => {
     });
 
     test('a variant that fixes what the baseline gets wrong is credited', async () => {
-        const { stdout } = await runBench(['--spec', 'scripts/detector-bench/test-fixtures/pre-existing.mjs']);
+        const { stdout } = await runBench(['--spec', 'scripts/detector-bench/self-test/pre-existing.mjs']);
         expect(stdout).toContain('gets right where the baseline does not');
         expect(stdout).toContain('insensitive: -FN tests.paywall');
     });
 
     test('a divergence a variant introduces exits 1', async () => {
-        const { code, stdout } = await runBench(['--spec', 'scripts/detector-bench/test-fixtures/introduced.mjs']);
+        const { code, stdout } = await runBench(['--spec', 'scripts/detector-bench/self-test/introduced.mjs']);
 
         expect(stdout).toContain('UNEXPECTED behaviour change(s)');
         expect(stdout).toContain('over-eager: +FP tests.paywall');
@@ -259,8 +259,8 @@ test.describe('run.mjs end to end', () => {
     });
 
     test('--check-only skips fixtures marked purpose: timing', async () => {
-        const full = await runBench(['--spec', 'scripts/detector-bench/test-fixtures/pre-existing.mjs']);
-        const checked = await runBench(['--spec', 'scripts/detector-bench/test-fixtures/pre-existing.mjs', '--check-only']);
+        const full = await runBench(['--spec', 'scripts/detector-bench/self-test/pre-existing.mjs']);
+        const checked = await runBench(['--spec', 'scripts/detector-bench/self-test/pre-existing.mjs', '--check-only']);
 
         expect(full.stdout).toContain('fixtures:   3');
         expect(full.stdout).toContain('timing-only');
@@ -277,7 +277,7 @@ test.describe('run.mjs end to end', () => {
         // rather than an unhandled rejection.
         const { code, stdout } = await runBench([
             '--spec',
-            'scripts/detector-bench/test-fixtures/introduced.mjs',
+            'scripts/detector-bench/self-test/introduced.mjs',
             '--filter',
             'does-not-match-anything',
         ]);
