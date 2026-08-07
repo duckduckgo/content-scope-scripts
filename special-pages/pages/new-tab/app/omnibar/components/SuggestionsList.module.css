@@ -74,7 +74,7 @@
         }
 
         /* Beat legacy accent-content (white-on-blue) on selected/active */
-        &:hover:not([aria-selected='true']):not(:active),
+        &:hover:not([aria-selected='true'], :active),
         &[aria-selected='true'],
         &:active {
             color: var(--ds-color-theme-text-primary);
@@ -84,7 +84,7 @@
             }
         }
 
-        &:hover:not([aria-selected='true']):not(:active),
+        &:hover:not([aria-selected='true'], :active),
         &[aria-selected='true'] {
             background: var(--ds-color-theme-accent-alt-primary);
         }
