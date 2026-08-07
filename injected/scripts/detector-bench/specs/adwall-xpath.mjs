@@ -47,15 +47,25 @@ export default {
     fixtures: [
         // The case that runs on essentially every page load, at two sizes so the growth is
         // visible. A typical page is 2k-10k elements; the larger one is a stress case.
+        // The `-clean` fixtures are all `purpose: 'timing'`: their only label is "no match
+        // anywhere", which the payload matrix below already covers in a few milliseconds.
+        // Generating a 20k-row DOM to re-establish it is what made --check-only slow.
         {
             ...at('article-clean', { generate: articlePage }, false),
             scale: { rows: [2000, 20000] },
+            purpose: 'timing',
         },
         // Little rendered text, ~900KB of script text. The case that inverts gating,
         // because body.textContent scans everything the XPath was written to skip.
-        at('script-heavy-clean', { generate: scriptHeavy, params: { scriptBlocks: 40, scriptRepeat: 400, rows: 100 } }, false),
+        {
+            ...at('script-heavy-clean', { generate: scriptHeavy, params: { scriptBlocks: 40, scriptRepeat: 400, rows: 100 } }, false),
+            purpose: 'timing',
+        },
         // Few nodes, high character volume: separates per-character from per-node cost.
-        at('text-heavy-clean', { generate: textHeavy, params: { paragraphs: 200, charsPerParagraph: 5000 } }, false),
+        {
+            ...at('text-heavy-clean', { generate: textHeavy, params: { paragraphs: 200, charsPerParagraph: 5000 } }, false),
+            purpose: 'timing',
+        },
 
         // A real match at realistic scale, rather than in an eight-element document.
         payloadOnPage('wrapped', { generate: articlePage, params: { rows: 2000 } }),

@@ -4,7 +4,9 @@
  *
  * An algorithm comparison asks "which implementation is faster, and did any of them
  * change behaviour". Behaviour change is pass/fail there, so the table carries a result
- * column and nothing more.
+ * column - plus a delta against the baseline implementation, because "wrong" and "wrong
+ * in a way this variant introduced" are different findings and only the second is a
+ * regression.
  *
  * A config comparison asks "what does this configuration cost, and what does it trade
  * away". Behaviour change is the finding rather than a failure, so the table carries a
@@ -51,7 +53,7 @@ export function formatMs(ms) {
  * @param {number} bytes
  * @returns {string}
  */
-function formatBytes(bytes) {
+export function formatBytes(bytes) {
     const sign = bytes < 0 ? '-' : '';
     const abs = Math.abs(bytes);
     if (abs >= 1024 * 1024) return `${sign}${(abs / (1024 * 1024)).toFixed(1)} MB`;
@@ -63,7 +65,7 @@ function formatBytes(bytes) {
  * @param {number} count
  * @returns {string}
  */
-function formatChars(count) {
+export function formatChars(count) {
     if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(2)}M`;
     if (count >= 1000) return `${(count / 1000).toFixed(0)}k`;
     return String(count);
@@ -74,7 +76,7 @@ function formatChars(count) {
  * @param {string} indent
  * @returns {string}
  */
-function table(rows, indent = '  ') {
+export function table(rows, indent = '  ') {
     const widths = (rows[0] ?? []).map((_, column) => Math.max(...rows.map((row) => (row[column] ?? '').length)));
     const render = (row) => indent + row.map((cell, i) => (i === 0 ? cell.padEnd(widths[i]) : cell.padStart(widths[i]))).join('  ');
     const [header, ...body] = rows;
@@ -98,6 +100,7 @@ function table(rows, indent = '  ') {
  * @property {boolean} [expectDivergence]
  * @property {number} median
  * @property {number} p95
+ * @property {'warm' | 'dirty'} [layout]
  * @property {number | null} [peakChars]
  * @property {number | null} [heapBytes]
  * @property {Record<string, boolean>} expected
@@ -106,6 +109,7 @@ function table(rows, indent = '  ') {
  * @property {string[]} falseNegatives
  * @property {boolean} correct
  * @property {boolean} unexpected
+ * @property {boolean} [preExisting] - Incorrect, but the comparison point is incorrect the same way
  * @property {ReferenceDelta | null} [vsReference]
  */
 
@@ -114,7 +118,8 @@ function table(rows, indent = '  ') {
  * @property {string} fixture
  * @property {string} [engine]
  * @property {{ group: string, param: string, value: number } | null} [scale]
- * @property {{ elements: number, textNodes: number, chars: number }} facts
+ * @property {{ elements: number, textNodes: number, chars: number, renderedChars?: number }} facts
+ * @property {{ clean: number, dirty: number, ratio: number } | null} [layoutCheck]
  * @property {VariantReport[]} variants
  */
 
@@ -123,20 +128,22 @@ function table(rows, indent = '  ') {
  * @param {VariantReport | undefined} baseline
  * @returns {string}
  */
-function relativeSpeed(variant, baseline) {
+export function relativeSpeed(variant, baseline) {
     if (!baseline || variant === baseline || baseline.median <= 0 || variant.median <= 0) return '-';
     const ratio = baseline.median / variant.median;
     return ratio >= 1 ? `${ratio.toFixed(1)}x faster` : `${(1 / ratio).toFixed(1)}x slower`;
 }
 
 /**
- * Render the behaviour delta against the reference config.
+ * Render the behaviour delta against the comparison point - the reference config on the
+ * config axis, the baseline implementation on the algorithm axis.
  *
  * @param {VariantReport} variant
+ * @param {'algorithm' | 'config'} axis
  * @returns {string}
  */
-function referenceDelta(variant) {
-    if (variant.reference) return '-';
+function referenceDelta(variant, axis) {
+    if (axis === 'config' ? variant.reference : variant.baseline) return '-';
     const delta = variant.vsReference;
     if (!delta) return '-';
     const parts = [];
@@ -148,6 +155,21 @@ function referenceDelta(variant) {
 }
 
 /**
+ * The result column on the algorithm axis.
+ *
+ * `PRE-EXISTING` rather than `CORRECTNESS FAIL` when the baseline gets the same fixture
+ * wrong: the variant found a gap, it did not create one, and conflating the two is how a
+ * spec that discovers a shipped bug reads as though the experiment caused it.
+ *
+ * @param {VariantReport} variant
+ * @returns {string}
+ */
+function algorithmResult(variant) {
+    if (variant.correct) return 'ok';
+    return variant.preExisting ? 'PRE-EXISTING' : 'CORRECTNESS FAIL';
+}
+
+/**
  * @param {FixtureReport} report
  * @param {'algorithm' | 'config'} axis
  * @param {{ timed?: boolean }} [options]
@@ -155,12 +177,25 @@ function referenceDelta(variant) {
  */
 export function formatFixture(report, axis, { timed = true } = {}) {
     const { facts } = report;
-    const lines = [
-        '',
-        `### ${report.fixture}`,
-        `  ${facts.elements.toLocaleString()} elements, ${facts.textNodes.toLocaleString()} text nodes, ${facts.chars.toLocaleString()} chars`,
-        '',
-    ];
+    // `rendered` is the materialised size of the page's text: what a strategy that reads
+    // the whole rendered text must hold at once, and therefore what a bounded buffer is
+    // bounded against. It belongs in the shape line because the memory columns cannot
+    // supply it - see the caveat on `readMemory` in run.mjs.
+    const shape =
+        `  ${facts.elements.toLocaleString()} elements, ${facts.textNodes.toLocaleString()} text nodes, ` +
+        `${facts.chars.toLocaleString()} chars` +
+        (facts.renderedChars == null ? '' : `, ${formatChars(facts.renderedChars)} rendered`);
+
+    const lines = ['', `### ${report.fixture}`, shape];
+    if (report.layoutCheck) {
+        // A cached read costs microseconds and a full reflow costs seconds, so the ratio runs
+        // to six figures on a large fixture. Past a point the exact value says nothing the two
+        // timings do not; what matters is that it is comfortably clear of the threshold.
+        const { ratio, clean, dirty } = report.layoutCheck;
+        const shown = !Number.isFinite(ratio) ? 'unbounded' : ratio >= 1000 ? '>1000x' : `${ratio.toFixed(1)}x`;
+        lines.push(`  layout invalidation: ${shown} (forced read ${formatMs(clean)} clean, ${formatMs(dirty)} dirty)`);
+    }
+    lines.push('');
 
     const baseline = report.variants.find((v) => v.baseline);
     const showPeak = report.variants.some((v) => v.peakChars != null);
@@ -171,9 +206,11 @@ export function formatFixture(report, axis, { timed = true } = {}) {
     const header = ['variant'];
     if (timed) header.push('median', 'p95');
     if (showPeak) header.push('peak buffer');
-    if (showHeap) header.push('heap');
+    if (showHeap) header.push('retained');
     if (timed) header.push('vs baseline');
-    header.push(axis === 'config' ? 'vs reference' : 'result');
+    // `behaviour` rather than `vs baseline`: the timing column already carries that name, and
+    // a table with `vs baseline` twice meaning two different things is worse than a short header.
+    header.push(axis === 'config' ? 'vs reference' : 'behaviour', ...(axis === 'config' ? [] : ['result']));
 
     const rows = [header];
 
@@ -188,11 +225,8 @@ export function formatFixture(report, axis, { timed = true } = {}) {
         if (showHeap) row.push(variant.heapBytes == null ? '-' : formatBytes(variant.heapBytes));
         if (timed) row.push(relativeSpeed(variant, baseline));
 
-        if (axis === 'config') {
-            row.push(referenceDelta(variant));
-        } else {
-            row.push(variant.correct ? 'ok' : 'CORRECTNESS FAIL');
-        }
+        row.push(referenceDelta(variant, axis));
+        if (axis === 'algorithm') row.push(algorithmResult(variant));
         rows.push(row);
     }
 
@@ -286,14 +320,24 @@ export function formatSummary(reports, axis) {
     const unexpected = [];
     /** @type {string[]} */
     const accepted = [];
+    /** @type {string[]} */
+    const preExisting = [];
+    /** @type {string[]} */
+    const fixes = [];
 
     for (const report of reports) {
         const where = `${report.engine ? `${report.engine} / ` : ''}${report.fixture}`;
+
         for (const variant of report.variants) {
+            const delta = variant.vsReference;
+            const fixed = delta ? [...delta.fixedFP.map((k) => `-FP ${k}`), ...delta.fixedFN.map((k) => `-FN ${k}`)] : [];
+            if (fixed.length > 0) fixes.push(`${where} / ${variant.name}: ${fixed.join(', ')}`);
+
             if (variant.correct) continue;
             const detail = [...variant.falsePositives.map((k) => `+FP ${k}`), ...variant.falseNegatives.map((k) => `+FN ${k}`)].join(', ');
             const line = `${where} / ${variant.name}: ${detail}`;
             if (variant.unexpected) unexpected.push(line);
+            else if (variant.preExisting) preExisting.push(line);
             else accepted.push(line);
         }
     }
@@ -311,8 +355,30 @@ export function formatSummary(reports, axis) {
         );
     }
 
+    // Reported before the failures, because if the baseline is wrong about a case then
+    // "which variant is fastest" is the less interesting thing on the page.
+    if (preExisting.length > 0) {
+        lines.push(
+            `${preExisting.length} pre-existing failure(s) - the ${axis === 'algorithm' ? 'baseline implementation' : 'reference config'} is wrong here too:`,
+            ...preExisting.map((f) => `  - ${f}`),
+            '',
+            'Not attributable to any variant in this run. These are gaps in the code under study,',
+            'which is worth knowing separately from whether an experiment regressed anything.',
+            '',
+        );
+    }
+
+    if (fixes.length > 0) {
+        lines.push(
+            `${fixes.length} case(s) a variant gets right where the ${axis === 'algorithm' ? 'baseline' : 'reference'} does not:`,
+            ...fixes.map((f) => `  - ${f}`),
+            '',
+        );
+    }
+
     if (unexpected.length === 0) {
-        lines.push(accepted.length > 0 ? 'No undeclared behaviour changes.' : 'All variants produced the expected detection results.');
+        const clean = accepted.length > 0 || preExisting.length > 0 || fixes.length > 0;
+        lines.push(clean ? 'No behaviour changes introduced by any variant.' : 'All variants produced the expected detection results.');
         return lines.join('\n');
     }
 
@@ -320,8 +386,9 @@ export function formatSummary(reports, axis) {
 
     if (axis === 'algorithm') {
         lines.push(
-            'A faster implementation that changes results is a regression, not a win. The timings above',
-            'are reported for context only; do not compare them until the results match.',
+            'Each of these is a case the baseline implementation gets right and this variant does not,',
+            'so it is a regression the variant introduced rather than a gap it inherited. A faster',
+            'implementation that changes results is not a win: fix the divergence, then compare timings.',
         );
     } else {
         lines.push(
