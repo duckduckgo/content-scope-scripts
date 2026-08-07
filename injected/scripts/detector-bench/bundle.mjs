@@ -35,6 +35,7 @@ export const repoRoot = path.resolve(injectedRoot, '..');
  * @property {string} [path] - Module path, required for `source: 'module'`
  * @property {Record<string, Record<string, object>>} [detectors]
  * @property {boolean} [baseline] - Compare other variants against this one
+ * @property {'warm' | 'dirty'} [layout] - Layout state the harness imposes before each sweep
  */
 
 /**
@@ -55,6 +56,7 @@ export const repoRoot = path.resolve(injectedRoot, '..');
  * @property {CodeSource} code
  * @property {Record<string, Record<string, object>>} detectors
  * @property {boolean} baseline
+ * @property {'warm' | 'dirty'} layout
  * @property {string} bundle - Bundled IIFE source
  */
 
@@ -105,27 +107,49 @@ function addWorktree(ref) {
 }
 
 /**
- * Bundle the sampling core into an IIFE assigning to `window.__benchMeasure`.
+ * Bundle one of this directory's modules into an IIFE assigning to a global.
  *
- * The in-page benchmark function is serialised by Playwright and so cannot close over
- * module scope. Injecting the core as a script tag instead of inlining a copy is what
- * lets the DOM path and the Node path share one implementation of the sampling loop.
+ * The in-page functions are serialised by Playwright and so cannot close over module
+ * scope. Injecting shared code as a script tag instead of inlining a copy into each of
+ * them is what keeps one implementation rather than three.
  *
+ * @param {string} entry - File name in this directory
+ * @param {string} globalName
  * @returns {Promise<string>}
  */
-export async function bundleMeasureCore() {
+async function bundleInPageModule(entry, globalName) {
     const result = await esbuild.build({
-        entryPoints: [path.join(here, 'measure.mjs')],
+        entryPoints: [path.join(here, entry)],
         bundle: true,
         write: false,
         format: 'iife',
-        globalName: '__benchMeasure',
+        globalName,
         target: 'es2022',
         logLevel: 'silent',
     });
     const [output] = result.outputFiles;
-    if (!output) throw new Error('esbuild produced no output for measure.mjs');
+    if (!output) throw new Error(`esbuild produced no output for ${entry}`);
     return output.text;
+}
+
+/**
+ * The sampling core, as `window.__benchMeasure`. Shared with the Node-side string path,
+ * so both get the same batch sizing, ordering and statistics.
+ *
+ * @returns {Promise<string>}
+ */
+export function bundleMeasureCore() {
+    return bundleInPageModule('measure.mjs', '__benchMeasure');
+}
+
+/**
+ * The layout core, as `window.__benchLayout`. Owns the invalidation the harness imposes
+ * on dirty-layout variants, and the self-check that it invalidates anything.
+ *
+ * @returns {Promise<string>}
+ */
+export function bundleLayoutCore() {
+    return bundleInPageModule('layout.mjs', '__benchLayout');
 }
 
 /**
@@ -224,6 +248,7 @@ export async function resolveVariants(variants, sharedDetectors, specDir) {
                 code,
                 detectors,
                 baseline: variant.baseline ?? false,
+                layout: variant.layout ?? 'warm',
                 bundle: await bundle,
             });
         }

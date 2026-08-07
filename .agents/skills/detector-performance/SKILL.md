@@ -36,10 +36,20 @@ schedule in `web-detection.js`.
 **A faster variant that changes detection results is not automatically a win.**
 
 Every fixture carries `expect` labels, and both axes check against them. The difference is
-what happens next. On the algorithm axis any divergence fails the run, because an
-implementation that computes something else is not an implementation of the same thing. On
-the config axis a divergence is the finding, so it is reported as a delta and the run only
-fails if the spec did not declare it with `expectDivergence: true`.
+what happens next. On the algorithm axis a divergence the variant *introduced* fails the
+run, because an implementation that computes something else is not an implementation of the
+same thing. On the config axis a divergence is the finding, so it is reported as a delta and
+the run only fails if the spec did not declare it with `expectDivergence: true`.
+
+**Introduced, not merely present.** A fixture the baseline implementation also gets wrong is
+reported in its own `pre-existing` section and does not fail the run: that is a gap in the
+code under study, not something the experiment did. An implementation that gets such a case
+*right* is reported as a fix. This is not hypothetical - `innertext-vs-chunked` exits 0 while
+reporting three payloads the shipped chunked matcher fails (whitespace-collapsed text, and
+text hidden by `display:none` or `visibility:hidden`). Before the distinction existed it
+exited 1, and read as though the experiment had caused them.
+
+What has not changed: a divergence from a baseline that was *right* is still a hard failure.
 
 This is not ceremony. Gating an XPath condition behind a whole-body text check measures
 around 12x faster on a normal page and looked like an obvious win; it also silently breaks
@@ -56,13 +66,48 @@ npm run bench-drift-guard      # after touching lib/ or matching.js - see below
 
 | Flag | Effect |
 |---|---|
-| `--check-only` | Correctness pass only, no sampling. Seconds instead of minutes - use it while iterating |
-| `--memory` | Also read the heap around one sweep per variant (chromium only) |
+| `--check-only` | Correctness pass only, no sampling. Seconds instead of minutes - use it while iterating. Skips fixtures marked `purpose: 'timing'` |
+| `--memory` | Also read retained heap around one sweep per variant (chromium only). Read [Memory](#memory) first - it is blind to large buffers |
 | `--filter <text>` | Only fixtures whose name contains `<text>` |
 | `--browsers <list>` | `chromium,firefox,webkit`. They run concurrently |
 | `--iterations <n>` | Samples per variant per fixture (default 15) |
 | `--json <path>` / `--baseline <path>` | Write a run; compare medians against one previously written |
 | `--threshold <n>` | Percent change `--baseline` reports (default 25, deliberately loose) |
+
+### Layout state
+
+Spec-level `layout: ['warm', 'dirty']`, defaulting to `['warm']`. Each variant is measured
+once per mode, suffixed `(warm)` / `(dirty)`; a warm-only run is named and measured exactly
+as before.
+
+This exists because a detector runs on a page that is still changing - that is why it polls -
+and any strategy reading *rendered* text (`innerText`, `getBoundingClientRect`, anything
+geometric) has to flush pending layout before it can answer, while a text-node walk does not.
+Measuring only a settled page hides the difference completely, and the difference is not
+small: it reverses the ranking of `innerText` against chunked scanning.
+
+Layout is a property of the run, not of the code under test. The harness imposes it inside
+each timed sweep, so every variant pays the identical style write and only the ones needing
+geometry pay to resolve it. Do not write invalidation into a variant module: it charges its
+own setup to its own timing, and cannot be compared against a variant that does not.
+
+Two things make the mode trustworthy, and both were added after a bug that produced a
+confident wrong answer:
+
+- **The invalidation is a `document.body.style.width` toggle**, not root `padding-top`. The
+  latter shifts the root box and leaves every descendant's layout valid, so the reflow is
+  O(1) at any page size. With it, `innerText` measured *identical* warm and dirty at 2k, 20k
+  and 100k rows, and nothing in the output suggested the result was fabricated.
+- **A per-fixture self-check** prices a forced geometry read with and without invalidation
+  and prints the ratio in the fixture header. Below 1.5x on a fixture over 1000 elements, the
+  run fails rather than reporting dirty timings that were never dirty. Note what it does and
+  does not catch: it catches invalidation that does *nothing*, not invalidation that is too
+  weak. A dirty row matching its warm row on a large fixture is the other symptom to watch.
+
+Because samples are collected round-robin over one shared page, a dirty variant would
+otherwise leave layout invalid for whichever variant is sampled next. Warm variants therefore
+re-settle layout before each batch, outside the timed region. Skipping that made
+`innertext (warm)` report 184ms against its true 7.7ms.
 
 ## Writing a config spec
 
@@ -210,6 +255,23 @@ useful for making a difference visible but not representative.
 variant's gate passes on every page and never short-circuits, making gating look useless.
 The correctness pass catches it, but it is easier to avoid than to debug.
 
+### `purpose`
+
+`purpose: 'timing' | 'correctness' | 'both'`, defaulting to `both`. `--check-only` skips
+`timing` fixtures; a full run times everything, since correctness fixtures are tiny.
+
+Mark the scaled `-clean` fixtures `timing`. Their only label is "no match anywhere", which the
+payload matrix establishes in milliseconds, so generating a 100k-row DOM to re-establish it was
+the reason `--check-only` was minutes rather than seconds. It also made the fast iteration loop
+the slow one, which is the opposite of the flag's purpose.
+
+Leave `payloadOnPage(...)` fixtures as `both` - they are correctness cases at realistic scale.
+
+**Skip rather than shrink.** Collapsing a scaled fixture to its smallest point under
+`--check-only` looks equivalent and is not: chunk flushes only happen above `chunkSize`
+characters, so shrinking would silently stop exercising the flush path, which is the fiddliest
+code in the matcher. A skipped fixture is visible in the header count; a shrunk one is not.
+
 ### The payload matrix
 
 [payloads.mjs](../../../injected/scripts/detector-bench/payloads.mjs) holds the cases any
@@ -224,14 +286,17 @@ measured well and failed there.
 
 ## Reading the output
 
-Per fixture you get the DOM shape and then, per variant, median and p95, optional memory
-columns, speed against the baseline, and either a result (algorithm) or a behaviour delta
-against the reference (config).
+Per fixture you get the DOM shape - element, text-node, character and `rendered` counts, plus
+the layout invalidation ratio when any variant is dirty - and then, per variant, median and
+p95, optional memory columns, speed against the baseline (`vs baseline`), a `behaviour` delta
+against the baseline implementation or the reference config, and on the algorithm axis a
+`result`.
 
 - **Median, not mean.** GC pauses drag a mean around; p95 shows the size of the tail.
 - **Compare within a fixture, never across machines.** Absolute numbers are machine-specific; ratios travel.
 - **Check p95 against median.** A p95 several times the median means the measurement is noisy - raise `--iterations` or close other applications before trusting a small difference. Re-running an unchanged spec at 9 iterations on a busy machine moved medians by up to 22%.
 - **A speedup on a `CORRECTNESS FAIL` row is meaningless.** Fix the divergence, then measure.
+- **`PRE-EXISTING` is not a failure of the variant.** The baseline gets that fixture wrong too. Worth investigating as a gap in the shipped code, but it says nothing about the experiment.
 
 Two things keep the numbers honest, both automatic: each sample times a batch of sweeps
 sized so the batch lasts at least `--minBatchMs`, which keeps sub-millisecond work
@@ -264,16 +329,40 @@ tool to attribute one:
 
 ### Memory
 
-Two columns, and they are not interchangeable:
+Three figures, answering different questions. Do not treat them as interchangeable, and in
+particular do not reach for `retained` first - it is the weakest of the three.
 
-- **`heap`** (`--memory`) is uninstrumented, so it is the only figure available for the
-  shipped implementation - nothing is being added to `matching.js` for a benchmark's
-  benefit. It is a single reading after a forced collection rather than a true peak, so read
-  it as an order of magnitude. Chromium only.
-- **`peak buffer`** is reported by variants that choose to record their high-water buffer
-  length via `window.__benchPeakChars`. `lib/chunk-loop.mjs` does it for you. Only
-  meaningful for bench-owned code, which is exactly where the instrumentation caveat does
-  not matter.
+- **`rendered`** in the fixture header line is the length of the page's rendered text. It
+  needs no instrumentation, so it is available for the shipped implementation, and it is
+  exactly what any strategy materialising whole-page text must hold at once. For a
+  chunked-versus-materialising comparison this is the figure that speaks to the design.
+- **`peak buffer`** is the real measurement, reported by variants that record their
+  high-water buffer length via `window.__benchPeakChars`. `lib/chunk-loop.mjs` does it for
+  you. Only available for bench-owned code.
+- **`retained`** (`--memory`, chromium only) is a single `Runtime.getHeapUsage` delta around
+  one sweep after a forced collection. Uninstrumented, and **it has a blind spot large enough
+  to invert the comparison you are most likely making.**
+
+`usedSize` excludes V8's large-object space, so a *single* allocation above roughly 128 KB is
+invisible to it, while the same number of bytes in small pieces is reported correctly.
+Measured on chromium:
+
+| allocation | reported |
+|---|---|
+| 40k x 100-char strings (4 MB) | 7.46 MB |
+| 16 x 256 KB strings (4 MB) | 0.02 MB |
+| one 4 MB string | 0.01 MB |
+| 100k small objects | 2.49 MB |
+
+So the column sees costs made of many small objects - an XPath node snapshot - and misses
+costs made of one large buffer - a materialised page string. That is backwards for a
+bounded-buffer comparison, and it flatters whichever strategy uses more memory. It is why
+`innerText` appeared to retain 45 KB while building an 8.39M-character string.
+
+**Two apparent fixes do not work, so do not spend the time.** `HeapProfiler.startSampling`
+has the identical blind spot at both 4 KB and 64 KB intervals. A real
+`HeapProfiler.takeHeapSnapshot` does see more, and costs 13 seconds and 57 MB of transfer per
+reading on a 20k-row page.
 
 Bounding peak memory is the entire reason chunking exists, so a comparison of a chunked
 against an unchunked strategy that reports only time is not answering the question. On a
@@ -294,10 +383,11 @@ length - which is why the peak there rises with the page while `article-clean`'s
 "Does this introduce false positives or negatives that were not there before?" is the
 question that decides whether a matching change is acceptable, and it needs answering
 explicitly against the *previous behaviour*, not just against fixture labels. On the config
-axis the `vs reference` column does this for you; on the algorithm axis, and in any PR
-description, say it in words.
+axis the `vs reference` column does this for you; on the algorithm axis the `behaviour`
+column does the same against the baseline implementation. In any PR description, say it in
+words.
 
-Two worked reversals, both of which read the opposite way before being measured:
+Worked reversals, all of which read the opposite way before being measured:
 
 - Gating is a large win when the gate usually fails, which on real pages is nearly always -
   around 12x on a normal article. It **inverts** when the cheap condition is the expensive
@@ -320,6 +410,20 @@ XPath on every node-heavy shape, losing only at depth 100 where the JS ancestor 
 more than the engine's. The lesson generalises past this case: when comparing an
 engine-implemented loop against a JS one, the per-node boundary crossing dominates, so
 where the filtering happens matters more than what it filters.
+
+A fourth, where the answer depends entirely on a condition the harness did not originally
+model: reading `document.body.innerText` instead of scanning text nodes. It needs no XPath
+expression, no snapshot and no concatenation loop, and on a settled page it is *faster* -
+1.1x on the element-heavy shape. Once layout is dirty, which is the state a polling detector
+actually runs in, it is 1.7x-18.7x slower, and worst on the fixture with no text at all
+(`element-heavy`, 20x): there is nothing to read, so the entire cost is the reflow it forces.
+It also gives up the bound on peak memory, materialising the whole page text - 8.39M
+characters where the chunked path holds 9k.
+
+Two of its correctness differences favour `innerText`, and both are reported as pre-existing
+gaps in the chunked matcher rather than as wins: it collapses whitespace the way the user sees
+it, and it omits text hidden by `display:none` or `visibility:hidden`, which the XPath
+predicate cannot express.
 
 And one where reasoning got the *direction* wrong, not just the size: checking exclusions
 against the immediate parent (`//body//*[not(self::script)]/text()`) looks cheaper than
@@ -371,6 +475,34 @@ and expensive to lose quietly:
 - **A match longer than the retained tail can straddle a flush and be missed.** Detector
   patterns are phrases of a few dozen characters, so the default leaves a wide margin, but
   the bound is real and belongs in guidance for detector authors.
+
+## How the harness itself is tested
+
+A benchmark that is quietly wrong is worse than no benchmark, because its output is
+persuasive. Three layers, split by what each needs:
+
+| Layer | Where | Run by | Covers |
+|---|---|---|---|
+| Pure Node | `unit-test/detector-bench/{outcome,expand,report,measure}.spec.js` | `npm run test-unit` | The exit-code decision matrix, spec expansion and sweeps, `purpose` filtering, every formatter, and batch sizing / round-robin ordering against an injected clock |
+| jsdom | `unit-test/detector-bench/harness.spec.js` | `npm run test-unit` | `collectFacts`, `collectResults`, `singleSweep` - the in-page functions that need only a DOM |
+| Browser | `integration-test/detector-bench.spec.js` | `npm run test-bench` | Layout invalidation, the retained-heap blind spot, and `run.mjs` exit codes end to end |
+
+`npm run test-bench` uses its own `playwright-bench.config.js` and is **not** part of
+`test-int` or CI: two of its tests assert that one thing costs measurably more than another,
+which is sound on a developer machine and a coin toss on a shared runner.
+
+Layout is deliberately not tested in jsdom. There is no layout engine there, so
+`measureLayoutInvalidation` would pass vacuously - a test asserting invalidation works in an
+environment where nothing can be invalidated is worse than no test. Equally, real matching is
+not re-tested at any layer; `unit-test/web-detection.js` and `bench-drift-guard` own that.
+
+Two of these tests exist because the code was wrong in a way that produced plausible output
+rather than an error: the `padding-top` no-op, and a self-check whose clean baseline rounded
+to zero so its ratio was `Infinity` and cleared every threshold. If you change the layout or
+memory paths, those are the tests to read first.
+
+`scripts/detector-bench/test-fixtures/` holds committed specs for the end-to-end exit-code
+cases. They live there rather than in `.bench-variants/`, which is gitignored.
 
 ## After a run
 
