@@ -83,7 +83,11 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
             </div>
             {messageType === 'big_single_action' && message.primaryActionText && primaryAction && (
                 <div class={styles.btnBlock}>
-                    <Button className={cn(styles.actionButton, styles.secondaryButton)} variant="standard" onClick={() => primaryAction(id)}>
+                    <Button
+                        className={cn(styles.actionButton, styles.secondaryButton)}
+                        variant="standard"
+                        onClick={() => primaryAction(id)}
+                    >
                         {message.primaryActionText}
                     </Button>
                 </div>
