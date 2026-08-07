@@ -106,6 +106,33 @@ export function textHeavy({ paragraphs = 200, charsPerParagraph = 5000, append =
 }
 
 /**
+ * The same character volume as `textHeavy`, with no word breaks at all.
+ *
+ * The counterpart to `textHeavy` for anything that scans for a word boundary: in prose
+ * such a scan stops at the first space, typically within a few characters, so it costs
+ * nothing and hides its own worst case. Here every scan runs to its ceiling, which is
+ * both the most expensive case and the point at which a retained buffer grows.
+ *
+ * @param {{ blocks?: number, charsPerBlock?: number, append?: string }} params
+ */
+export function unbrokenWordRuns({ blocks = 200, charsPerBlock = 5000, append = '' }) {
+    // Inlined rather than shared with `text-shapes.mjs`, because this runs in the page
+    // and cannot close over module scope.
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let run = '';
+    for (let i = 0; i < charsPerBlock; i++) run += alphabet[i % alphabet.length];
+
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < blocks; i++) {
+        const p = document.createElement('p');
+        p.textContent = run;
+        frag.appendChild(p);
+    }
+    document.body.appendChild(frag);
+    if (append) document.body.insertAdjacentHTML('beforeend', append);
+}
+
+/**
  * Large inline script bodies with little rendered text. Pathological for the
  * `not(ancestor::script)` style of predicate, and for any approach that reads
  * `textContent` on an ancestor without excluding script content.

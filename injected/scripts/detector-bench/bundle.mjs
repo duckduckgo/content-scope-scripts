@@ -16,20 +16,23 @@ export const repoRoot = path.resolve(injectedRoot, '..');
 /**
  * A variant as authored in a spec file.
  *
- * `kind` selects where the matching code comes from:
- * - `config` (default): the current working tree
+ * `source` selects where the matching code comes from:
+ * - `working-tree` (default): the current checkout
  * - `worktree`: a detached checkout of `ref`
- * - `module`: a standalone file default-exporting `{ evaluateMatch }`
+ * - `module`: a standalone file exporting `evaluateMatch`
  *
- * `detectors` is the detector config to run. When omitted the variant inherits
- * the spec-level `detectors`, which is how a code variant is compared against a
- * fixed config.
+ * Note that `working-tree` and `worktree` need no files, so a "current versus main"
+ * comparison is always available without writing an implementation.
+ *
+ * `detectors` is the detector config to run. When omitted the variant inherits the
+ * spec-level `detectors`, which is how a code variant is compared against a fixed
+ * config.
  *
  * @typedef {object} Variant
  * @property {string} name
- * @property {'config' | 'worktree' | 'module'} [kind]
- * @property {string} [ref] - Git ref, required for `kind: 'worktree'`
- * @property {string} [path] - Module path, required for `kind: 'module'`
+ * @property {'working-tree' | 'worktree' | 'module'} [source]
+ * @property {string} [ref] - Git ref, required for `source: 'worktree'`
+ * @property {string} [path] - Module path, required for `source: 'module'`
  * @property {Record<string, Record<string, object>>} [detectors]
  * @property {boolean} [baseline] - Compare other variants against this one
  */
@@ -102,11 +105,35 @@ function addWorktree(ref) {
 }
 
 /**
+ * Bundle the sampling core into an IIFE assigning to `window.__benchMeasure`.
+ *
+ * The in-page benchmark function is serialised by Playwright and so cannot close over
+ * module scope. Injecting the core as a script tag instead of inlining a copy is what
+ * lets the DOM path and the Node path share one implementation of the sampling loop.
+ *
+ * @returns {Promise<string>}
+ */
+export async function bundleMeasureCore() {
+    const result = await esbuild.build({
+        entryPoints: [path.join(here, 'measure.mjs')],
+        bundle: true,
+        write: false,
+        format: 'iife',
+        globalName: '__benchMeasure',
+        target: 'es2022',
+        logLevel: 'silent',
+    });
+    const [output] = result.outputFiles;
+    if (!output) throw new Error('esbuild produced no output for measure.mjs');
+    return output.text;
+}
+
+/**
  * Bundle `parseDetectors` and `evaluateMatch` into an IIFE that assigns to
  * `window.__detectorBench`.
  *
  * The entry is synthesised rather than kept on disk so the same code path serves
- * all three variant kinds - only the two import paths differ.
+ * all three variant sources - only the two import paths differ.
  *
  * @param {CodeSource} code
  * @returns {Promise<string>}
@@ -154,18 +181,18 @@ export async function resolveVariants(variants, sharedDetectors, specDir) {
         const resolved = [];
 
         for (const variant of variants) {
-            const kind = variant.kind ?? 'config';
+            const source = variant.source ?? 'working-tree';
             /** @type {CodeSource} */
             let code;
 
-            if (kind === 'worktree') {
-                if (!variant.ref) throw new Error(`Variant "${variant.name}" has kind "worktree" but no ref`);
+            if (source === 'worktree') {
+                if (!variant.ref) throw new Error(`Variant "${variant.name}" has source "worktree" but no ref`);
                 const worktree = addWorktree(variant.ref);
                 worktrees.push(worktree);
                 const paths = webDetectionPaths(path.join(worktree.dir, 'injected'));
                 code = { key: `worktree:${variant.ref}:${worktree.dir}`, parseFrom: paths.parse, matchingFrom: paths.matching };
-            } else if (kind === 'module') {
-                if (!variant.path) throw new Error(`Variant "${variant.name}" has kind "module" but no path`);
+            } else if (source === 'module') {
+                if (!variant.path) throw new Error(`Variant "${variant.name}" has source "module" but no path`);
                 const modulePath = path.resolve(specDir, variant.path);
                 if (!existsSync(modulePath)) {
                     throw new Error(`Variant "${variant.name}" points at a module that does not exist: ${modulePath}`);

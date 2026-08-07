@@ -15,6 +15,9 @@ export default tseslint.config(
             'injected/playwright-report/',
             'injected/integration-test/extension/contentScope.js',
             'injected/integration-test/test-pages/duckplayer/scripts/dist',
+            // Throwaway detector benchmark implementations, also gitignored. Ignored by
+            // default as a dot-directory, but not when eslint is given a path above them.
+            'injected/scripts/detector-bench/.bench-variants',
             'Sources/ContentScopeScripts/dist',
             'special-pages/pages/**/public',
             'special-pages/pages/**/types',
