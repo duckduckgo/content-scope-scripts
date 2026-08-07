@@ -1,5 +1,5 @@
 .favicon {
-    --border-radius: 8px;
+    --border-radius: var(--ds-radius-x02);
 
     display: block;
     background-repeat: no-repeat;

@@ -6,6 +6,7 @@ import styles from './FreemiumPIRBanner.module.css';
 import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider';
 import { useContext } from 'preact/hooks';
 import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
+import { useNewTabPageRebranding } from '../../settings.provider';
 
 /**
  * @typedef { import("../../../types/new-tab").FreemiumPIRBannerMessage} FreemiumPIRBannerMessage
@@ -16,11 +17,13 @@ import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils'
  */
 
 export function FreemiumPIRBanner({ message, action, dismiss }) {
+    const isRebrandEnabled = useNewTabPageRebranding();
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
+    const iconSrc = isRebrandEnabled ? './icons/rebrand/PIR-96.svg' : './icons/PIR-96.svg';
     return (
         <div id={message.id} class={cn(styles.root, styles.icon)}>
             <span class={styles.iconBlock}>
-                <img src={`./icons/PIR-96.svg`} alt="" />
+                <img src={iconSrc} alt="" />
             </span>
             <div class={styles.content}>
                 {message.titleText && <h2 class={styles.title}>{message.titleText}</h2>}
