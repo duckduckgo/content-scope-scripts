@@ -17611,11 +17611,64 @@ ul.messages {
       return !frame.hidden && frame.src !== "" && frame.src !== "about:blank";
     });
   }
+  var ORDERED_NODE_SNAPSHOT_TYPE = 7;
+  var compiledXPaths = /* @__PURE__ */ new WeakMap();
+  function compileXPath(expression) {
+    let cache = compiledXPaths.get(document);
+    if (!cache) {
+      cache = /* @__PURE__ */ new Map();
+      compiledXPaths.set(document, cache);
+    }
+    let compiled = cache.get(expression);
+    if (!compiled) {
+      compiled = document.createExpression(expression, null);
+      cache.set(expression, compiled);
+    }
+    return compiled;
+  }
+  var DEFAULT_CHUNK_SIZE = 8192;
+  var CHUNK_TAIL_RATIO = 16;
+  var MAX_WORD_LENGTH = 64;
+  function isWordCode(code) {
+    return code >= 97 && code <= 122 || // a-z
+    code >= 65 && code <= 90 || // A-Z
+    code >= 48 && code <= 57 || // 0-9
+    code === 95;
+  }
+  function resolveXPathConfig(config2) {
+    const chunkSize = config2?.chunkSize ?? DEFAULT_CHUNK_SIZE;
+    const chunkTail = config2?.chunkTail ?? Math.floor(chunkSize / CHUNK_TAIL_RATIO);
+    return { chunkSize, chunkTail };
+  }
+  function retainTail(buffer, chunkTail) {
+    let cut = buffer.length - chunkTail;
+    if (cut <= 0) return buffer;
+    const limit = Math.max(0, cut - Math.min(chunkTail, MAX_WORD_LENGTH));
+    while (cut > limit && isWordCode(buffer.charCodeAt(cut - 1))) cut--;
+    return buffer.slice(cut);
+  }
+  function xpathMatches(pattern, expression, { chunkSize, chunkTail }) {
+    const snapshot = compileXPath(expression).evaluate(document, ORDERED_NODE_SNAPSHOT_TYPE, null);
+    let buffer = "";
+    let pending = 0;
+    for (let i = 0; i < snapshot.snapshotLength; i++) {
+      const text2 = snapshot.snapshotItem(i)?.textContent || "";
+      buffer += text2;
+      pending += text2.length;
+      if (chunkSize > 0 && pending >= chunkSize) {
+        if (pattern.test(buffer)) return true;
+        buffer = retainTail(buffer, chunkTail);
+        pending = 0;
+      }
+    }
+    return pattern.test(buffer);
+  }
   function evaluateSingleTextCondition(condition2) {
     const patterns = asArray(condition2.pattern);
-    const selectors = asArray(condition2.selector, ["body"]);
+    const xpaths = asArray(condition2.xpath);
+    const selectors = asArray(condition2.selector, xpaths.length > 0 ? [] : ["body"]);
     const patternComb = new RegExp(patterns.join("|"), "i");
-    return selectors.some((selector) => {
+    const selectorMatch = selectors.some((selector) => {
       const elements = document.querySelectorAll(selector);
       for (const element of elements) {
         if (patternComb.test(element.textContent || "")) {
@@ -17624,6 +17677,14 @@ ul.messages {
       }
       return false;
     });
+    if (selectorMatch) {
+      return true;
+    }
+    if (xpaths.length === 0) {
+      return false;
+    }
+    const chunking = resolveXPathConfig(condition2.xpathConfig);
+    return xpaths.some((expression) => xpathMatches(patternComb, expression, chunking));
   }
   function evaluateSingleElementCondition(config2) {
     const visibility = config2.visibility ?? "any";

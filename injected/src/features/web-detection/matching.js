@@ -133,6 +133,182 @@ function hasContent(element) {
 }
 
 /**
+ * Value of `XPathResult.ORDERED_NODE_SNAPSHOT_TYPE`, inlined because the
+ * `XPathResult` global is not present in every environment this module runs in
+ * (eg unit tests provide `document` without the surrounding window). The value
+ * is fixed by the DOM spec.
+ *
+ * A snapshot (rather than an iterator) is required: `iterateNext()` throws
+ * `InvalidStateError` if the document mutates during iteration, and detectors
+ * run against live pages that mutate underneath them.
+ */
+const ORDERED_NODE_SNAPSHOT_TYPE = 7;
+
+/**
+ * Compiled XPath expressions, keyed by document and then by expression source.
+ *
+ * `document.evaluate()` re-parses the expression string on every call, and
+ * detectors re-evaluate their conditions on every poll tick against a fixed,
+ * config-supplied set of expressions. Compiling once removes that repeated parse.
+ *
+ * Keyed by document because an `XPathExpression` belongs to the document that
+ * created it.
+ *
+ * @type {WeakMap<Document, Map<string, XPathExpression>>}
+ */
+const compiledXPaths = new WeakMap();
+
+/**
+ * Compile an XPath expression, reusing a previously compiled one where possible.
+ *
+ * An invalid expression throws `SyntaxError` here rather than at evaluation time;
+ * either way it propagates to the caller and surfaces as `detected: 'error'`.
+ *
+ * @param {string} expression
+ * @returns {XPathExpression}
+ */
+function compileXPath(expression) {
+    let cache = compiledXPaths.get(document);
+    if (!cache) {
+        cache = new Map();
+        compiledXPaths.set(document, cache);
+    }
+    let compiled = cache.get(expression);
+    if (!compiled) {
+        compiled = document.createExpression(expression, null);
+        cache.set(expression, compiled);
+    }
+    return compiled;
+}
+
+/** Characters accumulated between pattern tests when scanning XPath text. */
+const DEFAULT_CHUNK_SIZE = 8192;
+
+/** `chunkSize` divisor giving the default `chunkTail`. */
+const CHUNK_TAIL_RATIO = 16;
+
+/**
+ * How far the tail cut may walk back looking for a word boundary.
+ *
+ * The walk only has to escape the token the cut landed in, so this is a bound on word
+ * length rather than a tuning knob - past it there is no boundary to reach, only a hash,
+ * base64 or minified blob. The longest token in any shipped detector pattern is 16
+ * characters; 64 leaves room for compound words in the languages we match.
+ *
+ * Deliberately independent of `chunkTail`, which is sized for a different purpose (the
+ * longest match allowed to span a boundary). Deriving one from the other would make a
+ * config raising the tail silently multiply the cost of this scan.
+ */
+const MAX_WORD_LENGTH = 64;
+
+/**
+ * Whether a character code is a word character, matching `\w` exactly.
+ *
+ * `\w` is `[A-Za-z0-9_]`, verified equivalent to these ranges across every code unit.
+ * It is deliberately ASCII-only, and so is `\b` - both share the same definition, which
+ * is what keeps this consistent with the assertion it exists to protect, whatever the
+ * language of the text.
+ *
+ * The equivalence holds for every regex flag except `i` combined with `u`/`v`, where
+ * case folding pulls U+017F and U+212A into `\w`. Using character codes sidesteps that,
+ * along with the `g`/`y` statefulness that made the previous `RegExp.test` form fragile.
+ *
+ * @param {number} code
+ * @returns {boolean}
+ */
+function isWordCode(code) {
+    return (
+        (code >= 97 && code <= 122) || // a-z
+        (code >= 65 && code <= 90) || // A-Z
+        (code >= 48 && code <= 57) || // 0-9
+        code === 95 // _
+    );
+}
+
+/**
+ * Resolve chunking configuration against the built-in defaults.
+ *
+ * @param {ConditionTypes['text']['xpathConfig']} [config]
+ * @returns {{ chunkSize: number, chunkTail: number }}
+ */
+function resolveXPathConfig(config) {
+    // Used exactly as configured - nothing is clamped or rejected. Range checking lives in
+    // privacy-configuration CI, so a bad value fails a build naming the detector rather than
+    // being silently rewritten on a user's page. Safe only because no value can break the
+    // scan loop in `xpathMatches`.
+    const chunkSize = config?.chunkSize ?? DEFAULT_CHUNK_SIZE;
+    const chunkTail = config?.chunkTail ?? Math.floor(chunkSize / CHUNK_TAIL_RATIO);
+    return { chunkSize, chunkTail };
+}
+
+/**
+ * Reduce a scanned buffer to its trailing `chunkTail` characters, extending the
+ * cut backwards to the nearest non-word character.
+ *
+ * @param {string} buffer
+ * @param {number} chunkTail
+ * @returns {string}
+ */
+function retainTail(buffer, chunkTail) {
+    let cut = buffer.length - chunkTail;
+    if (cut <= 0) return buffer;
+    // Ceiling on the walk, so an unbroken run of word characters cannot grow the buffer
+    // without limit. Reaching it leaves position 0 mid-word, giving up the guarantee below
+    // for this flush - a hard bound is worth more than exact `\b` semantics inside a blob
+    // that a phrase pattern will not match anyway. Never more than `chunkTail`, so a tail
+    // of 0 still retains nothing.
+    const limit = Math.max(0, cut - Math.min(chunkTail, MAX_WORD_LENGTH));
+    // Land the cut just after a non-word character, so position 0 is a real word boundary
+    // rather than an artefact of where the chunk ended - otherwise a `\b`-prefixed pattern
+    // asserts at position 0 of every chunk and matches mid-word. This only lengthens the
+    // tail, so it introduces no false negative.
+    while (cut > limit && isWordCode(buffer.charCodeAt(cut - 1))) cut--;
+    return buffer.slice(cut);
+}
+
+/**
+ * Test a pattern against the text of every node selected by an XPath expression,
+ * scanning in bounded chunks rather than concatenating the whole selection.
+ *
+ * Nodes are joined without a separator so matching is equivalent to `textContent`
+ * over the selected set: a pattern may span node boundaries, so `//div//text()`
+ * still matches "adblocker detected" in `<div>adblocker <b>detected</b></div>`.
+ *
+ * An invalid expression throws `SyntaxError`, which propagates and surfaces as
+ * `detected: 'error'` for the detector - the same behaviour as an invalid CSS
+ * selector passed to `querySelectorAll`.
+ *
+ * @param {RegExp} pattern Must be free of `g`/`y`, so `.test()` is stateless and
+ *   the overlap between chunks cannot corrupt `lastIndex`.
+ * @param {string} expression
+ * @param {{ chunkSize: number, chunkTail: number }} chunking
+ * @returns {boolean}
+ */
+function xpathMatches(pattern, expression, { chunkSize, chunkTail }) {
+    const snapshot = compileXPath(expression).evaluate(document, ORDERED_NODE_SNAPSHOT_TYPE, null);
+    let buffer = '';
+    // Characters added since the last test, rather than the length of the buffer. Each test
+    // then advances `chunkSize` fresh characters whatever `chunkTail` is, so an oversized tail
+    // costs proportionally more scanning instead of re-testing the whole buffer per node -
+    // which is what makes configured values safe to use unvalidated.
+    let pending = 0;
+    for (let i = 0; i < snapshot.snapshotLength; i++) {
+        const text = snapshot.snapshotItem(i)?.textContent || '';
+        buffer += text;
+        pending += text.length;
+        // chunkSize 0 disables chunking, accumulating everything for the single test below
+        if (chunkSize > 0 && pending >= chunkSize) {
+            if (pattern.test(buffer)) return true;
+            // Retained text is contiguous with what follows, so a phrase split across nodes
+            // still matches across a flush
+            buffer = retainTail(buffer, chunkTail);
+            pending = 0;
+        }
+    }
+    return pattern.test(buffer);
+}
+
+/**
  * Evaluate text pattern match condition.
  *
  * `pattern` (disj): Array of regex patterns (or string representing a single pattern) - ANY pattern matching = success.
@@ -140,21 +316,37 @@ function hasContent(element) {
  *
  * `selector` (disj): Array of CSS selectors (or string representing a single selector) - ANY selector matching = success.
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
- *   Defaults to `body` if not provided.
+ *   Defaults to `body` when neither `selector` nor `xpath` is provided.
  *
- * The overall condition matches if ANY pattern matches text in ANY selected element.
+ * `xpath` (disj): Array of XPath expressions (or a single expression) - ANY expression matching = success.
+ *   Unlike `selector`, an expression may select text nodes and filter on ancestry, so it can exclude
+ *   text that is present in the DOM but never rendered - eg text inside `<script>`:
+ *   `//body//text()[not(ancestor::script)]`. The text of all nodes selected by one expression is
+ *   matched as a whole, but is scanned in bounded chunks rather than concatenated in full, so a
+ *   large page does not allocate its entire rendered text on each evaluation.
+ *
+ * `xpathConfig` [optional]: Tunes that chunking, and applies to `xpath` only. A match longer than
+ *   `chunkTail` that straddles a chunk boundary is missed; `chunkSize: 0` turns chunking off
+ *   entirely. See `xpathMatches` and `resolveXPathConfig`.
+ *
+ * The overall condition matches if ANY pattern matches the text of ANY source (selected element or
+ * XPath expression).
  *
  * @param {ConditionTypes['text']} condition
  * @returns {boolean}
  */
 function evaluateSingleTextCondition(condition) {
     const patterns = asArray(condition.pattern);
-    const selectors = asArray(condition.selector, ['body']);
+    const xpaths = asArray(condition.xpath);
+    // `body` is only the implicit source when the condition names no source of its own
+    const selectors = asArray(condition.selector, xpaths.length > 0 ? [] : ['body']);
 
     const patternComb = new RegExp(patterns.join('|'), 'i');
 
-    // Disjunction: any selector having a matching element is success
-    return selectors.some((selector) => {
+    // Disjunction: any selector having a matching element is success.
+    // Checked before xpath because CSS matching avoids the per-call expression
+    // parse and snapshot allocation that `document.evaluate` requires.
+    const selectorMatch = selectors.some((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
             if (patternComb.test(element.textContent || '')) {
@@ -163,6 +355,16 @@ function evaluateSingleTextCondition(condition) {
         }
         return false;
     });
+    if (selectorMatch) {
+        return true;
+    }
+
+    // Disjunction: any expression whose selected text matches is success
+    if (xpaths.length === 0) {
+        return false;
+    }
+    const chunking = resolveXPathConfig(condition.xpathConfig);
+    return xpaths.some((expression) => xpathMatches(patternComb, expression, chunking));
 }
 
 /**

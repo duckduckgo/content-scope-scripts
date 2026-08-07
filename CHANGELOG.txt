@@ -1,2 +1,2 @@
-- Support extracting extras from profiles and addresses (#2907)
-- build(deps): bump @preact/signals from 2.9.4 to 2.10.0 (#2937)
+- Add initial xpath support (#2930)
+- build(deps): bump @rive-app/canvas-single from 2.38.5 to 2.39.1 (#2940)
