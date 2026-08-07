@@ -116,6 +116,6 @@
 }
 
 .browserIconDuckDuckGo {
-    background-color: var(--ds-color-palette-red-50);
+    background-color: #de5833;
     background-image: url('../../../public/assets/img/icons/ddg.svg');
 }
