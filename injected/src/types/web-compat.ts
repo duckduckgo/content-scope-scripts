@@ -10,7 +10,7 @@
  * Requests, Notifications and Subscriptions from the WebCompat feature
  */
 export interface WebCompatMessages {
-  notifications: CloseNotificationNotification | ShowNotificationNotification;
+  notifications: CloseNotificationNotification | PasskeyUsedNotification | ShowNotificationNotification;
   requests: DeviceEnumerationRequest | RequestPermissionRequest | WebShareRequest;
   subscriptions: NotificationEventSubscription;
 }
@@ -29,6 +29,22 @@ export interface CloseNotificationParams {
    * Unique identifier of the notification to close
    */
   id: string;
+}
+/**
+ * Generated from @see "../messages/web-compat/passkeyUsed.notify.json"
+ */
+export interface PasskeyUsedNotification {
+  method: "passkeyUsed";
+  params: PasskeyUsedParams;
+}
+/**
+ * Notifies the native layer that a WebAuthn passkey was successfully used (created or retrieved), for pixelling purposes only.
+ */
+export interface PasskeyUsedParams {
+  /**
+   * Which CredentialsContainer method completed the passkey ceremony.
+   */
+  type: "get" | "create";
 }
 /**
  * Generated from @see "../messages/web-compat/showNotification.notify.json"

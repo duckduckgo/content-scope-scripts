@@ -24,6 +24,8 @@ const MSG_PERMISSIONS_QUERY = 'permissionsQuery';
 const MSG_SCREEN_LOCK = 'screenLock';
 const MSG_SCREEN_UNLOCK = 'screenUnlock';
 const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
+const MSG_PASSKEY_USED = 'passkeyUsed';
+const CREDENTIAL_TYPE_PUBLIC_KEY = 'public-key';
 
 function canShare(data) {
     if (typeof data !== 'object') return false;
@@ -130,6 +132,9 @@ export class WebCompat extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('navigatorCredentials')) {
             this.navigatorCredentialsFix();
+        }
+        if (this.getFeatureSettingEnabled('passkeyDetection')) {
+            this.passkeyDetectionFix();
         }
         if (this.getFeatureSettingEnabled('safariObject')) {
             this.safariObjectFix();
@@ -794,6 +799,89 @@ export class WebCompat extends ContentFeature {
             });
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    /**
+     * Detects usage of WebAuthn passkeys (`navigator.credentials.get`/`.create` called
+     * with a `publicKey` option) and notifies the native layer, purely for pixelling
+     * purposes. This never mediates, delays, or alters the credential ceremony itself:
+     * the original method is always invoked with the original arguments and its return
+     * value (a promise) is returned to the page completely unmodified. We only attach a
+     * side-channel observer to that promise to detect a successful outcome.
+     *
+     * This is intentionally a much lighter touch than `AutofillPasskeys`
+     * (autofill-passkeys.js), which fully mediates conditional requests to drive a
+     * custom credential-picker UI. Here there is no UI to replace (the platform already
+     * shows its own native passkey prompt), so we only need to observe, not intercept.
+     */
+    passkeyDetectionFix() {
+        try {
+            if (
+                typeof CredentialsContainer === 'undefined' ||
+                !navigator.credentials ||
+                !(navigator.credentials instanceof CredentialsContainer) ||
+                typeof navigator.credentials.get !== 'function'
+            ) {
+                return;
+            }
+            const proto = CredentialsContainer.prototype;
+            this.wrapPasskeyMethod(proto, 'get');
+            this.wrapPasskeyMethod(proto, 'create');
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    /**
+     * Wraps a single CredentialsContainer method (`get` or `create`) so that WebAuthn
+     * (`publicKey`) calls are observed without changing behaviour.
+     * @param {object} proto
+     * @param {'get'|'create'} methodName
+     */
+    wrapPasskeyMethod(proto, methodName) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const feature = this;
+        this.wrapMethod(proto, methodName, function (originalFn, ...args) {
+            // Always call through with the original arguments/receiver first: the page
+            // must see exactly the same behaviour, return value, and timing as native.
+            const result = originalFn.apply(this, args);
+            try {
+                const options = args[0];
+                if (options && typeof options === 'object' && options.publicKey && result && typeof result.then === 'function') {
+                    void feature.observePasskeyResult(result, methodName);
+                }
+            } catch {
+                // Never let a bug in detection surface as a page-visible error.
+            }
+            return result;
+        });
+    }
+
+    /**
+     * Observes (without consuming or altering) the outcome of a passkey ceremony and
+     * notifies native only when it resolves with a public-key credential. Rejections
+     * (e.g. the user cancelled, or there was no matching credential) are intentionally
+     * not reported. Runs as a fire-and-forget derived promise chain - it never affects
+     * the promise/value returned to the page.
+     * @param {Promise<Credential | null>} resultPromise
+     * @param {'get'|'create'} type
+     */
+    async observePasskeyResult(resultPromise, type) {
+        /** @type {Credential | null} */
+        let credential;
+        try {
+            credential = await resultPromise;
+        } catch {
+            // Ignore rejections (cancellation, no credential available, etc.)
+            return;
+        }
+        try {
+            if (credential && credential.type === CREDENTIAL_TYPE_PUBLIC_KEY) {
+                this.notify(MSG_PASSKEY_USED, { type });
+            }
+        } catch {
+            // Ignore exceptions - this must never affect the page.
         }
     }
 
