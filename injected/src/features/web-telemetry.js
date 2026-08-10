@@ -5,6 +5,7 @@ import ContentFeature from '../content-feature.js';
  */
 
 const MSG_VIDEO_PLAYBACK = 'video-playback';
+const MSG_VIDEO_AUTOPLAY = 'video-autoplay';
 const MSG_URL_CHANGED = 'url-changed';
 
 export class WebTelemetry extends ContentFeature {
@@ -14,10 +15,18 @@ export class WebTelemetry extends ContentFeature {
         super(featureName, importConfig, features, args);
         this.seenVideoElements = new WeakSet();
         this.seenVideoUrls = new Set();
+        // Kept separate from the dedupe above, so neither message suppresses the other.
+        this.reportedAutoplayElements = new WeakSet();
+        this.videoPlaybackEnabled = false;
+        this.videoAutoplayEnabled = true;
     }
 
     init() {
-        if (this.getFeatureSettingEnabled('videoPlayback')) {
+        this.videoPlaybackEnabled = this.getFeatureSettingEnabled('videoPlayback');
+        // TEMPORARY: defaulted on so autoplay telemetry fires without a config change.
+        // Revert to `this.getFeatureSettingEnabled('videoAutoplay')` before merging.
+        this.videoAutoplayEnabled = this.getFeatureSettingEnabled('videoAutoplay', 'enabled');
+        if (this.videoPlaybackEnabled || this.videoAutoplayEnabled) {
             this.videoPlaybackObserve();
         }
     }
@@ -73,12 +82,36 @@ export class WebTelemetry extends ContentFeature {
         this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
     }
 
+    fireTelemetryForVideoAutoplay(video) {
+        if (this.reportedAutoplayElements.has(video)) {
+            return; // report each element once
+        }
+        this.reportedAutoplayElements.add(video);
+        const message = {
+            userInteraction: navigator.userActivation.isActive,
+        };
+        this.messaging.notify(MSG_VIDEO_AUTOPLAY, message);
+    }
+
     addPlayObserver(video) {
+        // Reported on sight, so an element that never starts is still counted.
+        // Safe to re-run: fireTelemetryForVideoAutoplay dedupes per element.
+        if (this.videoAutoplayEnabled && video.hasAttribute('autoplay')) {
+            this.fireTelemetryForVideoAutoplay(video);
+        }
         if (this.seenVideoElements.has(video)) {
             return; // already observed
         }
         this.seenVideoElements.add(video);
-        video.addEventListener('play', () => this.fireTelemetryForVideo(video));
+        video.addEventListener('play', () => {
+            if (this.videoPlaybackEnabled) {
+                this.fireTelemetryForVideo(video);
+            }
+            // Catches script-driven playback that carries no autoplay attribute.
+            if (this.videoAutoplayEnabled && !navigator.userActivation.isActive) {
+                this.fireTelemetryForVideoAutoplay(video);
+            }
+        });
     }
 
     addListenersToAllVideos(node) {
@@ -111,9 +144,10 @@ export class WebTelemetry extends ContentFeature {
 
         this.addListenersToAllVideos(documentBody);
 
-        // Backfill: fire telemetry for already playing videos
+        // Backfill: fire telemetry for already playing videos. Playback only —
+        // these started before we could observe their attributes or activation.
         documentBody.querySelectorAll('video').forEach((video) => {
-            if (!video.paused && !video.ended) {
+            if (this.videoPlaybackEnabled && !video.paused && !video.ended) {
                 this.fireTelemetryForVideo(video);
             }
         });
@@ -130,6 +164,9 @@ export class WebTelemetry extends ContentFeature {
                             }
                         }
                     });
+                } else if (mutation.type === 'attributes' && mutation.target.tagName === 'VIDEO') {
+                    // `autoplay` set by JS after insertion.
+                    this.addPlayObserver(mutation.target);
                 }
             }
         };
@@ -137,6 +174,8 @@ export class WebTelemetry extends ContentFeature {
         observer.observe(documentBody, {
             childList: true,
             subtree: true,
+            attributes: true,
+            attributeFilter: ['autoplay'],
         });
     }
 }
