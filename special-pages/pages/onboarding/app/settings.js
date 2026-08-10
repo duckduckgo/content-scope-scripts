@@ -1,5 +1,5 @@
-import { EVERY_PAGE_ID, ORDER_V3, ORDER_V4 } from './types';
-import { stepDefinitions as defaultStepDefinitions } from './v3/data/data';
+import { EVERY_PAGE_ID, ORDER_V4 } from './types';
+import { stepDefinitions as defaultStepDefinitions } from './v4/data/data';
 
 /**
  * Settings that affect the Application, such as running order
@@ -9,7 +9,6 @@ export class Settings {
      * @param {object} params
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
-     * @param {'v3'|'v4'} [params.orderName] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./types.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
@@ -17,8 +16,7 @@ export class Settings {
      */
     constructor({
         platform = { name: 'macos' },
-        order = ORDER_V3,
-        orderName = 'v3',
+        order = ORDER_V4,
         stepDefinitions = defaultStepDefinitions,
         first = 'welcome',
         exclude = [],
@@ -26,7 +24,6 @@ export class Settings {
     } = {}) {
         this.platform = platform;
         this.order = order;
-        this.orderName = orderName;
         this.stepDefinitions = stepDefinitions;
         this.first = first;
         this.exclude = exclude;
@@ -63,30 +60,6 @@ export class Settings {
                 stepDefinitions: this.stepDefinitions,
             });
         }
-        return this;
-    }
-
-    /**
-     * @param {string|null|undefined} named
-     * @return {Settings}
-     */
-    withNamedOrder(named) {
-        if (!named) return this;
-        if (named === 'v3') {
-            return new Settings({
-                ...this,
-                orderName: named,
-                order: ORDER_V3,
-            });
-        }
-        if (named === 'v4') {
-            return new Settings({
-                ...this,
-                orderName: named,
-                order: ORDER_V4,
-            });
-        }
-        console.warn('ignoring named order:', named);
         return this;
     }
 

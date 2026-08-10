@@ -39,12 +39,34 @@ const configFiles = /** @type {const} */ ([
     'overlays.json',
     'overlays-live.json',
     'overlays-drawer.json',
+    'overlays-fullscreen-guard.json',
+    'overlays-buffering-fullscreen.json',
     'disabled.json',
     'thumbnail-overlays-disabled.json',
     'click-interceptions-disabled.json',
     'video-overlays-disabled.json',
     'video-alt-selectors.json',
 ]);
+
+/** @typedef {(typeof configFiles)[number]} ConfigFile */
+
+// fulfilled from here, not the test server: the hold takes https only and the pages are http
+const TINY_IMAGE = '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>';
+const STUB_POSTER_URL = 'https://duckduckgo.example/poster.svg';
+
+/**
+ * @param {import("@playwright/test").Route} route
+ * @param {number} status
+ */
+function fulfillPoster(route, status) {
+    return route.fulfill({
+        status,
+        contentType: 'image/svg+xml',
+        body: TINY_IMAGE,
+        // The HEAD check is a fetch, so a cross-origin answer needs the header i.ytimg.com sends
+        headers: { 'access-control-allow-origin': '*' },
+    });
+}
 
 export class DuckplayerOverlays {
     overlaysPage = '/duckplayer/pages/overlays.html';
@@ -215,6 +237,28 @@ export class DuckplayerOverlays {
         });
     }
 
+    /**
+     * Answer the synthesised thumbnail URL so the overlay can paint without the real network.
+     * Must run before navigation, since the overlay requests it as soon as it appends.
+     */
+    async stubsThumbnail() {
+        await this.page.route('https://i.ytimg.com/**/maxresdefault.jpg', (route) => fulfillPoster(route, 200));
+    }
+
+    /**
+     * The overlay paints the video's thumbnail behind its content, and records the outcome so
+     * its scrim can lighten once a real image is there.
+     */
+    async overlayThumbnailIsPainted() {
+        await expect(async () => {
+            const backgroundImage = await this.page
+                .locator('ddg-video-overlay .ddg-vpo-bg')
+                .evaluate((el) => getComputedStyle(el).backgroundImage);
+            expect(backgroundImage).toContain('url(');
+        }).toPass({ timeout: 2000 });
+        await expect(this.page.locator('ddg-video-overlay .ddg-video-player-overlay')).toHaveAttribute('data-thumb-loaded', 'true');
+    }
+
     async overlayBlocksVideo() {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 });
         await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 });
@@ -253,7 +297,7 @@ export class DuckplayerOverlays {
 
     /**
      * @param {object} [params]
-     * @param {configFiles[number]} [params.json="overlays"] - default is settings for localhost
+     * @param {ConfigFile} [params.json="overlays"] - default is settings for localhost
      * @param {string} [params.locale] - optional locale
      */
     async withRemoteConfig(params = {}) {
@@ -576,6 +620,209 @@ class DuckplayerOverlaysMobile {
         expect(await page.locator('ddg-video-overlay-mobile').count()).toBe(0);
     }
 
+    /**
+     * The buffering hold: a thumbnail overlay in its loading state, held over the player
+     * after opt-out until the video presents its first frame. The spinner joins a beat
+     * later, so it is asserted separately by the tests that care about it.
+     */
+    async bufferingFeedbackShows() {
+        const { page } = this.overlays;
+        // the inner overlay collapses to 0×0 (absolutely positioned children), so assert on the host
+        await page.locator('ddg-video-thumbnail-overlay-mobile').waitFor({ state: 'visible', timeout: 2000 });
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-video-player-overlay')).toHaveClass(/loading/);
+    }
+
+    async spinnerShows() {
+        const { page } = this.overlays;
+        await page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner').waitFor({ state: 'visible', timeout: 2000 });
+    }
+
+    /**
+     * Assert a poster was painted behind the spinner (i.e. the spinner never sits on black).
+     */
+    async bufferingFeedbackHasPoster() {
+        const { page } = this.overlays;
+        await expect(async () => {
+            const backgroundImage = await page
+                .locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-bg')
+                .evaluate((el) => getComputedStyle(el).backgroundImage);
+            expect(backgroundImage).not.toBe('none');
+            expect(backgroundImage).toContain('url(');
+        }).toPass({ timeout: 2000 });
+    }
+
+    /**
+     * Assert which poster won the candidate walk, by matching the painted URL.
+     * @param {RegExp} pattern
+     */
+    async bufferingFeedbackPosterMatches(pattern) {
+        const { page } = this.overlays;
+        await expect(async () => {
+            const backgroundImage = await page
+                .locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-bg')
+                .evaluate((el) => getComputedStyle(el).backgroundImage);
+            expect(backgroundImage).toMatch(pattern);
+        }).toPass({ timeout: 2000 });
+    }
+
+    async bufferingFeedbackIsRemoved() {
+        const { page } = this.overlays;
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile')).toHaveCount(0, { timeout: 2000 });
+    }
+
+    /**
+     * The hold stays, minus the spinner, so a video that never arrives settles on a
+     * still poster rather than the black frame the hold exists to cover.
+     */
+    async spinnerIsWithdrawn() {
+        const { page } = this.overlays;
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-spinner')).toBeHidden();
+        await expect(page.locator('ddg-video-thumbnail-overlay-mobile')).toHaveCount(1);
+    }
+
+    async bufferingFeedbackNeverShows() {
+        const { page } = this.overlays;
+        // give the opt-out teardown a beat to (not) append the hold
+        await page.waitForTimeout(200);
+        expect(await page.locator('ddg-video-thumbnail-overlay-mobile').count()).toBe(0);
+    }
+
+    async tapsBufferingFeedback() {
+        const { page } = this.overlays;
+        // .bg fills the host, so a click here bubbles to the host's dismiss handler.
+        await page.locator('ddg-video-thumbnail-overlay-mobile .ddg-vpo-bg').click({ force: true });
+    }
+
+    /**
+     * Put the player into fullscreen the way YouTube does, from a real click so the
+     * request has the user activation the Fullscreen API demands.
+     * @returns {Promise<boolean>} whether the browser granted fullscreen
+     */
+    async playerEntersFullscreen() {
+        const { page } = this.overlays;
+        await page.evaluate(() => {
+            const button = document.createElement('button');
+            button.id = 'test-enter-fullscreen';
+            button.textContent = 'fullscreen';
+            button.style.cssText = 'position:fixed;top:0;left:0;z-index:2147483647';
+            button.addEventListener('click', () => {
+                const player = /** @type {HTMLElement} */ (document.querySelector('#player'));
+                Reflect.set(
+                    window,
+                    '__fullscreenGranted',
+                    player.requestFullscreen().then(
+                        () => true,
+                        () => false,
+                    ),
+                );
+            });
+            document.body.appendChild(button);
+        });
+        await page.locator('#test-enter-fullscreen').click();
+        const granted = await page.evaluate(() => Reflect.get(window, '__fullscreenGranted'));
+        await page.locator('#test-enter-fullscreen').evaluate((el) => el.remove());
+        return granted;
+    }
+
+    /**
+     * Our overlays cover the whole screen and stop being tappable once YouTube's
+     * player is fullscreen, so an overlay showing means fullscreen must not persist.
+     */
+    async isNotFullscreen() {
+        const { page } = this.overlays;
+        await expect(async () => {
+            expect(await page.evaluate(() => document.fullscreenElement === null)).toBe(true);
+        }).toPass({ timeout: 2000 });
+    }
+
+    async overlayIsStillPresented() {
+        const { page } = this.overlays;
+        await expect(page.locator('ddg-video-overlay-mobile')).toHaveCount(1);
+    }
+
+    /**
+     * Fullscreen is left alone: either nothing is mounted that needs protecting, or
+     * the config gate is off.
+     */
+    async staysFullscreen() {
+        const { page } = this.overlays;
+        await page.waitForTimeout(200);
+        expect(await page.evaluate(() => document.fullscreenElement !== null)).toBe(true);
+    }
+
+    /**
+     * Give the player the kind of poster the hold paints first: page-supplied, so it is
+     * trusted on load and needs no round trip.
+     */
+    async stubsVideoPoster() {
+        const { page } = this.overlays;
+        await page.route(STUB_POSTER_URL, (route) => fulfillPoster(route, 200));
+        await page.locator('#player video').evaluate((el, posterUrl) => {
+            /** @type {HTMLVideoElement} */ (el).poster = posterUrl;
+        }, STUB_POSTER_URL);
+    }
+
+    /**
+     * Answer the synthesised thumbnail URLs the way YouTube does. A video without a
+     * maxres thumbnail gets a valid placeholder image under a 404, so the image loads
+     * and only the status gives the miss away — the reason those candidates are
+     * HEAD-checked rather than trusted on load.
+     */
+    async stubsMissingMaxresThumbnail() {
+        const { page } = this.overlays;
+        await page.route('https://i.ytimg.com/**/maxresdefault.jpg', (route) => fulfillPoster(route, 404));
+        await page.route('https://i.ytimg.com/**/hqdefault.jpg', (route) => fulfillPoster(route, 200));
+    }
+
+    /**
+     * Simulate the underlying video reaching its first frame, which is what the hold
+     * waits for before removing itself.
+     */
+    async firstFrameRenders() {
+        const { page } = this.overlays;
+        await page.locator('#player video').evaluate((el) => {
+            const video = /** @type {HTMLVideoElement} */ (el);
+            Object.defineProperty(video, 'paused', { configurable: true, value: false });
+            Object.defineProperty(video, 'currentTime', { configurable: true, value: 1 });
+            video.dispatchEvent(new Event('timeupdate'));
+        });
+    }
+
+    /**
+     * A fatal media error means no frame is ever coming.
+     */
+    async videoErrors() {
+        const { page } = this.overlays;
+        await page.locator('#player video').evaluate((el) => el.dispatchEvent(new Event('error')));
+    }
+
+    /**
+     * Fail an image inside the player, as a blocked ad creative does. Its error reaches the
+     * container in the capture phase exactly like a media error, so the hold has to tell
+     * them apart. Resolves once the error has fired, so the assertion after it means something.
+     */
+    async imageInsidePlayerFails() {
+        const { page } = this.overlays;
+        await page.locator('#player .html5-video-player').evaluate((el) => {
+            return new Promise((resolve) => {
+                const img = document.createElement('img');
+                img.addEventListener('error', () => resolve(null), { once: true });
+                img.src = 'data:image/png;base64,not-a-real-png';
+                el.appendChild(img);
+            });
+        });
+    }
+
+    /**
+     * Replace the media element with a fresh one, as YouTube does mid-startup, leaving the
+     * element the hold started on detached. Deliberately source-less: a copied src would
+     * 404 and clear the hold through the error path, hiding whether the swap was followed.
+     */
+    async swapsVideoElement() {
+        const { page } = this.overlays;
+        await page.locator('#player video').evaluate((el) => el.replaceWith(document.createElement('video')));
+    }
+
     async opensInfo() {
         const { page } = this.overlays;
         await page.getByLabel('Open Information Modal').click();
@@ -604,7 +851,7 @@ class DuckplayerOverlayPixels {
 }
 
 /**
- * @param {configFiles[number]} name
+ * @param {ConfigFile} name
  * @return {Record<string, any>}
  */
 function loadConfig(name) {

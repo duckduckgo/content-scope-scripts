@@ -8,9 +8,16 @@ import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/b
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js';
 import { names } from '../src/features/broker-protection/comparisons/constants.js';
 import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils/utils.js';
-import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js';
+import {
+    generatePhoneNumber,
+    generateZipCode,
+    generateStreetAddress,
+    generateDateOfBirth,
+    formatDateOfBirth,
+} from '../src/features/broker-protection/actions/generators.js';
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js';
 import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js';
+import { selectAddress } from '../src/features/broker-protection/actions/fill-form.js';
 import { isElementType } from '../src/features/broker-protection/captcha-services/utils/element.js';
 
 describe('Actions', () => {
@@ -191,6 +198,45 @@ describe('Actions', () => {
 
                 const generatedProfile = await new ProfileHashTransformer().transform(profile, params);
                 expect(generatedProfile.identifier).toMatch(/^[0-9a-f]{40}$/);
+            });
+
+            describe('extras never churn an existing identifier', () => {
+                /** A pre-extras profile, exactly as brokers produced it before extras existed. */
+                const oldShape = {
+                    name: 'John Smith',
+                    alternativeNames: [],
+                    age: '40',
+                    addresses: [{ city: 'Chicago', state: 'IL' }],
+                    phoneNumbers: [],
+                    relatives: [],
+                };
+
+                const cases = {
+                    'no extras anywhere': oldShape,
+                    'extras at both levels': {
+                        ...oldShape,
+                        addresses: [{ city: 'Chicago', state: 'IL', extras: { street: '1 Main St', zip: '60602' } }],
+                        extras: { county: 'Cook County' },
+                    },
+                    // Pre-extras, addressFull discarded street/zip, so several full addresses in one city
+                    // collapsed to a single {city,state}. Both survive now, so the hash input must still
+                    // collapse them or every such broker's identifier would churn.
+                    'several addresses in one city': {
+                        ...oldShape,
+                        addresses: [
+                            { city: 'Chicago', state: 'IL', extras: { street: '1 Main St', zip: '60602' } },
+                            { city: 'Chicago', state: 'IL', extras: { street: '2 Oak Ave', zip: '60603' } },
+                        ],
+                    },
+                };
+
+                Object.entries(cases).forEach(([name, profile]) => {
+                    it(`hashes to the pre-extras identifier: ${name}`, async () => {
+                        const params = { profileUrl: { identifierType: /** @type {IdentifierType} */ ('hash') } };
+                        const transformed = await new ProfileHashTransformer().transform(profile, params);
+                        expect(transformed.identifier).toBe(await hashObject(oldShape));
+                    });
+                });
             });
         });
 
@@ -625,6 +671,30 @@ describe('Actions', () => {
             expect(() => getComparisonFunction('!!')).toThrow();
         });
     });
+
+    describe('fillForm', () => {
+        describe('selectAddress', () => {
+            const addresses = [
+                { city: 'manassas', state: 'va', extras: { street: '14155 Walton Dr' } },
+                { city: 'Livingston', state: 'TX' },
+            ];
+
+            it('returns the first address matching any user address, comparing city/state case-insensitively', () => {
+                expect(selectAddress(addresses, [{ city: 'Manassas', state: 'VA' }])).toBe(addresses[0]);
+                expect(selectAddress(addresses, [{ city: 'livingston', state: 'tx' }])).toBe(addresses[1]);
+            });
+
+            it('falls back to the first address when none match or there is no user profile', () => {
+                expect(selectAddress(addresses, [{ city: 'Nowhere', state: 'ZZ' }])).toBe(addresses[0]);
+                expect(selectAddress(addresses, undefined)).toBe(addresses[0]);
+            });
+
+            it('returns null for an empty or absent address list', () => {
+                expect(selectAddress([], addresses)).toBeNull();
+                expect(selectAddress(undefined, addresses)).toBeNull();
+            });
+        });
+    });
 });
 
 describe('generators', () => {
@@ -653,6 +723,69 @@ describe('generators', () => {
                 expect(typeof streetAddress).toEqual('string');
                 expect(streetAddress).toMatch(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/);
             });
+        });
+    });
+    describe('generateDateOfBirth', () => {
+        /**
+         * @param {string} dob - `YYYY-MM-DD`
+         * @param {Date} on
+         * @return {number}
+         */
+        function ageOn(dob, on) {
+            const [year, month, day] = dob.split('-').map(Number);
+            const birthdayThatYear = new Date(on.getFullYear(), month - 1, day);
+            return on.getFullYear() - year - (on < birthdayThatYear ? 1 : 0);
+        }
+
+        // A leap day, the day before one, and an ordinary day
+        const days = [new Date(2028, 1, 29), new Date(2028, 1, 28), new Date(2026, 6, 28)];
+
+        it('generates a date of birth for someone of exactly that age', () => {
+            days.forEach((today) => {
+                [0, 18, 41, 99].forEach((age) => {
+                    // Enough draws to cover the whole year the date can be picked from
+                    Array.from({ length: 365 }).forEach(() => {
+                        const dob = generateDateOfBirth(age, today);
+                        expect(dob).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+                        expect(ageOn(dob, today)).toBe(age);
+                    });
+                });
+            });
+        });
+    });
+    describe('formatDateOfBirth', () => {
+        it('fills each token from the date', () => {
+            /** @type {[string, string][]} */
+            const cases = [
+                ['YYYY', '1975'],
+                ['YY', '75'],
+                ['MMMM', 'March'],
+                ['MMM', 'Mar'],
+                ['MM', '03'],
+                ['M', '3'],
+                ['DD', '07'],
+                ['D', '7'],
+            ];
+            cases.forEach(([format, expected]) => {
+                expect(formatDateOfBirth('1975-03-07', format)).toBe(expected);
+            });
+        });
+
+        it('keeps anything that is not a token as a literal', () => {
+            expect(formatDateOfBirth('1975-03-07', 'MM/DD/YYYY')).toBe('03/07/1975');
+            expect(formatDateOfBirth('1975-03-07', 'D.M.YY')).toBe('7.3.75');
+            expect(formatDateOfBirth('1975-03-07', 'MMMM D, YYYY')).toBe('March 7, 1975');
+        });
+
+        it('defaults to the format a date input expects', () => {
+            expect(formatDateOfBirth('1975-03-07')).toBe('1975-03-07');
+        });
+
+        it('reads a date of birth in the local timezone', () => {
+            // `new Date('1975-01-01')` would be UTC midnight, which is the last day of 1974 in any
+            // timezone behind UTC.
+            expect(formatDateOfBirth('1975-01-01', 'YYYY-MM-DD')).toBe('1975-01-01');
+            expect(formatDateOfBirth('1975-12-31', 'YYYY-MM-DD')).toBe('1975-12-31');
         });
     });
 });

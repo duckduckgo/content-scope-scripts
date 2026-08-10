@@ -79,6 +79,8 @@ describe('test-pages/*/config/*.json schema validation', () => {
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/disabled.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays-drawer.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays-fullscreen-guard.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/overlays-buffering-fullscreen.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/thumbnail-overlays-disabled.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/video-alt-selectors.json'),
         path.resolve(__dirname, '../integration-test/test-pages/duckplayer/config/video-overlays-disabled.json'),

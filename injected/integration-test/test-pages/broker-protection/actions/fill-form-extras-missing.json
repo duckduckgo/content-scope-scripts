@@ -1,0 +1,24 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "fill-extras-missing",
+            "selector": "#contact-form",
+            "dataSource": "extractedProfile",
+            "elements": [{ "type": "ssn", "selector": "#StreetAddress" }]
+        },
+        "data": {
+            "extractedProfile": {
+                "name": "John Sample",
+                "addresses": [
+                    { "city": "Baytown", "state": "TX", "extras": { "street": "100 Sample Dr", "zip": "77523" } }
+                ]
+            },
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Sample",
+                "addresses": [{ "city": "Baytown", "state": "TX" }]
+            }
+        }
+    }
+}

@@ -796,6 +796,221 @@ describe('WebDetection', () => {
             });
         });
 
+        describe('text matching with xpath', () => {
+            // Excludes text that is in the DOM but never rendered, so a pattern appearing only
+            // inside a <script> body does not match.
+            const RENDERED_TEXT =
+                '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]';
+
+            /**
+             * @param {string} html
+             * @returns {boolean}
+             */
+            function matchRenderedText(html) {
+                return matchInDOM(html, { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } });
+            }
+
+            it('should not match when the pattern is absent', () => {
+                expect(matchRenderedText('<p>Hello!</p>')).toBe(false);
+            });
+
+            it('should match text wrapped in elements', () => {
+                expect(matchRenderedText('<div class="wall"><p>adblocker detected</p></div>')).toBe(true);
+            });
+
+            it('should match bare text in body', () => {
+                expect(matchRenderedText('adblocker detected')).toBe(true);
+            });
+
+            it('should match bare text alongside a script without the pattern', () => {
+                expect(matchRenderedText(`adblocker detected<script>console.log('Hello!');</script>`)).toBe(true);
+            });
+
+            it('should not match when the pattern only appears inside a script', () => {
+                expect(matchRenderedText('<div><script>var msg = "adblocker detected"; showWall(msg);</script></div>')).toBe(false);
+            });
+
+            it('should match when the pattern appears in both a rendered subtree and a script', () => {
+                expect(
+                    matchRenderedText(
+                        '<div class="wall"><p>adblocker detected</p></div><script>var msg = "adblocker detected"; log(msg);</script>',
+                    ),
+                ).toBe(true);
+            });
+
+            it('should match bare text that is a sibling of a script containing the pattern', () => {
+                expect(matchRenderedText('adblocker detected<script>var msg = "adblocker detected"; log(msg);</script>')).toBe(true);
+            });
+
+            it('should match a pattern spanning inline element boundaries', () => {
+                // Text of all selected nodes is concatenated, so patterns are not confined to one text node
+                expect(matchRenderedText('<div>adblocker <b>detected</b></div>')).toBe(true);
+            });
+
+            it('should not match when the pattern only appears in a style element', () => {
+                expect(matchRenderedText('<style>/* adblocker detected */</style>')).toBe(false);
+            });
+
+            it('should support ancestry-based scoping', () => {
+                const match = { text: { pattern: 'adblocker', xpath: '//div[@id="wall"]//text()' } };
+                expect(matchInDOM('<div id="wall"><span>adblocker</span></div>', match)).toBe(true);
+                expect(matchInDOM('<div id="other"><span>adblocker</span></div>', match)).toBe(false);
+            });
+
+            it('should match if ANY expression matches (OR)', () => {
+                const match = { text: { pattern: 'adblocker', xpath: ['//div[@id="a"]//text()', '//div[@id="b"]//text()'] } };
+                expect(matchInDOM('<div id="a">adblocker</div><div id="b">other</div>', match)).toBe(true);
+                expect(matchInDOM('<div id="a">other</div><div id="b">adblocker</div>', match)).toBe(true);
+                expect(matchInDOM('<div id="a">other</div><div id="b">none</div>', match)).toBe(false);
+            });
+
+            it('should not fall back to body when only xpath is provided', () => {
+                // `body` is the implicit selector only when the condition names no source of its own
+                expect(matchInDOM('<p>adblocker detected</p>', { text: { pattern: 'adblocker', xpath: '//div//text()' } })).toBe(false);
+            });
+
+            it('should combine with selector as a disjunction', () => {
+                const match = { text: { pattern: 'adblocker', selector: '#viaSelector', xpath: '//div[@id="viaXpath"]//text()' } };
+                expect(matchInDOM('<div id="viaSelector">adblocker</div>', match)).toBe(true);
+                expect(matchInDOM('<div id="viaXpath">adblocker</div>', match)).toBe(true);
+                expect(matchInDOM('<div id="neither">adblocker</div>', match)).toBe(false);
+            });
+
+            it('should see content added between evaluations', () => {
+                // Compiled expressions are reused across evaluations; the DOM they run against is not
+                const dom = new JSDOM('<!DOCTYPE html><html><body><p>Loading...</p></body></html>');
+                const originalDocument = globalThis.document;
+                globalThis.document = dom.window.document;
+                try {
+                    const match = { text: { pattern: 'adblocker detected', xpath: RENDERED_TEXT } };
+                    expect(evaluateMatch(match)).toBe(false);
+                    dom.window.document.body.insertAdjacentHTML('beforeend', '<div class="wall">adblocker detected</div>');
+                    expect(evaluateMatch(match)).toBe(true);
+                } finally {
+                    globalThis.document = originalDocument;
+                }
+            });
+
+            it('should throw on an invalid expression, surfacing as a detector error', () => {
+                expect(() => matchInDOM('<p>adblocker</p>', { text: { pattern: 'adblocker', xpath: '//[bad' } })).toThrow();
+            });
+
+            describe('chunked scanning', () => {
+                /**
+                 * Selected text is scanned in chunks rather than concatenated in full. Each case
+                 * below sizes `chunkSize` to the fixture so flushes land at known offsets.
+                 *
+                 * @param {string} html
+                 * @param {string} pattern
+                 * @param {{ chunkSize?: number, chunkTail?: number }} [xpathConfig]
+                 * @returns {boolean}
+                 */
+                function matchChunked(html, pattern, xpathConfig) {
+                    return matchInDOM(html, { text: { pattern, xpath: RENDERED_TEXT, xpathConfig } });
+                }
+
+                it('should match across node boundaries when flushing on every node', () => {
+                    // chunkSize below the length of a single node, so every node triggers a test.
+                    // chunkTail is set explicitly because the derived default would floor to 0 here.
+                    expect(
+                        matchChunked('<div>adblocker <b>detected</b></div>', 'adblocker detected', { chunkSize: 4, chunkTail: 20 }),
+                    ).toBe(true);
+                });
+
+                it('should derive a chunkTail of 0 from a chunkSize below the tail ratio', () => {
+                    // floor(4 / 16) is 0, so nothing is retained and the straddling match is lost.
+                    // Config CI keeps chunkSize well above this; pinned so the arithmetic is explicit.
+                    expect(matchChunked('<div>adblocker <b>detected</b></div>', 'adblocker detected', { chunkSize: 4 })).toBe(false);
+                });
+
+                it('should match a pattern straddling a flush boundary', () => {
+                    // First node is exactly one chunk, so the flush lands mid-phrase
+                    const html = `<span>${'z'.repeat(90)}adblocker </span><span>detected</span>`;
+                    expect(matchChunked(html, 'adblocker detected', { chunkSize: 100, chunkTail: 20 })).toBe(true);
+                });
+
+                it('should miss a straddling match longer than the retained tail', () => {
+                    // Documented limitation: the tail bounds the longest match that survives a
+                    // boundary. Remedied from config by raising chunkTail or disabling chunking.
+                    const html = `<span>${'z'.repeat(90)}adblocker </span><span>detected</span>`;
+                    expect(matchChunked(html, 'adblocker detected', { chunkSize: 100, chunkTail: 2 })).toBe(false);
+                    expect(matchChunked(html, 'adblocker detected', { chunkSize: 0 })).toBe(true);
+                });
+
+                it('should not let a word-boundary pattern assert at a mid-word chunk cut', () => {
+                    // Cutting at length - chunkTail would start the buffer at "adblocker", where \b
+                    // asserts against the start of the string. The real preceding character is a
+                    // word character, so the walk-back extends the tail to include it.
+                    const html = `<span>${'z'.repeat(91)}adblocker</span>`;
+                    expect(matchChunked(html, '\\badblocker', { chunkSize: 100, chunkTail: 9 })).toBe(false);
+                    expect(matchChunked(html, '\\badblocker', { chunkSize: 0 })).toBe(false);
+                });
+
+                it('should still find a word-boundary match that the walk-back keeps intact', () => {
+                    const html = `<span>${'z'.repeat(90)} adblocker</span>`;
+                    expect(matchChunked(html, '\\badblocker', { chunkSize: 100, chunkTail: 9 })).toBe(true);
+                });
+
+                it('should cap the walk-back at chunkTail when that is the smaller ceiling', () => {
+                    // The node ends in an unbroken run of word characters, so the walk-back runs
+                    // until it hits its ceiling. That fixes the retained text at exactly 2 * chunkTail.
+                    const html = `<span>${'z'.repeat(75)}0123456789abcdefghijklmno</span><span>detected</span>`;
+                    const config = { chunkSize: 100, chunkTail: 10 };
+                    // Needs exactly the 20 retained characters
+                    expect(matchChunked(html, '56789abcdefghijklmnodetected', config)).toBe(true);
+                    // Needs 21, one past the ceiling
+                    expect(matchChunked(html, '456789abcdefghijklmnodetected', config)).toBe(false);
+                });
+
+                it('should cap the walk-back at the word-length limit for a large chunkTail', () => {
+                    // Same unbroken run, but a tail past the 64 character word-length ceiling, so
+                    // the walk stops there instead: 100 retained plus at most 64 walked back.
+                    const run = 'abcdefghij'.repeat(20);
+                    const html = `<span>${'z'.repeat(800)}${run}</span><span>detected</span>`;
+                    const config = { chunkSize: 1000, chunkTail: 100 };
+                    // Needs exactly the 164 retained characters
+                    expect(matchChunked(html, run.slice(36) + 'detected', config)).toBe(true);
+                    // Needs 165, one past the ceiling
+                    expect(matchChunked(html, run.slice(35) + 'detected', config)).toBe(false);
+                });
+
+                it('should honour chunkTail: 0 rather than promoting it to a floor', () => {
+                    const html = `<span>${'z'.repeat(90)}adblocker </span><span>detected</span>`;
+                    expect(matchChunked(html, 'adblocker detected', { chunkSize: 100, chunkTail: 0 })).toBe(false);
+                });
+
+                it('should terminate and stay correct when chunkTail far exceeds chunkSize', () => {
+                    // Pins the structural progress property: flushing is driven by characters added
+                    // since the last test, so an oversized tail cannot stall the scan. Flushing on
+                    // total buffer length instead would re-test the whole buffer for every node.
+                    const html = `<span>${'z'.repeat(200)}adblocker </span><span>detected</span>`;
+                    expect(matchChunked(html, 'adblocker detected', { chunkSize: 10, chunkTail: 1000 })).toBe(true);
+                    expect(matchChunked(html, 'absent phrase', { chunkSize: 10, chunkTail: 1000 })).toBe(false);
+                });
+
+                it('should use the built-in defaults when xpathConfig is omitted', () => {
+                    // Smaller than the default chunk, so this is a single test either way
+                    expect(matchChunked('<div>adblocker <b>detected</b></div>', 'adblocker detected')).toBe(true);
+                    expect(matchChunked('<div>adblocker <b>detected</b></div>', 'adblocker detected', {})).toBe(true);
+                });
+
+                it('should produce concat-identical results across the fixture set with chunkSize: 0', () => {
+                    const fixtures = [
+                        '<p>Hello!</p>',
+                        '<div class="wall"><p>adblocker detected</p></div>',
+                        'adblocker detected',
+                        `adblocker detected<script>console.log('Hello!');</script>`,
+                        '<div><script>var msg = "adblocker detected"; showWall(msg);</script></div>',
+                        '<div>adblocker <b>detected</b></div>',
+                        '<style>/* adblocker detected */</style>',
+                    ];
+                    for (const html of fixtures) {
+                        expect(matchChunked(html, 'adblocker detected', { chunkSize: 0 })).toBe(matchRenderedText(html));
+                    }
+                });
+            });
+        });
+
         describe('element matching', () => {
             describe('visibility: any', () => {
                 it('should match when element exists', () => {

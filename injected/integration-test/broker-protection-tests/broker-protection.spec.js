@@ -203,6 +203,7 @@ test.describe('Broker Protection communications', () => {
                         {
                             city: 'Orlando',
                             state: 'FL',
+                            extras: { street: '123 Main St', zip: '81010' },
                         },
                     ],
                     relatives: [],
@@ -427,6 +428,97 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isErrorMessage(response);
         });
+
+        test('extract recovers a full street address from an href slug, de-slugging only the text parts', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-address-href.html');
+            await dbp.receivesAction('extract-address-href.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John B Sample',
+                    alternativeNames: [],
+                    addresses: [
+                        { city: 'Acworth', state: 'GA', extras: { street: '100 Sample Dr', zip: '30102' } },
+                        { city: 'Springfield', state: 'IL', extras: { street: '121-123 Main St', zip: '62704' } },
+                        { city: 'New York', state: 'NY', extras: { street: '1234 Martin Luther King Jr Blvd', zip: '10003' } },
+                        { city: 'Franklin', state: 'TN', extras: { street: '55 Old Mill Rd', zip: '37064' } },
+                    ],
+                    phoneNumbers: [],
+                    relatives: [],
+                },
+            ]);
+        });
+
+        test('extract recovers a full street address from a title attribute, keeping same-city addresses with distinct streets', async ({
+            page,
+        }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-address-title.html');
+            await dbp.receivesAction('extract-address-title.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Sample',
+                    alternativeNames: [],
+                    addresses: [
+                        { city: 'Winston-Salem', state: 'NC', extras: { street: '500 Old Mill Rd', zip: '27101' } },
+                        { city: 'Baytown', state: 'TX', extras: { street: '100 Sample Dr', zip: '77523' } },
+                        { city: 'Baytown', state: 'TX', extras: { street: '200 Sample Ct', zip: '77523' } },
+                        { city: 'Livingston', state: 'TX', extras: { street: '300 Example Rd', zip: '77351' } },
+                        { city: 'Livingston', state: 'TX', extras: { street: '400 Example Ln', zip: '77351' } },
+                    ],
+                    phoneNumbers: [],
+                    relatives: [],
+                },
+            ]);
+        });
+
+        test('extract recovers a full street address from link text', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-address-text.html');
+            await dbp.receivesAction('extract-address-text.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John A Sample',
+                    age: '40',
+                    alternativeNames: [],
+                    addresses: [
+                        { city: 'Baytown', state: 'TX', extras: { street: '100 Sample Dr', zip: '77523' } },
+                        { city: 'Livingston', state: 'TX', extras: { street: '300 Example Rd', zip: '77351' } },
+                        { city: 'Livingston', state: 'TX', extras: { street: '400 Example Ln', zip: '77351' } },
+                    ],
+                    phoneNumbers: [],
+                    relatives: [],
+                },
+            ]);
+        });
+
+        test('extract captures an unknown profile field into extras', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('results-profile-extras.html');
+            await dbp.receivesAction('extract-profile-extras.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Sample',
+                    alternativeNames: [],
+                    addresses: [{ city: 'Springfield', state: 'IL' }],
+                    phoneNumbers: [],
+                    relatives: [],
+                    extras: { shoeSize: '10.5' },
+                },
+            ]);
+        });
     });
     test.describe('Executes action and sends success message', () => {
         test('buildUrl', async ({ page }, workerInfo) => {
@@ -494,6 +586,46 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
             await dbp.doesInputValueEqual('#profile_url', 'https://www.veripages.com/profile/John-Smith-12345');
+        });
+
+        test('fillForm generates a date of birth matching the extracted age', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-generated-dob.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.isDateOfBirthForAge('#user_dob', 51);
+            await dbp.doesInputValueEqual('#user_first_name', 'John');
+        });
+
+        test('fillForm errors when a generated date of birth has no age to work from', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-generated-dob-no-age.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isErrorMessage(response);
+            await dbp.doesInputValueEqual('#user_dob', '');
+        });
+
+        test('fillForm spreads one generated date of birth across separately formatted fields', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-generated-dob-parts.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.isDateOfBirthSplitAcrossFields(
+                {
+                    date: '#user_dob',
+                    year: '#user_dob_year',
+                    month: '#user_dob_month',
+                    day: '#user_dob_day',
+                    us: '#user_dob_us',
+                },
+                51,
+            );
         });
 
         test('fillForm with optional information', async ({ page }, workerInfo) => {
@@ -702,6 +834,67 @@ test.describe('Broker Protection communications', () => {
 
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
+        });
+
+        test('fillForm resolves street from extras, city/state from the selected address, and fills a present middleName', async ({
+            page,
+        }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('opt-out-form.html');
+            await dbp.receivesAction('fill-form-extras.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#FirstName', 'John');
+            await dbp.doesInputValueEqual('#MiddleName', 'Andrew');
+            await dbp.doesInputValueEqual('#LastName', 'Sample');
+            await dbp.doesInputValueEqual('#StreetAddress', '100 Sample Dr');
+            await dbp.doesInputValueEqual('#City', 'Baytown');
+            await dbp.doesInputValueEqual('#State', 'TX');
+        });
+
+        test('fillForm selects the profile address matching the user profile', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('opt-out-form.html');
+            await dbp.receivesAction('fill-form-extras-address-selection.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#StreetAddress', '300 Example Rd');
+            await dbp.doesInputValueEqual('#City', 'Livingston');
+            await dbp.doesInputValueEqual('#State', 'TX');
+        });
+
+        test('fillForm falls back to the first address when there is no user profile', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('opt-out-form.html');
+            await dbp.receivesAction('fill-form-extras-no-user-profile.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#StreetAddress', '100 Sample Dr');
+            await dbp.doesInputValueEqual('#City', 'Baytown');
+        });
+
+        test('fillForm skips an optional field that is present but empty, without erroring', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('opt-out-form.html');
+            await dbp.receivesAction('fill-form-optional-empty.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            // A present-but-empty optional field (middleName) is skipped rather than failing the
+            // form; firstName confirms the other fields still fill.
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#FirstName', 'John');
+        });
+
+        test('fillForm errors when an element type is in neither known keys nor extras', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('opt-out-form.html');
+            await dbp.receivesAction('fill-form-extras-missing.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isErrorMessage(response);
         });
     });
 

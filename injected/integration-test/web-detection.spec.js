@@ -70,6 +70,22 @@ const CAPTCHA_DETECTORS = {
 };
 
 /**
+ * Adwall detectors using an `xpath` text condition to select only rendered text, so a pattern that
+ * appears only inside a `<script>` body does not match. Not in the test-page config JSON because
+ * those files are validated against the published privacy-configuration schema.
+ */
+const XPATH_DETECTORS = {
+    rendered_text: {
+        match: {
+            text: {
+                pattern: ['ad ?block(er)? detected'],
+                xpath: '//body//text()[not(ancestor::script) and not(ancestor::style) and not(ancestor::template) and not(ancestor::noscript)]',
+            },
+        },
+    },
+};
+
+/**
  * Helper class for web-detection tests.
  */
 class WebDetectionTestHelper {
@@ -181,6 +197,24 @@ class WebDetectionTestHelper {
     }
 
     /**
+     * Set up collector with the xpath adwall detector group installed.
+     *
+     * @param {import('@playwright/test').Page} page
+     * @param {Record<string, any>} projectUse
+     * @returns {Promise<{collector: ResultsCollector, helper: WebDetectionTestHelper}>}
+     */
+    static async setupXpathTest(page, projectUse) {
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        config.features.webDetection.settings.detectors.xpath = XPATH_DETECTORS;
+
+        const collector = ResultsCollector.create(page, projectUse);
+        await collector.load('/web-detection/index.html', config);
+        const helper = new WebDetectionTestHelper(page, collector);
+
+        return { collector, helper };
+    }
+
+    /**
      * Set up collector for captcha detection tests: enables webEvents and installs the captcha
      * detector group (auto-run + per-provider fireEvent), with fake timers.
      *
@@ -245,6 +279,37 @@ test.describe('WebDetection Feature', () => {
             const results = await helper.runDetectors();
 
             // No detectors should match on a clean page
+            expect(results.length).toBe(0);
+        });
+    });
+
+    test.describe('text pattern matching with xpath', () => {
+        test('does not match a pattern that only appears inside a script', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupXpathTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/xpath-script-only.html');
+
+            const results = await helper.runDetectors();
+
+            expect(results.find((r) => r.detectorId === 'xpath.rendered_text')).toBeUndefined();
+            // The selector-based detector matches the same page - this is the false positive being avoided
+            expect(results.find((r) => r.detectorId === 'adwall.generic_text')?.detected).toBe(true);
+        });
+
+        test('matches rendered text alongside a script containing the same pattern', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupXpathTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/xpath-rendered-text.html');
+
+            const results = await helper.runDetectors();
+
+            expect(results.find((r) => r.detectorId === 'xpath.rendered_text')?.detected).toBe(true);
+        });
+
+        test('does not match on a clean page', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupXpathTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/no-detection.html');
+
+            const results = await helper.runDetectors();
+
             expect(results.length).toBe(0);
         });
     });

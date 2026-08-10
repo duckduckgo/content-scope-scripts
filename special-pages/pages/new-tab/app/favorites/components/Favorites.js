@@ -5,7 +5,7 @@ import { memo } from 'preact/compat';
 import styles from './Favorites.module.css';
 import { ShowHideBar, ShowHideButtonPill } from '../../components/ShowHideButton.jsx';
 import { useTypedTranslationWith } from '../../types.js';
-import { usePlatformName } from '../../settings.provider.js';
+import { usePlatformName, useNewTabPageRebranding } from '../../settings.provider.js';
 import { useDropzoneSafeArea } from '../../dropzone.js';
 import { TileRow } from './TileRow.js';
 import { FavoritesContext } from './FavoritesProvider.js';
@@ -49,6 +49,7 @@ export function Favorites({ favorites, expansion, toggle, openContextMenu, openF
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
 
+    const isRebrand = useNewTabPageRebranding();
     const hiddenCount = expansion === 'collapsed' ? favorites.length - ROW_CAPACITY : 0;
     const rowHeight = ITEM_HEIGHT + ROW_GAP;
     const canToggleExpansion = favorites.length >= ROW_CAPACITY;
@@ -78,6 +79,7 @@ export function Favorites({ favorites, expansion, toggle, openContextMenu, openF
                 {canToggleExpansion && (
                     <ShowHideBar>
                         <ShowHideButtonPill
+                            variant={isRebrand ? 'rebrand' : 'default'}
                             buttonAttrs={{
                                 'aria-expanded': expansion === 'expanded',
                                 'aria-pressed': expansion === 'expanded',

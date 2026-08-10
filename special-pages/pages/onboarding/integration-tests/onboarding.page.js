@@ -66,7 +66,7 @@ export class OnboardingPage {
      * This method ensures that mocks are installed and routes are set up before navigating to the page.
      *
      * @param {Object} [params] - Optional parameters for opening the page.
-     * @param {'app' | 'components'} [params.env] - Optional parameters for opening the page.
+     * @param {'app'} [params.env] - Optional parameters for opening the page.
      * @param {import('../app/types.js').Step['id']} [params.page] - Optional start page
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {boolean} [params.debugState] - Optional flag to show debug state overlay (default: true)

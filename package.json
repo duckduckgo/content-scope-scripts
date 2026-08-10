@@ -49,13 +49,13 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "minimist": "^1.2.8",
     "prettier": "3.8.4",
-    "stylelint": "^17.14.0",
+    "stylelint": "^17.14.1",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-csstree-validator": "^4.0.0",
     "ts-json-schema-generator": "^2.9.0",
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.64.0"
+    "typescript-eslint": "^8.65.0"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.3",
