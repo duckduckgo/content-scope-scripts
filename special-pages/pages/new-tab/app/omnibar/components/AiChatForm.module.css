@@ -46,6 +46,7 @@
     display: flex;
     justify-content: space-between;
     left: 0;
+    outline: none;
     padding: var(--sp-3);
     position: absolute; /* Fix .buttons to <Container /> so that it animates smoothly when container resizes */
     right: 0;
