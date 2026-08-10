@@ -5,7 +5,7 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
-import { DDGProxy, DDGReflect } from '../utils';
+import { DDGProxy, DDGReflect } from '../utils.js';
 import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth.
