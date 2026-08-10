@@ -609,6 +609,25 @@ test.describe('Broker Protection communications', () => {
             await dbp.doesInputValueEqual('#user_dob', '');
         });
 
+        test('fillForm spreads one generated date of birth across separately formatted fields', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-generated-dob-parts.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.isDateOfBirthSplitAcrossFields(
+                {
+                    date: '#user_dob',
+                    year: '#user_dob_year',
+                    month: '#user_dob_month',
+                    day: '#user_dob_day',
+                    us: '#user_dob_us',
+                },
+                51,
+            );
+        });
+
         test('fillForm with optional information', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();

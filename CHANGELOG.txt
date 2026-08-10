@@ -1,1 +1,1 @@
-- (feat)rebrand: NTP  (#2923)
+- Support formats for a generated date of birth (#2936)

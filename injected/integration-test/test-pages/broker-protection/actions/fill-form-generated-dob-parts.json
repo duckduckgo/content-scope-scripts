@@ -1,0 +1,24 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "fill-generated-dob-parts",
+            "selector": ".ahm",
+            "dataSource": "extractedProfile",
+            "elements": [
+                { "type": "$generated_dob$", "selector": "#user_dob" },
+                { "type": "$generated_dob$", "selector": "#user_dob_year", "format": "YYYY" },
+                { "type": "$generated_dob$", "selector": "#user_dob_month", "format": "MM" },
+                { "type": "$generated_dob$", "selector": "#user_dob_day", "format": "D" },
+                { "type": "$generated_dob$", "selector": "#user_dob_us", "format": "MM/DD/YYYY" }
+            ]
+        },
+        "data": {
+            "extractedProfile": {
+                "firstName": "John",
+                "lastName": "Sample",
+                "age": "51"
+            }
+        }
+    }
+}
