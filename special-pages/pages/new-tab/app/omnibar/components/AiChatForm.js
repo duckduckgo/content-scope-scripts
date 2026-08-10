@@ -204,11 +204,7 @@ export function AiChatForm({
                 onClick={emitChange}
             />
             {children}
-            <div
-                tabIndex={-1} // Needed so that WebKit sets event.relatedTarget when firing blur event
-                class={styles.buttons}
-                data-testid="omnibar-chat-toolbar"
-            >
+            <div tabIndex={-1} class={styles.buttons}>
                 {toolbarLeft}
                 <div class={styles.rightButtons}>{toolbarRight}</div>
             </div>

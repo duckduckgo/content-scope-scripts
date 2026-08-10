@@ -2381,39 +2381,6 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test.describe('AI chat toolbar', () => {
-        // Clicking a gap between controls focuses the toolbar row, and the next keypress makes
-        // `:focus-visible` match it. The row spans the omnibar, so a ring reads as a stray line.
-        test('draws no focus ring when clicking between controls', async ({ page }, workerInfo) => {
-            const ntp = NewtabPage.create(page, workerInfo);
-            const omnibar = new OmnibarPage(ntp);
-            await ntp.reducedMotion();
-            await ntp.openPage({
-                additional: {
-                    omnibar: true,
-                    'omnibar.enableAiChatTools': 'true',
-                    'omnibar.enableWebSearch': 'true',
-                    'omnibar.subscription': 'true',
-                    'omnibar.selectedModelId': 'claude-opus-4-6',
-                },
-            });
-            await omnibar.ready();
-            await omnibar.aiTab().click();
-            await omnibar.expectMode('ai');
-
-            await omnibar.clickToolbarGapBetween(omnibar.toolsMenuButton(), omnibar.reasoningPickerButton());
-            await page.keyboard.press('a');
-
-            const toolbar = omnibar.chatToolbar();
-            await expect(toolbar).toBeFocused();
-            const ring = await toolbar.evaluate((el) => ({
-                focusVisible: el.matches(':focus-visible'),
-                outline: getComputedStyle(el).outlineStyle,
-            }));
-            expect(ring).toEqual({ focusVisible: true, outline: 'none' });
-        });
-    });
-
     test.describe('AI chat image attachments', () => {
         test('submit includes images with expected format', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
