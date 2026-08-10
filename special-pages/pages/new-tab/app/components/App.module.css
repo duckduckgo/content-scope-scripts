@@ -1,5 +1,6 @@
 @import url("../../../../shared/styles/variables.css");
 @import url("../../../../shared/styles/theme-mappings.css");
+@import url("@duckduckgo/design-tokens/build/desktop-browsers/ntp.css");
 @import url("../styles/base.css");
 @import url("../styles/ntp-theme.css");
 
@@ -28,7 +29,21 @@ body[data-animate-background="true"] {
 }
 
 body[data-rebrand="true"] {
-    /* NTP rebrand styles go here. */
+    /* Flat accent buttons — no macOS shine gradient */
+    &[data-platform-name="macos"] {
+        --macos-control-accent-branded-background-rest: var(--macos-accent-color);
+        --macos-control-accent-branded-background-hover: var(--macos-accent-color-secondary);
+        --macos-control-accent-branded-background-pressed: var(--macos-accent-color-tertiary);
+        --macos-control-accent-branded-background-focus: var(--macos-accent-color);
+
+        /* Secondary: Figma 6%/6% via NTP functional tokens */
+        --macos-control-standard-background-rest: var(--ds-ntp-light-button-secondary-rest-background-color);
+        --macos-control-standard-background-rest--dark: var(--ds-ntp-dark-button-secondary-rest-background-color);
+    }
+
+    /* RMF's hover/active/dark-rest fixes live in RemoteMessagingFramework.module.css
+       via local classes — see PR description for why :global() class-name guesses
+       don't work here. */
 }
 
 :global(.layout-centered) {

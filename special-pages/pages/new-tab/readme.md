@@ -64,7 +64,7 @@
    - `true`
 
 ### Theme Variant
- - **Purpose**: Sets a visual theme variant to customize the default background colors
+ - **Purpose**: Sets a visual theme variant and simulates native support for theme variants
  - **Parameter**: `themeVariant`
  - **Example**: `?themeVariant=violet&theme=light`
  - **Options**:
@@ -76,7 +76,10 @@
    - `rose` - Rose tones
    - `orange` - Orange tones
    - `desert` - Desert tones
- - **Note**: Works with default backgrounds only. Custom colors/gradients override the variant.
+ - **Notes**:
+   - Providing this parameter makes `customizer.themeVariant` defined, which sets `hasThemeVariants=true` and displays `ThemeSection` in the Customizer (Light/Dark/System controls and color swatches) even when running outside the native browser.
+   - Without native data or this parameter, the Customizer falls back to `BrowserThemeSection`.
+   - Theme variants work with default backgrounds only. Custom colors and gradients override the variant.
 
  ## Feature Parameters
 
@@ -182,16 +185,15 @@
  - **Options**:
    - `empty`
 
- ### Feed Controls
- - **Purpose**: Modifies feed display and behavior
- - **Parameter**: `feed`
- - **Example**: `?feed=activity`
+ ### Protections Feed
+ - **Purpose**: Selects the initial Protections Report tab
+ - **Parameter**: `protections_feed`
+ - **Example**: `?protections_feed=activity`
  - **Options**:
-   - `stats` - Displays the Privacy Stats widget
-   - `activity` - Displays the Activity widget
-   - `both` - Display both privacy widgets
+   - `privacy-stats` - Displays the Summary tab (default)
+   - `activity` - Displays the Details tab
 
-### Proctections
+### Protections
  - **Purpose**: Controls number of stats shown in Protections feature
  - **Parameter**: `protections`
  - **Example**: `?protections=many`
@@ -205,6 +207,18 @@
  - **Parameter**: `protections.continuous`
  - **Example**: `?protections.continuous=`
  - **Options**:
+
+### Cookie Popup Management (CPM)
+ - **Purpose**: Simulates the native `totalCookiePopUpsBlocked` value returned by `protections_getData`, including schema compatibility and CPM availability states
+ - **Parameter**: `cpm`
+ - **Example**: `?cpm=true&protections_feed=activity`
+ - **Options**:
+   - Parameter omitted - Sets `totalCookiePopUpsBlocked` to `undefined` and renders the legacy Protections Report, simulating a native client that does not support the field
+   - `true` - Sets a positive maximum cookie pop-up count and renders the new UI with the CPM counter
+   - `none` - Sets the count to `0`, representing CPM available with no cookie pop-ups blocked
+   - `null` - Sets the value to `null`, representing the new schema with CPM explicitly disabled
+   - `max` - Sets both tracker attempts and cookie pop-ups to the maximum display count
+ - **Note**: This is a mock-only URL parameter, not a runtime feature flag. In the native browser, `totalCookiePopUpsBlocked` is supplied by the `protections_getData` message.
 
 
  ### Stats Display
@@ -317,6 +331,12 @@
  - **Options**:
    - `true`
    - `false`
+
+### Suggestions Delay
+ - **Purpose**: Overrides the simulated network delay before the mock responds to `omnibar_getSuggestions`.
+ - **Parameter**: `omnibar.suggestionsDelay`
+ - **Example**: `?omnibar.suggestionsDelay=1000`
+ - **Options**: Any positive integer (milliseconds)
 
 ### Subscription Win-back Banner
  - **Purpose**: Tests different win-back banner states

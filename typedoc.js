@@ -20,6 +20,8 @@ const config = /** @type {Partial<import('typedoc').TypeDocOptions>} */ ({
         'injected/src/types/*.ts',
         'injected/src/features/api-manipulation.js',
         'injected/src/features/duck-player.js',
+        'injected/src/features/duckplayer/buffering-hold.js',
+        'injected/src/features/duckplayer/poster.js',
         'injected/src/features/duckplayer/thumbnails.js',
         'injected/src/features/duckplayer/video-overlay.js',
         'injected/src/features/harmful-apis.js',

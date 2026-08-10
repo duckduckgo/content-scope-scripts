@@ -74,7 +74,6 @@ export function Omnibar({
     const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
-
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();

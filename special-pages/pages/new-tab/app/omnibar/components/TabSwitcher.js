@@ -8,7 +8,10 @@ import {
     SearchOnDarkColorIcon,
     SearchIcon,
 } from '../../components/Icons.js';
+import { AiChat } from '../../components/icons/AiChat.js';
+import { SearchFind } from '../../components/icons/SearchFind.js';
 import { CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
+import { useNewTabPageRebranding } from '../../settings.provider.js';
 import { useTypedTranslationWith } from '../../types';
 import styles from './TabSwitcher.module.css';
 
@@ -51,7 +54,14 @@ export function TabSwitcher({ mode, onChange }) {
  * @param {boolean} props.selected
  */
 function TabIcon({ mode, selected }) {
+    const rebrand = useNewTabPageRebranding();
     const { main } = useContext(CustomizerThemesContext);
+
+    // @todo rebrand: drop the legacy color variants once the rebrand ships to all
+    if (rebrand) {
+        return mode === 'search' ? <SearchFind /> : <AiChat />;
+    }
+
     if (mode === 'search') {
         if (selected) return main.value === 'light' ? <SearchColorIcon /> : <SearchOnDarkColorIcon />;
         return <SearchIcon />;

@@ -56,8 +56,6 @@
     color: var(--ds-color-theme-text-secondary);
 }
 
-.feed {}
-
 .button {
     color: var(--ds-color-theme-text-primary);
     border-radius: 5px;
@@ -99,7 +97,6 @@
 }
 
 [data-platform-name="macos"] {
-    .switcher {}
     .button {
         background: transparent;
         border: 0.5px solid transparent;
@@ -117,6 +114,125 @@
 
         [data-theme="dark"] & {
             background: rgba(255, 255, 255, 0.25);
+        }
+    }
+}
+
+/*
+ * NTP rebrand styling for the Protections Report. Scoped to
+ * body[data-rebrand="true"] so that with the rebrand feature flag OFF the
+ * widget renders exactly as it did before the rebrand.
+ * @todo rebrand: fold these into the base rules once the rebrand ships to all
+ * platforms and the flag is retired.
+ */
+:global(body[data-rebrand="true"]) {
+    .root {
+        border-radius: var(--ds-radius-x06);
+        box-shadow: var(--ntp-card-shadow-rest);
+    }
+
+    .body {
+        overflow: visible;
+    }
+
+    .switcher {
+        background: var(--ds-color-theme-control-fill-primary);
+        border: 1px solid var(--ds-color-theme-container-border-primary);
+        border-radius: var(--ds-radius-full);
+        padding: var(--ds-space-x-5);
+        position: relative;
+    }
+
+    .block {
+        margin-top: var(--ds-space-x06);
+    }
+
+    .feed {
+        padding-top: var(--ds-space-x08);
+        overflow: visible;
+    }
+
+    .button {
+        border-radius: var(--ds-radius-full);
+        font-weight: 400;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Sliding pill, same mechanism as the omnibar's Search/Duck.ai
+       TabSwitcher (.blob in TabSwitcher.module.css): an absolutely
+       positioned element behind the buttons that translates based on
+       --tab-index, so switching feed animates instead of instantly
+       swapping which button has a background. */
+    .blob {
+        background-color: var(--ds-color-theme-control-raised-fill-primary);
+        border-radius: var(--ds-radius-full);
+        box-shadow: 0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset, 0 1px 4px 0 var(--ds-color-theme-shadow-secondary), 0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
+        height: calc(100% - var(--ds-space-x-5) * 2);
+        left: var(--ds-space-x-5);
+        position: absolute;
+        top: var(--ds-space-x-5);
+        transition: translate 200ms ease;
+        translate: calc(var(--tab-index) * 100%);
+        width: calc((100% - var(--ds-space-x-5) * 2) / var(--tab-count));
+        z-index: 0;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    .active {
+        background: transparent;
+        border: 0;
+    }
+
+    [data-theme="dark"] {
+        .root {
+            border-color: var(--ds-ntp-dark-card-border-color);
+        }
+
+        .blob {
+            box-shadow: none;
+        }
+    }
+}
+
+:global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
+    /* Same treatment as the omnibar's Search/Duck.ai TabSwitcher: blur the
+       arbitrary custom background before tinting. */
+    .switcher {
+        backdrop-filter: blur(48px);
+    }
+}
+
+:global(body[data-rebrand="true"][data-platform-name="windows"]) {
+    .button {
+        font-size: var(--body-font-size);
+        line-height: 14px;
+    }
+
+    /* Legacy underline indicator (base .active:after) — replaced by the
+       sliding .blob pill above, but not cleared by it since it's a separate
+       pseudo-element rule, not a property .active overrides. */
+    .active:after {
+        content: none;
+    }
+}
+
+:global(body[data-rebrand="true"][data-platform-name="macos"]) {
+    .button {
+        border: 0;
+        height: 24px;
+        font-size: var(--small-label-font-size);
+        line-height: var(--small-label-line-height);
+    }
+
+    .active {
+        border: 0;
+
+        &:not(:focus-visible) {
+            box-shadow: none;
         }
     }
 }

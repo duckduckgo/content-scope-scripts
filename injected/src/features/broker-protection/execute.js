@@ -19,8 +19,10 @@ export async function execute(action, inputData, root = document) {
                 return click(action, data(action, inputData, 'userProfile'), root);
             case 'expectation':
                 return expectation(action, root);
-            case 'fillForm':
-                return fillForm(action, data(action, inputData, 'extractedProfile'), root);
+            case 'fillForm': {
+                const userProfile = inputData?.userProfile ?? null; // Don't use `data()` as it honours `action.dataSource`, which would return the extracted profile.
+                return fillForm(action, data(action, inputData, 'extractedProfile'), root, userProfile);
+            }
             case 'getCaptchaInfo':
                 return await getCaptchaInfo(action, root);
             case 'solveCaptcha':

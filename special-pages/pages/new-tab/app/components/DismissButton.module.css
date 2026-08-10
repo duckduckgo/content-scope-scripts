@@ -38,3 +38,27 @@
         outline: none;
     }
 }
+
+/* Rebrand look shared by every NTP card's dismiss button (Next Steps, RMF, ...).
+   Position (top/right) stays a per-card override since card padding differs. */
+:global(body[data-rebrand="true"]) .btn {
+    background: transparent;
+    border: 1px solid var(--ntp-btn-dismiss-border);
+    border-radius: var(--ds-radius-x06);
+    color: var(--ntp-btn-dismiss-color);
+    height: var(--ds-space-x06);
+    width: var(--ds-space-x06);
+
+    svg {
+        height: var(--ds-space-x04);
+        width: var(--ds-space-x04);
+    }
+
+    &:hover:not(:disabled) {
+        background-color: var(--ntp-btn-dismiss-hover);
+    }
+
+    &:active:not(:disabled) {
+        background-color: var(--ds-color-theme-control-fill-tertiary);
+    }
+}

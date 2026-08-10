@@ -56,21 +56,13 @@
         }
     }
 
+    /* Former dark+userImage compound was dead (two attrs on same body as
+       descendant). Dark+userImage still falls through to light rule — pre-existing. */
     [data-background-kind="userImage"] & {
         border: 1px solid var(--color-black-at-9);
-        background: var(--color-white-at-30);
 
         &:hover {
             background: var(--color-white-at-18);
-        }
-    }
-
-    [data-theme="dark"] [data-background-kind="userImage"] & {
-        border: 1px solid var(--color-white-at-9);
-        background: var(--color-black-at-18);
-
-        &:hover {
-            background: rgba(0, 0, 0, 0.24);
         }
     }
 
@@ -107,11 +99,10 @@
 .plus {
     outline: none;
     border: none;
-    color: var(--color-black-at-90);
-
-    [data-theme=dark] & {
-        color: var(--color-white-at-85);
-    }
+    /* ds-color-theme-text-primary tracks the local surface theme; the old
+       color-black-90/[data-theme=dark] override matched any dark ancestor,
+       not .draggable's actual (possibly light-tinted) background. */
+    color: var(--ds-color-theme-text-primary);
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
@@ -145,4 +136,50 @@
 
 [data-item-state="dragging"] {
     opacity: 0.4;
+}
+
+/* @todo rebrand: fold into base rules when the flag is retired. */
+body[data-rebrand="true"] {
+    .icon {
+        margin-bottom: var(--ds-space-x02-5);
+    }
+
+    .placeholder,
+    .draggable {
+        border-radius: var(--ds-radius-x04);
+    }
+
+    .draggable {
+        display: flex;
+        box-sizing: border-box;
+        width: var(--icon-width);
+        height: var(--icon-width);
+        padding: var(--ds-space-x04);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        /* ntp-surface-background-color is background-kind-aware (see
+           ntp-theme.css); tone-tint-primary wasn't, and went light on
+           dark+userImage, hiding the .plus icon above. */
+        background: var(--ntp-surface-background-color);
+        backdrop-filter: none;
+        box-shadow: var(--ntp-card-shadow-rest);
+
+        /* Figma --ds-tone-brighten-secondary (white 60%). The fallback is
+           needed until desktop-browsers exports this palette token. */
+        &:hover {
+            background: var(--ds-color-white-at-60, rgba(255, 255, 255, 0.6));
+        }
+
+    }
+
+    [data-theme="dark"] {
+        .draggable {
+            border: 1px solid var(--ds-ntp-dark-card-border-color);
+
+            &:hover {
+                background: var(--ds-color-theme-control-fill-secondary);
+            }
+        }
+    }
 }

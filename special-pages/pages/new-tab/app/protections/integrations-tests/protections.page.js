@@ -64,6 +64,16 @@ export class ProtectionsPage {
     }
 
     /**
+     * Test that no-activity state is rendered and cookie popup stats stay hidden
+     * even when CPM is enabled but trackers count is zero.
+     */
+    async displaysNoRecentState() {
+        const heading = this.context().getByTestId('ProtectionsHeading');
+        await expect(heading.getByText(/no recent tracking activity/i)).toBeVisible();
+        await expect(heading.getByText(/cookie pop-up/i)).not.toBeVisible();
+    }
+
+    /**
      * Test that cookie popup blocking stats are displayed when both trackers and cookie popups are > 0
      */
     async displaysCookiePopupStats() {
@@ -152,6 +162,19 @@ export class ProtectionsPage {
         // Test Space key
         await tooltipTrigger.press('Space');
         await expect(tooltip).toBeVisible();
+    }
+
+    /**
+     * Verifies expanded/collapsed state toggles from the heading control.
+     */
+    async togglesCollapsedState() {
+        const heading = this.context().getByTestId('ProtectionsHeading');
+        const toggleButton = heading.getByRole('button', { name: /show recent activity|hide recent activity/i });
+        await expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
+        await toggleButton.click();
+        await expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
+        await toggleButton.click();
+        await expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
     }
 
     /**

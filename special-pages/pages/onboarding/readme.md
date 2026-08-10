@@ -42,9 +42,8 @@ URL parameters can be used to override the default values of the onboarding flow
 
 - `locale` - Specifies the language to use for translations. Expects a language code (e.g., `en`, `de`, `fr`).
 - `textLength` - Adjusts the length of translated strings, for testing layout with different text sizes (e.g., `short`, `long`).
-- `display` - Controls which view is rendered. `app` renders the main onboarding flow, `components` renders the component showcase page.
+- `display` - Controls which view is rendered. `app` renders the main onboarding flow.
 - `platform` - Overrides the detected platform, for testing platform-specific styling (e.g., `macos`, `windows`).
-- `order` - Specifies which predefined set of onboarding steps to use (e.g., `v1`, `v2`, `v3`).
 - `exclude` - Removes specific steps from the onboarding flow. Can be used multiple times (e.g., `&exclude=welcome&exclude=systemSettings`).
 - `page` - Sets the initial step to start the onboarding flow on (e.g., `systemSettings`).
 - `adBlocking` - If set to `enabled`, adds a step for enabling ad blocking. If set to `youtube`, adds a step for enabling YouTube-only ad blocking.

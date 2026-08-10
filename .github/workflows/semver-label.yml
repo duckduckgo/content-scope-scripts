@@ -80,9 +80,15 @@ jobs:
                   PR_TITLE: ${{ github.event.pull_request.title }}
                   PR_BODY: ${{ github.event.pull_request.body }}
               run: |
-                  export BUILD_DIFF="$(cat /tmp/build_diff.txt 2>/dev/null || echo '')"
-                  export SOURCE_DIFF="$(cat /tmp/source_diff.txt 2>/dev/null || echo '')"
-                  export PR_FILES="$(cat /tmp/pr_files.txt 2>/dev/null || echo '')"
+                  # Cap the diffs before exporting them. Linux limits any single
+                  # env var to MAX_ARG_STRLEN (128KiB), so a large PR makes the
+                  # `node` exec below fail with E2BIG ("Argument list too long",
+                  # exit 126) before the script ever runs. semver-analysis.mjs
+                  # already truncates both diffs to 80,000 chars, so cutting at
+                  # 120,000 bytes here leaves the model's input unchanged.
+                  export BUILD_DIFF="$(head -c 120000 /tmp/build_diff.txt 2>/dev/null || echo '')"
+                  export SOURCE_DIFF="$(head -c 120000 /tmp/source_diff.txt 2>/dev/null || echo '')"
+                  export PR_FILES="$(head -c 120000 /tmp/pr_files.txt 2>/dev/null || echo '')"
 
                   RESULT=$(node base/.github/scripts/semver-analysis.mjs)
                   echo "Raw result: $RESULT"
