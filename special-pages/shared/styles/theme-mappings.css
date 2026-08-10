@@ -65,6 +65,11 @@ body {
         --ds-color-theme-control-raised-fill-primary: var(--ds-color-theme-default-light-control-raised-fill-primary);
         --ds-color-theme-shadow-primary: var(--ds-color-theme-default-light-shadow-primary);
         --ds-color-theme-shadow-secondary: var(--ds-color-theme-default-light-shadow-secondary);
+
+        /* Input control tokens */
+        --ds-input-control-primary-background-color: var(--ds-color-theme-default-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-default-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-default-light-input-control-shadow-primary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -118,6 +123,11 @@ body {
         --ds-color-theme-control-raised-fill-primary: var(--ds-color-theme-default-dark-control-raised-fill-primary);
         --ds-color-theme-shadow-primary: var(--ds-color-theme-default-dark-shadow-primary);
         --ds-color-theme-shadow-secondary: var(--ds-color-theme-default-dark-shadow-secondary);
+
+        /* Input control tokens */
+        --ds-input-control-primary-background-color: var(--ds-color-theme-default-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-default-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-default-dark-input-control-shadow-primary);
     }
 }
 
@@ -169,6 +179,9 @@ body[data-theme-variant="coolGray"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-cool-gray-light-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-cool-gray-light-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-cool-gray-light-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-cool-gray-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-cool-gray-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-cool-gray-light-input-control-shadow-primary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -215,6 +228,9 @@ body[data-theme-variant="coolGray"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-cool-gray-dark-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-cool-gray-dark-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-cool-gray-dark-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-cool-gray-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-cool-gray-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-cool-gray-dark-input-control-shadow-primary);
     }
 }
 
@@ -266,6 +282,9 @@ body[data-theme-variant="slateBlue"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-slate-blue-light-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-slate-blue-light-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-slate-blue-light-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-slate-blue-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-slate-blue-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-slate-blue-light-input-control-shadow-primary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -312,6 +331,9 @@ body[data-theme-variant="slateBlue"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-slate-blue-dark-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-slate-blue-dark-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-slate-blue-dark-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-slate-blue-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-slate-blue-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-slate-blue-dark-input-control-shadow-primary);
     }
 }
 
@@ -363,6 +385,9 @@ body[data-theme-variant="green"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-green-light-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-green-light-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-green-light-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-green-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-green-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-green-light-input-control-shadow-primary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -409,6 +434,9 @@ body[data-theme-variant="green"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-green-dark-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-green-dark-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-green-dark-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-green-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-green-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-green-dark-input-control-shadow-primary);
     }
 }
 
@@ -460,6 +488,9 @@ body[data-theme-variant="violet"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-violet-light-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-violet-light-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-violet-light-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-violet-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-violet-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-violet-light-input-control-shadow-primary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -506,6 +537,9 @@ body[data-theme-variant="violet"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-violet-dark-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-violet-dark-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-violet-dark-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-violet-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-violet-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-violet-dark-input-control-shadow-primary);
     }
 }
 
@@ -557,6 +591,9 @@ body[data-theme-variant="rose"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-rose-light-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-rose-light-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-rose-light-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-rose-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-rose-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-rose-light-input-control-shadow-primary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -603,6 +640,9 @@ body[data-theme-variant="rose"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-rose-dark-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-rose-dark-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-rose-dark-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-rose-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-rose-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-rose-dark-input-control-shadow-primary);
     }
 }
 
@@ -654,6 +694,9 @@ body[data-theme-variant="orange"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-orange-light-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-orange-light-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-orange-light-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-orange-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-orange-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-orange-light-input-control-shadow-primary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -700,6 +743,9 @@ body[data-theme-variant="orange"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-orange-dark-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-orange-dark-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-orange-dark-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-orange-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-orange-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-orange-dark-input-control-shadow-primary);
     }
 }
 
@@ -751,6 +797,9 @@ body[data-theme-variant="desert"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-desert-light-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-desert-light-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-light-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-desert-light-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-desert-light-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-desert-light-input-control-shadow-primary);
     }
 
     &[data-theme="dark"], [data-theme="dark"] {
@@ -797,5 +846,8 @@ body[data-theme-variant="desert"] {
         --ds-color-theme-accent-glow-primary: var(--ds-color-theme-desert-dark-accent-glow-primary);
         --ds-color-theme-accent-glow-secondary: var(--ds-color-theme-desert-dark-accent-glow-secondary);
         --ds-color-theme-highlight-primary: var(--ds-color-theme-desert-dark-highlight-primary);
+        --ds-input-control-primary-background-color: var(--ds-color-theme-desert-dark-input-control-primary-background-color);
+        --ds-input-control-secondary-background-color: var(--ds-color-theme-desert-dark-input-control-secondary-background-color);
+        --ds-input-control-shadow-primary: var(--ds-color-theme-desert-dark-input-control-shadow-primary);
     }
 }

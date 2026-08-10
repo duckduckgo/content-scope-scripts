@@ -201,3 +201,20 @@
             0 0 0 1px var(--ds-ntp-dark-card-border-color);
     }
 }
+
+/*
+ * Rebrand: custom background overrides for the omnibar popup.
+ * Reduces blur to 24px and corrects dark tint to rgba(255,255,255,0.24).
+ * @todo rebrand: confirm box-shadow spec for custom bg with Chris/design and add it here.
+ */
+:global(body[data-rebrand="true"]:not([data-background-kind="default"])) {
+    :global([data-theme="light"]) .popup {
+        backdrop-filter: blur(24px);
+        background: rgba(255, 255, 255, 0.54);
+    }
+
+    :global([data-theme="dark"]) .popup {
+        backdrop-filter: blur(24px);
+        background: rgba(255, 255, 255, 0.24);
+    }
+}
