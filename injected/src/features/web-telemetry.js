@@ -15,7 +15,6 @@ export class WebTelemetry extends ContentFeature {
         super(featureName, importConfig, features, args);
         this.seenVideoElements = new WeakSet();
         this.seenVideoUrls = new Set();
-        // Kept separate from the dedupe above, so neither message suppresses the other.
         this.reportedAutoplayElements = new WeakSet();
         this.videoPlaybackEnabled = false;
         this.videoAutoplayEnabled = false;
@@ -84,16 +83,14 @@ export class WebTelemetry extends ContentFeature {
 
     reportAutoplay(video) {
         if (this.reportedAutoplayElements.has(video)) {
-            return; // report each element once
+            return;
         }
         this.reportedAutoplayElements.add(video);
         this.messaging.notify(MSG_VIDEO_AUTOPLAY);
     }
 
     addPlayObserver(video) {
-        // Declarative autoplay, reported on sight so an element that never starts is
-        // still counted. `video.autoplay` covers both the HTML attribute and a JS
-        // property assignment. Safe to re-run: reportAutoplay dedupes per element.
+        // `video.autoplay` covers both the HTML attribute and a JS property assignment.
         if (this.videoAutoplayEnabled && video.autoplay) {
             this.reportAutoplay(video);
         }
@@ -105,7 +102,6 @@ export class WebTelemetry extends ContentFeature {
             if (this.videoPlaybackEnabled) {
                 this.fireTelemetryForVideo(video);
             }
-            // Script-driven autoplay: playback that started without a user gesture.
             if (this.videoAutoplayEnabled && !navigator.userActivation.isActive) {
                 this.reportAutoplay(video);
             }
@@ -142,9 +138,7 @@ export class WebTelemetry extends ContentFeature {
 
         this.addListenersToAllVideos(documentBody);
 
-        // Backfill: fire telemetry for already playing videos. Playback only — their
-        // `play` event already fired, so script-driven autoplay can't be detected here.
-        // The declarative case is covered by addListenersToAllVideos above.
+        // Backfill: fire telemetry for already playing videos
         documentBody.querySelectorAll('video').forEach((video) => {
             if (this.videoPlaybackEnabled && !video.paused && !video.ended) {
                 this.fireTelemetryForVideo(video);
